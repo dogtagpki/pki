@@ -211,7 +211,7 @@ def main(argv):
         # During force destroy, try to load the file. If file doesn't exist, we ignore it
         config.user_deployment_cfg = None
 
-    parser.validate()
+    parser.validate(config.user_deployment_cfg)
     parser.init_config(pki_instance_name=config.pki_deployed_instance_name)
 
     if args.pki_verbosity > 1:

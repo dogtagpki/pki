@@ -167,7 +167,7 @@ def main(argv):
         config.user_deployment_cfg = str(
             args.user_deployment_cfg).strip('[\']')
 
-    parser.validate()
+    parser.validate(config.user_deployment_cfg)
 
     # Currently the only logic in deployer's validation is the
     # hostname check; at some point this might need to be updated.

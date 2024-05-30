@@ -323,7 +323,7 @@ class PKIConfigParser:
 
         return args
 
-    def validate(self):
+    def validate(self, user_deployment_cfg):
         # always default that configuration file exists
         if not os.path.exists(config.default_deployment_cfg) or \
                 not os.path.isfile(config.default_deployment_cfg):
@@ -333,13 +333,13 @@ class PKIConfigParser:
             self.arg_parser.print_help()
             self.arg_parser.exit(-1)
 
-        if config.user_deployment_cfg:
+        if user_deployment_cfg:
             # verify user configuration file exists
-            if not os.path.exists(config.user_deployment_cfg) or \
-                    not os.path.isfile(config.user_deployment_cfg):
+            if not os.path.exists(user_deployment_cfg) or \
+                    not os.path.isfile(user_deployment_cfg):
                 logger.error(
                     log.PKI_FILE_MISSING_OR_NOT_A_FILE_1,
-                    config.user_deployment_cfg)
+                    user_deployment_cfg)
                 self.arg_parser.print_help()
                 self.arg_parser.exit(-1)
 
