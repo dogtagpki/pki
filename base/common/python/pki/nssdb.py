@@ -378,7 +378,7 @@ class NSSDatabase(object):
         password_file = os.path.join(tmpdir, filename)
         with open(password_file, 'w', encoding='utf-8') as f:
             f.write(password)
-        if self.user:
+        if os.geteuid() == 0 and self.user:
             os.chown(password_file, self.uid, self.gid)
 
         return password_file
@@ -429,7 +429,7 @@ class NSSDatabase(object):
 
     def create_tmpdir(self):
         tmpdir = tempfile.mkdtemp(dir='/tmp')
-        if self.user:
+        if os.geteuid() == 0 and self.user:
             os.chown(tmpdir, self.uid, self.gid)
         return tmpdir
 
@@ -502,7 +502,8 @@ class NSSDatabase(object):
             newname = os.path.join(self.directory, newname)
             oldstat = os.stat(oldname)
             os.chmod(newname, stat.S_IMODE(oldstat.st_mode))
-            os.chown(newname, oldstat.st_uid, oldstat.st_gid)
+            if os.geteuid() == 0:
+                os.chown(newname, oldstat.st_uid, oldstat.st_gid)
 
         if selinux is not None and selinux.is_selinux_enabled():
             selinux.restorecon(self.directory, recursive=True)
@@ -984,7 +985,7 @@ class NSSDatabase(object):
                 Raw extension data (``bytes``)
 
         """
-        if self.user:
+        if os.geteuid() == 0 and self.user:
             os.chown(os.path.dirname(request_file), self.uid, self.gid)
 
         if use_jss:
