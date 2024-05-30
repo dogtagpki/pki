@@ -584,7 +584,7 @@ def main(argv):
         print('Installation log: %s' % args.log_file)
 
     if args.log_file:
-        pkilogging.enable_pki_logger(args.log_file)
+        deployer.init_logger(args.log_file)
 
     if not interactive and \
             not config.str2bool(parser.mdict['pki_skip_configuration']):

@@ -231,7 +231,7 @@ def main(argv):
         print('Uninstallation log: %s' % args.log_file)
 
     if args.log_file:
-        pkilogging.enable_pki_logger(args.log_file)
+        deployer.init_logger(args.log_file)
 
     logger.debug(log.PKI_DICTIONARY_MASTER)
     logger.debug(pkilogging.log_format(parser.mdict))

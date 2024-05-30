@@ -25,6 +25,7 @@ import json
 import ldap
 import logging
 import os
+import pathlib
 import re
 import selinux
 import shutil
@@ -220,6 +221,23 @@ class PKIDeployer:
             ldap.set_option(ldap.OPT_X_TLS_CACERTFILE,
                             self.mdict['pki_ds_secure_connection_ca_pem_file'])
             ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_DEMAND)
+
+    def init_logger(self, filename):
+
+        pki_logger = logging.getLogger('pki')
+
+        # create empty file with the proper permission
+        pathlib.Path(filename).touch()
+        os.chmod(filename, pki.server.DEFAULT_FILE_MODE)
+
+        # configure file handler with append mode to preserve the permission
+        handler = logging.FileHandler(filename)
+        formatter = logging.Formatter(
+            '%(asctime)s %(levelname)s: %(message)s',
+            '%Y-%m-%d %H:%M:%S')
+        handler.setFormatter(formatter)
+
+        pki_logger.addHandler(handler)
 
     def validate(self):
         # Validate environmental settings for the deployer;
