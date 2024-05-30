@@ -219,7 +219,7 @@ def main(argv):
                        'v' * args.pki_verbosity)
 
     # Read the specified PKI configuration file.
-    rv = parser.read_pki_configuration_file()
+    rv = parser.read_pki_configuration_file(config.user_deployment_cfg)
     if rv != 0:
         sys.exit(1)
 

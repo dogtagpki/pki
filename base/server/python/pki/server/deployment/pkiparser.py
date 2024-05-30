@@ -500,11 +500,11 @@ class PKIConfigParser:
 
         return password
 
-    def read_pki_configuration_file(self):
+    def read_pki_configuration_file(self, user_deployment_cfg):
         """Read configuration file sections into dictionaries"""
         rv = 0
         try:
-            if config.user_deployment_cfg:
+            if user_deployment_cfg:
                 # We don't allow interpolation in password settings, which
                 # means that we need to deal with escaping '%' characters
                 # that might be present.
@@ -525,12 +525,12 @@ class PKIConfigParser:
                     'pki_token_password')
 
                 print('Loading deployment configuration from ' +
-                      config.user_deployment_cfg + '.')
+                      user_deployment_cfg + '.')
 
-                self.validate_user_config(config.user_deployment_cfg)
+                self.validate_user_config(user_deployment_cfg)
 
-                self.deployer.main_config.read([config.user_deployment_cfg])
-                self.deployer.user_config.read([config.user_deployment_cfg])
+                self.deployer.main_config.read([user_deployment_cfg])
+                self.deployer.user_config.read([user_deployment_cfg])
 
                 # Look through each section and see if any password settings
                 # are present.  If so, escape any '%' characters.
@@ -564,7 +564,7 @@ class PKIConfigParser:
                             except configparser.NoOptionError:
                                 continue
         except configparser.ParsingError:
-            logger.exception(log.PKI_UNABLE_TO_PARSE_1, config.user_deployment_cfg)
+            logger.exception(log.PKI_UNABLE_TO_PARSE_1, user_deployment_cfg)
             rv = 1
         return rv
 
