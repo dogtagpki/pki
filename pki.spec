@@ -135,7 +135,7 @@ ExcludeArch: i686
 %define pki_uid 17
 %define pki_groupname pkiuser
 %define pki_gid 17
-%define pki_homedir /usr/share/pki
+%define pki_homedir /home/%{pki_username}
 
 %global saveFileContext() \
 if [ -s /etc/selinux/config ]; then \
@@ -1115,10 +1115,23 @@ pkgs=base\
 %if %{with server}
 
 %pre -n %{product_id}-server
+
+# create PKI group if it doesn't exist
 getent group %{pki_groupname} >/dev/null || groupadd -f -g %{pki_gid} -r %{pki_groupname}
+
+# create PKI user if it doesn't exist
 if ! getent passwd %{pki_username} >/dev/null ; then
     useradd -r -u %{pki_uid} -g %{pki_groupname} -d %{pki_homedir} -s /sbin/nologin -c "Certificate System" %{pki_username}
 fi
+
+# create PKI home directory if it doesn't exist
+if [ ! -d %{pki_homedir} ] ; then
+    cp -ar /etc/skel %{pki_homedir}
+    chown -R %{pki_username}:%{pki_groupname} %{pki_homedir}
+    chmod 700 %{pki_homedir}
+    usermod -d %{pki_homedir} %{pki_username}
+fi
+
 exit 0
 
 # with server
