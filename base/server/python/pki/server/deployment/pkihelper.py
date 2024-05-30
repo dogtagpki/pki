@@ -678,57 +678,6 @@ class Directory:
                     raise
         return
 
-    def modify(self, name, uid=None, gid=None,
-               perms=pki.server.DEFAULT_DIR_MODE,
-               acls=None, silent=False, critical_failure=True):
-
-        if not silent:
-            logger.info('Updating directory %s', name)
-
-        try:
-            if os.path.exists(name):
-                if not os.path.isdir(name):
-                    logger.error(log.PKI_DIRECTORY_ALREADY_EXISTS_NOT_A_DIRECTORY_1, name)
-                    if critical_failure:
-                        raise Exception(
-                            log.PKI_DIRECTORY_ALREADY_EXISTS_NOT_A_DIRECTORY_1 %
-                            name)
-
-                # Always re-process each directory whether it needs it or not
-
-                if not silent:
-                    logger.debug('Command: chmod %o %s', perms, name)
-                os.chmod(name, perms)
-
-                if uid is None:
-                    uid = self.identity.get_uid()
-                if gid is None:
-                    gid = self.identity.get_gid()
-
-                if not silent:
-                    logger.debug('Command: chown %s:%s %s', uid, gid, name)
-                os.chown(name, uid, gid)
-
-                # Store record in installation manifest
-                if not silent:
-                    self.deployer.record(
-                        name,
-                        manifest.RECORD_TYPE_DIRECTORY,
-                        uid,
-                        gid,
-                        perms,
-                        acls)
-            else:
-                logger.error(log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1, name)
-                if critical_failure:
-                    raise Exception(
-                        log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1 % name)
-        except OSError as exc:
-            logger.error(log.PKI_OSERROR_1, exc)
-            if critical_failure:
-                raise
-        return
-
     def delete(self, name, recursive_flag=True, critical_failure=True):
 
         logger.info('Removing directory %s', name)
