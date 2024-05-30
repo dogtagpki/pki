@@ -877,63 +877,6 @@ class Directory:
             if critical_failure:
                 raise
 
-    def copy(self, old_name, new_name, uid=None, gid=None,
-             dir_perms=pki.server.DEFAULT_DIR_MODE,
-             file_perms=pki.server.DEFAULT_FILE_MODE,
-             symlink_perms=pki.server.DEFAULT_LINK_MODE,
-             dir_acls=None, file_acls=None, symlink_acls=None,
-             recursive_flag=True, overwrite_flag=False, critical_failure=True,
-             ignore_cb=None):
-
-        logger.info('Creating %s', new_name)
-
-        try:
-
-            if not os.path.exists(old_name) or not os.path.isdir(old_name):
-                logger.error(log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1, old_name)
-                raise Exception(
-                    log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1 % old_name)
-            else:
-                if os.path.exists(new_name):
-                    if not overwrite_flag:
-                        logger.error(log.PKI_DIRECTORY_ALREADY_EXISTS_1, new_name)
-                        raise Exception(
-                            log.PKI_DIRECTORY_ALREADY_EXISTS_1 % new_name)
-
-                if recursive_flag:
-                    logger.debug('Command: cp -rp %s %s', old_name, new_name)
-                    # Due to a limitation in the 'shutil.copytree()'
-                    # implementation which requires that
-                    # 'The destination directory must not already exist.',
-                    # an OSError exception is always thrown due to the
-                    # implementation's unchecked call to 'os.makedirs(dst)'.
-                    # Consequently, a 'patched' local copy of this routine has
-                    # been included in this file with the appropriate fix.
-                    pki.util.copytree(old_name, new_name, ignore=ignore_cb)
-                else:
-                    logger.debug('Command: cp -p %s %s', old_name, new_name)
-                    shutil.copy2(old_name, new_name)
-
-                # set ownerships, permissions, and acls
-                # of newly created top-level directory
-                self.modify(new_name, uid, gid, dir_perms, dir_acls,
-                            True, critical_failure)
-                # set ownerships, permissions, and acls
-                # of contents of newly created top-level directory
-                self.set_mode(new_name, uid, gid,
-                              dir_perms, file_perms, symlink_perms,
-                              dir_acls, file_acls, symlink_acls,
-                              recursive_flag, critical_failure)
-        except (shutil.Error, OSError) as exc:
-            if isinstance(exc, shutil.Error):
-                msg = log.PKI_SHUTIL_ERROR_1
-            else:
-                msg = log.PKI_OSERROR_1
-            logger.error(msg, exc)
-            if critical_failure:
-                raise
-        return
-
 
 class File:
     """PKI Deployment File Class (also used for executables)"""
