@@ -181,7 +181,7 @@ def main(argv):
         parser.indent = 0
         print(log.PKISPAWN_INTERACTIVE_INSTALLATION)
     else:
-        sanitize_user_deployment_cfg(config.user_deployment_cfg)
+        validate_user_deployment_cfg(config.user_deployment_cfg)
 
     # Only run this program as "root".
     if not os.geteuid() == 0:
@@ -676,35 +676,17 @@ def main(argv):
         print_final_install_information(parser.mdict, deployer.instance)
 
 
-def sanitize_user_deployment_cfg(cfg):
+def validate_user_deployment_cfg(user_deployment_cfg):
+    '''
+    Validate section headings in user configuration file.
+    '''
 
-    # Correct any section headings in the user's configuration file
-    for line in fileinput.FileInput(cfg, inplace=1):
-        # Remove extraneous leading and trailing whitespace from all lines
+    for line in fileinput.FileInput(user_deployment_cfg):
         line = line.strip()
-        # Normalize section headings to match '/usr/share/pki/server/etc/default.cfg'
-        if line.startswith("["):
-            if line.upper().startswith("[DEFAULT"):
-                line = "[DEFAULT]"
-            elif line.upper().startswith("[TOMCAT"):
-                line = "[Tomcat]"
-            elif line.upper().startswith("[CA"):
-                line = "[CA]"
-            elif line.upper().startswith("[KRA"):
-                line = "[KRA]"
-            elif line.upper().startswith("[OCSP"):
-                line = "[OCSP]"
-            elif line.upper().startswith("[RA"):
-                line = "[RA]"
-            elif line.upper().startswith("[TKS"):
-                line = "[TKS]"
-            elif line.upper().startswith("[TPS"):
-                line = "[TPS]"
-            else:
-                # Notify user of the existence of an invalid section heading
-                sys.stderr.write("'%s' contains an invalid section "
-                                 "heading called '%s'!\n" % (cfg, line))
-        print(line)
+        if not line.startswith('['):
+            continue
+        if line not in ['[DEFAULT]', '[Tomcat]', '[CA]', '[KRA]', '[OCSP]', '[TKS]', '[TPS]']:
+            raise Exception('Invalid deployment configuration section: %s' % line)
 
 
 def create_master_dictionary(parser):
