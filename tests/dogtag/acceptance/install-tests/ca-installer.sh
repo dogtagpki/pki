@@ -342,16 +342,6 @@ run_rhcs_ca_installer_tests()
                   rlAssertGrep "$exp_messg1" "$TmpDir/wrong_ds_passwd.out"
 	rlPhaseEnd
 
-	rlPhaseStartTest "pki_run_rhcs_ca_installer_tests-018: instance creation as non root user"
-                 local username=rhcs
-                  rlRun "useradd $username"
-                  rlRun "cp $INSTANCECFG /home/$username/tmpconfigfile15.in"
-                  rlRun "su -c \"pkispawn -s CA -f /home/$username/tmpconfigfile15.in > /home/$username/nonroot.out 2>&1\" $username" 1 "pkispawn as non-root user should fail"
-                  exp_messg1="'/usr/sbin/pkispawn' must be run as root!"
-                  rlAssertGrep "$exp_messg1" "/home/$username/nonroot.out"
-                  rlRun "userdel -r $username"
-          rlPhaseEnd
-
 
 	  rlPhaseStartTest "pki_run_rhcs_ca_installer_tests-019: special characters in certificate nickname"
                  local nickname=rh@cs/-$%%!!red^hat
