@@ -21,6 +21,7 @@
 from __future__ import absolute_import
 import base64
 import binascii
+import configparser
 import json
 import ldap
 import logging
@@ -4858,6 +4859,22 @@ class PKIDeployer:
         logger.info('Creating %s', deployment_cfg_archive)
 
         self.file.copy(deployment_cfg, deployment_cfg_archive)
+
+    def set_systemd_override(self, section, param, value, fname='local.conf'):
+        if fname not in self.systemd.overrides:
+            parser = configparser.ConfigParser()
+            parser.optionxform = str
+            override_file = os.path.join(self.systemd.override_dir, fname)
+            if os.path.exists(override_file):
+                parser.read(override_file)
+            self.systemd.overrides[fname] = parser
+        else:
+            parser = self.systemd.overrides[fname]
+
+        if not parser.has_section(section):
+            parser.add_section(section)
+
+        parser.set(section, param, value)
 
     def store_manifest(self):
 

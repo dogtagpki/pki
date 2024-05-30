@@ -216,9 +216,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             group = deployer.mdict['pki_group']
 
             if user != 'pkiuser' or group != 'pkiuser':
-                deployer.systemd.set_override(
+                deployer.set_systemd_override(
                     'Service', 'User', user, 'user.conf')
-                deployer.systemd.set_override(
+                deployer.set_systemd_override(
                     'Service', 'Group', group, 'user.conf')
 
             deployer.systemd.write_overrides()

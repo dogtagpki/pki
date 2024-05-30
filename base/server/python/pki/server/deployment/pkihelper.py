@@ -22,11 +22,6 @@
 from __future__ import absolute_import
 from __future__ import print_function
 
-try:
-    import configparser
-except ImportError:
-    import ConfigParser as configparser
-
 import errno
 import getpass
 import logging
@@ -1488,22 +1483,6 @@ class Systemd(object):
             os.path.join(self.override_dir, fname),
             uid=0, gid=0
         )
-
-    def set_override(self, section, param, value, fname='local.conf'):
-        if fname not in self.overrides:
-            parser = configparser.ConfigParser()
-            parser.optionxform = str
-            override_file = os.path.join(self.override_dir, fname)
-            if os.path.exists(override_file):
-                parser.read(override_file)
-            self.overrides[fname] = parser
-        else:
-            parser = self.overrides[fname]
-
-        if not parser.has_section(section):
-            parser.add_section(section)
-
-        parser.set(section, param, value)
 
     def write_overrides(self):
         for fname, parser in self.overrides.items():
