@@ -221,7 +221,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 deployer.set_systemd_override(
                     'Service', 'Group', group, 'user.conf')
 
-            deployer.systemd.write_overrides()
+            deployer.write_systemd_overrides()
             deployer.systemd.daemon_reload()
 
             # Link /etc/systemd/system/pki-tomcatd.target.wants/pki-tomcatd@<instance>.service

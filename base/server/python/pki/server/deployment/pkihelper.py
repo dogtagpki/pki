@@ -1474,24 +1474,6 @@ class Systemd(object):
             self.systemd_link = systemd_link
             self.override_dir = override_dir
 
-    def create_override_directory(self):
-        self.deployer.directory.create(self.override_dir, uid=0, gid=0)
-
-    def create_override_file(self, fname):
-        self.create_override_directory()
-        self.deployer.file.create(
-            os.path.join(self.override_dir, fname),
-            uid=0, gid=0
-        )
-
-    def write_overrides(self):
-        for fname, parser in self.overrides.items():
-            override_file = os.path.join(self.override_dir, fname)
-            if not os.path.exists(override_file):
-                self.create_override_file(override_file)
-            with open(override_file, 'w', encoding='utf-8') as fp:
-                parser.write(fp)
-
     def daemon_reload(self, critical_failure=True):
         """PKI Deployment execution management lifecycle function.
 

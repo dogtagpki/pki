@@ -4876,6 +4876,26 @@ class PKIDeployer:
 
         parser.set(section, param, value)
 
+    def write_systemd_overrides(self):
+        for fname, parser in self.systemd.overrides.items():
+
+            override_file = os.path.join(self.systemd.override_dir, fname)
+
+            if not os.path.exists(override_file):
+
+                self.directory.create(
+                    self.systemd.override_dir,
+                    uid=0,
+                    gid=0)
+
+                self.file.create(
+                    os.path.join(self.systemd.override_dir, override_file),
+                    uid=0,
+                    gid=0)
+
+            with open(override_file, 'w', encoding='utf-8') as fp:
+                parser.write(fp)
+
     def store_manifest(self):
 
         subsystem = self.instance.get_subsystem(self.subsystem_type.lower())
