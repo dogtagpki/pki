@@ -224,7 +224,7 @@ def main(argv):
         sys.exit(1)
 
     # Combine the various sectional dictionaries into a PKI master dictionary
-    parser.compose_pki_master_dictionary()
+    parser.compose_pki_master_dictionary(config.user_deployment_cfg)
     deployer.init()
 
     if args.log_file:

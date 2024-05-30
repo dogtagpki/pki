@@ -678,7 +678,7 @@ class PKIConfigParser:
         # update cert token
         self.mdict[name] = token
 
-    def compose_pki_master_dictionary(self):
+    def compose_pki_master_dictionary(self, user_deployment_cfg):
         """
         Create a single master PKI dictionary from the
         sectional dictionaries
@@ -691,7 +691,7 @@ class PKIConfigParser:
             self.mdict['pki_timestamp'] = self.deployer.log_timestamp
             self.mdict['pki_certificate_timestamp'] = self.deployer.certificate_timestamp
             self.mdict['pki_architecture'] = self.deployer.architecture
-            self.mdict['pki_user_deployment_cfg'] = config.user_deployment_cfg
+            self.mdict['pki_user_deployment_cfg'] = user_deployment_cfg
             self.mdict['pki_deployed_instance_name'] = \
                 config.pki_deployed_instance_name
 

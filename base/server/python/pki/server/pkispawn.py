@@ -710,7 +710,7 @@ def sanitize_user_deployment_cfg(cfg):
 def create_master_dictionary(parser):
 
     # Combine the various sectional dictionaries into a PKI master dictionary
-    parser.compose_pki_master_dictionary()
+    parser.compose_pki_master_dictionary(config.user_deployment_cfg)
 
     logger.debug(log.PKI_DICTIONARY_MASTER)
     logger.debug(pkilogging.log_format(parser.mdict))
