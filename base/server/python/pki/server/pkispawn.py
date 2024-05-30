@@ -183,10 +183,6 @@ def main(argv):
     else:
         validate_user_deployment_cfg(config.user_deployment_cfg)
 
-    # Only run this program as "root".
-    if not os.geteuid() == 0:
-        sys.exit("'%s' must be run as root!" % argv[0])
-
     while True:
         # -s <subsystem>
         if args.pki_subsystem is None:
