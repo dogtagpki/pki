@@ -1299,12 +1299,12 @@ class PKISubsystem(object):
         try:
             ldap_config_file = os.path.join(tmpdir, 'ldap.conf')
             pki.util.store_properties(ldap_config_file, ldap_config)
-            pki.util.chown(tmpdir, self.instance.uid, self.instance.gid)
+            self.instance.chown(tmpdir)
 
             password_file = os.path.join(tmpdir, 'password.txt')
             with open(password_file, 'w', encoding='utf-8') as f:
                 f.write(replica_bind_password)
-            pki.util.chown(password_file, self.instance.uid, self.instance.gid)
+            self.instance.chown(password_file)
 
             cmd = [
                 self.name + '-db-repl-enable',
@@ -1340,12 +1340,12 @@ class PKISubsystem(object):
         try:
             ldap_config_file = os.path.join(tmpdir, 'ldap.conf')
             pki.util.store_properties(ldap_config_file, ldap_config)
-            pki.util.chown(tmpdir, self.instance.uid, self.instance.gid)
+            self.instance.chown(tmpdir)
 
             password_file = os.path.join(tmpdir, 'password.txt')
             with open(password_file, 'w', encoding='utf-8') as f:
                 f.write(replica_bind_password)
-            pki.util.chown(password_file, self.instance.uid, self.instance.gid)
+            self.instance.chown(password_file)
 
             cmd = [
                 self.name + '-db-repl-agmt-add',
@@ -1380,7 +1380,7 @@ class PKISubsystem(object):
         try:
             ldap_config_file = os.path.join(tmpdir, 'ldap.conf')
             pki.util.store_properties(ldap_config_file, ldap_config)
-            pki.util.chown(tmpdir, self.instance.uid, self.instance.gid)
+            self.instance.chown(tmpdir)
 
             cmd = [self.name + '-db-repl-agmt-init']
 

@@ -547,6 +547,7 @@ class PKIDeployer:
     def create_server_nssdb(self):
 
         self.file.modify(self.instance.password_conf)
+        self.instance.chown(self.instance.password_conf)
 
         self.instance.makedirs(self.instance.nssdb_dir, exist_ok=True)
 
@@ -573,10 +574,7 @@ class PKIDeployer:
                 self.mdict['pki_hsm_libfile'])
 
         # update NSS database owner
-        pki.util.chown(
-            self.instance.nssdb_dir,
-            self.mdict['pki_uid'],
-            self.mdict['pki_gid'])
+        self.instance.chown(self.instance.nssdb_dir)
 
         # update NSS database file permissions
         for filename in os.listdir(self.instance.nssdb_dir):
@@ -700,10 +698,7 @@ class PKIDeployer:
             # migration. If we don't fix the permissions now, migration will
             # fail and subsystem won't start up.
             pki.util.chmod(pki_ca_crt_path, 0o644)
-            pki.util.chown(
-                pki_ca_crt_path,
-                self.mdict['pki_uid'],
-                self.mdict['pki_gid'])
+            self.instance.chown(pki_ca_crt_path)
 
         finally:
             nssdb.close()
@@ -3523,10 +3518,7 @@ class PKIDeployer:
             trust_attributes='u,u,Pu')
 
         # update NSS database owner
-        pki.util.chown(
-            self.instance.nssdb_dir,
-            self.mdict['pki_uid'],
-            self.mdict['pki_gid'])
+        self.instance.chown(self.instance.nssdb_dir)
 
         # update NSS database file permissions
         for filename in os.listdir(self.instance.nssdb_dir):

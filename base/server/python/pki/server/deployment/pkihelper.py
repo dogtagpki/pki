@@ -647,9 +647,6 @@ class Directory:
                 if gid is None:
                     gid = self.identity.get_gid()
 
-                logger.debug('Command: chown %s:%s %s', uid, gid, name)
-                os.chown(name, uid, gid)
-
                 # Store record in installation manifest
                 self.deployer.record(
                     name,
@@ -898,10 +895,6 @@ class File:
                 if gid is None:
                     gid = self.identity.get_gid()
 
-                if not silent:
-                    logger.debug('Command: chown %s:%s %s', uid, gid, name)
-                os.chown(name, uid, gid)
-
                 # Store record in installation manifest
                 if not silent:
                     self.deployer.record(
@@ -981,9 +974,6 @@ class File:
 
                 logger.debug('Command: chmod %o %s', perms, new_name)
                 os.chmod(new_name, perms)
-
-                logger.debug('Command: chown %s:%s %s', uid, gid, new_name)
-                os.chown(new_name, uid, gid)
 
                 # Store record in installation manifest
                 self.deployer.record(

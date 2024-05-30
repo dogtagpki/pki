@@ -572,7 +572,7 @@ class PKIInstance(pki.server.PKIServer):
         with open(server_cert_nick_conf, 'w', encoding='utf-8') as f:
             f.write(fullname + '\n')
 
-        os.chown(server_cert_nick_conf, self.uid, self.gid)
+        self.chown(server_cert_nick_conf)
         os.chmod(server_cert_nick_conf, pki.server.DEFAULT_FILE_MODE)
 
         logger.info('Updating serverCertNickFile in server.xml')

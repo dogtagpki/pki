@@ -646,9 +646,16 @@ grant codeBase "file:%s" {
 
         return subprocess.Popen(cmd, env=self.config)
 
+    def chown(self, path):
+
+        if not os.geteuid() == 0:
+            return
+
+        pki.util.chown(path, self.uid, self.gid)
+
     def touch(self, path):
         pathlib.Path(path).touch()
-        os.chown(path, self.uid, self.gid)
+        self.chown(path)
         os.chmod(path, DEFAULT_FILE_MODE)
 
     def makedirs(self, path, exist_ok=None, force=False):
@@ -730,7 +737,7 @@ grant codeBase "file:%s" {
 
     def store_properties(self, filename, properties):
         pki.util.store_properties(filename, properties)
-        pki.util.chown(filename, self.uid, self.gid)
+        self.chown(filename)
 
     def create(self, force=False):
 
@@ -894,7 +901,7 @@ grant codeBase "file:%s" {
 
         server_config.save()
 
-        pki.util.chown(self.server_xml, self.uid, self.gid)
+        self.chown(self.server_xml)
 
     def enable_rewrite(self, exist_ok=False):
         '''
@@ -979,7 +986,7 @@ grant codeBase "file:%s" {
         finally:
             nssdb.close()
 
-        pki.util.chown(self.nssdb_dir, self.uid, self.gid)
+        self.chown(self.nssdb_dir)
 
     def open_nssdb(self, token=pki.nssdb.INTERNAL_TOKEN_NAME):
         return pki.nssdb.NSSDatabase(
@@ -1152,7 +1159,7 @@ grant codeBase "file:%s" {
                 document.write(f, pretty_print=True, encoding='utf-8')
 
             # set deployment descriptor ownership and permission
-            os.chown(context_xml, self.uid, self.gid)
+            self.chown(context_xml)
             os.chmod(context_xml, DEFAULT_FILE_MODE)
 
         if not wait:
@@ -1421,7 +1428,7 @@ grant codeBase "file:%s" {
         with open(csr_file, 'w', encoding='utf-8') as f:
             f.write(csr_pem)
 
-        os.chown(csr_file, self.uid, self.gid)
+        self.chown(csr_file)
 
     def load_subsystems(self):
 
