@@ -110,7 +110,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('Reusing server NSS database password')
 
         # Otherwise, use user-provided password if specified
-        elif deployer.mdict['pki_server_database_password']:
+        elif 'pki_server_database_password' in deployer.mdict:
             logger.info('Using specified server NSS database password')
             instance.passwords[token] = deployer.mdict['pki_server_database_password']
 
