@@ -3230,18 +3230,23 @@ class PKIDeployer:
         token = sslserver['token']
         self.instance.set_sslserver_cert_nickname(nickname, token)
 
-    def create_cert(self, subsystem, tag, request):
+    def create_cert_id(self, subsystem, tag, request):
 
         cert_id_generator = subsystem.config.get('dbs.cert.id.generator', 'legacy')
 
         if cert_id_generator == 'legacy':
             # call the server to generate legacy cert ID
             logger.info('Creating cert ID for %s cert', tag)
-            request.systemCert.certID = self.client.createCertID(request)
-            logger.info('- cert ID: %s', request.systemCert.certID)
+            cert_id = self.client.createCertID(request)
+            logger.info('- cert ID: %s', cert_id)
+
         else:
             # let pki-server ca-cert-create generate the cert ID
-            request.systemCert.certID = None
+            cert_id = None
+
+        return cert_id
+
+    def create_cert(self, subsystem, tag, request):
 
         logger.info('Creating %s cert', tag)
         cert_data = subsystem.create_cert(
@@ -3415,6 +3420,7 @@ class PKIDeployer:
             logger.info('Reusing %s cert in NSS database', tag)
 
         else:
+            request.systemCert.certID = self.create_cert_id(subsystem, tag, request)
             system_cert['data'] = self.create_cert(subsystem, tag, request)
 
             cert_pem = pki.nssdb.convert_cert(system_cert['data'], 'base64', 'pem').encode()
@@ -3710,6 +3716,7 @@ class PKIDeployer:
         if config.str2bool(self.mdict['pki_ds_setup']):
             self.import_cert_request(subsystem, 'admin', request)
 
+        request.systemCert.certID = self.create_cert_id(subsystem, 'admin', request)
         cert_data = self.create_cert(subsystem, 'admin', request)
 
         if config.str2bool(self.mdict['pki_ds_setup']):
