@@ -1160,8 +1160,10 @@ public class SecureChannel {
         while (sum < len) {
 
             read = new ReadObjectAPDU(objectID.toBytesArray(), cur_offset, cur_read);
-            // Add a 0x00 Le byte
-            read.setTrailer(new TPSBuffer((byte) 0x00));
+            //RedHat Add a 0x00 Le byte, appease tpsclient if configured
+            if(!skipTrailerLeByteScp01()) {
+                read.setTrailer(new TPSBuffer((byte) 0x00));
+            }
 
             //CMS.debug("read encoding: " + read.getEncoding().toHexString());
             computeAPDU(read);
@@ -1452,8 +1454,10 @@ public class SecureChannel {
             generate_key_apdu = new GenerateKeyAPDU((byte) pe1, (byte) pe2, (byte) algorithm, keySize,
                     (byte) option, (byte) 0, wrappedChallenge, keyCheck);
 
-            // Add a 0x00 Le byte
-            generate_key_apdu.setTrailer(new TPSBuffer((byte) 0x00));
+            // RedHat Add a 0x00 Le byte, appease tpsclient if configured.
+            if(!skipTrailerLeByteScp01()) {
+                generate_key_apdu.setTrailer(new TPSBuffer((byte) 0x00));
+            }
 
             computeAPDU(generate_key_apdu);
 
@@ -1838,5 +1842,28 @@ public class SecureChannel {
         }
 
         CMS.debug(method + " Successful delete key data operation completed.");
+    }
+
+    // RedHat
+    //Check config param if we want to not add le bytes for certain scp01 apdu's.
+    //default is  false. If method returns false the le byte will be added as before.
+    public boolean skipTrailerLeByteScp01() {
+
+        IConfigStore configStore = CMS.getConfigStore();
+
+        String method = "SecureChannel.skipTrailerLeByteScp01: ";
+        boolean skip = false;
+        try {
+            String configName = "channel.scp01.no.le.byte";
+
+            if(platProtInfo.isSCP01()) {
+                skip = configStore.getBoolean(configName,false);
+            }
+        } catch (Exception e) {
+            skip = false;
+        }
+
+        CMS.debug(method + skip);
+        return skip;
     }
 }

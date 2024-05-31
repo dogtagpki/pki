@@ -1189,8 +1189,8 @@ public class SecureChannelProtocol {
             throw new EBaseException(method + "No raw array to use to create key!");
         }
 
-        SymmetricKey transport = getSharedSecretKey(token);
-        unwrapped = this.unwrapSymKeyOnToken(token, transport, inputKeyArray, isPerm, SymmetricKey.DES3);
+        //RedHat For DES3 don's use the AES shared secret as wrapping key
+        unwrapped = this.unwrapSymKeyOnToken(token, null, inputKeyArray, isPerm, SymmetricKey.DES3);
 
         CMS.debug(method + "Returning symkey: length = " + unwrapped.getLength());
         //CMS.debug(method + "Returning symkey: " + unwrapped);
@@ -1630,8 +1630,16 @@ public class SecureChannelProtocol {
         byte[] output = null;
         byte[] finalOutput = new byte[3];
 
+        // RedHat :Do the same behavior as computeKeyCheck, use the token where the aes key resides.
+        String keysToken = null;
         try {
-            output = computeAES_CBCEncryption(symKey, selectedToken, key_check_message, key_check_iv);
+            keysToken = symKey.getOwningToken().getName();
+        } catch (TokenException e1) {
+            throw new EBaseException(e1 + " Can't get owning token for key/");
+        }
+
+        try {
+            output = computeAES_CBCEncryption(symKey, keysToken, key_check_message, key_check_iv);
         } catch (EBaseException e) {
             CMS.debug(method + e);
             throw e;
