@@ -388,20 +388,6 @@ class PKISubsystem(object):
         finally:
             nssdb.close()
 
-    def store_system_cert_request(self, cert):
-        tag = cert['id']
-
-        csr_data = cert.get('request')
-        csr_pem = pki.nssdb.convert_csr(csr_data, 'base64', 'pem')
-
-        self.instance.makedirs(self.instance.certs_dir, exist_ok=True)
-
-        csr_file = self.csr_file(tag)
-        with open(csr_file, "w", encoding='utf-8') as f:
-            f.write(csr_pem)
-
-        os.chown(csr_file, self.instance.uid, self.instance.gid)
-
     def validate_system_cert(self, tag):
 
         logger.info('Validate %s cert', tag)

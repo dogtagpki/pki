@@ -643,42 +643,6 @@ class PKIInstance(pki.server.PKIServer):
         finally:
             nssdb.close()
 
-    def cert_update_config(self, cert_id, cert):
-        """
-        Update corresponding subsystem's CS.cfg with the new cert details
-        passed.
-
-        **Note:**
-        *subsystem* param is ignored when `(cert_id == sslserver ||
-        cert_id == subsystem)` since these 2 certs are used by all subsystems
-
-        :param cert_id: Cert ID to update
-        :type cert_id: str
-        :param cert: Cert details to store in CS.cfg
-        :type cert: dict
-        :rtype: None
-        :raises pki.server.PKIServerException
-        """
-        # store cert request
-        if cert_id == 'sslserver' or cert_id == 'subsystem':
-            # Update for all subsystems
-            for subsystem in self.get_subsystems():
-                subsystem.store_system_cert_request(cert)
-                subsystem.save()
-        else:
-            # Extract subsystem_name from cert_id
-            subsystem_name = cert_id.split('_', 1)[0]
-
-            # Load the corresponding subsystem
-            subsystem = self.get_subsystem(subsystem_name)
-
-            if subsystem:
-                subsystem.store_system_cert_request(cert)
-                subsystem.save()
-            else:
-                raise pki.server.PKIServerException(
-                    'No subsystem can be loaded for %s in instance %s.' % (cert_id, self.name))
-
     def cert_import(
             self,
             cert_id,

@@ -1197,7 +1197,7 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
             sys.exit(1)
 
         subsystem_name = args[0]
-        cert_id = args[1]
+        tag = args[1]
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -1212,7 +1212,7 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
             logger.error('No %s subsystem in instance %s.',
                          subsystem_name, instance_name)
             sys.exit(1)
-        system_cert = subsystem.get_subsystem_cert(cert_id)
+        system_cert = subsystem.get_subsystem_cert(tag)
 
         logger.info('Retrieving certificate %s from %s',
                     system_cert['nickname'], system_cert['token'])
@@ -1277,11 +1277,15 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
         else:
             logger.warning('Certificate request not found')
 
-        # store cert request
-        subsystem.store_system_cert_request(system_cert)
-        subsystem.save()
+        if cert_id != 'sslserver' and tag != 'subsystem':
+            cert_id = subsystem_name + '_' + tag
+        else:
+            cert_id = tag
 
-        self.print_message('Updated "%s" subsystem certificate' % cert_id)
+        # store cert request
+        instance.store_cert_request(cert_id, system_cert)
+
+        self.print_message('Updated "%s" subsystem certificate' % tag)
 
 
 class SubsystemCertValidateCLI(pki.cli.CLI):

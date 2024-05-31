@@ -3346,8 +3346,13 @@ class PKIDeployer:
 
             system_cert['request'] = request.systemCert.request
 
+            if tag != 'sslserver' and tag != 'subsystem':
+                cert_id = subsystem.name + '_' + tag
+            else:
+                cert_id = tag
+
             logger.info('Storing cert request for %s', tag)
-            subsystem.store_system_cert_request(system_cert)
+            self.instance.store_cert_request(cert_id, system_cert)
 
         if request.systemCert.type == 'remote':
 

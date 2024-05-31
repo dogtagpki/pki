@@ -497,7 +497,7 @@ class CertUpdateCLI(pki.cli.CLI):
         else:
             logger.warning('Certificate request not found')
 
-        instance.cert_update_config(cert_id, subsystem_cert)
+        instance.store_cert_request(cert_id, subsystem_cert)
 
         self.print_message('Updated "%s" system certificate' % cert_id)
 

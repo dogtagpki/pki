@@ -1410,6 +1410,19 @@ grant codeBase "file:%s" {
         logger.info('Removing %s', self.password_conf)
         pki.util.remove(self.password_conf, force=force)
 
+    def store_cert_request(self, cert_id, cert):
+
+        self.makedirs(self.certs_dir, exist_ok=True)
+
+        csr_data = cert.get('request')
+        csr_pem = pki.nssdb.convert_csr(csr_data, 'base64', 'pem')
+
+        csr_file = self.csr_file(cert_id)
+        with open(csr_file, 'w', encoding='utf-8') as f:
+            f.write(csr_pem)
+
+        os.chown(csr_file, self.uid, self.gid)
+
     def load_subsystems(self):
 
         for subsystem_name in SUBSYSTEM_TYPES:
