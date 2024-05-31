@@ -2570,7 +2570,8 @@ public class TPSProcessor {
                 symKeyUpgradeStatus = TPSStatus.STATUS_ERROR_SYMKEY_256_UPGRADE;
             }
             // Check whether exception is caused by attempting to change 256 OMK to 128 FMK
-            else if (getSelectedKeySet().equals(getKeyDowngradeKeySet()) && getSymmetricKeysRequiredVersion() == getKeyDowngradeVersion())
+            // RedHat : avoid null ptr. For non external reg case.
+            else if (getSelectedKeySet() != null && getSelectedKeySet().equals(getKeyDowngradeKeySet()) && getSymmetricKeysRequiredVersion() == getKeyDowngradeVersion())
             {
                 // proceed with downgrade if configured to do so
                 CMS.debug("TPSProcessor.checkAndUpgradeSymKeys: try downgrade key size.");
@@ -3660,7 +3661,8 @@ public class TPSProcessor {
             
             // ** G&D 256 Key Rollover Support **
             // set the flag to indicate if card needs to roll over to 256 OMK
-            boolean keyRollNeeded = (getSelectedKeySet().equals(getKeyRolloverKeySet()) && requiredVersion == getKeyRolloverVersion());
+            // RedHat : avoid null ptr. For non external reg case.
+            boolean keyRollNeeded = (getSelectedKeySet() != null && getSelectedKeySet().equals(getKeyRolloverKeySet()) && requiredVersion == getKeyRolloverVersion());
             CMS.debug(" keyRollNeeded: " + keyRollNeeded);
             // try to make a secure channel with the 'requiredVersion' keys
             // If this fails, we know we will have to attempt an upgrade
