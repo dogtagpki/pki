@@ -359,13 +359,14 @@ class PKISubsystem(object):
 
     def get_cert_info(self, tag):
 
-        logger.info('Getting %s cert info from CS.cfg', tag)
+        logger.debug('PKISubsystem.get_cert_info(%s)', tag)
 
         cert = {}
         cert['id'] = tag
         cert['nickname'] = self.config.get('%s.%s.nickname' % (self.name, tag))
         cert['token'] = self.config.get('%s.%s.tokenname' % (self.name, tag))
         cert['certusage'] = self.config.get('%s.cert.%s.certusage' % (self.name, tag))
+
         csr_file = self.csr_file(tag)
         if os.path.isfile(csr_file):
             with open(csr_file, "r", encoding='utf-8') as f:
@@ -377,7 +378,6 @@ class PKISubsystem(object):
     def get_nssdb_cert_info(self, tag):
 
         logger.debug('PKISubsystem.get_nssdb_cert_info(%s)', tag)
-        logger.info('Getting %s cert info from NSS database', tag)
 
         nickname = self.config.get('%s.%s.nickname' % (self.name, tag))
         token = self.config.get('%s.%s.tokenname' % (self.name, tag))

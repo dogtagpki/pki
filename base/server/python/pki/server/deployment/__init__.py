@@ -3057,8 +3057,6 @@ class PKIDeployer:
 
     def create_cert_request(self, nssdb, tag, request):
 
-        logger.info('Creating %s cert request', tag)
-
         if request.systemCert.requestType != 'pkcs10':
             raise Exception(
                 'Certificate request type not supported: %s' % request.systemCert.requestType)
@@ -3246,9 +3244,8 @@ class PKIDeployer:
 
         return cert_id
 
-    def create_cert(self, subsystem, tag, request):
+    def create_cert(self, subsystem, request):
 
-        logger.info('Creating %s cert', tag)
         cert_data = subsystem.create_cert(
             request_id=request.systemCert.requestID,
             profile_id=request.systemCert.profile,
@@ -3287,11 +3284,6 @@ class PKIDeployer:
 
         if cert_info:
             logger.info('%s cert already exists in NSS database', tag)
-            logger.info('- serial: %s', hex(cert_info['serial_number']))
-            logger.info('- subject: %s', cert_info['subject'])
-            logger.info('- issuer: %s', cert_info['issuer'])
-            logger.info('- trust flags: %s', cert_info['trust_flags'])
-
         else:
             logger.info('%s cert does not exist in NSS database', tag)
 
@@ -3304,6 +3296,13 @@ class PKIDeployer:
         external = config.str2bool(self.mdict['pki_external'])
 
         if subsystem.type == 'CA' and external and cert_info:
+
+            logger.info('Reusing %s cert in NSS database', tag)
+            logger.info('- nickname: %s', request.systemCert.nickname)
+            logger.info('- serial: %s', hex(cert_info['serial_number']))
+            logger.info('- subject: %s', cert_info['subject'])
+            logger.info('- issuer: %s', cert_info['issuer'])
+            logger.info('- trust flags: %s', cert_info['trust_flags'])
 
             signing_cert_info = nssdb.get_cert_info(
                 nickname=subsystem.config["ca.signing.nickname"])
@@ -3341,6 +3340,7 @@ class PKIDeployer:
 
             logger.info('- key ID: %s', request.systemCert.keyID)
 
+            logger.info('Creating %s cert request', tag)
             request.systemCert.request = self.create_cert_request(nssdb, tag, request)
             logger.debug('- request: %s', request.systemCert.request)
 
@@ -3351,13 +3351,18 @@ class PKIDeployer:
             else:
                 cert_id = tag
 
-            logger.info('Storing cert request for %s', tag)
+            logger.info('Storing %s cert request', tag)
             self.instance.store_cert_request(cert_id, system_cert)
 
         if request.systemCert.type == 'remote':
 
             if cert_info:
                 logger.info('Reusing %s cert in NSS database', tag)
+                logger.info('- nickname: %s', request.systemCert.nickname)
+                logger.info('- serial: %s', hex(cert_info['serial_number']))
+                logger.info('- subject: %s', cert_info['subject'])
+                logger.info('- issuer: %s', cert_info['issuer'])
+                logger.info('- trust flags: %s', cert_info['trust_flags'])
                 return
 
             # Issue subordinate CA signing cert using remote CA signing cert.
@@ -3404,9 +3409,14 @@ class PKIDeployer:
             cert_obj = x509.load_pem_x509_certificate(
                 bytes(cert_pem, 'utf-8'),
                 backend=default_backend())
+
             logger.info('- serial: %s', hex(cert_obj.serial_number))
+            logger.info('- subject: %s', cert_obj.subject.rfc4514_string())
+            logger.info('- issuer: %s', cert_obj.issuer.rfc4514_string())
 
             logger.info('Importing %s cert into NSS database', tag)
+            logger.info('- nickname: %s', request.systemCert.nickname)
+
             nssdb.add_cert(
                 nickname=request.systemCert.nickname,
                 cert_data=system_cert['data'],
@@ -3423,16 +3433,27 @@ class PKIDeployer:
 
         if cert_info:
             logger.info('Reusing %s cert in NSS database', tag)
+            logger.info('- nickname: %s', request.systemCert.nickname)
+            logger.info('- serial: %s', hex(cert_info['serial_number']))
+            logger.info('- subject: %s', cert_info['subject'])
+            logger.info('- issuer: %s', cert_info['issuer'])
+            logger.info('- trust flags: %s', cert_info['trust_flags'])
 
         else:
             request.systemCert.certID = self.create_cert_id(subsystem, tag, request)
-            system_cert['data'] = self.create_cert(subsystem, tag, request)
+
+            logger.info('Creating %s cert', tag)
+            system_cert['data'] = self.create_cert(subsystem, request)
 
             cert_pem = pki.nssdb.convert_cert(system_cert['data'], 'base64', 'pem').encode()
             cert_obj = x509.load_pem_x509_certificate(cert_pem, backend=default_backend())
             logger.info('- serial: %s', hex(cert_obj.serial_number))
+            logger.info('- subject: %s', cert_obj.subject.rfc4514_string())
+            logger.info('- issuer: %s', cert_obj.issuer.rfc4514_string())
 
             logger.info('Importing %s cert into NSS database', tag)
+            logger.info('- nickname: %s', request.systemCert.nickname)
+
             nssdb.add_cert(
                 nickname=request.systemCert.nickname,
                 cert_data=system_cert['data'],
@@ -3722,14 +3743,16 @@ class PKIDeployer:
             self.import_cert_request(subsystem, 'admin', request)
 
         request.systemCert.certID = self.create_cert_id(subsystem, 'admin', request)
-        cert_data = self.create_cert(subsystem, 'admin', request)
 
-        if config.str2bool(self.mdict['pki_ds_setup']):
-            self.import_cert(subsystem, 'admin', request, cert_data)
+        logger.info('Creating admin cert')
+        cert_data = self.create_cert(subsystem, request)
 
         cert_pem = pki.nssdb.convert_cert(cert_data, 'base64', 'pem')
         cert_obj = x509.load_pem_x509_certificate(cert_pem.encode(), backend=default_backend())
         logger.info('- serial: %s', hex(cert_obj.serial_number))
+
+        if config.str2bool(self.mdict['pki_ds_setup']):
+            self.import_cert(subsystem, 'admin', request, cert_data)
 
         return cert_pem
 
