@@ -3490,17 +3490,19 @@ class PKIDeployer:
             nickname=token + self.mdict['pki_audit_signing_nickname'],
             trust_attributes='u,u,Pu')
 
-        # Reset the NSS database ownership and permissions
-
+        # update NSS database owner
         pki.util.chown(
             self.instance.nssdb_dir,
             self.mdict['pki_uid'],
             self.mdict['pki_gid'])
 
-        pki.util.chmod(
-            self.instance.nssdb_dir,
-            config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
+        # update NSS database file permissions
+        for filename in os.listdir(self.instance.nssdb_dir):
+            pki.util.chmod(
+                os.path.join(self.instance.nssdb_dir, filename),
+                config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
 
+        # update NSS database folder permission
         os.chmod(
             self.instance.nssdb_dir,
             pki.server.DEFAULT_DIR_MODE)
