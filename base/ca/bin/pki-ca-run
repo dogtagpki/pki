@@ -48,7 +48,8 @@ pki \
     -d /var/lib/pki/pki-tomcat/conf/alias \
     nss-cert-export \
     --output-file /certs/ca_signing.crt \
-    ca_signing || rc=$?
+    ca_signing \
+    2> /dev/null || rc=$?
 
 if [ $rc -ne 0 ]
 then
@@ -103,7 +104,8 @@ pki \
     -d /var/lib/pki/pki-tomcat/conf/alias \
     nss-cert-export \
     --output-file /certs/ocsp_signing.crt \
-    ocsp_signing || rc=$?
+    ocsp_signing \
+    2> /dev/null || rc=$?
 
 if [ $rc -ne 0 ]
 then
@@ -145,7 +147,8 @@ pki \
     -d /var/lib/pki/pki-tomcat/conf/alias \
     nss-cert-export \
     --output-file /certs/audit_signing.crt \
-    audit_signing || rc=$?
+    audit_signing \
+    2> /dev/null || rc=$?
 
 if [ $rc -ne 0 ]
 then
@@ -188,7 +191,8 @@ pki \
     -d /var/lib/pki/pki-tomcat/conf/alias \
     nss-cert-export \
     --output-file /certs/subsystem.crt \
-    subsystem || rc=$?
+    subsystem \
+    2> /dev/null || rc=$?
 
 if [ $rc -ne 0 ]
 then
@@ -229,7 +233,8 @@ pki \
     -d /var/lib/pki/pki-tomcat/conf/alias \
     nss-cert-export \
     --output-file /certs/sslserver.crt \
-    sslserver || rc=$?
+    sslserver \
+    2> /dev/null || rc=$?
 
 if [ $rc -ne 0 ]
 then
@@ -276,7 +281,9 @@ fi
 
 # check whether CA signing cert exists
 rc=0
-pki nss-cert-export ca_signing > /dev/null || rc=$?
+pki nss-cert-export ca_signing \
+    > /dev/null \
+    2> /dev/null || rc=$?
 
 if [ $rc -ne 0 ]
 then
@@ -293,7 +300,8 @@ echo "##########################################################################
 rc=0
 pki nss-cert-export \
     --output-file /certs/admin.crt \
-    admin || rc=$?
+    admin \
+    2> /dev/null || rc=$?
 
 if [ $rc -ne 0 ]
 then

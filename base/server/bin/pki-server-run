@@ -87,7 +87,8 @@ pki \
     -d /var/lib/pki/pki-tomcat/conf/alias \
     nss-cert-export \
     --output-file /certs/ca_signing.crt \
-    ca_signing || rc=$?
+    ca_signing \
+    2> /dev/null || rc=$?
 
 # generate a CA signing certificate if not available
 if [ $rc -ne 0 ]
@@ -135,7 +136,8 @@ pki \
     -d /var/lib/pki/pki-tomcat/conf/alias \
     nss-cert-export \
     --output-file /certs/sslserver.crt \
-    sslserver || rc=$?
+    sslserver \
+    2> /dev/null || rc=$?
 
 # generate a SSL server certificate if not available
 if [ $rc -ne 0 ]
@@ -177,7 +179,9 @@ echo "##########################################################################
 
 # check whether CA signing cert exists in default NSS database
 rc=0
-pki nss-cert-export ca_signing > /dev/null || rc=$?
+pki nss-cert-export ca_signing \
+    > /dev/null \
+    2> /dev/null || rc=$?
 
 if [ $rc -ne 0 ]
 then

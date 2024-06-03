@@ -8,7 +8,12 @@ jobs:
     uses: ./.github/workflows/wait-for-build.yml
     secrets: inherit
 
-  ca-container-test:
-    name: CA container
+  ca-container-basic-test:
+    name: Basic CA container
     needs: build
-    uses: ./.github/workflows/ca-container-test.yml
+    uses: ./.github/workflows/ca-container-basic-test.yml
+
+  ca-container-existing-certs-test:
+    name: CA container with existing certs
+    needs: build
+    uses: ./.github/workflows/ca-container-existing-certs-test.yml
