@@ -20,8 +20,7 @@ package com.netscape.ca;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Enumeration;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.util.Utils;
@@ -30,13 +29,13 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.CertRecord;
-import com.netscape.cmscore.dbs.CertRecordList;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.dbs.RecordPagedList;
 import com.netscape.cmscore.request.Request;
 
 class ServiceCheckChallenge implements IServant {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ServiceCheckChallenge.class);
+    public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ServiceCheckChallenge.class);
 
     private MessageDigest mSHADigest = null;
 
@@ -59,72 +58,47 @@ class ServiceCheckChallenge implements IServant {
 
         CAEngine engine = CAEngine.getInstance();
         CertificateRepository certDB = engine.getCertificateRepository();
-
-        BigInteger[] bigIntArray = null;
+        ArrayList<BigInteger> ida = new ArrayList<>();
 
         if (serialno != null) {
-            CertRecord record = null;
-
+            CertRecord certRecord = null;
             try {
-                record = certDB.readCertificateRecord(serialno);
+                certRecord = certDB.readCertificateRecord(serialno);
             } catch (EBaseException ee) {
                 logger.warn(ee.toString());
             }
-            if (record != null) {
-                String status = record.getStatus();
-
+            if (certRecord != null) {
+                String status = certRecord.getStatus();
                 if (status.equals("VALID")) {
-                    boolean samepwd = compareChallengePassword(record, pwd);
-
+                    boolean samepwd = compareChallengePassword(certRecord, pwd);
                     if (samepwd) {
-                        bigIntArray = new BigInteger[1];
-                        bigIntArray[0] = record.getSerialNumber();
+                        ida.add(certRecord.getSerialNumber());
                     }
-                } else {
-                    bigIntArray = new BigInteger[0];
                 }
-            } else
-                bigIntArray = new BigInteger[0];
+            }
         } else {
             String subjectName = request.getExtDataInString("subjectName");
 
             if (subjectName != null) {
                 String filter = "(&(x509cert.subject=" + subjectName + ")(certStatus=VALID))";
-                CertRecordList list = certDB.findCertRecordsInList(filter, null, 10);
-                int size = list.getSize();
-                Enumeration<CertRecord> en = list.getCertRecords(0, size - 1);
-
-                if (!en.hasMoreElements()) {
-                    bigIntArray = new BigInteger[0];
-                } else {
-                    Vector<BigInteger> idv = new Vector<>();
-
-                    while (en.hasMoreElements()) {
-                        CertRecord record = en.nextElement();
-                        boolean samepwd = compareChallengePassword(record, pwd);
-
-                        if (samepwd) {
-                            BigInteger id = record.getSerialNumber();
-
-                            idv.addElement(id);
-                        }
+                RecordPagedList<CertRecord> list = certDB.findPagedCertRecords(filter, null, null);
+                for(CertRecord cRec: list) {
+                    boolean samepwd = compareChallengePassword(cRec, pwd);
+                    if (samepwd) {
+                        BigInteger id = cRec.getSerialNumber();
+                        ida.add(id);
                     }
-                    bigIntArray = new BigInteger[idv.size()];
-                    idv.copyInto(bigIntArray);
                 }
             }
         }
-
-        if (bigIntArray == null)
-            bigIntArray = new BigInteger[0];
-
+        BigInteger[] bigIntArray = ida.toArray(new BigInteger[0]);
         request.setExtData(CAService.SERIALNO_ARRAY, bigIntArray);
         return true;
     }
 
-    private boolean compareChallengePassword(CertRecord record, String pwd)
+    private boolean compareChallengePassword(CertRecord certRecord, String pwd)
             throws EBaseException {
-        MetaInfo metaInfo = (MetaInfo) record.get(CertRecord.ATTR_META_INFO);
+        MetaInfo metaInfo = (MetaInfo) certRecord.get(CertRecord.ATTR_META_INFO);
 
         if (metaInfo == null) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "metaInfo"));
