@@ -125,8 +125,8 @@ EXPOSE 8080 8443
 # Create PKI server
 RUN pki-server create \
     --group root \
-    --conf /data/conf \
-    --logs /data/logs
+    --conf /conf \
+    --logs /logs
 
 # In Docker/Podman the server runs as pkiuser (UID=17). To
 # ensure it generates files with the proper ownership the
@@ -169,14 +169,14 @@ RUN pki-server webapp-deploy \
   pki
 
 # Store default config files
-RUN cp -r /data/conf /var/lib/pki/pki-tomcat/conf.default
+RUN cp -r /conf /var/lib/pki/pki-tomcat/conf.default
 
 # Grant the root group the full access to PKI server files
 # https://www.openshift.com/blog/jupyter-on-openshift-part-6-running-as-an-assigned-user-id
 RUN chgrp -Rf root /var/lib/pki/pki-tomcat
 RUN chmod -Rf g+rw /var/lib/pki/pki-tomcat
 
-VOLUME [ "/certs", "/data" ]
+VOLUME [ "/certs", "/conf", "/logs" ]
 
 CMD [ "/usr/share/pki/server/bin/pki-server-run" ]
 
@@ -202,7 +202,7 @@ RUN pki-server ca-create
 RUN pki-server ca-deploy
 
 # Store additional default config files
-RUN cp -r /data/conf/* /var/lib/pki/pki-tomcat/conf.default
+RUN cp -r /conf/* /var/lib/pki/pki-tomcat/conf.default
 
 # Grant the root group the full access to PKI server files
 # https://www.openshift.com/blog/jupyter-on-openshift-part-6-running-as-an-assigned-user-id
@@ -233,7 +233,7 @@ RUN pki-server kra-create
 RUN pki-server kra-deploy
 
 # Store additional default config files
-RUN cp -r /data/conf/* /var/lib/pki/pki-tomcat/conf.default
+RUN cp -r /conf/* /var/lib/pki/pki-tomcat/conf.default
 
 # Grant the root group the full access to PKI server files
 # https://www.openshift.com/blog/jupyter-on-openshift-part-6-running-as-an-assigned-user-id
@@ -264,7 +264,7 @@ RUN pki-server ocsp-create
 RUN pki-server ocsp-deploy
 
 # Store additional default config files
-RUN cp -r /data/conf/* /var/lib/pki/pki-tomcat/conf.default
+RUN cp -r /conf/* /var/lib/pki/pki-tomcat/conf.default
 
 # Grant the root group the full access to PKI server files
 # https://www.openshift.com/blog/jupyter-on-openshift-part-6-running-as-an-assigned-user-id
@@ -313,7 +313,7 @@ RUN rm -f /usr/share/pki/acme/webapps/acme/WEB-INF/classes/logging.properties
 RUN pki-server acme-deploy
 
 # Store additional default config files
-RUN cp -r /data/conf/* /var/lib/pki/pki-tomcat/conf.default
+RUN cp -r /conf/* /var/lib/pki/pki-tomcat/conf.default
 
 # Grant the root group the full access to PKI ACME files
 # https://www.openshift.com/blog/jupyter-on-openshift-part-6-running-as-an-assigned-user-id
@@ -326,7 +326,8 @@ VOLUME [ \
     "/database", \
     "/issuer", \
     "/realm", \
-    "/data" ]
+    "/conf", \
+    "/logs" ]
 
 CMD [ "/usr/share/pki/acme/bin/pki-acme-run" ]
 

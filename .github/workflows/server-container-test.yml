@@ -39,7 +39,8 @@ jobs:
       - name: Create shared folders
         run: |
           mkdir certs
-          mkdir data
+          mkdir conf
+          mkdir logs
 
       - name: Set up client container
         run: |
@@ -56,7 +57,8 @@ jobs:
               --network example \
               --network-alias pki.example.com \
               -v $PWD/certs:/certs \
-              -v $PWD/data:/data \
+              -v $PWD/conf:/conf \
+              -v $PWD/logs:/logs \
               --detach \
               pki-server
 
@@ -70,28 +72,10 @@ jobs:
               -o /dev/null \
               https://pki.example.com:8443
 
-      - name: Check data dir
+      - name: Check conf dir
         if: always()
         run: |
-          ls -l data \
-              | sed \
-                  -e '/^total/d' \
-                  -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
-              | tee output
-
-          # everything should be owned by docker group
-          # TODO: review owners/permissions
-          cat > expected << EOF
-          drwxrwxrwx docker conf
-          drwxrwxrwx docker logs
-          EOF
-
-          diff expected output
-
-      - name: Check data/conf dir
-        if: always()
-        run: |
-          ls -l data/conf \
+          ls -l conf \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
@@ -116,10 +100,10 @@ jobs:
 
           diff expected output
 
-      - name: Check data/logs dir
+      - name: Check logs dir
         if: always()
         run: |
-          ls -l data/logs \
+          ls -l logs \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
@@ -189,7 +173,8 @@ jobs:
         run: |
           mkdir -p /tmp/artifacts/server
           cp -r certs /tmp/artifacts/server
-          cp -r data /tmp/artifacts/server
+          cp -r conf /tmp/artifacts/server
+          cp -r logs /tmp/artifacts/server
 
           docker logs server > /tmp/artifacts/server/container.out 2> /tmp/artifacts/server/container.err
 

@@ -40,9 +40,11 @@ jobs:
       - name: Create shared folders
         run: |
           mkdir -p ca/certs
-          mkdir -p ca/data
+          mkdir -p ca/conf
+          mkdir -p ca/logs
           mkdir -p ocsp/certs
-          mkdir -p ocsp/data
+          mkdir -p ocsp/conf
+          mkdir -p ocsp/logs
 
       - name: Set up client container
         run: |
@@ -59,7 +61,8 @@ jobs:
               --network example \
               --network-alias ca.example.com \
               -v $PWD/ca/certs:/certs \
-              -v $PWD/ca/data:/data \
+              -v $PWD/ca/conf:/conf \
+              -v $PWD/ca/logs:/logs \
               -e PKI_DS_URL=ldap://cads.example.com:3389 \
               -e PKI_DS_PASSWORD=Secret.123 \
               --detach \
@@ -204,7 +207,7 @@ jobs:
               --ext /usr/share/pki/server/certs/ocsp_signing.conf \
               --csr $SHARED/ocsp/certs/ocsp_signing.csr
           docker exec client pki \
-              -d $SHARED/ca/data/conf/alias \
+              -d $SHARED/ca/conf/alias \
               nss-cert-issue \
               --issuer ca_signing \
               --csr $SHARED/ocsp/certs/ocsp_signing.csr \
@@ -222,7 +225,7 @@ jobs:
               --ext /usr/share/pki/server/certs/audit_signing.conf \
               --csr $SHARED/ocsp/certs/audit_signing.csr
           docker exec client pki \
-              -d $SHARED/ca/data/conf/alias \
+              -d $SHARED/ca/conf/alias \
               nss-cert-issue \
               --issuer ca_signing \
               --csr $SHARED/ocsp/certs/audit_signing.csr \
@@ -241,7 +244,7 @@ jobs:
               --ext /usr/share/pki/server/certs/subsystem.conf \
               --csr $SHARED/ocsp/certs/subsystem.csr
           docker exec client pki \
-              -d $SHARED/ca/data/conf/alias \
+              -d $SHARED/ca/conf/alias \
               nss-cert-issue \
               --issuer ca_signing \
               --csr $SHARED/ocsp/certs/subsystem.csr \
@@ -259,7 +262,7 @@ jobs:
               --ext /usr/share/pki/server/certs/sslserver.conf \
               --csr $SHARED/ocsp/certs/sslserver.csr
           docker exec client pki \
-              -d $SHARED/ca/data/conf/alias \
+              -d $SHARED/ca/conf/alias \
               nss-cert-issue \
               --issuer ca_signing \
               --csr $SHARED/ocsp/certs/sslserver.csr \
@@ -307,7 +310,8 @@ jobs:
               --network example \
               --network-alias ocsp.example.com \
               -v $PWD/ocsp/certs:/certs \
-              -v $PWD/ocsp/data:/data \
+              -v $PWD/ocsp/conf:/conf \
+              -v $PWD/ocsp/logs:/logs \
               -e PKI_DS_URL=ldap://ocspds.example.com:3389 \
               -e PKI_DS_PASSWORD=Secret.123 \
               --detach \
@@ -324,28 +328,10 @@ jobs:
               -o /dev/null \
               https://ocsp.example.com:8443
 
-      - name: Check OCSP data dir
+      - name: Check OCSP conf dir
         if: always()
         run: |
-          ls -l ocsp/data \
-              | sed \
-                  -e '/^total/d' \
-                  -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
-              | tee output
-
-          # everything should be owned by docker group
-          # TODO: review owners/permissions
-          cat > expected << EOF
-          drwxrwxrwx docker conf
-          drwxrwxrwx docker logs
-          EOF
-
-          diff expected output
-
-      - name: Check OCSP data/conf dir
-        if: always()
-        run: |
-          ls -l ocsp/data/conf \
+          ls -l ocsp/conf \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
@@ -372,10 +358,10 @@ jobs:
 
           diff expected output
 
-      - name: Check OCSP data/conf/ocsp dir
+      - name: Check OCSP conf/ocsp dir
         if: always()
         run: |
-          ls -l ocsp/data/conf/ocsp \
+          ls -l ocsp/conf/ocsp \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
@@ -392,10 +378,10 @@ jobs:
 
           diff expected output
 
-      - name: Check OCSP data/logs dir
+      - name: Check OCSP logs dir
         if: always()
         run: |
-          ls -l ocsp/data/logs \
+          ls -l ocsp/logs \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
@@ -412,7 +398,7 @@ jobs:
           -rw-rw-rw- docker localhost.$DATE.log
           -rw-rw-rw- docker localhost_access_log.$DATE.txt
           -rw-rw-rw- docker manager.$DATE.log
-          drwxrwx--- docker ocsp
+          drwxrwxrwx docker ocsp
           drwxrwxrwx docker pki
           EOF
 
@@ -756,7 +742,8 @@ jobs:
 
           mkdir -p /tmp/artifacts/ca
           cp -r ca/certs /tmp/artifacts/ca
-          cp -r ca/data /tmp/artifacts/ca
+          cp -r ca/conf /tmp/artifacts/ca
+          cp -r ca/logs /tmp/artifacts/ca
 
           docker logs ca > /tmp/artifacts/ca/container.out 2> /tmp/artifacts/ca/container.err
 
@@ -764,7 +751,8 @@ jobs:
 
           mkdir -p /tmp/artifacts/ocsp
           cp -r ocsp/certs /tmp/artifacts/ocsp
-          cp -r ocsp/data /tmp/artifacts/ocsp
+          cp -r ocsp/conf /tmp/artifacts/ocsp
+          cp -r ocsp/logs /tmp/artifacts/ocsp
 
           docker logs ocsp > /tmp/artifacts/ocsp/container.out 2> /tmp/artifacts/ocsp/container.err
 

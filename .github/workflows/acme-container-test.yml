@@ -54,7 +54,8 @@ jobs:
           mkdir database
           mkdir issuer
           mkdir realm
-          mkdir data
+          mkdir conf
+          mkdir logs
 
       - name: Set up ACME container
         run: |
@@ -68,7 +69,8 @@ jobs:
               -v $PWD/database:/database \
               -v $PWD/issuer:/issuer \
               -v $PWD/realm:/realm \
-              -v $PWD/data:/data \
+              -v $PWD/conf:/conf \
+              -v $PWD/logs:/logs \
               --detach \
               pki-acme
 
@@ -82,28 +84,10 @@ jobs:
               -o /dev/null \
               http://acme.example.com:8080/acme/directory
 
-      - name: Check data dir
+      - name: Check conf dir
         if: always()
         run: |
-          ls -l data \
-              | sed \
-                  -e '/^total/d' \
-                  -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
-              | tee output
-
-          # everything should be owned by root group (GID=0)
-          # TODO: review owners/permissions
-          cat > expected << EOF
-          drwxrwxrwx root conf
-          drwxrwxrwx root logs
-          EOF
-
-          diff expected output
-
-      - name: Check data/conf dir
-        if: always()
-        run: |
-          ls -l data/conf \
+          ls -l conf \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
@@ -129,10 +113,10 @@ jobs:
 
           diff expected output
 
-      - name: Check data/conf/acme dir
+      - name: Check conf/acme dir
         if: always()
         run: |
-          ls -l data/conf/acme \
+          ls -l conf/acme \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
@@ -148,10 +132,10 @@ jobs:
 
           diff expected output
 
-      - name: Check data/logs dir
+      - name: Check logs dir
         if: always()
         run: |
-          ls -l data/logs \
+          ls -l logs \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
@@ -270,7 +254,8 @@ jobs:
           cp -r database /tmp/artifacts/acme
           cp -r issuer /tmp/artifacts/acme
           cp -r realm /tmp/artifacts/acme
-          cp -r data /tmp/artifacts/acme
+          cp -r conf /tmp/artifacts/acme
+          cp -r logs /tmp/artifacts/acme
 
           docker logs acme > /tmp/artifacts/acme/container.out 2> /tmp/artifacts/acme/container.err
 
