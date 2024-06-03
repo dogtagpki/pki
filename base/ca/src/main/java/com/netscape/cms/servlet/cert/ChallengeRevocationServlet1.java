@@ -20,7 +20,6 @@ package com.netscape.cms.servlet.cert;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
 
@@ -54,8 +53,8 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CertRecord;
-import com.netscape.cmscore.dbs.CertRecordList;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.dbs.RecordPagedList;
 import com.netscape.cmscore.ldap.CAPublisherProcessor;
 import com.netscape.cmscore.request.CertRequestRepository;
 import com.netscape.cmscore.request.Request;
@@ -306,11 +305,9 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                 entryExtn.set(invalidityDateExtn.getName(), invalidityDateExtn);
             }
 
-            CertRecordList list = mCertDB.findCertRecordsInList(revokeAll, null, totalRecordCount);
-            Enumeration<CertRecord> e = list.getCertRecords(0, totalRecordCount - 1);
+            RecordPagedList<CertRecord> list = mCertDB.findPagedCertRecords(revokeAll, null, null);
 
-            while (e != null && e.hasMoreElements()) {
-                CertRecord rec = e.nextElement();
+            for (CertRecord rec: list) {
                 X509CertImpl cert = rec.getCertificate();
                 ArgBlock rarg = new ArgBlock();
 
