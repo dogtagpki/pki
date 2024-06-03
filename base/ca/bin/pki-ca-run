@@ -10,24 +10,22 @@ umask 000
 
 echo "################################################################################"
 
-if [ -d /data/conf ]
+if [ -z "$(ls -A /conf 2>/dev/null)" ]
 then
-    echo "INFO: Reusing /data/conf"
-else
-    echo "INFO: Creating /data/conf"
-    cp -r /var/lib/pki/pki-tomcat/conf.default /data/conf
+    echo "INFO: Installing default config files"
+    cp -r /var/lib/pki/pki-tomcat/conf.default/* /conf
 fi
 
-echo "################################################################################"
-
-if [ -d /data/logs ]
+if [ "$UID" = "0" ]
 then
-    echo "INFO: Reusing /data/logs"
-else
-    echo "INFO: Creating /data/logs"
-    mkdir /data/logs
-    chown -Rf pkiuser:root /data/logs
+    chown -Rf pkiuser:root /conf
+    chown -Rf pkiuser:root /logs
 fi
+
+find /conf -type f -exec chmod +rw -- {} +
+find /conf -type d -exec chmod +rwx -- {} +
+find /logs -type f -exec chmod +rw -- {} +
+find /logs -type d -exec chmod +rwx -- {} +
 
 echo "################################################################################"
 
@@ -348,8 +346,8 @@ echo "INFO: Creating PKI CA"
 # with existing database user, with RSNv3, without security manager,
 # and without systemd service.
 pkispawn \
-    --conf /data/conf \
-    --logs /data/logs \
+    --conf /conf \
+    --logs /logs \
     -f /usr/share/pki/server/examples/installation/ca.cfg \
     -s CA \
     -D pki_group=root \
@@ -386,9 +384,16 @@ pki-server ca-config-set ca.authorityMonitor.enable false
 echo "################################################################################"
 echo "INFO: Updating owners and permissions"
 
-chown -Rf pkiuser:root /data/conf
-find /data/conf -type f -exec chmod +rw -- {} +
-find /data/conf -type d -exec chmod +rwx -- {} +
+if [ "$UID" = "0" ]
+then
+    chown -Rf pkiuser:root /conf
+    chown -Rf pkiuser:root /logs
+fi
+
+find /conf -type f -exec chmod +rw -- {} +
+find /conf -type d -exec chmod +rwx -- {} +
+find /logs -type f -exec chmod +rw -- {} +
+find /logs -type d -exec chmod +rwx -- {} +
 
 echo "################################################################################"
 echo "INFO: Starting PKI CA"

@@ -39,9 +39,11 @@ jobs:
       - name: Create shared folders
         run: |
           mkdir -p ca/certs
-          mkdir -p ca/data
+          mkdir -p ca/conf
+          mkdir -p ca/logs
           mkdir -p kra/certs
-          mkdir -p kra/data
+          mkdir -p kra/conf
+          mkdir -p kra/logs
 
       - name: Set up client container
         run: |
@@ -58,7 +60,8 @@ jobs:
               --network example \
               --network-alias ca.example.com \
               -v $PWD/ca/certs:/certs \
-              -v $PWD/ca/data:/data \
+              -v $PWD/ca/conf:/conf \
+              -v $PWD/ca/logs:/logs \
               -e PKI_DS_URL=ldap://cads.example.com:3389 \
               -e PKI_DS_PASSWORD=Secret.123 \
               --detach \
@@ -203,7 +206,7 @@ jobs:
               --ext /usr/share/pki/server/certs/kra_storage.conf \
               --csr $SHARED/kra/certs/kra_storage.csr
           docker exec client pki \
-              -d $SHARED/ca/data/conf/alias \
+              -d $SHARED/ca/conf/alias \
               nss-cert-issue \
               --issuer ca_signing \
               --csr $SHARED/kra/certs/kra_storage.csr \
@@ -221,7 +224,7 @@ jobs:
               --ext /usr/share/pki/server/certs/kra_transport.conf \
               --csr $SHARED/kra/certs/kra_transport.csr
           docker exec client pki \
-              -d $SHARED/ca/data/conf/alias \
+              -d $SHARED/ca/conf/alias \
               nss-cert-issue \
               --issuer ca_signing \
               --csr $SHARED/kra/certs/kra_transport.csr \
@@ -239,7 +242,7 @@ jobs:
               --ext /usr/share/pki/server/certs/audit_signing.conf \
               --csr $SHARED/kra/certs/audit_signing.csr
           docker exec client pki \
-              -d $SHARED/ca/data/conf/alias \
+              -d $SHARED/ca/conf/alias \
               nss-cert-issue \
               --issuer ca_signing \
               --csr $SHARED/kra/certs/audit_signing.csr \
@@ -258,7 +261,7 @@ jobs:
               --ext /usr/share/pki/server/certs/subsystem.conf \
               --csr $SHARED/kra/certs/subsystem.csr
           docker exec client pki \
-              -d $SHARED/ca/data/conf/alias \
+              -d $SHARED/ca/conf/alias \
               nss-cert-issue \
               --issuer ca_signing \
               --csr $SHARED/kra/certs/subsystem.csr \
@@ -276,7 +279,7 @@ jobs:
               --ext /usr/share/pki/server/certs/sslserver.conf \
               --csr $SHARED/kra/certs/sslserver.csr
           docker exec client pki \
-              -d $SHARED/ca/data/conf/alias \
+              -d $SHARED/ca/conf/alias \
               nss-cert-issue \
               --issuer ca_signing \
               --csr $SHARED/kra/certs/sslserver.csr \
@@ -325,7 +328,8 @@ jobs:
               --network example \
               --network-alias kra.example.com \
               -v $PWD/kra/certs:/certs \
-              -v $PWD/kra/data:/data \
+              -v $PWD/kra/conf:/conf \
+              -v $PWD/kra/logs:/logs \
               -e PKI_DS_URL=ldap://krads.example.com:3389 \
               -e PKI_DS_PASSWORD=Secret.123 \
               --detach \
@@ -342,28 +346,10 @@ jobs:
               -o /dev/null \
               https://kra.example.com:8443
 
-      - name: Check KRA data dir
+      - name: Check KRA conf dir
         if: always()
         run: |
-          ls -l kra/data \
-              | sed \
-                  -e '/^total/d' \
-                  -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
-              | tee output
-
-          # everything should be owned by docker group
-          # TODO: review owners/permissions
-          cat > expected << EOF
-          drwxrwxrwx docker conf
-          drwxrwxrwx docker logs
-          EOF
-
-          diff expected output
-
-      - name: Check KRA data/conf dir
-        if: always()
-        run: |
-          ls -l kra/data/conf \
+          ls -l kra/conf \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
@@ -390,10 +376,10 @@ jobs:
 
           diff expected output
 
-      - name: Check KRA data/conf/kra dir
+      - name: Check KRA conf/kra dir
         if: always()
         run: |
-          ls -l kra/data/conf/kra \
+          ls -l kra/conf/kra \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
@@ -410,10 +396,10 @@ jobs:
 
           diff expected output
 
-      - name: Check KRA data/logs dir
+      - name: Check KRA logs dir
         if: always()
         run: |
-          ls -l kra/data/logs \
+          ls -l kra/logs \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
@@ -425,12 +411,12 @@ jobs:
           # TODO: review owners/permissions
           cat > expected << EOF
           drwxrwx--- docker backup
-          -rw-rw-r-- docker catalina.$DATE.log
-          -rw-rw-r-- docker host-manager.$DATE.log
-          drwxrwx--- docker kra
-          -rw-rw-r-- docker localhost.$DATE.log
+          -rw-rw-rw- docker catalina.$DATE.log
+          -rw-rw-rw- docker host-manager.$DATE.log
+          drwxrwxrwx docker kra
+          -rw-rw-rw- docker localhost.$DATE.log
           -rw-rw-rw- docker localhost_access_log.$DATE.txt
-          -rw-rw-r-- docker manager.$DATE.log
+          -rw-rw-rw- docker manager.$DATE.log
           drwxrwxrwx docker pki
           EOF
 
@@ -738,7 +724,8 @@ jobs:
 
           mkdir -p /tmp/artifacts/ca
           cp -r ca/certs /tmp/artifacts/ca
-          cp -r ca/data /tmp/artifacts/ca
+          cp -r ca/conf /tmp/artifacts/ca
+          cp -r ca/logs /tmp/artifacts/ca
 
           docker logs ca > /tmp/artifacts/ca/container.out 2> /tmp/artifacts/ca/container.err
 
@@ -746,7 +733,8 @@ jobs:
 
           mkdir -p /tmp/artifacts/kra
           cp -r kra/certs /tmp/artifacts/kra
-          cp -r kra/data /tmp/artifacts/kra
+          cp -r kra/conf /tmp/artifacts/kra
+          cp -r kra/logs /tmp/artifacts/kra
 
           docker logs kra > /tmp/artifacts/kra/container.out 2> /tmp/artifacts/kra/container.err
 
