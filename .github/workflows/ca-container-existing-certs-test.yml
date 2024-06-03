@@ -1,0 +1,572 @@
+name: CA container with existing certs
+
+on: workflow_call
+
+env:
+  DB_IMAGE: ${{ vars.DB_IMAGE || 'quay.io/389ds/dirsrv' }}
+
+jobs:
+  # https://github.com/dogtagpki/pki/wiki/Deploying-CA-Container
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+
+          # replace docker with podman
+          sudo apt-get -y purge --auto-remove docker-ce-cli
+          sudo apt-get -y install podman-docker
+
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Retrieve PKI images
+        uses: actions/cache@v4
+        with:
+          key: pki-images-${{ github.sha }}
+          path: pki-images.tar
+
+      - name: Load PKI images
+        run: docker load --input pki-images.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Create shared folders
+        run: |
+          mkdir certs
+          mkdir conf
+          mkdir logs
+
+      - name: Set up client container
+        run: |
+          tests/bin/runner-init.sh \
+              --hostname=client.example.com \
+              --network=example \
+              client
+
+      - name: Create CA signing cert
+        run: |
+          docker exec client pki \
+              nss-cert-request \
+              --subject "CN=CA Signing Certificate" \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --csr $SHARED/certs/ca_signing.csr
+          docker exec client pki \
+              nss-cert-issue \
+              --csr $SHARED/certs/ca_signing.csr \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --validity-length 1 \
+              --validity-unit year \
+              --cert $SHARED/certs/ca_signing.crt
+          docker exec client pki \
+              nss-cert-import \
+              --cert $SHARED/certs/ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+          docker exec client pki \
+              nss-cert-show \
+              ca_signing
+
+      - name: Create OCSP signing cert
+        run: |
+          docker exec client pki \
+              nss-cert-request \
+              --subject "CN=OCSP Signing Certificate" \
+              --ext /usr/share/pki/server/certs/ocsp_signing.conf \
+              --csr $SHARED/certs/ocsp_signing.csr
+          docker exec client pki \
+              nss-cert-issue \
+              --issuer ca_signing \
+              --csr $SHARED/certs/ocsp_signing.csr \
+              --ext /usr/share/pki/server/certs/ocsp_signing.conf \
+              --cert $SHARED/certs/ocsp_signing.crt
+          docker exec client pki \
+              nss-cert-import \
+              --cert $SHARED/certs/ocsp_signing.crt \
+              ocsp_signing
+          docker exec client pki \
+              nss-cert-show \
+              ocsp_signing
+
+      - name: Create audit signing cert
+        run: |
+          docker exec client pki \
+              nss-cert-request \
+              --subject "CN=Audit Signing Certificate" \
+              --ext /usr/share/pki/server/certs/audit_signing.conf \
+              --csr $SHARED/certs/audit_signing.csr
+          docker exec client pki \
+              nss-cert-issue \
+              --issuer ca_signing \
+              --csr $SHARED/certs/audit_signing.csr \
+              --ext /usr/share/pki/server/certs/audit_signing.conf \
+              --cert $SHARED/certs/audit_signing.crt
+          docker exec client pki \
+              nss-cert-import \
+              --cert $SHARED/certs/audit_signing.crt \
+              --trust ,,P \
+              audit_signing
+          docker exec client pki \
+              nss-cert-show \
+              audit_signing
+
+      - name: Create subsystem cert
+        run: |
+          docker exec client pki \
+              nss-cert-request \
+              --subject "CN=Subsystem Certificate" \
+              --ext /usr/share/pki/server/certs/subsystem.conf \
+              --csr $SHARED/certs/subsystem.csr
+          docker exec client pki \
+              nss-cert-issue \
+              --issuer ca_signing \
+              --csr $SHARED/certs/subsystem.csr \
+              --ext /usr/share/pki/server/certs/subsystem.conf \
+              --cert $SHARED/certs/subsystem.crt
+          docker exec client pki \
+              nss-cert-import \
+              --cert $SHARED/certs/subsystem.crt \
+              subsystem
+          docker exec client pki \
+              nss-cert-show \
+              subsystem
+
+      - name: Create SSL server cert
+        run: |
+          docker exec client pki \
+              nss-cert-request \
+              --subject "CN=ca.example.com" \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --csr $SHARED/certs/sslserver.csr
+          docker exec client pki \
+              nss-cert-issue \
+              --issuer ca_signing \
+              --csr $SHARED/certs/sslserver.csr \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --cert $SHARED/certs/sslserver.crt
+          docker exec client pki \
+              nss-cert-import \
+              --cert $SHARED/certs/sslserver.crt \
+              sslserver
+          docker exec client pki \
+              nss-cert-show \
+              sslserver
+
+      - name: Create admin cert
+        run: |
+          docker exec client pki \
+              nss-cert-request \
+              --subject "CN=Administrator" \
+              --ext /usr/share/pki/server/certs/admin.conf \
+              --csr $SHARED/certs/admin.csr
+          docker exec client pki \
+              nss-cert-issue \
+              --issuer ca_signing \
+              --csr $SHARED/certs/admin.csr \
+              --ext /usr/share/pki/server/certs/admin.conf \
+              --cert $SHARED/certs/admin.crt
+          docker exec client pki \
+              nss-cert-import \
+              --cert $SHARED/certs/admin.crt \
+              admin
+          docker exec client pki \
+              nss-cert-show \
+              admin
+
+      - name: Export system certs and keys
+        run: |
+          docker exec client pki pkcs12-export \
+              --pkcs12 $SHARED/certs/server.p12 \
+              --password Secret.123 \
+              ca_signing \
+              ocsp_signing \
+              audit_signing \
+              subsystem \
+              sslserver
+
+          docker exec client pki pkcs12-cert-find \
+              --pkcs12 $SHARED/certs/server.p12 \
+              --password Secret.123 \
+
+      - name: Export admin cert and key
+        run: |
+          docker exec client pki pkcs12-export \
+              --pkcs12 $SHARED/certs/admin.p12 \
+              --password Secret.123 \
+              admin
+
+          docker exec client pki pkcs12-cert-find \
+              --pkcs12 $SHARED/certs/admin.p12 \
+              --password Secret.123 \
+
+      - name: Set up CA container
+        run: |
+          docker run \
+              --name ca \
+              --hostname ca.example.com \
+              --network example \
+              --network-alias ca.example.com \
+              -v $PWD/certs:/certs \
+              -v $PWD/conf:/conf \
+              -v $PWD/logs:/logs \
+              -e PKI_DS_URL=ldap://ds.example.com:3389 \
+              -e PKI_DS_PASSWORD=Secret.123 \
+              --detach \
+              pki-ca
+
+          # wait for CA to start
+          docker exec client curl \
+              --retry 180 \
+              --retry-delay 0 \
+              --retry-connrefused \
+              -s \
+              -k \
+              -o /dev/null \
+              https://ca.example.com:8443
+
+      - name: Check conf dir
+        if: always()
+        run: |
+          ls -l conf \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
+              | tee output
+
+          # everything should be owned by docker group
+          # TODO: review owners/permissions
+          cat > expected << EOF
+          drwxrwxrwx docker Catalina
+          drwxrwxrwx docker alias
+          drwxrwxrwx docker ca
+          -rw-rw-rw- docker catalina.policy
+          lrwxrwxrwx docker catalina.properties -> /usr/share/pki/server/conf/catalina.properties
+          drwxrwxrwx docker certs
+          lrwxrwxrwx docker context.xml -> /etc/tomcat/context.xml
+          -rw-rw-rw- docker jss.conf
+          lrwxrwxrwx docker logging.properties -> /usr/share/pki/server/conf/logging.properties
+          -rw-rw-rw- docker password.conf
+          -rw-rw-rw- docker server.xml
+          -rw-rw-rw- docker serverCertNick.conf
+          -rw-rw-rw- docker tomcat.conf
+          lrwxrwxrwx docker web.xml -> /etc/tomcat/web.xml
+          EOF
+
+          diff expected output
+
+      - name: Check conf/ca dir
+        if: always()
+        run: |
+          ls -l conf/ca \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
+                  -e '/^\S* *\S* *\S* *CS.cfg.bak /d' \
+              | tee output
+
+          # everything should be owned by docker group
+          # TODO: review owners/permissions
+          cat > expected << EOF
+          -rw-rw-rw- docker CS.cfg
+          -rw-rw-rw- docker adminCert.profile
+          drwxrwxrwx docker archives
+          -rw-rw-rw- docker caAuditSigningCert.profile
+          -rw-rw-rw- docker caCert.profile
+          -rw-rw-rw- docker caOCSPCert.profile
+          drwxrwxrwx docker emails
+          -rw-rw-rw- docker flatfile.txt
+          drwxrwxrwx docker profiles
+          -rw-rw-rw- docker proxy.conf
+          -rw-rw-rw- docker registry.cfg
+          -rw-rw-rw- docker serverCert.profile
+          -rw-rw-rw- docker subsystemCert.profile
+          EOF
+
+          diff expected output
+
+      - name: Check logs dir
+        if: always()
+        run: |
+          ls -l logs \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
+              | tee output
+
+          DATE=$(date +'%Y-%m-%d')
+
+          # everything should be owned by docker group
+          # TODO: review owners/permissions
+          cat > expected << EOF
+          drwxrwx--- docker backup
+          drwxrwxrwx docker ca
+          -rw-rw-rw- docker catalina.$DATE.log
+          -rw-rw-rw- docker host-manager.$DATE.log
+          -rw-rw-rw- docker localhost.$DATE.log
+          -rw-rw-rw- docker localhost_access_log.$DATE.txt
+          -rw-rw-rw- docker manager.$DATE.log
+          drwxrwxrwx docker pki
+          EOF
+
+          diff expected output
+
+      - name: Check basic operations from CA container
+        run: |
+          # check PKI server info
+          docker exec ca pki info
+
+      - name: Check basic operations from client container
+        run: |
+          # check PKI server info
+          docker exec client pki \
+              -U https://ca.example.com:8443 \
+              info
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-container-create.sh \
+              --image=${{ env.DB_IMAGE }} \
+              --hostname=ds.example.com \
+              --network=example \
+              --network-alias=ds.example.com \
+              --password=Secret.123 \
+              ds
+
+      # https://github.com/dogtagpki/pki/wiki/Setting-up-CA-Database
+      - name: Initialize CA database
+        run: |
+          docker exec ca pki-server ca-db-init -v
+
+      - name: Add CA search indexes
+        run: |
+          docker exec ca pki-server ca-db-index-add -v
+
+      - name: Rebuild CA search indexes
+        run: |
+          docker exec ca pki-server ca-db-index-rebuild -v
+
+      - name: Add CA VLV indexes
+        run: |
+          docker exec ca pki-server ca-db-vlv-add -v
+
+      - name: Rebuild CA VLV indexes
+        run: |
+          docker exec ca pki-server ca-db-vlv-reindex -v
+
+      - name: Import CA signing cert into CA database
+        run: |
+          docker exec ca pki-server ca-cert-request-import \
+              --csr /certs/ca_signing.csr \
+              --profile /usr/share/pki/ca/conf/caCert.profile | tee output
+          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
+
+          docker exec ca pki-server ca-cert-import \
+              --cert /certs/ca_signing.crt \
+              --profile /usr/share/pki/ca/conf/caCert.profile \
+              --request $REQUEST_ID
+
+      - name: Import CA OCSP signing cert into CA database
+        run: |
+          docker exec ca pki-server ca-cert-request-import \
+              --csr /certs/ocsp_signing.csr \
+              --profile /usr/share/pki/ca/conf/caOCSPCert.profile | tee output
+          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
+
+          docker exec ca pki-server ca-cert-import \
+              --cert /certs/ocsp_signing.crt \
+              --profile /usr/share/pki/ca/conf/caOCSPCert.profile \
+              --request $REQUEST_ID
+
+      - name: Import CA audit signing cert into CA database
+        run: |
+          docker exec ca pki-server ca-cert-request-import \
+              --csr /certs/audit_signing.csr \
+              --profile /usr/share/pki/ca/conf/caAuditSigningCert.profile | tee output
+          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
+
+          docker exec ca pki-server ca-cert-import \
+              --cert /certs/audit_signing.crt \
+              --profile /usr/share/pki/ca/conf/caAuditSigningCert.profile \
+              --request $REQUEST_ID
+
+      - name: Import subsystem cert into CA database
+        run: |
+          docker exec ca pki-server ca-cert-request-import \
+              --csr /certs/subsystem.csr \
+              --profile /usr/share/pki/ca/conf/rsaSubsystemCert.profile | tee output
+          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
+
+          docker exec ca pki-server ca-cert-import \
+              --cert /certs/subsystem.crt \
+              --profile /usr/share/pki/ca/conf/rsaSubsystemCert.profile \
+              --request $REQUEST_ID
+
+      - name: Import SSL server cert into CA database
+        run: |
+          docker exec ca pki-server ca-cert-request-import \
+              --csr /certs/sslserver.csr \
+              --profile /usr/share/pki/ca/conf/rsaServerCert.profile | tee output
+          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
+
+          docker exec ca pki-server ca-cert-import \
+              --cert /certs/sslserver.crt \
+              --profile /usr/share/pki/ca/conf/rsaServerCert.profile \
+              --request $REQUEST_ID
+
+      - name: Import admin cert into CA database
+        run: |
+          docker exec ca pki-server ca-cert-request-import \
+              --csr /certs/admin.csr \
+              --profile /usr/share/pki/ca/conf/rsaAdminCert.profile | tee output
+          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
+
+          docker exec ca pki-server ca-cert-import \
+              --cert /certs/admin.crt \
+              --profile /usr/share/pki/ca/conf/rsaAdminCert.profile \
+              --request $REQUEST_ID
+
+      # https://github.com/dogtagpki/pki/wiki/Setting-up-CA-Admin-User
+      - name: Add CA admin user
+        run: |
+          docker exec ca pki-server ca-user-add \
+              --full-name Administrator \
+              --type adminType \
+              admin
+
+      - name: Assign admin cert to CA admin user
+        run: |
+          docker exec ca pki-server ca-user-cert-add \
+              --cert /certs/admin.crt \
+              admin
+
+      - name: Add CA admin user into CA groups
+        run: |
+          docker exec ca pki-server ca-user-role-add admin "Administrators"
+          docker exec ca pki-server ca-user-role-add admin "Certificate Manager Agents"
+
+      - name: Check public operations from CA container
+        run: |
+          # check certs in CA
+          docker exec ca pki ca-cert-find
+
+      - name: Check admin operations from CA container
+        run: |
+          # check CA admin user
+          docker exec ca pki \
+              -n admin \
+              ca-user-show \
+              admin
+
+          docker exec ca pki \
+              client-cert-request \
+              uid=testuser | tee output
+
+          REQUEST_ID=$(sed -n -e 's/^ *Request ID: *\(.*\)$/\1/p' output)
+          echo "REQUEST_ID: $REQUEST_ID"
+
+          docker exec ca pki \
+              -n admin \
+              ca-cert-request-approve \
+              $REQUEST_ID \
+              --force
+
+      - name: Check public operations from client container
+        run: |
+          # check certs in CA
+          docker exec client pki \
+              -U https://ca.example.com:8443 \
+              ca-cert-find
+
+      - name: Check admin operations from client container
+        run: |
+          # check CA admin user
+          docker exec client pki \
+              -U https://ca.example.com:8443 \
+              -n admin \
+              ca-user-show \
+              admin
+
+          docker exec client pki \
+              -U https://ca.example.com:8443 \
+              client-cert-request \
+              uid=testuser | tee output
+
+          REQUEST_ID=$(sed -n -e 's/^ *Request ID: *\(.*\)$/\1/p' output)
+          echo "REQUEST_ID: $REQUEST_ID"
+
+          docker exec client pki \
+              -U https://ca.example.com:8443 \
+              -n admin \
+              ca-cert-request-approve \
+              $REQUEST_ID \
+              --force
+
+      - name: Restart CA
+        run: |
+          docker restart ca
+          sleep 5
+
+          # wait for CA to restart
+          docker exec client curl \
+              --retry 180 \
+              --retry-delay 0 \
+              --retry-connrefused \
+              -s \
+              -k \
+              -o /dev/null \
+              https://ca.example.com:8443
+
+      - name: Check CA admin user again
+        run: |
+          docker exec client pki \
+              -U https://ca.example.com:8443 \
+              -n admin \
+              ca-user-show \
+              admin
+
+      - name: Check DS server systemd journal
+        if: always()
+        run: |
+          docker exec ds journalctl -x --no-pager -u dirsrv@localhost.service
+
+      - name: Check DS container logs
+        if: always()
+        run: |
+          docker logs ds
+
+      - name: Check CA container logs
+        if: always()
+        run: |
+          docker logs ca 2>&1
+
+      - name: Check CA debug logs
+        if: always()
+        run: |
+          docker exec ca find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+
+      - name: Gather artifacts
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh ds
+
+          mkdir -p /tmp/artifacts/ca
+          cp -r certs /tmp/artifacts/ca
+          cp -r conf /tmp/artifacts/ca
+          cp -r logs /tmp/artifacts/ca
+
+          docker logs ca > /tmp/artifacts/ca/container.out 2> /tmp/artifacts/ca/container.err
+
+          mkdir -p /tmp/artifacts/client
+          docker logs client > /tmp/artifacts/client/container.out 2> /tmp/artifacts/client/container.err
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ca-container-existing-certs
+          path: /tmp/artifacts
