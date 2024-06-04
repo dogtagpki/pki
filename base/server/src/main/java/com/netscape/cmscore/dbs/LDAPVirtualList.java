@@ -44,7 +44,9 @@ import netscape.ldap.controls.LDAPVirtualListResponse;
  * @author thomask
  * @author mzhao
  * @version $Revision$, $Date$
+ * @deprecated As of release 11.6.0, replaced by {@link LDAPPagedSearch}
  */
+@Deprecated(since = "11.6.0", forRemoval = true)
 public class LDAPVirtualList<E extends IDBObj> extends DBVirtualList<E> {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LDAPVirtualList.class);

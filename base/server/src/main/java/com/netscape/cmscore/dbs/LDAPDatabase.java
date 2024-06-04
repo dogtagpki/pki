@@ -10,8 +10,8 @@ import java.util.Map;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.DBAttrMapper;
-import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.DBVirtualList;
+import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.cmsutil.ldap.LDAPUtil;
@@ -157,6 +157,39 @@ public abstract class LDAPDatabase<E extends IDBObj> extends Database<E> {
         }
     }
 
+    /**
+     * Search for LDAP records with the specified keyword and attributes.
+     * The keyword parameter will be used to search with wildcards on certain attributes.
+     * The attributes parameter will be used to find exact matches of the specified attributes.
+     */
+    public Collection<E> findRecords(String keyword, Map<String, String> attributes, String[] sortKeys, int start, int pageSize) throws Exception {
+
+        logger.debug("LDAPDatabase: findRecords()");
+
+        try (DBSSession session = dbSubsystem.createSession()) {
+
+            logger.debug("LDAPDatabase: LDAP search on {}", baseDN);
+
+            String ldapFilter = createFilter(keyword, attributes);
+            logger.debug("LDAPDatabase: - filter {}", ldapFilter);
+
+            DBSearchResults results = session.pagedSearch(baseDN, ldapFilter, sortKeys, start, pageSize, -1);
+
+            Collection<E> list = new ArrayList<>();
+            while (results.hasMoreElements()) {
+                @SuppressWarnings("unchecked")
+                E result = (E)results.nextElement();
+                list.add(result);
+            }
+
+            return list;
+        }
+    }
+
+    /**
+    * @deprecated As of release 11.6.0, replaced by {@link #findPagedCertRecords(String, String[], String)}
+    */
+   @Deprecated(since = "11.6.0", forRemoval = true)
     public DBVirtualList<E> findRecords(String keyword, Map<String, String> attributes,
             String[] sortKeys, int pageSize) throws Exception {
 

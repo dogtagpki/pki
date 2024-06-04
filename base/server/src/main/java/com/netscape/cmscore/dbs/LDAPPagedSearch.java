@@ -18,6 +18,7 @@
 package com.netscape.cmscore.dbs;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -50,7 +51,7 @@ public class LDAPPagedSearch<E extends IDBObj>  extends DBPagedSearch<E> {
     private String base = null;
     private String filter = null;
     private String[] attrs = null;
-    private String sortKey = null;
+    private String[] sortKeys = null;
     private LDAPSearchResults res = null;
 
     public LDAPPagedSearch(Class<E> contentClassType, DBRegistry registry, LDAPConnection conn, String base, String filter, String[] attrs,
@@ -60,7 +61,24 @@ public class LDAPPagedSearch<E extends IDBObj>  extends DBPagedSearch<E> {
         this.base = base;
         this.filter = filter;
         this.attrs = attrs;
-        this.sortKey = sortKey;
+        this.sortKeys = new String[1];
+        this.sortKeys[0] = sortKey;
+        try {
+            this.conn = (LDAPConnection) conn.clone();
+        } catch (Exception e) {
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_CONN_FAILED",
+                        e.toString()), e);
+        }
+    }
+
+    public LDAPPagedSearch(Class<E> contentClassType, DBRegistry registry, LDAPConnection conn, String base, String filter, String[] attrs,
+            String[] sortKeys) throws EBaseException {
+        this.contentClassType = contentClassType;
+        this.registry = registry;
+        this.base = base;
+        this.filter = filter;
+        this.attrs = attrs;
+        this.sortKeys = sortKeys;
         try {
             this.conn = (LDAPConnection) conn.clone();
         } catch (Exception e) {
@@ -81,14 +99,10 @@ public class LDAPPagedSearch<E extends IDBObj>  extends DBPagedSearch<E> {
         try {
             LDAPSearchConstraints cons = new LDAPSearchConstraints();
             LDAPPagedResultsControl pageCtrl = null;
-            LDAPSortControl sortCtrl = null;
+            LDAPSortControl sortCtrl = generateSortControl(sortKeys);
             String[] ldapattrs = null;
             if (attrs != null) {
                 ldapattrs = registry.getLDAPAttributes(attrs);
-            }
-            if(sortKey != null) {
-                LDAPSortKey sortOrder = new LDAPSortKey( sortKey );
-                sortCtrl = new LDAPSortControl(sortOrder,true);
             }
             String ldapfilter = registry.getFilter(filter);
             logger.info("LDAPSession.continuousPagedSearch(): Searching {}  for {}", base, ldapfilter);
@@ -127,5 +141,25 @@ public class LDAPPagedSearch<E extends IDBObj>  extends DBPagedSearch<E> {
         } catch (LDAPException e) {
             throw LDAPExceptionConverter.toDBException(e);
         }
+    }
+
+    private LDAPSortControl generateSortControl(String[] sortKeys) throws EBaseException {
+
+        if (sortKeys == null || sortKeys.length == 0)
+            return null;
+
+        LDAPSortKey[] mKeys = new LDAPSortKey[sortKeys.length];
+        String[] la = null;
+        synchronized (this) {
+            la = registry.getLDAPAttributes(sortKeys);
+        }
+        if (la == null) {
+            logger.debug("LDAPPagedSearch.generateSortControl: cannot convert search keys {}", Arrays.toString(sortKeys));
+            throw new EBaseException("sort keys cannot be null");
+        }
+        for (int i = 0; i < la.length; i++) {
+            mKeys[i] = new LDAPSortKey(la[i]);
+        }
+        return new LDAPSortControl(mKeys, true);
     }
 }

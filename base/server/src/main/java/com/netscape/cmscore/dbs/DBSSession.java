@@ -18,9 +18,9 @@
 package com.netscape.cmscore.dbs;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.dbs.DBPagedSearch;
 import com.netscape.certsrv.dbs.DBVirtualList;
-import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.ModificationSet;
 
@@ -251,6 +251,30 @@ public class DBSSession implements AutoCloseable {
             int size,
             int timeLimit
             ) throws EBaseException {
+        return pagedSearch(base, filter, null, start, size, timeLimit);
+    }
+
+    /**
+     * Retrieves a list of object that satifies the given
+     * filter.
+     *
+     * @param base starting point of the search
+     * @param filter search filter
+     * @param sortKey key used to sort the list
+     * @param start index of the first element
+     * @param size max number of element in the page
+     * @param timeLimit timeout limit
+     * @return search results
+     * @exception EBaseException failed to search
+     */
+    public DBSearchResults pagedSearch(
+            String base,
+            String filter,
+            String [] sortKeys,
+            int start,
+            int size,
+            int timeLimit
+            ) throws EBaseException {
         return null;
     }
 
@@ -390,6 +414,21 @@ public class DBSSession implements AutoCloseable {
         return null;
     }
 
+    /**
+     * Retrieves a paged search of objects.
+     *
+     * @param classResults the class representing the entries in the paged list
+     * @param base starting point of the search
+     * @param filter search filter
+     * @param attrs selected attributes
+     * @param sortKeys keys used to sort the list
+     * @return search results in virtual list
+     * @exception EBaseException failed to search
+     */
+    public <T extends IDBObj> DBPagedSearch<T> createPagedSearch(Class<T> classResults, String base, String filter, String[] attrs,
+            String[] sortKeys)  throws EBaseException {
+        return null;
+    }
     public void abandon(LDAPSearchResults results) throws EBaseException {
     }
 }

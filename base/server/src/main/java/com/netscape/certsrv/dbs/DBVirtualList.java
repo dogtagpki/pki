@@ -22,7 +22,9 @@ import com.netscape.cmscore.dbs.ElementProcessor;
 
 /**
  * A class represents a virtual list of search results.
+ * @deprecated As of release 11.6.0, replaced by {@link DBPagedSearch}
  */
+@Deprecated(since = "11.6.0", forRemoval = true)
 public class DBVirtualList<E extends IDBObj> {
 
     /**

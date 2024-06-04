@@ -25,7 +25,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.CAServlet;
 import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;

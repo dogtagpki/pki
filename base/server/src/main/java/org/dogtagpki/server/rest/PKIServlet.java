@@ -3,14 +3,13 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 //
-package org.dogtagpki.server.ca;
+package org.dogtagpki.server.rest;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.Principal;
 import java.util.Locale;
 
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -28,25 +27,24 @@ import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.cms.realm.PKIPrincipal;
 
 /**
+ * Implement the basic class to handle REST APIs
  * @author Marco Fargetta {@literal <mfargett@redhat.com>}
  */
-public class CAServlet extends HttpServlet {
+public abstract class PKIServlet extends HttpServlet {
     public static final long serialVersionUID = 1L;
-    private static Logger logger = LoggerFactory.getLogger(CAServlet.class);
+    private static Logger logger = LoggerFactory.getLogger(PKIServlet.class);
     public static final int DEFAULT_MAXTIME = 0;
     public static final int DEFAULT_SIZE = 20;
+    public static final int MIN_FILTER_LENGTH = 3;
+    private static final String ERROR_RESPONSE= "PKIServlet - error processing request: {}";
 
+    public abstract void get(HttpServletRequest request, HttpServletResponse response) throws Exception;
 
-    public void get(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
-    }
-
-    public void post(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
-    }
+    public abstract void post(HttpServletRequest request, HttpServletResponse response) throws Exception;
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -60,7 +58,7 @@ public class CAServlet extends HttpServlet {
                 PrintWriter out = response.getWriter();
                 out.print(re.getData().toJSON());
             } catch(Exception ex) {
-                logger.error("CAServlet: error setting error response {}", ex.getMessage());
+                logger.error(ERROR_RESPONSE, ex.getMessage());
             }
         } catch (BadRequestException bre) {
             try {
@@ -68,7 +66,15 @@ public class CAServlet extends HttpServlet {
                 PrintWriter out = response.getWriter();
                 out.print(bre.getData().toJSON());
             } catch(Exception ex) {
-                logger.error("CAServlet: error setting error response {}", ex.getMessage());
+                logger.error(ERROR_RESPONSE, ex.getMessage());
+            }
+        } catch (UnauthorizedException ue) {
+            try {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                PrintWriter out = response.getWriter();
+                out.print(ue.getData().toJSON());
+            } catch(Exception ex) {
+                logger.error(ERROR_RESPONSE, ex.getMessage());
             }
         } catch (PKIException bre) {
             try {
@@ -76,13 +82,13 @@ public class CAServlet extends HttpServlet {
                 PrintWriter out = response.getWriter();
                 out.print(bre.getData().toJSON());
             } catch(Exception ex) {
-                logger.error("CAServlet: error setting error response {}", ex.getMessage());
+                logger.error(ERROR_RESPONSE, ex.getMessage());
             }
         } catch (Exception e) {
             try {
                 response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
             } catch(Exception ex) {
-                logger.error("CAServlet: error setting error response {}", ex.getMessage());
+                logger.error(ERROR_RESPONSE, ex.getMessage());
             }
         }
     }
@@ -97,13 +103,21 @@ public class CAServlet extends HttpServlet {
             try {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND, re.getData().toJSON());
             } catch(Exception ex) {
-                logger.error("CAServlet: error setting error response {}", ex.getMessage());
+                logger.error(ERROR_RESPONSE, ex.getMessage());
             }
         } catch (BadRequestDataException bre) {
             try {
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST, bre.getMessage());
             } catch(Exception ex) {
-                logger.error("CAServlet: error setting error response {}", ex.getMessage());
+                logger.error(ERROR_RESPONSE, ex.getMessage());
+            }
+        } catch (UnauthorizedException ue) {
+            try {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                PrintWriter out = response.getWriter();
+                out.print(ue.getData().toJSON());
+            } catch(Exception ex) {
+                logger.error(ERROR_RESPONSE, ex.getMessage());
             }
         } catch (PKIException bre) {
             try {
@@ -111,37 +125,32 @@ public class CAServlet extends HttpServlet {
                 PrintWriter out = response.getWriter();
                 out.print(bre.getData().toJSON());
             } catch(Exception ex) {
-                logger.error("CAServlet: error setting error response {}", ex.getMessage());
+                logger.error(ERROR_RESPONSE, ex.getMessage());
             }
         } catch (Exception e) {
             try {
                 response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
             } catch(Exception ex) {
-                logger.error("CAServlet: error setting error response {}", ex.getMessage());
+                logger.error(ERROR_RESPONSE, ex.getMessage());
             }
         }
     }
 
-    public CAEngine getCAEngine() {
-        ServletContext servletContext = getServletContext();
-        return (CAEngine) servletContext.getAttribute("engine");
-    }
-
-    private void setSessionContext(HttpServletRequest request) throws IOException {
+    private void setSessionContext(HttpServletRequest request) {
 
 
-        logger.debug("CAServlet.setSessionContex: {}", request.getRequestURI());
+        logger.debug("PKIServlet.setSessionContex: {}", request.getRequestURI());
 
         Principal principal = request.getUserPrincipal();
 
         // If unauthenticated, ignore.
         if (principal == null) {
-            logger.debug("CAServlet.setSessionContex: Not authenticated.");
+            logger.debug("PKIServlet.setSessionContex: Not authenticated.");
             SessionContext.releaseContext();
             return;
         }
 
-        logger.debug("CAServlet.setSessionContex: principal: {}", principal.getName());
+        logger.debug("PKIServlet.setSessionContex: principal: {}", principal.getName());
 
         AuthToken authToken = null;
 
@@ -152,7 +161,7 @@ public class CAServlet extends HttpServlet {
 
         // If missing auth token, reject request.
         if (authToken == null) {
-            logger.warn("CAServlet.setSessionContex: No authorization token present.");
+            logger.warn("PKIServlet.setSessionContex: No authorization token present.");
             throw new ForbiddenException("No authorization token present.");
         }
 
