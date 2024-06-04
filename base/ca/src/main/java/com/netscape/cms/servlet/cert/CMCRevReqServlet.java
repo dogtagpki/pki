@@ -86,13 +86,13 @@ import com.netscape.cmscore.request.RequestQueue;
 )
 public class CMCRevReqServlet extends CMSServlet {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMCRevReqServlet.class);
+    public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMCRevReqServlet.class);
 
     private static final long serialVersionUID = 4731070386698127770L;
-    public final static String GETCERTS_FOR_CHALLENGE_REQUEST = "getCertsForChallenge";
+    public static final String GETCERTS_FOR_CHALLENGE_REQUEST = "getCertsForChallenge";
     public static final String TOKEN_CERT_SERIAL = "certSerialToRevoke";
     // revocation templates.
-    private final static String TPL_FILE = "revocationResult.template";
+    private static final String TPL_FILE = "revocationResult.template";
     public static final String CRED_CMC = "cmcRequest";
 
     private CertificateRepository mCertDB;
@@ -100,9 +100,9 @@ public class CMCRevReqServlet extends CMSServlet {
     private RequestQueue mQueue;
     private CAPublisherProcessor mPublisherProcessor;
     private String mRequestID = null;
-    private final static String REVOKE = "revoke";
-    private final static String ON_HOLD = "on-hold";
-    private final static int ON_HOLD_REASON = 6;
+    private static final String REVOKE = "revoke";
+    private static final String ON_HOLD = "on-hold";
+    private static final int ON_HOLD_REASON = 6;
     // http params
     public static final String SERIAL_NO = TOKEN_CERT_SERIAL;
     public static final String REASON_CODE = "reasonCode";
@@ -150,7 +150,7 @@ public class CMCRevReqServlet extends CMSServlet {
     @Override
     protected void process(CMSRequest cmsReq) throws EBaseException {
         String method = "CMCRevReqServlet: process: ";
-        logger.debug(method + "begins");
+        logger.debug("{}begins", method);
 
         String cmcAgentSerialNumber = null;
         ArgBlock httpParams = cmsReq.getHttpParams();
@@ -163,7 +163,7 @@ public class CMCRevReqServlet extends CMSServlet {
         CMSTemplate form = null;
         Locale[] locale = new Locale[1];
 
-        logger.debug(method + "**** mFormPath = " + mFormPath);
+        logger.debug("{}**** mFormPath = {}", method, mFormPath);
         try {
             form = getTemplate(mFormPath, req, locale);
         } catch (IOException e) {
@@ -185,7 +185,7 @@ public class CMCRevReqServlet extends CMSServlet {
 
         AuthzToken authzToken = null;
         try {
-            authzToken = authorize(mAclMethod, authToken, mAuthzResourceName, "revoke");
+            authzToken = authorize(mAclMethod, authToken, mAuthzResourceName, REVOKE);
         } catch (Exception e) {
             // do nothing for now
         }
@@ -375,7 +375,7 @@ public class CMCRevReqServlet extends CMSServlet {
 
             // Construct a CRL reason code extension.
             RevocationReason revReason = RevocationReason.valueOf(reason);
-            header.addIntegerValue("reasonCode", reason);
+            header.addIntegerValue(REASON_CODE, reason);
             if (revReason != null) {
                 header.addStringValue("reason", revReason.toString());
             } else {
@@ -529,7 +529,7 @@ public class CMCRevReqServlet extends CMSServlet {
                     }
                 }
 
-                header.addStringValue("revoked", "yes");
+                header.addStringValue(REVOKE, "yes");
 
                 Integer updateCRLResult =
                         revReq.getExtDataInInteger(Request.CRL_UPDATE_STATUS);
@@ -667,9 +667,9 @@ public class CMCRevReqServlet extends CMSServlet {
 
             } else {
                 Vector<String> errors = revReq.getExtDataInStringVector(Request.ERRORS);
-                StringBuffer errorStr = new StringBuffer();
+                StringBuilder errorStr = new StringBuilder();
 
-                if (errors != null && errors.size() > 0) {
+                if (errors != null && !errors.isEmpty()) {
                     for (int ii = 0; ii < errors.size(); ii++) {
                         errorStr.append(errors.elementAt(ii));
                         ;
@@ -859,7 +859,7 @@ public class CMCRevReqServlet extends CMSServlet {
             // convert it to hexadecimal
             serialNumber = "0x"
                     + Integer.toHexString(
-                            Integer.valueOf(serialNumber).intValue());
+                            Integer.parseInt(serialNumber));
         } else {
             serialNumber = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
         }
