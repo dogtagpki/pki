@@ -14,7 +14,6 @@ import javax.servlet.http.HttpSession;
 
 import org.dogtagpki.common.CAInfo;
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.CAServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

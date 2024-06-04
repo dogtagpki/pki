@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.dbs;
 
+import java.util.Arrays;
 import java.util.Enumeration;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -469,7 +470,7 @@ public class LDAPSession extends DBSSession {
     }
 
     @Override
-    public DBSearchResults pagedSearch(String base, String filter, int start, int size, int timeLimit)
+    public DBSearchResults pagedSearch(String base, String filter, String[] sortKeys, int start, int size, int timeLimit)
             throws EBaseException {
         try {
             String ldapfilter = dbSubsystem.getRegistry().getFilter(filter);
@@ -480,6 +481,7 @@ public class LDAPSession extends DBSSession {
                 cons.setServerTimeLimit(timeLimit);
             }
             LDAPPagedResultsControl pagecon;
+            LDAPSortControl sortCtrl = generateSortControl(sortKeys);
             LDAPSearchResults res;
             int skipped = 0;
             int pageSize = start > 0 ? Math.min(start, MAX_PAGED_SEARCH_SIZE) : Math.min(size, MAX_PAGED_SEARCH_SIZE);
@@ -487,7 +489,12 @@ public class LDAPSession extends DBSSession {
 
             pagecon = new LDAPPagedResultsControl(false, pageSize);
             while (start > 0 && skipped < start) {
-                cons.setServerControls(pagecon);
+                if (sortCtrl != null) {
+                    LDAPControl[] controls = {sortCtrl, pagecon};
+                    cons.setServerControls(controls);
+                } else {
+                    cons.setServerControls(pagecon);
+                }
                 res = mConn.search(base,
                         LDAPv3.SCOPE_ONE, ldapfilter, null, false, cons);
                 while(res.hasMoreElements())
@@ -507,7 +514,12 @@ public class LDAPSession extends DBSSession {
                     }
                 }
             }
-            cons.setServerControls(pagecon);
+            if (sortCtrl != null) {
+                LDAPControl[] controls = {sortCtrl, pagecon};
+                cons.setServerControls(controls);
+            } else {
+                cons.setServerControls(pagecon);
+            }
             res = mConn.search(base,
                     LDAPv3.SCOPE_ONE, ldapfilter, null, false, cons);
             return new DBSearchResults(dbSubsystem.getRegistry(),
@@ -527,7 +539,7 @@ public class LDAPSession extends DBSSession {
     public <T extends IDBObj> int countEntries(Class<T> classResults, String base, String filter, int timeLimit)
             throws EBaseException {
         String[] attrs = {"objectclass"};
-        DBPagedSearch<T> search = createPagedSearch(classResults,  base, filter, attrs, null);
+        DBPagedSearch<T> search = createPagedSearch(classResults,  base, filter, attrs, (String) null);
         RecordPagedList<T> list = new RecordPagedList<>(search);
         int count = 0;
         for(T c: list) {
@@ -685,6 +697,15 @@ public class LDAPSession extends DBSSession {
                 filter, attrs, sortKey);
     }
 
+    @Override
+    public <T extends IDBObj> DBPagedSearch<T> createPagedSearch(Class<T> classResults, String base, String filter,
+            String[] attrs, String[] sortKeys) throws EBaseException {
+        logger.debug("LDAPSession: createPagedSearch({}, {})", base, filter);
+
+        return new LDAPPagedSearch<>(classResults, dbSubsystem.getRegistry(),mConn, base,
+                filter, attrs, sortKeys);
+    }
+
     /**
      * Releases object to this interface. This allows us to
      * use memory more efficiently.
@@ -693,4 +714,23 @@ public class LDAPSession extends DBSSession {
         // not implemented
     }
 
+    private LDAPSortControl generateSortControl(String[] sortKeys) throws EBaseException {
+
+        if (sortKeys == null || sortKeys.length == 0)
+            return null;
+
+        LDAPSortKey[] mKeys = new LDAPSortKey[sortKeys.length];
+        String[] la = null;
+        synchronized (this) {
+            la = dbSubsystem.getRegistry().getLDAPAttributes(sortKeys);
+        }
+        if (la == null) {
+            logger.debug("LDAPPagedSearch.generateSortControl: cannot convert search keys {}", Arrays.toString(sortKeys));
+            throw new EBaseException("sort keys cannot be null");
+        }
+        for (int i = 0; i < la.length; i++) {
+            mKeys[i] = new LDAPSortKey(la[i]);
+        }
+        return new LDAPSortControl(mKeys, true);
+    }
 }
