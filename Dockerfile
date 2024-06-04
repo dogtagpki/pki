@@ -173,7 +173,7 @@ RUN cp -r /conf /var/lib/pki/pki-tomcat/conf.default
 
 # Grant the root group the full access to PKI server files
 # https://www.openshift.com/blog/jupyter-on-openshift-part-6-running-as-an-assigned-user-id
-RUN chgrp -Rf root /var/lib/pki/pki-tomcat
+RUN chown -Rf pkiuser:root /var/lib/pki/pki-tomcat
 RUN chmod -Rf g+rw /var/lib/pki/pki-tomcat
 
 VOLUME [ "/certs", "/conf", "/logs" ]
@@ -206,7 +206,7 @@ RUN cp -r /conf/* /var/lib/pki/pki-tomcat/conf.default
 
 # Grant the root group the full access to PKI server files
 # https://www.openshift.com/blog/jupyter-on-openshift-part-6-running-as-an-assigned-user-id
-RUN chgrp -Rf root /var/lib/pki/pki-tomcat
+RUN chown -Rf pkiuser:root /var/lib/pki/pki-tomcat
 RUN chmod -Rf g+rw /var/lib/pki/pki-tomcat
 
 CMD [ "/usr/share/pki/ca/bin/pki-ca-run" ]
@@ -237,7 +237,7 @@ RUN cp -r /conf/* /var/lib/pki/pki-tomcat/conf.default
 
 # Grant the root group the full access to PKI server files
 # https://www.openshift.com/blog/jupyter-on-openshift-part-6-running-as-an-assigned-user-id
-RUN chgrp -Rf root /var/lib/pki/pki-tomcat
+RUN chown -Rf pkiuser:root /var/lib/pki/pki-tomcat
 RUN chmod -Rf g+rw /var/lib/pki/pki-tomcat
 
 CMD [ "/usr/share/pki/kra/bin/pki-kra-run" ]
@@ -268,7 +268,7 @@ RUN cp -r /conf/* /var/lib/pki/pki-tomcat/conf.default
 
 # Grant the root group the full access to PKI server files
 # https://www.openshift.com/blog/jupyter-on-openshift-part-6-running-as-an-assigned-user-id
-RUN chgrp -Rf root /var/lib/pki/pki-tomcat
+RUN chown -Rf pkiuser:root /var/lib/pki/pki-tomcat
 RUN chmod -Rf g+rw /var/lib/pki/pki-tomcat
 
 CMD [ "/usr/share/pki/ocsp/bin/pki-ocsp-run" ]
@@ -317,7 +317,7 @@ RUN cp -r /conf/* /var/lib/pki/pki-tomcat/conf.default
 
 # Grant the root group the full access to PKI ACME files
 # https://www.openshift.com/blog/jupyter-on-openshift-part-6-running-as-an-assigned-user-id
-RUN chgrp -Rf root /var/lib/pki/pki-tomcat
+RUN chown -Rf pkiuser:root /var/lib/pki/pki-tomcat
 RUN chmod -Rf g+rw /var/lib/pki/pki-tomcat
 
 VOLUME [ \
