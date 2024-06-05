@@ -48,9 +48,8 @@ docker exec $NAME ls -la /etc/pki
 mkdir -p $OUTPUT/etc/pki
 docker cp $NAME:/etc/pki/pki.conf $OUTPUT/etc/pki
 
-docker exec $NAME ls -la /var/lib/pki/$INSTANCE/conf
-mkdir -p $OUTPUT/var/lib/pki/$INSTANCE/conf
-docker cp $NAME:/var/lib/pki/$INSTANCE/conf/* $OUTPUT/var/lib/pki/$INSTANCE/conf
+docker exec $NAME ls -la /etc/pki/$INSTANCE
+docker cp $NAME:/etc/pki/$INSTANCE $OUTPUT/etc/pki
 
 docker exec $NAME ls -la /var/log/pki
 mkdir -p $OUTPUT/var/log
