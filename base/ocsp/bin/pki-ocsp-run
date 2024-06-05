@@ -1,8 +1,15 @@
 #!/bin/sh -e
+#
+# Copyright Red Hat, Inc.
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
 
-# TODO:
-# - parameterize hard-coded values
-# - support existing subsystem user
+PKI_OCSP_SIGNING_NICKNAME="${PKI_OCSP_SIGNING_NICKNAME:-ocsp_signing}"
+PKI_AUDIT_SIGNING_NICKNAME="${PKI_AUDIT_SIGNING_NICKNAME:-audit_signing}"
+PKI_SUBSYSTEM_NICKNAME="${PKI_SUBSYSTEM_NICKNAME:-subsystem}"
+PKI_SSLSERVER_NICKNAME="${PKI_SSLSERVER_NICKNAME:-sslserver}"
+PKI_ADMIN_NICKNAME="${PKI_ADMIN_NICKNAME:-admin}"
 
 # Allow the owner of the container (who might not be in the root group)
 # to manage the config and log files.
@@ -46,7 +53,7 @@ echo "INFO: OCSP signing cert:"
 pki \
     -d /var/lib/pki/pki-tomcat/conf/alias \
     nss-cert-show \
-    ocsp_signing
+    "$PKI_OCSP_SIGNING_NICKNAME"
 
 echo "################################################################################"
 
@@ -54,7 +61,7 @@ echo "INFO: Audit signing cert:"
 pki \
     -d /var/lib/pki/pki-tomcat/conf/alias \
     nss-cert-show \
-    audit_signing
+    "$PKI_AUDIT_SIGNING_NICKNAME"
 
 echo "################################################################################"
 
@@ -62,7 +69,7 @@ echo "INFO: Subsystem cert:"
 pki \
     -d /var/lib/pki/pki-tomcat/conf/alias \
     nss-cert-show \
-    subsystem
+    "$PKI_SUBSYSTEM_NICKNAME"
 
 if [ ! -f /certs/subsystem.crt ]
 then
@@ -72,7 +79,7 @@ then
         -d /var/lib/pki/pki-tomcat/conf/alias \
         nss-cert-export \
         --output-file /certs/subsystem.crt \
-        subsystem
+        "$PKI_SUBSYSTEM_NICKNAME"
 fi
 
 echo "################################################################################"
@@ -81,7 +88,7 @@ echo "INFO: SSL server cert:"
 pki \
     -d /var/lib/pki/pki-tomcat/conf/alias \
     nss-cert-show \
-    sslserver
+    "$PKI_SSLSERVER_NICKNAME"
 
 pki \
     -d /var/lib/pki/pki-tomcat/conf/alias \
@@ -99,7 +106,7 @@ then
 fi
 
 echo "INFO: Admin cert:"
-pki nss-cert-show admin
+pki nss-cert-show "$PKI_ADMIN_NICKNAME"
 
 if [ ! -f /certs/admin.crt ]
 then
@@ -107,7 +114,7 @@ then
 
     pki nss-cert-export \
         --output-file /certs/admin.crt \
-        admin
+        "$PKI_ADMIN_NICKNAME"
 fi
 
 pki nss-cert-find
@@ -134,13 +141,13 @@ pkispawn \
     -D pki_share_db=True \
     -D pki_issuing_ca= \
     -D pki_import_system_certs=False \
-    -D pki_ocsp_signing_nickname=ocsp_signing \
+    -D pki_ocsp_signing_nickname="$PKI_OCSP_SIGNING_NICKNAME" \
     -D pki_ocsp_signing_csr_path=/certs/ocsp_signing.csr \
-    -D pki_audit_signing_nickname=audit_signing \
+    -D pki_audit_signing_nickname="$PKI_AUDIT_SIGNING_NICKNAME" \
     -D pki_audit_signing_csr_path=/certs/audit_signing.csr \
-    -D pki_subsystem_nickname=subsystem \
+    -D pki_subsystem_nickname="$PKI_SUBSYSTEM_NICKNAME" \
     -D pki_subsystem_csr_path=/certs/subsystem.csr \
-    -D pki_sslserver_nickname=sslserver \
+    -D pki_sslserver_nickname="$PKI_SSLSERVER_NICKNAME" \
     -D pki_sslserver_csr_path=/certs/sslserver.csr \
     -D pki_admin_setup=False \
     -D pki_security_domain_setup=False \

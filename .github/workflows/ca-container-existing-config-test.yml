@@ -1,0 +1,357 @@
+name: CA container with existing config
+
+on: workflow_call
+
+env:
+  DB_IMAGE: ${{ vars.DB_IMAGE || 'quay.io/389ds/dirsrv' }}
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+
+          # Currently client fails to connect to CA with Podman.
+          # TODO: Replace Docker with Podman when the issue is resolved.
+          # sudo apt-get -y purge --auto-remove docker-ce-cli
+          # sudo apt-get -y install podman-docker
+
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Retrieve PKI images
+        uses: actions/cache@v4
+        with:
+          key: pki-images-${{ github.sha }}
+          path: pki-images.tar
+
+      - name: Load PKI images
+        run: docker load --input pki-images.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-container-create.sh \
+              --image=${{ env.DB_IMAGE }} \
+              --hostname=ds.example.com \
+              --network=example \
+              --network-alias=ds.example.com \
+              --password=Secret.123 \
+              ds
+
+      - name: Set up PKI container
+        run: |
+          tests/bin/runner-init.sh \
+              --hostname=ca.example.com \
+              --network=example \
+              --network-alias=ca.example.com \
+              pki
+
+      - name: Install CA
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_ds_password=Secret.123 \
+              -v
+
+      - name: Set up client container
+        run: |
+          tests/bin/runner-init.sh \
+              --hostname=client.example.com \
+              --network=example \
+              --network-alias=client.example.com \
+              client
+
+      - name: Check admin user
+        run: |
+          mkdir certs
+
+          # install CA signing cert
+          docker exec pki pki-server cert-export \
+              --cert-file $SHARED/certs/ca_signing.crt \
+              ca_signing
+          docker exec client pki nss-cert-import \
+              --cert $SHARED/certs/ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
+          # install admin cert
+          docker exec pki cp \
+              /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              $SHARED/certs/admin.p12
+          docker exec client pki pkcs12-import \
+              --pkcs12 $SHARED/certs/admin.p12 \
+              --password Secret.123
+
+          docker exec client pki \
+              -U https://ca.example.com:8443 \
+              -n caadmin \
+              ca-user-show \
+              caadmin
+
+      - name: Stop CA
+        run: |
+          docker exec pki pki-server stop --wait
+          docker network disconnect example pki
+
+      - name: Export certs
+        run: |
+          # export system certs and keys
+          docker exec pki pki \
+              -v \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              pkcs12-export \
+              --pkcs12 $SHARED/certs/server.p12 \
+              --password Secret.123 \
+              ca_signing \
+              ca_ocsp_signing \
+              ca_audit_signing \
+              subsystem \
+              sslserver
+
+          docker exec pki pki pkcs12-cert-find \
+              --pkcs12 $SHARED/certs/server.p12 \
+              --password Secret.123
+
+          # export system cert requests
+          docker exec pki cp \
+              /var/lib/pki/pki-tomcat/conf/certs/ca_signing.csr \
+              $SHARED/certs/ca_signing.csr
+          docker exec pki cp \
+              /var/lib/pki/pki-tomcat/conf/certs/ca_ocsp_signing.csr \
+              $SHARED/certs/ocsp_signing.csr
+          docker exec pki cp \
+              /var/lib/pki/pki-tomcat/conf/certs/ca_audit_signing.csr \
+              $SHARED/certs/audit_signing.csr
+          docker exec pki cp \
+              /var/lib/pki/pki-tomcat/conf/certs/subsystem.csr \
+              $SHARED/certs/subsystem.csr
+          docker exec pki cp \
+              /var/lib/pki/pki-tomcat/conf/certs/sslserver.csr \
+              $SHARED/certs/sslserver.csr
+          docker exec pki cp \
+              /var/lib/pki/pki-tomcat/conf/certs/ca_admin.csr \
+              $SHARED/certs/admin.csr
+
+          docker exec pki pki pkcs12-cert-find \
+              --pkcs12 $SHARED/certs/admin.p12 \
+              --password Secret.123
+
+          ls -la certs
+
+      - name: Export config files
+        run: |
+          docker cp pki:/etc/pki/pki-tomcat conf
+
+          ls -la conf
+
+      - name: Export log files
+        run: |
+          docker cp pki:/var/log/pki/pki-tomcat logs
+
+          ls -la logs
+
+      - name: Set up CA container
+        run: |
+          docker run \
+              --name ca \
+              --hostname ca.example.com \
+              --network example \
+              --network-alias ca.example.com \
+              -v $PWD/certs:/certs \
+              -v $PWD/conf:/conf \
+              -v $PWD/logs:/logs \
+              -e PKI_DS_URL=ldap://ds.example.com:3389 \
+              -e PKI_DS_PASSWORD=Secret.123 \
+              -e PKI_CA_SIGNING_NICKNAME=ca_signing \
+              -e PKI_OCSP_SIGNING_NICKNAME=ca_ocsp_signing \
+              -e PKI_AUDIT_SIGNING_NICKNAME=ca_audit_signing \
+              -e PKI_SUBSYSTEM_NICKNAME=subsystem \
+              -e PKI_SSLSERVER_NICKNAME=sslserver \
+              -e PKI_ADMIN_NICKNAME=caadmin \
+              --detach \
+              pki-ca
+
+          # wait for CA to start
+          docker exec client curl \
+              --retry 180 \
+              --retry-delay 0 \
+              --retry-connrefused \
+              -s \
+              -k \
+              -o /dev/null \
+              https://ca.example.com:8443
+
+      - name: Check conf dir
+        if: always()
+        run: |
+          ls -l conf \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
+              | tee output
+
+          # everything should be owned by root group
+          # TODO: review owners/permissions
+          cat > expected << EOF
+          drwxrwxrwx root Catalina
+          drwxrwxrwx root alias
+          drwxrwxrwx root ca
+          -rw-rw-rw- root catalina.policy
+          lrwxrwxrwx root catalina.properties -> /usr/share/pki/server/conf/catalina.properties
+          drwxrwxrwx root certs
+          lrwxrwxrwx root context.xml -> /etc/tomcat/context.xml
+          lrwxrwxrwx root logging.properties -> /usr/share/pki/server/conf/logging.properties
+          -rw-rw-rw- root password.conf
+          -rw-rw-rw- root server.xml
+          -rw-rw-rw- root serverCertNick.conf
+          -rw-rw-rw- root tomcat.conf
+          lrwxrwxrwx root web.xml -> /etc/tomcat/web.xml
+          EOF
+
+          diff expected output
+
+      - name: Check conf/ca dir
+        if: always()
+        run: |
+          ls -l conf/ca \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
+                  -e '/^\S* *\S* *\S* *CS.cfg.bak /d' \
+              | tee output
+
+          # everything should be owned by root group
+          # TODO: review owners/permissions
+          cat > expected << EOF
+          -rw-rw-rw- root CS.cfg
+          -rw-rw-rw- root adminCert.profile
+          drwxrwxrwx root archives
+          -rw-rw-rw- root caAuditSigningCert.profile
+          -rw-rw-rw- root caCert.profile
+          -rw-rw-rw- root caOCSPCert.profile
+          drwxrwxrwx root emails
+          -rw-rw-rw- root flatfile.txt
+          drwxrwxrwx root profiles
+          -rw-rw-rw- root proxy.conf
+          -rw-rw-rw- root registry.cfg
+          -rw-rw-rw- root serverCert.profile
+          -rw-rw-rw- root subsystemCert.profile
+          EOF
+
+          diff expected output
+
+      - name: Check logs dir
+        if: always()
+        run: |
+          ls -l logs \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
+              | tee output
+
+          DATE=$(date +'%Y-%m-%d')
+
+          # everything should be owned by docker group
+          # TODO: review owners/permissions
+          cat > expected << EOF
+          drwxrwxrwx root backup
+          drwxrwxrwx root ca
+          -rw-rw-rw- root catalina.$DATE.log
+          -rw-rw-rw- root host-manager.$DATE.log
+          -rw-rw-rw- root localhost.$DATE.log
+          -rw-rw-rw- root localhost_access_log.$DATE.txt
+          -rw-rw-rw- root manager.$DATE.log
+          drwxrwxrwx root pki
+          EOF
+
+          diff expected output
+
+      - name: Check admin user again
+        run: |
+          docker exec client pki \
+              -U https://ca.example.com:8443 \
+              -n caadmin \
+              ca-user-show \
+              caadmin
+
+      - name: Check cert enrollment
+        run: |
+          docker exec client pki \
+              -U https://ca.example.com:8443 \
+              client-cert-request \
+              uid=testuser | tee output
+
+          REQUEST_ID=$(sed -n -e 's/^ *Request ID: *\(.*\)$/\1/p' output)
+          echo "REQUEST_ID: $REQUEST_ID"
+
+          docker exec client pki \
+              -U https://ca.example.com:8443 \
+              -n caadmin \
+              ca-cert-request-approve \
+              $REQUEST_ID \
+              --force
+
+      - name: Check DS server systemd journal
+        if: always()
+        run: |
+          docker exec ds journalctl -x --no-pager -u dirsrv@localhost.service
+
+      - name: Check DS container logs
+        if: always()
+        run: |
+          docker logs ds
+
+      - name: Check PKI server systemd journal
+        if: always()
+        run: |
+          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check CA debug log
+        if: always()
+        run: |
+          docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check CA container logs
+        if: always()
+        run: |
+          docker logs ca 2>&1
+
+      - name: Check CA container debug logs
+        if: always()
+        run: |
+          docker exec ca find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+
+      - name: Gather artifacts
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh ds
+          tests/bin/pki-artifacts-save.sh pki
+
+          mkdir -p /tmp/artifacts/ca
+          # TODO: fix permission issue
+          # cp -r certs /tmp/artifacts/ca
+          # cp -r conf /tmp/artifacts/ca
+          # cp -r logs /tmp/artifacts/ca
+
+          docker logs ca > /tmp/artifacts/ca/container.out 2> /tmp/artifacts/ca/container.err
+
+          mkdir -p /tmp/artifacts/client
+          docker logs client > /tmp/artifacts/client/container.out 2> /tmp/artifacts/client/container.err
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ca-container-existing-config
+          path: /tmp/artifacts
