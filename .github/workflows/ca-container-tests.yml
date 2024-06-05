@@ -18,6 +18,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/ca-container-existing-certs-test.yml
 
+  ca-container-existing-config-test:
+    name: CA container with existing config
+    needs: build
+    uses: ./.github/workflows/ca-container-existing-config-test.yml
+
   ca-container-system-service-test:
     name: CA container system service
     needs: build

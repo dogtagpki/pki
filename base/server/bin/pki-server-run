@@ -7,6 +7,9 @@
 
 . /usr/share/pki/scripts/config
 
+PKI_CA_SIGNING_NICKNAME="${PKI_CA_SIGNING_NICKNAME:-ca_signing}"
+PKI_SSLSERVER_NICKNAME="${PKI_SSLSERVER_NICKNAME:-sslserver}"
+
 # Allow the owner of the container (who might not be in the root group)
 # to manage the config and log files.
 umask 000
@@ -45,7 +48,7 @@ then
         -in /certs/ca_signing.crt \
         -inkey /certs/ca_signing.key \
         -out /tmp/certs.p12 \
-        -name ca_signing \
+        -name "$PKI_CA_SIGNING_NICKNAME" \
         -passout file:/tmp/password
 
     # trust CA signing cert in PKCS #12 file
@@ -55,7 +58,7 @@ then
         --pkcs12 /tmp/certs.p12 \
         --password-file /tmp/password \
         --trust-flags CT,C,C \
-        ca_signing
+        "$PKI_CA_SIGNING_NICKNAME"
 
     # import PKCS #12 file into NSS database
     pki \
@@ -87,7 +90,7 @@ pki \
     -d /var/lib/pki/pki-tomcat/conf/alias \
     nss-cert-export \
     --output-file /certs/ca_signing.crt \
-    ca_signing \
+    "$PKI_CA_SIGNING_NICKNAME" \
     2> /dev/null || rc=$?
 
 # generate a CA signing certificate if not available
@@ -119,14 +122,14 @@ then
         nss-cert-import \
         --cert /certs/ca_signing.crt \
         --trust CT,C,C \
-        ca_signing
+        "$PKI_CA_SIGNING_NICKNAME"
 fi
 
 echo "INFO: CA signing cert:"
 pki \
     -d /var/lib/pki/pki-tomcat/conf/alias \
     nss-cert-show \
-    ca_signing
+    "$PKI_CA_SIGNING_NICKNAME"
 
 echo "################################################################################"
 
@@ -136,7 +139,7 @@ pki \
     -d /var/lib/pki/pki-tomcat/conf/alias \
     nss-cert-export \
     --output-file /certs/sslserver.crt \
-    sslserver \
+    "$PKI_SSLSERVER_NICKNAME" \
     2> /dev/null || rc=$?
 
 # generate a SSL server certificate if not available
@@ -156,7 +159,7 @@ then
     pki \
         -d /var/lib/pki/pki-tomcat/conf/alias \
         nss-cert-issue \
-        --issuer ca_signing \
+        --issuer "$PKI_CA_SIGNING_NICKNAME" \
         --csr /certs/sslserver.csr \
         --ext /usr/share/pki/server/certs/sslserver.conf \
         --cert /certs/sslserver.crt
@@ -166,20 +169,20 @@ then
         -d /var/lib/pki/pki-tomcat/conf/alias \
         nss-cert-import \
         --cert /certs/sslserver.crt \
-        sslserver
+        "$PKI_SSLSERVER_NICKNAME"
 fi
 
 echo "INFO: SSL server cert:"
 pki \
     -d /var/lib/pki/pki-tomcat/conf/alias \
     nss-cert-show \
-    sslserver
+    "$PKI_SSLSERVER_NICKNAME"
 
 echo "################################################################################"
 
 # check whether CA signing cert exists in default NSS database
 rc=0
-pki nss-cert-export ca_signing \
+pki nss-cert-export "$PKI_CA_SIGNING_NICKNAME" \
     > /dev/null \
     2> /dev/null || rc=$?
 
@@ -189,7 +192,7 @@ then
     pki nss-cert-import \
         --cert /certs/ca_signing.crt \
         --trust CT,C,C \
-        ca_signing
+        "$PKI_CA_SIGNING_NICKNAME"
 fi
 
 echo "################################################################################"

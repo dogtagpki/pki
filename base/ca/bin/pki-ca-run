@@ -1,8 +1,16 @@
 #!/bin/sh -e
+#
+# Copyright Red Hat, Inc.
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
 
-# TODO:
-# - parameterize hard-coded values
-# - support existing subsystem user
+PKI_CA_SIGNING_NICKNAME="${PKI_CA_SIGNING_NICKNAME:-ca_signing}"
+PKI_OCSP_SIGNING_NICKNAME="${PKI_OCSP_SIGNING_NICKNAME:-ocsp_signing}"
+PKI_AUDIT_SIGNING_NICKNAME="${PKI_AUDIT_SIGNING_NICKNAME:-audit_signing}"
+PKI_SUBSYSTEM_NICKNAME="${PKI_SUBSYSTEM_NICKNAME:-subsystem}"
+PKI_SSLSERVER_NICKNAME="${PKI_SSLSERVER_NICKNAME:-sslserver}"
+PKI_ADMIN_NICKNAME="${PKI_ADMIN_NICKNAME:-admin}"
 
 # Allow the owner of the container (who might not be in the root group)
 # to manage the config and log files.
@@ -35,6 +43,7 @@ then
 
     pki \
         -d /var/lib/pki/pki-tomcat/conf/alias \
+        -f /var/lib/pki/pki-tomcat/conf/password.conf \
         pkcs12-import \
         --pkcs12 /certs/server.p12 \
         --password Secret.123
@@ -46,9 +55,10 @@ echo "##########################################################################
 rc=0
 pki \
     -d /var/lib/pki/pki-tomcat/conf/alias \
+    -f /var/lib/pki/pki-tomcat/conf/password.conf \
     nss-cert-export \
     --output-file /certs/ca_signing.crt \
-    ca_signing \
+    "$PKI_CA_SIGNING_NICKNAME" \
     2> /dev/null || rc=$?
 
 if [ $rc -ne 0 ]
@@ -57,6 +67,7 @@ then
 
     pki \
         -d /var/lib/pki/pki-tomcat/conf/alias \
+        -f /var/lib/pki/pki-tomcat/conf/password.conf \
         nss-cert-request \
         --subject "CN=CA Signing Certificate" \
         --ext /usr/share/pki/server/certs/ca_signing.conf \
@@ -64,6 +75,7 @@ then
 
     pki \
         -d /var/lib/pki/pki-tomcat/conf/alias \
+        -f /var/lib/pki/pki-tomcat/conf/password.conf \
         nss-cert-issue \
         --csr /certs/ca_signing.csr \
         --ext /usr/share/pki/server/certs/ca_signing.conf \
@@ -73,17 +85,19 @@ then
 
     pki \
         -d /var/lib/pki/pki-tomcat/conf/alias \
+        -f /var/lib/pki/pki-tomcat/conf/password.conf \
         nss-cert-import \
         --cert /certs/ca_signing.crt \
         --trust CT,C,C \
-        ca_signing
+        "$PKI_CA_SIGNING_NICKNAME"
 fi
 
 echo "INFO: CA signing cert:"
 pki \
     -d /var/lib/pki/pki-tomcat/conf/alias \
+    -f /var/lib/pki/pki-tomcat/conf/password.conf \
     nss-cert-show \
-    ca_signing
+    "$PKI_CA_SIGNING_NICKNAME"
 
 if [ ! -f /certs/ca_signing.crt ]
 then
@@ -91,9 +105,10 @@ then
 
     pki \
         -d /var/lib/pki/pki-tomcat/conf/alias \
+        -f /var/lib/pki/pki-tomcat/conf/password.conf \
         nss-cert-export \
         --output-file /certs/ca_signing.crt \
-        ca_signing
+        "$PKI_CA_SIGNING_NICKNAME"
 fi
 
 echo "################################################################################"
@@ -102,9 +117,10 @@ echo "##########################################################################
 rc=0
 pki \
     -d /var/lib/pki/pki-tomcat/conf/alias \
+    -f /var/lib/pki/pki-tomcat/conf/password.conf \
     nss-cert-export \
     --output-file /certs/ocsp_signing.crt \
-    ocsp_signing \
+    "$PKI_OCSP_SIGNING_NICKNAME" \
     2> /dev/null || rc=$?
 
 if [ $rc -ne 0 ]
@@ -113,6 +129,7 @@ then
 
     pki \
         -d /var/lib/pki/pki-tomcat/conf/alias \
+        -f /var/lib/pki/pki-tomcat/conf/password.conf \
         nss-cert-request \
         --subject "CN=OCSP Signing Certificate" \
         --ext /usr/share/pki/server/certs/ocsp_signing.conf \
@@ -120,24 +137,27 @@ then
 
     pki \
         -d /var/lib/pki/pki-tomcat/conf/alias \
+        -f /var/lib/pki/pki-tomcat/conf/password.conf \
         nss-cert-issue \
-        --issuer ca_signing \
+        --issuer "$PKI_CA_SIGNING_NICKNAME" \
         --csr /certs/ocsp_signing.csr \
         --ext /usr/share/pki/server/certs/ocsp_signing.conf \
         --cert /certs/ocsp_signing.crt
 
     pki \
         -d /var/lib/pki/pki-tomcat/conf/alias \
+        -f /var/lib/pki/pki-tomcat/conf/password.conf \
         nss-cert-import \
         --cert /certs/ocsp_signing.crt \
-        ocsp_signing
+        "$PKI_OCSP_SIGNING_NICKNAME"
 fi
 
 echo "INFO: OCSP signing cert:"
 pki \
     -d /var/lib/pki/pki-tomcat/conf/alias \
+    -f /var/lib/pki/pki-tomcat/conf/password.conf \
     nss-cert-show \
-    ocsp_signing
+    "$PKI_OCSP_SIGNING_NICKNAME"
 
 echo "################################################################################"
 
@@ -145,9 +165,10 @@ echo "##########################################################################
 rc=0
 pki \
     -d /var/lib/pki/pki-tomcat/conf/alias \
+    -f /var/lib/pki/pki-tomcat/conf/password.conf \
     nss-cert-export \
     --output-file /certs/audit_signing.crt \
-    audit_signing \
+    "$PKI_AUDIT_SIGNING_NICKNAME" \
     2> /dev/null || rc=$?
 
 if [ $rc -ne 0 ]
@@ -156,6 +177,7 @@ then
 
     pki \
         -d /var/lib/pki/pki-tomcat/conf/alias \
+        -f /var/lib/pki/pki-tomcat/conf/password.conf \
         nss-cert-request \
         --subject "CN=Audit Signing Certificate" \
         --ext /usr/share/pki/server/certs/audit_signing.conf \
@@ -163,25 +185,28 @@ then
 
     pki \
         -d /var/lib/pki/pki-tomcat/conf/alias \
+        -f /var/lib/pki/pki-tomcat/conf/password.conf \
         nss-cert-issue \
-        --issuer ca_signing \
+        --issuer "$PKI_CA_SIGNING_NICKNAME" \
         --csr /certs/audit_signing.csr \
         --ext /usr/share/pki/server/certs/audit_signing.conf \
         --cert /certs/audit_signing.crt
 
     pki \
         -d /var/lib/pki/pki-tomcat/conf/alias \
+        -f /var/lib/pki/pki-tomcat/conf/password.conf \
         nss-cert-import \
         --cert /certs/audit_signing.crt \
         --trust ,,P \
-        audit_signing
+        "$PKI_AUDIT_SIGNING_NICKNAME"
 fi
 
 echo "INFO: Audit signing cert:"
 pki \
     -d /var/lib/pki/pki-tomcat/conf/alias \
+    -f /var/lib/pki/pki-tomcat/conf/password.conf \
     nss-cert-show \
-    audit_signing
+    "$PKI_AUDIT_SIGNING_NICKNAME"
 
 echo "################################################################################"
 
@@ -189,9 +214,10 @@ echo "##########################################################################
 rc=0
 pki \
     -d /var/lib/pki/pki-tomcat/conf/alias \
+    -f /var/lib/pki/pki-tomcat/conf/password.conf \
     nss-cert-export \
     --output-file /certs/subsystem.crt \
-    subsystem \
+    "$PKI_SUBSYSTEM_NICKNAME" \
     2> /dev/null || rc=$?
 
 if [ $rc -ne 0 ]
@@ -200,30 +226,34 @@ then
 
     pki \
         -d /var/lib/pki/pki-tomcat/conf/alias \
+        -f /var/lib/pki/pki-tomcat/conf/password.conf \
         nss-cert-request \
         --subject "CN=Subsystem Certificate" \
         --csr /certs/subsystem.csr
 
     pki \
         -d /var/lib/pki/pki-tomcat/conf/alias \
+        -f /var/lib/pki/pki-tomcat/conf/password.conf \
         nss-cert-issue \
-        --issuer ca_signing \
+        --issuer "$PKI_CA_SIGNING_NICKNAME" \
         --csr /certs/subsystem.csr \
         --ext /usr/share/pki/server/certs/subsystem.conf \
         --cert /certs/subsystem.crt
 
     pki \
         -d /var/lib/pki/pki-tomcat/conf/alias \
+        -f /var/lib/pki/pki-tomcat/conf/password.conf \
         nss-cert-import \
         --cert /certs/subsystem.crt \
-        subsystem
+        "$PKI_SUBSYSTEM_NICKNAME"
 fi
 
 echo "INFO: Subsystem cert:"
 pki \
     -d /var/lib/pki/pki-tomcat/conf/alias \
+    -f /var/lib/pki/pki-tomcat/conf/password.conf \
     nss-cert-show \
-    subsystem
+    "$PKI_SUBSYSTEM_NICKNAME"
 
 echo "################################################################################"
 
@@ -231,9 +261,10 @@ echo "##########################################################################
 rc=0
 pki \
     -d /var/lib/pki/pki-tomcat/conf/alias \
+    -f /var/lib/pki/pki-tomcat/conf/password.conf \
     nss-cert-export \
     --output-file /certs/sslserver.crt \
-    sslserver \
+    "$PKI_SSLSERVER_NICKNAME" \
     2> /dev/null || rc=$?
 
 if [ $rc -ne 0 ]
@@ -242,6 +273,7 @@ then
 
     pki \
         -d /var/lib/pki/pki-tomcat/conf/alias \
+        -f /var/lib/pki/pki-tomcat/conf/password.conf \
         nss-cert-request \
         --subject "CN=$HOSTNAME" \
         --ext /usr/share/pki/server/certs/sslserver.conf \
@@ -249,24 +281,27 @@ then
 
     pki \
         -d /var/lib/pki/pki-tomcat/conf/alias \
+        -f /var/lib/pki/pki-tomcat/conf/password.conf \
         nss-cert-issue \
-        --issuer ca_signing \
+        --issuer "$PKI_CA_SIGNING_NICKNAME" \
         --csr /certs/sslserver.csr \
         --ext /usr/share/pki/server/certs/sslserver.conf \
         --cert /certs/sslserver.crt
 
     pki \
         -d /var/lib/pki/pki-tomcat/conf/alias \
+        -f /var/lib/pki/pki-tomcat/conf/password.conf \
         nss-cert-import \
         --cert /certs/sslserver.crt \
-        sslserver
+        "$PKI_SSLSERVER_NICKNAME"
 fi
 
 echo "INFO: SSL server cert:"
 pki \
     -d /var/lib/pki/pki-tomcat/conf/alias \
+    -f /var/lib/pki/pki-tomcat/conf/password.conf \
     nss-cert-show \
-    sslserver
+    "$PKI_SSLSERVER_NICKNAME"
 
 echo "################################################################################"
 
@@ -281,7 +316,7 @@ fi
 
 # check whether CA signing cert exists
 rc=0
-pki nss-cert-export ca_signing \
+pki nss-cert-export "$PKI_CA_SIGNING_NICKNAME" \
     > /dev/null \
     2> /dev/null || rc=$?
 
@@ -291,7 +326,7 @@ then
     pki nss-cert-import \
         --cert /certs/ca_signing.crt \
         --trust CT,C,C \
-        ca_signing
+        "$PKI_CA_SIGNING_NICKNAME"
 fi
 
 echo "################################################################################"
@@ -300,7 +335,7 @@ echo "##########################################################################
 rc=0
 pki nss-cert-export \
     --output-file /certs/admin.crt \
-    admin \
+    "$PKI_ADMIN_NICKNAME" \
     2> /dev/null || rc=$?
 
 if [ $rc -ne 0 ]
@@ -314,19 +349,20 @@ then
 
     pki \
         -d /var/lib/pki/pki-tomcat/conf/alias \
+        -f /var/lib/pki/pki-tomcat/conf/password.conf \
         nss-cert-issue \
-        --issuer ca_signing \
+        --issuer "$PKI_CA_SIGNING_NICKNAME" \
         --csr /certs/admin.csr \
         --ext /usr/share/pki/server/certs/admin.conf \
         --cert /certs/admin.crt
 
     pki nss-cert-import \
         --cert /certs/admin.crt \
-        admin
+        "$PKI_ADMIN_NICKNAME"
 fi
 
 echo "INFO: Admin cert:"
-pki nss-cert-show admin
+pki nss-cert-show "$PKI_ADMIN_NICKNAME"
 
 if [ ! -f /certs/admin.p12 ]
 then
@@ -335,7 +371,7 @@ then
     pki pkcs12-export \
         --pkcs12 /certs/admin.p12 \
         --password Secret.123 \
-        admin
+        "$PKI_ADMIN_NICKNAME"
 fi
 
 if [ ! -f /certs/admin.crt ]
@@ -344,7 +380,7 @@ then
 
     pki nss-cert-export \
         --output-file /certs/admin.crt \
-        admin
+        "$PKI_ADMIN_NICKNAME"
 fi
 
 echo "################################################################################"
@@ -366,15 +402,15 @@ pkispawn \
     -D pki_skip_ds_verify=True \
     -D pki_share_db=True \
     -D pki_import_system_certs=False \
-    -D pki_ca_signing_nickname=ca_signing \
+    -D pki_ca_signing_nickname="$PKI_CA_SIGNING_NICKNAME" \
     -D pki_ca_signing_csr_path=/certs/ca_signing.csr \
-    -D pki_ocsp_signing_nickname=ocsp_signing \
+    -D pki_ocsp_signing_nickname="$PKI_OCSP_SIGNING_NICKNAME" \
     -D pki_ocsp_signing_csr_path=/certs/ocsp_signing.csr \
-    -D pki_audit_signing_nickname=audit_signing \
+    -D pki_audit_signing_nickname="$PKI_AUDIT_SIGNING_NICKNAME" \
     -D pki_audit_signing_csr_path=/certs/audit_signing.csr \
-    -D pki_subsystem_nickname=subsystem \
+    -D pki_subsystem_nickname="$PKI_SUBSYSTEM_NICKNAME" \
     -D pki_subsystem_csr_path=/certs/subsystem.csr \
-    -D pki_sslserver_nickname=sslserver \
+    -D pki_sslserver_nickname="$PKI_SSLSERVER_NICKNAME" \
     -D pki_sslserver_csr_path=/certs/sslserver.csr \
     -D pki_admin_setup=False \
     -D pki_security_domain_setup=False \

@@ -1,8 +1,16 @@
 #!/bin/sh -e
+#
+# Copyright Red Hat, Inc.
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
 
-# TODO:
-# - parameterize hard-coded values
-# - support existing subsystem user
+PKI_STORAGE_NICKNAME="${PKI_OCSP_SIGNING_NICKNAME:-kra_storage}"
+PKI_TRANSPORT_NICKNAME="${PKI_AUDIT_SIGNING_NICKNAME:-kra_transport}"
+PKI_AUDIT_SIGNING_NICKNAME="${PKI_AUDIT_SIGNING_NICKNAME:-audit_signing}"
+PKI_SUBSYSTEM_NICKNAME="${PKI_SUBSYSTEM_NICKNAME:-subsystem}"
+PKI_SSLSERVER_NICKNAME="${PKI_SSLSERVER_NICKNAME:-sslserver}"
+PKI_ADMIN_NICKNAME="${PKI_ADMIN_NICKNAME:-admin}"
 
 # Allow the owner of the container (who might not be in the root group)
 # to manage the config and log files.
@@ -35,6 +43,7 @@ then
 
     pki \
         -d /var/lib/pki/pki-tomcat/conf/alias \
+        -f /var/lib/pki/pki-tomcat/conf/password.conf \
         pkcs12-import \
         --pkcs12 /certs/server.p12 \
         --password Secret.123
@@ -45,32 +54,36 @@ echo "##########################################################################
 echo "INFO: KRA storage cert:"
 pki \
     -d /var/lib/pki/pki-tomcat/conf/alias \
+    -f /var/lib/pki/pki-tomcat/conf/password.conf \
     nss-cert-show \
-    kra_storage
+    "$PKI_STORAGE_NICKNAME"
 
 echo "################################################################################"
 
 echo "INFO: KRA transport cert:"
 pki \
     -d /var/lib/pki/pki-tomcat/conf/alias \
+    -f /var/lib/pki/pki-tomcat/conf/password.conf \
     nss-cert-show \
-    kra_transport
+    "$PKI_TRANSPORT_NICKNAME"
 
 echo "################################################################################"
 
 echo "INFO: Audit signing cert:"
 pki \
     -d /var/lib/pki/pki-tomcat/conf/alias \
+    -f /var/lib/pki/pki-tomcat/conf/password.conf \
     nss-cert-show \
-    audit_signing
+    "$PKI_AUDIT_SIGNING_NICKNAME"
 
 echo "################################################################################"
 
 echo "INFO: Subsystem cert:"
 pki \
     -d /var/lib/pki/pki-tomcat/conf/alias \
+    -f /var/lib/pki/pki-tomcat/conf/password.conf \
     nss-cert-show \
-    subsystem
+    "$PKI_SUBSYSTEM_NICKNAME"
 
 if [ ! -f /certs/subsystem.crt ]
 then
@@ -78,9 +91,10 @@ then
 
     pki \
         -d /var/lib/pki/pki-tomcat/conf/alias \
+        -f /var/lib/pki/pki-tomcat/conf/password.conf \
         nss-cert-export \
         --output-file /certs/subsystem.crt \
-        subsystem
+        "$PKI_SUBSYSTEM_NICKNAME"
 fi
 
 echo "################################################################################"
@@ -88,8 +102,9 @@ echo "##########################################################################
 echo "INFO: SSL server cert:"
 pki \
     -d /var/lib/pki/pki-tomcat/conf/alias \
+    -f /var/lib/pki/pki-tomcat/conf/password.conf \
     nss-cert-show \
-    sslserver
+    "$PKI_SSLSERVER_NICKNAME"
 
 echo "################################################################################"
 
@@ -103,7 +118,7 @@ then
 fi
 
 echo "INFO: Admin cert:"
-pki nss-cert-show admin
+pki nss-cert-show "$PKI_ADMIN_NICKNAME"
 
 if [ ! -f /certs/admin.crt ]
 then
@@ -111,7 +126,7 @@ then
 
     pki nss-cert-export \
         --output-file /certs/admin.crt \
-        admin
+        "$PKI_ADMIN_NICKNAME"
 fi
 
 echo "################################################################################"
@@ -135,15 +150,15 @@ pkispawn \
     -D pki_share_db=True \
     -D pki_issuing_ca= \
     -D pki_import_system_certs=False \
-    -D pki_storage_nickname=kra_storage \
+    -D pki_storage_nickname="$PKI_STORAGE_NICKNAME" \
     -D pki_storage_csr_path=/certs/kra_storage.csr \
-    -D pki_transport_nickname=kra_transport \
+    -D pki_transport_nickname="$PKI_TRANSPORT_NICKNAME" \
     -D pki_transport_csr_path=/certs/kra_transport.csr \
-    -D pki_audit_signing_nickname=audit_signing \
+    -D pki_audit_signing_nickname="$PKI_AUDIT_SIGNING_NICKNAME" \
     -D pki_audit_signing_csr_path=/certs/audit_signing.csr \
-    -D pki_subsystem_nickname=subsystem \
+    -D pki_subsystem_nickname="$PKI_SUBSYSTEM_NICKNAME" \
     -D pki_subsystem_csr_path=/certs/subsystem.csr \
-    -D pki_sslserver_nickname=sslserver \
+    -D pki_sslserver_nickname="$PKI_SSLSERVER_NICKNAME" \
     -D pki_sslserver_csr_path=/certs/sslserver.csr \
     -D pki_admin_setup=False \
     -D pki_security_domain_setup=False \
