@@ -58,7 +58,7 @@ public abstract class PKIServlet extends HttpServlet {
                 PrintWriter out = response.getWriter();
                 out.print(re.getData().toJSON());
             } catch(Exception ex) {
-                logger.error(ERROR_RESPONSE, ex.getMessage());
+                logger.error(ERROR_RESPONSE, ex.getMessage(), ex);
             }
         } catch (BadRequestException bre) {
             try {
@@ -66,7 +66,7 @@ public abstract class PKIServlet extends HttpServlet {
                 PrintWriter out = response.getWriter();
                 out.print(bre.getData().toJSON());
             } catch(Exception ex) {
-                logger.error(ERROR_RESPONSE, ex.getMessage());
+                logger.error(ERROR_RESPONSE, ex.getMessage(), ex);
             }
         } catch (UnauthorizedException ue) {
             try {
@@ -74,7 +74,7 @@ public abstract class PKIServlet extends HttpServlet {
                 PrintWriter out = response.getWriter();
                 out.print(ue.getData().toJSON());
             } catch(Exception ex) {
-                logger.error(ERROR_RESPONSE, ex.getMessage());
+                logger.error(ERROR_RESPONSE, ex.getMessage(), ex);
             }
         } catch (PKIException bre) {
             try {
@@ -82,13 +82,13 @@ public abstract class PKIServlet extends HttpServlet {
                 PrintWriter out = response.getWriter();
                 out.print(bre.getData().toJSON());
             } catch(Exception ex) {
-                logger.error(ERROR_RESPONSE, ex.getMessage());
+                logger.error(ERROR_RESPONSE, ex.getMessage(), ex);
             }
         } catch (Exception e) {
             try {
                 response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
             } catch(Exception ex) {
-                logger.error(ERROR_RESPONSE, ex.getMessage());
+                logger.error(ERROR_RESPONSE, ex.getMessage(), ex);
             }
         }
     }
@@ -103,13 +103,13 @@ public abstract class PKIServlet extends HttpServlet {
             try {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND, re.getData().toJSON());
             } catch(Exception ex) {
-                logger.error(ERROR_RESPONSE, ex.getMessage());
+                logger.error(ERROR_RESPONSE, ex.getMessage(), ex);
             }
         } catch (BadRequestDataException bre) {
             try {
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST, bre.getMessage());
             } catch(Exception ex) {
-                logger.error(ERROR_RESPONSE, ex.getMessage());
+                logger.error(ERROR_RESPONSE, ex.getMessage(), ex);
             }
         } catch (UnauthorizedException ue) {
             try {
@@ -117,7 +117,7 @@ public abstract class PKIServlet extends HttpServlet {
                 PrintWriter out = response.getWriter();
                 out.print(ue.getData().toJSON());
             } catch(Exception ex) {
-                logger.error(ERROR_RESPONSE, ex.getMessage());
+                logger.error(ERROR_RESPONSE, ex.getMessage(), ex);
             }
         } catch (PKIException bre) {
             try {
@@ -125,13 +125,13 @@ public abstract class PKIServlet extends HttpServlet {
                 PrintWriter out = response.getWriter();
                 out.print(bre.getData().toJSON());
             } catch(Exception ex) {
-                logger.error(ERROR_RESPONSE, ex.getMessage());
+                logger.error(ERROR_RESPONSE, ex.getMessage(), ex);
             }
         } catch (Exception e) {
             try {
                 response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
             } catch(Exception ex) {
-                logger.error(ERROR_RESPONSE, ex.getMessage());
+                logger.error(ERROR_RESPONSE, ex.getMessage(), ex);
             }
         }
     }
