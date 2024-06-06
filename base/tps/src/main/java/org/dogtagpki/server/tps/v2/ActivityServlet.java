@@ -6,8 +6,6 @@
 package org.dogtagpki.server.tps.v2;
 
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -113,13 +111,6 @@ public class ActivityServlet extends TPSServlet {
     }
 
     private ActivityData createActivityData(ActivityRecord activityRecord) {
-        String activityID = activityRecord.getId();
-        try {
-            URLEncoder.encode(activityID, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new PKIException(e.getMessage());
-        }
-
         ActivityData activityData = new ActivityData();
         activityData.setID(activityRecord.getId());
         activityData.setTokenID(activityRecord.getTokenID());
