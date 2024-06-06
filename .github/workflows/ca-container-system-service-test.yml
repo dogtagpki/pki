@@ -217,8 +217,13 @@ jobs:
 
       - name: Check CA info
         run: |
+          docker exec pki podman exec systemd-pki-ca \
+              pki-server cert-export \
+              --cert-file /conf/certs/ca_signing.crt \
+              ca_signing
+
           docker exec pki pki nss-cert-import \
-              --cert /home/pkiuser/certs/ca_signing.crt \
+              --cert /home/pkiuser/conf/certs/ca_signing.crt \
               --trust CT,C,C \
               ca_signing
 
@@ -248,10 +253,15 @@ jobs:
               --type adminType \
               admin
 
+          docker exec pki podman exec systemd-pki-ca \
+              pki nss-cert-export \
+              --output-file /conf/certs/admin.crt \
+              admin
+
           # assign admin cert to CA admin user
           docker exec pki podman exec systemd-pki-ca \
               pki-server ca-user-cert-add \
-              --cert /certs/admin.crt \
+              --cert /conf/certs/admin.crt \
               admin
 
           # add CA admin user into CA groups
@@ -262,8 +272,14 @@ jobs:
 
       - name: Check CA admin user
         run: |
+          docker exec pki podman exec systemd-pki-ca \
+              pki pkcs12-export \
+              --pkcs12 /conf/certs/admin.p12 \
+              --password Secret.123 \
+              admin
+
           docker exec pki pki pkcs12-import \
-              --pkcs12 /home/pkiuser/certs/admin.p12 \
+              --pkcs12 /home/pkiuser/conf/certs/admin.p12 \
               --password Secret.123
 
           docker exec pki pki \

@@ -131,8 +131,15 @@ jobs:
 
       - name: Install CA signing cert
         run: |
+          docker exec server pki \
+              -d /conf/alias \
+              -f /conf/password.conf \
+              nss-cert-export \
+              --output-file /conf/certs/ca_signing.crt \
+              ca_signing
+
           docker exec client pki nss-cert-import \
-              --cert $SHARED/certs/ca_signing.crt \
+              --cert $SHARED/conf/certs/ca_signing.crt \
               --trust CT,C,C \
               ca_signing
 

@@ -35,6 +35,20 @@ find /logs -type d -exec chmod +rwx -- {} +
 
 echo "################################################################################"
 
+if [ -f /certs/ca_signing.csr ]
+then
+    echo "INFO: Importing CA signing CSR"
+    cp /certs/ca_signing.csr /conf/certs/ca_signing.csr
+fi
+
+if [ -f /certs/sslserver.csr ]
+then
+    echo "INFO: Importing SSL server CSR"
+    cp /certs/ca_signing.csr /conf/certs/sslserver.csr
+fi
+
+echo "################################################################################"
+
 # import ca_signing.cert and ca_signing.key if available
 if [ -f /certs/ca_signing.crt ] && [ -f /certs/ca_signing.key ]
 then
@@ -93,7 +107,7 @@ pki \
     -d /conf/alias \
     -f /conf/password.conf \
     nss-cert-export \
-    --output-file /certs/ca_signing.crt \
+    --output-file /tmp/ca_signing.crt \
     "$PKI_CA_SIGNING_NICKNAME" \
     2> /dev/null || rc=$?
 
@@ -109,25 +123,25 @@ then
         nss-cert-request \
         --subject "CN=CA Signing Certificate" \
         --ext /usr/share/pki/server/certs/ca_signing.conf \
-        --csr /certs/ca_signing.csr
+        --csr /conf/certs/ca_signing.csr
 
     # issue self-signed CA signing cert
     pki \
         -d /conf/alias \
         -f /conf/password.conf \
         nss-cert-issue \
-        --csr /certs/ca_signing.csr \
+        --csr /conf/certs/ca_signing.csr \
         --ext /usr/share/pki/server/certs/ca_signing.conf \
         --validity-length 1 \
         --validity-unit year \
-        --cert /certs/ca_signing.crt
+        --cert /tmp/ca_signing.crt
 
     # import and trust CA signing cert into NSS database
     pki \
         -d /conf/alias \
         -f /conf/password.conf \
         nss-cert-import \
-        --cert /certs/ca_signing.crt \
+        --cert /tmp/ca_signing.crt \
         --trust CT,C,C \
         "$PKI_CA_SIGNING_NICKNAME"
 fi
@@ -147,7 +161,7 @@ pki \
     -d /conf/alias \
     -f /conf/password.conf \
     nss-cert-export \
-    --output-file /certs/sslserver.crt \
+    --output-file /tmp/sslserver.crt \
     "$PKI_SSLSERVER_NICKNAME" \
     2> /dev/null || rc=$?
 
@@ -163,7 +177,7 @@ then
         nss-cert-request \
         --subject "CN=$HOSTNAME" \
         --ext /usr/share/pki/server/certs/sslserver.conf \
-        --csr /certs/sslserver.csr
+        --csr /conf/certs/sslserver.csr
 
     # issue SSL server cert
     pki \
@@ -171,16 +185,16 @@ then
         -f /conf/password.conf \
         nss-cert-issue \
         --issuer "$PKI_CA_SIGNING_NICKNAME" \
-        --csr /certs/sslserver.csr \
+        --csr /conf/certs/sslserver.csr \
         --ext /usr/share/pki/server/certs/sslserver.conf \
-        --cert /certs/sslserver.crt
+        --cert /tmp/sslserver.crt
 
     # import SSL server cert into NSS database
     pki \
         -d /conf/alias \
         -f /conf/password.conf \
         nss-cert-import \
-        --cert /certs/sslserver.crt \
+        --cert /tmp/sslserver.crt \
         "$PKI_SSLSERVER_NICKNAME"
 fi
 
@@ -203,7 +217,7 @@ if [ $rc -ne 0 ]
 then
     echo "INFO: Importing CA signing cert"
     pki nss-cert-import \
-        --cert /certs/ca_signing.crt \
+        --cert /tmp/ca_signing.crt \
         --trust CT,C,C \
         "$PKI_CA_SIGNING_NICKNAME"
 fi
@@ -221,6 +235,12 @@ find /conf -type f -exec chmod +rw -- {} +
 find /conf -type d -exec chmod +rwx -- {} +
 find /logs -type f -exec chmod +rw -- {} +
 find /logs -type d -exec chmod +rwx -- {} +
+
+echo "################################################################################"
+echo "INFO: Removing temporary files"
+
+rm /tmp/ca_signing.crt
+rm /tmp/sslserver.crt
 
 echo "################################################################################"
 echo "INFO: Starting PKI server"
