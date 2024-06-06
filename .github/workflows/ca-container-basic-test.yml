@@ -162,8 +162,12 @@ jobs:
 
       - name: Check CA info
         run: |
+          docker exec ca pki-server cert-export \
+              --cert-file /conf/certs/ca_signing.crt \
+              ca_signing
+
           docker exec client pki nss-cert-import \
-              --cert $SHARED/certs/ca_signing.crt \
+              --cert $SHARED/conf/certs/ca_signing.crt \
               --trust CT,C,C \
               ca_signing
 
@@ -192,73 +196,97 @@ jobs:
 
       - name: Import CA signing cert into CA database
         run: |
+          docker exec ca pki-server cert-export \
+              --cert-file /conf/certs/ca_signing.crt \
+              ca_signing
+
           docker exec ca pki-server ca-cert-request-import \
-              --csr /certs/ca_signing.csr \
+              --csr /conf/certs/ca_signing.csr \
               --profile /usr/share/pki/ca/conf/caCert.profile | tee output
           REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
 
           docker exec ca pki-server ca-cert-import \
-              --cert /certs/ca_signing.crt \
+              --cert /conf/certs/ca_signing.crt \
               --profile /usr/share/pki/ca/conf/caCert.profile \
               --request $REQUEST_ID
 
       - name: Import CA OCSP signing cert into CA database
         run: |
+          docker exec ca pki-server cert-export \
+              --cert-file /conf/certs/ocsp_signing.crt \
+              ca_ocsp_signing
+
           docker exec ca pki-server ca-cert-request-import \
-              --csr /certs/ocsp_signing.csr \
+              --csr /conf/certs/ocsp_signing.csr \
               --profile /usr/share/pki/ca/conf/caOCSPCert.profile | tee output
           REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
 
           docker exec ca pki-server ca-cert-import \
-              --cert /certs/ocsp_signing.crt \
+              --cert /conf/certs/ocsp_signing.crt \
               --profile /usr/share/pki/ca/conf/caOCSPCert.profile \
               --request $REQUEST_ID
 
       - name: Import CA audit signing cert into CA database
         run: |
+          docker exec ca pki-server cert-export \
+              --cert-file /conf/certs/audit_signing.crt \
+              ca_audit_signing
+
           docker exec ca pki-server ca-cert-request-import \
-              --csr /certs/audit_signing.csr \
+              --csr /conf/certs/audit_signing.csr \
               --profile /usr/share/pki/ca/conf/caAuditSigningCert.profile | tee output
           REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
 
           docker exec ca pki-server ca-cert-import \
-              --cert /certs/audit_signing.crt \
+              --cert /conf/certs/audit_signing.crt \
               --profile /usr/share/pki/ca/conf/caAuditSigningCert.profile \
               --request $REQUEST_ID
 
       - name: Import subsystem cert into CA database
         run: |
+          docker exec ca pki-server cert-export \
+              --cert-file /conf/certs/subsystem.crt \
+              subsystem
+
           docker exec ca pki-server ca-cert-request-import \
-              --csr /certs/subsystem.csr \
+              --csr /conf/certs/subsystem.csr \
               --profile /usr/share/pki/ca/conf/rsaSubsystemCert.profile | tee output
           REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
 
           docker exec ca pki-server ca-cert-import \
-              --cert /certs/subsystem.crt \
+              --cert /conf/certs/subsystem.crt \
               --profile /usr/share/pki/ca/conf/rsaSubsystemCert.profile \
               --request $REQUEST_ID
 
       - name: Import SSL server cert into CA database
         run: |
+          docker exec ca pki-server cert-export \
+              --cert-file /conf/certs/sslserver.crt \
+              sslserver
+
           docker exec ca pki-server ca-cert-request-import \
-              --csr /certs/sslserver.csr \
+              --csr /conf/certs/sslserver.csr \
               --profile /usr/share/pki/ca/conf/rsaServerCert.profile | tee output
           REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
 
           docker exec ca pki-server ca-cert-import \
-              --cert /certs/sslserver.crt \
+              --cert /conf/certs/sslserver.crt \
               --profile /usr/share/pki/ca/conf/rsaServerCert.profile \
               --request $REQUEST_ID
 
       - name: Import admin cert into CA database
         run: |
+          docker exec ca pki nss-cert-export \
+              --output-file /conf/certs/admin.crt \
+              admin
+
           docker exec ca pki-server ca-cert-request-import \
-              --csr /certs/admin.csr \
+              --csr /conf/certs/admin.csr \
               --profile /usr/share/pki/ca/conf/rsaAdminCert.profile | tee output
           REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
 
           docker exec ca pki-server ca-cert-import \
-              --cert /certs/admin.crt \
+              --cert /conf/certs/admin.crt \
               --profile /usr/share/pki/ca/conf/rsaAdminCert.profile \
               --request $REQUEST_ID
 
@@ -279,7 +307,7 @@ jobs:
 
           # assign admin cert to CA admin user
           docker exec ca pki-server ca-user-cert-add \
-              --cert /certs/admin.crt \
+              --cert /conf/certs/admin.crt \
               admin
 
           # add CA admin user into CA groups
@@ -288,8 +316,13 @@ jobs:
 
       - name: Check CA admin user
         run: |
+          docker exec ca pki pkcs12-export \
+              --pkcs12 /conf/certs/admin.p12 \
+              --password Secret.123 \
+              admin
+
           docker exec client pki pkcs12-import \
-              --pkcs12 $SHARED/certs/admin.p12 \
+              --pkcs12 $SHARED/conf/certs/admin.p12 \
               --pkcs12-password Secret.123
 
           docker exec client pki \

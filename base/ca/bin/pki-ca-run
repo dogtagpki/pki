@@ -37,6 +37,44 @@ find /logs -type d -exec chmod +rwx -- {} +
 
 echo "################################################################################"
 
+if [ -f /certs/ca_signing.csr ]
+then
+    echo "INFO: Importing CA signing CSR"
+    cp /certs/ca_signing.csr /conf/certs/ca_signing.csr
+fi
+
+if [ -f /certs/ocsp_signing.csr ]
+then
+    echo "INFO: Importing OCSP signing CSR"
+    cp /certs/ocsp_signing.csr /conf/certs/ocsp_signing.csr
+fi
+
+if [ -f /certs/audit_signing.csr ]
+then
+    echo "INFO: Importing audit signing CSR"
+    cp /certs/audit_signing.csr /conf/certs/audit_signing.csr
+fi
+
+if [ -f /certs/subsystem.csr ]
+then
+    echo "INFO: Importing subsystem CSR"
+    cp /certs/subsystem.csr /conf/certs/subsystem.csr
+fi
+
+if [ -f /certs/sslserver.csr ]
+then
+    echo "INFO: Importing SSL server CSR"
+    cp /certs/sslserver.csr /conf/certs/sslserver.csr
+fi
+
+if [ -f /certs/admin.csr ]
+then
+    echo "INFO: Importing admin CSR"
+    cp /certs/admin.csr /conf/certs/admin.csr
+fi
+
+echo "################################################################################"
+
 if [ -f /certs/server.p12 ]
 then
     echo "INFO: Importing server certs and keys"
@@ -57,7 +95,7 @@ pki \
     -d /conf/alias \
     -f /conf/password.conf \
     nss-cert-export \
-    --output-file /certs/ca_signing.crt \
+    --output-file /tmp/ca_signing.crt \
     "$PKI_CA_SIGNING_NICKNAME" \
     2> /dev/null || rc=$?
 
@@ -71,23 +109,23 @@ then
         nss-cert-request \
         --subject "CN=CA Signing Certificate" \
         --ext /usr/share/pki/server/certs/ca_signing.conf \
-        --csr /certs/ca_signing.csr
+        --csr /conf/certs/ca_signing.csr
 
     pki \
         -d /conf/alias \
         -f /conf/password.conf \
         nss-cert-issue \
-        --csr /certs/ca_signing.csr \
+        --csr /conf/certs/ca_signing.csr \
         --ext /usr/share/pki/server/certs/ca_signing.conf \
         --validity-length 1 \
         --validity-unit year \
-        --cert /certs/ca_signing.crt
+        --cert /tmp/ca_signing.crt
 
     pki \
         -d /conf/alias \
         -f /conf/password.conf \
         nss-cert-import \
-        --cert /certs/ca_signing.crt \
+        --cert /tmp/ca_signing.crt \
         --trust CT,C,C \
         "$PKI_CA_SIGNING_NICKNAME"
 fi
@@ -99,18 +137,6 @@ pki \
     nss-cert-show \
     "$PKI_CA_SIGNING_NICKNAME"
 
-if [ ! -f /certs/ca_signing.crt ]
-then
-    echo "INFO: Exporting CA signing cert"
-
-    pki \
-        -d /conf/alias \
-        -f /conf/password.conf \
-        nss-cert-export \
-        --output-file /certs/ca_signing.crt \
-        "$PKI_CA_SIGNING_NICKNAME"
-fi
-
 echo "################################################################################"
 
 # check whether OCSP signing cert exists
@@ -119,7 +145,7 @@ pki \
     -d /conf/alias \
     -f /conf/password.conf \
     nss-cert-export \
-    --output-file /certs/ocsp_signing.crt \
+    --output-file /tmp/ocsp_signing.crt \
     "$PKI_OCSP_SIGNING_NICKNAME" \
     2> /dev/null || rc=$?
 
@@ -133,22 +159,22 @@ then
         nss-cert-request \
         --subject "CN=OCSP Signing Certificate" \
         --ext /usr/share/pki/server/certs/ocsp_signing.conf \
-        --csr /certs/ocsp_signing.csr
+        --csr /conf/certs/ocsp_signing.csr
 
     pki \
         -d /conf/alias \
         -f /conf/password.conf \
         nss-cert-issue \
         --issuer "$PKI_CA_SIGNING_NICKNAME" \
-        --csr /certs/ocsp_signing.csr \
+        --csr /conf/certs/ocsp_signing.csr \
         --ext /usr/share/pki/server/certs/ocsp_signing.conf \
-        --cert /certs/ocsp_signing.crt
+        --cert /tmp/ocsp_signing.crt
 
     pki \
         -d /conf/alias \
         -f /conf/password.conf \
         nss-cert-import \
-        --cert /certs/ocsp_signing.crt \
+        --cert /tmp/ocsp_signing.crt \
         "$PKI_OCSP_SIGNING_NICKNAME"
 fi
 
@@ -167,7 +193,7 @@ pki \
     -d /conf/alias \
     -f /conf/password.conf \
     nss-cert-export \
-    --output-file /certs/audit_signing.crt \
+    --output-file /tmp/audit_signing.crt \
     "$PKI_AUDIT_SIGNING_NICKNAME" \
     2> /dev/null || rc=$?
 
@@ -181,22 +207,22 @@ then
         nss-cert-request \
         --subject "CN=Audit Signing Certificate" \
         --ext /usr/share/pki/server/certs/audit_signing.conf \
-        --csr /certs/audit_signing.csr
+        --csr /conf/certs/audit_signing.csr
 
     pki \
         -d /conf/alias \
         -f /conf/password.conf \
         nss-cert-issue \
         --issuer "$PKI_CA_SIGNING_NICKNAME" \
-        --csr /certs/audit_signing.csr \
+        --csr /conf/certs/audit_signing.csr \
         --ext /usr/share/pki/server/certs/audit_signing.conf \
-        --cert /certs/audit_signing.crt
+        --cert /tmp/audit_signing.crt
 
     pki \
         -d /conf/alias \
         -f /conf/password.conf \
         nss-cert-import \
-        --cert /certs/audit_signing.crt \
+        --cert /tmp/audit_signing.crt \
         --trust ,,P \
         "$PKI_AUDIT_SIGNING_NICKNAME"
 fi
@@ -216,7 +242,7 @@ pki \
     -d /conf/alias \
     -f /conf/password.conf \
     nss-cert-export \
-    --output-file /certs/subsystem.crt \
+    --output-file /tmp/subsystem.crt \
     "$PKI_SUBSYSTEM_NICKNAME" \
     2> /dev/null || rc=$?
 
@@ -229,22 +255,22 @@ then
         -f /conf/password.conf \
         nss-cert-request \
         --subject "CN=Subsystem Certificate" \
-        --csr /certs/subsystem.csr
+        --csr /conf/certs/subsystem.csr
 
     pki \
         -d /conf/alias \
         -f /conf/password.conf \
         nss-cert-issue \
         --issuer "$PKI_CA_SIGNING_NICKNAME" \
-        --csr /certs/subsystem.csr \
+        --csr /conf/certs/subsystem.csr \
         --ext /usr/share/pki/server/certs/subsystem.conf \
-        --cert /certs/subsystem.crt
+        --cert /tmp/subsystem.crt
 
     pki \
         -d /conf/alias \
         -f /conf/password.conf \
         nss-cert-import \
-        --cert /certs/subsystem.crt \
+        --cert /tmp/subsystem.crt \
         "$PKI_SUBSYSTEM_NICKNAME"
 fi
 
@@ -263,7 +289,7 @@ pki \
     -d /conf/alias \
     -f /conf/password.conf \
     nss-cert-export \
-    --output-file /certs/sslserver.crt \
+    --output-file /tmp/sslserver.crt \
     "$PKI_SSLSERVER_NICKNAME" \
     2> /dev/null || rc=$?
 
@@ -277,22 +303,22 @@ then
         nss-cert-request \
         --subject "CN=$HOSTNAME" \
         --ext /usr/share/pki/server/certs/sslserver.conf \
-        --csr /certs/sslserver.csr
+        --csr /conf/certs/sslserver.csr
 
     pki \
         -d /conf/alias \
         -f /conf/password.conf \
         nss-cert-issue \
         --issuer "$PKI_CA_SIGNING_NICKNAME" \
-        --csr /certs/sslserver.csr \
+        --csr /conf/certs/sslserver.csr \
         --ext /usr/share/pki/server/certs/sslserver.conf \
-        --cert /certs/sslserver.crt
+        --cert /tmp/sslserver.crt
 
     pki \
         -d /conf/alias \
         -f /conf/password.conf \
         nss-cert-import \
-        --cert /certs/sslserver.crt \
+        --cert /tmp/sslserver.crt \
         "$PKI_SSLSERVER_NICKNAME"
 fi
 
@@ -324,7 +350,7 @@ if [ $rc -ne 0 ]
 then
     echo "INFO: Importing CA signing cert"
     pki nss-cert-import \
-        --cert /certs/ca_signing.crt \
+        --cert /tmp/ca_signing.crt \
         --trust CT,C,C \
         "$PKI_CA_SIGNING_NICKNAME"
 fi
@@ -334,7 +360,7 @@ echo "##########################################################################
 # check whether admin cert exists
 rc=0
 pki nss-cert-export \
-    --output-file /certs/admin.crt \
+    --output-file /tmp/admin.crt \
     "$PKI_ADMIN_NICKNAME" \
     2> /dev/null || rc=$?
 
@@ -345,43 +371,24 @@ then
     pki nss-cert-request \
         --subject "CN=Administrator" \
         --ext /usr/share/pki/server/certs/admin.conf \
-        --csr /certs/admin.csr
+        --csr /conf/certs/admin.csr
 
     pki \
         -d /conf/alias \
         -f /conf/password.conf \
         nss-cert-issue \
         --issuer "$PKI_CA_SIGNING_NICKNAME" \
-        --csr /certs/admin.csr \
+        --csr /conf/certs/admin.csr \
         --ext /usr/share/pki/server/certs/admin.conf \
-        --cert /certs/admin.crt
+        --cert /tmp/admin.crt
 
     pki nss-cert-import \
-        --cert /certs/admin.crt \
+        --cert /tmp/admin.crt \
         "$PKI_ADMIN_NICKNAME"
 fi
 
 echo "INFO: Admin cert:"
 pki nss-cert-show "$PKI_ADMIN_NICKNAME"
-
-if [ ! -f /certs/admin.p12 ]
-then
-    echo "INFO: Exporting admin cert and key"
-
-    pki pkcs12-export \
-        --pkcs12 /certs/admin.p12 \
-        --password Secret.123 \
-        "$PKI_ADMIN_NICKNAME"
-fi
-
-if [ ! -f /certs/admin.crt ]
-then
-    echo "INFO: Exporting admin cert"
-
-    pki nss-cert-export \
-        --output-file /certs/admin.crt \
-        "$PKI_ADMIN_NICKNAME"
-fi
 
 echo "################################################################################"
 echo "INFO: Creating PKI CA"
@@ -403,15 +410,15 @@ pkispawn \
     -D pki_share_db=True \
     -D pki_import_system_certs=False \
     -D pki_ca_signing_nickname="$PKI_CA_SIGNING_NICKNAME" \
-    -D pki_ca_signing_csr_path=/certs/ca_signing.csr \
+    -D pki_ca_signing_csr_path=/conf/certs/ca_signing.csr \
     -D pki_ocsp_signing_nickname="$PKI_OCSP_SIGNING_NICKNAME" \
-    -D pki_ocsp_signing_csr_path=/certs/ocsp_signing.csr \
+    -D pki_ocsp_signing_csr_path=/conf/certs/ocsp_signing.csr \
     -D pki_audit_signing_nickname="$PKI_AUDIT_SIGNING_NICKNAME" \
-    -D pki_audit_signing_csr_path=/certs/audit_signing.csr \
+    -D pki_audit_signing_csr_path=/conf/certs/audit_signing.csr \
     -D pki_subsystem_nickname="$PKI_SUBSYSTEM_NICKNAME" \
-    -D pki_subsystem_csr_path=/certs/subsystem.csr \
+    -D pki_subsystem_csr_path=/conf/certs/subsystem.csr \
     -D pki_sslserver_nickname="$PKI_SSLSERVER_NICKNAME" \
-    -D pki_sslserver_csr_path=/certs/sslserver.csr \
+    -D pki_sslserver_csr_path=/conf/certs/sslserver.csr \
     -D pki_admin_setup=False \
     -D pki_security_domain_setup=False \
     -D pki_security_manager=False \
@@ -438,6 +445,16 @@ find /conf -type f -exec chmod +rw -- {} +
 find /conf -type d -exec chmod +rwx -- {} +
 find /logs -type f -exec chmod +rw -- {} +
 find /logs -type d -exec chmod +rwx -- {} +
+
+echo "################################################################################"
+echo "INFO: Removing temporary files"
+
+rm /tmp/ca_signing.crt
+rm /tmp/ocsp_signing.crt
+rm /tmp/audit_signing.crt
+rm /tmp/subsystem.crt
+rm /tmp/sslserver.crt
+rm /tmp/admin.crt
 
 echo "################################################################################"
 echo "INFO: Starting PKI CA"
