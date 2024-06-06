@@ -39,7 +39,7 @@ import org.dogtagpki.server.tps.config.ConfigService;
 /**
  * @author Endi S. Dewata <edewata@redhat.com>
  */
-@ApplicationPath("/rest")
+@ApplicationPath("/v1")
 public class TPSApplication extends Application {
 
     private Set<Object> singletons = new LinkedHashSet<>();
