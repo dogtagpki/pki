@@ -24,7 +24,7 @@ import java.util.Set;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
-@ApplicationPath("/rest")
+@ApplicationPath("/v1")
 public class PKIApplication extends Application {
 
     private Set<Object> singletons = new LinkedHashSet<>();

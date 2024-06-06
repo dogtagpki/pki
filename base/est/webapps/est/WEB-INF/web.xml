@@ -12,7 +12,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
     <security-constraint>
         <display-name>Require TLS for all resources</display-name>
         <web-resource-collection>
-            <url-pattern>/rest/*</url-pattern>
+            <url-pattern>/v1/*</url-pattern>
             <http-method>GET</http-method>
         </web-resource-collection>
         <user-data-constraint>
@@ -41,7 +41,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
     <security-constraint>
         <display-name>Require authenticated client for POST resources</display-name>
         <web-resource-collection>
-            <url-pattern>/rest/*</url-pattern>
+            <url-pattern>/v1/*</url-pattern>
             <http-method>POST</http-method>
         </web-resource-collection>
         <auth-constraint>
@@ -56,7 +56,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
     <security-constraint>
         <display-name>Reject unused methods</display-name>
         <web-resource-collection>
-            <url-pattern>/rest/*</url-pattern>
+            <url-pattern>/v1/*</url-pattern>
             <http-method-omission>GET</http-method-omission>
             <http-method-omission>POST</http-method-omission>
         </web-resource-collection>

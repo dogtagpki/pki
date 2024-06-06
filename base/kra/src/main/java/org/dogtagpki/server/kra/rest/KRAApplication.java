@@ -20,7 +20,7 @@ import org.dogtagpki.server.rest.SelfTestService;
 import org.dogtagpki.server.rest.SessionContextInterceptor;
 import org.dogtagpki.server.rest.UserService;
 
-@ApplicationPath("/rest")
+@ApplicationPath("/v1")
 public class KRAApplication extends Application {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KRAApplication.class);

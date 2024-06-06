@@ -13,7 +13,7 @@ import javax.ws.rs.core.Application;
 
 import org.dogtagpki.server.rest.PKIExceptionMapper;
 
-@ApplicationPath("/rest")
+@ApplicationPath("/v1")
 public class ESTApplication extends Application {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ESTApplication.class);

@@ -6,7 +6,7 @@
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>Account Services</web-resource-name>
-            <url-pattern>/rest/account/*</url-pattern>
+            <url-pattern>/v1/account/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>*</role-name>
@@ -19,7 +19,7 @@
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>Admin Services</web-resource-name>
-            <url-pattern>/rest/admin/*</url-pattern>
+            <url-pattern>/v1/admin/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>*</role-name>
@@ -32,7 +32,7 @@
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>Agent Services</web-resource-name>
-            <url-pattern>/rest/agent/*</url-pattern>
+            <url-pattern>/v1/agent/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>*</role-name>
@@ -45,7 +45,7 @@
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>Audit</web-resource-name>
-            <url-pattern>/rest/audit/*</url-pattern>
+            <url-pattern>/v1/audit/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>*</role-name>
@@ -58,7 +58,7 @@
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>Security Domain Services</web-resource-name>
-            <url-pattern>/rest/securityDomain/installToken</url-pattern>
+            <url-pattern>/v1/securityDomain/installToken</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>*</role-name>
@@ -71,7 +71,7 @@
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>Self Tests</web-resource-name>
-            <url-pattern>/rest/selftests/*</url-pattern>
+            <url-pattern>/v1/selftests/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>*</role-name>

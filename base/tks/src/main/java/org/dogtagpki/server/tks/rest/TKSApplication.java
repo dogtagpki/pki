@@ -18,7 +18,7 @@ import org.dogtagpki.server.rest.SelfTestService;
 import org.dogtagpki.server.rest.SessionContextInterceptor;
 import org.dogtagpki.server.rest.UserService;
 
-@ApplicationPath("/rest")
+@ApplicationPath("/v1")
 public class TKSApplication extends Application {
 
     private Set<Object> singletons = new LinkedHashSet<>();
