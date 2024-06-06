@@ -61,8 +61,10 @@ public class LDAPPagedSearch<E extends IDBObj>  extends DBPagedSearch<E> {
         this.base = base;
         this.filter = filter;
         this.attrs = attrs;
-        this.sortKeys = new String[1];
-        this.sortKeys[0] = sortKey;
+        if (sortKey != null) {
+            this.sortKeys = new String[1];
+            this.sortKeys[0] = sortKey;
+        }
         try {
             this.conn = (LDAPConnection) conn.clone();
         } catch (Exception e) {

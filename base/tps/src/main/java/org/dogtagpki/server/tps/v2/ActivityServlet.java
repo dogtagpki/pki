@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.certsrv.logging.ActivityCollection;
@@ -65,10 +66,16 @@ public class ActivityServlet extends TPSServlet {
                 throw new BadRequestException("Id is empty");
             }
             logger.debug("{} (\"{}\")", method, id);
-            ActivityRecord aRec = database.getRecord(id);
+            ActivityRecord aRec = null;
+            try {
+                aRec = database.getRecord(id);
+            } catch (Exception e) {
+                logger.debug(method +" error retrieving the activity record", e);
+                throw new ResourceNotFoundException("Record " + id + " not found");
+            }
             if (aRec == null) {
                 logger.debug("{} record not found", method);
-                throw new PKIException(method + " record not found");
+                throw new ResourceNotFoundException("Record " + id + " not found");
             }
             String type = aRec.getType();
 
