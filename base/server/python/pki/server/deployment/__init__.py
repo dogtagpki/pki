@@ -2099,6 +2099,7 @@ class PKIDeployer:
             old_name=source_path,
             new_name=dest_path,
             overwrite_flag=True)
+        self.instance.chown(dest_path)
 
     def import_system_cert_requests(self, subsystem):
 
@@ -3045,10 +3046,12 @@ class PKIDeployer:
 
             shutil.move(csr_pathname, csr_path)
 
+        new_csr_path = subsystem.csr_file(tag)
         self.file.copy(
             old_name=csr_path,
-            new_name=subsystem.csr_file(tag),
+            new_name=new_csr_path,
             overwrite_flag=True)
+        self.instance.chown(new_csr_path)
 
     def create_cert_request(self, nssdb, tag, request):
 
@@ -4892,6 +4895,7 @@ class PKIDeployer:
         logger.info('Creating %s', deployment_cfg_archive)
 
         self.file.copy(deployment_cfg, deployment_cfg_archive)
+        self.instance.chown(deployment_cfg_archive)
 
     def set_systemd_override(self, section, param, value, fname='local.conf'):
         if fname not in self.systemd.overrides:
@@ -4954,6 +4958,7 @@ class PKIDeployer:
         logger.info('Creating %s', manifest_archive)
 
         self.file.copy(manifest_file, manifest_archive)
+        self.instance.chown(manifest_archive)
 
     def restore_selinux_contexts(self):
 
