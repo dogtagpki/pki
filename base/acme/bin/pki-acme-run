@@ -13,7 +13,7 @@ umask 000
 
 echo "################################################################################"
 
-if [ -z "$(ls -A /conf 2>/dev/null)" ]
+if [ -z "$(ls -A /conf 2> /dev/null)" ]
 then
     echo "INFO: Installing default config files"
     cp -r /var/lib/pki/pki-tomcat/conf.default/* /conf
@@ -38,7 +38,7 @@ then
     echo "INFO: Importing metadata configuration"
 
     # empty current metadata configuration
-    > /var/lib/pki/pki-tomcat/conf/acme/metadata.conf
+    > /conf/acme/metadata.conf
 
     # import metadata configuration parameters
     for filename in /metadata/*
@@ -46,7 +46,7 @@ then
         [ -e "$filename" ] || break
         name=$(basename $filename)
         value=$(cat $filename)
-        echo "$name=$value" >> /var/lib/pki/pki-tomcat/conf/acme/metadata.conf
+        echo "$name=$value" >> /conf/acme/metadata.conf
     done
 else
     echo "INFO: Using default metadata configuration"
@@ -60,7 +60,7 @@ then
     echo "INFO: Importing database configuration"
 
     # empty current database configuration
-    > /var/lib/pki/pki-tomcat/conf/acme/database.conf
+    > /conf/acme/database.conf
 
     # import database configuration parameters
     for filename in /database/*
@@ -68,7 +68,7 @@ then
         [ -e "$filename" ] || break
         name=$(basename $filename)
         value=$(cat $filename)
-        echo "$name=$value" >> /var/lib/pki/pki-tomcat/conf/acme/database.conf
+        echo "$name=$value" >> /conf/acme/database.conf
     done
 else
     echo "INFO: Using default database configuration"
@@ -82,7 +82,7 @@ then
     echo "INFO: Importing issuer configuration"
 
     # empty current issuer configuration
-    > /var/lib/pki/pki-tomcat/conf/acme/issuer.conf
+    > /conf/acme/issuer.conf
 
     # import issuer configuration parameters
     for filename in /issuer/*
@@ -90,7 +90,7 @@ then
         [ -e "$filename" ] || break
         name=$(basename $filename)
         value=$(cat $filename)
-        echo "$name=$value" >> /var/lib/pki/pki-tomcat/conf/acme/issuer.conf
+        echo "$name=$value" >> /conf/acme/issuer.conf
     done
 else
     echo "INFO: Using default issuer configuration"
@@ -104,7 +104,7 @@ then
     echo "INFO: Importing realm configuration"
 
     # empty current realm configuration
-    > /var/lib/pki/pki-tomcat/conf/acme/realm.conf
+    > /conf/acme/realm.conf
 
     # import realm configuration parameters
     for filename in /realm/*
@@ -112,7 +112,7 @@ then
         [ -e "$filename" ] || break
         name=$(basename $filename)
         value=$(cat $filename)
-        echo "$name=$value" >> /var/lib/pki/pki-tomcat/conf/acme/realm.conf
+        echo "$name=$value" >> /conf/acme/realm.conf
     done
 else
     echo "INFO: Using default realm configuration"

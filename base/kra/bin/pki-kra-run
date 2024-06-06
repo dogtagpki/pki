@@ -18,7 +18,7 @@ umask 000
 
 echo "################################################################################"
 
-if [ -z "$(ls -A /conf 2>/dev/null)" ]
+if [ -z "$(ls -A /conf 2> /dev/null)" ]
 then
     echo "INFO: Installing default config files"
     cp -r /var/lib/pki/pki-tomcat/conf.default/* /conf
@@ -42,8 +42,8 @@ then
     echo "INFO: Importing system certs and keys"
 
     pki \
-        -d /var/lib/pki/pki-tomcat/conf/alias \
-        -f /var/lib/pki/pki-tomcat/conf/password.conf \
+        -d /conf/alias \
+        -f /conf/password.conf \
         pkcs12-import \
         --pkcs12 /certs/server.p12 \
         --password Secret.123
@@ -53,8 +53,8 @@ echo "##########################################################################
 
 echo "INFO: KRA storage cert:"
 pki \
-    -d /var/lib/pki/pki-tomcat/conf/alias \
-    -f /var/lib/pki/pki-tomcat/conf/password.conf \
+    -d /conf/alias \
+    -f /conf/password.conf \
     nss-cert-show \
     "$PKI_STORAGE_NICKNAME"
 
@@ -62,8 +62,8 @@ echo "##########################################################################
 
 echo "INFO: KRA transport cert:"
 pki \
-    -d /var/lib/pki/pki-tomcat/conf/alias \
-    -f /var/lib/pki/pki-tomcat/conf/password.conf \
+    -d /conf/alias \
+    -f /conf/password.conf \
     nss-cert-show \
     "$PKI_TRANSPORT_NICKNAME"
 
@@ -71,8 +71,8 @@ echo "##########################################################################
 
 echo "INFO: Audit signing cert:"
 pki \
-    -d /var/lib/pki/pki-tomcat/conf/alias \
-    -f /var/lib/pki/pki-tomcat/conf/password.conf \
+    -d /conf/alias \
+    -f /conf/password.conf \
     nss-cert-show \
     "$PKI_AUDIT_SIGNING_NICKNAME"
 
@@ -80,8 +80,8 @@ echo "##########################################################################
 
 echo "INFO: Subsystem cert:"
 pki \
-    -d /var/lib/pki/pki-tomcat/conf/alias \
-    -f /var/lib/pki/pki-tomcat/conf/password.conf \
+    -d /conf/alias \
+    -f /conf/password.conf \
     nss-cert-show \
     "$PKI_SUBSYSTEM_NICKNAME"
 
@@ -90,8 +90,8 @@ then
     echo "INFO: Exporting subsystem cert"
 
     pki \
-        -d /var/lib/pki/pki-tomcat/conf/alias \
-        -f /var/lib/pki/pki-tomcat/conf/password.conf \
+        -d /conf/alias \
+        -f /conf/password.conf \
         nss-cert-export \
         --output-file /certs/subsystem.crt \
         "$PKI_SUBSYSTEM_NICKNAME"
@@ -101,8 +101,8 @@ echo "##########################################################################
 
 echo "INFO: SSL server cert:"
 pki \
-    -d /var/lib/pki/pki-tomcat/conf/alias \
-    -f /var/lib/pki/pki-tomcat/conf/password.conf \
+    -d /conf/alias \
+    -f /conf/password.conf \
     nss-cert-show \
     "$PKI_SSLSERVER_NICKNAME"
 
