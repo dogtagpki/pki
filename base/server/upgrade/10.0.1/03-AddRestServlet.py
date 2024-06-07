@@ -66,6 +66,7 @@ class AddRestServlet(pki.server.upgrade.PKIServerUpgradeScriptlet):
     def add_rest_services_servlet(self):
         # add rest-services servlet and mapping
         found = False
+        index = 0
         for servlet in self.doc.findall('.//servlet'):
             name = servlet.find('servlet-name').text.strip()
             if name == 'rest-services':
@@ -77,6 +78,7 @@ class AddRestServlet(pki.server.upgrade.PKIServerUpgradeScriptlet):
             self.root.insert(index, servlet)
 
         found = False
+        index = 0
         for mapping in self.doc.findall('.//servlet-mapping'):
             name = mapping.find('servlet-name').text.strip()
             if name == 'rest-services':
