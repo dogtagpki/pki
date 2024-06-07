@@ -24,6 +24,9 @@ import java.util.Set;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
+import org.dogtagpki.server.rest.v1.MessageFormatInterceptor;
+import org.dogtagpki.server.rest.v1.PKIExceptionMapper;
+
 @ApplicationPath("/v1")
 public class PKIApplication extends Application {
 
