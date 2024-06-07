@@ -13,7 +13,7 @@ import javax.crypto.spec.RC2ParameterSpec;
 
 import org.dogtagpki.server.kra.KRAEngine;
 import org.dogtagpki.server.kra.KRAEngineConfig;
-import org.dogtagpki.server.kra.rest.KeyRequestService;
+import org.dogtagpki.server.kra.rest.v1.KeyRequestService;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.crypto.CryptoToken;

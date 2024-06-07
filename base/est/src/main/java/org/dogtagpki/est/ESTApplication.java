@@ -11,7 +11,7 @@ import java.util.Set;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
-import org.dogtagpki.server.rest.PKIExceptionMapper;
+import org.dogtagpki.server.rest.v1.PKIExceptionMapper;
 
 @ApplicationPath("/v1")
 public class ESTApplication extends Application {
