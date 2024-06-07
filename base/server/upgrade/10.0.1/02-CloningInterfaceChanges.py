@@ -154,6 +154,7 @@ class CloningInterfaceChanges(pki.server.upgrade.PKIServerUpgradeScriptlet):
     def modify_update_domain_xml(self):
         # add caUpdateDomainXML-admin servlet and mapping
         found = False
+        index = 0
         for servlet in self.doc.findall('.//servlet'):
             name = servlet.find('servlet-name').text.strip()
             if name == 'caUpdateDomainXML-admin':
@@ -165,6 +166,7 @@ class CloningInterfaceChanges(pki.server.upgrade.PKIServerUpgradeScriptlet):
             self.root.insert(index, servlet)
 
         found = False
+        index = 0
         for mapping in self.doc.findall('.//servlet-mapping'):
             name = mapping.find('servlet-name').text.strip()
             if name == 'caUpdateDomainXML-admin':
@@ -178,6 +180,7 @@ class CloningInterfaceChanges(pki.server.upgrade.PKIServerUpgradeScriptlet):
     def modify_token_authenticate(self):
         # add caTokenAuthenticate-admin servlet and mapping
         found = False
+        index = 0
         for servlet in self.doc.findall('.//servlet'):
             name = servlet.find('servlet-name').text.strip()
             if name == 'caTokenAuthenticate-admin':
@@ -189,6 +192,7 @@ class CloningInterfaceChanges(pki.server.upgrade.PKIServerUpgradeScriptlet):
             self.root.insert(index, servlet)
 
         found = False
+        index = 0
         for mapping in self.doc.findall('.//servlet-mapping'):
             name = mapping.find('servlet-name').text.strip()
             if name == 'caTokenAuthenticate-admin':

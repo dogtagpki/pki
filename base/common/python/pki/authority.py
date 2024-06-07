@@ -387,8 +387,7 @@ def main():
     for ca in authorities.ca_list:
         if ca.is_host_authority:
             host_ca = ca
-
-    print(str(host_ca))
+            print(str(host_ca))
 
     # Create a sub CA
     print("Creating a new subordinate CA")

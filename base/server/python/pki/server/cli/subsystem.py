@@ -1277,7 +1277,7 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
         else:
             logger.warning('Certificate request not found')
 
-        if cert_id != 'sslserver' and tag != 'subsystem':
+        if tag != 'sslserver' and tag != 'subsystem':
             cert_id = subsystem_name + '_' + tag
         else:
             cert_id = tag
