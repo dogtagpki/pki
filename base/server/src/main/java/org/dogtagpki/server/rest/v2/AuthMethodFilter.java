@@ -144,7 +144,6 @@ public abstract class AuthMethodFilter extends HttpFilter {
             throw new ForbiddenException("Authentication method not allowed.");
 
         } catch (IOException e) {
-            e.printStackTrace();
             throw new Failure(e);
         }
     }

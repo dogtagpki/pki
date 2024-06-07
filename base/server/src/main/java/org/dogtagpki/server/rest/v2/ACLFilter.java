@@ -212,7 +212,6 @@ public abstract class ACLFilter extends HttpFilter {
                         null, //operation
                         LOGGING_ACL_PARSING_ERROR + ":" + auditInfo));
 
-            e.printStackTrace();
             throw new Failure(e);
         }
 
