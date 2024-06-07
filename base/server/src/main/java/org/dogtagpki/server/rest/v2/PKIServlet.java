@@ -42,16 +42,51 @@ public abstract class PKIServlet extends HttpServlet {
     public static final int MIN_FILTER_LENGTH = 3;
     private static final String ERROR_RESPONSE= "PKIServlet - error processing request: {}";
 
+    private enum HttpMethod {
+        GET, POST, PATCH, PUT, DELETE
+    }
+
     public abstract void get(HttpServletRequest request, HttpServletResponse response) throws Exception;
 
     public abstract void post(HttpServletRequest request, HttpServletResponse response) throws Exception;
 
+    public abstract void put(HttpServletRequest request, HttpServletResponse response) throws Exception;
+
+    public abstract void patch(HttpServletRequest request, HttpServletResponse response) throws Exception;
+
+    public abstract void delete(HttpServletRequest request, HttpServletResponse response) throws Exception;
+
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        doOperation(HttpMethod.GET, request, response);
+    }
+
+    @Override
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        doOperation(HttpMethod.POST, request, response);
+    }
+
+    private void doOperation(HttpMethod method, HttpServletRequest request, HttpServletResponse response) {
         response.setContentType("application/json");
         try {
             setSessionContext(request);
-            get(request, response);
+            switch (method) {
+                case PUT:
+                    put(request, response);
+                    break;
+                case PATCH:
+                    patch(request, response);
+                    break;
+                case DELETE:
+                    delete(request, response);
+                    break;
+                case POST:
+                    post(request, response);
+                    break;
+                case GET:
+                default:
+                    get(request, response);
+            }
         } catch (ResourceNotFoundException re) {
             try {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -60,48 +95,11 @@ public abstract class PKIServlet extends HttpServlet {
             } catch(Exception ex) {
                 logger.error(ERROR_RESPONSE, ex.getMessage(), ex);
             }
-        } catch (BadRequestException bre) {
+        }catch (BadRequestException bre) {
             try {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 PrintWriter out = response.getWriter();
                 out.print(bre.getData().toJSON());
-            } catch(Exception ex) {
-                logger.error(ERROR_RESPONSE, ex.getMessage(), ex);
-            }
-        } catch (UnauthorizedException ue) {
-            try {
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                PrintWriter out = response.getWriter();
-                out.print(ue.getData().toJSON());
-            } catch(Exception ex) {
-                logger.error(ERROR_RESPONSE, ex.getMessage(), ex);
-            }
-        } catch (PKIException bre) {
-            try {
-                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                PrintWriter out = response.getWriter();
-                out.print(bre.getData().toJSON());
-            } catch(Exception ex) {
-                logger.error(ERROR_RESPONSE, ex.getMessage(), ex);
-            }
-        } catch (Exception e) {
-            try {
-                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
-            } catch(Exception ex) {
-                logger.error(ERROR_RESPONSE, ex.getMessage(), ex);
-            }
-        }
-    }
-
-    @Override
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        response.setContentType("application/json");
-        try {
-            setSessionContext(request);
-            post(request, response);
-        } catch (ResourceNotFoundException re) {
-            try {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND, re.getData().toJSON());
             } catch(Exception ex) {
                 logger.error(ERROR_RESPONSE, ex.getMessage(), ex);
             }

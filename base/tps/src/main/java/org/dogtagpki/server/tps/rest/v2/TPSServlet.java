@@ -29,6 +29,20 @@ public class TPSServlet extends PKIServlet {
         response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
     }
 
+    @Override
+    public void put(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+    }
+
+    @Override
+    public void patch(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+    }
+
+    @Override
+    public void delete(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+    }
 
     protected TPSEngine getTPSEngine() {
         ServletContext servletContext = getServletContext();
