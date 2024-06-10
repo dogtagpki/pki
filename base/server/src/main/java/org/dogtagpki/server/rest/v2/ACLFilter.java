@@ -11,6 +11,9 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.Principal;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 
 import javax.servlet.FilterChain;
@@ -40,7 +43,31 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.logging.Auditor;
-
+/**
+ * Basic ACL filter for REST APIs
+ *
+ * Subclasses can associate ACL to servlet, URLPatterns or specific endpoints. The {@link setACL(String)} method will assign a
+ * default ACL to use for all the associated entities (servlet or pattern). To provide a finer grained ACL it is possible to specify
+ * a map with the method {@link secAclMap(Map<String, String>)}. The map value is the ACL to use while the key is the endpoint where
+ * the ACL has to be applied. The key formal is:
+ *
+ *    key= <method>:<path>
+ *
+ * The method is one of the HTTP method as defined in Java servlet request (e.g. GET, POST, etc.). If the ACL has to be applied for all
+ * the methods then it can be replaced with the symbol '*'.
+ * The path is the endpoint in the associated servlet where the ACL has to be applied. If there is a REST path param this can be indicated
+ * with the sequence "{}".
+ *
+ * Example of ACL a servlet handking token could be:
+ *
+ *   default acl: token.read
+ *
+ *   ACLMap:
+ *
+ *   key= POST:/token       value=token.add
+ *   key= PUT:/token/{}     value=token.modify
+ *   key= DELETE:/token/{}  value=token.delete
+ */
 public abstract class ACLFilter extends HttpFilter {
 
     private static final long serialVersionUID = 1L;
@@ -51,14 +78,33 @@ public abstract class ACLFilter extends HttpFilter {
     private static final String LOGGING_MISSING_ACL_MAPPING = "ACL mapping not found; OK";
     private static final String LOGGING_INVALID_ACL_MAPPING = "internal error: invalid ACL mapping";
     private Properties aclProperties;
-    private String acl;
+    private String defaultAcl;
+    private Map<String, String> aclMap;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-
+        String method;
+        String path;
+        String acl = defaultAcl;
         if(request instanceof HttpServletRequest req &&
                 response instanceof HttpServletResponse resp) {
+            method = req.getMethod();
+            path = req.getPathInfo() != null ? req.getPathInfo() : "";
+            final String aclSearch = method + ":" + path;
+            if (aclMap!=null) {
+                Optional<String> aclKey = aclMap.keySet().stream().
+                        filter( key -> {
+                            String keyRegex = key.replaceFirst("\\*", ".*").replace("\\{\\}", "([A-Za-z0-9_\\-]*)");
+                            return aclSearch.matches(keyRegex);
+                        } ).
+                        sorted(Comparator.reverseOrder()).
+                        findFirst();
+                if (aclKey.isPresent()) {
+                    acl = aclKey.get();
+                }
+            }
             try {
+                logger.debug("ACLFilter: Checking {}", acl);
                 checkACL(req, acl);
                 chain.doFilter(request, response);
             } catch (ForbiddenException fe) {
@@ -318,6 +364,10 @@ public abstract class ACLFilter extends HttpFilter {
     }
 
     public void setAcl(String acl) {
-        this.acl = acl;
+        this.defaultAcl = acl;
+    }
+
+    public void setAclMap(Map<String,String> acls) {
+        this.aclMap = acls;
     }
 }

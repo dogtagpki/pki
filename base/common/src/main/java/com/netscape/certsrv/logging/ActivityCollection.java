@@ -31,7 +31,7 @@ import com.netscape.certsrv.util.JSONSerializer;
  */
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class ActivityCollection extends DataCollection<ActivityData> implements JSONSerializer{
+public class ActivityCollection extends DataCollection<ActivityData> implements JSONSerializer {
 
     @Override
     public Collection<ActivityData> getEntries() {

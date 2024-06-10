@@ -5,6 +5,9 @@
 //
 package org.dogtagpki.server.tps.rest.v2;
 
+import java.util.Collections;
+import java.util.List;
+
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -12,6 +15,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.dogtagpki.server.rest.v2.PKIServlet;
 import org.dogtagpki.server.tps.TPSEngine;
 import org.dogtagpki.server.tps.TPSSubsystem;
+
+import com.netscape.certsrv.base.SessionContext;
+import com.netscape.cmscore.usrgrp.User;
 
 /**
  * @author Marco Fargetta {@literal <mfargett@redhat.com>}
@@ -54,5 +60,21 @@ public class TPSServlet extends PKIServlet {
         TPSEngine engine = (TPSEngine) servletContext.getAttribute("engine");
 
         return (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
+    }
+
+    /*
+     * returns a list of TPS profiles allowed for the current user
+     */
+    protected List<String> getAuthorizedProfiles(HttpServletRequest req) {
+        SessionContext context = SessionContext.getContext();
+        User user = (User) context.get(SessionContext.USER);
+        if (user == null) {
+            return Collections.emptyList();
+        }
+        return user.getTpsProfiles();
+    }
+    @Override
+    protected String getSubsystemName() {
+        return getTPSEngine().getID();
     }
 }

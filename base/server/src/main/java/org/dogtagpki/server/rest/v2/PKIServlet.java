@@ -5,10 +5,15 @@
 //
 package org.dogtagpki.server.rest.v2;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.security.Principal;
 import java.util.Locale;
+import java.util.ResourceBundle;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -29,6 +34,7 @@ import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.cms.realm.PKIPrincipal;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * Implement the basic class to handle REST APIs
@@ -133,14 +139,34 @@ public abstract class PKIServlet extends HttpServlet {
             }
         }
     }
+    protected abstract String getSubsystemName();
+
+    protected String getSubsystemConfDir() {
+        return CMS.getInstanceDir() + File.separator + getSubsystemName() + File.separator + "conf";
+    }
+
+    protected String getSharedSubsystemConfDir() {
+        return File.separator + "usr" + File.separator + "share" + File.separator + "pki" +
+                File.separator + getSubsystemName() + File.separator + "conf";
+    }
+
+    protected ResourceBundle getResourceBundle(String name, Locale locale) throws MalformedURLException {
+
+        // Look in <instance>/<subsystem>/conf first,
+        // then fallback to /usr/share/pki/<subsystem>/conf.
+        URL[] urls = {
+                new File(getSubsystemConfDir()).toURI().toURL(),
+                new File(getSharedSubsystemConfDir()).toURI().toURL()
+        };
+
+        ClassLoader loader = new URLClassLoader(urls);
+        return ResourceBundle.getBundle(name, locale, loader);
+    }
 
     private void setSessionContext(HttpServletRequest request) {
-
-
         logger.debug("PKIServlet.setSessionContex: {}", request.getRequestURI());
 
         Principal principal = request.getUserPrincipal();
-
         // If unauthenticated, ignore.
         if (principal == null) {
             logger.debug("PKIServlet.setSessionContex: Not authenticated.");
