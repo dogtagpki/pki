@@ -47,4 +47,9 @@ public class CAServlet extends PKIServlet {
         ServletContext servletContext = getServletContext();
         return (CAEngine) servletContext.getAttribute("engine");
     }
+
+    @Override
+    protected String getSubsystemName() {
+        return getCAEngine().getID();
+    }
 }

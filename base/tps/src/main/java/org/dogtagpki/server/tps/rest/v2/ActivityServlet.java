@@ -6,7 +6,6 @@
 package org.dogtagpki.server.tps.rest.v2;
 
 import java.io.PrintWriter;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -27,12 +26,10 @@ import org.slf4j.LoggerFactory;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
-import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.certsrv.logging.ActivityCollection;
 import com.netscape.certsrv.logging.ActivityData;
 import com.netscape.certsrv.user.UserResource;
-import com.netscape.cmscore.usrgrp.User;
 
 /**
  * @author Marco Fargetta {@literal <mfargett@redhat.com>}
@@ -42,7 +39,7 @@ import com.netscape.cmscore.usrgrp.User;
         urlPatterns = "/v2/activities/*")
 public class ActivityServlet extends TPSServlet {
     private static final long serialVersionUID = 1L;
-    private static Logger logger = LoggerFactory.getLogger(ActivityServlet.class);
+    private static final Logger logger = LoggerFactory.getLogger(ActivityServlet.class);
 
     @Override
     public void get(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -97,18 +94,6 @@ public class ActivityServlet extends TPSServlet {
         ActivityCollection activities = retrieveActivities(database, authorizedProfiles, filter, start, size);
         out.println(activities.toJSON());
     }
-    /*
-     * returns a list of TPS profiles allowed for the current user
-     */
-    private List<String> getAuthorizedProfiles(HttpServletRequest req) {
-        SessionContext context = SessionContext.getContext();
-        User user = (User) context.get(SessionContext.USER);
-        if (user == null) {
-            logger.debug("ActivityServlet.getAuthorizedProfiles: no user in session context");
-            return Collections.emptyList();
-        }
-        return user.getTpsProfiles();
-    }
 
     private ActivityData createActivityData(ActivityRecord activityRecord) {
         ActivityData activityData = new ActivityData();
@@ -158,7 +143,6 @@ public class ActivityServlet extends TPSServlet {
 
         List<ActivityRecord> activityList = (List<ActivityRecord>) database.findRecords(
                 filter, null, new String[] { "-date" }, start, size);
-
 
         if (authorizedProfiles.contains(UserResource.ALL_PROFILES)) {
             for (ActivityRecord aRec: activityList) {
