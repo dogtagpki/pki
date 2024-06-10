@@ -301,6 +301,8 @@ class CACertImportCLI(pki.cli.CLI):
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat)')
         print('      --cert <path>                  Certificate path')
         print('      --format <format>              Certificate format: PEM (default), DER')
+        print('      --csr <path>                   CSR path')
+        print('      --csr-format <format>          CSR format: PEM (default), DER')
         print('      --profile <path>               Bootstrap profile path')
         print('      --request <ID>                 Request ID')
         print('  -v, --verbose                      Run in verbose mode.')
@@ -313,7 +315,9 @@ class CACertImportCLI(pki.cli.CLI):
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
-                'cert=', 'format=', 'profile=', 'request=',
+                'cert=', 'format=',
+                'csr=', 'csr-format=',
+                'profile=', 'request=',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -324,6 +328,8 @@ class CACertImportCLI(pki.cli.CLI):
         instance_name = 'pki-tomcat'
         cert_path = None
         cert_format = None
+        csr_path = None
+        csr_format = None
         profile_path = None
         request_id = None
 
@@ -336,6 +342,12 @@ class CACertImportCLI(pki.cli.CLI):
 
             elif o == '--format':
                 cert_format = a
+
+            elif o == '--csr':
+                csr_path = a
+
+            elif o == '--csr-format':
+                csr_format = a
 
             elif o == '--profile':
                 profile_path = a
@@ -370,6 +382,17 @@ class CACertImportCLI(pki.cli.CLI):
             logger.error('No CA subsystem in instance %s', instance_name)
             sys.exit(1)
 
+        if csr_path:
+            # import CSR if provided
+            result = subsystem.import_cert_request(
+                request_path=csr_path,
+                request_format=csr_format,
+                profile_path=profile_path,
+                request_id=request_id)
+
+            request_id = result['requestID']
+
+        # import cert
         subsystem.import_cert(
             cert_path=cert_path,
             cert_format=cert_format,
