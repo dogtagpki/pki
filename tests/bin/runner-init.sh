@@ -109,6 +109,10 @@ OPTIONS+=(--hostname $HOSTNAME)
 OPTIONS+=(--tmpfs /tmp)
 OPTIONS+=(--tmpfs /run)
 OPTIONS+=(-v $GITHUB_WORKSPACE:$SHARED)
+
+# required to run Podman in container
+OPTIONS+=(-v /var/lib/containers:/var/lib/containers)
+
 OPTIONS+=(-e BUILDUSER_UID=$(id -u))
 OPTIONS+=(-e BUILDUSER_GID=$(id -g))
 OPTIONS+=(-e SHARED=$SHARED)
