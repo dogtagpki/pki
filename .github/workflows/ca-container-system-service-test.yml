@@ -243,20 +243,39 @@ jobs:
           docker exec pki podman exec systemd-pki-ca \
               pki-server ca-db-vlv-reindex -v
 
+      - name: Create admin cert
+        run: |
+          # create cert request
+          docker exec pki pki nss-cert-request \
+              --subject "CN=Administrator" \
+              --ext /usr/share/pki/server/certs/admin.conf \
+              --csr admin.csr
+
+          docker exec pki podman cp admin.csr systemd-pki-ca:/home/pkiuser
+
+          # issue cert
+          docker exec pki podman exec systemd-pki-ca pki-server ca-cert-create \
+              --csr /home/pkiuser/admin.csr \
+              --profile /usr/share/pki/ca/conf/rsaAdminCert.profile \
+              --cert /home/pkiuser/admin.crt \
+              --import-cert
+
+          docker exec pki podman cp systemd-pki-ca:/home/pkiuser/admin.crt .
+
+          # import cert
+          docker exec pki pki nss-cert-import \
+              --cert admin.crt \
+              admin
+
       # https://github.com/dogtagpki/pki/wiki/Setting-up-CA-Admin-User
       - name: Add CA admin user
         run: |
-          docker exec pki podman exec systemd-pki-ca \
-              pki nss-cert-export \
-              --output-file /conf/certs/admin.crt \
-              admin
-
           # create CA admin user
           docker exec pki podman exec systemd-pki-ca \
               pki-server ca-user-add \
               --full-name Administrator \
               --type adminType \
-              --cert /conf/certs/admin.crt \
+              --cert /home/pkiuser/admin.crt \
               admin
 
           # add CA admin user into CA groups
@@ -267,16 +286,6 @@ jobs:
 
       - name: Check CA admin user
         run: |
-          docker exec pki podman exec systemd-pki-ca \
-              pki pkcs12-export \
-              --pkcs12 /conf/certs/admin.p12 \
-              --password Secret.123 \
-              admin
-
-          docker exec pki pki pkcs12-import \
-              --pkcs12 /home/pkiuser/conf/certs/admin.p12 \
-              --password Secret.123
-
           docker exec pki pki \
               -n admin \
               ca-user-show \

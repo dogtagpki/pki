@@ -297,23 +297,26 @@ jobs:
 
       - name: Create admin cert
         run: |
-          docker exec -u pkiuser pki pki \
-              nss-cert-request \
+          # create cert request
+          docker exec -u pkiuser pki pki nss-cert-request \
               --subject "CN=Administrator" \
               --ext /usr/share/pki/server/certs/admin.conf \
-              --csr /home/pkiuser/.dogtag/pki-ca/conf/certs/admin.csr
+              --csr /home/pkiuser/admin.csr
 
-          docker exec -u pkiuser pki podman exec systemd-pki-ca pki \
-              -d /conf/alias \
-              -f /conf/password.conf \
-              nss-cert-issue \
-              --issuer "ca_signing" \
-              --csr /conf/certs/admin.csr \
-              --ext /usr/share/pki/server/certs/admin.conf \
-              --cert /conf/certs/admin.crt
+          docker exec -u pkiuser pki podman cp /home/pkiuser/admin.csr systemd-pki-ca:/home/pkiuser
 
+          # issue cert
+          docker exec -u pkiuser pki podman exec systemd-pki-ca pki-server ca-cert-create \
+              --csr /home/pkiuser/admin.csr \
+              --profile /usr/share/pki/ca/conf/rsaAdminCert.profile \
+              --cert /home/pkiuser/admin.crt \
+              --import-cert
+
+          docker exec -u pkiuser pki podman cp systemd-pki-ca:/home/pkiuser/admin.crt /home/pkiuser
+
+          # import cert
           docker exec -u pkiuser pki pki nss-cert-import \
-              --cert /home/pkiuser/.dogtag/pki-ca/conf/certs/admin.crt \
+              --cert /home/pkiuser/admin.crt \
               admin
 
       # https://github.com/dogtagpki/pki/wiki/Setting-up-CA-Admin-User
@@ -324,7 +327,7 @@ jobs:
               pki-server ca-user-add \
               --full-name Administrator \
               --type adminType \
-              --cert /conf/certs/admin.crt \
+              --cert /home/pkiuser/admin.crt \
               admin
 
           # add CA admin user into CA groups

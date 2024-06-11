@@ -206,23 +206,6 @@ pki \
     "$PKI_SSLSERVER_NICKNAME"
 
 echo "################################################################################"
-
-# check whether CA signing cert exists in default NSS database
-rc=0
-pki nss-cert-export "$PKI_CA_SIGNING_NICKNAME" \
-    > /dev/null \
-    2> /dev/null || rc=$?
-
-if [ $rc -ne 0 ]
-then
-    echo "INFO: Importing CA signing cert"
-    pki nss-cert-import \
-        --cert /tmp/ca_signing.crt \
-        --trust CT,C,C \
-        "$PKI_CA_SIGNING_NICKNAME"
-fi
-
-echo "################################################################################"
 echo "INFO: Updating owners and permissions"
 
 if [ "$UID" = "0" ]

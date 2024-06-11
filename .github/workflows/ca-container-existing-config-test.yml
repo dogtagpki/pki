@@ -145,16 +145,6 @@ jobs:
           docker exec pki cp \
               /var/lib/pki/pki-tomcat/conf/certs/sslserver.csr \
               $SHARED/certs/sslserver.csr
-          docker exec pki cp \
-              /var/lib/pki/pki-tomcat/conf/certs/ca_admin.csr \
-              $SHARED/certs/admin.csr
-
-          # export admin cert and key
-          docker cp pki:/root/.dogtag/pki-tomcat/ca_admin_cert.p12 certs/admin.p12
-
-          docker exec pki pki pkcs12-cert-find \
-              --pkcs12 $SHARED/certs/admin.p12 \
-              --password Secret.123
 
           ls -la certs
 
@@ -187,7 +177,6 @@ jobs:
               -e PKI_AUDIT_SIGNING_NICKNAME=ca_audit_signing \
               -e PKI_SUBSYSTEM_NICKNAME=subsystem \
               -e PKI_SSLSERVER_NICKNAME=sslserver \
-              -e PKI_ADMIN_NICKNAME=caadmin \
               --detach \
               pki-ca
 

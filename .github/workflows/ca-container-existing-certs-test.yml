@@ -162,29 +162,7 @@ jobs:
               nss-cert-show \
               sslserver
 
-      - name: Create admin cert
-        run: |
-          docker exec client pki \
-              nss-cert-request \
-              --subject "CN=Administrator" \
-              --ext /usr/share/pki/server/certs/admin.conf \
-              --csr $SHARED/certs/admin.csr
-          docker exec client pki \
-              nss-cert-issue \
-              --issuer ca_signing \
-              --csr $SHARED/certs/admin.csr \
-              --ext /usr/share/pki/server/certs/admin.conf \
-              --cert $SHARED/certs/admin.crt
-
-          docker exec client pki nss-cert-import \
-              --cert $SHARED/certs/admin.crt \
-              admin
-
-          docker exec client pki \
-              nss-cert-show \
-              admin
-
-      - name: Export system certs and keys
+      - name: Prepare CA certs and keys
         run: |
           docker exec client pki pkcs12-export \
               --pkcs12 $SHARED/certs/server.p12 \
@@ -199,16 +177,7 @@ jobs:
               --pkcs12 $SHARED/certs/server.p12 \
               --password Secret.123
 
-      - name: Export admin cert and key
-        run: |
-          docker exec client pki pkcs12-export \
-              --pkcs12 $SHARED/certs/admin.p12 \
-              --password Secret.123 \
-              admin
-
-          docker exec client pki pkcs12-cert-find \
-              --pkcs12 $SHARED/certs/admin.p12 \
-              --password Secret.123
+          ls -la certs
 
       - name: Set up CA container
         run: |
@@ -393,12 +362,35 @@ jobs:
               --csr /certs/sslserver.csr \
               --profile /usr/share/pki/ca/conf/rsaServerCert.profile
 
-      - name: Import admin cert into CA database
+      - name: Create admin cert
         run: |
-          docker exec ca pki-server ca-cert-import \
-              --cert /certs/admin.crt \
-              --csr /certs/admin.csr \
-              --profile /usr/share/pki/ca/conf/rsaAdminCert.profile
+          # create cert request
+          docker exec client pki nss-cert-request \
+              --subject "CN=Administrator" \
+              --ext /usr/share/pki/server/certs/admin.conf \
+              --csr $SHARED/admin.csr
+
+          docker cp admin.csr ca:.
+
+          # issue cert
+          docker exec ca pki-server ca-cert-create \
+              --csr admin.csr \
+              --profile /usr/share/pki/ca/conf/rsaAdminCert.profile \
+              --cert admin.crt \
+              --import-cert
+
+          docker cp ca:admin.crt .
+
+          # import cert
+          docker exec client pki nss-cert-import \
+              --cert $SHARED/admin.crt \
+              admin
+
+      - name: Check certs in CA
+        run: |
+          docker exec client pki \
+              -U https://ca.example.com:8443 \
+              ca-cert-find
 
       # https://github.com/dogtagpki/pki/wiki/Setting-up-CA-Admin-User
       - name: Add CA admin user
@@ -406,7 +398,7 @@ jobs:
           docker exec ca pki-server ca-user-add \
               --full-name Administrator \
               --type adminType \
-              --cert /certs/admin.crt \
+              --cert admin.crt \
               admin
 
       - name: Add CA admin user into CA groups
@@ -414,48 +406,16 @@ jobs:
           docker exec ca pki-server ca-user-role-add admin "Administrators"
           docker exec ca pki-server ca-user-role-add admin "Certificate Manager Agents"
 
-      - name: Check public operations from CA container
+      - name: Check CA admin user
         run: |
-          # check certs in CA
-          docker exec ca pki ca-cert-find
-
-      - name: Check admin operations from CA container
-        run: |
-          # check CA admin user
-          docker exec ca pki \
-              -n admin \
-              ca-user-show \
-              admin
-
-          docker exec ca pki \
-              client-cert-request \
-              uid=testuser | tee output
-
-          REQUEST_ID=$(sed -n -e 's/^ *Request ID: *\(.*\)$/\1/p' output)
-          echo "REQUEST_ID: $REQUEST_ID"
-
-          docker exec ca pki \
-              -n admin \
-              ca-cert-request-approve \
-              $REQUEST_ID \
-              --force
-
-      - name: Check public operations from client container
-        run: |
-          # check certs in CA
-          docker exec client pki \
-              -U https://ca.example.com:8443 \
-              ca-cert-find
-
-      - name: Check admin operations from client container
-        run: |
-          # check CA admin user
           docker exec client pki \
               -U https://ca.example.com:8443 \
               -n admin \
               ca-user-show \
               admin
 
+      - name: Check cert enrollment
+        run: |
           docker exec client pki \
               -U https://ca.example.com:8443 \
               client-cert-request \

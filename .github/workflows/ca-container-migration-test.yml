@@ -131,7 +131,6 @@ jobs:
           Environment=PKI_AUDIT_SIGNING_NICKNAME=ca_audit_signing
           Environment=PKI_SUBSYSTEM_NICKNAME=subsystem
           Environment=PKI_SSLSERVER_NICKNAME=sslserver
-          Environment=PKI_ADMIN_NICKNAME=caadmin
 
           [Install]
           WantedBy=multi-user.target
