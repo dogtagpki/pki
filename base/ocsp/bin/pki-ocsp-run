@@ -6,7 +6,7 @@
 #
 
 PKI_OCSP_SIGNING_NICKNAME="${PKI_OCSP_SIGNING_NICKNAME:-ocsp_signing}"
-PKI_AUDIT_SIGNING_NICKNAME="${PKI_AUDIT_SIGNING_NICKNAME:-audit_signing}"
+PKI_AUDIT_SIGNING_NICKNAME="${PKI_AUDIT_SIGNING_NICKNAME:-ocsp_audit_signing}"
 PKI_SUBSYSTEM_NICKNAME="${PKI_SUBSYSTEM_NICKNAME:-subsystem}"
 PKI_SSLSERVER_NICKNAME="${PKI_SSLSERVER_NICKNAME:-sslserver}"
 PKI_ADMIN_NICKNAME="${PKI_ADMIN_NICKNAME:-admin}"
@@ -42,10 +42,10 @@ then
     cp /certs/ocsp_signing.csr /conf/certs/ocsp_signing.csr
 fi
 
-if [ -f /certs/audit_signing.csr ]
+if [ -f /certs/ocsp_audit_signing.csr ]
 then
     echo "INFO: Importing audit signing CSR"
-    cp /certs/audit_signing.csr /conf/certs/audit_signing.csr
+    cp /certs/ocsp_audit_signing.csr /conf/certs/ocsp_audit_signing.csr
 fi
 
 if [ -f /certs/subsystem.csr ]
@@ -160,7 +160,7 @@ pkispawn \
     -D pki_ocsp_signing_nickname="$PKI_OCSP_SIGNING_NICKNAME" \
     -D pki_ocsp_signing__path=/conf/certs/ocsp_signing.csr \
     -D pki_audit_signing_nickname="$PKI_AUDIT_SIGNING_NICKNAME" \
-    -D pki_audit_signing_csr_path=/conf/certs/audit_signing.csr \
+    -D pki_audit_signing_csr_path=/conf/certs/ocsp_audit_signing.csr \
     -D pki_subsystem_nickname="$PKI_SUBSYSTEM_NICKNAME" \
     -D pki_subsystem_csr_path=/conf/certs/subsystem.csr \
     -D pki_sslserver_nickname="$PKI_SSLSERVER_NICKNAME" \

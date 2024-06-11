@@ -129,7 +129,7 @@ jobs:
               $SHARED/certs/ca_signing.csr
           docker exec pki cp \
               /var/lib/pki/pki-tomcat/conf/certs/ca_ocsp_signing.csr \
-              $SHARED/certs/ocsp_signing.csr
+              $SHARED/certs/ca_ocsp_signing.csr
           docker exec pki cp \
               /var/lib/pki/pki-tomcat/conf/certs/ca_audit_signing.csr \
               $SHARED/certs/audit_signing.csr

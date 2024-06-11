@@ -7,7 +7,7 @@
 
 PKI_STORAGE_NICKNAME="${PKI_STORAGE_NICKNAME:-kra_storage}"
 PKI_TRANSPORT_NICKNAME="${PKI_TRANSPORT_NICKNAME:-kra_transport}"
-PKI_AUDIT_SIGNING_NICKNAME="${PKI_AUDIT_SIGNING_NICKNAME:-audit_signing}"
+PKI_AUDIT_SIGNING_NICKNAME="${PKI_AUDIT_SIGNING_NICKNAME:-kra_audit_signing}"
 PKI_SUBSYSTEM_NICKNAME="${PKI_SUBSYSTEM_NICKNAME:-subsystem}"
 PKI_SSLSERVER_NICKNAME="${PKI_SSLSERVER_NICKNAME:-sslserver}"
 PKI_ADMIN_NICKNAME="${PKI_ADMIN_NICKNAME:-admin}"
@@ -49,10 +49,10 @@ then
     cp /certs/kra_transport.csr /conf/certs/kra_transport.csr
 fi
 
-if [ -f /certs/audit_signing.csr ]
+if [ -f /certs/kra_audit_signing.csr ]
 then
     echo "INFO: Importing audit signing CSR"
-    cp /certs/audit_signing.csr /conf/certs/audit_signing.csr
+    cp /certs/kra_audit_signing.csr /conf/certs/kra_audit_signing.csr
 fi
 
 if [ -f /certs/subsystem.csr ]
@@ -175,7 +175,7 @@ pkispawn \
     -D pki_transport_nickname="$PKI_TRANSPORT_NICKNAME" \
     -D pki_transport_csr_path=/conf/certs/kra_transport.csr \
     -D pki_audit_signing_nickname="$PKI_AUDIT_SIGNING_NICKNAME" \
-    -D pki_audit_signing_csr_path=/conf/certs/audit_signing.csr \
+    -D pki_audit_signing_csr_path=/conf/certs/kra_audit_signing.csr \
     -D pki_subsystem_nickname="$PKI_SUBSYSTEM_NICKNAME" \
     -D pki_subsystem_csr_path=/conf/certs/subsystem.csr \
     -D pki_sslserver_nickname="$PKI_SSLSERVER_NICKNAME" \
