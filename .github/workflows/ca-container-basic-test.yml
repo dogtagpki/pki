@@ -249,18 +249,31 @@ jobs:
               --csr /conf/certs/sslserver.csr \
               --profile /usr/share/pki/ca/conf/rsaServerCert.profile
 
-      - name: Import admin cert into CA database
+      - name: Create admin cert
         run: |
-          docker exec ca pki nss-cert-export \
-              --output-file /conf/certs/admin.crt \
+          # create cert request
+          docker exec client pki nss-cert-request \
+              --subject "CN=Administrator" \
+              --ext /usr/share/pki/server/certs/admin.conf \
+              --csr $SHARED/admin.csr
+
+          docker cp admin.csr ca:.
+
+          # issue cert
+          docker exec ca pki-server ca-cert-create \
+              --csr admin.csr \
+              --profile /usr/share/pki/ca/conf/rsaAdminCert.profile \
+              --cert admin.crt \
+              --import-cert
+
+          docker cp ca:admin.crt .
+
+          # import cert
+          docker exec client pki nss-cert-import \
+              --cert $SHARED/admin.crt \
               admin
 
-          docker exec ca pki-server ca-cert-import \
-              --cert /conf/certs/admin.crt \
-              --csr /conf/certs/admin.csr \
-              --profile /usr/share/pki/ca/conf/rsaAdminCert.profile
-
-      - name: Check CA certs
+      - name: Check certs in CA
         run: |
           docker exec client pki \
               -U https://ca.example.com:8443 \
@@ -273,7 +286,7 @@ jobs:
           docker exec ca pki-server ca-user-add \
               --full-name Administrator \
               --type adminType \
-              --cert /conf/certs/admin.crt \
+              --cert admin.crt \
               admin
 
           # add CA admin user into CA groups
@@ -282,15 +295,6 @@ jobs:
 
       - name: Check CA admin user
         run: |
-          docker exec ca pki pkcs12-export \
-              --pkcs12 /conf/certs/admin.p12 \
-              --password Secret.123 \
-              admin
-
-          docker exec client pki pkcs12-import \
-              --pkcs12 $SHARED/conf/certs/admin.p12 \
-              --pkcs12-password Secret.123
-
           docker exec client pki \
               -U https://ca.example.com:8443 \
               -n admin \

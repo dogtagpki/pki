@@ -10,7 +10,6 @@ PKI_TRANSPORT_NICKNAME="${PKI_TRANSPORT_NICKNAME:-kra_transport}"
 PKI_AUDIT_SIGNING_NICKNAME="${PKI_AUDIT_SIGNING_NICKNAME:-kra_audit_signing}"
 PKI_SUBSYSTEM_NICKNAME="${PKI_SUBSYSTEM_NICKNAME:-subsystem}"
 PKI_SSLSERVER_NICKNAME="${PKI_SSLSERVER_NICKNAME:-sslserver}"
-PKI_ADMIN_NICKNAME="${PKI_ADMIN_NICKNAME:-admin}"
 
 # Allow the owner of the container (who might not be in the root group)
 # to manage the config and log files.
@@ -65,12 +64,6 @@ if [ -f /certs/sslserver.csr ]
 then
     echo "INFO: Importing SSL server CSR"
     cp /certs/sslserver.csr /conf/certs/sslserver.csr
-fi
-
-if [ -f /certs/admin.csr ]
-then
-    echo "INFO: Importing admin CSR"
-    cp /certs/admin.csr /conf/certs/admin.csr
 fi
 
 echo "################################################################################"
@@ -131,23 +124,6 @@ pki \
     -f /conf/password.conf \
     nss-cert-show \
     "$PKI_SSLSERVER_NICKNAME"
-
-echo "################################################################################"
-
-if [ -f /certs/admin.p12 ]
-then
-    echo "INFO: Importing admin cert and key"
-
-    pki pkcs12-import \
-        --pkcs12 /certs/admin.p12 \
-        --password Secret.123
-fi
-
-echo "INFO: Admin cert:"
-pki nss-cert-show "$PKI_ADMIN_NICKNAME"
-
-echo "################################################################################"
-echo "INFO: Removing temporary files"
 
 echo "################################################################################"
 echo "INFO: Creating PKI KRA"
