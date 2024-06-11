@@ -208,23 +208,23 @@ jobs:
       - name: Import CA OCSP signing cert into CA database
         run: |
           docker exec ca pki-server cert-export \
-              --cert-file /conf/certs/ocsp_signing.crt \
+              --cert-file /conf/certs/ca_ocsp_signing.crt \
               ca_ocsp_signing
 
           docker exec ca pki-server ca-cert-import \
-              --cert /conf/certs/ocsp_signing.crt \
-              --csr /conf/certs/ocsp_signing.csr \
+              --cert /conf/certs/ca_ocsp_signing.crt \
+              --csr /conf/certs/ca_ocsp_signing.csr \
               --profile /usr/share/pki/ca/conf/caOCSPCert.profile
 
       - name: Import CA audit signing cert into CA database
         run: |
           docker exec ca pki-server cert-export \
-              --cert-file /conf/certs/audit_signing.crt \
+              --cert-file /conf/certs/ca_audit_signing.crt \
               ca_audit_signing
 
           docker exec ca pki-server ca-cert-import \
-              --cert /conf/certs/audit_signing.crt \
-              --csr /conf/certs/audit_signing.csr \
+              --cert /conf/certs/ca_audit_signing.crt \
+              --csr /conf/certs/ca_audit_signing.csr \
               --profile /usr/share/pki/ca/conf/caAuditSigningCert.profile
 
       - name: Import subsystem cert into CA database

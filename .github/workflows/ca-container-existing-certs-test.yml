@@ -78,20 +78,20 @@ jobs:
               nss-cert-request \
               --subject "CN=OCSP Signing Certificate" \
               --ext /usr/share/pki/server/certs/ocsp_signing.conf \
-              --csr $SHARED/certs/ocsp_signing.csr
+              --csr $SHARED/certs/ca_ocsp_signing.csr
           docker exec client pki \
               nss-cert-issue \
               --issuer ca_signing \
-              --csr $SHARED/certs/ocsp_signing.csr \
+              --csr $SHARED/certs/ca_ocsp_signing.csr \
               --ext /usr/share/pki/server/certs/ocsp_signing.conf \
-              --cert $SHARED/certs/ocsp_signing.crt
+              --cert $SHARED/certs/ca_ocsp_signing.crt
           docker exec client pki \
               nss-cert-import \
-              --cert $SHARED/certs/ocsp_signing.crt \
-              ocsp_signing
+              --cert $SHARED/certs/ca_ocsp_signing.crt \
+              ca_ocsp_signing
           docker exec client pki \
               nss-cert-show \
-              ocsp_signing
+              ca_ocsp_signing
 
       - name: Create audit signing cert
         run: |
@@ -99,21 +99,21 @@ jobs:
               nss-cert-request \
               --subject "CN=Audit Signing Certificate" \
               --ext /usr/share/pki/server/certs/audit_signing.conf \
-              --csr $SHARED/certs/audit_signing.csr
+              --csr $SHARED/certs/ca_audit_signing.csr
           docker exec client pki \
               nss-cert-issue \
               --issuer ca_signing \
-              --csr $SHARED/certs/audit_signing.csr \
+              --csr $SHARED/certs/ca_audit_signing.csr \
               --ext /usr/share/pki/server/certs/audit_signing.conf \
-              --cert $SHARED/certs/audit_signing.crt
+              --cert $SHARED/certs/ca_audit_signing.crt
           docker exec client pki \
               nss-cert-import \
-              --cert $SHARED/certs/audit_signing.crt \
+              --cert $SHARED/certs/ca_audit_signing.crt \
               --trust ,,P \
-              audit_signing
+              ca_audit_signing
           docker exec client pki \
               nss-cert-show \
-              audit_signing
+              ca_audit_signing
 
       - name: Create subsystem cert
         run: |
@@ -184,8 +184,8 @@ jobs:
               --pkcs12 $SHARED/certs/server.p12 \
               --password Secret.123 \
               ca_signing \
-              ocsp_signing \
-              audit_signing \
+              ca_ocsp_signing \
+              ca_audit_signing \
               subsystem \
               sslserver
 
@@ -368,15 +368,15 @@ jobs:
       - name: Import CA OCSP signing cert into CA database
         run: |
           docker exec ca pki-server ca-cert-import \
-              --cert /certs/ocsp_signing.crt \
-              --csr /certs/ocsp_signing.csr \
+              --cert /certs/ca_ocsp_signing.crt \
+              --csr /certs/ca_ocsp_signing.csr \
               --profile /usr/share/pki/ca/conf/caOCSPCert.profile
 
       - name: Import CA audit signing cert into CA database
         run: |
           docker exec ca pki-server ca-cert-import \
-              --cert /certs/audit_signing.crt \
-              --csr /certs/audit_signing.csr \
+              --cert /certs/ca_audit_signing.crt \
+              --csr /certs/ca_audit_signing.csr \
               --profile /usr/share/pki/ca/conf/caAuditSigningCert.profile
 
       - name: Import subsystem cert into CA database
