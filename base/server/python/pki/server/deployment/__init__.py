@@ -1128,6 +1128,9 @@ class PKIDeployer:
             subsystem.set_config(
                 'auths.instance.ldap1.ldap.ldapconn.secureConn',
                 self.mdict['pki_authdb_secure_conn'])
+            subsystem.set_config(
+                'auths.instance.ldap1.ldap.ldapauth.clientCertNickname',
+                self.mdict['pki_subsystem_nickname'])
 
     def configure_ca(self, subsystem):
 
@@ -1338,37 +1341,69 @@ class PKIDeployer:
             subsystem.set_config('tps.connector.tks1.serverKeygen', 'true')
 
             # TODO: see if there are other profiles need to be configured
-            subsystem.config[
-                'op.enroll.userKey.keyGen.encryption.serverKeygen.enable'] = 'true'
-            subsystem.config[
-                'op.enroll.userKeyTemporary.keyGen.encryption.serverKeygen.enable'] = 'true'
-            subsystem.config[
-                'op.enroll.soKey.keyGen.encryption.serverKeygen.enable'] = 'true'
-            subsystem.config[
-                'op.enroll.soKeyTemporary.keyGen.encryption.serverKeygen.enable'] = 'true'
+            subsystem.set_config(
+                'op.enroll.delegateIEtoken.keyGen.encryption.serverKeygen.enable',
+                'true')
+            subsystem.set_config(
+                'op.enroll.delegateISEtoken.keyGen.encryption.serverKeygen.enable',
+                'true')
+            subsystem.set_config(
+                'op.enroll.externalRegAddToToken.keyGen.encryption.serverKeygen.enable',
+                'true')
+            subsystem.set_config(
+                'op.enroll.soKey.keyGen.encryption.serverKeygen.enable',
+                'true')
+            subsystem.set_config(
+                'op.enroll.soKeyTemporary.keyGen.encryption.serverKeygen.enable',
+                'true')
+            subsystem.set_config(
+                'op.enroll.userKey.keyGen.encryption.serverKeygen.enable',
+                'true')
+            subsystem.set_config(
+                'op.enroll.userKeyTemporary.keyGen.encryption.serverKeygen.enable',
+                'true')
 
         else:
             # TODO: see if there are other profiles need to be configured
-            subsystem.config[
-                'op.enroll.userKey.keyGen.encryption.serverKeygen.enable'] = 'false'
-            subsystem.config[
-                'op.enroll.userKeyTemporary.keyGen.encryption.serverKeygen.enable'] = 'false'
-            subsystem.config[
-                'op.enroll.userKey.keyGen.encryption.recovery.destroyed.scheme'
-            ] = 'GenerateNewKey'
-            subsystem.config[
-                'op.enroll.userKeyTemporary.keyGen.encryption.recovery.onHold.scheme'
-            ] = 'GenerateNewKey'
-            subsystem.config[
-                'op.enroll.soKey.keyGen.encryption.serverKeygen.enable'] = 'false'
-            subsystem.config[
-                'op.enroll.soKeyTemporary.keyGen.encryption.serverKeygen.enable'] = 'false'
-            subsystem.config[
-                'op.enroll.soKey.keyGen.encryption.recovery.destroyed.scheme'
-            ] = 'GenerateNewKey'
-            subsystem.config[
-                'op.enroll.soKeyTemporary.keyGen.encryption.recovery.onHold.scheme'
-            ] = 'GenerateNewKey'
+            subsystem.set_config(
+                'op.enroll.delegateIEtoken.keyGen.encryption.serverKeygen.enable',
+                'false')
+
+            subsystem.set_config(
+                'op.enroll.delegateISEtoken.keyGen.encryption.serverKeygen.enable',
+                'false')
+
+            subsystem.set_config(
+                'op.enroll.externalRegAddToToken.keyGen.encryption.serverKeygen.enable',
+                'false')
+
+            subsystem.set_config(
+                'op.enroll.soKey.keyGen.encryption.serverKeygen.enable',
+                'false')
+            subsystem.set_config(
+                'op.enroll.soKey.keyGen.encryption.recovery.destroyed.scheme',
+                'GenerateNewKey')
+
+            subsystem.set_config(
+                'op.enroll.soKeyTemporary.keyGen.encryption.serverKeygen.enable',
+                'false')
+            subsystem.set_config(
+                'op.enroll.soKeyTemporary.keyGen.encryption.recovery.onHold.scheme',
+                'GenerateNewKey')
+
+            subsystem.set_config(
+                'op.enroll.userKey.keyGen.encryption.serverKeygen.enable',
+                'false')
+            subsystem.set_config(
+                'op.enroll.userKey.keyGen.encryption.recovery.destroyed.scheme',
+                'GenerateNewKey')
+
+            subsystem.set_config(
+                'op.enroll.userKeyTemporary.keyGen.encryption.serverKeygen.enable',
+                'false')
+            subsystem.set_config(
+                'op.enroll.userKeyTemporary.keyGen.encryption.recovery.onHold.scheme',
+                'GenerateNewKey')
 
     def configure_subsystem(self, subsystem):
 
