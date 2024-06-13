@@ -44,6 +44,17 @@
     container: "{{ ds_container }}"
     command: dsconf slapd-localhost backend create --suffix dc=example,dc=com  --be-name userRoot
 
+- name: Check ds connection
+  community.docker.docker_container_exec:
+    container: "{{ ds_container }}"
+    command: ldapsearch -H ldap://{{ ds_hostname }}:3389 -D "cn=Directory Manager" -w {{ ds_password }} -x -b dc=example,dc=com
+  register: ds_connection
+  retries: 5
+  delay: 15
+  failed_when: ds_connection.rc != 32 and ds_connection.rc != 49
+  until: ds_connection.rc == 32
+
+
 - name: Add base entry
   community.docker.docker_container_exec:
     container: "{{ ds_container }}"
