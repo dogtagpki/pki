@@ -72,6 +72,26 @@ public abstract class PKIServlet extends HttpServlet {
         doOperation(HttpMethod.POST, request, response);
     }
 
+    @Override
+    public void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        doOperation(HttpMethod.PUT, request, response);
+    }
+
+    @Override
+    public void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        doOperation(HttpMethod.DELETE, request, response);
+    }
+
+    @Override
+    protected void service(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        String method = req.getMethod();
+        if (!method.equals("PATCH")) {
+            super.service(req, res);
+            return;
+        }
+        this.doOperation(HttpMethod.PATCH, req, res);
+    }
+
     private void doOperation(HttpMethod method, HttpServletRequest request, HttpServletResponse response) {
         response.setContentType("application/json");
         try {
