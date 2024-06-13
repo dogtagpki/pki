@@ -43,6 +43,16 @@
     container: "{{ cads_container }}"
     command: dsconf slapd-localhost backend create --suffix dc=example,dc=com  --be-name userRoot
 
+- name: Check CA ds connection
+  community.docker.docker_container_exec:
+    container: "{{ cads_container }}"
+    command: ldapsearch -H ldap://{{ cads_hostname }}:3389 -D "cn=Directory Manager" -w {{ cads_password }} -x -b dc=example,dc=com
+  register: cads_connection
+  retries: 5
+  delay: 15
+  failed_when: cads_connection.rc != 32 and cads_connection.rc != 49
+  until: cads_connection.rc == 32
+
 - name: Add CA base entry
   community.docker.docker_container_exec:
     container: "{{ cads_container }}"
@@ -138,6 +148,16 @@
     container: "{{ ocspds_container }}"
     command: dsconf slapd-localhost backend create --suffix dc=example,dc=com  --be-name userRoot
                                                     
+- name: Check OCSP ds connection
+  community.docker.docker_container_exec:
+    container: "{{ ocspds_container }}"
+    command: ldapsearch -H ldap://{{ ocspds_hostname }}:3389 -D "cn=Directory Manager" -w {{ ocspds_password }} -x -b dc=example,dc=com
+  register: ocspds_connection
+  retries: 5
+  delay: 15
+  failed_when: ocspds_connection.rc != 32 and ocspds_connection.rc != 49
+  until: ocspds_connection.rc == 32
+
 
 - name: Add OCSP base entry
   community.docker.docker_container_exec:

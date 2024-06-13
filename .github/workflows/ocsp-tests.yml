@@ -87,7 +87,7 @@ jobs:
 
     - name: Execute OCSP playbook
       run: |
-        ansible-playbook  -e 'pki_subsystem="ocsp"' tests/ansible/pki-playbook.yml 
+        ansible-playbook -e 'pki_subsystem="ocsp"' tests/ansible/pki-playbook.yml
       env:
         ANSIBLE_CONFIG: ${{ github.workspace }}/tests/ansible/ansible.cfg
 
