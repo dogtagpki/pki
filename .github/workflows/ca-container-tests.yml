@@ -28,6 +28,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/ca-container-system-service-test.yml
 
+  ca-container-user-service-test:
+    name: CA container user service
+    needs: build
+    uses: ./.github/workflows/ca-container-user-service-test.yml
+
   ca-container-migration-test:
     name: CA migration to container
     needs: build
