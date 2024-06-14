@@ -246,21 +246,16 @@ jobs:
       # https://github.com/dogtagpki/pki/wiki/Setting-up-CA-Admin-User
       - name: Add CA admin user
         run: |
-          # create CA admin user
-          docker exec pki podman exec systemd-pki-ca \
-              pki-server ca-user-add \
-              --full-name Administrator \
-              --type adminType \
-              admin
-
           docker exec pki podman exec systemd-pki-ca \
               pki nss-cert-export \
               --output-file /conf/certs/admin.crt \
               admin
 
-          # assign admin cert to CA admin user
+          # create CA admin user
           docker exec pki podman exec systemd-pki-ca \
-              pki-server ca-user-cert-add \
+              pki-server ca-user-add \
+              --full-name Administrator \
+              --type adminType \
               --cert /conf/certs/admin.crt \
               admin
 

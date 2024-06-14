@@ -168,11 +168,6 @@ jobs:
           docker exec ca pki-server ca-user-add \
               --full-name Administrator \
               --type adminType \
-              admin
-
-      - name: Assign admin cert to CA admin user
-        run: |
-          docker exec ca pki-server ca-user-cert-add \
               --cert /conf/certs/admin.crt \
               admin
 
@@ -455,15 +450,10 @@ jobs:
       # https://github.com/dogtagpki/pki/wiki/Setting-up-KRA-Admin-User
       - name: Add KRA admin user
         run: |
+          cp ca/conf/certs/admin.crt kra/conf/certs/admin.crt
           docker exec kra pki-server kra-user-add \
               --full-name Administrator \
               --type adminType \
-              admin
-
-      - name: Assign admin cert to KRA admin user
-        run: |
-          cp ca/conf/certs/admin.crt kra/conf/certs/admin.crt
-          docker exec kra pki-server kra-user-cert-add \
               --cert /conf/certs/admin.crt \
               admin
 
@@ -483,15 +473,10 @@ jobs:
       # https://github.com/dogtagpki/pki/wiki/Setting-up-Subsystem-User
       - name: Add CA subsystem user in KRA
         run: |
+          cp ca/conf/certs/subsystem.crt kra/conf/certs/ca_subsystem.crt
           docker exec kra pki-server kra-user-add \
               --full-name CA-ca.example.com-8443 \
               --type agentType \
-              CA-ca.example.com-8443
-
-      - name: Assign CA subsystem cert to CA subsystem user
-        run: |
-          cp ca/conf/certs/subsystem.crt kra/conf/certs/ca_subsystem.crt
-          docker exec kra pki-server kra-user-cert-add \
               --cert /conf/certs/ca_subsystem.crt \
               CA-ca.example.com-8443
 

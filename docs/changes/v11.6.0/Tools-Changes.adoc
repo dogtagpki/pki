@@ -43,3 +43,8 @@ The `revoker` tool has been deprecated. Use the following commands instead:
 
 The `pki-server-upgrade` was deprecated in PKI 10.7.1 so now it has been removed.
 Use `pki-server upgrade` instead.
+
+== Update pki-server <subsystem>-user-add ==
+
+The `pki-server <subsystem>-user-add` command has been updated to provide an option
+to specify the user certificate.

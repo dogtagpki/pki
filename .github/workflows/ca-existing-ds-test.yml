@@ -244,11 +244,6 @@ jobs:
           docker exec pki pki-server ca-user-add \
               --full-name pkidbuser \
               --type agentType \
-              pkidbuser
-
-      - name: Assign subsystem cert to database user
-        run: |
-          docker exec pki pki-server ca-user-cert-add \
               --cert /var/lib/pki/pki-tomcat/conf/certs/subsystem.crt \
               pkidbuser
 
@@ -296,11 +291,6 @@ jobs:
           docker exec pki pki-server ca-user-add \
               --full-name CA-pki.example.com-8443 \
               --type agentType \
-              CA-pki.example.com-8443
-
-      - name: Assign subsystem cert to subsystem user
-        run: |
-          docker exec pki pki-server ca-user-cert-add \
               --cert /var/lib/pki/pki-tomcat/conf/certs/subsystem.crt \
               CA-pki.example.com-8443
 
@@ -314,11 +304,6 @@ jobs:
           docker exec pki pki-server ca-user-add \
               --full-name Administrator \
               --type adminType \
-              caadmin
-
-      - name: Assign CA admin cert to CA admin user
-        run: |
-          docker exec pki pki-server ca-user-cert-add \
               --cert admin.crt \
               caadmin
 
