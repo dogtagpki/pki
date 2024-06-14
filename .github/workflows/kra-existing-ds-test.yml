@@ -396,11 +396,6 @@ jobs:
           docker exec kra pki-server kra-user-add \
               --full-name Administrator \
               --type adminType \
-              kraadmin
-
-      - name: Assign KRA admin cert to KRA admin user
-        run: |
-          docker exec kra pki-server kra-user-cert-add \
               --cert $SHARED/kra_admin.crt \
               kraadmin
 

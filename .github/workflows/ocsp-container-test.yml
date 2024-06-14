@@ -169,11 +169,6 @@ jobs:
           docker exec ca pki-server ca-user-add \
               --full-name Administrator \
               --type adminType \
-              admin
-
-      - name: Assign admin cert to CA admin user
-        run: |
-          docker exec ca pki-server ca-user-cert-add \
               --cert /conf/certs/admin.crt \
               admin
 
@@ -437,15 +432,10 @@ jobs:
       # https://github.com/dogtagpki/pki/wiki/Setting-up-OCSP-Admin-User
       - name: Add OCSP admin user
         run: |
+          cp ca/conf/certs/admin.crt ocsp/conf/certs/admin.crt
           docker exec ocsp pki-server ocsp-user-add \
               --full-name Administrator \
               --type adminType \
-              admin
-
-      - name: Assign admin cert to OCSP admin user
-        run: |
-          cp ca/conf/certs/admin.crt ocsp/conf/certs/admin.crt
-          docker exec ocsp pki-server ocsp-user-cert-add \
               --cert /conf/certs/admin.crt \
               admin
 
@@ -464,15 +454,10 @@ jobs:
       # https://github.com/dogtagpki/pki/wiki/Setting-up-Subsystem-User
       - name: Add CA subsystem user in OCSP
         run: |
+          cp ca/conf/certs/subsystem.crt ocsp/conf/certs/ca_subsystem.crt
           docker exec ocsp pki-server ocsp-user-add \
               --full-name CA-ca.example.com-8443 \
               --type agentType \
-              CA-ca.example.com-8443
-
-      - name: Assign CA subsystem cert to CA subsystem user
-        run: |
-          cp ca/conf/certs/subsystem.crt ocsp/conf/certs/ca_subsystem.crt
-          docker exec ocsp pki-server ocsp-user-cert-add \
               --cert /conf/certs/ca_subsystem.crt \
               CA-ca.example.com-8443
 

@@ -273,10 +273,6 @@ jobs:
           docker exec ca pki-server ca-user-add \
               --full-name Administrator \
               --type adminType \
-              admin
-
-          # assign admin cert to CA admin user
-          docker exec ca pki-server ca-user-cert-add \
               --cert /conf/certs/admin.crt \
               admin
 

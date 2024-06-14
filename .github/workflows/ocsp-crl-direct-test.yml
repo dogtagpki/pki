@@ -193,8 +193,12 @@ jobs:
           docker exec ca pki-server cert-export subsystem --cert-file ${SHARED}/subsystem.crt
 
           # create CA user with CA subsystem cert
-          docker exec ocsp pki-server ocsp-user-add CA --full-name "CA" --type agentType
-          docker exec ocsp pki-server ocsp-user-cert-add CA --cert ${SHARED}/subsystem.crt
+          docker exec ocsp pki-server ocsp-user-add \
+              --full-name "CA" \
+              --type agentType \
+              --cert ${SHARED}/subsystem.crt \
+              CA
+
           docker exec ocsp pki-server ocsp-group-member-add "Trusted Managers" CA
 
       - name: Create CRL issuing point in OCSP

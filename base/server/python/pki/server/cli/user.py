@@ -46,6 +46,8 @@ class UserAddCLI(pki.cli.CLI):
               --email <email>                Email
               --password <password>          Password
               --password-file <path>         Password file
+              --cert <path>                  Certificate file
+              --cert-format <format>         Certificate format (default: PEM)
               --phone <phone>                Phone
               --type <type>                  Type: userType, agentType, adminType, subsystemType
               --state <state>                State
@@ -73,6 +75,7 @@ class UserAddCLI(pki.cli.CLI):
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=', 'full-name=', 'email=',
                 'password=', 'password-file=',
+                'cert=', 'cert-format=',
                 'phone=', 'type=', 'state=', 'tps-profiles=', 'ignore-duplicate'
                 'verbose', 'debug', 'help'])
 
@@ -87,6 +90,8 @@ class UserAddCLI(pki.cli.CLI):
         email = None
         password = None
         password_file = None
+        cert_path = None
+        cert_format = None
         phone = None
         user_type = None
         state = None
@@ -108,6 +113,12 @@ class UserAddCLI(pki.cli.CLI):
 
             elif o == '--password-file':
                 password_file = a
+
+            elif o == '--cert':
+                cert_path = a
+
+            elif o == '--cert-format':
+                cert_format = a
 
             elif o == '--phone':
                 phone = a
@@ -176,6 +187,12 @@ class UserAddCLI(pki.cli.CLI):
             state=state,
             tps_profiles=tps_profiles,
             ignore_duplicate=ignore_duplicate)
+
+        if cert_path:
+            subsystem.add_user_cert(
+                user_id,
+                cert_path=cert_path,
+                cert_format=cert_format)
 
 
 class UserFindCLI(pki.cli.CLI):
