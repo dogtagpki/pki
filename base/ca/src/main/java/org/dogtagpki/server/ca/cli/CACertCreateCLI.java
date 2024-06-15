@@ -9,6 +9,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.math.BigInteger;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.KeyPair;
 import java.security.SecureRandom;
 import java.util.Date;
@@ -87,8 +89,8 @@ public class CACertCreateCLI extends CommandCLI {
         option.setArgName("ID");
         options.addOption(option);
 
-        option = new Option(null, "profile", true, "Profile ID");
-        option.setArgName("ID");
+        option = new Option(null, "profile", true, "Bootstrap profile path");
+        option.setArgName("path");
         options.addOption(option);
 
         option = new Option(null, "type", true, "Certificate type: selfsign (default), local");
@@ -143,9 +145,9 @@ public class CACertCreateCLI extends CommandCLI {
             throw new CLIException("Missing request ID");
         }
 
-        String profileID = cmd.getOptionValue("profile");
-        if (profileID == null) {
-            throw new CLIException("Missing profile ID");
+        String profilePath = cmd.getOptionValue("profile");
+        if (profilePath == null) {
+            throw new CLIException("Missing bootstrap profile");
         }
 
         String serial = cmd.getOptionValue("serial");
@@ -175,10 +177,13 @@ public class CACertCreateCLI extends CommandCLI {
         CAEngineConfig cs = new CAEngineConfig(storage);
         cs.load();
 
-        String profilePath = confDir + File.separator + profileID;
+        // If the bootstrap profile path is relative (e.g. caCert.profile),
+        // convert it to /var/lib/pki/pki-tomcat/ca/conf/<profile>.
+        // If the bootstrap profile path is absolute, use it as is.
+        Path path = Paths.get(confDir).resolve(profilePath);
 
-        logger.info("Loading " + profilePath);
-        ConfigStorage profileStorage = new FileConfigStorage(profilePath);
+        logger.info("Loading " + path);
+        ConfigStorage profileStorage = new FileConfigStorage(path.toString());
         ConfigStore profileConfig = new ConfigStore(profileStorage);
         profileConfig.load();
         BootstrapProfile profile = new BootstrapProfile(cs, profileConfig);
@@ -251,12 +256,9 @@ public class CACertCreateCLI extends CommandCLI {
             X500Name issuerName;
             PrivateKey signingPrivateKey;
 
-            if (certType.equals("selfsign")) {
+            String hexKeyID = cmd.getOptionValue("key-id");
 
-                String hexKeyID = cmd.getOptionValue("key-id");
-                if (hexKeyID == null) {
-                    throw new CLIException("Missing key ID");
-                }
+            if (certType.equals("selfsign") && hexKeyID != null) {
 
                 logger.info("Key ID: " + hexKeyID);
                 logger.info("Key token: " + tokenName);

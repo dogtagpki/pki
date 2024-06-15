@@ -3346,7 +3346,7 @@ class PKIDeployer:
 
         cert_data = subsystem.create_cert(
             request_id=request.systemCert.requestID,
-            profile_id=request.systemCert.profile,
+            profile_path=request.systemCert.profile,
             cert_type=request.systemCert.type,
             key_id=request.systemCert.keyID,
             key_token=request.systemCert.token,

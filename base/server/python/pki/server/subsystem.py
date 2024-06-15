@@ -2331,7 +2331,7 @@ class CASubsystem(PKISubsystem):
     def create_cert(
             self,
             request_id=None,
-            profile_id=None,
+            profile_path=None,
             cert_type=None,
             key_id=None,
             key_token=None,
@@ -2354,8 +2354,8 @@ class CASubsystem(PKISubsystem):
             if request_id:
                 cmd.extend(['--request', request_id])
 
-            if profile_id:
-                cmd.extend(['--profile', profile_id])
+            if profile_path:
+                cmd.extend(['--profile', profile_path])
 
             if cert_type:
                 cmd.extend(['--type', cert_type])

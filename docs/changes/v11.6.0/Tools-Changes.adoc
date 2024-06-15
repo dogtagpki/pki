@@ -48,3 +48,8 @@ Use `pki-server upgrade` instead.
 
 The `pki-server <subsystem>-user-add` command has been updated to provide an option
 to specify the user certificate.
+
+== Update pki-server ca-cert-create ==
+
+The `pki-server ca-cert-create` command has been updated to provide an option
+to import the new certificate into CA database.
