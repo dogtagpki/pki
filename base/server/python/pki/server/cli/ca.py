@@ -161,8 +161,10 @@ class CACertCreateCLI(pki.cli.CLI):
         Usage: pki-server ca-cert-create [OPTIONS]
 
           -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+              --csr <path>                   CSR path
+              --csr-format <format>          CSR format: PEM (default), DER
               --request <ID>                 Request ID
-              --profile <ID>                 Bootstrap profile filename
+              --profile <path>               Bootstrap profile path
               --type <type>                  Certificate type: selfsign (default), local
               --key-id <ID>                  Key ID
               --key-token <name>             Key token
@@ -171,6 +173,7 @@ class CACertCreateCLI(pki.cli.CLI):
               --serial <serial>              Certificate serial number
               --format <format>              Certificate format: PEM (default), DER
               --cert <path>                  Certificate path
+              --import-cert                  Import certificate into CA database.
           -v, --verbose                      Run in verbose mode.
               --debug                        Run in debug mode.
               --help                         Show help message.
@@ -187,10 +190,12 @@ class CACertCreateCLI(pki.cli.CLI):
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
-                'request=', 'profile=', 'type=',
+                'csr=', 'csr-format=', 'request=',
+                'profile=', 'type=',
                 'key-id=', 'key-token=', 'key-algorithm=',
                 'signing-algorithm=',
                 'serial=', 'format=', 'cert=',
+                'import-cert',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -199,8 +204,10 @@ class CACertCreateCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance_name = 'pki-tomcat'
+        csr_path = None
+        csr_format = None
         request_id = None
-        profile_id = None
+        profile_path = None
         cert_type = None
         key_id = None
         key_token = None
@@ -209,16 +216,23 @@ class CACertCreateCLI(pki.cli.CLI):
         serial = None
         cert_format = None
         cert_path = None
+        import_cert = False
 
         for o, a in opts:
             if o in ('-i', '--instance'):
                 instance_name = a
 
+            elif o == '--csr':
+                csr_path = a
+
+            elif o == '--csr-format':
+                csr_format = a
+
             elif o == '--request':
                 request_id = a
 
             elif o == '--profile':
-                profile_id = a
+                profile_path = a
 
             elif o == '--type':
                 cert_type = a
@@ -243,6 +257,9 @@ class CACertCreateCLI(pki.cli.CLI):
 
             elif o == '--cert':
                 cert_path = a
+
+            elif o == '--import-cert':
+                import_cert = True
 
             elif o in ('-v', '--verbose'):
                 logging.getLogger().setLevel(logging.INFO)
@@ -271,9 +288,18 @@ class CACertCreateCLI(pki.cli.CLI):
             logger.error('No CA subsystem in instance %s', instance_name)
             sys.exit(1)
 
+        # if request ID is missing, import the CSR
+        if not request_id:
+            result = subsystem.import_cert_request(
+                request_path=csr_path,
+                request_format=csr_format,
+                profile_path=profile_path)
+
+            request_id = result['requestID']
+
         cert_data = subsystem.create_cert(
             request_id=request_id,
-            profile_id=profile_id,
+            profile_path=profile_path,
             cert_type=cert_type,
             key_token=key_token,
             key_id=key_id,
@@ -281,6 +307,13 @@ class CACertCreateCLI(pki.cli.CLI):
             signing_algorithm=signing_algorithm,
             serial=serial,
             cert_format=cert_format)
+
+        if import_cert:
+            subsystem.import_cert(
+                cert_data=cert_data,
+                cert_format=cert_format,
+                profile_path=profile_path,
+                request_id=request_id)
 
         if cert_path:
             with open(cert_path, 'wb') as f:
