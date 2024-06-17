@@ -1489,7 +1489,7 @@ class Certutil:
                                   critical_failure=True):
         try:
             # Compose this "certutil" command
-            command = ["certutil", "-L"]
+            command = ["certutil", "-L", "-a"]
             #   Provide a path to the NSS security databases
             if path:
                 command.extend(["-d", path])
