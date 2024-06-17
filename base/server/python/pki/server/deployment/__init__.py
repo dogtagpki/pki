@@ -1384,25 +1384,26 @@ class PKIDeployer:
 
         timestamp = round(time.time() * 1000 * 1000)
 
-        logger.info('Configuring CA connector')
+        if self.mdict['pki_ca_uri']:
+            logger.info('Configuring CA connector')
+            ca_url = urllib.parse.urlparse(self.mdict['pki_ca_uri'])
+            self.add_tps_ca_connector('ca1', ca_url, subsystem, fullname, timestamp)
 
-        ca_url = urllib.parse.urlparse(self.mdict['pki_ca_uri'])
-        self.add_tps_ca_connector('ca1', ca_url, subsystem, fullname, timestamp)
-
-        logger.info('Configuring TKS connector')
-
-        tks_url = urllib.parse.urlparse(self.mdict['pki_tks_uri'])
-        self.add_tps_tks_connector('tks1', tks_url, subsystem, fullname, timestamp)
+        if self.mdict['pki_tks_uri']:
+            logger.info('Configuring TKS connector')
+            tks_url = urllib.parse.urlparse(self.mdict['pki_tks_uri'])
+            self.add_tps_tks_connector('tks1', tks_url, subsystem, fullname, timestamp)
 
         keygen = config.str2bool(self.mdict['pki_enable_server_side_keygen'])
 
         if keygen:
-            logger.info('Configuring KRA connector')
+            if self.mdict['pki_kra_uri']:
+                logger.info('Configuring KRA connector')
+                kra_url = urllib.parse.urlparse(self.mdict['pki_kra_uri'])
+                self.add_tps_kra_connector('kra1', kra_url, subsystem, fullname, timestamp)
 
-            kra_url = urllib.parse.urlparse(self.mdict['pki_kra_uri'])
-            self.add_tps_kra_connector('kra1', kra_url, subsystem, fullname, timestamp)
-
-            subsystem.set_config('tps.connector.tks1.serverKeygen', 'true')
+            if self.mdict['pki_tks_uri']:
+                subsystem.set_config('tps.connector.tks1.serverKeygen', 'true')
 
             # TODO: see if there are other profiles need to be configured
             subsystem.set_config(
@@ -4900,27 +4901,32 @@ class PKIDeployer:
         full_name = self.mdict['pki_subsystem_name']
         subsystem_cert = subsystem.get_subsystem_cert('subsystem').get('data')
 
-        logger.info('Registering TPS in CA')
-        self.add_subsystem_user(
-            'ca',
-            self.mdict['pki_ca_uri'],
-            tps_uid,
-            full_name,
-            cert=subsystem_cert,
-            session=self.install_token.token)
+        if self.mdict['pki_ca_uri']:
 
-        logger.info('Registering TPS in TKS')
-        self.add_subsystem_user(
-            'tks',
-            self.mdict['pki_tks_uri'],
-            tps_uid,
-            full_name,
-            cert=subsystem_cert,
-            session=self.install_token.token)
+            logger.info('Registering TPS in CA')
+            self.add_subsystem_user(
+                'ca',
+                self.mdict['pki_ca_uri'],
+                tps_uid,
+                full_name,
+                cert=subsystem_cert,
+                session=self.install_token.token)
+
+        if self.mdict['pki_tks_uri']:
+
+            logger.info('Registering TPS in TKS')
+            self.add_subsystem_user(
+                'tks',
+                self.mdict['pki_tks_uri'],
+                tps_uid,
+                full_name,
+                cert=subsystem_cert,
+                session=self.install_token.token)
 
         keygen = config.str2bool(self.mdict['pki_enable_server_side_keygen'])
 
-        if keygen:
+        if self.mdict['pki_kra_uri'] and keygen:
+
             logger.info('Registering TPS in KRA')
             self.add_subsystem_user(
                 'kra',
@@ -4938,8 +4944,10 @@ class PKIDeployer:
                 transport_cert,
                 session=self.install_token.token)
 
-        logger.info('Setting up shared secret')
-        self.setup_shared_secret(subsystem)
+        if self.mdict['pki_tks_uri']:
+
+            logger.info('Setting up shared secret')
+            self.setup_shared_secret(subsystem)
 
     def finalize_subsystem(self, subsystem):
 

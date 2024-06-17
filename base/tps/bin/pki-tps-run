@@ -1,0 +1,174 @@
+#!/bin/sh -e
+#
+# Copyright Red Hat, Inc.
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+
+PKI_AUDIT_SIGNING_NICKNAME="${PKI_AUDIT_SIGNING_NICKNAME:-tps_audit_signing}"
+PKI_SUBSYSTEM_NICKNAME="${PKI_SUBSYSTEM_NICKNAME:-subsystem}"
+PKI_SSLSERVER_NICKNAME="${PKI_SSLSERVER_NICKNAME:-sslserver}"
+
+# Allow the owner of the container (who might not be in the root group)
+# to manage the config and log files.
+umask 000
+
+echo "################################################################################"
+
+if [ -z "$(ls -A /conf 2> /dev/null)" ]
+then
+    echo "INFO: Installing default config files"
+    cp -r /var/lib/pki/pki-tomcat/conf.default/* /conf
+fi
+
+if [ "$UID" = "0" ]
+then
+    chown -Rf pkiuser:root /conf
+    chown -Rf pkiuser:root /logs
+fi
+
+find /conf -type f -exec chmod +rw -- {} +
+find /conf -type d -exec chmod +rwx -- {} +
+find /logs -type f -exec chmod +rw -- {} +
+find /logs -type d -exec chmod +rwx -- {} +
+
+echo "################################################################################"
+
+if [ -f /certs/tps_audit_signing.csr ]
+then
+    echo "INFO: Importing audit signing CSR"
+    cp /certs/tps_audit_signing.csr /conf/certs/tps_audit_signing.csr
+fi
+
+if [ -f /certs/subsystem.csr ]
+then
+    echo "INFO: Importing subsystem CSR"
+    cp /certs/subsystem.csr /conf/certs/subsystem.csr
+fi
+
+if [ -f /certs/sslserver.csr ]
+then
+    echo "INFO: Importing SSL server CSR"
+    cp /certs/sslserver.csr /conf/certs/sslserver.csr
+fi
+
+echo "################################################################################"
+
+if [ -f /certs/server.p12 ]
+then
+    echo "INFO: Importing system certs and keys"
+
+    pki \
+        -d /conf/alias \
+        -f /conf/password.conf \
+        pkcs12-import \
+        --pkcs12 /certs/server.p12 \
+        --password Secret.123
+fi
+
+echo "################################################################################"
+
+echo "INFO: Audit signing cert:"
+pki \
+    -d /conf/alias \
+    -f /conf/password.conf \
+    nss-cert-show \
+    "$PKI_AUDIT_SIGNING_NICKNAME"
+
+echo "################################################################################"
+
+echo "INFO: Subsystem cert:"
+pki \
+    -d /conf/alias \
+    -f /conf/password.conf \
+    nss-cert-show \
+    "$PKI_SUBSYSTEM_NICKNAME"
+
+echo "################################################################################"
+
+echo "INFO: SSL server cert:"
+pki \
+    -d /conf/alias \
+    -f /conf/password.conf \
+    nss-cert-show \
+    "$PKI_SSLSERVER_NICKNAME"
+
+pki \
+    -d /conf/alias \
+    -f /conf/password.conf \
+    nss-cert-find
+
+echo "################################################################################"
+echo "INFO: Creating TPS"
+
+# Create TPS with existing certs and keys, with existing database,
+# with existing database user, without security manager,
+# and without systemd service.
+pkispawn \
+    --conf /data/conf \
+    --logs /data/logs \
+    -f /usr/share/pki/server/examples/installation/tps.cfg \
+    -s TPS \
+    -D pki_group=root \
+    -D pki_cert_chain_path=/certs/ca_signing.crt \
+    -D pki_cert_chain_nickname=ca_signing \
+    -D pki_ds_url=$PKI_DS_URL \
+    -D pki_ds_password=$PKI_DS_PASSWORD \
+    -D pki_ds_database=userroot \
+    -D pki_ds_setup=False \
+    -D pki_skip_ds_verify=True \
+    -D pki_share_db=True \
+    -D pki_issuing_ca= \
+    -D pki_import_system_certs=False \
+    -D pki_audit_signing_nickname="$PKI_AUDIT_SIGNING_NICKNAME" \
+    -D pki_audit_signing_csr_path=/conf/certs/tps_audit_signing.csr \
+    -D pki_subsystem_nickname="$PKI_SUBSYSTEM_NICKNAME" \
+    -D pki_subsystem_csr_path=/conf/certs/subsystem.csr \
+    -D pki_sslserver_nickname="$PKI_SSLSERVER_NICKNAME" \
+    -D pki_sslserver_csr_path=/conf/certs/sslserver.csr \
+    -D pki_admin_setup=False \
+    -D pki_security_domain_setup=False \
+    -D pki_security_manager=False \
+    -D pki_ca_uri= \
+    -D pki_kra_uri= \
+    -D pki_tks_uri= \
+    -D pki_authdb_url=$PKI_AUTHDB_URL \
+    -D pki_enable_server_side_keygen=True \
+    -D pki_systemd_service_create=False \
+    -D pki_registry_enable=False \
+    -v
+
+echo "################################################################################"
+echo "INFO: Configuring TPS"
+
+pki-server tps-config-set internaldb.minConns 0
+
+echo "################################################################################"
+echo "INFO: Updating owners and permissions"
+
+if [ "$UID" = "0" ]
+then
+    chown -Rf pkiuser:root /conf
+    chown -Rf pkiuser:root /logs
+fi
+
+find /conf -type f -exec chmod +rw -- {} +
+find /conf -type d -exec chmod +rwx -- {} +
+find /logs -type f -exec chmod +rw -- {} +
+find /logs -type d -exec chmod +rwx -- {} +
+
+echo "################################################################################"
+echo "INFO: Starting TPS"
+
+if [ "$UID" = "0" ]; then
+    # In Docker the server runs as root user but it will switch
+    # into pkiuser (UID=17) that belongs to the root group (GID=0).
+    pki-server run
+
+else
+    # In OpenShift/Podman the server runs as a non-root user
+    # (with a random UID) that belongs to the root group (GID=0).
+    #
+    # https://www.redhat.com/en/blog/jupyter-on-openshift-part-6-running-as-an-assigned-user-id
+    pki-server run --as-current-user
+fi

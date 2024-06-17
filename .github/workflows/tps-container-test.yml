@@ -1,0 +1,992 @@
+name: TPS container
+
+on: workflow_call
+
+env:
+  DB_IMAGE: ${{ vars.DB_IMAGE || 'quay.io/389ds/dirsrv' }}
+
+jobs:
+  # https://github.com/dogtagpki/pki/wiki/Deploying-TPS-Container
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+
+          # replace docker with podman
+          sudo apt-get -y purge --auto-remove docker-ce-cli
+          sudo apt-get -y install podman-docker
+
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Retrieve PKI images
+        uses: actions/cache@v4
+        with:
+          key: pki-images-${{ github.sha }}
+          path: pki-images.tar
+
+      - name: Load PKI images
+        run: docker load --input pki-images.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Create shared folders
+        run: |
+          mkdir -p ca/certs
+          mkdir -p ca/conf
+          mkdir -p ca/logs
+          mkdir -p kra/certs
+          mkdir -p kra/conf
+          mkdir -p kra/logs
+          mkdir -p tks/certs
+          mkdir -p tks/conf
+          mkdir -p tks/logs
+          mkdir -p tps/certs
+          mkdir -p tps/conf
+          mkdir -p tps/logs
+
+      - name: Set up client container
+        run: |
+          tests/bin/runner-init.sh \
+              --hostname=client.example.com \
+              --network=example \
+              client
+
+      - name: Set up CA container
+        run: |
+          docker run \
+              --name ca \
+              --hostname ca.example.com \
+              --network example \
+              --network-alias ca.example.com \
+              -v $PWD/ca/certs:/certs \
+              -v $PWD/ca/conf:/conf \
+              -v $PWD/ca/logs:/logs \
+              -e PKI_DS_URL=ldap://cads.example.com:3389 \
+              -e PKI_DS_PASSWORD=Secret.123 \
+              --detach \
+              pki-ca
+
+      - name: Wait for CA to start
+        run: |
+          docker exec client curl \
+              --retry 180 \
+              --retry-delay 0 \
+              --retry-connrefused \
+              -s \
+              -k \
+              -o /dev/null \
+              https://ca.example.com:8443
+
+          docker exec ca pki-server cert-export \
+              --cert-file ca_signing.crt \
+              ca_signing
+
+          docker cp ca:ca_signing.crt .
+
+          docker exec client pki \
+              nss-cert-import \
+              --cert $SHARED/ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
+      - name: Set up CA DS container
+        run: |
+          tests/bin/ds-container-create.sh \
+              --image=${{ env.DB_IMAGE }} \
+              --hostname=cads.example.com \
+              --network=example \
+              --network-alias=cads.example.com \
+              --password=Secret.123 \
+              cads
+
+      # https://github.com/dogtagpki/pki/wiki/Setting-up-CA-Database
+      - name: Initialize CA database
+        run: |
+          docker exec ca pki-server ca-db-init -v
+          docker exec ca pki-server ca-db-index-add -v
+          docker exec ca pki-server ca-db-index-rebuild -v
+          docker exec ca pki-server ca-db-vlv-add -v
+          docker exec ca pki-server ca-db-vlv-reindex -v
+
+      - name: Import CA signing cert into CA database
+        run: |
+          docker exec ca pki-server cert-export \
+              --cert-file /conf/certs/ca_signing.crt \
+              ca_signing
+
+          docker exec ca pki-server ca-cert-import \
+              --cert /conf/certs/ca_signing.crt \
+              --csr /conf/certs/ca_signing.csr \
+              --profile /usr/share/pki/ca/conf/caCert.profile
+
+      - name: Import CA OCSP signing cert into CA database
+        run: |
+          docker exec ca pki-server cert-export \
+              --cert-file /conf/certs/ca_ocsp_signing.crt \
+              ca_ocsp_signing
+
+          docker exec ca pki-server ca-cert-import \
+              --cert /conf/certs/ca_ocsp_signing.crt \
+              --csr /conf/certs/ca_ocsp_signing.csr \
+              --profile /usr/share/pki/ca/conf/caOCSPCert.profile
+
+      - name: Import CA audit signing cert into CA database
+        run: |
+          docker exec ca pki-server cert-export \
+              --cert-file /conf/certs/ca_audit_signing.crt \
+              ca_audit_signing
+
+          docker exec ca pki-server ca-cert-import \
+              --cert /conf/certs/ca_audit_signing.crt \
+              --csr /conf/certs/ca_audit_signing.csr \
+              --profile /usr/share/pki/ca/conf/caAuditSigningCert.profile
+
+      - name: Import CA subsystem cert into CA database
+        run: |
+          docker exec ca pki-server cert-export \
+              --cert-file /conf/certs/subsystem.crt \
+              subsystem
+
+          docker exec ca pki-server ca-cert-import \
+              --cert /conf/certs/subsystem.crt \
+              --csr /conf/certs/subsystem.csr \
+              --profile /usr/share/pki/ca/conf/rsaSubsystemCert.profile
+
+      - name: Import SSL server cert into CA database
+        run: |
+          docker exec ca pki-server cert-export \
+              --cert-file /conf/certs/sslserver.crt \
+              sslserver
+
+          docker exec ca pki-server ca-cert-import \
+              --cert /conf/certs/sslserver.crt \
+              --csr /conf/certs/sslserver.csr \
+              --profile /usr/share/pki/ca/conf/rsaServerCert.profile
+
+      - name: Import admin cert into CA database
+        run: |
+          docker exec ca pki nss-cert-export \
+              --output-file /conf/certs/admin.crt \
+              admin
+
+          docker exec ca pki-server ca-cert-import \
+              --cert /conf/certs/admin.crt \
+              --csr /conf/certs/admin.csr \
+              --profile /usr/share/pki/ca/conf/rsaAdminCert.profile
+
+      # https://github.com/dogtagpki/pki/wiki/Setting-up-CA-Admin-User
+      - name: Add CA admin user
+        run: |
+          docker exec ca pki-server ca-user-add \
+              --full-name Administrator \
+              --type adminType \
+              --cert /conf/certs/admin.crt \
+              admin
+
+      - name: Add admin user into CA groups
+        run: |
+          docker exec ca pki-server ca-user-role-add admin "Administrators"
+          docker exec ca pki-server ca-user-role-add admin "Certificate Manager Agents"
+
+      - name: Check admin cert
+        run: |
+          docker exec ca pki pkcs12-export \
+              --pkcs12 /conf/certs/admin.p12 \
+              --password Secret.123 \
+              admin
+
+          docker exec client pki pkcs12-import \
+              --pkcs12 $SHARED/ca/conf/certs/admin.p12 \
+              --pkcs12-password Secret.123
+
+          docker exec client pki \
+              -U https://ca.example.com:8443 \
+              -n admin \
+              ca-user-show \
+              admin
+
+      - name: Create KRA storage cert
+        run: |
+          docker exec client pki nss-cert-request \
+              --subject "CN=DRM Storage Certificate" \
+              --ext /usr/share/pki/server/certs/kra_storage.conf \
+              --csr $SHARED/kra/certs/kra_storage.csr
+          docker exec client pki \
+              -d $SHARED/ca/conf/alias \
+              nss-cert-issue \
+              --issuer ca_signing \
+              --csr $SHARED/kra/certs/kra_storage.csr \
+              --ext /usr/share/pki/server/certs/kra_storage.conf \
+              --cert $SHARED/kra/certs/kra_storage.crt
+          docker exec client pki nss-cert-import \
+              --cert $SHARED/kra/certs/kra_storage.crt \
+              kra_storage
+          docker exec client pki nss-cert-show kra_storage
+
+      - name: Create KRA transport cert
+        run: |
+          docker exec client pki nss-cert-request \
+              --subject "CN=DRM Transport Certificate" \
+              --ext /usr/share/pki/server/certs/kra_transport.conf \
+              --csr $SHARED/kra/certs/kra_transport.csr
+          docker exec client pki \
+              -d $SHARED/ca/conf/alias \
+              nss-cert-issue \
+              --issuer ca_signing \
+              --csr $SHARED/kra/certs/kra_transport.csr \
+              --ext /usr/share/pki/server/certs/kra_transport.conf \
+              --cert $SHARED/kra/certs/kra_transport.crt
+          docker exec client pki nss-cert-import \
+              --cert $SHARED/kra/certs/kra_transport.crt \
+              kra_transport
+          docker exec client pki nss-cert-show kra_transport
+
+      - name: Create KRA audit signing cert
+        run: |
+          docker exec client pki nss-cert-request \
+              --subject "CN=Audit Signing Certificate" \
+              --ext /usr/share/pki/server/certs/audit_signing.conf \
+              --csr $SHARED/kra/certs/kra_audit_signing.csr
+          docker exec client pki \
+              -d $SHARED/ca/conf/alias \
+              nss-cert-issue \
+              --issuer ca_signing \
+              --csr $SHARED/kra/certs/kra_audit_signing.csr \
+              --ext /usr/share/pki/server/certs/audit_signing.conf \
+              --cert $SHARED/kra/certs/kra_audit_signing.crt
+          docker exec client pki nss-cert-import \
+              --cert $SHARED/kra/certs/kra_audit_signing.crt \
+              --trust ,,P \
+              kra_audit_signing
+          docker exec client pki nss-cert-show kra_audit_signing
+
+      - name: Create KRA subsystem cert
+        run: |
+          docker exec client pki nss-cert-request \
+              --subject "CN=Subsystem Certificate" \
+              --ext /usr/share/pki/server/certs/subsystem.conf \
+              --csr $SHARED/kra/certs/subsystem.csr
+          docker exec client pki \
+              -d $SHARED/ca/conf/alias \
+              nss-cert-issue \
+              --issuer ca_signing \
+              --csr $SHARED/kra/certs/subsystem.csr \
+              --ext /usr/share/pki/server/certs/subsystem.conf \
+              --cert $SHARED/kra/certs/subsystem.crt
+          docker exec client pki nss-cert-import \
+              --cert $SHARED/kra/certs/subsystem.crt \
+              kra_subsystem
+          docker exec client pki nss-cert-show kra_subsystem
+
+      - name: Create KRA SSL server cert
+        run: |
+          docker exec client pki nss-cert-request \
+              --subject "CN=kra.example.com" \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --csr $SHARED/kra/certs/sslserver.csr
+          docker exec client pki \
+              -d $SHARED/ca/conf/alias \
+              nss-cert-issue \
+              --issuer ca_signing \
+              --csr $SHARED/kra/certs/sslserver.csr \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --cert $SHARED/kra/certs/sslserver.crt
+          docker exec client pki nss-cert-import \
+              --cert $SHARED/kra/certs/sslserver.crt \
+              kra_sslserver
+          docker exec client pki nss-cert-show kra_sslserver
+
+      - name: Prepare KRA certs and keys
+        run: |
+          # export CA signing cert
+          docker exec client cp $SHARED/ca/conf/certs/ca_signing.crt $SHARED/kra/certs
+
+          docker exec client pki nss-cert-find
+
+          # export KRA system certs and keys
+          docker exec client pki pkcs12-export \
+              --pkcs12 $SHARED/kra/certs/server.p12 \
+              --password Secret.123 \
+              kra_storage \
+              kra_transport \
+              kra_audit_signing \
+              kra_subsystem \
+              kra_sslserver
+
+          docker exec client pki pkcs12-cert-mod \
+              --pkcs12 $SHARED/kra/certs/server.p12 \
+              --password Secret.123 \
+              --friendly-name "subsystem" \
+              kra_subsystem
+
+          docker exec client pki pkcs12-cert-mod \
+              --pkcs12 $SHARED/kra/certs/server.p12 \
+              --password Secret.123 \
+              --friendly-name "sslserver" \
+              kra_sslserver
+
+          docker exec client pki pkcs12-cert-find \
+              --pkcs12 $SHARED/kra/certs/server.p12 \
+              --password Secret.123
+
+          # export admin cert and key
+          docker exec client cp $SHARED/ca/conf/certs/admin.p12 $SHARED/kra/certs
+
+          docker exec client pki pkcs12-cert-find \
+              --pkcs12 $SHARED/kra/certs/admin.p12 \
+              --password Secret.123 \
+
+          ls -la kra/certs
+
+      - name: Set up KRA container
+        run: |
+          docker run \
+              --name kra \
+              --hostname kra.example.com \
+              --network example \
+              --network-alias kra.example.com \
+              -v $PWD/kra/certs:/certs \
+              -v $PWD/kra/conf:/conf \
+              -v $PWD/kra/logs:/logs \
+              -e PKI_DS_URL=ldap://krads.example.com:3389 \
+              -e PKI_DS_PASSWORD=Secret.123 \
+              --detach \
+              pki-kra
+
+      - name: Wait for KRA container to start
+        run: |
+          docker exec client curl \
+              --retry 180 \
+              --retry-delay 0 \
+              --retry-connrefused \
+              -s \
+              -k \
+              -o /dev/null \
+              https://kra.example.com:8443
+
+      - name: Set up KRA DS container
+        run: |
+          tests/bin/ds-container-create.sh \
+              --image=${{ env.DB_IMAGE }} \
+              --hostname=krads.example.com \
+              --network=example \
+              --network-alias=krads.example.com \
+              --password=Secret.123 \
+              krads
+
+      # https://github.com/dogtagpki/pki/wiki/Setting-up-KRA-Database
+      - name: Set up KRA database
+        run: |
+          docker exec kra pki-server kra-db-init -v
+          docker exec kra pki-server kra-db-index-add -v
+          docker exec kra pki-server kra-db-index-rebuild  -v
+          docker exec kra pki-server kra-db-vlv-add -v
+          docker exec kra pki-server kra-db-vlv-reindex -v
+
+      # https://github.com/dogtagpki/pki/wiki/Setting-up-KRA-Admin-User
+      - name: Add KRA admin user
+        run: |
+          cp ca/conf/certs/admin.crt kra/conf/certs/admin.crt
+          docker exec kra pki-server kra-user-add \
+              --full-name Administrator \
+              --type adminType \
+              --cert /conf/certs/admin.crt \
+              admin
+
+      - name: Add KRA admin user into KRA groups
+        run: |
+          docker exec kra pki-server kra-user-role-add admin "Administrators"
+          docker exec kra pki-server kra-user-role-add admin "Data Recovery Manager Agents"
+
+      - name: Check KRA admin user
+        run: |
+          docker exec client pki \
+              -U https://kra.example.com:8443 \
+              -n admin \
+              kra-user-show \
+              admin
+
+      # https://github.com/dogtagpki/pki/wiki/Setting-up-Subsystem-User
+      - name: Add CA subsystem user in KRA
+        run: |
+          cp ca/conf/certs/subsystem.crt kra/conf/certs/ca_subsystem.crt
+          docker exec kra pki-server kra-user-add \
+              --full-name CA-ca.example.com-8443 \
+              --type agentType \
+              --cert /conf/certs/ca_subsystem.crt \
+              CA-ca.example.com-8443
+
+      - name: Assign roles to CA subsystem user
+        run: |
+          docker exec kra pki-server kra-user-role-add CA-ca.example.com-8443 "Trusted Managers"
+
+      - name: Configure KRA connector in CA
+        run: |
+          docker exec ca pki-server ca-config-set ca.connector.KRA.enable true
+          docker exec ca pki-server ca-config-set ca.connector.KRA.host kra.example.com
+          docker exec ca pki-server ca-config-set ca.connector.KRA.local false
+          docker exec ca pki-server ca-config-set ca.connector.KRA.nickName subsystem
+          docker exec ca pki-server ca-config-set ca.connector.KRA.port 8443
+          docker exec ca pki-server ca-config-set ca.connector.KRA.timeout 30
+          docker exec ca pki-server ca-config-set ca.connector.KRA.uri /kra/agent/kra/connector
+
+          TRANSPORT_CERT=$(openssl x509 -outform der -in kra/certs/kra_transport.crt | base64 --wrap=0)
+          echo "Transport cert: $TRANSPORT_CERT"
+          docker exec ca pki-server ca-config-set ca.connector.KRA.transportCert $TRANSPORT_CERT
+
+      - name: Restart CA
+        run: |
+          docker restart ca
+          sleep 5
+
+          # wait for CA to restart
+          docker exec client curl \
+              --retry 180 \
+              --retry-delay 0 \
+              --retry-connrefused \
+              -s \
+              -k \
+              -o /dev/null \
+              https://ca.example.com:8443
+
+      - name: Create TKS audit signing cert
+        run: |
+          docker exec client pki nss-cert-request \
+              --subject "CN=Audit Signing Certificate" \
+              --ext /usr/share/pki/server/certs/audit_signing.conf \
+              --csr $SHARED/tks/certs/tks_audit_signing.csr
+          docker exec client pki \
+              -d $SHARED/ca/conf/alias \
+              nss-cert-issue \
+              --issuer ca_signing \
+              --csr $SHARED/tks/certs/tks_audit_signing.csr \
+              --ext /usr/share/pki/server/certs/audit_signing.conf \
+              --cert $SHARED/tks/certs/tks_audit_signing.crt
+          docker exec client pki nss-cert-import \
+              --cert $SHARED/tks/certs/tks_audit_signing.crt \
+              --trust ,,P \
+              tks_audit_signing
+          docker exec client pki nss-cert-show tks_audit_signing
+
+      - name: Create TKS subsystem cert
+        run: |
+          docker exec client pki nss-cert-request \
+              --subject "CN=Subsystem Certificate" \
+              --ext /usr/share/pki/server/certs/subsystem.conf \
+              --csr $SHARED/tks/certs/subsystem.csr
+          docker exec client pki \
+              -d $SHARED/ca/conf/alias \
+              nss-cert-issue \
+              --issuer ca_signing \
+              --csr $SHARED/tks/certs/subsystem.csr \
+              --ext /usr/share/pki/server/certs/subsystem.conf \
+              --cert $SHARED/tks/certs/subsystem.crt
+          docker exec client pki nss-cert-import \
+              --cert $SHARED/tks/certs/subsystem.crt \
+              tks_subsystem
+          docker exec client pki nss-cert-show tks_subsystem
+
+      - name: Create TKS SSL server cert
+        run: |
+          docker exec client pki nss-cert-request \
+              --subject "CN=tks.example.com" \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --csr $SHARED/tks/certs/sslserver.csr
+          docker exec client pki \
+              -d $SHARED/ca/conf/alias \
+              nss-cert-issue \
+              --issuer ca_signing \
+              --csr $SHARED/tks/certs/sslserver.csr \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --cert $SHARED/tks/certs/sslserver.crt
+          docker exec client pki nss-cert-import \
+              --cert $SHARED/tks/certs/sslserver.crt \
+              tks_sslserver
+          docker exec client pki nss-cert-show tks_sslserver
+
+      - name: Prepare TKS certs and keys
+        run: |
+          # import CA signing cert
+          docker exec client cp $SHARED/ca/conf/certs/ca_signing.crt $SHARED/tks/certs
+
+          # export TKS system certs and keys
+          docker exec client pki pkcs12-export \
+              --pkcs12 $SHARED/tks/certs/server.p12 \
+              --password Secret.123 \
+              tks_audit_signing \
+              tks_subsystem \
+              tks_sslserver
+
+          docker exec client pki pkcs12-cert-mod \
+              --pkcs12 $SHARED/tks/certs/server.p12 \
+              --password Secret.123 \
+              --friendly-name "subsystem" \
+              tks_subsystem
+
+          docker exec client pki pkcs12-cert-mod \
+              --pkcs12 $SHARED/tks/certs/server.p12 \
+              --password Secret.123 \
+              --friendly-name "sslserver" \
+              tks_sslserver
+
+          docker exec client pki pkcs12-cert-find \
+              --pkcs12 $SHARED/tks/certs/server.p12 \
+              --password Secret.123
+
+          ls -la tks/certs
+
+      - name: Set up TKS container
+        run: |
+          docker run \
+              --name tks \
+              --hostname tks.example.com \
+              --network example \
+              --network-alias tks.example.com \
+              -v $PWD/tks/certs:/certs \
+              -v $PWD/tks/conf:/conf \
+              -v $PWD/tks/logs:/logs \
+              -e PKI_DS_URL=ldap://tksds.example.com:3389 \
+              -e PKI_DS_PASSWORD=Secret.123 \
+              --detach \
+              pki-tks
+
+      - name: Wait for TKS container to start
+        run: |
+          docker exec client curl \
+              --retry 180 \
+              --retry-delay 0 \
+              --retry-connrefused \
+              -s \
+              -k \
+              -o /dev/null \
+              https://tks.example.com:8443
+
+      - name: Set up TKS DS container
+        run: |
+          tests/bin/ds-container-create.sh \
+              --image=${{ env.DB_IMAGE }} \
+              --hostname=tksds.example.com \
+              --network=example \
+              --network-alias=tksds.example.com \
+              --password=Secret.123 \
+              tksds
+
+      # https://github.com/dogtagpki/pki/wiki/Setting-up-TKS-Database
+      - name: Set up TKS database
+        run: |
+          docker exec tks pki-server tks-db-init -v
+          docker exec tks pki-server tks-db-index-add -v
+          docker exec tks pki-server tks-db-index-rebuild  -v
+          docker exec tks pki-server tks-db-vlv-add -v
+          docker exec tks pki-server tks-db-vlv-reindex -v
+
+      # https://github.com/dogtagpki/pki/wiki/Setting-up-TKS-Admin-User
+      - name: Add TKS admin user
+        run: |
+          cp ca/conf/certs/admin.crt tks/conf/certs/admin.crt
+          docker exec tks pki-server tks-user-add \
+              --full-name Administrator \
+              --type adminType \
+              --cert /conf/certs/admin.crt \
+              admin
+
+      - name: Add TKS admin user into TKS groups
+        run: |
+          docker exec tks pki-server tks-user-role-add admin "Administrators"
+          docker exec tks pki-server tks-user-role-add admin "Token Key Service Manager Agents"
+
+      - name: Check TKS admin user
+        run: |
+          docker exec client pki \
+              -U https://tks.example.com:8443 \
+              -n admin \
+              tks-user-show \
+              admin
+
+      - name: Create TPS audit signing cert
+        run: |
+          docker exec client pki nss-cert-request \
+              --subject "CN=Audit Signing Certificate" \
+              --ext /usr/share/pki/server/certs/audit_signing.conf \
+              --csr $SHARED/tps/certs/tps_audit_signing.csr
+          docker exec client pki \
+              -d $SHARED/ca/conf/alias \
+              nss-cert-issue \
+              --issuer ca_signing \
+              --csr $SHARED/tps/certs/tps_audit_signing.csr \
+              --ext /usr/share/pki/server/certs/audit_signing.conf \
+              --cert $SHARED/tps/certs/tps_audit_signing.crt
+          docker exec client pki nss-cert-import \
+              --cert $SHARED/tps/certs/tps_audit_signing.crt \
+              --trust ,,P \
+              tps_audit_signing
+          docker exec client pki nss-cert-show tps_audit_signing
+
+      - name: Create TPS subsystem cert
+        run: |
+          docker exec client pki nss-cert-request \
+              --subject "CN=Subsystem Certificate" \
+              --ext /usr/share/pki/server/certs/subsystem.conf \
+              --csr $SHARED/tps/certs/subsystem.csr
+          docker exec client pki \
+              -d $SHARED/ca/conf/alias \
+              nss-cert-issue \
+              --issuer ca_signing \
+              --csr $SHARED/tps/certs/subsystem.csr \
+              --ext /usr/share/pki/server/certs/subsystem.conf \
+              --cert $SHARED/tps/certs/subsystem.crt
+          docker exec client pki nss-cert-import \
+              --cert $SHARED/tps/certs/subsystem.crt \
+              tps_subsystem
+          docker exec client pki nss-cert-show tps_subsystem
+
+      - name: Create TPS SSL server cert
+        run: |
+          docker exec client pki nss-cert-request \
+              --subject "CN=tps.example.com" \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --csr $SHARED/tps/certs/sslserver.csr
+          docker exec client pki \
+              -d $SHARED/ca/conf/alias \
+              nss-cert-issue \
+              --issuer ca_signing \
+              --csr $SHARED/tps/certs/sslserver.csr \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --cert $SHARED/tps/certs/sslserver.crt
+          docker exec client pki nss-cert-import \
+              --cert $SHARED/tps/certs/sslserver.crt \
+              tps_sslserver
+          docker exec client pki nss-cert-show tps_sslserver
+
+      - name: Prepare TPS certs and keys
+        run: |
+          # import CA signing cert
+          docker exec client cp $SHARED/ca/conf/certs/ca_signing.crt $SHARED/tps/certs
+
+          # export TPS system certs and keys
+          docker exec client pki pkcs12-export \
+              --pkcs12 $SHARED/tps/certs/server.p12 \
+              --password Secret.123 \
+              tps_audit_signing \
+              tps_subsystem \
+              tps_sslserver
+
+          docker exec client pki pkcs12-cert-mod \
+              --pkcs12 $SHARED/tps/certs/server.p12 \
+              --password Secret.123 \
+              --friendly-name "subsystem" \
+              tps_subsystem
+
+          docker exec client pki pkcs12-cert-mod \
+              --pkcs12 $SHARED/tps/certs/server.p12 \
+              --password Secret.123 \
+              --friendly-name "sslserver" \
+              tps_sslserver
+
+          docker exec client pki pkcs12-cert-find \
+              --pkcs12 $SHARED/tps/certs/server.p12 \
+              --password Secret.123
+
+          ls -la tps/certs
+
+      - name: Set up TPS container
+        run: |
+          docker run \
+              --name tps \
+              --hostname tps.example.com \
+              --network example \
+              --network-alias tps.example.com \
+              -v $PWD/tps/certs:/certs \
+              -v $PWD/tps/conf:/conf \
+              -v $PWD/tps/logs:/logs \
+              -e PKI_DS_URL=ldap://tpsds.example.com:3389 \
+              -e PKI_DS_PASSWORD=Secret.123 \
+              -e PKI_AUTHDB_URL=ldap://tpsds.example.com:3389 \
+              --detach \
+              pki-tps
+
+      - name: Wait for TPS container to start
+        run: |
+          docker exec client curl \
+              --retry 180 \
+              --retry-delay 0 \
+              --retry-connrefused \
+              -s \
+              -k \
+              -o /dev/null \
+              https://tps.example.com:8443
+
+      - name: Check TPS conf dir
+        if: always()
+        run: |
+          ls -l tps/conf \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
+              | tee output
+
+          # everything should be owned by docker group
+          # TODO: review owners/permissions
+          cat > expected << EOF
+          drwxrwxrwx docker Catalina
+          drwxrwxrwx docker alias
+          -rw-rw-rw- docker catalina.policy
+          lrwxrwxrwx docker catalina.properties -> /usr/share/pki/server/conf/catalina.properties
+          drwxrwxrwx docker certs
+          lrwxrwxrwx docker context.xml -> /etc/tomcat/context.xml
+          -rw-rw-rw- docker jss.conf
+          lrwxrwxrwx docker logging.properties -> /usr/share/pki/server/conf/logging.properties
+          -rw-rw-rw- docker password.conf
+          -rw-rw-rw- docker server.xml
+          -rw-rw-rw- docker serverCertNick.conf
+          -rw-rw-rw- docker tomcat.conf
+          drwxrwxrwx docker tps
+          lrwxrwxrwx docker web.xml -> /etc/tomcat/web.xml
+          EOF
+
+          diff expected output
+
+      - name: Check TPS conf/tps dir
+        if: always()
+        run: |
+          ls -l tps/conf/tps \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
+                  -e '/^\S* *\S* *CS.cfg.bak /d' \
+              | tee output
+
+          # everything should be owned by docker group
+          # TODO: review owners/permissions
+          cat > expected << EOF
+          -rw-rw-rw- docker CS.cfg
+          drwxrwxrwx docker archives
+          -rw-rw-rw- docker phoneHome.xml
+          -rw-rw-rw- docker registry.cfg
+          EOF
+
+          diff expected output
+
+      - name: Check TPS logs dir
+        if: always()
+        run: |
+          ls -l tps/logs \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
+              | tee output
+
+          DATE=$(date +'%Y-%m-%d')
+
+          # everything should be owned by docker group
+          # TODO: review owners/permissions
+          cat > expected << EOF
+          drwxrwx--- docker backup
+          -rw-rw-rw- docker catalina.$DATE.log
+          -rw-rw-rw- docker host-manager.$DATE.log
+          -rw-rw-rw- docker localhost.$DATE.log
+          -rw-rw-rw- docker localhost_access_log.$DATE.txt
+          -rw-rw-rw- docker manager.$DATE.log
+          drwxrwxrwx docker pki
+          drwxrwxrwx docker tps
+          EOF
+
+          diff expected output
+
+      - name: Set up TPS DS container
+        run: |
+          tests/bin/ds-container-create.sh \
+              --image=${{ env.DB_IMAGE }} \
+              --hostname=tpsds.example.com \
+              --network=example \
+              --network-alias=tpsds.example.com \
+              --password=Secret.123 \
+              tpsds
+
+      # https://github.com/dogtagpki/pki/wiki/Setting-up-TKS-Database
+      - name: Set up TPS database
+        run: |
+          docker exec tps pki-server tps-db-init -v
+          docker exec tps pki-server tps-db-index-add -v
+          docker exec tps pki-server tps-db-index-rebuild  -v
+          docker exec tps pki-server tps-db-vlv-add -v
+          docker exec tps pki-server tps-db-vlv-reindex -v
+
+      # https://github.com/dogtagpki/pki/wiki/Setting-up-TPS-Admin-User
+      - name: Add TPS admin user
+        run: |
+          cp ca/conf/certs/admin.crt tps/conf/certs/admin.crt
+          docker exec tps pki-server tps-user-add \
+              --full-name Administrator \
+              --type adminType \
+              --cert /conf/certs/admin.crt \
+              admin
+
+      - name: Add TPS admin user into TPS groups
+        run: |
+          docker exec tps pki-server tps-user-role-add admin "Administrators"
+          docker exec tps pki-server tps-user-role-add admin "TPS Agents"
+          docker exec tps pki-server tps-user-role-add admin "TPS Operators"
+
+      - name: Check TPS admin user
+        run: |
+          docker exec client pki \
+              -U https://tps.example.com:8443 \
+              -n admin \
+              tps-user-show \
+              admin
+
+      - name: Restart TPS
+        run: |
+          docker restart tps
+          sleep 5
+
+          # wait for TPS to restart
+          docker exec client curl \
+              --retry 180 \
+              --retry-delay 0 \
+              --retry-connrefused \
+              -s \
+              -k \
+              -o /dev/null \
+              https://tps.example.com:8443
+
+      - name: Check TPS admin user again
+        run: |
+          docker exec client pki \
+              -U https://tps.example.com:8443 \
+              -n admin \
+              tps-user-show \
+              admin
+
+      # TODO:
+      # - set up connectors
+      # - set up shared secret
+      # - test token format and enroll operations
+
+      - name: Check CA DS server systemd journal
+        if: always()
+        run: |
+          docker exec cads journalctl -x --no-pager -u dirsrv@localhost.service
+
+      - name: Check CA DS container logs
+        if: always()
+        run: |
+          docker logs cads
+
+      - name: Check CA container logs
+        if: always()
+        run: |
+          docker logs ca 2>&1
+
+      - name: Check CA debug logs
+        if: always()
+        run: |
+          docker exec ca find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check KRA DS server systemd journal
+        if: always()
+        run: |
+          docker exec krads journalctl -x --no-pager -u dirsrv@localhost.service
+
+      - name: Check KRA DS container logs
+        if: always()
+        run: |
+          docker logs krads
+
+      - name: Check KRA container logs
+        if: always()
+        run: |
+          docker logs kra 2>&1
+
+      - name: Check KRA debug logs
+        if: always()
+        run: |
+          docker exec kra find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
+
+      - name: Check TKS DS server systemd journal
+        if: always()
+        run: |
+          docker exec tksds journalctl -x --no-pager -u dirsrv@localhost.service
+
+      - name: Check TKS DS container logs
+        if: always()
+        run: |
+          docker logs tksds
+
+      - name: Check TKS container logs
+        if: always()
+        run: |
+          docker logs tks 2>&1
+
+      - name: Check TKS debug logs
+        if: always()
+        run: |
+          docker exec tks find /var/lib/pki/pki-tomcat/logs/tks -name "debug.*" -exec cat {} \;
+
+      - name: Check TPS DS server systemd journal
+        if: always()
+        run: |
+          docker exec tpsds journalctl -x --no-pager -u dirsrv@localhost.service
+
+      - name: Check TPS DS container logs
+        if: always()
+        run: |
+          docker logs tpsds
+
+      - name: Check TPS container logs
+        if: always()
+        run: |
+          docker logs tps 2>&1
+
+      - name: Check TPS debug logs
+        if: always()
+        run: |
+          docker exec tps find /var/lib/pki/pki-tomcat/logs/tps -name "debug.*" -exec cat {} \;
+
+      - name: Check client container logs
+        if: always()
+        run: |
+          docker logs client
+
+      - name: Gather artifacts
+        if: always()
+        run: |
+          mkdir -p /tmp/artifacts
+
+          tests/bin/ds-artifacts-save.sh cads
+
+          cp -r ca /tmp/artifacts
+          docker logs ca > /tmp/artifacts/ca/container.out 2> /tmp/artifacts/ca/container.err
+
+          tests/bin/ds-artifacts-save.sh krads
+
+          cp -r kra /tmp/artifacts
+          docker logs kra > /tmp/artifacts/kra/container.out 2> /tmp/artifacts/kra/container.err
+
+          tests/bin/ds-artifacts-save.sh tksds
+
+          cp -r tks /tmp/artifacts
+          docker logs tks > /tmp/artifacts/tks/container.out 2> /tmp/artifacts/tks/container.err
+
+          tests/bin/ds-artifacts-save.sh tpsds
+
+          cp -r tps /tmp/artifacts
+          docker logs tps > /tmp/artifacts/tps/container.out 2> /tmp/artifacts/tps/container.err
+
+          mkdir -p /tmp/artifacts/client
+          docker logs client > /tmp/artifacts/client/container.out 2> /tmp/artifacts/client/container.err
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tps-container
+          path: /tmp/artifacts

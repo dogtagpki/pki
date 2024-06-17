@@ -305,6 +305,37 @@ RUN chmod -Rf g+rw /var/lib/pki/pki-tomcat
 CMD [ "/usr/share/pki/tks/bin/pki-tks-run" ]
 
 ################################################################################
+FROM pki-server AS pki-tps
+
+ARG SUMMARY="Dogtag PKI TPS"
+
+LABEL name="pki-tps" \
+      summary="$SUMMARY" \
+      license="$LICENSE" \
+      version="$VERSION" \
+      architecture="$ARCH" \
+      maintainer="$MAINTAINER" \
+      vendor="$VENDOR" \
+      usage="podman run -p 8080:8080 -p 8443:8443 pki-tps" \
+      com.redhat.component="$COMPONENT"
+
+# Create TPS subsystem
+RUN pki-server tps-create
+
+# Deploy TPS subsystem
+RUN pki-server tps-deploy
+
+# Store additional default config files
+RUN cp -r /conf/* /var/lib/pki/pki-tomcat/conf.default
+
+# Grant the root group the full access to PKI server files
+# https://www.openshift.com/blog/jupyter-on-openshift-part-6-running-as-an-assigned-user-id
+RUN chown -Rf pkiuser:root /var/lib/pki/pki-tomcat
+RUN chmod -Rf g+rw /var/lib/pki/pki-tomcat
+
+CMD [ "/usr/share/pki/tps/bin/pki-tps-run" ]
+
+################################################################################
 FROM pki-server AS pki-acme
 
 ARG SUMMARY="Dogtag PKI ACME Responder"

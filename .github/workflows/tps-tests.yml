@@ -37,3 +37,8 @@ jobs:
     name: TPS with HSM
     needs: build
     uses: ./.github/workflows/tps-hsm-test.yml
+
+  tps-container-test:
+    name: TPS container
+    needs: build
+    uses: ./.github/workflows/tps-container-test.yml
