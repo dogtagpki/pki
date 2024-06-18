@@ -37,3 +37,8 @@ jobs:
     name: TKS with HSM
     needs: build
     uses: ./.github/workflows/tks-hsm-test.yml
+
+  tks-container-test:
+    name: TKS container
+    needs: build
+    uses: ./.github/workflows/tks-container-test.yml
