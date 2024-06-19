@@ -580,15 +580,24 @@ Specifies to use ephemeral requests for archivals and retrievals.  Defaults to F
 **pki_authdb_basedn**  
 Specifies the base DN of TPS authentication database.
 
+**pki_authdb_url**  
+URL of TPS authentication database.
+For plain LDAP connection use **ldap://&lt;hostname&gt;:&lt;port&gt;**.
+For secure LDAP connection use **ldaps://&lt;hostname&gt;:&lt;port&gt;**.
+Defaults to ldap://localhost:389.
+
 **pki_authdb_hostname**  
 Specifies the hostname of TPS authentication database. Defaults to localhost.
+**NOTE** Deprecated in favor of **pki_authdb_url**.
 
 **pki_authdb_port**  
 Specifies the port number of TPS authentication database. Defaults to 389.
+**NOTE** Deprecated in favor of **pki_authdb_url**.
 
 **pki_authdb_secure_conn**  
 Specifies whether to use a secure connection to TPS authentication database.
 Defaults to False.
+**NOTE** Deprecated in favor of **pki_authdb_url**.
 
 **pki_enable_server_side_keygen**  
 Specifies whether to enable server-side key generation. Defaults to False.

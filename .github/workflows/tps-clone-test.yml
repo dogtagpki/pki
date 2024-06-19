@@ -86,8 +86,7 @@ jobs:
               -f /usr/share/pki/server/examples/installation/tps.cfg \
               -s TPS \
               -D pki_ds_url=ldap://primaryds.example.com:3389 \
-              -D pki_authdb_hostname=primaryds.example.com \
-              -D pki_authdb_port=3389 \
+              -D pki_authdb_url=ldap://primaryds.example.com:3389 \
               -D pki_enable_server_side_keygen=True \
               -v
 
@@ -166,8 +165,7 @@ jobs:
               -D pki_clone_pkcs12_path=${SHARED}/tps-certs.p12 \
               -D pki_clone_pkcs12_password=Secret.123 \
               -D pki_ds_url=ldap://secondaryds.example.com:3389 \
-              -D pki_authdb_hostname=secondaryds.example.com \
-              -D pki_authdb_port=3389 \
+              -D pki_authdb_url=ldap://secondaryds.example.com:3389 \
               -D pki_enable_server_side_keygen=True \
               -v
 

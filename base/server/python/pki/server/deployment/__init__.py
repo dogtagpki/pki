@@ -200,6 +200,9 @@ class PKIDeployer:
 
         self.ds_init()
 
+        if self.subsystem_type == 'TPS':
+            self.authdb_init()
+
     def ds_init(self):
 
         ds_url = self.mdict.get('pki_ds_url')
@@ -227,19 +230,25 @@ class PKIDeployer:
 
     def authdb_init(self):
 
-        hostname = self.mdict['pki_authdb_hostname']
-        port = self.mdict['pki_authdb_port']
+        url = self.mdict.get('pki_authdb_url')
 
-        if config.str2bool(self.mdict['pki_authdb_secure_conn']):
-            scheme = 'ldaps'
-        else:
-            scheme = 'ldap'
+        if not url:
 
-        self.authdb_url = scheme + '://' + hostname + ':' + port
+            if config.str2bool(self.mdict['pki_authdb_secure_conn']):
+                scheme = 'ldaps'
+            else:
+                scheme = 'ldap'
+
+            hostname = self.mdict['pki_authdb_hostname']
+            port = self.mdict['pki_authdb_port']
+
+            url = scheme + '://' + hostname + ':' + port
+
+        self.authdb_url = urllib.parse.urlparse(url)
 
     def authdb_base_dn_exists(self):
         try:
-            connection = ldap.initialize(self.authdb_url)
+            connection = ldap.initialize(self.authdb_url.geturl())
             results = connection.search_s(
                 self.mdict['pki_authdb_basedn'],
                 ldap.SCOPE_BASE)
@@ -1150,13 +1159,13 @@ class PKIDeployer:
                 self.mdict['pki_authdb_basedn'])
             subsystem.set_config(
                 'auths.instance.ldap1.ldap.ldapconn.host',
-                self.mdict['pki_authdb_hostname'])
+                self.authdb_url.hostname)
             subsystem.set_config(
                 'auths.instance.ldap1.ldap.ldapconn.port',
-                self.mdict['pki_authdb_port'])
+                str(self.authdb_url.port))
             subsystem.set_config(
                 'auths.instance.ldap1.ldap.ldapconn.secureConn',
-                self.mdict['pki_authdb_secure_conn'])
+                self.authdb_url.scheme == 'ldaps')
             subsystem.set_config(
                 'auths.instance.ldap1.ldap.ldapauth.clientCertNickname',
                 self.mdict['pki_subsystem_nickname'])

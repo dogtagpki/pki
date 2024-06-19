@@ -84,8 +84,7 @@ jobs:
               -f /usr/share/pki/server/examples/installation/tps.cfg \
               -s TPS \
               -D pki_ds_url=ldap://ds.example.com:3389 \
-              -D pki_authdb_hostname=ds.example.com \
-              -D pki_authdb_port=3389 \
+              -D pki_authdb_url=ldap://ds.example.com:3389 \
               -D pki_enable_server_side_keygen=True \
               -v
 
