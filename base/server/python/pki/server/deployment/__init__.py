@@ -144,6 +144,8 @@ class PKIDeployer:
         self.startup_timeout = None
         self.request_timeout = None
 
+        self.authdb_url = None
+
         self.force = False
         self.remove_conf = False
         self.remove_logs = False
@@ -222,6 +224,33 @@ class PKIDeployer:
             ldap.set_option(ldap.OPT_X_TLS_CACERTFILE,
                             self.mdict['pki_ds_secure_connection_ca_pem_file'])
             ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_DEMAND)
+
+    def authdb_init(self):
+
+        hostname = self.mdict['pki_authdb_hostname']
+        port = self.mdict['pki_authdb_port']
+
+        if config.str2bool(self.mdict['pki_authdb_secure_conn']):
+            scheme = 'ldaps'
+        else:
+            scheme = 'ldap'
+
+        self.authdb_url = scheme + '://' + hostname + ':' + port
+
+    def authdb_base_dn_exists(self):
+        try:
+            connection = ldap.initialize(self.authdb_url)
+            results = connection.search_s(
+                self.mdict['pki_authdb_basedn'],
+                ldap.SCOPE_BASE)
+
+            if results is None or len(results) == 0:
+                return False
+
+            return True
+
+        except ldap.NO_SUCH_OBJECT:
+            return False
 
     def init_logger(self, filename):
 

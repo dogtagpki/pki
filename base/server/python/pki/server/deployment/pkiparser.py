@@ -24,7 +24,6 @@ from __future__ import print_function
 import argparse
 import getpass
 import json
-import ldap
 import logging
 import os
 import string
@@ -304,7 +303,6 @@ class PKIConfigParser:
             help='Run in debug mode')
 
         self.indent = 0
-        self.authdb_connection = None
 
         self.mdict = deployer.mdict
 
@@ -618,34 +616,6 @@ class PKIConfigParser:
                 message = '%s %s' % (message, info)
 
             logger.warning(message)
-
-    def authdb_connect(self):
-
-        hostname = self.mdict['pki_authdb_hostname']
-        port = self.mdict['pki_authdb_port']
-
-        if config.str2bool(self.mdict['pki_authdb_secure_conn']):
-            protocol = 'ldaps'
-        else:
-            protocol = 'ldap'
-
-        self.authdb_connection = ldap.initialize(
-            protocol + '://' + hostname + ':' + port)
-        self.authdb_connection.search_s('', ldap.SCOPE_BASE)
-
-    def authdb_base_dn_exists(self):
-        try:
-            results = self.authdb_connection.search_s(
-                self.mdict['pki_authdb_basedn'],
-                ldap.SCOPE_BASE)
-
-            if results is None or len(results) == 0:
-                return False
-
-            return True
-
-        except ldap.NO_SUCH_OBJECT:
-            return False
 
     def get_server_status(self, system_type, system_uri):
         parse = urlparse(self.mdict[system_uri])
