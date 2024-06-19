@@ -60,8 +60,8 @@ jobs:
               --csr ca_signing.csr \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --cert ca_signing.crt
-          docker exec pki pki \
-              nss-cert-import \
+
+          docker exec pki pki nss-cert-import \
               --cert ca_signing.crt \
               --trust CT,C,C \
               ca_signing
@@ -89,8 +89,8 @@ jobs:
               --csr ca_ocsp_signing.csr \
               --ext /usr/share/pki/server/certs/ocsp_signing.conf \
               --cert ca_ocsp_signing.crt
-          docker exec pki pki \
-              nss-cert-import \
+
+          docker exec pki pki nss-cert-import \
               --cert ca_ocsp_signing.crt \
               ca_ocsp_signing
 
@@ -117,8 +117,8 @@ jobs:
               --csr ca_audit_signing.csr \
               --ext /usr/share/pki/server/certs/audit_signing.conf \
               --cert ca_audit_signing.crt
-          docker exec pki pki \
-              nss-cert-import \
+
+          docker exec pki pki nss-cert-import \
               --cert ca_audit_signing.crt \
               --trust ,,P \
               ca_audit_signing
@@ -146,8 +146,8 @@ jobs:
               --csr subsystem.csr \
               --ext /usr/share/pki/server/certs/subsystem.conf \
               --cert subsystem.crt
-          docker exec pki pki \
-              nss-cert-import \
+
+          docker exec pki pki nss-cert-import \
               --cert subsystem.crt \
               subsystem
 
@@ -174,8 +174,8 @@ jobs:
               --csr sslserver.csr \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               --cert sslserver.crt
-          docker exec pki pki \
-              nss-cert-import \
+
+          docker exec pki pki nss-cert-import \
               --cert sslserver.crt \
               sslserver
 
@@ -202,10 +202,11 @@ jobs:
               --csr admin.csr \
               --ext /usr/share/pki/server/certs/admin.conf \
               --cert admin.crt
-          docker exec pki pki \
-              nss-cert-import \
+
+          docker exec pki pki nss-cert-import \
               --cert admin.crt \
               caadmin
+
           docker exec pki pki \
               nss-cert-show \
               caadmin

@@ -60,7 +60,12 @@ jobs:
       - name: Initialize CA admin in CA container
         run: |
           docker exec ca pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
-          docker exec ca pki client-cert-import ca_signing --ca-cert ${SHARED}/ca_signing.crt
+
+          docker exec ca pki nss-cert-import \
+              --cert $SHARED/ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
           docker exec ca pki pkcs12-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
@@ -170,7 +175,11 @@ jobs:
 
       - name: Verify TKS admin
         run: |
-          docker exec tks pki client-cert-import ca_signing --ca-cert ${SHARED}/ca_signing.crt
+          docker exec tks pki nss-cert-import \
+              --cert $SHARED/ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
           docker exec tks pki pkcs12-import \
               --pkcs12 /root/.dogtag/pki-tomcat/tks_admin_cert.p12 \
               --pkcs12-password Secret.123

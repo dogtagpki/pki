@@ -68,6 +68,7 @@ jobs:
           docker exec pki pki-server cert-export \
               --cert-file $SHARED/ca_signing.crt \
               ca_signing
+
           docker exec client pki nss-cert-import \
               --cert $SHARED/ca_signing.crt \
               --trust CT,C,C \

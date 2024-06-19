@@ -68,8 +68,11 @@ jobs:
           # install CA signing cert
           docker exec primary pki-server cert-export ca_signing \
               --cert-file ${SHARED}/ca_signing.crt
-          docker exec primary pki client-cert-import ca_signing \
-              --ca-cert ${SHARED}/ca_signing.crt
+
+          docker exec primary pki nss-cert-import \
+              --cert $SHARED/ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
 
           # install admin cert
           docker exec primary cp \
@@ -211,8 +214,10 @@ jobs:
       - name: Install admin cert in secondary PKI container
         run: |
           # install CA signing cert
-          docker exec secondary pki client-cert-import ca_signing \
-              --ca-cert ${SHARED}/ca_signing.crt
+          docker exec secondary pki nss-cert-import \
+              --cert $SHARED/ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
 
           # install admin cert
           docker exec secondary pki pkcs12-import \

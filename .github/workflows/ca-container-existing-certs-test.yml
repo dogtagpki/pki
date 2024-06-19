@@ -63,11 +63,12 @@ jobs:
               --validity-length 1 \
               --validity-unit year \
               --cert $SHARED/certs/ca_signing.crt
-          docker exec client pki \
-              nss-cert-import \
+
+          docker exec client pki nss-cert-import \
               --cert $SHARED/certs/ca_signing.crt \
               --trust CT,C,C \
               ca_signing
+
           docker exec client pki \
               nss-cert-show \
               ca_signing
@@ -85,10 +86,11 @@ jobs:
               --csr $SHARED/certs/ca_ocsp_signing.csr \
               --ext /usr/share/pki/server/certs/ocsp_signing.conf \
               --cert $SHARED/certs/ca_ocsp_signing.crt
-          docker exec client pki \
-              nss-cert-import \
+
+          docker exec client pki nss-cert-import \
               --cert $SHARED/certs/ca_ocsp_signing.crt \
               ca_ocsp_signing
+
           docker exec client pki \
               nss-cert-show \
               ca_ocsp_signing
@@ -106,11 +108,12 @@ jobs:
               --csr $SHARED/certs/ca_audit_signing.csr \
               --ext /usr/share/pki/server/certs/audit_signing.conf \
               --cert $SHARED/certs/ca_audit_signing.crt
-          docker exec client pki \
-              nss-cert-import \
+
+          docker exec client pki nss-cert-import \
               --cert $SHARED/certs/ca_audit_signing.crt \
               --trust ,,P \
               ca_audit_signing
+
           docker exec client pki \
               nss-cert-show \
               ca_audit_signing
@@ -128,10 +131,11 @@ jobs:
               --csr $SHARED/certs/subsystem.csr \
               --ext /usr/share/pki/server/certs/subsystem.conf \
               --cert $SHARED/certs/subsystem.crt
-          docker exec client pki \
-              nss-cert-import \
+
+          docker exec client pki nss-cert-import \
               --cert $SHARED/certs/subsystem.crt \
               subsystem
+
           docker exec client pki \
               nss-cert-show \
               subsystem
@@ -149,10 +153,11 @@ jobs:
               --csr $SHARED/certs/sslserver.csr \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               --cert $SHARED/certs/sslserver.crt
-          docker exec client pki \
-              nss-cert-import \
+
+          docker exec client pki nss-cert-import \
               --cert $SHARED/certs/sslserver.crt \
               sslserver
+
           docker exec client pki \
               nss-cert-show \
               sslserver
@@ -170,10 +175,11 @@ jobs:
               --csr $SHARED/certs/admin.csr \
               --ext /usr/share/pki/server/certs/admin.conf \
               --cert $SHARED/certs/admin.crt
-          docker exec client pki \
-              nss-cert-import \
+
+          docker exec client pki nss-cert-import \
               --cert $SHARED/certs/admin.crt \
               admin
+
           docker exec client pki \
               nss-cert-show \
               admin

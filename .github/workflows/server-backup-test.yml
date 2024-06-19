@@ -75,8 +75,10 @@ jobs:
               ca_signing
           docker cp pki:ca_signing.crt .
           docker cp ca_signing.crt client:.
-          docker exec client pki client-cert-import \
-              --ca-cert ca_signing.crt \
+
+          docker exec client pki nss-cert-import \
+              --cert ca_signing.crt \
+              --trust CT,C,C \
               ca_signing
 
           # install admin cert

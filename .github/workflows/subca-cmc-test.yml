@@ -72,7 +72,12 @@ jobs:
       - name: Install root CA admin cert
         run: |
           docker exec root pki-server cert-export ca_signing --cert-file $SHARED/root-ca_signing.crt
-          docker exec root pki client-cert-import ca_signing --ca-cert $SHARED/root-ca_signing.crt
+
+          docker exec root pki nss-cert-import \
+              --cert $SHARED/root-ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
           docker exec root pki pkcs12-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
               --pkcs12-password Secret.123

@@ -67,9 +67,11 @@ jobs:
               --output-file $SHARED/cert_chain.pem \
               --with-chain \
               ca_signing
+
           docker exec ca pki nss-cert-import \
               --cert $SHARED/cert_chain.pem \
               --trust CT,C,C
+
           docker exec ca pki pkcs12-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
@@ -492,6 +494,7 @@ jobs:
           docker exec kra pki nss-cert-import \
               --cert $SHARED/cert_chain.pem \
               --trust CT,C,C
+
           docker exec kra pki nss-cert-find
           docker exec kra pki -n kraadmin kra-user-show kraadmin
 

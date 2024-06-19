@@ -67,9 +67,11 @@ jobs:
               --output-file cert_chain.pem \
               --with-chain \
               ca_signing
+
           docker exec pki1 pki nss-cert-import \
               --cert cert_chain.pem \
               --trust CT,C,C
+
           docker exec pki1 pki pkcs12-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
@@ -254,9 +256,11 @@ jobs:
               --output-file cert_chain.pem \
               --with-chain \
               ca_signing
+
           docker exec pki2 pki nss-cert-import \
               --cert cert_chain.pem \
               --trust CT,C,C
+
           docker exec pki2 pki pkcs12-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
               --pkcs12-password Secret.123

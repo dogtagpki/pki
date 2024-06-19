@@ -59,7 +59,12 @@ jobs:
       - name: Install CA admin cert
         run: |
           docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
-          docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
+
+          docker exec pki pki nss-cert-import \
+              --cert ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
           docker exec pki pki pkcs12-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
@@ -87,7 +92,11 @@ jobs:
           CERT_ID=$(docker exec pki pki -n caadmin ca-cert-request-approve ${REC_ID:14} --force | \
               grep "Certificate ID")
           docker exec pki pki ca-cert-export ${CERT_ID:18} --output-file sslserver.crt
-          docker exec pki pki nss-cert-import --cert sslserver.crt postgresql
+
+          docker exec pki pki nss-cert-import \
+              --cert sslserver.crt \
+              postgresql
+
           docker exec pki pk12util -o sslserver.p12 -n postgresql -d /root/.dogtag/nssdb -W secret
           docker cp pki:sslserver.p12 .
           openssl pkcs12 -in sslserver.p12 -nocerts -out sslserver.key -noenc -password  pass:secret

@@ -75,7 +75,11 @@ jobs:
         run: |
           # import CA signing cert
           docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
-          docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
+
+          docker exec pki pki nss-cert-import \
+              --cert ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
 
           # correct password should work
           docker exec pki pki -u caadmin -w Secret.123 ca-user-find

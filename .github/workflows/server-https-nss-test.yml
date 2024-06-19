@@ -57,7 +57,9 @@ jobs:
               --csr sslserver.csr \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               --cert sslserver.crt
-          docker exec pki pki -d /var/lib/pki/pki-tomcat/alias \
+
+          docker exec pki pki \
+              -d /var/lib/pki/pki-tomcat/alias \
               nss-cert-import \
               --cert sslserver.crt \
               sslserver

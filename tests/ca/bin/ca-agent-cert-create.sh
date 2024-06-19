@@ -17,7 +17,8 @@ CERT_ID=$(cat /tmp/cert_id)
 pki -u caadmin -w Secret.123 ca-user-cert-add caagent --serial $CERT_ID || true
 
 # import the cert into client
-pki client-cert-import caagent --serial $CERT_ID
+pki ca-cert-export $CERT_ID --output-file /tmp/caagent.crt
+pki nss-cert-import caagent --cert /tmp/caagent.crt
 
 # test the client certificate
 pki -u caagent -w Secret.123 ca-cert-request-find

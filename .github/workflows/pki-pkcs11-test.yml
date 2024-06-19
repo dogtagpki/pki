@@ -51,6 +51,7 @@ jobs:
               --csr cert1.csr \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --cert cert1.crt
+
           docker exec pki pki nss-cert-import \
               --cert cert1.crt \
               --trust CT,C,C \

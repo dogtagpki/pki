@@ -48,6 +48,7 @@ jobs:
               --csr $SHARED/root-ca_signing.csr \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --cert $SHARED/root-ca_signing.crt
+
           docker exec root-ca pki nss-cert-import \
               --cert $SHARED/root-ca_signing.crt \
               --trust CT,C,C \
@@ -274,9 +275,11 @@ jobs:
 
       - name: Check primary sub-CA admin
         run: |
-          docker exec primary-subca pki client-cert-import \
-              --ca-cert $SHARED/root-ca_signing.crt \
+          docker exec primary-subca pki nss-cert-import \
+              --cert $SHARED/root-ca_signing.crt \
+              --trust CT,C,C \
               root-ca_signing
+
           docker exec primary-subca pki pkcs12-import \
               --pkcs12 $SHARED/caadmin.p12 \
               --pkcs12-password Secret.123
@@ -559,9 +562,11 @@ jobs:
 
       - name: Check secondary sub-CA admin
         run: |
-          docker exec secondary-subca pki client-cert-import \
-              --ca-cert $SHARED/root-ca_signing.crt \
+          docker exec secondary-subca pki nss-cert-import \
+              --cert $SHARED/root-ca_signing.crt \
+              --trust CT,C,C \
               root-ca_signing
+
           docker exec secondary-subca pki pkcs12-import \
               --pkcs12 $SHARED/caadmin.p12 \
               --pkcs12-password Secret.123

@@ -58,7 +58,10 @@ jobs:
               --csr root-ca_signing.csr \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --cert root-ca_signing.crt
-          docker exec pki pki -d nssdb nss-cert-import \
+
+          docker exec pki pki \
+              -d nssdb \
+              nss-cert-import \
               --cert root-ca_signing.crt \
               --trust CT,C,C \
               root-ca_signing
@@ -111,7 +114,11 @@ jobs:
 
       - name: Verify CA admin
         run: |
-          docker exec pki pki client-cert-import ca_signing --ca-cert root-ca_signing.crt
+          docker exec pki pki nss-cert-import \
+              --cert root-ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
           docker exec pki pki pkcs12-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
               --pkcs12-password Secret.123

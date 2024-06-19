@@ -191,6 +191,7 @@ jobs:
           docker exec subca pki nss-cert-import \
               --cert ${SHARED}/root-ca_signing.crt \
               --trust CT,C,C
+
           docker exec subca pki nss-cert-import \
               --cert ${SHARED}/ca_signing.crt \
               --trust CT,C,C
@@ -285,6 +286,7 @@ jobs:
           docker exec kra pki nss-cert-import \
               --cert ${SHARED}/root-ca_signing.crt \
               --trust CT,C,C
+
           docker exec kra pki nss-cert-import \
               --cert ${SHARED}/ca_signing.crt \
               --trust CT,C,C

@@ -62,8 +62,12 @@ jobs:
         run: |
           docker exec primary pki-server cert-export ca_signing \
               --cert-file $SHARED/ca_signing.crt
-          docker exec primary pki client-cert-import ca_signing \
-              --ca-cert $SHARED/ca_signing.crt
+
+          docker exec primary pki nss-cert-import \
+              --cert $SHARED/ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
           docker exec primary pki pkcs12-import \
               --pkcs12 $SHARED/caadmin.p12 \
               --pkcs12-password Secret.123
@@ -417,8 +421,11 @@ jobs:
 
       - name: Check secondary CA admin user
         run: |
-          docker exec secondary pki client-cert-import ca_signing \
-              --ca-cert $SHARED/ca_signing.crt
+          docker exec secondary pki nss-cert-import \
+              --cert $SHARED/ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
           docker exec secondary pki pkcs12-import \
               --pkcs12 $SHARED/caadmin.p12 \
               --pkcs12-password Secret.123

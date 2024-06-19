@@ -61,11 +61,12 @@ jobs:
               --csr ds_signing.csr \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --cert ds_signing.crt
-          docker exec primary pki \
-              nss-cert-import \
+
+          docker exec primary pki nss-cert-import \
               --cert ds_signing.crt \
               --trust CT,C,C \
               Self-Signed-CA
+
           docker exec primary certutil -L -d /root/.dogtag/nssdb
 
       - name: Create DS server cert in primary PKI container
@@ -81,10 +82,11 @@ jobs:
               --csr ds_server.csr \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               --cert ds_server.crt
-          docker exec primary pki \
-              nss-cert-import \
+
+          docker exec primary pki nss-cert-import \
               --cert ds_server.crt \
               Server-Cert
+
           docker exec primary certutil -L -d /root/.dogtag/nssdb
 
       - name: Import certs into primary DS container
@@ -126,7 +128,12 @@ jobs:
       - name: Verify users and DS hosts in primary PKI container
         run: |
           docker exec primary pki-server cert-export ca_signing --cert-file ca_signing.crt
-          docker exec primary pki client-cert-import ca_signing --ca-cert ca_signing.crt
+
+          docker exec primary pki nss-cert-import \
+              --cert ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
           docker exec primary pki pkcs12-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
@@ -187,10 +194,11 @@ jobs:
               --csr ds_server.csr \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               --cert ds_server.crt
-          docker exec secondary pki \
-              nss-cert-import \
+
+          docker exec secondary pki nss-cert-import \
               --cert ds_server.crt \
               Server-Cert
+
           docker exec secondary certutil -L -d /root/.dogtag/nssdb
 
       - name: Import certs into secondary DS container
@@ -243,7 +251,12 @@ jobs:
         run: |
           docker exec primary cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${SHARED}/ca_admin_cert.p12
           docker exec secondary pki-server cert-export ca_signing --cert-file ca_signing.crt
-          docker exec secondary pki client-cert-import ca_signing --ca-cert ca_signing.crt
+
+          docker exec secondary pki nss-cert-import \
+              --cert ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
           docker exec secondary pki pkcs12-import \
               --pkcs12 ${SHARED}/ca_admin_cert.p12 \
               --pkcs12-password Secret.123

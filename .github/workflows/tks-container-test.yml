@@ -207,10 +207,12 @@ jobs:
               --csr $SHARED/tks/certs/tks_audit_signing.csr \
               --ext /usr/share/pki/server/certs/audit_signing.conf \
               --cert $SHARED/tks/certs/tks_audit_signing.crt
+
           docker exec client pki nss-cert-import \
               --cert $SHARED/tks/certs/tks_audit_signing.crt \
               --trust ,,P \
               tks_audit_signing
+
           docker exec client pki nss-cert-show tks_audit_signing
 
       - name: Create TKS subsystem cert
@@ -226,9 +228,11 @@ jobs:
               --csr $SHARED/tks/certs/subsystem.csr \
               --ext /usr/share/pki/server/certs/subsystem.conf \
               --cert $SHARED/tks/certs/subsystem.crt
+
           docker exec client pki nss-cert-import \
               --cert $SHARED/tks/certs/subsystem.crt \
               tks_subsystem
+
           docker exec client pki nss-cert-show tks_subsystem
 
       - name: Create TKS SSL server cert
@@ -244,9 +248,11 @@ jobs:
               --csr $SHARED/tks/certs/sslserver.csr \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               --cert $SHARED/tks/certs/sslserver.crt
+
           docker exec client pki nss-cert-import \
               --cert $SHARED/tks/certs/sslserver.crt \
               tks_sslserver
+
           docker exec client pki nss-cert-show tks_sslserver
 
       - name: Prepare TKS certs and keys

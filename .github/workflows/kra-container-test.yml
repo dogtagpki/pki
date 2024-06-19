@@ -206,9 +206,11 @@ jobs:
               --csr $SHARED/kra/certs/kra_storage.csr \
               --ext /usr/share/pki/server/certs/kra_storage.conf \
               --cert $SHARED/kra/certs/kra_storage.crt
+
           docker exec client pki nss-cert-import \
               --cert $SHARED/kra/certs/kra_storage.crt \
               kra_storage
+
           docker exec client pki nss-cert-show kra_storage
 
       - name: Create KRA transport cert
@@ -224,9 +226,11 @@ jobs:
               --csr $SHARED/kra/certs/kra_transport.csr \
               --ext /usr/share/pki/server/certs/kra_transport.conf \
               --cert $SHARED/kra/certs/kra_transport.crt
+
           docker exec client pki nss-cert-import \
               --cert $SHARED/kra/certs/kra_transport.crt \
               kra_transport
+
           docker exec client pki nss-cert-show kra_transport
 
       - name: Create KRA audit signing cert
@@ -242,10 +246,12 @@ jobs:
               --csr $SHARED/kra/certs/kra_audit_signing.csr \
               --ext /usr/share/pki/server/certs/audit_signing.conf \
               --cert $SHARED/kra/certs/kra_audit_signing.crt
+
           docker exec client pki nss-cert-import \
               --cert $SHARED/kra/certs/kra_audit_signing.crt \
               --trust ,,P \
               kra_audit_signing
+
           docker exec client pki nss-cert-show kra_audit_signing
 
       - name: Create KRA subsystem cert
@@ -261,9 +267,11 @@ jobs:
               --csr $SHARED/kra/certs/subsystem.csr \
               --ext /usr/share/pki/server/certs/subsystem.conf \
               --cert $SHARED/kra/certs/subsystem.crt
+
           docker exec client pki nss-cert-import \
               --cert $SHARED/kra/certs/subsystem.crt \
               subsystem
+
           docker exec client pki nss-cert-show subsystem
 
       - name: Create KRA SSL server cert
@@ -279,9 +287,11 @@ jobs:
               --csr $SHARED/kra/certs/sslserver.csr \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               --cert $SHARED/kra/certs/sslserver.crt
+
           docker exec client pki nss-cert-import \
               --cert $SHARED/kra/certs/sslserver.crt \
               sslserver
+
           docker exec client pki nss-cert-show sslserver
 
       - name: Prepare KRA certs and keys
@@ -552,6 +562,7 @@ jobs:
               ca-cert-export \
               --output-file testuser.crt \
               $CERT_ID
+
           docker exec client pki nss-cert-import --cert testuser.crt testuser
 
           # the cert should match the key (trust flags must be u,u,u)

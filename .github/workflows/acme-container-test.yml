@@ -166,8 +166,7 @@ jobs:
               --output-file /conf/certs/ca_signing.crt \
               ca_signing
 
-          docker exec client pki \
-              nss-cert-import \
+          docker exec client pki nss-cert-import \
               --cert $SHARED/conf/certs/ca_signing.crt \
               --trust CT,C,C \
               ca_signing

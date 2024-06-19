@@ -184,16 +184,23 @@ jobs:
           # get users from primary CA
           docker exec primary pki-server cert-export ca_signing \
               --cert-file ${SHARED}/ca_signing.crt
-          docker exec primary pki client-cert-import ca_signing \
-              --ca-cert ${SHARED}/ca_signing.crt
+
+          docker exec primary pki nss-cert-import \
+              --cert $SHARED/ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
           docker exec primary pki pkcs12-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
           docker exec primary pki -n caadmin ca-user-find | tee ca-users.primary
 
           # get users from secondary CA
-          docker exec secondary pki client-cert-import ca_signing \
-              --ca-cert ${SHARED}/ca_signing.crt
+          docker exec secondary pki nss-cert-import \
+              --cert $SHARED/ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
           docker exec primary cp \
               /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
               ${SHARED}/ca_admin_cert.p12

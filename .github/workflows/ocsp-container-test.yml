@@ -207,9 +207,11 @@ jobs:
               --csr $SHARED/ocsp/certs/ocsp_signing.csr \
               --ext /usr/share/pki/server/certs/ocsp_signing.conf \
               --cert $SHARED/ocsp/certs/ocsp_signing.crt
+
           docker exec client pki nss-cert-import \
               --cert $SHARED/ocsp/certs/ocsp_signing.crt \
               ocsp_signing
+
           docker exec client pki nss-cert-show ocsp_signing
 
       - name: Create OCSP audit signing cert
@@ -225,10 +227,12 @@ jobs:
               --csr $SHARED/ocsp/certs/ocsp_audit_signing.csr \
               --ext /usr/share/pki/server/certs/audit_signing.conf \
               --cert $SHARED/ocsp/certs/ocsp_audit_signing.crt
+
           docker exec client pki nss-cert-import \
               --cert $SHARED/ocsp/certs/ocsp_audit_signing.crt \
               --trust ,,P \
               ocsp_audit_signing
+
           docker exec client pki nss-cert-show ocsp_audit_signing
 
       - name: Create OCSP subsystem cert
@@ -244,9 +248,11 @@ jobs:
               --csr $SHARED/ocsp/certs/subsystem.csr \
               --ext /usr/share/pki/server/certs/subsystem.conf \
               --cert $SHARED/ocsp/certs/subsystem.crt
+
           docker exec client pki nss-cert-import \
               --cert $SHARED/ocsp/certs/subsystem.crt \
               subsystem
+
           docker exec client pki nss-cert-show subsystem
 
       - name: Create OCSP SSL server cert
@@ -262,9 +268,11 @@ jobs:
               --csr $SHARED/ocsp/certs/sslserver.csr \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               --cert $SHARED/ocsp/certs/sslserver.crt
+
           docker exec client pki nss-cert-import \
               --cert $SHARED/ocsp/certs/sslserver.crt \
               sslserver
+
           docker exec client pki nss-cert-show sslserver
 
       - name: Prepare OCSP certs and keys

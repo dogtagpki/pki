@@ -144,7 +144,11 @@ jobs:
           docker exec ipa openssl x509 -text -noout -in /root/.dogtag/pki-tomcat/ca_admin.cert
 
           # import CA admin cert and key into the client's NSS database
-          docker exec ipa pki client-cert-import --ca-cert ca_signing.crt ca_signing
+          docker exec ipa pki nss-cert-import \
+              --cert ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
           docker exec ipa pki pkcs12-import \
               --pkcs12 /root/ca-agent.p12 \
               --pkcs12-password Secret.123
