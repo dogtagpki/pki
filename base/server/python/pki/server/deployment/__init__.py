@@ -1262,6 +1262,100 @@ class PKIDeployer:
             logger.debug('Setting ephemeral requests to true')
             subsystem.set_config('kra.ephemeralRequests', 'true')
 
+    def add_tps_ca_connector(self, name, ca_url, subsystem, fullname, timestamp):
+
+        subsystem.set_config('tps.connector.%s.enable' % name, 'true')
+        subsystem.set_config('tps.connector.%s.host' % name, ca_url.hostname)
+        subsystem.set_config('tps.connector.%s.port' % name, str(ca_url.port))
+        subsystem.set_config('tps.connector.%s.minHttpConns' % name, '1')
+        subsystem.set_config('tps.connector.%s.maxHttpConns' % name, '15')
+        subsystem.set_config('tps.connector.%s.nickName' % name, fullname)
+        subsystem.set_config('tps.connector.%s.timeout' % name, '30')
+
+        subsystem.set_config(
+            'tps.connector.%s.uri.enrollment' % name,
+            '/ca/ee/ca/profileSubmitSSLClient')
+        subsystem.set_config(
+            'tps.connector.%s.uri.getcert' % name,
+            '/ca/ee/ca/displayBySerial')
+        subsystem.set_config(
+            'tps.connector.%s.uri.renewal' % name,
+            '/ca/ee/ca/profileSubmitSSLClient')
+        subsystem.set_config(
+            'tps.connector.%s.uri.revoke' % name,
+            '/ca/ee/subsystem/ca/doRevoke')
+        subsystem.set_config(
+            'tps.connector.%s.uri.unrevoke' % name,
+            '/ca/ee/subsystem/ca/doUnrevoke')
+
+        subsystem.set_config('config.Subsystem_Connections.%s.state' % name, 'Enabled')
+        subsystem.set_config('config.Subsystem_Connections.%s.timestamp' % name, timestamp)
+
+        cons = subsystem.config.get('target.Subsystem_Connections.list', '').split(',')
+        if name not in cons:
+            cons.append(name)
+            subsystem.set_config('target.Subsystem_Connections.list', ','.join(cons))
+
+    def add_tps_kra_connector(self, name, kra_url, subsystem, fullname, timestamp):
+
+        subsystem.set_config('tps.connector.%s.enable' % name, 'true')
+        subsystem.set_config('tps.connector.%s.host' % name, kra_url.hostname)
+        subsystem.set_config('tps.connector.%s.port' % name, str(kra_url.port))
+        subsystem.set_config('tps.connector.%s.minHttpConns' % name, '1')
+        subsystem.set_config('tps.connector.%s.maxHttpConns' % name, '15')
+        subsystem.set_config('tps.connector.%s.nickName' % name, fullname)
+        subsystem.set_config('tps.connector.%s.timeout' % name, '30')
+
+        subsystem.set_config(
+            'tps.connector.%s.uri.GenerateKeyPair' % name,
+            '/kra/agent/kra/GenerateKeyPair')
+        subsystem.set_config(
+            'tps.connector.%s.uri.TokenKeyRecovery' % name,
+            '/kra/agent/kra/TokenKeyRecovery')
+
+        subsystem.set_config('config.Subsystem_Connections.%s.state' % name, 'Enabled')
+        subsystem.set_config('config.Subsystem_Connections.%s.timestamp' % name, timestamp)
+
+        cons = subsystem.config.get('target.Subsystem_Connections.list', '').split(',')
+        if name not in cons:
+            cons.append(name)
+            subsystem.set_config('target.Subsystem_Connections.list', ','.join(cons))
+
+    def add_tps_tks_connector(self, name, tks_url, subsystem, fullname, timestamp):
+
+        subsystem.set_config('tps.connector.%s.enable' % name, 'true')
+        subsystem.set_config('tps.connector.%s.host' % name, tks_url.hostname)
+        subsystem.set_config('tps.connector.%s.port' % name, str(tks_url.port))
+        subsystem.set_config('tps.connector.%s.minHttpConns' % name, '1')
+        subsystem.set_config('tps.connector.%s.maxHttpConns' % name, '15')
+        subsystem.set_config('tps.connector.%s.nickName' % name, fullname)
+        subsystem.set_config('tps.connector.%s.timeout' % name, '30')
+        subsystem.set_config('tps.connector.%s.generateHostChallenge' % name, 'true')
+        subsystem.set_config('tps.connector.%s.serverKeygen' % name, 'false')
+        subsystem.set_config('tps.connector.%s.keySet' % name, 'defKeySet')
+        subsystem.set_config('tps.connector.%s.tksSharedSymKeyName' % name, 'sharedSecret')
+
+        subsystem.set_config(
+            'tps.connector.%s.uri.computeRandomData' % name,
+            '/tks/agent/tks/computeRandomData')
+        subsystem.set_config(
+            'tps.connector.%s.uri.computeSessionKey' % name,
+            '/tks/agent/tks/computeSessionKey')
+        subsystem.set_config(
+            'tps.connector.%s.uri.createKeySetData' % name,
+            '/tks/agent/tks/createKeySetData')
+        subsystem.set_config(
+            'tps.connector.%s.uri.encryptData' % name,
+            '/tks/agent/tks/encryptData')
+
+        subsystem.set_config('config.Subsystem_Connections.%s.state' % name, 'Enabled')
+        subsystem.set_config('config.Subsystem_Connections.%s.timestamp' % name, timestamp)
+
+        cons = subsystem.config.get('target.Subsystem_Connections.list', '').split(',')
+        if name not in cons:
+            cons.append(name)
+            subsystem.set_config('target.Subsystem_Connections.list', ','.join(cons))
+
     def configure_tps(self, subsystem):
 
         baseDN = subsystem.config['internaldb.basedn']
@@ -1284,63 +1378,12 @@ class PKIDeployer:
         logger.info('Configuring CA connector')
 
         ca_url = urllib.parse.urlparse(self.mdict['pki_ca_uri'])
-        subsystem.set_config('tps.connector.ca1.enable', 'true')
-        subsystem.set_config('tps.connector.ca1.host', ca_url.hostname)
-        subsystem.set_config('tps.connector.ca1.port', str(ca_url.port))
-        subsystem.set_config('tps.connector.ca1.minHttpConns', '1')
-        subsystem.set_config('tps.connector.ca1.maxHttpConns', '15')
-        subsystem.set_config('tps.connector.ca1.nickName', fullname)
-        subsystem.set_config('tps.connector.ca1.timeout', '30')
-        subsystem.set_config(
-            'tps.connector.ca1.uri.enrollment',
-            '/ca/ee/ca/profileSubmitSSLClient')
-        subsystem.set_config(
-            'tps.connector.ca1.uri.getcert',
-            '/ca/ee/ca/displayBySerial')
-        subsystem.set_config(
-            'tps.connector.ca1.uri.renewal',
-            '/ca/ee/ca/profileSubmitSSLClient')
-        subsystem.set_config(
-            'tps.connector.ca1.uri.revoke',
-            '/ca/ee/subsystem/ca/doRevoke')
-        subsystem.set_config(
-            'tps.connector.ca1.uri.unrevoke',
-            '/ca/ee/subsystem/ca/doUnrevoke')
-
-        subsystem.set_config('config.Subsystem_Connections.ca1.state', 'Enabled')
-        subsystem.set_config('config.Subsystem_Connections.ca1.timestamp', timestamp)
+        self.add_tps_ca_connector('ca1', ca_url, subsystem, fullname, timestamp)
 
         logger.info('Configuring TKS connector')
 
         tks_url = urllib.parse.urlparse(self.mdict['pki_tks_uri'])
-        subsystem.set_config('tps.connector.tks1.enable', 'true')
-        subsystem.set_config('tps.connector.tks1.host', tks_url.hostname)
-        subsystem.set_config('tps.connector.tks1.port', str(tks_url.port))
-        subsystem.set_config('tps.connector.tks1.minHttpConns', '1')
-        subsystem.set_config('tps.connector.tks1.maxHttpConns', '15')
-        subsystem.set_config('tps.connector.tks1.nickName', fullname)
-        subsystem.set_config('tps.connector.tks1.timeout', '30')
-        subsystem.set_config('tps.connector.tks1.generateHostChallenge', 'true')
-        subsystem.set_config('tps.connector.tks1.serverKeygen', 'false')
-        subsystem.set_config('tps.connector.tks1.keySet', 'defKeySet')
-        subsystem.set_config('tps.connector.tks1.tksSharedSymKeyName', 'sharedSecret')
-        subsystem.set_config(
-            'tps.connector.tks1.uri.computeRandomData',
-            '/tks/agent/tks/computeRandomData')
-        subsystem.set_config(
-            'tps.connector.tks1.uri.computeSessionKey',
-            '/tks/agent/tks/computeSessionKey')
-        subsystem.set_config(
-            'tps.connector.tks1.uri.createKeySetData',
-            '/tks/agent/tks/createKeySetData')
-        subsystem.set_config(
-            'tps.connector.tks1.uri.encryptData',
-            '/tks/agent/tks/encryptData')
-
-        subsystem.set_config('config.Subsystem_Connections.tks1.state', 'Enabled')
-        subsystem.set_config('config.Subsystem_Connections.tks1.timestamp', timestamp)
-
-        subsystem.set_config('target.Subsystem_Connections.list', 'ca1,tks1')
+        self.add_tps_tks_connector('tks1', tks_url, subsystem, fullname, timestamp)
 
         keygen = config.str2bool(self.mdict['pki_enable_server_side_keygen'])
 
@@ -1348,24 +1391,7 @@ class PKIDeployer:
             logger.info('Configuring KRA connector')
 
             kra_url = urllib.parse.urlparse(self.mdict['pki_kra_uri'])
-            subsystem.set_config('tps.connector.kra1.enable', 'true')
-            subsystem.set_config('tps.connector.kra1.host', kra_url.hostname)
-            subsystem.set_config('tps.connector.kra1.port', str(kra_url.port))
-            subsystem.set_config('tps.connector.kra1.minHttpConns', '1')
-            subsystem.set_config('tps.connector.kra1.maxHttpConns', '15')
-            subsystem.set_config('tps.connector.kra1.nickName', fullname)
-            subsystem.set_config('tps.connector.kra1.timeout', '30')
-            subsystem.set_config(
-                'tps.connector.kra1.uri.GenerateKeyPair',
-                '/kra/agent/kra/GenerateKeyPair')
-            subsystem.set_config(
-                'tps.connector.kra1.uri.TokenKeyRecovery',
-                '/kra/agent/kra/TokenKeyRecovery')
-
-            subsystem.set_config('config.Subsystem_Connections.kra1.state', 'Enabled')
-            subsystem.set_config('config.Subsystem_Connections.kra1.timestamp', timestamp)
-
-            subsystem.set_config('target.Subsystem_Connections.list', 'ca1,tks1,kra1')
+            self.add_tps_kra_connector('kra1', kra_url, subsystem, fullname, timestamp)
 
             subsystem.set_config('tps.connector.tks1.serverKeygen', 'true')
 
