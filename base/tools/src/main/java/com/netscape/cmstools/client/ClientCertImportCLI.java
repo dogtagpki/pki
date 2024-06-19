@@ -315,7 +315,7 @@ public class ClientCertImportCLI extends CommandCLI {
         try {
             runExternal(command);
         } catch (Exception e) {
-            throw new Exception("Unable to import PKCS #12 file", e);
+            throw new Exception("Unable to import PKCS #12 file: " + e.getMessage(), e);
         }
 
         System.out.println("Imported certificates from PKCS #12 file");
