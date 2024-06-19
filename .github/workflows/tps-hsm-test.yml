@@ -196,8 +196,7 @@ jobs:
               -D pki_audit_signing_token=HSM \
               -D pki_subsystem_token=HSM \
               -D pki_sslserver_token=internal \
-              -D pki_authdb_hostname=ds.example.com \
-              -D pki_authdb_port=3389 \
+              -D pki_authdb_url=ldap://ds.example.com:3389 \
               -D pki_enable_server_side_keygen=True \
               -v
 

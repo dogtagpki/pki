@@ -171,8 +171,7 @@ jobs:
               -D pki_kra_uri=https://kra.example.com:8443 \
               -D pki_tks_uri=https://tks.example.com:8443 \
               -D pki_ds_url=ldap://tpsds.example.com:3389 \
-              -D pki_authdb_hostname=tpsds.example.com \
-              -D pki_authdb_port=3389 \
+              -D pki_authdb_url=ldap://tpsds.example.com:3389 \
               -D pki_enable_server_side_keygen=True \
               -D pki_external=True \
               -D pki_external_step_two=False \
@@ -226,8 +225,7 @@ jobs:
               -D pki_kra_uri=https://kra.example.com:8443 \
               -D pki_tks_uri=https://tks.example.com:8443 \
               -D pki_ds_url=ldap://tpsds.example.com:3389 \
-              -D pki_authdb_hostname=tpsds.example.com \
-              -D pki_authdb_port=3389 \
+              -D pki_authdb_url=ldap://tpsds.example.com:3389 \
               -D pki_enable_server_side_keygen=True \
               -D pki_external=True \
               -D pki_external_step_two=True \

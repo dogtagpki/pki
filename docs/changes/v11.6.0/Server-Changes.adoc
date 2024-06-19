@@ -32,3 +32,11 @@ The paths of ACME container volumes have been updated as follows:
 * `/var/lib/tomcats/pki/conf/acme/database` -> `/database`
 * `/var/lib/tomcats/pki/conf/acme/issuer` -> `/issuer`
 * `/var/lib/tomcats/pki/conf/acme/realm` -> `/realm`
+
+== Add pki_authdb_url parameter ==
+
+A new `pki_authdb_url` parameter has been added for `pkispawn` to replace the following parameters:
+
+* `pki_authdb_hostname`
+* `pki_authdb_port`
+* `pki_authdb_secure_conn`

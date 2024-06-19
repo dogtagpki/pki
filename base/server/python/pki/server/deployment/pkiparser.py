@@ -256,6 +256,15 @@ class PKIConfigParser:
         (['TPS'], 'pki_ds_secure_connection',
          None, 'pki_ds_url',
          None),
+        (['TPS'], 'pki_authdb_hostname',
+         None, 'pki_authdb_url',
+         None),
+        (['TPS'], 'pki_authdb_port',
+         None, 'pki_authdb_url',
+         None),
+        (['TPS'], 'pki_authdb_secure_conn',
+         None, 'pki_authdb_url',
+         None),
     ]
 
     DEPRECATED_PARAMS = DEPRECATED_DEFAULT_PARAMS + \
