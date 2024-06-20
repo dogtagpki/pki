@@ -3365,7 +3365,7 @@ class PKIDeployer:
         pem_cert = pki.nssdb.convert_cert(cert_data, 'base64', 'pem')
 
         subsystem.import_cert(
-            cert_data=pem_cert,
+            cert_data=pem_cert.encode('utf-8'),
             cert_format='PEM',
             profile_path=request.systemCert.profile,
             request_id=request.systemCert.requestID)

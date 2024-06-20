@@ -2400,7 +2400,7 @@ class CASubsystem(PKISubsystem):
         try:
             if cert_data and not cert_path:
                 cert_path = os.path.join(tmpdir, 'cert.crt')
-                with open(cert_path, 'w', encoding='utf-8') as f:
+                with open(cert_path, 'wb') as f:
                     f.write(cert_data)
 
             cmd = ['ca-cert-import']
