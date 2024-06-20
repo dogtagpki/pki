@@ -73,8 +73,7 @@ jobs:
               --detach \
               pki-ca
 
-      - name: Wait for CA to start
-        run: |
+          # wait for CA to start
           docker exec client curl \
               --retry 180 \
               --retry-delay 0 \
@@ -84,17 +83,22 @@ jobs:
               -o /dev/null \
               https://ca.example.com:8443
 
+      - name: Check CA info
+        run: |
           docker exec ca pki-server cert-export \
               --cert-file ca_signing.crt \
               ca_signing
 
           docker cp ca:ca_signing.crt .
 
-          docker exec client pki \
-              nss-cert-import \
+          docker exec client pki nss-cert-import \
               --cert $SHARED/ca_signing.crt \
               --trust CT,C,C \
               ca_signing
+
+          docker exec client pki \
+              -U https://ca.example.com:8443 \
+              info
 
       - name: Set up CA DS container
         run: |
@@ -799,6 +803,12 @@ jobs:
           EOF
 
           diff expected output
+
+      - name: Check TPS info
+        run: |
+          docker exec client pki \
+              -U https://tps.example.com:8443 \
+              info
 
       - name: Set up TPS DS container
         run: |

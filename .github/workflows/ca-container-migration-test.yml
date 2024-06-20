@@ -62,9 +62,8 @@ jobs:
               --network-alias=client.example.com \
               client
 
-      - name: Check admin user
+      - name: Check CA info
         run: |
-          # install CA signing cert
           docker exec pki pki-server cert-export \
               --cert-file $SHARED/ca_signing.crt \
               ca_signing
@@ -74,12 +73,16 @@ jobs:
               --trust CT,C,C \
               ca_signing
 
-          # install admin cert
-          docker exec pki cp \
-              /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
-              $SHARED/admin.p12
+          docker exec client pki \
+              -U https://pki.example.com:8443 \
+              info
+
+      - name: Check CA admin user
+        run: |
+          docker cp pki:/root/.dogtag/pki-tomcat/ca_admin_cert.p12 .
+
           docker exec client pki pkcs12-import \
-              --pkcs12 $SHARED/admin.p12 \
+              --pkcs12 $SHARED/ca_admin_cert.p12 \
               --password Secret.123
 
           docker exec client pki \

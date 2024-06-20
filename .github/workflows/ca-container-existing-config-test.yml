@@ -71,26 +71,29 @@ jobs:
               --network-alias=client.example.com \
               client
 
-      - name: Check admin user
+      - name: Check CA info
         run: |
-          mkdir certs
-
-          # install CA signing cert
           docker exec pki pki-server cert-export \
-              --cert-file $SHARED/certs/ca_signing.crt \
+              --cert-file ca_signing.crt \
               ca_signing
 
+          docker cp pki:ca_signing.crt .
+
           docker exec client pki nss-cert-import \
-              --cert $SHARED/certs/ca_signing.crt \
+              --cert $SHARED/ca_signing.crt \
               --trust CT,C,C \
               ca_signing
 
-          # install admin cert
-          docker exec pki cp \
-              /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
-              $SHARED/certs/admin.p12
+          docker exec client pki \
+              -U https://ca.example.com:8443 \
+              info
+
+      - name: Check CA admin user
+        run: |
+          docker cp pki:/root/.dogtag/pki-tomcat/ca_admin_cert.p12 .
+
           docker exec client pki pkcs12-import \
-              --pkcs12 $SHARED/certs/admin.p12 \
+              --pkcs12 $SHARED/ca_admin_cert.p12 \
               --password Secret.123
 
           docker exec client pki \
@@ -106,6 +109,8 @@ jobs:
 
       - name: Export certs
         run: |
+          mkdir certs
+
           # export system certs and keys
           docker exec pki pki \
               -v \
@@ -143,6 +148,9 @@ jobs:
           docker exec pki cp \
               /var/lib/pki/pki-tomcat/conf/certs/ca_admin.csr \
               $SHARED/certs/admin.csr
+
+          # export admin cert and key
+          docker cp pki:/root/.dogtag/pki-tomcat/ca_admin_cert.p12 certs/admin.p12
 
           docker exec pki pki pkcs12-cert-find \
               --pkcs12 $SHARED/certs/admin.p12 \
@@ -278,7 +286,7 @@ jobs:
 
           diff expected output
 
-      - name: Check admin user again
+      - name: Check CA admin user again
         run: |
           docker exec client pki \
               -U https://ca.example.com:8443 \

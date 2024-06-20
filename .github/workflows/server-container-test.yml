@@ -125,26 +125,22 @@ jobs:
 
           diff expected output
 
-      - name: Check server info locally
-        run: |
-          docker exec server pki info
-
-      - name: Install CA signing cert
+      - name: Check server info
         run: |
           docker exec server pki \
               -d /conf/alias \
               -f /conf/password.conf \
               nss-cert-export \
-              --output-file /conf/certs/ca_signing.crt \
+              --output-file ca_signing.crt \
               ca_signing
 
+          docker cp server:ca_signing.crt .
+
           docker exec client pki nss-cert-import \
-              --cert $SHARED/conf/certs/ca_signing.crt \
+              --cert $SHARED/ca_signing.crt \
               --trust CT,C,C \
               ca_signing
 
-      - name: Check server info remotely
-        run: |
           docker exec client pki \
               -U https://pki.example.com:8443 \
               info
@@ -164,7 +160,7 @@ jobs:
               -o /dev/null \
               https://pki.example.com:8443
 
-      - name: Check server info remotely again
+      - name: Check server info again
         run: |
           docker exec client pki \
               -U https://pki.example.com:8443 \

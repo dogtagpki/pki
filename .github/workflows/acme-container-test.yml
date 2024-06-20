@@ -177,40 +177,59 @@ jobs:
               -U https://acme.example.com:8443 \
               acme-info
 
-      - name: Verify certbot in client container
+      - name: Register ACME account
         run: |
           docker exec client certbot register \
               --server http://acme.example.com:8080/acme/directory \
               --email user1@example.com \
               --agree-tos \
               --non-interactive
+
+      - name: Enroll client cert
+        run: |
           docker exec client certbot certonly \
               --server http://acme.example.com:8080/acme/directory \
               -d client.example.com \
               --key-type rsa \
               --standalone \
               --non-interactive
-          docker exec client openssl x509 -text -noout -in /etc/letsencrypt/live/client.example.com/fullchain.pem
+
+      - name: Check client cert
+        run: |
+          docker exec client openssl x509 \
+              -text \
+              -noout \
+              -in /etc/letsencrypt/live/client.example.com/fullchain.pem
+
+      - name: Renew client cert
+        run: |
           docker exec client certbot renew \
               --server http://acme.example.com:8080/acme/directory \
               --cert-name client.example.com \
               --force-renewal \
               --no-random-sleep-on-renew \
               --non-interactive
-          #
-          # By default the pki-acme container uses NSS issuer (instead of
-          # PKI issuer) which does not support cert revocation, so the
-          # revocation test is disabled.
-          #
-          # docker exec client certbot revoke \
-          #     --server http://acme.example.com:8080/acme/directory \
-          #     --cert-name client.example.com \
-          #     --non-interactive
-          #
+
+      # - name: Revoke client cert
+      #   run: |
+      #     By default the pki-acme container uses NSS issuer (instead of
+      #     PKI issuer) which does not support cert revocation, so the
+      #     revocation test is disabled.
+      #
+      #     docker exec client certbot revoke \
+      #         --server http://acme.example.com:8080/acme/directory \
+      #         --cert-name client.example.com \
+      #         --non-interactive
+
+      - name: Update ACME account
+        run: |
           docker exec client certbot update_account \
               --server http://acme.example.com:8080/acme/directory \
               --email user2@example.com \
               --non-interactive
+
+      - name: Remove ACME account
+        run: |
           docker exec client certbot unregister \
               --server http://acme.example.com:8080/acme/directory \
               --non-interactive
