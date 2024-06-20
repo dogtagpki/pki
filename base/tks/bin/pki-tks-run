@@ -105,8 +105,8 @@ echo "INFO: Creating TKS"
 # with existing database user, without security manager,
 # and without systemd service.
 pkispawn \
-    --conf /data/conf \
-    --logs /data/logs \
+    --conf /conf \
+    --logs /logs \
     -f /usr/share/pki/server/examples/installation/tks.cfg \
     -s TKS \
     -D pki_group=root \

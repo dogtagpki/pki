@@ -341,7 +341,7 @@ jobs:
 
           docker exec client pki pkcs12-cert-find \
               --pkcs12 $SHARED/kra/certs/admin.p12 \
-              --password Secret.123 \
+              --password Secret.123
 
           ls -la kra/certs
 

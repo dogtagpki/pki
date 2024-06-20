@@ -105,8 +105,8 @@ echo "INFO: Creating TPS"
 # with existing database user, without security manager,
 # and without systemd service.
 pkispawn \
-    --conf /data/conf \
-    --logs /data/logs \
+    --conf /conf \
+    --logs /logs \
     -f /usr/share/pki/server/examples/installation/tps.cfg \
     -s TPS \
     -D pki_group=root \

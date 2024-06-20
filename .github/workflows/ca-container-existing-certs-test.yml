@@ -197,7 +197,7 @@ jobs:
 
           docker exec client pki pkcs12-cert-find \
               --pkcs12 $SHARED/certs/server.p12 \
-              --password Secret.123 \
+              --password Secret.123
 
       - name: Export admin cert and key
         run: |
@@ -208,7 +208,7 @@ jobs:
 
           docker exec client pki pkcs12-cert-find \
               --pkcs12 $SHARED/certs/admin.p12 \
-              --password Secret.123 \
+              --password Secret.123
 
       - name: Set up CA container
         run: |
