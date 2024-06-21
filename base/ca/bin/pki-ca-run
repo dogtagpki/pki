@@ -7,7 +7,6 @@
 
 PKI_CA_SIGNING_NICKNAME="${PKI_CA_SIGNING_NICKNAME:-ca_signing}"
 PKI_OCSP_SIGNING_NICKNAME="${PKI_OCSP_SIGNING_NICKNAME:-ca_ocsp_signing}"
-PKI_AUDIT_SIGNING_NICKNAME="${PKI_AUDIT_SIGNING_NICKNAME:-ca_audit_signing}"
 PKI_SUBSYSTEM_NICKNAME="${PKI_SUBSYSTEM_NICKNAME:-subsystem}"
 PKI_SSLSERVER_NICKNAME="${PKI_SSLSERVER_NICKNAME:-sslserver}"
 
@@ -166,52 +165,13 @@ then
     cp /certs/ca_audit_signing.csr /conf/certs/ca_audit_signing.csr
 fi
 
-# check whether audit signing cert exists
-rc=0
-pki \
-    -d /conf/alias \
-    -f /conf/password.conf \
-    nss-cert-export \
-    --output-file /tmp/ca_audit_signing.crt \
-    "$PKI_AUDIT_SIGNING_NICKNAME" \
-    2> /dev/null || rc=$?
-
-if [ $rc -ne 0 ]
-then
-    echo "INFO: Creating audit signing cert"
-
-    pki \
-        -d /conf/alias \
-        -f /conf/password.conf \
-        nss-cert-request \
-        --subject "CN=Audit Signing Certificate" \
-        --ext /usr/share/pki/server/certs/audit_signing.conf \
-        --csr /conf/certs/ca_audit_signing.csr
-
-    pki \
-        -d /conf/alias \
-        -f /conf/password.conf \
-        nss-cert-issue \
-        --issuer "$PKI_CA_SIGNING_NICKNAME" \
-        --csr /conf/certs/ca_audit_signing.csr \
-        --ext /usr/share/pki/server/certs/audit_signing.conf \
-        --cert /tmp/ca_audit_signing.crt
-
-    pki \
-        -d /conf/alias \
-        -f /conf/password.conf \
-        nss-cert-import \
-        --cert /tmp/ca_audit_signing.crt \
-        --trust ,,P \
-        "$PKI_AUDIT_SIGNING_NICKNAME"
-fi
-
 echo "INFO: Audit signing cert:"
 pki \
     -d /conf/alias \
     -f /conf/password.conf \
     nss-cert-show \
-    "$PKI_AUDIT_SIGNING_NICKNAME"
+    "$PKI_AUDIT_SIGNING_NICKNAME" \
+    2> /dev/null || true
 
 echo "################################################################################"
 
@@ -349,7 +309,10 @@ OPTIONS+=(-D pki_ocsp_signing_nickname="$PKI_OCSP_SIGNING_NICKNAME")
 OPTIONS+=(-D pki_ocsp_signing_csr_path=/conf/certs/ca_ocsp_signing.csr)
 
 OPTIONS+=(-D pki_audit_signing_nickname="$PKI_AUDIT_SIGNING_NICKNAME")
-OPTIONS+=(-D pki_audit_signing_csr_path=/conf/certs/ca_audit_signing.csr)
+if [ -f /conf/certs/ca_audit_signing.csr ]
+then
+    OPTIONS+=(-D pki_audit_signing_csr_path=/conf/certs/ca_audit_signing.csr)
+fi
 
 OPTIONS+=(-D pki_subsystem_nickname="$PKI_SUBSYSTEM_NICKNAME")
 OPTIONS+=(-D pki_subsystem_csr_path=/conf/certs/subsystem.csr)
@@ -392,7 +355,6 @@ echo "INFO: Removing temporary files"
 
 rm /tmp/ca_signing.crt
 rm /tmp/ca_ocsp_signing.crt
-rm /tmp/ca_audit_signing.crt
 rm /tmp/subsystem.crt
 rm /tmp/sslserver.crt
 

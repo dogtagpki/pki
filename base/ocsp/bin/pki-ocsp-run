@@ -6,7 +6,6 @@
 #
 
 PKI_OCSP_SIGNING_NICKNAME="${PKI_OCSP_SIGNING_NICKNAME:-ocsp_signing}"
-PKI_AUDIT_SIGNING_NICKNAME="${PKI_AUDIT_SIGNING_NICKNAME:-ocsp_audit_signing}"
 PKI_SUBSYSTEM_NICKNAME="${PKI_SUBSYSTEM_NICKNAME:-subsystem}"
 PKI_SSLSERVER_NICKNAME="${PKI_SSLSERVER_NICKNAME:-sslserver}"
 
@@ -75,7 +74,8 @@ pki \
     -d /conf/alias \
     -f /conf/password.conf \
     nss-cert-show \
-    "$PKI_AUDIT_SIGNING_NICKNAME"
+    "$PKI_AUDIT_SIGNING_NICKNAME" \
+    2> /dev/null || true
 
 echo "################################################################################"
 
@@ -137,7 +137,10 @@ OPTIONS+=(-D pki_ocsp_signing_nickname="$PKI_OCSP_SIGNING_NICKNAME")
 OPTIONS+=(-D pki_ocsp_signing__path=/conf/certs/ocsp_signing.csr)
 
 OPTIONS+=(-D pki_audit_signing_nickname="$PKI_AUDIT_SIGNING_NICKNAME")
-OPTIONS+=(-D pki_audit_signing_csr_path=/conf/certs/ocsp_audit_signing.csr)
+if [ -f /conf/certs/ocsp_audit_signing.csr ]
+then
+    OPTIONS+=(-D pki_audit_signing_csr_path=/conf/certs/ocsp_audit_signing.csr)
+fi
 
 OPTIONS+=(-D pki_subsystem_nickname="$PKI_SUBSYSTEM_NICKNAME")
 OPTIONS+=(-D pki_subsystem_csr_path=/conf/certs/subsystem.csr)
