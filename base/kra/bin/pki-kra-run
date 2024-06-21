@@ -36,38 +36,6 @@ find /logs -type d -exec chmod +rwx -- {} +
 
 echo "################################################################################"
 
-if [ -f /certs/kra_storage.csr ]
-then
-    echo "INFO: Importing KRA storage CSR"
-    cp /certs/kra_storage.csr /conf/certs/kra_storage.csr
-fi
-
-if [ -f /certs/kra_transport.csr ]
-then
-    echo "INFO: Importing KRA transport CSR"
-    cp /certs/kra_transport.csr /conf/certs/kra_transport.csr
-fi
-
-if [ -f /certs/kra_audit_signing.csr ]
-then
-    echo "INFO: Importing audit signing CSR"
-    cp /certs/kra_audit_signing.csr /conf/certs/kra_audit_signing.csr
-fi
-
-if [ -f /certs/subsystem.csr ]
-then
-    echo "INFO: Importing subsystem CSR"
-    cp /certs/subsystem.csr /conf/certs/subsystem.csr
-fi
-
-if [ -f /certs/sslserver.csr ]
-then
-    echo "INFO: Importing SSL server CSR"
-    cp /certs/sslserver.csr /conf/certs/sslserver.csr
-fi
-
-echo "################################################################################"
-
 if [ -f /certs/server.p12 ]
 then
     echo "INFO: Importing system certs and keys"
@@ -82,6 +50,12 @@ fi
 
 echo "################################################################################"
 
+if [ -f /certs/kra_storage.csr ]
+then
+    echo "INFO: Importing KRA storage CSR"
+    cp /certs/kra_storage.csr /conf/certs/kra_storage.csr
+fi
+
 echo "INFO: KRA storage cert:"
 pki \
     -d /conf/alias \
@@ -90,6 +64,12 @@ pki \
     "$PKI_STORAGE_NICKNAME"
 
 echo "################################################################################"
+
+if [ -f /certs/kra_transport.csr ]
+then
+    echo "INFO: Importing KRA transport CSR"
+    cp /certs/kra_transport.csr /conf/certs/kra_transport.csr
+fi
 
 echo "INFO: KRA transport cert:"
 pki \
@@ -100,6 +80,12 @@ pki \
 
 echo "################################################################################"
 
+if [ -f /certs/kra_audit_signing.csr ]
+then
+    echo "INFO: Importing audit signing CSR"
+    cp /certs/kra_audit_signing.csr /conf/certs/kra_audit_signing.csr
+fi
+
 echo "INFO: Audit signing cert:"
 pki \
     -d /conf/alias \
@@ -108,6 +94,12 @@ pki \
     "$PKI_AUDIT_SIGNING_NICKNAME"
 
 echo "################################################################################"
+
+if [ -f /certs/subsystem.csr ]
+then
+    echo "INFO: Importing subsystem CSR"
+    cp /certs/subsystem.csr /conf/certs/subsystem.csr
+fi
 
 echo "INFO: Subsystem cert:"
 pki \
@@ -118,6 +110,12 @@ pki \
 
 echo "################################################################################"
 
+if [ -f /certs/sslserver.csr ]
+then
+    echo "INFO: Importing SSL server CSR"
+    cp /certs/sslserver.csr /conf/certs/sslserver.csr
+fi
+
 echo "INFO: SSL server cert:"
 pki \
     -d /conf/alias \
@@ -126,45 +124,58 @@ pki \
     "$PKI_SSLSERVER_NICKNAME"
 
 echo "################################################################################"
-echo "INFO: Creating PKI KRA"
+echo "INFO: Creating KRA server"
 
-# Create KRA with existing certs and keys, with existing database,
-# with existing database user, with RSNv3, without security manager,
-# and without systemd service.
-pkispawn \
-    --conf /conf \
-    --logs /logs \
-    -f /usr/share/pki/server/examples/installation/kra.cfg \
-    -s KRA \
-    -D pki_group=root \
-    -D pki_cert_chain_path=/certs/ca_signing.crt \
-    -D pki_ds_url=$PKI_DS_URL \
-    -D pki_ds_password=$PKI_DS_PASSWORD \
-    -D pki_ds_database=userroot \
-    -D pki_ds_setup=False \
-    -D pki_skip_ds_verify=True \
-    -D pki_share_db=True \
-    -D pki_issuing_ca= \
-    -D pki_import_system_certs=False \
-    -D pki_storage_nickname="$PKI_STORAGE_NICKNAME" \
-    -D pki_storage_csr_path=/conf/certs/kra_storage.csr \
-    -D pki_transport_nickname="$PKI_TRANSPORT_NICKNAME" \
-    -D pki_transport_csr_path=/conf/certs/kra_transport.csr \
-    -D pki_audit_signing_nickname="$PKI_AUDIT_SIGNING_NICKNAME" \
-    -D pki_audit_signing_csr_path=/conf/certs/kra_audit_signing.csr \
-    -D pki_subsystem_nickname="$PKI_SUBSYSTEM_NICKNAME" \
-    -D pki_subsystem_csr_path=/conf/certs/subsystem.csr \
-    -D pki_sslserver_nickname="$PKI_SSLSERVER_NICKNAME" \
-    -D pki_sslserver_csr_path=/conf/certs/sslserver.csr \
-    -D pki_admin_setup=False \
-    -D pki_security_domain_setup=False \
-    -D pki_security_manager=False \
-    -D pki_systemd_service_create=False \
-    -D pki_registry_enable=False \
-    -v
+OPTIONS=()
+
+OPTIONS+=(--conf /conf)
+OPTIONS+=(--logs /logs)
+
+OPTIONS+=(-f /usr/share/pki/server/examples/installation/kra.cfg)
+OPTIONS+=(-s KRA)
+
+OPTIONS+=(-D pki_group=root)
+
+OPTIONS+=(-D pki_cert_chain_path=/certs/ca_signing.crt)
+OPTIONS+=(-D pki_cert_chain_nickname=ca_signing)
+
+OPTIONS+=(-D pki_ds_url=$PKI_DS_URL)
+OPTIONS+=(-D pki_ds_password=$PKI_DS_PASSWORD)
+OPTIONS+=(-D pki_ds_database=userroot)
+OPTIONS+=(-D pki_ds_setup=False)
+OPTIONS+=(-D pki_skip_ds_verify=True)
+OPTIONS+=(-D pki_share_db=True)
+
+OPTIONS+=(-D pki_issuing_ca=)
+OPTIONS+=(-D pki_import_system_certs=False)
+
+OPTIONS+=(-D pki_storage_nickname="$PKI_STORAGE_NICKNAME")
+OPTIONS+=(-D pki_storage_csr_path=/conf/certs/kra_storage.csr)
+
+OPTIONS+=(-D pki_transport_nickname="$PKI_TRANSPORT_NICKNAME")
+OPTIONS+=(-D pki_transport_csr_path=/conf/certs/kra_transport.csr)
+
+OPTIONS+=(-D pki_audit_signing_nickname="$PKI_AUDIT_SIGNING_NICKNAME")
+OPTIONS+=(-D pki_audit_signing_csr_path=/conf/certs/kra_audit_signing.csr)
+
+OPTIONS+=(-D pki_subsystem_nickname="$PKI_SUBSYSTEM_NICKNAME")
+OPTIONS+=(-D pki_subsystem_csr_path=/conf/certs/subsystem.csr)
+
+OPTIONS+=(-D pki_sslserver_nickname="$PKI_SSLSERVER_NICKNAME")
+OPTIONS+=(-D pki_sslserver_csr_path=/conf/certs/sslserver.csr)
+
+OPTIONS+=(-D pki_admin_setup=False)
+OPTIONS+=(-D pki_security_domain_setup=False)
+OPTIONS+=(-D pki_security_manager=False)
+OPTIONS+=(-D pki_systemd_service_create=False)
+OPTIONS+=(-D pki_registry_enable=False)
+
+OPTIONS+=(-v)
+
+pkispawn "${OPTIONS[@]}"
 
 echo "################################################################################"
-echo "INFO: Configuring PKI KRA"
+echo "INFO: Configuring KRA server"
 
 pki-server kra-config-set internaldb.minConns 0
 
@@ -183,7 +194,7 @@ find /logs -type f -exec chmod +rw -- {} +
 find /logs -type d -exec chmod +rwx -- {} +
 
 echo "################################################################################"
-echo "INFO: Starting PKI KRA"
+echo "INFO: Starting KRA server"
 
 if [ "$UID" = "0" ]; then
     # In Docker the server runs as root user but it will switch
