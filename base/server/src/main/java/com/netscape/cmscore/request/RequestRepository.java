@@ -29,8 +29,8 @@ import java.util.Set;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.DBPagedSearch;
-import com.netscape.certsrv.dbs.DBVirtualList;
 import com.netscape.certsrv.dbs.DBRecordNotFoundException;
+import com.netscape.certsrv.dbs.DBVirtualList;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
@@ -455,22 +455,22 @@ public class RequestRepository extends Repository {
     /**
      * Gets a paginated list of Request entries in this queue.
      *
-     * @param fromID request id to start with
+     * @param toID request id to end with
      * @param filter search filter
      * @param pageSize page size
      * @param sortKey the attributes to sort by
      * @return request list
      */
     public RecordPagedList<RequestRecord> getPagedRequestsByFilter(
-            RequestId fromID,
+            RequestId toID,
             String filter,
             int pageSize,
             String sortKey) throws EBaseException {
-        if (fromID != null) {
+        if (toID != null) {
             if(!filter.startsWith("(")) {
                 filter = "(" + filter + ")";
             }
-            filter = "(& (requestID >= " + fromID + ")" + filter +")";
+            filter = "(& (requestID <= " + toID + ")" + filter +")";
         }
         return getPagedRequestsByFilter(filter, pageSize, sortKey);
     }
@@ -572,57 +572,44 @@ public class RequestRepository extends Repository {
     public BigInteger getLastSerialNumberInRange(BigInteger min, BigInteger max) throws EBaseException {
 
         logger.debug("RequestRepository: Getting last serial number in range");
-        logger.debug("RequestRepository: - min: " + min);
-        logger.debug("RequestRepository: - max: " + max);
+        logger.debug("RequestRepository: - min: {}", min);
+        logger.debug("RequestRepository: - max: {}", max);
 
         if (min == null || max == null || min.compareTo(max) >= 0) {
             logger.warn("RequestRepository: Bad upper and lower bound range");
             return null;
         }
 
-        RequestId fromID = new RequestId(max);
-        logger.debug("RequestRepository: - from ID: " + fromID);
+        RequestId toID = new RequestId(max);
+        logger.debug("RequestRepository: - to ID: {}", toID);
+
 
         logger.debug("RequestRepository: Searching for requests");
-        ListEnumeration recList = (ListEnumeration) getPagedRequestsByFilter(
-                fromID,
-                false,
-                filter,
-                5 * -1,
-                "requestId");
-
-        int size = recList.getSize();
-        logger.debug("RequestRepository: - size: " + size);
-
-        int ltSize = recList.getSizeBeforeJumpTo();
-        logger.debug("RequestRepository: - size before jump: " + ltSize);
-
-        if (size <= 0) {
-            BigInteger requestID = min.subtract(BigInteger.ONE);
-            logger.debug("RequestRepository: There are no requests, returning " + requestID);
-            return requestID;
-        }
+        RecordPagedList<RequestRecord> reqRecords = getPagedRequestsByFilter(
+                toID,
+                filter, 5,
+                "-requestId");
+        Iterator<RequestRecord> iReqs = reqRecords.iterator();
 
         logger.debug("RequestRepository: Requests:");
-        for (int i = 0; i < 5; i++) {
-            Request request = recList.getElementAt(i);
+        if (iReqs.hasNext()) {
+            RequestRecord recReq = iReqs.next();
+            Request request = recReq.toRequest();
 
-            if (request == null) {
-                continue;
-            }
+            if (request != null) {
+                BigInteger requestID = request.getRequestId().toBigInteger();
+                logger.debug("RequestRepository: - request ID: {}", requestID);
 
-            BigInteger requestID = request.getRequestId().toBigInteger();
-            logger.debug("RequestRepository: - request ID: " + requestID);
-
-            // if request ID within range, return it
-            if (requestID.compareTo(min) >= 0 && requestID.compareTo(max) <= 0) {
-                logger.debug("RequestRepository: Found last request ID: " + requestID);
-                return requestID;
+                // if request ID within range, return it
+                if (requestID.compareTo(min) >= 0) {
+                    logger.debug("RequestRepository: Found last request ID: {}", requestID);
+                    return requestID;
+                }
             }
         }
 
         BigInteger requestID = min.subtract(BigInteger.ONE);
-        logger.debug("RequestRepository: No request found, returning " + requestID);
+        logger.debug("RequestRepository: No request found, returning {}", requestID);
 
         return requestID;
     }
