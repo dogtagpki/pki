@@ -2529,9 +2529,11 @@ class PKIDeployer:
         if subsystem.name == 'ocsp':
             subsystem.validate_system_cert('signing')
 
+        if self.mdict['pki_audit_signing_nickname']:
+            subsystem.validate_system_cert('audit_signing')
+
         subsystem.validate_system_cert('sslserver')
         subsystem.validate_system_cert('subsystem')
-        subsystem.validate_system_cert('audit_signing')
 
     def record(self, name, record_type, uid, gid, perms, acls=None):
         record = manifest.Record()
@@ -3374,6 +3376,10 @@ class PKIDeployer:
 
         logger.debug('PKIDeployer.setup_system_cert()')
 
+        if not request.systemCert.nickname:
+            # skip cert setup
+            return
+
         # Check whether the cert already exists in NSS database
 
         cert_info = nssdb.get_cert_info(
@@ -3616,9 +3622,10 @@ class PKIDeployer:
                 nickname=token + self.mdict['pki_ca_signing_nickname'],
                 trust_attributes='CTu,Cu,Cu')
 
-        nssdb.modify_cert(
-            nickname=token + self.mdict['pki_audit_signing_nickname'],
-            trust_attributes='u,u,Pu')
+        if self.mdict['pki_audit_signing_nickname']:
+            nssdb.modify_cert(
+                nickname=token + self.mdict['pki_audit_signing_nickname'],
+                trust_attributes='u,u,Pu')
 
         # update NSS database owner
         self.instance.chown(self.instance.nssdb_dir)

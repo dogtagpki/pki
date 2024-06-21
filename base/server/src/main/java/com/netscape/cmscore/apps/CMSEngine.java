@@ -1059,6 +1059,12 @@ public class CMSEngine {
          */
         LoggersConfig loggersConfig = config.getLoggingConfig().getLoggersConfig();
         LoggerConfig loggerConfig = loggersConfig.getLoggerConfig("SignedAudit");
+
+        if (!loggerConfig.getLogSigning()) {
+            // skip log signing setup
+            return;
+        }
+
         String mSAuditCertNickName = loggerConfig.getString("signedAuditCertNickname");
         logger.debug("CMSEngine: audit signing cert: " + mSAuditCertNickName);
 
@@ -1955,8 +1961,8 @@ public class CMSEngine {
         try {
             String nickname = config.getString(id + ".cert." + tag + ".nickname", "");
             if (nickname.equals("")) {
-                logger.error("CMSEngine: verifySystemCertByTag() nickname for cert tag " + tag + " undefined in CS.cfg");
-                throw new Exception("Missing nickname for " + tag + " certificate");
+                logger.info("CMSEngine: Skipping " + tag + " cert verification");
+                return;
             }
 
             String certusage = config.getString(id + ".cert." + tag + ".certusage", "");

@@ -7,7 +7,6 @@
 
 PKI_STORAGE_NICKNAME="${PKI_STORAGE_NICKNAME:-kra_storage}"
 PKI_TRANSPORT_NICKNAME="${PKI_TRANSPORT_NICKNAME:-kra_transport}"
-PKI_AUDIT_SIGNING_NICKNAME="${PKI_AUDIT_SIGNING_NICKNAME:-kra_audit_signing}"
 PKI_SUBSYSTEM_NICKNAME="${PKI_SUBSYSTEM_NICKNAME:-subsystem}"
 PKI_SSLSERVER_NICKNAME="${PKI_SSLSERVER_NICKNAME:-sslserver}"
 
@@ -91,7 +90,8 @@ pki \
     -d /conf/alias \
     -f /conf/password.conf \
     nss-cert-show \
-    "$PKI_AUDIT_SIGNING_NICKNAME"
+    "$PKI_AUDIT_SIGNING_NICKNAME" \
+    2> /dev/null || true
 
 echo "################################################################################"
 
@@ -156,7 +156,10 @@ OPTIONS+=(-D pki_transport_nickname="$PKI_TRANSPORT_NICKNAME")
 OPTIONS+=(-D pki_transport_csr_path=/conf/certs/kra_transport.csr)
 
 OPTIONS+=(-D pki_audit_signing_nickname="$PKI_AUDIT_SIGNING_NICKNAME")
-OPTIONS+=(-D pki_audit_signing_csr_path=/conf/certs/kra_audit_signing.csr)
+if [ -f /conf/certs/kra_audit_signing.csr ]
+then
+    OPTIONS+=(-D pki_audit_signing_csr_path=/conf/certs/kra_audit_signing.csr)
+fi
 
 OPTIONS+=(-D pki_subsystem_nickname="$PKI_SUBSYSTEM_NICKNAME")
 OPTIONS+=(-D pki_subsystem_csr_path=/conf/certs/subsystem.csr)
