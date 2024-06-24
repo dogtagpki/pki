@@ -117,7 +117,6 @@ public class LDAPPagedSearch<E extends IDBObj>  extends DBPagedSearch<E> {
                     }
                 }
                 if (cookie == null) {
-                    conn.close();
                     return entries;
                 }
             }
