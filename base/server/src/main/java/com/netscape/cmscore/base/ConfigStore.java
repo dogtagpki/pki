@@ -470,8 +470,7 @@ public class ConfigStore implements Cloneable {
         } else if (value.equalsIgnoreCase("false")) {
             return false;
         } else {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_PROPERTY_1", getName() + "." + name,
-                    "boolean", "\"true\" or \"false\""));
+            throw new EBaseException("Invalid boolean value in " + getName() + "." + name + ": " + value);
         }
     }
 
@@ -535,8 +534,7 @@ public class ConfigStore implements Cloneable {
             logger.trace("Getting {}={}", getFullName(name), value);
             return Integer.parseInt(value);
         } catch (NumberFormatException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_PROPERTY_1", getName() + "." + name, "int",
-                    "number"));
+            throw new EBaseException("Invalid integer value in " + getName() + "." + name + ": " + value);
         }
     }
 
@@ -598,8 +596,7 @@ public class ConfigStore implements Cloneable {
             }
             return new BigInteger(value);
         } catch (NumberFormatException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_PROPERTY_1", getName() + "." + name,
-                    "BigInteger", "number"));
+            throw new EBaseException("Invalid BigInteger value in " + getName() + "." + name + ": " + value);
         }
     }
 
