@@ -1165,7 +1165,7 @@ class PKIDeployer:
                 str(self.authdb_url.port))
             subsystem.set_config(
                 'auths.instance.ldap1.ldap.ldapconn.secureConn',
-                self.authdb_url.scheme == 'ldaps')
+                str(self.authdb_url.scheme == 'ldaps').lower())
             subsystem.set_config(
                 'auths.instance.ldap1.ldap.ldapauth.clientCertNickname',
                 self.mdict['pki_subsystem_nickname'])
@@ -1301,9 +1301,13 @@ class PKIDeployer:
         subsystem.set_config('config.Subsystem_Connections.%s.timestamp' % name, timestamp)
 
         cons = subsystem.config.get('target.Subsystem_Connections.list', '').split(',')
-        if name not in cons:
+        if len(cons) == 1 and not cons[0]:
+            # drop default blank value
+            cons = [name]
+        elif name not in cons:
+            # add new connector
             cons.append(name)
-            subsystem.set_config('target.Subsystem_Connections.list', ','.join(cons))
+        subsystem.set_config('target.Subsystem_Connections.list', ','.join(cons))
 
     def add_tps_kra_connector(self, name, kra_url, subsystem, fullname, timestamp):
 
@@ -1326,9 +1330,13 @@ class PKIDeployer:
         subsystem.set_config('config.Subsystem_Connections.%s.timestamp' % name, timestamp)
 
         cons = subsystem.config.get('target.Subsystem_Connections.list', '').split(',')
-        if name not in cons:
+        if len(cons) == 1 and not cons[0]:
+            # drop default blank value
+            cons = [name]
+        elif name not in cons:
+            # add new connector
             cons.append(name)
-            subsystem.set_config('target.Subsystem_Connections.list', ','.join(cons))
+        subsystem.set_config('target.Subsystem_Connections.list', ','.join(cons))
 
     def add_tps_tks_connector(self, name, tks_url, subsystem, fullname, timestamp):
 
@@ -1361,9 +1369,13 @@ class PKIDeployer:
         subsystem.set_config('config.Subsystem_Connections.%s.timestamp' % name, timestamp)
 
         cons = subsystem.config.get('target.Subsystem_Connections.list', '').split(',')
-        if name not in cons:
+        if len(cons) == 1 and not cons[0]:
+            # drop default blank value
+            cons = [name]
+        elif name not in cons:
+            # add new connector
             cons.append(name)
-            subsystem.set_config('target.Subsystem_Connections.list', ','.join(cons))
+        subsystem.set_config('target.Subsystem_Connections.list', ','.join(cons))
 
     def configure_tps(self, subsystem):
 
