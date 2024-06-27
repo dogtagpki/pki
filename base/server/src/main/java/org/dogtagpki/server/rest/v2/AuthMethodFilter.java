@@ -25,10 +25,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.catalina.realm.GenericPrincipal;
 import org.dogtagpki.server.authentication.AuthToken;
-import org.jboss.resteasy.spi.Failure;
 
 import com.netscape.certsrv.authentication.ExternalAuthToken;
 import com.netscape.certsrv.base.ForbiddenException;
+import com.netscape.certsrv.base.PKIException;
 import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cmscore.apps.CMS;
 
@@ -144,7 +144,7 @@ public abstract class AuthMethodFilter extends HttpFilter {
             throw new ForbiddenException("Authentication method not allowed.");
 
         } catch (IOException e) {
-            throw new Failure(e);
+            throw new PKIException(e);
         }
     }
 

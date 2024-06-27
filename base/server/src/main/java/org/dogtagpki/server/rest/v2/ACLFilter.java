@@ -28,13 +28,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.catalina.realm.GenericPrincipal;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authorization.AuthzToken;
-import org.jboss.resteasy.spi.Failure;
 
 import com.netscape.certsrv.authentication.ExternalAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.EAuthzUnknownRealm;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ForbiddenException;
+import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.AuthzEvent;
 import com.netscape.certsrv.logging.event.RoleAssumeEvent;
@@ -258,7 +258,7 @@ public abstract class ACLFilter extends HttpFilter {
                         null, //operation
                         LOGGING_ACL_PARSING_ERROR + ":" + auditInfo));
 
-            throw new Failure(e);
+            throw new PKIException(e);
         }
 
         // If no property defined, allow request.
@@ -341,7 +341,7 @@ public abstract class ACLFilter extends HttpFilter {
                         values[1], // operation
                         info));
 
-            throw new Failure(e);
+            throw new PKIException(e);
         }
 
         logger.debug("ACLFilter: Protected resource; access granted");
