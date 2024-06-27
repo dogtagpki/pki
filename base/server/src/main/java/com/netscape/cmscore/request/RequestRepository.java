@@ -516,7 +516,9 @@ public class RequestRepository extends Repository {
      * @param pageSize page size
      * @param sortKey the attributes to sort by
      * @return request list
+     * @deprecated As of release 11.6.0
      */
+    @Deprecated(since = "11.6.0", forRemoval = true)
     public IRequestVirtualList getPagedRequestsByFilter(
             RequestId fromID,
             boolean jumpToEnd,
