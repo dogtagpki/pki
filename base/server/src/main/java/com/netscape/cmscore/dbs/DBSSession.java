@@ -324,7 +324,9 @@ public class DBSSession implements AutoCloseable {
      * @param attrs selected attributes
      * @return search results in virtual list
      * @exception EBaseException failed to search
+     * @deprecated As of release 11.6.0, replaced by {@link createPagedSearch}
      */
+    @Deprecated(since = "11.6.0", forRemoval = true)
     public <T extends IDBObj> DBVirtualList<T> createVirtualList(
             String base,
             String filter,
@@ -343,7 +345,9 @@ public class DBSSession implements AutoCloseable {
      * @param pageSize page size in the virtual list
      * @return search results in virtual list
      * @exception EBaseException failed to search
+     * @deprecated As of release 11.6.0, replaced by {@link createPagedSearch}
      */
+    @Deprecated(since = "11.6.0", forRemoval = true)
     public <T extends IDBObj> DBVirtualList<T> createVirtualList(
             String base,
             String filter,
@@ -364,7 +368,9 @@ public class DBSSession implements AutoCloseable {
      * @param pageSize page size in the virtual list
      * @return search results in virtual list
      * @exception EBaseException failed to search
+     * @deprecated As of release 11.6.0, replaced by {@link createPagedSearch}
      */
+    @Deprecated(since = "11.6.0", forRemoval = true)
     public <T extends IDBObj> DBVirtualList<T> createVirtualList(
             String base,
             String filter,
@@ -386,7 +392,9 @@ public class DBSSession implements AutoCloseable {
      * @param pageSize page size in the virtual list
      * @return search results in virtual list
      * @exception EBaseException failed to search
+     * @deprecated As of release 11.6.0, replaced by {@link createPagedSearch}
      */
+    @Deprecated(since = "11.6.0", forRemoval = true)
     public <T extends IDBObj> DBVirtualList<T> createVirtualList(
             String base,
             String filter,

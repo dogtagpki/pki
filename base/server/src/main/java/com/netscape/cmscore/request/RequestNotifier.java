@@ -20,13 +20,14 @@ package com.netscape.cmscore.request;
 import java.math.BigInteger;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestListener;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.dbs.RecordPagedList;
 
 /**
  * The RequestNotifier can be registered with a RequestQueue,
@@ -227,31 +228,25 @@ public class RequestNotifier {
 
             if (id != null && requestRepository != null) {
                 logger.debug("getRequest  request id=" + id);
-
-                IRequestVirtualList list;
+                String filter = "(& (requestID >= " + new RequestId(id) + ")(requeststate=complete))";
+                RecordPagedList<RequestRecord> list;
                 try {
                     list = requestRepository.getPagedRequestsByFilter(
-                            new RequestId(id),
-                            false,
-                            "(requeststate=complete)",
+                            filter,
                             mMaxRequests,
                             "requestId");
 
                 } catch (EBaseException e) {
                     throw new RuntimeException(e);
                 }
+                Iterator<RequestRecord> itReqRecs = list.iterator();
 
-                int s = list.getSize() - list.getCurrentIndex();
-                logger.debug("getRequest  list size: " + s);
-                for (int i = 0; i < s; i++) {
-                    r = null;
+                while (itReqRecs.hasNext() && mRequests.size() < mMaxRequests) {
+                    RequestRecord reqRec = itReqRecs.next();
                     try {
-                        r = list.getElementAt(i);
+                        r = reqRec.toRequest();
                     } catch (Exception e) {
                         // handled below
-                    }
-                    if (r == null) {
-                        continue;
                     }
                     String requestType = r.getRequestType();
                     if (requestType == null) {
@@ -264,22 +259,11 @@ public class RequestNotifier {
                             requestType.equals(Request.UNREVOCATION_REQUEST))) {
                         continue;
                     }
-                    if (i == 0 && id.equals(r.getRequestId().toString())) {
-                        if (s == 1) {
-                            break;
-                        }
-                        continue;
-                    }
-                    if (mRequests.size() < mMaxRequests) {
-                        mRequests.addElement(r.getRequestId().toString());
-                        logger.debug("getRequest  added "
-                                + r.getRequestType() + " request " + r.getRequestId().toString() +
-                                  " to mRequests: " + mRequests.size() + " (" + mMaxRequests + ")");
-                    } else {
-                        break;
-                    }
+                    mRequests.addElement(r.getRequestId().toString());
+                    logger.debug("getRequest  added {}  request {} to mRequests: {}  ({})",
+                              r.getRequestType(), r.getRequestId().toString(), mRequests.size(), mMaxRequests);
                 }
-                logger.debug("getRequest  done with adding requests to mRequests: " + mRequests.size());
+                logger.debug("getRequest  done with adding requests to mRequests: {}", mRequests.size());
             } else {
                 logger.warn("getRequest  has no access to the request queue");
             }
