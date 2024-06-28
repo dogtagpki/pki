@@ -11,15 +11,18 @@ javac(pki-server-classes
         ${COMMONS_CODEC_JAR} ${COMMONS_IO_JAR} ${COMMONS_LANG3_JAR}
         ${COMMONS_CLI_JAR}
         ${HTTPCORE_JAR} ${HTTPCLIENT_JAR}
-        ${JACKSON2_ANNOTATIONS_JAR} ${JACKSON2_JAXB_ANNOTATIONS_JAR}
-        ${JACKSON2_CORE_JAR} ${JACKSON2_DATABIND_JAR}
+        ${JACKSON_ANNOTATIONS_JAR}
+        ${JACKSON_CORE_JAR}
+        ${JACKSON_DATABIND_JAR}
+        ${JACKSON_MODULE_JAXB_ANNOTATIONS_JAR}
         ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_JAR}
         ${JSS_JAR}
         ${JSS_TOMCAT_JAR}
         ${JSS_TOMCAT_9_0_JAR}
         ${LDAPJDK_JAR}
         ${JAVAX_ANNOTATIONS_API_JAR}
-        ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR}
+        ${JAXRS_API_JAR}
+        ${RESTEASY_JAXRS_JAR}
         ${PKI_COMMON_JAR}
         ${PKI_TOMCAT_JAR}
         ${PKI_TOMCAT_9_0_JAR}
@@ -72,11 +75,14 @@ if(RUN_TESTS)
             ${LDAPJDK_JAR} ${SERVLET_JAR}
             ${JSS_JAR}
             ${HAMCREST_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_IO_JAR}
-            ${JACKSON2_ANNOTATIONS_JAR} ${JACKSON2_CORE_JAR} ${JACKSON2_DATABIND_JAR}
+            ${JACKSON_ANNOTATIONS_JAR}
+            ${JACKSON_CORE_JAR}
+            ${JACKSON_DATABIND_JAR}
+            ${JAXRS_API_JAR}
             ${CMAKE_BINARY_DIR}/test/classes
             ${JUNIT_JUPITER_API_JAR} ${JUNIT_PLATFORM_LAUNCHER_JAR} ${JUNIT_PLATFORM_SUITE_JAR}
             ${JUNIT_PLATFORM_ENGINE_JAR} ${JUNIT_PLATFORM_COMMONS_JAR} ${JUNIT_JUPITER_ENGINE_JAR}
-            ${OPENTEST4J_JAR} ${JAXRS_API_JAR}
+            ${OPENTEST4J_JAR}
         OUTPUT_DIR
             ${CMAKE_BINARY_DIR}/test/classes
         DEPENDS
@@ -92,12 +98,15 @@ if(RUN_TESTS)
             ${LDAPJDK_JAR} ${SERVLET_JAR}
             ${COMMONS_CODEC_JAR} ${COMMONS_LANG3_JAR}
             ${JSS_JAR}
-            ${JACKSON2_ANNOTATIONS_JAR} ${JACKSON2_CORE_JAR} ${JACKSON2_DATABIND_JAR}
+            ${JACKSON_ANNOTATIONS_JAR}
+            ${JACKSON_CORE_JAR}
+            ${JACKSON_DATABIND_JAR}
+            ${JAXRS_API_JAR}
             ${HAMCREST_JAR} ${COMMONS_IO_JAR}
             ${CMAKE_BINARY_DIR}/test/classes
             ${JUNIT_JUPITER_API_JAR} ${JUNIT_PLATFORM_LAUNCHER_JAR} ${JUNIT_PLATFORM_SUITE_JAR}
             ${JUNIT_PLATFORM_ENGINE_JAR} ${JUNIT_PLATFORM_COMMONS_JAR} ${JUNIT_JUPITER_ENGINE_JAR}
-            ${OPENTEST4J_JAR} ${JAXRS_API_JAR}
+            ${OPENTEST4J_JAR}
         REPORTS_DIR
             reports
         DEPENDS
@@ -135,12 +144,12 @@ add_custom_command(
     COMMAND ln -sf ../../../../../..${COMMONS_NET_JAR} common/lib/commons-net.jar
     COMMAND ln -sf ../../../../../..${HTTPCLIENT_JAR} common/lib/httpclient.jar
     COMMAND ln -sf ../../../../../..${HTTPCORE_JAR} common/lib/httpcore.jar
-    COMMAND ln -sf ../../../../../..${JACKSON2_CORE_JAR} common/lib/jackson-core.jar
-    COMMAND ln -sf ../../../../../..${JACKSON2_DATABIND_JAR} common/lib/jackson-databind.jar
-    COMMAND ln -sf ../../../../../..${JACKSON2_ANNOTATIONS_JAR} common/lib/jackson-annotations.jar
-    COMMAND ln -sf ../../../../../..${JACKSON2_JAXRS_BASE_JAR} common/lib/jackson-jaxrs-base.jar
-    COMMAND ln -sf ../../../../../..${JACKSON2_JAXRS_JSON_PROVIDER_JAR} common/lib/jackson-jaxrs-json-provider.jar
-    COMMAND ln -sf ../../../../../..${JACKSON2_JAXB_ANNOTATIONS_JAR} common/lib/jackson-module-jaxb-annotations.jar
+    COMMAND ln -sf ../../../../../..${JACKSON_ANNOTATIONS_JAR} common/lib/jackson-annotations.jar
+    COMMAND ln -sf ../../../../../..${JACKSON_CORE_JAR} common/lib/jackson-core.jar
+    COMMAND ln -sf ../../../../../..${JACKSON_DATABIND_JAR} common/lib/jackson-databind.jar
+    COMMAND ln -sf ../../../../../..${JACKSON_JAXRS_BASE_JAR} common/lib/jackson-jaxrs-base.jar
+    COMMAND ln -sf ../../../../../..${JACKSON_JAXRS_JSON_PROVIDER_JAR} common/lib/jackson-jaxrs-json-provider.jar
+    COMMAND ln -sf ../../../../../..${JACKSON_MODULE_JAXB_ANNOTATIONS_JAR} common/lib/jackson-module-jaxb-annotations.jar
     COMMAND ln -sf ../../../../../..${JAVAX_ACTIVATION_JAR} common/lib/javax.activation.jar
     COMMAND ln -sf ../../../../../..${JAVAX_ANNOTATIONS_API_JAR} common/lib/javax.annotations-api.jar
     COMMAND ln -sf ../../../../../..${JAXB_API_JAR} common/lib/jaxb-api.jar
@@ -154,7 +163,7 @@ add_custom_command(
     COMMAND ln -sf ../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-tomcat.jar common/lib/pki-tomcat.jar
     COMMAND ln -sf ../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-tomcat-9.0.jar common/lib/pki-tomcat-9.0.jar
     COMMAND ln -sf ../../../../../..${RESTEASY_CLIENT_JAR} common/lib/resteasy-client.jar
-    COMMAND ln -sf ../../../../../..${RESTEASY_JACKSON2_PROVIDER_JAR} common/lib/resteasy-jackson2-provider.jar
+    COMMAND ln -sf ../../../../../..${RESTEASY_JACKSON_PROVIDER_JAR} common/lib/resteasy-jackson2-provider.jar
     COMMAND ln -sf ../../../../../..${RESTEASY_JAXRS_JAR} common/lib/resteasy-jaxrs.jar
 )
 

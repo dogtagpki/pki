@@ -106,28 +106,28 @@ find_file(HTTPCORE_JAR
         /usr/share/java
 )
 
-find_file(JACKSON2_CORE_JAR
+find_file(JACKSON_CORE_JAR
     NAMES
         jackson-core.jar
     PATHS
         /usr/share/java
 )
 
-find_file(JACKSON2_DATABIND_JAR
+find_file(JACKSON_DATABIND_JAR
     NAMES
         jackson-databind.jar
     PATHS
         /usr/share/java
 )
 
-find_file(JACKSON2_ANNOTATIONS_JAR
+find_file(JACKSON_ANNOTATIONS_JAR
     NAMES
         jackson-annotations.jar
     PATHS
         /usr/share/java
 )
 
-find_file(JACKSON2_JAXRS_BASE_JAR
+find_file(JACKSON_JAXRS_BASE_JAR
     NAMES
         jackson-jaxrs-base.jar
     PATHS
@@ -135,7 +135,7 @@ find_file(JACKSON2_JAXRS_BASE_JAR
         /usr/share/java
 )
 
-find_file(JACKSON2_JAXRS_JSON_PROVIDER_JAR
+find_file(JACKSON_JAXRS_JSON_PROVIDER_JAR
     NAMES
         jackson-jaxrs-json-provider.jar
     PATHS
@@ -143,7 +143,7 @@ find_file(JACKSON2_JAXRS_JSON_PROVIDER_JAR
         /usr/share/java
 )
 
-find_file(JACKSON2_JAXB_ANNOTATIONS_JAR
+find_file(JACKSON_MODULE_JAXB_ANNOTATIONS_JAR
     NAMES
         jackson-module-jaxb-annotations.jar
     PATHS
@@ -295,7 +295,7 @@ find_file(RESTEASY_CLIENT_JAR
         /usr/share/java/resteasy
 )
 
-find_file(RESTEASY_JACKSON2_PROVIDER_JAR
+find_file(RESTEASY_JACKSON_PROVIDER_JAR
     NAMES
         resteasy-jackson2-provider.jar
     PATHS

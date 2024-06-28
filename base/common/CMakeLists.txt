@@ -11,9 +11,13 @@ javac(pki-common-classes
         ${COMMONS_CODEC_JAR} ${COMMONS_IO_JAR}
         ${COMMONS_LANG3_JAR} ${COMMONS_CLI_JAR}
         ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_JAR}
-        ${JACKSON2_ANNOTATIONS_JAR} ${JACKSON2_JAXB_ANNOTATIONS_JAR} ${JACKSON2_CORE_JAR} ${JACKSON2_DATABIND_JAR}
+        ${JACKSON_ANNOTATIONS_JAR}
+        ${JACKSON_CORE_JAR}
+        ${JACKSON_DATABIND_JAR}
+        ${JACKSON_MODULE_JAXB_ANNOTATIONS_JAR}
         ${JAVAX_ANNOTATIONS_API_JAR}
-        ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_CLIENT_JAR}
+        ${JAXRS_API_JAR}
+        ${RESTEASY_JAXRS_JAR} ${RESTEASY_CLIENT_JAR}
         ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
         ${JAXB_API_JAR}
     OUTPUT_DIR
@@ -57,9 +61,13 @@ if(RUN_TESTS)
             ${JSS_JAR}
             ${COMMONS_CLI_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_LANG3_JAR}
             ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
-            ${JACKSON2_ANNOTATIONS_JAR} ${JACKSON2_JAXB_ANNOTATIONS_JAR} ${JACKSON2_CORE_JAR} ${JACKSON2_DATABIND_JAR}
+            ${JACKSON_ANNOTATIONS_JAR}
+            ${JACKSON_CORE_JAR}
+            ${JACKSON_DATABIND_JAR}
+            ${JACKSON_MODULE_JAXB_ANNOTATIONS_JAR}
+            ${JAXRS_API_JAR}
             ${PKI_COMMON_JAR}
-            ${HAMCREST_JAR} ${JAXRS_API_JAR}
+            ${HAMCREST_JAR}
             ${JUNIT_JUPITER_API_JAR} ${JUNIT_PLATFORM_LAUNCHER_JAR} ${JUNIT_PLATFORM_SUITE_JAR}
             ${JUNIT_PLATFORM_ENGINE_JAR} ${JUNIT_PLATFORM_COMMONS_JAR} ${JUNIT_JUPITER_ENGINE_JAR}
             ${OPENTEST4J_JAR}
@@ -79,9 +87,13 @@ if(RUN_TESTS)
             ${JSS_JAR}
             ${COMMONS_CLI_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_LANG3_JAR}
             ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
-            ${JACKSON2_ANNOTATIONS_JAR} ${JACKSON2_JAXB_ANNOTATIONS_JAR} ${JACKSON2_CORE_JAR} ${JACKSON2_DATABIND_JAR}
+            ${JACKSON_ANNOTATIONS_JAR}
+            ${JACKSON_CORE_JAR}
+            ${JACKSON_DATABIND_JAR}
+            ${JACKSON_MODULE_JAXB_ANNOTATIONS_JAR}
+            ${JAXRS_API_JAR}
             ${PKI_COMMON_JAR}
-            ${HAMCREST_JAR} ${JAXRS_API_JAR}
+            ${HAMCREST_JAR}
             ${CMAKE_BINARY_DIR}/test/classes
             ${JUNIT_JUPITER_API_JAR} ${JUNIT_PLATFORM_LAUNCHER_JAR} ${JUNIT_PLATFORM_SUITE_JAR}
             ${JUNIT_PLATFORM_ENGINE_JAR} ${JUNIT_PLATFORM_COMMONS_JAR} ${JUNIT_JUPITER_ENGINE_JAR}
@@ -112,12 +124,12 @@ add_custom_command(
     COMMAND ln -sf ../../../..${COMMONS_NET_JAR} lib/commons-net.jar
     COMMAND ln -sf ../../../..${HTTPCLIENT_JAR} lib/httpclient.jar
     COMMAND ln -sf ../../../..${HTTPCORE_JAR} lib/httpcore.jar
-    COMMAND ln -sf ../../../..${JACKSON2_CORE_JAR} lib/jackson-core.jar
-    COMMAND ln -sf ../../../..${JACKSON2_DATABIND_JAR} lib/jackson-databind.jar
-    COMMAND ln -sf ../../../..${JACKSON2_ANNOTATIONS_JAR} lib/jackson-annotations.jar
-    COMMAND ln -sf ../../../..${JACKSON2_JAXRS_BASE_JAR} lib/jackson-jaxrs-base.jar
-    COMMAND ln -sf ../../../..${JACKSON2_JAXRS_JSON_PROVIDER_JAR} lib/jackson-jaxrs-json-provider.jar
-    COMMAND ln -sf ../../../..${JACKSON2_JAXB_ANNOTATIONS_JAR} lib/jackson-module-jaxb-annotations.jar
+    COMMAND ln -sf ../../../..${JACKSON_ANNOTATIONS_JAR} lib/jackson-annotations.jar
+    COMMAND ln -sf ../../../..${JACKSON_CORE_JAR} lib/jackson-core.jar
+    COMMAND ln -sf ../../../..${JACKSON_DATABIND_JAR} lib/jackson-databind.jar
+    COMMAND ln -sf ../../../..${JACKSON_JAXRS_BASE_JAR} lib/jackson-jaxrs-base.jar
+    COMMAND ln -sf ../../../..${JACKSON_JAXRS_JSON_PROVIDER_JAR} lib/jackson-jaxrs-json-provider.jar
+    COMMAND ln -sf ../../../..${JACKSON_MODULE_JAXB_ANNOTATIONS_JAR} lib/jackson-module-jaxb-annotations.jar
     COMMAND ln -sf ../../../..${JAVAX_ACTIVATION_JAR} lib/javax.activation.jar
     COMMAND ln -sf ../../../..${JAVAX_ANNOTATIONS_API_JAR} lib/javax.annotations-api.jar
     COMMAND ln -sf ../../../..${JAXB_API_JAR} lib/jaxb-api.jar
@@ -129,7 +141,7 @@ add_custom_command(
     COMMAND ln -sf ../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-common.jar lib/pki-common.jar
     COMMAND ln -sf ../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-tools.jar lib/pki-tools.jar
     COMMAND ln -sf ../../../..${RESTEASY_CLIENT_JAR} lib/resteasy-client.jar
-    COMMAND ln -sf ../../../..${RESTEASY_JACKSON2_PROVIDER_JAR} lib/resteasy-jackson2-provider.jar
+    COMMAND ln -sf ../../../..${RESTEASY_JACKSON_PROVIDER_JAR} lib/resteasy-jackson2-provider.jar
     COMMAND ln -sf ../../../..${RESTEASY_JAXRS_JAR} lib/resteasy-jaxrs.jar
     COMMAND ln -sf ../../../..${SERVLET_JAR} lib/servlet.jar
     COMMAND ln -sf ../../../..${SLF4J_API_JAR} lib/slf4j-api.jar
