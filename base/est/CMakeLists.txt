@@ -9,9 +9,9 @@ javac(pki-est-classes
         ${SLF4J_API_JAR}
         ${COMMONS_CODEC_JAR}
         ${COMMONS_IO_JAR}
-        ${JACKSON2_ANNOTATIONS_JAR}
-        ${JACKSON2_CORE_JAR}
-        ${JACKSON2_DATABIND_JAR}
+        ${JACKSON_ANNOTATIONS_JAR}
+        ${JACKSON_CORE_JAR}
+        ${JACKSON_DATABIND_JAR}
         ${TOMCAT_CATALINA_JAR}
         ${TOMCAT_UTIL_JAR}
         ${JSS_JAR}

@@ -13,13 +13,14 @@ javac(pki-tks-classes
         ${COMMONS_CLI_JAR}
         ${COMMONS_CODEC_JAR}
         ${COMMONS_LANG3_JAR}
-        ${JACKSON2_ANNOTATIONS_JAR}
-        ${JACKSON2_CORE_JAR}
-        ${JACKSON2_DATABIND_JAR}
+        ${JACKSON_ANNOTATIONS_JAR}
+        ${JACKSON_CORE_JAR}
+        ${JACKSON_DATABIND_JAR}
         ${LDAPJDK_JAR}
         ${JSS_JAR}
         ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR}
-        ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR}
+        ${JAXRS_API_JAR}
+        ${RESTEASY_JAXRS_JAR}
         ${PKI_COMMON_JAR} ${PKI_SERVER_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes

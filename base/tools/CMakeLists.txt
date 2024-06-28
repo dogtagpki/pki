@@ -10,10 +10,13 @@ javac(pki-tools-classes
     SOURCES
         src/main/java/*.java
     CLASSPATH
-        ${JACKSON2_ANNOTATIONS_JAR} ${JACKSON2_CORE_JAR} ${JACKSON2_DATABIND_JAR}
+        ${JACKSON_ANNOTATIONS_JAR}
+        ${JACKSON_CORE_JAR}
+        ${JACKSON_DATABIND_JAR}
         ${COMMONS_CODEC_JAR} ${COMMONS_IO_JAR}
         ${COMMONS_CLI_JAR} ${COMMONS_LANG3_JAR}
-        ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR}
+        ${JAXRS_API_JAR}
+        ${RESTEASY_JAXRS_JAR}
         ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
         ${SLF4J_API_JAR} ${JAXB_API_JAR}
         ${JSS_JAR}

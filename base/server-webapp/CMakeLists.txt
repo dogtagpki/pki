@@ -8,8 +8,8 @@ javac(pki-server-webapp-classes
         ${SERVLET_JAR}
         ${JAXRS_API_JAR}
         ${SLF4J_API_JAR}
-        ${JACKSON2_ANNOTATIONS_JAR}
-        ${JACKSON2_CORE_JAR}
+        ${JACKSON_ANNOTATIONS_JAR}
+        ${JACKSON_CORE_JAR}
         ${PKI_COMMON_JAR}
         ${PKI_SERVER_JAR}
     OUTPUT_DIR

@@ -5,7 +5,7 @@ javac(pki-examples-classes
         java/*.java
     CLASSPATH
         ${JAXB_API_JAR}
-        ${JACKSON2_ANNOTATIONS_JAR}
+        ${JACKSON_ANNOTATIONS_JAR}
         ${JSS_JAR}
         ${PKI_COMMON_JAR}
     OUTPUT_DIR
