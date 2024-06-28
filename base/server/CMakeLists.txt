@@ -125,8 +125,8 @@ add_custom_target(pki-server-lib ALL
 add_custom_command(
     TARGET pki-server-lib
     COMMAND ${CMAKE_COMMAND} -E make_directory lib
-    COMMAND ln -sf ../../../../..${SLF4J_API_JAR} lib/slf4j-api.jar
-    COMMAND ln -sf ../../../../..${SLF4J_JDK14_JAR} lib/slf4j-jdk14.jar
+    COMMAND ln -sf ../../lib/slf4j-api.jar lib/slf4j-api.jar
+    COMMAND ln -sf ../../lib/slf4j-jdk14.jar lib/slf4j-jdk14.jar
 )
 
 # Create /usr/share/pki/server/common/lib. This can be customized for different platforms in RPM spec.
@@ -137,34 +137,34 @@ add_custom_target(pki-server-common-lib ALL
 add_custom_command(
     TARGET pki-server-common-lib
     COMMAND ${CMAKE_COMMAND} -E make_directory common/lib
-    COMMAND ln -sf ../../../../../..${COMMONS_CODEC_JAR} common/lib/commons-codec.jar
-    COMMAND ln -sf ../../../../../..${COMMONS_IO_JAR} common/lib/commons-io.jar
-    COMMAND ln -sf ../../../../../..${COMMONS_LANG3_JAR} common/lib/commons-lang3.jar
-    COMMAND ln -sf ../../../../../..${COMMONS_LOGGING_JAR} common/lib/commons-logging.jar
-    COMMAND ln -sf ../../../../../..${COMMONS_NET_JAR} common/lib/commons-net.jar
-    COMMAND ln -sf ../../../../../..${HTTPCLIENT_JAR} common/lib/httpclient.jar
-    COMMAND ln -sf ../../../../../..${HTTPCORE_JAR} common/lib/httpcore.jar
-    COMMAND ln -sf ../../../../../..${JACKSON_ANNOTATIONS_JAR} common/lib/jackson-annotations.jar
-    COMMAND ln -sf ../../../../../..${JACKSON_CORE_JAR} common/lib/jackson-core.jar
-    COMMAND ln -sf ../../../../../..${JACKSON_DATABIND_JAR} common/lib/jackson-databind.jar
-    COMMAND ln -sf ../../../../../..${JACKSON_JAXRS_BASE_JAR} common/lib/jackson-jaxrs-base.jar
-    COMMAND ln -sf ../../../../../..${JACKSON_JAXRS_JSON_PROVIDER_JAR} common/lib/jackson-jaxrs-json-provider.jar
-    COMMAND ln -sf ../../../../../..${JACKSON_MODULE_JAXB_ANNOTATIONS_JAR} common/lib/jackson-module-jaxb-annotations.jar
-    COMMAND ln -sf ../../../../../..${JAVAX_ACTIVATION_JAR} common/lib/javax.activation.jar
-    COMMAND ln -sf ../../../../../..${JAVAX_ANNOTATIONS_API_JAR} common/lib/javax.annotations-api.jar
-    COMMAND ln -sf ../../../../../..${JAXB_API_JAR} common/lib/jaxb-api.jar
-    COMMAND ln -sf ../../../../../..${JAXRS_API_JAR} common/lib/jaxrs-api.jar
-    COMMAND ln -sf ../../../../../..${JBOSS_LOGGING_JAR} common/lib/jboss-logging.jar
-    COMMAND ln -sf ../../../../../..${JSS_JAR} common/lib/jss.jar
+    COMMAND ln -sf ../../../lib/commons-codec.jar common/lib/commons-codec.jar
+    COMMAND ln -sf ../../../lib/commons-io.jar common/lib/commons-io.jar
+    COMMAND ln -sf ../../../lib/commons-lang3.jar common/lib/commons-lang3.jar
+    COMMAND ln -sf ../../../lib/commons-logging.jar common/lib/commons-logging.jar
+    COMMAND ln -sf ../../../lib/commons-net.jar common/lib/commons-net.jar
+    COMMAND ln -sf ../../../lib/httpclient.jar common/lib/httpclient.jar
+    COMMAND ln -sf ../../../lib/httpcore.jar common/lib/httpcore.jar
+    COMMAND ln -sf ../../../lib/jackson-annotations.jar common/lib/jackson-annotations.jar
+    COMMAND ln -sf ../../../lib/jackson-core.jar common/lib/jackson-core.jar
+    COMMAND ln -sf ../../../lib/jackson-databind.jar common/lib/jackson-databind.jar
+    COMMAND ln -sf ../../../lib/jackson-jaxrs-base.jar common/lib/jackson-jaxrs-base.jar
+    COMMAND ln -sf ../../../lib/jackson-jaxrs-json-provider.jar common/lib/jackson-jaxrs-json-provider.jar
+    COMMAND ln -sf ../../../lib/jackson-module-jaxb-annotations.jar common/lib/jackson-module-jaxb-annotations.jar
+    COMMAND ln -sf ../../../lib/javax.activation.jar common/lib/javax.activation.jar
+    COMMAND ln -sf ../../../lib/javax.annotations-api.jar common/lib/javax.annotations-api.jar
+    COMMAND ln -sf ../../../lib/jaxb-api.jar common/lib/jaxb-api.jar
+    COMMAND ln -sf ../../../lib/jaxrs-api.jar common/lib/jaxrs-api.jar
+    COMMAND ln -sf ../../../lib/jboss-logging.jar common/lib/jboss-logging.jar
+    COMMAND ln -sf ../../../lib/jss.jar common/lib/jss.jar
     COMMAND ln -sf ../../../../../..${JSS_TOMCAT_JAR} common/lib/jss-tomcat.jar
     COMMAND ln -sf ../../../../../..${JSS_TOMCAT_9_0_JAR} common/lib/jss-tomcat-9.0.jar
-    COMMAND ln -sf ../../../../../..${LDAPJDK_JAR} common/lib/ldapjdk.jar
+    COMMAND ln -sf ../../../lib/ldapjdk.jar common/lib/ldapjdk.jar
     COMMAND ln -sf ../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-common.jar common/lib/pki-common.jar
     COMMAND ln -sf ../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-tomcat.jar common/lib/pki-tomcat.jar
     COMMAND ln -sf ../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-tomcat-9.0.jar common/lib/pki-tomcat-9.0.jar
-    COMMAND ln -sf ../../../../../..${RESTEASY_CLIENT_JAR} common/lib/resteasy-client.jar
-    COMMAND ln -sf ../../../../../..${RESTEASY_JACKSON_PROVIDER_JAR} common/lib/resteasy-jackson2-provider.jar
-    COMMAND ln -sf ../../../../../..${RESTEASY_JAXRS_JAR} common/lib/resteasy-jaxrs.jar
+    COMMAND ln -sf ../../../lib/resteasy-client.jar common/lib/resteasy-client.jar
+    COMMAND ln -sf ../../../lib/resteasy-jackson2-provider.jar common/lib/resteasy-jackson2-provider.jar
+    COMMAND ln -sf ../../../lib/resteasy-jaxrs.jar common/lib/resteasy-jaxrs.jar
 )
 
 add_custom_target(pki-server-man ALL
