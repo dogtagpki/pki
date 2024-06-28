@@ -31,4 +31,10 @@ jobs:
           HOSTNAME: pki.example.com
 
       - name: Run PKICertImport test
-        run: docker exec pki bash /usr/share/pki/tests/util/bin/test_PKICertImport.bash
+        run: |
+          # With new crypto policy in fedora SHA1 signature is not included in the default policy
+          # so the exported p12, having sha1 signature are not accepted.
+          # Waiting to update the export to configure a different algorithm for the signature
+          # the following line enable SHA1 so PKICertImport can import p12 files. 
+          docker exec pki update-crypto-policies --set DEFAULT:SHA1
+          docker exec pki bash /usr/share/pki/tests/util/bin/test_PKICertImport.bash
