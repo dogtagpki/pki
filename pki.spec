@@ -453,12 +453,12 @@ Requires:         mvn(org.slf4j:slf4j-api)
 Requires:         mvn(org.slf4j:slf4j-jdk14)
 Requires:         mvn(jakarta.annotation:jakarta.annotation-api)
 
+%if %{without deps}
 Requires:         mvn(com.fasterxml.jackson.core:jackson-annotations)
 Requires:         mvn(com.fasterxml.jackson.core:jackson-core)
 Requires:         mvn(com.fasterxml.jackson.core:jackson-databind)
 Requires:         mvn(com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider)
 
-%if %{without deps}
 Requires:         mvn(org.jboss.resteasy:resteasy-client)
 Requires:         mvn(org.jboss.resteasy:resteasy-jackson2-provider)
 Requires:         mvn(org.jboss.resteasy:resteasy-jaxrs)
@@ -916,6 +916,22 @@ if [ ! -d lib ]
 then
     mkdir lib
 
+    JACKSON_VERSION=$(rpm -q jackson-annotations | sed 's/^jackson-annotations-\([^-]*\)-.*$/\1/')
+    echo "Importing Jackson $JACKSON_VERSION from RPM"
+
+    cp /usr/share/java/jackson-annotations.jar \
+        lib/jackson-annotations-$JACKSON_VERSION.jar
+    cp /usr/share/java/jackson-core.jar \
+        lib/jackson-core-$JACKSON_VERSION.jar
+    cp /usr/share/java/jackson-databind.jar \
+        lib/jackson-databind-$JACKSON_VERSION.jar
+    cp /usr/share/java/jackson-jaxrs-providers/jackson-jaxrs-base.jar \
+        lib/jackson-jaxrs-base-$JACKSON_VERSION.jar
+    cp /usr/share/java/jackson-jaxrs-providers/jackson-jaxrs-json-provider.jar \
+        lib/jackson-jaxrs-json-provider-$JACKSON_VERSION.jar
+    cp /usr/share/java/jackson-modules/jackson-module-jaxb-annotations.jar \
+        lib/jackson-module-jaxb-annotations-$JACKSON_VERSION.jar
+
     JAXRS_VERSION=$(rpm -q jboss-jaxrs-2.0-api | sed 's/^jboss-jaxrs-2.0-api-\([^-]*\)-.*$/\1.Final/')
     echo "Importing JAX-RS 2.0 API $JAXRS_VERSION from RPM"
 
@@ -1186,6 +1202,9 @@ pkgs=base\
 %if %{with meta}
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki.xml"
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='com.fasterxml.jackson.core']" \
+    -d "//_:dependency[_:groupId='com.fasterxml.jackson.module']" \
+    -d "//_:dependency[_:groupId='com.fasterxml.jackson.jaxrs']" \
     -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
@@ -1194,6 +1213,12 @@ xmlstarlet edit --inplace \
 
 %if %{with base}
 echo "Installing JAR deps into %{buildroot}%{_datadir}/pki/lib"
+cp lib/jackson-annotations-*.jar %{buildroot}%{_datadir}/pki/lib
+cp lib/jackson-core-*.jar %{buildroot}%{_datadir}/pki/lib
+cp lib/jackson-databind-*.jar %{buildroot}%{_datadir}/pki/lib
+cp lib/jackson-jaxrs-base-*.jar %{buildroot}%{_datadir}/pki/lib
+cp lib/jackson-jaxrs-json-provider-*.jar %{buildroot}%{_datadir}/pki/lib
+cp lib/jackson-module-jaxb-annotations-*.jar %{buildroot}%{_datadir}/pki/lib
 cp lib/jboss-jaxrs-2.0-api-*.jar %{buildroot}%{_datadir}/pki/lib
 cp lib/jboss-logging-*.jar %{buildroot}%{_datadir}/pki/lib
 cp lib/resteasy-jaxrs-*.jar %{buildroot}%{_datadir}/pki/lib
@@ -1203,6 +1228,9 @@ ls -l %{buildroot}%{_datadir}/pki/lib
 
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-java.xml"
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='com.fasterxml.jackson.core']" \
+    -d "//_:dependency[_:groupId='com.fasterxml.jackson.module']" \
+    -d "//_:dependency[_:groupId='com.fasterxml.jackson.jaxrs']" \
     -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
@@ -1210,6 +1238,9 @@ xmlstarlet edit --inplace \
 
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-tools.xml"
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='com.fasterxml.jackson.core']" \
+    -d "//_:dependency[_:groupId='com.fasterxml.jackson.module']" \
+    -d "//_:dependency[_:groupId='com.fasterxml.jackson.jaxrs']" \
     -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
@@ -1223,6 +1254,9 @@ ls -l %{buildroot}%{_datadir}/pki/server/common/lib
 
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-server.xml"
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='com.fasterxml.jackson.core']" \
+    -d "//_:dependency[_:groupId='com.fasterxml.jackson.module']" \
+    -d "//_:dependency[_:groupId='com.fasterxml.jackson.jaxrs']" \
     -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
@@ -1232,6 +1266,9 @@ xmlstarlet edit --inplace \
 %if %{with ca}
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-ca.xml"
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='com.fasterxml.jackson.core']" \
+    -d "//_:dependency[_:groupId='com.fasterxml.jackson.module']" \
+    -d "//_:dependency[_:groupId='com.fasterxml.jackson.jaxrs']" \
     -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
@@ -1241,6 +1278,9 @@ xmlstarlet edit --inplace \
 %if %{with kra}
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-kra.xml"
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='com.fasterxml.jackson.core']" \
+    -d "//_:dependency[_:groupId='com.fasterxml.jackson.module']" \
+    -d "//_:dependency[_:groupId='com.fasterxml.jackson.jaxrs']" \
     -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
@@ -1250,6 +1290,9 @@ xmlstarlet edit --inplace \
 %if %{with ocsp}
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-ocsp.xml"
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='com.fasterxml.jackson.core']" \
+    -d "//_:dependency[_:groupId='com.fasterxml.jackson.module']" \
+    -d "//_:dependency[_:groupId='com.fasterxml.jackson.jaxrs']" \
     -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
@@ -1259,6 +1302,9 @@ xmlstarlet edit --inplace \
 %if %{with tks}
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-tks.xml"
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='com.fasterxml.jackson.core']" \
+    -d "//_:dependency[_:groupId='com.fasterxml.jackson.module']" \
+    -d "//_:dependency[_:groupId='com.fasterxml.jackson.jaxrs']" \
     -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
@@ -1268,6 +1314,9 @@ xmlstarlet edit --inplace \
 %if %{with tps}
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-tps.xml"
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='com.fasterxml.jackson.core']" \
+    -d "//_:dependency[_:groupId='com.fasterxml.jackson.module']" \
+    -d "//_:dependency[_:groupId='com.fasterxml.jackson.jaxrs']" \
     -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
@@ -1277,6 +1326,9 @@ xmlstarlet edit --inplace \
 %if %{with acme}
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-acme.xml"
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='com.fasterxml.jackson.core']" \
+    -d "//_:dependency[_:groupId='com.fasterxml.jackson.module']" \
+    -d "//_:dependency[_:groupId='com.fasterxml.jackson.jaxrs']" \
     -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
@@ -1286,6 +1338,9 @@ xmlstarlet edit --inplace \
 %if %{with est}
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-est.xml"
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='com.fasterxml.jackson.core']" \
+    -d "//_:dependency[_:groupId='com.fasterxml.jackson.module']" \
+    -d "//_:dependency[_:groupId='com.fasterxml.jackson.jaxrs']" \
     -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
