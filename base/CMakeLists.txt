@@ -126,50 +126,89 @@ find_file(HTTPCORE_JAR
         /usr/share/java
 )
 
-find_file(JACKSON_CORE_JAR
-    NAMES
-        jackson-core.jar
-    PATHS
-        /usr/share/java
-)
+if (EXISTS "${CMAKE_SOURCE_DIR}/lib")
+    # use imported JARs
 
-find_file(JACKSON_DATABIND_JAR
-    NAMES
-        jackson-databind.jar
-    PATHS
-        /usr/share/java
-)
+    execute_process(
+        COMMAND ls ${CMAKE_SOURCE_DIR}/lib
+        COMMAND sed -n "s/^jackson-annotations-\\(.*\\)\\.jar\$/\\1/p"
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        OUTPUT_VARIABLE JACKSON_VERSION
+    )
+    message("JACKSON_VERSION: ${JACKSON_VERSION}")
 
-find_file(JACKSON_ANNOTATIONS_JAR
-    NAMES
-        jackson-annotations.jar
-    PATHS
-        /usr/share/java
-)
+    set(JACKSON_ANNOTATIONS_JAR "${CMAKE_SOURCE_DIR}/lib/jackson-annotations-${JACKSON_VERSION}.jar")
+    set(JACKSON_ANNOTATIONS_LINK "jackson-annotations-${JACKSON_VERSION}.jar")
 
-find_file(JACKSON_JAXRS_BASE_JAR
-    NAMES
-        jackson-jaxrs-base.jar
-    PATHS
-        /usr/share/java/jackson-jaxrs-providers
-        /usr/share/java
-)
+    set(JACKSON_CORE_JAR "${CMAKE_SOURCE_DIR}/lib/jackson-core-${JACKSON_VERSION}.jar")
+    set(JACKSON_CORE_LINK "jackson-core-${JACKSON_VERSION}.jar")
 
-find_file(JACKSON_JAXRS_JSON_PROVIDER_JAR
-    NAMES
-        jackson-jaxrs-json-provider.jar
-    PATHS
-        /usr/share/java/jackson-jaxrs-providers
-        /usr/share/java
-)
+    set(JACKSON_DATABIND_JAR "${CMAKE_SOURCE_DIR}/lib/jackson-databind-${JACKSON_VERSION}.jar")
+    set(JACKSON_DATABIND_LINK "jackson-databind-${JACKSON_VERSION}.jar")
 
-find_file(JACKSON_MODULE_JAXB_ANNOTATIONS_JAR
-    NAMES
-        jackson-module-jaxb-annotations.jar
-    PATHS
-        /usr/share/java/jackson-modules
-        /usr/share/java
-)
+    set(JACKSON_JAXRS_BASE_JAR "${CMAKE_SOURCE_DIR}/lib/jackson-jaxrs-base-${JACKSON_VERSION}.jar")
+    set(JACKSON_JAXRS_BASE_LINK "jackson-jaxrs-base-${JACKSON_VERSION}.jar")
+
+    set(JACKSON_JAXRS_JSON_PROVIDER_JAR "${CMAKE_SOURCE_DIR}/lib/jackson-jaxrs-json-provider-${JACKSON_VERSION}.jar")
+    set(JACKSON_JAXRS_JSON_PROVIDER_LINK "jackson-jaxrs-json-provider-${JACKSON_VERSION}.jar")
+
+    set(JACKSON_MODULE_JAXB_ANNOTATIONS_JAR "${CMAKE_SOURCE_DIR}/lib/jackson-module-jaxb-annotations-${JACKSON_VERSION}.jar")
+    set(JACKSON_MODULE_JAXB_ANNOTATIONS_LINK "jackson-module-jaxb-annotations-${JACKSON_VERSION}.jar")
+
+else()
+    # use system JARs
+
+    find_file(JACKSON_ANNOTATIONS_JAR
+        NAMES
+            jackson-annotations.jar
+        PATHS
+            /usr/share/java
+    )
+    set(JACKSON_ANNOTATIONS_LINK "../../../..${JACKSON_ANNOTATIONS_JAR}")
+
+    find_file(JACKSON_CORE_JAR
+        NAMES
+            jackson-core.jar
+        PATHS
+            /usr/share/java
+    )
+    set(JACKSON_CORE_LINK "../../../..${JACKSON_CORE_JAR}")
+
+    find_file(JACKSON_DATABIND_JAR
+        NAMES
+            jackson-databind.jar
+        PATHS
+            /usr/share/java
+    )
+    set(JACKSON_DATABIND_LINK "../../../..${JACKSON_DATABIND_JAR}")
+
+    find_file(JACKSON_JAXRS_BASE_JAR
+        NAMES
+            jackson-jaxrs-base.jar
+        PATHS
+            /usr/share/java/jackson-jaxrs-providers
+            /usr/share/java
+    )
+    set(JACKSON_JAXRS_BASE_LINK "../../../..${JACKSON_JAXRS_BASE_JAR}")
+
+    find_file(JACKSON_JAXRS_JSON_PROVIDER_JAR
+        NAMES
+            jackson-jaxrs-json-provider.jar
+        PATHS
+            /usr/share/java/jackson-jaxrs-providers
+            /usr/share/java
+    )
+    set(JACKSON_JAXRS_JSON_PROVIDER_LINK "../../../..${JACKSON_JAXRS_JSON_PROVIDER_JAR}")
+
+    find_file(JACKSON_MODULE_JAXB_ANNOTATIONS_JAR
+        NAMES
+            jackson-module-jaxb-annotations.jar
+        PATHS
+            /usr/share/java/jackson-modules
+            /usr/share/java
+    )
+    set(JACKSON_MODULE_JAXB_ANNOTATIONS_LINK "../../../..${JACKSON_MODULE_JAXB_ANNOTATIONS_JAR}")
+endif (EXISTS "${CMAKE_SOURCE_DIR}/lib")
 
 execute_process(
     COMMAND awk -F= "$1==\"ID\" { print $2 ;}" /etc/os-release

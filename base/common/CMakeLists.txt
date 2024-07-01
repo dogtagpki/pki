@@ -124,12 +124,12 @@ add_custom_command(
     COMMAND ln -sf ../../../..${COMMONS_NET_JAR} lib/commons-net.jar
     COMMAND ln -sf ../../../..${HTTPCLIENT_JAR} lib/httpclient.jar
     COMMAND ln -sf ../../../..${HTTPCORE_JAR} lib/httpcore.jar
-    COMMAND ln -sf ../../../..${JACKSON_ANNOTATIONS_JAR} lib/jackson-annotations.jar
-    COMMAND ln -sf ../../../..${JACKSON_CORE_JAR} lib/jackson-core.jar
-    COMMAND ln -sf ../../../..${JACKSON_DATABIND_JAR} lib/jackson-databind.jar
-    COMMAND ln -sf ../../../..${JACKSON_JAXRS_BASE_JAR} lib/jackson-jaxrs-base.jar
-    COMMAND ln -sf ../../../..${JACKSON_JAXRS_JSON_PROVIDER_JAR} lib/jackson-jaxrs-json-provider.jar
-    COMMAND ln -sf ../../../..${JACKSON_MODULE_JAXB_ANNOTATIONS_JAR} lib/jackson-module-jaxb-annotations.jar
+    COMMAND ln -sf ${JACKSON_ANNOTATIONS_LINK} lib/jackson-annotations.jar
+    COMMAND ln -sf ${JACKSON_CORE_LINK} lib/jackson-core.jar
+    COMMAND ln -sf ${JACKSON_DATABIND_LINK} lib/jackson-databind.jar
+    COMMAND ln -sf ${JACKSON_JAXRS_BASE_LINK} lib/jackson-jaxrs-base.jar
+    COMMAND ln -sf ${JACKSON_JAXRS_JSON_PROVIDER_LINK} lib/jackson-jaxrs-json-provider.jar
+    COMMAND ln -sf ${JACKSON_MODULE_JAXB_ANNOTATIONS_LINK} lib/jackson-module-jaxb-annotations.jar
     COMMAND ln -sf ../../../..${JAVAX_ACTIVATION_JAR} lib/javax.activation.jar
     COMMAND ln -sf ../../../..${JAVAX_ANNOTATIONS_API_JAR} lib/javax.annotations-api.jar
     COMMAND ln -sf ../../../..${JAXB_API_JAR} lib/jaxb-api.jar
