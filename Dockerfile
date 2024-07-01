@@ -34,10 +34,7 @@ RUN if [ -n "$COPR_REPO" ]; then dnf copr enable -y $COPR_REPO; fi
 
 # Install PKI runtime dependencies
 RUN dnf install -y dogtag-pki \
-    && rpm -e --nodeps $(rpm -qa | grep -E "^dogtag-|^python3-dogtag-") \
-    && rpm -e --nodeps $(rpm -qa | grep -E "^pki-resteasy-") \
-    && rpm -e --nodeps $(rpm -qa | grep -E "^jboss-logging-") \
-    && rpm -e --nodeps $(rpm -qa | grep -E "^java-") \
+    && rpm -e --nodeps $(rpm -qa | grep -E "^java-|^dogtag-|^python3-dogtag-|^pki-resteasy-|^jboss-logging-|^jboss-jaxrs-2.0-api-") \
     && dnf clean all \
     && rm -rf /var/cache/dnf
 

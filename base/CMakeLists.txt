@@ -8,14 +8,34 @@ find_file(SERVLET_JAR
         /usr/share/java
 )
 
-find_file(JAXRS_API_JAR
-    NAMES
-        jaxrs-api.jar
-        jboss-jaxrs-2.0-api.jar
-        javax.ws.rs-api.jar
-    PATHS
-        /usr/share/java
-)
+
+if (EXISTS "${CMAKE_SOURCE_DIR}/lib")
+    # use imported JARs
+
+    execute_process(
+        COMMAND ls ${CMAKE_SOURCE_DIR}/lib
+        COMMAND sed -n "s/^jboss-jaxrs-2.0-api-\\(.*\\)\\.jar\$/\\1/p"
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        OUTPUT_VARIABLE JAXRS_API_VERSION
+    )
+    message("JAXRS_API_VERSION: ${JAXRS_API_VERSION}")
+
+    set(JAXRS_API_JAR "${CMAKE_SOURCE_DIR}/lib/jboss-jaxrs-2.0-api-${JAXRS_API_VERSION}.jar")
+    set(JAXRS_API_LINK "jboss-jaxrs-2.0-api-${JAXRS_API_VERSION}.jar")
+
+else()
+    # use system JARs
+
+    find_file(JAXRS_API_JAR
+        NAMES
+            jaxrs-api.jar
+            jboss-jaxrs-2.0-api.jar
+            javax.ws.rs-api.jar
+        PATHS
+            /usr/share/java
+    )
+    set(JAXRS_API_LINK "../../../..${JAXRS_API_JAR}")
+endif (EXISTS "${CMAKE_SOURCE_DIR}/lib")
 
 find_file(SLF4J_API_JAR
     NAMES
