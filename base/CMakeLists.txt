@@ -208,13 +208,32 @@ find_file(JAVAX_ANNOTATIONS_API_JAR
         /usr/share/java
 )
 
-find_file(JBOSS_LOGGING_JAR
-    NAMES
-        jboss-logging.jar
-    PATHS
-        /usr/share/java/jboss-logging
-        /usr/share/java
-)
+if (EXISTS "${CMAKE_SOURCE_DIR}/lib")
+    # use imported JARs
+
+    execute_process(
+        COMMAND ls ${CMAKE_SOURCE_DIR}/lib
+        COMMAND sed -n "s/^jboss-logging-\\(.*\\)\\.jar\$/\\1/p"
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        OUTPUT_VARIABLE JBOSS_LOGGING_VERSION
+    )
+    message("JBOSS_LOGGING_VERSION: ${JBOSS_LOGGING_VERSION}")
+
+    set(JBOSS_LOGGING_JAR "${CMAKE_SOURCE_DIR}/lib/jboss-logging-${JBOSS_LOGGING_VERSION}.jar")
+    set(JBOSS_LOGGING_LINK "jboss-logging-${JBOSS_LOGGING_VERSION}.jar")
+
+else()
+    # use system JARs
+
+    find_file(JBOSS_LOGGING_JAR
+        NAMES
+            jboss-logging.jar
+        PATHS
+            /usr/share/java/jboss-logging
+            /usr/share/java
+    )
+    set(JBOSS_LOGGING_LINK "../../../..${JBOSS_LOGGING_JAR}")
+endif (EXISTS "${CMAKE_SOURCE_DIR}/lib")
 
 find_file(JSS_JAR
     NAMES
