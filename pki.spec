@@ -53,6 +53,9 @@ ExclusiveArch: %{java_arches}
 ExcludeArch: i686
 %endif
 
+# Bundle dependencies unless --without deps is specified.
+%bcond_without deps
+
 ################################################################################
 # PKCS #11 Kit Trust
 ################################################################################
@@ -178,6 +181,11 @@ BuildRequires:    maven-local
 BuildRequires:    xmvn-tools
 %endif
 BuildRequires:    javapackages-tools
+
+%if %{with deps}
+BuildRequires:    xmlstarlet
+%endif
+
 BuildRequires:    mvn(commons-cli:commons-cli)
 BuildRequires:    mvn(commons-codec:commons-codec)
 BuildRequires:    mvn(commons-io:commons-io)
@@ -185,17 +193,32 @@ BuildRequires:    mvn(org.apache.commons:commons-lang3)
 BuildRequires:    mvn(commons-logging:commons-logging)
 BuildRequires:    mvn(commons-net:commons-net)
 BuildRequires:    mvn(org.slf4j:slf4j-api)
+BuildRequires:    mvn(org.apache.httpcomponents:httpclient)
 BuildRequires:    mvn(xml-apis:xml-apis)
 BuildRequires:    mvn(xml-resolver:xml-resolver)
 BuildRequires:    mvn(org.junit.jupiter:junit-jupiter-api)
+
+BuildRequires:    mvn(jakarta.activation:jakarta.activation-api)
+BuildRequires:    mvn(jakarta.xml.bind:jakarta.xml.bind-api)
+
+BuildRequires:    mvn(com.fasterxml.jackson.core:jackson-annotations)
+BuildRequires:    mvn(com.fasterxml.jackson.core:jackson-core)
+BuildRequires:    mvn(com.fasterxml.jackson.core:jackson-databind)
+BuildRequires:    mvn(com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider)
+
+BuildRequires:    mvn(org.jboss.logging:jboss-logging)
+BuildRequires:    mvn(org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.0_spec)
+
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-client)
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-jackson2-provider)
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-jaxrs)
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-servlet-initializer)
+
 BuildRequires:    mvn(org.apache.tomcat:tomcat-catalina) >= 9.0.62
 BuildRequires:    mvn(org.apache.tomcat:tomcat-servlet-api) >= 9.0.62
 BuildRequires:    mvn(org.apache.tomcat:tomcat-jaspic-api) >= 9.0.62
 BuildRequires:    mvn(org.apache.tomcat:tomcat-util-scan) >= 9.0.62
+
 BuildRequires:    mvn(org.dogtagpki.jss:jss-base) >= 5.5.0
 BuildRequires:    mvn(org.dogtagpki.jss:jss-tomcat) >= 5.5.0
 BuildRequires:    mvn(org.dogtagpki.ldap-sdk:ldapjdk) >= 5.5.0
@@ -431,9 +454,18 @@ Requires:         mvn(commons-logging:commons-logging)
 Requires:         mvn(commons-net:commons-net)
 Requires:         mvn(org.slf4j:slf4j-api)
 Requires:         mvn(org.slf4j:slf4j-jdk14)
+
+Requires:         mvn(com.fasterxml.jackson.core:jackson-annotations)
+Requires:         mvn(com.fasterxml.jackson.core:jackson-core)
+Requires:         mvn(com.fasterxml.jackson.core:jackson-databind)
+Requires:         mvn(com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider)
+
+%if %{without deps}
 Requires:         mvn(org.jboss.resteasy:resteasy-client)
 Requires:         mvn(org.jboss.resteasy:resteasy-jackson2-provider)
 Requires:         mvn(org.jboss.resteasy:resteasy-jaxrs)
+%endif
+
 Requires:         mvn(org.dogtagpki.jss:jss-base) >= 5.5.0
 Requires:         mvn(org.dogtagpki.ldap-sdk:ldapjdk) >= 5.5.0
 Requires:         %{product_id}-base = %{version}-%{release}
@@ -500,7 +532,10 @@ Requires:         python3-policycoreutils
 
 Requires:         selinux-policy-targeted >= 3.13.1-159
 
+%if %{without deps}
 Requires:         mvn(org.jboss.resteasy:resteasy-servlet-initializer)
+%endif
+
 Requires:         tomcat >= 1:9.0.62
 Requires:         mvn(org.dogtagpki.jss:jss-tomcat) >= 5.5.0
 
@@ -876,6 +911,27 @@ This package provides test suite for %{product_name}.
 
 %autosetup -n pki-%{version}%{?phase:-}%{?phase} -p 1
 
+%if %{with deps}
+if [ ! -d lib ]
+then
+    mkdir lib
+
+    RESTEASY_VERSION=$(rpm -q pki-resteasy-core | sed -n 's/^pki-resteasy-core-\([^-]*\)-.*$/\1.Final/p')
+    echo "Importing RESTEasy $RESTEASY_VERSION from RPM"
+
+    cp /usr/share/java/resteasy/resteasy-jaxrs.jar \
+        lib/resteasy-jaxrs-$RESTEASY_VERSION.jar
+    cp /usr/share/java/resteasy/resteasy-client.jar \
+        lib/resteasy-client-$RESTEASY_VERSION.jar
+    cp /usr/share/java/resteasy/resteasy-jackson2-provider.jar \
+        lib/resteasy-jackson2-provider-$RESTEASY_VERSION.jar
+    cp /usr/share/java/resteasy/resteasy-servlet-initializer.jar \
+        lib/resteasy-servlet-initializer-$RESTEASY_VERSION.jar
+
+    ls -la lib
+fi
+%endif
+
 %if ! %{with base}
 %pom_disable_module common base
 %pom_disable_module tools base
@@ -1112,6 +1168,96 @@ pkgs=base\
     --work-dir=%{_vpath_builddir} \
     --install-dir=%{buildroot} \
     install
+
+%if %{with deps}
+
+%if %{with meta}
+echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki.xml"
+xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
+    %{buildroot}%{_datadir}/maven-metadata/pki.xml
+%endif
+
+%if %{with base}
+echo "Installing JAR deps into %{buildroot}%{_datadir}/pki/lib"
+cp lib/resteasy-jaxrs-*.jar %{buildroot}%{_datadir}/pki/lib
+cp lib/resteasy-client-*.jar %{buildroot}%{_datadir}/pki/lib
+cp lib/resteasy-jackson2-provider-*.jar %{buildroot}%{_datadir}/pki/lib
+ls -l %{buildroot}%{_datadir}/pki/lib
+
+echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-java.xml"
+xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
+    %{buildroot}%{_datadir}/maven-metadata/pki-pki-java.xml
+
+echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-tools.xml"
+xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
+    %{buildroot}%{_datadir}/maven-metadata/pki-pki-tools.xml
+%endif
+
+%if %{with server}
+echo "Installing JAR deps into %{buildroot}%{_datadir}/pki/server/common/lib"
+cp lib/resteasy-servlet-initializer-*.jar %{buildroot}%{_datadir}/pki/server/common/lib
+ls -l %{buildroot}%{_datadir}/pki/server/common/lib
+
+echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-server.xml"
+xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
+    %{buildroot}%{_datadir}/maven-metadata/pki-pki-server.xml
+%endif
+
+%if %{with ca}
+echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-ca.xml"
+xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
+    %{buildroot}%{_datadir}/maven-metadata/pki-pki-ca.xml
+%endif
+
+%if %{with kra}
+echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-kra.xml"
+xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
+    %{buildroot}%{_datadir}/maven-metadata/pki-pki-kra.xml
+%endif
+
+%if %{with ocsp}
+echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-ocsp.xml"
+xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
+    %{buildroot}%{_datadir}/maven-metadata/pki-pki-ocsp.xml
+%endif
+
+%if %{with tks}
+echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-tks.xml"
+xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
+    %{buildroot}%{_datadir}/maven-metadata/pki-pki-tks.xml
+%endif
+
+%if %{with tps}
+echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-tps.xml"
+xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
+    %{buildroot}%{_datadir}/maven-metadata/pki-pki-tps.xml
+%endif
+
+%if %{with acme}
+echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-acme.xml"
+xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
+    %{buildroot}%{_datadir}/maven-metadata/pki-pki-acme.xml
+%endif
+
+%if %{with est}
+echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-est.xml"
+xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
+    %{buildroot}%{_datadir}/maven-metadata/pki-pki-est.xml
+%endif
+
+# with deps
+%endif
 
 %if %{with server}
 
