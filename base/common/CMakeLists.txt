@@ -134,7 +134,7 @@ add_custom_command(
     COMMAND ln -sf ../../../..${JAVAX_ANNOTATIONS_API_JAR} lib/javax.annotations-api.jar
     COMMAND ln -sf ../../../..${JAXB_API_JAR} lib/jaxb-api.jar
     COMMAND ln -sf ../../../..${JAXRS_API_JAR} lib/jaxrs-api.jar
-    COMMAND ln -sf ../../../..${JBOSS_LOGGING_JAR} lib/jboss-logging.jar
+    COMMAND ln -sf ${JBOSS_LOGGING_LINK} lib/jboss-logging.jar
     COMMAND ln -sf ../../../..${JSS_JAR} lib/jss.jar
     COMMAND ln -sf ../../../..${LDAPJDK_JAR} lib/ldapjdk.jar
     COMMAND ln -sf ../../../..${P11_KIT_TRUST} lib/p11-kit-trust.so
