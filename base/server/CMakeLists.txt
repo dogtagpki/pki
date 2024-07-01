@@ -165,7 +165,7 @@ add_custom_command(
     COMMAND ln -sf ../../../lib/resteasy-client.jar common/lib/resteasy-client.jar
     COMMAND ln -sf ../../../lib/resteasy-jackson2-provider.jar common/lib/resteasy-jackson2-provider.jar
     COMMAND ln -sf ../../../lib/resteasy-jaxrs.jar common/lib/resteasy-jaxrs.jar
-    COMMAND ln -sf ../../../../../..${RESTEASY_SERVLET_INITIALIZER_JAR} common/lib/resteasy-servlet-initializer.jar
+    COMMAND ln -sf ${RESTEASY_SERVLET_INITIALIZER_LINK} common/lib/resteasy-servlet-initializer.jar
 )
 
 add_custom_target(pki-server-man ALL

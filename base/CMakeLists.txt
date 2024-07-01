@@ -281,33 +281,64 @@ find_file(LDAPJDK_JAR
         /usr/share/java
 )
 
-find_file(RESTEASY_JAXRS_JAR
-    NAMES
-        resteasy-jaxrs.jar
-    PATHS
-        /usr/share/java/resteasy
-)
+if (EXISTS "${CMAKE_SOURCE_DIR}/lib")
+    # use imported JARs
 
-find_file(RESTEASY_CLIENT_JAR
-    NAMES
-        resteasy-client.jar
-    PATHS
-        /usr/share/java/resteasy
-)
+    execute_process(
+        COMMAND ls ${CMAKE_SOURCE_DIR}/lib
+        COMMAND sed -n "s/^resteasy-jaxrs-\\(.*\\)\\.jar\$/\\1/p"
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        OUTPUT_VARIABLE RESTEASY_VERSION
+    )
+    message("RESTEASY_VERSION: ${RESTEASY_VERSION}")
 
-find_file(RESTEASY_JACKSON_PROVIDER_JAR
-    NAMES
-        resteasy-jackson2-provider.jar
-    PATHS
-        /usr/share/java/resteasy
-)
+    set(RESTEASY_JAXRS_JAR "${CMAKE_SOURCE_DIR}/lib/resteasy-jaxrs-${RESTEASY_VERSION}.jar")
+    set(RESTEASY_JAXRS_LINK "resteasy-jaxrs-${RESTEASY_VERSION}.jar")
 
-find_file(RESTEASY_SERVLET_INITIALIZER_JAR
-    NAMES
-        resteasy-servlet-initializer.jar
-    PATHS
-        /usr/share/java/resteasy
-)
+    set(RESTEASY_CLIENT_JAR "${CMAKE_SOURCE_DIR}/lib/resteasy-client-${RESTEASY_VERSION}.jar")
+    set(RESTEASY_CLIENT_LINK "resteasy-client-${RESTEASY_VERSION}.jar")
+
+    set(RESTEASY_JACKSON_PROVIDER_JAR "${CMAKE_SOURCE_DIR}/lib/resteasy-jackson2-provider-${RESTEASY_VERSION}.jar")
+    set(RESTEASY_JACKSON_PROVIDER_LINK "resteasy-jackson2-provider-${RESTEASY_VERSION}.jar")
+
+    set(RESTEASY_SERVLET_INITIALIZER_JAR "${CMAKE_SOURCE_DIR}/lib/resteasy-servlet-initializer-${RESTEASY_VERSION}.jar")
+    set(RESTEASY_SERVLET_INITIALIZER_LINK "resteasy-servlet-initializer-${RESTEASY_VERSION}.jar")
+
+else()
+    # use system JARs
+
+    find_file(RESTEASY_JAXRS_JAR
+        NAMES
+            resteasy-jaxrs.jar
+        PATHS
+            /usr/share/java/resteasy
+    )
+    set(RESTEASY_JAXRS_LINK "../../../..${RESTEASY_JAXRS_JAR}")
+
+    find_file(RESTEASY_CLIENT_JAR
+        NAMES
+            resteasy-client.jar
+        PATHS
+            /usr/share/java/resteasy
+    )
+    set(RESTEASY_CLIENT_LINK "../../../..${RESTEASY_CLIENT_JAR}")
+
+    find_file(RESTEASY_JACKSON_PROVIDER_JAR
+        NAMES
+            resteasy-jackson2-provider.jar
+        PATHS
+            /usr/share/java/resteasy
+    )
+    set(RESTEASY_JACKSON_PROVIDER_LINK "../../../..${RESTEASY_JACKSON_PROVIDER_JAR}")
+
+    find_file(RESTEASY_SERVLET_INITIALIZER_JAR
+        NAMES
+            resteasy-servlet-initializer.jar
+        PATHS
+            /usr/share/java/resteasy
+    )
+    set(RESTEASY_SERVLET_INITIALIZER_LINK "../../../../../..${RESTEASY_SERVLET_INITIALIZER_JAR}")
+endif (EXISTS "${CMAKE_SOURCE_DIR}/lib")
 
 find_file(JASPIC_API_JAR
     NAMES
