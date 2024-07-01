@@ -454,6 +454,7 @@ Requires:         mvn(commons-logging:commons-logging)
 Requires:         mvn(commons-net:commons-net)
 Requires:         mvn(org.slf4j:slf4j-api)
 Requires:         mvn(org.slf4j:slf4j-jdk14)
+Requires:         mvn(jakarta.annotation:jakarta.annotation-api)
 
 Requires:         mvn(com.fasterxml.jackson.core:jackson-annotations)
 Requires:         mvn(com.fasterxml.jackson.core:jackson-core)
@@ -916,6 +917,12 @@ if [ ! -d lib ]
 then
     mkdir lib
 
+    JAXRS_VERSION=$(rpm -q jboss-jaxrs-2.0-api | sed -n 's/^jboss-jaxrs-2.0-api-\([^-]*\)-.*$/\1.Final/p')
+    echo "Importing JAX-RS 2.0 API $JAXRS_VERSION from RPM"
+
+    cp /usr/share/java/jboss-jaxrs-2.0-api.jar \
+        lib/jboss-jaxrs-2.0-api-$JAXRS_VERSION.jar
+
     JBOSS_LOGGING_VERSION=$(rpm -q jboss-logging | sed -n 's/^jboss-logging-\([^-]*\)-.*$/\1.Final/p')
     echo "Importing JBoss Logging $JBOSS_LOGGING_VERSION from RPM"
 
@@ -1180,6 +1187,7 @@ pkgs=base\
 %if %{with meta}
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki.xml"
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
     %{buildroot}%{_datadir}/maven-metadata/pki.xml
@@ -1187,6 +1195,7 @@ xmlstarlet edit --inplace \
 
 %if %{with base}
 echo "Installing JAR deps into %{buildroot}%{_datadir}/pki/lib"
+cp lib/jboss-jaxrs-2.0-api-*.jar %{buildroot}%{_datadir}/pki/lib
 cp lib/jboss-logging-*.jar %{buildroot}%{_datadir}/pki/lib
 cp lib/resteasy-jaxrs-*.jar %{buildroot}%{_datadir}/pki/lib
 cp lib/resteasy-client-*.jar %{buildroot}%{_datadir}/pki/lib
@@ -1195,12 +1204,14 @@ ls -l %{buildroot}%{_datadir}/pki/lib
 
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-java.xml"
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
     %{buildroot}%{_datadir}/maven-metadata/pki-pki-java.xml
 
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-tools.xml"
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
     %{buildroot}%{_datadir}/maven-metadata/pki-pki-tools.xml
@@ -1213,6 +1224,7 @@ ls -l %{buildroot}%{_datadir}/pki/server/common/lib
 
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-server.xml"
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
     %{buildroot}%{_datadir}/maven-metadata/pki-pki-server.xml
@@ -1221,6 +1233,7 @@ xmlstarlet edit --inplace \
 %if %{with ca}
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-ca.xml"
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
     %{buildroot}%{_datadir}/maven-metadata/pki-pki-ca.xml
@@ -1229,6 +1242,7 @@ xmlstarlet edit --inplace \
 %if %{with kra}
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-kra.xml"
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
     %{buildroot}%{_datadir}/maven-metadata/pki-pki-kra.xml
@@ -1237,6 +1251,7 @@ xmlstarlet edit --inplace \
 %if %{with ocsp}
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-ocsp.xml"
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
     %{buildroot}%{_datadir}/maven-metadata/pki-pki-ocsp.xml
@@ -1245,6 +1260,7 @@ xmlstarlet edit --inplace \
 %if %{with tks}
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-tks.xml"
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
     %{buildroot}%{_datadir}/maven-metadata/pki-pki-tks.xml
@@ -1253,6 +1269,7 @@ xmlstarlet edit --inplace \
 %if %{with tps}
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-tps.xml"
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
     %{buildroot}%{_datadir}/maven-metadata/pki-pki-tps.xml
@@ -1261,6 +1278,7 @@ xmlstarlet edit --inplace \
 %if %{with acme}
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-acme.xml"
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
     %{buildroot}%{_datadir}/maven-metadata/pki-pki-acme.xml
@@ -1269,6 +1287,7 @@ xmlstarlet edit --inplace \
 %if %{with est}
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-est.xml"
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
     %{buildroot}%{_datadir}/maven-metadata/pki-pki-est.xml
