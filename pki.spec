@@ -912,51 +912,59 @@ This package provides test suite for %{product_name}.
 %autosetup -n pki-%{version}%{?phase:-}%{?phase} -p 1
 
 %if %{with deps}
-if [ ! -d lib ]
-then
-    mkdir lib
+JACKSON_VERSION=$(rpm -q jackson-annotations | sed -n 's/^jackson-annotations-\([^-]*\)-.*$/\1/p')
+echo "JACKSON_VERSION: $JACKSON_VERSION"
 
-    JACKSON_VERSION=$(rpm -q jackson-annotations | sed 's/^jackson-annotations-\([^-]*\)-.*$/\1/')
-    echo "Importing Jackson $JACKSON_VERSION from RPM"
+JAXRS_VERSION=$(rpm -q jboss-jaxrs-2.0-api | sed -n 's/^jboss-jaxrs-2.0-api-\([^-]*\)-.*$/\1.Final/p')
+echo "JAXRS_VERSION: $JAXRS_VERSION"
+
+JBOSS_LOGGING_VERSION=$(rpm -q jboss-logging | sed -n 's/^jboss-logging-\([^-]*\)-.*$/\1.Final/p')
+echo "JBOSS_LOGGING_VERSION: $JBOSS_LOGGING_VERSION"
+
+RESTEASY_VERSION=$(rpm -q pki-resteasy-core | sed -n 's/^pki-resteasy-core-\([^-]*\)-.*$/\1.Final/p')
+echo "RESTEASY_VERSION: $RESTEASY_VERSION"
+
+if [ ! -d base/common/lib ]
+then
+    mkdir base/common/lib
 
     cp /usr/share/java/jackson-annotations.jar \
-        lib/jackson-annotations-$JACKSON_VERSION.jar
+        base/common/lib/jackson-annotations-$JACKSON_VERSION.jar
     cp /usr/share/java/jackson-core.jar \
-        lib/jackson-core-$JACKSON_VERSION.jar
+        base/common/lib/jackson-core-$JACKSON_VERSION.jar
     cp /usr/share/java/jackson-databind.jar \
-        lib/jackson-databind-$JACKSON_VERSION.jar
+        base/common/lib/jackson-databind-$JACKSON_VERSION.jar
     cp /usr/share/java/jackson-jaxrs-providers/jackson-jaxrs-base.jar \
-        lib/jackson-jaxrs-base-$JACKSON_VERSION.jar
+        base/common/lib/jackson-jaxrs-base-$JACKSON_VERSION.jar
     cp /usr/share/java/jackson-jaxrs-providers/jackson-jaxrs-json-provider.jar \
-        lib/jackson-jaxrs-json-provider-$JACKSON_VERSION.jar
+        base/common/lib/jackson-jaxrs-json-provider-$JACKSON_VERSION.jar
     cp /usr/share/java/jackson-modules/jackson-module-jaxb-annotations.jar \
-        lib/jackson-module-jaxb-annotations-$JACKSON_VERSION.jar
-
-    JAXRS_VERSION=$(rpm -q jboss-jaxrs-2.0-api | sed 's/^jboss-jaxrs-2.0-api-\([^-]*\)-.*$/\1.Final/')
-    echo "Importing JAX-RS 2.0 API $JAXRS_VERSION from RPM"
+        base/common/lib/jackson-module-jaxb-annotations-$JACKSON_VERSION.jar
 
     cp /usr/share/java/jboss-jaxrs-2.0-api.jar \
-        lib/jboss-jaxrs-2.0-api-$JAXRS_VERSION.jar
-
-    JBOSS_LOGGING_VERSION=$(rpm -q jboss-logging | sed 's/^jboss-logging-\([^-]*\)-.*$/\1.Final/')
-    echo "Importing JBoss Logging $JBOSS_LOGGING_VERSION from RPM"
+        base/common/lib/jboss-jaxrs-2.0-api-$JAXRS_VERSION.jar
 
     cp /usr/share/java/jboss-logging/jboss-logging.jar \
-        lib/jboss-logging-$JBOSS_LOGGING_VERSION.jar
-
-    RESTEASY_VERSION=$(rpm -q pki-resteasy-core | sed 's/^pki-resteasy-core-\([^-]*\)-.*$/\1.Final/')
-    echo "Importing RESTEasy $RESTEASY_VERSION from RPM"
+        base/common/lib/jboss-logging-$JBOSS_LOGGING_VERSION.jar
 
     cp /usr/share/java/resteasy/resteasy-jaxrs.jar \
-        lib/resteasy-jaxrs-$RESTEASY_VERSION.jar
+        base/common/lib/resteasy-jaxrs-$RESTEASY_VERSION.jar
     cp /usr/share/java/resteasy/resteasy-client.jar \
-        lib/resteasy-client-$RESTEASY_VERSION.jar
+        base/common/lib/resteasy-client-$RESTEASY_VERSION.jar
     cp /usr/share/java/resteasy/resteasy-jackson2-provider.jar \
-        lib/resteasy-jackson2-provider-$RESTEASY_VERSION.jar
-    cp /usr/share/java/resteasy/resteasy-servlet-initializer.jar \
-        lib/resteasy-servlet-initializer-$RESTEASY_VERSION.jar
+        base/common/lib/resteasy-jackson2-provider-$RESTEASY_VERSION.jar
 
-    ls -la lib
+    ls -la base/common/lib
+fi
+
+if [ ! -d base/server/lib ]
+then
+    mkdir base/server/lib
+
+    cp /usr/share/java/resteasy/resteasy-servlet-initializer.jar \
+        base/server/lib/resteasy-servlet-initializer-$RESTEASY_VERSION.jar
+
+    ls -la base/server/lib
 fi
 %endif
 
@@ -1213,17 +1221,7 @@ xmlstarlet edit --inplace \
 
 %if %{with base}
 echo "Installing JAR deps into %{buildroot}%{_datadir}/pki/lib"
-cp lib/jackson-annotations-*.jar %{buildroot}%{_datadir}/pki/lib
-cp lib/jackson-core-*.jar %{buildroot}%{_datadir}/pki/lib
-cp lib/jackson-databind-*.jar %{buildroot}%{_datadir}/pki/lib
-cp lib/jackson-jaxrs-base-*.jar %{buildroot}%{_datadir}/pki/lib
-cp lib/jackson-jaxrs-json-provider-*.jar %{buildroot}%{_datadir}/pki/lib
-cp lib/jackson-module-jaxb-annotations-*.jar %{buildroot}%{_datadir}/pki/lib
-cp lib/jboss-jaxrs-2.0-api-*.jar %{buildroot}%{_datadir}/pki/lib
-cp lib/jboss-logging-*.jar %{buildroot}%{_datadir}/pki/lib
-cp lib/resteasy-jaxrs-*.jar %{buildroot}%{_datadir}/pki/lib
-cp lib/resteasy-client-*.jar %{buildroot}%{_datadir}/pki/lib
-cp lib/resteasy-jackson2-provider-*.jar %{buildroot}%{_datadir}/pki/lib
+cp base/common/lib/* %{buildroot}%{_datadir}/pki/lib
 ls -l %{buildroot}%{_datadir}/pki/lib
 
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-java.xml"
@@ -1249,7 +1247,7 @@ xmlstarlet edit --inplace \
 
 %if %{with server}
 echo "Installing JAR deps into %{buildroot}%{_datadir}/pki/server/common/lib"
-cp lib/resteasy-servlet-initializer-*.jar %{buildroot}%{_datadir}/pki/server/common/lib
+cp base/server/lib/* %{buildroot}%{_datadir}/pki/server/common/lib
 ls -l %{buildroot}%{_datadir}/pki/server/common/lib
 
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-server.xml"
