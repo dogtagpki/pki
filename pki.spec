@@ -9,7 +9,7 @@ Name:             pki
 # Upstream version number:
 %global           major_version 11
 %global           minor_version 5
-%global           update_version 1
+%global           update_version 2
 
 # Downstream release number:
 # - development/stabilization (unsupported): 0.<n> where n >= 1
@@ -1209,7 +1209,7 @@ xmlstarlet edit --inplace \
     -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
-    %{buildroot}%{_datadir}/maven-metadata/pki.xml
+    %{buildroot}%{_datadir}/maven-metadata/%{name}.xml
 %endif
 
 %if %{with base}
@@ -1235,7 +1235,7 @@ xmlstarlet edit --inplace \
     -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
-    %{buildroot}%{_datadir}/maven-metadata/pki-pki-java.xml
+    %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-java.xml
 
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-tools.xml"
 xmlstarlet edit --inplace \
@@ -1245,7 +1245,7 @@ xmlstarlet edit --inplace \
     -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
-    %{buildroot}%{_datadir}/maven-metadata/pki-pki-tools.xml
+    %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-tools.xml
 %endif
 
 %if %{with server}
@@ -1261,7 +1261,7 @@ xmlstarlet edit --inplace \
     -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
-    %{buildroot}%{_datadir}/maven-metadata/pki-pki-server.xml
+    %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-server.xml
 %endif
 
 %if %{with ca}
@@ -1273,7 +1273,7 @@ xmlstarlet edit --inplace \
     -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
-    %{buildroot}%{_datadir}/maven-metadata/pki-pki-ca.xml
+    %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-ca.xml
 %endif
 
 %if %{with kra}
@@ -1285,7 +1285,7 @@ xmlstarlet edit --inplace \
     -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
-    %{buildroot}%{_datadir}/maven-metadata/pki-pki-kra.xml
+    %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-kra.xml
 %endif
 
 %if %{with ocsp}
@@ -1297,7 +1297,7 @@ xmlstarlet edit --inplace \
     -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
-    %{buildroot}%{_datadir}/maven-metadata/pki-pki-ocsp.xml
+    %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-ocsp.xml
 %endif
 
 %if %{with tks}
@@ -1309,7 +1309,7 @@ xmlstarlet edit --inplace \
     -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
-    %{buildroot}%{_datadir}/maven-metadata/pki-pki-tks.xml
+    %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-tks.xml
 %endif
 
 %if %{with tps}
@@ -1321,7 +1321,7 @@ xmlstarlet edit --inplace \
     -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
-    %{buildroot}%{_datadir}/maven-metadata/pki-pki-tps.xml
+    %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-tps.xml
 %endif
 
 %if %{with acme}
@@ -1333,7 +1333,7 @@ xmlstarlet edit --inplace \
     -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
-    %{buildroot}%{_datadir}/maven-metadata/pki-pki-acme.xml
+    %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-acme.xml
 %endif
 
 %if %{with est}
@@ -1345,7 +1345,7 @@ xmlstarlet edit --inplace \
     -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
-    %{buildroot}%{_datadir}/maven-metadata/pki-pki-est.xml
+    %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-est.xml
 %endif
 
 # with deps
