@@ -11,6 +11,7 @@
         <web-resource-collection>
             <web-resource-name>Account Services</web-resource-name>
             <url-pattern>/v1/account/*</url-pattern>
+            <url-pattern>/v2/account/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>*</role-name>
@@ -24,6 +25,7 @@
         <web-resource-collection>
             <web-resource-name>Admin Services</web-resource-name>
             <url-pattern>/v1/admin/*</url-pattern>
+            <url-pattern>/v2/admin/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>*</role-name>
@@ -37,6 +39,7 @@
         <web-resource-collection>
             <web-resource-name>Audit</web-resource-name>
             <url-pattern>/v1/audit/*</url-pattern>
+            <url-pattern>/v2/audit/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>*</role-name>
@@ -50,6 +53,7 @@
         <web-resource-collection>
             <web-resource-name>Security Domain Services</web-resource-name>
             <url-pattern>/v1/securityDomain/installToken</url-pattern>
+            <url-pattern>/v2/securityDomain/installToken</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>*</role-name>
@@ -63,6 +67,7 @@
         <web-resource-collection>
             <web-resource-name>Self Tests</web-resource-name>
             <url-pattern>/v1/selftests/*</url-pattern>
+            <url-pattern>/v2/selftests/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>*</role-name>
