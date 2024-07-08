@@ -1013,8 +1013,10 @@ fi
 %pom_disable_module console base
 %endif
 
-# flatten-maven-plugin is not available in RPM
+# remove plugins not needed to build RPM
 %pom_remove_plugin org.codehaus.mojo:flatten-maven-plugin
+%pom_remove_plugin org.apache.maven.plugins:maven-deploy-plugin
+%pom_remove_plugin com.github.github:site-maven-plugin
 
 # specify Maven artifact locations
 %mvn_file org.dogtagpki.pki:pki-common            pki/pki-common

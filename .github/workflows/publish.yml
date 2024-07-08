@@ -14,6 +14,11 @@ jobs:
     name: Publishing Maven artifacts
     runs-on: ubuntu-latest
     steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install xmlstarlet
+
       - name: Clone repository
         uses: actions/checkout@v4
 
@@ -23,15 +28,22 @@ jobs:
           java-version: '17'
           distribution: 'adopt'
 
-      - name: Check settings.xml
+      - name: Configure settings.xml
         run: |
-          cat ~/.m2/settings.xml
+          xmlstarlet edit --inplace \
+              -u "/_:settings/_:servers/_:server[_:id='github']/_:password" \
+              -v "$REPO_TOKEN" \
+              ~/.m2/settings.xml
+        env:
+          REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
 
-      - name: Update pom.xml
+      - name: Configure pom.xml
         run: |
-          sed -i \
-              -e "s/OWNER/$NAMESPACE/g" \
-              -e "s/REPOSITORY/pki/g" \
+          xmlstarlet edit --inplace \
+              -u "/_:project/_:build/_:plugins/_:plugin[_:artifactId='site-maven-plugin']/_:configuration/_:repositoryOwner" \
+              -v "$NAMESPACE" \
+              -u "/_:project/_:repositories/_:repository[_:id='dogtagpki']/_:url" \
+              -v "https://raw.githubusercontent.com/$NAMESPACE/repo/maven" \
               pom.xml
           cat pom.xml
 
@@ -42,9 +54,8 @@ jobs:
               --batch-mode \
               --update-snapshots \
               -DskipTests \
+              -pl '!base/console' \
               deploy
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   wait-for-images:
     if: vars.REGISTRY != ''
