@@ -11,6 +11,7 @@
         <web-resource-collection>
             <web-resource-name>Account Services</web-resource-name>
             <url-pattern>/v1/account/*</url-pattern>
+            <url-pattern>/v2/account/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>*</role-name>
@@ -24,6 +25,7 @@
         <web-resource-collection>
             <web-resource-name>Admin Services</web-resource-name>
             <url-pattern>/v1/admin/*</url-pattern>
+            <url-pattern>/v2/admin/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>*</role-name>
@@ -37,6 +39,7 @@
         <web-resource-collection>
             <web-resource-name>Audit</web-resource-name>
             <url-pattern>/v1/audit/*</url-pattern>
+            <url-pattern>/v2/audit/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>*</role-name>
@@ -50,6 +53,7 @@
         <web-resource-collection>
             <web-resource-name>Authenticators</web-resource-name>
             <url-pattern>/v1/authenticators/*</url-pattern>
+            <url-pattern>/v2/authenticators/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>*</role-name>
@@ -63,6 +67,7 @@
         <web-resource-collection>
             <web-resource-name>Configuration</web-resource-name>
             <url-pattern>/v1/config/*</url-pattern>
+            <url-pattern>/v2/config/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>*</role-name>
@@ -76,6 +81,7 @@
         <web-resource-collection>
             <web-resource-name>Connectors</web-resource-name>
             <url-pattern>/v1/connectors/*</url-pattern>
+            <url-pattern>/v2/connectors/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>*</role-name>
@@ -89,6 +95,7 @@
         <web-resource-collection>
             <web-resource-name>Profiles</web-resource-name>
             <url-pattern>/v1/profiles/*</url-pattern>
+            <url-pattern>/v2/profiles/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>*</role-name>
@@ -102,6 +109,7 @@
         <web-resource-collection>
             <web-resource-name>Profile Mappings</web-resource-name>
             <url-pattern>/v1/profile-mappings/*</url-pattern>
+            <url-pattern>/v2/profile-mappings/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>*</role-name>
@@ -115,6 +123,7 @@
         <web-resource-collection>
             <web-resource-name>Self Tests</web-resource-name>
             <url-pattern>/v1/selftests/*</url-pattern>
+            <url-pattern>/v2/selftests/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>*</role-name>
@@ -128,6 +137,7 @@
         <web-resource-collection>
             <web-resource-name>Token Services</web-resource-name>
             <url-pattern>/v1/tokens/*</url-pattern>
+            <url-pattern>/v2/tokens/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>*</role-name>

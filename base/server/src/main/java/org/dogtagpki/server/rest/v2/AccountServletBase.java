@@ -56,7 +56,7 @@ public class AccountServletBase {
     }
 
 
-    private Account createAccount(Principal principal) {
+    protected Account createAccount(Principal principal) {
         logger.info("Principal:");
 
         Account account = new Account();
