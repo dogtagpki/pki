@@ -715,6 +715,7 @@ class PKIDeployer:
 
             cmd_export_ca = [
                 'openssl', 'pkcs12',
+                '-nomacver',
                 '-in', pki_clone_pkcs12_path,
                 '-out', pki_ca_crt_path,
                 '-nodes',
