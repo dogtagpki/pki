@@ -21,7 +21,7 @@ package com.netscape.certsrv.system;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.ws.rs.client.Entity;
+import jakarta.ws.rs.client.Entity;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;

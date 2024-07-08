@@ -18,8 +18,8 @@
 
 package org.dogtagpki.server.ca.rest.v1;
 
-import javax.servlet.http.HttpSession;
-import javax.ws.rs.core.Response;
+import jakarta.servlet.http.HttpSession;
+import jakarta.ws.rs.core.Response;
 
 import org.dogtagpki.common.CAInfoResource;
 import org.dogtagpki.server.ca.CAEngine;

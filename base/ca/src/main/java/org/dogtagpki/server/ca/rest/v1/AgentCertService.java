@@ -27,7 +27,7 @@ import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Map;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 import org.apache.catalina.realm.GenericPrincipal;
 import org.dogtagpki.server.ca.CAEngine;

@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.security.auth.x500.X500Principal;
-import javax.ws.rs.ServiceUnavailableException;
+import jakarta.ws.rs.ServiceUnavailableException;
 
 import org.apache.catalina.Container;
 import org.apache.catalina.Context;

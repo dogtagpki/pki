@@ -20,8 +20,8 @@ package com.netscape.cms.servlet.cert;
 import java.util.Enumeration;
 import java.util.Locale;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.UriInfo;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.core.UriInfo;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.cert.CertReviewResponse;

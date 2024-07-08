@@ -22,7 +22,7 @@ import java.util.EventListener;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.Subsystem;

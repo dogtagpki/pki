@@ -6,8 +6,8 @@ import java.security.cert.X509Certificate;
 import java.util.Optional;
 import java.util.Properties;
 
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ServiceUnavailableException;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.ServiceUnavailableException;
 
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;

@@ -7,13 +7,13 @@ package org.dogtagpki.est;
 
 import java.util.HashMap;
 
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.container.ContainerResponseContext;
-import javax.ws.rs.container.ContainerResponseFilter;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.ext.Provider;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.container.ContainerResponseContext;
+import jakarta.ws.rs.container.ContainerResponseFilter;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.ext.Provider;
 
 /** Fix the formatting of the response Content-Type header.
  *
@@ -23,7 +23,7 @@ import javax.ws.rs.ext.Provider;
  *    @Produces("application/pkcs7-mime; smime-type=certs-only")
  *
  * The JAX-RS machinery then converts this into a value of type
- * javax.ws.rs.core.MediaType, and it is set as such in the
+ * jakarta.ws.rs.core.MediaType, and it is set as such in the
  * response headers (a MultivaluedMap<String, Object>).
  *
  * When serialising the Response, header values are stringified via

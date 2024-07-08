@@ -19,7 +19,7 @@ package com.netscape.cms.servlet.cert;
 
 import java.util.Locale;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
 

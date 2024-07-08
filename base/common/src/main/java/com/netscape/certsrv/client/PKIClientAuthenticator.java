@@ -8,9 +8,9 @@ package com.netscape.certsrv.client;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import javax.ws.rs.client.ClientRequestContext;
-import javax.ws.rs.client.ClientRequestFilter;
-import javax.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.client.ClientRequestContext;
+import jakarta.ws.rs.client.ClientRequestFilter;
+import jakarta.ws.rs.core.MultivaluedMap;
 
 import org.mozilla.jss.netscape.security.util.Utils;
 

@@ -19,7 +19,7 @@ package com.netscape.certsrv.system;
 
 import java.util.List;
 
-import javax.ws.rs.core.GenericType;
+import jakarta.ws.rs.core.GenericType;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;

@@ -21,7 +21,7 @@
  */
 package com.netscape.certsrv.profile;
 
-import javax.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.MultivaluedMap;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 

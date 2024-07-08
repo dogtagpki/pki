@@ -30,8 +30,8 @@ import java.net.Socket;
 import java.net.URI;
 import java.net.UnknownHostException;
 
-import javax.ws.rs.Priorities;
-import javax.ws.rs.client.WebTarget;
+import jakarta.ws.rs.Priorities;
+import jakarta.ws.rs.client.WebTarget;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -78,7 +78,7 @@ public class PKIConnection implements AutoCloseable {
     SSLCertificateApprovalCallback callback;
 
     ApacheHttpClient4Engine engine;
-    javax.ws.rs.client.Client client;
+    jakarta.ws.rs.client.Client client;
     WebTarget target;
 
     int requestCounter;

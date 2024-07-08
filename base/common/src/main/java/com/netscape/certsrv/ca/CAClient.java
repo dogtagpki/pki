@@ -21,8 +21,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URL;
 
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.MultivaluedHashMap;
+import jakarta.ws.rs.core.MultivaluedMap;
 
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.slf4j.Logger;

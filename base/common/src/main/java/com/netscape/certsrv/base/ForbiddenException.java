@@ -1,6 +1,6 @@
 package com.netscape.certsrv.base;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 public class ForbiddenException extends PKIException {
     private static final long serialVersionUID = 3199015969025638546L;

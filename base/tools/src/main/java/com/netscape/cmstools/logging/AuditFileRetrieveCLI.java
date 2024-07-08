@@ -21,7 +21,7 @@ package com.netscape.cmstools.logging;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 
-import javax.ws.rs.core.StreamingOutput;
+import jakarta.ws.rs.core.StreamingOutput;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;

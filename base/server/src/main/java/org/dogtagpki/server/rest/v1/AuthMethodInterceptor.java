@@ -26,12 +26,12 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Properties;
 
-import javax.servlet.ServletContext;
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.container.ContainerRequestFilter;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.SecurityContext;
-import javax.ws.rs.ext.Provider;
+import jakarta.servlet.ServletContext;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.container.ContainerRequestFilter;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.SecurityContext;
+import jakarta.ws.rs.ext.Provider;
 
 import org.apache.catalina.realm.GenericPrincipal;
 import org.dogtagpki.server.authentication.AuthToken;
