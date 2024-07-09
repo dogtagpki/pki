@@ -844,7 +844,7 @@ Provides:         pki-server-theme = %{version}-%{release}
 Obsoletes:        %{product_id}-server-theme < %{version}-%{release}
 Provides:         %{product_id}-server-theme = %{version}-%{release}
 
-%if 0%{?fedora} > 38
+%if 0%{?fedora} > 38 || 0%{?rhel} > 9
 BuildRequires:    fontawesome4-fonts-web
 Requires:         fontawesome4-fonts-web
 %else
