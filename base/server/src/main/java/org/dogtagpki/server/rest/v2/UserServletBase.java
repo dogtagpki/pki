@@ -133,7 +133,7 @@ public class UserServletBase {
             out.println(userMemberships.toJSON());
             return;
         }
-        response.sendError(HttpServletResponse.SC_NOT_FOUND, request.getRequestURI());
+        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
     }
 
     public void post(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -186,19 +186,19 @@ public class UserServletBase {
                 return;
             }
         }
-        response.sendError(HttpServletResponse.SC_NOT_FOUND, request.getRequestURI());
+        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
     }
 
     public void patch(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
         logger.debug("UserServletBase.get(): session: {}", session.getId());
         if (request.getPathInfo() == null) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, request.getRequestURI());
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
         String[] pathElement = request.getPathInfo().substring(1).split("/");
         if (pathElement.length > 1) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, request.getRequestURI());
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
         String userId = pathElement[0];
@@ -213,7 +213,7 @@ public class UserServletBase {
         HttpSession session = request.getSession();
         logger.debug("UserServletBase.get(): session: {}", session.getId());
         if (request.getPathInfo() == null) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, request.getRequestURI());
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
         String[] pathElement = request.getPathInfo().substring(1).split("/");
@@ -237,7 +237,7 @@ public class UserServletBase {
                 return;
             }
         }
-        response.sendError(HttpServletResponse.SC_NOT_FOUND, request.getRequestURI());
+        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
     }
 
     private UserCollection findUsers(String filter, int start, int size, Locale loc) {
