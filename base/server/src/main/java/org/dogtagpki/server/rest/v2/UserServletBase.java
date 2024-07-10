@@ -6,7 +6,6 @@
 package org.dogtagpki.server.rest.v2;
 
 import java.io.PrintWriter;
-import java.lang.reflect.Method;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.cert.CertificateException;
@@ -26,7 +25,6 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.ws.rs.FormParam;
 
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.util.cert.CertUtil;
@@ -47,6 +45,7 @@ import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.base.UserNotFoundException;
+import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.dbs.certdb.CertId;
@@ -531,7 +530,6 @@ public class UserServletBase {
             throw e;
 
         } catch (Exception e) {
-            e.printStackTrace();
             throw new PKIException(e.getMessage(), e);
         }
     }
@@ -1051,7 +1049,6 @@ public class UserServletBase {
             throw e;
 
         } catch (Exception e) {
-            e.printStackTrace();
             throw new PKIException(e.getMessage(), e);
         }
     }
@@ -1072,21 +1069,20 @@ public class UserServletBase {
             throw e;
 
         } catch (Exception e) {
-            e.printStackTrace();
             throw new PKIException(e.getMessage(), e);
         }
     }
 
     private void auditAddUser(String id, UserData userData, String status) {
-        auditUser(OpDef.OP_ADD, id, getParams(userData), status);
+        auditUser(OpDef.OP_ADD, id, getUserData(userData), status);
     }
 
     private void auditAddUserCert(String id, UserCertData userCertData, String status) {
-        auditUserCert(OpDef.OP_ADD, id, getParams(userCertData), status);
+        auditUserCert(OpDef.OP_ADD, id, getUserCertData(userCertData), status);
     }
 
     private void auditModifyUser(String id, UserData userData, String status) {
-        auditUser(OpDef.OP_MODIFY, id, getParams(userData), status);
+        auditUser(OpDef.OP_MODIFY, id, getUserData(userData), status);
     }
 
     private void auditDeleteUser(String id, String status) {
@@ -1094,7 +1090,7 @@ public class UserServletBase {
     }
 
     private void auditDeleteUserCert(String id, UserCertData userCertData, String status) {
-        auditUserCert(OpDef.OP_DELETE, id, getParams(userCertData), status);
+        auditUserCert(OpDef.OP_DELETE, id, getUserCertData(userCertData), status);
     }
 
     private void auditUser(String type, String id, Map<String, String> params, String status) {
@@ -1117,34 +1113,20 @@ public class UserServletBase {
                 auditor.getParamString(ScopeDef.SC_USER_CERTS, type, id, params)));
     }
 
-    /**
-     * Get the values of the fields annotated with @FormParam.
-     */
-    private Map<String, String> getParams(Object object) {
-
+    private Map<String, String> getUserData(UserData userData) {
         Map<String, String> map = new HashMap<>();
-
-        // for each fields in the object
-        for (Method method : object.getClass().getMethods()) {
-            FormParam element = method.getAnnotation(FormParam.class);
-            if (element == null) continue;
-
-            String name = element.value();
-
-            try {
-                // get the value from the object
-                Object value = method.invoke(object);
-
-                // put the value in the map
-                map.put(name, value == null ? null : value.toString());
-
-            } catch (Exception e) {
-                // ignore inaccessible fields
-                e.printStackTrace();
-            }
-        }
-
+        map.put(Constants.PR_USER_FULLNAME, userData.getFullName());
+        map.put(Constants.PR_USER_EMAIL, userData.getEmail());
+        map.put(Constants.PR_USER_PASSWORD, userData.getPassword());
+        map.put(Constants.PR_USER_PHONE, userData.getPhone());
+        map.put(Constants.PR_USER_TYPE, userData.getType());
+        map.put(Constants.PR_USER_STATE, userData.getState());
         return map;
     }
 
+    private Map<String, String> getUserCertData(UserCertData userData) {
+        Map<String, String> map = new HashMap<>();
+        map.put(Constants.PR_USER_CERT, userData.getEncoded());
+        return map;
+    }
 }
