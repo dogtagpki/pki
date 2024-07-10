@@ -31,7 +31,7 @@ public class AccountServletBase {
 
     public void get(HttpServletRequest request, HttpServletResponse response) throws Exception {
         if(request.getPathInfo() == null) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, request.getRequestURI());
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
         String operation = request.getPathInfo().substring(1);
@@ -52,7 +52,7 @@ public class AccountServletBase {
             }
             return;
         }
-        response.sendError(HttpServletResponse.SC_NOT_FOUND, request.getRequestURI());
+        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
     }
 
 
