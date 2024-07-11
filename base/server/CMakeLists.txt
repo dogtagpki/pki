@@ -152,7 +152,7 @@ add_custom_command(
     COMMAND ln -sf ../../../lib/jackson-module-jaxb-annotations.jar common/lib/jackson-module-jaxb-annotations.jar
     COMMAND ln -sf ../../../lib/javax.activation.jar common/lib/javax.activation.jar
     COMMAND ln -sf ../../../lib/javax.annotations-api.jar common/lib/javax.annotations-api.jar
-    COMMAND ln -sf ../../../lib/jaxb-api.jar common/lib/jaxb-api.jar
+    COMMAND ln -sf ../../../lib/jakarta.xml.bind-api.jar common/lib/jakarta.xml.bind-api.jar
     COMMAND ln -sf ../../../lib/jboss-jaxrs-2.0-api.jar common/lib/jboss-jaxrs-2.0-api.jar
     COMMAND ln -sf ../../../lib/jboss-logging.jar common/lib/jboss-logging.jar
     COMMAND ln -sf ../../../lib/jss.jar common/lib/jss.jar

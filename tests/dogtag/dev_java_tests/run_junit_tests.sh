@@ -46,7 +46,7 @@ run_dev_junit_tests() {
     CLASSPATH=$CLASSPATH:/usr/share/java/apache-commons-codec.jar
     CLASSPATH=$CLASSPATH:/usr/share/java/apache-commons-logging.jar
     CLASSPATH=$CLASSPATH:/usr/share/java/commons-codec.jar
-    CLASSPATH=$CLASSPATH:/usr/share/java/jaxb-api.jar
+    CLASSPATH=$CLASSPATH:/usr/share/java/jaxb-api/jakarta.xml.bind-api.jar
     CLASSPATH=$CLASSPATH:/usr/share/java/jakarta-activation/jakarta.activation.jar
     CLASSPATH=$CLASSPATH:/usr/share/java/ldapjdk.jar
     CLASSPATH=$CLASSPATH:/usr/share/java/apache-commons-lang3.jar
