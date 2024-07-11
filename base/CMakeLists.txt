@@ -262,7 +262,7 @@ else()
     )
 endif(XMVN_RESOLVE)
 
-find_file(JAVAX_ANNOTATIONS_API_JAR
+find_file(JAKARTA_ANNOTATION_API_JAR
     NAMES
         jakarta.annotation-api.jar
         jboss-annotations-api_1.2_spec.jar
