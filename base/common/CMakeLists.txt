@@ -55,7 +55,7 @@ if(RUN_TESTS)
         SOURCES
             src/test/java/*.java
         CLASSPATH
-            ${JAVAX_ACTIVATION_JAR}
+            ${JAKARTA_ACTIVATION_API_JAR}
             ${JAXB_API_JAR} ${JAXB_IMPL_JAR}
             ${SLF4J_API_JAR} ${SLF4J_JDK14_JAR}
             ${JSS_JAR}
@@ -81,7 +81,7 @@ if(RUN_TESTS)
 
     add_junit_test(test-pki-common
         CLASSPATH
-            ${JAVAX_ACTIVATION_JAR}
+            ${JAKARTA_ACTIVATION_JAR}
             ${JAXB_API_JAR} ${JAXB_IMPL_JAR}
             ${SLF4J_API_JAR} ${SLF4J_JDK14_JAR}
             ${JSS_JAR}
@@ -130,7 +130,7 @@ add_custom_command(
     COMMAND ln -sf ${JACKSON_JAXRS_BASE_LINK} lib/jackson-jaxrs-base.jar
     COMMAND ln -sf ${JACKSON_JAXRS_JSON_PROVIDER_LINK} lib/jackson-jaxrs-json-provider.jar
     COMMAND ln -sf ${JACKSON_MODULE_JAXB_ANNOTATIONS_LINK} lib/jackson-module-jaxb-annotations.jar
-    COMMAND ln -sf ../../../..${JAVAX_ACTIVATION_JAR} lib/javax.activation.jar
+    COMMAND ln -sf ../../../..${JAKARTA_ACTIVATION_API_JAR} lib/jakarta.activation-api.jar
     COMMAND ln -sf ../../../..${JAVAX_ANNOTATIONS_API_JAR} lib/javax.annotations-api.jar
     COMMAND ln -sf ../../../..${JAXB_API_JAR} lib/jakarta.xml.bind-api.jar
     COMMAND ln -sf ${JAXRS_API_LINK} lib/jboss-jaxrs-2.0-api.jar
