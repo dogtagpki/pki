@@ -20,7 +20,7 @@ javac(pki-server-classes
         ${JSS_TOMCAT_JAR}
         ${JSS_TOMCAT_9_0_JAR}
         ${LDAPJDK_JAR}
-        ${JAVAX_ANNOTATIONS_API_JAR}
+        ${JAKARTA_ANNOTATION_API_JAR}
         ${JAXRS_API_JAR}
         ${RESTEASY_JAXRS_JAR}
         ${PKI_COMMON_JAR}
@@ -151,7 +151,7 @@ add_custom_command(
     COMMAND ln -sf ../../../lib/jackson-jaxrs-json-provider.jar common/lib/jackson-jaxrs-json-provider.jar
     COMMAND ln -sf ../../../lib/jackson-module-jaxb-annotations.jar common/lib/jackson-module-jaxb-annotations.jar
     COMMAND ln -sf ../../../lib/jakarta.activation-api.jar common/lib/jakarta.activation-api.jar
-    COMMAND ln -sf ../../../lib/javax.annotations-api.jar common/lib/javax.annotations-api.jar
+    COMMAND ln -sf ../../../lib/jakarta.annotation-api.jar common/lib/jakarta.annotation-api.jar
     COMMAND ln -sf ../../../lib/jakarta.xml.bind-api.jar common/lib/jakarta.xml.bind-api.jar
     COMMAND ln -sf ../../../lib/jboss-jaxrs-2.0-api.jar common/lib/jboss-jaxrs-2.0-api.jar
     COMMAND ln -sf ../../../lib/jboss-logging.jar common/lib/jboss-logging.jar

@@ -15,7 +15,7 @@ javac(pki-common-classes
         ${JACKSON_CORE_JAR}
         ${JACKSON_DATABIND_JAR}
         ${JACKSON_MODULE_JAXB_ANNOTATIONS_JAR}
-        ${JAVAX_ANNOTATIONS_API_JAR}
+        ${JAKARTA_ANNOTATION_API_JAR}
         ${JAXRS_API_JAR}
         ${RESTEASY_JAXRS_JAR} ${RESTEASY_CLIENT_JAR}
         ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
@@ -131,7 +131,7 @@ add_custom_command(
     COMMAND ln -sf ${JACKSON_JAXRS_JSON_PROVIDER_LINK} lib/jackson-jaxrs-json-provider.jar
     COMMAND ln -sf ${JACKSON_MODULE_JAXB_ANNOTATIONS_LINK} lib/jackson-module-jaxb-annotations.jar
     COMMAND ln -sf ../../../..${JAKARTA_ACTIVATION_API_JAR} lib/jakarta.activation-api.jar
-    COMMAND ln -sf ../../../..${JAVAX_ANNOTATIONS_API_JAR} lib/javax.annotations-api.jar
+    COMMAND ln -sf ../../../..${JAKARTA_ANNOTATION_API_JAR} lib/jakarta.annotation-api.jar
     COMMAND ln -sf ../../../..${JAXB_API_JAR} lib/jakarta.xml.bind-api.jar
     COMMAND ln -sf ${JAXRS_API_LINK} lib/jboss-jaxrs-2.0-api.jar
     COMMAND ln -sf ${JBOSS_LOGGING_LINK} lib/jboss-logging.jar
