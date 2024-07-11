@@ -243,11 +243,11 @@ endif(XMVN_RESOLVE)
 if(XMVN_RESOLVE)
     execute_process(
         COMMAND xmvn-resolve jakarta.activation:jakarta.activation-api:2
-        OUTPUT_VARIABLE JAVAX_ACTIVATION_JAR
+        OUTPUT_VARIABLE JAKARTA_ACTIVATION_API_JAR
         OUTPUT_STRIP_TRAILING_WHITESPACE
     )
 else()
-    find_file(JAVAX_ACTIVATION_JAR
+    find_file(JAKARTA_ACTIVATION_API_JAR
         NAMES
             jakarta.activation.jar
             jakarta-activation.jar
