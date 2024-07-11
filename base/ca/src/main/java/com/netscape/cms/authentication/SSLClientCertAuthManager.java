@@ -48,15 +48,13 @@ import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.request.Request;
 
 /**
- * SSL client based authentication.
- * <P>
+ * SSL client based authentication manager for RenewalServlet and RevocationServlet.
  *
  * @author chrisho
- * @version $Revision$, $Date$
  */
-public class SSLClientCertAuthentication extends AuthManager {
+public class SSLClientCertAuthManager extends AuthManager {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SSLClientCertAuthentication.class);
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SSLClientCertAuthManager.class);
 
     /* required credential to authenticate, client certificate */
     public static final String CRED_CERT = AuthManager.CRED_SSL_CLIENT_CERT;
@@ -69,7 +67,7 @@ public class SSLClientCertAuthentication extends AuthManager {
     /**
      * Default constructor, initialization must follow.
      */
-    public SSLClientCertAuthentication() {
+    public SSLClientCertAuthManager() {
         super();
     }
 

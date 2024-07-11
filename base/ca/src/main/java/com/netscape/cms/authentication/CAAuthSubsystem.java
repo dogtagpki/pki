@@ -66,7 +66,7 @@ public class CAAuthSubsystem extends AuthSubsystem {
 
         logger.info("CAAuthSubsystem: Loading auth manager plugin " + SSLCLIENTCERT_PLUGIN_ID);
 
-        plugin = new AuthMgrPlugin(SSLCLIENTCERT_PLUGIN_ID, SSLClientCertAuthentication.class.getName());
+        plugin = new AuthMgrPlugin(SSLCLIENTCERT_PLUGIN_ID, SSLClientCertAuthManager.class.getName());
         plugin.setVisible(false);
         mAuthMgrPlugins.put(SSLCLIENTCERT_PLUGIN_ID, plugin);
     }
@@ -84,7 +84,7 @@ public class CAAuthSubsystem extends AuthSubsystem {
 
         logger.info("CAAuthSubsystem: Loading auth manager instance " + SSLCLIENTCERT_AUTHMGR_ID);
 
-        SSLClientCertAuthentication sslClientCertAuth = new SSLClientCertAuthentication();
+        SSLClientCertAuthManager sslClientCertAuth = new SSLClientCertAuthManager();
         sslClientCertAuth.setCMSEngine(engine);
         sslClientCertAuth.init(mConfig, SSLCLIENTCERT_AUTHMGR_ID, SSLCLIENTCERT_PLUGIN_ID, null);
         mAuthMgrInsts.put(SSLCLIENTCERT_AUTHMGR_ID, new AuthManagerProxy(true, sslClientCertAuth));
