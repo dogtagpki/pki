@@ -132,7 +132,7 @@ add_custom_command(
     COMMAND ln -sf ${JACKSON_MODULE_JAXB_ANNOTATIONS_LINK} lib/jackson-module-jaxb-annotations.jar
     COMMAND ln -sf ../../../..${JAVAX_ACTIVATION_JAR} lib/javax.activation.jar
     COMMAND ln -sf ../../../..${JAVAX_ANNOTATIONS_API_JAR} lib/javax.annotations-api.jar
-    COMMAND ln -sf ../../../..${JAXB_API_JAR} lib/jaxb-api.jar
+    COMMAND ln -sf ../../../..${JAXB_API_JAR} lib/jakarta.xml.bind-api.jar
     COMMAND ln -sf ${JAXRS_API_LINK} lib/jboss-jaxrs-2.0-api.jar
     COMMAND ln -sf ${JBOSS_LOGGING_LINK} lib/jboss-logging.jar
     COMMAND ln -sf ../../../..${JSS_JAR} lib/jss.jar
