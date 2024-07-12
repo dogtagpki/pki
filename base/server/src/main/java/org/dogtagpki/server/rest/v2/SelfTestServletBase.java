@@ -66,7 +66,7 @@ public class SelfTestServletBase {
 
     public void post(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
-        logger.debug("SelfTestServletBase.get(): session: {}", session.getId());
+        logger.debug("SelfTestServletBase.post(): session: {}", session.getId());
         if (request.getPathInfo() == null) {
             String action = request.getParameter("action");
             executeSelfTests(action);

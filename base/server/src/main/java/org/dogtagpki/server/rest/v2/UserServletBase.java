@@ -137,7 +137,7 @@ public class UserServletBase {
 
     public void post(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
-        logger.debug("UserServletBase.get(): session: {}", session.getId());
+        logger.debug("UserServletBase.post(): session: {}", session.getId());
         String contentType = request.getContentType();
         if (Objects.nonNull(contentType) && !contentType.equals("application/json")) {
             throw new BadRequestDataException(contentType + " not accepted");
@@ -190,7 +190,7 @@ public class UserServletBase {
 
     public void patch(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
-        logger.debug("UserServletBase.get(): session: {}", session.getId());
+        logger.debug("UserServletBase.patch(): session: {}", session.getId());
         if (request.getPathInfo() == null) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
@@ -210,7 +210,7 @@ public class UserServletBase {
 
     public void delete(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
-        logger.debug("UserServletBase.get(): session: {}", session.getId());
+        logger.debug("UserServletBase.delete(): session: {}", session.getId());
         if (request.getPathInfo() == null) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
