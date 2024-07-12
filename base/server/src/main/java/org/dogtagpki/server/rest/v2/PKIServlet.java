@@ -143,6 +143,14 @@ public abstract class PKIServlet extends HttpServlet {
             } catch(Exception ex) {
                 logger.error(ERROR_RESPONSE, ex.getMessage(), ex);
             }
+        } catch (ForbiddenException ue) {
+            try {
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                PrintWriter out = response.getWriter();
+                out.print(ue.getData().toJSON());
+            } catch(Exception ex) {
+                logger.error(ERROR_RESPONSE, ex.getMessage(), ex);
+            }
         } catch (PKIException bre) {
             try {
                 response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
