@@ -9,7 +9,7 @@ import javax.servlet.annotation.WebFilter;
 
 import org.dogtagpki.server.rest.v2.ACLFilter;
 
-@WebFilter(servletNames = {"activity"})
+@WebFilter(servletNames = {"activity", "tpsJobs"})
 public class EmptyACL extends ACLFilter {
 
     private static final long serialVersionUID = 1L;

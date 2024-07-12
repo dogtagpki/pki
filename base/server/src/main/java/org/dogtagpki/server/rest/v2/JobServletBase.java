@@ -136,7 +136,8 @@ public class JobServletBase {
         boolean isOwner = isOwner(principal, jobConfig);
 
         if (!isAdmin && !isOwner) {
-            throw new ForbiddenException("User " + principal.getName() + " not allow to access job " + id);
+            String principalName = principal == null ? "unknown" : principal.getName();
+            throw new ForbiddenException("User '" + principalName + "' not allow to access job " + id);
         }
 
         return createJobInfo(id, jobConfig, true);
