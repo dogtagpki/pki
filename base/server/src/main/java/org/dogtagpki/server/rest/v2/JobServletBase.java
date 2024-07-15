@@ -48,7 +48,6 @@ public class JobServletBase {
     public void get(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
         logger.debug("JobServletBase.get(): session: {}", session.getId());
-
         PrintWriter out = response.getWriter();
         if (request.getPathInfo() == null) {
             JobCollection jobs = findJobs(request.getUserPrincipal());
@@ -62,7 +61,7 @@ public class JobServletBase {
             out.println(job.toJSON());
             return;
         }
-        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        throw new ResourceNotFoundException("Path: " + request.getPathInfo());
     }
 
     public void post(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -79,7 +78,7 @@ public class JobServletBase {
             startJob(jobId, request.getUserPrincipal());
             return;
         }
-        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        throw new ResourceNotFoundException("Path: " + request.getPathInfo());
     }
 
     private JobCollection findJobs(Principal principal) throws EBaseException {
