@@ -8,12 +8,17 @@ package org.dogtagpki.server.rest.v2;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.Principal;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -26,13 +31,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.authentication.ExternalAuthToken;
-import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.base.UnauthorizedException;
+import com.netscape.certsrv.base.WebAction;
 import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cmscore.apps.CMS;
 
@@ -48,19 +53,30 @@ public abstract class PKIServlet extends HttpServlet {
     public static final int MIN_FILTER_LENGTH = 3;
     private static final String ERROR_RESPONSE= "PKIServlet - error processing request: {}";
 
-    private enum HttpMethod {
+    public enum HttpMethod {
         GET, POST, PATCH, PUT, DELETE
     }
 
-    public abstract void get(HttpServletRequest request, HttpServletResponse response) throws Exception;
+    protected Map<String, Method> webActions;
 
-    public abstract void post(HttpServletRequest request, HttpServletResponse response) throws Exception;
 
-    public abstract void put(HttpServletRequest request, HttpServletResponse response) throws Exception;
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        webActions = new HashMap<>();
 
-    public abstract void patch(HttpServletRequest request, HttpServletResponse response) throws Exception;
-
-    public abstract void delete(HttpServletRequest request, HttpServletResponse response) throws Exception;
+        for (Method method : this.getClass().getMethods()) {
+            WebAction wActions = method.getAnnotation(WebAction.class);
+            if (wActions == null)
+                continue;
+            HttpMethod met = wActions.method();
+            String[] paths = wActions.paths();
+            for (String path: paths) {
+                logger.debug("PKIServlet: class {} handle: {}:{}", this.getClass(), met, path);
+                webActions.put(met.toString() + ":" + path, method);
+            }
+        }
+    }
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -96,23 +112,19 @@ public abstract class PKIServlet extends HttpServlet {
         response.setContentType("application/json");
         try {
             setSessionContext(request);
-            switch (method) {
-                case PUT:
-                    put(request, response);
-                    break;
-                case PATCH:
-                    patch(request, response);
-                    break;
-                case DELETE:
-                    delete(request, response);
-                    break;
-                case POST:
-                    post(request, response);
-                    break;
-                case GET:
-                default:
-                    get(request, response);
+            Method actionMethod = getActionMethod(method, request.getPathInfo());
+            if (actionMethod == null) {
+                String allowMethods = getAllowedMethods(request.getPathInfo());
+                if (allowMethods == null) {
+                        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                } else {
+                        response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+                        response.setHeader("Allow: ", allowMethods);
+                }
+                return;
             }
+            actionMethod.invoke(this, request, response);
+
         } catch (ResourceNotFoundException re) {
             try {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -126,12 +138,6 @@ public abstract class PKIServlet extends HttpServlet {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 PrintWriter out = response.getWriter();
                 out.print(bre.getData().toJSON());
-            } catch(Exception ex) {
-                logger.error(ERROR_RESPONSE, ex.getMessage(), ex);
-            }
-        } catch (BadRequestDataException bre) {
-            try {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, bre.getMessage());
             } catch(Exception ex) {
                 logger.error(ERROR_RESPONSE, ex.getMessage(), ex);
             }
@@ -167,6 +173,43 @@ public abstract class PKIServlet extends HttpServlet {
             }
         }
     }
+
+    public Method getActionMethod(HttpMethod met, String path) {
+        final String reqMethod;
+        if (path == null) {
+            reqMethod = met.toString() + ":/";
+        } else {
+            reqMethod = met.toString() + ":" + path;
+        }
+        String keyPath = webActions.keySet().stream().
+                filter( key -> {
+                    String keyRegex = key.replace("{}", "([A-Za-z0-9_\\-]*)");
+                    return reqMethod.matches(keyRegex);
+                    } ).
+                findFirst().
+                orElse(null);
+        return keyPath == null ? null : webActions.get(keyPath);
+    }
+
+    public String getAllowedMethods(String path) {
+        final String matchingPath = path == null ? "/" : path;
+        List<String> keyPaths = webActions.keySet().stream().
+                filter( key -> {
+                    String keyRegex = key.substring(key.indexOf(":") + 1);
+                    keyRegex = keyRegex.replace("{}", "([A-Za-z0-9_\\-]*)");
+                    return matchingPath.matches(keyRegex);
+                    } ).
+                collect(Collectors.toList());
+        if (keyPaths == null || keyPaths.isEmpty()) {
+            return null;
+        }
+        StringBuilder methods = new StringBuilder();
+        for (String k: keyPaths) {
+            methods.append(k.substring(0, k.indexOf(":"))).append(", ");
+        }
+        return methods.substring(0, methods.lastIndexOf(","));
+    }
+
     protected abstract String getSubsystemName();
 
     protected String getSubsystemConfDir() {
