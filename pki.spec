@@ -95,8 +95,11 @@ ExcludeArch: i686
 # PKI
 ################################################################################
 
-# Bundle dependencies unless --without deps is specified.
-%bcond_without deps
+# Use external build dependencies unless --without build_deps is specified.
+%bcond_without build_deps
+
+# Use bundled runtime dependencies unless --with runtime_deps is specified.
+%bcond_with runtime_deps
 
 # Build with Maven unless --without maven is specified.
 %bcond_without maven
@@ -186,7 +189,7 @@ BuildRequires:    xmvn-tools
 %endif
 BuildRequires:    javapackages-tools
 
-%if %{with deps}
+%if %{without runtime_deps}
 BuildRequires:    xmlstarlet
 %endif
 
@@ -205,6 +208,7 @@ BuildRequires:    mvn(org.junit.jupiter:junit-jupiter-api)
 BuildRequires:    mvn(jakarta.activation:jakarta.activation-api)
 BuildRequires:    mvn(jakarta.xml.bind:jakarta.xml.bind-api)
 
+%if %{with build_deps}
 BuildRequires:    mvn(com.fasterxml.jackson.core:jackson-annotations)
 BuildRequires:    mvn(com.fasterxml.jackson.core:jackson-core)
 BuildRequires:    mvn(com.fasterxml.jackson.core:jackson-databind)
@@ -219,6 +223,7 @@ BuildRequires:    mvn(org.jboss.resteasy:resteasy-jaxrs)
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-client)
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-jackson2-provider)
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-servlet-initializer)
+%endif
 
 BuildRequires:    mvn(org.apache.tomcat:tomcat-catalina) >= 9.0.62
 BuildRequires:    mvn(org.apache.tomcat:tomcat-servlet-api) >= 9.0.62
@@ -532,7 +537,7 @@ Requires:         mvn(org.slf4j:slf4j-jdk14)
 Requires:         mvn(jakarta.annotation:jakarta.annotation-api)
 Requires:         mvn(jakarta.xml.bind:jakarta.xml.bind-api)
 
-%if %{without deps}
+%if %{with runtime_deps}
 Requires:         mvn(com.fasterxml.jackson.core:jackson-annotations)
 Requires:         mvn(com.fasterxml.jackson.core:jackson-core)
 Requires:         mvn(com.fasterxml.jackson.core:jackson-databind)
@@ -626,7 +631,7 @@ Requires:         python3-policycoreutils
 
 Requires:         selinux-policy-targeted >= 3.13.1-159
 
-%if %{without deps}
+%if %{with runtime_deps}
 Requires:         mvn(org.jboss.resteasy:resteasy-servlet-initializer)
 %else
 Provides:         bundled(resteasy-servlet-initializer)
@@ -1009,60 +1014,72 @@ This package provides test suite for %{product_name}.
 
 %autosetup -n pki-%{version}%{?phase:-}%{?phase} -p 1
 
-%if %{with deps}
-JACKSON_VERSION=$(rpm -q jackson-annotations | sed -n 's/^jackson-annotations-\([^-]*\)-.*$/\1/p')
-echo "JACKSON_VERSION: $JACKSON_VERSION"
-
-JAXRS_VERSION=$(rpm -q jboss-jaxrs-2.0-api | sed -n 's/^jboss-jaxrs-2.0-api-\([^-]*\)-.*$/\1.Final/p')
-echo "JAXRS_VERSION: $JAXRS_VERSION"
-
-JBOSS_LOGGING_VERSION=$(rpm -q jboss-logging | sed -n 's/^jboss-logging-\([^-]*\)-.*$/\1.Final/p')
-echo "JBOSS_LOGGING_VERSION: $JBOSS_LOGGING_VERSION"
-
-RESTEASY_VERSION=$(rpm -q pki-resteasy-core | sed -n 's/^pki-resteasy-core-\([^-]*\)-.*$/\1.Final/p')
-echo "RESTEASY_VERSION: $RESTEASY_VERSION"
+%if %{without runtime_deps}
 
 if [ ! -d base/common/lib ]
 then
-    mkdir base/common/lib
+    # import common libraries from RPMs
+
+    mkdir -p base/common/lib
+    pushd base/common/lib
+
+    JACKSON_VERSION=$(rpm -q jackson-annotations | sed -n 's/^jackson-annotations-\([^-]*\)-.*$/\1/p')
+    echo "JACKSON_VERSION: $JACKSON_VERSION"
 
     cp /usr/share/java/jackson-annotations.jar \
-        base/common/lib/jackson-annotations-$JACKSON_VERSION.jar
+        jackson-annotations-$JACKSON_VERSION.jar
     cp /usr/share/java/jackson-core.jar \
-        base/common/lib/jackson-core-$JACKSON_VERSION.jar
+        jackson-core-$JACKSON_VERSION.jar
     cp /usr/share/java/jackson-databind.jar \
-        base/common/lib/jackson-databind-$JACKSON_VERSION.jar
+        jackson-databind-$JACKSON_VERSION.jar
     cp /usr/share/java/jackson-jaxrs-providers/jackson-jaxrs-base.jar \
-        base/common/lib/jackson-jaxrs-base-$JACKSON_VERSION.jar
+        jackson-jaxrs-base-$JACKSON_VERSION.jar
     cp /usr/share/java/jackson-jaxrs-providers/jackson-jaxrs-json-provider.jar \
-        base/common/lib/jackson-jaxrs-json-provider-$JACKSON_VERSION.jar
+        jackson-jaxrs-json-provider-$JACKSON_VERSION.jar
     cp /usr/share/java/jackson-modules/jackson-module-jaxb-annotations.jar \
-        base/common/lib/jackson-module-jaxb-annotations-$JACKSON_VERSION.jar
+        jackson-module-jaxb-annotations-$JACKSON_VERSION.jar
+
+    JAXRS_VERSION=$(rpm -q jboss-jaxrs-2.0-api | sed -n 's/^jboss-jaxrs-2.0-api-\([^-]*\)-.*$/\1.Final/p')
+    echo "JAXRS_VERSION: $JAXRS_VERSION"
 
     cp /usr/share/java/jboss-jaxrs-2.0-api.jar \
-        base/common/lib/jboss-jaxrs-2.0-api-$JAXRS_VERSION.jar
+        jboss-jaxrs-2.0-api-$JAXRS_VERSION.jar
+
+    JBOSS_LOGGING_VERSION=$(rpm -q jboss-logging | sed -n 's/^jboss-logging-\([^-]*\)-.*$/\1.Final/p')
+    echo "JBOSS_LOGGING_VERSION: $JBOSS_LOGGING_VERSION"
 
     cp /usr/share/java/jboss-logging/jboss-logging.jar \
-        base/common/lib/jboss-logging-$JBOSS_LOGGING_VERSION.jar
+        jboss-logging-$JBOSS_LOGGING_VERSION.jar
+
+    RESTEASY_VERSION=$(rpm -q pki-resteasy-core | sed -n 's/^pki-resteasy-core-\([^-]*\)-.*$/\1.Final/p')
+    echo "RESTEASY_VERSION: $RESTEASY_VERSION"
 
     cp /usr/share/java/resteasy/resteasy-jaxrs.jar \
-        base/common/lib/resteasy-jaxrs-$RESTEASY_VERSION.jar
+        resteasy-jaxrs-$RESTEASY_VERSION.jar
     cp /usr/share/java/resteasy/resteasy-client.jar \
-        base/common/lib/resteasy-client-$RESTEASY_VERSION.jar
+        resteasy-client-$RESTEASY_VERSION.jar
     cp /usr/share/java/resteasy/resteasy-jackson2-provider.jar \
-        base/common/lib/resteasy-jackson2-provider-$RESTEASY_VERSION.jar
+        resteasy-jackson2-provider-$RESTEASY_VERSION.jar
 
-    ls -la base/common/lib
+    ls -l
+    popd
 fi
 
 if [ ! -d base/server/lib ]
 then
-    mkdir base/server/lib
+    # import server libraries from RPMs
+
+    mkdir -p base/server/lib
+    pushd base/server/lib
+
+    RESTEASY_VERSION=$(rpm -q pki-resteasy-servlet-initializer | sed -n 's/^pki-resteasy-servlet-initializer-\([^-]*\)-.*$/\1.Final/p')
+    echo "RESTEASY_VERSION: $RESTEASY_VERSION"
 
     cp /usr/share/java/resteasy/resteasy-servlet-initializer.jar \
-        base/server/lib/resteasy-servlet-initializer-$RESTEASY_VERSION.jar
+        resteasy-servlet-initializer-$RESTEASY_VERSION.jar
 
-    ls -la base/server/lib
+    ls -l
+    popd
 fi
 %endif
 
@@ -1311,16 +1328,16 @@ pkgs=base\
     --install-dir=%{buildroot} \
     install
 
-%if %{with deps}
+%if %{without runtime_deps}
 
 %if %{with base}
-echo "Installing JAR deps into %{buildroot}%{_datadir}/pki/lib"
+echo "Installing common libraries into %{buildroot}%{_datadir}/pki/lib"
 cp base/common/lib/* %{buildroot}%{_datadir}/pki/lib
 ls -l %{buildroot}%{_datadir}/pki/lib
 %endif
 
 %if %{with server}
-echo "Installing JAR deps into %{buildroot}%{_datadir}/pki/server/common/lib"
+echo "Installing server libraries into %{buildroot}%{_datadir}/pki/server/common/lib"
 cp base/server/lib/* %{buildroot}%{_datadir}/pki/server/common/lib
 ls -l %{buildroot}%{_datadir}/pki/server/common/lib
 %endif
@@ -1460,7 +1477,7 @@ xmlstarlet edit --inplace \
 # with maven
 %endif
 
-# with deps
+# without runtime_deps
 %endif
 
 %if %{with server}
