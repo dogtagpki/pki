@@ -27,6 +27,7 @@ import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.base.UnauthorizedException;
+import com.netscape.certsrv.base.WebAction;
 import com.netscape.certsrv.logging.ActivityCollection;
 import com.netscape.certsrv.logging.ActivityData;
 import com.netscape.certsrv.user.UserResource;
@@ -41,11 +42,10 @@ public class ActivityServlet extends TPSServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger logger = LoggerFactory.getLogger(ActivityServlet.class);
 
-    @Override
-    public void get(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        String method = "ActivityServlet.get:";
+    @WebAction(method = HttpMethod.GET, paths = { "/"})
+    public void findActivities(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
-        logger.debug("ActivityServlet.get(): session: {}", session.getId());
+        logger.debug("ActivityServlet.findActivities(): session: {}", session.getId());
         TPSSubsystem subsystem = getTPSSubsystem();
         ActivityDatabase database = subsystem.getActivityDatabase();
         PrintWriter out = response.getWriter();
@@ -54,35 +54,6 @@ public class ActivityServlet extends TPSServlet {
             throw new UnauthorizedException("User not authorized");
         }
 
-        logger.debug("{} pathInfo (\"{}\")", method, request.getPathInfo());
-        if(request.getPathInfo() != null) {
-            String id = request.getPathInfo().substring(1);
-            if(id.isBlank()) {
-                throw new BadRequestException("Id is empty");
-            }
-            logger.debug("{} (\"{}\")", method, id);
-            ActivityRecord aRec = null;
-            try {
-                aRec = database.getRecord(id);
-            } catch (Exception e) {
-                logger.debug(method +" error retrieving the activity record", e);
-                throw new ResourceNotFoundException("Record " + id + " not found");
-            }
-            if (aRec == null) {
-                logger.debug("{} record not found", method);
-                throw new ResourceNotFoundException("Record " + id + " not found");
-            }
-            String type = aRec.getType();
-
-            if ((type != null) && !type.isEmpty() && !authorizedProfiles.contains(UserResource.ALL_PROFILES) && !authorizedProfiles.contains(type)) {
-                String msg = "token type restricted: " + type;
-                logger.debug("{} {}", method, msg);
-                throw new PKIException(msg);
-            }
-            ActivityData data = createActivityData(aRec);
-            out.println(data.toJSON());
-            return;
-        }
         String filter = request.getParameter("filter");
         if (filter != null && filter.length() < MIN_FILTER_LENGTH) {
             throw new BadRequestException("Filter is too short.");
@@ -95,6 +66,44 @@ public class ActivityServlet extends TPSServlet {
         out.println(activities.toJSON());
     }
 
+    @WebAction(method = HttpMethod.GET, paths = { "/{}"})
+    public void getActivity(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        String method = "ActivityServlet.getActivity:";
+        HttpSession session = request.getSession();
+        logger.debug("ActivityServlet.getActivity(): session: {}", session.getId());
+        TPSSubsystem subsystem = getTPSSubsystem();
+        ActivityDatabase database = subsystem.getActivityDatabase();
+        List<String> authorizedProfiles = getAuthorizedProfiles(request);
+        if (authorizedProfiles.isEmpty()) {
+            throw new UnauthorizedException("User not authorized");
+        }
+        PrintWriter out = response.getWriter();
+        String id = request.getPathInfo().substring(1);
+        if(id.isBlank()) {
+            throw new BadRequestException("Id is empty");
+        }
+        logger.debug("{} (\"{}\")", method, id);
+        ActivityRecord aRec = null;
+        try {
+            aRec = database.getRecord(id);
+        } catch (Exception e) {
+            logger.debug(method +" error retrieving the activity record", e);
+            throw new ResourceNotFoundException("Record " + id + " not found");
+        }
+        if (aRec == null) {
+            logger.debug("{} record not found", method);
+            throw new ResourceNotFoundException("Record " + id + " not found");
+        }
+        String type = aRec.getType();
+
+        if ((type != null) && !type.isEmpty() && !authorizedProfiles.contains(UserResource.ALL_PROFILES) && !authorizedProfiles.contains(type)) {
+            String msg = "token type restricted: " + type;
+            logger.debug("{} {}", method, msg);
+            throw new PKIException(msg);
+        }
+        ActivityData data = createActivityData(aRec);
+        out.println(data.toJSON());
+    }
     private ActivityData createActivityData(ActivityRecord activityRecord) {
         ActivityData activityData = new ActivityData();
         activityData.setID(activityRecord.getId());

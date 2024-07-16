@@ -13,12 +13,11 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
 
 public class TPSAccountServletBase extends AccountServletBase {
-    TPSEngine engine = TPSEngine.getInstance();
-    TPSEngineConfig configStore = engine.getConfig();
 
-    @Override
-    protected Account createAccount(Principal principal) {
-        Account account = super.createAccount(principal);
+    public static Account createAccount(Principal principal) {
+        TPSEngine engine = TPSEngine.getInstance();
+        TPSEngineConfig configStore = engine.getConfig();
+        Account account = AccountServletBase.createAccount(principal);
         try {
             // determine accessible components based on roles
             Collection<String> components = new HashSet<>();

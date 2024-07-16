@@ -39,6 +39,7 @@ import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.UnauthorizedException;
+import com.netscape.certsrv.base.WebAction;
 import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.ldap.LDAPExceptionConverter;
 import com.netscape.certsrv.logging.ILogger;
@@ -61,9 +62,9 @@ public class TokenServlet extends TPSServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger logger = LoggerFactory.getLogger(TokenServlet.class);
 
-    @Override
-    public void get(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        String method = "TokenServlet.get:";
+    @WebAction(method = HttpMethod.GET, paths = { "/"})
+    public void findTokens(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        String method = "TokenServlet.findTokens:";
         TPSSubsystem subsystem = getTPSSubsystem();
         TokenDatabase database = subsystem.getTokenDatabase();
         List<String> authorizedProfiles = getAuthorizedProfiles(request);
@@ -72,41 +73,6 @@ public class TokenServlet extends TPSServlet {
         }
 
         PrintWriter out = response.getWriter();
-
-        if (request.getPathInfo() != null) {
-            String id = request.getPathInfo().substring(1);
-            if(id.isBlank()) {
-                throw new BadRequestException(method + " tokenID is empty");
-            }
-            logger.debug("{} (\"{}\")", method, id);
-
-            TokenRecord trec;
-            try {
-                trec = database.getRecord(id);
-            } catch (DBException e) {
-                Throwable t = e.getCause();
-                if (t instanceof LDAPException ldape) {
-                    throw LDAPExceptionConverter.toPKIException(ldape);
-                }
-                throw new PKIException(e);
-            }
-            if (trec == null) {
-                logger.debug("{} Token record not found", method);
-                throw new PKIException(method + " Token record not found");
-            }
-            String type = trec.getType();
-            if ((type == null) || type.isEmpty() ||
-                    authorizedProfiles.contains(UserResource.ALL_PROFILES) ||
-                    authorizedProfiles.contains(type)) {
-                try {
-                    TokenData tData = createTokenData(trec, request.getLocale());
-                    out.println(tData.toJSON());
-                    return;
-                } catch (MalformedURLException | TPSException e) {
-                    throw new PKIException(e);                }
-            }
-            throw new UnauthorizedException(method + " Token record restricted");
-        }
 
         String filter = request.getParameter("filter");
         if (filter != null && filter.length() < MIN_FILTER_LENGTH) {
@@ -137,25 +103,52 @@ public class TokenServlet extends TPSServlet {
         out.println(tokens.toJSON());
     }
 
-    @Override
-    public void post(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        String method = "TokenServlet.post:";
-        PrintWriter out = response.getWriter();
-
-        if (request.getPathInfo() != null) {
-            String id = request.getPathInfo().substring(1);
-            if(id.isBlank()) {
-                throw new BadRequestDataException(method + " tokenID is empty");
-            }
-            String status = request.getParameter("status");
-            if (StringUtils.isBlank(status)) {
-                throw new BadRequestDataException(method + " New status not provided");
-            }
-            TokenStatus tStatus = TokenStatus.valueOf(status);
-            TokenData token = changeTokenStatus(request, id, tStatus);
-            out.println(token.toJSON());
-            return;
+    @WebAction(method = HttpMethod.GET, paths = { "/{}"})
+    public void getToken(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        String method = "TokenServlet.getToken:";
+        TPSSubsystem subsystem = getTPSSubsystem();
+        TokenDatabase database = subsystem.getTokenDatabase();
+        List<String> authorizedProfiles = getAuthorizedProfiles(request);
+        if (authorizedProfiles.isEmpty()) {
+            throw new UnauthorizedException(method + " User not authorized");
         }
+
+        PrintWriter out = response.getWriter();
+        String id = request.getPathInfo().substring(1);
+        logger.debug("{} (\"{}\")", method, id);
+
+        TokenRecord trec;
+        try {
+            trec = database.getRecord(id);
+        } catch (DBException e) {
+            Throwable t = e.getCause();
+            if (t instanceof LDAPException ldape) {
+                throw LDAPExceptionConverter.toPKIException(ldape);
+            }
+            throw new PKIException(e);
+        }
+        if (trec == null) {
+            logger.debug("{} Token record not found", method);
+            throw new PKIException(method + " Token record not found");
+        }
+        String type = trec.getType();
+        if ((type == null) || type.isEmpty() ||
+                authorizedProfiles.contains(UserResource.ALL_PROFILES) ||
+                authorizedProfiles.contains(type)) {
+            try {
+                TokenData tData = createTokenData(trec, request.getLocale());
+                out.println(tData.toJSON());
+                return;
+            } catch (MalformedURLException | TPSException e) {
+                throw new PKIException(e);                }
+        }
+        throw new UnauthorizedException(method + " Token record restricted");
+    }
+
+    @WebAction(method = HttpMethod.POST, paths = { "/"})
+    public void addToken(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        String method = "TokenServlet.changeTokenStatus:";
+        PrintWriter out = response.getWriter();
         String contentType = request.getContentType();
         if (Objects.nonNull(contentType) && !contentType.equals("application/json")) {
             throw new BadRequestDataException(method + " not handling " + contentType);
@@ -171,19 +164,28 @@ public class TokenServlet extends TPSServlet {
         out.println(token.toJSON());
     }
 
+    @WebAction(method = HttpMethod.POST, paths = { "/{}"})
+    public void changeTokenStatus(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        String method = "TokenServlet.changeTokenStatus:";
+        PrintWriter out = response.getWriter();
 
-    @Override
-    public void put(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        String id = request.getPathInfo().substring(1);
+        String status = request.getParameter("status");
+        if (StringUtils.isBlank(status)) {
+            throw new BadRequestDataException(method + " New status not provided");
+        }
+        TokenStatus tStatus = TokenStatus.valueOf(status);
+        TokenData token = changeTokenStatus(request, id, tStatus);
+        out.println(token.toJSON());
+    }
+
+
+    @WebAction(method = HttpMethod.PUT, paths = { "/{}"})
+    public void replaceToken(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String method = "TokenServlet.put:";
         PrintWriter out = response.getWriter();
 
-        if (request.getPathInfo() == null) {
-            throw new BadRequestDataException(method + " tokenID not provided");
-        }
         String id = request.getPathInfo().substring(1);
-        if(id.isBlank()) {
-            throw new BadRequestDataException(method + " tokenID is empty");
-        }
         String contentType = request.getContentType();
         if (Objects.nonNull(contentType) && !contentType.equals("application/json")) {
             throw new BadRequestDataException(method + " not handling " + contentType);
@@ -194,18 +196,13 @@ public class TokenServlet extends TPSServlet {
         out.println(token.toJSON());
     }
 
-    @Override
-    public void patch(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    @WebAction(method = HttpMethod.PATCH, paths = { "/{}"})
+    public void modifyToken(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String method = "TokenServlet.patch:";
         PrintWriter out = response.getWriter();
 
-        if (request.getPathInfo() == null) {
-            throw new BadRequestDataException(method + " tokenID not provided");
-        }
         String id = request.getPathInfo().substring(1);
-        if(id.isBlank()) {
-            throw new BadRequestDataException(method + " tokenID is empty");
-        }
+
         String contentType = request.getContentType();
         if (Objects.nonNull(contentType) && !contentType.equals("application/json")) {
             throw new BadRequestDataException(method + " not handling " + contentType);
@@ -216,16 +213,11 @@ public class TokenServlet extends TPSServlet {
         out.println(token.toJSON());
     }
 
-    @Override
-    public void delete(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    @WebAction(method = HttpMethod.DELETE, paths = { "/{}"})
+    public void removeToken(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String method = "TokenServlet.delete:";
-        if (request.getPathInfo() == null) {
-            throw new BadRequestDataException(method + " tokenID not provided");
-        }
+
         String id = request.getPathInfo().substring(1);
-        if(id.isBlank()) {
-            throw new BadRequestDataException(method + " tokenID is empty");
-        }
         removeToken(request, id);
         response.setStatus(HttpServletResponse.SC_NO_CONTENT);
     }
