@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.dogtagpki.server.rest.v2.AccountServletBase;
+import org.dogtagpki.server.tps.TPSAccountServletBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,8 +33,7 @@ public class AccountServlet extends TPSServlet {
     public void login(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
         logger.info("AccountServlet: Creating session {}", session.getId());
-
-        Account account = AccountServletBase.createAccount(request.getUserPrincipal());
+        Account account = TPSAccountServletBase.createAccount(request.getUserPrincipal());
         PrintWriter out = response.getWriter();
         out.println(account.toJSON());
     }
