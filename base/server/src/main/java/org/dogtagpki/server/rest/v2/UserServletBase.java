@@ -5,9 +5,7 @@
 //
 package org.dogtagpki.server.rest.v2;
 
-import java.io.PrintWriter;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
@@ -19,12 +17,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.util.cert.CertUtil;
@@ -38,7 +30,6 @@ import org.mozilla.jss.pkcs11.PK11Cert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ForbiddenException;
@@ -59,7 +50,6 @@ import com.netscape.certsrv.user.UserData;
 import com.netscape.certsrv.user.UserMembershipCollection;
 import com.netscape.certsrv.user.UserMembershipData;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
-import com.netscape.certsrv.util.JSONSerializer;
 import com.netscape.cms.password.PasswordChecker;
 import com.netscape.cms.servlet.admin.GroupMemberProcessor;
 import com.netscape.cmscore.apps.CMS;
@@ -86,160 +76,9 @@ public class UserServletBase {
     public UserServletBase(CMSEngine engine) {
         this.engine = engine;
     }
-    public void get(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        HttpSession session = request.getSession();
-        logger.debug("UserServletBase.get(): session: {}", session.getId());
 
-        PrintWriter out = response.getWriter();
-        if (request.getPathInfo() == null) {
-            String filter = request.getParameter("filter");
-            int size = request.getParameter("size") == null ?
-                    PKIServlet.DEFAULT_SIZE : Integer.parseInt(request.getParameter("size"));
-            int start = request.getParameter("start") == null ? 0 : Integer.parseInt(request.getParameter("start"));
-            UserCollection users = findUsers(filter, start, size, request.getLocale());
-            out.println(users.toJSON());
-            return;
-        }
-        String[] pathElement = request.getPathInfo().substring(1).split("/");
-        String userId = pathElement[0];
-        if (pathElement.length == 1) {
-            UserData user = getUser(userId, request.getLocale());
-            out.println(user.toJSON());
-            return;
-        }
-        if(pathElement[1].equals("certs")) {
-            if (pathElement.length == 2) {
-                int size = request.getParameter("size") == null ?
-                        PKIServlet.DEFAULT_SIZE : Integer.parseInt(request.getParameter("size"));
-                int start = request.getParameter("start") == null ? 0 : Integer.parseInt(request.getParameter("start"));
-                UserCertCollection userCerts = findUserCerts(userId, start, size, request.getLocale());
-                out.println(userCerts.toJSON());
-                return;
-            }
-            if (pathElement.length == 3) {
-                String certId = pathElement[2];
-                UserCertData userCert = getUserCert(userId, certId, request.getLocale());
-                out.println(userCert.toJSON());
-                return;
-            }
-        }
-        if (pathElement[1].equals("memberships") && pathElement.length == 2) {
-            String filter = request.getParameter("filter");
-            int size = request.getParameter("size") == null ?
-                    PKIServlet.DEFAULT_SIZE : Integer.parseInt(request.getParameter("size"));
-            int start = request.getParameter("start") == null ? 0 : Integer.parseInt(request.getParameter("start"));
-            UserMembershipCollection userMemberships = findUserMemberships(userId, filter, start, size, request.getLocale());
-            out.println(userMemberships.toJSON());
-            return;
-        }
-        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-    }
 
-    public void post(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        HttpSession session = request.getSession();
-        logger.debug("UserServletBase.post(): session: {}", session.getId());
-        String contentType = request.getContentType();
-        if (Objects.nonNull(contentType) && !contentType.equals("application/json")) {
-            throw new BadRequestDataException(contentType + " not accepted");
-        }
-        PrintWriter out = response.getWriter();
-        if (request.getPathInfo() == null) {
-            String requestData = request.getReader().lines().collect(Collectors.joining());
-            UserData userData = JSONSerializer.fromJSON(requestData, UserData.class);
-            UserData user = addUser(userData, request.getLocale());
-            String encodedUserID = URLEncoder.encode(user.getUserID(), "UTF-8");
-            StringBuffer uri = request.getRequestURL();
-            uri.append("/" + encodedUserID);
-            response.setStatus(HttpServletResponse.SC_CREATED);
-            response.setHeader("Location", uri.toString());
-            out.println(user.toJSON());
-            return;
-        }
-        String[] pathElement = request.getPathInfo().substring(1).split("/");
-        String userId = pathElement[0];
-        if (pathElement.length == 2) {
-            if (pathElement[1].equals("certs")) {
-                String requestData = request.getReader().lines().collect(Collectors.joining());
-                UserCertData userCertData = JSONSerializer.fromJSON(requestData, UserCertData.class);
-                UserCertData userCert = addUserCert(userId, userCertData, request.getLocale());
-                if (userCert == null) {
-                    return;
-                }
-                String encodedUserCertID = URLEncoder.encode(userCert.getID(), "UTF-8");
-                StringBuffer uri = request.getRequestURL();
-                uri.append("/" + encodedUserCertID);
-                response.setStatus(HttpServletResponse.SC_CREATED);
-                response.setHeader("Location", uri.toString());
-                out.println(userCertData.toJSON());
-                return;
-            }
-            if (pathElement[1].equals("memberships")) {
-                String groupId = request.getReader().readLine();
-                UserMembershipData userMembership = addUserMembership(userId, groupId, request.getLocale());
-                String encodedUserGroupID = URLEncoder.encode(groupId, "UTF-8");
-                StringBuffer uri = request.getRequestURL();
-                uri.append("/" + encodedUserGroupID);
-                response.setStatus(HttpServletResponse.SC_CREATED);
-                response.setHeader("Location", uri.toString());
-                out.println(userMembership.toJSON());
-                return;
-            }
-        }
-        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-    }
-
-    public void patch(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        HttpSession session = request.getSession();
-        logger.debug("UserServletBase.patch(): session: {}", session.getId());
-        if (request.getPathInfo() == null) {
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            return;
-        }
-        String[] pathElement = request.getPathInfo().substring(1).split("/");
-        if (pathElement.length > 1) {
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            return;
-        }
-        String userId = pathElement[0];
-        String requestData = request.getReader().lines().collect(Collectors.joining());
-        UserData userData = JSONSerializer.fromJSON(requestData, UserData.class);
-        UserData user = modifyUser(userId, userData, request.getLocale());
-        PrintWriter out = response.getWriter();
-        out.println(user.toJSON());
-    }
-
-    public void delete(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        HttpSession session = request.getSession();
-        logger.debug("UserServletBase.delete(): session: {}", session.getId());
-        if (request.getPathInfo() == null) {
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            return;
-        }
-        String[] pathElement = request.getPathInfo().substring(1).split("/");
-        String userId = pathElement[0];
-        if (pathElement.length == 1) {
-            removeUser(userId, request.getLocale());
-            response.setStatus(HttpServletResponse.SC_NO_CONTENT);
-            return;
-        }
-        if (pathElement.length == 3) {
-            if (pathElement[1].equals("certs")) {
-                String certId = pathElement[2];
-                removeUserCert(userId, certId, request.getLocale());
-                response.setStatus(HttpServletResponse.SC_NO_CONTENT);
-                return;
-            }
-            if (pathElement[1].equals("memberships")) {
-                String groupId = pathElement[2];
-                removeUserMembership(userId, groupId, request.getLocale());
-                response.setStatus(HttpServletResponse.SC_NO_CONTENT);
-                return;
-            }
-        }
-        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-    }
-
-    private UserCollection findUsers(String filter, int start, int size, Locale loc) {
+    public UserCollection findUsers(String filter, int start, int size, Locale loc) {
 
         if (filter != null && filter.length() < PKIServlet.MIN_FILTER_LENGTH) {
             throw new BadRequestException("Filter is too short.");
@@ -362,7 +201,7 @@ public class UserServletBase {
         return userData;
     }
 
-    private UserCertCollection findUserCerts(String userID, int start, int size, Locale loc) {
+    public UserCertCollection findUserCerts(String userID, int start, int size, Locale loc) {
         try {
             if (userID == null || userID.isBlank()) {
                 logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
@@ -485,7 +324,7 @@ public class UserServletBase {
         }
     }
 
-    private UserMembershipCollection findUserMemberships(String userID, String filter, int start, int size, Locale loc) {
+    public UserMembershipCollection findUserMemberships(String userID, String filter, int start, int size, Locale loc) {
 
         logger.debug("UserServletBase.findUserMemberships(" + userID + ", " + filter + ")");
 
@@ -543,7 +382,7 @@ public class UserServletBase {
         return userMembershipData;
     }
 
-    private UserData addUser(UserData userData, Locale loc) {
+    public UserData addUser(UserData userData, Locale loc) {
 
         logger.debug("UserServletBase.addUser()");
 
@@ -670,7 +509,7 @@ public class UserServletBase {
         }
     }
 
-    private UserData modifyUser(String userID, UserData userData, Locale loc) {
+    public UserData modifyUser(String userID, UserData userData, Locale loc) {
 
         logger.debug("UserServletBase.modifyUser({})", userID);
 
@@ -753,7 +592,7 @@ public class UserServletBase {
         }
     }
 
-    private void removeUser(String userID, Locale loc) {
+    public void removeUser(String userID, Locale loc) {
 
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
@@ -788,7 +627,7 @@ public class UserServletBase {
         }
     }
 
-    private UserCertData addUserCert(String userID, UserCertData userCertData, Locale loc) {
+    public UserCertData addUserCert(String userID, UserCertData userCertData, Locale loc) {
 
         if (userCertData == null) throw new BadRequestException("Certificate data is null.");
 
@@ -975,7 +814,7 @@ public class UserServletBase {
         }
     }
 
-    private void removeUserCert(String userID, String certID, Locale loc) {
+    public void removeUserCert(String userID, String certID, Locale loc) {
 
         if (userID == null || userID.isBlank()) throw new BadRequestException(CMS.getUserMessage(loc, "CMS_ADMIN_SRVLT_NULL_RS_ID"));
         if (certID == null || certID.isBlank()) throw new BadRequestException("Certificate ID is null.");
@@ -1013,7 +852,7 @@ public class UserServletBase {
         }
     }
 
-    private UserMembershipData addUserMembership(String userID, String groupID, Locale loc) {
+    public UserMembershipData addUserMembership(String userID, String groupID, Locale loc) {
 
         if (userID == null || userID.isBlank()) throw new BadRequestException("User ID is null.");
         if (groupID == null || groupID.isBlank()) throw new BadRequestException("Group ID is null.");
@@ -1053,7 +892,7 @@ public class UserServletBase {
         }
     }
 
-    private void removeUserMembership(String userID, String groupID, Locale loc) {
+    public void removeUserMembership(String userID, String groupID, Locale loc) {
 
         if (userID == null || userID.isBlank()) throw new BadRequestException("User ID is null.");
         if (groupID == null || groupID.isBlank()) throw new BadRequestException("Group ID is null.");
