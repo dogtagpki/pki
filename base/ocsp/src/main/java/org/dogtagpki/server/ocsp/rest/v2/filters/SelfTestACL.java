@@ -19,7 +19,7 @@ public class SelfTestACL extends ACLFilter {
     public void init() throws ServletException {
         setAcl(READ);
         Map<String, String> aclMap = new HashMap<>();
-        aclMap.put("POST:", EXECUTE);
+        aclMap.put("POST:/", EXECUTE);
         aclMap.put("POST:/run", EXECUTE);
         aclMap.put("POST:/{}/run", EXECUTE);
         setAclMap(aclMap);
