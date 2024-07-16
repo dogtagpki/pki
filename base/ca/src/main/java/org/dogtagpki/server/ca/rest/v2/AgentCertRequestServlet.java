@@ -31,6 +31,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.HTTPGoneException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ServiceUnavailableException;
+import com.netscape.certsrv.base.WebAction;
 import com.netscape.certsrv.ca.CADisabledException;
 import com.netscape.certsrv.ca.CAMissingCertException;
 import com.netscape.certsrv.ca.CAMissingKeyException;
@@ -67,27 +68,9 @@ public class AgentCertRequestServlet extends CAServlet {
     private static final long serialVersionUID = 1L;
     private static Logger logger = LoggerFactory.getLogger(AgentCertRequestServlet.class);
 
-    @Override
-    public void get(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    @WebAction(method = HttpMethod.GET, paths = {"/"})
+    public void listRequests(HttpServletRequest request, HttpServletResponse response) throws Exception {
         PrintWriter out = response.getWriter();
-        if(request.getPathInfo() != null) {
-            RequestId id;
-            try {
-                id = new RequestId(request.getPathInfo().substring(1));
-            } catch(NumberFormatException e) {
-                throw new BadRequestException("Id not valid: " + request.getPathInfo().substring(1));
-            }
-            try {
-                CertReviewResponse req = getRequestData(request, id);
-                if(req == null) {
-                    throw new RequestNotFoundException(id);
-                }
-                out.println(req.toJSON());
-            } catch (Exception e) {
-                    response.sendError(HttpServletResponse.SC_NOT_FOUND, request.getRequestURI());
-            }
-            return;
-        }
         int maxTime = request.getParameter("maxTime") == null ?
                 DEFAULT_MAXTIME : Integer.parseInt(request.getParameter("maxTime"));
         int size = request.getParameter("pageSize") == null ?
@@ -105,93 +88,102 @@ public class AgentCertRequestServlet extends CAServlet {
             throw new PKIException(message, e);
         }
     }
+    @WebAction(method = HttpMethod.GET, paths = {"/{}"})
+    public void reviewRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        RequestId id;
+        try {
+            id = new RequestId(request.getPathInfo().substring(1));
+        } catch(NumberFormatException e) {
+            throw new BadRequestException("Id not valid: " + request.getPathInfo().substring(1));
+        }
+        try {
+            CertReviewResponse req = getRequestData(request, id);
+            if(req == null) {
+                throw new RequestNotFoundException(id);
+            }
+            PrintWriter out = response.getWriter();
+            out.println(req.toJSON());
+        } catch (Exception e) {
+            String message = "Unable to review cert request: error retrieving the request";
+            logger.error(message, e);
+            throw new PKIException(message, e);
+        }
+    }
 
-    @Override
-    public void post(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    @WebAction(method = HttpMethod.POST, paths = {
+            "/{}/approve", "/{}/reject", "/{}/cancel",
+            "/{}/update", "/{}/validate", "/{}/unassign", "/{}/assign"})
+    public void postRequestOperation(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
-        logger.debug("AgentCertRequestServlet.post(): session: {}", session.getId());
+        logger.debug("AgentCertRequestServlet.postRequestOperation(): session: {}", session.getId());
 
-        if (request.getPathInfo() == null || request.getPathInfo().isEmpty()) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, request.getRequestURI());
-            return;
-        }
         String[] pathElement = request.getPathInfo().substring(1).split("/");
-
-        if (pathElement.length != 2) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, request.getRequestURI());
-            return;
-        }
-
         RequestId id;
         try {
             id = new RequestId(pathElement[0]);
         } catch(NumberFormatException e) {
             throw new BadRequestException("Id not valid: " + pathElement[0]);
         }
+        String operation = pathElement[1];
 
-        if (pathElement[1].matches("approve|reject|cancel|update|validate|unassign|assign")) {
-            logger.info("AgentCertRequestServlet: operation {} on certificate request {}",pathElement[1], id.toHexString());
-            BufferedReader reader = request.getReader();
-            String postMessage = reader.lines().collect(Collectors.joining());
+        logger.info("AgentCertRequestServlet: operation {} on certificate request {}", operation, id.toHexString());
+        BufferedReader reader = request.getReader();
+        String postMessage = reader.lines().collect(Collectors.joining());
 
-            CertReviewResponse data = JSONSerializer.fromJSON(postMessage, CertReviewResponse.class);
+        CertReviewResponse data = JSONSerializer.fromJSON(postMessage, CertReviewResponse.class);
 
-            try {
-                changeRequestState(id, request, data, request.getLocale(), pathElement[1]);
+        try {
+            changeRequestState(id, request, data, request.getLocale(), operation);
+            response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+        } catch (ERejectException e) {
+            String message = CMS.getUserMessage(request.getLocale(), "CMS_PROFILE_REJECTED", e.getMessage());
+            logger.error(message, e);
+            throw new BadRequestException(message, e);
 
-            } catch (ERejectException e) {
-                String message = CMS.getUserMessage(request.getLocale(), "CMS_PROFILE_REJECTED", e.getMessage());
-                logger.error(message, e);
-                throw new BadRequestException(message, e);
+        } catch (EDeferException e) {
+            String message = CMS.getUserMessage(request.getLocale(), "CMS_PROFILE_DEFERRED", e.toString());
+            logger.error(message, e);
+            throw new BadRequestException(message, e);
 
-            } catch (EDeferException e) {
-                String message = CMS.getUserMessage(request.getLocale(), "CMS_PROFILE_DEFERRED", e.toString());
-                logger.error(message, e);
-                throw new BadRequestException(message, e);
+        } catch (BadRequestDataException e) {
+            String message = "Bad request data: " + e.getMessage();
+            logger.error(message, e);
+            throw new BadRequestException(message, e);
 
-            } catch (BadRequestDataException e) {
-                String message = "Bad request data: " + e.getMessage();
-                logger.error(message, e);
-                throw new BadRequestException(message, e);
+        } catch (CANotFoundException e) {
+            // The target CA does not exist (deleted between
+            // request submission and approval).
+            String message = "CA not found: " + e.getMessage();
+            logger.error(message, e);
+            throw new HTTPGoneException(message, e);
 
-            } catch (CANotFoundException e) {
-                // The target CA does not exist (deleted between
-                // request submission and approval).
-                String message = "CA not found: " + e.getMessage();
-                logger.error(message, e);
-                throw new HTTPGoneException(message, e);
+        } catch (CADisabledException e) {
+            String message = "CA disabled: " + e.getMessage();
+            logger.error(message, e);
+            throw new ConflictingOperationException(message, e);
 
-            } catch (CADisabledException e) {
-                String message = "CA disabled: " + e.getMessage();
-                logger.error(message, e);
-                throw new ConflictingOperationException(message, e);
+        } catch (CAMissingCertException | CAMissingKeyException e) {
+            logger.error(CMS.getLogMessage("CMSCORE_CA_SIGNING_CERT_NOT_FOUND", e.toString()), e);
+            throw new ServiceUnavailableException(e.toString(), e);
 
-            } catch (CAMissingCertException | CAMissingKeyException e) {
-                logger.error(CMS.getLogMessage("CMSCORE_CA_SIGNING_CERT_NOT_FOUND", e.toString()), e);
-                throw new ServiceUnavailableException(e.toString(), e);
+        } catch (EPropertyException e) {
+            logger.error("AgentCertRequestServlet: Unable to change request state: " + e.getMessage(), e);
+            throw new PKIException("Unable to change request state: " + e.getMessage(), e);
 
-            } catch (EPropertyException e) {
-                logger.error("AgentCertRequestServlet: Unable to change request state: " + e.getMessage(), e);
-                throw new PKIException("Unable to change request state: " + e.getMessage(), e);
+        } catch (EProfileException e) {
+            String message = CMS.getUserMessage(request.getLocale(), "CMS_INTERNAL_ERROR") + ": " + e.getMessage();
+            logger.error(message, e);
+            throw new PKIException(message, e);
 
-            } catch (EProfileException e) {
-                String message = CMS.getUserMessage(request.getLocale(), "CMS_INTERNAL_ERROR") + ": " + e.getMessage();
-                logger.error(message, e);
-                throw new PKIException(message, e);
+        } catch (EBaseException e) {
+            String message = "Unable to change request state: " + e.getMessage();
+            logger.error(message, e);
+            throw new PKIException(message, e);
 
-            } catch (EBaseException e) {
-                String message = "Unable to change request state: " + e.getMessage();
-                logger.error(message, e);
-                throw new PKIException(message, e);
-
-            } catch (RequestNotFoundException e) {
-                String message = "Unable to change request state: " + e.getMessage();
-                logger.error(message, e);
-                throw e;
-            }
-
-        } else {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, request.getRequestURI());
+        } catch (RequestNotFoundException e) {
+            String message = "Unable to change request state: " + e.getMessage();
+            logger.error(message, e);
+            throw e;
         }
     }
 
