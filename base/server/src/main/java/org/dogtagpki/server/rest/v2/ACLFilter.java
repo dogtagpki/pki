@@ -89,7 +89,7 @@ public abstract class ACLFilter extends HttpFilter {
         if(request instanceof HttpServletRequest req &&
                 response instanceof HttpServletResponse resp) {
             method = req.getMethod();
-            path = req.getPathInfo() != null ? req.getPathInfo() : "";
+            path = req.getPathInfo() != null ? req.getPathInfo() : "/";
             final String aclSearch = method + ":" + path;
             if (aclMap!=null) {
                 Optional<String> aclKey = aclMap.keySet().stream().

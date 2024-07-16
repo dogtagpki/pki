@@ -11,10 +11,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,56 +36,8 @@ public class SelfTestServletBase {
     public SelfTestServletBase(CMSEngine engine) {
         this.engine = engine;
     }
-    public void get(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        HttpSession session = request.getSession();
-        logger.debug("SelfTestServletBase.get(): session: {}", session.getId());
 
-        PrintWriter out = response.getWriter();
-        if (request.getPathInfo() == null) {
-            String filter = request.getParameter("filter");
-            int size = request.getParameter("size") == null ?
-                    PKIServlet.DEFAULT_SIZE : Integer.parseInt(request.getParameter("size"));
-            int start = request.getParameter("start") == null ? 0 : Integer.parseInt(request.getParameter("start"));
-            SelfTestCollection tests = findSelfTests(filter, start, size);
-            out.println(tests.toJSON());
-            return;
-        }
-        String[] pathElement = request.getPathInfo().substring(1).split("/");
-        if (pathElement.length == 1) {
-            String selfTestId = pathElement[0];
-            SelfTestData test = getSelfTest(selfTestId);
-            out.println(test.toJSON());
-            return;
-        }
-        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-    }
-
-    public void post(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        HttpSession session = request.getSession();
-        logger.debug("SelfTestServletBase.post(): session: {}", session.getId());
-        if (request.getPathInfo() == null) {
-            String action = request.getParameter("action");
-            executeSelfTests(action);
-            response.setStatus(HttpServletResponse.SC_NO_CONTENT);
-            return;
-        }
-        String[] pathElement = request.getPathInfo().substring(1).split("/");
-        PrintWriter out = response.getWriter();
-        if (pathElement.length == 1 && pathElement[0].equals("run")) {
-            SelfTestResults results = runSelfTests();
-            out.println(results.toJSON());
-            return;
-        }
-        if (pathElement.length == 2 && pathElement[1].equals("run")) {
-            String testId = pathElement[0];
-            SelfTestResult result = runSelfTest(testId);
-            out.println(result.toJSON());
-            return;
-        }
-        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-    }
-
-    private SelfTestCollection findSelfTests(String filter, Integer start, Integer size) {
+    public SelfTestCollection findSelfTests(String filter, Integer start, Integer size) {
 
         logger.info("SelfTestServletBase: Searching for selftests");
         logger.info("SelfTestServletBase: - filter: {}", filter);
@@ -173,7 +121,7 @@ public class SelfTestServletBase {
         return selfTestData;
     }
 
-    private void executeSelfTests(String action) {
+    public void executeSelfTests(String action) {
 
         logger.info("SelfTestServletBase: Executing selftest {}", action);
 
@@ -194,7 +142,7 @@ public class SelfTestServletBase {
         }
     }
 
-    private SelfTestResults runSelfTests() {
+    public SelfTestResults runSelfTests() {
 
         logger.info("SelfTestServletBase: Running all selftests");
 
