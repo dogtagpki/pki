@@ -5,16 +5,11 @@
 //
 package org.dogtagpki.server.rest.v2;
 
-import java.io.PrintWriter;
 import java.security.Principal;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.dogtagpki.job.JobCollection;
 import org.dogtagpki.job.JobInfo;
@@ -45,43 +40,7 @@ public class JobServletBase {
         this.engine = engine;
     }
 
-    public void get(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        HttpSession session = request.getSession();
-        logger.debug("JobServletBase.get(): session: {}", session.getId());
-        PrintWriter out = response.getWriter();
-        if (request.getPathInfo() == null) {
-            JobCollection jobs = findJobs(request.getUserPrincipal());
-            out.println(jobs.toJSON());
-            return;
-        }
-        String[] pathElement = request.getPathInfo().substring(1).split("/");
-        if (pathElement.length == 1) {
-            String jobId = pathElement[0];
-            JobInfo job = getJob(jobId, request.getUserPrincipal());
-            out.println(job.toJSON());
-            return;
-        }
-        throw new ResourceNotFoundException("Path: " + request.getPathInfo());
-    }
-
-    public void post(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        HttpSession session = request.getSession();
-        logger.debug("SelfTestServletBase.post(): session: {}", session.getId());
-
-        if (request.getPathInfo() == null) {
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            return;
-        }
-        String[] pathElement = request.getPathInfo().substring(1).split("/");
-        if (pathElement.length == 2 && pathElement[1].equals("start")) {
-            String jobId = pathElement[0];
-            startJob(jobId, request.getUserPrincipal());
-            return;
-        }
-        throw new ResourceNotFoundException("Path: " + request.getPathInfo());
-    }
-
-    private JobCollection findJobs(Principal principal) throws EBaseException {
+    public JobCollection findJobs(Principal principal) throws EBaseException {
 
         logger.info("JobServletBase: Finding jobs");
 
@@ -142,7 +101,7 @@ public class JobServletBase {
         return createJobInfo(id, jobConfig, true);
     }
 
-    private void startJob(String id, Principal principal) throws EBaseException {
+    public void startJob(String id, Principal principal) throws EBaseException {
 
         logger.info("JobServletBase: Starting job {}", id);
 
