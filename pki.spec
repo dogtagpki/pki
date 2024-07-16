@@ -110,6 +110,7 @@ ExcludeArch: i686
 %bcond_without server
 %bcond_without acme
 %bcond_without ca
+%bcond_without esc
 %bcond_without est
 %bcond_without kra
 %bcond_without ocsp
@@ -192,11 +193,11 @@ BuildRequires:    xmlstarlet
 BuildRequires:    mvn(commons-cli:commons-cli)
 BuildRequires:    mvn(commons-codec:commons-codec)
 BuildRequires:    mvn(commons-io:commons-io)
-BuildRequires:    mvn(org.apache.commons:commons-lang3)
 BuildRequires:    mvn(commons-logging:commons-logging)
 BuildRequires:    mvn(commons-net:commons-net)
-BuildRequires:    mvn(org.slf4j:slf4j-api)
+BuildRequires:    mvn(org.apache.commons:commons-lang3)
 BuildRequires:    mvn(org.apache.httpcomponents:httpclient)
+BuildRequires:    mvn(org.slf4j:slf4j-api)
 BuildRequires:    mvn(xml-apis:xml-apis)
 BuildRequires:    mvn(xml-resolver:xml-resolver)
 BuildRequires:    mvn(org.junit.jupiter:junit-jupiter-api)
@@ -207,14 +208,16 @@ BuildRequires:    mvn(jakarta.xml.bind:jakarta.xml.bind-api)
 BuildRequires:    mvn(com.fasterxml.jackson.core:jackson-annotations)
 BuildRequires:    mvn(com.fasterxml.jackson.core:jackson-core)
 BuildRequires:    mvn(com.fasterxml.jackson.core:jackson-databind)
+BuildRequires:    mvn(com.fasterxml.jackson.module:jackson-module-jaxb-annotations)
+BuildRequires:    mvn(com.fasterxml.jackson.jaxrs:jackson-jaxrs-base)
 BuildRequires:    mvn(com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider)
 
-BuildRequires:    mvn(org.jboss.logging:jboss-logging)
 BuildRequires:    mvn(org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.0_spec)
+BuildRequires:    mvn(org.jboss.logging:jboss-logging)
 
+BuildRequires:    mvn(org.jboss.resteasy:resteasy-jaxrs)
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-client)
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-jackson2-provider)
-BuildRequires:    mvn(org.jboss.resteasy:resteasy-jaxrs)
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-servlet-initializer)
 
 BuildRequires:    mvn(org.apache.tomcat:tomcat-catalina) >= 9.0.62
@@ -311,38 +314,92 @@ Requires:         %{product_id}-server = %{version}-%{release}
 
 %if %{with acme}
 Requires:         %{product_id}-acme = %{version}-%{release}
+%else
+Obsoletes:        pki-acme < %{version}
+Conflicts:        pki-acme < %{version}
+
+Obsoletes:        %{product_id}-acme < %{version}
+Conflicts:        %{product_id}-acme < %{version}
 %endif
 
 %if %{with ca}
 Requires:         %{product_id}-ca = %{version}-%{release}
+%else
+Obsoletes:        pki-ca < %{version}
+Conflicts:        pki-ca < %{version}
+
+Obsoletes:        %{product_id}-ca < %{version}
+Conflicts:        %{product_id}-ca < %{version}
 %endif
 
 %if %{with est}
 Requires:         %{product_id}-est = %{version}-%{release}
+%else
+Obsoletes:        pki-est < %{version}
+Conflicts:        pki-est < %{version}
+
+Obsoletes:        %{product_id}-est < %{version}
+Conflicts:        %{product_id}-est < %{version}
 %endif
 
 %if %{with kra}
 Requires:         %{product_id}-kra = %{version}-%{release}
+%else
+Obsoletes:        pki-kra < %{version}
+Conflicts:        pki-kra < %{version}
+
+Obsoletes:        %{product_id}-kra < %{version}
+Conflicts:        %{product_id}-kra < %{version}
 %endif
 
 %if %{with ocsp}
 Requires:         %{product_id}-ocsp = %{version}-%{release}
+%else
+Obsoletes:        pki-ocsp < %{version}
+Conflicts:        pki-ocsp < %{version}
+
+Obsoletes:        %{product_id}-ocsp < %{version}
+Conflicts:        %{product_id}-ocsp < %{version}
 %endif
 
 %if %{with tks}
 Requires:         %{product_id}-tks = %{version}-%{release}
+%else
+Obsoletes:        pki-tks < %{version}
+Conflicts:        pki-tks < %{version}
+
+Obsoletes:        %{product_id}-tks < %{version}
+Conflicts:        %{product_id}-tks < %{version}
 %endif
 
 %if %{with tps}
 Requires:         %{product_id}-tps = %{version}-%{release}
+%else
+Obsoletes:        pki-tps < %{version}
+Conflicts:        pki-tps < %{version}
+
+Obsoletes:        %{product_id}-tps < %{version}
+Conflicts:        %{product_id}-tps < %{version}
 %endif
 
 %if %{with javadoc}
 Requires:         %{product_id}-javadoc = %{version}-%{release}
+%else
+Obsoletes:        pki-javadoc < %{version}
+Conflicts:        pki-javadoc < %{version}
+
+Obsoletes:        %{product_id}-javadoc < %{version}
+Conflicts:        %{product_id}-javadoc < %{version}
 %endif
 
 %if %{with console}
 Requires:         %{product_id}-console = %{version}-%{release}
+%else
+Obsoletes:        pki-console < %{version}
+Conflicts:        pki-console < %{version}
+
+Obsoletes:        %{product_id}-console < %{version}
+Conflicts:        %{product_id}-console < %{version}
 %endif
 
 %if %{with theme}
@@ -350,16 +407,33 @@ Requires:         %{product_id}-theme = %{version}-%{release}
 %if %{with console}
 Requires:         %{product_id}-console-theme = %{version}-%{release}
 %endif
+%else
+Obsoletes:        pki-theme < %{version}
+Conflicts:        pki-theme < %{version}
+
+Obsoletes:        %{product_id}-theme < %{version}
+Conflicts:        %{product_id}-theme < %{version}
+
+Obsoletes:        pki-console-theme < %{version}
+Conflicts:        pki-console-theme < %{version}
+
+Obsoletes:        %{product_id}-console-theme < %{version}
+Conflicts:        %{product_id}-console-theme < %{version}
 %endif
 
 %if %{with tests}
 Requires:         %{product_id}-tests = %{version}-%{release}
 %endif
 
+%if %{with esc}
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL PKI clients -- except for s390/s390x where 'esc' is not built
 %ifnarch s390 s390x
-Requires:         esc >= 1.1.1
+Requires:         esc >= 1.1.2
+%endif
+%else
+Obsoletes:        esc <= 1.1.2
+Conflicts:        esc <= 1.1.2
 %endif
 
 # description for top-level package (unless there is a separate meta package)
@@ -452,22 +526,41 @@ Requires:         %{java_headless}
 Requires:         mvn(commons-cli:commons-cli)
 Requires:         mvn(commons-codec:commons-codec)
 Requires:         mvn(commons-io:commons-io)
-Requires:         mvn(org.apache.commons:commons-lang3)
 Requires:         mvn(commons-logging:commons-logging)
 Requires:         mvn(commons-net:commons-net)
+Requires:         mvn(org.apache.commons:commons-lang3)
+Requires:         mvn(org.apache.httpcomponents:httpclient)
 Requires:         mvn(org.slf4j:slf4j-api)
 Requires:         mvn(org.slf4j:slf4j-jdk14)
 Requires:         mvn(jakarta.annotation:jakarta.annotation-api)
+Requires:         mvn(jakarta.xml.bind:jakarta.xml.bind-api)
 
 %if %{without deps}
 Requires:         mvn(com.fasterxml.jackson.core:jackson-annotations)
 Requires:         mvn(com.fasterxml.jackson.core:jackson-core)
 Requires:         mvn(com.fasterxml.jackson.core:jackson-databind)
+Requires:         mvn(com.fasterxml.jackson.jaxrs:jackson-jaxrs-base)
 Requires:         mvn(com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider)
 
+Requires:         mvn(org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.0_spec)
+Requires:         mvn(org.jboss.logging:jboss-logging)
+
+Requires:         mvn(org.jboss.resteasy:resteasy-jaxrs)
 Requires:         mvn(org.jboss.resteasy:resteasy-client)
 Requires:         mvn(org.jboss.resteasy:resteasy-jackson2-provider)
-Requires:         mvn(org.jboss.resteasy:resteasy-jaxrs)
+%else
+Provides:         bundled(jackson-annotations)
+Provides:         bundled(jackson-core)
+Provides:         bundled(jackson-databind)
+Provides:         bundled(jackson-jaxrs-providers)
+Provides:         bundled(jackson-jaxrs-json-provider)
+
+Provides:         bundled(jboss-jaxrs-2.0-api)
+Provides:         bundled(jboss-logging)
+
+Provides:         bundled(resteasy-jaxrs)
+Provides:         bundled(resteasy-client)
+Provides:         bundled(resteasy-jackson2-provider)
 %endif
 
 Requires:         mvn(org.dogtagpki.jss:jss-base) >= 5.5.0
@@ -538,6 +631,8 @@ Requires:         selinux-policy-targeted >= 3.13.1-159
 
 %if %{without deps}
 Requires:         mvn(org.jboss.resteasy:resteasy-servlet-initializer)
+%else
+Provides:         bundled(resteasy-servlet-initializer)
 %endif
 
 Requires:         tomcat >= 1:9.0.62
