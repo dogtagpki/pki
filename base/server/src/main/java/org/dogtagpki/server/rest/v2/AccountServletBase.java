@@ -5,13 +5,8 @@
 //
 package org.dogtagpki.server.rest.v2;
 
-import java.io.PrintWriter;
 import java.security.Principal;
 import java.util.Arrays;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.apache.catalina.realm.GenericPrincipal;
 import org.apache.commons.lang3.StringUtils;
@@ -26,37 +21,9 @@ import com.netscape.cmscore.usrgrp.User;
  * @author Marco Fargetta {@literal <mfargett@redhat.com>}
  */
 public class AccountServletBase {
-
     public static final Logger logger = LoggerFactory.getLogger(AccountServletBase.class);
 
-    public void get(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        if(request.getPathInfo() == null) {
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            return;
-        }
-        String operation = request.getPathInfo().substring(1);
-        if (operation.equals("login")) {
-            HttpSession session = request.getSession();
-            logger.info("Creating session {}", session.getId());
-
-            Account account = createAccount(request.getUserPrincipal());
-            PrintWriter out = response.getWriter();
-            out.println(account.toJSON());
-            return;
-        }
-        if (operation.equals("logout")) {
-            HttpSession session = request.getSession(false);
-            if (session != null) {
-                logger.info("Destroying session {}", session.getId());
-                session.invalidate();
-            }
-            return;
-        }
-        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-    }
-
-
-    protected Account createAccount(Principal principal) {
+    public static Account createAccount(Principal principal) {
         logger.info("Principal:");
 
         Account account = new Account();
@@ -87,5 +54,4 @@ public class AccountServletBase {
 
         return account;
     }
-
 }
