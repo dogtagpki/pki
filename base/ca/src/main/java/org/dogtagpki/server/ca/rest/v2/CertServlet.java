@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.base.WebAction;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.cert.CertDataInfo;
 import com.netscape.certsrv.cert.CertDataInfos;
@@ -66,32 +67,10 @@ public class CertServlet extends CAServlet {
     private static final long serialVersionUID = 1L;
     private static Logger logger = LoggerFactory.getLogger(CertServlet.class);
 
-    @Override
-    public void get(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    @WebAction(method = HttpMethod.GET, paths = { "/"})
+    public void listCerts(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
-        logger.debug("CertServlet.get(): session: {}", session.getId());
-
-        PrintWriter out = response.getWriter();
-        if(request.getPathInfo() != null) {
-            CertId id;
-            try {
-                id = new CertId(request.getPathInfo().substring(1));
-            } catch(NumberFormatException e) {
-                throw new BadRequestException("Id not valid: " + request.getPathInfo().substring(1));
-            }
-            CertData cert;
-
-            try {
-                cert = getCertData(id);
-                out.println(cert.toJSON());
-            } catch (DBRecordNotFoundException e) {
-                throw new CertNotFoundException(id);
-
-            } catch (Exception e) {
-                throw new PKIException(e.getMessage(), e);
-            }
-            return;
-        }
+        logger.debug("CertServlet.listCerts(): session: {}", session.getId());
 
         int maxTime = request.getParameter("maxTime") == null ?
                 DEFAULT_MAXTIME : Integer.parseInt(request.getParameter("maxTime"));
@@ -101,17 +80,37 @@ public class CertServlet extends CAServlet {
 
         CertSearchRequest searchElems = CertSearchRequest.fromMap(request.getParameterMap());
         CertDataInfos infos = listCerts(searchElems, maxTime, start, size);
+        PrintWriter out = response.getWriter();
         out.println(infos.toJSON());
     }
 
-    @Override
-    public void post(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    @WebAction(method = HttpMethod.GET, paths = { "/{}"})
+    public void getCert(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
-        logger.debug("CertServlet.post(): session: {}", session.getId());
-
-        if(request.getPathInfo() == null || !request.getPathInfo().equals("/search")) {
+        logger.debug("CertServlet.getCert(): session: {}", session.getId());
+        CertId id;
+        try {
+            id = new CertId(request.getPathInfo().substring(1));
+        } catch(NumberFormatException e) {
             throw new BadRequestException("Id not valid: " + request.getPathInfo().substring(1));
         }
+        CertData cert;
+        try {
+            cert = getCertData(id);
+            PrintWriter out = response.getWriter();
+            out.println(cert.toJSON());
+        } catch (DBRecordNotFoundException e) {
+            throw new CertNotFoundException(id);
+
+        } catch (Exception e) {
+            throw new PKIException(e.getMessage(), e);
+        }
+    }
+
+    @WebAction(method = HttpMethod.POST, paths = { "/search"})
+    public void searchCerts(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        HttpSession session = request.getSession();
+        logger.debug("CertServlet.searchCerts(): session: {}", session.getId());
 
         BufferedReader reader = request.getReader();
         String postMessage = reader.lines().collect(Collectors.joining());
@@ -204,7 +203,7 @@ public class CertServlet extends CAServlet {
         FilterBuilder builder = new FilterBuilder(searchReq);
         String filter = builder.buildFilter();
 
-        logger.info("Search filter: " + filter);
+        logger.info("Search filter: {}", filter);
 
         CertDataInfos infos = new CertDataInfos();
         try {
@@ -222,7 +221,7 @@ public class CertServlet extends CAServlet {
             }
 
             infos.setTotal(results.size());
-            logger.info("Search results: " + results.size());
+            logger.info("Search results: {}", results.size());
             infos.setEntries(results);
         } catch (Exception e) {
             logger.error("Unable to list certificates: " + e.getMessage(), e);

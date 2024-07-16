@@ -45,8 +45,8 @@ import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
-import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.base.UnauthorizedException;
+import com.netscape.certsrv.base.WebAction;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.cert.CertNotFoundException;
 import com.netscape.certsrv.cert.CertRequestInfo;
@@ -78,13 +78,8 @@ public class AgentCertServlet extends CAServlet{
     private static final long serialVersionUID = 1L;
     private static Logger logger = LoggerFactory.getLogger(AgentCertServlet.class);
 
-    @Override
-    public void get(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        if(request.getPathInfo() == null) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, request.getRequestURI());
-            return;
-        }
-
+    @WebAction(method = HttpMethod.GET, paths = { "/{}"})
+    public void reviewCert(HttpServletRequest request, HttpServletResponse response) throws Exception {
         CertId id;
         try {
             id = new CertId(request.getPathInfo().substring(1));
@@ -104,52 +99,65 @@ public class AgentCertServlet extends CAServlet{
             throw new PKIException(e.getMessage(), e);
         }
     }
-    @Override
-    public void post(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+    @WebAction(method = HttpMethod.POST, paths = { "/{}/revoke-ca"})
+    public void revokeCACert(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
-        logger.debug("AgentCertRequestServlet.post(): session: {}", session.getId());
+        logger.debug("AgentCertRequestServlet.revokeCACert(): session: {}", session.getId());
+        revoke(request, response, true);
+    }
 
-        if (request.getPathInfo() == null || request.getPathInfo().isEmpty()) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, request.getRequestURI());
-            return;
-        }
+    @WebAction(method = HttpMethod.POST, paths = { "/{}/revoke"})
+    public void revokeCert(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        HttpSession session = request.getSession();
+        logger.debug("AgentCertRequestServlet.revokeCert(): session: {}", session.getId());
+        revoke(request, response, false);
+    }
+
+    @WebAction(method = HttpMethod.POST, paths = { "/{}/unrevoke"})
+    public void unrevokeCert(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        HttpSession session = request.getSession();
+        logger.debug("AgentCertRequestServlet.unrevokeCert(): session: {}", session.getId());
         String[] pathElement = request.getPathInfo().substring(1).split("/");
-
-        if (pathElement.length != 2) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, request.getRequestURI());
-            return;
-        }
         CertId id;
         try {
             id = new CertId(pathElement[0]);
         } catch(NumberFormatException e) {
             throw new BadRequestException("Id not valid: " + pathElement[0]);
         }
-        CertRequestInfo info = null;
-        if (pathElement[1].matches("revoke-ca|revoke")) {
-            logger.info("AgentCertServlet: operation {} on certificate {}",pathElement[1], id.toHexString());
-            BufferedReader reader = request.getReader();
-            String postMessage = reader.lines().collect(Collectors.joining());
+        logger.info("AgentCertServlet: operation {} on certificate {}",pathElement[1], id.toHexString());
+        CertRequestInfo info = unrevokeCert(request, id);
+        PrintWriter out = response.getWriter();
+        if (info == null) {
+            throw new PKIException("Error processing the certificate");
+        }
+        out.print(info.toJSON());
+    }
 
-            CertRevokeRequest data;
-            try {
-                data = JSONSerializer.fromJSON(postMessage, CertRevokeRequest.class);
-            } catch (JsonProcessingException ex) {
-                throw new BadRequestException(ex.getMessage());
-            }
-            info = revokeCert(request, id, data, pathElement[1].equals("revoke-ca"));
+    private void revoke(HttpServletRequest request, HttpServletResponse response, boolean isCA) throws Exception {
+        String[] pathElement = request.getPathInfo().substring(1).split("/");
+        CertId id;
+        try {
+            id = new CertId(pathElement[0]);
+        } catch(NumberFormatException e) {
+            throw new BadRequestException("Id not valid: " + pathElement[0]);
         }
-        if (pathElement[1].equals("unrevoke")) {
-            logger.info("AgentCertServlet: operation {} on certificate {}",pathElement[1], id.toHexString());
-            info = unrevokeCert(request, id);
+        logger.info("AgentCertServlet: operation {} on certificate {}", pathElement[1], id.toHexString());
+        BufferedReader reader = request.getReader();
+        String postMessage = reader.lines().collect(Collectors.joining());
+
+        CertRevokeRequest data;
+        try {
+            data = JSONSerializer.fromJSON(postMessage, CertRevokeRequest.class);
+        } catch (JsonProcessingException ex) {
+            throw new BadRequestException(ex.getMessage());
         }
-        if (info != null) {
-            PrintWriter out = response.getWriter();
-            out.print(info.toJSON());
-            return;
+        CertRequestInfo info = revokeCert(request, id, data, isCA);
+        if (info == null) {
+            throw new PKIException("Error processing the certificate");
         }
-        logger.debug("AgentCertServlet: not existing operation {} for certificate {}",pathElement[1], id.toHexString());
-        throw new ResourceNotFoundException("Action not present:" + pathElement[1]);
+        PrintWriter out = response.getWriter();
+        out.print(info.toJSON());
     }
 
     private CertData getCertData(HttpServletRequest servletRequest, CertId id, boolean generateNonce) throws Exception {

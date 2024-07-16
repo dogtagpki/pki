@@ -37,6 +37,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.base.UnauthorizedException;
+import com.netscape.certsrv.base.WebAction;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.cert.CertRequestInfo;
@@ -67,51 +68,47 @@ public class CertRequestServlet extends CAServlet {
     private static final long serialVersionUID = 1L;
     private static Logger logger = LoggerFactory.getLogger(CertRequestServlet.class);
 
-    @Override
+    @WebAction(method = HttpMethod.GET, paths = {"/{}"})
     public void get(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
         logger.debug("CertRequestServlet.get(): session: {}", session.getId());
 
         PrintWriter out = response.getWriter();
-        if(request.getPathInfo() == null) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, request.getRequestURI());
-            return;
-        }
-
         String[] pathElement = request.getPathInfo().substring(1).split("/");
-        if (pathElement.length == 1) {
-            if (pathElement[0].equals("profiles")) {
-                int size = request.getParameter("size") == null ?
-                        DEFAULT_SIZE : Integer.parseInt(request.getParameter("size"));
-                int start = request.getParameter("start") == null ? 0 : Integer.parseInt(request.getParameter("start"));
-                ProfileDataInfos infos = listEnrollmentTemplates(request, start, size);
-                out.println(infos.toJSON());
-                return;
-            }
-            RequestId id;
-            try {
-                id = new RequestId(pathElement[0]);
-            } catch(NumberFormatException e) {
-                throw new BadRequestException("Id not valid: " + pathElement[0]);
-            }
-            CertRequestInfo info = getRequestInfo(id);
-            out.println(info.toJSON());
+        if (pathElement[0].equals("profiles")) {
+            int size = request.getParameter("size") == null ?
+                    DEFAULT_SIZE : Integer.parseInt(request.getParameter("size"));
+            int start = request.getParameter("start") == null ? 0 : Integer.parseInt(request.getParameter("start"));
+            ProfileDataInfos infos = listEnrollmentTemplates(request, start, size);
+            out.println(infos.toJSON());
             return;
         }
-        if (pathElement.length == 2 && pathElement[0].equals("profiles")) {
-            CertEnrollmentRequest req = getEnrollmentTemplate(pathElement[1], request.getLocale());
-            out.println(req.toJSON());
-            return;
+        RequestId id;
+        try {
+            id = new RequestId(pathElement[0]);
+        } catch(NumberFormatException e) {
+            throw new BadRequestException("Id not valid: " + pathElement[0]);
         }
-        response.sendError(HttpServletResponse.SC_NOT_FOUND, request.getRequestURI());
-
-
+        CertRequestInfo info = getRequestInfo(id);
+        out.println(info.toJSON());
     }
 
-    @Override
-    public void post(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    @WebAction(method = HttpMethod.GET, paths = {"/profiles/{}"})
+    public void getEnrollmentTemplate(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
         HttpSession session = request.getSession();
-        logger.debug("CertServlet.post(): session: {}", session.getId());
+        logger.debug("CertRequestServlet.getEnrollmentTemplate(): session: {}", session.getId());
+
+        PrintWriter out = response.getWriter();
+        String[] pathElement = request.getPathInfo().substring(1).split("/");
+        CertEnrollmentRequest req = getEnrollmentTemplate(pathElement[1], request.getLocale());
+        out.println(req.toJSON());
+    }
+
+    @WebAction(method = HttpMethod.POST, paths = {"/"})
+    public void enrollCert(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        HttpSession session = request.getSession();
+        logger.debug("CertServlet.enrollCert(): session: {}", session.getId());
 
         if(request.getPathInfo() != null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND, request.getRequestURI());
