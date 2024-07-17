@@ -7,8 +7,8 @@ package com.netscape.cmstools.system;
 
 import java.io.ByteArrayInputStream;
 
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.MultivaluedHashMap;
+import jakarta.ws.rs.core.MultivaluedMap;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;

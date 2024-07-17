@@ -20,7 +20,7 @@ package com.netscape.certsrv.base;
 import java.io.StringReader;
 import java.io.StringWriter;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;

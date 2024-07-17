@@ -27,10 +27,10 @@ import java.util.Enumeration;
 import java.util.LinkedHashSet;
 import java.util.Locale;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.ca.CAEngine;
 

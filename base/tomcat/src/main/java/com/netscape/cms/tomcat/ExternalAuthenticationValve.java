@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 
 import org.apache.catalina.Session;
 import org.apache.catalina.connector.Request;

@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.Date;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.dogtagpki.server.authentication.AuthToken;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;

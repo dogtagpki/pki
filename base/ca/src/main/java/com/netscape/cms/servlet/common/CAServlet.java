@@ -23,8 +23,8 @@ import java.math.BigInteger;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.pkcs.ContentInfo;

@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.client.Entity;
+import jakarta.ws.rs.client.Entity;
 
 import org.dogtagpki.common.Info;
 import org.dogtagpki.common.Version;

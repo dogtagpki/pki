@@ -18,7 +18,7 @@
 
 package org.dogtagpki.server.rest;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 import org.dogtagpki.common.Info;
 import org.dogtagpki.common.InfoResource;

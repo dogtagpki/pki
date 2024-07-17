@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
-import javax.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.MultivaluedMap;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;

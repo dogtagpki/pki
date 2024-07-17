@@ -18,7 +18,7 @@
 
 package org.dogtagpki.server.cli;
 
-import javax.ws.rs.ProcessingException;
+import jakarta.ws.rs.ProcessingException;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;

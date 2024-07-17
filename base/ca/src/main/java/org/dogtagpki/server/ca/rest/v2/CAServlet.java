@@ -5,9 +5,9 @@
 //
 package org.dogtagpki.server.ca.rest.v2;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.rest.v2.PKIServlet;

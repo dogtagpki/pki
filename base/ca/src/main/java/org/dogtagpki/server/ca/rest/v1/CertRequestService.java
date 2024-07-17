@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.x509.X500Name;

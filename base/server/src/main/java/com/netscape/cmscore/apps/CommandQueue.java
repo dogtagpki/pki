@@ -20,7 +20,7 @@ package com.netscape.cmscore.apps;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-import javax.servlet.Servlet;
+import jakarta.servlet.Servlet;
 
 import com.netscape.cms.servlet.common.CMSRequest;
 

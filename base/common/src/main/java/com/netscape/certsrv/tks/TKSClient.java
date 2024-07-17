@@ -21,8 +21,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.MultivaluedHashMap;
+import jakarta.ws.rs.core.MultivaluedMap;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.netscape.certsrv.authentication.EAuthException;

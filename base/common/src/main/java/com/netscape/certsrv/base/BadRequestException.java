@@ -16,7 +16,7 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.base;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 public class BadRequestException extends PKIException {
 
