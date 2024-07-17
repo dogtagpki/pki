@@ -98,6 +98,22 @@ jobs:
           -e '/^\/usr\/lib\/.build-id\//d' \
           -e '/__pycache__/d' \
           file_list
+
+      # exclude bundled libraries which are only available in RPM
+      sed -i \
+          -e '/^\/usr\/share\/pki\/lib\/jackson-annotations-.*\.jar/d' \
+          -e '/^\/usr\/share\/pki\/lib\/jackson-core-.*\.jar/d' \
+          -e '/^\/usr\/share\/pki\/lib\/jackson-databind-.*\.jar/d' \
+          -e '/^\/usr\/share\/pki\/lib\/jackson-jaxrs-base-.*\.jar/d' \
+          -e '/^\/usr\/share\/pki\/lib\/jackson-jaxrs-json-provider-.*\.jar/d' \
+          -e '/^\/usr\/share\/pki\/lib\/jackson-module-jaxb-annotations-.*\.jar/d' \
+          -e '/^\/usr\/share\/pki\/lib\/jboss-jaxrs-2.0-api-.*\.jar/d' \
+          -e '/^\/usr\/share\/pki\/lib\/jboss-logging-.*\.jar/d' \
+          -e '/^\/usr\/share\/pki\/lib\/resteasy-jaxrs-.*\.jar/d' \
+          -e '/^\/usr\/share\/pki\/lib\/resteasy-client-.*\.jar/d' \
+          -e '/^\/usr\/share\/pki\/lib\/resteasy-jackson2-provider-.*\.jar/d' \
+          -e '/^\/usr\/share\/pki\/server\/common\/lib\/resteasy-servlet-initializer-.*\.jar/d' \
+          file_list
     displayName: Get list of files from RPM packages
 
   - script: |
