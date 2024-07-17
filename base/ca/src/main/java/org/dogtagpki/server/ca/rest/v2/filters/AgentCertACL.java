@@ -8,7 +8,7 @@ package org.dogtagpki.server.ca.rest.v2.filters;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebFilter;
 
-import org.dogtagpki.server.rest.v2.ACLFilter;
+import org.dogtagpki.server.rest.v2.filters.ACLFilter;
 
 @WebFilter(servletNames = "caCert-agent")
 public class AgentCertACL extends ACLFilter {

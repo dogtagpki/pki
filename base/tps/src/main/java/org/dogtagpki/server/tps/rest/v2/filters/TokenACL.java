@@ -6,7 +6,7 @@ import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebFilter;
 
-import org.dogtagpki.server.rest.v2.ACLFilter;
+import org.dogtagpki.server.rest.v2.filters.ACLFilter;
 
 @WebFilter(servletNames = "token")
 public class TokenACL extends ACLFilter {

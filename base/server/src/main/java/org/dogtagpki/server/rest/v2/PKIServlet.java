@@ -40,6 +40,7 @@ import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.certsrv.base.WebAction;
 import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * Implement the basic class to handle REST APIs
@@ -211,6 +212,8 @@ public abstract class PKIServlet extends HttpServlet {
     }
 
     protected abstract String getSubsystemName();
+
+    protected abstract CMSEngine getEngine();
 
     protected String getSubsystemConfDir() {
         return CMS.getInstanceDir() + File.separator + getSubsystemName() + File.separator + "conf";

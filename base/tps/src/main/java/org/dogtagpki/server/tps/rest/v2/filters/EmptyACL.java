@@ -7,7 +7,7 @@ package org.dogtagpki.server.tps.rest.v2.filters;
 
 import javax.servlet.annotation.WebFilter;
 
-import org.dogtagpki.server.rest.v2.ACLFilter;
+import org.dogtagpki.server.rest.v2.filters.ACLFilter;
 
 @WebFilter(servletNames = {"activity", "tpsJobs"})
 public class EmptyACL extends ACLFilter {
