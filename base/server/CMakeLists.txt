@@ -137,6 +137,7 @@ add_custom_target(pki-server-common-lib ALL
 add_custom_command(
     TARGET pki-server-common-lib
     COMMAND ${CMAKE_COMMAND} -E make_directory common/lib
+    COMMAND test ! -d ${CMAKE_SOURCE_DIR}/base/server/lib || cp ${CMAKE_SOURCE_DIR}/base/server/lib/* common/lib
     COMMAND ln -sf ../../../lib/commons-codec.jar common/lib/commons-codec.jar
     COMMAND ln -sf ../../../lib/commons-io.jar common/lib/commons-io.jar
     COMMAND ln -sf ../../../lib/commons-lang3.jar common/lib/commons-lang3.jar

@@ -1330,18 +1330,6 @@ pkgs=base\
 
 %if %{without runtime_deps}
 
-%if %{with base}
-echo "Installing common libraries into %{buildroot}%{_datadir}/pki/lib"
-cp base/common/lib/* %{buildroot}%{_datadir}/pki/lib
-ls -l %{buildroot}%{_datadir}/pki/lib
-%endif
-
-%if %{with server}
-echo "Installing server libraries into %{buildroot}%{_datadir}/pki/server/common/lib"
-cp base/server/lib/* %{buildroot}%{_datadir}/pki/server/common/lib
-ls -l %{buildroot}%{_datadir}/pki/server/common/lib
-%endif
-
 %if %{with maven}
 
 %if %{with meta}
