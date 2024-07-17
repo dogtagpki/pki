@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import org.apache.commons.lang3.StringUtils;
-import org.dogtagpki.server.rest.v2.AccountServletBase;
+import org.dogtagpki.server.rest.base.AccountServletBase;
 
 import com.netscape.certsrv.account.Account;
 import com.netscape.certsrv.base.EBaseException;

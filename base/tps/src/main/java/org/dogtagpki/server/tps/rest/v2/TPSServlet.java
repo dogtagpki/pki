@@ -59,6 +59,10 @@ public class TPSServlet extends PKIServlet {
         return getTPSEngine().getID();
     }
 
+    @Override
+    protected CMSEngine getEngine() {
+        return getTPSEngine();
+    }
 
     protected void audit(String message, String scope, String type, String id, Map<String, String> params, String status) {
 

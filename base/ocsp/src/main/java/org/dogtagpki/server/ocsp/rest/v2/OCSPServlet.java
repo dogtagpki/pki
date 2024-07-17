@@ -10,6 +10,8 @@ import javax.servlet.ServletContext;
 import org.dogtagpki.server.ocsp.OCSPEngine;
 import org.dogtagpki.server.rest.v2.PKIServlet;
 
+import com.netscape.cmscore.apps.CMSEngine;
+
 /**
  * @author Marco Fargetta {@literal <mfargett@redhat.com>}
  */
@@ -24,5 +26,10 @@ public class OCSPServlet extends PKIServlet {
     @Override
     protected String getSubsystemName() {
         return getOCSPEngine().getID();
+    }
+
+    @Override
+    protected CMSEngine getEngine() {
+        return getOCSPEngine();
     }
 }
