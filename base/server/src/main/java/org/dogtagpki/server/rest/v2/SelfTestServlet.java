@@ -7,7 +7,6 @@ package org.dogtagpki.server.rest.v2;
 
 import java.io.PrintWriter;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -21,7 +20,6 @@ import com.netscape.certsrv.selftests.SelfTestCollection;
 import com.netscape.certsrv.selftests.SelfTestData;
 import com.netscape.certsrv.selftests.SelfTestResult;
 import com.netscape.certsrv.selftests.SelfTestResults;
-import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * @author Marco Fargetta {@literal <mfargett@redhat.com>}
@@ -87,16 +85,5 @@ public class SelfTestServlet extends PKIServlet {
         SelfTestResult result = selfTestServlet.runSelfTest(testId);
         PrintWriter out = response.getWriter();
         out.println(result.toJSON());
-    }
-
-    @Override
-    protected String getSubsystemName() {
-        return getEngine().getID();
-    }
-
-    @Override
-    protected CMSEngine getEngine() {
-        ServletContext servletContext = getServletContext();
-        return (CMSEngine) servletContext.getAttribute("engine");
     }
 }

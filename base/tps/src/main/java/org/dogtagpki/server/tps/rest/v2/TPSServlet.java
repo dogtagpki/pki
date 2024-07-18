@@ -54,16 +54,6 @@ public class TPSServlet extends PKIServlet {
         return user.getTpsProfiles();
     }
 
-    @Override
-    protected String getSubsystemName() {
-        return getTPSEngine().getID();
-    }
-
-    @Override
-    protected CMSEngine getEngine() {
-        return getTPSEngine();
-    }
-
     protected void audit(String message, String scope, String type, String id, Map<String, String> params, String status) {
 
         CMSEngine engine = getTPSEngine();
