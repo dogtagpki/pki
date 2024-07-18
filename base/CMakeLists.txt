@@ -262,27 +262,49 @@ else()
 
 endif (JAXB_API_VERSION)
 
-if(XMVN_RESOLVE)
+if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
     execute_process(
-        COMMAND xmvn-resolve jakarta.activation:jakarta.activation-api:2
-        OUTPUT_VARIABLE JAKARTA_ACTIVATION_API_JAR
+        COMMAND ls ${CMAKE_SOURCE_DIR}/base/common/lib
+        COMMAND sed -n "s/^jakarta\\.activation-api-\\(.*\\)\\.jar\$/\\1/p"
         OUTPUT_STRIP_TRAILING_WHITESPACE
+        OUTPUT_VARIABLE JAKARTA_ACTIVATION_API_VERSION
     )
+endif (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+
+if (JAKARTA_ACTIVATION_API_VERSION)
+    # use imported JARs
+
+    set(JAKARTA_ACTIVATION_API_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/jakarta.activation-api-${JAKARTA_ACTIVATION_API_VERSION}.jar")
+    set(JAKARTA_ACTIVATION_API_LINK "jakarta.activation-api-${JAKARTA_ACTIVATION_API_VERSION}.jar")
+
 else()
-    find_file(JAKARTA_ACTIVATION_API_JAR
-        NAMES
-            jakarta.activation.jar
-            jakarta-activation.jar
-            javax.activation.jar
-            javax-activation.jar
-        PATHS
-            /usr/share/java/jakarta-activation
-            /usr/share/java/jakarta
-            /usr/share/java/javax-activation
-            /usr/share/java/javax
-            /usr/share/java
-    )
-endif(XMVN_RESOLVE)
+    # use system JARs
+
+    if(XMVN_RESOLVE)
+        execute_process(
+            COMMAND xmvn-resolve jakarta.activation:jakarta.activation-api:2
+            OUTPUT_VARIABLE JAKARTA_ACTIVATION_API_JAR
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    else()
+        find_file(JAKARTA_ACTIVATION_API_JAR
+            NAMES
+                jakarta.activation-api.jar
+                jakarta.activation.jar
+                jakarta-activation.jar
+                javax.activation.jar
+                javax-activation.jar
+            PATHS
+                /usr/share/java/jakarta-activation
+                /usr/share/java/jakarta
+                /usr/share/java/javax-activation
+                /usr/share/java/javax
+                /usr/share/java
+        )
+    endif(XMVN_RESOLVE)
+    set(JAKARTA_ACTIVATION_API_LINK "../../../..${JAKARTA_ACTIVATION_API_JAR}")
+
+endif (JAKARTA_ACTIVATION_API_VERSION)
 
 if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
     execute_process(
