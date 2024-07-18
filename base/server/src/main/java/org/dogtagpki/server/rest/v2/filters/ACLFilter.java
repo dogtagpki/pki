@@ -8,6 +8,7 @@ package org.dogtagpki.server.rest.v2.filters;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.Principal;
@@ -67,6 +68,9 @@ import com.netscape.cmscore.logging.Auditor;
  *   key= POST:token       value=token.add
  *   key= PUT:token/{}     value=token.modify
  *   key= DELETE:token/{}  value=token.delete
+ *
+ * @author Marco Fargetta {@literal <mfargett@redhat.com>}
+ * @author Endi S. Dewata
  */
 public abstract class ACLFilter extends HttpFilter {
 
@@ -108,7 +112,9 @@ public abstract class ACLFilter extends HttpFilter {
                 checkACL(req, acl);
                 chain.doFilter(request, response);
             } catch (ForbiddenException fe) {
-                resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                PrintWriter out = resp.getWriter();
+                out.print(fe.getData().toJSON());
             }
         }
     }
@@ -149,7 +155,8 @@ public abstract class ACLFilter extends HttpFilter {
     }
 
     protected void checkACL(HttpServletRequest request, String aclName) throws ForbiddenException {
-        String auditInfo =  request.getMethod() + ":" + request.getPathInfo();
+        String pathInfo = request.getPathInfo() == null ? "" : request.getPathInfo().substring(1);
+        String auditInfo =  request.getMethod() + ":" + pathInfo;
 
         logger.debug("ACLFilter: {}", auditInfo);
         String auditSubjectID = ILogger.UNIDENTIFIED;

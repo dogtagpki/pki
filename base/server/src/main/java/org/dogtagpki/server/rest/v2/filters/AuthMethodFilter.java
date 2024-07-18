@@ -32,6 +32,10 @@ import com.netscape.certsrv.base.PKIException;
 import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cmscore.apps.CMS;
 
+/**
+ * @author Marco Fargetta {@literal <mfargett@redhat.com>}
+ * @author Endi S. Dewata
+ */
 public abstract class AuthMethodFilter extends HttpFilter {
 
     private static final long serialVersionUID = 1L;
