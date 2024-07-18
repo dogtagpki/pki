@@ -134,7 +134,7 @@ add_custom_command(
     COMMAND ln -sf ../../../..${JAKARTA_ACTIVATION_API_JAR} lib/jakarta.activation-api.jar
     COMMAND ln -sf ../../../..${JAKARTA_ANNOTATION_API_JAR} lib/jakarta.annotation-api.jar
     COMMAND ln -sf ../../../..${JAXB_API_JAR} lib/jakarta.xml.bind-api.jar
-    COMMAND ln -sf ${JAXRS_API_LINK} lib/jboss-jaxrs-2.0-api.jar
+    COMMAND ln -sf ${JAXRS_API_LINK} lib/jboss-jaxrs-api_2.0_spec.jar
     COMMAND ln -sf ${JBOSS_LOGGING_LINK} lib/jboss-logging.jar
     COMMAND ln -sf ../../../..${JSS_JAR} lib/jss.jar
     COMMAND ln -sf ../../../..${LDAPJDK_JAR} lib/ldapjdk.jar
