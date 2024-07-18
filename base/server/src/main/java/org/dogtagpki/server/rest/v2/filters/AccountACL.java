@@ -12,8 +12,8 @@ public class AccountACL extends ACLFilter {
     public void init() throws ServletException {
         setAcl("account.login");
         Map<String, String> aclMap = new HashMap<>();
-        aclMap.put("GET:/login", "account.login");
-        aclMap.put("GET:/logout", "account.logout");
+        aclMap.put("GET:login", "account.login");
+        aclMap.put("GET:logout", "account.logout");
         setAclMap(aclMap);
     }
 }

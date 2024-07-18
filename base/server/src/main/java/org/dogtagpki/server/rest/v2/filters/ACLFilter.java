@@ -64,9 +64,9 @@ import com.netscape.cmscore.logging.Auditor;
  *
  *   ACLMap:
  *
- *   key= POST:/token       value=token.add
- *   key= PUT:/token/{}     value=token.modify
- *   key= DELETE:/token/{}  value=token.delete
+ *   key= POST:token       value=token.add
+ *   key= PUT:token/{}     value=token.modify
+ *   key= DELETE:token/{}  value=token.delete
  */
 public abstract class ACLFilter extends HttpFilter {
 
@@ -89,7 +89,7 @@ public abstract class ACLFilter extends HttpFilter {
         if(request instanceof HttpServletRequest req &&
                 response instanceof HttpServletResponse resp) {
             method = req.getMethod();
-            path = req.getPathInfo() != null ? req.getPathInfo() : "/";
+            path = req.getPathInfo() != null ? req.getPathInfo().substring(1) : "";
             final String aclSearch = method + ":" + path;
             if (aclMap!=null) {
                 Optional<String> aclKey = aclMap.keySet().stream().

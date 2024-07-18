@@ -29,7 +29,7 @@ public class CAInfoServlet extends CAServlet {
     private static final long serialVersionUID = 1L;
     private static Logger logger = LoggerFactory.getLogger(CAInfoServlet.class);
 
-    @WebAction(method = HttpMethod.GET, paths = {"/"})
+    @WebAction(method = HttpMethod.GET, paths = {""})
     public void getInfo(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
         logger.debug("CAInfoServlet.get(): session: {}", session.getId());

@@ -42,7 +42,7 @@ public class ActivityServlet extends TPSServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger logger = LoggerFactory.getLogger(ActivityServlet.class);
 
-    @WebAction(method = HttpMethod.GET, paths = { "/"})
+    @WebAction(method = HttpMethod.GET, paths = {""})
     public void findActivities(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
         logger.debug("ActivityServlet.findActivities(): session: {}", session.getId());
@@ -66,7 +66,7 @@ public class ActivityServlet extends TPSServlet {
         out.println(activities.toJSON());
     }
 
-    @WebAction(method = HttpMethod.GET, paths = { "/{}"})
+    @WebAction(method = HttpMethod.GET, paths = {"{}"})
     public void getActivity(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String method = "ActivityServlet.getActivity:";
         HttpSession session = request.getSession();

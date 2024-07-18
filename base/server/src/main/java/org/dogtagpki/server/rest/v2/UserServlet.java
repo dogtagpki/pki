@@ -35,7 +35,7 @@ public class UserServlet extends PKIServlet {
     private static final long serialVersionUID = 1L;
     public static final Logger logger = LoggerFactory.getLogger(UserServlet.class);
 
-    @WebAction(method = HttpMethod.GET, paths = { "/"})
+    @WebAction(method = HttpMethod.GET, paths = { ""})
     public void findUsers(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
         logger.debug("UserServlet.findUsers(): session: {}", session.getId());
@@ -49,7 +49,7 @@ public class UserServlet extends PKIServlet {
         out.println(users.toJSON());
     }
 
-    @WebAction(method = HttpMethod.POST, paths = { "/"})
+    @WebAction(method = HttpMethod.POST, paths = { ""})
     public void addUser(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
         logger.debug("UserServlet.addUser(): session: {}", session.getId());
@@ -66,7 +66,7 @@ public class UserServlet extends PKIServlet {
         out.println(user.toJSON());
     }
 
-    @WebAction(method = HttpMethod.GET, paths = { "/{}"})
+    @WebAction(method = HttpMethod.GET, paths = { "{}"})
     public void getUser(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
         logger.debug("UserServlet.getUser(): session: {}", session.getId());
@@ -79,7 +79,7 @@ public class UserServlet extends PKIServlet {
 
     }
 
-    @WebAction(method = HttpMethod.PATCH, paths = { "/{}"})
+    @WebAction(method = HttpMethod.PATCH, paths = { "{}"})
     public void modifyUser(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
         logger.debug("UserServlet.modifyUser(): session: {}", session.getId());
@@ -93,7 +93,7 @@ public class UserServlet extends PKIServlet {
         out.println(user.toJSON());
     }
 
-    @WebAction(method = HttpMethod.DELETE, paths = { "/{}"})
+    @WebAction(method = HttpMethod.DELETE, paths = { "{}"})
     public void removeUser(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
         logger.debug("UserServlet.removeUser(): session: {}", session.getId());
@@ -104,7 +104,7 @@ public class UserServlet extends PKIServlet {
         response.setStatus(HttpServletResponse.SC_NO_CONTENT);
     }
 
-    @WebAction(method = HttpMethod.GET, paths = { "/{}/certs"})
+    @WebAction(method = HttpMethod.GET, paths = { "{}/certs"})
     public void findUserCerts(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
         logger.debug("UserServlet.findUserCerts(): session: {}", session.getId());
@@ -119,7 +119,7 @@ public class UserServlet extends PKIServlet {
         out.println(userCerts.toJSON());
     }
 
-    @WebAction(method = HttpMethod.POST, paths = { "/{}/certs"})
+    @WebAction(method = HttpMethod.POST, paths = { "{}/certs"})
     public void addUserCert(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
         logger.debug("UserServlet.addUserCert(): session: {}", session.getId());
@@ -141,7 +141,7 @@ public class UserServlet extends PKIServlet {
         out.println(userCertData.toJSON());
     }
 
-    @WebAction(method = HttpMethod.GET, paths = { "/{}/certs/{}"})
+    @WebAction(method = HttpMethod.GET, paths = { "{}/certs/{}"})
     public void getUserCert(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
         logger.debug("UserServlet.getUserCert(): session: {}", session.getId());
@@ -154,7 +154,7 @@ public class UserServlet extends PKIServlet {
         out.println(userCert.toJSON());
     }
 
-    @WebAction(method = HttpMethod.DELETE, paths = { "/{}/certs/{}"})
+    @WebAction(method = HttpMethod.DELETE, paths = { "{}/certs/{}"})
     public void removeUserCert(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
         logger.debug("UserServlet.removeUserCert(): session: {}", session.getId());
@@ -166,7 +166,7 @@ public class UserServlet extends PKIServlet {
         response.setStatus(HttpServletResponse.SC_NO_CONTENT);
     }
 
-    @WebAction(method = HttpMethod.GET, paths = { "/{}/memberships"})
+    @WebAction(method = HttpMethod.GET, paths = { "{}/memberships"})
     public void findUserMemberships(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
         logger.debug("UserServlet.findUserMemberships(): session: {}", session.getId());
@@ -182,7 +182,7 @@ public class UserServlet extends PKIServlet {
         out.println(userMemberships.toJSON());
     }
 
-    @WebAction(method = HttpMethod.POST, paths = { "/{}/memberships"})
+    @WebAction(method = HttpMethod.POST, paths = { "{}/memberships"})
     public void addUserMembership(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
         logger.debug("UserServlet.addUserMembership(): session: {}", session.getId());
@@ -200,7 +200,7 @@ public class UserServlet extends PKIServlet {
         out.println(userMembership.toJSON());
     }
 
-    @WebAction(method = HttpMethod.DELETE, paths = { "/{}/memberships/{}"})
+    @WebAction(method = HttpMethod.DELETE, paths = { "{}/memberships/{}"})
     public void removeUserMembership(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
         logger.debug("UserServlet.removeUserMembership(): session: {}", session.getId());
