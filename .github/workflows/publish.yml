@@ -54,7 +54,6 @@ jobs:
               --batch-mode \
               --update-snapshots \
               -DskipTests \
-              -pl '!base/console' \
               deploy
 
   wait-for-images:

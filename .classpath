@@ -56,7 +56,7 @@
 	<classpathentry kind="var" path="M2_REPO/org/dogtagpki/jss/jss-tomcat/5.5.0-SNAPSHOT/jss-tomcat-5.5.0-SNAPSHOT.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/dogtagpki/jss/jss-tomcat-9.0/5.5.0-SNAPSHOT/jss-tomcat-9.0-5.5.0-SNAPSHOT.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/dogtagpki/ldap-sdk/ldapjdk/5.5.0-SNAPSHOT/ldapjdk-5.5.0-SNAPSHOT.jar"/>
-	<classpathentry kind="lib" path="/usr/share/java/idm-console-framework.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/dogtagpki/console-framework/console-framework/2.1.0-SNAPSHOT/console-framework-2.1.0-SNAPSHOT.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/opentest4j/opentest4j/1.2.0/opentest4j-1.2.0.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/junit/jupiter/junit-jupiter/5.9.0/junit-jupiter-5.9.0.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/junit/jupiter/junit-jupiter-api/5.9.0/junit-jupiter-api-5.9.0.jar"/>
