@@ -223,22 +223,44 @@ execute_process(
 
 find_program(XMVN_RESOLVE /bin/xmvn-resolve)
 
-if(XMVN_RESOLVE)
+if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
     execute_process(
-        COMMAND xmvn-resolve jakarta.xml.bind:jakarta.xml.bind-api:4
-        OUTPUT_VARIABLE JAXB_API_JAR
+        COMMAND ls ${CMAKE_SOURCE_DIR}/base/common/lib
+        COMMAND sed -n "s/^jakarta\\.xml\\.bind-api-\\(.*\\)\\.jar\$/\\1/p"
         OUTPUT_STRIP_TRAILING_WHITESPACE
+        OUTPUT_VARIABLE JAXB_API_VERSION
     )
+endif (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+
+if (JAXB_API_VERSION)
+    # use imported JARs
+
+    set(JAXB_API_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/jakarta.xml.bind-api-${JAXB_API_VERSION}.jar")
+    set(JAXB_API_LINK "jakarta.xml.bind-api-${JAXB_API_VERSION}.jar")
+
 else()
-    find_file(JAXB_API_JAR
-        NAMES
-            jaxb-api.jar
-        PATHS
-            /usr/share/java/jaxb-api4
-            /usr/share/java/jaxb-api
-            /usr/share/java
-    )
-endif(XMVN_RESOLVE)
+    # use system JARs
+
+    if(XMVN_RESOLVE)
+        execute_process(
+            COMMAND xmvn-resolve jakarta.xml.bind:jakarta.xml.bind-api:4
+            OUTPUT_VARIABLE JAXB_API_JAR
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    else()
+        find_file(JAXB_API_JAR
+            NAMES
+                jakarta.xml.bind-api.jar
+                jaxb-api.jar
+            PATHS
+                /usr/share/java/jaxb-api4
+                /usr/share/java/jaxb-api
+                /usr/share/java
+        )
+    endif(XMVN_RESOLVE)
+    set(JAXB_API_LINK "../../../..${JAXB_API_JAR}")
+
+endif (JAXB_API_VERSION)
 
 if(XMVN_RESOLVE)
     execute_process(
