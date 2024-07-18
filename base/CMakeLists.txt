@@ -12,7 +12,7 @@ find_file(SERVLET_JAR
 if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
     execute_process(
         COMMAND ls ${CMAKE_SOURCE_DIR}/base/common/lib
-        COMMAND sed -n "s/^jboss-jaxrs-2.0-api-\\(.*\\)\\.jar\$/\\1/p"
+        COMMAND sed -n "s/^jboss-jaxrs-api_2.0_spec-\\(.*\\)\\.jar\$/\\1/p"
         OUTPUT_STRIP_TRAILING_WHITESPACE
         OUTPUT_VARIABLE JAXRS_API_VERSION
     )
@@ -21,8 +21,8 @@ endif (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
 if (JAXRS_API_VERSION)
     # use imported JARs
 
-    set(JAXRS_API_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/jboss-jaxrs-2.0-api-${JAXRS_API_VERSION}.jar")
-    set(JAXRS_API_LINK "jboss-jaxrs-2.0-api-${JAXRS_API_VERSION}.jar")
+    set(JAXRS_API_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/jboss-jaxrs-api_2.0_spec-${JAXRS_API_VERSION}.jar")
+    set(JAXRS_API_LINK "jboss-jaxrs-api_2.0_spec-${JAXRS_API_VERSION}.jar")
 
 else()
     # use system JARs

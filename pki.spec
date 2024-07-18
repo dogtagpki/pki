@@ -206,6 +206,7 @@ BuildRequires:    mvn(xml-resolver:xml-resolver)
 BuildRequires:    mvn(org.junit.jupiter:junit-jupiter-api)
 
 BuildRequires:    mvn(jakarta.activation:jakarta.activation-api)
+BuildRequires:    mvn(jakarta.annotation:jakarta.annotation-api)
 BuildRequires:    mvn(jakarta.xml.bind:jakarta.xml.bind-api)
 
 %if %{with build_deps}
@@ -537,6 +538,8 @@ Requires:         mvn(org.apache.commons:commons-lang3)
 Requires:         mvn(org.apache.httpcomponents:httpclient)
 Requires:         mvn(org.slf4j:slf4j-api)
 Requires:         mvn(org.slf4j:slf4j-jdk14)
+
+Requires:         mvn(jakarta.activation:jakarta.activation-api)
 Requires:         mvn(jakarta.annotation:jakarta.annotation-api)
 Requires:         mvn(jakarta.xml.bind:jakarta.xml.bind-api)
 
@@ -1044,7 +1047,7 @@ then
     echo "JAXRS_VERSION: $JAXRS_VERSION"
 
     cp /usr/share/java/jboss-jaxrs-2.0-api.jar \
-        jboss-jaxrs-2.0-api-$JAXRS_VERSION.jar
+        jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar
 
     JBOSS_LOGGING_VERSION=$(rpm -q jboss-logging | sed -n 's/^jboss-logging-\([^-]*\)-.*$/\1.Final/p')
     echo "JBOSS_LOGGING_VERSION: $JBOSS_LOGGING_VERSION"

@@ -111,7 +111,7 @@ jobs:
           -e '/^\/usr\/share\/pki\/lib\/jackson-jaxrs-base-.*\.jar/d' \
           -e '/^\/usr\/share\/pki\/lib\/jackson-jaxrs-json-provider-.*\.jar/d' \
           -e '/^\/usr\/share\/pki\/lib\/jackson-module-jaxb-annotations-.*\.jar/d' \
-          -e '/^\/usr\/share\/pki\/lib\/jboss-jaxrs-2.0-api-.*\.jar/d' \
+          -e '/^\/usr\/share\/pki\/lib\/jboss-jaxrs-api_2.0_spec-.*\.jar/d' \
           -e '/^\/usr\/share\/pki\/lib\/jboss-logging-.*\.jar/d' \
           -e '/^\/usr\/share\/pki\/lib\/resteasy-jaxrs-.*\.jar/d' \
           -e '/^\/usr\/share\/pki\/lib\/resteasy-client-.*\.jar/d' \

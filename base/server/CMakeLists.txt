@@ -154,7 +154,7 @@ add_custom_command(
     COMMAND ln -sf ../../../lib/jakarta.activation-api.jar common/lib/jakarta.activation-api.jar
     COMMAND ln -sf ../../../lib/jakarta.annotation-api.jar common/lib/jakarta.annotation-api.jar
     COMMAND ln -sf ../../../lib/jakarta.xml.bind-api.jar common/lib/jakarta.xml.bind-api.jar
-    COMMAND ln -sf ../../../lib/jboss-jaxrs-2.0-api.jar common/lib/jboss-jaxrs-2.0-api.jar
+    COMMAND ln -sf ../../../lib/jboss-jaxrs-api_2.0_spec.jar common/lib/jboss-jaxrs-api_2.0_spec.jar
     COMMAND ln -sf ../../../lib/jboss-logging.jar common/lib/jboss-logging.jar
     COMMAND ln -sf ../../../lib/jss.jar common/lib/jss.jar
     COMMAND ln -sf ../../../../../..${JSS_TOMCAT_JAR} common/lib/jss-tomcat.jar
