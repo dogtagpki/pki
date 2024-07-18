@@ -206,9 +206,9 @@ BuildRequires:    mvn(xml-resolver:xml-resolver)
 BuildRequires:    mvn(org.junit.jupiter:junit-jupiter-api)
 
 BuildRequires:    mvn(jakarta.activation:jakarta.activation-api)
-BuildRequires:    mvn(jakarta.annotation:jakarta.annotation-api)
 
 %if %{with build_deps}
+BuildRequires:    mvn(jakarta.annotation:jakarta.annotation-api)
 BuildRequires:    mvn(jakarta.xml.bind:jakarta.xml.bind-api)
 
 BuildRequires:    mvn(com.fasterxml.jackson.core:jackson-annotations)
@@ -538,9 +538,9 @@ Requires:         mvn(org.slf4j:slf4j-api)
 Requires:         mvn(org.slf4j:slf4j-jdk14)
 
 Requires:         mvn(jakarta.activation:jakarta.activation-api)
-Requires:         mvn(jakarta.annotation:jakarta.annotation-api)
 
 %if %{with runtime_deps}
+Requires:         mvn(jakarta.annotation:jakarta.annotation-api)
 Requires:         mvn(jakarta.xml.bind:jakarta.xml.bind-api)
 
 Requires:         mvn(com.fasterxml.jackson.core:jackson-annotations)
@@ -556,6 +556,7 @@ Requires:         mvn(org.jboss.resteasy:resteasy-jaxrs)
 Requires:         mvn(org.jboss.resteasy:resteasy-client)
 Requires:         mvn(org.jboss.resteasy:resteasy-jackson2-provider)
 %else
+Provides:         bundled(jakarta-annotations)
 Provides:         bundled(jaxb-api)
 
 Provides:         bundled(jackson-annotations)
@@ -1030,6 +1031,12 @@ then
     mkdir -p base/common/lib
     pushd base/common/lib
 
+    JAKARTA_ANNOTATION_API_VERSION=$(rpm -q jakarta-annotations | sed -n 's/^jakarta-annotations-\([^-]*\)-.*$/\1/p')
+    echo "JAKARTA_ANNOTATION_API_VERSION: $JAKARTA_ANNOTATION_API_VERSION"
+
+    cp /usr/share/java/jakarta-annotations/jakarta.annotation-api.jar \
+        jakarta.annotation-api-$JAKARTA_ANNOTATION_API_VERSION.jar
+
     JAXB_API_VERSION=$(rpm -q jaxb-api | sed -n 's/^jaxb-api-\([^-]*\)-.*$/\1/p')
     echo "JAXB_API_VERSION: $JAXB_API_VERSION"
 
@@ -1355,6 +1362,7 @@ pkgs=base\
 %if %{with meta}
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki.xml"
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='jakarta.annotation']" \
     -d "//_:dependency[_:groupId='jakarta.xml.bind']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.core']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.module']" \
@@ -1368,6 +1376,7 @@ xmlstarlet edit --inplace \
 %if %{with base}
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-java.xml"
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='jakarta.annotation']" \
     -d "//_:dependency[_:groupId='jakarta.xml.bind']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.core']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.module']" \
@@ -1379,6 +1388,7 @@ xmlstarlet edit --inplace \
 
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-tools.xml"
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='jakarta.annotation']" \
     -d "//_:dependency[_:groupId='jakarta.xml.bind']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.core']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.module']" \
@@ -1392,6 +1402,7 @@ xmlstarlet edit --inplace \
 %if %{with server}
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-server.xml"
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='jakarta.annotation']" \
     -d "//_:dependency[_:groupId='jakarta.xml.bind']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.core']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.module']" \
@@ -1405,6 +1416,7 @@ xmlstarlet edit --inplace \
 %if %{with ca}
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-ca.xml"
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='jakarta.annotation']" \
     -d "//_:dependency[_:groupId='jakarta.xml.bind']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.core']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.module']" \
@@ -1418,6 +1430,7 @@ xmlstarlet edit --inplace \
 %if %{with kra}
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-kra.xml"
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='jakarta.annotation']" \
     -d "//_:dependency[_:groupId='jakarta.xml.bind']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.core']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.module']" \
@@ -1431,6 +1444,7 @@ xmlstarlet edit --inplace \
 %if %{with ocsp}
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-ocsp.xml"
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='jakarta.annotation']" \
     -d "//_:dependency[_:groupId='jakarta.xml.bind']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.core']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.module']" \
@@ -1444,6 +1458,7 @@ xmlstarlet edit --inplace \
 %if %{with tks}
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-tks.xml"
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='jakarta.annotation']" \
     -d "//_:dependency[_:groupId='jakarta.xml.bind']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.core']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.module']" \
@@ -1457,6 +1472,7 @@ xmlstarlet edit --inplace \
 %if %{with tps}
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-tps.xml"
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='jakarta.annotation']" \
     -d "//_:dependency[_:groupId='jakarta.xml.bind']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.core']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.module']" \
@@ -1470,6 +1486,7 @@ xmlstarlet edit --inplace \
 %if %{with acme}
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-acme.xml"
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='jakarta.annotation']" \
     -d "//_:dependency[_:groupId='jakarta.xml.bind']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.core']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.module']" \
@@ -1483,6 +1500,7 @@ xmlstarlet edit --inplace \
 %if %{with est}
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-est.xml"
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='jakarta.annotation']" \
     -d "//_:dependency[_:groupId='jakarta.xml.bind']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.core']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.module']" \

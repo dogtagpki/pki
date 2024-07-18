@@ -284,15 +284,36 @@ else()
     )
 endif(XMVN_RESOLVE)
 
-find_file(JAKARTA_ANNOTATION_API_JAR
-    NAMES
-        jakarta.annotation-api.jar
-        jboss-annotations-api_1.2_spec.jar
-    PATHS
-        /usr/share/java/jakarta-annotations
-        /usr/share/java/jboss-annotations-1.2-api
-        /usr/share/java
-)
+if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+    execute_process(
+        COMMAND ls ${CMAKE_SOURCE_DIR}/base/common/lib
+        COMMAND sed -n "s/^jakarta\\.annotation-api-\\(.*\\)\\.jar\$/\\1/p"
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        OUTPUT_VARIABLE JAKARTA_ANNOTATION_API_VERSION
+    )
+endif (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+
+if (JAKARTA_ANNOTATION_API_VERSION)
+    # use imported JARs
+
+    set(JAKARTA_ANNOTATION_API_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/jakarta.annotation-api-${JAKARTA_ANNOTATION_API_VERSION}.jar")
+    set(JAKARTA_ANNOTATION_API_LINK "jakarta.annotation-api-${JAKARTA_ANNOTATION_API_VERSION}.jar")
+
+else()
+    # use system JARs
+
+    find_file(JAKARTA_ANNOTATION_API_JAR
+        NAMES
+            jakarta.annotation-api.jar
+            jboss-annotations-api_1.2_spec.jar
+        PATHS
+            /usr/share/java/jakarta-annotations
+            /usr/share/java/jboss-annotations-1.2-api
+            /usr/share/java
+    )
+    set(JAKARTA_ANNOTATION_API_LINK "../../../..${JAKARTA_ANNOTATION_API_JAR}")
+
+endif (JAKARTA_ANNOTATION_API_VERSION)
 
 if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
     execute_process(
