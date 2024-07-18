@@ -129,64 +129,11 @@ jobs:
     displayName: Build PKI with CMake
 
   - script: |
-      # get JSS <major>.<minor>.<update> version
-      JSS_VERSION=$(docker exec runner rpm -q --qf "%{version}" dogtag-jss)
-
-      # if built by COPR, jss-base.jar will be installed in /usr/lib/java,
-      # otherwise it will be in /usr/share/java.
-      JSS_BASE_JAR=$(docker exec runner find /usr/lib/java /usr/share/java -name jss-base.jar)
-
-      docker exec runner \
-          mvn install:install-file \
+      docker exec runner mvn \
+          --batch-mode \
           -f /root/src \
-          -Dfile=$JSS_BASE_JAR \
-          -DgroupId=org.dogtagpki.jss \
-          -DartifactId=jss-base \
-          -Dversion=$JSS_VERSION-SNAPSHOT \
-          -Dpackaging=jar \
-          -DgeneratePom=true
-
-      docker exec runner \
-          mvn install:install-file \
-          -f /root/src \
-          -Dfile=/usr/share/java/jss/jss-tomcat.jar \
-          -DgroupId=org.dogtagpki.jss \
-          -DartifactId=jss-tomcat \
-          -Dversion=$JSS_VERSION-SNAPSHOT \
-          -Dpackaging=jar \
-          -DgeneratePom=true
-
-      docker exec runner \
-          mvn install:install-file \
-          -f /root/src \
-          -Dfile=/usr/share/java/jss/jss-tomcat-9.0.jar \
-          -DgroupId=org.dogtagpki.jss \
-          -DartifactId=jss-tomcat-9.0 \
-          -Dversion=$JSS_VERSION-SNAPSHOT \
-          -Dpackaging=jar \
-          -DgeneratePom=true
-    displayName: Install JSS into local Maven repo
-
-  - script: |
-      # get LDAP JDK <major>.<minor>.<update> version
-      LDAPJDK_VERSION=$(docker exec runner rpm -q --qf "%{version}" dogtag-ldapjdk)
-
-      docker exec runner \
-          mvn install:install-file \
-          -f /root/src \
-          -Dfile=/usr/share/java/ldapjdk.jar \
-          -DgroupId=org.dogtagpki.ldap-sdk \
-          -DartifactId=ldapjdk \
-          -Dversion=$LDAPJDK_VERSION-SNAPSHOT \
-          -Dpackaging=jar \
-          -DgeneratePom=true
-    displayName: Install LDAP JDK into local Maven repo
-
-  - script: |
-      docker exec runner \
-          mvn package \
-          -f /root/src \
-          -DskipTests
+          -DskipTests \
+          package
     displayName: Build PKI with Maven
 
   - script: |
