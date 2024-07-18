@@ -10,8 +10,6 @@ import javax.servlet.ServletContext;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.rest.v2.PKIServlet;
 
-import com.netscape.cmscore.apps.CMSEngine;
-
 /**
  * @author Marco Fargetta {@literal <mfargett@redhat.com>}
  */
@@ -21,15 +19,5 @@ public class CAServlet extends PKIServlet {
     public CAEngine getCAEngine() {
         ServletContext servletContext = getServletContext();
         return (CAEngine) servletContext.getAttribute("engine");
-    }
-
-    @Override
-    protected String getSubsystemName() {
-        return getCAEngine().getID();
-    }
-
-    @Override
-    protected CMSEngine getEngine() {
-        return getCAEngine();
     }
 }

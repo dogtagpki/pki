@@ -9,7 +9,6 @@ import java.io.PrintWriter;
 import java.net.URLEncoder;
 import java.util.stream.Collectors;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -26,7 +25,6 @@ import com.netscape.certsrv.user.UserData;
 import com.netscape.certsrv.user.UserMembershipCollection;
 import com.netscape.certsrv.user.UserMembershipData;
 import com.netscape.certsrv.util.JSONSerializer;
-import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * @author Marco Fargetta {@literal <mfargett@redhat.com>}
@@ -210,16 +208,5 @@ public class UserServlet extends PKIServlet {
         UserServletBase userServlet = new UserServletBase(getEngine());
         userServlet.removeUserMembership(userId, groupId, request.getLocale());
         response.setStatus(HttpServletResponse.SC_NO_CONTENT);
-    }
-
-    @Override
-    protected String getSubsystemName() {
-        return getEngine().getID();
-    }
-
-    @Override
-    protected CMSEngine getEngine() {
-        ServletContext servletContext = getServletContext();
-        return (CMSEngine) servletContext.getAttribute("engine");
     }
 }

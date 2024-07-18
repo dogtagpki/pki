@@ -10,8 +10,6 @@ import javax.servlet.ServletContext;
 import org.dogtagpki.server.rest.v2.PKIServlet;
 import org.dogtagpki.server.tks.TKSEngine;
 
-import com.netscape.cmscore.apps.CMSEngine;
-
 /**
  * @author Marco Fargetta {@literal <mfargett@redhat.com>}
  */
@@ -21,15 +19,5 @@ public class TKSServlet extends PKIServlet {
     public TKSEngine getTKSEngine() {
         ServletContext servletContext = getServletContext();
         return (TKSEngine) servletContext.getAttribute("engine");
-    }
-
-    @Override
-    protected String getSubsystemName() {
-        return getTKSEngine().getID();
-    }
-
-    @Override
-    protected CMSEngine getEngine() {
-        return getTKSEngine();
     }
 }

@@ -7,7 +7,6 @@ package org.dogtagpki.server.rest.v2;
 
 import java.io.PrintWriter;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -19,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.WebAction;
-import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * @author Marco Fargetta {@literal <mfargett@redhat.com>}
@@ -58,16 +56,5 @@ public class JobServlet extends PKIServlet {
         String jobId = pathElement[0];
         JobServletBase jobServlet = new JobServletBase(getEngine());
         jobServlet.startJob(jobId, request.getUserPrincipal());
-    }
-
-    @Override
-    protected String getSubsystemName() {
-        return getEngine().getID();
-    }
-
-    @Override
-    protected CMSEngine getEngine() {
-        ServletContext servletContext = getServletContext();
-        return (CMSEngine) servletContext.getAttribute("engine");
     }
 }

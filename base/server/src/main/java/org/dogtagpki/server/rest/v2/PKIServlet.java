@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -220,9 +221,14 @@ public abstract class PKIServlet extends HttpServlet {
         return methods.substring(0, methods.lastIndexOf(","));
     }
 
-    protected abstract String getSubsystemName();
+    protected String getSubsystemName() {
+        return getEngine().getID();
+    }
 
-    protected abstract CMSEngine getEngine();
+    protected CMSEngine getEngine() {
+        ServletContext servletContext = getServletContext();
+        return (CMSEngine) servletContext.getAttribute("engine");
+    }
 
     protected String getSubsystemConfDir() {
         return CMS.getInstanceDir() + File.separator + getSubsystemName() + File.separator + "conf";
