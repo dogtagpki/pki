@@ -101,6 +101,7 @@ jobs:
 
       # exclude bundled libraries which are only available in RPM
       sed -i \
+          -e '/^\/usr\/share\/pki\/lib\/jakarta\.xml\.bind-api-.*\.jar/d' \
           -e '/^\/usr\/share\/pki\/lib\/jackson-annotations-.*\.jar/d' \
           -e '/^\/usr\/share\/pki\/lib\/jackson-core-.*\.jar/d' \
           -e '/^\/usr\/share\/pki\/lib\/jackson-databind-.*\.jar/d' \
