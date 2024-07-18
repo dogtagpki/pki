@@ -68,7 +68,7 @@ public class CertRequestServlet extends CAServlet {
     private static final long serialVersionUID = 1L;
     private static Logger logger = LoggerFactory.getLogger(CertRequestServlet.class);
 
-    @WebAction(method = HttpMethod.GET, paths = {"/{}"})
+    @WebAction(method = HttpMethod.GET, paths = {"{}"})
     public void get(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
         logger.debug("CertRequestServlet.get(): session: {}", session.getId());
@@ -93,7 +93,7 @@ public class CertRequestServlet extends CAServlet {
         out.println(info.toJSON());
     }
 
-    @WebAction(method = HttpMethod.GET, paths = {"/profiles/{}"})
+    @WebAction(method = HttpMethod.GET, paths = {"profiles/{}"})
     public void getEnrollmentTemplate(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         HttpSession session = request.getSession();
@@ -105,7 +105,7 @@ public class CertRequestServlet extends CAServlet {
         out.println(req.toJSON());
     }
 
-    @WebAction(method = HttpMethod.POST, paths = {"/"})
+    @WebAction(method = HttpMethod.POST, paths = {""})
     public void enrollCert(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
         logger.debug("CertServlet.enrollCert(): session: {}", session.getId());

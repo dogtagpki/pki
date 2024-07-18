@@ -28,7 +28,7 @@ public class JobServlet extends PKIServlet {
     private static final long serialVersionUID = 1L;
     public static final Logger logger = LoggerFactory.getLogger(JobServlet.class);
 
-    @WebAction(method = HttpMethod.GET, paths = {"/"})
+    @WebAction(method = HttpMethod.GET, paths = {""})
     public void getJobs(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
         logger.debug("JobServlet.getJobs(): session: {}", session.getId());
@@ -38,7 +38,7 @@ public class JobServlet extends PKIServlet {
         out.println(jobs.toJSON());
     }
 
-    @WebAction(method = HttpMethod.GET, paths = {"/{}"})
+    @WebAction(method = HttpMethod.GET, paths = {"{}"})
     public void getJob(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
         logger.debug("JobServlet.getJob(): session: {}", session.getId());
@@ -50,7 +50,7 @@ public class JobServlet extends PKIServlet {
         out.println(job.toJSON());
     }
 
-    @WebAction(method = HttpMethod.POST, paths = {"/{}/start"})
+    @WebAction(method = HttpMethod.POST, paths = {"{}/start"})
     public void postJobStart(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
         logger.debug("JobServlet.postJobStart(): session: {}", session.getId());

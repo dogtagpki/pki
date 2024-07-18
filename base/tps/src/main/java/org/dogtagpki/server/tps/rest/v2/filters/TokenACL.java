@@ -19,11 +19,11 @@ public class TokenACL extends ACLFilter {
     public void init() throws ServletException {
         setAcl("tokens.read");
         Map<String, String> aclMap = new HashMap<>();
-        aclMap.put("POST:/", ADD);
-        aclMap.put("PUT:/{}", MODIFY);
-        aclMap.put("PATCH:/{}", MODIFY);
-        aclMap.put("POST:/{}", MODIFY);
-        aclMap.put("DELETE:/{}", REMOVE);
+        aclMap.put("POST:", ADD);
+        aclMap.put("PUT:{}", MODIFY);
+        aclMap.put("PATCH:{}", MODIFY);
+        aclMap.put("POST:{}", MODIFY);
+        aclMap.put("DELETE:{}", REMOVE);
 
         setAclMap(aclMap);
     }

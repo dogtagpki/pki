@@ -67,7 +67,7 @@ public class CertServlet extends CAServlet {
     private static final long serialVersionUID = 1L;
     private static Logger logger = LoggerFactory.getLogger(CertServlet.class);
 
-    @WebAction(method = HttpMethod.GET, paths = { "/"})
+    @WebAction(method = HttpMethod.GET, paths = {""})
     public void listCerts(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
         logger.debug("CertServlet.listCerts(): session: {}", session.getId());
@@ -84,7 +84,7 @@ public class CertServlet extends CAServlet {
         out.println(infos.toJSON());
     }
 
-    @WebAction(method = HttpMethod.GET, paths = { "/{}"})
+    @WebAction(method = HttpMethod.GET, paths = {"{}"})
     public void getCert(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
         logger.debug("CertServlet.getCert(): session: {}", session.getId());
@@ -107,7 +107,7 @@ public class CertServlet extends CAServlet {
         }
     }
 
-    @WebAction(method = HttpMethod.POST, paths = { "/search"})
+    @WebAction(method = HttpMethod.POST, paths = {"search"})
     public void searchCerts(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
         logger.debug("CertServlet.searchCerts(): session: {}", session.getId());

@@ -44,6 +44,10 @@ import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * Implement the basic class to handle REST APIs
+ *
+ * API are routed to method in subclasses implementing specific actions annotated with WebAction
+ *
+ * @see WebAction
  * @author Marco Fargetta {@literal <mfargett@redhat.com>}
  */
 public abstract class PKIServlet extends HttpServlet {
@@ -178,9 +182,9 @@ public abstract class PKIServlet extends HttpServlet {
     public Method getActionMethod(HttpMethod met, String path) {
         final String reqMethod;
         if (path == null) {
-            reqMethod = met.toString() + ":/";
+            reqMethod = met.toString() + ":";
         } else {
-            reqMethod = met.toString() + ":" + path;
+            reqMethod = met.toString() + ":" + (path.startsWith("/") ? path.substring(1) : path);
         }
         String keyPath = webActions.keySet().stream().
                 filter( key -> {
@@ -193,7 +197,12 @@ public abstract class PKIServlet extends HttpServlet {
     }
 
     public String getAllowedMethods(String path) {
-        final String matchingPath = path == null ? "/" : path;
+        final String matchingPath;
+        if (path == null) {
+            matchingPath = "";
+        } else {
+            matchingPath = path.startsWith("/") ? path.substring(1) : path;
+        }
         List<String> keyPaths = webActions.keySet().stream().
                 filter( key -> {
                     String keyRegex = key.substring(key.indexOf(":") + 1);

@@ -27,7 +27,7 @@ public class AccountServlet extends PKIServlet {
     private static final long serialVersionUID = 1L;
     public static final Logger logger = LoggerFactory.getLogger(AccountServlet.class);
 
-    @WebAction(method = HttpMethod.GET, paths = {"/login"})
+    @WebAction(method = HttpMethod.GET, paths = {"login"})
     public void login(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
         logger.info("AccountServlet: Creating session {}", session.getId());
@@ -36,7 +36,7 @@ public class AccountServlet extends PKIServlet {
         PrintWriter out = response.getWriter();
         out.println(account.toJSON());
     }
-    @WebAction(method = HttpMethod.GET, paths = {"/logout"})
+    @WebAction(method = HttpMethod.GET, paths = {"logout"})
     public void logout(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession(false);
         if (session != null) {

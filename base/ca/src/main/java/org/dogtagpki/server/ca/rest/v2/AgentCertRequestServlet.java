@@ -68,7 +68,7 @@ public class AgentCertRequestServlet extends CAServlet {
     private static final long serialVersionUID = 1L;
     private static Logger logger = LoggerFactory.getLogger(AgentCertRequestServlet.class);
 
-    @WebAction(method = HttpMethod.GET, paths = {"/"})
+    @WebAction(method = HttpMethod.GET, paths = {""})
     public void listRequests(HttpServletRequest request, HttpServletResponse response) throws Exception {
         PrintWriter out = response.getWriter();
         int maxTime = request.getParameter("maxTime") == null ?
@@ -88,7 +88,7 @@ public class AgentCertRequestServlet extends CAServlet {
             throw new PKIException(message, e);
         }
     }
-    @WebAction(method = HttpMethod.GET, paths = {"/{}"})
+    @WebAction(method = HttpMethod.GET, paths = {"{}"})
     public void reviewRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
         RequestId id;
         try {
@@ -111,8 +111,8 @@ public class AgentCertRequestServlet extends CAServlet {
     }
 
     @WebAction(method = HttpMethod.POST, paths = {
-            "/{}/approve", "/{}/reject", "/{}/cancel",
-            "/{}/update", "/{}/validate", "/{}/unassign", "/{}/assign"})
+            "{}/approve", "{}/reject", "{}/cancel",
+            "{}/update", "{}/validate", "{}/unassign", "{}/assign"})
     public void postRequestOperation(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
         logger.debug("AgentCertRequestServlet.postRequestOperation(): session: {}", session.getId());

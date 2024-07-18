@@ -62,7 +62,7 @@ public class TokenServlet extends TPSServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger logger = LoggerFactory.getLogger(TokenServlet.class);
 
-    @WebAction(method = HttpMethod.GET, paths = { "/"})
+    @WebAction(method = HttpMethod.GET, paths = {""})
     public void findTokens(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String method = "TokenServlet.findTokens:";
         TPSSubsystem subsystem = getTPSSubsystem();
@@ -103,7 +103,7 @@ public class TokenServlet extends TPSServlet {
         out.println(tokens.toJSON());
     }
 
-    @WebAction(method = HttpMethod.GET, paths = { "/{}"})
+    @WebAction(method = HttpMethod.GET, paths = {"{}"})
     public void getToken(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String method = "TokenServlet.getToken:";
         TPSSubsystem subsystem = getTPSSubsystem();
@@ -145,7 +145,7 @@ public class TokenServlet extends TPSServlet {
         throw new UnauthorizedException(method + " Token record restricted");
     }
 
-    @WebAction(method = HttpMethod.POST, paths = { "/"})
+    @WebAction(method = HttpMethod.POST, paths = {""})
     public void addToken(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String method = "TokenServlet.changeTokenStatus:";
         PrintWriter out = response.getWriter();
@@ -164,7 +164,7 @@ public class TokenServlet extends TPSServlet {
         out.println(token.toJSON());
     }
 
-    @WebAction(method = HttpMethod.POST, paths = { "/{}"})
+    @WebAction(method = HttpMethod.POST, paths = {"{}"})
     public void changeTokenStatus(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String method = "TokenServlet.changeTokenStatus:";
         PrintWriter out = response.getWriter();
@@ -180,7 +180,7 @@ public class TokenServlet extends TPSServlet {
     }
 
 
-    @WebAction(method = HttpMethod.PUT, paths = { "/{}"})
+    @WebAction(method = HttpMethod.PUT, paths = {"{}"})
     public void replaceToken(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String method = "TokenServlet.put:";
         PrintWriter out = response.getWriter();
@@ -196,7 +196,7 @@ public class TokenServlet extends TPSServlet {
         out.println(token.toJSON());
     }
 
-    @WebAction(method = HttpMethod.PATCH, paths = { "/{}"})
+    @WebAction(method = HttpMethod.PATCH, paths = {"{}"})
     public void modifyToken(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String method = "TokenServlet.patch:";
         PrintWriter out = response.getWriter();
@@ -213,7 +213,7 @@ public class TokenServlet extends TPSServlet {
         out.println(token.toJSON());
     }
 
-    @WebAction(method = HttpMethod.DELETE, paths = { "/{}"})
+    @WebAction(method = HttpMethod.DELETE, paths = {"{}"})
     public void removeToken(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String method = "TokenServlet.delete:";
 

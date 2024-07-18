@@ -30,7 +30,7 @@ public class SelfTestServlet extends PKIServlet {
     private static final long serialVersionUID = 1L;
     public static final Logger logger = LoggerFactory.getLogger(SelfTestServlet.class);
 
-    @WebAction(method = HttpMethod.GET, paths = {"/"})
+    @WebAction(method = HttpMethod.GET, paths = {""})
     public void findTests(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
         logger.debug("SelfTestServlet.findTests(): session: {}", session.getId());
@@ -44,7 +44,7 @@ public class SelfTestServlet extends PKIServlet {
         out.println(tests.toJSON());
     }
 
-    @WebAction(method = HttpMethod.GET, paths = {"/{}"})
+    @WebAction(method = HttpMethod.GET, paths = {"{}"})
     public void getTest(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
         logger.debug("SelfTestServlet.getTest(): session: {}", session.getId());
@@ -56,7 +56,7 @@ public class SelfTestServlet extends PKIServlet {
         out.println(test.toJSON());
     }
 
-    @WebAction(method = HttpMethod.POST, paths = {"/"})
+    @WebAction(method = HttpMethod.POST, paths = {""})
     public void executeTests(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
         logger.debug("SelfTestServlet.executeTests(): session: {}", session.getId());
@@ -66,7 +66,7 @@ public class SelfTestServlet extends PKIServlet {
         response.setStatus(HttpServletResponse.SC_NO_CONTENT);
     }
 
-    @WebAction(method = HttpMethod.POST, paths = {"/run"})
+    @WebAction(method = HttpMethod.POST, paths = {"run"})
     public void runTests(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
         logger.debug("SelfTestServlet.runTests(): session: {}", session.getId());
@@ -77,7 +77,7 @@ public class SelfTestServlet extends PKIServlet {
 
     }
 
-    @WebAction(method = HttpMethod.POST, paths = {"/{}/run"})
+    @WebAction(method = HttpMethod.POST, paths = {"{}/run"})
     public void runTest(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
         logger.debug("SelfTestServlet.runTest(): session: {}", session.getId());

@@ -78,7 +78,7 @@ public class AgentCertServlet extends CAServlet{
     private static final long serialVersionUID = 1L;
     private static Logger logger = LoggerFactory.getLogger(AgentCertServlet.class);
 
-    @WebAction(method = HttpMethod.GET, paths = { "/{}"})
+    @WebAction(method = HttpMethod.GET, paths = { "{}"})
     public void reviewCert(HttpServletRequest request, HttpServletResponse response) throws Exception {
         CertId id;
         try {
@@ -100,21 +100,21 @@ public class AgentCertServlet extends CAServlet{
         }
     }
 
-    @WebAction(method = HttpMethod.POST, paths = { "/{}/revoke-ca"})
+    @WebAction(method = HttpMethod.POST, paths = { "{}/revoke-ca"})
     public void revokeCACert(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
         logger.debug("AgentCertRequestServlet.revokeCACert(): session: {}", session.getId());
         revoke(request, response, true);
     }
 
-    @WebAction(method = HttpMethod.POST, paths = { "/{}/revoke"})
+    @WebAction(method = HttpMethod.POST, paths = { "{}/revoke"})
     public void revokeCert(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
         logger.debug("AgentCertRequestServlet.revokeCert(): session: {}", session.getId());
         revoke(request, response, false);
     }
 
-    @WebAction(method = HttpMethod.POST, paths = { "/{}/unrevoke"})
+    @WebAction(method = HttpMethod.POST, paths = { "{}/unrevoke"})
     public void unrevokeCert(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
         logger.debug("AgentCertRequestServlet.unrevokeCert(): session: {}", session.getId());
