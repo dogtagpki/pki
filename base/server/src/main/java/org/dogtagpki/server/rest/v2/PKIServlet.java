@@ -8,6 +8,7 @@ package org.dogtagpki.server.rest.v2;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -32,12 +33,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.authentication.ExternalAuthToken;
-import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.base.PKIException;
-import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.certsrv.base.WebAction;
 import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cmscore.apps.CMS;
@@ -130,44 +128,15 @@ public abstract class PKIServlet extends HttpServlet {
                 return;
             }
             actionMethod.invoke(this, request, response);
-
-        } catch (ResourceNotFoundException re) {
+        } catch (InvocationTargetException ite) {
             try {
-                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                PrintWriter out = response.getWriter();
-                out.print(re.getData().toJSON());
-            } catch(Exception ex) {
-                logger.error(ERROR_RESPONSE, ex.getMessage(), ex);
-            }
-        }catch (BadRequestException bre) {
-            try {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                PrintWriter out = response.getWriter();
-                out.print(bre.getData().toJSON());
-            } catch(Exception ex) {
-                logger.error(ERROR_RESPONSE, ex.getMessage(), ex);
-            }
-        } catch (UnauthorizedException ue) {
-            try {
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                PrintWriter out = response.getWriter();
-                out.print(ue.getData().toJSON());
-            } catch(Exception ex) {
-                logger.error(ERROR_RESPONSE, ex.getMessage(), ex);
-            }
-        } catch (ForbiddenException ue) {
-            try {
-                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                PrintWriter out = response.getWriter();
-                out.print(ue.getData().toJSON());
-            } catch(Exception ex) {
-                logger.error(ERROR_RESPONSE, ex.getMessage(), ex);
-            }
-        } catch (PKIException bre) {
-            try {
-                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                PrintWriter out = response.getWriter();
-                out.print(bre.getData().toJSON());
+                if (ite.getCause() instanceof PKIException pkie) {
+                    response.setStatus(pkie.getCode());
+                    PrintWriter out = response.getWriter();
+                    out.print(pkie.getData().toJSON());
+                } else {
+                    response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ite.getCause().getMessage());
+                }
             } catch(Exception ex) {
                 logger.error(ERROR_RESPONSE, ex.getMessage(), ex);
             }
@@ -189,7 +158,7 @@ public abstract class PKIServlet extends HttpServlet {
         }
         String keyPath = webActions.keySet().stream().
                 filter( key -> {
-                    String keyRegex = key.replace("{}", "([A-Za-z0-9_\\-]+)");
+                    String keyRegex = key.replace("{}", "([A-Za-z0-9_\\-\\.\\\s]+)");
                     return reqMethod.matches(keyRegex);
                     } ).
                 findFirst().
@@ -207,7 +176,7 @@ public abstract class PKIServlet extends HttpServlet {
         List<String> keyPaths = webActions.keySet().stream().
                 filter( key -> {
                     String keyRegex = key.substring(key.indexOf(":") + 1);
-                    keyRegex = keyRegex.replace("{}", "([A-Za-z0-9_\\-]+)");
+                    keyRegex = keyRegex.replace("{}", "([A-Za-z0-9_\\-\\.\\\s]+)");
                     return matchingPath.matches(keyRegex);
                     } ).
                 collect(Collectors.toList());

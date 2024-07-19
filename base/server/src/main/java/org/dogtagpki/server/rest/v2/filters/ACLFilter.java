@@ -47,9 +47,9 @@ import com.netscape.cmscore.logging.Auditor;
 /**
  * Basic ACL filter for REST APIs
  *
- * Subclasses can associate ACL to servlet, URLPatterns or specific endpoints. The {@link setACL(String)} method will assign a
+ * Subclasses can associate ACL to servlet, URLPatterns or specific endpoints. The {@link #setAcl(String)} method will assign a
  * default ACL to use for all the associated entities (servlet or pattern). To provide a finer grained ACL it is possible to specify
- * a map with the method {@link secAclMap(Map<String, String>)}. The map value is the ACL to use while the key is the endpoint where
+ * a map with the method {@link #setAclMap(Map)}. The map value is the ACL to use while the key is the endpoint where
  * the ACL has to be applied. The key formal is:
  *
  *    key= <method>:<path>
@@ -98,7 +98,7 @@ public abstract class ACLFilter extends HttpFilter {
             if (aclMap!=null) {
                 Optional<String> aclKey = aclMap.keySet().stream().
                         filter( key -> {
-                            String keyRegex = key.replaceFirst("\\*", ".*").replace("{}", "([A-Za-z0-9_\\-]+)");
+                            String keyRegex = key.replaceFirst("\\*", ".*").replace("{}", "([A-Za-z0-9_\\-\\.\\\s]+)");
                             return aclSearch.matches(keyRegex);
                         } ).
                         sorted(Comparator.reverseOrder()).
