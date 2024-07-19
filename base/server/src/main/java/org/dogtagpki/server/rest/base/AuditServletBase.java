@@ -47,6 +47,7 @@ public class AuditServletBase {
 
     public AuditServletBase(CMSEngine engine, String username) {
         this.engine = engine;
+        this.userName = username;
     }
 
     public AuditConfig createAuditConfig() throws EBaseException{
