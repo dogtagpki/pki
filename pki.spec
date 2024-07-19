@@ -1042,13 +1042,20 @@ then
     echo "JAKARTA_ANNOTATION_API_VERSION: $JAKARTA_ANNOTATION_API_VERSION"
 
     cp /usr/share/java/jakarta-annotations/jakarta.annotation-api.jar \
-        jakarta.annotations-api-$JAKARTA_ANNOTATION_API_VERSION.jar
+        jakarta.annotation-api-$JAKARTA_ANNOTATION_API_VERSION.jar
 
     JAXB_API_VERSION=$(rpm -q jaxb-api | sed -n 's/^jaxb-api-\([^-]*\)-.*$/\1/p')
     echo "JAXB_API_VERSION: $JAXB_API_VERSION"
 
-    cp /usr/share/java/jaxb-api/jakarta.xml.bind-api.jar \
-        jakarta.xml.bind-api-$JAXB_API_VERSION.jar
+    if [ -f /usr/share/java/jaxb-api.jar ]
+    then
+        cp /usr/share/java/jaxb-api.jar \
+            jakarta.xml.bind-api-$JAXB_API_VERSION.jar
+    elif [ -f /usr/share/java/jaxb-api/jakarta.xml.bind-api.jar ]
+    then
+        cp /usr/share/java/jaxb-api/jakarta.xml.bind-api.jar \
+            jakarta.xml.bind-api-$JAXB_API_VERSION.jar
+    fi
 
     JACKSON_VERSION=$(rpm -q jackson-annotations | sed -n 's/^jackson-annotations-\([^-]*\)-.*$/\1/p')
     echo "JACKSON_VERSION: $JACKSON_VERSION"
