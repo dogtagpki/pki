@@ -34,6 +34,7 @@ public class AccountServlet extends PKIServlet {
         PrintWriter out = response.getWriter();
         out.println(account.toJSON());
     }
+
     @WebAction(method = HttpMethod.GET, paths = {"logout"})
     public void logout(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession(false);
