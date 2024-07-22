@@ -158,7 +158,7 @@ public abstract class PKIServlet extends HttpServlet {
         }
         String keyPath = webActions.keySet().stream().
                 filter( key -> {
-                    String keyRegex = key.replace("{}", "([A-Za-z0-9_\\-\\.\\\s]+)");
+                    String keyRegex = key.replace("{}", "([^/]+)");
                     return reqMethod.matches(keyRegex);
                     } ).
                 findFirst().
@@ -176,9 +176,9 @@ public abstract class PKIServlet extends HttpServlet {
         List<String> keyPaths = webActions.keySet().stream().
                 filter( key -> {
                     String keyRegex = key.substring(key.indexOf(":") + 1);
-                    keyRegex = keyRegex.replace("{}", "([A-Za-z0-9_\\-\\.\\\s]+)");
+                    keyRegex = keyRegex.replace("{}", "([^/]+)");
                     return matchingPath.matches(keyRegex);
-                    } ).
+                    }).
                 collect(Collectors.toList());
         if (keyPaths == null || keyPaths.isEmpty()) {
             return null;
