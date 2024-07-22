@@ -43,11 +43,9 @@ public class AuditServletBase {
     public static final Logger logger = LoggerFactory.getLogger(AuditServletBase.class);
 
     private CMSEngine engine;
-    private String userName;
 
-    public AuditServletBase(CMSEngine engine, String username) {
+    public AuditServletBase(CMSEngine engine) {
         this.engine = engine;
-        this.userName = username;
     }
 
     public AuditConfig createAuditConfig() throws EBaseException{
@@ -114,13 +112,13 @@ public class AuditServletBase {
         return auditConfig;
     }
 
-    public AuditConfig updateAuditConfig(AuditConfig auditConfig) {
+    public AuditConfig updateAuditConfig(AuditConfig auditConfig, String user) {
         Map<String, String> auditModParams = new HashMap<>();
 
         if (auditConfig == null) {
             BadRequestException e = new BadRequestException("Missing audit configuration");
             auditModParams.put("Info", e.toString());
-            auditTPSConfigSignedAudit(ILogger.FAILURE, auditModParams);
+            auditTPSConfigSignedAudit(ILogger.FAILURE, auditModParams, user);
             throw e;
         }
 
@@ -165,7 +163,7 @@ public class AuditServletBase {
                     if (currentValue == null) {
                         PKIException e = new PKIException("Unable to add event: " + name);
                         auditModParams.put("Info", e.toString());
-                        auditTPSConfigSignedAudit(ILogger.FAILURE, auditModParams);
+                        auditTPSConfigSignedAudit(ILogger.FAILURE, auditModParams, user);
                         throw e;
                     }
 
@@ -174,7 +172,7 @@ public class AuditServletBase {
                         if (!"mandatory".equals(currentValue)) {
                             PKIException e = new PKIException("Unable to add mandatory event: " + name);
                             auditModParams.put("Info", e.toString());
-                            auditTPSConfigSignedAudit(ILogger.FAILURE, auditModParams);
+                            auditTPSConfigSignedAudit(ILogger.FAILURE, auditModParams, user);
                             throw e;
                         }
                         continue;
@@ -184,7 +182,7 @@ public class AuditServletBase {
                     if ("mandatory".equals(currentValue)) {
                         PKIException e = new PKIException("Unable to remove mandatory event: " + name);
                         auditModParams.put("Info", e.toString());
-                        auditTPSConfigSignedAudit(ILogger.FAILURE, auditModParams);
+                        auditTPSConfigSignedAudit(ILogger.FAILURE, auditModParams, user);
                         throw e;
                     }
 
@@ -197,7 +195,7 @@ public class AuditServletBase {
                     } else {
                         PKIException e = new PKIException("Invalid event configuration: " + name + "=" + value);
                         auditModParams.put("Info", e.toString());
-                        auditTPSConfigSignedAudit(ILogger.FAILURE, auditModParams);
+                        auditTPSConfigSignedAudit(ILogger.FAILURE, auditModParams, user);
                         throw e;
                     }
                 }
@@ -210,7 +208,7 @@ public class AuditServletBase {
                 if (!eventConfigs.containsKey(name)) {
                     PKIException e = new PKIException("Unable to remove event: " + name);
                     auditModParams.put("Info", e.toString());
-                    auditTPSConfigSignedAudit(ILogger.FAILURE, auditModParams);
+                    auditTPSConfigSignedAudit(ILogger.FAILURE, auditModParams, user);
                     throw e;
                 }
             }
@@ -218,25 +216,25 @@ public class AuditServletBase {
             cs.commit(true);
 
             auditConfig = createAuditConfig(auditModParams);
-            auditTPSConfigSignedAudit(ILogger.SUCCESS, auditModParams);
+            auditTPSConfigSignedAudit(ILogger.SUCCESS, auditModParams, user);
 
             return auditConfig;
 
         } catch (PKIException e) {
             logger.error("Unable to update audit configuration: " + e.getMessage(), e);
             auditModParams.put("Info", e.toString());
-            auditTPSConfigSignedAudit(ILogger.FAILURE, auditModParams);
+            auditTPSConfigSignedAudit(ILogger.FAILURE, auditModParams, user);
             throw e;
 
         } catch (Exception e) {
             logger.error("Unable to update audit configuration: " + e.getMessage(), e);
             auditModParams.put("Info", e.toString());
-            auditTPSConfigSignedAudit(ILogger.FAILURE, auditModParams);
+            auditTPSConfigSignedAudit(ILogger.FAILURE, auditModParams, user);
             throw new PKIException(e.getMessage());
         }
     }
 
-    public AuditConfig changeAuditStatus(String action) {
+    public AuditConfig changeAuditStatus(String action, String user) {
         Map<String, String> auditModParams = new HashMap<>();
 
         logger.debug("AuditServletBase.changeAuditStatus()");
@@ -257,25 +255,25 @@ public class AuditServletBase {
             } else {
                 BadRequestException e = new BadRequestException("Invalid action " + action);
                 auditModParams.put("Info", e.toString());
-                auditTPSConfigSignedAudit(ILogger.FAILURE, auditModParams);
+                auditTPSConfigSignedAudit(ILogger.FAILURE, auditModParams, user);
                 throw e;
             }
 
             cs.commit(true);
 
             AuditConfig auditConfig = createAuditConfig();
-            auditTPSConfigSignedAudit(ILogger.SUCCESS, auditModParams);
+            auditTPSConfigSignedAudit(ILogger.SUCCESS, auditModParams, user);
 
             return auditConfig;
 
         } catch (PKIException e) {
             auditModParams.put("Info", e.toString());
-            auditTPSConfigSignedAudit(ILogger.FAILURE, auditModParams);
+            auditTPSConfigSignedAudit(ILogger.FAILURE, auditModParams, user);
             throw e;
 
         } catch (Exception e) {
             auditModParams.put("Info", e.toString());
-            auditTPSConfigSignedAudit(ILogger.FAILURE, auditModParams);
+            auditTPSConfigSignedAudit(ILogger.FAILURE, auditModParams, user);
             throw new PKIException(e.getMessage());
         }    }
 
@@ -361,12 +359,12 @@ public class AuditServletBase {
     /*
      * in case of failure, "info" should be in the params
      */
-    private void auditTPSConfigSignedAudit(String status, Map<String, String> params) {
+    private void auditTPSConfigSignedAudit(String status, Map<String, String> params, String user) {
 
         Auditor auditor = engine.getAuditor();
 
         auditor.log(new ConfigSignedAuditEvent(
-                userName,
+                user,
                 status,
                 auditor.getParamString(params)));
     }

@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.net.URLEncoder;
 import java.util.stream.Collectors;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -33,6 +34,14 @@ public class UserServlet extends PKIServlet {
     private static final long serialVersionUID = 1L;
     public static final Logger logger = LoggerFactory.getLogger(UserServlet.class);
 
+    private UserServletBase userServletBase;
+
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        userServletBase = new UserServletBase(getEngine());
+    }
+
     @WebAction(method = HttpMethod.GET, paths = { ""})
     public void findUsers(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
@@ -41,8 +50,7 @@ public class UserServlet extends PKIServlet {
         int size = request.getParameter("size") == null ?
                 PKIServlet.DEFAULT_SIZE : Integer.parseInt(request.getParameter("size"));
         int start = request.getParameter("start") == null ? 0 : Integer.parseInt(request.getParameter("start"));
-        UserServletBase userServlet = new UserServletBase(getEngine());
-        UserCollection users = userServlet.findUsers(filter, start, size, request.getLocale());
+        UserCollection users = userServletBase.findUsers(filter, start, size, request.getLocale());
         PrintWriter out = response.getWriter();
         out.println(users.toJSON());
     }
@@ -51,10 +59,9 @@ public class UserServlet extends PKIServlet {
     public void addUser(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
         logger.debug("UserServlet.addUser(): session: {}", session.getId());
-        UserServletBase userServlet = new UserServletBase(getEngine());
         String requestData = request.getReader().lines().collect(Collectors.joining());
         UserData userData = JSONSerializer.fromJSON(requestData, UserData.class);
-        UserData user = userServlet.addUser(userData, request.getLocale());
+        UserData user = userServletBase.addUser(userData, request.getLocale());
         String encodedUserID = URLEncoder.encode(user.getUserID(), "UTF-8");
         StringBuffer uri = request.getRequestURL();
         uri.append("/" + encodedUserID);
@@ -70,8 +77,7 @@ public class UserServlet extends PKIServlet {
         logger.debug("UserServlet.getUser(): session: {}", session.getId());
         String[] pathElement = request.getPathInfo().substring(1).split("/");
         String userId = pathElement[0];
-        UserServletBase userServlet = new UserServletBase(getEngine());
-        UserData user = userServlet.getUser(userId, request.getLocale());
+        UserData user = userServletBase.getUser(userId, request.getLocale());
         PrintWriter out = response.getWriter();
         out.println(user.toJSON());
 
@@ -85,8 +91,7 @@ public class UserServlet extends PKIServlet {
         String userId = pathElement[0];
         String requestData = request.getReader().lines().collect(Collectors.joining());
         UserData userData = JSONSerializer.fromJSON(requestData, UserData.class);
-        UserServletBase userServlet = new UserServletBase(getEngine());
-        UserData user = userServlet.modifyUser(userId, userData, request.getLocale());
+        UserData user = userServletBase.modifyUser(userId, userData, request.getLocale());
         PrintWriter out = response.getWriter();
         out.println(user.toJSON());
     }
@@ -97,8 +102,7 @@ public class UserServlet extends PKIServlet {
         logger.debug("UserServlet.removeUser(): session: {}", session.getId());
         String[] pathElement = request.getPathInfo().substring(1).split("/");
         String userId = pathElement[0];
-        UserServletBase userServlet = new UserServletBase(getEngine());
-        userServlet.removeUser(userId, request.getLocale());
+        userServletBase.removeUser(userId, request.getLocale());
         response.setStatus(HttpServletResponse.SC_NO_CONTENT);
     }
 
@@ -111,8 +115,7 @@ public class UserServlet extends PKIServlet {
         int size = request.getParameter("size") == null ?
                 PKIServlet.DEFAULT_SIZE : Integer.parseInt(request.getParameter("size"));
         int start = request.getParameter("start") == null ? 0 : Integer.parseInt(request.getParameter("start"));
-        UserServletBase userServlet = new UserServletBase(getEngine());
-        UserCertCollection userCerts = userServlet.findUserCerts(userId, start, size, request.getLocale());
+        UserCertCollection userCerts = userServletBase.findUserCerts(userId, start, size, request.getLocale());
         PrintWriter out = response.getWriter();
         out.println(userCerts.toJSON());
     }
@@ -125,8 +128,7 @@ public class UserServlet extends PKIServlet {
         String userId = pathElement[0];
         String requestData = request.getReader().lines().collect(Collectors.joining());
         UserCertData userCertData = JSONSerializer.fromJSON(requestData, UserCertData.class);
-        UserServletBase userServlet = new UserServletBase(getEngine());
-        UserCertData userCert = userServlet.addUserCert(userId, userCertData, request.getLocale());
+        UserCertData userCert = userServletBase.addUserCert(userId, userCertData, request.getLocale());
         if (userCert == null) {
             return;
         }
@@ -146,8 +148,7 @@ public class UserServlet extends PKIServlet {
         String[] pathElement = request.getPathInfo().substring(1).split("/");
         String userId = pathElement[0];
         String certId = pathElement[2];
-        UserServletBase userServlet = new UserServletBase(getEngine());
-        UserCertData userCert = userServlet.getUserCert(userId, certId, request.getLocale());
+        UserCertData userCert = userServletBase.getUserCert(userId, certId, request.getLocale());
         PrintWriter out = response.getWriter();
         out.println(userCert.toJSON());
     }
@@ -159,8 +160,7 @@ public class UserServlet extends PKIServlet {
         String[] pathElement = request.getPathInfo().substring(1).split("/");
         String userId = pathElement[0];
         String certId = pathElement[2];
-        UserServletBase userServlet = new UserServletBase(getEngine());
-        userServlet.removeUserCert(userId, certId, request.getLocale());
+        userServletBase.removeUserCert(userId, certId, request.getLocale());
         response.setStatus(HttpServletResponse.SC_NO_CONTENT);
     }
 
@@ -174,8 +174,7 @@ public class UserServlet extends PKIServlet {
         int size = request.getParameter("size") == null ?
                 PKIServlet.DEFAULT_SIZE : Integer.parseInt(request.getParameter("size"));
         int start = request.getParameter("start") == null ? 0 : Integer.parseInt(request.getParameter("start"));
-        UserServletBase userServlet = new UserServletBase(getEngine());
-        UserMembershipCollection userMemberships = userServlet.findUserMemberships(userId, filter, start, size, request.getLocale());
+        UserMembershipCollection userMemberships = userServletBase.findUserMemberships(userId, filter, start, size, request.getLocale());
         PrintWriter out = response.getWriter();
         out.println(userMemberships.toJSON());
     }
@@ -187,8 +186,7 @@ public class UserServlet extends PKIServlet {
         String[] pathElement = request.getPathInfo().substring(1).split("/");
         String userId = pathElement[0];
         String groupId = request.getReader().readLine();
-        UserServletBase userServlet = new UserServletBase(getEngine());
-        UserMembershipData userMembership = userServlet.addUserMembership(userId, groupId, request.getLocale());
+        UserMembershipData userMembership = userServletBase.addUserMembership(userId, groupId, request.getLocale());
         String encodedUserGroupID = URLEncoder.encode(groupId, "UTF-8");
         StringBuffer uri = request.getRequestURL();
         uri.append("/" + encodedUserGroupID);
@@ -205,8 +203,7 @@ public class UserServlet extends PKIServlet {
         String[] pathElement = request.getPathInfo().substring(1).split("/");
         String userId = pathElement[0];
         String groupId = pathElement[2];
-        UserServletBase userServlet = new UserServletBase(getEngine());
-        userServlet.removeUserMembership(userId, groupId, request.getLocale());
+        userServletBase.removeUserMembership(userId, groupId, request.getLocale());
         response.setStatus(HttpServletResponse.SC_NO_CONTENT);
     }
 }

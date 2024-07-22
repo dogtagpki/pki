@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.util.stream.Collectors;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -30,13 +31,20 @@ public class AuditServlet extends PKIServlet {
     private static final long serialVersionUID = 1L;
     public static final Logger logger = LoggerFactory.getLogger(AuditServlet.class);
 
+    private AuditServletBase auditServletBase;
+
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        auditServletBase = new AuditServletBase(getEngine());
+    }
+
     @WebAction(method = HttpMethod.GET, paths = {""})
     public void getAuditConfig(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
         logger.debug("AuditServlet.getAuditConfig(): session: {}", session.getId());
         PrintWriter out = response.getWriter();
-        AuditServletBase auditServlet = new AuditServletBase(getEngine(), request.getUserPrincipal().getName());
-        AuditConfig auditConfig = auditServlet.createAuditConfig();
+        AuditConfig auditConfig = auditServletBase.createAuditConfig();
         out.println(auditConfig.toJSON());
     }
 
@@ -47,8 +55,7 @@ public class AuditServlet extends PKIServlet {
         PrintWriter out = response.getWriter();
         String requestData = request.getReader().lines().collect(Collectors.joining());
         AuditConfig auditConfig = JSONSerializer.fromJSON(requestData, AuditConfig.class);
-        AuditServletBase auditServlet = new AuditServletBase(getEngine(), request.getUserPrincipal().getName());
-        AuditConfig auditConfigNew = auditServlet.updateAuditConfig(auditConfig);
+        AuditConfig auditConfigNew = auditServletBase.updateAuditConfig(auditConfig, request.getUserPrincipal().getName());
         out.println(auditConfigNew.toJSON());
     }
 
@@ -58,8 +65,7 @@ public class AuditServlet extends PKIServlet {
         logger.debug("AuditServlet.changeAuditStatus(): session: {}", session.getId());
         PrintWriter out = response.getWriter();
         String action = request.getParameter("action");
-        AuditServletBase auditServlet = new AuditServletBase(getEngine(), request.getUserPrincipal().getName());
-        AuditConfig auditConfigNew = auditServlet.changeAuditStatus(action);
+        AuditConfig auditConfigNew = auditServletBase.changeAuditStatus(action, request.getUserPrincipal().getName());
         out.println(auditConfigNew.toJSON());
     }
 
@@ -68,8 +74,7 @@ public class AuditServlet extends PKIServlet {
         HttpSession session = request.getSession();
         logger.debug("AuditServlet.changeAuditStatus(): session: {}", session.getId());
         PrintWriter out = response.getWriter();
-        AuditServletBase auditServlet = new AuditServletBase(getEngine(), request.getUserPrincipal().getName());
-        AuditFileCollection auditConfigNew = auditServlet.findAuditFiles();
+        AuditFileCollection auditConfigNew = auditServletBase.findAuditFiles();
         out.println(auditConfigNew.toJSON());
     }
 
@@ -79,8 +84,7 @@ public class AuditServlet extends PKIServlet {
         logger.debug("AuditServlet.getAuditFile(): session: {}", session.getId());
         String[] pathElement = request.getPathInfo().substring(1).split("/");
         String fileName = pathElement[1];
-        AuditServletBase auditServlet = new AuditServletBase(getEngine(), request.getUserPrincipal().getName());
-        File auditFile = auditServlet.getAuditFile(fileName);
+        File auditFile = auditServletBase.getAuditFile(fileName);
         response.setContentType("application/octet-stream");
         response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
         response.setContentLengthLong(auditFile.length());
