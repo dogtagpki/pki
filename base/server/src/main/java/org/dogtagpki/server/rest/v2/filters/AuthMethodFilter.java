@@ -85,7 +85,7 @@ public abstract class AuthMethodFilter extends HttpFilter {
             if (authMethodMap!=null) {
                 Optional<String> autMethodKey = authMethodMap.keySet().stream().
                         filter( key -> {
-                            String keyRegex = key.replaceFirst("\\*", ".*").replace("{}", "([A-Za-z0-9_\\-\\.\\\s]+)");
+                            String keyRegex = key.replaceFirst("\\*", ".*").replace("{}", "([^/]+)");
                             return authMethodSearch.matches(keyRegex);
                         } ).
                         sorted(Comparator.reverseOrder()).

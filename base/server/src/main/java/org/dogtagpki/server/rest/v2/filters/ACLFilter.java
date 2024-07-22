@@ -98,7 +98,7 @@ public abstract class ACLFilter extends HttpFilter {
             if (aclMap!=null) {
                 Optional<String> aclKey = aclMap.keySet().stream().
                         filter( key -> {
-                            String keyRegex = key.replaceFirst("\\*", ".*").replace("{}", "([A-Za-z0-9_\\-\\.\\\s]+)");
+                            String keyRegex = key.replaceFirst("\\*", ".*").replace("{}", "([^/]+)");
                             return aclSearch.matches(keyRegex);
                         } ).
                         sorted(Comparator.reverseOrder()).
