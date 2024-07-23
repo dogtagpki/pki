@@ -64,7 +64,7 @@ public class PKICertificateApprovalCallback implements SSLCertificateApprovalCal
                         return f.getName();
                     }
                 } catch (IllegalAccessException e) {
-                    e.printStackTrace();
+                    throw new RuntimeException(e);
                 }
             }
         }
@@ -121,8 +121,7 @@ public class PKICertificateApprovalCallback implements SSLCertificateApprovalCal
             return true;
 
         } catch (Exception e) {
-            System.err.println("ERROR: "+e);
-            return false;
+            throw new RuntimeException(e);
         }
     }
 
@@ -132,11 +131,9 @@ public class PKICertificateApprovalCallback implements SSLCertificateApprovalCal
     public boolean approve(X509Certificate serverCert,
             SSLCertificateApprovalCallback.ValidityStatus status) {
 
-        boolean approval = true;
-
-        logger.info("Server certificate: " + serverCert.getSubjectDN());
-
-        SSLCertificateApprovalCallback.ValidityItem item;
+        logger.info("Server certificate:");
+        logger.info("- subject: " + serverCert.getSubjectDN());
+        logger.info("- issuer: " + serverCert.getIssuerDN());
 
         // If there are no items in the Enumeration returned by
         // getReasons(), you can assume that the certificate is
@@ -144,15 +141,22 @@ public class PKICertificateApprovalCallback implements SSLCertificateApprovalCal
         // continue, or you can continue to make further tests of
         // your own to determine trustworthiness.
         Enumeration<?> errors = status.getReasons();
+        boolean approval = true;
 
         while (errors.hasMoreElements()) {
-            item = (SSLCertificateApprovalCallback.ValidityItem) errors.nextElement();
+            SSLCertificateApprovalCallback.ValidityItem item =
+                    (SSLCertificateApprovalCallback.ValidityItem) errors.nextElement();
+
             int reason = item.getReason();
+            if (client.statuses.contains(reason)) {
+                // status already processed, skip
+                continue;
+            }
+
+            client.statuses.add(reason);
 
             if (client.isRejected(reason)) {
-                if (!client.statuses.contains(reason)) {
-                    System.err.println("ERROR: " + getMessage(serverCert, reason));
-                }
+                System.err.println("ERROR: " + getMessage(serverCert, reason));
                 approval = false;
 
             } else if (client.isIgnored(reason)) {
@@ -162,39 +166,31 @@ public class PKICertificateApprovalCallback implements SSLCertificateApprovalCal
                 // Issue a WARNING, but allow this process
                 // to continue since we haven't installed a trusted CA
                 // cert for this operation.
-                if (!client.statuses.contains(reason)) {
-                    System.err.println("WARNING: " + getMessage(serverCert, reason));
-                    approval = handleUntrustedIssuer(serverCert);
+                System.err.println("WARNING: " + getMessage(serverCert, reason));
+                if (!handleUntrustedIssuer(serverCert)) {
+                    approval = false;
                 }
 
             } else if (reason == SSLCertificateApprovalCallback.ValidityStatus.BAD_CERT_DOMAIN) {
                 // Issue a WARNING, but allow this process to continue on
                 // common-name mismatches.
-                if (!client.statuses.contains(reason)) {
-                    System.err.println("WARNING: " + getMessage(serverCert, reason));
-                }
+                System.err.println("WARNING: " + getMessage(serverCert, reason));
 
             } else if (reason == SSLCertificateApprovalCallback.ValidityStatus.CA_CERT_INVALID) {
                 // Set approval false to deny this
                 // certificate so that the connection is terminated.
                 // (Expect an IOException on the outstanding
                 //  read()/write() on the socket).
-                if (!client.statuses.contains(reason)) {
-                    System.err.println("ERROR: " + getMessage(serverCert, reason));
-                }
+                System.err.println("ERROR: " + getMessage(serverCert, reason));
                 approval = false;
 
             } else {
                 // Set approval false to deny this certificate so that
                 // the connection is terminated. (Expect an IOException
                 // on the outstanding read()/write() on the socket).
-                if (!client.statuses.contains(reason)) {
-                    System.err.println("ERROR: " + getMessage(serverCert, reason));
-                }
+                System.err.println("ERROR: " + getMessage(serverCert, reason));
                 approval = false;
             }
-
-            client.statuses.add(reason);
         }
 
         return approval;
