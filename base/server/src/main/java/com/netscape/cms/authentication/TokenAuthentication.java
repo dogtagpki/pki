@@ -35,10 +35,11 @@ import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.cms.servlet.csadmin.Configurator;
+import com.netscape.cms.servlet.csadmin.ConfigCertApprovalCallback;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
@@ -196,8 +197,15 @@ public class TokenAuthentication extends AuthManager {
             throws Exception {
 
         String serverURL = "https://" + authHost + ":" + authPort;
-        PKIClient client = Configurator.createClient(serverURL, null, null);
-        return client.post(authUrl, content, String.class);
+
+        ClientConfig config = new ClientConfig();
+        config.setServerURL(serverURL);
+
+        ConfigCertApprovalCallback callback = new ConfigCertApprovalCallback();
+
+        try (PKIClient client = new PKIClient(config, null, callback)) {
+            return client.post(authUrl, content, String.class);
+        }
     }
 
     /**
