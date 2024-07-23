@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.netscape.certsrv.base.DataCollection;
+import com.netscape.certsrv.util.JSONSerializer;
 
 
 /**
@@ -31,7 +32,7 @@ import com.netscape.certsrv.base.DataCollection;
  */
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class GroupCollection extends DataCollection<GroupData> {
+public class GroupCollection extends DataCollection<GroupData> implements JSONSerializer {
 
     @Override
     public Collection<GroupData> getEntries() {

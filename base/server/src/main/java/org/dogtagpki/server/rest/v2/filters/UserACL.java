@@ -14,5 +14,4 @@ public class UserACL extends ACLFilter {
     public void init() throws ServletException {
         setAcl("users");
     }
-
 }

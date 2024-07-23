@@ -73,11 +73,12 @@ public class UserServletBase {
     public static final String SYSTEM_USER = "$System$";
 
     private CMSEngine engine;
+    private UGSubsystem userGroupManager;
 
     public UserServletBase(CMSEngine engine) {
         this.engine = engine;
+        this.userGroupManager = engine.getUGSubsystem();
     }
-
 
     public UserCollection findUsers(String filter, int start, int size, Locale loc) {
 
@@ -88,7 +89,6 @@ public class UserServletBase {
         UserCollection response = new UserCollection();
 
         try {
-            UGSubsystem userGroupManager = engine.getUGSubsystem();
             Enumeration<User> users = userGroupManager.findUsersByKeyword(filter);
 
             int i = 0;
@@ -131,8 +131,6 @@ public class UserServletBase {
                 logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
                 throw new BadRequestException(CMS.getUserMessage(loc, "CMS_ADMIN_SRVLT_NULL_RS_ID"));
             }
-
-            UGSubsystem userGroupManager = engine.getUGSubsystem();
             User user;
 
             try {
@@ -209,7 +207,6 @@ public class UserServletBase {
                 throw new BadRequestException(CMS.getUserMessage(loc, "CMS_ADMIN_SRVLT_NULL_RS_ID"));
             }
 
-            UGSubsystem userGroupManager = engine.getUGSubsystem();
             User user = null;
 
             try {
@@ -273,7 +270,6 @@ public class UserServletBase {
                 throw new BadRequestException(CMS.getUserMessage(loc, "CMS_ADMIN_SRVLT_NULL_RS_ID"));
             }
 
-            UGSubsystem userGroupManager = engine.getUGSubsystem();
             User user = null;
 
             try {
@@ -338,7 +334,6 @@ public class UserServletBase {
             throw new BadRequestException("Filter is too short.");
         }
         try {
-            UGSubsystem userGroupManager = engine.getUGSubsystem();
             User user = userGroupManager.getUser(userID);
 
             if (user == null) {
@@ -411,7 +406,6 @@ public class UserServletBase {
                 throw new ForbiddenException(CMS.getUserMessage(loc, "CMS_ADMIN_SRVLT_SPECIAL_ID", userID));
             }
 
-            UGSubsystem userGroupManager = engine.getUGSubsystem();
             User user = userGroupManager.createUser(userID);
 
             String fname = userData.getFullName();
@@ -524,7 +518,6 @@ public class UserServletBase {
                 throw new BadRequestException(CMS.getUserMessage(loc, "CMS_ADMIN_SRVLT_NULL_RS_ID"));
             }
 
-            UGSubsystem userGroupManager = engine.getUGSubsystem();
             User user = userGroupManager.createUser(userID);
 
             String fullName = userData.getFullName();
@@ -604,7 +597,6 @@ public class UserServletBase {
             }
 
             // get list of groups, and see if uid belongs to any
-            UGSubsystem userGroupManager = engine.getUGSubsystem();
             Enumeration<Group> groups = userGroupManager.findGroups("*");
 
             while (groups.hasMoreElements()) {
@@ -640,7 +632,6 @@ public class UserServletBase {
                 throw new BadRequestException(CMS.getUserMessage(loc, "CMS_ADMIN_SRVLT_NULL_RS_ID"));
             }
 
-            UGSubsystem userGroupManager = engine.getUGSubsystem();
             User user = userGroupManager.createUser(userID);
 
             String encoded = userCertData.getEncoded();
@@ -829,7 +820,6 @@ public class UserServletBase {
         UserCertData userCertData = new UserCertData();
         userCertData.setID(certID);
         try {
-            UGSubsystem userGroupManager = engine.getUGSubsystem();
             String userCertID = userCertData.getID();
 
             // no certDN is a success
@@ -861,7 +851,6 @@ public class UserServletBase {
         User user = null;
 
         try {
-            UGSubsystem userGroupManager = engine.getUGSubsystem();
             user = userGroupManager.getUser(userID);
         } catch (Exception e) {
             throw new PKIException(CMS.getUserMessage(loc, "CMS_USRGRP_SRVLT_USER_NOT_EXIST"));
