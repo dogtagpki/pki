@@ -56,7 +56,8 @@ public class PKIClient implements AutoCloseable {
     public InfoClient infoClient;
     public Info info;
 
-    Collection<Integer> rejectedCertStatuses = new HashSet<>();
+    PKICertificateApprovalCallback callback;
+
     Collection<Integer> ignoredCertStatuses = new HashSet<>();
 
     // List to prevent displaying the same warnings/errors again.
@@ -77,7 +78,8 @@ public class PKIClient implements AutoCloseable {
         connection = new PKIConnection(config);
 
         if (callback == null) {
-            callback = new PKICertificateApprovalCallback(this);
+            this.callback = new PKICertificateApprovalCallback(this);
+            callback = this.callback;
         }
 
         connection.setCallback(callback);
@@ -325,17 +327,22 @@ public class PKIClient implements AutoCloseable {
     }
 
     public void addRejectedCertStatus(Integer rejectedCertStatus) {
-        rejectedCertStatuses.add(rejectedCertStatus);
+        if (callback != null) {
+            callback.reject(rejectedCertStatus);
+        }
     }
 
     public void setRejectedCertStatuses(Collection<Integer> rejectedCertStatuses) {
-        this.rejectedCertStatuses.clear();
-        if (rejectedCertStatuses == null) return;
-        this.rejectedCertStatuses.addAll(rejectedCertStatuses);
+        if (callback != null) {
+            callback.reject(rejectedCertStatuses);
+        }
     }
 
     public boolean isRejected(Integer certStatus) {
-        return rejectedCertStatuses.contains(certStatus);
+        if (callback != null) {
+            return callback.isRejected(certStatus);
+        }
+        return false;
     }
 
     public void addIgnoredCertStatus(Integer ignoredCertStatus) {

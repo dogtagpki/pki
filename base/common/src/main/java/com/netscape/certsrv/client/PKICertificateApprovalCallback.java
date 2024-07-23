@@ -23,7 +23,9 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.security.Principal;
+import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashSet;
 
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.InternalCertificate;
@@ -36,9 +38,24 @@ public class PKICertificateApprovalCallback implements SSLCertificateApprovalCal
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PKICertificateApprovalCallback.class);
 
     public PKIClient client;
+    Collection<Integer> rejected = new HashSet<>();
 
     public PKICertificateApprovalCallback(PKIClient client) {
         this.client = client;
+    }
+
+    public void reject(Integer status) {
+        rejected.add(status);
+    }
+
+    public void reject(Collection<Integer> statuses) {
+        this.rejected.clear();
+        if (statuses == null) return;
+        this.rejected.addAll(statuses);
+    }
+
+    public boolean isRejected(Integer status) {
+        return rejected.contains(status);
     }
 
     // NOTE:  The following helper method defined as
@@ -155,7 +172,7 @@ public class PKICertificateApprovalCallback implements SSLCertificateApprovalCal
 
             client.statuses.add(reason);
 
-            if (client.isRejected(reason)) {
+            if (isRejected(reason)) {
                 System.err.println("ERROR: " + getMessage(serverCert, reason));
                 approval = false;
 
