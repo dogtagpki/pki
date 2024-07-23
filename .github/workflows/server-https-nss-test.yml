@@ -166,7 +166,10 @@ jobs:
       - name: Check PKI CLI with unknown issuer
         run: |
           # run PKI CLI but don't trust the cert
-          echo n | docker exec -i client pki -U https://pki.example.com:8443 info \
+          echo n | docker exec -i client pki \
+              -D org.dogtagpki.client.socketFactory=org.dogtagpki.client.NonBlockingSocketFactory \
+              -U https://pki.example.com:8443 \
+              info \
               > >(tee stdout) 2> >(tee stderr >&2) || true
 
           # check stdout
@@ -179,9 +182,12 @@ jobs:
           # check stderr
           cat > expected << EOF
           WARNING: UNKNOWN_ISSUER encountered on 'CN=pki.example.com' indicates an unknown CA cert 'CN=CA Signing Certificate'
-          Trust this certificate (y/N)? SEVERE: FATAL: SSL alert sent: BAD_CERTIFICATE
-          IOException: Unable to write to socket: Failed to write to socket: (-5987) Invalid function argument.
+          Trust this certificate (y/N)? IOException: Unable to write to socket: Unable to validate CN=pki.example.com: Unknown issuer: CN=CA Signing Certificate
           EOF
+
+          # TODO: Update the expected stderr once the missing SSL alert is fixed
+          # Trust this certificate (y/N)? SEVERE: FATAL: SSL alert sent: UNKNOWN_CA
+          # IOException: Unable to write to socket: Unable to validate CN=pki.example.com: Unknown issuer: CN=CA Signing Certificate
 
           diff expected stderr
 
@@ -193,7 +199,10 @@ jobs:
       - name: Check PKI CLI with unknown issuer with wrong hostname
         run: |
           # run PKI CLI with wrong hostname
-          echo n | docker exec -i client pki -U https://server.example.com:8443 info \
+          echo n | docker exec -i client pki \
+              -D org.dogtagpki.client.socketFactory=org.dogtagpki.client.NonBlockingSocketFactory \
+              -U https://server.example.com:8443 \
+              info \
               > >(tee stdout) 2> >(tee stderr >&2) || true
 
           # check stdout
@@ -205,18 +214,24 @@ jobs:
 
           # check stderr
           cat > expected << EOF
-          WARNING: UNKNOWN_ISSUER encountered on 'CN=pki.example.com' indicates an unknown CA cert 'CN=CA Signing Certificate'
           WARNING: BAD_CERT_DOMAIN encountered on 'CN=pki.example.com' indicates a common-name mismatch
-          Trust this certificate (y/N)? SEVERE: FATAL: SSL alert sent: BAD_CERTIFICATE
-          IOException: Unable to write to socket: Failed to write to socket: (-12276) Unable to communicate securely with peer: requested domain name does not match the server's certificate.
+          WARNING: UNKNOWN_ISSUER encountered on 'CN=pki.example.com' indicates an unknown CA cert 'CN=CA Signing Certificate'
+          Trust this certificate (y/N)? IOException: Unable to write to socket: Unable to validate CN=pki.example.com: Bad certificate domain: CN=pki.example.com
           EOF
+
+          # TODO: Update the expected stderr once the missing SSL alert is fixed
+          # Trust this certificate (y/N)? SEVERE: FATAL: SSL alert sent: ACCESS_DENIED
+          # IOException: Unable to write to socket: Unable to validate CN=pki.example.com: Bad certificate domain: CN=pki.example.com
 
           diff expected stderr
 
       - name: Check PKI CLI with newly trusted server cert
         run: |
           # run PKI CLI and trust the cert
-          echo y | docker exec -i client pki -U https://pki.example.com:8443 info \
+          echo y | docker exec -i client pki \
+              -D org.dogtagpki.client.socketFactory=org.dogtagpki.client.NonBlockingSocketFactory \
+              -U https://pki.example.com:8443 \
+              info \
               > >(tee stdout) 2> >(tee stderr >&2) || true
 
           # check stdout
@@ -262,7 +277,10 @@ jobs:
       - name: Check PKI CLI with trusted server cert with wrong hostname
         run: |
           # run PKI CLI with wrong hostname
-          docker exec client pki -U https://server.example.com:8443 info \
+          docker exec client pki \
+              -D org.dogtagpki.client.socketFactory=org.dogtagpki.client.NonBlockingSocketFactory \
+              -U https://server.example.com:8443 \
+              info \
               > >(tee stdout) 2> >(tee stderr >&2) || true
 
           # check stdout
@@ -283,7 +301,10 @@ jobs:
       - name: Check PKI CLI with already trusted server cert
         run: |
           # run PKI CLI with correct hostname
-          docker exec client pki -U https://pki.example.com:8443 info \
+          docker exec client pki \
+              -D org.dogtagpki.client.socketFactory=org.dogtagpki.client.NonBlockingSocketFactory \
+              -U https://pki.example.com:8443 \
+              info \
               > >(tee stdout) 2> >(tee stderr >&2) || true
 
           # check stdout
@@ -301,7 +322,10 @@ jobs:
         run: |
           sleep 120
 
-          docker exec client pki -U https://pki.example.com:8443 info \
+          docker exec client pki \
+              -D org.dogtagpki.client.socketFactory=org.dogtagpki.client.NonBlockingSocketFactory \
+              -U https://pki.example.com:8443 \
+              info \
               > >(tee stdout) 2> >(tee stderr >&2) || true
 
           # check stdout
@@ -314,9 +338,11 @@ jobs:
           # check stderr
           cat > expected << EOF
           ERROR: EXPIRED_CERTIFICATE encountered on 'CN=pki.example.com' results in a denied SSL server cert!
-          SEVERE: FATAL: SSL alert sent: BAD_CERTIFICATE
-          IOException: Unable to write to socket: Failed to write to socket: (-5987) Invalid function argument.
+          IOException: Unable to write to socket: Unable to validate CN=pki.example.com: Expired certificate: CN=pki.example.com
           EOF
+
+          # TODO: Update the expected stderr once the missing SSL alert is fixed
+          # SEVERE: FATAL: SSL alert sent: CERTIFICATE_EXPIRED
 
           diff expected stderr
 
