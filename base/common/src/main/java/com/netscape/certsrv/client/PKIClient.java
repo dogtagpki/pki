@@ -22,7 +22,6 @@ import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Map;
 
 import javax.ws.rs.client.Entity;
@@ -53,8 +52,6 @@ public class PKIClient implements AutoCloseable {
     public InfoClient infoClient;
     public Info info;
 
-    PKICertificateApprovalCallback callback;
-
     public PKIClient(ClientConfig config) throws Exception {
         this(config, null);
     }
@@ -65,8 +62,7 @@ public class PKIClient implements AutoCloseable {
         connection = new PKIConnection(config);
 
         if (callback == null) {
-            this.callback = new PKICertificateApprovalCallback();
-            callback = this.callback;
+            callback = new PKICertificateApprovalCallback();
         }
 
         connection.setCallback(callback);
@@ -303,44 +299,6 @@ public class PKIClient implements AutoCloseable {
             info = infoClient.getInfo();
         }
         return info;
-    }
-
-    public void addRejectedCertStatus(Integer rejectedCertStatus) {
-        if (callback != null) {
-            callback.reject(rejectedCertStatus);
-        }
-    }
-
-    public void setRejectedCertStatuses(Collection<Integer> rejectedCertStatuses) {
-        if (callback != null) {
-            callback.reject(rejectedCertStatuses);
-        }
-    }
-
-    public boolean isRejected(Integer certStatus) {
-        if (callback != null) {
-            return callback.isRejected(certStatus);
-        }
-        return false;
-    }
-
-    public void addIgnoredCertStatus(Integer ignoredCertStatus) {
-        if (callback != null) {
-            callback.ignore(ignoredCertStatus);
-        }
-    }
-
-    public void setIgnoredCertStatuses(Collection<Integer> ignoredCertStatuses) {
-        if (callback != null) {
-            callback.ignore(ignoredCertStatuses);
-        }
-    }
-
-    public boolean isIgnored(Integer certStatus) {
-        if (callback != null) {
-            return callback.isIgnored(certStatus);
-        }
-        return false;
     }
 
     public void setOutput(File output) {
