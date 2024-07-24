@@ -61,6 +61,7 @@ import org.mozilla.jss.util.Password;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ca.CAClient;
 import com.netscape.certsrv.client.ClientConfig;
+import com.netscape.certsrv.client.PKICertificateApprovalCallback;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.cmstools.acme.ACMECLI;
 import com.netscape.cmstools.ca.CACLI;
@@ -299,7 +300,7 @@ public class MainCLI extends CLI {
         return promptForPassword("Enter Password: ");
     }
 
-    public static CAClient createCAClient(PKIClient client) throws Exception {
+    public CAClient createCAClient(PKIClient client) throws Exception {
 
         ClientConfig config = client.getConfig();
         CAClient caClient = new CAClient(client);
@@ -322,7 +323,8 @@ public class MainCLI extends CLI {
             config = new ClientConfig(client.getConfig());
             config.setServerURL(uri);
 
-            client = new PKIClient(config);
+            SSLCertificateApprovalCallback callback = createCertApprovalCallback();
+            client = new PKIClient(config, null, callback);
             caClient = new CAClient(client);
         }
 
@@ -574,6 +576,15 @@ public class MainCLI extends CLI {
         initialized = true;
     }
 
+    public SSLCertificateApprovalCallback createCertApprovalCallback() {
+
+        PKICertificateApprovalCallback callback = new PKICertificateApprovalCallback();
+        callback.reject(rejectedCertStatuses);
+        callback.ignore(ignoredCertStatuses);
+
+        return callback;
+    }
+
     @Override
     public PKIClient getClient() throws Exception {
 
@@ -581,9 +592,8 @@ public class MainCLI extends CLI {
 
         logger.info("Connecting to " + config.getServerURL());
 
-        client = new PKIClient(config);
-        client.setRejectedCertStatuses(rejectedCertStatuses);
-        client.setIgnoredCertStatuses(ignoredCertStatuses);
+        SSLCertificateApprovalCallback callback = createCertApprovalCallback();
+        client = new PKIClient(config, null, callback);
 
         if (output != null) {
             File file = new File(output);

@@ -32,6 +32,7 @@ import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.nss.NSSDatabase;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
+import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 
 import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.ca.CAClient;
@@ -250,7 +251,8 @@ public class ClientCertImportCLI extends CommandCLI {
             URL serverURL = config.getServerURL();
             logger.info("Importing certificate " + serialNumber + " from " + serverURL);
 
-            PKIClient client = new PKIClient(config);
+            SSLCertificateApprovalCallback callback = mainCLI.createCertApprovalCallback();
+            PKIClient client = new PKIClient(config, null, callback);
             CAClient caClient = new CAClient(client);
             CACertClient certClient = new CACertClient(caClient);
 

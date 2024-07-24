@@ -93,7 +93,7 @@ public class UserCertAddCLI extends CommandCLI {
         } else if (serialNumber != null) {
             logger.info("Downloading certificate " + serialNumber);
 
-            CAClient caClient = MainCLI.createCAClient(parent.getClient());
+            CAClient caClient = mainCLI.createCAClient(parent.getClient());
             CACertClient certClient = new CACertClient(caClient);
 
             CertData certData = certClient.getCert(new CertId(serialNumber));
