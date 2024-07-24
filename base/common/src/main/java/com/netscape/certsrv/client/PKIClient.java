@@ -23,7 +23,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Map;
 
 import javax.ws.rs.client.Entity;
@@ -57,9 +56,6 @@ public class PKIClient implements AutoCloseable {
     public Info info;
 
     PKICertificateApprovalCallback callback;
-
-    // List to prevent displaying the same warnings/errors again.
-    Collection<Integer> statuses = new HashSet<>();
 
     public PKIClient(ClientConfig config) throws Exception {
         this(config, null, null);

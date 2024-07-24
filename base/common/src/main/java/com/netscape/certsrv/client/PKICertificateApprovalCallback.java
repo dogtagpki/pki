@@ -40,6 +40,7 @@ public class PKICertificateApprovalCallback implements SSLCertificateApprovalCal
     public PKIClient client;
     Collection<Integer> rejected = new HashSet<>();
     Collection<Integer> ignored = new HashSet<>();
+    Collection<Integer> processed = new HashSet<>();
 
     public PKICertificateApprovalCallback(PKIClient client) {
         this.client = client;
@@ -180,12 +181,12 @@ public class PKICertificateApprovalCallback implements SSLCertificateApprovalCal
                     (SSLCertificateApprovalCallback.ValidityItem) errors.nextElement();
 
             int reason = item.getReason();
-            if (client.statuses.contains(reason)) {
+            if (processed.contains(reason)) {
                 // status already processed, skip
                 continue;
             }
 
-            client.statuses.add(reason);
+            processed.add(reason);
 
             if (isRejected(reason)) {
                 System.err.println("ERROR: " + getMessage(serverCert, reason));
