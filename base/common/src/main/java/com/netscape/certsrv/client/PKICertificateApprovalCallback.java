@@ -37,13 +37,11 @@ public class PKICertificateApprovalCallback implements SSLCertificateApprovalCal
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PKICertificateApprovalCallback.class);
 
-    public PKIClient client;
     Collection<Integer> rejected = new HashSet<>();
     Collection<Integer> ignored = new HashSet<>();
     Collection<Integer> processed = new HashSet<>();
 
-    public PKICertificateApprovalCallback(PKIClient client) {
-        this.client = client;
+    public PKICertificateApprovalCallback() {
     }
 
     public void reject(Integer status) {

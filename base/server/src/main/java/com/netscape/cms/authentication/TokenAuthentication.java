@@ -29,6 +29,7 @@ import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
+import org.mozilla.jss.ssl.SSLCertificateApprovalCallback.ValidityStatus;
 
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
@@ -36,10 +37,10 @@ import com.netscape.certsrv.authentication.EMissingCredential;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.client.ClientConfig;
+import com.netscape.certsrv.client.PKICertificateApprovalCallback;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.cms.servlet.csadmin.ConfigCertApprovalCallback;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
@@ -201,7 +202,9 @@ public class TokenAuthentication extends AuthManager {
         ClientConfig config = new ClientConfig();
         config.setServerURL(serverURL);
 
-        ConfigCertApprovalCallback callback = new ConfigCertApprovalCallback();
+        PKICertificateApprovalCallback callback = new PKICertificateApprovalCallback();
+        callback.reject(ValidityStatus.UNTRUSTED_ISSUER);
+        callback.reject(ValidityStatus.BAD_CERT_DOMAIN);
 
         try (PKIClient client = new PKIClient(config, null, callback)) {
             return client.post(authUrl, content, String.class);
