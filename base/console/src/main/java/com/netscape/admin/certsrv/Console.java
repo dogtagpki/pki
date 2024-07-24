@@ -55,11 +55,11 @@ import org.dogtagpki.common.Info;
 import org.dogtagpki.common.InfoClient;
 import org.dogtagpki.util.logging.PKILogger;
 import org.dogtagpki.util.logging.PKILogger.LogLevel;
-
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.AlreadyInitializedException;
 
 import com.netscape.certsrv.client.ClientConfig;
+import com.netscape.certsrv.client.PKICertificateApprovalCallback;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.management.client.Framework;
 import com.netscape.management.client.IPage;
@@ -74,8 +74,8 @@ import com.netscape.management.client.components.FontFactory;
 import com.netscape.management.client.console.ConsoleInfo;
 import com.netscape.management.client.console.LoginDialog;
 import com.netscape.management.client.console.VersionInfo;
-import com.netscape.management.client.preferences.FilePreferences;
 import com.netscape.management.client.preferences.FilePreferenceManager;
+import com.netscape.management.client.preferences.FilePreferences;
 import com.netscape.management.client.preferences.PreferenceManager;
 import com.netscape.management.client.preferences.Preferences;
 import com.netscape.management.client.topology.IServerObject;
@@ -1804,7 +1804,9 @@ public class Console implements CommClient {
             config.setCertNickname(client_cert_nick);
         }
 
-        PKIClient client = new PKIClient(config);
+        PKICertificateApprovalCallback callback = new PKICertificateApprovalCallback();
+
+        PKIClient client = new PKIClient(config, callback);
 
         InfoClient infoClient = new InfoClient(client);
         Info info = infoClient.getInfo();

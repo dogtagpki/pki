@@ -154,7 +154,9 @@ jobs:
               --type postgresql \
               -Dpassword=mysecretpassword \
               -Durl='jdbc:postgresql://postgresql.example.com:5432/acme?ssl=true&sslmode=require'
-          docker exec pki pki-server acme-issuer-mod --type pki
+          docker exec pki pki-server acme-issuer-mod \
+              --type pki \
+              -D url=https://pki.example.com:8443
           docker exec pki pki-server acme-realm-mod \
               --type postgresql \
               -Dpassword=mysecretpassword \
@@ -523,6 +525,44 @@ jobs:
           cat output |  awk -F '|' '{ print $3 }' > actual
           diff expected actual
 
+      - name: Remove ACME from PKI container
+        run: |
+          docker exec pki pki-server acme-undeploy --wait
+          docker exec pki pki-server acme-remove
+
+      - name: Remove CA from PKI container
+        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Check DS server systemd journal
+        if: always()
+        run: |
+          docker exec ds journalctl -x --no-pager -u dirsrv@localhost.service
+
+      - name: Check DS container logs
+        if: always()
+        run: |
+          docker logs ds
+
+      - name: Check PKI server systemd journal
+        if: always()
+        run: |
+          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check CA debug log
+        if: always()
+        run: |
+          docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check ACME debug log
+        if: always()
+        run: |
+          docker exec pki find /var/lib/pki/pki-tomcat/logs/acme -name "debug.*" -exec cat {} \;
+
+      - name: Check certbot log
+        if: always()
+        run: |
+          docker exec client cat /var/log/letsencrypt/letsencrypt.log
+
       - name: Gather artifacts from server containers
         if: always()
         run: |
@@ -540,14 +580,6 @@ jobs:
           mkdir -p /tmp/artifacts/client/var/log/letsencrypt
           docker cp client:/var/log/letsencrypt/letsencrypt.log /tmp/artifacts/client/var/log/letsencrypt
         continue-on-error: true
-
-      - name: Remove ACME from PKI container
-        run: |
-          docker exec pki pki-server acme-undeploy --wait
-          docker exec pki pki-server acme-remove
-
-      - name: Remove CA from PKI container
-        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
 
       - name: Upload artifacts from server containers
         if: always()
