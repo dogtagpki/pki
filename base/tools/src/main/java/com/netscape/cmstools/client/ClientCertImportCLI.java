@@ -252,7 +252,7 @@ public class ClientCertImportCLI extends CommandCLI {
             logger.info("Importing certificate " + serialNumber + " from " + serverURL);
 
             SSLCertificateApprovalCallback callback = mainCLI.createCertApprovalCallback();
-            PKIClient client = new PKIClient(config, null, callback);
+            PKIClient client = new PKIClient(config, callback);
             CAClient caClient = new CAClient(client);
             CACertClient certClient = new CACertClient(caClient);
 

@@ -63,7 +63,6 @@ public class KeyClient extends Client {
     public KeyClient(PKIClient client, String subsystem) throws Exception {
         super(client, subsystem, "agent/keys");
         init();
-        crypto = client.getCrypto();
 
         Version serverVersion = getServerVersion();
         if (serverVersion.isNewerThanOrEquals(new Version("10.4"))) {

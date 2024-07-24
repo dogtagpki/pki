@@ -39,7 +39,6 @@ import org.dogtagpki.common.InfoClient;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 
 import com.netscape.certsrv.base.PKIException;
-import com.netscape.certsrv.util.CryptoProvider;
 
 
 public class PKIClient implements AutoCloseable {
@@ -51,23 +50,17 @@ public class PKIClient implements AutoCloseable {
     public ClientConfig config;
     public PKIConnection connection;
     public MediaType messageFormat;
-    public CryptoProvider crypto;
     public InfoClient infoClient;
     public Info info;
 
     PKICertificateApprovalCallback callback;
 
     public PKIClient(ClientConfig config) throws Exception {
-        this(config, null, null);
+        this(config, null);
     }
 
-    public PKIClient(ClientConfig config, CryptoProvider crypto) throws Exception {
-        this(config, crypto, null);
-    }
-
-    public PKIClient(ClientConfig config, CryptoProvider crypto, SSLCertificateApprovalCallback callback) throws Exception {
+    public PKIClient(ClientConfig config, SSLCertificateApprovalCallback callback) throws Exception {
         this.config = config;
-        this.crypto = crypto;
 
         connection = new PKIConnection(config);
 
@@ -227,14 +220,6 @@ public class PKIClient implements AutoCloseable {
 
     public ClientConfig getConfig() {
         return config;
-    }
-
-    public CryptoProvider getCrypto() {
-        return crypto;
-    }
-
-    public void setCrypto(CryptoProvider crypto) {
-        this.crypto = crypto;
     }
 
     public PKIConnection getConnection() {

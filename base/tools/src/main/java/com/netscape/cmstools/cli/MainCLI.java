@@ -324,7 +324,7 @@ public class MainCLI extends CLI {
             config.setServerURL(uri);
 
             SSLCertificateApprovalCallback callback = createCertApprovalCallback();
-            client = new PKIClient(config, null, callback);
+            client = new PKIClient(config, callback);
             caClient = new CAClient(client);
         }
 
@@ -593,7 +593,7 @@ public class MainCLI extends CLI {
         logger.info("Connecting to " + config.getServerURL());
 
         SSLCertificateApprovalCallback callback = createCertApprovalCallback();
-        client = new PKIClient(config, null, callback);
+        client = new PKIClient(config, callback);
 
         if (output != null) {
             File file = new File(output);

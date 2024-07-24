@@ -206,7 +206,7 @@ public class TokenAuthentication extends AuthManager {
         callback.reject(ValidityStatus.UNTRUSTED_ISSUER);
         callback.reject(ValidityStatus.BAD_CERT_DOMAIN);
 
-        try (PKIClient client = new PKIClient(config, null, callback)) {
+        try (PKIClient client = new PKIClient(config, callback)) {
             return client.post(authUrl, content, String.class);
         }
     }
