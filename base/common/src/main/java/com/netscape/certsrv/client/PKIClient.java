@@ -60,11 +60,6 @@ public class PKIClient implements AutoCloseable {
         this.config = config;
 
         connection = new PKIConnection(config);
-
-        if (callback == null) {
-            callback = new PKICertificateApprovalCallback();
-        }
-
         connection.setCallback(callback);
 
         String messageFormat = config.getMessageFormat();
