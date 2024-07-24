@@ -39,6 +39,7 @@ public class PKICertificateApprovalCallback implements SSLCertificateApprovalCal
 
     public PKIClient client;
     Collection<Integer> rejected = new HashSet<>();
+    Collection<Integer> ignored = new HashSet<>();
 
     public PKICertificateApprovalCallback(PKIClient client) {
         this.client = client;
@@ -56,6 +57,20 @@ public class PKICertificateApprovalCallback implements SSLCertificateApprovalCal
 
     public boolean isRejected(Integer status) {
         return rejected.contains(status);
+    }
+
+    public void ignore(Integer status) {
+        ignored.add(status);
+    }
+
+    public void ignore(Collection<Integer> statuses) {
+        this.ignored.clear();
+        if (statuses == null) return;
+        this.ignored.addAll(statuses);
+    }
+
+    public boolean isIgnored(Integer status) {
+        return ignored.contains(status);
     }
 
     // NOTE:  The following helper method defined as
@@ -176,7 +191,7 @@ public class PKICertificateApprovalCallback implements SSLCertificateApprovalCal
                 System.err.println("ERROR: " + getMessage(serverCert, reason));
                 approval = false;
 
-            } else if (client.isIgnored(reason)) {
+            } else if (isIgnored(reason)) {
                 // Ignore validity status
 
             } else if (reason == SSLCertificateApprovalCallback.ValidityStatus.UNTRUSTED_ISSUER) {

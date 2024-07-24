@@ -58,8 +58,6 @@ public class PKIClient implements AutoCloseable {
 
     PKICertificateApprovalCallback callback;
 
-    Collection<Integer> ignoredCertStatuses = new HashSet<>();
-
     // List to prevent displaying the same warnings/errors again.
     Collection<Integer> statuses = new HashSet<>();
 
@@ -346,17 +344,22 @@ public class PKIClient implements AutoCloseable {
     }
 
     public void addIgnoredCertStatus(Integer ignoredCertStatus) {
-        ignoredCertStatuses.add(ignoredCertStatus);
+        if (callback != null) {
+            callback.ignore(ignoredCertStatus);
+        }
     }
 
     public void setIgnoredCertStatuses(Collection<Integer> ignoredCertStatuses) {
-        this.ignoredCertStatuses.clear();
-        if (ignoredCertStatuses == null) return;
-        this.ignoredCertStatuses.addAll(ignoredCertStatuses);
+        if (callback != null) {
+            callback.ignore(ignoredCertStatuses);
+        }
     }
 
     public boolean isIgnored(Integer certStatus) {
-        return ignoredCertStatuses.contains(certStatus);
+        if (callback != null) {
+            return callback.isIgnored(certStatus);
+        }
+        return false;
     }
 
     public void setOutput(File output) {
