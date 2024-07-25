@@ -35,7 +35,7 @@ jobs:
           HOSTNAME: pki.example.com
 
       - name: Connect server container to network
-        run: docker network connect example pki --alias pki.example.com
+        run: docker network connect example pki --alias pki.example.com --alias server.example.com
 
       - name: Create PKI server
         run: |
@@ -45,23 +45,57 @@ jobs:
         run: |
           docker exec pki pki-server nss-create --no-password
 
-      - name: Create SSL server cert
+      - name: Create CA signing cert
         run: |
-          docker exec pki pki -d /var/lib/pki/pki-tomcat/alias \
+          docker exec pki pki \
+              -d /var/lib/pki/pki-tomcat/alias \
               nss-cert-request \
-              --subject "CN=$HOSTNAME" \
-              --ext /usr/share/pki/server/certs/sslserver.conf \
-              --csr sslserver.csr
-          docker exec pki pki -d /var/lib/pki/pki-tomcat/alias \
+              --subject "CN=CA Signing Certificate" \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --csr $SHARED/ca_signing.csr
+
+          docker exec pki pki \
+              -d /var/lib/pki/pki-tomcat/alias \
               nss-cert-issue \
-              --csr sslserver.csr \
-              --ext /usr/share/pki/server/certs/sslserver.conf \
-              --cert sslserver.crt
+              --csr $SHARED/ca_signing.csr \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --validity-length 1 \
+              --validity-unit year \
+              --cert $SHARED/ca_signing.crt
 
           docker exec pki pki \
               -d /var/lib/pki/pki-tomcat/alias \
               nss-cert-import \
-              --cert sslserver.crt \
+              --cert $SHARED/ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
+          docker exec pki pki \
+              -d /var/lib/pki/pki-tomcat/alias \
+              nss-cert-show \
+              ca_signing
+
+      - name: Create SSL server cert
+        run: |
+          docker exec pki pki \
+              -d /var/lib/pki/pki-tomcat/alias \
+              nss-cert-request \
+              --subject "CN=pki.example.com" \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --csr $SHARED/sslserver.csr
+
+          docker exec pki pki \
+              -d /var/lib/pki/pki-tomcat/alias \
+              nss-cert-issue \
+              --issuer ca_signing \
+              --csr $SHARED/sslserver.csr \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --cert $SHARED/sslserver.crt
+
+          docker exec pki pki \
+              -d /var/lib/pki/pki-tomcat/alias \
+              nss-cert-import \
+              --cert $SHARED/sslserver.crt \
               sslserver
 
       - name: Create HTTPS connector with NSS database
@@ -79,6 +113,16 @@ jobs:
               --keyAlias sslserver \
               --keystoreType pkcs11 \
               --keystoreProvider Mozilla-JSS
+
+      - name: Deploy webapps
+        run: |
+          docker exec pki pki-server webapp-deploy \
+              --descriptor /usr/share/pki/server/conf/Catalina/localhost/ROOT.xml \
+              ROOT
+
+          docker exec pki pki-server webapp-deploy \
+              --descriptor /usr/share/pki/server/conf/Catalina/localhost/pki.xml \
+              pki
 
       - name: Start PKI server
         run: |
@@ -104,6 +148,47 @@ jobs:
               -o /dev/null \
               https://pki.example.com:8443
 
+      - name: Check PKI CLI with untrusted issuer
+        run: |
+          echo y | docker exec -i client pki -U https://pki.example.com:8443 info \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          cat > expected << EOF
+          WARNING: UNTRUSTED ISSUER encountered on 'CN=pki.example.com' indicates a non-trusted CA cert 'CN=CA Signing Certificate'
+          Trust this certificate (y/N)?
+          EOF
+
+          # remove trailing whitespace
+          sed -i 's/ *$//' stderr
+
+          # append end of line
+          echo >> stderr
+
+          diff expected stderr
+
+      - name: Check PKI CLI with bad cert domain
+        run: |
+          docker exec client pki -U https://server.example.com:8443 info \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          cat > expected << EOF
+          WARNING: BAD_CERT_DOMAIN encountered on 'CN=pki.example.com' indicates a common-name mismatch
+          EOF
+
+          diff expected stderr
+
+      - name: Check PKI CLI with good cert
+        run: |
+          docker exec client pki nss-cert-import \
+              --cert $SHARED/ca_signing.crt \
+              --trust CT,C,C \
+              sslserver
+
+          docker exec client pki -U https://pki.example.com:8443 info \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          diff /dev/null stderr
+
       - name: Stop PKI server
         run: |
           docker exec pki pki-server stop --wait -v
@@ -111,6 +196,16 @@ jobs:
       - name: Remove PKI server
         run: |
           docker exec pki pki-server remove -v
+
+      - name: Check PKI server systemd journal
+        if: always()
+        run: |
+          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check PKI debug log
+        if: always()
+        run: |
+          docker exec pki find /var/lib/pki/pki-tomcat/logs/pki -name "debug.*" -exec cat {} \;
 
       - name: Gather artifacts from server container
         if: always()
