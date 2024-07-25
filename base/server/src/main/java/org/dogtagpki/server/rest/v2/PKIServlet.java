@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.authentication.ExternalAuthToken;
 import com.netscape.certsrv.base.ForbiddenException;
+import com.netscape.certsrv.base.MediaType;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.base.WebAction;
@@ -113,7 +114,7 @@ public abstract class PKIServlet extends HttpServlet {
     }
 
     private void doOperation(HttpMethod method, HttpServletRequest request, HttpServletResponse response) {
-        response.setContentType("application/json");
+        response.setContentType(MediaType.APPLICATION_JSON);
         try {
             setSessionContext(request);
             Method actionMethod = getActionMethod(method, request.getPathInfo());

@@ -18,5 +18,4 @@ public class AgentCertACL extends ACLFilter {
     public void init() throws ServletException {
         setAcl("certs");
     }
-
 }
