@@ -109,7 +109,6 @@ import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.SymmetricKey;
-import org.mozilla.jss.crypto.TokenCertificate;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
@@ -1926,8 +1925,7 @@ public class CryptoUtil {
         for (X509Certificate cert : certs) {
 
             CryptoToken token;
-            if (cert instanceof TokenCertificate) {
-                TokenCertificate tokenCert = (TokenCertificate) cert;
+            if (cert instanceof PK11Cert tokenCert) {
                 token = tokenCert.getOwningToken();
 
             } else {

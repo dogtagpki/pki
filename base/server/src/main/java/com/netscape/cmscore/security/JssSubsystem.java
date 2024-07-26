@@ -69,7 +69,6 @@ import org.mozilla.jss.crypto.PQGParams;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
-import org.mozilla.jss.crypto.TokenCertificate;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.extensions.AuthInfoAccessExtension;
@@ -1054,7 +1053,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             throws EBaseException {
         try {
             X509Certificate cert = getCertificate(nickname, serialno, issuername);
-            if (cert instanceof TokenCertificate tcert) {
+            if (cert instanceof PK11Cert tcert) {
                 logger.debug("*** deleting this token cert");
                 tcert.getOwningToken().getCryptoStore().deleteCert(tcert);
                 logger.debug("*** finish deleting this token cert");
@@ -1104,7 +1103,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
                 logger.debug("*** issuer " + issuer);
                 if (num.equals(serialno) && issuername.equals(issuer)) {
                     logger.debug("*** removing root cert");
-                    if (cert instanceof TokenCertificate tcert) {
+                    if (cert instanceof PK11Cert tcert) {
                         logger.debug("*** deleting this token cert");
                         tcert.getOwningToken().getCryptoStore().deleteCert(tcert);
                         logger.debug("*** finish deleting this token cert");
@@ -1483,7 +1482,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
                 Date qualifier = mFormatter.parse(notAfterTime);
 
                 if (notAfter.equals(qualifier)) {
-                    if (cert instanceof TokenCertificate tcert) {
+                    if (cert instanceof PK11Cert tcert) {
                         tcert.getOwningToken().getCryptoStore().deleteCert(tcert);
                     } else {
                         CryptoToken token = CryptoManager.getInstance().getInternalKeyStorageToken();
@@ -1549,7 +1548,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
                 Date qualifier = mFormatter.parse(notAfterTime);
 
                 if (notAfter.equals(qualifier)) {
-                    if (cert instanceof TokenCertificate tcert) {
+                    if (cert instanceof PK11Cert tcert) {
                         tcert.getOwningToken().getCryptoStore().deleteCert(tcert);
                     } else {
                         CryptoToken token = CryptoManager.getInstance().getInternalKeyStorageToken();
@@ -1595,7 +1594,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             stream.println(Cert.HEADER);
             stream.print(b64E);
             stream.println(Cert.FOOTER);
-            if (cert instanceof TokenCertificate tcert) {
+            if (cert instanceof PK11Cert tcert) {
                 tcert.getOwningToken().getCryptoStore().deleteCert(tcert);
             } else
                 throw new EBaseException(CMS.getUserMessage("CMS_BASE_NOT_TOKEN_CERT"));

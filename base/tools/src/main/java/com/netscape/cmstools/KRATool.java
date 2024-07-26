@@ -64,7 +64,6 @@ import org.mozilla.jss.crypto.KeyWrapper;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.SymmetricKey;
-import org.mozilla.jss.crypto.TokenCertificate;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.provider.RSAPublicKey;
@@ -73,6 +72,7 @@ import org.mozilla.jss.netscape.security.util.DerOutputStream;
 import org.mozilla.jss.netscape.security.util.DerValue;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.pkcs11.PK11Cert;
 import org.mozilla.jss.pkcs11.PK11PubKey;
 import org.mozilla.jss.util.Password;
 
@@ -1443,7 +1443,7 @@ public class KRATool {
 
             for (int i = 0; i < pk.length; i++) {
                 if (arraysEqual(pk[i].getUniqueID(),
-                                  ((TokenCertificate)
+                                  ((PK11Cert)
                                     mUnwrapCert).getUniqueID())) {
                     return pk[i];
                 }

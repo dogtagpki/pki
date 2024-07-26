@@ -51,7 +51,6 @@ import org.mozilla.jss.crypto.PBEAlgorithm;
 import org.mozilla.jss.crypto.PBEKeyGenParams;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.SymmetricKey;
-import org.mozilla.jss.crypto.TokenCertificate;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.util.DerInputStream;
@@ -59,6 +58,7 @@ import org.mozilla.jss.netscape.security.util.DerOutputStream;
 import org.mozilla.jss.netscape.security.util.DerValue;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.util.WrappingParams;
+import org.mozilla.jss.pkcs11.PK11Cert;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -561,7 +561,7 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
 
                 for (int i = 0; i < pk.length; i++) {
                     if (arraysEqual(pk[i].getUniqueID(),
-                            ((TokenCertificate) mCert).getUniqueID())) {
+                            ((PK11Cert) mCert).getUniqueID())) {
                         mPrivateKey = pk[i];
                     }
                 }
@@ -812,7 +812,7 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
             PrivateKey pk[] = getToken().getCryptoStore().getPrivateKeys();
             for (int i = 0; i < pk.length; i++) {
                 if (arraysEqual(pk[i].getUniqueID(),
-                        ((TokenCertificate) mCert).getUniqueID())) {
+                        ((PK11Cert) mCert).getUniqueID())) {
                     return pk[i];
                 }
             }
