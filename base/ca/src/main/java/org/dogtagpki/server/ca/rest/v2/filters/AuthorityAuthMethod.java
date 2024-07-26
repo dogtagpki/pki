@@ -30,5 +30,4 @@ public class AuthorityAuthMethod extends AuthMethodFilter {
         authMethodMap.put("POST:{}/renew", AUTHORITIES);
         setAuthMethodMap(authMethodMap);
     }
-
 }
