@@ -32,5 +32,4 @@ public class AuthorityACL extends ACLFilter {
         aclMap.put("POST:{}/renew", MODIFY);
         setAclMap(aclMap);
     }
-
 }
