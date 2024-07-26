@@ -28,7 +28,6 @@ import java.util.Enumeration;
 import java.util.HashSet;
 
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.crypto.InternalCertificate;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.pkcs11.PK11Cert;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
@@ -146,7 +145,7 @@ public class PKICertificateApprovalCallback implements SSLCertificateApprovalCal
             manager.importCertToPerm(serverCert, nickname);
 
             logger.info("Trusting certificate");
-            InternalCertificate internalCert = (InternalCertificate) serverCert;
+            PK11Cert internalCert = (PK11Cert) serverCert;
             internalCert.setSSLTrust(PK11Cert.TRUSTED_PEER);
 
             return true;

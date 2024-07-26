@@ -33,7 +33,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.crypto.InternalCertificate;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.CertPrettyPrint;
@@ -978,7 +977,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                             logger.debug("UsrGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_LEAF_CERT_NON_NULL"));
                         }
 
-                        if (leafCert instanceof InternalCertificate ic) {
+                        if (leafCert instanceof PK11Cert ic) {
                             ic.setSSLTrust(
                                     PK11Cert.VALID_CA |
                                     PK11Cert.TRUSTED_CA |

@@ -37,7 +37,6 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.crypto.InternalCertificate;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.CertPrettyPrint;
@@ -826,8 +825,8 @@ public class UserService extends SubsystemService implements UserResource {
                             logger.debug("UserService: " + CMS.getLogMessage("ADMIN_SRVLT_LEAF_CERT_NON_NULL"));
                         }
 
-                        if (leafCert instanceof InternalCertificate) {
-                            ((InternalCertificate) leafCert).setSSLTrust(
+                        if (leafCert instanceof PK11Cert) {
+                            ((PK11Cert) leafCert).setSSLTrust(
                                     PK11Cert.VALID_CA |
                                     PK11Cert.TRUSTED_CA |
                                     PK11Cert.TRUSTED_CLIENT_CA);

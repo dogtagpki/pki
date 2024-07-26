@@ -59,7 +59,6 @@ import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.crypto.AlreadyInitializedException;
 import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
-import org.mozilla.jss.crypto.InternalCertificate;
 import org.mozilla.jss.crypto.KeyPairAlgorithm;
 import org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage;
 import org.mozilla.jss.crypto.NoSuchItemOnTokenException;
@@ -1380,7 +1379,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             X509Certificate[] value = mNicknameMapCertsTable.get(nickname);
 
             for (int i = 0; i < value.length; i++) {
-                if (!(value[i] instanceof InternalCertificate icert)) {
+                if (!(value[i] instanceof PK11Cert icert)) {
                     logger.trace("cert is not an InternalCertificate");
                     logger.trace("nickname: " + nickname + "  index " + i);
                     logger.trace("cert: " + value[i]);
@@ -1435,7 +1434,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
                 Date qualifier = mFormatter.parse(date);
 
                 if (notAfter.equals(qualifier)) {
-                    if (cert instanceof InternalCertificate internalCertificate) {
+                    if (cert instanceof PK11Cert internalCertificate) {
                         if (trust.equals("Trust")) {
                             int trustflag = PK11Cert.TRUSTED_CA |
                                     PK11Cert.TRUSTED_CLIENT_CA |
@@ -1666,7 +1665,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             String issuerName, String trust) throws EBaseException {
 
         X509Certificate cert = getCertificate(nickname, serialno, issuerName);
-        if (cert instanceof InternalCertificate internalCertificate) {
+        if (cert instanceof PK11Cert internalCertificate) {
             if (trust.equals("trust")) {
                 int trustflag = PK11Cert.TRUSTED_CA |
                         PK11Cert.TRUSTED_CLIENT_CA |
@@ -1745,7 +1744,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             }
 
             String trust = "U";
-            if (certs[i] instanceof InternalCertificate icert) {
+            if (certs[i] instanceof PK11Cert icert) {
                 int flag = icert.getSSLTrust();
                 if ((PK11Cert.TRUSTED_CLIENT_CA & flag) == PK11Cert.TRUSTED_CLIENT_CA)
                     trust = "T";

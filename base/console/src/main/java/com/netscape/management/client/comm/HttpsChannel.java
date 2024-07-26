@@ -33,6 +33,7 @@ import com.netscape.management.client.security.PromptForTrustDialog;
 import com.netscape.management.nmclf.SuiPasswordField;
 import com.netscape.management.client.preferences.Preferences;
 
+import org.mozilla.jss.pkcs11.PK11Cert;
 import org.mozilla.jss.ssl.SSLSocket;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.mozilla.jss.ssl.SSLClientCertificateSelectionCallback;
@@ -40,7 +41,6 @@ import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.util.PasswordCallback;
 import org.mozilla.jss.util.PasswordCallbackInfo;
 import org.mozilla.jss.util.Password;
-import org.mozilla.jss.crypto.InternalCertificate;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
@@ -211,11 +211,11 @@ public class HttpsChannel extends HttpChannel implements
                     try {
                         Debug.println("install cert");
                         String nickname = serverCert.getNickname();
-                        //serverCert.setSSLTrust(org.mozilla.jss.crypto.InternalCertificate.TRUSTED_PEER);
+                        //serverCert.setSSLTrust(PK11Cert.TRUSTED_PEER);
                         Debug.println("nickname: "+nickname);
                         Debug.println("dn:       "+serverCert.getSubjectDN().toString());
-                        InternalCertificate internalCert = cryptoManager.importCertToPerm(serverCert, (nickname==null)?serverCert.getSubjectDN().toString():nickname);
-                        internalCert.setSSLTrust(org.mozilla.jss.crypto.InternalCertificate.TRUSTED_PEER | org.mozilla.jss.crypto.InternalCertificate.VALID_PEER);
+                        PK11Cert internalCert = (PK11Cert) cryptoManager.importCertToPerm(serverCert, (nickname==null)?serverCert.getSubjectDN().toString():nickname);
+                        internalCert.setSSLTrust(PK11Cert.TRUSTED_PEER | PK11Cert.VALID_PEER);
                     }catch (Exception e) {
                         //unable to save cert
                         //e.printStackTrace();

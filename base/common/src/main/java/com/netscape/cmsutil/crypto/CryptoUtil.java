@@ -92,7 +92,6 @@ import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.HMACAlgorithm;
 import org.mozilla.jss.crypto.IVParameterSpec;
 import org.mozilla.jss.crypto.IllegalBlockSizeException;
-import org.mozilla.jss.crypto.InternalCertificate;
 import org.mozilla.jss.crypto.InvalidKeyFormatException;
 import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyGenerator;
@@ -1503,7 +1502,7 @@ public class CryptoUtil {
         return extn;
     }
 
-    public static void unTrustCert(InternalCertificate cert) {
+    public static void unTrustCert(PK11Cert cert) {
         // remove TRUSTED_CA
         int flag = cert.getSSLTrust();
 
@@ -1524,14 +1523,14 @@ public class CryptoUtil {
             return;
         }
         for (int i = 0; i < certs.length; i++) {
-            trustCert((InternalCertificate) certs[i]);
+            trustCert((PK11Cert) certs[i]);
         }
     }
 
     /**
      * Trusts a certificate.
      */
-    public static void trustCert(InternalCertificate cert) {
+    public static void trustCert(PK11Cert cert) {
         int flag = PK11Cert.VALID_CA | PK11Cert.TRUSTED_CA
                 | PK11Cert.USER
                 | PK11Cert.TRUSTED_CLIENT_CA;
@@ -1547,7 +1546,7 @@ public class CryptoUtil {
         if (flags.length < 3)
             throw new Exception("Invalid trust flags: " + trustFlags);
 
-        InternalCertificate internalCert = (InternalCertificate) cert;
+        PK11Cert internalCert = (PK11Cert) cert;
         internalCert.setSSLTrust(PK11Cert.decodeTrustFlags(flags[0]));
         internalCert.setEmailTrust(PK11Cert.decodeTrustFlags(flags[1]));
         internalCert.setObjectSigningTrust(PK11Cert.decodeTrustFlags(flags[2]));
@@ -1556,7 +1555,7 @@ public class CryptoUtil {
     public static void trustCACert(X509Certificate cert) {
 
         // set trust flags to CT,C,C
-        InternalCertificate ic = (InternalCertificate) cert;
+        PK11Cert ic = (PK11Cert) cert;
 
         ic.setSSLTrust(PK11Cert.TRUSTED_CA
                 | PK11Cert.TRUSTED_CLIENT_CA
@@ -1572,7 +1571,7 @@ public class CryptoUtil {
     public static void trustAuditSigningCert(X509Certificate cert) {
 
         // set trust flags to u,u,Pu
-        InternalCertificate ic = (InternalCertificate) cert;
+        PK11Cert ic = (PK11Cert) cert;
 
         ic.setSSLTrust(PK11Cert.USER);
 
@@ -1587,7 +1586,7 @@ public class CryptoUtil {
      * To certificate server point of view, SSL trust is
      * what we referring.
      */
-    public static boolean isCertTrusted(InternalCertificate cert) {
+    public static boolean isCertTrusted(PK11Cert cert) {
         return isTrust(cert.getSSLTrust())
                 && isTrust(cert.getObjectSigningTrust())
                 && isTrust(cert.getEmailTrust());

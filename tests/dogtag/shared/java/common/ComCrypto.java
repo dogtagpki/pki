@@ -35,7 +35,6 @@ import java.lang.Exception;
 import org.dogtag.util.cert.CertUtil;
 import org.mozilla.jss.*;
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.crypto.InternalCertificate;
 import org.mozilla.jss.util.*;
 import org.mozilla.jss.ssl.*;
 import org.mozilla.jss.crypto.*;
@@ -233,7 +232,7 @@ public class ComCrypto {
             System.out.println(
                     "importCert x509 : importing with nickname: " + nickname);
 
-            InternalCertificate cert2 = manager.importCertToPerm(xcert, nickname);
+            PK11Cert cert2 = (PK11Cert) manager.importCertToPerm(xcert, nickname);
 
             cert2.setSSLTrust(2);
             return true;
@@ -283,8 +282,7 @@ public class ComCrypto {
                 if  (ca_certs[i].getSubjectDN().toString().equals(
                     cert.getIssuerDN().toString())) {
                     // set the trust bits
-                    InternalCertificate icert =
-                        (InternalCertificate) ca_certs[i];
+                    PK11Cert icert = (PK11Cert) ca_certs[i];
                     icert.setSSLTrust(PK11Cert.TRUSTED_CA
                           | PK11Cert.TRUSTED_CLIENT_CA
                           | PK11Cert.VALID_CA);
@@ -321,7 +319,7 @@ public class ComCrypto {
 
             X509Certificate cert = manager.importCACertPackage(tmp.getBytes());
             // adjust the trust bits
-            InternalCertificate icert = (InternalCertificate) cert;
+            PK11Cert icert = (PK11Cert) cert;
             icert.setSSLTrust(PK11Cert.TRUSTED_CA
                           | PK11Cert.TRUSTED_CLIENT_CA
                           | PK11Cert.VALID_CA);

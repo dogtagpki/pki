@@ -22,7 +22,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.server.rest.v2.PKIServlet;
 import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.crypto.InternalCertificate;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.CertPrettyPrint;
@@ -733,7 +732,7 @@ public class UserServletBase {
                             logger.debug("UserServletBase: {}", CMS.getLogMessage("ADMIN_SRVLT_LEAF_CERT_NON_NULL"));
                         }
 
-                        if (leafCert instanceof InternalCertificate internalCert) {
+                        if (leafCert instanceof PK11Cert internalCert) {
                             internalCert.setSSLTrust(
                                     PK11Cert.VALID_CA |
                                     PK11Cert.TRUSTED_CA |

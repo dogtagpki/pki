@@ -50,7 +50,6 @@ import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.BIT_STRING;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.crypto.CryptoToken;
-import org.mozilla.jss.crypto.InternalCertificate;
 import org.mozilla.jss.crypto.KeyPairAlgorithm;
 import org.mozilla.jss.crypto.KeyPairGenerator;
 import org.mozilla.jss.crypto.NoSuchItemOnTokenException;
@@ -569,8 +568,8 @@ public class KeyCertUtil {
         byte b[] = b64E.getBytes();
         X509Certificate cert = getInternalCertificate(b, nickname, certType);
 
-        if (cert instanceof InternalCertificate) {
-            setTrust(certType, (InternalCertificate) cert);
+        if (cert instanceof PK11Cert) {
+            setTrust(certType, (PK11Cert) cert);
         }
         return cert;
     }
@@ -583,8 +582,8 @@ public class KeyCertUtil {
 
         X509Certificate cert = getInternalCertificate(b, nickname, certType);
 
-        if (cert instanceof InternalCertificate) {
-            setTrust(certType, (InternalCertificate) cert);
+        if (cert instanceof PK11Cert) {
+            setTrust(certType, (PK11Cert) cert);
         }
         return cert;
     }
@@ -620,7 +619,7 @@ public class KeyCertUtil {
         return cert;
     }
 
-    public static void setTrust(String certType, InternalCertificate inCert) {
+    public static void setTrust(String certType, PK11Cert inCert) {
         if (certType.equals(Constants.PR_CA_SIGNING_CERT)) {
             int flag = PK11Cert.VALID_CA |
                     PK11Cert.TRUSTED_CA |
