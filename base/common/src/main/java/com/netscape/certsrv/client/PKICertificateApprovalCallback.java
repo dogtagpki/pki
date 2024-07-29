@@ -23,12 +23,12 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.security.Principal;
+import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashSet;
 
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.pkcs11.PK11Cert;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 
@@ -102,7 +102,7 @@ public class PKICertificateApprovalCallback implements SSLCertificateApprovalCal
         return null;
     }
 
-    public String getMessage(X509Certificate serverCert, int reason) {
+    public String getMessage(org.mozilla.jss.crypto.X509Certificate serverCert, int reason) {
 
         if (reason == SSLCertificateApprovalCallback.ValidityStatus.BAD_CERT_DOMAIN) {
             return "BAD_CERT_DOMAIN encountered on '"+serverCert.getSubjectDN()+"' indicates a common-name mismatch";
@@ -126,7 +126,7 @@ public class PKICertificateApprovalCallback implements SSLCertificateApprovalCal
         return "Unknown/undefined reason "+reason+" encountered on '"+serverCert.getSubjectDN()+"' results in a denied SSL server cert!";
     }
 
-    public boolean handleUntrustedIssuer(X509Certificate serverCert) {
+    public boolean handleUntrustedIssuer(org.mozilla.jss.crypto.X509Certificate serverCert) {
         try {
             System.err.print("Trust this certificate (y/N)? ");
 
@@ -158,8 +158,9 @@ public class PKICertificateApprovalCallback implements SSLCertificateApprovalCal
     // Callback to approve or deny returned SSL server cert.
     // Right now, simply approve the cert.
     @Override
-    public boolean approve(X509Certificate serverCert,
-            SSLCertificateApprovalCallback.ValidityStatus status) {
+    public boolean approve(X509Certificate cert, ValidityStatus status) {
+
+        org.mozilla.jss.crypto.X509Certificate serverCert = (org.mozilla.jss.crypto.X509Certificate) cert;
 
         logger.info("Server certificate:");
         logger.info("- subject: " + serverCert.getSubjectDN());

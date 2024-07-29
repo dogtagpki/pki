@@ -20,10 +20,10 @@ package com.netscape.cms.ocsp;
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509CRLEntry;
+import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Enumeration;
 
-import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
 import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
@@ -51,7 +51,9 @@ public class CRLLdapValidator implements SSLCertificateApprovalCallback {
 
     @Override
     public boolean approve(X509Certificate certificate, ValidityStatus currentStatus) {
+
         logger.info("CRLLdapValidator: validate of peer's certificate for the connection " + certificate.getSubjectDN());
+
         CRLIssuingPointRecord pt = null;
         try {
             X509CertImpl peerCert = new X509CertImpl(certificate.getEncoded());

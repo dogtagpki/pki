@@ -169,9 +169,10 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
     }
 
     @Override
-    public boolean approve(org.mozilla.jss.crypto.X509Certificate serverCert,
-       ValidityStatus status)
-    {
+    public boolean approve(X509Certificate cert, ValidityStatus status) {
+
+        org.mozilla.jss.crypto.X509Certificate serverCert = (org.mozilla.jss.crypto.X509Certificate) cert;
+
         if (!mCertAccepted)
             return false;
 
