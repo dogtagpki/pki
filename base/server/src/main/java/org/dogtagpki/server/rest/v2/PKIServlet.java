@@ -57,6 +57,7 @@ public abstract class PKIServlet extends HttpServlet {
     public static final int DEFAULT_SIZE = 20;
     public static final int MIN_FILTER_LENGTH = 3;
     private static final String ERROR_RESPONSE= "PKIServlet - error processing request: {}";
+    public static final int DEFAULT_LONG_CACHE_LIFETIME = 1000;
 
     public enum HttpMethod {
         GET, POST, PATCH, PUT, DELETE
