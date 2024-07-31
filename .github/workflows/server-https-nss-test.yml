@@ -90,6 +90,8 @@ jobs:
               --issuer ca_signing \
               --csr $SHARED/sslserver.csr \
               --ext /usr/share/pki/server/certs/sslserver.conf \
+              --validity-length 2 \
+              --validity-unit minute \
               --cert $SHARED/sslserver.crt
 
           docker exec pki pki \
@@ -148,11 +150,71 @@ jobs:
               -o /dev/null \
               https://pki.example.com:8443
 
-      - name: Check PKI CLI with untrusted issuer
+      - name: Check PKI CLI with untrusted server cert
         run: |
+          # run PKI CLI but don't trust the cert
+          echo n | docker exec -i client pki -U https://pki.example.com:8443 info \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          # check stdout
+          cat > expected << EOF
+            Server URL: https://pki.example.com:8443
+          EOF
+
+          diff expected stdout
+
+          # check stderr
+          cat > expected << EOF
+          WARNING: UNTRUSTED ISSUER encountered on 'CN=pki.example.com' indicates a non-trusted CA cert 'CN=CA Signing Certificate'
+          Trust this certificate (y/N)? SEVERE: FATAL: SSL alert sent: BAD_CERTIFICATE
+          IOException: Unable to write to socket: Failed to write to socket: (-5987) Invalid function argument.
+          EOF
+
+          diff expected stderr
+
+          # the cert should not be stored
+          docker exec client pki nss-cert-find | tee output
+
+          diff /dev/null output
+
+      - name: Check PKI CLI with untrusted server cert with wrong hostname
+        run: |
+          # run PKI CLI with wrong hostname
+          docker exec client pki -U https://server.example.com:8443 info \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          # check stdout
+          cat > expected << EOF
+            Server URL: https://server.example.com:8443
+          EOF
+
+          diff expected stdout
+
+          # check stderr
+          cat > expected << EOF
+          WARNING: BAD_CERT_DOMAIN encountered on 'CN=pki.example.com' indicates a common-name mismatch
+          WARNING: UNTRUSTED ISSUER encountered on 'CN=pki.example.com' indicates a non-trusted CA cert 'CN=CA Signing Certificate'
+          Trust this certificate (y/N)? SEVERE: FATAL: SSL alert sent: BAD_CERTIFICATE
+          IOException: Unable to write to socket: Failed to write to socket: (-12276) Unable to communicate securely with peer: requested domain name does not match the server's certificate.
+          EOF
+
+          diff expected stderr
+
+      - name: Check PKI CLI with newly trusted server cert
+        run: |
+          # run PKI CLI and trust the cert
           echo y | docker exec -i client pki -U https://pki.example.com:8443 info \
               > >(tee stdout) 2> >(tee stderr >&2) || true
 
+          # check stdout
+          cat > expected << EOF
+            Server URL: https://pki.example.com:8443
+            Server Name: Dogtag Certificate System
+          EOF
+
+          diff expected stdout
+
+          # check stderr
           cat > expected << EOF
           WARNING: UNTRUSTED ISSUER encountered on 'CN=pki.example.com' indicates a non-trusted CA cert 'CN=CA Signing Certificate'
           Trust this certificate (y/N)?
@@ -166,28 +228,84 @@ jobs:
 
           diff expected stderr
 
-      - name: Check PKI CLI with bad cert domain
+          # the cert should be stored and trusted
+          docker exec client pki nss-cert-find | tee output
+
+          sed -i \
+              -e '/^ *Serial Number:/d' \
+              -e '/^ *Not Valid Before:/d' \
+              -e '/^ *Not Valid After:/d' \
+              output
+
+          cat > expected << EOF
+            Nickname: CN=pki.example.com
+            Subject DN: CN=pki.example.com
+            Issuer DN: CN=CA Signing Certificate
+            Trust Flags: P,,
+          EOF
+
+          diff expected output
+
+      - name: Check PKI CLI with trusted server cert with wrong hostname
         run: |
+          # run PKI CLI with wrong hostname
           docker exec client pki -U https://server.example.com:8443 info \
               > >(tee stdout) 2> >(tee stderr >&2) || true
 
+          # check stdout
+          cat > expected << EOF
+            Server URL: https://server.example.com:8443
+            Server Name: Dogtag Certificate System
+          EOF
+
+          diff expected stdout
+
+          # check stderr
           cat > expected << EOF
           WARNING: BAD_CERT_DOMAIN encountered on 'CN=pki.example.com' indicates a common-name mismatch
           EOF
 
           diff expected stderr
 
-      - name: Check PKI CLI with good cert
+      - name: Check PKI CLI with already trusted server cert
         run: |
-          docker exec client pki nss-cert-import \
-              --cert $SHARED/ca_signing.crt \
-              --trust CT,C,C \
-              sslserver
+          # run PKI CLI with correct hostname
+          docker exec client pki -U https://pki.example.com:8443 info \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          # check stdout
+          cat > expected << EOF
+            Server URL: https://pki.example.com:8443
+            Server Name: Dogtag Certificate System
+          EOF
+
+          diff expected stdout
+
+          # check stderr
+          diff /dev/null stderr
+
+      - name: Check PKI CLI with expired server cert
+        run: |
+          sleep 120
 
           docker exec client pki -U https://pki.example.com:8443 info \
               > >(tee stdout) 2> >(tee stderr >&2) || true
 
-          diff /dev/null stderr
+          # check stdout
+          cat > expected << EOF
+            Server URL: https://pki.example.com:8443
+          EOF
+
+          diff expected stdout
+
+          # check stderr
+          cat > expected << EOF
+          ERROR: EXPIRED_CERTIFICATE encountered on 'CN=pki.example.com' results in a denied SSL server cert!
+          SEVERE: FATAL: SSL alert sent: BAD_CERTIFICATE
+          IOException: Unable to write to socket: Failed to write to socket: (-5987) Invalid function argument.
+          EOF
+
+          diff expected stderr
 
       - name: Stop PKI server
         run: |
