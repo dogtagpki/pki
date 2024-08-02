@@ -36,7 +36,10 @@ jobs:
           docker exec pki pki nss-key-create --key-type EC | tee output
 
           # get key ID
-          sed -n 's/^\s*Key ID:\s*\(\S\+\)\s*$/\1/p' output > ca_signing_key_id
+          KEY_ID=$(sed -n 's/^\s*Key ID:\s*\(\S\+\)\s*$/\1/p' output)
+          echo $KEY_ID > ca_signing_key_id
+
+          docker exec pki pki nss-key-show --key-id $KEY_ID
 
       - name: Verify key type
         run: |

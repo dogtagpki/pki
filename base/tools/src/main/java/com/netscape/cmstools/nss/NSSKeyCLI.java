@@ -18,6 +18,7 @@ public class NSSKeyCLI extends CLI {
         addModule(new NSSKeyCreateCLI(this));
         addModule(new NSSKeyExportCLI(this));
         addModule(new NSSKeyFindCLI(this));
+        addModule(new NSSKeyShowCLI(this));
         addModule(new NSSKeyImportCLI(this));
     }
 

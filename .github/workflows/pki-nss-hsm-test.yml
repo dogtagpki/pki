@@ -53,7 +53,14 @@ jobs:
               nss-key-create | tee output
 
           # get key ID
-          sed -n 's/^\s*Key ID:\s*\(\S\+\)\s*$/\1/p' output > ca_signing_key_id
+          KEY_ID=$(sed -n 's/^\s*Key ID:\s*\(\S\+\)\s*$/\1/p' output)
+          echo $KEY_ID > ca_signing_key_id
+
+          docker exec pki pki \
+              --token HSM \
+               -f $SHARED/password.conf \
+              nss-key-show \
+              --key-id $KEY_ID
 
       - name: Verify key in HSM
         run: |

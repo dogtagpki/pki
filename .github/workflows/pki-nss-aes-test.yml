@@ -35,6 +35,8 @@ jobs:
         run: |
           docker exec pki pki nss-key-create --key-type AES test | tee output
 
+          docker exec pki pki nss-key-show --key-nickname test
+
           # verify with tkstool
           docker exec pki tkstool -L -d /root/.dogtag/nssdb | tee output
           echo "test" > expected
