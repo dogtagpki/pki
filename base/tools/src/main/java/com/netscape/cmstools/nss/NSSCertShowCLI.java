@@ -5,7 +5,6 @@
 //
 package com.netscape.cmstools.nss;
 
-import java.io.ByteArrayInputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -14,17 +13,14 @@ import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CLIException;
 import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.asn1.ASN1Util;
-import org.mozilla.jss.asn1.INTEGER;
+import org.mozilla.jss.crypto.CryptoStore;
+import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.util.Cert;
-import org.mozilla.jss.pkix.cert.Certificate;
-import org.mozilla.jss.pkix.cert.CertificateInfo;
-import org.mozilla.jss.pkix.primitive.Name;
 
-import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class NSSCertShowCLI extends CommandCLI {
 
@@ -67,9 +63,12 @@ public class NSSCertShowCLI extends CommandCLI {
         }
     }
 
-    public X509Certificate findCertByCertFile(String certFile, String certFormat) throws Exception {
+    public X509Certificate findCertByCertFile(
+            CryptoStore cryptoStore,
+            String certFile,
+            String certFormat) throws Exception {
 
-        logger.info("Loading cert from " + certFile);
+        logger.info("Searching for cert in " + certFile);
 
         byte[] bytes = Files.readAllBytes(Paths.get(certFile));
 
@@ -83,32 +82,13 @@ public class NSSCertShowCLI extends CommandCLI {
             throw new CLIException("Unsupported certificate format: " + certFormat);
         }
 
-        Certificate pkixCert;
-        try (ByteArrayInputStream is = new ByteArrayInputStream(bytes)) {
-            pkixCert = (Certificate) Certificate.getTemplate().decode(is);
+        X509Certificate cert = cryptoStore.findCert(bytes);
+
+        if (cert == null) {
+            throw new CLIException("Certificate not found: " + certFile);
         }
 
-        CertificateInfo certInfo = pkixCert.getInfo();
-        Name issuer = certInfo.getIssuer();
-        INTEGER serialNumber = certInfo.getSerialNumber();
-
-        logger.info("Searching for cert with:");
-        logger.info("- issuer: " + issuer.getRFC1485());
-        logger.info("- serial number: " + new CertId(serialNumber).toHexString());
-
-        // CryptoManager doesn't have a method that calls CERT_FindCertByDERCert()
-        // in NSS so for now just use findCertByIssuerAndSerialNumber().
-        // TODO: Add CryptoManager.findCertByDERCert() to call CERT_FindCertByDERCert().
-
-        try {
-            CryptoManager cm = CryptoManager.getInstance();
-            return cm.findCertByIssuerAndSerialNumber(
-                    ASN1Util.encode(issuer),
-                    serialNumber);
-
-        } catch (ObjectNotFoundException e) {
-            throw new CLIException("Certificate not found");
-        }
+        return cert;
     }
 
     @Override
@@ -128,10 +108,14 @@ public class NSSCertShowCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
+        String tokenName = getConfig().getTokenName();
+        CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
+        CryptoStore cryptoStore = token.getCryptoStore();
+
         X509Certificate cert;
 
         if (certFile != null) {
-            cert = findCertByCertFile(certFile, certFormat);
+            cert = findCertByCertFile(cryptoStore, certFile, certFormat);
 
         } else if (nickname != null) {
             cert = findCertByNickname(nickname);

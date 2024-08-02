@@ -142,6 +142,8 @@ jobs:
           echo -n "" > expected
           diff actual expected
 
+          docker exec pki pki nss-cert-show --cert-file ca_signing.crt
+
       - name: Verify CA signing cert in HSM
         run: |
           echo "CTu,Cu,Cu" > expected
@@ -170,6 +172,12 @@ jobs:
               --nickname HSM:ca_signing | tee output
           sed -n 's/\s*Type:\s*\(\S\+\)\s*$/\L\1/p' output > actual
           diff actual expected
+
+          docker exec pki pki \
+              --token HSM \
+              -f $SHARED/password.conf \
+              nss-cert-show \
+              --cert-file ca_signing.crt
 
       # https://github.com/dogtagpki/pki/wiki/Generating-SSL-Server-CSR-with-PKI-NSS
       - name: Create SSL server cert request with key in HSM

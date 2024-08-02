@@ -91,6 +91,8 @@ jobs:
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
           diff actual expected
 
+          docker exec pki pki nss-cert-show --cert-file ca_signing.crt
+
       # https://github.com/dogtagpki/pki/wiki/Generating-SSL-Server-CSR-with-PKI-NSS
       - name: Create SSL server cert request with new RSA key
         run: |
