@@ -180,7 +180,7 @@ jobs:
       - name: Check PKI CLI with untrusted server cert with wrong hostname
         run: |
           # run PKI CLI with wrong hostname
-          docker exec client pki -U https://server.example.com:8443 info \
+          echo n | docker exec -i client pki -U https://server.example.com:8443 info \
               > >(tee stdout) 2> >(tee stderr >&2) || true
 
           # check stdout
