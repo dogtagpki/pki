@@ -92,31 +92,38 @@ class PKICLI(pki.cli.CLI):
             )
         return dbtype
 
-    def execute_java(self, args, stdout=sys.stdout):
+    def execute_java(self, args, properties=None, stdout=sys.stdout):
 
         self.set_nss_default_db_type()
 
-        java_home = os.getenv('JAVA_HOME')
-        java_fips_cmd = os.getenv('JAVA_FIPS_ENABLED')
-        pki_lib = os.getenv('PKI_LIB')
-        logging_config = os.getenv('PKI_LOGGING_CONFIG')
-
         cmd = []
+
+        java_home = os.getenv('JAVA_HOME')
         cmd.extend([java_home + '/bin/java'])
 
+        pki_lib = os.getenv('PKI_LIB')
         cmd.extend([
             '-cp', pki_lib + '/*'
         ])
 
-        if java_fips_cmd is not None:
+        java_fips_cmd = os.getenv('JAVA_FIPS_ENABLED')
+        if java_fips_cmd:
             cmd.extend([
                 java_fips_cmd
             ])
 
-        cmd.extend([
-            '-Djava.util.logging.config.file=' + logging_config,
-            'com.netscape.cmstools.cli.MainCLI'
-        ])
+        if not properties:
+            properties = {}
+
+        for name in properties:
+            option = '-D' + name + '=' + properties[name]
+            cmd.append(option)
+
+        logging_config = os.getenv('PKI_LOGGING_CONFIG')
+        if logging_config and 'java.util.logging.config.file' not in properties:
+            cmd.append('-Djava.util.logging.config.file=' + logging_config)
+
+        cmd.append('com.netscape.cmstools.cli.MainCLI')
 
         # restore options for Java commands
 
@@ -159,6 +166,7 @@ class PKICLI(pki.cli.CLI):
 
         client_type = 'java'
 
+        properties = {}
         pki_options = []
         command = None
         cmd_args = []
@@ -172,6 +180,15 @@ class PKICLI(pki.cli.CLI):
             if args[i][0] != '-':
                 command = args[i]
                 break
+
+            # get properties
+            if args[i] == '-D':
+                try:
+                    name, value = args[i + 1].split('=', 1)
+                    properties[name] = value
+                except IndexError:
+                    break
+                i = i + 2
 
             # get database path
             if args[i] == '-d':
@@ -268,7 +285,7 @@ class PKICLI(pki.cli.CLI):
             module.execute(module_args)
 
         elif client_type == 'java':
-            self.execute_java(cmd_args)
+            self.execute_java(cmd_args, properties)
 
         else:
             raise Exception('Unsupported client type: ' + client_type)
