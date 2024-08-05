@@ -24,11 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.net.URI;
-import java.net.UnknownHostException;
 
 import javax.ws.rs.Priorities;
 import javax.ws.rs.client.WebTarget;
@@ -56,17 +52,10 @@ import org.apache.http.impl.client.RequestWrapper;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
+import org.dogtagpki.client.DefaultSocketFactory;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient4Engine;
-import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.NotInitializedException;
-import org.mozilla.jss.ssl.SSLAlertDescription;
-import org.mozilla.jss.ssl.SSLAlertEvent;
-import org.mozilla.jss.ssl.SSLAlertLevel;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
-import org.mozilla.jss.ssl.SSLHandshakeCompletedEvent;
-import org.mozilla.jss.ssl.SSLSocket;
-import org.mozilla.jss.ssl.SSLSocketListener;
 
 public class PKIConnection implements AutoCloseable {
 
@@ -76,6 +65,7 @@ public class PKIConnection implements AutoCloseable {
 
     DefaultHttpClient httpClient = new DefaultHttpClient();
     SSLCertificateApprovalCallback callback;
+    SchemeLayeredSocketFactory socketFactory;
 
     ApacheHttpClient4Engine engine;
     javax.ws.rs.client.Client client;
@@ -90,8 +80,20 @@ public class PKIConnection implements AutoCloseable {
 
         this.config = config;
 
+        // create socket factory
+        String className = System.getProperty(
+                "org.dogtagpki.client.socketFactory",
+                DefaultSocketFactory.class.getName());
+        logger.info("PKIConnection: Socket factory: " + className);
+
+        Class<? extends SchemeLayeredSocketFactory> clazz =
+                Class.forName(className).asSubclass(SchemeLayeredSocketFactory.class);
+
+        socketFactory = clazz.getConstructor(PKIConnection.class).newInstance(this);
+
         // Register https scheme.
-        Scheme scheme = new Scheme("https", 443, new JSSProtocolSocketFactory());
+        Scheme scheme = new Scheme("https", 443, socketFactory);
+
         httpClient.getConnectionManager().getSchemeRegistry().register(scheme);
 
         // Don't retry operations.
@@ -211,6 +213,14 @@ public class PKIConnection implements AutoCloseable {
         target = client.target(uri);
     }
 
+    public ClientConfig getConfig() {
+        return config;
+    }
+
+    public SSLCertificateApprovalCallback getCallback() {
+        return callback;
+    }
+
     public void setCallback(SSLCertificateApprovalCallback callback) {
         this.callback = callback;
     }
@@ -261,117 +271,6 @@ public class PKIConnection implements AutoCloseable {
                 out.write(buffer, 0, c);
             }
         }
-    }
-
-    private class JSSProtocolSocketFactory implements SchemeLayeredSocketFactory {
-
-        @Override
-        public Socket createSocket(HttpParams params) throws IOException {
-            return null;
-        }
-
-        @Override
-        public Socket connectSocket(Socket sock,
-                InetSocketAddress remoteAddress,
-                InetSocketAddress localAddress,
-                HttpParams params)
-                throws IOException,
-                UnknownHostException {
-
-            // Make sure certificate database is already initialized,
-            // otherwise SSLSocket will throw UnsatisfiedLinkError.
-            try {
-                CryptoManager.getInstance();
-
-            } catch (NotInitializedException e) {
-                throw new Error("Certificate database not initialized.", e);
-            }
-
-            String hostName = null;
-            int port = 0;
-            if (remoteAddress != null) {
-                hostName = remoteAddress.getHostName();
-                port = remoteAddress.getPort();
-            }
-
-            int localPort = 0;
-            InetAddress localAddr = null;
-
-            if (localAddress != null) {
-                localPort = localAddress.getPort();
-                localAddr = localAddress.getAddress();
-            }
-
-            SSLSocket socket;
-            if (sock == null) {
-                socket = new SSLSocket(InetAddress.getByName(hostName),
-                        port,
-                        localAddr,
-                        localPort,
-                        callback,
-                        null);
-
-            } else {
-                socket = new SSLSocket(sock, hostName, callback, null);
-            }
-
-            String certNickname = config.getCertNickname();
-            if (certNickname != null) {
-                logger.info("Client certificate: "+certNickname);
-                socket.setClientCertNickname(certNickname);
-            }
-
-            socket.addSocketListener(new SSLSocketListener() {
-
-                @Override
-                public void alertReceived(SSLAlertEvent event) {
-
-                    int intLevel = event.getLevel();
-                    SSLAlertLevel level = SSLAlertLevel.valueOf(intLevel);
-
-                    int intDescription = event.getDescription();
-                    SSLAlertDescription description = SSLAlertDescription.valueOf(intDescription);
-
-                    if (level == SSLAlertLevel.FATAL || logger.isInfoEnabled()) {
-                        logger.error(level + ": SSL alert received: " + description);
-                    }
-                }
-
-                @Override
-                public void alertSent(SSLAlertEvent event) {
-
-                    int intLevel = event.getLevel();
-                    SSLAlertLevel level = SSLAlertLevel.valueOf(intLevel);
-
-                    int intDescription = event.getDescription();
-                    SSLAlertDescription description = SSLAlertDescription.valueOf(intDescription);
-
-                    if (level == SSLAlertLevel.FATAL || logger.isInfoEnabled()) {
-                        logger.error(level + ": SSL alert sent: " + description);
-                    }
-                }
-
-                @Override
-                public void handshakeCompleted(SSLHandshakeCompletedEvent event) {
-                }
-
-            });
-            return socket;
-        }
-
-        @Override
-        public boolean isSecure(Socket sock) {
-            // We only use this factory in the case of SSL Connections.
-            return true;
-        }
-
-        @Override
-        public Socket createLayeredSocket(Socket socket, String target, int port, HttpParams params)
-                throws IOException, UnknownHostException {
-            // This method implementation is required to get SSL working.
-            return null;
-        }
-
     }
 
     public WebTarget target(String path) {
