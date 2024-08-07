@@ -23,15 +23,11 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.catalina.realm.GenericPrincipal;
 import org.apache.commons.lang3.StringUtils;
-import org.dogtagpki.server.authentication.AuthToken;
-import org.dogtagpki.server.authorization.AuthzToken;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.certsrv.authentication.ExternalAuthToken;
-import com.netscape.certsrv.authorization.EAuthzUnknownRealm;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
@@ -70,11 +66,9 @@ import com.netscape.cms.profile.common.ProfileOutputsConfig;
 import com.netscape.cms.profile.common.ProfilePolicyConfig;
 import com.netscape.cms.profile.common.ProfilePolicySetConfig;
 import com.netscape.cms.profile.common.ProfilePolicySetsConfig;
-import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.profile.PolicyConstraintFactory;
 import com.netscape.cms.servlet.profile.PolicyDefaultFactory;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.base.SimpleProperties;
 import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.profile.ProfileSubsystem;
@@ -102,11 +96,20 @@ public class ProfileBase {
 
     public ProfileDataInfos listProfiles(HttpServletRequest servletRequest, int start, int size, Boolean visible, Boolean enable, String enableBy) {
         ProfileDataInfos infos = new ProfileDataInfos();
-        boolean visibleOnly = isProfileAccessLimited(servletRequest.getUserPrincipal());
+        boolean visibleOnly = true;
 
         if (ps == null) {
             logger.error("ProfileBase.listProfiles: ps is null");
             throw new PKIException("Error listing profiles.  Profile subsystem not available");
+        }
+        // TODO remove hardcoded role names and consult authzmgr
+        // (so that we can handle externally-authenticated principals)
+        Principal principal = servletRequest.getUserPrincipal();
+        if (principal != null && principal instanceof GenericPrincipal) {
+            GenericPrincipal genPrincipal = (GenericPrincipal) principal;
+            if (genPrincipal.hasRole("Certificate Manager Agents") ||
+                genPrincipal.hasRole("Certificate Manager Administrators"))
+                    visibleOnly = false;
         }
 
         if (visibleOnly && visible != null && !visible.booleanValue()) {
@@ -152,17 +155,15 @@ public class ProfileBase {
     }
 
     public ProfileData retrieveProfile(HttpServletRequest servletRequest, String profileId) {
-        boolean visibleOnly = isProfileAccessLimited(servletRequest.getUserPrincipal());
         try {
-            return createProfileData(profileId, visibleOnly, servletRequest.getLocale());
+            return createProfileData(profileId, servletRequest.getUserPrincipal(), servletRequest.getLocale());
         } catch (EBaseException e) {
             throw new ResourceNotFoundException("Profile not found: " + profileId);
         }
     }
 
     public byte[] retrieveRawProfile(HttpServletRequest servletRequest, String profileId) {
-        boolean visibleOnly = isProfileAccessLimited(servletRequest.getUserPrincipal());
-        Profile profile = getProfile(profileId, visibleOnly);
+        Profile profile = getProfile(profileId, servletRequest.getUserPrincipal());
         ByteArrayOutputStream data = new ByteArrayOutputStream();
         // add profileId and classId "virtual" properties
         profile.getConfigStore().put("profileId", profileId);
@@ -463,7 +464,7 @@ public class ProfileBase {
 
             changeProfileData(data, profile, servletRequest.getLocale());
 
-            return  createProfileData(profileId, false, servletRequest.getLocale());
+            return  createProfileData(profileId, servletRequest.getUserPrincipal(), servletRequest.getLocale());
 
         } catch (EBaseException e) {
             logger.error("modifyProfile: error obtaining profile `" + profileId + "`: " + e.getMessage(), e);
@@ -627,8 +628,8 @@ public class ProfileBase {
         return ret;
     }
 
-    private ProfileData createProfileData(String profileId, boolean visibleOnly, Locale loc) throws EBaseException {
-        Profile profile = getProfile(profileId, visibleOnly);
+    private ProfileData createProfileData(String profileId, Principal principal, Locale loc) throws EBaseException {
+        Profile profile = getProfile(profileId, principal);
 
         ProfileData data = new ProfileData();
 
@@ -686,7 +687,8 @@ public class ProfileBase {
     }
 
 
-    private Profile getProfile(String profileId, boolean visibleOnly) throws ProfileNotFoundException {
+    private Profile getProfile(String profileId, Principal principal) throws ProfileNotFoundException {
+        boolean visibleOnly = true;
         if (profileId == null) {
             logger.error("retrieveProfile: profileID is null");
             throw new BadRequestException("Unable to retrieve profile: invalid profile ID");
@@ -695,6 +697,15 @@ public class ProfileBase {
         if (ps == null) {
             logger.error("retrieveProfile: ps is null");
             throw new PKIException("Error retrieving profile.  Profile Service not available");
+        }
+
+        // TODO remove hardcoded role names and consult authzmgr
+        // (so that we can handle externally-authenticated principals)
+        if (principal != null && principal instanceof GenericPrincipal) {
+            GenericPrincipal genPrincipal = (GenericPrincipal) principal;
+            if (genPrincipal.hasRole("Certificate Manager Agents") ||
+                genPrincipal.hasRole("Certificate Manager Administrators"))
+                    visibleOnly = false;
         }
 
         Profile profile;
@@ -1184,47 +1195,6 @@ public class ProfileBase {
                     auditParams);
             throw e;
         }
-    }
-
-    private boolean isProfileAccessLimited(Principal principal) {
-        AuthzSubsystem authzSubsystem = engine.getAuthzSubsystem();
-        if (principal == null)
-            return true;
-        AuthToken authToken = null;
-        String authzMgrName = null;
-        if (principal instanceof PKIPrincipal pkiPrincipal) {
-            authzMgrName = "DirAclAuthz";
-            authToken = pkiPrincipal.getAuthToken();
-            if (authToken == null)
-                return true;
-        } else {
-            String realm = null;
-            String[] parts = principal.getName().split("@", 2);
-            if (parts.length == 2) {
-                realm = parts[1];
-            }
-            try {
-                authzMgrName = authzSubsystem.getAuthzManagerNameByRealm(realm);
-            } catch (EAuthzUnknownRealm e) {
-                logger.error("Cannot find AuthzManager for external principal {}", principal.getName());
-                return true;
-            }
-            authToken = new ExternalAuthToken((GenericPrincipal) principal);
-        }
-        try {
-            AuthzToken authzToken = authzSubsystem.authorize(
-                    authzMgrName,
-                    authToken,
-                    "certServer.profile.configuration",
-                    "read");
-
-            if (authzToken != null)
-                return false;
-        } catch (EBaseException e) {
-            logger.error("Cannot check authorization for principal {}", principal.getName());
-            return true;
-        }
-        return true;
     }
 
     private void auditProfileChangeState(String profileId, String op, String status) {
