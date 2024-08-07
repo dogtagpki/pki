@@ -6,7 +6,6 @@ import java.util.Set;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
-import org.dogtagpki.server.rest.KRAInfoService;
 import org.dogtagpki.server.rest.v1.ACLInterceptor;
 import org.dogtagpki.server.rest.v1.AccountService;
 import org.dogtagpki.server.rest.v1.AuditService;
