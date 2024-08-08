@@ -21,4 +21,6 @@ public class MediaType {
     public static final String APPLICATION_PKIX_CERT = "application/pkix-cert";
 
     public static final String APPLICATION_X_PEM_FILE = "application/x-pem-file";
+
+    public static final String APPLICATION_FORM_URLENCODED = "application/x-www-form-urlencoded";
 }

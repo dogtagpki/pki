@@ -21,6 +21,8 @@ import com.netscape.kra.KeyRecoveryAuthority;
 public class KRAServlet extends PKIServlet {
     public static final long serialVersionUID = 1L;
 
+    public static final int DEFAULT_MAXRESULTS = 100;
+
     protected KRAEngine engine;
     protected KRAEngineConfig config;
     protected IStorageKeyUnit storageUnit;
