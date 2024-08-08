@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.dogtagpki.pki</groupId>
     <artifactId>pki-parent</artifactId>
-    <version>11.5.3-SNAPSHOT</version>
+    <version>11.5.4-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>
