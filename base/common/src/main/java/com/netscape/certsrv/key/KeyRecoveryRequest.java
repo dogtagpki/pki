@@ -21,6 +21,8 @@
  */
 package com.netscape.certsrv.key;
 
+import java.util.Map;
+
 import javax.ws.rs.core.MultivaluedMap;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -70,6 +72,31 @@ public class KeyRecoveryRequest extends RESTMessage {
 
     public KeyRecoveryRequest(RESTMessage data) {
         attributes.putAll(data.getAttributes());
+        setClassName(getClass().getName());
+    }
+
+    public KeyRecoveryRequest(Map<String, String[]> parameterMap) {
+        if (parameterMap.containsKey(KEY_ID)) {
+            attributes.put(KEY_ID, parameterMap.get(KEY_ID)[0]);
+        }
+        if (parameterMap.containsKey(REQUEST_ID)) {
+            attributes.put(REQUEST_ID, parameterMap.get(REQUEST_ID)[0]);
+        }
+        if (parameterMap.containsKey(TRANS_WRAPPED_SESSION_KEY)) {
+            attributes.put(TRANS_WRAPPED_SESSION_KEY, parameterMap.get(TRANS_WRAPPED_SESSION_KEY)[0]);
+        }
+        if (parameterMap.containsKey(SESSION_WRAPPED_PASSPHRASE)) {
+            attributes.put(SESSION_WRAPPED_PASSPHRASE, parameterMap.get(SESSION_WRAPPED_PASSPHRASE)[0]);
+        }
+        if (parameterMap.containsKey(NONCE_DATA)) {
+            attributes.put(NONCE_DATA, parameterMap.get(NONCE_DATA)[0]);
+        }
+        if (parameterMap.containsKey(CERTIFICATE)) {
+            attributes.put(CERTIFICATE, parameterMap.get(CERTIFICATE)[0]);
+        }
+        if (parameterMap.containsKey(PASSPHRASE)) {
+            attributes.put(PASSPHRASE, parameterMap.get(PASSPHRASE)[0]);
+        }
         setClassName(getClass().getName());
     }
 
