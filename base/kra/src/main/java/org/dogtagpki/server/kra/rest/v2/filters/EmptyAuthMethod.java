@@ -9,7 +9,7 @@ import javax.servlet.annotation.WebFilter;
 
 import org.dogtagpki.server.rest.v2.filters.AuthMethodFilter;
 
-@WebFilter(servletNames = {"kraInfo", "kraJobs"})
+@WebFilter(servletNames = {"kraInfo", "kraJobs", "kraSystemCert"})
 public class EmptyAuthMethod extends AuthMethodFilter {
 
     private static final long serialVersionUID = 1L;

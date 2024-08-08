@@ -14,6 +14,7 @@ import org.dogtagpki.server.rest.v2.PKIServlet;
 
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.kra.KeyRecoveryAuthority;
+import com.netscape.kra.TransportKeyUnit;
 
 /**
  * @author Marco Fargetta {@literal <mfargett@redhat.com>}
@@ -24,6 +25,7 @@ public class KRAServlet extends PKIServlet {
     protected KRAEngine engine;
     protected KRAEngineConfig config;
     protected IStorageKeyUnit storageUnit;
+    protected TransportKeyUnit transportUnit;
 
     @Override
     public void init() throws ServletException {
@@ -33,6 +35,7 @@ public class KRAServlet extends PKIServlet {
         config = engine.getConfig();
         KeyRecoveryAuthority kra = (KeyRecoveryAuthority) engine.getSubsystem(KeyRecoveryAuthority.ID);
         storageUnit = kra.getStorageKeyUnit();
+        transportUnit = kra.getTransportKeyUnit();
     }
 
     public KRAEngine getKRAEngine() {
