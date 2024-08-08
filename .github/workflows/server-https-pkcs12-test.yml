@@ -35,23 +35,117 @@ jobs:
           HOSTNAME: pki.example.com
 
       - name: Connect server container to network
-        run: docker network connect example pki --alias pki.example.com
+        run: docker network connect example pki --alias pki.example.com --alias server.example.com
 
       - name: Create PKI server
         run: |
           docker exec pki pki-server create -v
 
+      - name: Create CA signing cert
+        run: |
+          # create CA signing cert in ca_signing.p12
+          docker exec pki keytool \
+              -genkeypair \
+              -keystore $SHARED/ca_signing.p12 \
+              -storetype pkcs12 \
+              -storepass Secret.123 \
+              -alias ca_signing \
+              -dname "CN=CA Signing Certificate" \
+              -ext BasicConstraints:critical=ca:true \
+              -ext KeyUsage:critical=digitalSignature,nonRepudiation,keyCertSign,cRLSign \
+              -keyalg RSA \
+              -keypass Secret.123
+
+          # check keys in ca_signing.p12
+          docker exec pki pki pkcs12-key-find \
+              --pkcs12-file $SHARED/ca_signing.p12 \
+              --pkcs12-password Secret.123
+
+          # check certs in ca_signing.p12
+          docker exec pki pki pkcs12-cert-find \
+              --pkcs12-file $SHARED/ca_signing.p12 \
+              --pkcs12-password Secret.123
+
+          # export CA signing cert
+          docker exec pki keytool \
+              -exportcert \
+              -keystore $SHARED/ca_signing.p12 \
+              -storetype pkcs12 \
+              -storepass Secret.123 \
+              -alias ca_signing \
+              -rfc \
+              -file $SHARED/ca_signing.crt
+
+          # check CA signing cert
+          openssl x509 -text -noout -in ca_signing.crt
+
       - name: Create SSL server cert
         run: |
-          docker exec pki keytool -genkeypair \
+          # generate SSL server key in keystore.p12
+          docker exec pki keytool \
+              -genkeypair \
               -keystore /var/lib/pki/pki-tomcat/conf/keystore.p12 \
               -storetype pkcs12 \
               -storepass Secret.123 \
-              -alias "sslserver" \
-              -dname "CN=$HOSTNAME" \
+              -alias sslserver \
+              -dname "CN=pki.example.com" \
               -keyalg RSA \
               -keypass Secret.123
-          docker exec pki chown pkiuser.pkiuser /var/lib/pki/pki-tomcat/conf/keystore.p12
+
+          # check keys in keystore.p12
+          docker exec pki pki pkcs12-key-find \
+              --pkcs12-file /var/lib/pki/pki-tomcat/conf/keystore.p12 \
+              --pkcs12-password Secret.123
+
+          # check certs in keystore.p12
+          docker exec pki pki pkcs12-cert-find \
+              --pkcs12-file /var/lib/pki/pki-tomcat/conf/keystore.p12 \
+              --pkcs12-password Secret.123
+
+          # create SSL server cert request
+          docker exec pki keytool \
+              -certreq \
+              -keystore /var/lib/pki/pki-tomcat/conf/keystore.p12 \
+              -storetype pkcs12 \
+              -storepass Secret.123 \
+              -alias sslserver \
+              -file $SHARED/sslserver.csr
+
+          # issue SSL server cert that expires in 2 minutes
+          docker exec pki keytool \
+              -gencert \
+              -keystore $SHARED/ca_signing.p12 \
+              -storetype pkcs12 \
+              -storepass Secret.123 \
+              -alias ca_signing \
+              -startdate -1d+2M \
+              -validity 1 \
+              -ext BasicConstraints:critical=ca:false \
+              -ext KeyUsage:critical=digitalSignature,keyEncipherment \
+              -ext ExtendedKeyUsage=serverAuth,clientAuth \
+              -ext SubjectAlternativeName=DNS:pki.example.com \
+              -rfc \
+              -infile $SHARED/sslserver.csr \
+              -outfile $SHARED/sslserver.crt
+
+          # check SSL server cert
+          openssl x509 -text -noout -in sslserver.crt
+
+          # create SSL server cert chain
+          cat ca_signing.crt sslserver.crt > sslserver.chain
+
+          # import SSL server cert chain into keystore.p12
+          docker exec pki keytool \
+              -importcert \
+              -keystore /var/lib/pki/pki-tomcat/conf/keystore.p12 \
+              -storetype pkcs12 \
+              -storepass Secret.123 \
+              -alias sslserver \
+              -file $SHARED/sslserver.chain \
+              -noprompt
+
+          # configure keystore.p12 owner and permissions
+          docker exec pki chown pkiuser:pkiuser /var/lib/pki/pki-tomcat/conf/keystore.p12
           docker exec pki chmod 660 /var/lib/pki/pki-tomcat/conf/keystore.p12
 
       - name: "Create HTTPS connector with PKCS #12 file"
@@ -68,6 +162,16 @@ jobs:
               --keystoreType pkcs12 \
               --keystoreFile /var/lib/pki/pki-tomcat/conf/keystore.p12 \
               --keystorePassword Secret.123
+
+      - name: Deploy webapps
+        run: |
+          docker exec pki pki-server webapp-deploy \
+              --descriptor /usr/share/pki/server/conf/Catalina/localhost/ROOT.xml \
+              ROOT
+
+          docker exec pki pki-server webapp-deploy \
+              --descriptor /usr/share/pki/server/conf/Catalina/localhost/pki.xml \
+              pki
 
       - name: Start PKI server
         run: |
@@ -92,6 +196,175 @@ jobs:
               -k \
               -o /dev/null \
               https://pki.example.com:8443
+
+      - name: Check PKI CLI with untrusted server cert
+        run: |
+          # run PKI CLI but don't trust the cert
+          echo n | docker exec -i client pki \
+              -U https://pki.example.com:8443 \
+              info \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          # check stdout
+          cat > expected << EOF
+            Server URL: https://pki.example.com:8443
+          EOF
+
+          diff expected stdout
+
+          # check stderr
+          cat > expected << EOF
+          WARNING: UNTRUSTED ISSUER encountered on 'CN=pki.example.com' indicates a non-trusted CA cert 'CN=CA Signing Certificate'
+          Trust this certificate (y/N)? SEVERE: FATAL: SSL alert sent: BAD_CERTIFICATE
+          IOException: Unable to write to socket: Failed to write to socket: (-5987) Invalid function argument.
+          EOF
+
+          diff expected stderr
+
+          # the cert should not be stored
+          docker exec client pki nss-cert-find | tee output
+
+          diff /dev/null output
+
+      - name: Check PKI CLI with untrusted server cert and wrong hostname
+        run: |
+          # run PKI CLI with wrong hostname
+          echo n | docker exec -i client pki \
+              -U https://server.example.com:8443 \
+              info \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          # check stdout
+          cat > expected << EOF
+            Server URL: https://server.example.com:8443
+          EOF
+
+          diff expected stdout
+
+          # check stderr
+          cat > expected << EOF
+          WARNING: BAD_CERT_DOMAIN encountered on 'CN=pki.example.com' indicates a common-name mismatch
+          WARNING: UNTRUSTED ISSUER encountered on 'CN=pki.example.com' indicates a non-trusted CA cert 'CN=CA Signing Certificate'
+          Trust this certificate (y/N)? SEVERE: FATAL: SSL alert sent: BAD_CERTIFICATE
+          IOException: Unable to write to socket: Failed to write to socket: (-12276) Unable to communicate securely with peer: requested domain name does not match the server's certificate.
+          EOF
+
+          diff expected stderr
+
+      - name: Check PKI CLI with newly trusted server cert
+        run: |
+          # run PKI CLI and trust the cert
+          echo y | docker exec -i client pki \
+              -U https://pki.example.com:8443 \
+              info \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          # check stdout
+          cat > expected << EOF
+            Server URL: https://pki.example.com:8443
+            Server Name: Dogtag Certificate System
+          EOF
+
+          diff expected stdout
+
+          # check stderr
+          cat > expected << EOF
+          WARNING: UNTRUSTED ISSUER encountered on 'CN=pki.example.com' indicates a non-trusted CA cert 'CN=CA Signing Certificate'
+          Trust this certificate (y/N)?
+          EOF
+
+          # remove trailing whitespace
+          sed -i 's/ *$//' stderr
+
+          # append end of line
+          echo >> stderr
+
+          diff expected stderr
+
+          # the cert should be stored and trusted
+          docker exec client pki nss-cert-find | tee output
+
+          sed -i \
+              -e '/^ *Serial Number:/d' \
+              -e '/^ *Not Valid Before:/d' \
+              -e '/^ *Not Valid After:/d' \
+              output
+
+          cat > expected << EOF
+            Nickname: CN=pki.example.com
+            Subject DN: CN=pki.example.com
+            Issuer DN: CN=CA Signing Certificate
+            Trust Flags: P,,
+          EOF
+
+          diff expected output
+
+      - name: Check PKI CLI with trusted server cert with wrong hostname
+        run: |
+          # run PKI CLI with wrong hostname
+          docker exec client pki \
+              -U https://server.example.com:8443 \
+              info \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          # check stdout
+          cat > expected << EOF
+            Server URL: https://server.example.com:8443
+            Server Name: Dogtag Certificate System
+          EOF
+
+          diff expected stdout
+
+          # check stderr
+          cat > expected << EOF
+          WARNING: BAD_CERT_DOMAIN encountered on 'CN=pki.example.com' indicates a common-name mismatch
+          EOF
+
+          diff expected stderr
+
+      - name: Check PKI CLI with already trusted server cert
+        run: |
+          # run PKI CLI with correct hostname
+          docker exec client pki \
+              -U https://pki.example.com:8443 \
+              info \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          # check stdout
+          cat > expected << EOF
+            Server URL: https://pki.example.com:8443
+            Server Name: Dogtag Certificate System
+          EOF
+
+          diff expected stdout
+
+          # check stderr
+          diff /dev/null stderr
+
+      - name: Check PKI CLI with expired server cert
+        run: |
+          sleep 120
+
+          docker exec client pki \
+              -U https://pki.example.com:8443 \
+              info \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          # check stdout
+          cat > expected << EOF
+            Server URL: https://pki.example.com:8443
+          EOF
+
+          diff expected stdout
+
+          # check stderr
+          cat > expected << EOF
+          ERROR: EXPIRED_CERTIFICATE encountered on 'CN=pki.example.com' results in a denied SSL server cert!
+          SEVERE: FATAL: SSL alert sent: BAD_CERTIFICATE
+          IOException: Unable to write to socket: Failed to write to socket: (-5987) Invalid function argument.
+          EOF
+
+          diff expected stderr
 
       - name: Stop PKI server
         run: |
