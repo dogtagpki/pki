@@ -97,7 +97,7 @@ jobs:
               -W Secret.123 \
               -n Server-Cert
           docker cp primary:ds_server.p12 primaryds_server.p12
-          tests/bin/ds-container-certs-import.sh primaryds primaryds_server.p12
+          tests/bin/ds-certs-import.sh --image=pki-runner primaryds primaryds_server.p12
           tests/bin/ds-stop.sh --image=pki-runner primaryds
           tests/bin/ds-start.sh --image=pki-runner primaryds
 
@@ -209,7 +209,7 @@ jobs:
               -W Secret.123 \
               -n Server-Cert
           docker cp secondary:ds_server.p12 secondaryds_server.p12
-          tests/bin/ds-container-certs-import.sh secondaryds secondaryds_server.p12
+          tests/bin/ds-certs-import.sh --image=pki-runner secondaryds secondaryds_server.p12
           tests/bin/ds-stop.sh --image=pki-runner secondaryds
           tests/bin/ds-start.sh --image=pki-runner secondaryds
 

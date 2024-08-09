@@ -96,7 +96,7 @@ jobs:
               -W Secret.123 \
               -n Server-Cert
           docker cp pki:ds_server.p12 ds_server.p12
-          tests/bin/ds-container-certs-import.sh ds ds_server.p12
+          tests/bin/ds-certs-import.sh --image=pki-runner ds ds_server.p12
           tests/bin/ds-stop.sh --image=pki-runner ds
           tests/bin/ds-start.sh --image=pki-runner ds
 
