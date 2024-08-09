@@ -13,5 +13,5 @@ $ /usr/share/pki/tests/bin/ds-create.sh \
 To remove a DS container for testing:
 
 ----
-$ /usr/share/pki/tests/bin/ds-container-remove.sh ds
+$ /usr/share/pki/tests/bin/ds-remove.sh ds
 ----
