@@ -157,7 +157,7 @@ create_container() {
     OPTIONS+=(--image=$IMAGE)
     OPTIONS+=(--password=$PASSWORD)
 
-    $SCRIPT_DIR/ds-container-start.sh "${OPTIONS[@]}" $NAME
+    $SCRIPT_DIR/ds-start.sh "${OPTIONS[@]}" $NAME
 
     echo "Creating certs folder"
 
