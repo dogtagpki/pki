@@ -102,7 +102,7 @@ jobs:
 
       - name: Set up CA DS container
         run: |
-          tests/bin/ds-container-create.sh \
+          tests/bin/ds-create.sh \
               --image=${{ env.DB_IMAGE }} \
               --hostname=cads.example.com \
               --network=example \
@@ -343,7 +343,7 @@ jobs:
 
       - name: Set up KRA DS container
         run: |
-          tests/bin/ds-container-create.sh \
+          tests/bin/ds-create.sh \
               --image=${{ env.DB_IMAGE }} \
               --hostname=krads.example.com \
               --network=example \
@@ -521,7 +521,7 @@ jobs:
 
       - name: Set up TKS DS container
         run: |
-          tests/bin/ds-container-create.sh \
+          tests/bin/ds-create.sh \
               --image=${{ env.DB_IMAGE }} \
               --hostname=tksds.example.com \
               --network=example \
@@ -740,7 +740,7 @@ jobs:
 
       - name: Set up TPS DS container
         run: |
-          tests/bin/ds-container-create.sh \
+          tests/bin/ds-create.sh \
               --image=${{ env.DB_IMAGE }} \
               --hostname=tpsds.example.com \
               --network=example \

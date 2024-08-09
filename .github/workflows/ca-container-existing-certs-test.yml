@@ -286,7 +286,7 @@ jobs:
 
       - name: Set up DS container
         run: |
-          tests/bin/ds-container-create.sh \
+          tests/bin/ds-create.sh \
               --image=${{ env.DB_IMAGE }} \
               --hostname=ds.example.com \
               --network=example \

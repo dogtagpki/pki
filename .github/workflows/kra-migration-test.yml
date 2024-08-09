@@ -29,13 +29,12 @@ jobs:
 
       - name: Set up first DS container
         run: |
-          tests/bin/ds-container-create.sh \
+          tests/bin/ds-create.sh \
+              --image=${{ env.DB_IMAGE }} \
+              --hostname=ds1.example.com \
+              --password=Secret.123 \
               --base-dn="dc=pki1,dc=example,dc=com" \
               ds1
-        env:
-          IMAGE: ${{ env.DB_IMAGE }}
-          HOSTNAME: ds1.example.com
-          PASSWORD: Secret.123
 
       - name: Connect first DS container to network
         run: docker network connect example ds1 --alias ds1.example.com
@@ -218,13 +217,12 @@ jobs:
 
       - name: Set up second DS container
         run: |
-          tests/bin/ds-container-create.sh \
+          tests/bin/ds-create.sh \
+              --image=${{ env.DB_IMAGE }} \
+              --hostname=ds2.example.com \
+              --password=Secret.123 \
               --base-dn="dc=pki2,dc=example,dc=com" \
               ds2
-        env:
-          IMAGE: ${{ env.DB_IMAGE }}
-          HOSTNAME: ds2.example.com
-          PASSWORD: Secret.123
 
       - name: Connect second DS container to network
         run: docker network connect example ds2 --alias ds2.example.com

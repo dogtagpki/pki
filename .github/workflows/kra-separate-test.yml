@@ -30,11 +30,11 @@ jobs:
 
       - name: Set up root CA DS container
         run: |
-          tests/bin/ds-container-create.sh rootcads
-        env:
-          IMAGE: ${{ env.DB_IMAGE }}
-          HOSTNAME: rootcads.example.com
-          PASSWORD: Secret.123
+          tests/bin/ds-create.sh \
+              --image=${{ env.DB_IMAGE }} \
+              --hostname=rootcads.example.com \
+              --password=Secret.123 \
+              rootcads
 
       - name: Connect root CA DS container to network
         run: docker network connect example rootcads --alias rootcads.example.com
@@ -101,11 +101,11 @@ jobs:
 
       - name: Set up sub CA DS container
         run: |
-          tests/bin/ds-container-create.sh subcads
-        env:
-          IMAGE: ${{ env.DB_IMAGE }}
-          HOSTNAME: subcads.example.com
-          PASSWORD: Secret.123
+          tests/bin/ds-create.sh \
+              --image=${{ env.DB_IMAGE }} \
+              --hostname=subcads.example.com \
+              --password=Secret.123 \
+              subcads
 
       - name: Connect sub CA DS container to network
         run: docker network connect example subcads --alias subcads.example.com
@@ -204,11 +204,11 @@ jobs:
 
       - name: Set up KRA DS container
         run: |
-          tests/bin/ds-container-create.sh krads
-        env:
-          IMAGE: ${{ env.DB_IMAGE }}
-          HOSTNAME: krads.example.com
-          PASSWORD: Secret.123
+          tests/bin/ds-create.sh \
+              --image=${{ env.DB_IMAGE }} \
+              --hostname=krads.example.com \
+              --password=Secret.123 \
+              krads
 
       - name: Connect KRA DS container to network
         run: docker network connect example krads --alias krads.example.com

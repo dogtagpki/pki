@@ -56,11 +56,11 @@ jobs:
 
       - name: Set up primary DS container
         run: |
-          tests/bin/ds-container-create.sh primary-ds
-        env:
-          IMAGE: ${{ env.DB_IMAGE }}
-          HOSTNAME: primary-ds.example.com
-          PASSWORD: Secret.123
+          tests/bin/ds-create.sh \
+              --image=${{ env.DB_IMAGE }} \
+              --hostname=primary-ds.example.com \
+              --password=Secret.123 \
+              primary-ds
 
       - name: Connect primary DS container to network
         run: docker network connect example primary-ds --alias primary-ds.example.com
@@ -129,11 +129,11 @@ jobs:
 
       - name: Set up secondary DS container
         run: |
-          tests/bin/ds-container-create.sh secondary-ds
-        env:
-          IMAGE: ${{ env.DB_IMAGE }}
-          HOSTNAME: secondary-ds.example.com
-          PASSWORD: Secret.123
+          tests/bin/ds-create.sh \
+              --image=${{ env.DB_IMAGE }} \
+              --hostname=secondary-ds.example.com \
+              --password=Secret.123 \
+              secondary-ds
 
       - name: Connect secondary DS container to network
         run: docker network connect example secondary-ds --alias secondary-ds.example.com
