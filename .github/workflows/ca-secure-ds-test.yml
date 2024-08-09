@@ -96,7 +96,10 @@ jobs:
           docker cp pki:ds_server.p12 ds_server.p12
           tests/bin/ds-container-certs-import.sh ds ds_server.p12
           tests/bin/ds-container-stop.sh ds
-          tests/bin/ds-container-start.sh ds
+
+          tests/bin/ds-start.sh \
+              --image=pki-runner \
+              ds
 
       - name: Install CA
         run: |
