@@ -30,11 +30,11 @@ jobs:
 
       - name: Set up root DS container
         run: |
-          tests/bin/ds-container-create.sh rootds
-        env:
-          IMAGE: ${{ env.DB_IMAGE }}
-          HOSTNAME: rootds.example.com
-          PASSWORD: Secret.123
+          tests/bin/ds-create.sh \
+              --image=${{ env.DB_IMAGE }} \
+              --hostname=rootds.example.com \
+              --password=Secret.123 \
+              rootds
 
       - name: Connect root DS container to network
         run: docker network connect example rootds --alias rootds.example.com
@@ -84,11 +84,11 @@ jobs:
 
       - name: Set up subordinate DS container
         run: |
-          tests/bin/ds-container-create.sh subds
-        env:
-          IMAGE: ${{ env.DB_IMAGE }}
-          HOSTNAME: subds.example.com
-          PASSWORD: Secret.123
+          tests/bin/ds-create.sh \
+              --image=${{ env.DB_IMAGE }} \
+              --hostname=subds.example.com \
+              --password=Secret.123 \
+              subds
 
       - name: Connect subordinate DS container to network
         run: docker network connect example subds --alias subds.example.com

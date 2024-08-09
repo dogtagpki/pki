@@ -29,11 +29,11 @@ jobs:
 
       - name: Set up primary DS container
         run: |
-          tests/bin/ds-container-create.sh ds
-        env:
-          IMAGE: ${{ env.DB_IMAGE }}
-          HOSTNAME: ds.example.com
-          PASSWORD: Secret.123
+          tests/bin/ds-create.sh \
+              --image=${{ env.DB_IMAGE }} \
+              --hostname=ds.example.com \
+              --password=Secret.123 \
+              ds
 
       - name: Connect DS container to network
         run: docker network connect example ds --alias ds.example.com

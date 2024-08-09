@@ -31,11 +31,11 @@ jobs:
 
       - name: Set up primary DS container
         run: |
-          tests/bin/ds-container-create.sh primaryds
-        env:
-          IMAGE: pki-runner
-          HOSTNAME: primaryds.example.com
-          PASSWORD: Secret.123
+          tests/bin/ds-create.sh \
+              --image=pki-runner \
+              --hostname=primaryds.example.com \
+              --password=Secret.123 \
+              primaryds
 
       - name: Connect primary DS container to network
         run: docker network connect example primaryds --alias primaryds.example.com
@@ -151,11 +151,11 @@ jobs:
 
       - name: Set up secondary DS container
         run: |
-          tests/bin/ds-container-create.sh secondaryds
-        env:
-          IMAGE: pki-runner
-          HOSTNAME: secondaryds.example.com
-          PASSWORD: Secret.123
+          tests/bin/ds-create.sh \
+              --image=pki-runner \
+              --hostname=secondaryds.example.com \
+              --password=Secret.123 \
+              secondaryds
 
       - name: Connect secondary DS container to network
         run: docker network connect example secondaryds --alias secondaryds.example.com

@@ -3,7 +3,9 @@
 To create a DS container for testing:
 
 ----
-$ IMAGE=quay.io/389ds/dirsrv PASSWORD=Secret.123 /usr/share/pki/tests/bin/ds-container-create.sh ds
+$ /usr/share/pki/tests/bin/ds-create.sh \
+    --password=Secret.123 \
+    ds
 ----
 
 = Removing DS Container =

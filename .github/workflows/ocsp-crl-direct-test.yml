@@ -36,11 +36,11 @@ jobs:
 
       - name: Set up CA DS container
         run: |
-          tests/bin/ds-container-create.sh cads
-        env:
-          IMAGE: ${{ env.DB_IMAGE }}
-          HOSTNAME: cads.example.com
-          PASSWORD: Secret.123
+          tests/bin/ds-create.sh \
+              --image=${{ env.DB_IMAGE }} \
+              --hostname=cads.example.com \
+              --password=Secret.123 \
+              cads
 
       - name: Connect CA DS container to network
         run: docker network connect example cads --alias cads.example.com
@@ -72,11 +72,11 @@ jobs:
 
       - name: Set up OCSP DS container
         run: |
-          tests/bin/ds-container-create.sh ocspds
-        env:
-          IMAGE: ${{ env.DB_IMAGE }}
-          HOSTNAME: ocspds.example.com
-          PASSWORD: Secret.123
+          tests/bin/ds-create.sh \
+              --image=${{ env.DB_IMAGE }} \
+              --hostname=ocspds.example.com \
+              --password=Secret.123 \
+              ocspds
 
       - name: Connect OCSP DS container to network
         run: docker network connect example ocspds --alias ocspds.example.com
