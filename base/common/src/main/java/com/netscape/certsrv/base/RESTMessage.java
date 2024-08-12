@@ -91,6 +91,12 @@ public class RESTMessage implements JSONSerializer {
         }
     }
 
+    public RESTMessage(Map<String, String[]> parameterMap) {
+        for(String key: parameterMap.keySet()) {
+            attributes.put(key, parameterMap.get(key)[0]);
+        }
+    }
+
     @JsonProperty("ClassName")
     public String getClassName() {
         return className;
