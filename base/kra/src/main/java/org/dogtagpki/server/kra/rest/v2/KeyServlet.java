@@ -37,7 +37,7 @@ public class KeyServlet extends KRAServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger logger = LoggerFactory.getLogger(KeyServlet.class);
 
-    KeyProcessor keyProcessor;
+    private KeyProcessor keyProcessor;
 
     @Override
     public void init() throws ServletException {
