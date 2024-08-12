@@ -90,11 +90,11 @@ public class KeyProcessor {
 
     public KeyInfoCollection listKeys(Principal principal, String baseUrl, String clientKeyID, String status, int maxResults, int maxTime, int start,
             int size, String realm, String owner) {
-        logger.info("Key: Searching for keys");
-        logger.info("Key: - client key ID: {}", clientKeyID);
-        logger.info("Key: - status: {}", status);
+        logger.info("KeyProcessor: Searching for keys");
+        logger.info("KeyProcessor: - client key ID: {}", clientKeyID);
+        logger.info("KeyProcessor: - status: {}", status);
 
-        String auditInfo = "Key.listKeyInfos; status =" + status;
+        String auditInfo = "KeyProcessor.listKeyInfos; status =" + status;
 
         if (realm != null) {
             try {
@@ -115,7 +115,7 @@ public class KeyProcessor {
 
         // get ldap filter
         String filter = createSearchFilter(status, clientKeyID, realm, owner);
-        logger.info("Key: - filter: {}", filter);
+        logger.info("KeyProcessor: - filter: {}", filter);
 
 
         KeyInfoCollection infos = new KeyInfoCollection();
@@ -125,7 +125,7 @@ public class KeyProcessor {
                 return infos;
             }
 
-            logger.info("Key: Results:");
+            logger.info("KeyProcessor: Results:");
 
             // store non-null results in a list
             List<KeyInfo> results = new ArrayList<>();
@@ -134,13 +134,13 @@ public class KeyProcessor {
                 if (rec == null) continue;
 
                 KeyInfo info = createKeyDataInfo(rec, baseUrl, false);
-                logger.info("Key: - key: {}", info.getKeyId());
+                logger.info("KeyProcessor: - key: {}", info.getKeyId());
                 results.add(info);
 
                 auditKeyInfoSuccess(principal, info.getKeyId(), null, auditInfo);
             }
             int total = results.size();
-            logger.info("Key: Total: {}", total);
+            logger.info("KeyProcessor: Total: {}", total);
             infos.setTotal(total);
 
             // return entries in the requested page
@@ -154,8 +154,8 @@ public class KeyProcessor {
     }
 
     public KeyInfo getKeyInfo(Principal principal, String baseUrl, KeyId keyId) {
-        String auditInfo = "Key.getKeyInfo";
-        logger.debug("Key.getKeyInfo: begins.");
+        String auditInfo = "KeyProcessor.getKeyInfo";
+        logger.debug("KeyProcessor.getKeyInfo: begins.");
 
         KeyRecord rec = null;
         try {
@@ -183,8 +183,8 @@ public class KeyProcessor {
     }
 
     public KeyInfo getActiveKeyInfo(Principal principal, String baseUrl, String clientKeyID) {
-        String auditInfo = "Key.getActiveKeyInfo";
-        logger.debug("Key.getActiveKeyInfo: begins.");
+        String auditInfo = "KeyProcessor.getActiveKeyInfo";
+        logger.debug("KeyProcessor.getActiveKeyInfo: begins.");
 
         KeyInfoCollection infos = listKeys(
                 principal,
@@ -228,11 +228,11 @@ public class KeyProcessor {
     }
 
     public void modifyKeyStatus(Principal principal, String baseUrl, KeyId id, String status) {
-        String auditInfo = "Key.modifyKeyStatus";
+        String auditInfo = "KeyProcessor.modifyKeyStatus";
         String messageError =  "Unable to modify key status: ";
         //TODO: what was the original status?  find it and record that in Info as well
 
-        logger.info("Key.modifyKeyStatus: Modifying key {} status to {}", id, status);
+        logger.info("KeyProcessor.modifyKeyStatus: Modifying key {} status to {}", id, status);
 
         KeyRecord rec = null;
         KeyInfo info = null;
@@ -272,14 +272,14 @@ public class KeyProcessor {
 
     public KeyData retrieveKey(Principal principal, KeyRecoveryRequest data) {
         if (data == null) {
-            auditRetrieveKeyError(principal, null, null, "Key: Missing key recovery request", null);
+            auditRetrieveKeyError(principal, null, null, "KeyProcessor: Missing key recovery request", null);
             throw new BadRequestException("Missing key recovery request");
         }
 
         try {
-            logger.debug("Key: Request:\n{}", data.toJSON());
+            logger.debug("KeyProcessor: Request:\n{}", data.toJSON());
         } catch (JsonProcessingException e) {
-            auditRetrieveKeyError(principal, null, null, "Key: Problem processing key data", null);
+            auditRetrieveKeyError(principal, null, null, "KeyProcessor: Problem processing key data", null);
             throw new PKIException(e.getMessage(), e);
         }
 
@@ -296,7 +296,7 @@ public class KeyProcessor {
 
         if (requestId != null) {
 
-            logger.debug("Key: Searching for asynchronous request {}", requestId);
+            logger.debug("KeyProcessor: Searching for asynchronous request {}", requestId);
             // We assume that the request is valid and has been approved
 
             auditInfo += ";requestID=" + requestId;
@@ -314,7 +314,7 @@ public class KeyProcessor {
             }
 
             keyId = new KeyId(request.getExtDataInString(ATTR_SERIALNO));
-            logger.debug("Key: Request found for key {}", keyId);
+            logger.debug("KeyProcessor: Request found for key {}", keyId);
 
             auditInfo += ";keyID=" + keyId;
 
@@ -323,7 +323,7 @@ public class KeyProcessor {
         } else {
 
             keyId = data.getKeyId();
-            logger.info("Key: Retrieving key {}", keyId);
+            logger.info("KeyProcessor: Retrieving key {}", keyId);
 
             if (keyId == null) {
                 auditRetrieveKeyError(principal, requestId, keyId, "Missing recovery request ID and key ID", auditInfo);
@@ -333,13 +333,13 @@ public class KeyProcessor {
             auditInfo += ";keyID=" + keyId;
 
             // TODO(alee): get the realm from the key record
-            logger.info("Key: realm: {}", realm);
+            logger.info("KeyProcessor: realm: {}", realm);
 
             synchronous = kra.isRetrievalSynchronous(realm);
-            logger.info("Key: synchronous: {}", synchronous);
+            logger.info("KeyProcessor: synchronous: {}", synchronous);
 
             ephemeral = kra.isEphemeral(realm);
-            logger.info("Key: ephemeral: {}", ephemeral);
+            logger.info("KeyProcessor: ephemeral: {}", ephemeral);
 
             // Only synchronous requests can be ephemeral
             if (!synchronous) ephemeral = false;
@@ -347,7 +347,7 @@ public class KeyProcessor {
             auditInfo += ";synchronous=" + synchronous;
             auditInfo += ";ephemeral=" + ephemeral;
 
-            logger.info("Key: Creating recovery request");
+            logger.info("KeyProcessor: Creating recovery request");
 
             KeyRequestDAO reqDAO = new KeyRequestDAO();
             try {
@@ -359,17 +359,17 @@ public class KeyProcessor {
             }
 
             requestId = request.getRequestId();
-            logger.info("Key: Created request {}", requestId);
+            logger.info("KeyProcessor: Created request {}", requestId);
 
             auditInfo += ";requestID=" + requestId;
 
             if (!synchronous) {
-                logger.info("Key: Storing request in database");
+                logger.info("KeyProcessor: Storing request in database");
 
                 try {
                     requestRepository.updateRequest(request);
                 } catch (EBaseException e) {
-                    logger.error("KeyService: " + e.getMessage(), e);
+                    logger.error("KeyProcessor: " + e.getMessage(), e);
                     auditRecoveryRequest(principal, ILogger.FAILURE, requestId, keyId);
                     throw new PKIException(e.getMessage(), e);
                 }
@@ -377,7 +377,7 @@ public class KeyProcessor {
                 keyData.setRequestID(requestId);
 
                 try {
-                    logger.debug("Key: Response:\n {}", keyData.toJSON());
+                    logger.debug("KeyProcessor: Response:\n {}", keyData.toJSON());
                 } catch (JsonProcessingException e) {
                     auditRecoveryRequest(principal, ILogger.FAILURE, requestId, keyId);
                     throw new PKIException(e.getMessage(), e);
@@ -385,7 +385,7 @@ public class KeyProcessor {
 
                 auditRecoveryRequest(principal, ILogger.SUCCESS, requestId, keyId);
 
-                logger.info("Key: Returning created recovery request");
+                logger.info("KeyProcessor: Returning created recovery request");
                 return keyData;
             }
             auditRecoveryRequest(principal, ILogger.SUCCESS, requestId, keyId);
@@ -394,7 +394,7 @@ public class KeyProcessor {
         data.setRequestId(requestId);
 
         String type = request.getRequestType();
-        logger.debug("Key: request type: {}", type);
+        logger.debug("KeyProcessor: request type: {}", type);
         auditInfo += ";request type:" + type;
 
         // process request
@@ -403,19 +403,19 @@ public class KeyProcessor {
             switch(type) {
                 case Request.KEYRECOVERY_REQUEST:
 
-                    logger.info("Key: Processing key recovery request");
+                    logger.info("KeyProcessor: Processing key recovery request");
                     keyData = recoverKey(data);
-                    auditInfo = "Key.recoverKey";
+                    auditInfo = "KeyProcessor.recoverKey";
                     break;
 
                 case Request.SECURITY_DATA_RECOVERY_REQUEST:
 
-                    logger.info("KeyService: Processing security data recovery request");
+                    logger.info("KeyProcessor: Processing security data recovery request");
                     if (synchronous)  request.setRequestStatus(RequestStatus.APPROVED);
                     validateRequest(principal, data, request);
                     keyData = getKey(keyId, request, data, synchronous, ephemeral);
 
-                    auditInfo += "Key.getKey: keyID=" + keyId.toString();
+                    auditInfo += "KeyProcessor.getKey: keyID=" + keyId.toString();
                     auditInfo += ";requestID=" + requestId.toString();
                     auditInfo += ";synchronous=" + Boolean.toString(synchronous);
                     auditInfo += ";ephemeral=" + Boolean.toString(ephemeral);
@@ -439,7 +439,7 @@ public class KeyProcessor {
         auditRecoveryRequestProcessed(principal, ILogger.SUCCESS, requestId, keyId, null, auditInfo, approvers);
 
         try {
-            logger.debug("KeyService: Response:\n {}", keyData.toJSON());
+            logger.debug("KeyProcessor: Response:\n {}", keyData.toJSON());
         } catch (JsonProcessingException e) {
             auditRecoveryRequestProcessed(principal, ILogger.FAILURE, requestId, keyId, "Key record data error", auditInfo, null);
             throw new PKIException(e.getMessage(), e);
@@ -451,8 +451,7 @@ public class KeyProcessor {
 
     private AuthToken getAuthToken(Principal principal) {
         if (principal instanceof PKIPrincipal pkiprincipal) {
-            AuthToken authToken = pkiprincipal.getAuthToken();
-            return authToken;
+            return pkiprincipal.getAuthToken();
         }
         throw new PKIException("Unable to access realm: principal not instance of PKIPrincipal");
     }
@@ -496,7 +495,7 @@ public class KeyProcessor {
     }
 
     private KeyInfo createKeyDataInfo(KeyRecord rec, String baseURL, boolean getPublicKey) throws EBaseException {
-        String method = "Key.createKeyDataInfo: ";
+        String method = "KeyProcessor.createKeyDataInfo: ";
         logger.debug("{} begins.", method);
 
         KeyInfo ret = new KeyInfo();
@@ -528,7 +527,7 @@ public class KeyProcessor {
 
     private KeyData recoverKey(KeyRecoveryRequest data) throws Exception {
 
-        String method = "Key.recoverKey:";
+        String method = "KeyProcessor.recoverKey:";
         logger.debug("{} begins.", method);
 
         RequestId reqId = data.getRequestId();
@@ -579,7 +578,7 @@ public class KeyProcessor {
         return keyData;
     }
     private void validateRequest(Principal principal, KeyRecoveryRequest data, Request request) {
-        logger.debug("Key.validateRequest: begins.");
+        logger.debug("KeyProcessor.validateRequest: begins.");
 
         // confirm that at least one wrapping method exists
         // There must be at least the wrapped session key method.
@@ -609,7 +608,7 @@ public class KeyProcessor {
 
     private KeyData getKey(KeyId keyId, Request request, KeyRecoveryRequest data,
             boolean synchronous, boolean ephemeral) throws EBaseException {
-        String method = "Key.getKey:";
+        String method = "KeyProcessor.getKey:";
         KeyData keyData;
         KeyRequestDAO dao = new KeyRequestDAO();
         logger.debug("{} begins.", method);
