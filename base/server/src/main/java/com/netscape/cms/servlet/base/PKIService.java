@@ -27,6 +27,7 @@ import java.util.Map;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Context;
@@ -161,7 +162,7 @@ public class PKIService {
         }
 
         if (responseFormat == null) {
-            throw new PKIException(Response.Status.NOT_ACCEPTABLE);
+            throw new PKIException(HttpServletResponse.SC_NOT_ACCEPTABLE, "Not Acceptable");
         }
 
         return responseFormat;

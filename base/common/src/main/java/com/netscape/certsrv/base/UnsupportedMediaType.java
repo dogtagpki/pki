@@ -5,7 +5,7 @@
 //
 package com.netscape.certsrv.base;
 
-import javax.ws.rs.core.Response;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author Marco Fargetta {@literal <mfargett@redhat.com>}
@@ -15,11 +15,11 @@ public class UnsupportedMediaType extends PKIException {
     private static final long serialVersionUID = 1L;
 
     public UnsupportedMediaType(String message) {
-        super(Response.Status.UNSUPPORTED_MEDIA_TYPE, message);
+        super(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE, message);
     }
 
     public UnsupportedMediaType(String message, Throwable cause) {
-        super(Response.Status.UNSUPPORTED_MEDIA_TYPE, message, cause);
+        super(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE, message, cause);
     }
 
     public UnsupportedMediaType(Data data) {
