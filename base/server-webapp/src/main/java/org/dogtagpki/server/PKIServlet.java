@@ -23,12 +23,30 @@ public class PKIServlet extends HttpServlet {
     }
 
     public void get(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+    }
+
+    public void post(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
     }
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
             get(request, response);
+
+        } catch (ServletException | IOException e) {
+            throw e;
+
+        } catch (Exception e) {
+            throw new ServletException(e);
+        }
+    }
+
+    @Override
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        try {
+            post(request, response);
 
         } catch (ServletException | IOException e) {
             throw e;

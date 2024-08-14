@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 //
-package org.dogtagpki.server.rest;
+package org.dogtagpki.server.rest.v1;
 
 import java.io.File;
 import java.util.ArrayList;

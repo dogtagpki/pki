@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 //
-package org.dogtagpki.server.v2;
+package org.dogtagpki.server.rest.v2;
 
 import java.io.PrintWriter;
 
@@ -24,6 +24,7 @@ public class InfoServlet extends PKIServlet {
 
     private static final long serialVersionUID = 1L;
 
+    @Override
     public void get(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         PKIEngine engine = getPKIEngine();
