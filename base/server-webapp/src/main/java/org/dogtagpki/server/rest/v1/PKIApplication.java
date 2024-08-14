@@ -16,7 +16,7 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package org.dogtagpki.server.rest;
+package org.dogtagpki.server.rest.v1;
 
 import java.util.LinkedHashSet;
 import java.util.Set;

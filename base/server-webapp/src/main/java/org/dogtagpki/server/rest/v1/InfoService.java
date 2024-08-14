@@ -16,7 +16,7 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package org.dogtagpki.server.rest;
+package org.dogtagpki.server.rest.v1;
 
 import javax.ws.rs.core.Response;
 
