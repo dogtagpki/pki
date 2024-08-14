@@ -20,7 +20,7 @@ package com.netscape.certsrv.base;
 import java.io.StringReader;
 import java.io.StringWriter;
 
-import javax.ws.rs.core.Response;
+import javax.servlet.http.HttpServletResponse;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -52,32 +52,20 @@ public class PKIException extends RuntimeException {
         this.code = code;
     }
 
-    public PKIException(Response.Status status) {
-        this(status, status.getReasonPhrase(), null);
-    }
-
     public PKIException(String message) {
-        this(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), message, null);
+        this(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message, null);
     }
 
     public PKIException(int code, String message) {
         this(code, message, null);
     }
 
-    public PKIException(Response.Status status, String message) {
-        this(status.getStatusCode(), message, null);
-    }
-
     public PKIException(Throwable cause) {
-        this(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), cause.getMessage(), cause);
+        this(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, cause.getMessage(), cause);
     }
 
     public PKIException(String message, Throwable cause) {
-        this(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), message, cause);
-    }
-
-    public PKIException(Response.Status status, String message, Throwable cause) {
-        this(status.getStatusCode(), message, cause);
+        this(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message, cause);
     }
 
     public PKIException(Data data) {

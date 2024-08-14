@@ -18,7 +18,7 @@
 
 package com.netscape.certsrv.base;
 
-import javax.ws.rs.core.Response;
+import javax.servlet.http.HttpServletResponse;
 
 
 /**
@@ -29,11 +29,11 @@ public class UnauthorizedException extends PKIException {
     private static final long serialVersionUID = -2025082875126996556L;
 
     public UnauthorizedException(String message) {
-        super(Response.Status.UNAUTHORIZED, message);
+        super(HttpServletResponse.SC_UNAUTHORIZED, message);
     }
 
     public UnauthorizedException(String message, Throwable cause) {
-        super(Response.Status.UNAUTHORIZED, message, cause);
+        super(HttpServletResponse.SC_UNAUTHORIZED, message, cause);
     }
 
     public UnauthorizedException(Data data) {
