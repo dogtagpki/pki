@@ -29,6 +29,7 @@ import org.dogtagpki.tps.apdu.CreateObjectAPDU;
 import org.dogtagpki.tps.apdu.CreatePinAPDU;
 import org.dogtagpki.tps.apdu.DeleteFileAPDU;
 import org.dogtagpki.tps.apdu.DeleteFileGP211APDU;
+import org.dogtagpki.tps.apdu.DeleteKeysAPDU;
 import org.dogtagpki.tps.apdu.ExternalAuthenticateAPDU;
 import org.dogtagpki.tps.apdu.ExternalAuthenticateAPDU.SecurityLevel;
 import org.dogtagpki.tps.apdu.ExternalAuthenticateAPDUGP211;
@@ -57,6 +58,8 @@ import org.mozilla.jss.pkcs11.PKCS11Constants;
 
 import com.netscape.certsrv.base.EBaseException;
 
+import java.util.Arrays;
+
 public class SecureChannel {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SecureChannel.class);
@@ -74,8 +77,6 @@ public class SecureChannel {
     private PK11SymKey cmacSessionKey;
     //Used for security level we do not yet suport.
 
-
-
     private PK11SymKey rmacSessionKey;
     private PK11SymKey dekSessionKey;
 
@@ -85,8 +86,10 @@ public class SecureChannel {
     private TPSBuffer dekSessionKeyWrapped;
 
     private TPSBuffer drmDesKey;
+
     private TPSBuffer drmAesKey;
     private TPSBuffer aesDesKey;
+
 
     //SCP01 kek key
     private TPSBuffer kekDesKey;
@@ -330,8 +333,7 @@ public class SecureChannel {
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
         }
 
-        TPSEngine engine = TPSEngine.getInstance();
-        TPSEngineConfig configStore = engine.getConfig();
+        TPSEngineConfig configStore = this.getConfigStore();
 
         final String keyCapabilities = "keyCapabilities";
 
@@ -455,12 +457,12 @@ public class SecureChannel {
 
             if (false == cardCryptogram.equals(calculatedCardCryptogram)) {
 
-                logger.error("SecureChannel.eternalAuthenticate. Failed to match calculated to returned card cryptogram!. cardCryptogram: "
+                logger.debug("SecureChannel.externalAuthenticate. Failed to match calculated to returned card cryptogram!. cardCryptogram: "
                         + cardCryptogram.toHexString()
-                        + " calculatedCardCrytpogram: "
+                        + " calculatedCardCryptogram: "
                         + calculatedCardCryptogram.toHexString());
                 throw new TPSException(
-                        "SecureChannel.eternalAuthenticate. Failed to match calculated to returned card cryptogram!.",
+                        "SecureChannel.externalAuthenticate. Failed to match calculated to returned card cryptogram!.",
                         TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
 
             }
@@ -531,12 +533,10 @@ public class SecureChannel {
 
         if (secLevel == SecurityLevel.SECURE_MSG_MAC_ENC) {
             try {
-                //logger.debug("SecureChannel.computeAPDU: Before encryption data value: " + apdu.getData().toHexString());
                 apdu.secureMessage(encSessionKey, (byte) 1);
-                //logger.debug("SecureChannel.computeAPDU: After encryption data value: " + apdu.getData().toHexString());
             } catch (EBaseException e) {
                 throw new TPSException("SecureChannel.computeAPDU: Can't encrypt outgoing data! " + e,
-                    TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+                        TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
             }
 
             logger.debug("SecureChannel.computeAPDU: Successfully encrypted apdu data.");
@@ -554,17 +554,12 @@ public class SecureChannel {
 
         if (secLevelGP211 == ExternalAuthenticateAPDUGP211.SecurityLevel.CDEC_CMAC) {
             try {
-                //logger.debug("SecureChannel.computeAPDU_SCP03: Before encryption data value: "
-                //        + apdu.getData().toHexString());
                 this.incrementBuffer(encryptionCounter);
                 TPSBuffer currentEncryptionCounter = new TPSBuffer(encryptionCounter);
                 apdu.secureMessageSCP03(encSessionKey,currentEncryptionCounter);
-
-                //logger.debug("SecureChannel.computeAPDU_SCP03: After encryption data value: "
-                //        + apdu.getData().toHexString());
             } catch (EBaseException e) {
                 throw new TPSException("SecureChannel.computeAPDU_SCP03: Can't encrypt outgoing data! " + e,
-                    TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+                        TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
             }
 
             logger.debug("SecureChannel.computeAPDU_SCP03: Successfully encrypted apdu data.");
@@ -591,8 +586,8 @@ public class SecureChannel {
                     cur++;
                     buffer.setAt(i, cur);
                     break;
-            }
-            buffer.setAt(i,(byte) 0x00);
+            } else
+                    buffer.setAt(i,(byte) 0x00);
         }
 
         System.out.println("enc buffer: " + buffer.toHexString());
@@ -610,14 +605,10 @@ public class SecureChannel {
 
         if (secLevelGP211 == ExternalAuthenticateAPDUGP211.SecurityLevel.CDEC_CMAC) {
             try {
-                //logger.debug("SecureChannel.computeAPDU_SCP02: Before encryption data value: "
-                //        + apdu.getData().toHexString());
                 apdu.secureMessageSCP02(encSessionKey);
-                //logger.debug("SecureChannel.computeAPDU_SCP02: After encryption data value: "
-                //        + apdu.getData().toHexString());
             } catch (EBaseException e) {
                 throw new TPSException("SecureChannel.computeAPDU_SCP02: Can't encrypt outgoing data! " + e,
-                    TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+                        TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
             }
 
             logger.debug("SecureChannel.computeAPDU_SCP02: Successfully encrypted apdu data.");
@@ -636,35 +627,25 @@ public class SecureChannel {
 
         data = apdu.getDataToMAC();
 
-        //logger.debug("SecureChannel.computeAPDUMacSCP03: data To MAC: " + data.toHexString() + " incoming icv: "
-        //        + icv.toHexString());
-
         try {
-
-                logger.debug("SecureChannel.computeAPDUMacSCP03: No ecnrypton of ICV.");
-
                 TPSBuffer dataToMac = new TPSBuffer(icv);
                 /// Prepend the chaining value to the data to be maced.
                 dataToMac.add(data);
-
-                //logger.debug("SecureChannel.computeAPDUMacSCP03: final data To MAC: " + dataToMac.toHexString() + " incoming icv: "
-                //        + icv.toHexString());
 
                 newMac = SecureChannelProtocol.computeAES_CMAC(macSessionKey, dataToMac);
 
 
         } catch (EBaseException e) {
-            logger.error("SecureChannel.computeAPDUMacSCP03: Can't compute mac: " + e.getMessage(), e);
+            logger.debug("SecureChannel.computeAPDUMacSCP03: Can't compute mac. " + e);
             throw new TPSException("SecureChannel.compuatAPDUMacSCP03: Can't compute mac.",
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
         }
 
-        logger.debug("SecureChannel.computeAPDUMacSCP03: computed MAC: " /* + newMac.toHexString() */);
+        //logger.debug("SecureChannel.computeAPDUMacSCP03: computed MAC: " /* + newMac.toHexString() */);
 
         apdu.setMAC(newMac.substr(0,8));
-
+        
         icv.set(newMac);
-
     }
 
     private void computeAPDUMacSCP02(APDU apdu) throws TPSException {
@@ -701,7 +682,7 @@ public class SecureChannel {
             }
 
         } catch (EBaseException e) {
-            logger.error("SecureChannel.computeAPDUMacSCP02: Can't compute mac: " + e.getMessage(), e);
+            logger.debug("SecureChannel.computeAPDUMacSCP02: Can't compute mac. " + e);
             throw new TPSException("SecureChannel.compuatAPDUMacSCP02: Can't compute mac.",
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
         }
@@ -732,7 +713,7 @@ public class SecureChannel {
         try {
             newMac = Util.computeMAC(sessionKey, data, icv);
         } catch (EBaseException e) {
-            logger.error("SecureChannel.compuatAPDUMac: Can't compute mac: " + e.getMessage(), e);
+            logger.debug("SecureChannel.compuatAPDUMac: Can't compute mac. " + e);
             throw new TPSException("SecureChannel.compuatAPDUMac: Can't compute mac.",
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
         }
@@ -748,8 +729,7 @@ public class SecureChannel {
     public void deleteFileX(TPSBuffer aid) throws TPSException, IOException {
         logger.debug("SecureChannel.deleteFileX: entering...");
         if (aid == null) {
-            throw new TPSException("SecureChannel.deleteFileX: no input aid!",
-                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
+            throw new TPSException("SecureChannel.deleteFileX: no input aid!", TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
         }
 
         if (isGP211()) {
@@ -780,14 +760,25 @@ public class SecureChannel {
                 + sdAID.toHexString() + " fileLength: " + fileLength);
 
         if (packageAID == null || sdAID == null || fileLength <= 0) {
-            throw new TPSException("SecureChannel.insallLoad bad input parameters!",
+            throw new TPSException("SecureChannel.installLoad bad input parameters!",
                     TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
         }
 
         TPSBuffer emptySDAID = new TPSBuffer();
 
         if (isGP211()) {
+            logger.debug("SecureChannel.installLoad: isGP211 is true");
             TPSBuffer cardMgrGP211AIDBuff = new TPSBuffer(TPSEngine.CFG_DEF_CARDMGR_211_INSTANCE_AID);
+            
+            TPSBuffer aidSubStrBuffer = new TPSBuffer(cardMgrGP211AIDBuff.substr(0,sdAID.size()));
+            byte[] defaultAIDtoChk = aidSubStrBuffer.toBytesArray();
+            
+            // Use default AID unless another AID was already selected
+            if (!Arrays.equals(sdAID.toBytesArray(),defaultAIDtoChk))
+            {
+                cardMgrGP211AIDBuff = new TPSBuffer(sdAID);
+            } 
+
             installLoadGP211(packageAID, cardMgrGP211AIDBuff, fileLength);
             return;
         }
@@ -813,7 +804,7 @@ public class SecureChannel {
         logger.debug("SecureChannel.installLoadGP211: entering ...");
 
         if (packageAID == null || sdAID == null || fileLength <= 0) {
-            throw new TPSException("SecureChannel.insallLoadGP211 bad input parameters!",
+            throw new TPSException("SecureChannel.installLoadGP211 bad input parameters!",
                     TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
         }
 
@@ -989,7 +980,7 @@ public class SecureChannel {
         }
 
         if (!response.checkResult()) {
-            throw new TPSException("SecureChannel.installApplett. Failed installApplet operation.",
+            throw new TPSException("SecureChannel.installApplet. Failed installApplet operation.",
                     TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
         }
 
@@ -1066,7 +1057,7 @@ public class SecureChannel {
         logger.debug(method + " entering ...");
 
         if(data == null) {
-            logger.warn(method + " Invalid input data returning...");
+            logger.debug(method + " Invalid input data returning...");
             return;
         }
 
@@ -1076,7 +1067,7 @@ public class SecureChannel {
             computeAPDU(clearKey);
             response = processor.handleAPDURequest(clearKey);
         } catch (TPSException | IOException e) {
-            logger.warn(method + " bad apdu return: " + e.getMessage(), e);
+            logger.debug(method + " bad apdu return!");
             return;
 
         }
@@ -1121,7 +1112,7 @@ public class SecureChannel {
             APDUResponse response = processor.handleAPDURequest(write);
 
             if (!response.checkResult()) {
-                logger.error("SecureChannel.writeObject: bad apdu return!");
+                logger.debug("SecureChannel.writeObject: bad apdu return!");
                 //Throw this return code because this happens during enrollment and we don't have
                 // a more specific error code.
                 throw new TPSException("SecureChannel.writeObject. Failed in middle of writeObject.",
@@ -1142,6 +1133,7 @@ public class SecureChannel {
     public TPSBuffer readObject(TPSBuffer objectID, int offset, int len) throws TPSException, IOException {
 
         logger.debug("SecureChannel.readObject: entering ...");
+        logger.debug("offset: " + offset + " len: " + len + " objectID: " + objectID.toHexString());
 
         if (objectID == null || len == 0) {
             throw new TPSException("SecureChannel.readObject: invalid input data.",
@@ -1168,13 +1160,19 @@ public class SecureChannel {
         while (sum < len) {
 
             read = new ReadObjectAPDU(objectID.toBytesArray(), cur_offset, cur_read);
+            //RedHat Add a 0x00 Le byte, appease tpsclient if configured
+            if(!skipTrailerLeByteScp01()) {
+                read.setTrailer(new TPSBuffer((byte) 0x00));
+            }
+
+            //logger.debug("read encoding: " + read.getEncoding().toHexString());
             computeAPDU(read);
 
             APDUResponse response = processor.handleAPDURequest(read);
 
             if (!response.checkResult()) {
-                logger.error("SecureChannel.readObject: bad apdu return!");
-                throw new TPSException("SecureChannel.installApplett. Failed in middle of readObject.",
+                logger.debug("SecureChannel.readObject: bad apdu return!");
+                throw new TPSException("SecureChannel.installApplet. Failed in middle of readObject.",
                         TPSStatus.STATUS_ERROR_CANNOT_PERFORM_OPERATION);
             }
 
@@ -1247,15 +1245,15 @@ public class SecureChannel {
 
         TPSBuffer result = new TPSBuffer();
 
-        //logger.debug("SecureChannel.createPKCS11PriKeyAttrsBuffer: entering...");
+        logger.debug("SecureChannel.createPKCS11PriKeyAttrsBuffer: entering...");
 
         if (id == null || label == null || keyid == null || modulus == null || keyTypePrefix == null) {
             throw new TPSException("SecureChannel.craetePKCS11PriKeyAttrsBuffer: invalid input data.",
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
         }
 
-        //logger.debug("SecureChannel.createPKCS11PriKeyAttrsBuffer:  id: " + id + " label: " + label + " keyid: "
-        //        + keyid.toHexString());
+//        logger.debug("SecureChannel.createPKCS11PriKeyAttrsBuffer:  id: " + id + " label: " + label + " keyid: "
+//                + keyid.toHexString());
 
         byte keytype[] = { 0, 0, 0, 0 };
         byte p11class[] = { 3, 0, 0, 0 };
@@ -1364,15 +1362,15 @@ public class SecureChannel {
     public TPSBuffer createPKCS11CertAttrsBuffer(TokenKeyType keyType, String id, String label, TPSBuffer keyid)
             throws TPSException {
 
-        //logger.debug("SecureChannel.createPKCS11CertAttrsBuffer: entering... id: " + id);
+        logger.debug("SecureChannel.createPKCS11CertAttrsBuffer: entering... id: " + id);
         if (keyType == null || id == null || label == null || keyid == null) {
             throw new TPSException("SecureChannel.createPKCS11CertAttrsBuffer. Bad input data.",
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
 
         }
 
-        //logger.debug("SecureChannel.createPKCS11CertAttrsBuffer: ... id: " + id + " label: " + label + " keyid: "
-        //        + keyid.toHexString());
+//        logger.debug("SecureChannel.createPKCS11CertAttrsBuffer: ... id: " + id + " label: " + label + " keyid: "
+//                + keyid.toHexString());
 
         byte[] type = { 0x0, 0x0, 0x0, 0x0 };
         byte[] p11class = { 0x1, 0x0, 0x0, 0x0 };
@@ -1380,8 +1378,8 @@ public class SecureChannel {
 
         TPSBuffer result = new TPSBuffer();
 
-        //logger.debug("SecureChannel.createPKCS11CertAttrsBuffer: label: " + label + " label bytes: "
-        //        + (new TPSBuffer(label)).toHexString());
+//        logger.debug("SecureChannel.createPKCS11CertAttrsBuffer: label: " + label + " label bytes: "
+//                + (new TPSBuffer(label)).toHexString());
 
         appendPKCS11Attribute(result, PKCS11Constants.CKA_LABEL, new TPSBuffer(label.getBytes()));
         appendPKCS11Attribute(result, PKCS11Constants.CKA_ID, keyid);
@@ -1456,6 +1454,11 @@ public class SecureChannel {
             generate_key_apdu = new GenerateKeyAPDU((byte) pe1, (byte) pe2, (byte) algorithm, keySize,
                     (byte) option, (byte) 0, wrappedChallenge, keyCheck);
 
+            // RedHat Add a 0x00 Le byte, appease tpsclient if configured.
+            if(!skipTrailerLeByteScp01()) {
+                generate_key_apdu.setTrailer(new TPSBuffer((byte) 0x00));
+            }
+
             computeAPDU(generate_key_apdu);
 
             response = processor.handleAPDURequest(generate_key_apdu);
@@ -1482,7 +1485,10 @@ public class SecureChannel {
         if (type == TokenKeyType.KEY_TYPE_ENCRYPTION)
             return 0;
 
-        return type == TokenKeyType.KEY_TYPE_SIGNING ? 1 : 2;
+        if (type == TokenKeyType.KEY_TYPE_SIGNING)
+            return 1;
+        else
+            return 2;
     }
 
     public void setLifecycleState(byte flag) throws TPSException, IOException {
@@ -1496,7 +1502,7 @@ public class SecureChannel {
         APDUResponse response = processor.handleAPDURequest(life);
 
         if (!response.checkResult()) {
-            logger.error(method + "result.checkResult() returns false; Throwing exception!");
+             logger.debug(method + "result.checkResult() returns false; Throwing exception!");
             throw new TPSException("SecureChannel.setLifecycleState. Failed to set Lifecycle State!.",
                     TPSStatus.STATUS_ERROR_MAC_LIFECYCLE_PDU);
         }
@@ -1509,7 +1515,7 @@ public class SecureChannel {
         logger.debug("SecureChannel.createPin:  entering...");
 
         if (pin == null) {
-            throw new TPSException("SecureChannel.createPin: invalid intput data.",
+            throw new TPSException("SecureChannel.createPin: invalid input data.",
                     TPSStatus.STATUS_ERROR_MAC_RESET_PIN_PDU);
         }
 
@@ -1530,8 +1536,8 @@ public class SecureChannel {
         logger.debug("SecureChannel.resetPin");
 
         if (new_pin == null) {
-            throw new TPSException("SecureChannel.resetPin: invalid intput data.",
-                    TPSStatus.STATUS_ERROR_TOKEN_RESET_PIN_FAILED);
+            throw new TPSException("SecureChannel.resetPin: invalid input data.",
+                    TPSStatus.STATUS_ERROR_MAC_RESET_PIN_PDU);
         }
 
         TPSBuffer newPinBuf = new TPSBuffer(new_pin.getBytes());
@@ -1544,7 +1550,7 @@ public class SecureChannel {
 
         if (!response.checkResult()) {
             throw new TPSException("SecureChannel.resetPin: failed to reset pin.",
-                    TPSStatus.STATUS_ERROR_TOKEN_RESET_PIN_FAILED);
+                    TPSStatus.STATUS_ERROR_MAC_RESET_PIN_PDU);
         }
 
     }
@@ -1576,6 +1582,11 @@ public class SecureChannel {
 
         }
         computeAPDU(putKey);
+
+        int kill = 0;
+        if (kill == 1) {
+            throw new TPSException("putKeys end of progress.", TPSStatus.STATUS_ERROR_KEY_CHANGE_OVER);
+        }
 
         APDUResponse response = processor.handleAPDURequest(putKey);
 
@@ -1749,15 +1760,28 @@ public class SecureChannel {
     }
 
     public boolean isSCP03() {
-        return platProtInfo.isSCP03();
+        if (platProtInfo.isSCP03())
+            return true;
+        else
+            return false;
     }
 
     public boolean isSCP02() {
-        return platProtInfo.isGP211() && platProtInfo.isSCP02();
+        if (platProtInfo.isGP211() && platProtInfo.isSCP02()) {
+
+            return true;
+        }
+
+        return false;
     }
 
     private boolean isGP211() {
-        return platProtInfo.isGP211();
+
+        if (platProtInfo.isGP211()) {
+            return true;
+        }
+
+        return false;
     }
 
     public TPSBuffer getDekSessionKeyWrapped() {
@@ -1782,6 +1806,71 @@ public class SecureChannel {
 
     public void setRmacSessionKey(PK11SymKey rmacSessionKey) {
         this.rmacSessionKey = rmacSessionKey;
+    }
+
+    /**
+     * ** G&D 256 Key Rollover Support **
+     * This method constructs the APDU for key deletion and sends the request to the card to 
+     * delete keys with the given version.
+     *  
+     * @param keyVersion the key version to be deleted
+     * @throws TPSException
+     * @throws IOException 
+     *
+     */
+    public void deleteKeys(byte keyVersion) throws TPSException, IOException {
+        String method = "SecureChannel.deleteKeys: keyVersion: " + keyVersion + ": ";
+
+        logger.debug(method + " entering ...");
+
+        APDUResponse response;
+        try {
+            TPSBuffer data = new TPSBuffer(keyVersion);
+            DeleteKeysAPDU  deleteKeyApdu = new DeleteKeysAPDU(data);
+            computeAPDU(deleteKeyApdu);
+            response = processor.handleAPDURequest(deleteKeyApdu);
+        } catch (TPSException | IOException e) {
+            logger.debug(method + " bad apdu return!");
+            logger.debug(e.toString());
+            throw e;
+        }
+
+        if (!response.checkResult()) {
+            logger.debug(method + " response with unsuccess result");
+            throw new TPSException(method + " failed to delete key set!",
+                        TPSStatus.STATUS_ERROR_KEY_CHANGE_OVER);
+        }
+
+        logger.debug(method + " Successful delete key data operation completed.");
+    }
+
+    // RedHat
+    //Check config param if we want to not add le bytes for certain scp01 apdu's.
+    //default is  false. If method returns false the le byte will be added as before.
+    public boolean skipTrailerLeByteScp01() {
+
+        TPSEngineConfig configStore = this.getConfigStore();
+
+        String method = "SecureChannel.skipTrailerLeByteScp01: ";
+        boolean skip = false;
+        try {
+            String configName = "channel.scp01.no.le.byte";
+
+            if(platProtInfo.isSCP01()) {
+                skip = configStore.getBoolean(configName,false);
+            }
+        } catch (Exception e) {
+            skip = false;
+        }
+
+        logger.debug(method + skip);
+        return skip;
+    }
+
+    private TPSEngineConfig getConfigStore() {
+        TPSEngine engine = TPSEngine.getInstance();
+        TPSEngineConfig configStore = engine.getConfig();
+        return configStore;
     }
 
 }

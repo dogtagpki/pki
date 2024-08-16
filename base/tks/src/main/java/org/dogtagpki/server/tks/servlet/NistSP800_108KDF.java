@@ -201,6 +201,10 @@ public class NistSP800_108KDF extends KDF {
         for (int i = 1; i <= n; i++) {
 
             try {
+                // Need to flush and reset buffer before using it
+                input.reset();
+                input.flush();
+
                 input.write(headerBytes);
                 input.write((byte) i);
                 input.write(context);
@@ -416,7 +420,17 @@ public class NistSP800_108KDF extends KDF {
         Cipher encryptor = null;
 
         try {
-            encryptor = token.getCipherContext(EncryptionAlgorithm.AES_128_CBC);
+            // Base size on key length
+            if (aesKey.getLength() == AES_CMAC_BLOCK_SIZE)
+            {
+                logger.debug(method + " encryptor context set to AES_128_CBC");
+                encryptor = token.getCipherContext(EncryptionAlgorithm.AES_128_CBC);
+            }
+            else
+            {
+                logger.debug(method + " encryptor context set to AES_256_CBC");
+                encryptor = token.getCipherContext(EncryptionAlgorithm.AES_256_CBC);
+            }
             encryptor.initEncrypt(aesKey, new IVParameterSpec(iv));
             k0 = encryptor.doFinal(k0);
 

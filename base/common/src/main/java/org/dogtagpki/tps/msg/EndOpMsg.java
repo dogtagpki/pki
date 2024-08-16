@@ -68,7 +68,8 @@ public class EndOpMsg extends TPSMessage {
         STATUS_ERROR_REVOKE_CERTIFICATES_FAILED(42),
         STATUS_ERROR_NOT_TOKEN_OWNER(43),
         STATUS_RENEWAL_IS_PROCESSED(44),
-        STATUS_ERROR_CANNOT_ESTABLISH_COMMUNICATION(45);
+        STATUS_ERROR_CANNOT_ESTABLISH_COMMUNICATION(45),
+        STATUS_ERROR_SYMKEY_256_UPGRADE(46); // ** G&D 256 Key Rollover Support **
 
         private TPSStatus(int code) {
             this.code = code;

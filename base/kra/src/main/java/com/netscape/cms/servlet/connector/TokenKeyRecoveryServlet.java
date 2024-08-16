@@ -172,6 +172,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
         boolean missingParam = false;
         boolean missingTransAes = false;
         boolean missingTransDes = false;
+        boolean missingAesKeyWrapAlg = false;
 
         String status = "0";
 
@@ -182,8 +183,18 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
         String rKeyid = req.getParameter(IRemoteRequest.KRA_RECOVERY_KEYID);
         String rdesKeyString = req.getParameter(IRemoteRequest.KRA_Trans_DesKey);
         String rCert = req.getParameter(IRemoteRequest.KRA_RECOVERY_CERT);
+        
+        //RedHat : make sure the key wrap alg is being processed correctly
+        String aesKeyWrapAlg = req.getParameter(IRemoteRequest.KRA_Aes_Wrap_Alg);
+
 
         String raesKeyString = req.getParameter(IRemoteRequest.KRA_Trans_AesKey);
+
+        //RedHat : make sure the key wrap alg is being processed correctly
+        if ((aesKeyWrapAlg == null) || (aesKeyWrapAlg.equals(""))) {
+            logger.debug("TokenKeyRecoveryServlet: processTokenKeyRecovery(): missing request parameter: AES-KeyWrap-alg");
+            missingAesKeyWrapAlg = true;
+        }
 
         if ((rCUID == null) || (rCUID.equals(""))) {
             logger.warn("TokenKeyRecoveryServlet: processTokenKeyRecovery(): missing request parameter: CUID");
@@ -229,6 +240,12 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
              }
             if(!missingTransAes) {
                 thisreq.setExtData(Request.NETKEY_ATTR_DRMTRANS_AES_KEY, raesKeyString);
+            }
+
+            //RedHat : make sure the key wrap alg is being processed correctly
+            if(!missingAesKeyWrapAlg) {
+                logger.debug("TokenKeyRecoveryServlet: processTokenKeyRecovery(): aesKeyWrapAlg: " + aesKeyWrapAlg);
+                thisreq.setExtData(Request.NETKEY_ATTR_SSKEYGEN_AES_KEY_WRAP_ALG,aesKeyWrapAlg);
             }
 
             if ((rCert != null) && (!rCert.equals(""))) {

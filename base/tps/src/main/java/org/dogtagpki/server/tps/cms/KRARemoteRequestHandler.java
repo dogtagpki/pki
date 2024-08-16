@@ -68,26 +68,30 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
             String userid,
             String sDesKey,
             String sAesKey,
-            boolean archive)
+            boolean archive,
+            String aesKeyWrapAlg)
             throws EBaseException {
 
-        logger.info("KRARemoteRequestHandler: Generating key pair on KRA");
-
+        logger.debug("KRARemoteRequestHandler: serverSideKeyGen(): begins.");
         if (cuid == null || userid == null || sDesKey == null) {
-            logger.error("KRARemoteRequestHandler: Missing input parameter");
-            throw new EBaseException("Missing input parameter");
+            throw new EBaseException("KRARemoteRequestHandler: serverSideKeyGen(): input parameter null.");
+        }
+
+        String aesWrapAlg = aesKeyWrapAlg;
+
+        //Just check for unsupported values that are not CBC or KWP and give default.
+        if(aesWrapAlg == null || aesWrapAlg.length() != 3) {
+            aesWrapAlg = "KWP";
         }
 
         TPSEngine engine = TPSEngine.getInstance();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
-        HttpConnector conn = (HttpConnector) subsystem.getConnectionManager().getConnector(connid);
-
+        HttpConnector conn =
+                (HttpConnector) subsystem.getConnectionManager().getConnector(connid);
+        logger.debug("KRARemoteRequestHandler: serverSideKeyGen(): sending request to KRA");
         HttpResponse resp;
         String request;
-
         if (isECC) {
-            logger.info("KRARemoteRequestHandler: Generating EC key pair");
-
             String eckeycurve;
             if (keysize == 521) {
                 eckeycurve = "nistp521";
@@ -96,12 +100,11 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
             } else if (keysize == 256) {
                 eckeycurve = "nistp256";
             } else {
-                logger.warn("KRARemoteRequestHandler: Unrecognized EC key size: " + keysize);
+                logger.debug("KRARemoteRequestHandler: serverSideKeyGen(): unrecognized ECC keysize" + keysize
+                        + ", setting to nistp256");
                 keysize = 256;
                 eckeycurve = "nistp256";
             }
-
-            logger.info("KRARemoteRequestHandler: - key curve: " + eckeycurve);
 
             request = IRemoteRequest.KRA_KEYGEN_Archive + "=" +
                     archive +
@@ -116,15 +119,16 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
                     "&" + IRemoteRequest.KRA_Trans_DesKey + "=" +
                     sDesKey +
                     "&" + IRemoteRequest.KRA_Trans_AesKey + "=" +
-                    sAesKey;
+                    sAesKey +
+                    "&" + IRemoteRequest.KRA_Aes_Wrap_Alg + "=" + 
+                    aesWrapAlg; 
 
-            //logger.debug("KRARemoteRequestHandler: - request: " + request);
+            //logger.debug("KRARemoteRequestHandler: outgoing request for ECC: " + request);
 
-            resp = conn.send("GenerateKeyPair", request);
-
+            resp =
+                    conn.send("GenerateKeyPair",
+                            request);
         } else { // RSA
-
-            logger.info("KRARemoteRequestHandler: Generating RSA key pair");
 
             request = IRemoteRequest.KRA_KEYGEN_Archive + "=" +
                     archive +
@@ -139,86 +143,96 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
                     "&" + IRemoteRequest.KRA_Trans_DesKey + "=" +
                     sDesKey +
                     "&" + IRemoteRequest.KRA_Trans_AesKey + "=" +
-                    sAesKey;
+                    sAesKey +  
+                    "&" + IRemoteRequest.KRA_Aes_Wrap_Alg + "=" +
+                    aesWrapAlg;
 
-            //logger.debug("KRARemoteRequestHandler: - request: " + request);
 
-            resp = conn.send("GenerateKeyPair", request);
+            //logger.debug("KRARemoteRequestHandler: outgoing request for RSA: " + request);
+
+            resp =
+                    conn.send("GenerateKeyPair",
+                            request);
         }
 
         //For some reason the send method can return null and not throw an exception.
         // Check here;
 
         if (resp == null) {
-            logger.error("KRARemoteRequestHandler: Missing response object");
-            throw new EBaseException("Missing response object");
+            throw new EBaseException(
+                    "KRARemoteRequestHandler: serverSideKeyGen(): No response object returned from connection.");
         }
 
         String content = resp.getContent();
 
-        if (content == null || content.equals("")) {
-            logger.error("KRARemoteRequestHandler: Missing response content");
-            throw new EBaseException("Missing response content");
-        }
+        if (content != null && !content.equals("")) {
+            logger.debug("KRARemoteRequestHandler: serverSideKeyGen(): got content");
+            Hashtable<String, Object> response =
+                    parseResponse(content);
 
-        logger.info("KRARemoteRequestHandler: Parsing response");
-        Hashtable<String, Object> response = parseResponse(content);
-
-        /**
-         * When a value is not found in response, keep going so we know
-         * what else is missing
-         * Note: response values "missing" might not be bad for some cases
-         */
-        Integer ist = Integer.valueOf(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
-        String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
-        logger.info("KRARemoteRequestHandler: - status: " + value);
-
-        if (value == null) {
-            logger.error("KRARemoteRequestHandler: Missing status");
-            throw new EBaseException("Missing status");
-        }
-
-        ist = Integer.parseInt(value);
-        if (ist != 0) {
-            value = (String) response.get(IRemoteRequest.RESPONSE_ERROR_STRING);
+            /**
+             * When a value is not found in response, keep going so we know
+             * what else is missing
+             * Note: response values "missing" might not be bad for some cases
+             */
+            Integer ist = new Integer(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
+            String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
 
             if (value == null) {
-                logger.warn("KRARemoteRequestHandler: Missing error message");
-            } else {
-                logger.error("KRARemoteRequestHandler: " + value);
-                response.put(IRemoteRequest.RESPONSE_ERROR_STRING, value);
+                throw new EBaseException("KRARemoteRequestHandler: serverSideKeyGen(): Invalide status returned!");
             }
-        }
-        response.put(IRemoteRequest.RESPONSE_STATUS, ist);
 
-        value = (String) response.get(IRemoteRequest.KRA_RESPONSE_PublicKey);
+            logger.debug("KRARemoteRequestHandler: serverSideKeyGen(): got status = " + value);
+            ist = Integer.parseInt(value);
+            if (ist != 0) {
+                logger.debug("KRARemoteRequestHandler: serverSideKeyGen(): status not 0, getting error string... ");
+                value = (String) response.get(IRemoteRequest.RESPONSE_ERROR_STRING);
+                if (value == null) {
+                    logger.debug("KRARemoteRequestHandler: serverSideKeyGen(): response missing name-value pair for: " +
+                            IRemoteRequest.RESPONSE_ERROR_STRING);
+                } else {
+                    logger.debug("KRARemoteRequestHandler: serverSideKeyGen(): got IRemoteRequest.RESPONSE_ERROR_STRING = "
+                            + value);
+                    response.put(IRemoteRequest.RESPONSE_ERROR_STRING, value);
+                }
+            }
+            response.put(IRemoteRequest.RESPONSE_STATUS, ist);
 
-        if (value == null) {
-            logger.warn("KRARemoteRequestHandler: Missing public key");
+            value = (String) response.get(IRemoteRequest.KRA_RESPONSE_PublicKey);
+            if (value == null) {
+                logger.debug("KRARemoteRequestHandler: serverSideKeyGen(): response missing name-value pair for: " +
+                        IRemoteRequest.KRA_RESPONSE_PublicKey);
+            } else {
+                //logger.debug("KRARemoteRequestHandler:serverSideKeyGen(): got IRemoteRequest.KRA_RESPONSE_PublicKey= "
+                //        + value);
+                logger.debug("KRARemoteRequestHandler:serverSideKeyGen(): got IRemoteRequest.KRA_RESPONSE_PublicKey");
+                response.put(IRemoteRequest.KRA_RESPONSE_PublicKey, value);
+            }
+
+            value = (String) response.get(IRemoteRequest.KRA_RESPONSE_Wrapped_PrivKey);
+            if (value == null) {
+                logger.debug("KRARemoteRequestHandler: serverSideKeyGen(): response missing name-value pair for: " +
+                        IRemoteRequest.KRA_RESPONSE_Wrapped_PrivKey);
+            } else {
+                logger.debug("KRARemoteRequestHandler:serverSideKeyGen(): got IRemoteRequest.KRA_RESPONSE_Wrapped_PrivKey");
+                response.put(IRemoteRequest.KRA_RESPONSE_Wrapped_PrivKey, value);
+            }
+
+            value = (String) response.get(IRemoteRequest.KRA_RESPONSE_IV_Param);
+            if (value == null) {
+                logger.debug("KRARemoteRequestHandler: serverSideKeyGen(): response missing name-value pair for: " +
+                        IRemoteRequest.KRA_RESPONSE_IV_Param);
+            } else {
+                logger.debug("KRARemoteRequestHandler:serverSideKeyGen(): got IRemoteRequest.KRA_RESPONSE_IV_Param");
+                response.put(IRemoteRequest.KRA_RESPONSE_IV_Param, value);
+            }
+
+            logger.debug("KRARemoteRequestHandler: serverSideKeyGen(): ends.");
+            return new KRAServerSideKeyGenResponse(connid, response);
         } else {
-            logger.info("KRARemoteRequestHandler: Found public key");
-            response.put(IRemoteRequest.KRA_RESPONSE_PublicKey, value);
+            logger.debug("KRARemoteRequestHandler: serverSideKeyGen(): no response content.");
+            throw new EBaseException("KRARemoteRequestHandler: serverSideKeyGen(): no response content.");
         }
-
-        value = (String) response.get(IRemoteRequest.KRA_RESPONSE_Wrapped_PrivKey);
-
-        if (value == null) {
-            logger.warn("KRARemoteRequestHandler: Missing wrapped private key");
-        } else {
-            logger.info("KRARemoteRequestHandler: Found wrapped private key");
-            response.put(IRemoteRequest.KRA_RESPONSE_Wrapped_PrivKey, value);
-        }
-
-        value = (String) response.get(IRemoteRequest.KRA_RESPONSE_IV_Param);
-
-        if (value == null) {
-            logger.warn("KRARemoteRequestHandler: Missing IV param");
-        } else {
-            logger.info("KRARemoteRequestHandler: Found IV param");
-            response.put(IRemoteRequest.KRA_RESPONSE_IV_Param, value);
-        }
-
-        return new KRAServerSideKeyGenResponse(connid, response);
 
     }
 
@@ -238,9 +252,10 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
             String userid,
             String sDesKey,
             String sAesKey,
-            String b64cert)
+            String b64cert,
+            String aesKeyWrapAlg)
             throws EBaseException {
-        return recoverKey(cuid, userid, sDesKey,sAesKey, b64cert, BigInteger.valueOf(0));
+        return recoverKey(cuid, userid, sDesKey,sAesKey, b64cert, BigInteger.valueOf(0),aesKeyWrapAlg);
     }
 
     public KRARecoverKeyResponse recoverKey(
@@ -249,7 +264,8 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
             String sDesKey,
             String sAesKey,
             String b64cert,
-            BigInteger keyid)
+            BigInteger keyid,
+            String aesKeyWrapAlg)
             throws EBaseException {
 
         logger.debug("KRARemoteRequestHandler: recoverKey(): begins.");
@@ -260,21 +276,29 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
             throw new EBaseException("KRARemoteRequestHandler: recoverKey(): input parameter null.");
         }
 
+        String aesWrapAlg = aesKeyWrapAlg;
+
+        //Just check for unsupported values that are not CBC or KWP and give default.
+        if(aesWrapAlg == null || aesWrapAlg.length() != 3) {
+            aesWrapAlg = "KWP";
+        }
+
         TPSEngine engine = TPSEngine.getInstance();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
+
         logger.debug("KRARemoteRequestHandler: getting conn id: " + connid);
         HttpConnector conn =
                 (HttpConnector) subsystem.getConnectionManager().getConnector(connid);
         if (conn == null) {
-            logger.error("KRARemoteRequestHandler: recoverKey(): conn null");
+            logger.debug("KRARemoteRequestHandler: recoverKey(): conn null");
             throw new EBaseException("KRARemoteRequestHandler: recoverKey(): conn null");
         }
         logger.debug("KRARemoteRequestHandler: recoverKey(): sending request to KRA");
 
         String sendMsg = null;
         try {
-            String desPart = " ";
-            String aesPart = " ";
+            String desPart = "";
+            String aesPart = "";
 
             if(sDesKey != null) {
                 desPart = "&" + IRemoteRequest.KRA_Trans_DesKey + "=" + sDesKey;
@@ -282,6 +306,7 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
 	    if(sAesKey != null) {
                 aesPart = "&" + IRemoteRequest.KRA_Trans_AesKey + "=" + sAesKey;
             }
+
             if (b64cert != null) { // recover by cert
                 // logger.debug("KRARemoteRequestHandler: recoverKey(): uriEncoded cert= " + b64cert);
                 sendMsg = IRemoteRequest.TOKEN_CUID + "=" +
@@ -289,7 +314,10 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
                         "&" + IRemoteRequest.KRA_UserId + "=" +
                         userid +
                         "&" + IRemoteRequest.KRA_RECOVERY_CERT + "=" +
-                        b64cert  + desPart + aesPart;
+                        b64cert  + desPart + aesPart +
+                        "&" + IRemoteRequest.KRA_Aes_Wrap_Alg + "=" +
+                        aesWrapAlg;
+ 
 
             } else if (keyid != BigInteger.valueOf(0)) { // recover by keyid ... keyid != BigInteger.valueOf(0)
                 logger.debug("KRARemoteRequestHandler: recoverKey(): keyid = " + keyid);
@@ -298,8 +326,13 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
                         "&" + IRemoteRequest.KRA_UserId + "=" +
                         userid +
                         "&" + IRemoteRequest.KRA_RECOVERY_KEYID + "=" +
-                        keyid.toString() + desPart + aesPart;
+                        keyid.toString() + desPart + aesPart +
+                        "&" + IRemoteRequest.KRA_Aes_Wrap_Alg + "=" +
+                        aesWrapAlg;
+
+
             }
+            //logger.debug("KRARemoteRequestHandler: recoverKey(): outgoing: " + sendMsg);
         } catch (Exception e) {
             logger.debug("KRARemoteRequestHandler: recoverKey(): uriEncode failed: " + e);
             throw new EBaseException("KRARemoteRequestHandler: recoverKey(): uriEncode failed: " + e);
@@ -316,67 +349,68 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
 
         String content = resp.getContent();
 
-        if (content == null || content.equals("")) {
-            logger.error("KRARemoteRequestHandler: recoverKey(): no response content.");
-            throw new EBaseException("KRARemoteRequestHandler: recoverKey(): no response content.");
-        }
-        logger.debug("KRARemoteRequestHandler: recoverKey(): got content");
-        Hashtable<String, Object> response =
-                parseResponse(content);
+        if (content != null && !content.equals("")) {
+            logger.debug("KRARemoteRequestHandler: recoverKey(): got content");
+            Hashtable<String, Object> response =
+                    parseResponse(content);
 
-        /**
-         * When a value is not found in response, keep going so we know
-         * what else is missing
-         * Note: response values "missing" might not be bad for some cases
-         */
-        Integer ist = Integer.valueOf(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
-        String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
+            /**
+             * When a value is not found in response, keep going so we know
+             * what else is missing
+             * Note: response values "missing" might not be bad for some cases
+             */
+            Integer ist = new Integer(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
+            String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
 
-        logger.debug("KRARemoteRequestHandler: recoverKey(): got status = " + value);
-        ist = Integer.parseInt(value);
-        if (ist != 0) {
-            logger.debug("KRARemoteRequestHandler: recoverKey(): status not 0, getting error string... ");
-            value = (String) response.get(IRemoteRequest.RESPONSE_ERROR_STRING);
+            logger.debug("KRARemoteRequestHandler: recoverKey(): got status = " + value);
+            ist = Integer.parseInt(value);
+            if (ist != 0) {
+                logger.debug("KRARemoteRequestHandler: recoverKey(): status not 0, getting error string... ");
+                value = (String) response.get(IRemoteRequest.RESPONSE_ERROR_STRING);
+                if (value == null) {
+                    logger.debug("KRARemoteRequestHandler: recoverKey(): response missing name-value pair for: " +
+                            IRemoteRequest.RESPONSE_ERROR_STRING);
+                } else {
+                    logger.debug("KRARemoteRequestHandler: recoverKey(): got IRemoteRequest.RESPONSE_ERROR_STRING = "
+                            + value);
+                    response.put(IRemoteRequest.RESPONSE_ERROR_STRING, value);
+                }
+            }
+            response.put(IRemoteRequest.RESPONSE_STATUS, ist);
+
+            value = (String) response.get(IRemoteRequest.KRA_RESPONSE_PublicKey);
             if (value == null) {
                 logger.debug("KRARemoteRequestHandler: recoverKey(): response missing name-value pair for: " +
-                        IRemoteRequest.RESPONSE_ERROR_STRING);
+                        IRemoteRequest.KRA_RESPONSE_PublicKey);
             } else {
-                logger.debug("KRARemoteRequestHandler: recoverKey(): got IRemoteRequest.RESPONSE_ERROR_STRING = "
-                        + value);
-                response.put(IRemoteRequest.RESPONSE_ERROR_STRING, value);
+                //logger.debug("KRARemoteRequestHandler:recoverKey(): got IRemoteRequest.KRA_RESPONSE_PublicKey= " + value);
+                logger.debug("KRARemoteRequestHandler:recoverKey(): got IRemoteRequest.KRA_RESPONSE_PublicKey");
+                response.put(IRemoteRequest.KRA_RESPONSE_PublicKey, value);
             }
-        }
-        response.put(IRemoteRequest.RESPONSE_STATUS, ist);
 
-        value = (String) response.get(IRemoteRequest.KRA_RESPONSE_PublicKey);
-        if (value == null) {
-            logger.debug("KRARemoteRequestHandler: recoverKey(): response missing name-value pair for: " +
-                    IRemoteRequest.KRA_RESPONSE_PublicKey);
+            value = (String) response.get(IRemoteRequest.KRA_RESPONSE_Wrapped_PrivKey);
+            if (value == null) {
+                logger.debug("KRARemoteRequestHandler: recoverKey(): response missing name-value pair for: " +
+                        IRemoteRequest.KRA_RESPONSE_Wrapped_PrivKey);
+            } else {
+                logger.debug("KRARemoteRequestHandler:recoverKey(): got IRemoteRequest.KRA_RESPONSE_Wrapped_PrivKey");
+                response.put(IRemoteRequest.KRA_RESPONSE_Wrapped_PrivKey, value);
+            }
+
+            value = (String) response.get(IRemoteRequest.KRA_RESPONSE_IV_Param);
+            if (value == null) {
+                logger.debug("KRARemoteRequestHandler: recoverKey(): response missing name-value pair for: " +
+                        IRemoteRequest.KRA_RESPONSE_IV_Param);
+            } else {
+                logger.debug("KRARemoteRequestHandler:recoverKey(): got IRemoteRequest.KRA_RESPONSE_IV_Param");
+                response.put(IRemoteRequest.KRA_RESPONSE_IV_Param, value);
+            }
+
+            logger.debug("KRARemoteRequestHandler: recoverKey(): ends.");
+            return new KRARecoverKeyResponse(connid, response);
         } else {
-            //logger.debug("KRARemoteRequestHandler:recoverKey(): got IRemoteRequest.KRA_RESPONSE_PublicKey= " + value);
-            logger.debug("KRARemoteRequestHandler:recoverKey(): got IRemoteRequest.KRA_RESPONSE_PublicKey");
-            response.put(IRemoteRequest.KRA_RESPONSE_PublicKey, value);
+            logger.debug("KRARemoteRequestHandler: recoverKey(): no response content.");
+            throw new EBaseException("KRARemoteRequestHandler: recoverKey(): no response content.");
         }
-
-        value = (String) response.get(IRemoteRequest.KRA_RESPONSE_Wrapped_PrivKey);
-        if (value == null) {
-            logger.debug("KRARemoteRequestHandler: recoverKey(): response missing name-value pair for: " +
-                    IRemoteRequest.KRA_RESPONSE_Wrapped_PrivKey);
-        } else {
-            logger.debug("KRARemoteRequestHandler:recoverKey(): got IRemoteRequest.KRA_RESPONSE_Wrapped_PrivKey");
-            response.put(IRemoteRequest.KRA_RESPONSE_Wrapped_PrivKey, value);
-        }
-
-        value = (String) response.get(IRemoteRequest.KRA_RESPONSE_IV_Param);
-        if (value == null) {
-            logger.debug("KRARemoteRequestHandler: recoverKey(): response missing name-value pair for: " +
-                    IRemoteRequest.KRA_RESPONSE_IV_Param);
-        } else {
-            logger.debug("KRARemoteRequestHandler:recoverKey(): got IRemoteRequest.KRA_RESPONSE_IV_Param");
-            response.put(IRemoteRequest.KRA_RESPONSE_IV_Param, value);
-        }
-
-        logger.debug("KRARemoteRequestHandler: recoverKey(): ends.");
-        return new KRARecoverKeyResponse(connid, response);
     }
 }

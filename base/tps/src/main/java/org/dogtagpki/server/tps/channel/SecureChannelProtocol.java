@@ -45,6 +45,7 @@ public class SecureChannelProtocol {
     static String masterKeyPrefix = null;
 
     static final int DEF_AES_KEYLENGTH = 16;
+    static final int DEF_AES_256_KEYLENGTH = 32;
     static final int KEYLENGTH = 16;
     static final int PREFIXLENGHT = 128;
     static final int DES2_LENGTH = 16;
@@ -514,8 +515,8 @@ public class SecureChannelProtocol {
         }
 
         if(keyType == SymmetricKey.Type.AES) {
-           if(inputKeyArray.length != DEF_AES_KEYLENGTH)
-               throw new EBaseException(method + "Invalid length of raw input array.");
+            if(inputKeyArray.length != DEF_AES_KEYLENGTH && inputKeyArray.length != DEF_AES_256_KEYLENGTH)
+               throw new EBaseException(method + "Invalid length of raw AES input array.");
         }
         else if(keyType == SymmetricKey.Type.DES ||
                 keyType == SymmetricKey.Type.DES3) {

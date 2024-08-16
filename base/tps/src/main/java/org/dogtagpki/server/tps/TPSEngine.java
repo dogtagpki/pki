@@ -12,7 +12,7 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-// (C) 2018 Red Hat, Inc.
+// (C) 2013 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
@@ -36,9 +36,10 @@ import org.dogtagpki.tps.main.TPSException;
 import org.dogtagpki.tps.main.Util;
 import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
 
-import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStorage;
+
+import com.netscape.certsrv.base.EBaseException;
 
 public class TPSEngine extends CMSEngine {
 
@@ -97,6 +98,8 @@ public class TPSEngine extends CMSEngine {
     public static final String CFG_ERROR_PREFIX = "logging.error";
     public static final String CFG_DEBUG_PREFIX = "logging.debug";
     public static final String CFG_SELFTEST_PREFIX = "selftests.container.logger";
+    public static final String CFG_TOKENDB = "tokendb";
+    public static final String CFG_TOKENDB_ALLOWED_TRANSITIONS = "tokendb.allowedTransitions";
     public static final String CFG_OPERATIONS_ALLOWED_TRANSITIONS = "tps.operations.allowedTransitions";
     public static final String CFG_TOKENSERVICE_UNFORMATTED_CLEAR_USERID = "tokenservice.status.unformatted.clearUserID";
     public static final String CFG_TOKENSERVICE_UNFORMATTED_CLEAR_TYPE = "tokenservice.status.unformatted.clearType";
@@ -108,7 +111,6 @@ public class TPSEngine extends CMSEngine {
     public static final String CFG_RECV_BUF_SIZE = "tps.recvBufSize";
     public static final String CFG_CONNECTION_PREFIX = "tps.connection";
     public static final String CFG_CONNECTION_MAX_MESSAGE_SIZE = "maxMessageSize";
-
     public static final String CFG_AUTHS_ENABLE = "auth.enable";
     public static final String CFG_PROFILE_MAPPING_ORDER = "mapping.order";
     public static final String CFG_ALLOW_UNKNOWN_TOKEN = "allowUnknownToken";
@@ -207,14 +209,11 @@ public class TPSEngine extends CMSEngine {
     public static final String ENROLL_MODE_RECOVERY = RECOVERY_OP;
     public static final String ERNOLL_MODE_RENEWAL = RENEWAL_OP;
     public static final String CFG_ALLOW_MULTI_TOKENS_USER = "allowMultiActiveTokensUser";
+    public static final String CFG_AES_KEY_WRAP_ALG = "aesKeyWrapAlg";
 
     public TPSEngine() {
         super("TPS");
         instance = this;
-    }
-
-    public static TPSEngine getInstance() {
-        return instance;
     }
 
     @Override
@@ -225,6 +224,17 @@ public class TPSEngine extends CMSEngine {
     @Override
     public TPSEngineConfig getConfig() {
         return (TPSEngineConfig) mConfig;
+    }
+
+    public static TPSEngine getInstance() {
+        return instance;
+    }
+
+    public int initialize(String cfg_path) {
+
+        int rc = -1;
+
+        return rc;
     }
 
     public TKSComputeSessionKeyResponse computeSessionKeySCP02(
@@ -258,9 +268,9 @@ public class TPSEngine extends CMSEngine {
 
         int status = resp.getStatus();
         if (status != 0) {
-            logger.error("TPSEngine.computeSessionKeySCP02: Non zero status result: " + status);
+            logger.debug("TPSEngine.computeSessionKeySCP02: Non zero status result: " + status);
             throw new TPSException("TPSEngine.computeSessionKeySCP02: invalid returned status: " + status,
-                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+                    TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
 
         }
 
@@ -300,7 +310,7 @@ public class TPSEngine extends CMSEngine {
 
         int status = resp.getStatus();
         if (status != 0) {
-            logger.error("TPSEngine.computeSessionKeysSCP03: Non zero status result: " + status);
+            logger.debug("TPSEngine.computeSessionKeysSCP03: Non zero status result: " + status);
             throw new TPSException("TPSEngine.computeSessionKeysSCP03: invalid returned status: " + status,
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
 
@@ -342,7 +352,7 @@ public class TPSEngine extends CMSEngine {
 
         int status = resp.getStatus();
         if (status != 0) {
-            logger.error("TPSEngine.computeSessionKey: Non zero status result: " + status);
+            logger.debug("TPSEngine.computeSessionKey: Non zero status result: " + status);
             throw new TPSException("TPSEngine.computeSessionKey: invalid returned status: " + status,
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
 
@@ -380,7 +390,7 @@ public class TPSEngine extends CMSEngine {
             // test ends - remove up to here
 
         } catch (EBaseException e) {
-            logger.error(method + ":" + e.getMessage(), e);
+            logger.debug(method + ":" + e);
             throw new TPSException(method + ": Exception thrown: " + e,
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
         }
@@ -425,7 +435,7 @@ public class TPSEngine extends CMSEngine {
             logger.debug(method + ": retrieved cert: " + retrievedCertB64);
 
         } catch (EBaseException e) {
-            logger.error(method + ":" + e.getMessage(), e);
+            logger.debug(method + ":" + e);
             throw new TPSException(method + ": Exception thrown: " + e,
                     TPSStatus.STATUS_ERROR_RENEWAL_FAILED);
         }
@@ -438,7 +448,9 @@ public class TPSEngine extends CMSEngine {
 
     }
 
-    public TPSBuffer createKeySetData(TPSBuffer newMasterVersion, TPSBuffer oldVersion, int protocol, TPSBuffer cuid, TPSBuffer kdd, TPSBuffer wrappedDekSessionKey, String connId, String inKeyset)
+    // ** G&D 256 Key Rollover Support **
+    // Add oldKeySet parameter
+    public TPSBuffer createKeySetData(TPSBuffer newMasterVersion, TPSBuffer oldVersion, int protocol, TPSBuffer cuid, TPSBuffer kdd, TPSBuffer wrappedDekSessionKey, String connId, String inKeyset, String oldKeySet)
             throws TPSException {
 
         String method = "TPSEngine.createKeySetData:";
@@ -449,13 +461,17 @@ public class TPSEngine extends CMSEngine {
                     TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
         }
 
+        logger.debug(method + " cuid: " + cuid.toHexStringPlain() + " newMasterVersion: " + newMasterVersion.toHexString()
+                + "  oldVersion: " + oldVersion.toHexString() + "  protocol: " + protocol + " inKeyset: " + inKeyset
+                + "  oldKeySet: " + oldKeySet);
+        
         TKSRemoteRequestHandler tks = null;
 
         TKSCreateKeySetDataResponse resp = null;
 
         try {
             tks = new TKSRemoteRequestHandler(connId, inKeyset);
-            resp = tks.createKeySetData(newMasterVersion, oldVersion, cuid, kdd, protocol,wrappedDekSessionKey);
+            resp = tks.createKeySetData(newMasterVersion, oldVersion, cuid, kdd, protocol,wrappedDekSessionKey, oldKeySet);  // ** G&D 256 Key Rollover Support ** pass oldKeySet to TKS
         } catch (EBaseException e) {
 
             throw new TPSException(method + " failure to get key set data from TKS",
@@ -473,7 +489,7 @@ public class TPSEngine extends CMSEngine {
         TPSBuffer keySetData = resp.getKeySetData();
 
         if (keySetData == null) {
-            logger.error(method + " No valid key set data returned.");
+            logger.debug(method + " No valid key set data returned.");
             throw new TPSException(method + " No valid key set data returned.",
                     TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
 
@@ -534,17 +550,17 @@ public class TPSEngine extends CMSEngine {
     public KRARecoverKeyResponse recoverKey(String cuid,
             String userid,
             TPSBuffer drmWrappedDesKey, TPSBuffer drmWrappedAesKey,
-            String b64cert, String drmConnId) throws TPSException {
+            String b64cert, String drmConnId,String aesKeyWrapAlg) throws TPSException {
 
         return this.recoverKey(cuid, userid, drmWrappedDesKey, drmWrappedAesKey,
-            b64cert, drmConnId, BigInteger.valueOf(0));
+             b64cert, drmConnId, BigInteger.valueOf(0),aesKeyWrapAlg);
 
     }
 
     public KRARecoverKeyResponse recoverKey(String cuid,
             String userid,
             TPSBuffer drmWrappedDesKey,TPSBuffer drmWrappedAesKey,
-            String b64cert, String drmConnId,BigInteger keyid) throws TPSException {
+            String b64cert, String drmConnId,BigInteger keyid,String aesKeyWrapAlg) throws TPSException {
         String method = "TPSEngine.recoverKey";
         logger.debug("TPSEngine.recoverKey");
         if (cuid == null)
@@ -560,7 +576,6 @@ public class TPSEngine extends CMSEngine {
         else if (drmConnId == null)
             logger.debug(method + ": drmConnId null");
 
-	//Either we will provide a wrapped Des key (scp01) or a wrapped Aes key (scp03)
         if (cuid == null || userid == null ||  drmConnId == null) {
             throw new TPSException("TPSEngine.recoverKey: invalid input data!", TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
         }
@@ -580,8 +595,8 @@ public class TPSEngine extends CMSEngine {
                 encodedAes = Util.specialURLEncode(drmWrappedAesKey);
 
             resp = kra.recoverKey(cuid, userid, encodedDes,
-                encodedAes,
-                (b64cert != null) ? Util.uriEncode(b64cert) : b64cert,keyid);
+                encodedAes, 
+                (b64cert != null) ? Util.uriEncode(b64cert) : b64cert,keyid,aesKeyWrapAlg);
         } catch (EBaseException e) {
             throw new TPSException("TPSEngine.recoverKey: Problem creating or using KRARemoteRequestHandler! "
                     + e.toString(), TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
@@ -621,7 +636,7 @@ public class TPSEngine extends CMSEngine {
     public KRAServerSideKeyGenResponse serverSideKeyGen(int keySize, String cuid, String userid, String drmConnId,
             TPSBuffer wrappedDesKey, TPSBuffer drmWrappedAesKey,
             boolean archive,
-            boolean isECC) throws TPSException {
+            boolean isECC,String aesKeyWrapAlg) throws TPSException {
 
 /*
         logger.debug("TPSEngine.serverSideKeyGen entering... keySize: " + keySize + " cuid: " + cuid + " userid: "
@@ -629,9 +644,7 @@ public class TPSEngine extends CMSEngine {
                 + " isECC: " + isECC);
 */
 
-        if (cuid == null || userid == null || drmConnId == null || 
-            (wrappedDesKey == null && drmWrappedAesKey == null)) {
-
+        if (cuid == null || userid == null || drmConnId == null || ( wrappedDesKey == null && drmWrappedAesKey == null)) {
             throw new TPSException("TPSEngine.serverSideKeyGen: Invalid input data!",
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
         }
@@ -643,9 +656,9 @@ public class TPSEngine extends CMSEngine {
             kra = new KRARemoteRequestHandler(drmConnId);
 
             resp = kra.serverSideKeyGen(isECC, keySize, cuid, userid,
-                   (wrappedDesKey != null) ? Util.specialURLEncode(wrappedDesKey) :  "",
+                    (wrappedDesKey != null) ? Util.specialURLEncode(wrappedDesKey) :  "",
                     (drmWrappedAesKey != null) ? Util.specialURLEncode(drmWrappedAesKey) : "",
-                    archive);
+                    archive,aesKeyWrapAlg);
 
         } catch (EBaseException e) {
             throw new TPSException("TPSEngine.serverSideKeyGen: Problem creating  or using KRARemoteRequestHandler! "

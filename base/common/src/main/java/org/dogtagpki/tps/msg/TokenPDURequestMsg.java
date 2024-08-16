@@ -42,6 +42,34 @@ public class TokenPDURequestMsg extends TPSMessage {
 
     }
 
+    // This constructor is used to add a length byte to the apdu
+    public TokenPDURequestMsg(APDU apdu, boolean addLength) {
+
+        put(MSG_TYPE_NAME, msgTypeToInt(MsgType.MSG_TOKEN_PDU_REQUEST));
+
+        TPSBuffer encoding = null;
+
+        if (apdu != null) {
+
+            if (addLength)
+            {
+                encoding = apdu.getEncodingWithLength();
+            }
+            else
+            {
+                encoding = apdu.getEncoding();
+            }
+
+            int apduSize = encoding.size();
+
+            String apdu_value = Util.uriEncodeInHex(encoding.toBytesArray());
+
+            put(PDU_SIZE_NAME, apduSize);
+            put(PDU_DATA_NAME, apdu_value);
+        }
+
+    }
+
     public static void main(String[] args) {
 
         SelectAPDU apdu = null;

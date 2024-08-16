@@ -20,7 +20,6 @@ public class FilterMappingResolver extends BaseMappingResolver {
     public FilterMappingResolver() {
     }
 
-    @Override
     public String getResolvedMapping(FilterMappingParams mappingParams)
             throws TPSException {
         //map tokenType by default
@@ -28,8 +27,16 @@ public class FilterMappingResolver extends BaseMappingResolver {
     }
 
     // from TPS: RA_Processor::ProcessMappingFilter
-    @Override
     public String getResolvedMapping(FilterMappingParams mappingParams, String nameToMap)
+            throws TPSException {
+        // ** G&D 256 Key Rollover Support **
+        // call the overloaded method, passing null for symKeySize 
+        return getResolvedMapping(mappingParams, nameToMap, null);
+    }
+    
+    // ** G&D 256 Key Rollover Support **
+    // Overload the method with the symKeySize parameter
+    public String getResolvedMapping(FilterMappingParams mappingParams, String nameToMap, Integer symKeySize)
             throws TPSException {
         String method = "FilterMappingResolver.getResolvedMapping for "+ nameToMap + ": ";
         String tokenType = null;
@@ -50,24 +57,34 @@ public class FilterMappingResolver extends BaseMappingResolver {
         logger.debug(method + " starts");
 
         major_version = mappingParams.getInt(FilterMappingParams.FILTER_PARAM_MAJOR_VERSION);
-        logger.debug(method + " param major_version: " + major_version);
+        logger.debug(method + " param major_version =" + major_version);
 
         minor_version = mappingParams.getInt(FilterMappingParams.FILTER_PARAM_MINOR_VERSION);
-        logger.debug(method + " param minor_version: " + minor_version);
+        logger.debug(method + " param minor_version =" + minor_version);
 
         cuid =  mappingParams.getString(FilterMappingParams.FILTER_PARAM_CUID);
-        logger.debug(method + " param cuid: " + cuid);
+        logger.debug(method + " param cuid =" + cuid);
         // msn = (String) mappingParams.get(FilterMappingParams.FILTER_PARAM_MSN);
 
         // they don't necessarily have extension
-        extTokenType = mappingParams.getString(FilterMappingParams.FILTER_PARAM_EXT_TOKEN_TYPE, null);
-        logger.debug(method + " param tokenType extension: " + extTokenType);
+        try {
+            extTokenType = mappingParams.getString(FilterMappingParams.FILTER_PARAM_EXT_TOKEN_TYPE);
+        } catch (TPSException e) {
+            logger.debug(method + " OK to not have tokenType extension. Continue.");
+        }
+        try {
+            extTokenATR = mappingParams.getString(FilterMappingParams.FILTER_PARAM_EXT_TOKEN_ATR);
+        } catch (TPSException e) {
+            logger.debug(method + " OK to not have tokenATR extension. Continue.");
+        }
+        try {
+            extKeySet = mappingParams.getString(FilterMappingParams.FILTER_PARAM_EXT_KEY_SET);
+        } catch (TPSException e) {
+            logger.debug(method + " OK to not have keySet extension. Continue.");
+        }
 
-        extTokenATR = mappingParams.getString(FilterMappingParams.FILTER_PARAM_EXT_TOKEN_ATR, null);
-        logger.debug(method + " param tokenATR extension: " + extTokenATR);
 
-        extKeySet = mappingParams.getString(FilterMappingParams.FILTER_PARAM_EXT_KEY_SET, null);
-        logger.debug(method + " param keySet extension: " + extKeySet);
+        logger.debug(method + " mapping params retrieved.");
 
         String configName = prefix + "." + TPSEngine.CFG_PROFILE_MAPPING_ORDER;
 
@@ -76,14 +93,14 @@ public class FilterMappingResolver extends BaseMappingResolver {
                     configName);
             mappingOrder = configStore.getString(configName);
         } catch (EPropertyNotFound e) {
-            logger.error(method + " exception:" + e.getMessage(), e);
+            logger.debug(method + " exception:" + e);
             throw new TPSException(
                     method + " configuration incorrect! Mising mapping order:" + configName,
                     TPSStatus.STATUS_ERROR_MAPPING_RESOLVER_FAILED);
 
         } catch (EBaseException e1) {
             //The whole feature won't work if this is wrong.
-            logger.error(method + " exception:" + e1.getMessage(), e1);
+            logger.debug(method + " exception:" + e1);
             throw new TPSException(
                     method + " Internal error obtaining config value:" + configName,
                     TPSStatus.STATUS_ERROR_MAPPING_RESOLVER_FAILED);
@@ -304,7 +321,34 @@ public class FilterMappingResolver extends BaseMappingResolver {
                     continue;
                 }
             }
-
+            
+            // ** G&D 256 Key Rollover Support **
+            // G&D SPC03 tokens have same token range but different AES key sizes (128 and 256)
+            // If symKeySize is passed in, and if ...filter.symKeySize is configured, check
+            // whether the two values match.
+            // Skip symKeySize comparison if the parameter is not passed in
+            if (symKeySize != null) {
+                mappingConfigName = prefix + ".mapping." + mappingId + ".filter.symKeySize";
+                logger.debug(method + "  mappingConfigName: " + mappingConfigName);
+                String configSymKeySize = null;
+                try {
+                    configSymKeySize = configStore.getString(mappingConfigName, null);
+                } catch (EBaseException e) {
+                    throw new TPSException(
+                            method + " Internal error obtaining config value. Config: "
+                                    + mappingConfigName,
+                            TPSStatus.STATUS_ERROR_MAPPING_RESOLVER_FAILED);
+                }
+                
+                // skip symKeySize comparison if not configured
+                if (configSymKeySize != null && configSymKeySize.length() > 0) {
+                    logger.debug(method + " cuid: " + cuid + ": comparing symKeySize: configured: " + configSymKeySize + " expected: " + symKeySize);
+                    if (Integer.parseInt(configSymKeySize) != symKeySize.intValue()) {
+                        continue;
+                    }
+                }    
+            }
+            
             //if we make it this far, we have a mapped name
             selectedMappedName = targetMappedName;
             logger.debug(method + " Selected mapped name: " + selectedMappedName);
@@ -312,7 +356,7 @@ public class FilterMappingResolver extends BaseMappingResolver {
         }
 
         if (selectedMappedName == null) {
-            logger.error(method + " ends, found: " + selectedMappedName);
+            logger.debug(method + " ends, found: " + selectedMappedName);
             throw new TPSException(method + " Can't map to target name!",
                     TPSStatus.STATUS_ERROR_MAPPING_RESOLVER_FAILED);
         }
@@ -320,5 +364,4 @@ public class FilterMappingResolver extends BaseMappingResolver {
         return selectedMappedName;
 
     }
-
 }
