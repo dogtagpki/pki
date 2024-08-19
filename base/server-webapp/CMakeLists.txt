@@ -10,6 +10,8 @@ javac(pki-server-webapp-classes
         ${SLF4J_API_JAR}
         ${JACKSON_ANNOTATIONS_JAR}
         ${JACKSON_CORE_JAR}
+        ${JACKSON_DATABIND_JAR}
+        ${JACKSON_MODULE_JAXB_ANNOTATIONS_JAR}
         ${PKI_COMMON_JAR}
         ${PKI_SERVER_JAR}
     OUTPUT_DIR
