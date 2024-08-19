@@ -1301,6 +1301,12 @@ CXX_FLAGS="$CXX_FLAGS -D_FORTIFY_SOURCE=3"
 C_FLAGS="$C_FLAGS -fstack-clash-protection"
 CXX_FLAGS="$CXX_FLAGS -fstack-clash-protection"
 
+%ifarch aarch64
+# https://sourceware.org/annobin/annobin.html/Test-dynamic-tags.html
+C_FLAGS="$C_FLAGS -mbranch-protection=standard"
+CXX_FLAGS="$CXX_FLAGS -mbranch-protection=standard"
+%endif
+
 %endif
 
 pkgs=base\
