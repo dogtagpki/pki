@@ -1,17 +1,17 @@
 package com.netscape.certsrv.base;
 
-import javax.servlet.http.HttpServletResponse;
+import org.apache.http.HttpStatus;
 
 public class ResourceNotFoundException extends PKIException {
 
     private static final long serialVersionUID = 2283994502912462263L;
 
     public ResourceNotFoundException(String message) {
-        super(HttpServletResponse.SC_NOT_FOUND, message);
+        super(HttpStatus.SC_NOT_FOUND, message);
     }
 
     public ResourceNotFoundException(String message, Throwable cause) {
-        super(HttpServletResponse.SC_NOT_FOUND, message, cause);
+        super(HttpStatus.SC_NOT_FOUND, message, cause);
     }
 
     public ResourceNotFoundException(Data data) {

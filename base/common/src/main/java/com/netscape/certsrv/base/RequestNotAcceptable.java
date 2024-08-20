@@ -5,7 +5,7 @@
 //
 package com.netscape.certsrv.base;
 
-import javax.servlet.http.HttpServletResponse;
+import org.apache.http.HttpStatus;
 
 /**
  * @author Marco Fargetta {@literal <mfargett@redhat.com>}
@@ -15,11 +15,11 @@ public class RequestNotAcceptable extends PKIException {
     private static final long serialVersionUID = 1L;
 
     public RequestNotAcceptable(String message) {
-        super(HttpServletResponse.SC_NOT_ACCEPTABLE, message);
+        super(HttpStatus.SC_NOT_ACCEPTABLE, message);
     }
 
     public RequestNotAcceptable(String message, Throwable cause) {
-        super(HttpServletResponse.SC_NOT_ACCEPTABLE, message, cause);
+        super(HttpStatus.SC_NOT_ACCEPTABLE, message, cause);
     }
 
     public RequestNotAcceptable(Data data) {

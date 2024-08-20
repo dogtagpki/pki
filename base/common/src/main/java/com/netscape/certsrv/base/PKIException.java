@@ -20,7 +20,6 @@ package com.netscape.certsrv.base;
 import java.io.StringReader;
 import java.io.StringWriter;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -30,6 +29,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.http.HttpStatus;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -45,7 +45,7 @@ public class PKIException extends RuntimeException {
 
     private static final long serialVersionUID = 6000910362260369923L;
 
-    public int code;
+    private int code;
 
     public PKIException(int code, String message, Throwable cause) {
         super(message, cause);
@@ -53,7 +53,7 @@ public class PKIException extends RuntimeException {
     }
 
     public PKIException(String message) {
-        this(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message, null);
+        this(HttpStatus.SC_INTERNAL_SERVER_ERROR, message, null);
     }
 
     public PKIException(int code, String message) {
@@ -61,11 +61,11 @@ public class PKIException extends RuntimeException {
     }
 
     public PKIException(Throwable cause) {
-        this(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, cause.getMessage(), cause);
+        this(HttpStatus.SC_INTERNAL_SERVER_ERROR, cause.getMessage(), cause);
     }
 
     public PKIException(String message, Throwable cause) {
-        this(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message, cause);
+        this(HttpStatus.SC_INTERNAL_SERVER_ERROR, message, cause);
     }
 
     public PKIException(Data data) {
