@@ -283,6 +283,7 @@ jobs:
           docker exec primary-subca pki pkcs12-import \
               --pkcs12 $SHARED/caadmin.p12 \
               --pkcs12-password Secret.123
+
           docker exec primary-subca pki -n caadmin ca-user-show caadmin
 
       - name: Set up secondary DS container
