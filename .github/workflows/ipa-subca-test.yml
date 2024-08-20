@@ -96,11 +96,16 @@ jobs:
           docker exec ipa pki nss-cert-import \
               --cert root-ca_signing.crt \
               --trust CT,C,C \
+              root-ca_signing
+
+          docker exec ipa pki nss-cert-import \
+              --cert ipa.crt \
               ca_signing
 
           docker exec ipa pki pkcs12-import \
               --pkcs12 /root/ca-agent.p12 \
               --pkcs12-password Secret.123
+
           docker exec ipa pki -n ipa-ca-agent ca-user-show admin
 
       - name: Check lightweight CAs

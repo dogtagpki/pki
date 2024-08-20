@@ -187,10 +187,19 @@ jobs:
 
       - name: Verify subordinate CA admin cert
         run: |
-          docker exec subordinate pki client-cert-import ca_signing --ca-cert $SHARED/ca_signing.p7b
+          docker exec subordinate pki nss-cert-import \
+              --cert $SHARED/root-ca_signing.crt \
+              --trust CT,C,C \
+              root-ca_signing
+
+          docker exec subordinate pki nss-cert-import \
+              --cert ca_signing.crt \
+              ca_signing
+
           docker exec subordinate pki pkcs12-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
+
           docker exec subordinate pki -n caadmin ca-user-show caadmin
 
       - name: Check cert requests in subordinate CA
