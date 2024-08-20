@@ -109,8 +109,14 @@ public class PKICertificateApprovalCallback implements SSLCertificateApprovalCal
         }
 
         if (reason == SSLCertificateApprovalCallback.ValidityStatus.UNTRUSTED_ISSUER) {
-            return "UNTRUSTED ISSUER encountered on '" +
+            return "UNTRUSTED_ISSUER encountered on '" +
                     serverCert.getSubjectDN() + "' indicates a non-trusted CA cert '" +
+                    serverCert.getIssuerDN() + "'";
+        }
+
+        if (reason == SSLCertificateApprovalCallback.ValidityStatus.UNKNOWN_ISSUER) {
+            return "UNKNOWN_ISSUER encountered on '" +
+                    serverCert.getSubjectDN() + "' indicates an unknown CA cert '" +
                     serverCert.getIssuerDN() + "'";
         }
 
@@ -126,7 +132,7 @@ public class PKICertificateApprovalCallback implements SSLCertificateApprovalCal
         return "Unknown/undefined reason "+reason+" encountered on '"+serverCert.getSubjectDN()+"' results in a denied SSL server cert!";
     }
 
-    public boolean handleUntrustedIssuer(org.mozilla.jss.crypto.X509Certificate serverCert) {
+    public boolean trustCert(org.mozilla.jss.crypto.X509Certificate serverCert) {
         try {
             System.err.print("Trust this certificate (y/N)? ");
 
@@ -172,7 +178,9 @@ public class PKICertificateApprovalCallback implements SSLCertificateApprovalCal
         // continue, or you can continue to make further tests of
         // your own to determine trustworthiness.
         Enumeration<?> errors = status.getReasons();
+
         boolean approval = true;
+        boolean prompt = false;
 
         while (errors.hasMoreElements()) {
             SSLCertificateApprovalCallback.ValidityItem item =
@@ -193,14 +201,13 @@ public class PKICertificateApprovalCallback implements SSLCertificateApprovalCal
             } else if (isIgnored(reason)) {
                 // Ignore validity status
 
-            } else if (reason == SSLCertificateApprovalCallback.ValidityStatus.UNTRUSTED_ISSUER) {
+            } else if (reason == SSLCertificateApprovalCallback.ValidityStatus.UNTRUSTED_ISSUER
+                    || reason == SSLCertificateApprovalCallback.ValidityStatus.UNKNOWN_ISSUER) {
                 // Issue a WARNING, but allow this process
                 // to continue since we haven't installed a trusted CA
                 // cert for this operation.
                 System.err.println("WARNING: " + getMessage(serverCert, reason));
-                if (!handleUntrustedIssuer(serverCert)) {
-                    approval = false;
-                }
+                prompt = true;
 
             } else if (reason == SSLCertificateApprovalCallback.ValidityStatus.BAD_CERT_DOMAIN) {
                 // Issue a WARNING, but allow this process to continue on
@@ -222,6 +229,10 @@ public class PKICertificateApprovalCallback implements SSLCertificateApprovalCal
                 System.err.println("ERROR: " + getMessage(serverCert, reason));
                 approval = false;
             }
+        }
+
+        if (prompt && !trustCert(serverCert)) {
+            approval = false;
         }
 
         return approval;

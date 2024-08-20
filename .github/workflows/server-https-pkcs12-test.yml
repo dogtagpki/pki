@@ -197,7 +197,7 @@ jobs:
               -o /dev/null \
               https://pki.example.com:8443
 
-      - name: Check PKI CLI with untrusted server cert
+      - name: Check PKI CLI with unknown issuer
         run: |
           # run PKI CLI but don't trust the cert
           echo n | docker exec -i client pki \
@@ -214,7 +214,7 @@ jobs:
 
           # check stderr
           cat > expected << EOF
-          WARNING: UNTRUSTED ISSUER encountered on 'CN=pki.example.com' indicates a non-trusted CA cert 'CN=CA Signing Certificate'
+          WARNING: UNKNOWN_ISSUER encountered on 'CN=pki.example.com' indicates an unknown CA cert 'CN=CA Signing Certificate'
           Trust this certificate (y/N)? SEVERE: FATAL: SSL alert sent: BAD_CERTIFICATE
           IOException: Unable to write to socket: Failed to write to socket: (-5987) Invalid function argument.
           EOF
@@ -226,7 +226,7 @@ jobs:
 
           diff /dev/null output
 
-      - name: Check PKI CLI with untrusted server cert and wrong hostname
+      - name: Check PKI CLI with unknown issuer and wrong hostname
         run: |
           # run PKI CLI with wrong hostname
           echo n | docker exec -i client pki \
@@ -243,8 +243,8 @@ jobs:
 
           # check stderr
           cat > expected << EOF
+          WARNING: UNKNOWN_ISSUER encountered on 'CN=pki.example.com' indicates an unknown CA cert 'CN=CA Signing Certificate'
           WARNING: BAD_CERT_DOMAIN encountered on 'CN=pki.example.com' indicates a common-name mismatch
-          WARNING: UNTRUSTED ISSUER encountered on 'CN=pki.example.com' indicates a non-trusted CA cert 'CN=CA Signing Certificate'
           Trust this certificate (y/N)? SEVERE: FATAL: SSL alert sent: BAD_CERTIFICATE
           IOException: Unable to write to socket: Failed to write to socket: (-12276) Unable to communicate securely with peer: requested domain name does not match the server's certificate.
           EOF
@@ -269,7 +269,7 @@ jobs:
 
           # check stderr
           cat > expected << EOF
-          WARNING: UNTRUSTED ISSUER encountered on 'CN=pki.example.com' indicates a non-trusted CA cert 'CN=CA Signing Certificate'
+          WARNING: UNKNOWN_ISSUER encountered on 'CN=pki.example.com' indicates an unknown CA cert 'CN=CA Signing Certificate'
           Trust this certificate (y/N)?
           EOF
 
