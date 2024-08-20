@@ -16,18 +16,19 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.base;
-import javax.servlet.http.HttpServletResponse;
+
+import org.apache.http.HttpStatus;
 
 public class BadRequestException extends PKIException {
 
     private static final long serialVersionUID = -4784839378360933483L;
 
     public BadRequestException(String message) {
-        super(HttpServletResponse.SC_BAD_REQUEST, message);
+        super(HttpStatus.SC_BAD_REQUEST, message);
     }
 
     public BadRequestException(String message, Throwable cause) {
-        super(HttpServletResponse.SC_BAD_REQUEST, message, cause);
+        super(HttpStatus.SC_BAD_REQUEST, message, cause);
     }
 
     public BadRequestException(Data data) {

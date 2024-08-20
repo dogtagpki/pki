@@ -18,8 +18,7 @@
 
 package com.netscape.certsrv.base;
 
-import javax.servlet.http.HttpServletResponse;
-
+import org.apache.http.HttpStatus;
 
 /**
  * @author Endi S. Dewata
@@ -29,11 +28,11 @@ public class UnauthorizedException extends PKIException {
     private static final long serialVersionUID = -2025082875126996556L;
 
     public UnauthorizedException(String message) {
-        super(HttpServletResponse.SC_UNAUTHORIZED, message);
+        super(HttpStatus.SC_UNAUTHORIZED, message);
     }
 
     public UnauthorizedException(String message, Throwable cause) {
-        super(HttpServletResponse.SC_UNAUTHORIZED, message, cause);
+        super(HttpStatus.SC_UNAUTHORIZED, message, cause);
     }
 
     public UnauthorizedException(Data data) {
