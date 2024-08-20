@@ -267,6 +267,7 @@ jobs:
           docker exec pki pki pkcs12-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
+
           docker exec pki pki -n caadmin ca-user-show caadmin
 
       - name: Check CA certs and requests

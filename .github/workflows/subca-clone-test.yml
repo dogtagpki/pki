@@ -113,9 +113,15 @@ jobs:
           docker exec primary-subca pki client-cert-import \
               --ca-cert $SHARED/root-ca_signing.crt \
               root-ca_signing
+
+          docker exec primary-subca pki nss-cert-import \
+              --cert $SHARED/subca_signing.crt \
+              ca_signing
+
           docker exec primary-subca pki pkcs12-import \
               --pkcs12 $SHARED/caadmin.p12 \
               --pkcs12-password Secret.123
+
           docker exec primary-subca pki -n caadmin ca-user-show caadmin
 
       - name: Export primary sub-CA certs
@@ -241,9 +247,15 @@ jobs:
           docker exec secondary-subca pki client-cert-import \
               --ca-cert $SHARED/root-ca_signing.crt \
               root-ca_signing
+
+          docker exec secondary-subca pki nss-cert-import \
+              --cert $SHARED/subca_signing.crt \
+              ca_signing
+
           docker exec secondary-subca pki pkcs12-import \
               --pkcs12 $SHARED/caadmin.p12 \
               --pkcs12-password Secret.123
+
           docker exec secondary-subca pki -n caadmin ca-user-show caadmin
 
       - name: Check users in primary sub-CA and secondary sub-CA
