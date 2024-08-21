@@ -18,7 +18,6 @@
 package com.netscape.cms.servlet.cert.scep;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileOutputStream;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyPair;
 import java.security.MessageDigest;
@@ -2194,12 +2193,6 @@ public class CRSEnrollment extends HttpServlet {
                 SEQUENCE pubKeySeq = (SEQUENCE) ASN1Util.decode(inner, encPubKey);
                 INTEGER modulus = (INTEGER) pubKeySeq.elementAt(0);
                 signingCertKeySize = modulus.bitLength();
-
-                try (FileOutputStream fos = new FileOutputStream("pubkey.der")) {
-                    fos.write(signingCert.getPublicKey().getEncoded());
-                } catch (Exception e) {
-                    logger.warn("Unable to store public key: " + e.getMessage(), e);
-                }
 
             } catch (InvalidBERException e) {
                 throw new CryptoContextException(
