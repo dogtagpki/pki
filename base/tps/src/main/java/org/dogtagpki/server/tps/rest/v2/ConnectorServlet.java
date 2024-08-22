@@ -65,6 +65,7 @@ public class ConnectorServlet extends TPSServlet {
         StringBuffer uri = request.getRequestURL();
         uri.append("/" + encodedID);
         response.setStatus(HttpServletResponse.SC_CREATED);
+        response.setHeader("Location", uri.toString());
         PrintWriter out = response.getWriter();
         out.println(newConnector.toJSON());
     }
