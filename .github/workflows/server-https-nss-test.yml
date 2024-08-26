@@ -192,7 +192,7 @@ jobs:
           diff expected stderr
 
           # the cert should not be stored
-          docker exec client pki nss-cert-find | tee output
+          docker exec client pki nss-cert-find --subject CN=pki.example.com | tee output
 
           diff /dev/null output
 
@@ -224,6 +224,11 @@ jobs:
           # IOException: Unable to write to socket: Unable to validate CN=pki.example.com: Bad certificate domain: CN=pki.example.com
 
           diff expected stderr
+
+          # the cert should not be stored
+          docker exec client pki nss-cert-find --subject CN=pki.example.com | tee output
+
+          diff /dev/null output
 
       - name: Check PKI CLI with newly trusted server cert
         run: |
@@ -257,7 +262,7 @@ jobs:
           diff expected stderr
 
           # the cert should be stored and trusted
-          docker exec client pki nss-cert-find | tee output
+          docker exec client pki nss-cert-find --subject CN=pki.example.com | tee output
 
           sed -i \
               -e '/^ *Serial Number:/d' \
