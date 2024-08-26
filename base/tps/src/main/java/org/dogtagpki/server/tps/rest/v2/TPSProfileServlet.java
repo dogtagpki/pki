@@ -64,6 +64,7 @@ public class TPSProfileServlet extends TPSServlet {
         String encodedID = URLEncoder.encode(newProfile.getID(), "UTF-8");
         StringBuffer uri = request.getRequestURL();
         uri.append("/" + encodedID);
+        response.setHeader("Location", uri.toString());
         response.setStatus(HttpServletResponse.SC_CREATED);
         PrintWriter out = response.getWriter();
         out.println(newProfile.toJSON());
