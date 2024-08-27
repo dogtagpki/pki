@@ -14,6 +14,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.Principal;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -163,6 +164,7 @@ public abstract class PKIServlet extends HttpServlet {
                     String keyRegex = key.replace("{}", "([^/]+)");
                     return reqMethod.matches(keyRegex);
                     } ).
+                sorted(Comparator.naturalOrder()).
                 findFirst().
                 orElse(null);
         return keyPath == null ? null : webActions.get(keyPath);
@@ -187,7 +189,9 @@ public abstract class PKIServlet extends HttpServlet {
         }
         StringBuilder methods = new StringBuilder();
         for (String k: keyPaths) {
-            methods.append(k.substring(0, k.indexOf(":"))).append(", ");
+            if (methods.indexOf(k) == -1) {
+                methods.append(k.substring(0, k.indexOf(":"))).append(", ");
+            }
         }
         return methods.substring(0, methods.lastIndexOf(","));
     }
