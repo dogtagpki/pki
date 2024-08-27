@@ -49,6 +49,7 @@ import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestNotFoundException;
 import com.netscape.certsrv.util.JSONSerializer;
+import com.netscape.cms.authentication.DirBasedAuthentication;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.servlet.cert.CertRequestInfoFactory;
 import com.netscape.cms.servlet.cert.EnrollmentProcessor;
@@ -227,17 +228,18 @@ public class CertRequestServlet extends CAServlet {
         CertRequestInfos ret = new CertRequestInfos();
 
         AuthCredentials credentials = new AuthCredentials();
-        String uid = data.getAttribute("uid");
+        String uid = data.getAttribute(DirBasedAuthentication.CRED_UID);
         if (uid != null) {
-            credentials.set("uid", uid);
+            credentials.set(DirBasedAuthentication.CRED_UID, uid);
         }
-        String password = data.getAttribute("pwd");
+        String password = data.getAttribute(DirBasedAuthentication.CRED_PWD);
         if (password != null) {
-            credentials.set("pwd", password);
+            credentials.set(DirBasedAuthentication.CRED_PWD, password);
         }
-
-        CAEngine engine = CAEngine.getInstance();
-
+        String pin = data.getAttribute(DirBasedAuthentication.CRED_PIN);
+        if (pin != null) {
+            credentials.set(DirBasedAuthentication.CRED_PIN, pin);
+        }
         HashMap<String, Object> results = null;
         if (data.isRenewal()) {
             RenewalProcessor processor = new RenewalProcessor("caProfileSubmit", request.getLocale());
