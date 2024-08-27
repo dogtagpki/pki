@@ -63,6 +63,14 @@ ExcludeArch: i686
 # Java
 ################################################################################
 
+%if 0%{?rhel} && 0%{?rhel} <= 9
+
+%define java_devel java-17-openjdk-devel
+%define java_headless java-17-openjdk-headless
+%define java_home %{_jvmdir}/jre-17-openjdk
+
+%else
+
 # Use Java 21 on Fedora 40+ and RHEL 10, otherwise use Java 17.
 %global java_devel java-devel >= 1:17
 %global java_headless java-headless >= 1:17
@@ -74,6 +82,8 @@ ExcludeArch: i686
    _prefer_jre=true;
    set_jvm;
    echo $JAVA_HOME)
+
+%endif
 
 ################################################################################
 # Application Server
