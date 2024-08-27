@@ -16,7 +16,6 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Properties;
 
 import javax.servlet.FilterChain;
@@ -47,8 +46,7 @@ import com.netscape.cmscore.apps.CMS;
  *
  *    key= <method>:<path>
  *
- * The method is one of the HTTP method as defined in Java servlet request (e.g. GET, POST, etc.). If the ACL has to be applied for all
- * the methods then it can be replaced with the symbol '*'.
+ * The method is one of the HTTP method as defined in Java servlet request (e.g. GET, POST, etc.).
  * The path is the endpoint in the associated servlet where the ACL has to be applied. If there is a REST path param this can be indicated
  * with the sequence "{}".
  *
@@ -84,15 +82,16 @@ public abstract class AuthMethodFilter extends HttpFilter {
             path = req.getPathInfo() != null ? req.getPathInfo().substring(1) : "";
             final String authMethodSearch = method + ":" + path;
             if (authMethodMap!=null) {
-                Optional<String> autMethodKey = authMethodMap.keySet().stream().
+                String autMethodKey = authMethodMap.keySet().stream().
                         filter( key -> {
-                            String keyRegex = key.replaceFirst("\\*", ".*").replace("{}", "([^/]+)");
+                            String keyRegex = key.replace("{}", "([^/]+)");
                             return authMethodSearch.matches(keyRegex);
                         } ).
-                        sorted(Comparator.reverseOrder()).
-                        findFirst();
-                if (autMethodKey.isPresent()) {
-                    authMethod = authMethodMap.get(autMethodKey.get());
+                        sorted(Comparator.naturalOrder()).
+                        findFirst().
+                        orElse(null);
+                if (autMethodKey != null) {
+                    authMethod = authMethodMap.get(autMethodKey);
                 }
             }
             try {
