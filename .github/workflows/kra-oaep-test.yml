@@ -111,13 +111,13 @@ jobs:
       - name: Verify CAInfo
         run: |
           docker exec pki curl -k https://pki.example.com:8443/ca/v2/info | python -m json.tool > info
-          echo -n '{"ArchivalMechanism":"keywrap","EncryptionAlgorithm":"AES/CBC/PKCS5Padding","KeyWrapAlgorithm":"AES KeyWrap/Padding","RsaPublicKeyWrapAlgorithm":"RSA_OAEP","CaRsaPublicKeyWrapAlgorithm":"RSA_OAEP","Attributes":{"Attribute":[]}}' | python -m json.tool  > expectedInfo
+          echo -n '{"ArchivalMechanism":"keywrap","EncryptionAlgorithm":"AES/CBC/PKCS5Padding","KeyWrapAlgorithm":"AES KeyWrap/Padding","RsaPublicKeyWrapAlgorithm":"RSA_OAEP","CaRsaPublicKeyWrapAlgorithm":"RSA_OAEP","Attributes":{"Attribute":[]}}' | python -m json.tool > expectedInfo
           diff expectedInfo info
             
       - name: Verify KRAInfo
         run: |
-          docker exec pki curl -k https://pki.example.com:8443/kra/rest/info > info
-          echo -n '{"ArchivalMechanism":"keywrap","RecoveryMechanism":"keywrap","EncryptionAlgorithm":"AES/CBC/PKCS5Padding","WrapAlgorithm":"AES KeyWrap/Padding","RsaPublicKeyWrapAlgorithm":"RSA_OAEP","Attributes":{"Attribute":[]}}' > expectedInfo
+          docker exec pki curl -k https://pki.example.com:8443/kra/rest/info | python -m json.tool > info
+          echo -n '{"ArchivalMechanism":"keywrap","RecoveryMechanism":"keywrap","EncryptionAlgorithm":"AES/CBC/PKCS5Padding","WrapAlgorithm":"AES KeyWrap/Padding","RsaPublicKeyWrapAlgorithm":"RSA_OAEP","Attributes":{"Attribute":[]}}' | python -m json.tool > expectedInfo
           diff expectedInfo info
             
       - name: Run PKI healthcheck
