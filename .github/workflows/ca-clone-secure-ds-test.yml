@@ -227,12 +227,10 @@ jobs:
 
           docker exec secondary pki-server cert-find
 
-      - name: Run PKI healthcheck in primary PKI container
-        run: docker exec primary pki-healthcheck --failures-only
-
-      - name: Run PKI healthcheck in secondary PKI container
-        run: docker exec secondary pki-healthcheck --failures-only
-
+      - name: Rebuild indexes for CA in secondary PKI container 
+        run: |
+          docker exec secondary pki-server ca-db-index-rebuild
+      
       - name: Verify DS connection in secondary PKI container
         run: |
           docker exec secondary pki-server ca-db-config-show > output
@@ -267,9 +265,20 @@ jobs:
         run: |
           docker exec secondary pki -n caadmin ca-cert-request-find
 
+      - name: Run PKI healthcheck in primary PKI container
+        run: docker exec primary pki-healthcheck --failures-only
+
+      - name: Run PKI healthcheck in secondary PKI container
+        run: docker exec secondary pki-healthcheck --failures-only
+
       - name: Remove CA from secondary PKI container
         run: |
           docker exec secondary pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Restart secondary DS container
+        run: |
+          tests/bin/ds-stop.sh --image=pki-runner secondaryds
+          tests/bin/ds-start.sh --image=pki-runner secondaryds
 
       - name: Re-install CA in secondary PKI container
         run: |
@@ -289,6 +298,10 @@ jobs:
               -D pki_ds_url=ldaps://secondaryds.example.com:3636 \
               -v
 
+      - name: Rebuild indexes for CA in secondary PKI container 
+        run: |
+          docker exec secondary pki-server ca-db-index-rebuild
+      
       - name: Remove CA from secondary PKI container
         run: |
           docker exec secondary pki -n caadmin ca-user-find

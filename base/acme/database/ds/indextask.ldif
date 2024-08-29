@@ -4,10 +4,10 @@ objectclass: extensibleObject
 cn: acme
 ttl: 10
 nsinstance: userroot
-nsIndexAttribute: acmeExpires:eq
-nsIndexAttribute: acmeAccountId:eq
-nsIndexAttribute: acmeStatus:eq
-nsIndexAttribute: acmeAuthorizationId:eq
-nsIndexAttribute: acmeIdentifier:eq
-nsIndexAttribute: acmeCertificateId:eq
-nsIndexAttribute: acmeAuthorizationWildcard:eq,pres
+nsIndexAttribute: acmeExpires
+nsIndexAttribute: acmeAccountId
+nsIndexAttribute: acmeStatus
+nsIndexAttribute: acmeAuthorizationId
+nsIndexAttribute: acmeIdentifier
+nsIndexAttribute: acmeCertificateId
+nsIndexAttribute: acmeAuthorizationWildcard
