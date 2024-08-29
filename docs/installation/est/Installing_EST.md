@@ -51,6 +51,11 @@ Enabled profile "estServiceCert"
 
 EST Subsystem Installation
 --------------------------
+Install the *EST subsystem* via dnf command.
+
+```
+# dnf install dogtag-pki-est
+```
 
 Create the *EST subsytem* inside the pki server instance:
 
