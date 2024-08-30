@@ -18,8 +18,32 @@
 
         <dependency>
             <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-catalina</artifactId>
+            <version>9.0.62</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-servlet-api</artifactId>
+            <version>9.0.62</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-jaspic-api</artifactId>
+            <version>9.0.62</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-util-scan</artifactId>
             <version>9.0.62</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.dogtagpki.jss</groupId>
+            <artifactId>jss-tomcat-9.0</artifactId>
+            <version>[5.5.0-SNAPSHOT,)</version>
         </dependency>
 
         <dependency>
