@@ -543,7 +543,7 @@ public abstract class Repository implements IRepository {
 
         if ((numsAvail.compareTo(mLowWaterMarkNo) < 0) && (!CMS.isPreOpMode())) {
             CMS.debug("Repository: Requesting next range");
-            String nextRange = mDB.getNextRange(mRepo);
+            String nextRange = mDB.getNextRange(mRepo, mRadix);
             CMS.debug("Repository: next range: " + nextRange);
 
             mNextMinSerialNo = new BigInteger(nextRange, mRadix);

@@ -396,7 +396,7 @@ public class DBSubsystem implements IDBSubsystem {
      * @param repo repo identifier
      * @return start of next range
      */
-    public String getNextRange(int repo) {
+    public String getNextRange(int repo, int mRadix) {
         LDAPConnection conn = null;
         String nextRange = null;
         try {
@@ -414,9 +414,9 @@ public class DBSubsystem implements IDBSubsystem {
             }
             nextRange = (String) attr.getStringValues().nextElement();
 
-            BigInteger nextRangeNo = new BigInteger(nextRange);
-            BigInteger incrementNo = new BigInteger(h.get(PROP_INCREMENT));
-            String newNextRange = nextRangeNo.add(incrementNo).toString();
+            BigInteger nextRangeNo = new BigInteger(nextRange, mRadix);
+            BigInteger incrementNo = new BigInteger(h.get(PROP_INCREMENT), mRadix);
+            String newNextRange = nextRangeNo.add(incrementNo).toString(mRadix);
 
             // To make sure attrNextRange always increments, first delete the current value and then
             // increment.  Two operations in the same transaction
@@ -430,7 +430,7 @@ public class DBSubsystem implements IDBSubsystem {
             conn.modify(dn, mods);
 
             // Add new range object
-            String endRange = nextRangeNo.add(incrementNo).subtract(BigInteger.ONE).toString();
+            String endRange = nextRangeNo.add(incrementNo).subtract(BigInteger.ONE).toString(mRadix);
             LDAPAttributeSet attrs = new LDAPAttributeSet();
             attrs.add(new LDAPAttribute("objectClass", "top"));
             attrs.add(new LDAPAttribute("objectClass", "pkiRange"));
