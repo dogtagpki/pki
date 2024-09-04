@@ -11,13 +11,11 @@ annocheck:
     jobs:
         - hardened: --skip-lto --skip-cf-protection
 
-# We compile with Java 17
+# Use Java 21 on Fedora 40+, otherwise use Java 17
 javabytecode:
-    - fc37: 61
-    - fc38: 61
     - fc39: 61
-    - fc40: 61
-    - default: 61
+    - fc40: 65
+    - default: 65
 
 runpath:
    # The TPS needs access to this path
