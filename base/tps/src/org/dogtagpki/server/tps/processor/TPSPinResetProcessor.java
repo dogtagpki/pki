@@ -103,8 +103,6 @@ public class TPSPinResetProcessor extends TPSProcessor {
 
             throw e;
         }
-        appletInfo.setAid(getCardManagerAID());
-
         CMS.debug(method + " token cuid: " + appletInfo.getCUIDhexStringPlain());
 
         tokenRecord = isTokenRecordPresent(appletInfo);
@@ -246,7 +244,13 @@ public class TPSPinResetProcessor extends TPSProcessor {
                             (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
                     BaseMappingResolver resolverInst =
                             subsystem.getMappingResolverManager().getResolverInstance(resolverInstName);
-                    String keySet = resolverInst.getResolvedMapping(mappingParams, "keySet");
+                    
+                    // ** G&D 256 Key Rollover Support **
+                    // Get the key size on card and pass it in to getResolvedMapping
+                    Integer symKeySize = getCardSymKeyLength(appletInfo.getCUIDhexStringPlain());
+                    CMS.debug(method + " symKeySize on card: " + symKeySize);
+                    
+                    String keySet = resolverInst.getResolvedMapping(mappingParams, "keySet", symKeySize);
                     setSelectedKeySet(keySet);
                     CMS.debug(method + " resolved keySet: " + keySet);
                 }

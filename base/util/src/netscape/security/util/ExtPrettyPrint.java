@@ -476,11 +476,35 @@ public class ExtPrettyPrint {
             while (e.hasMoreElements()) {
                 ObjectIdentifier oid = e.nextElement();
 
+                if (oid.equals(ExtendedKeyUsageExtension.OID_IKE_INTERMEDIATE)) {
+                    sb.append(pp.indent(mIndentSize + 8) + "ipsec Intermediate System Usage" + "\n");
+                    continue;
+                }
+                if (oid.equals(ExtendedKeyUsageExtension.OID_ID_KP_IPSEC_IKE)) {
+                    sb.append(pp.indent(mIndentSize + 8) + "ipsec Internet Key Exchange" + "\n");
+                    continue;
+                }
                 if (oid.equals(ExtendedKeyUsageExtension.OID_OCSP_SIGNING)) {
                     sb.append(pp.indent(mIndentSize + 8) + "OCSPSigning" + "\n");
-                } else {
-                    sb.append(pp.indent(mIndentSize + 8) + oid.toString() + "\n");
+                    continue;
                 }
+                if (oid.equals(ExtendedKeyUsageExtension.OID_EMAIL_PROTECTION)) {
+                    sb.append(pp.indent(mIndentSize + 8) + "emailProtection" + "\n");
+                    continue;
+                }
+                if (oid.equals(ExtendedKeyUsageExtension.OID_CODE_SIGNING)) {
+                    sb.append(pp.indent(mIndentSize + 8) + "codeSigning" + "\n");
+                    continue;
+                }
+                if (oid.equals(ExtendedKeyUsageExtension.OID_CLIENT_AUTH)) {
+                    sb.append(pp.indent(mIndentSize + 8) + "clientAuth" + "\n");
+                    continue;
+                }
+                if (oid.equals(ExtendedKeyUsageExtension.OID_SERVER_AUTH)) {
+                    sb.append(pp.indent(mIndentSize + 8) + "serverAuth" + "\n");
+                    continue;
+                }
+                sb.append(pp.indent(mIndentSize + 8) + oid.toString() + "\n");
             }
         }
         return sb.toString();

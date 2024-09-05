@@ -51,8 +51,17 @@ public class TKSComputeSessionKeyResponse extends RemoteResponse
         return (TPSBuffer) nameValTable.get(IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey);
     }
 
+    public TPSBuffer getDRM_Trans_AesKey() {
+        return (TPSBuffer) nameValTable.get(IRemoteRequest.TKS_RESPONSE_DRM_Trans_AesKey);
+    }
+
     public TPSBuffer getKeyCheck() {
         return (TPSBuffer) nameValTable.get(IRemoteRequest.TKS_RESPONSE_KeyCheck);
+    }
+
+    // Applet and Alg Selection by Token Range Support
+    public TPSBuffer getKeyCheckDes() {
+        return (TPSBuffer) nameValTable.get(IRemoteRequest.TKS_RESPONSE_KeyCheck_Des);
     }
 
     public TPSBuffer getHostCryptogram() {
@@ -61,6 +70,10 @@ public class TKSComputeSessionKeyResponse extends RemoteResponse
 
     public TPSBuffer getKekWrappedDesKey() {
         return (TPSBuffer) nameValTable.get(IRemoteRequest.TKS_RESPONSE_KEK_DesKey);
+    }
+
+    public TPSBuffer getKekWrappedAesKey() {
+        return (TPSBuffer) nameValTable.get(IRemoteRequest.TKS_RESPONSE_KEK_AesKey);
     }
 
     public TPSBuffer getKekSessionKey() {

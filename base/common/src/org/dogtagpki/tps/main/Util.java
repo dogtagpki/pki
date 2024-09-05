@@ -359,7 +359,12 @@ public class Util {
         int outputBits = 8 * 8;
 
         //output size of cmac PRF
-        final int h = 128;
+        int h = 128;
+        // Account for AES-256
+        if (symKey.getLength() == 32)
+        {
+            h = 256;
+        }
 
         int remainder = outputBits % h;
 
@@ -624,7 +629,8 @@ public class Util {
         return tbuf;
     }
 
-    //Encrypt data with aes. Supports 128 for now.
+    // Encrypt data with aes. Supports 128 for now.
+    // Added support for AES 256
     public static TPSBuffer encryptDataAES(TPSBuffer dataToEnc, PK11SymKey encKey,TPSBuffer iv) throws EBaseException {
 
         TPSBuffer encrypted = null;
@@ -634,12 +640,18 @@ public class Util {
 
         CryptoToken token = null;
 
-
         try {
             token = CryptoManager.getInstance().getInternalKeyStorageToken();
+            // Default to AES 128
             Cipher cipher = token.getCipherContext(EncryptionAlgorithm.AES_128_CBC);
             AlgorithmParameterSpec algSpec = null;
             int len = EncryptionAlgorithm.AES_128_CBC.getIVLength();
+            // Use 256 bits based on key length
+            if (encKey.getLength() == 32)
+            {
+                cipher = token.getCipherContext(EncryptionAlgorithm.AES_256_CBC);
+                len = 32;
+            }
 
             byte[] ivEnc = null;
             if(iv == null) { //create one

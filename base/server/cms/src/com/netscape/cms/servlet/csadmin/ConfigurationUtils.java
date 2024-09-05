@@ -3921,7 +3921,7 @@ public class ConfigurationUtils {
             byte[] sharedSecretData = Utils.base64decode(keyData.getAdditionalWrappedPrivateData());
 
             try {
-                CryptoUtil.importSharedSecret(sessionKeyData, sharedSecretData, dbNick, nick);
+                CryptoUtil.importSharedSecretWithAES(sessionKeyData, sharedSecretData, dbNick, nick);
             } catch (Exception e) {
                 CMS.debug("getSharedSecret()): WARNING, Failed to automatically import shared secret. Please follow the manual procedure." + e.toString());
             }

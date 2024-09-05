@@ -60,7 +60,6 @@ run_dev_junit_tests() {
     CLASSPATH=$CLASSPATH:/usr/share/java/scannotation.jar
     CLASSPATH=$CLASSPATH:/usr/share/java/servlet.jar
     CLASSPATH=$CLASSPATH:/usr/share/java/velocity.jar
-    CLASSPATH=$CLASSPATH:/usr/share/java/xerces-j2.jar
     CLASSPATH=$CLASSPATH:/usr/share/java/xml-commons-apis.jar
     CLASSPATH=$CLASSPATH:/usr/share/java/tomcat/catalina.jar
     CLASSPATH=$CLASSPATH:/usr/share/java/tomcat/tomcat-util.jar

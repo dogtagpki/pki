@@ -58,7 +58,8 @@ public abstract class APDU {
         APDU_GET_ISSUERINFO,
         APDU_GENERATE_KEY_ECC,
         APDU_GET_LIFECYCLE,
-        APDU_CLEAR_KEY_SLOTS
+        APDU_CLEAR_KEY_SLOTS,
+        APDU_DELETE_KEYS   // ** G&D 256 Key Rollover Support **
     }
 
     protected byte cla;
@@ -154,6 +155,23 @@ public abstract class APDU {
         return encoding;
     }
 
+    // New method for IDEMIA token processing
+    public TPSBuffer getEncodingWithLength() {
+
+        TPSBuffer encoding = new TPSBuffer();
+
+        encoding.add(cla);
+        encoding.add(ins);
+        encoding.add(p1);
+        encoding.add(p2);
+
+        if (trailer != null) {
+            encoding.add(trailer);
+        }
+
+        return encoding;
+    }
+
     public TPSBuffer getDataToMAC() {
         TPSBuffer mac = new TPSBuffer();
 
@@ -236,7 +254,6 @@ public abstract class APDU {
         padding.setAt(0, (byte) 0x80);
 
         buffer.add(padding);
-
     }
 
     //Assume the whole buffer is to be incremented
@@ -278,9 +295,7 @@ public abstract class APDU {
             TPSBuffer encryptedData = Util.encryptDataAES(data, encKey, encryptedCounter);
 
             data.set(encryptedData);
-
         }
-
     }
 
     public void secureMessageSCP02(PK11SymKey encKey) throws EBaseException {
@@ -290,7 +305,6 @@ public abstract class APDU {
         }
 
         secureMessage(encKey,(byte) 2);
-
     }
 
     public Type getType() {
@@ -338,4 +352,4 @@ public abstract class APDU {
         data.dump();
     }
 
-};
+}

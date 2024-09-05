@@ -159,7 +159,6 @@ BuildRequires:    python-lxml
 BuildRequires:    python-sphinx
 BuildRequires:    velocity
 BuildRequires:    xalan-j2
-BuildRequires:    xerces-j2
 
 %if 0%{?rhel} && 0%{?rhel} <= 7
 # 'resteasy-base' is a subset of the complete set of
@@ -442,7 +441,6 @@ Requires:         resteasy-jackson-provider >= 3.0.17-1
 %endif
 
 Requires:         xalan-j2
-Requires:         xerces-j2
 Requires:         xml-commons-apis
 Requires:         xml-commons-resolver
 
@@ -988,7 +986,6 @@ if [ -f /etc/debian_version ]; then
     ln -sf /usr/share/java/jackson-xc.jar %{buildroot}%{_datadir}/pki/server/common/lib/jackson-xc.jar
     ln -sf /usr/share/java/jss4.jar %{buildroot}%{_datadir}/pki/server/common/lib/jss4.jar
     ln -sf /usr/share/java/symkey.jar %{buildroot}%{_datadir}/pki/server/common/lib/symkey.jar
-    ln -sf /usr/share/java/xercesImpl.jar %{buildroot}%{_datadir}/pki/server/common/lib/xerces-j2.jar
     ln -sf /usr/share/java/xml-apis.jar %{buildroot}%{_datadir}/pki/server/common/lib/xml-commons-apis.jar
     ln -sf /usr/share/java/xml-resolver.jar %{buildroot}%{_datadir}/pki/server/common/lib/xml-commons-resolver.jar
 fi

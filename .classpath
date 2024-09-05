@@ -49,7 +49,6 @@
 	<classpathentry kind="lib" path="/usr/share/java/resteasy/resteasy-jackson-provider.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/servlet.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/velocity.jar"/>
-	<classpathentry kind="lib" path="/usr/share/java/xerces-j2.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/xml-commons-apis.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/istack-commons-runtime.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/apache-commons-lang.jar"/>

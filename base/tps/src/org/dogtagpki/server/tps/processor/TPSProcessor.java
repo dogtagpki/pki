@@ -141,6 +141,8 @@ public class TPSProcessor {
     //protected TokenRecord tokenRecord;
     protected String selectedTokenType;
     protected String selectedKeySet;
+    protected String selectedKeyWrapAlg;   // ** Applet and Alg Selection by Token Range Support **
+    protected String selectedAppletVer;    // ** Applet and Alg Selection by Token Range Support **
     IAuthToken authToken;
     List<String> ldapStringAttrs;
 
@@ -174,6 +176,16 @@ public class TPSProcessor {
     protected TokenRecord getTokenRecord() {
         TPSSession session = getSession();
         return session.getTokenRecord();
+    }
+
+    protected TPSBuffer getSelectedCardMgr() {
+        TPSSession session = getSession();
+        return session.getSelectedCardMgr();
+    }
+
+    protected void setSelectedCardMgr(TPSBuffer cardMgr) {
+        TPSSession session = getSession();
+        session.setSelectedCardMgr(cardMgr);
     }
 
     protected void setBeginMessage(BeginOpMsg msg) {
@@ -295,6 +307,20 @@ public class TPSProcessor {
 
     }
 
+    protected APDUResponse selectDefaultApplet(byte p1, byte p2, TPSBuffer len) throws IOException, TPSException {
+
+        CMS.debug("In TPS_Processor.SelectDefaultApplet.");
+
+        SelectAPDU select_apdu = new SelectAPDU(p1, p2);
+
+        //return the Response because the caller can
+        //decide what to do, not every failure is fatal.
+        //For instance the coolkey applet may not yet exist.
+        //return handleAPDURequest(select_apdu);
+        return handleAPDURequestWithLength(select_apdu, len);
+
+    }
+
     protected TPSBuffer getStatus() throws IOException, TPSException {
 
         CMS.debug("In TPS_Processor.GetStatus.");
@@ -311,6 +337,7 @@ public class TPSProcessor {
         }
 
         TokenPDURequestMsg request_msg = new TokenPDURequestMsg(apdu);
+        CMS.debug("TPS_Processor.HandleAPDURequest: request_msg=" + request_msg.toString());
 
         try {
             session.write(request_msg);
@@ -333,6 +360,38 @@ public class TPSProcessor {
         return response_msg.getResponseAPDU();
     }
 
+    public APDUResponse handleAPDURequestWithLength(APDU apdu, TPSBuffer trailer) throws IOException, TPSException {
+
+        if (apdu == null) {
+            throw new TPSException("TPSProcessor.handleAPDURequestWithLength: invalid incoming apdu!");
+        }
+
+        apdu.setTrailer(trailer);
+
+        TokenPDURequestMsg request_msg = new TokenPDURequestMsg(apdu,true);
+        CMS.debug("TPSProcessor.handleAPDURequestWithLength: request_msg=" + request_msg.toString());
+
+        try {
+            session.write(request_msg);
+        } catch (IOException e) {
+            CMS.debug("TPSProcessor.handleAPDURequestWithLength: failed WriteMsg: " + e.toString());
+            throw e;
+
+        }
+
+        TokenPDUResponseMsg response_msg = null;
+
+        try {
+            response_msg = (TokenPDUResponseMsg) session.read();
+        } catch (IOException e) {
+            CMS.debug("TPSProcessor.handleAPDURequestWithLength: failed ReadMsg: " + e.toString());
+            throw e;
+
+        }
+
+        return response_msg.getResponseAPDU();
+    }
+
     protected TPSBuffer getCplcData() throws IOException, TPSException {
         CMS.debug("In TPS_Processor. getCplcData");
 
@@ -341,7 +400,18 @@ public class TPSProcessor {
         APDUResponse respApdu = handleAPDURequest(get_data_apdu);
 
         if (!respApdu.checkResult()) {
-            throw new TPSException("TPSProcessor.getCplcData: Can't get data!", TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+            // If card needs length of data, resend request with length
+            if (respApdu.getSW1() == (byte) 0x6C)
+            {
+                TPSBuffer trailer = new TPSBuffer(respApdu.getSW2());
+                // Request cplc data again from the token with correct length
+                CMS.debug("TPSProcessor.getCplcData: Request for cplc data failed, retrying with correct length...");
+                respApdu = handleAPDURequestWithLength(get_data_apdu, trailer);
+            }
+
+            if (!respApdu.checkResult()) {
+                throw new TPSException("TPSProcessor.getCplcData: Can't get data!", TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+            }
         }
         TPSBuffer cplcData = respApdu.getData();
 
@@ -363,8 +433,21 @@ public class TPSProcessor {
 
         APDUResponse respApdu = handleAPDURequest(get_data_apdu);
 
-        if (!respApdu.checkResult()) {
-            throw new TPSException("TPSProcessor.getData: Can't get data!", TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+        if (!respApdu.checkResult()) 
+        {
+            // If card needs length of data, resend request with length
+            if (respApdu.getSW1() == (byte) 0x6C)
+            {
+                TPSBuffer trailer = new TPSBuffer(respApdu.getSW2());
+                // Get data again from the token with correct length
+                CMS.debug("TPSProcessor.getData: Request for card data failed, retrying with correct length...");
+                respApdu = handleAPDURequestWithLength(get_data_apdu,trailer);
+            }
+
+            if (!respApdu.checkResult()) 
+            { 
+                throw new TPSException("TPSProcessor.getData: Can't get data!", TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+            }
         }
 
         return respApdu.getData();
@@ -498,6 +581,7 @@ public class TPSProcessor {
         String method = "TPSProcessor.initializeUpdate:";
 
         CMS.debug(method + " Entering...");
+
         InitializeUpdateAPDU initUpdate = new InitializeUpdateAPDU(keyVersion, keyIndex, randomData);
 
         int done = 0;
@@ -571,12 +655,12 @@ public class TPSProcessor {
 
         TPSBuffer initUpdateResp = initializeUpdate(keyVersion, keyIndex, randomData);
 
-//        CMS.debug("TPSProcessor.setupSecureChanne: initUpdateResponse: " + initUpdateResp.toHexString());
+        CMS.debug("TPSProcessor.setupSecureChannel: initUpdateResponse: " + initUpdateResp.toHexString());
 
         TPSBuffer key_diversification_data = initUpdateResp.substr(0, DIVERSIFICATION_DATA_SIZE);
         appletInfo.setKDD(key_diversification_data);
 
-//        CMS.debug("TPSProcessor.setupSecureChannel: diversification data: " + key_diversification_data.toHexString());
+        CMS.debug("TPSProcessor.setupSecureChannel: diversification data: " + key_diversification_data.toHexString());
 
         TPSBuffer key_info_data =  null;
 
@@ -608,14 +692,15 @@ public class TPSProcessor {
                         .substr(CARD_CHALLENGE_OFFSET_GP211_SC02, CARD_CHALLENGE_SIZE_GP211_SC02);
                 card_cryptogram = initUpdateResp.substr(CARD_CRYPTOGRAM_OFFSET, CARD_CRYPTOGRAM_SIZE); //new TPSBuffer(canned_card_challenge);
 
-                /*
+                /* 
                 CMS.debug("TPSProcessor.setupSecureChannel 02: card cryptogram: " + card_cryptogram.toHexString());
                 CMS.debug("TPSProcessor.setupSecureChannel 02: card challenge: " + card_challenge.toHexString());
                 CMS.debug("TPSProcessor.setupSecureChannel 02: host challenge: " + randomData.toHexString());
                 */
+                
                 CMS.debug("TPSProcessor.setupSecureChannel 02: card cryptogram: extracted");
                 CMS.debug("TPSProcessor.setupSecureChannel 02: card challenge: extracted");
-
+                
             }
 
             //Set the second byte of the keyInfo data to 0x1, this only gives us the secure protocol version 0x2 here.
@@ -628,9 +713,9 @@ public class TPSProcessor {
             card_challenge = initUpdateResp.substr(CARD_CHALLENGE_OFFSET_GP211_SC03,CARD_CHALLENGE_SIZE);
             card_cryptogram = initUpdateResp.substr(CARD_CRYPTOGRAM_OFFSET_GP211_SC03, CARD_CRYPTOGRAM_SIZE);
 
-//            CMS.debug("TPSProcessor.setupSecureChannel 03: card cryptogram: " + card_cryptogram.toHexString());
-//            CMS.debug("TPSProcessor.setupSecureChannel 03: card challenge: " + card_challenge.toHexString());
-//            CMS.debug("TPSProcessor.setupSecureChannel 03: host challenge: " + randomData.toHexString());
+            CMS.debug("TPSProcessor.setupSecureChannel 03: card cryptogram: " + card_cryptogram.toHexString());
+            CMS.debug("TPSProcessor.setupSecureChannel 03: card challenge: " + card_challenge.toHexString());
+            CMS.debug("TPSProcessor.setupSecureChannel 03: host challenge: " + randomData.toHexString());
         } else {
 
             card_challenge = initUpdateResp.substr(CARD_CHALLENGE_OFFSET, CARD_CHALLENGE_SIZE);
@@ -803,11 +888,17 @@ public class TPSProcessor {
 
                 TPSBuffer drmDesKey = null;
                 TPSBuffer kekDesKey = null;
+		TPSBuffer kekAesKey = null;
                 TPSBuffer keyCheck = null;
+                TPSBuffer drmAesKey = null;
 
                 drmDesKey = resp.getDRM_Trans_DesKey();
                 keyCheck = resp.getKeyCheck();
                 kekDesKey = resp.getKekWrappedDesKey();
+                kekAesKey = resp.getKekWrappedAesKey();
+       
+                drmAesKey = resp.getDRM_Trans_AesKey();
+		//CMS.debug("drmAesKey " + drmAesKey);
 
                 if (checkServerSideKeyGen(connId)) {
                     CMS.debug("TPSProcessor.generateSecureChannel: true for checkServerSideKeyGen");
@@ -822,6 +913,10 @@ public class TPSProcessor {
                 channel = new SecureChannel(this, sessionKey, encSessionKey, drmDesKey,
                         kekDesKey, keyCheck, keyDiversificationData, cardChallenge,
                         cardCryptogram, hostChallenge, hostCryptogram, keyInfoData, platProtInfo);
+
+                //CMS.debug(" drm wrapped aes key: " + drmAesKey.toHexString()); 
+                channel.setDrmWrappedAesKey(drmAesKey);
+		channel.setKekAesKey(kekAesKey);
 
             } catch (Exception e) {
                 CMS.debug(e);
@@ -937,30 +1032,37 @@ public class TPSProcessor {
             TPSBuffer macSessionKeyBuff = resp.getMacSessionKey();
             TPSBuffer hostCryptogramBuff = resp.getHostCryptogram();
             TPSBuffer keyCheckBuff = resp.getKeyCheck();
+            // Applet and Alg Selection by Token Range Support
+            if (isDesConfigured()) {
+                CMS.debug(method + " Getting keyCheckDes.");
+                keyCheckBuff = resp.getKeyCheckDes();
+            }
 
             TPSBuffer drmDesKeyBuff = resp.getDRM_Trans_DesKey();
             TPSBuffer kekDesKeyBuff = resp.getKekWrappedDesKey();
+            TPSBuffer kekAesKeyBuff = resp.getKekWrappedAesKey();
+            TPSBuffer drmAesKeyBuff = resp.getDRM_Trans_AesKey();
 
-//            if (encSessionKeyBuff != null)
-//                CMS.debug(method + " encSessionKeyBuff: " + encSessionKeyBuff.toHexString());
+            //if (encSessionKeyBuff != null)
+            //    CMS.debug(method + " encSessionKeyBuff: " + encSessionKeyBuff.toHexString());
 
-//            if (kekSessionKeyBuff != null)
-//                CMS.debug(method + " kekSessionKeyBuff: " + kekSessionKeyBuff.toHexString());
+            //if (kekSessionKeyBuff != null)
+            //    CMS.debug(method + " kekSessionKeyBuff: " + kekSessionKeyBuff.toHexString());
 
-//            if (macSessionKeyBuff != null)
-//                CMS.debug(method + " macSessionKeyBuff: " + macSessionKeyBuff.toHexString());
+            //if (macSessionKeyBuff != null)
+            //    CMS.debug(method + " macSessionKeyBuff: " + macSessionKeyBuff.toHexString());
 
-//            if (hostCryptogramBuff != null)
-//                CMS.debug(method + " hostCryptogramBuff: " + hostCryptogramBuff.toHexString());
+            //if (hostCryptogramBuff != null)
+            ///    CMS.debug(method + " hostCryptogramBuff: " + hostCryptogramBuff.toHexString());
 
-//            if (keyCheckBuff != null)
-//                CMS.debug(method + " keyCheckBuff: " + keyCheckBuff.toHexString());
+            //if (keyCheckBuff != null)
+            ///    CMS.debug(method + " keyCheckBuff: " + keyCheckBuff.toHexString());
 
-//            if (drmDesKeyBuff != null)
-//                CMS.debug(method + " drmDessKeyBuff: " + drmDesKeyBuff.toHexString());
+            //if (drmDesKeyBuff != null)
+            //    CMS.debug(method + " drmDessKeyBuff: " + drmDesKeyBuff.toHexString());
 
-//            if (kekDesKeyBuff != null)
-//                CMS.debug(method + " kekDesKeyBuff: " + kekDesKeyBuff.toHexString());
+            //if (kekDesKeyBuff != null)
+            //    CMS.debug(method + " kekDesKeyBuff: " + kekDesKeyBuff.toHexString());
 
 
             if (encSessionKeyBuff != null)
@@ -975,15 +1077,18 @@ public class TPSProcessor {
                 kekSessionKeySCP03 = (PK11SymKey) protocol.unwrapWrappedSymKeyOnToken(token, sharedSecret,
                         kekSessionKeyBuff.toBytesArray(), false, SymmetricKey.AES);
 
-//            CMS.debug(" encSessionKeySCP03 " + encSessionKeySCP03);
-//            CMS.debug(" macSessionKeySCP03 " + macSessionKeySCP03);
-//            CMS.debug(" kekSessionKeySCP03 " + kekSessionKeySCP03);
+            //CMS.debug(" encSessionKeySCP03 " + encSessionKeySCP03.getEncoded());
+            //CMS.debug(" macSessionKeySCP03 " + macSessionKeySCP03.getEncoded());
+            //CMS.debug(" kekSessionKeySCP03 " + kekSessionKeySCP03.getEncoded());
 
             channel = new SecureChannel(this, encSessionKeySCP03, macSessionKeySCP03, kekSessionKeySCP03,
                     drmDesKeyBuff, kekDesKeyBuff,
                     keyCheckBuff, keyDiversificationData, cardChallenge,
                     cardCryptogram, hostChallenge, hostCryptogramBuff, keyInfoData,
                     platProtInfo);
+
+            channel.setDrmWrappedAesKey(drmAesKeyBuff);
+            channel.setKekAesKey(kekAesKeyBuff);
         }
 
         if (channel == null) {
@@ -1052,10 +1157,17 @@ public class TPSProcessor {
         if (upgraded == 0) {
             CMS.debug("TPSProcessor.checkAndUpgradeApplet: applet already at correct version or upgrade disabled.");
 
-            // We didn't need to upgrade the applet but create new channel for now.
-            selectCardManager();
-            setupSecureChannel(appletInfo);
+            TPSBuffer selectedCardMgr = getSelectedCardMgr();
 
+            if (selectedCardMgr == null  || selectedCardMgr.size() == 0)
+            {
+                selectDefaultCardManager();
+            }
+            
+            appletInfo.setAid(getSelectedCardMgr());
+            CMS.debug("TPSProcessor.checkAndUpgradeApplet: Selected Card Mgr from session: " + appletInfo.getAid());
+
+            setupSecureChannel(appletInfo);
         }
 
         return upgraded;
@@ -1066,12 +1178,10 @@ public class TPSProcessor {
             TPSException {
 
         TPSBuffer netkeyAIDBuff = null;
-        TPSBuffer cardMgrAIDBuff = null;
         TPSBuffer netkeyPAIDBuff = null;
 
         netkeyAIDBuff = getNetkeyAID();
         netkeyPAIDBuff = getNetkeyPAID();
-        cardMgrAIDBuff = getCardManagerAID();
 
         int channelBlockSize = getChannelBlockSize();
         int channelInstanceSize = getChannelInstanceSize();
@@ -1091,18 +1201,21 @@ public class TPSProcessor {
 
         String appletFilePath = directory + "/" + new_version + "." + appletFileExt;
 
-        CMS.debug("TPSProcessor.upgradeApplet: targe applet file name: " + appletFilePath);
+        CMS.debug("TPSProcessor.upgradeApplet: target applet file name: " + appletFilePath);
 
         appletData = getAppletFileData(appletFilePath);
 
-        APDUResponse select = selectApplet((byte) 0x04, (byte) 0x00, cardMgrAIDBuff);
 
-        if (!select.checkResult()) {
-            String logMsg = "Can't selelect the card manager!";
-            auditAppletUpgrade(appletInfo, "failure", null /*unavailable*/, new_version, logMsg);
-            throw new TPSException("TPSProcessor.upgradeApplet:" + logMsg,
-                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
+        // Get card mgr from session or select default
+        TPSBuffer selectedCardMgr = getSelectedCardMgr();
+
+        if (selectedCardMgr == null || selectedCardMgr.size() == 0)
+        {
+            selectDefaultCardManager();
         }
+
+        appletInfo.setAid(getSelectedCardMgr());
+        CMS.debug("TPSProcessor.upgradeApplet: After session.getSelectedCardMgr(), appletInfo.getAid() = " + appletInfo.getAid().toHexStringPlain());
 
         SecureChannel channel = setupSecureChannel((byte) defKeyVersion, (byte) defKeyIndex, connId, appletInfo);
 
@@ -1113,7 +1226,7 @@ public class TPSProcessor {
 
         // Next step will be to load the applet file to token.
 
-        channel.installLoad(netkeyPAIDBuff, cardMgrAIDBuff, appletData.length);
+        channel.installLoad(netkeyPAIDBuff, appletInfo.getAid(), appletData.length);
 
         TPSBuffer appletDataBuff = new TPSBuffer(appletData);
 
@@ -1123,7 +1236,7 @@ public class TPSProcessor {
 
         //Now select our new applet
 
-        select = selectApplet((byte) 0x04, (byte) 0x00, netkeyAIDBuff);
+        APDUResponse select = selectApplet((byte) 0x04, (byte) 0x00, netkeyAIDBuff);
 
         if (!select.checkResult()) {
             String logMsg = "Cannot select newly created applet!";
@@ -2085,8 +2198,6 @@ public class TPSProcessor {
 
             throw e;
         }
-        appletInfo.setAid(getCardManagerAID());
-
         CMS.debug("TPSProcessor.format: token cuid: " + appletInfo.getCUIDhexStringPlain());
         boolean isTokenPresent = false;
 
@@ -2115,7 +2226,8 @@ public class TPSProcessor {
         byte app_minor_version = appletInfo.getAppMinorVersion();
 
         CMS.debug("TPSProcessor.format: major_version " + major_version + " minor_version: " + minor_version
-                + " app_major_version: " + app_major_version + " app_minor_version: " + app_minor_version);
+                + " app_major_version: " + app_major_version + " app_minor_version: " + app_minor_version
+                + " cardMgrAID: " + appletInfo.getAid().toHexStringPlain());
 
         String tokenType = "tokenType";
 
@@ -2250,9 +2362,33 @@ public class TPSProcessor {
                             (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
                     BaseMappingResolver resolverInst =
                             subsystem.getMappingResolverManager().getResolverInstance(resolverInstName);
-                    String keySet = resolverInst.getResolvedMapping(mappingParams, "keySet");
+                    
+                    // ** G&D 256 Key Rollover Support **
+                    // Get the key size on card and pass it in to getResolvedMapping
+                    Integer symKeySize = getCardSymKeyLength(appletInfo.getCUIDhexStringPlain());
+                    CMS.debug("TPSProcessor.format: symKeySize on card: " + symKeySize);
+                    
+                    String keySet = resolverInst.getResolvedMapping(mappingParams, "keySet", symKeySize);
                     setSelectedKeySet(keySet);
                     CMS.debug("In TPSProcessor.format: resolved keySet: " + keySet);
+                    
+                    // ** Applet and Alg Selection by Token Range Support begin **
+                    try {
+                        String keyWrapAlg = resolverInst.getResolvedMapping(mappingParams, "keyWrapAlg", symKeySize);
+                        setSelectedKeyWrapAlg(keyWrapAlg);
+                        CMS.debug("In TPSProcessor.format: resolved keyWrapAlg: " + keyWrapAlg);
+                    } catch (TPSException e) {
+                        CMS.debug("TPSProcessor.format: OK not to have keyWrapAlg target in token range mapping");
+                    }
+                    
+                    try {
+                        String appletVer = resolverInst.getResolvedMapping(mappingParams, "appletVer", symKeySize);
+                        setSelectedAppletVer(appletVer);
+                        CMS.debug("In TPSProcessor.format: resolved appletVer: " + appletVer);
+                    } catch (TPSException e) {
+                        CMS.debug("TPSProcessor.format: OK not to have appletVer target in token range mapping");
+                    }
+                    // ** Applet and Alg Selection by Token Range Support end **
                 }
             } catch (TPSException e) {
                 logMsg = e.toString();
@@ -2415,20 +2551,53 @@ public class TPSProcessor {
             statusUpdate(100, "PROGRESS_DONE");
         }
 
+        // ** G&D 256 Key Rollover Support **
+        // initialize status for key rollover
+        TPSStatus symKeyUpgradeStatus = TPSStatus.STATUS_NO_ERROR;
+        
         // Upgrade Symm Keys if needed
-
-        SecureChannel channel;
+        
+        SecureChannel channel = null;
         try {
             channel = checkAndUpgradeSymKeys(appletInfo, tokenRecord);
         } catch (TPSException te) {
-            auditKeyChangeover(appletInfo, "failure", null /* TODO */,
+            // ** G&D 256 Key Rollover Support **
+            // Check whether the exception is thrown by 256 key rollover
+            if (te.getStatus() == TPSStatus.STATUS_ERROR_SYMKEY_256_UPGRADE)
+            {
+                // will update the token record in the DS before throwing the exception
+                // because it might be the case that 128 FMK was successfully rolled to 128 OMK
+                symKeyUpgradeStatus = TPSStatus.STATUS_ERROR_SYMKEY_256_UPGRADE;
+            }
+            // Check whether exception is caused by attempting to change 256 OMK to 128 FMK
+            // RedHat : avoid null ptr. For non external reg case.
+            else if (getSelectedKeySet() != null && getSelectedKeySet().equals(getKeyDowngradeKeySet()) && getSymmetricKeysRequiredVersion() == getKeyDowngradeVersion())
+            {
+                // proceed with downgrade if configured to do so
+                CMS.debug("TPSProcessor.checkAndUpgradeSymKeys: try downgrade key size.");
+                try {
+                    channel = downgradeSymKeySize(appletInfo, tokenRecord, getSymmetricKeysRequiredVersion(), getChannelDefKeyIndex(), getTKSConnectorID());
+                } catch (TPSException e) {
+                    auditKeyChangeover(appletInfo, "failure", null /* TODO */,
+                            getSymmetricKeysRequiredVersionHexString(), e.toString());
+                    throw e;
+                }              
+            }
+            // throw the exception if none of above
+            else {
+                auditKeyChangeover(appletInfo, "failure", null /* TODO */,
                     getSymmetricKeysRequiredVersionHexString(), te.toString());
-            throw te;
+                throw te;
+            }
         }
-        channel.externalAuthenticate();
-
-        auditFormatSuccess(userid, appletInfo, channel.getKeyInfoData().toHexStringPlain());
-
+        
+        // ** G&D 256 Key Rollover Support **
+        // check 256 key rollover status before using the channel 
+        if (symKeyUpgradeStatus == TPSStatus.STATUS_NO_ERROR) {
+            channel.externalAuthenticate();
+        
+            auditFormatSuccess(userid, appletInfo, channel.getKeyInfoData().toHexStringPlain());
+        }
         if (isTokenPresent && revokeCertsAtFormat()) {
             // Revoke certificates on token, if so configured
             RevocationReason reason = getRevocationReasonAtFormat();
@@ -2469,6 +2638,13 @@ public class TPSProcessor {
         // Update Token DB
         tokenRecord.setTokenStatus(TokenStatus.FORMATTED);
         logMsg = "token format operation";
+        
+        // ** G&D 256 Key Rollover Support **
+        // changing the logMsg if exception occurred in 256 key rollover
+        if (symKeyUpgradeStatus == TPSStatus.STATUS_ERROR_SYMKEY_256_UPGRADE) {
+            logMsg = "token format operation without symkey 256 upgrade";
+        }
+        
         try {
             tps.tdb.tdbUpdateTokenEntry(tokenRecord);
             tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), logMsg, "success");
@@ -2480,6 +2656,12 @@ public class TPSProcessor {
             throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_UPDATE_TOKENDB_FAILED);
         }
 
+        // ** G&D 256 Key Rollover Support **
+        // if exception was caused by 256 key rollover, throw the exception after token record updated in the DS
+        if (symKeyUpgradeStatus == TPSStatus.STATUS_ERROR_SYMKEY_256_UPGRADE) {
+            throw new TPSException("Failed to upgrade symmetric key size to 256");
+        }
+        
         CMS.debug("TPSProcessor.format:: ends");
 
     }
@@ -2792,34 +2974,37 @@ public class TPSProcessor {
         IConfigStore configStore = CMS.getConfigStore();
 
         acquireChannelPlatformAndProtocolInfo();
+        
+        requiredVersion = getSelectedAppletVer();  // ** Applet and Alg Selection by Token Range Support: use appletVer target if it's defined in token range
+        if (requiredVersion == null) {             // otherwise, get the requiredVersion configured by token type 
 
-        int prot = getProtocol();
-
-        CMS.debug("TPSProcessor.checkForAppletUpgrad: protocol: " + prot);
-
-        String protString = "";
-
-        // Let the existing config param handle protocol 1 by default
-        if(prot > 1) {
-            protString = ".prot."+ prot;
-        }
-
-        String appletRequiredConfig = operation + "." + selectedTokenType + "."
-                + TPSEngine.CFG_APPLET_UPDATE_REQUIRED_VERSION +  protString;
-        CMS.debug("TPSProcessor.checkForAppletUpgrade: getting config: " + appletRequiredConfig);
-        try {
-            requiredVersion = configStore.getString(appletRequiredConfig, null);
-        } catch (EBaseException e) {
-            throw new TPSException(
-                    "TPSProcessor.checkForAppletUpgrade: Can't find applet required Version. Internal error obtaining version.",
-                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
-        }
-
-        if (requiredVersion == null) {
-            throw new TPSException("TPSProcessor.checkForAppletUpgrade: Can't find applet required Version.",
-                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
-        }
-
+            int prot = getProtocol();
+        
+            CMS.debug("TPSProcessor.checkForAppletUpgrad: protocol: " + prot);
+        
+            String protString = "";
+        
+            // Let the existing config param handle protocol 1 by default
+            if(prot > 1) {
+                protString = ".prot."+ prot;
+            }
+        
+            String appletRequiredConfig = operation + "." + selectedTokenType + "."
+                    + TPSEngine.CFG_APPLET_UPDATE_REQUIRED_VERSION +  protString;
+            CMS.debug("TPSProcessor.checkForAppletUpgrade: getting config: " + appletRequiredConfig);
+            try {
+                requiredVersion = configStore.getString(appletRequiredConfig, null);
+            } catch (EBaseException e) {
+                throw new TPSException(
+                        "TPSProcessor.checkForAppletUpgrade: Can't find applet required Version. Internal error obtaining version.",
+                        TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+            }
+        
+            if (requiredVersion == null) {
+                throw new TPSException("TPSProcessor.checkForAppletUpgrade: Can't find applet required Version.",
+                        TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+            }
+        } 
         CMS.debug("TPSProcessor.checkForAppletUpgrade: returning: " + requiredVersion);
 
         return requiredVersion;
@@ -2926,6 +3111,33 @@ public class TPSProcessor {
         TPSBuffer ret = new TPSBuffer(cardMgrAID);
 
         return ret;
+    }
+
+    protected List<String> getCardManagerAIDList() throws TPSException {
+
+        String cardMgrAID = null;
+        List<String> cardMgrAidList = null;
+        TPSEngine engine = getTPSEngine();
+        IConfigStore configStore = CMS.getConfigStore();
+        CMS.debug("TPSProcessor.getCardManagerAIDList: getting config: " + TPSEngine.CFG_APPLET_CARDMGR_INSTANCE_AID);
+        try 
+        {
+            cardMgrAID = configStore.getString(TPSEngine.CFG_APPLET_CARDMGR_INSTANCE_AID,
+                TPSEngine.CFG_DEF_CARDMGR_INSTANCE_AID);
+
+            if(cardMgrAID.length() > 0)
+                cardMgrAidList = Arrays.asList(cardMgrAID.split(","));
+
+            if(cardMgrAidList == null)
+                cardMgrAidList = Arrays.asList(engine.CFG_DEF_CARDMGR_INSTANCE_AID);
+        } 
+        catch (EBaseException e1) 
+        {
+            CMS.debug("TPS_Processor.getCardManagerAIDList: Internal Error obtaining mandatory config values. Error: " + e1);
+            throw new TPSException("TPS error getting config values from config store.", TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+        }
+
+        return cardMgrAidList;
     }
 
     protected String getAppletExtension() throws TPSException {
@@ -3182,13 +3394,29 @@ public class TPSProcessor {
 
         CMS.debug("TPSProcessor.getAppletInfo, entering ...");
 
-        selectCardManager();
+        TPSBuffer cplc_data = null;
+        TPSBuffer token_cuid = null;
+        TPSBuffer token_msn = null;
+        
+        // Get default card manager
+        selectDefaultCardManager();  
+        
+        // Get the selected card manager
+        TPSBuffer selectedCardMgr = getSelectedCardMgr();
+        CMS.debug("TPSProcessor.getAppletInfo: selectedCardMgr = " + selectedCardMgr.toHexStringPlain());
 
-        TPSBuffer cplc_data = getCplcData();
-        CMS.debug("cplc_data: " + cplc_data.toHexString());
-
-        TPSBuffer token_cuid = extractTokenCUID(cplc_data);
-        TPSBuffer token_msn = extractTokenMSN(cplc_data);
+        cplc_data = getCplcData(); 
+        CMS.debug("TPSProcessor.getAppletInfo, cplc_data: " + cplc_data.toHexString());
+        
+        if (cplc_data != null)
+        {
+            token_cuid = extractTokenCUID(cplc_data);
+            token_msn = extractTokenMSN(cplc_data);
+        }
+        else
+        {
+            throw new TPSException("TPSProcessor.getAppletInfo: Can't get cplc data!", TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+        }
 
         /**
          * Checks if the netkey has the required applet version.
@@ -3231,11 +3459,12 @@ public class TPSProcessor {
         result.setMSN(token_msn);
         result.setTotalMem(total_mem);
         result.setFreeMem(free_mem);
+        result.setAid(selectedCardMgr);
 
         CMS.debug("TPSProcessor.getAppletInfo: cuid: " + result.getCUIDhexString() + " msn: " + result.getMSNString()
                 + " major version: " + result.getMajorVersion() + " minor version: " + result.getMinorVersion()
                 + " App major version: " + result.getAppMajorVersion() + " App minor version: "
-                + result.getAppMinorVersion());
+                + result.getAppMinorVersion() + " cardManagerAID: " + selectedCardMgr.toHexStringPlain());
 
         String currentAppletVersion = formatCurrentAppletVersion(result);
         if (currentAppletVersion != null) {
@@ -3246,19 +3475,104 @@ public class TPSProcessor {
         return result;
     }
 
-    protected void selectCardManager() throws TPSException, IOException {
-        CMS.debug("TPSProcessor.selectCardManager: entering..");
-        TPSBuffer aidBuf = getCardManagerAID();
+    // Method to get default card manager AID 
+    protected void selectDefaultCardManager() throws TPSException, IOException {
+        String method = "TPSProcessor.selectDefaultCardManager: ";
+        CMS.debug(method + "entering..");
 
-        APDUResponse select = selectApplet((byte) 0x04, (byte) 0x00, aidBuf);
-
-        if (!select.checkResult()) {
-            throw new TPSException("TPSProcessor.selectCardManager: Can't selelect the card manager applet!",
+        TPSEngine engine = getTPSEngine();
+        
+        // Request default AID from the token
+        TPSBuffer trailer = new TPSBuffer((byte) 0x00);
+        APDUResponse defaultAID = selectDefaultApplet((byte) 0x04, (byte) 0x00, trailer);
+       
+        if (defaultAID == null || !defaultAID.checkResult())
+        {
+            // If card needs length of data, resend request with length
+            if (defaultAID.getSW1() == (byte) 0x6C)
+            {
+                trailer = new TPSBuffer(defaultAID.getSW2());
+                // Request default AID again from the token with correct length
+                CMS.debug(method + "Request for card manager failed, retrying with correct length...");
+                defaultAID = selectDefaultApplet((byte) 0x04, (byte) 0x00, trailer);
+            }
+            else
+            {
+                throw new TPSException("TPSProcessor.selectDefaultCardManager: Can't select the card manager applet!",
                     TPSStatus.STATUS_ERROR_CANNOT_ESTABLISH_COMMUNICATION);
+            }
+        }
+
+        if (defaultAID != null && defaultAID.checkResult())
+        {
+            TPSBuffer aidData = parseAIDResponse(defaultAID.getData());
+
+            String defAIDStr = aidData.toHexStringPlain();
+
+            //RedHat : appease tpsclient tester that only returns 90 00 success, using original default AID.
+            if(aidData == null  || aidData.size() == 0)   {
+                CMS.debug(method + "tpsclient tester probably returned only 90 00, assume old default AID.");
+                defAIDStr = getCardManagerAIDList().get(0);
+                aidData = new TPSBuffer(defAIDStr);
+            }
+ 
+            // Get list of valid AID values from the configuration file
+            List<String>  aidBuf = getCardManagerAIDList();
+           
+            // Check AID matches one in the list
+            for (String aid:aidBuf)
+            {
+                // Found valid AID
+                if (defAIDStr.equals(aid))
+                {
+                    CMS.debug(method + "Found cardManagerAID in list of valid values: " + defAIDStr + ", select it to be sure");
+
+                    // Confirm AID is valid by selecting it
+                    APDUResponse confirmedAID = selectApplet((byte) 0x04, (byte) 0x00, aidData);
+        
+                    if (confirmedAID != null && confirmedAID.checkResult())
+                    {
+                        CMS.debug(method + "Confirmed cardManagerAID: " + defAIDStr);
+
+                        // Set this card manager in the session
+                        setSelectedCardMgr(aidData);
+                        break;
+                    }
+                    else
+                    {
+                        CMS.debug(method + "Card Manager Selection Failed for cardMgrAID " + defAIDStr + "!");    
+                    }
+                }
+            }
+            //Need to check for null or get a null ptr exception.
+            TPSBuffer selectedCardMgr = getSelectedCardMgr();
+            if (selectedCardMgr == null || selectedCardMgr.size() == 0)
+            {
+                throw new TPSException("TPSProcessor.selectDefaultCardManager: Can't select the card manager applet!",
+                    TPSStatus.STATUS_ERROR_CANNOT_ESTABLISH_COMMUNICATION);
+            }
+        }
+        else
+        {
+            throw new TPSException("TPSProcessor.selectDefaultCardManager: Can't select the card manager applet!",
+                TPSStatus.STATUS_ERROR_CANNOT_ESTABLISH_COMMUNICATION);
         }
     }
 
+    protected void selectCardMgr(TPSBuffer aidBuffer) throws TPSException, IOException {
+        CMS.debug("TPSProcessor.selectCardMgr: entering..");
 
+        CMS.debug("TPSProcessor.selectCardMgr: cardManagerAID value = " + aidBuffer.toHexStringPlain());
+
+        APDUResponse select = selectApplet((byte) 0x04, (byte) 0x00, aidBuffer);
+
+        CMS.debug("TPSProcessor.selectCardMgr: select result = " + select.checkResult());
+
+        if (select == null || !select.checkResult()) {
+            throw new TPSException("TPSProcessor.selectCardMgr: Can't select the card manager applet!",
+                TPSStatus.STATUS_ERROR_CANNOT_ESTABLISH_COMMUNICATION);
+        }
+    }
 
     protected boolean checkSymmetricKeysEnabled() throws TPSException {
         boolean result = true;
@@ -3339,19 +3653,24 @@ public class TPSProcessor {
 
         int defKeyVersion = 0;
         int defKeyIndex = getChannelDefKeyIndex();
-
+        
         if (checkSymmetricKeysEnabled()) {
 
             CMS.debug("TPSProcessor.checkAndUpgradeSymKeys: Symm key upgrade enabled.");
             int requiredVersion = getSymmetricKeysRequiredVersion();
-
+            
+            // ** G&D 256 Key Rollover Support **
+            // set the flag to indicate if card needs to roll over to 256 OMK
+            // RedHat : avoid null ptr. For non external reg case.
+            boolean keyRollNeeded = (getSelectedKeySet() != null && getSelectedKeySet().equals(getKeyRolloverKeySet()) && requiredVersion == getKeyRolloverVersion());
+            CMS.debug(" keyRollNeeded: " + keyRollNeeded);
             // try to make a secure channel with the 'requiredVersion' keys
             // If this fails, we know we will have to attempt an upgrade
             // of the keys
 
             boolean failed = false;
             try {
-
+                
                 channel = setupSecureChannel((byte) requiredVersion, (byte) defKeyIndex,
                         getTKSConnectorID(),appletInfo);
 
@@ -3360,11 +3679,24 @@ public class TPSProcessor {
                 CMS.debug("TPSProcessor.checkAndUpgradeSymKeys: failed to create secure channel with required version, we need to upgrade the keys.");
                 failed = true;
             }
-
+            
             //If we failed we need to upgrade the keys
             if (failed == true) {
 
-                selectCardManager();
+                // Make sure correct card manager is selected
+                TPSBuffer selectedCardMgr = getSelectedCardMgr();
+                if (selectedCardMgr == null || selectedCardMgr.size() == 0)
+                {
+                    selectDefaultCardManager();
+                }
+                else
+                {
+                    selectCardMgr(getSelectedCardMgr());
+                }
+
+                appletInfo.setAid(getSelectedCardMgr());
+
+                CMS.debug("TPSProcessor.checkAndUpgradeSymKeys: Selected card manager from session: " + appletInfo.getAid().toHexStringPlain());
 
                 channel = setupSecureChannel(appletInfo);
 
@@ -3427,9 +3759,8 @@ public class TPSProcessor {
                 }
 
                 TPSBuffer keySetData = engine.createKeySetData(newVersion, curKeyInfo, protocol,
-                        appletInfo.getCUID(),channel.getKeyDiversificationData(), channel.getDekSessionKeyWrapped(), connId, getSelectedKeySet());
+                        appletInfo.getCUID(),channel.getKeyDiversificationData(), channel.getDekSessionKeyWrapped(), connId, getSelectedKeySet(), null);
 
-                //CMS.debug("TPSProcessor.checkAndUpgradeSymKeys: new keySetData from TKS: " + keySetData.toHexString());
                 CMS.debug("TPSProcessor.checkAndUpgradeSymKeys: received new keySetData from TKS");
 
                 byte curVersion = curKeyInfo.at(0);
@@ -3440,11 +3771,11 @@ public class TPSProcessor {
                     throw new TPSException("TPSProcessor.checkAndUpgradeSymKeys: end of progress.");
 
                 try {
-                    channel.putKeys(curVersion, curIndex, keySetData);
+                    channel.putKeys(curVersion, curIndex, keySetData);                  
                     tps.tdb.tdbActivity(ActivityDatabase.OP_KEY_CHANGEOVER, tokenRecord, session.getIpAddress(),
                             "Sent new GP Key Set to token", "success");
                 } catch (TPSException e) {
-
+                    
                     CMS.debug("TPSProcessor.checkAndUpgradeSymKeys: failed to put key, checking to see if this a SCP02 with 0xFF default key set.");
 
                     if (protocol == 2 && curVersion == (byte) 0xff) {
@@ -3452,7 +3783,7 @@ public class TPSProcessor {
 
                         byte[] nv_dev = { (byte) 0x1, (byte) 0x1 };
                         TPSBuffer devKeySetData = engine.createKeySetData(new TPSBuffer(nv_dev), curKeyInfo, protocol,
-                              appletInfo.getCUID(),  channel.getKeyDiversificationData(), channel.getDekSessionKeyWrapped(), connId, getSelectedKeySet());
+                              appletInfo.getCUID(),  channel.getKeyDiversificationData(), channel.getDekSessionKeyWrapped(), connId, getSelectedKeySet(), null);
 
                         CMS.debug("TPSProcessor.checkAndUpgradeSymKeys: about to get rid of keyset 0xFF and replace it with keyset 0x1 with developer key set");
                         channel.putKeys((byte) 0x0, (byte) 0x1, devKeySetData);
@@ -3478,17 +3809,35 @@ public class TPSProcessor {
 
                 CMS.debug("TPSProcessor.checkAndUpgradeSymKeys: curVersionStr: " + curVersionStr + " newVersionStr: "
                         + newVersionStr);
-                selectCoolKeyApplet();
+                
+                // ** G&D 256 Key Rollover Support **
+                // Create the secure channel if no further key rollover is needed
+                if (!keyRollNeeded) {
+                    selectCoolKeyApplet();
 
-                channel = setupSecureChannel((byte) requiredVersion, (byte) defKeyIndex,
+                    channel = setupSecureChannel((byte) requiredVersion, (byte) defKeyIndex,
                         getTKSConnectorID(), appletInfo);
-                auditKeyChangeover(appletInfo, "success", curVersionStr, newVersionStr, null);
+                    auditKeyChangeover(appletInfo, "success", curVersionStr, newVersionStr, null);
+                }
 
-            } else {
+            } else if (!keyRollNeeded) { // ** G&D 256 Key Rollover Support ** message only applicable if no further rollover is needed
                 CMS.debug("TPSProcessor.checkAndUpgradeSymeKeys: We are already at the desired key set, returning secure channel.");
             }
 
            // tokenRecord.setKeyInfo(channel.getKeyInfoData().toHexStringPlain());
+            
+            // ** G&D 256 Key Rollover Support **
+            // Continue to upgrade keys to 256 bit
+            if (keyRollNeeded)
+            {
+                try {
+                    CMS.debug("TPSProcessor.checkAndUpgradeSymKeys: we need to do 256 key rollover for " + getSelectedKeySet());
+                    channel = upgradeSymKeySize(appletInfo, tokenRecord, requiredVersion, defKeyIndex, getTKSConnectorID());
+                } catch (TPSException | IOException e) {
+                    CMS.debug("TPSProcessor.checkAndUpgradeSymKeys: Failed to roll symmetric key size to 256");
+                    throw new TPSException("Failed to upgrade symmetric key size to 256", TPSStatus.STATUS_ERROR_SYMKEY_256_UPGRADE);
+                }
+            }
 
         } else {
             //Create a standard secure channel with current key set.
@@ -3850,17 +4199,28 @@ public class TPSProcessor {
         TPSBuffer data = null;
         TPSBuffer keyData = null;
 
-        selectCardManager();
-        try {
+        // If card manager is not selected, select it
+        TPSBuffer selectedCardMgr = getSelectedCardMgr();
 
+        if (selectedCardMgr == null || getSelectedCardMgr().size() == 0)
+        {
+            selectDefaultCardManager();
+        }
+        // If it was selected already, make sure it is the one used here
+        else
+        {
+            selectCardMgr(getSelectedCardMgr());
+        }
+
+        try {
             data = getData(SecureChannel.GP211_GET_DATA_CARD_DATA);
+            CMS.debug("TPSProcessor.gp211GetSecureChannelProtocolDetails: data.size() = " + data.size());
             keyData = getData(SecureChannel.GP211_GET_DATA_KEY_INFO);
 
         } catch (TPSException e) {
             CMS.debug("TPSProcessor.gp211GetSecureChannelProtocolDetails: Card can't understand GP211! " + e);
 
             throw e;
-
         }
 
         if (data.size() < 5) {
@@ -3868,8 +4228,9 @@ public class TPSProcessor {
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
         }
 
-        //CMS.debug("TPSProcessor.gp211GetSecureChannelProtocolDetails: returned data: " + data.toHexString());
         CMS.debug("TPSProcessor.gp211GetSecureChannelProtocolDetails: card data returned");
+        CMS.debug("TPSProcessor.gp211GetSecureChannelProtocolDetails: returned data: " + data.toHexString());
+        CMS.debug("TPSProcessor.gp211GetSecureChannelProtocolDetails: returned key data: " + keyData.toHexString());
 
         // Now process the GP211 data returned by the card.
 
@@ -3878,14 +4239,20 @@ public class TPSProcessor {
         int length = 0;
 
         if (data.at(offset) == (byte) 0x66) {
+            CMS.debug("TPSProcessor.gp211GetSecureChannelProtocolDetails: data.at(" + offset + ") = 0x66");
             offset++;
+            CMS.debug("TPSProcessor.gp211GetSecureChannelProtocolDetails: offset = " + offset);
 
             totalLength = data.getIntFrom1Byte(offset++);
             offset++;
+            CMS.debug("TPSProcessor.gp211GetSecureChannelProtocolDetails: offset = " + offset);
 
         } else {
+            CMS.debug("TPSProcessor.gp211GetSecureChannelProtocolDetails: data.at(" + offset + ") = " + data.at(offset));
             offset++;
+            CMS.debug("TPSProcessor.gp211GetSecureChannelProtocolDetails: offset = " + offset);
             totalLength = data.getIntFrom1Byte(offset++);
+            CMS.debug("TPSProcessor.gp211GetSecureChannelProtocolDetails: offset = " + offset);
 
         }
 
@@ -4586,6 +4953,34 @@ public class TPSProcessor {
         audit(auditMessage);
     }
 
+    protected TPSBuffer parseAIDResponse(TPSBuffer response)
+    {
+        TPSBuffer aid = new TPSBuffer();
+
+        // Response starts with 0x6F
+        if (response.at(0) == (byte) 0x6F)
+        {
+            for(int i = 1; i < response.size(); i++)
+            {
+                // Find 0x84, AID follows that
+                if (response.at(i) == (byte) 0x84)
+                {
+                    // Next byte is length of AID
+                    int len = response.at(i+1);
+
+                    // Grab the AID bytes
+                    aid = response.substr(i+2,len);
+                    break;
+                }
+            }
+        }
+        else
+        {
+            CMS.debug("TPSProcessor.parseAIDResponse: select AID response missing mandatory data, cannot parse response!");
+        }
+        return aid;
+    }
+
     /**
      * Signed Audit Log
      *
@@ -4600,6 +4995,531 @@ public class TPSProcessor {
 
     protected void audit(LogEvent event) {
         signedAuditLogger.log(event);
+    }
+
+    /**
+     * ** G&D 256 Key Rollover Support **
+     * This method returns the configured keySet name for the purpose of 
+     * downgrading the 256 OMK to 128 FMK.  If such a configuration is not found, 
+     * an empty string will be returned and the downgrade is disallowed.
+     *  
+     * @return the keySet name
+     * @throws TPSException 
+     */
+    protected String getKeyDowngradeKeySet() throws TPSException {
+        String method = "TPSProcessor.getKeyDowngradeKeySet: ";
+        IConfigStore configStore = CMS.getConfigStore();
+        String config = "symKey.downgrade.keySet";
+        String keySet;
+        try {
+            keySet = configStore.getString(config, "");
+        } catch (EBaseException e) {
+            throw new TPSException(method + "Internal error finding config value:" + config,
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+        }
+        CMS.debug(method + " returning " + keySet);
+        return keySet;
+    }
+    
+    /**
+     * ** G&D 256 Key Rollover Support **
+     * This method returns the configured key version to downgrade to for the
+     * purpose of downgrading the 256 OMK to 128 FMK.  If such a configuration 
+     * is not found, key version 3 will be returned as the default FMK version.
+     * 
+     * @return the key version to downgrade to
+     * @throws TPSException 
+     */
+    protected int getKeyDowngradeVersion() throws TPSException {
+        String method = "TPSProcessor.getKeyDowngradeVersion: ";
+        IConfigStore configStore = CMS.getConfigStore();
+        int ver;
+        String config = "symKey.downgrade.keyVer";
+        try {
+            ver = configStore.getInteger(config, 0x03);
+        } catch (EBaseException e) {
+            throw new TPSException(method + "Internal error finding config value:" + config,
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+        }
+        CMS.debug(method + " returning " + ver);
+        return ver;
+    }
+    
+    /**
+     * ** G&D 256 Key Rollover Support **
+     * This method returns the configured temporary key slot/version used in the key 
+     * downgrade process for the purpose of downgrading the 256 OMK to 128 FMK.  
+     * If such a configuration is not found, key slot/version 5 will be returned.
+     * 
+     * @return
+     * @throws TPSException
+     */
+    protected int getKeyDowngradeTempSlot() throws TPSException {
+        String method = "TPSProcessor.getKeyDowngradeTempSlot: ";
+        IConfigStore configStore = CMS.getConfigStore();
+        int slot;
+        String config = "symKey.downgrade.temp.slot";
+        try {
+            slot = configStore.getInteger(config, 0x5);
+        } catch (EBaseException e) {
+            throw new TPSException(method + "Internal error finding config value:" + config,
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+        }
+        CMS.debug(method + " returning " + slot);
+        return slot;
+    }
+    
+    /**
+     * ** G&D 256 Key Rollover Support **
+     * This method returns the configured keySet name for the purpose of rolling
+     * over symmetric key size from 128 to 256.  If such a configuration is not 
+     * found, an empty string will be returned and the key upgrade is disallowed.
+     *  
+     * @return the keySet name
+     * @throws TPSException 
+     */
+    protected String getKeyRolloverKeySet() throws TPSException {
+        String method = "TPSProcessor.getKeyRolloverKeySet: ";
+        IConfigStore configStore = CMS.getConfigStore();
+        String config = "symKey.rollover.keySet";
+        String keySet;
+        try {
+            keySet = configStore.getString(config, "");
+        } catch (EBaseException e) {
+            throw new TPSException(method + "Internal error finding config value:" + config,
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+        }
+        CMS.debug(method + " returning " + keySet);
+        return keySet;
+    }
+    
+    /**
+     * ** G&D 256 Key Rollover Support **
+     * This method returns the configured key version to upgrade to for the
+     * purpose of rolling over symmetric key size from 128 to 256.  If such a  
+     * configuration is not found, key version 0x21 will be returned as the 
+     * default OMK version.
+     * 
+     * @return the key version to roll over to
+     * @throws TPSException 
+     */
+    protected int getKeyRolloverVersion() throws TPSException {
+        String method = "TPSProcessor.getKeyRolloverVersion: ";
+        IConfigStore configStore = CMS.getConfigStore();
+        int ver;
+        String config = "symKey.rollover.keyVer";
+        try {
+            ver = configStore.getInteger(config, 0x21);
+        } catch (EBaseException e) {
+            throw new TPSException(method + "Internal error finding config value:" + config,
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+        }
+        CMS.debug(method + " returning " + ver);
+        return ver;
+    }
+    
+    /**
+     * ** G&D 256 Key Rollover Support **
+     * This method returns the configured temporary key slot/version used in the key 
+     * upgrade process for the purpose of rolling over symmetric key size from 128 to 256.  
+     * If such a configuration is not found, key slot/version 3 will be returned.
+     * 
+     * @return
+     * @throws TPSException
+     */
+    protected int getKeyRolloverTempSlot() throws TPSException {
+        String method = "TPSProcessor.getKeyRolloverTempSlot: ";
+        IConfigStore configStore = CMS.getConfigStore();
+        int slot;
+        String config = "symKey.rollover.temp.slot";
+        try {
+            slot = configStore.getInteger(config, 0x3);
+        } catch (EBaseException e) {
+            throw new TPSException(method + "Internal error finding config value:" + config,
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+        }
+        CMS.debug(method + " returning " + slot);
+        return slot;
+    }
+    
+    /**
+     * ** G&D 256 Key Rollover Support **
+     * This method gets the key info template on the card and returns it.
+     * 
+     * @return the TPSBuffer that contains the key info template
+     * @throws TPSException
+     * @throws IOException 
+     */
+    protected TPSBuffer getKeyInfoTemplate() throws TPSException, IOException {
+        // If card manager is not selected, select it
+        if (getSelectedCardMgr().size() == 0) {
+            selectDefaultCardManager();
+        }
+        // If it was selected already, make sure it is the one used here
+        else {
+            selectCardMgr(getSelectedCardMgr());
+        }
+        return getData(SecureChannel.GP211_GET_DATA_KEY_INFO);
+    }
+    
+    /**
+     * ** G&D 256 Key Rollover Support **
+     * This method returns the symmetric key size (e.g. 128 or 256 bits) on the card.
+     * The key size is calculated by extracting the octet length from the key info 
+     * template on card and multiplying it by 8.
+     *  
+     * @param cuid the token CUID (for debug logging)
+     * @return the symmetric key length on the card (e.g. 128 or 256)
+     * @throws TPSException
+     * @throws IOException 
+     */
+    protected Integer getCardSymKeyLength(String cuid) throws TPSException, IOException {
+        String method = "TPSProcessor.getCardSymKeyLength: CUID: " + cuid + ": ";
+        
+        TPSBuffer keyData;
+        if (platProtInfo != null) {
+            keyData = platProtInfo.getKeysetInfoData();
+            CMS.debug(method + " key info template from platProtInfo: " + keyData.toHexString());
+        }
+        else {
+            keyData = getKeyInfoTemplate();
+            CMS.debug(method + " key info template from getData: " + keyData.toHexString());
+        }
+        
+        Integer symKeyLen = null;
+        
+        // example for key info template:
+        // E0%12%C0%04%01%21%88%20%C0%04%02%21%88%20%C0%04%03%21%88%20%90%00%
+        // Byte 7 is the key octet length (0x20 in the example above)
+        int keyLenOffset = 7;    
+        if (keyData.size() > keyLenOffset) {
+            int keyOctetLen = keyData.getIntFrom1Byte(keyLenOffset);
+            CMS.debug(method + "  key octet length: " + keyOctetLen);
+            symKeyLen = keyOctetLen * 8;
+        }
+        return symKeyLen;
+    }
+    
+    /**
+     * ** G&D 256 Key Rollover Support **
+     * This method downgrades the symmetric key size for the purpose of rolling the 256 OMK back to
+     * 128 FMK.
+     * 
+     * @param appletInfo
+     * @param tokenRecord
+     * @param requiredVersion
+     * @param defKeyIndex
+     * @param connId
+     * @return the SecureChannel set up with the 128 FMK
+     * @throws TPSException
+     * @throws IOException 
+     */
+    protected SecureChannel downgradeSymKeySize(AppletInfo appletInfo, TokenRecord tokenRecord, int requiredVersion, int defKeyIndex, String connId) throws TPSException, IOException {
+        String method = "TPSProcessor.downgradeSymKeySize: CUID: " + tokenRecord.getId() + ": ";
+        SecureChannel channel = null;
+        TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+        String oldKeySet = getSelectedKeySet();
+        String newKeySet = oldKeySet;
+        try {
+            // find keySet name for the 128-bit sym key
+            String resolverInstName = getKeySetResolverInstanceName();
+            if (!resolverInstName.equals("none")) {
+                FilterMappingParams mappingParams = createFilterMappingParams(resolverInstName,
+                        appletInfo.getCUIDhexStringPlain(), appletInfo.getMSNString(),
+                        appletInfo.getMajorVersion(), appletInfo.getMinorVersion());
+                TPSSubsystem subsystem =
+                        (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+                BaseMappingResolver resolverInst =
+                        subsystem.getMappingResolverManager().getResolverInstance(resolverInstName);
+                    
+                newKeySet = resolverInst.getResolvedMapping(mappingParams, "keySet", 128);
+                CMS.debug(method + " resolved keySet: " + newKeySet);
+            }  else {
+                throw new TPSException("Invalid keySet resolver instance name: " + resolverInstName, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+            }
+        } catch (TPSException e) {
+            tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), e.toString(),
+                    "failure");
+            throw new TPSException(e.toString(), TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+        }
+        
+        // Make sure correct card manager is selected
+        if (getSelectedCardMgr().size() == 0) {
+            selectDefaultCardManager();
+        }
+        else {
+            selectCardMgr(getSelectedCardMgr());
+        }
+        appletInfo.setAid(getSelectedCardMgr());
+
+        channel = setupSecureChannel(appletInfo);
+        auditKeyChangeoverRequired(appletInfo, channel.getKeyInfoData().toHexStringPlain(), getSymmetricKeysRequiredVersionHexString(), null);
+        
+        // get the temporary slot (key version) where keys will be added to
+        byte tmpVer = (byte)getKeyDowngradeTempSlot();        
+        
+        TPSEngine engine = getTPSEngine();
+        int protocol = 3;
+        TPSBuffer curKeyInfo = channel.getKeyInfoData();
+        CMS.debug(method + " curKeyInfo: " + curKeyInfo.toHexString());
+        
+        byte[] nv = new byte[] { (byte)requiredVersion, curKeyInfo.at(1), curKeyInfo.at(2) };
+        TPSBuffer newVersion = new TPSBuffer(nv);
+        CMS.debug(method + " newVersion: " + newVersion.toHexString());
+      
+        // get key data from TKS
+        TPSBuffer keySetData = engine.createKeySetData(newVersion, curKeyInfo, protocol,
+              appletInfo.getCUID(),channel.getKeyDiversificationData(), channel.getDekSessionKeyWrapped(), connId, newKeySet, oldKeySet);
+        CMS.debug(method + " new keySetData from TKS: " + keySetData.substr(0, 4).toHexString() + "...");
+        
+        // change the 1st byte of keySetData to the configured temporary key version (slot where keys to be added to)
+        TPSBuffer modKeySetData = new TPSBuffer(keySetData);
+        modKeySetData.setAt(0, (byte)tmpVer);
+        CMS.debug(method + " modified keySetData from TKS before add key: " + modKeySetData.substr(0, 4).toHexString() + "...");
+
+        try {
+            // step 1: add the new keys (note: 1st param 0x0 is for add, 2nd param is not used in putKeys)
+            channel.putKeys((byte)0x0, curKeyInfo.at(1), modKeySetData);
+            CMS.debug(method + " successfully added keys to slot " + tmpVer);
+        } catch (TPSException | IOException e) {
+            CMS.debug(method + " failed to add key to slot " + tmpVer + ": " + e.getMessage());
+            tps.tdb.tdbActivity(ActivityDatabase.OP_KEY_CHANGEOVER, tokenRecord, session.getIpAddress(),
+                    "Failed to send new GP Key Set to token", "failure");
+            throw e;
+        }
+              
+        try {
+            // step 2: delete keys at the current version
+            channel.deleteKeys(curKeyInfo.at(0));
+            CMS.debug(method + " successfully deleted keys in slot " + curKeyInfo.at(0));
+        } catch (TPSException | IOException e) {
+            CMS.debug(method + " failed to delete keys in slot " + curKeyInfo.at(0) + ": " + e.getMessage());
+            tps.tdb.tdbActivity(ActivityDatabase.OP_KEY_CHANGEOVER, tokenRecord, session.getIpAddress(),
+                    "Failed to delete GP Key Set from token", "failure");
+            throw e;
+        }        
+
+        try {
+            // step 3: replace the current version/slot with the new key added in step 1
+            channel.putKeys(tmpVer, curKeyInfo.at(1), keySetData);  
+            CMS.debug(method + " successfully replaced key in slot " + tmpVer + " with key in " + keySetData.at(0));
+        } catch (TPSException | IOException e) {
+            CMS.debug(method + " failed to replace keys in slot " + tmpVer + " with key in " + keySetData.at(0) + ": " + e.getMessage());
+            tps.tdb.tdbActivity(ActivityDatabase.OP_KEY_CHANGEOVER, tokenRecord, session.getIpAddress(),
+                    "Failed to send new GP Key Set to token", "failure");
+            throw e;
+        }
+        
+        // log key changeover event
+        tps.tdb.tdbActivity(ActivityDatabase.OP_KEY_CHANGEOVER, tokenRecord, session.getIpAddress(),
+                "Sent new GP Key Set to token", "success");
+        
+        CMS.debug(method + " key info template: " + getKeyInfoTemplate().toHexString());
+        
+        CMS.debug(method + " changing token db keyInfo to: " + newVersion.toHexStringPlain());
+        tokenRecord.setKeyInfo(newVersion.toHexStringPlain());       
+        
+        // change the selected keySet name to the new keySet name before calling setupSecureChannel
+        setSelectedKeySet(newKeySet);
+        
+        selectCoolKeyApplet();
+        
+        channel = setupSecureChannel(newVersion.at(0), (byte)defKeyIndex, connId, appletInfo);
+        
+        CMS.debug(method + " done setupSecureChannel with version " + newVersion.at(0));
+        
+        auditKeyChangeover(appletInfo, "success", curKeyInfo.toHexString(), newVersion.toHexString(), null);
+        
+        return channel;
+    } 
+    
+    
+    /**
+     * ** G&D 256 Key Rollover Support **
+     * This method upgrade the symmetric key size for the purpose of rolling the 128 OMK to 256 OMK.
+     * The steps include adding the 256-bit keys to a temporary slot (e.g. v3), deleting the current
+     * version 128-bit key, and replacing current version with the 256-bit keys.
+     * 
+     * @param appletInfo
+     * @param tokenRecord
+     * @param requiredVersion
+     * @param defKeyIndex
+     * @param connId
+     * @return the SecureChannel set up with new 256-bit key
+     * @throws TPSException
+     * @throws IOException 
+     *
+     */
+    protected SecureChannel upgradeSymKeySize(AppletInfo appletInfo, TokenRecord tokenRecord, int requiredVersion, int defKeyIndex, String connId) throws TPSException, IOException {
+        String method = "TPSProcessor.upgradeSymKeySize: CUID: " + tokenRecord.getId() + ": ";
+        SecureChannel channel = null;
+        TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+        String oldKeySet = getSelectedKeySet();
+        String newKeySet = oldKeySet;
+        try {
+            // find keySet name for the 256-bit sym key
+            String resolverInstName = getKeySetResolverInstanceName();
+            if (resolverInstName != null && !resolverInstName.equals("none")) {
+                FilterMappingParams mappingParams = createFilterMappingParams(resolverInstName,
+                        appletInfo.getCUIDhexStringPlain(), appletInfo.getMSNString(),
+                        appletInfo.getMajorVersion(), appletInfo.getMinorVersion());
+                TPSSubsystem subsystem =
+                        (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+                BaseMappingResolver resolverInst =
+                        subsystem.getMappingResolverManager().getResolverInstance(resolverInstName);
+                    
+                newKeySet = resolverInst.getResolvedMapping(mappingParams, "keySet", 256);
+                CMS.debug(method + " resolved keySet: " + newKeySet);
+            } else {
+                throw new TPSException("Invalid keySet resolver instance name: " + resolverInstName, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+            }
+        } catch (TPSException e) {
+            tps.tdb.tdbActivity(ActivityDatabase.OP_KEY_CHANGEOVER, tokenRecord, session.getIpAddress(), e.toString(),
+                    "failure");
+            throw new TPSException(e.toString(), TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+        }
+        
+        // Make sure correct card manager is selected
+        if (getSelectedCardMgr().size() == 0) {
+            selectDefaultCardManager();
+        }
+        else {
+            selectCardMgr(getSelectedCardMgr());
+        }
+        appletInfo.setAid(getSelectedCardMgr());
+
+        channel = setupSecureChannel(appletInfo);
+        auditKeyChangeoverRequired(appletInfo, channel.getKeyInfoData().toHexStringPlain(), getSymmetricKeysRequiredVersionHexString(), null);
+        
+        // get the temporary slot (key version) where keys will be added to
+        byte tmpVer = (byte)getKeyRolloverTempSlot();        
+        
+        TPSEngine engine = getTPSEngine();
+        int protocol = 3;
+        TPSBuffer curKeyInfo = channel.getKeyInfoData();
+        CMS.debug(method + " curKeyInfo: " + curKeyInfo.toHexString());
+        
+        byte[] nv = new byte[] { (byte)requiredVersion, curKeyInfo.at(1), curKeyInfo.at(2) };
+        TPSBuffer newVersion = new TPSBuffer(nv);
+        CMS.debug(method + " newVersion: " + newVersion.toHexString());
+      
+        // get key data from TKS
+        TPSBuffer keySetData = engine.createKeySetData(newVersion, curKeyInfo, protocol,
+              appletInfo.getCUID(),channel.getKeyDiversificationData(), channel.getDekSessionKeyWrapped(), connId, newKeySet, oldKeySet);
+        CMS.debug(method + " new keySetData from TKS: " + keySetData.substr(0, 4).toHexString() + "...");
+        
+        // change the 1st byte of keySetData to the configured temporary key version (slot where keys to be added to)
+        TPSBuffer modKeySetData = new TPSBuffer(keySetData);
+        modKeySetData.setAt(0, (byte)tmpVer);
+        CMS.debug(method + " modified keySetData from TKS before add key: " + modKeySetData.substr(0, 4).toHexString() + "...");
+
+        try {
+            // step 1: add new 256 OMK to temp slot or 3 (note: 1st param 0x0 is for add, 2nd param is not used in putKeys)
+            channel.putKeys((byte)0x0, curKeyInfo.at(1), modKeySetData);
+            CMS.debug(method + " successfully added keys to slot " + tmpVer);
+        } catch (TPSException | IOException e) {
+            CMS.debug(method + " failed to add key to slot " + tmpVer + ": " + e.getMessage());
+            
+            // Attempt to recover from previous upgrade failure:
+            // Check whether the exception is caused by the previous failure during deleteKeys.
+            // The previous deleteKeys failure can be determined by the number of keys in 
+            // the key info template.  There are 3 keys in each set of keys. If 2 sets of keys (6 keys)
+            // are in the key info template, then we can proceed with deleteKeys.
+            boolean errorOutNow = true;
+            if (platProtInfo != null) {
+                TPSBuffer keyTemplateOnCard = platProtInfo.getKeysetInfoData();
+                CMS.debug(method + " key template on card: " + keyTemplateOnCard.toHexString());
+                
+                // The 2nd byte in the key info template tells the total number of bytes of all the keys.
+                // Each key is made up of 6 bytes in the template.
+                byte dataLength = keyTemplateOnCard.at(1);
+                CMS.debug(method + " data length: " + String.format("%02X", dataLength));
+                
+                // if 2 sets of keys on card (0x24 = 36; 36/6 = 6 keys),
+                // try to recover from previous failure by continuing to delete keys
+                if (dataLength == (byte) 0x24)
+                {
+                    CMS.debug(method + " Found 2 sets of keys on card. Try to delete keys");
+                    errorOutNow = false;
+                }
+            }
+            // If exception is not caused by previous deleteKeys failure, throw the exception
+            if (errorOutNow)
+            {           
+                tps.tdb.tdbActivity(ActivityDatabase.OP_KEY_CHANGEOVER, tokenRecord, session.getIpAddress(),
+                        "Failed to send new GP Key Set to token", "failure");
+                throw e;
+            }
+        }
+              
+        try {
+            // Step 2: delete the 128 OMK in current slot (S21)
+            channel.deleteKeys(curKeyInfo.at(0));
+            CMS.debug(method + " successfully deleted keys in slot " + curKeyInfo.at(0));
+        } catch (TPSException | IOException e) {
+            CMS.debug(method + " failed to delete keys in slot " + curKeyInfo.at(0) + ": " + e.getMessage());
+            tps.tdb.tdbActivity(ActivityDatabase.OP_KEY_CHANGEOVER, tokenRecord, session.getIpAddress(),
+                    "Failed to delete GP Key Set from token", "failure");
+            throw e;
+        }        
+
+        try {
+            // Step 3: replace key: move the 256 OMK from temp slot (S3) to the current slot (S21)
+            channel.putKeys(tmpVer, curKeyInfo.at(1), keySetData);  
+            CMS.debug(method + " successfully replaced keys in slot " + tmpVer + " with keys in " + keySetData.at(0));            
+        } catch (TPSException | IOException e) {
+            CMS.debug(method + " failed to replace keys in slot " + tmpVer + " with key in " + keySetData.at(0) + ": " + e.getMessage());
+            tps.tdb.tdbActivity(ActivityDatabase.OP_KEY_CHANGEOVER, tokenRecord, session.getIpAddress(),
+                    "Failed to send new GP Key Set to token", "failure");
+            throw e;
+        }
+        
+        // log key changeover event
+        tps.tdb.tdbActivity(ActivityDatabase.OP_KEY_CHANGEOVER, tokenRecord, session.getIpAddress(),
+                "Sent new GP Key Set to token", "success");
+        
+        CMS.debug(method + " key info template: " + getKeyInfoTemplate().toHexString());
+        
+        CMS.debug(method + " changing token db keyInfo to: " + newVersion.toHexStringPlain());
+        tokenRecord.setKeyInfo(newVersion.toHexStringPlain());
+        
+        // change the selected keySet name to the new 256 keySet name before calling setupSecureChannel
+        setSelectedKeySet(newKeySet);
+        
+        // this is needed for using the secure channel to set the PIN on token
+        selectCoolKeyApplet();
+        
+        // create the secure channel with S21:256 OMK
+        channel = setupSecureChannel(newVersion.at(0), (byte)defKeyIndex, connId, appletInfo);
+        
+        CMS.debug(method + " done setupSecureChannel with version " + newVersion.at(0));
+        
+        auditKeyChangeover(appletInfo, "success", curKeyInfo.toHexString(), newVersion.toHexString(), null);
+        
+        return channel;
+    }
+
+    // ** Applet and Alg Selection by Token Range Support **
+    protected void setSelectedKeyWrapAlg(String theKeyWrapAlg) {
+        selectedKeyWrapAlg = theKeyWrapAlg;
+    }
+
+    public String getSelectedKeyWrapAlg() {
+        return selectedKeyWrapAlg;
+    }
+    
+    protected void setSelectedAppletVer(String theAppletVer) {
+        selectedAppletVer = theAppletVer;
+    }
+
+    public String getSelectedAppletVer() {
+        return selectedAppletVer;
+    }
+    
+    public boolean isDesConfigured() {
+        boolean configured = (selectedKeyWrapAlg != null && selectedKeyWrapAlg.equalsIgnoreCase("DES"));
+        CMS.debug("TPSProcessor.isDesConfigured: returning " + configured);
+        return configured;
     }
 
     public static void main(String[] args) {

@@ -120,8 +120,6 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
             throw e;
         }
-        appletInfo.setAid(getCardManagerAID());
-
         CMS.debug(method + " token cuid: " + appletInfo.getCUIDhexStringPlain());
         boolean isTokenPresent = false;
 
@@ -264,9 +262,33 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
                     BaseMappingResolver resolverInst = subsystem.getMappingResolverManager()
                             .getResolverInstance(resolverInstName);
-                    String keySet = resolverInst.getResolvedMapping(mappingParams, "keySet");
+                    
+                    // ** G&D 256 Key Rollover Support **
+                    // Get the key size on card and pass it in to getResolvedMapping
+                    Integer symKeySize = getCardSymKeyLength(appletInfo.getCUIDhexStringPlain());
+                    CMS.debug(method + " symKeySize on card: " + symKeySize);
+                    
+                    String keySet = resolverInst.getResolvedMapping(mappingParams, "keySet", symKeySize);
                     setSelectedKeySet(keySet);
                     CMS.debug(method + " resolved keySet: " + keySet);
+                    
+                    // ** Applet and Alg Selection by Token Range Support begin **
+                    try {
+                        String keyWrapAlg = resolverInst.getResolvedMapping(mappingParams, "keyWrapAlg", symKeySize);
+                        setSelectedKeyWrapAlg(keyWrapAlg);
+                        CMS.debug(method + " resolved keyWrapAlg: " + keyWrapAlg);
+                    } catch (TPSException e) {
+                        CMS.debug(method + " OK not to have keyWrapAlg target in token range mapping");
+                    }
+                    
+                    try {
+                        String appletVer = resolverInst.getResolvedMapping(mappingParams, "appletVer", symKeySize);
+                        setSelectedAppletVer(appletVer);
+                        CMS.debug(method + " resolved appletVer: " + appletVer);
+                    } catch (TPSException e) {
+                        CMS.debug(method + " OK not to have appletVer target in token range mapping");
+                    }
+                    // ** Applet and Alg Selection by Token Range Support end **
                 }
             } catch (TPSException e) {
                 logMsg = e.toString();
@@ -276,7 +298,6 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
             }
         } else {
-            CMS.debug(method + " isExternalReg: OFF");
             /*
              * Note: op.enroll.mappingResolver=none indicates no resolver
              *    plugin used (tokenType resolved perhaps via authentication)
@@ -302,6 +323,14 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
                 throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
             }
+        }
+
+        //RedHat do this to check the fact that DES has been configured for the non external Reg legacy key wrapping.
+        if(!isExternalReg) {
+            //RedHat method name change
+            String aesKeyWrapAlg =  establishSymKeyWrapAlgSSKeyGen();
+            //We don't care about the answer here, we just want to set the fact that des is configured.
+            CMS.debug(method + " non external reg: aesKeyWrapAlg: " + aesKeyWrapAlg);
         }
 
         checkProfileStateOK();
@@ -1021,11 +1050,6 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
                 TPSBuffer obj = channel.readObject(objectID, 0, (int) objectLenVal);
 
-                if (obj != null) {
-                    //CMS.debug("PKCS11Obj.getCurrentObjectsOnToken: obj: " + obj.toHexString());
-                    CMS.debug("PKCS11Obj.getCurrentObjectsOnToken: obj exists");
-                }
-
                 if ((char) objectID.at(0) == (byte) 'z' && objectID.at(1) == (byte) '0') {
                     lastFormatVersion = obj.getIntFrom2Bytes(0);
                     lastObjectVersion = obj.getIntFrom2Bytes(2);
@@ -1311,6 +1335,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 session.getExternalRegAttrs().getCertsToRecoverCount());
         ArrayList<ExternalRegCertToRecover> erCertsToRecover = session.getExternalRegAttrs().getCertsToRecover();
 
+        //RedHat method name change
+        String aesKeyWrapAlg = establishSymKeyWrapAlgSSKeyGen();
         for (ExternalRegCertToRecover erCert : erCertsToRecover) {
             BigInteger keyid = erCert.getKeyid();
             BigInteger serial = erCert.getSerial();
@@ -1409,12 +1435,14 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     logMsg = "channel.getDRMWrappedDesKey() not null";
                     CMS.debug(method + logMsg);
                 }
+                TPSBuffer drmDesKey = getDRMDesKeyByProtocol(channel);
+                TPSBuffer drmAesKey = getDRMAesKeyByProtocol(channel);
 
                 keyResp = tps.getEngine().recoverKey(cuid,
                         userid,
-                        channel.getDRMWrappedDesKey(),
+                        drmDesKey,drmAesKey,
                         getExternalRegRecoverByKeyID() ? null : b64cert,
-                        kraConn, keyid);
+                        kraConn, keyid,aesKeyWrapAlg);
 
                 if (keyResp == null) {
                     auditInfo = "recovering key not found";
@@ -1435,6 +1463,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
             cEnrollInfo.setTokenToBeRecovered(tokenRecord);
             cEnrollInfo.setRecoveredCertData(certResp);
             cEnrollInfo.setRecoveredKeyData(keyResp);
+            cEnrollInfo.setAesKeyWrapAlg(aesKeyWrapAlg);
+
             preRecoveredCerts.add(cEnrollInfo);
 
         }
@@ -1665,6 +1695,9 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         boolean recoverOldEncCerts = tokenPolicy.isAllowdRenewSaveOldEncCerts();
         CMS.debug(method + " Recover Old Encryption Certs for Renewed Certs: " + recoverOldEncCerts);
+
+        //RedHat method name change
+        String aesKeyWrapAlg = establishSymKeyWrapAlgSSKeyGen();
         if (oldEncCertsToRecover.size() > 0 && recoverOldEncCerts == true) {
             CMS.debug("About to attempt to recover old encryption certs just renewed.");
 
@@ -1683,9 +1716,14 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     String b64cert = certResponse.getCertB64();
                     CMS.debug("TPSEnrollProcessor.processRecovery: cert blob recovered");
 
+                    TPSBuffer drmDesKey = getDRMDesKeyByProtocol(channel);
+                    TPSBuffer drmAesKey = getDRMAesKeyByProtocol(channel);
+
                     KRARecoverKeyResponse keyResponse = tps.getEngine().recoverKey(toBeRecovered.getId(),
                             toBeRecovered.getUserID(),
-                            channel.getDRMWrappedDesKey(), b64cert, getDRMConnectorID(toBeRecovered.getKeyType()));
+                            drmDesKey,
+                            drmAesKey,
+                            b64cert, getDRMConnectorID(toBeRecovered.getKeyType()),aesKeyWrapAlg);
 
                     //Try to write recovered cert to token
 
@@ -1694,6 +1732,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     cEnrollInfo.setTokenToBeRecovered(tokenRecord);
                     cEnrollInfo.setRecoveredCertData(certResponse);
                     cEnrollInfo.setRecoveredKeyData(keyResponse);
+                    cEnrollInfo.setAesKeyWrapAlg(aesKeyWrapAlg);
 
                     PKCS11Obj pkcs11obj = certsInfo.getPKCS11Obj();
                     int newCertId = pkcs11obj.getNextFreeCertIdNumber();
@@ -1948,6 +1987,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
         int actualCertIndex = 0;
         boolean legalScheme = false;
 
+        //RedHat method name change.
+        String aesKeyWrapAlg = establishSymKeyWrapAlgSSKeyGen();
         //Go through again and do the recoveries/enrollments
 
         certsInfo.setNumCertsToEnroll(totalNumCerts);
@@ -1967,6 +2008,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
             if (scheme.equals(TPSEngine.RECOVERY_GENERATE_NEW_KEY) || isGenerateAndRecover) {
                 legalScheme = true;
                 CertEnrollInfo cEnrollInfo = new CertEnrollInfo();
+                cEnrollInfo.setAesKeyWrapAlg(aesKeyWrapAlg);
                 generateCertificate(certsInfo, channel, aInfo, keyTypeValue, TPSEngine.ENROLL_MODES.MODE_ENROLL,
                         actualCertIndex, cEnrollInfo);
 
@@ -2027,15 +2069,20 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     //CMS.debug("TPSEnrollProcessor.processRecovery: recoverd cert blob: " + b64cert);
                     CMS.debug("TPSEnrollProcessor.processRecovery: cert blob recovered");
 
+		    TPSBuffer drmDesKey = getDRMDesKeyByProtocol(channel);
+		    TPSBuffer drmAesKey = getDRMAesKeyByProtocol(channel);
+
                     KRARecoverKeyResponse keyResponse = tps.getEngine().recoverKey(toBeRecovered.getId(),
                             toBeRecovered.getUserID(),
-                            channel.getDRMWrappedDesKey(), b64cert, getDRMConnectorID(certToRecover.getKeyType()));
+                            drmDesKey,drmAesKey,
+                            b64cert, getDRMConnectorID(certToRecover.getKeyType()),aesKeyWrapAlg);
 
                     CertEnrollInfo cEnrollInfo = new CertEnrollInfo();
 
                     cEnrollInfo.setTokenToBeRecovered(toBeRecovered);
                     cEnrollInfo.setRecoveredCertData(certResponse);
                     cEnrollInfo.setRecoveredKeyData(keyResponse);
+                    cEnrollInfo.setAesKeyWrapAlg(aesKeyWrapAlg);
 
                     generateCertificate(certsInfo, channel, aInfo, keyTypeValue, TPSEngine.ENROLL_MODES.MODE_RECOVERY,
                             actualCertIndex, cEnrollInfo);
@@ -2440,6 +2487,10 @@ public class TPSEnrollProcessor extends TPSProcessor {
         boolean isRecovery = false;
         boolean isRenewal = false;
 
+        //Method name change
+        String aesKeyWrapAlg = establishSymKeyWrapAlgSSKeyGen();
+        cEnrollInfo.setAesKeyWrapAlg(aesKeyWrapAlg);
+
         if (mode == ENROLL_MODES.MODE_RECOVERY) {
             isRecovery = true;
 
@@ -2475,10 +2526,13 @@ public class TPSEnrollProcessor extends TPSProcessor {
             String publicKeyStr = null;
             //Do this for JUST server side keygen
             if (isRecovery == false) {
+                TPSBuffer drmDesKey = getDRMDesKeyByProtocol(channel);
+                TPSBuffer drmAesKey = getDRMAesKeyByProtocol(channel);
+
                 ssKeyGenResponse = getTPSEngine()
                         .serverSideKeyGen(cEnrollInfo.getKeySize(),
-                                aInfo.getCUIDhexStringPlain(), userid, kraConnId, channel.getDRMWrappedDesKey(),
-                                archive, isECC);
+                                aInfo.getCUIDhexStringPlain(), userid, kraConnId, drmDesKey,drmAesKey,
+                                archive, isECC, aesKeyWrapAlg);
 
                 publicKeyStr = ssKeyGenResponse.getPublicKey();
                 //CMS.debug("TPSEnrollProcessor.enrollOneCertificate: public key string from server: " + publicKeyStr);
@@ -3129,33 +3183,58 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
 
         }
-
+        TPSBuffer kekWrappedAESKey = channel.getKekAesKey();
         TPSBuffer kekWrappedDesKey = channel.getKekDesKey();
+        TPSBuffer kekWrappedKey = null;
+	if(kekWrappedAESKey != null) {
+            CMS.debug("TPSEnrollProcessor.importPrivateKeyPKCS8 : kekWrappedAesKey provided.");
+        }
 
         if (kekWrappedDesKey != null) {
 //            CMS.debug("TPSEnrollProcessor.importPrivateKeyPKCS8: keyWrappedDesKey: " + kekWrappedDesKey.toHexString());
             CMS.debug("TPSEnrollProcessor.importPrivateKeyPKCS8: got keyWrappedDesKey");
         } else
-            CMS.debug("TPSEnrollProcessor.iportPrivateKeyPKC8: null kekWrappedDesKey!");
+            CMS.debug("TPSEnrollProcessor.importPrivateKeyPKC8: null kekWrappedDesKey!");
 
         byte alg = (byte) 0x80;
         if (kekWrappedDesKey != null && kekWrappedDesKey.size() > 0) {
+            CMS.debug("TPSEnrollProcessor.importPrivateKeyPKC8: setting alg to 0x81 for DES wrapping!");
+            kekWrappedKey = kekWrappedDesKey;
             alg = (byte) 0x81;
         }
 
+        //RedHat modify to allow for the non external reg key wrap alg to be set to DES for legacy tokens.
+        //Give preference to AES kek wrapped key for SCP03, otherwise go with DES for SCP01 or even SCP03 if so configured.
+        //This allows the feature of legacy DES wrapping for SCP03 legacy tokens when not using externalReg.
+	if(kekWrappedAESKey != null && kekWrappedAESKey.size() > 0 && channel.isSCP03() && !isDesConfigured())// ** Applet and Alg Selection by Token Range Support: check if DES is configured)
+        {
+            String aesKeyWrapAlg = cEnrollInfo.getAesKeyWrapAlg();
+
+            if(aesKeyWrapAlg != null && "CBC".equalsIgnoreCase(aesKeyWrapAlg)) { //CBC
+                CMS.debug("TPSEnrollProcessor.importPrivateKeyPKCS8: unwrap the priv key with AES CBC ");
+                alg = (byte) 0x89;
+            } else { // KWP
+                CMS.debug("TPSEnrollProcessor.importPrivateKeyPKCS8: unwrap the priv key with AES KWP ");
+                alg = (byte) 0x88;
+            }
+
+            kekWrappedKey = kekWrappedAESKey;
+        }
+
+	CMS.debug("TPSEnrollProcessor.importPrivateKeyPKCS8 : kek wrapped key outgoing: size:  " + kekWrappedKey.size());
         TPSBuffer data = new TPSBuffer();
 
         data.add(objIdBuff);
         data.add(alg);
-        data.add((byte) kekWrappedDesKey.size());
-        data.add(kekWrappedDesKey);
+        data.add((byte) kekWrappedKey.size());
+        data.add(kekWrappedKey);
         data.add((byte) keyCheck.size());
         if (keyCheck.size() > 0) {
             data.add(keyCheck);
         }
         data.add((byte) ivParamsBuff.size());
         data.add(ivParamsBuff);
-//        CMS.debug("TPSEnrollProcessor.importprivateKeyPKCS8: key data outgoing: " + data.toHexString());
+        //CMS.debug("TPSEnrollProcessor.importprivateKeyPKCS8: key data outgoing: " + data.toHexString());
 
         int pe1 = (cEnrollInfo.getKeyUser() << 4) + cEnrollInfo.getPrivateKeyNumber();
         int pe2 = (cEnrollInfo.getKeyUsage() << 4) + cEnrollInfo.getPublicKeyNumber();
@@ -3426,6 +3505,46 @@ public class TPSEnrollProcessor extends TPSProcessor {
         }
 
         return parsedPubKey;
+    }
+
+    //Redhat change name of method since it's multi purpose.
+    public String establishSymKeyWrapAlgSSKeyGen() {
+
+        String aesKeyWrapAlg = "KWP";
+      
+        String method = "TPSEnrollProcessor::establishSymKeyWrapAlgSSKeyGen: "; 
+        // Applet and Alg Selection by Token Range Support - check keyWrapAlg target configuration in token range first
+        String selectedAlg = getSelectedKeyWrapAlg();
+        if (selectedAlg == null) {  // Applet and Alg Selection by Token Range Support - use aesKeyWrapAlg configured by tokenType
+            IConfigStore configStore = CMS.getConfigStore();
+            
+            // op.enroll.userKey.keyGen.aesKeyWrapAlg 
+            try {
+                String configValue = TPSEngine.OP_ENROLL_PREFIX + "." + selectedTokenType + "." + TPSEngine.CFG_KEYGEN +
+                       "." +  TPSEngine.CFG_AES_KEY_WRAP_ALG;
+    
+                CMS.debug(method + " configValue . " + configValue);
+                aesKeyWrapAlg = configStore.getString(
+                        configValue, "KWP");
+                CMS.debug(method + " value " + aesKeyWrapAlg);
+                // Red Hat call into the new method to set DES to allow it to work for the non external reg case.
+                if(aesKeyWrapAlg.equalsIgnoreCase("DES")) {
+                    CMS.debug(method + " DES configured per original token based value.");
+                    setSelectedKeyWrapAlg(aesKeyWrapAlg);
+                }
+    
+            } catch (EBaseException e) {
+                //return default
+                return aesKeyWrapAlg;
+            }
+        } else  {
+            aesKeyWrapAlg = selectedAlg;
+            CMS.debug(method + " using keyWrapAlg configured by token range or token type: " + aesKeyWrapAlg);
+        }
+       
+        CMS.debug(method + " returning: " + aesKeyWrapAlg); 
+        return aesKeyWrapAlg;
+
     }
 
     private boolean checkForServerSideKeyGen(CertEnrollInfo cInfo) throws TPSException {
@@ -3914,6 +4033,40 @@ public class TPSEnrollProcessor extends TPSProcessor {
         CMS.debug(method + "returning allow: " + allow);
 
         return allow;
+    }
+
+
+    // RH update for AES Key Wrap Alg
+    private TPSBuffer getDRMDesKeyByProtocol(SecureChannel channel) {
+
+        String method = "TPSEnrollProcessor.getDRMDesKeyByProtocol: ";
+        int prot = getProtocol();
+        TPSBuffer drmDesKey = null;
+        
+        CMS.debug(method + " protocol: " + prot);
+
+        if(prot == 1 || isDesConfigured()) { // ** Applet and Alg Selection by Token Range Support: case of SafeNet SCP03 still using DES
+            drmDesKey = channel.getDRMWrappedDesKey();
+        }
+
+        return drmDesKey;
+    }
+
+    // RH update for AES Key Wrap Alg
+    private TPSBuffer getDRMAesKeyByProtocol(SecureChannel channel) {
+
+        String method = "TPSEnrollProcessor.getDRMAesKeyByProtocol: ";
+
+        int prot = getProtocol();
+        TPSBuffer drmAesKey = null;
+
+        CMS.debug(method + " protocol: " + prot);
+
+        if(prot == 3 && !isDesConfigured()) { // ** Applet and Alg Selection by Token Range Support: case of SafeNet SCP03 still using DES
+            drmAesKey = channel.getDRMWrappedAesKey();
+        }
+
+        return drmAesKey;
     }
 
     public static void main(String[] args) {

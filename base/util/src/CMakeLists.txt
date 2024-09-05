@@ -52,14 +52,6 @@ find_file(XALAN_JAR
         /usr/share/java
 )
 
-find_file(XERCES_JAR
-    NAMES
-        xerces-j2.jar
-    PATHS
-        ${JAVA_LIB_INSTALL_DIR}
-        /usr/share/java
-)
-
 find_file(NUXWDOG_JAR
     NAMES
         nuxwdog.jar
@@ -73,7 +65,7 @@ javac(pki-nsutil-classes
     SOURCES
         netscape/*.java
     CLASSPATH
-        ${APACHE_COMMONS_LANG_JAR} ${LDAPJDK_JAR} ${XALAN_JAR} ${XERCES_JAR}
+        ${APACHE_COMMONS_LANG_JAR} ${LDAPJDK_JAR} ${XALAN_JAR}
         ${JSS_JAR} ${COMMONS_CODEC_JAR}
         ${SLF4J_API_JAR}
     OUTPUT_DIR
@@ -118,7 +110,7 @@ javac(pki-cmsutil-classes
         com/netscape/cmsutil/*.java
     CLASSPATH
         ${APACHE_COMMONS_LANG_JAR} ${HTTPCORE_JAR} ${HTTPCLIENT_JAR}
-        ${LDAPJDK_JAR} ${XALAN_JAR} ${XERCES_JAR}
+        ${LDAPJDK_JAR} ${XALAN_JAR}
         ${JSS_JAR} ${COMMONS_CODEC_JAR} ${NUXWDOG_JAR}
         ${SLF4J_API_JAR}
     OUTPUT_DIR

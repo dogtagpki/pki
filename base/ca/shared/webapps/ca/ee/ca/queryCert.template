@@ -336,7 +336,7 @@ if (result.recordSet.length == 0) {
 	);
 
 	document.write("<table BORDER=0 CELLSPACING=2 CELLPADDING=6 WIDTH='100%'>\n"+
-		"<tr align=center><td>\n");
+		"<tr align=center><td></table>\n");
 	displayNextForm();
 
 	document.write(

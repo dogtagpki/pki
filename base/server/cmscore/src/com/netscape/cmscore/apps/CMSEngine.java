@@ -43,9 +43,10 @@ import java.util.Vector;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.xerces.parsers.DOMParser;
 import org.dogtagpki.legacy.core.policy.GeneralNameUtil;
 import org.dogtagpki.legacy.policy.IGeneralNameAsConstraintsConfig;
 import org.dogtagpki.legacy.policy.IGeneralNamesAsConstraintsConfig;
@@ -58,6 +59,7 @@ import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.util.PasswordCallback;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -618,9 +620,16 @@ public class CMSEngine implements ICMSEngine {
         try {
             String instanceRoot = mConfig.getString("instanceRoot");
             String path = instanceRoot + File.separator + "conf" + File.separator + SERVER_XML;
-            DOMParser parser = new DOMParser();
-            parser.parse(path);
-            NodeList nodes = parser.getDocument().getElementsByTagName("Connector");
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance(
+                    "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl",
+                    this.getClass().getClassLoader());
+            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(new File(path));
+            doc.getDocumentElement().normalize();
+            NodeList nodes = doc.getElementsByTagName("Connector");
             String parentName = "";
             String name = "";
             String port = "";

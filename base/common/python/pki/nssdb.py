@@ -424,7 +424,16 @@ class NSSDatabase(object):
         logger.debug('Command: %s', ' '.join(cmd))
         subprocess.check_call(cmd)
 
-    def create_noise(self, noise_file, size=2048):
+    def create_noise(self, noise_file, size=2048, key_type='rsa'):
+        # Under EC keys, key_size parameter is actually the name of a curve.
+        # This curve maps to a specific size, but EC keys require less entropy
+        # to generate than RSA keys. We can either maintain a mapping of
+        # curve name -> key size (and note that the openssl rand command takes
+        # the number of bytes, not the number of bits), or we can hard-code
+        # some safe value. We choose the latter.
+        if key_type.lower() in ('ec', 'ecc'):
+            size = 1024
+
         cmd = [
             'openssl',
             'rand',
@@ -479,17 +488,20 @@ class NSSDatabase(object):
                 Raw extension data (``bytes``)
 
         """
-        if not cka_id:
-            cka_id = self.generate_key(
-                key_type=key_type, key_size=key_size,
-                curve=curve, noise_file=noise_file)
-        if not isinstance(cka_id, six.text_type):
-            raise TypeError('cka_id must be a text string')
+
+        logger.debug("nssdb.py:create_request starts")
 
         tmpdir = tempfile.mkdtemp()
 
         try:
             if subject_key_id is not None:
+                if not cka_id:
+                    cka_id = self.generate_key(
+                        key_type=key_type, key_size=key_size,
+                        curve=curve, noise_file=noise_file)
+                if not isinstance(cka_id, six.text_type):
+                    raise TypeError('cka_id must be a text string')
+
                 if subject_key_id == 'DEFAULT':
                     # Caller wants a default subject key ID included
                     # in CSR.  To do this we must first generate a
@@ -536,11 +548,25 @@ class NSSDatabase(object):
             if token:
                 cmd.extend(['-h', token])
 
+            if cka_id is not None:
+                key_args = ['-k', cka_id]
+            else:
+                key_args = self.__generate_key_args(
+                    key_type=key_type, key_size=key_size, curve=curve)
+                if noise_file is None:
+                    noise_file = os.path.join(tmpdir, 'noise')
+                    size = key_size if key_size else 2048
+                    self.create_noise(noise_file=noise_file, size=size, key_type=key_type)
+                key_args.extend(['-z', noise_file])
+
+            cmd.extend(key_args)
+
+            if self.password_file:
+                cmd.extend(['-f', self.password_file])
+
             cmd.extend([
-                '-f', self.password_file,
                 '-s', subject_dn,
                 '-o', binary_request_file,
-                '-k', cka_id,
             ])
 
             if hash_alg:
@@ -690,7 +716,7 @@ class NSSDatabase(object):
             fd, noise_file = tempfile.mkstemp()
             os.close(fd)
             size = key_size if key_size else 2048
-            self.create_noise(noise_file=noise_file, size=size)
+            self.create_noise(noise_file=noise_file, size=size, key_type=key_type)
         cmd.extend(['-z', noise_file])
 
         try:
@@ -1334,3 +1360,54 @@ class NSSDatabase(object):
 
         finally:
             shutil.rmtree(tmpdir)
+
+
+    @staticmethod
+    def __generate_key_args(key_type=None, key_size=None, curve=None):
+        """
+        Construct certutil keygen command args.
+
+        """
+        args = []
+        is_ec = key_type and key_type.lower() in ('ec', 'ecc')
+
+        if key_type:
+            # The -k parameter is either a key type or an identifer of a key
+            # to reuse. Make sure to handle ec correctly: the type should be
+            # "ec" not "ecc".
+            if is_ec:
+                args.extend(['-k', 'ec'])
+            else:
+                args.extend(['-k', key_type])
+
+        if is_ec:
+            # This is fix for Bugzilla 1544843
+            args.extend([
+                '--keyOpFlagsOn', 'sign',
+                '--keyOpFlagsOff', 'derive',
+            ])
+
+            # When we want to generate a new EC key, we have to know the curve
+            # we want to use. This is either passed via the curve parameter or
+            # via the key_size parameter. If neither is specified, we have a
+            # problem. If both are specified and differ, we're confused. The
+            # reason is because the curve determines the size of the key;
+            # after that you don't have a choice.
+            if not curve and not key_size:
+                msg = "Must specify the curve to use when generating an "
+                msg += "elliptic curve key."
+                raise ValueError(msg)
+            if curve and key_size and curve != key_size:
+                msg = "Specified both curve (%s) and key size (%s) when "
+                msg += "generating an elliptic curve key, but they differ."
+                raise ValueError(msg % (curve, key_size))
+
+            if curve:
+                args.extend(['-q', str(curve)])
+            else:
+                args.extend(['-q', str(key_size)])
+        else:
+            if key_size:
+                args.extend(['-g', str(key_size)])
+
+        return args

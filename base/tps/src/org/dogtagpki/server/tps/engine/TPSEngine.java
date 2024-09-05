@@ -202,6 +202,7 @@ public class TPSEngine {
     public static final String ENROLL_MODE_RECOVERY = RECOVERY_OP;
     public static final String ERNOLL_MODE_RENEWAL = RENEWAL_OP;
     public static final String CFG_ALLOW_MULTI_TOKENS_USER = "allowMultiActiveTokensUser";
+    public static final String CFG_AES_KEY_WRAP_ALG = "aesKeyWrapAlg";
 
     public void init() {
         //ToDo
@@ -428,7 +429,9 @@ public class TPSEngine {
 
     }
 
-    public TPSBuffer createKeySetData(TPSBuffer newMasterVersion, TPSBuffer oldVersion, int protocol, TPSBuffer cuid, TPSBuffer kdd, TPSBuffer wrappedDekSessionKey, String connId, String inKeyset)
+    // ** G&D 256 Key Rollover Support **
+    // Add oldKeySet parameter
+    public TPSBuffer createKeySetData(TPSBuffer newMasterVersion, TPSBuffer oldVersion, int protocol, TPSBuffer cuid, TPSBuffer kdd, TPSBuffer wrappedDekSessionKey, String connId, String inKeyset, String oldKeySet)
             throws TPSException {
 
         String method = "TPSEngine.createKeySetData:";
@@ -439,13 +442,17 @@ public class TPSEngine {
                     TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
         }
 
+        CMS.debug(method + " cuid: " + cuid.toHexStringPlain() + " newMasterVersion: " + newMasterVersion.toHexString()
+                + "  oldVersion: " + oldVersion.toHexString() + "  protocol: " + protocol + " inKeyset: " + inKeyset
+                + "  oldKeySet: " + oldKeySet);
+        
         TKSRemoteRequestHandler tks = null;
 
         TKSCreateKeySetDataResponse resp = null;
 
         try {
             tks = new TKSRemoteRequestHandler(connId, inKeyset);
-            resp = tks.createKeySetData(newMasterVersion, oldVersion, cuid, kdd, protocol,wrappedDekSessionKey);
+            resp = tks.createKeySetData(newMasterVersion, oldVersion, cuid, kdd, protocol,wrappedDekSessionKey, oldKeySet);  // ** G&D 256 Key Rollover Support ** pass oldKeySet to TKS
         } catch (EBaseException e) {
 
             throw new TPSException(method + " failure to get key set data from TKS",
@@ -523,31 +530,34 @@ public class TPSEngine {
 
     public KRARecoverKeyResponse recoverKey(String cuid,
             String userid,
-            TPSBuffer sDesKey,
-            String b64cert, String drmConnId) throws TPSException {
+            TPSBuffer drmWrappedDesKey, TPSBuffer drmWrappedAesKey,
+            String b64cert, String drmConnId,String aesKeyWrapAlg) throws TPSException {
 
-        return this.recoverKey(cuid, userid, sDesKey, b64cert, drmConnId, BigInteger.valueOf(0));
+        return this.recoverKey(cuid, userid, drmWrappedDesKey, drmWrappedAesKey,
+             b64cert, drmConnId, BigInteger.valueOf(0),aesKeyWrapAlg);
 
     }
 
     public KRARecoverKeyResponse recoverKey(String cuid,
             String userid,
-            TPSBuffer sDesKey,
-            String b64cert, String drmConnId,BigInteger keyid) throws TPSException {
+            TPSBuffer drmWrappedDesKey,TPSBuffer drmWrappedAesKey,
+            String b64cert, String drmConnId,BigInteger keyid,String aesKeyWrapAlg) throws TPSException {
         String method = "TPSEngine.recoverKey";
         CMS.debug("TPSEngine.recoverKey");
         if (cuid == null)
             CMS.debug(method + ": cuid null");
         else if (userid == null)
             CMS.debug(method + ": userid null");
-        else if (sDesKey == null)
-            CMS.debug(method + ": isDesKey null");
+        else if (drmWrappedDesKey == null)
+            CMS.debug(method + ": drmWrappedDesKey null");
+        else if (drmWrappedAesKey == null)
+            CMS.debug(method + ": drmWrappedAesKey null");
         else if (b64cert == null)
             CMS.debug(method + ": b64cert null");
         else if (drmConnId == null)
             CMS.debug(method + ": drmConnId null");
 
-        if (cuid == null || userid == null || sDesKey == null ||  drmConnId == null) {
+        if (cuid == null || userid == null ||  drmConnId == null) {
             throw new TPSException("TPSEngine.recoverKey: invalid input data!", TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
         }
 
@@ -557,7 +567,17 @@ public class TPSEngine {
         try {
             kra = new KRARemoteRequestHandler(drmConnId);
 
-            resp = kra.recoverKey(cuid, userid, Util.specialURLEncode(sDesKey), (b64cert != null) ? Util.uriEncode(b64cert) : b64cert,keyid);
+	    String encodedDes = null;
+	    String encodedAes = null;
+
+	    if(drmWrappedDesKey != null)
+                encodedDes = Util.specialURLEncode(drmWrappedDesKey);
+	    if(drmWrappedAesKey != null)
+                encodedAes = Util.specialURLEncode(drmWrappedAesKey);
+
+            resp = kra.recoverKey(cuid, userid, encodedDes,
+                encodedAes, 
+                (b64cert != null) ? Util.uriEncode(b64cert) : b64cert,keyid,aesKeyWrapAlg);
         } catch (EBaseException e) {
             throw new TPSException("TPSEngine.recoverKey: Problem creating or using KRARemoteRequestHandler! "
                     + e.toString(), TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
@@ -595,9 +615,9 @@ public class TPSEngine {
     }
 
     public KRAServerSideKeyGenResponse serverSideKeyGen(int keySize, String cuid, String userid, String drmConnId,
-            TPSBuffer wrappedDesKey,
+            TPSBuffer wrappedDesKey, TPSBuffer drmWrappedAesKey,
             boolean archive,
-            boolean isECC) throws TPSException {
+            boolean isECC,String aesKeyWrapAlg) throws TPSException {
 
 /*
         CMS.debug("TPSEngine.serverSideKeyGen entering... keySize: " + keySize + " cuid: " + cuid + " userid: "
@@ -605,7 +625,7 @@ public class TPSEngine {
                 + " isECC: " + isECC);
 */
 
-        if (cuid == null || userid == null || drmConnId == null || wrappedDesKey == null) {
+        if (cuid == null || userid == null || drmConnId == null || ( wrappedDesKey == null && drmWrappedAesKey == null)) {
             throw new TPSException("TPSEngine.serverSideKeyGen: Invalid input data!",
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
         }
@@ -617,7 +637,9 @@ public class TPSEngine {
             kra = new KRARemoteRequestHandler(drmConnId);
 
             resp = kra.serverSideKeyGen(isECC, keySize, cuid, userid,
-                    Util.specialURLEncode(wrappedDesKey), archive);
+                    (wrappedDesKey != null) ? Util.specialURLEncode(wrappedDesKey) :  "",
+                    (drmWrappedAesKey != null) ? Util.specialURLEncode(drmWrappedAesKey) : "",
+                    archive,aesKeyWrapAlg);
 
         } catch (EBaseException e) {
             throw new TPSException("TPSEngine.serverSideKeyGen: Problem creating  or using KRARemoteRequestHandler! "

@@ -28,6 +28,15 @@ public class FilterMappingResolver extends BaseMappingResolver {
     // from TPS: RA_Processor::ProcessMappingFilter
     public String getResolvedMapping(FilterMappingParams mappingParams, String nameToMap)
             throws TPSException {
+        // ** G&D 256 Key Rollover Support **
+        // call the overloaded method, passing null for symKeySize 
+        return getResolvedMapping(mappingParams, nameToMap, null);
+    }
+    
+    // ** G&D 256 Key Rollover Support **
+    // Overload the method with the symKeySize parameter
+    public String getResolvedMapping(FilterMappingParams mappingParams, String nameToMap, Integer symKeySize)
+            throws TPSException {
         String method = "FilterMappingResolver.getResolvedMapping for "+ nameToMap + ": ";
         String tokenType = null;
         String keySet = null;
@@ -311,7 +320,34 @@ public class FilterMappingResolver extends BaseMappingResolver {
                     continue;
                 }
             }
-
+            
+            // ** G&D 256 Key Rollover Support **
+            // G&D SPC03 tokens have same token range but different AES key sizes (128 and 256)
+            // If symKeySize is passed in, and if ...filter.symKeySize is configured, check
+            // whether the two values match.
+            // Skip symKeySize comparison if the parameter is not passed in
+            if (symKeySize != null) {
+                mappingConfigName = prefix + ".mapping." + mappingId + ".filter.symKeySize";
+                CMS.debug(method + "  mappingConfigName: " + mappingConfigName);
+                String configSymKeySize = null;
+                try {
+                    configSymKeySize = configStore.getString(mappingConfigName, null);
+                } catch (EBaseException e) {
+                    throw new TPSException(
+                            method + " Internal error obtaining config value. Config: "
+                                    + mappingConfigName,
+                            TPSStatus.STATUS_ERROR_MAPPING_RESOLVER_FAILED);
+                }
+                
+                // skip symKeySize comparison if not configured
+                if (configSymKeySize != null && configSymKeySize.length() > 0) {
+                    CMS.debug(method + " cuid: " + cuid + ": comparing symKeySize: configured: " + configSymKeySize + " expected: " + symKeySize);
+                    if (Integer.parseInt(configSymKeySize) != symKeySize.intValue()) {
+                        continue;
+                    }
+                }    
+            }
+            
             //if we make it this far, we have a mapped name
             selectedMappedName = targetMappedName;
             CMS.debug(method + " Selected mapped name: " + selectedMappedName);
@@ -327,5 +363,4 @@ public class FilterMappingResolver extends BaseMappingResolver {
         return selectedMappedName;
 
     }
-
 }

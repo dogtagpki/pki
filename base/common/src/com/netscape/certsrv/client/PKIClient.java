@@ -148,6 +148,10 @@ public class PKIClient {
         if (verbose) System.out.println("Retrieving CA certificate chain from " + url + ".");
 
         DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
+        documentFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        documentFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        documentFactory.setXIncludeAware(false);
+        documentFactory.setExpandEntityReferences(false);
         DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
 
         Document document = documentBuilder.parse(url.openStream());

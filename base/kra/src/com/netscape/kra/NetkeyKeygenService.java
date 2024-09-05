@@ -16,7 +16,7 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.kra;
-
+import java.util.Arrays;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FilterOutputStream;
@@ -27,6 +27,7 @@ import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.SecureRandom;
 
+import org.dogtagpki.tps.main.TPSBuffer;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
@@ -35,6 +36,7 @@ import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.SymmetricKey;
+import org.mozilla.jss.crypto.KeyPairAlgorithm;
 import org.mozilla.jss.pkcs11.PK11SymKey;
 import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
 import org.mozilla.jss.util.Base64OutputStream;
@@ -70,6 +72,7 @@ import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.provider.RSAPublicKey;
 import netscape.security.util.WrappingParams;
+
 
 /**
  * A class representing keygen/archival request procesor for requests
@@ -142,6 +145,22 @@ public class NetkeyKeygenService implements IService {
         }
     }
 
+    // AC: KDF SPEC CHANGE - Audit logging helper functions.
+    // Converts a byte array to an ASCII-hex string.
+    //   We implemented this ourselves rather than using this.pp.toHexArray() because
+    //   the team preferred CUID and KDD strings to be without ":" separators every byte.
+    final char[] bytesToHex_hexArray = "0123456789ABCDEF".toCharArray();
+
+    private String bytesToHex(byte[] bytes) {
+        char[] hexChars = new char[bytes.length * 2];
+        for (int i = 0; i < bytes.length; i++) {
+            int thisChar = bytes[i] & 0x000000FF;
+            hexChars[i * 2] = bytesToHex_hexArray[thisChar >>> 4]; // div 16
+            hexChars[i * 2 + 1] = bytesToHex_hexArray[thisChar & 0x0F];
+        }
+        return new String(hexChars);
+    }
+
     /**
      * Services an archival request from netkey.
      * <P>
@@ -154,8 +173,15 @@ public class NetkeyKeygenService implements IService {
             throws EBaseException {
         String auditSubjectID = null;
         byte[] wrapped_des_key;
+        byte[] wrapped_aes_key = null; 
+        String method = "NetkeyKeygenService: serviceRequest: ";
 
         byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
+        int ivLength = EncryptionAlgorithm.AES_128_CBC.getIVLength();
+
+        CMS.debug(method + " cbc iv len: " + ivLength);
+
+        byte iv_cbc[] = new byte[ivLength];
         String iv_s = "";
         try {
             JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
@@ -166,7 +192,9 @@ public class NetkeyKeygenService implements IService {
             throw new EBaseException(e);
         }
 
-        IVParameterSpec algParam = new IVParameterSpec(iv);
+        IVParameterSpec algParam = null;
+        IVParameterSpec desAlgParam =	new IVParameterSpec(iv);
+        IVParameterSpec aesCBCAlgParam =   new IVParameterSpec(iv_cbc);
 
         IConfigStore configStore = CMS.getConfigStore();
         boolean allowEncDecrypt_archival = configStore.getBoolean("kra.allowEncDecrypt.archival", false);
@@ -206,6 +234,27 @@ public class NetkeyKeygenService implements IService {
                 requestId));
 
         String rWrappedDesKeyString = request.getExtDataInString(IRequest.NETKEY_ATTR_DRMTRANS_DES_KEY);
+        String rWrappedAesKeyString = request.getExtDataInString(IRequest.NETKEY_ATTR_DRMTRANS_AES_KEY);
+        String aesKeyWrapAlg        = request.getExtDataInString(IRequest.NETKEY_ATTR_SSKEYGEN_AES_KEY_WRAP_ALG);
+
+        CMS.debug(method + " IRequest.NETKEY_ATTR_SSKEYGEN_AES_KEY_WRAP_ALG: " + IRequest.NETKEY_ATTR_SSKEYGEN_AES_KEY_WRAP_ALG);
+
+        if(aesKeyWrapAlg != null) {
+            CMS.debug(method + " aesKeyWrapAlg: " + aesKeyWrapAlg);
+        } else {
+            CMS.debug(method + " no aesKeyWrapAlg provided.");
+        }
+
+        boolean useAesTransWrapped = false;
+
+        if(rWrappedAesKeyString != null && rWrappedAesKeyString.length() > 0)  {
+            useAesTransWrapped = true;
+	    //If we are getting an aes trans wrapped key, make that the priority moving forwoard.
+            wrapped_aes_key = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rWrappedAesKeyString);
+            CMS.debug(method + "TMS has sent trans wrapped aes key.");
+	    request.setExtData(IRequest.NETKEY_ATTR_DRMTRANS_AES_KEY,"");
+        }
+
         // the request reocrd field delayLDAPCommit == "true" will cause
         // updateRequest() to delay actual write to ldap
         request.setExtData("delayLDAPCommit", "true");
@@ -239,6 +288,7 @@ public class NetkeyKeygenService implements IService {
 
         // get the token for generating user keys
         CryptoToken keygenToken = mKRA.getKeygenToken();
+
         if (keygenToken == null) {
             CMS.debug("NetkeyKeygenService: failed getting keygenToken");
             request.setExtData(IRequest.RESULT, Integer.valueOf(10));
@@ -246,13 +296,23 @@ public class NetkeyKeygenService implements IService {
         } else
             CMS.debug("NetkeyKeygenService: got keygenToken");
 
+	if(wrapped_aes_key != null) {
+            CMS.debug(method + " wrapped aes key size " + wrapped_aes_key.length);
+        }
+
+        //Create legacy DES and new AES wrapping params, one or the other will be used.
         if ((wrapped_des_key != null) &&
-                (wrapped_des_key.length > 0)) {
+                (wrapped_des_key.length > 0) || useAesTransWrapped == true) {
 
             WrappingParams wrapParams = new WrappingParams(
                     SymmetricKey.DES3, KeyGenAlgorithm.DES3, 0,
                     KeyWrapAlgorithm.RSA, EncryptionAlgorithm.DES3_CBC_PAD,
                     KeyWrapAlgorithm.DES3_CBC_PAD, EncryptionUnit.IV, EncryptionUnit.IV);
+
+             WrappingParams aesWrapParams = new WrappingParams(
+                    SymmetricKey.AES, KeyGenAlgorithm.AES,0,
+                     KeyWrapAlgorithm.RSA, EncryptionAlgorithm.AES_128_CBC_PAD,
+                     KeyWrapAlgorithm.AES_KEY_WRAP_PAD,EncryptionUnit.IV, EncryptionUnit.IV);
 
             /* XXX could be done in HSM*/
             KeyPair keypair = null;
@@ -282,6 +342,7 @@ public class NetkeyKeygenService implements IService {
             CMS.debug("NetkeyKeygenService: finished generate key pair for " + rCUID + ":" + rUserid);
 
             java.security.PrivateKey privKey;
+
             try {
                 publicKeyData = keypair.getPublic().getEncoded();
                 if (publicKeyData == null) {
@@ -311,7 +372,6 @@ public class NetkeyKeygenService implements IService {
 
                 //...extract the private key handle (not privatekeydata)
                 privKey = keypair.getPrivate();
-
                 if (privKey == null) {
                     request.setExtData(IRequest.RESULT, Integer.valueOf(4));
                     CMS.debug("NetkeyKeygenService: failed getting private key");
@@ -320,28 +380,68 @@ public class NetkeyKeygenService implements IService {
                     CMS.debug("NetkeyKeygenService: got private key");
                 }
 
-                // unwrap the DES key
+                // unwrap the DES or AES key 
+		// If we are given an AES key, use it, otherwise use DES if it's the only one offered.
                 PK11SymKey sk = null;
-                try {
-                    sk = (PK11SymKey) mTransportUnit.unwrap_sym(wrapped_des_key, wrapParams);
-                    CMS.debug("NetkeyKeygenService: received DES key");
-                } catch (Exception e) {
-                    CMS.debug("NetkeyKeygenService: no DES key: " + e);
-                    request.setExtData(IRequest.RESULT, Integer.valueOf(4));
-                    return false;
-                }
 
+                if(useAesTransWrapped == false) {
+                    try {
+                        sk = (PK11SymKey) mTransportUnit.unwrap_sym(wrapped_des_key, wrapParams);
+                        CMS.debug("NetkeyKeygenService: received DES key");
+                    } catch (Exception e) {
+                        CMS.debug("NetkeyKeygenService: no DES key: probably because crypto token no longer supports DES. " + e);
+                        request.setExtData(IRequest.RESULT, Integer.valueOf(4));
+                        return false;
+                    }
+                } else {
+                    //Unwrap the included trans wrapped AES key.
+                    CMS.debug(method + "Attempt to unwrap the trans wrapped AES session key.");
+                    try {
+                        sk = (PK11SymKey) mTransportUnit.unwrap_sym(wrapped_aes_key, aesWrapParams);
+                        CMS.debug(method + " received AES session key");
+                    } catch (Exception e) {
+                        CMS.debug(method + " no AES session key: or DES kek key. " + e);
+                        request.setExtData(IRequest.RESULT, Integer.valueOf(4));
+                        return false;
+                    }
+                 }
                 // 3 wrapping should be done in HSM
-                // wrap private key with DES
+                // wrap private key with session key 
                 CMS.debug("NetkeyKeygenService: wrapper token=" + keygenToken.getName());
                 CMS.debug("NetkeyKeygenService: key transport key is on slot: " + sk.getOwningToken().getName());
+
+                KeyWrapAlgorithm symWrapAlg = KeyWrapAlgorithm.DES3_CBC_PAD;
+                if(useAesTransWrapped == true) {
+                    //Here we recomment to use AES KWP because it's the only common AES key wrap to be supoprted on hsm, nss, and soon the coolkey applet.
+		    //But now we are going to make it configurable to AES CBC based on interest in doing so. KWP is the one that is assured to work
+		    //with the applet and nss / hsm envorinments. CBC can be chosen at the admin's discretion.
+                   
+                    if(aesKeyWrapAlg != null && "CBC".equalsIgnoreCase(aesKeyWrapAlg)) {
+                    // We want CBC
+                        CMS.debug(method + " TPS has selected CBC for AES key wrap method.");
+                        symWrapAlg = KeyWrapAlgorithm.AES_CBC_PAD;
+
+                        algParam =  aesCBCAlgParam;
+                        iv_s = org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(iv_cbc);
+
+                    } else { 
+                        symWrapAlg = KeyWrapAlgorithm.AES_KEY_WRAP_PAD_KWP;
+		        algParam =  null;
+                        iv_s = org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(iv);
+                    }
+                    CMS.debug(method + " attemptedAesKeyWrap = true ");
+                } else {
+                    algParam = desAlgParam;
+                    iv_s = org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(iv);
+                    CMS.debug(method + " attemptedAesKeyWrap = false ");
+                }
 
                 byte[] wrapped = CryptoUtil.wrapUsingSymmetricKey(
                         keygenToken,
                         sk,
                         (PrivateKey) privKey,
                         algParam,
-                        KeyWrapAlgorithm.DES3_CBC_PAD);
+                        symWrapAlg);
 
                 /*
                   CMS.debug("NetkeyKeygenService: wrap called");
@@ -383,7 +483,7 @@ public class NetkeyKeygenService implements IService {
                             PubKey));
                 }
 
-                iv_s = /*base64Encode(iv);*/com.netscape.cmsutil.util.Utils.SpecialEncode(iv);
+                //iv_s = org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(iv);
                 request.setExtData("iv_s", iv_s);
 
             } catch (Exception e) {

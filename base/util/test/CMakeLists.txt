@@ -7,7 +7,7 @@ javac(pki-util-test-classes
         *.java
     CLASSPATH
         ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
-        ${JSS_JAR} ${LDAPJDK_JAR} ${COMMONS_CODEC_JAR} ${XALAN_JAR} ${XERCES_JAR}
+        ${JSS_JAR} ${LDAPJDK_JAR} ${COMMONS_CODEC_JAR} ${XALAN_JAR}
         ${HAMCREST_JAR} ${JUNIT_JAR}
     OUTPUT_DIR
         ${CMAKE_BINARY_DIR}/test/classes

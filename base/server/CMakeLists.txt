@@ -46,7 +46,7 @@ javac(pki-server-classes
         ${HTTPCORE_JAR} ${HTTPCLIENT_JAR}
         ${JSS_JAR} ${SYMKEY_JAR}
         ${LDAPJDK_JAR}
-        ${XALAN_JAR} ${XERCES_JAR}
+        ${XALAN_JAR}
         ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_JAR}
         ${TOMCATJSS_JAR} ${VELOCITY_JAR}
         ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
@@ -130,7 +130,6 @@ add_custom_command(
     COMMAND /usr/bin/ln -sf /usr/lib/java/symkey.jar ${CMAKE_CURRENT_BINARY_DIR}/common/lib/symkey.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/java/tomcatjss.jar common/lib/tomcatjss.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/java/velocity.jar common/lib/velocity.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/java/xerces-j2.jar common/lib/xerces-j2.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/java/xml-commons-apis.jar common/lib/xml-commons-apis.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/java/xml-commons-resolver.jar common/lib/xml-commons-resolver.jar
 )

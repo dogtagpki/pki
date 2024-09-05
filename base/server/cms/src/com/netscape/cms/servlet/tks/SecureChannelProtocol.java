@@ -26,6 +26,7 @@ import org.mozilla.jss.crypto.SymmetricKeyDeriver;
 import org.mozilla.jss.crypto.TokenException;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -38,6 +39,7 @@ public class SecureChannelProtocol {
     static String masterKeyPrefix = null;
 
     static final int DEF_AES_KEYLENGTH = 16;
+    static final int DEF_AES_256_KEYLENGTH = 32;
     static final int KEYLENGTH = 16;
     static final int PREFIXLENGHT = 128;
     static final int DES2_LENGTH = 16;
@@ -72,6 +74,13 @@ public class SecureChannelProtocol {
     static final int AES_128_BITS = 128;
     static final int AES_192_BITS = 192;
     static final int AES_256_BITS = 256;
+
+    private static SymmetricKey.Usage session_key_usages[] = {
+        SymmetricKey.Usage.WRAP,
+        SymmetricKey.Usage.UNWRAP,
+        SymmetricKey.Usage.ENCRYPT,
+        SymmetricKey.Usage.DECRYPT
+    };
 
     private SymmetricKey transportKey = null;
     CryptoManager cryptoManager = null;
@@ -235,8 +244,9 @@ public class SecureChannelProtocol {
         }
 
         sharedSecretKeyName = SecureChannelProtocol.getSharedSecretKeyName(transportKeyName);
+        
         transportKey = getSharedSecretKey(internalToken);
-
+        
         //concat host and card challenge:
 
         byte[] context = null;
@@ -336,7 +346,7 @@ public class SecureChannelProtocol {
                         divKey = nistKdf.diversifyAESKey(devSymKey, xCUID, constant_gpkmc, token);
                     }
                 } else {
-                    throw new EBaseException(method + " Invalid devolper key type. Does not support diversification: "+ devKeyType);
+                    throw new EBaseException(method + " Invalid developer key type. Does not support diversification: "+ devKeyType);
                 }
             }
 
@@ -349,7 +359,9 @@ public class SecureChannelProtocol {
                     sessionKey = divKey;
                 }
                 else {
-                    byte[] finalKeyBytes = nistKdf.kdf_AES_CMAC_SCP03(divKey, context, constant, 16);
+                    // Use length of divKey for AES CMAC
+                    //CMS.debug(method + "Call to nistKdf.kdf_AES_CMAC_SCP03 divKey length = " + divKey.getLength());
+                    byte[] finalKeyBytes = nistKdf.kdf_AES_CMAC_SCP03(divKey, context, constant, divKey.getLength());
                     sessionKey = unwrapAESSymKeyOnToken(token, finalKeyBytes, false);
 
                     JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
@@ -407,7 +419,8 @@ public class SecureChannelProtocol {
                     sessionKey = divKey;
                 }
                 else {
-                    byte[] finalKeyBytes = nistKdf.kdf_AES_CMAC_SCP03(divKey, context, constant, 16);
+                    // Use length of divKey for AES CMAC
+                    byte[] finalKeyBytes = nistKdf.kdf_AES_CMAC_SCP03(divKey, context, constant, divKey.getLength());
                     sessionKey = unwrapAESSymKeyOnToken(token, finalKeyBytes, false);
 
                     JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
@@ -415,8 +428,6 @@ public class SecureChannelProtocol {
                 }
             }
         }
-
-        //SecureChannelProtocol.debugByteArray(sessionKey.getEncoded(), keyType + " : session key");
 
         return sessionKey;
     }
@@ -724,6 +735,7 @@ public class SecureChannelProtocol {
 
         String method = "SecureChannelProtocol.returnDeveloperSymKey:";
 
+        CMS.debug(method + "keyAlg: " + keyAlg);
         boolean isAES = false;
         String finalAlg = null;
         if(keyAlg == null) {
@@ -782,7 +794,8 @@ public class SecureChannelProtocol {
 
             } else {
 
-                if(inputLen == DEF_AES_KEYLENGTH) { // support 128 bits for now
+                // Allow 256 bit length
+                if (inputLen == DEF_AES_KEYLENGTH || inputLen == DEF_AES_256_KEYLENGTH) { // support 128 and 256 bits
                     devKey = unwrapAESSymKeyOnToken(token, inputKeyArray, true);
                 }
             }
@@ -796,6 +809,7 @@ public class SecureChannelProtocol {
 
     //Takes raw des key 16 bytes, such as developer key and returns an AES key of the same size
     //Supports 128 bits for now
+    //07-08-2022, Updated to work with both 128 and 256 bits
     public SymmetricKey unwrapAESSymKeyOnToken(CryptoToken token, byte[] inputKeyArray,
             boolean isPerm)
             throws EBaseException {
@@ -812,10 +826,10 @@ public class SecureChannelProtocol {
         }
 
         byte[] finalInputKeyArray = inputKeyArray;
-        if(inputKeyArray.length > 16) {
-            finalInputKeyArray = new byte[16];
-            System.arraycopy(inputKeyArray, 0, finalInputKeyArray, 0, 16);;
 
+        if(inputKeyArray.length > 32) {
+            finalInputKeyArray = new byte[32];
+            System.arraycopy(inputKeyArray, 0, finalInputKeyArray, 0, 32);
         }
 
         KeyGenerator kg;
@@ -831,14 +845,23 @@ public class SecureChannelProtocol {
 
             kg.setKeyUsages(usages);
             kg.temporaryKeys(true);
-            kg.initialize(128);
+            // Handle 128 and 256 initialization sizes
+            kg.initialize(finalInputKeyArray.length*EIGHT_BYTES);
             SymmetricKey tempKey = kg.generate();
 
-            //unwrap the test aes keys onto the token
+            // Use EncryptionAlgorithm based on key size
+            Cipher encryptor;
+            if (tempKey.getStrength() == AES_128_BITS)
+            {
+                encryptor = token.getCipherContext(EncryptionAlgorithm.AES_128_CBC);
+            }
+            else
+            {
+                encryptor = token.getCipherContext(EncryptionAlgorithm.AES_256_CBC);
+            }
+                
+            int ivLength = 16;
 
-            Cipher encryptor = token.getCipherContext(EncryptionAlgorithm.AES_128_CBC);
-
-            int ivLength = EncryptionAlgorithm.AES_128_CBC.getIVLength();
             byte[] iv = null;
 
             if (ivLength > 0) {
@@ -846,15 +869,18 @@ public class SecureChannelProtocol {
             }
 
             encryptor.initEncrypt(tempKey, new IVParameterSpec(iv));
+            CMS.debug(method + " Did encryptor.initEncrypt successfully...");
             byte[] wrappedKey = encryptor.doFinal(finalInputKeyArray);
 
             KeyWrapper keyWrap = token.getKeyWrapper(KeyWrapAlgorithm.AES_CBC);
             keyWrap.initUnwrap(tempKey, new IVParameterSpec(iv));
 
             if(isPerm)
-                finalAESKey = keyWrap.unwrapSymmetricPerm(wrappedKey, SymmetricKey.AES, AES_128_BYTES);
+                // Use length of key for finalAESKey
+                finalAESKey = keyWrap.unwrapSymmetricPerm(wrappedKey, SymmetricKey.AES, wrappedKey.length);
             else
-                finalAESKey = keyWrap.unwrapSymmetric(wrappedKey, SymmetricKey.AES, AES_128_BYTES);
+                // Use length of key for finalAESKey
+                finalAESKey = keyWrap.unwrapSymmetric(wrappedKey, SymmetricKey.AES, wrappedKey.length);
 
         } catch (Exception e) {
             throw new EBaseException(method + " Can't unwrap key onto token!");
@@ -897,7 +923,6 @@ public class SecureChannelProtocol {
             kg.initialize(128);
             SymmetricKey tempKey = kg.generate();
 
-
             int ivLength = EncryptionAlgorithm.AES_128_CBC.getIVLength();
             byte[] iv = null;
 
@@ -921,6 +946,7 @@ public class SecureChannelProtocol {
             }
 
             KeyWrapper keyWrap = token.getKeyWrapper(KeyWrapAlgorithm.AES_CBC);
+            
             keyWrap.initWrap(tempKey, new IVParameterSpec(iv));
             byte[] wrappedKey = keyWrap.wrap(finalKeyToWrap);
 
@@ -933,9 +959,6 @@ public class SecureChannelProtocol {
 
             JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
             jssSubsystem.obscureBytes(wrappedKey);
-
-            //byte[] finalKeyBytes = finalAESKey.getKeyData();
-            //displayByteArray(finalKeyBytes, false);
 
         } catch (Exception e) {
             throw new EBaseException(method + " Can't unwrap key onto token!");
@@ -959,14 +982,25 @@ public class SecureChannelProtocol {
             throw new EBaseException(method + "Invalid input!");
         }
 
-        if (inputKeyArray == null || (inputKeyArray.length != DES3_LENGTH && inputKeyArray.length != DES2_LENGTH)) {
+        // Allow AES-256
+        if (inputKeyArray == null || (inputKeyArray.length != DES3_LENGTH && inputKeyArray.length != DES2_LENGTH
+                && inputKeyArray.length != DEF_AES_256_KEYLENGTH)) {
             throw new EBaseException(method + "No raw array to use to create key!");
         }
 
         if (unwrappingKey == null) {
             try {
-                KeyGenerator kg = token.getKeyGenerator(KeyGenAlgorithm.DES3);
-
+                // Select algorithm based on key size
+                KeyGenerator kg;
+                if (inputKeyArray.length == DES3_LENGTH || inputKeyArray.length == DES2_LENGTH)
+                {
+                    kg = token.getKeyGenerator(KeyGenAlgorithm.DES3);
+                }
+                else
+                {
+                    kg = token.getKeyGenerator(KeyGenAlgorithm.AES);
+                }
+                
                 SymmetricKey.Usage usages[] = new SymmetricKey.Usage[4];
                 usages[0] = SymmetricKey.Usage.WRAP;
                 usages[1] = SymmetricKey.Usage.UNWRAP;
@@ -1000,7 +1034,19 @@ public class SecureChannelProtocol {
         }
 
         try {
-            encryptor = token.getCipherContext(EncryptionAlgorithm.DES3_ECB);
+            //Differentiate between DES3, DES and AES
+            if (finalKeyType == SymmetricKey.Type.DES3 || finalKeyType == SymmetricKey.Type.DES)
+            {
+                encryptor = token.getCipherContext(EncryptionAlgorithm.DES3_ECB);
+            }
+            else if (finalKeyType == SymmetricKey.Type.AES && inputKeyArray.length == DEF_AES_KEYLENGTH)
+            {
+                encryptor = token.getCipherContext(EncryptionAlgorithm.AES_128_CBC);
+            }
+            else
+            {
+                encryptor = token.getCipherContext(EncryptionAlgorithm.AES_256_CBC);
+            }
 
             encryptor.initEncrypt(encUnwrapKey);
 
@@ -1016,11 +1062,21 @@ public class SecureChannelProtocol {
                     wrappedKey = encryptor.doFinal(inputKeyArray);
             }
 
-            CMS.debug(method + " done enrypting data");
+            CMS.debug(method + " done encrypting data");
 
             // SecureChannelProtocol.debugByteArray(wrappedKey, " encrypted key");
 
-            KeyWrapper keyWrap = token.getKeyWrapper(KeyWrapAlgorithm.DES3_ECB);
+            //Differentiate between DES3, DES and AES
+            KeyWrapper keyWrap = null;
+            if(finalKeyType == SymmetricKey.Type.DES3 || finalKeyType == SymmetricKey.Type.DES)
+            {
+                keyWrap = token.getKeyWrapper(KeyWrapAlgorithm.DES3_ECB);
+            }
+            else
+            {
+                keyWrap = token.getKeyWrapper(KeyWrapAlgorithm.AES_CBC);
+            }
+
             keyWrap.initUnwrap(encUnwrapKey, null);
 
             if (isPerm == true) {
@@ -1039,7 +1095,7 @@ public class SecureChannelProtocol {
             }
         }
 
-        //CMS.debug(method + "Returning symkey: " + unwrapped);
+        //CMS.debug(method + "Returning symkey: length = " + unwrapped.getLength());
         CMS.debug(method + "Returning symkey...");
 
         return unwrapped;
@@ -1064,13 +1120,13 @@ public class SecureChannelProtocol {
         }
 
         if(keyType == SymmetricKey.Type.AES) {
-           if(inputKeyArray.length != DEF_AES_KEYLENGTH)
-               throw new EBaseException(method + "Invalid length of raw input array.");
+           if(inputKeyArray.length != DEF_AES_KEYLENGTH && inputKeyArray.length != DEF_AES_256_KEYLENGTH)
+               throw new EBaseException(method + "Invalid length of raw AES input array.");
         }
         else if(keyType == SymmetricKey.Type.DES ||
                 keyType == SymmetricKey.Type.DES3) {
             if(inputKeyArray.length != DES3_LENGTH && inputKeyArray.length != DES2_LENGTH)
-                throw new EBaseException(method + "Invalid length of raw input array.");
+                throw new EBaseException(method + "Invalid length of raw DES input array.");
         }
 
         try {
@@ -1078,7 +1134,8 @@ public class SecureChannelProtocol {
 
             if(unwrappingKey.getType() == SymmetricKey.Type.AES)
             {
-                IVParameterSpec iv = new IVParameterSpec(new byte[EncryptionAlgorithm.AES_128_CBC.getIVLength()]);
+                // Set iv based on key length
+                IVParameterSpec iv = new IVParameterSpec(new byte[unwrappingKey.getLength()]);
                 keyWrap = token.getKeyWrapper(KeyWrapAlgorithm.AES_CBC);
                 keyWrap.initUnwrap(unwrappingKey, iv);
             }
@@ -1108,7 +1165,7 @@ public class SecureChannelProtocol {
             throw new EBaseException(e);
         }
 
-        //CMS.debug(method + "Returning symkey: " + unwrapped);
+        //CMS.debug(method + "Returning symkey: length = " + unwrapped.getLength());
         CMS.debug(method + "Returning symkey...");
 
         if (finalUnwrapped != null)
@@ -1125,17 +1182,18 @@ public class SecureChannelProtocol {
         SymmetricKey unwrapped = null;
 
         if (token == null) {
-            throw new EBaseException(method + "Invalide crypto token!");
+            throw new EBaseException(method + "Invalid crypto token!");
         }
 
         if (inputKeyArray == null || (inputKeyArray.length != DES3_LENGTH && inputKeyArray.length != DES2_LENGTH)) {
             throw new EBaseException(method + "No raw array to use to create key!");
         }
 
-        SymmetricKey transport = getSharedSecretKey(token);
-        unwrapped = this.unwrapSymKeyOnToken(token, transport, inputKeyArray, isPerm, SymmetricKey.DES3);
+        //RedHat For DES3 don's use the AES shared secret as wrapping key
+        unwrapped = this.unwrapSymKeyOnToken(token, null, inputKeyArray, isPerm, SymmetricKey.DES3);
 
-//        CMS.debug(method + "Returning symkey: " + unwrapped);
+        CMS.debug(method + "Returning symkey: length = " + unwrapped.getLength());
+        //CMS.debug(method + "Returning symkey: " + unwrapped);
 
         return unwrapped;
     }
@@ -1324,7 +1382,7 @@ public class SecureChannelProtocol {
 
         result = this.wrapSessionKey(selectedToken, des2, devKey);
 
-        // SecureChannelProtocol.debugByteArray(result, " Wrapped des2 key");
+        //SecureChannelProtocol.debugByteArray(result, " Wrapped des2 key");
 
         return result;
     }
@@ -1462,6 +1520,7 @@ public class SecureChannelProtocol {
                 CryptoToken token = returnTokenByName(tokenName, cm);
 
                 int ivLength = EncryptionAlgorithm.AES_128_CBC.getIVLength();
+                //CMS.debug(method + " Set iv length to " + ivLength);
                 byte[] iv = null;
 
                 if (ivLength > 0) {
@@ -1472,13 +1531,11 @@ public class SecureChannelProtocol {
                 keyWrap.initWrap(wrapper, new IVParameterSpec(iv));
                 wrappedSessKeyData = keyWrap.wrap(sessionKey);
 
-
             } catch (Exception e) {
                 CMS.debug(method + " " + e);
                 throw new EBaseException(e);
             }
         }
-
 
         //SecureChannelProtocol.debugByteArray(wrappedSessKeyData, "wrappedSessKeyData");
         CMS.debug(method + " returning session key");
@@ -1500,11 +1557,13 @@ public class SecureChannelProtocol {
         }
 
         if (iv == null) {
-            finalIv = new byte[16];
-
+            // Set iv based on key length
+            finalIv = new byte[DEF_AES_KEYLENGTH];
         } else {
             finalIv = iv;
         }
+
+        //CMS.debug(method + ": iv length = " + finalIv.length);
 
         try {
             CryptoManager cm = this.getCryptoManger();
@@ -1512,8 +1571,7 @@ public class SecureChannelProtocol {
             Cipher encryptor = token.getCipherContext(EncryptionAlgorithm.AES_128_CBC);
             encryptor.initEncrypt(symKey, new IVParameterSpec(finalIv));
             output = encryptor.doFinal(input);
-
-//            SecureChannelProtocol.debugByteArray(output, "Encrypted data:");
+            //SecureChannelProtocol.debugByteArray(output, "AES CBC Encrypted data:");
         } catch (Exception e) {
 
             CMS.debug(method + e);
@@ -1545,15 +1603,14 @@ public class SecureChannelProtocol {
             output = encryptor.doFinal(input);
             //CMS.debug(method + "done doFinal " + output);
             CMS.debug(method + "done doFinal");
-
-            // SecureChannelProtocol.debugByteArray(output, "Encrypted data:");
+            //SecureChannelProtocol.debugByteArray(output, "Encrypted data:");
         } catch (Exception e) {
 
             CMS.debug(method + e);
             throw new EBaseException(method + e);
         }
         CMS.debug("returning encrypted output.");
-        // SecureChannelProtocol.debugByteArray(output, "Encrypted data before leaving:");
+        //SecureChannelProtocol.debugByteArray(output, "Encrypted data before leaving:");
 
         return output;
     }
@@ -1570,12 +1627,19 @@ public class SecureChannelProtocol {
         byte[] key_check_message = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
         //zero iv vector
         byte[] key_check_iv = new byte[16];
-
         byte[] output = null;
         byte[] finalOutput = new byte[3];
 
+        // RedHat :Do the same behavior as computeKeyCheck, use the token where the aes key resides.
+        String keysToken = null;
         try {
-            output = computeAES_CBCEncryption(symKey, selectedToken, key_check_message, key_check_iv);
+            keysToken = symKey.getOwningToken().getName();
+        } catch (TokenException e1) {
+            throw new EBaseException(e1 + " Can't get owning token for key/");
+        }
+
+        try {
+            output = computeAES_CBCEncryption(symKey, keysToken, key_check_message, key_check_iv);
         } catch (EBaseException e) {
             CMS.debug(method + e);
             throw e;
@@ -1593,7 +1657,7 @@ public class SecureChannelProtocol {
     //AES, uses AES_CMAC alg to do the work.
     public byte[] computeCryptogram_SCP03(SymmetricKey symKey, String selectedToken, byte[] context, byte cryptoType)
             throws EBaseException {
-        String method = "SecureChannelProtocol.computeCryptogram_";
+        String method = "SecureChannelProtocol.computeCryptogram_SCP03";
 
         CMS.debug(method + " entering ..");
 
@@ -1604,12 +1668,15 @@ public class SecureChannelProtocol {
 
         NistSP800_108KDF nistKdf = new NistSP800_108KDF(this);
         byte[] crypto = nistKdf.kdf_AES_CMAC_SCP03(symKey, context, cryptoType, 8);
+
         //SecureChannelProtocol.debugByteArray(crypto, " calculated cryptogram");
 
         byte[] finalCrypto = new byte[8];
 
         System.arraycopy(crypto, 0, finalCrypto, 0, 8);
 
+        //SecureChannelProtocol.debugByteArray(finalCrypto, " final cryptogram");
+        
         return finalCrypto;
     }
 
@@ -1759,17 +1826,18 @@ public class SecureChannelProtocol {
             byte[] CUIDValue,
             byte[] KDD,
             byte[] kekKeyArray, byte[] encKeyArray, byte[] macKeyArray,
-            String useSoftToken, String keySet, byte protocol, GPParams params) throws EBaseException {
+            String useSoftToken, String keySet, byte protocol, GPParams params, 
+            GPParams oldParams) throws EBaseException { // ** G&D 256 Key Rollover Support ** add oldParams parameter
 
         String method = "SecureChannelProtocol.diversifyKey:";
 
         CMS.debug(method + " Entering ... newTokenName: " + newTokenName + " protocol: " + protocol);
         CMS.debug(method + " oldMasterKeyName: " + oldMasterKeyName);
         CMS.debug(method + " newMasterKeyName: " + newMasterKeyName);
-
-//        SecureChannelProtocol.debugByteArray(encKeyArray, " Developer enc key array: ");
-//        SecureChannelProtocol.debugByteArray(macKeyArray, " Developer mac key array: ");
-//        SecureChannelProtocol.debugByteArray(kekKeyArray, " Developer kek key array: ");
+        
+        //SecureChannelProtocol.debugByteArray(encKeyArray, " Developer enc key array: ");
+        //SecureChannelProtocol.debugByteArray(macKeyArray, " Developer mac key array: ");
+        //SecureChannelProtocol.debugByteArray(kekKeyArray, " Developer kek key array: ");
 
         SymmetricKey masterKey = null;
         SymmetricKey oldMasterKey = null;
@@ -1836,8 +1904,8 @@ public class SecureChannelProtocol {
             }
         }
 
-//        SecureChannelProtocol.debugByteArray(oldKeyInfo, " oldKeyInfo: ");
-//        SecureChannelProtocol.debugByteArray(newKeyInfo, " newKeyInfo: ");
+        //SecureChannelProtocol.debugByteArray(oldKeyInfo, " oldKeyInfo: ");
+        //SecureChannelProtocol.debugByteArray(newKeyInfo, " newKeyInfo: ");
 
         byte oldKeyVersion = oldKeyInfo[0];
         byte newKeyVersion = newKeyInfo[0];
@@ -1906,11 +1974,12 @@ public class SecureChannelProtocol {
                 }
 
             } else { // Protocol 3
-
+                // ** G&D 256 Key Rollover Support **
+                // use the oldParams to compute the old_kek_sym_key
                 old_kek_sym_key = this.computeSessionKey_SCP03(tokenName, oldMasterKeyName,
-                        oldKeyInfo, SecureChannelProtocol.kekType, kekKeyArray, keySet,
-                        CUIDValue, KDD, null, null, transportKeyName, params);
-
+                      oldKeyInfo, SecureChannelProtocol.kekType, kekKeyArray, keySet,
+                      CUIDValue, KDD, null, null, transportKeyName, oldParams);
+                
                 CMS.debug(method + " Moving back to the developer key set case, protocol 3");
             }
         }
@@ -1983,10 +2052,11 @@ public class SecureChannelProtocol {
 
                 // Generate an old kek key to do the encrypting of the new static keys
 
+                // ** G&D 256 Key Rollover Support **
+                // use the oldParams to compute the old_kek_sym_key
                 old_kek_sym_key = this.computeSessionKey_SCP03(tokenName, oldMasterKeyName, oldKeyInfo,
                         SecureChannelProtocol.kekType, kekKeyArray,
-                        keySet, CUIDValue, KDD, null, null, transportKeyName, params);
-
+                        keySet, CUIDValue, KDD, null, null, transportKeyName, oldParams);
             }
 
             if (encKey == null || macKey == null || kekKey == null) {
@@ -1996,16 +2066,16 @@ public class SecureChannelProtocol {
 
         }
 
-        boolean showKeysForDebug = false;
+        boolean showKeysForDebug = checkAllowDebugKeyRollover();
 
         if (showKeysForDebug == true) {
-            try {
-                SecureChannelProtocol.debugByteArray(encKey.getKeyData(), "DiversifyKey: new encKey: ");
-                SecureChannelProtocol.debugByteArray(macKey.getKeyData(), "DiversifyKey: new macKey:");
-                SecureChannelProtocol.debugByteArray(kekKey.getKeyData(), "DiversifyKey: new kekKey");
-            } catch (NotExtractableException e) {
-                CMS.debug(method + " Can not display debugging info for key");
-            }
+            byte[] enc = debugAESKeyToBytes(token,encKey);
+            byte[] mac = debugAESKeyToBytes(token,macKey);
+            byte[] kek = debugAESKeyToBytes(token,kekKey); 
+
+            SecureChannelProtocol.debugByteArray(enc, "DiversifyKey: new encKey: ");
+            SecureChannelProtocol.debugByteArray(mac, "DiversifyKey: new macKey:");
+            SecureChannelProtocol.debugByteArray(kek, "DiversifyKey: new kekKey");
         }
 
         if (old_kek_sym_key != null) {
@@ -2088,7 +2158,7 @@ public class SecureChannelProtocol {
         byte[] keycheck_enc_key = null;
         byte[] keycheck_mac_key = null;
         byte[] keycheck_kek_key = null;
-
+        
         if (protocol == PROTOCOL_ONE) {
             if (old_kek_sym_key == null) {
                 CMS.debug(method + " Using old kek key array.");
@@ -2150,10 +2220,20 @@ public class SecureChannelProtocol {
         byte[] b1 = null;
         byte[] b2 = null;
 
-        if (protocol == PROTOCOL_THREE) {
+        if (protocol == PROTOCOL_THREE) 
+        {
             //Will be different if the key is bigger than AES 128
             // Support 128 for now
-            b1 = new byte[] { alg, 0x11, (byte) encrypted_enc_key.length };
+            // Added support for AES 256 keys
+            //CMS.debug(method + " encrypted_enc_key length = " + encrypted_enc_key.length);
+            if (encrypted_enc_key.length == DEF_AES_256_KEYLENGTH)
+            {
+                b1 = new byte[] { alg, 0x21, (byte) encrypted_enc_key.length };
+            }
+            else
+            {
+                b1 = new byte[] { alg, 0x11, (byte) encrypted_enc_key.length };
+            }
         } else {
             b1 = new byte[] { alg, 0x10 };
         }
@@ -2185,7 +2265,7 @@ public class SecureChannelProtocol {
             throw new EBaseException(method + " Can't compose final output byte array!");
         }
 
-//        SecureChannelProtocol.debugByteArray(output, " Final output to createKeySetData: ");
+        //SecureChannelProtocol.debugByteArray(output, " Final output to createKeySetData: ");
         CMS.debug(method + " returning output");
 
         return output;
@@ -2266,7 +2346,7 @@ public class SecureChannelProtocol {
         byte[] output = null;
         output = computeAES_CBCEncryption(kekKey, selectedToken, data, null);
 
-//        debugByteArray(output, method + " encryptData: Output: ");
+        //debugByteArray(output, method + " encryptData: Output: ");
 
         return output;
     }
@@ -2299,9 +2379,96 @@ public class SecureChannelProtocol {
 
         byte[] output = computeDes3EcbEncryption(kekKey, selectedToken, data);
 
-        // debugByteArray(output, " encryptData: Output: ");
+        //debugByteArray(output, " encryptData: Output: ");
 
         return output;
+    }
+
+    public SymmetricKey generateAESSymKey(String selectedToken, int keySize) throws EBaseException {
+        String method = "SecureChannelProtocol.generateAESSymKey: ";
+
+        CMS.debug(method + " entering , token: " + selectedToken + " size: " + keySize);
+        SymmetricKey symKey = null;
+
+        if (selectedToken == null) {
+            throw new EBaseException(method + " Invalid input data!");
+        }
+
+        try {
+            CryptoManager cm = this.getCryptoManger();
+            CryptoToken token = returnTokenByName(selectedToken, cm);
+            symKey =  CryptoUtil.generateKey(token, KeyGenAlgorithm.AES, keySize,
+                session_key_usages,true);
+        } catch (Exception e) {
+            CMS.debug(method + " " +  e);
+            throw new EBaseException(e);
+        }
+
+        return symKey;
+    }
+    private static byte[] debugAESKeyToBytes(CryptoToken token,SymmetricKey aesKey) {
+        KeyGenerator kg;
+        SymmetricKey sessionKey;
+        byte[] result = null;
+
+        if(token == null || aesKey == null) {
+            return result;
+        }
+
+        try {
+            kg = token.getKeyGenerator(KeyGenAlgorithm.AES);
+
+            SymmetricKey.Usage usages[] = new SymmetricKey.Usage[4];
+            usages[0] = SymmetricKey.Usage.WRAP;
+            usages[1] = SymmetricKey.Usage.UNWRAP;
+            usages[2] = SymmetricKey.Usage.ENCRYPT;
+            usages[3] = SymmetricKey.Usage.DECRYPT;
+
+            kg.setKeyUsages(usages);
+            kg.temporaryKeys(true);
+            // Handle 128 and 256 initialization sizes
+            kg.initialize(256);
+            SymmetricKey tempKey = kg.generate();
+
+            // Now wrap and unwrap with AES CBC PAD
+
+            KeyWrapper keyWrap = token.getKeyWrapper(KeyWrapAlgorithm.AES_CBC_PAD);
+            int ivLen = KeyWrapAlgorithm.AES_CBC_PAD.getBlockSize();
+            byte[] iv = new byte[ivLen];
+
+            IVParameterSpec ivsp = new IVParameterSpec(iv);
+            keyWrap.initWrap(tempKey, ivsp);
+            byte [] wrapped = keyWrap.wrap(aesKey);
+
+            Cipher decryptor = token.getCipherContext(EncryptionAlgorithm.AES_256_CBC_PAD);
+            decryptor.initDecrypt(tempKey,ivsp);
+            result = decryptor.doFinal(wrapped);
+
+         } catch (Exception e) {
+             return result;
+         }
+
+         return result;
+     }
+     
+      private boolean checkAllowDebugKeyRollover() {
+        boolean allow = false;
+
+        String method = "SecureChannelProtocol.checkAllowDebugKeyRollover: ";
+        IConfigStore cs = CMS.getConfigStore();
+
+        String allowDebugKeyRollover = "tks.debugKeyRollover";
+
+        //CMS.debug(method + " trying config: " + allowDebugKeyRollover);
+
+        try {
+            allow = cs.getBoolean("tks.useNewSharedSecretNames", false);
+        } catch (EBaseException e) {
+            allow = false;
+        }
+
+        //CMS.debug(method + "returning allow: " + allow);
+        return allow;
     }
 
 }
