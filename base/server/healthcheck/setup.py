@@ -10,7 +10,6 @@ setup(
         'pki.server.healthcheck.core',
         'pki.server.healthcheck.meta',
         'pki.server.healthcheck.certs',
-        'pki.server.healthcheck.clones',
     ],
     entry_points={
         # creates bin/pki-healthcheck
@@ -21,13 +20,11 @@ setup(
         'ipahealthcheck.registry': [
             'pkihealthcheck.meta = pki.server.healthcheck.meta.plugin:registry',
             'pkihealthcheck.certs = pki.server.healthcheck.certs.plugin:registry',
-            'pkihealthcheck.clones = pki.server.healthcheck.clones.plugin:registry',
         ],
         # register the plugin with pki-healthcheck
         'pkihealthcheck.registry': [
             'pkihealthcheck.meta = pki.server.healthcheck.meta.plugin:registry',
             'pkihealthcheck.certs = pki.server.healthcheck.certs.plugin:registry',
-            'pkihealthcheck.clones = pki.server.healthcheck.clones.plugin:registry',
         ],
         # plugin modules for pkihealthcheck.meta registry
         'pkihealthcheck.meta': [
@@ -37,10 +34,6 @@ setup(
         'pkihealthcheck.certs': [
             'trust_flags = pki.server.healthcheck.certs.trustflags',
             'expiration = pki.server.healthcheck.certs.expiration',
-        ],
-        # plugin modules for pkihealthcheck.clones registry
-        'pkihealthcheck.clones': [
-            'connectivity = pki.server.healthcheck.clones.connectivity_and_data',
         ],
     },
     classifiers=[

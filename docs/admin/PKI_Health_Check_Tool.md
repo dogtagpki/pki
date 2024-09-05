@@ -62,7 +62,7 @@ It is difficult to simulate some issues and so, unit tests will use [unittest.mo
 
 ## How to use
 
-Healthcheck executes a series of plugins to collect its information. Each plugin, referred to later as a source, is organized around a specific theme (system certificates, file system permissions and ownership, clones, etc.). A source is a collection of tests, refered to as checks, that should test one small piece of PKI.
+Healthcheck executes a series of plugins to collect its information. Each plugin, referred to later as a source, is organized around a specific theme (system certificates, file system permissions and ownership, etc.). A source is a collection of tests, refered to as checks, that should test one small piece of PKI.
 
 The report will consist of a message describing what was run and the status. If the status is not successful, the message may include additional information, which can be used by the admin to correct the issue (e.g. a file has the wrong permissions, expected X and got Y).
 
