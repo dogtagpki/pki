@@ -200,7 +200,6 @@ jobs:
           echo "Expired Cert: sslserver" >> expected
           echo "Expired Cert: subsystem" >> expected
           echo "Expired Cert: audit_signing" >> expected
-          echo "Internal server error 404 Client Error:  for url: http://pki.example.com:8080/ca/rest/securityDomain/domainInfo" >> expected
           echo "Internal server error 404 Client Error:  for url: https://pki.example.com:8443/ca/admin/ca/getStatus" >> expected
           diff expected stderr
 
