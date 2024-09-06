@@ -90,11 +90,18 @@ jobs:
         run: |
           docker exec pki pk12util \
               -d /root/.dogtag/nssdb \
-              -o ds_server.p12 \
+              -o $SHARED/ds_server.p12 \
               -W Secret.123 \
               -n Server-Cert
-          docker cp pki:ds_server.p12 ds_server.p12
-          tests/bin/ds-container-certs-import.sh ds ds_server.p12
+
+          sudo chmod go+r ds_server.p12
+
+          tests/bin/ds-certs-import.sh \
+              --image=pki-runner \
+              --input=ds_server.p12 \
+              --password=Secret.123 \
+              --debug \
+              ds
 
           tests/bin/ds-stop.sh \
               --image=pki-runner \
