@@ -3,7 +3,7 @@ name: TKS with external certs
 on: workflow_call
 
 env:
-  DB_IMAGE: ${{ vars.DB_IMAGE || 'quay.io/389ds/dirsrv' }}
+  DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
 
 jobs:
   test:
@@ -30,7 +30,7 @@ jobs:
       - name: Set up CA DS container
         run: |
           tests/bin/ds-create.sh \
-              --image=${{ env.DB_IMAGE }} \
+              --image=${{ env.DS_IMAGE }} \
               --hostname=cads.example.com \
               --password=Secret.123 \
               cads
@@ -73,7 +73,7 @@ jobs:
       - name: Set up TKS DS container
         run: |
           tests/bin/ds-create.sh \
-              --image=${{ env.DB_IMAGE }} \
+              --image=${{ env.DS_IMAGE }} \
               --hostname=tksds.example.com \
               --password=Secret.123 \
               tksds

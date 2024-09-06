@@ -3,7 +3,7 @@ name: KRA on separate instance
 on: workflow_call
 
 env:
-  DB_IMAGE: ${{ vars.DB_IMAGE || 'quay.io/389ds/dirsrv' }}
+  DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
 
 jobs:
   # docs/installation/kra/Installing_KRA_on_Separate_Instance.md
@@ -31,7 +31,7 @@ jobs:
       - name: Set up root CA DS container
         run: |
           tests/bin/ds-create.sh \
-              --image=${{ env.DB_IMAGE }} \
+              --image=${{ env.DS_IMAGE }} \
               --hostname=rootcads.example.com \
               --password=Secret.123 \
               rootcads
@@ -102,7 +102,7 @@ jobs:
       - name: Set up sub CA DS container
         run: |
           tests/bin/ds-create.sh \
-              --image=${{ env.DB_IMAGE }} \
+              --image=${{ env.DS_IMAGE }} \
               --hostname=subcads.example.com \
               --password=Secret.123 \
               subcads
@@ -205,7 +205,7 @@ jobs:
       - name: Set up KRA DS container
         run: |
           tests/bin/ds-create.sh \
-              --image=${{ env.DB_IMAGE }} \
+              --image=${{ env.DS_IMAGE }} \
               --hostname=krads.example.com \
               --password=Secret.123 \
               krads

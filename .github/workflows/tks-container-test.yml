@@ -3,7 +3,7 @@ name: TKS container
 on: workflow_call
 
 env:
-  DB_IMAGE: ${{ vars.DB_IMAGE || 'quay.io/389ds/dirsrv' }}
+  DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
 
 jobs:
   # https://github.com/dogtagpki/pki/wiki/Deploying-TKS-Container
@@ -98,7 +98,7 @@ jobs:
       - name: Set up CA DS container
         run: |
           tests/bin/ds-create.sh \
-              --image=${{ env.DB_IMAGE }} \
+              --image=${{ env.DS_IMAGE }} \
               --hostname=cads.example.com \
               --network=example \
               --network-alias=cads.example.com \
@@ -385,7 +385,7 @@ jobs:
       - name: Set up TKS DS container
         run: |
           tests/bin/ds-create.sh \
-              --image=${{ env.DB_IMAGE }} \
+              --image=${{ env.DS_IMAGE }} \
               --hostname=tksds.example.com \
               --network=example \
               --network-alias=tksds.example.com \

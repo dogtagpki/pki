@@ -3,7 +3,7 @@ name: Basic TKS
 on: workflow_call
 
 env:
-  DB_IMAGE: ${{ vars.DB_IMAGE || 'quay.io/389ds/dirsrv' }}
+  DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
 
 jobs:
   # docs/installation/tks/Installing_TKS.md
@@ -31,7 +31,7 @@ jobs:
       - name: Set up DS container
         run: |
           tests/bin/ds-create.sh \
-              --image=${{ env.DB_IMAGE }} \
+              --image=${{ env.DS_IMAGE }} \
               --hostname=ds.example.com \
               --password=Secret.123 \
               ds

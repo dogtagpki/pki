@@ -3,7 +3,7 @@ name: CA clone
 on: workflow_call
 
 env:
-  DB_IMAGE: ${{ vars.DB_IMAGE || 'quay.io/389ds/dirsrv' }}
+  DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
 
 jobs:
   # docs/installation/ca/Installing_CA.md
@@ -31,7 +31,7 @@ jobs:
       - name: Set up primary DS container
         run: |
           tests/bin/ds-create.sh \
-              --image=${{ env.DB_IMAGE }} \
+              --image=${{ env.DS_IMAGE }} \
               --hostname=primaryds.example.com \
               --password=Secret.123 \
               primaryds
@@ -91,7 +91,7 @@ jobs:
       - name: Set up secondary DS container
         run: |
           tests/bin/ds-create.sh \
-              --image=${{ env.DB_IMAGE }} \
+              --image=${{ env.DS_IMAGE }} \
               --hostname=secondaryds.example.com \
               --password=Secret.123 \
               secondaryds
@@ -338,7 +338,7 @@ jobs:
       - name: Set up tertiary DS container
         run: |
           tests/bin/ds-create.sh \
-              --image=${{ env.DB_IMAGE }} \
+              --image=${{ env.DS_IMAGE }} \
               --hostname=tertiaryds.example.com \
               --password=Secret.123 \
               tertiaryds

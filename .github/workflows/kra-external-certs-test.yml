@@ -3,7 +3,7 @@ name: KRA with external certs
 on: workflow_call
 
 env:
-  DB_IMAGE: ${{ vars.DB_IMAGE || 'quay.io/389ds/dirsrv' }}
+  DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
 
 jobs:
   # docs/installation/kra/Installing_KRA_with_External_Certificates.md
@@ -31,7 +31,7 @@ jobs:
       - name: Set up CA DS container
         run: |
           tests/bin/ds-create.sh \
-              --image=${{ env.DB_IMAGE }} \
+              --image=${{ env.DS_IMAGE }} \
               --hostname=cads.example.com \
               --password=Secret.123 \
               cads
@@ -74,7 +74,7 @@ jobs:
       - name: Set up KRA DS container
         run: |
           tests/bin/ds-create.sh \
-              --image=${{ env.DB_IMAGE }} \
+              --image=${{ env.DS_IMAGE }} \
               --hostname=krads.example.com \
               --password=Secret.123 \
               krads

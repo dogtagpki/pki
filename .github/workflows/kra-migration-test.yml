@@ -3,7 +3,7 @@ name: KRA migration
 on: workflow_call
 
 env:
-  DB_IMAGE: ${{ vars.DB_IMAGE || 'quay.io/389ds/dirsrv' }}
+  DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
 
 jobs:
   test:
@@ -30,7 +30,7 @@ jobs:
       - name: Set up first DS container
         run: |
           tests/bin/ds-create.sh \
-              --image=${{ env.DB_IMAGE }} \
+              --image=${{ env.DS_IMAGE }} \
               --hostname=ds1.example.com \
               --password=Secret.123 \
               --base-dn="dc=pki1,dc=example,dc=com" \
@@ -218,7 +218,7 @@ jobs:
       - name: Set up second DS container
         run: |
           tests/bin/ds-create.sh \
-              --image=${{ env.DB_IMAGE }} \
+              --image=${{ env.DS_IMAGE }} \
               --hostname=ds2.example.com \
               --password=Secret.123 \
               --base-dn="dc=pki2,dc=example,dc=com" \
