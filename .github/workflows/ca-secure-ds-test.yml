@@ -31,7 +31,7 @@ jobs:
       - name: Set up DS container
         run: |
           tests/bin/ds-create.sh \
-              --image=pki-runner \
+              --image=${{ env.DB_IMAGE }} \
               --hostname=ds.example.com \
               --password=Secret.123 \
               ds
@@ -97,18 +97,18 @@ jobs:
           sudo chmod go+r ds_server.p12
 
           tests/bin/ds-certs-import.sh \
-              --image=pki-runner \
+              --image=${{ env.DB_IMAGE }} \
               --input=ds_server.p12 \
               --password=Secret.123 \
               --debug \
               ds
 
           tests/bin/ds-stop.sh \
-              --image=pki-runner \
+              --image=${{ env.DB_IMAGE }} \
               ds
 
           tests/bin/ds-start.sh \
-              --image=pki-runner \
+              --image=${{ env.DB_IMAGE }} \
               ds
 
       - name: Install CA

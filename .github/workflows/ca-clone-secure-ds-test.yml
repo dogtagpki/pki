@@ -32,7 +32,7 @@ jobs:
       - name: Set up primary DS container
         run: |
           tests/bin/ds-create.sh \
-              --image=pki-runner \
+              --image=${{ env.DB_IMAGE }} \
               --hostname=primaryds.example.com \
               --password=Secret.123 \
               primaryds
@@ -98,17 +98,17 @@ jobs:
           sudo chmod go+r primaryds_server.p12
 
           tests/bin/ds-certs-import.sh \
-              --image=pki-runner \
+              --image=${{ env.DB_IMAGE }} \
               --input=primaryds_server.p12 \
               --password=Secret.123 \
               primaryds
 
           tests/bin/ds-stop.sh \
-              --image=pki-runner \
+              --image=${{ env.DB_IMAGE }} \
               primaryds
 
           tests/bin/ds-start.sh \
-              --image=pki-runner \
+              --image=${{ env.DB_IMAGE }} \
               primaryds
 
       - name: Install CA in primary PKI container
@@ -152,7 +152,7 @@ jobs:
       - name: Set up secondary DS container
         run: |
           tests/bin/ds-create.sh \
-              --image=pki-runner \
+              --image=${{ env.DB_IMAGE }} \
               --hostname=secondaryds.example.com \
               --password=Secret.123 \
               secondaryds
@@ -218,17 +218,17 @@ jobs:
           sudo chmod go+r secondaryds_server.p12
 
           tests/bin/ds-certs-import.sh \
-              --image=pki-runner \
+              --image=${{ env.DB_IMAGE }} \
               --input=secondaryds_server.p12 \
               --password=Secret.123 \
               secondaryds
 
           tests/bin/ds-stop.sh \
-              --image=pki-runner \
+              --image=${{ env.DB_IMAGE }} \
               secondaryds
 
           tests/bin/ds-start.sh \
-              --image=pki-runner \
+              --image=${{ env.DB_IMAGE }} \
               secondaryds
 
       - name: Install CA in secondary PKI container
