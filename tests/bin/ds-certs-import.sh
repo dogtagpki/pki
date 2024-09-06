@@ -10,11 +10,12 @@ VERBOSE=
 DEBUG=
 
 usage() {
-    echo "Usage: $SCRIPT_NAME [OPTIONS] <name> <input>"
+    echo "Usage: $SCRIPT_NAME [OPTIONS] <name>"
     echo
     echo "Options:"
     echo "    --image=<image>          Container image (default: quay.io/389ds/dirsrv)"
-    echo "    --password=<password>    Directory Manager password"
+    echo "    --input=<file>           PKCS #12 file"
+    echo "    --password=<password>    PKCS #12 password"
     echo " -v,--verbose                Run in verbose mode."
     echo "    --debug                  Run in debug mode."
     echo "    --help                   Show help message."
@@ -31,6 +32,9 @@ while getopts v-: arg ; do
         case $OPTARG in
         image=?*)
             IMAGE="$LONG_OPTARG"
+            ;;
+        input=?*)
+            INPUT="$LONG_OPTARG"
             ;;
         password=?*)
             PASSWORD="$LONG_OPTARG"
@@ -49,7 +53,7 @@ while getopts v-: arg ; do
         '')
             break # "--" terminates argument processing
             ;;
-        image* | password*)
+        image* | input* | password*)
             echo "ERROR: Missing argument for --$OPTARG option" >&2
             exit 1
             ;;
@@ -76,17 +80,15 @@ then
     exit 1
 fi
 
-INPUT=$2
-
 if [ "$INPUT" == "" ]
 then
-    echo "ERROR: Missing input file"
+    echo "ERROR: Missing PKCS #12 file"
     exit 1
 fi
 
 if [ "$PASSWORD" == "" ]
 then
-    PASSWORD=Secret.123
+    echo "ERROR: Missing PKCS #12 password"
 fi
 
 if [ "$IMAGE" = "" ]
@@ -124,10 +126,6 @@ import_certs_into_container() {
     echo "Importing DS certs into container"
 
     docker cp $INPUT $NAME:/tmp/certs.p12
-
-    echo "Fixing file ownership"
-
-    docker exec -u 0 $NAME chown dirsrv.dirsrv /tmp/certs.p12
 
     echo "Exporting server cert into /data/tls/server.crt"
 

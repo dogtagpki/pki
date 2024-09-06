@@ -93,13 +93,25 @@ jobs:
         run: |
           docker exec primary pk12util \
               -d /root/.dogtag/nssdb \
-              -o ds_server.p12 \
+              -o $SHARED/primaryds_server.p12 \
               -W Secret.123 \
               -n Server-Cert
-          docker cp primary:ds_server.p12 primaryds_server.p12
-          tests/bin/ds-certs-import.sh --image=pki-runner primaryds primaryds_server.p12
-          tests/bin/ds-stop.sh --image=pki-runner primaryds
-          tests/bin/ds-start.sh --image=pki-runner primaryds
+
+          sudo chmod go+r primaryds_server.p12
+
+          tests/bin/ds-certs-import.sh \
+              --image=pki-runner \
+              --input=primaryds_server.p12 \
+              --password=Secret.123 \
+              primaryds
+
+          tests/bin/ds-stop.sh \
+              --image=pki-runner \
+              primaryds
+
+          tests/bin/ds-start.sh \
+              --image=pki-runner \
+              primaryds
 
       - name: Install CA in primary PKI container
         run: |
@@ -205,13 +217,25 @@ jobs:
         run: |
           docker exec secondary pk12util \
               -d /root/.dogtag/nssdb \
-              -o ds_server.p12 \
+              -o $SHARED/secondaryds_server.p12 \
               -W Secret.123 \
               -n Server-Cert
-          docker cp secondary:ds_server.p12 secondaryds_server.p12
-          tests/bin/ds-certs-import.sh --image=pki-runner secondaryds secondaryds_server.p12
-          tests/bin/ds-stop.sh --image=pki-runner secondaryds
-          tests/bin/ds-start.sh --image=pki-runner secondaryds
+
+          sudo chmod go+r secondaryds_server.p12
+
+          tests/bin/ds-certs-import.sh \
+              --image=pki-runner \
+              --input=secondaryds_server.p12 \
+              --password=Secret.123 \
+              secondaryds
+
+          tests/bin/ds-stop.sh \
+              --image=pki-runner \
+              secondaryds
+
+          tests/bin/ds-start.sh \
+              --image=pki-runner \
+              secondaryds
 
       - name: Install CA in secondary PKI container
         run: |
