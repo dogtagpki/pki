@@ -349,7 +349,7 @@ PKI_CONFIG_NOT_YET_IMPLEMENTED_1 = " %s NOT YET IMPLEMENTED"
 PKI_CHECK_STATUS_MESSAGE = '''
       To check the status of the subsystem:
             systemctl status pki-tomcatd@%s.service'''
-PKI_ACCESS_URL = '''
+PKI_ACCESS_URL = '''\
       The URL for the subsystem is:
             https://%s:%s/%s'''
 PKI_INSTANCE_RESTART_MESSAGE = '''

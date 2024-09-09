@@ -190,8 +190,8 @@ def main(argv):
             parser.indent = 0
 
             deployer.subsystem_type = parser.read_text(
-                'Subsystem (CA/KRA/OCSP/TKS/TPS)',
-                options=['CA', 'KRA', 'OCSP', 'TKS', 'TPS'],
+                'Subsystem (CA/KRA/OCSP/TKS/TPS/ACME)',
+                options=['CA', 'KRA', 'OCSP', 'TKS', 'TPS', 'ACME'],
                 default='CA', case_sensitive=False).upper()
             print()
         else:
@@ -669,6 +669,9 @@ def main(argv):
         elif deployer.subsystem_type == 'TPS':
             print_tps_step_one_information(parser.mdict, deployer.instance)
 
+    elif deployer.subsystem_type == 'ACME':
+        print_acme_install_information()
+
     else:
         print_final_install_information(parser.mdict, deployer.instance)
 
@@ -682,7 +685,15 @@ def validate_user_deployment_cfg(user_deployment_cfg):
         line = line.strip()
         if not line.startswith('['):
             continue
-        if line not in ['[DEFAULT]', '[Tomcat]', '[CA]', '[KRA]', '[OCSP]', '[TKS]', '[TPS]']:
+        if line not in [
+                '[DEFAULT]',
+                '[Tomcat]',
+                '[CA]',
+                '[KRA]',
+                '[OCSP]',
+                '[TKS]',
+                '[TPS]',
+                '[ACME]']:
             raise Exception('Invalid deployment configuration section: %s' % line)
 
 
@@ -919,6 +930,7 @@ def print_skip_configuration_information(mdict, instance):
         print(log.PKI_CHECK_STATUS_MESSAGE % instance.name)
         print(log.PKI_INSTANCE_RESTART_MESSAGE % instance.name)
 
+    print()
     print(log.PKI_ACCESS_URL % (mdict['pki_hostname'],
                                 mdict['pki_https_port'],
                                 deployer.subsystem_type.lower()))
@@ -926,6 +938,17 @@ def print_skip_configuration_information(mdict, instance):
         print(log.PKI_SYSTEM_BOOT_STATUS_MESSAGE % "disabled")
     else:
         print(log.PKI_SYSTEM_BOOT_STATUS_MESSAGE % "enabled")
+    print(log.PKI_SPAWN_INFORMATION_FOOTER)
+
+
+def print_acme_install_information():
+
+    print(log.PKI_SPAWN_INFORMATION_HEADER)
+
+    print(log.PKI_ACCESS_URL % (deployer.mdict['pki_hostname'],
+                                deployer.mdict['pki_https_port'],
+                                deployer.subsystem_type.lower()))
+
     print(log.PKI_SPAWN_INFORMATION_FOOTER)
 
 
@@ -970,6 +993,7 @@ def print_final_install_information(mdict, instance):
         print(log.PKI_CHECK_STATUS_MESSAGE % instance.name)
         print(log.PKI_INSTANCE_RESTART_MESSAGE % instance.name)
 
+    print()
     print(log.PKI_ACCESS_URL % (mdict['pki_hostname'],
                                 mdict['pki_https_port'],
                                 deployer.subsystem_type.lower()))

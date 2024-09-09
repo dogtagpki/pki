@@ -5183,9 +5183,197 @@ class PKIDeployer:
 
         trans.finish()
 
+    def create_acme_subsystem(self):
+        '''
+        See also pki-server acme-create.
+        '''
+
+        logger.info('Creating ACME subsystem')
+
+        subsystem = pki.server.subsystem.ACMESubsystem(self.instance)
+        subsystem.create()
+
+        return subsystem
+
+    def configure_acme_database(self, subsystem):
+        '''
+        See also pki-server acme-database-mod.
+        '''
+
+        logger.info('Configuring ACME database')
+
+        database_type = self.mdict['acme_database_type']
+        props = subsystem.get_database_config(database_type=database_type)
+
+        database_class = pki.server.subsystem.ACME_DATABASE_CLASSES.get(database_type)
+        pki.util.set_property(props, 'class', database_class)
+
+        if database_type in ['ds', 'ldap', 'openldap']:
+
+            url = self.mdict.get('acme_database_url')
+            pki.util.set_property(props, 'url', url)
+
+            auth_type = props.get('authType')
+            auth_type = self.mdict.get('acme_database_auth_type', auth_type)
+            pki.util.set_property(props, 'authType', auth_type)
+
+            if auth_type == 'BasicAuth':
+                bind_dn = self.mdict.get('acme_database_bind_dn')
+                pki.util.set_property(props, 'bindDN', bind_dn)
+
+                bind_password = self.mdict.get('acme_database_bind_password')
+                pki.util.set_property(props, 'bindPassword', bind_password)
+
+            elif auth_type == 'SslClientAuth':
+                nickname = self.mdict.get('acme_database_nickname')
+                pki.util.set_property(props, 'nickname', nickname)
+
+            base_dn = self.mdict.get('acme_database_base_dn')
+            pki.util.set_property(props, 'baseDN', base_dn)
+
+        elif database_type == 'postgresql':
+
+            url = self.mdict.get('acme_database_url')
+            pki.util.set_property(props, 'url', url)
+
+            user = self.mdict.get('acme_database_user')
+            pki.util.set_property(props, 'user', user)
+
+            password = self.mdict.get('acme_database_password')
+            pki.util.set_property(props, 'password', password)
+
+        subsystem.update_database_config(props)
+
+    def configure_acme_issuer(self, subsystem):
+        '''
+        See also pki-server acme-issuer-mod.
+        '''
+
+        logger.info('Configuring ACME issuer')
+
+        issuer_type = self.mdict['acme_issuer_type']
+        props = subsystem.get_issuer_config(issuer_type=issuer_type)
+
+        issuer_class = pki.server.subsystem.ACME_ISSUER_CLASSES.get(issuer_type)
+        pki.util.set_property(props, 'class', issuer_class)
+
+        if issuer_type == 'nss':
+
+            nickname = self.mdict.get('acme_issuer_nickname')
+            pki.util.set_property(props, 'nickname', nickname)
+
+            extensions = self.mdict.get('acme_issuer_extensions')
+            pki.util.set_property(props, 'extensions', extensions)
+
+        elif issuer_type == 'pki':
+
+            url = self.mdict.get('acme_issuer_url')
+            pki.util.set_property(props, 'url', url)
+
+            nickname = self.mdict.get('acme_issuer_nickname')
+            pki.util.set_property(props, 'nickname', nickname)
+
+            username = self.mdict.get('acme_issuer_username')
+            pki.util.set_property(props, 'username', username)
+
+            password = self.mdict.get('acme_issuer_password')
+            pki.util.set_property(props, 'password', password)
+
+            password_file = self.mdict.get('acme_issuer_password_file')
+            pki.util.set_property(props, 'passwordFile', password_file)
+
+            profile = self.mdict.get('acme_issuer_profile')
+            pki.util.set_property(props, 'profile', profile)
+
+        subsystem.update_issuer_config(props)
+
+    def configure_acme_realm(self, subsystem):
+        '''
+        See also pki-server acme-realm-mod.
+        '''
+
+        logger.info('Configuring ACME realm')
+
+        realm_type = self.mdict['acme_realm_type']
+        props = subsystem.get_realm_config(realm_type=realm_type)
+
+        realm_class = pki.server.subsystem.ACME_REALM_CLASSES.get(realm_type)
+        pki.util.set_property(props, 'class', realm_class)
+
+        if realm_type == 'in-memory':
+
+            username = self.mdict.get('acme_realm_username')
+            pki.util.set_property(props, 'username', username)
+
+            password = self.mdict.get('acme_realm_password')
+            pki.util.set_property(props, 'password', password)
+
+        elif realm_type == 'ds':
+
+            url = self.mdict.get('acme_realm_url')
+            pki.util.set_property(props, 'url', url)
+
+            auth_type = props.get('authType')
+            auth_type = self.mdict.get('acme_realm_auth_type', auth_type)
+            pki.util.set_property(props, 'authType', auth_type)
+
+            if auth_type == 'BasicAuth':
+                bind_dn = self.mdict.get('acme_realm_bind_dn')
+                pki.util.set_property(props, 'bindDN', bind_dn)
+
+                bind_password = self.mdict.get('acme_realm_bind_password')
+                pki.util.set_property(props, 'bindPassword', bind_password)
+
+            elif auth_type == 'SslClientAuth':
+                nickname = self.mdict.get('acme_realm_nickname')
+                pki.util.set_property(props, 'nickname', nickname)
+
+            users_dn = self.mdict.get('acme_realm_users_dn')
+            pki.util.set_property(props, 'usersDN', users_dn)
+
+            groups_dn = self.mdict.get('acme_realm_groups_dn')
+            pki.util.set_property(props, 'groupsDN', groups_dn)
+
+        elif realm_type == 'postgresql':
+
+            url = self.mdict.get('acme_realm_url')
+            pki.util.set_property(props, 'url', url)
+
+            user = self.mdict.get('acme_realm_user')
+            pki.util.set_property(props, 'user', user)
+
+            password = self.mdict.get('acme_realm_password')
+            pki.util.set_property(props, 'password', password)
+
+        subsystem.update_realm_config(props)
+
+    def deploy_acme_webapp(self, subsystem):
+        '''
+        See also pki-server acme-deploy.
+        '''
+
+        logger.info('Deploying ACME webapp')
+
+        subsystem.enable(wait=True)
+
+    def spawn_acme(self):
+
+        subsystem = self.create_acme_subsystem()
+        self.instance.add_subsystem(subsystem)
+
+        self.configure_acme_database(subsystem)
+        self.configure_acme_issuer(subsystem)
+        self.configure_acme_realm(subsystem)
+
+        self.deploy_acme_webapp(subsystem)
+
     def spawn(self):
 
         print('Installing ' + self.subsystem_type + ' into ' + self.instance.base_dir + '.')
+
+        if self.subsystem_type == 'ACME':
+            self.spawn_acme()
+            return
 
         scriptlet = pki.server.deployment.scriptlets.initialization.PkiScriptlet()
         scriptlet.deployer = self
