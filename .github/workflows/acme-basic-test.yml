@@ -100,17 +100,28 @@ jobs:
 
       - name: Install ACME in PKI container
         run: |
-          docker exec pki pki-server acme-create
-          docker exec pki pki-server acme-database-mod \
-              --type ds \
-              -D url=ldap://ds.example.com:3389
-          docker exec pki pki-server acme-issuer-mod \
-              --type pki \
-              -D url=https://pki.example.com:8443
-          docker exec pki pki-server acme-realm-mod \
-              --type ds \
-              -D url=ldap://ds.example.com:3389
-          docker exec pki pki-server acme-deploy --wait
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/acme.cfg \
+              -s ACME \
+              -D acme_database_url=ldap://ds.example.com:3389 \
+              -D acme_issuer_url=https://pki.example.com:8443 \
+              -D acme_realm_url=ldap://ds.example.com:3389 \
+              -v
+
+      - name: Check ACME database config
+        if: always()
+        run: |
+          docker exec pki cat /etc/pki/pki-tomcat/acme/database.conf
+
+      - name: Check ACME issuer config
+        if: always()
+        run: |
+          docker exec pki cat /etc/pki/pki-tomcat/acme/issuer.conf
+
+      - name: Check ACME realm config
+        if: always()
+        run: |
+          docker exec pki cat /etc/pki/pki-tomcat/acme/realm.conf
 
       - name: Check initial ACME accounts
         run: |

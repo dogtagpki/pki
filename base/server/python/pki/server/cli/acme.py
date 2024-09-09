@@ -17,34 +17,6 @@ import pki.cli
 import pki.server
 import pki.server.cli.subsystem
 
-# TODO: auto-populate this map from /usr/share/pki/acme/database
-DATABASE_CLASSES = {
-    'ds': 'org.dogtagpki.acme.database.DSDatabase',
-    'in-memory': 'org.dogtagpki.acme.database.InMemoryDatabase',
-    'ldap': 'org.dogtagpki.acme.database.LDAPDatabase',
-    'openldap': 'org.dogtagpki.acme.database.OpenLDAPDatabase',
-    'postgresql': 'org.dogtagpki.acme.database.PostgreSQLDatabase'
-}
-
-DATABASE_TYPES = {value: key for key, value in DATABASE_CLASSES.items()}
-
-# TODO: auto-populate this map from /usr/share/pki/acme/issuer
-ISSUER_CLASSES = {
-    'nss': 'org.dogtagpki.acme.issuer.NSSIssuer',
-    'pki': 'org.dogtagpki.acme.issuer.PKIIssuer'
-}
-
-ISSUER_TYPES = {value: key for key, value in ISSUER_CLASSES.items()}
-
-# TODO: auto-populate this map from /usr/share/pki/acme/realm
-REALM_CLASSES = {
-    'ds': 'org.dogtagpki.acme.realm.DSRealm',
-    'in-memory': 'org.dogtagpki.acme.realm.InMemoryRealm',
-    'postgresql': 'org.dogtagpki.acme.realm.PostgreSQLRealm'
-}
-
-REALM_TYPES = {value: key for key, value in REALM_CLASSES.items()}
-
 logger = logging.getLogger(__name__)
 
 
@@ -72,7 +44,7 @@ class ACMECreateCLI(pki.cli.CLI):
         super().__init__('create', 'Create ACME subsystem')
 
     def print_help(self):
-        print('Usage: pki-server acme-create [OPTIONS] [name]')
+        print('Usage: pki-server acme-create [OPTIONS]')
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
         print('      --force                        Force creation.')
@@ -84,7 +56,7 @@ class ACMECreateCLI(pki.cli.CLI):
     def execute(self, argv):
 
         try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=', 'database=', 'issuer=',
                 'force',
                 'verbose', 'debug', 'help'])
@@ -94,7 +66,6 @@ class ACMECreateCLI(pki.cli.CLI):
             self.print_help()
             sys.exit(1)
 
-        name = 'acme'
         instance_name = 'pki-tomcat'
         force = False
 
@@ -120,9 +91,6 @@ class ACMECreateCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        if len(args) > 0:
-            name = args[0]
-
         instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
@@ -130,34 +98,8 @@ class ACMECreateCLI(pki.cli.CLI):
 
         instance.load()
 
-        acme_conf_dir = os.path.join(instance.conf_dir, name)
-        instance.makedirs(acme_conf_dir, exist_ok=True)
-
-        acme_share_dir = os.path.join(pki.server.PKIServer.SHARE_DIR, 'acme')
-
-        database_template = os.path.join(acme_share_dir, 'conf', 'database.conf')
-        database_conf = os.path.join(acme_conf_dir, 'database.conf')
-        instance.copy(
-            database_template,
-            database_conf,
-            exist_ok=True,
-            force=force)
-
-        issuer_template = os.path.join(acme_share_dir, 'conf', 'issuer.conf')
-        issuer_conf = os.path.join(acme_conf_dir, 'issuer.conf')
-        instance.copy(
-            issuer_template,
-            issuer_conf,
-            exist_ok=True,
-            force=force)
-
-        realm_template = os.path.join(acme_share_dir, 'conf', 'realm.conf')
-        realm_conf = os.path.join(acme_conf_dir, 'realm.conf')
-        instance.copy(
-            realm_template,
-            realm_conf,
-            exist_ok=True,
-            force=force)
+        subsystem = pki.server.subsystem.ACMESubsystem(instance)
+        subsystem.create(force=force)
 
 
 class ACMERemoveCLI(pki.cli.CLI):
@@ -661,7 +603,7 @@ class ACMEDatabaseShowCLI(pki.cli.CLI):
 
         database_class = config.get('class')
 
-        database_type = DATABASE_TYPES.get(database_class)
+        database_type = pki.server.subsystem.ACME_DATABASE_TYPES.get(database_class)
         print('  Database Type: %s' % database_type)
 
         if database_type in ['ds', 'ldap', 'openldap']:
@@ -724,7 +666,7 @@ class ACMEDatabaseModifyCLI(pki.cli.CLI):
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
         print('      --type <type>                  Database type: {0}'
-              .format(', '.join(DATABASE_TYPES.values())))
+              .format(', '.join(pki.server.subsystem.ACME_DATABASE_TYPES.values())))
         print('      -D<name>=<value>               Set property value.')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
@@ -753,7 +695,7 @@ class ACMEDatabaseModifyCLI(pki.cli.CLI):
 
             elif o == '--type':
                 database_type = a
-                if database_type not in DATABASE_TYPES.values():
+                if database_type not in pki.server.subsystem.ACME_DATABASE_TYPES.values():
                     raise Exception('Invalid database type: {0}'.format(database_type))
 
             elif o == '-D':
@@ -784,19 +726,8 @@ class ACMEDatabaseModifyCLI(pki.cli.CLI):
 
         instance.load()
 
-        acme_conf_dir = os.path.join(instance.conf_dir, 'acme')
-        database_conf = os.path.join(acme_conf_dir, 'database.conf')
-        config = {}
-
-        if database_type:
-            # if --type is specified, load the database.conf template
-            source = '/usr/share/pki/acme/database/{0}/database.conf'.format(database_type)
-        else:
-            # otherwise, load the database.conf from the instance
-            source = database_conf
-
-        logger.info('Loading %s', source)
-        pki.util.load_properties(source, config)
+        subsystem = pki.server.subsystem.ACMESubsystem(instance)
+        config = subsystem.get_database_config(database_type=database_type)
 
         # if --type or -D is specified, use silent mode
         if database_type or props:
@@ -806,7 +737,7 @@ class ACMEDatabaseModifyCLI(pki.cli.CLI):
                 logger.info('- %s: %s', name, value)
                 pki.util.set_property(config, name, value)
 
-            instance.store_properties(database_conf, config)
+            subsystem.update_database_config(config)
             return
 
         # otherwise, use interactive mode
@@ -821,16 +752,19 @@ class ACMEDatabaseModifyCLI(pki.cli.CLI):
         print()
         print(
             'Enter the type of the database. '
-            'Available types: %s.' % ', '.join(DATABASE_TYPES.values()))
-        database_type = DATABASE_TYPES.get(database_class)
+            'Available types: %s.' % ', '.join(pki.server.subsystem.ACME_DATABASE_TYPES.values()))
+        database_type = pki.server.subsystem.ACME_DATABASE_TYPES.get(database_class)
         orig_database_type = database_type
 
         database_type = pki.util.read_text(
             '  Database Type',
-            options=DATABASE_TYPES.values(),
+            options=pki.server.subsystem.ACME_DATABASE_TYPES.values(),
             default=database_type,
             required=True)
-        pki.util.set_property(config, 'class', DATABASE_CLASSES.get(database_type))
+        pki.util.set_property(
+            config,
+            'class',
+            pki.server.subsystem.ACME_DATABASE_CLASSES.get(database_type))
 
         if orig_database_type != database_type:
             source = '/usr/share/pki/acme/database/{0}/database.conf'.format(database_type)
@@ -922,7 +856,7 @@ class ACMEDatabaseModifyCLI(pki.cli.CLI):
                 '  Password', default=password, password=True, required=True)
             pki.util.set_property(config, 'password', password)
 
-        instance.store_properties(database_conf, config)
+        subsystem.update_database_config(config)
 
 
 class ACMEIssuerCLI(pki.cli.CLI):
@@ -997,7 +931,7 @@ class ACMEIssuerShowCLI(pki.cli.CLI):
 
         issuer_class = config.get('class')
 
-        issuer_type = ISSUER_TYPES.get(issuer_class)
+        issuer_type = pki.server.subsystem.ACME_ISSUER_TYPES.get(issuer_class)
         print('  Issuer Type: %s' % issuer_type)
 
         if issuer_type == 'nss':
@@ -1047,7 +981,7 @@ class ACMEIssuerModifyCLI(pki.cli.CLI):
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
         print('      --type <type>                  Issuer type: {0}'
-              .format(', '.join(ISSUER_TYPES.values())))
+              .format(', '.join(pki.server.subsystem.ACME_ISSUER_TYPES.values())))
         print('      -D<name>=<value>               Set property value.')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
@@ -1076,7 +1010,7 @@ class ACMEIssuerModifyCLI(pki.cli.CLI):
 
             elif o == '--type':
                 issuer_type = a
-                if issuer_type not in ISSUER_TYPES.values():
+                if issuer_type not in pki.server.subsystem.ACME_ISSUER_TYPES.values():
                     raise Exception('Invalid issuer type: {0}'.format(issuer_type))
 
             elif o == '-D':
@@ -1107,19 +1041,8 @@ class ACMEIssuerModifyCLI(pki.cli.CLI):
 
         instance.load()
 
-        acme_conf_dir = os.path.join(instance.conf_dir, 'acme')
-        issuer_conf = os.path.join(acme_conf_dir, 'issuer.conf')
-        config = {}
-
-        if issuer_type:
-            # if --type is specified, load the issuer.conf template
-            source = '/usr/share/pki/acme/issuer/{0}/issuer.conf'.format(issuer_type)
-        else:
-            # otherwise, load the issuer.conf from the instance
-            source = issuer_conf
-
-        logger.info('Loading %s', source)
-        pki.util.load_properties(source, config)
+        subsystem = pki.server.subsystem.ACMESubsystem(instance)
+        config = subsystem.get_issuer_config(issuer_type=issuer_type)
 
         # if --type or -D is specified, use silent mode
         if issuer_type or props:
@@ -1129,7 +1052,7 @@ class ACMEIssuerModifyCLI(pki.cli.CLI):
                 logger.info('- %s: %s', name, value)
                 pki.util.set_property(config, name, value)
 
-            instance.store_properties(issuer_conf, config)
+            subsystem.update_issuer_config(config)
             return
 
         # otherwise, use interactive mode
@@ -1144,16 +1067,19 @@ class ACMEIssuerModifyCLI(pki.cli.CLI):
         print()
         print(
             'Enter the type of the certificate issuer. '
-            'Available types: %s.' % ', '.join(ISSUER_TYPES.values()))
-        issuer_type = ISSUER_TYPES.get(issuer_class)
+            'Available types: %s.' % ', '.join(pki.server.subsystem.ACME_ISSUER_TYPES.values()))
+        issuer_type = pki.server.subsystem.ACME_ISSUER_TYPES.get(issuer_class)
         orig_issuer_type = issuer_type
 
         issuer_type = pki.util.read_text(
             '  Issuer Type',
-            options=ISSUER_TYPES.values(),
+            options=pki.server.subsystem.ACME_ISSUER_TYPES.values(),
             default=issuer_type,
             required=True)
-        pki.util.set_property(config, 'class', ISSUER_CLASSES.get(issuer_type))
+        pki.util.set_property(
+            config,
+            'class',
+            pki.server.subsystem.ACME_ISSUER_CLASSES.get(issuer_type))
 
         if orig_issuer_type != issuer_type:
             source = '/usr/share/pki/acme/issuer/{0}/issuer.conf'.format(issuer_type)
@@ -1223,7 +1149,7 @@ class ACMEIssuerModifyCLI(pki.cli.CLI):
             profile = pki.util.read_text('  Certificate Profile', default=profile, required=True)
             pki.util.set_property(config, 'profile', profile)
 
-        instance.store_properties(issuer_conf, config)
+        subsystem.update_issuer_config(config)
 
 
 class ACMERealmCLI(pki.cli.CLI):
@@ -1298,7 +1224,7 @@ class ACMERealmShowCLI(pki.cli.CLI):
 
         realm_class = config.get('class')
 
-        realm_type = REALM_TYPES.get(realm_class)
+        realm_type = pki.server.subsystem.ACME_REALM_TYPES.get(realm_class)
         print('  Realm Type: %s' % realm_type)
 
         if realm_type == 'in-memory':
@@ -1371,7 +1297,7 @@ class ACMERealmModifyCLI(pki.cli.CLI):
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
         print('      --type <type>                  Realm type: {0}'
-              .format(', '.join(REALM_TYPES.values())))
+              .format(', '.join(pki.server.subsystem.ACME_REALM_TYPES.values())))
         print('      -D<name>=<value>               Set property value.')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
@@ -1400,7 +1326,7 @@ class ACMERealmModifyCLI(pki.cli.CLI):
 
             elif o == '--type':
                 realm_type = a
-                if realm_type not in REALM_TYPES.values():
+                if realm_type not in pki.server.subsystem.ACME_REALM_TYPES.values():
                     raise Exception('Invalid realm type: {0}'.format(realm_type))
 
             elif o == '-D':
@@ -1431,19 +1357,8 @@ class ACMERealmModifyCLI(pki.cli.CLI):
 
         instance.load()
 
-        acme_conf_dir = os.path.join(instance.conf_dir, 'acme')
-        realm_conf = os.path.join(acme_conf_dir, 'realm.conf')
-        config = {}
-
-        if realm_type:
-            # if --type is specified, load the realm.conf template
-            source = '/usr/share/pki/acme/realm/{0}/realm.conf'.format(realm_type)
-        else:
-            # otherwise, load the realm.conf from the instance
-            source = realm_conf
-
-        logger.info('Loading %s', source)
-        pki.util.load_properties(source, config)
+        subsystem = pki.server.subsystem.ACMESubsystem(instance)
+        config = subsystem.get_realm_config(realm_type=realm_type)
 
         # if --type or -D is specified, use silent mode
         if realm_type or props:
@@ -1453,7 +1368,7 @@ class ACMERealmModifyCLI(pki.cli.CLI):
                 logger.info('- %s: %s', name, value)
                 pki.util.set_property(config, name, value)
 
-            instance.store_properties(realm_conf, config)
+            subsystem.update_realm_config(config)
             return
 
         # otherwise, use interactive mode
@@ -1468,16 +1383,19 @@ class ACMERealmModifyCLI(pki.cli.CLI):
         print()
         print(
             'Enter the type of the realm. '
-            'Available types: %s.' % ', '.join(REALM_TYPES.values()))
-        realm_type = REALM_TYPES.get(realm_class)
+            'Available types: %s.' % ', '.join(pki.server.subsystem.ACME_REALM_TYPES.values()))
+        realm_type = pki.server.subsystem.ACME_REALM_TYPES.get(realm_class)
         orig_realm_type = realm_type
 
         realm_type = pki.util.read_text(
             '  Realm Type',
-            options=REALM_TYPES.values(),
+            options=pki.server.subsystem.ACME_REALM_TYPES.values(),
             default=realm_type,
             required=True)
-        pki.util.set_property(config, 'class', REALM_CLASSES.get(realm_type))
+        pki.util.set_property(
+            config,
+            'class',
+            pki.server.subsystem.ACME_REALM_CLASSES.get(realm_type))
 
         if orig_realm_type != realm_type:
             source = '/usr/share/pki/acme/realm/{0}/realm.conf'.format(realm_type)
@@ -1586,4 +1504,4 @@ class ACMERealmModifyCLI(pki.cli.CLI):
                 '  Password', default=password, password=True, required=True)
             pki.util.set_property(config, 'password', password)
 
-        instance.store_properties(realm_conf, config)
+        subsystem.update_realm_config(config)

@@ -80,13 +80,16 @@ jobs:
           docker exec pki pki-server acme-create
           docker exec pki pki-server acme-database-mod \
               --type ds \
-              -D url=ldap://ds.example.com:3389
+              -D url=ldap://ds.example.com:3389 \
+              -D bindPassword=Secret.123
           docker exec pki pki-server acme-issuer-mod \
               --type pki \
-              -D url=https://pki.example.com:8443
+              -D url=https://pki.example.com:8443 \
+              -D password=Secret.123
           docker exec pki pki-server acme-realm-mod \
               --type ds \
-              -D url=ldap://ds.example.com:3389
+              -D url=ldap://ds.example.com:3389 \
+              -D bindPassword=Secret.123
           docker exec pki bash -c "echo baseURL=http://server1.example.com:8080/acme >> /var/lib/pki/pki-tomcat/conf/acme/engine.conf"
           docker exec pki pki-server acme-deploy --wait
 

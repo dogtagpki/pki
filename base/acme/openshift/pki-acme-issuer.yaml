@@ -14,4 +14,4 @@ stringData:
   # url: https://pki-ca:8443
   # profile: acmeServerCert
   # username: caadmin
-  # password: Secret.123
+  # password: ...

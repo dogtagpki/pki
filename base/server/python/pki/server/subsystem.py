@@ -46,6 +46,34 @@ import pki.system
 
 SELFTEST_CRITICAL = 'critical'
 
+# TODO: auto-populate this map from /usr/share/pki/acme/database
+ACME_DATABASE_CLASSES = {
+    'ds': 'org.dogtagpki.acme.database.DSDatabase',
+    'in-memory': 'org.dogtagpki.acme.database.InMemoryDatabase',
+    'ldap': 'org.dogtagpki.acme.database.LDAPDatabase',
+    'openldap': 'org.dogtagpki.acme.database.OpenLDAPDatabase',
+    'postgresql': 'org.dogtagpki.acme.database.PostgreSQLDatabase'
+}
+
+ACME_DATABASE_TYPES = {value: key for key, value in ACME_DATABASE_CLASSES.items()}
+
+# TODO: auto-populate this map from /usr/share/pki/acme/issuer
+ACME_ISSUER_CLASSES = {
+    'nss': 'org.dogtagpki.acme.issuer.NSSIssuer',
+    'pki': 'org.dogtagpki.acme.issuer.PKIIssuer'
+}
+
+ACME_ISSUER_TYPES = {value: key for key, value in ACME_ISSUER_CLASSES.items()}
+
+# TODO: auto-populate this map from /usr/share/pki/acme/realm
+ACME_REALM_CLASSES = {
+    'ds': 'org.dogtagpki.acme.realm.DSRealm',
+    'in-memory': 'org.dogtagpki.acme.realm.InMemoryRealm',
+    'postgresql': 'org.dogtagpki.acme.realm.PostgreSQLRealm'
+}
+
+ACME_REALM_TYPES = {value: key for key, value in ACME_REALM_CLASSES.items()}
+
 logger = logging.getLogger(__name__)
 
 
@@ -2719,6 +2747,114 @@ class TPSSubsystem(PKISubsystem):
 
     def __init__(self, instance):
         super().__init__(instance, 'tps')
+
+
+class ACMESubsystem(PKISubsystem):
+
+    def __init__(self, instance):
+        super().__init__(instance, 'acme')
+
+    @property
+    def database_conf(self):
+        return os.path.join(self.conf_dir, 'database.conf')
+
+    @property
+    def issuer_conf(self):
+        return os.path.join(self.conf_dir, 'issuer.conf')
+
+    @property
+    def realm_conf(self):
+        return os.path.join(self.conf_dir, 'realm.conf')
+
+    def create(self, exist_ok=False, force=False):
+
+        self.instance.makedirs(self.conf_dir, exist_ok=exist_ok)
+
+        default_conf_dir = os.path.join(pki.server.PKIServer.SHARE_DIR, 'acme', 'conf')
+
+        self.instance.copy(
+            os.path.join(default_conf_dir, 'database.conf'),
+            self.database_conf,
+            exist_ok=exist_ok,
+            force=force)
+
+        self.instance.copy(
+            os.path.join(default_conf_dir, 'issuer.conf'),
+            self.issuer_conf,
+            exist_ok=exist_ok,
+            force=force)
+
+        self.instance.copy(
+            os.path.join(default_conf_dir, 'realm.conf'),
+            self.realm_conf,
+            exist_ok=exist_ok,
+            force=force)
+
+    def get_database_config(self, database_type=None):
+
+        template_dir = os.path.join(pki.server.PKIServer.SHARE_DIR, 'acme', 'database')
+
+        if database_type:
+            # if database type is specified, load the database.conf template
+            database_conf = os.path.join(template_dir, database_type, 'database.conf')
+        else:
+            # otherwise, load the current database.conf in the instance
+            database_conf = self.database_conf
+
+        logger.info('Loading %s', database_conf)
+        config = {}
+        pki.util.load_properties(database_conf, config)
+
+        return config
+
+    def update_database_config(self, config):
+
+        logger.info('Updating %s', self.database_conf)
+        self.instance.store_properties(self.database_conf, config)
+
+    def get_issuer_config(self, issuer_type=None):
+
+        template_dir = os.path.join(pki.server.PKIServer.SHARE_DIR, 'acme', 'issuer')
+
+        if issuer_type:
+            # if issuer type is specified, load the issuer.conf template
+            issuer_conf = os.path.join(template_dir, issuer_type, 'issuer.conf')
+        else:
+            # otherwise, load the current issuer.conf in the instance
+            issuer_conf = self.issuer_conf
+
+        logger.info('Loading %s', issuer_conf)
+        config = {}
+        pki.util.load_properties(issuer_conf, config)
+
+        return config
+
+    def update_issuer_config(self, config):
+
+        logger.info('Updating %s', self.issuer_conf)
+        self.instance.store_properties(self.issuer_conf, config)
+
+    def get_realm_config(self, realm_type=None):
+
+        template_dir = os.path.join(pki.server.PKIServer.SHARE_DIR, 'acme', 'realm')
+
+        if realm_type:
+            # if realm type is specified, load the realm.conf template
+            realm_conf = os.path.join(template_dir, realm_type, 'realm.conf')
+        else:
+            # otherwise, load the current realm.conf in the instance
+            realm_conf = self.realm_conf
+
+        logger.info('Loading %s', realm_conf)
+        config = {}
+        pki.util.load_properties(realm_conf, config)
+
+        return config
+
+    def update_realm_config(self, config):
+
+        logger.info('Updating %s', self.realm_conf)
+        self.instance.store_properties(self.realm_conf, config)
 
 
 class PKISubsystemFactory(object):
