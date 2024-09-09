@@ -223,6 +223,11 @@ jobs:
           docker exec ipa ipa-run-tests -x --verbose \
               test_xmlrpc/test_ca_plugin.py
 
+      - name: Check HTTPD access logs
+        if: always()
+        run: |
+          docker exec ipa cat /var/log/httpd/access_log
+
       - name: Check DS server systemd journal
         if: always()
         run: |
@@ -255,6 +260,11 @@ jobs:
         if: always()
         run: |
           docker exec ipa journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check PKI server access log
+        if: always()
+        run: |
+          docker exec ipa find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
 
       - name: Check CA debug log
         if: always()

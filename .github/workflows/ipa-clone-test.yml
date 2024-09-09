@@ -574,6 +574,11 @@ jobs:
           grep "Number of entries returned" output-primary > actual
           diff expected actual
 
+      - name: Check HTTPD access logs in primary container
+        if: always()
+        run: |
+          docker exec primary cat /var/log/httpd/access_log
+
       - name: Check DS server systemd journal in primary container
         if: always()
         run: |
@@ -598,6 +603,11 @@ jobs:
         if: always()
         run: |
           docker exec primary journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check PKI server access log in primary container
+        if: always()
+        run: |
+          docker exec primary find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
 
       - name: Check CA debug log in primary container
         if: always()
@@ -659,6 +669,11 @@ jobs:
           docker exec secondary pki-server ca-config-show ca.connector.KRA.host | tee actual
           diff expected actual || true
 
+      - name: Check HTTPD access logs in secondary container
+        if: always()
+        run: |
+          docker exec secondary cat /var/log/httpd/access_log
+
       - name: Check DS server systemd journal in secondary container
         if: always()
         run: |
@@ -683,6 +698,11 @@ jobs:
         if: always()
         run: |
           docker exec secondary journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check PKI server access log in secondary container
+        if: always()
+        run: |
+          docker exec secondary find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
 
       - name: Check CA debug log in secondary container
         if: always()
