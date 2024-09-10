@@ -92,10 +92,10 @@ jobs:
           key: acme-images-${{ github.sha }}
           path: acme-images.tar
 
-  acme-certbot-test:
-    name: ACME with certbot
+  acme-basic-test:
+    name: Basic ACME
     needs: build
-    uses: ./.github/workflows/acme-certbot-test.yml
+    uses: ./.github/workflows/acme-basic-test.yml
 
   acme-switchover-test:
     name: ACME server switchover

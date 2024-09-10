@@ -1,4 +1,4 @@
-name: ACME with certbot
+name: Basic ACME
 
 on: workflow_call
 
@@ -573,17 +573,9 @@ jobs:
       - name: Remove CA from PKI container
         run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
 
-      - name: Upload artifacts from server containers
+      - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: acme-certbot-server
-          path: |
-            /tmp/artifacts/pki
-
-      - name: Upload artifacts from client container
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: acme-certbot-client
-          path: /tmp/artifacts/client
+          name: acme-basic
+          path: /tmp/artifacts
