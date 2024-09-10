@@ -1,4 +1,4 @@
-name: ACME with certbot
+name: Basic ACME
 
 on: workflow_call
 
@@ -610,17 +610,9 @@ jobs:
           docker cp client:/var/log/letsencrypt/letsencrypt.log /tmp/artifacts/client/var/log/letsencrypt
         continue-on-error: true
 
-      - name: Upload artifacts from server containers
+      - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: acme-certbot-server
-          path: |
-            /tmp/artifacts/pki
-
-      - name: Upload artifacts from client container
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: acme-certbot-client
-          path: /tmp/artifacts/client
+          name: acme-basic
+          path: /tmp/artifacts
