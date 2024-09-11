@@ -584,7 +584,8 @@ def main(argv):
 
     if not interactive and \
             not config.str2bool(parser.mdict['pki_skip_configuration']):
-        check_ds()
+        if config.str2bool(parser.mdict['pki_ds_setup']):
+            check_ds()
         if config.str2bool(parser.mdict['pki_security_domain_setup']):
             check_security_domain()
 

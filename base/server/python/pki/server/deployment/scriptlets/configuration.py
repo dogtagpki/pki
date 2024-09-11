@@ -52,6 +52,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         subsystem = instance.get_subsystem(deployer.subsystem_type.lower())
 
+        if deployer.ds_url:
+            deployer.configure_internal_database(subsystem)
+
         deployer.configure_subsystem(subsystem)
         subsystem.save()
 

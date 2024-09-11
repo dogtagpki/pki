@@ -156,8 +156,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # verify selinux context of selected ports
         deployer.configuration_file.populate_non_default_ports()
         deployer.configuration_file.verify_selinux_ports()
-        # If secure DS connection is required, verify parameters
-        deployer.configuration_file.verify_ds_secure_connection_data()
+
+        if config.str2bool(deployer.mdict['pki_ds_setup']):
+            # if secure DS connection is required, verify parameters
+            deployer.configuration_file.verify_ds_secure_connection_data()
 
     def destroy(self, deployer):
 

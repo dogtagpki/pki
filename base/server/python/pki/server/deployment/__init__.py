@@ -209,7 +209,10 @@ class PKIDeployer:
 
         if ds_url is None:
 
-            ds_hostname = self.mdict['pki_ds_hostname']
+            ds_hostname = self.mdict.get('pki_ds_hostname')
+
+            if not ds_hostname:
+                return
 
             if config.str2bool(self.mdict['pki_ds_secure_connection']):
                 ds_protocol = 'ldaps'
@@ -1482,9 +1485,8 @@ class PKIDeployer:
                 'op.enroll.userKeyTemporary.keyGen.encryption.recovery.onHold.scheme',
                 'GenerateNewKey')
 
-    def configure_subsystem(self, subsystem):
+    def configure_internal_database(self, subsystem):
 
-        # configure internal database
         if self.ds_url.scheme == 'ldaps':
             subsystem.set_config('internaldb.ldapconn.secureConn', 'true')
 
@@ -1500,6 +1502,8 @@ class PKIDeployer:
         subsystem.set_config('internaldb.ldapauth.bindDN', self.mdict['pki_ds_bind_dn'])
         subsystem.set_config('internaldb.basedn', self.mdict['pki_ds_base_dn'])
         subsystem.set_config('internaldb.database', self.mdict['pki_ds_database'])
+
+    def configure_subsystem(self, subsystem):
 
         if subsystem.type == 'CA':
             self.configure_ca(subsystem)
