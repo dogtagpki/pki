@@ -203,11 +203,13 @@ def main(argv):
         config.USER_DEPLOYMENT_CONFIGURATION
     )
 
-    if deployer.force and not os.path.exists(config.user_deployment_cfg):
-        # During force destroy, try to load the file. If file doesn't exist, we ignore it
+    if not os.path.exists(config.user_deployment_cfg):
+        # if file doesn't exist, we ignore it
         config.user_deployment_cfg = None
 
-    parser.validate(config.user_deployment_cfg)
+    if config.user_deployment_cfg:
+        parser.validate(config.user_deployment_cfg)
+
     parser.init_config(pki_instance_name=config.pki_deployed_instance_name)
 
     if args.pki_verbosity > 1:
@@ -215,12 +217,14 @@ def main(argv):
                        'v' * args.pki_verbosity)
 
     # Read the specified PKI configuration file.
-    rv = parser.read_pki_configuration_file(config.user_deployment_cfg)
-    if rv != 0:
-        sys.exit(1)
+    if config.user_deployment_cfg:
+        rv = parser.read_pki_configuration_file(config.user_deployment_cfg)
+        if rv != 0:
+            sys.exit(1)
 
     # Combine the various sectional dictionaries into a PKI master dictionary
     parser.compose_pki_master_dictionary(config.user_deployment_cfg)
+
     deployer.init()
 
     if args.log_file:
