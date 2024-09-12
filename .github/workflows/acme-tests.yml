@@ -97,6 +97,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/acme-basic-test.yml
 
+  acme-separate-test:
+    name: ACME on separate instance
+    needs: build
+    uses: ./.github/workflows/acme-separate-test.yml
+
   acme-switchover-test:
     name: ACME server switchover
     needs: build
