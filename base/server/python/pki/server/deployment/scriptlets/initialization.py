@@ -40,13 +40,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # Silently verify the existence of 'sensitive' data
         configuration_file = deployer.configuration_file
 
-        # Verify existence of Directory Server Password
-        # (unless configuration will not be automatically executed)
-        if not configuration_file.skip_configuration:
-            configuration_file.confirm_data_exists('pki_ds_password')
-
         # Verify existence of Admin Password (except for Clones)
-        if not configuration_file.clone:
+        if configuration_file.subsystem != 'ACME' and \
+                not configuration_file.clone:
             configuration_file.confirm_data_exists('pki_admin_password')
 
         # If HSM, verify absence of all PKCS #12 backup parameters
@@ -68,7 +64,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             configuration_file.confirm_data_exists('pki_client_database_password')
 
         # Verify existence of Client PKCS #12 Password for Admin Cert
-        configuration_file.confirm_data_exists('pki_client_pkcs12_password')
+        if configuration_file.subsystem != 'ACME':
+            configuration_file.confirm_data_exists('pki_client_pkcs12_password')
 
         if configuration_file.clone:
 
@@ -158,6 +155,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         deployer.configuration_file.verify_selinux_ports()
 
         if config.str2bool(deployer.mdict['pki_ds_setup']):
+
+            # verify existence of DS password
+            # (unless configuration will not be automatically executed)
+            if not deployer.configuration_file.skip_configuration:
+                deployer.configuration_file.confirm_data_exists('pki_ds_password')
+
             # if secure DS connection is required, verify parameters
             deployer.configuration_file.verify_ds_secure_connection_data()
 

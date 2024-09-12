@@ -5354,7 +5354,16 @@ class PKIDeployer:
 
         logger.info('Deploying ACME webapp')
 
-        subsystem.enable(wait=True)
+        if len(self.instance.get_subsystems()) == 1:
+            # if this is the first subsystem, deploy the subsystem without waiting
+            subsystem.enable()
+
+        else:
+            # otherwise, deploy the subsystem and wait until it starts
+            subsystem.enable(
+                wait=True,
+                max_wait=self.startup_timeout,
+                timeout=self.request_timeout)
 
     def spawn_acme(self):
 
@@ -5367,13 +5376,16 @@ class PKIDeployer:
 
         self.deploy_acme_webapp(subsystem)
 
+        if len(self.instance.get_subsystems()) == 1:
+            # if this is the first subsystem, start the server
+            self.instance.start(
+                wait=True,
+                max_wait=self.startup_timeout,
+                timeout=self.request_timeout)
+
     def spawn(self):
 
         print('Installing ' + self.subsystem_type + ' into ' + self.instance.base_dir + '.')
-
-        if self.subsystem_type == 'ACME':
-            self.spawn_acme()
-            return
 
         scriptlet = pki.server.deployment.scriptlets.initialization.PkiScriptlet()
         scriptlet.deployer = self
@@ -5389,6 +5401,10 @@ class PKIDeployer:
         scriptlet.deployer = self
         scriptlet.instance = self.instance
         scriptlet.spawn(self)
+
+        if self.subsystem_type == 'ACME':
+            self.spawn_acme()
+            return
 
         scriptlet = pki.server.deployment.scriptlets.subsystem_layout.PkiScriptlet()
         scriptlet.deployer = self
