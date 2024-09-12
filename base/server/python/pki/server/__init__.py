@@ -1300,6 +1300,11 @@ grant codeBase "file:%s" {
         logger.info('Removing %s', self.bin_dir)
         pki.util.unlink(self.bin_dir, force=force)
 
+        # remove /var/lib/pki/<instance>/alias if exists
+        if os.path.islink(self.nssdb_link):
+            logger.info('Removing %s', self.nssdb_link)
+            pki.util.unlink(self.nssdb_link)
+
         if os.path.isdir(self.base_dir) and not os.listdir(self.base_dir):
 
             # Remove instance base dir if empty

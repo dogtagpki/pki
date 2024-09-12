@@ -744,7 +744,6 @@ jobs:
 
           # TODO: review permissions
           cat > expected << EOF
-          lrwxrwxrwx pkiuser pkiuser alias -> /var/lib/pki/pki-tomcat/conf/alias
           lrwxrwxrwx pkiuser pkiuser conf -> /etc/pki/pki-tomcat
           lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-tomcat
           EOF
