@@ -100,6 +100,8 @@ class ACMECreateCLI(pki.cli.CLI):
 
         subsystem = pki.server.subsystem.ACMESubsystem(instance)
         subsystem.create(force=force)
+        subsystem.create_conf(force=force)
+        subsystem.create_logs(force=force)
 
 
 class ACMERemoveCLI(pki.cli.CLI):
@@ -108,9 +110,11 @@ class ACMERemoveCLI(pki.cli.CLI):
         super().__init__('remove', 'Remove ACME subsystem')
 
     def print_help(self):
-        print('Usage: pki-server acme-remove [OPTIONS] [name]')
+        print('Usage: pki-server acme-remove [OPTIONS]')
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('      --remove-conf                  Remove config folder.')
+        print('      --remove-logs                  Remove logs folder.')
         print('      --force                        Force removal.')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
@@ -120,9 +124,9 @@ class ACMERemoveCLI(pki.cli.CLI):
     def execute(self, argv):
 
         try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
-                'force',
+                'remove-conf', 'remove-logs', 'force',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -130,13 +134,20 @@ class ACMERemoveCLI(pki.cli.CLI):
             self.print_help()
             sys.exit(1)
 
-        name = 'acme'
         instance_name = 'pki-tomcat'
+        remove_conf = False
+        remove_logs = False
         force = False
 
         for o, a in opts:
             if o in ('-i', '--instance'):
                 instance_name = a
+
+            elif o == '--remove-conf':
+                remove_conf = True
+
+            elif o == '--remove-logs':
+                remove_logs = True
 
             elif o == '--force':
                 force = True
@@ -156,9 +167,6 @@ class ACMERemoveCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        if len(args) > 0:
-            name = args[0]
-
         instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
@@ -166,9 +174,15 @@ class ACMERemoveCLI(pki.cli.CLI):
 
         instance.load()
 
-        acme_conf_dir = os.path.join(instance.conf_dir, name)
-        logger.info('Removing %s', acme_conf_dir)
-        pki.util.rmtree(acme_conf_dir, force=force)
+        subsystem = pki.server.subsystem.ACMESubsystem(instance)
+
+        if remove_logs:
+            subsystem.remove_logs(force=force)
+
+        if remove_conf:
+            subsystem.remove_conf(force=force)
+
+        subsystem.remove(force=force)
 
 
 class ACMEDeployCLI(pki.cli.CLI):

@@ -119,6 +119,7 @@ jobs:
 
           # TODO: review permissions
           cat > expected << EOF
+          drwxrwx--- pkiuser pkiuser acme
           lrwxrwxrwx pkiuser pkiuser alias -> /var/lib/pki/pki-tomcat/conf/alias
           lrwxrwxrwx pkiuser pkiuser bin -> /usr/share/tomcat/bin
           drwxrwx--- pkiuser pkiuser ca
@@ -175,7 +176,7 @@ jobs:
 
           # TODO: review permissions
           cat > expected << EOF
-          drwxr-xr-x pkiuser pkiuser acme
+          drwxrwx--- pkiuser pkiuser acme
           drwxr-x--- pkiuser pkiuser backup
           drwxrwx--- pkiuser pkiuser ca
           -rw-rw-r-- pkiuser pkiuser catalina.$DATE.log
@@ -184,6 +185,23 @@ jobs:
           -rw-r--r-- pkiuser pkiuser localhost_access_log.$DATE.txt
           -rw-rw-r-- pkiuser pkiuser manager.$DATE.log
           drwxr-xr-x pkiuser pkiuser pki
+          EOF
+
+          diff expected output
+
+      - name: Check ACME base dir
+        if: always()
+        run: |
+          docker exec pki ls -l /var/lib/pki/pki-tomcat/acme \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          # TODO: review permissions
+          cat > expected << EOF
+          lrwxrwxrwx pkiuser pkiuser conf -> /var/lib/pki/pki-tomcat/conf/acme
+          lrwxrwxrwx pkiuser pkiuser logs -> /var/lib/pki/pki-tomcat/logs/acme
           EOF
 
           diff expected output
@@ -220,6 +238,11 @@ jobs:
         if: always()
         run: |
           docker exec pki cat /etc/pki/pki-tomcat/acme/realm.conf
+
+      - name: Check ACME logs dir
+        if: always()
+        run: |
+          docker exec pki ls -l /var/log/pki/pki-tomcat/acme
 
       - name: Check initial ACME accounts
         run: |
@@ -664,9 +687,7 @@ jobs:
           diff expected actual
 
       - name: Remove ACME from PKI container
-        run: |
-          docker exec pki pki-server acme-undeploy --wait
-          docker exec pki pki-server acme-remove
+        run: docker exec pki pkidestroy -s ACME -v
 
       - name: Remove CA from PKI container
         run: docker exec pki pkidestroy -s CA -v
@@ -700,6 +721,7 @@ jobs:
           # TODO: review permissions
           cat > expected << EOF
           drwxrwx--- pkiuser pkiuser Catalina
+          drwxrwx--- pkiuser pkiuser acme
           drwxrwx--- pkiuser pkiuser alias
           drwxrwx--- pkiuser pkiuser ca
           -rw-r--r-- pkiuser pkiuser catalina.policy
@@ -729,7 +751,7 @@ jobs:
 
           # TODO: review permissions
           cat > expected << EOF
-          drwxr-xr-x pkiuser pkiuser acme
+          drwxrwx--- pkiuser pkiuser acme
           drwxr-x--- pkiuser pkiuser backup
           drwxrwx--- pkiuser pkiuser ca
           -rw-rw-r-- pkiuser pkiuser catalina.$DATE.log

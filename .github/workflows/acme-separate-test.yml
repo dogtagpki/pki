@@ -178,6 +178,7 @@ jobs:
 
           # TODO: review permissions
           cat > expected << EOF
+          drwxrwx--- pkiuser pkiuser acme
           lrwxrwxrwx pkiuser pkiuser alias -> /var/lib/pki/pki-tomcat/conf/alias
           lrwxrwxrwx pkiuser pkiuser bin -> /usr/share/tomcat/bin
           drwxr-x--- pkiuser pkiuser common
@@ -231,11 +232,29 @@ jobs:
 
           # TODO: review permissions
           cat > expected << EOF
+          drwxrwx--- pkiuser pkiuser acme
           drwxr-x--- pkiuser pkiuser backup
           -rw-r--r-- pkiuser pkiuser catalina.$DATE.log
           -rw-r--r-- pkiuser pkiuser host-manager.$DATE.log
           -rw-r--r-- pkiuser pkiuser localhost.$DATE.log
           -rw-r--r-- pkiuser pkiuser manager.$DATE.log
+          EOF
+
+          diff expected output
+
+      - name: Check ACME base dir
+        if: always()
+        run: |
+          docker exec acme ls -l /var/lib/pki/pki-tomcat/acme \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          # TODO: review permissions
+          cat > expected << EOF
+          lrwxrwxrwx pkiuser pkiuser conf -> /var/lib/pki/pki-tomcat/conf/acme
+          lrwxrwxrwx pkiuser pkiuser logs -> /var/lib/pki/pki-tomcat/logs/acme
           EOF
 
           diff expected output
@@ -272,6 +291,11 @@ jobs:
         if: always()
         run: |
           docker exec acme cat /etc/pki/pki-tomcat/acme/realm.conf
+
+      - name: Check ACME logs dir
+        if: always()
+        run: |
+          docker exec acme ls -l /var/log/pki/pki-tomcat/acme
 
       - name: Check initial ACME accounts
         run: |
@@ -724,14 +748,10 @@ jobs:
           diff expected actual
 
       - name: Remove ACME
-        run: |
-          docker exec acme pki-server acme-undeploy --wait -v
-          docker exec acme pki-server acme-remove -v
-          docker exec acme pki-server stop --wait -v
-          docker exec acme pki-server remove -v
+        run: docker exec acme pkidestroy -s ACME -v
 
       - name: Remove CA
-        run: docker exec ca pkidestroy -i pki-tomcat -s CA -v
+        run: docker exec ca pkidestroy -s CA -v
 
       - name: Check ACME server base dir after removal
         run: |
@@ -762,6 +782,7 @@ jobs:
           # TODO: review permissions
           cat > expected << EOF
           drwxr-x--- pkiuser pkiuser Catalina
+          drwxrwx--- pkiuser pkiuser acme
           drwxrwx--- pkiuser pkiuser alias
           -rw-rw---- pkiuser pkiuser catalina.policy
           lrwxrwxrwx pkiuser pkiuser catalina.properties -> /usr/share/pki/server/conf/catalina.properties
@@ -789,7 +810,7 @@ jobs:
 
           # TODO: review permissions
           cat > expected << EOF
-          drwxr-xr-x pkiuser pkiuser acme
+          drwxrwx--- pkiuser pkiuser acme
           drwxr-x--- pkiuser pkiuser backup
           -rw-r--r-- pkiuser pkiuser catalina.$DATE.log
           -rw-r--r-- pkiuser pkiuser host-manager.$DATE.log

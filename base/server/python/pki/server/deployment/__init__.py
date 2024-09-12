@@ -5187,6 +5187,8 @@ class PKIDeployer:
 
         subsystem = pki.server.subsystem.ACMESubsystem(self.instance)
         subsystem.create()
+        subsystem.create_conf()
+        subsystem.create_logs()
 
         return subsystem
 
@@ -5370,6 +5372,49 @@ class PKIDeployer:
         self.configure_acme_realm(subsystem)
 
         self.deploy_acme_webapp(subsystem)
+
+    def undeploy_acme_webapp(self, subsystem):
+        '''
+        See also pki-server acme-undeploy.
+        '''
+
+        logger.info('Undeploying ACME webapp')
+
+        subsystem.disable(wait=True)
+
+    def remove_acme_subsystem(self, subsystem):
+        '''
+        See also pki-server acme-remove.
+        '''
+
+        logger.info('Removing ACME subsystem')
+
+        if self.remove_logs:
+            subsystem.remove_logs(force=self.force)
+
+        if self.remove_conf:
+            subsystem.remove_conf(force=self.force)
+
+        subsystem.remove(force=self.force)
+
+    def destroy_acme(self):
+
+        subsystem = self.instance.remove_subsystem('acme')
+
+        self.undeploy_acme_webapp(subsystem)
+        self.remove_acme_subsystem(subsystem)
+
+        if len(self.instance.get_subsystems()) == 0:
+            # if this is the last subsystem, stop the server
+            self.instance.stop(
+                wait=True,
+                max_wait=self.startup_timeout,
+                timeout=self.request_timeout)
+
+            # then remove the server
+            self.instance.remove(
+                remove_conf=self.remove_conf,
+                remove_logs=self.remove_logs)
 
     def create_est_subsystem(self):
         '''
@@ -5566,6 +5611,10 @@ class PKIDeployer:
     def destroy(self):
 
         print('Uninstalling ' + self.subsystem_type + ' from ' + self.instance.base_dir + '.')
+
+        if self.subsystem_type == 'ACME':
+            self.destroy_acme()
+            return
 
         scriptlet = pki.server.deployment.scriptlets.initialization.PkiScriptlet()
         scriptlet.deployer = self
