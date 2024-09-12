@@ -2768,27 +2768,62 @@ class ACMESubsystem(PKISubsystem):
 
     def create(self, exist_ok=False, force=False):
 
-        self.instance.makedirs(self.conf_dir, exist_ok=exist_ok)
+        # Create /var/lib/pki/<instance>/<subsystem>
+        self.instance.makedirs(self.base_dir, exist_ok=exist_ok, force=force)
+
+    def create_conf(self, exist_ok=False, force=False):
+
+        # Create /etc/pki/<instance>/<subsystem>
+        self.instance.makedirs(self.conf_dir, exist_ok=exist_ok, force=force)
+
+        # Link /var/lib/pki/<instance>/<subsystem>/conf
+        # to /etc/pki/<instance>/<subsystem>
+
+        conf_link = os.path.join(self.base_dir, 'conf')
+        self.instance.symlink(
+            self.conf_dir,
+            conf_link,
+            exist_ok=exist_ok)
 
         default_conf_dir = os.path.join(pki.server.PKIServer.SHARE_DIR, 'acme', 'conf')
 
+        # Copy /usr/share/pki/acme/conf/database.conf
+        # to /etc/pki/<instance>/<subsystem>/database.conf
         self.instance.copy(
             os.path.join(default_conf_dir, 'database.conf'),
             self.database_conf,
             exist_ok=exist_ok,
             force=force)
 
+        # Copy /usr/share/pki/acme/conf/issuer.conf
+        # to /etc/pki/<instance>/<subsystem>/issuer.conf
         self.instance.copy(
             os.path.join(default_conf_dir, 'issuer.conf'),
             self.issuer_conf,
             exist_ok=exist_ok,
             force=force)
 
+        # Copy /usr/share/pki/acme/conf/realm.conf
+        # to /etc/pki/<instance>/<subsystem>/realm.conf
         self.instance.copy(
             os.path.join(default_conf_dir, 'realm.conf'),
             self.realm_conf,
             exist_ok=exist_ok,
             force=force)
+
+    def create_logs(self, exist_ok=False, force=False):
+
+        # Create /var/log/pki/<instance>/<subsystem>
+        self.instance.makedirs(self.logs_dir, exist_ok=exist_ok, force=force)
+
+        # Link /var/lib/pki/<instance>/<subsystem>/logs
+        # to /var/log/pki/<instance>/<subsystem>
+
+        logs_link = os.path.join(self.base_dir, 'logs')
+        self.instance.symlink(
+            self.logs_dir,
+            logs_link,
+            exist_ok=exist_ok)
 
     def get_database_config(self, database_type=None):
 
@@ -2855,6 +2890,13 @@ class ACMESubsystem(PKISubsystem):
 
         logger.info('Updating %s', self.realm_conf)
         self.instance.store_properties(self.realm_conf, config)
+
+    def save(self):
+
+        # override PKISubsystem.save() since ACME does not use CS.cfg
+        # and registry.cfg
+
+        pass
 
 
 class ESTSubsystem(PKISubsystem):
@@ -2986,5 +3028,8 @@ class PKISubsystemFactory(object):
 
         if name == 'tps':
             return TPSSubsystem(instance)
+
+        if name == 'acme':
+            return ACMESubsystem(instance)
 
         return PKISubsystem(instance, name)

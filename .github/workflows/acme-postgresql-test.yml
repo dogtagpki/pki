@@ -539,9 +539,7 @@ jobs:
           diff expected actual
 
       - name: Remove ACME from PKI container
-        run: |
-          docker exec pki pki-server acme-undeploy --wait
-          docker exec pki pki-server acme-remove
+        run: docker exec pki pkidestroy -s ACME -v
 
       - name: Remove CA from PKI container
         run: docker exec pki pkidestroy -s CA -v
