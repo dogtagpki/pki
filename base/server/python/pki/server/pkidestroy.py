@@ -67,7 +67,8 @@ def main(argv):
         dest='pki_deployed_instance_name',
         action='store',
         nargs=1, metavar='<instance>',
-        help='FORMAT:  ${pki_instance_name}')
+        help='FORMAT:  ${pki_instance_name}',
+        default='pki-tomcat')
 
     parser.optional.add_argument(
         '-u',

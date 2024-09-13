@@ -453,10 +453,10 @@ jobs:
           diff sd.primary sd.secondary
 
       - name: Remove CA from secondary PKI container
-        run: docker exec secondary pkidestroy -i pki-tomcat -s CA -v
+        run: docker exec secondary pkidestroy -s CA -v
 
       - name: Remove CA from primary PKI container
-        run: docker exec primary pkidestroy -i pki-tomcat -s CA -v
+        run: docker exec primary pkidestroy -s CA -v
 
       - name: Gather artifacts
         if: always()

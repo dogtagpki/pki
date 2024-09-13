@@ -130,7 +130,7 @@ jobs:
           docker exec client openssl x509 -text -noout -in local.crt
 
       - name: Remove CA from PKI container
-        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
+        run: docker exec pki pkidestroy -s CA -v
 
       - name: Check PKI server systemd journal
         if: always()

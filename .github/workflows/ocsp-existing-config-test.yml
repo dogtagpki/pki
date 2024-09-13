@@ -87,7 +87,7 @@ jobs:
           docker exec pki pki -n caadmin ocsp-user-show ocspadmin
 
       - name: Remove OCSP
-        run: docker exec pki pkidestroy -i pki-tomcat -s OCSP -v
+        run: docker exec pki pkidestroy -s OCSP -v
 
       - name: Check PKI server base dir after removal
         run: |
@@ -243,7 +243,6 @@ jobs:
       - name: Remove OCSP again
         run: |
           docker exec pki pkidestroy \
-              -i pki-tomcat \
               -s OCSP \
               --remove-conf \
               --remove-logs \
@@ -252,7 +251,6 @@ jobs:
       - name: Remove CA
         run: |
           docker exec pki pkidestroy \
-              -i pki-tomcat \
               -s CA \
               --remove-conf \
               --remove-logs \

@@ -497,7 +497,7 @@ jobs:
       - name: Remove CA
         run: |
           # pkidestroy should not fail
-          docker exec pki pkidestroy -i pki-tomcat -s CA -v
+          docker exec pki pkidestroy -s CA -v
 
       - name: Check PKI server systemd journal
         if: always()

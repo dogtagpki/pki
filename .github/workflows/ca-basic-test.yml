@@ -352,7 +352,7 @@ jobs:
           docker exec pki pki -n caadmin ca-profile-show caCustomUser
 
       - name: Remove CA
-        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
+        run: docker exec pki pkidestroy -s CA -v
 
       - name: Check PKI server base dir after removal
         run: |

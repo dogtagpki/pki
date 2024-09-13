@@ -195,10 +195,10 @@ jobs:
         continue-on-error: true
 
       - name: Remove TKS
-        run: docker exec tks pkidestroy -i pki-tomcat -s TKS -v
+        run: docker exec tks pkidestroy -s TKS -v
 
       - name: Remove CA
-        run: docker exec ca pkidestroy -i pki-tomcat -s CA -v
+        run: docker exec ca pkidestroy -s CA -v
 
       - name: Check CA DS server systemd journal
         if: always()

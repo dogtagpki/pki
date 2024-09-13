@@ -268,10 +268,10 @@ jobs:
         continue-on-error: true
 
       - name: Remove OCSP
-        run: docker exec ocsp pkidestroy -i pki-tomcat -s OCSP -v
+        run: docker exec ocsp pkidestroy -s OCSP -v
 
       - name: Remove CA
-        run: docker exec ca pkidestroy -i pki-tomcat -s CA -v
+        run: docker exec ca pkidestroy -s CA -v
 
       - name: Check DS server systemd journal
         if: always()

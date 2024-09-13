@@ -201,28 +201,28 @@ jobs:
         continue-on-error: true
 
       - name: Remove TPS from secondary PKI container
-        run: docker exec secondary pkidestroy -i pki-tomcat -s TPS -v
+        run: docker exec secondary pkidestroy -s TPS -v
 
       - name: Remove TKS from secondary PKI container
-        run: docker exec secondary pkidestroy -i pki-tomcat -s TKS -v
+        run: docker exec secondary pkidestroy -s TKS -v
 
       - name: Remove KRA from secondary PKI container
-        run: docker exec secondary pkidestroy -i pki-tomcat -s KRA -v
+        run: docker exec secondary pkidestroy -s KRA -v
 
       - name: Remove CA from secondary PKI container
-        run: docker exec secondary pkidestroy -i pki-tomcat -s CA -v
+        run: docker exec secondary pkidestroy -s CA -v
 
       - name: Remove TPS from primary PKI container
-        run: docker exec primary pkidestroy -i pki-tomcat -s TPS -v
+        run: docker exec primary pkidestroy -s TPS -v
 
       - name: Remove TKS from primary PKI container
-        run: docker exec primary pkidestroy -i pki-tomcat -s TKS -v
+        run: docker exec primary pkidestroy -s TKS -v
 
       - name: Remove KRA from primary PKI container
-        run: docker exec primary pkidestroy -i pki-tomcat -s KRA -v
+        run: docker exec primary pkidestroy -s KRA -v
 
       - name: Remove CA from primary PKI container
-        run: docker exec primary pkidestroy -i pki-tomcat -s CA -v
+        run: docker exec primary pkidestroy -s CA -v
 
       - name: Check primary DS server systemd journal
         if: always()

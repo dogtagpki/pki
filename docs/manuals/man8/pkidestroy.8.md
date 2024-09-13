@@ -6,7 +6,7 @@ pkidestroy - Removes a subsystem from an instance of PKI server.
 
 ## SYNOPSIS
 
-**pkidestroy** **-s** *subsystem* **-i** *instance* [**-u** *security_domain_username*] [**-W** *security_domain_password_file*] [**-h**] [**-v**]
+**pkidestroy** **-s** *subsystem* [**-i** *instance*] [**-u** *security_domain_username*] [**-W** *security_domain_password_file*] [**-h**] [**-v**]
 
 ## DESCRIPTION
 
@@ -27,7 +27,7 @@ Typically, as subsystems need to contact the CA to update the security domain, t
 **-i** *instance*  
     Specifies the name of the instance from which the subsystem should be removed.
     The instance is located at /var/log/pki/*instance*.
-    If this option is not specified, **pkidestroy** will prompt for its value.
+    The default value is pki-tomcat.
 
 **-u** *security_domain_username*   
     Specifies the username of the security domain of the subsystem.

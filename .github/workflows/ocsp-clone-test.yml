@@ -213,22 +213,22 @@ jobs:
         continue-on-error: true
 
       - name: Remove OCSP from tertiary PKI container
-        run: docker exec tertiary pkidestroy -i pki-tomcat -s OCSP -v
+        run: docker exec tertiary pkidestroy -s OCSP -v
 
       - name: Remove CA from tertiary PKI container
-        run: docker exec tertiary pkidestroy -i pki-tomcat -s CA -v
+        run: docker exec tertiary pkidestroy -s CA -v
 
       - name: Remove OCSP from secondary PKI container
-        run: docker exec secondary pkidestroy -i pki-tomcat -s OCSP -v
+        run: docker exec secondary pkidestroy -s OCSP -v
 
       - name: Remove CA from secondary PKI container
-        run: docker exec secondary pkidestroy -i pki-tomcat -s CA -v
+        run: docker exec secondary pkidestroy -s CA -v
 
       - name: Remove OCSP from primary PKI container
-        run: docker exec primary pkidestroy -i pki-tomcat -s OCSP -v
+        run: docker exec primary pkidestroy -s OCSP -v
 
       - name: Remove CA from primary PKI container
-        run: docker exec primary pkidestroy -i pki-tomcat -s CA -v
+        run: docker exec primary pkidestroy -s CA -v
 
       - name: Check primary DS server systemd journal
         if: always()

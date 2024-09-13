@@ -230,10 +230,10 @@ jobs:
           docker exec pki pki -n caadmin kra-user-show kraadmin
 
       - name: Remove KRA
-        run: docker exec pki pkidestroy -i pki-tomcat -s KRA -v
+        run: docker exec pki pkidestroy -s KRA -v
 
       - name: Remove CA
-        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
+        run: docker exec pki pkidestroy -s CA -v
 
       - name: Remove SoftHSM token
         run: |

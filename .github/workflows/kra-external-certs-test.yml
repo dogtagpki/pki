@@ -213,10 +213,10 @@ jobs:
           diff expected actual
 
       - name: Remove KRA from KRA container
-        run: docker exec kra pkidestroy -i pki-tomcat -s KRA -v
+        run: docker exec kra pkidestroy -s KRA -v
 
       - name: Remove CA from CA container
-        run: docker exec ca pkidestroy -i pki-tomcat -s CA -v
+        run: docker exec ca pkidestroy -s CA -v
 
       - name: Check PKI server systemd journal in CA container
         if: always()

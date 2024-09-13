@@ -105,7 +105,7 @@ jobs:
           docker exec pki pki -n caadmin tps-user-show tpsadmin
 
       - name: Remove TPS
-        run: docker exec pki pkidestroy -i pki-tomcat -s TPS -v
+        run: docker exec pki pkidestroy -s TPS -v
 
       - name: Check PKI server base dir after removal
         run: |
@@ -281,7 +281,6 @@ jobs:
       - name: Remove TPS again
         run: |
           docker exec pki pkidestroy \
-              -i pki-tomcat \
               -s TPS \
               --remove-conf \
               --remove-logs \
@@ -290,7 +289,6 @@ jobs:
       - name: Remove TKS
         run: |
           docker exec pki pkidestroy \
-              -i pki-tomcat \
               -s TKS \
               --remove-conf \
               --remove-logs \
@@ -299,7 +297,6 @@ jobs:
       - name: Remove KRA
         run: |
           docker exec pki pkidestroy \
-              -i pki-tomcat \
               -s KRA \
               --remove-conf \
               --remove-logs \
@@ -308,7 +305,6 @@ jobs:
       - name: Remove CA
         run: |
           docker exec pki pkidestroy \
-              -i pki-tomcat \
               -s CA \
               --remove-conf \
               --remove-logs \

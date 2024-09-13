@@ -395,16 +395,16 @@ jobs:
           diff expected actual
 
       - name: Remove first KRA
-        run: docker exec pki1 pkidestroy -i pki-tomcat -s KRA -v
+        run: docker exec pki1 pkidestroy -s KRA -v
 
       - name: Remove first CA
-        run: docker exec pki1 pkidestroy -i pki-tomcat -s CA -v
+        run: docker exec pki1 pkidestroy -s CA -v
 
       - name: Remove second KRA
-        run: docker exec pki2 pkidestroy -i pki-tomcat -s KRA -v
+        run: docker exec pki2 pkidestroy -s KRA -v
 
       - name: Remove second CA
-        run: docker exec pki2 pkidestroy -i pki-tomcat -s CA -v
+        run: docker exec pki2 pkidestroy -s CA -v
 
       - name: Check first CA debug log
         if: always()

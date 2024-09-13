@@ -202,22 +202,22 @@ jobs:
         run: docker exec tertiary pki-healthcheck --failures-only
 
       - name: Remove KRA from tertiary PKI container
-        run: docker exec tertiary pkidestroy -i pki-tomcat -s KRA -v
+        run: docker exec tertiary pkidestroy -s KRA -v
 
       - name: Remove CA from tertiary PKI container
-        run: docker exec tertiary pkidestroy -i pki-tomcat -s CA -v
+        run: docker exec tertiary pkidestroy -s CA -v
 
       - name: Remove KRA from secondary PKI container
-        run: docker exec secondary pkidestroy -i pki-tomcat -s KRA -v
+        run: docker exec secondary pkidestroy -s KRA -v
 
       - name: Remove CA from secondary PKI container
-        run: docker exec secondary pkidestroy -i pki-tomcat -s CA -v
+        run: docker exec secondary pkidestroy -s CA -v
 
       - name: Remove KRA from primary PKI container
-        run: docker exec primary pkidestroy -i pki-tomcat -s KRA -v
+        run: docker exec primary pkidestroy -s KRA -v
 
       - name: Remove CA from primary PKI container
-        run: docker exec primary pkidestroy -i pki-tomcat -s CA -v
+        run: docker exec primary pkidestroy -s CA -v
 
       - name: Check PKI server systemd journal in primary container
         if: always()

@@ -221,10 +221,10 @@ jobs:
         continue-on-error: true
 
       - name: Remove subordinate CA from subordinate container
-        run: docker exec subordinate pkidestroy -i pki-tomcat -s CA -v
+        run: docker exec subordinate pkidestroy -s CA -v
 
       - name: Remove root CA from root container
-        run: docker exec root pkidestroy -i pki-tomcat -s CA -v
+        run: docker exec root pkidestroy -s CA -v
 
       - name: Upload artifacts from root container
         if: always()

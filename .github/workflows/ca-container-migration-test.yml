@@ -93,7 +93,7 @@ jobs:
 
       - name: Remove CA
         run: |
-          docker exec pki pkidestroy -i pki-tomcat -s CA -v
+          docker exec pki pkidestroy -s CA -v
 
       - name: Install Podman
         run: |

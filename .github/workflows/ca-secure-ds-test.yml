@@ -159,7 +159,7 @@ jobs:
           docker exec pki pki -n caadmin ca-cert-request-find
 
       - name: Remove CA
-        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
+        run: docker exec pki pkidestroy -s CA -v
 
       - name: Check PKI server systemd journal
         if: always()

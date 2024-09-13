@@ -602,10 +602,10 @@ jobs:
         continue-on-error: true
 
       - name: Remove secondary sub-CA
-        run: docker exec secondary-subca pkidestroy -i pki-tomcat -s CA -v
+        run: docker exec secondary-subca pkidestroy -s CA -v
 
       - name: Remove primary sub-CA
-        run: docker exec primary-subca pkidestroy -i pki-tomcat -s CA -v
+        run: docker exec primary-subca pkidestroy -s CA -v
 
       - name: Upload artifacts from primary sub-CA
         if: always()

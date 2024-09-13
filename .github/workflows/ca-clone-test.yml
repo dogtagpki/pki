@@ -480,19 +480,19 @@ jobs:
         run: |
           docker exec tertiary pki -n caadmin ca-user-find
           docker exec tertiary pki securitydomain-host-find
-          docker exec tertiary pkidestroy -i pki-tomcat -s CA -v
+          docker exec tertiary pkidestroy -s CA -v
 
       - name: Remove CA from secondary PKI container
         run: |
           docker exec secondary pki -n caadmin ca-user-find
           docker exec secondary pki securitydomain-host-find
-          docker exec secondary pkidestroy -i pki-tomcat -s CA -v
+          docker exec secondary pkidestroy -s CA -v
 
       - name: Remove CA from primary PKI container
         run: |
           docker exec primary pki -n caadmin ca-user-find
           docker exec primary pki securitydomain-host-find
-          docker exec primary pkidestroy -i pki-tomcat -s CA -v
+          docker exec primary pkidestroy -s CA -v
 
       - name: Gather artifacts
         if: always()

@@ -141,7 +141,7 @@ jobs:
         continue-on-error: true
 
       - name: Remove subordinate CA
-        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
+        run: docker exec pki pkidestroy -s CA -v
 
       - name: Upload artifacts
         if: always()

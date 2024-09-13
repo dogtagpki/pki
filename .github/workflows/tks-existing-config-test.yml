@@ -87,7 +87,7 @@ jobs:
           docker exec pki pki -n caadmin tks-user-show tksadmin
 
       - name: Remove TKS
-        run: docker exec pki pkidestroy -i pki-tomcat -s TKS -v
+        run: docker exec pki pkidestroy -s TKS -v
 
       - name: Check PKI server base dir after first removal
         run: |
@@ -243,7 +243,6 @@ jobs:
       - name: Remove TKS again
         run: |
           docker exec pki pkidestroy \
-              -i pki-tomcat \
               -s TKS \
               --remove-conf \
               --remove-logs \
@@ -252,7 +251,6 @@ jobs:
       - name: Remove CA
         run: |
           docker exec pki pkidestroy \
-              -i pki-tomcat \
               -s CA \
               --remove-conf \
               --remove-logs \

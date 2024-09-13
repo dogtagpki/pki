@@ -174,7 +174,7 @@ jobs:
           docker exec pki pki-server acme-remove
 
       - name: Remove CA from PKI container
-        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
+        run: docker exec pki pkidestroy -s CA -v
 
       - name: Check DS server systemd journal
         if: always()
