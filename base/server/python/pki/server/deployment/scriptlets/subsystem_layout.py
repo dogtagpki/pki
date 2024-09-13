@@ -313,7 +313,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         logger.info('Removing %s subsystem', deployer.subsystem_type)
 
-        instance.remove_subsystem(subsystem)
+        instance.remove_subsystem(subsystem_name)
 
         if config.str2bool(deployer.mdict['pki_registry_enable']):
             subsystem.remove_registry(force=deployer.force)
