@@ -5357,7 +5357,7 @@ class PKIDeployer:
         if len(self.instance.get_subsystems()) == 1:
             # if this is the first subsystem, deploy the subsystem without waiting
             subsystem.enable()
-
+            self.instance.start()
         else:
             # otherwise, deploy the subsystem and wait until it starts
             subsystem.enable(
@@ -5376,15 +5376,135 @@ class PKIDeployer:
 
         self.deploy_acme_webapp(subsystem)
 
+    def create_est_subsystem(self):
+        '''
+        See also pki-server est-create.
+        '''
+
+        logger.info('Creating EST subsystem')
+
+        subsystem = pki.server.subsystem.ESTSubsystem(self.instance)
+        subsystem.create()
+        return subsystem
+
+    def configure_est_backend(self, subsystem):
+        logger.info('Configuring EST backend')
+        props = subsystem.get_backend_config(True)
+        ca_uri = self.mdict.get('pki_ca_uri')
+        pki.util.set_property(props, 'url', ca_uri)
+
+        profile = self.mdict.get('est_ca_profile')
+        pki.util.set_property(props, 'profile', profile)
+
+        username = self.mdict.get('est_ca_user_name')
+        pki.util.set_property(props, 'username', username)
+
+        password = self.mdict.get('est_ca_user_password')
+        pki.util.set_property(props, 'password', password)
+
+        password_file = self.mdict.get('est_ca_user_password_file')
+        pki.util.set_property(props, 'passwordFile', password_file)
+
+        nickname = self.mdict.get('est_ca_user_certificate')
+        pki.util.set_property(props, 'nickname', nickname)
+        subsystem.update_backend_config(props)
+
+    def configure_est_authorizer(self, subsystem):
+
+        logger.info('Configuring EST authorizer')
+        props = subsystem.get_authorizer_config(True)
+
+        authorizer_exec = self.mdict.get('est_authorizer_exec_path')
+        pki.util.set_property(props, 'executable', authorizer_exec)
+        subsystem.update_authorizer_config(props)
+
+    def configure_est_realm(self, subsystem):
+        logger.info('Configuring EST realm')
+
+        if self.mdict['est_realm_custom']:
+            subsystem.replace_realm_config(self.mdict['est_realm_custom'])
+            return
+
+        realm_type = self.mdict['est_realm_type']
+        props = subsystem.get_realm_config(realm_type=realm_type)
+
+        if realm_type == 'in-memory':
+
+            username = self.mdict.get('est_realm_username')
+            pki.util.set_property(props, 'username', username)
+
+            password = self.mdict.get('est_realm_password')
+            pki.util.set_property(props, 'password', password)
+
+        elif realm_type == 'ds':
+
+            url = self.mdict.get('est_realm_url')
+            pki.util.set_property(props, 'url', url)
+
+            auth_type = props.get('authType')
+            auth_type = self.mdict.get('est_realm_auth_type', auth_type)
+            pki.util.set_property(props, 'authType', auth_type)
+
+            if auth_type == 'BasicAuth':
+                bind_dn = self.mdict.get('est_realm_bind_dn')
+                pki.util.set_property(props, 'bindDN', bind_dn)
+
+                bind_password = self.mdict.get('est_realm_bind_password')
+                pki.util.set_property(props, 'bindPassword', bind_password)
+
+            elif auth_type == 'SslClientAuth':
+                nickname = self.mdict.get('est_realm_nickname')
+                pki.util.set_property(props, 'nickname', nickname)
+
+            users_dn = self.mdict.get('est_realm_users_dn')
+            pki.util.set_property(props, 'usersDN', users_dn)
+
+            groups_dn = self.mdict.get('est_realm_groups_dn')
+            pki.util.set_property(props, 'groupsDN', groups_dn)
+
+        elif realm_type == 'postgresql':
+
+            url = self.mdict.get('est_realm_url')
+            pki.util.set_property(props, 'url', url)
+
+            user = self.mdict.get('est_realm_user')
+            pki.util.set_property(props, 'user', user)
+
+            password = self.mdict.get('est_realm_password')
+            pki.util.set_property(props, 'password', password)
+
+            statements = self.mdict.get('est_realm_statements')
+            pki.util.set_property(props, 'statements', statements)
+        subsystem.update_realm_config(props)
+
+    def deploy_est_webapp(self, subsystem):
+        '''
+        See also pki-server est-deploy.
+        '''
+
+        logger.info('Deploying EST webapp')
         if len(self.instance.get_subsystems()) == 1:
-            # if this is the first subsystem, start the server
-            self.instance.start(
+            # if this is the first subsystem, deploy the subsystem without waiting
+            subsystem.enable()
+            self.instance.start()
+        else:
+            # otherwise, deploy the subsystem and wait until it starts
+            subsystem.enable(
                 wait=True,
                 max_wait=self.startup_timeout,
                 timeout=self.request_timeout)
 
-    def spawn(self):
+    def spawn_est(self):
+        subsystem = self.create_est_subsystem()
+        self.instance.add_subsystem(subsystem)
 
+        self.configure_est_backend(subsystem)
+        self.configure_est_authorizer(subsystem)
+        self.configure_est_realm(subsystem)
+
+        self.deploy_est_webapp(subsystem)
+
+    def spawn(self):
         print('Installing ' + self.subsystem_type + ' into ' + self.instance.base_dir + '.')
 
         scriptlet = pki.server.deployment.scriptlets.initialization.PkiScriptlet()
@@ -5404,6 +5524,10 @@ class PKIDeployer:
 
         if self.subsystem_type == 'ACME':
             self.spawn_acme()
+            return
+
+        if self.subsystem_type == 'EST':
+            self.spawn_est()
             return
 
         scriptlet = pki.server.deployment.scriptlets.subsystem_layout.PkiScriptlet()

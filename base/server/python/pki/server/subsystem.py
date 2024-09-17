@@ -2857,6 +2857,116 @@ class ACMESubsystem(PKISubsystem):
         self.instance.store_properties(self.realm_conf, config)
 
 
+class ESTSubsystem(PKISubsystem):
+
+    def __init__(self, instance):
+        super().__init__(instance, 'est')
+
+    @property
+    def backend_conf(self):
+        return os.path.join(self.conf_dir, 'backend.conf')
+
+    @property
+    def authorizer_conf(self):
+        return os.path.join(self.conf_dir, 'authorizer.conf')
+
+    @property
+    def realm_conf(self):
+        return os.path.join(self.conf_dir, 'realm.conf')
+
+    def create(self, exist_ok=False, force=False):
+
+        self.instance.makedirs(self.conf_dir, exist_ok=exist_ok)
+
+        default_conf_dir = os.path.join(pki.server.PKIServer.SHARE_DIR, 'est', 'conf')
+
+        self.instance.copy(
+            os.path.join(default_conf_dir, 'backend.conf'),
+            self.backend_conf,
+            exist_ok=exist_ok,
+            force=force)
+
+        self.instance.copy(
+            os.path.join(default_conf_dir, 'authorizer.conf'),
+            self.authorizer_conf,
+            exist_ok=exist_ok,
+            force=force)
+
+    def get_backend_config(self, default=False):
+
+        if default:
+            backend_conf = os.path.join(
+                pki.server.PKIServer.SHARE_DIR,
+                'est',
+                'conf',
+                'backend.conf')
+        else:
+            backend_conf = self.backend_conf
+
+        logger.info('Loading %s', backend_conf)
+        config = {}
+        pki.util.load_properties(backend_conf, config)
+        return config
+
+    def update_backend_config(self, config):
+
+        logger.info('Updating %s', self.backend_conf)
+        self.instance.store_properties(self.backend_conf, config)
+
+    def get_authorizer_config(self, default=False):
+
+        if default:
+            authorizer_conf = os.path.join(
+                pki.server.PKIServer.SHARE_DIR,
+                'est',
+                'conf',
+                'authorizer.conf')
+        else:
+            authorizer_conf = self.authorizer_conf
+
+        logger.info('Loading %s', authorizer_conf)
+        config = {}
+        pki.util.load_properties(authorizer_conf, config)
+
+        return config
+
+    def update_authorizer_config(self, config):
+
+        logger.info('Updating %s', self.authorizer_conf)
+        self.instance.store_properties(self.authorizer_conf, config)
+
+    def get_realm_config(self, realm_type=None):
+
+        template_dir = os.path.join(pki.server.PKIServer.SHARE_DIR, 'est', 'conf', 'realm')
+
+        if realm_type:
+            # if realm type is specified, load the realm.conf template
+            realm_conf = os.path.join(template_dir, '%s.conf' % realm_type)
+        else:
+            # otherwise, load the current realm.conf in the instance
+            realm_conf = self.realm_conf
+
+        logger.info('Loading %s', realm_conf)
+        config = {}
+        pki.util.load_properties(realm_conf, config)
+
+        return config
+
+    def update_realm_config(self, config):
+
+        logger.info('Updating %s', self.realm_conf)
+        self.instance.store_properties(self.realm_conf, config)
+
+    def replace_realm_config(self, realm_path):
+
+        logger.info('Replace %s', self.realm_conf)
+        self.instance.copy(
+            realm_path,
+            self.realm_conf,
+            exist_ok=False,
+            force=True)
+
+
 class PKISubsystemFactory(object):
 
     @classmethod

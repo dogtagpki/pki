@@ -40,3 +40,9 @@ jobs:
           ansible-playbook  -e 'pki_subsystem="est"' tests/ansible/pki-playbook.yml 
         env:
           ANSIBLE_CONFIG: ${{ github.workspace }}/tests/ansible/ansible.cfg
+
+          
+  est-ds-realm-test:
+    name: EST with ds realm
+    needs: build
+    uses: ./.github/workflows/est-ds-realm-test.yml

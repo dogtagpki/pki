@@ -41,8 +41,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         configuration_file = deployer.configuration_file
 
         # Verify existence of Admin Password (except for Clones)
-        if configuration_file.subsystem != 'ACME' and \
-                not configuration_file.clone:
+        if (configuration_file.subsystem != 'ACME' and
+                configuration_file.subsystem != 'EST' and not
+                configuration_file.clone):
             configuration_file.confirm_data_exists('pki_admin_password')
 
         # If HSM, verify absence of all PKCS #12 backup parameters
@@ -64,7 +65,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             configuration_file.confirm_data_exists('pki_client_database_password')
 
         # Verify existence of Client PKCS #12 Password for Admin Cert
-        if configuration_file.subsystem != 'ACME':
+        if (configuration_file.subsystem != 'ACME' and
+                configuration_file.subsystem != 'EST'):
             configuration_file.confirm_data_exists('pki_client_pkcs12_password')
 
         if configuration_file.clone:

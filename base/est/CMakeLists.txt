@@ -96,3 +96,23 @@ install(
     DESTINATION
         ${DATA_INSTALL_DIR}/est/webapps/est/WEB-INF/lib
 )
+
+install(
+    DIRECTORY
+        shared/
+    DESTINATION
+        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/conf/
+    PATTERN
+        "CMakeLists.txt" EXCLUDE
+)
+
+install(
+    FILES
+        bin/estauthz
+    DESTINATION
+        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/bin/
+    PERMISSIONS
+	OWNER_EXECUTE OWNER_WRITE OWNER_READ
+	GROUP_EXECUTE GROUP_READ
+	WORLD_EXECUTE WORLD_READ
+)
