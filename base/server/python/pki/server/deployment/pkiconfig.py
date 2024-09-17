@@ -36,7 +36,7 @@ PKI_DEPLOYMENT_DEFAULT_SHELL = "/sbin/nologin"
 PKI_DEPLOYMENT_DEFAULT_UID = 17
 PKI_DEPLOYMENT_DEFAULT_USER = "pkiuser"
 
-PKI_SUBSYSTEMS = ['CA', 'KRA', 'OCSP', 'TKS', 'TPS', 'ACME']
+PKI_SUBSYSTEMS = ['CA', 'KRA', 'OCSP', 'TKS', 'TPS', 'ACME', 'EST']
 PKI_BASE_RESERVED_NAMES = ["alias", "bin", "ca", "common", "conf", "kra",
                            "lib", "logs", "ocsp", "temp", "tks", "tps",
                            "webapps", "work"]

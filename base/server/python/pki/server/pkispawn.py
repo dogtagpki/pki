@@ -190,8 +190,8 @@ def main(argv):
             parser.indent = 0
 
             deployer.subsystem_type = parser.read_text(
-                'Subsystem (CA/KRA/OCSP/TKS/TPS/ACME)',
-                options=['CA', 'KRA', 'OCSP', 'TKS', 'TPS', 'ACME'],
+                'Subsystem (CA/KRA/OCSP/TKS/TPS/ACME/EST)',
+                options=['CA', 'KRA', 'OCSP', 'TKS', 'TPS', 'ACME', 'EST'],
                 default='CA', case_sensitive=False).upper()
             print()
         else:
@@ -672,6 +672,9 @@ def main(argv):
     elif deployer.subsystem_type == 'ACME':
         print_acme_install_information()
 
+    elif deployer.subsystem_type == 'EST':
+        print_est_install_information()
+
     else:
         print_final_install_information(parser.mdict, deployer.instance)
 
@@ -693,7 +696,8 @@ def validate_user_deployment_cfg(user_deployment_cfg):
                 '[OCSP]',
                 '[TKS]',
                 '[TPS]',
-                '[ACME]']:
+                '[ACME]',
+                '[EST]']:
             raise Exception('Invalid deployment configuration section: %s' % line)
 
 
@@ -949,6 +953,16 @@ def print_acme_install_information():
                                 deployer.mdict['pki_https_port'],
                                 deployer.subsystem_type.lower()))
 
+    print(log.PKI_SPAWN_INFORMATION_FOOTER)
+
+
+def print_est_install_information():
+
+    print(log.PKI_SPAWN_INFORMATION_HEADER)
+
+    print(log.PKI_ACCESS_URL % (deployer.mdict['pki_hostname'],
+                                deployer.mdict['pki_https_port'],
+                                '.well-known/%s' % deployer.subsystem_type.lower()))
     print(log.PKI_SPAWN_INFORMATION_FOOTER)
 
 
