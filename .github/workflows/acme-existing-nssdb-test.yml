@@ -1,4 +1,4 @@
-name: ACME on separate instance
+name: ACME with existing NSS database
 
 on: workflow_call
 
@@ -103,6 +103,45 @@ jobs:
         run: |
           docker exec acme pki-server create
           docker exec acme pki-server nss-create --password Secret.123
+
+      - name: Import CA signing cert for ACME
+        run: |
+          docker exec acme pki-server cert-import \
+              --input $SHARED/ca_signing.crt \
+              ca_signing
+
+      - name: Issue SSL server cert for ACME
+        run: |
+          # generate cert request
+          docker exec acme pki-server cert-request \
+              --subject "CN=acme.example.com" \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              sslserver
+          docker exec acme openssl req \
+              -text \
+              -noout \
+              -in /var/lib/pki/pki-tomcat/conf/certs/sslserver.csr
+
+          # issue cert
+          docker exec acme pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              -U https://ca.example.com:8443 \
+              -u caadmin \
+              -w Secret.123 \
+              ca-cert-issue \
+              --profile caServerCert \
+              --csr-file /var/lib/pki/pki-tomcat/conf/certs/sslserver.csr \
+              --output-file /var/lib/pki/pki-tomcat/conf/certs/sslserver.crt
+          docker exec acme openssl x509 \
+              -text \
+              -noout \
+              -in /var/lib/pki/pki-tomcat/conf/certs/sslserver.crt
+
+          # install cert
+          docker exec acme pki-server cert-import \
+              --input /var/lib/pki/pki-tomcat/conf/certs/sslserver.crt \
+              sslserver
 
       - name: Set up ACME database
         run: |
@@ -364,9 +403,6 @@ jobs:
           echo "7" > expected
           grep "Serial Number:" output | wc -l > actual
           diff expected actual
-
-      - name: Run PKI healthcheck in CA container
-        run: docker exec ca pki-healthcheck --failures-only
 
       - name: Run PKI healthcheck in ACME container
         run: docker exec acme pki-healthcheck --failures-only
@@ -845,30 +881,3 @@ jobs:
         if: always()
         run: |
           docker exec client cat /var/log/letsencrypt/letsencrypt.log
-
-      - name: Gather artifacts from server containers
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh cads
-          tests/bin/pki-artifacts-save.sh ca
-          tests/bin/ds-artifacts-save.sh acmeds
-          tests/bin/pki-artifacts-save.sh acme
-        continue-on-error: true
-
-      - name: Gather artifacts from client container
-        if: always()
-        run: |
-          mkdir -p /tmp/artifacts/client
-          docker logs client > /tmp/artifacts/client/container.out 2> /tmp/artifacts/client/container.err
-          mkdir -p /tmp/artifacts/client/etc/letsencrypt
-          docker cp client:/etc/letsencrypt/live /tmp/artifacts/client/etc/letsencrypt
-          mkdir -p /tmp/artifacts/client/var/log/letsencrypt
-          docker cp client:/var/log/letsencrypt/letsencrypt.log /tmp/artifacts/client/var/log/letsencrypt
-        continue-on-error: true
-
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: acme-separate
-          path: /tmp/artifacts

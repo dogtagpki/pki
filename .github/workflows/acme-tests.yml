@@ -102,6 +102,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/acme-separate-test.yml
 
+  acme-existing-nssdb-test:
+    name: ACME with existing NSS database
+    needs: build
+    uses: ./.github/workflows/acme-existing-nssdb-test.yml
+
   acme-switchover-test:
     name: ACME server switchover
     needs: build

@@ -2401,6 +2401,16 @@ class PKIDeployer:
             with open(cert_chain_path, 'r', encoding='utf-8') as f:
                 cert_chain = f.read()
 
+        elif subsystem.type == 'ACME':
+
+            # Get cert chain from ACME issuer
+
+            props = subsystem.get_issuer_config()
+            url = props['url']
+
+            logger.info('Retrieving cert chain from %s', url)
+            cert_chain = self.get_ca_signing_cert(url)
+
         elif (subsystem.type == 'CA' and subordinate or subsystem.type != 'CA') \
                 and not clone \
                 and not self.mdict['pki_server_pkcs12_path']:
@@ -3638,10 +3648,11 @@ class PKIDeployer:
             request_type,
             request_data,
             profile,
-            subject,
+            subject=None,
             request_format='pem',
             dns_names=None,
-            requestor=None):
+            requestor=None,
+            credentials=None):
 
         tmpdir = tempfile.mkdtemp()
         try:
@@ -3652,22 +3663,41 @@ class PKIDeployer:
             with open(request_file, 'w', encoding='utf-8') as f:
                 f.write(request_data)
 
-            install_token = os.path.join(tmpdir, 'install-token')
-            with open(install_token, 'w', encoding='utf-8') as f:
-                f.write(self.install_token.token)
+            if self.install_token:
+                install_token = os.path.join(tmpdir, 'install-token')
+                with open(install_token, 'w', encoding='utf-8') as f:
+                    f.write(self.install_token.token)
 
             cmd = [
                 'pki',
                 '-d', self.instance.nssdb_dir,
                 '-f', self.instance.password_conf,
                 '-U', url,
+            ]
+
+            if credentials:
+                nickname = credentials.get('nickname')
+                if nickname:
+                    cmd.extend(['-n', nickname])
+
+                username = credentials.get('username')
+                if username:
+                    cmd.extend(['-u', username])
+
+                password = credentials.get('password')
+                if password:
+                    cmd.extend(['-w', password])
+
+            cmd.extend([
                 '--ignore-banner',
                 'ca-cert-issue',
                 '--request-type', request_type,
                 '--csr-file', request_file,
-                '--profile', profile,
-                '--subject', subject
-            ]
+                '--profile', profile
+            ])
+
+            if subject:
+                cmd.extend(['--subject', subject])
 
             if dns_names:
                 cmd.extend(['--dns-names', ','.join(dns_names)])
@@ -3675,10 +3705,10 @@ class PKIDeployer:
             if requestor:
                 cmd.extend(['--requestor', requestor])
 
-            cmd.extend([
-                '--install-token', install_token,
-                '--output-format', 'PEM'
-            ])
+            if self.install_token:
+                cmd.extend(['--install-token', install_token])
+
+            cmd.extend(['--output-format', 'PEM'])
 
             if logger.isEnabledFor(logging.DEBUG):
                 cmd.append('--debug')
@@ -4264,7 +4294,7 @@ class PKIDeployer:
             '-d', self.instance.nssdb_dir,
             '-f', self.instance.password_conf,
             '-U', ca_url,
-            '--ignore-cert-status', 'UNTRUSTED_ISSUER',
+            '--ignore-cert-status', 'UNTRUSTED_ISSUER,UNKNOWN_ISSUER',
             '--ignore-banner',
             'ca-cert-signing-export',
             '--pkcs7'
@@ -5336,13 +5366,104 @@ class PKIDeployer:
         if len(self.instance.get_subsystems()) == 1:
             # if this is the first subsystem, deploy the subsystem without waiting
             subsystem.enable()
-            self.instance.start()
         else:
             # otherwise, deploy the subsystem and wait until it starts
             subsystem.enable(
                 wait=True,
                 max_wait=self.startup_timeout,
                 timeout=self.request_timeout)
+
+    def create_acme_sslserver_csr(self, nssdb):
+
+        # TODO: merge with generate_sslserver_request()
+
+        subject_dn = self.mdict.get('pki_sslserver_subject_dn')
+
+        csr_file = self.instance.csr_file('sslserver')
+        (key_type, key_size, curve, hash_alg) = self.get_key_params('sslserver')
+
+        key_usage_ext = {
+            'digitalSignature': True,
+            'nonRepudiation': True,
+            'keyEncipherment': True,
+            'dataEncipherment': True,
+            'critical': True
+        }
+
+        extended_key_usage_ext = {
+            'serverAuth': True
+        }
+
+        nssdb.create_request(
+            subject_dn=subject_dn,
+            request_file=csr_file,
+            key_type=key_type,
+            key_size=key_size,
+            curve=curve,
+            hash_alg=hash_alg,
+            key_usage_ext=key_usage_ext,
+            extended_key_usage_ext=extended_key_usage_ext,
+            use_jss=True)
+
+        with open(csr_file, 'r', encoding='utf-8') as f:
+            csr_pem = f.read()
+
+        return csr_pem
+
+    def create_acme_sslserver_cert(self, subsystem, request_data):
+
+        props = subsystem.get_issuer_config()
+        url = props['url']
+        credentials = {}
+
+        if 'nickname' in props:
+            credentials['nickname'] = props['nickname']
+
+        if 'username' in props:
+            credentials['username'] = props['username']
+
+        if 'password' in props:
+            credentials['password'] = props['password']
+
+        if 'passwordFile' in props:
+            credentials['passwordFile'] = props['passwordFile']
+
+        # TODO: do not hardcode request type and profile name
+        return self.issue_cert(
+            url=url,
+            request_type='pkcs10',
+            request_data=request_data,
+            profile='caServerCert',
+            credentials=credentials)
+
+    def setup_acme_sslserver_cert(self, nssdb, subsystem):
+
+        nickname = self.instance.get_sslserver_cert_nickname()
+        logger.info('Checking existing SSL server cert: %s', nickname)
+
+        cert_pem = nssdb.get_cert(nickname)
+        if cert_pem:
+            # SSL server cert already exists
+            return
+
+        logger.info('Creating SSL server cert request')
+        csr_pem = self.create_acme_sslserver_csr(nssdb)
+
+        logger.info('Issuing SSL server cert')
+        cert_pem = self.create_acme_sslserver_cert(subsystem, csr_pem)
+
+        logger.info('Importing SSL server cert as %s', nickname)
+        nssdb.add_cert(nickname=nickname, cert_data=cert_pem)
+
+    def setup_acme_certs(self, subsystem):
+
+        nssdb = self.instance.open_nssdb()
+        try:
+            self.import_cert_chain(nssdb, subsystem)
+            self.setup_acme_sslserver_cert(nssdb, subsystem)
+
+        finally:
+            nssdb.close()
 
     def spawn_acme(self):
 
@@ -5354,6 +5475,17 @@ class PKIDeployer:
         self.configure_acme_realm(subsystem)
 
         self.deploy_acme_webapp(subsystem)
+
+        if len(self.instance.get_subsystems()) > 1:
+            # shared instance -> server already set up and running
+            return
+
+        self.setup_acme_certs(subsystem)
+
+        self.instance.start(
+            wait=True,
+            max_wait=self.startup_timeout,
+            timeout=self.request_timeout)
 
     def undeploy_acme_webapp(self, subsystem):
         '''
