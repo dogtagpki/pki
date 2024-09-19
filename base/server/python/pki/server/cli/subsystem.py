@@ -928,7 +928,7 @@ class SubsystemCertShowCLI(pki.cli.CLI):
             sys.exit(1)
 
         subsystem_name = args[0]
-        cert_id = args[1]
+        cert_tag = args[1]
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -943,8 +943,8 @@ class SubsystemCertShowCLI(pki.cli.CLI):
             logger.error('No %s subsystem in instance %s.',
                          subsystem_name, instance_name)
             sys.exit(1)
-        cert = subsystem.get_subsystem_cert(cert_id)
-        self.print_message('"{}" subsystem "{}" certificate'.format(subsystem_name, cert_id))
+        cert = subsystem.get_subsystem_cert(cert_tag)
+        self.print_message('"{}" subsystem "{}" certificate'.format(subsystem_name, cert_tag))
         SubsystemCertCLI.print_subsystem_cert(cert, show_all)
 
 
@@ -1074,8 +1074,8 @@ class SubsystemCertExportCLI(pki.cli.CLI):
         subsystem_cert = None
 
         if len(args) >= 2:
-            cert_id = args[1]
-            subsystem_cert = subsystem.get_subsystem_cert(cert_id)
+            cert_tag = args[1]
+            subsystem_cert = subsystem.get_subsystem_cert(cert_tag)
 
         if (cert_file or csr_file) and not subsystem_cert:
             logger.error('Missing cert ID')
@@ -1085,7 +1085,7 @@ class SubsystemCertExportCLI(pki.cli.CLI):
         if cert_file:
             cert_data = subsystem_cert.get('data')
             if cert_data is None:
-                logger.error("Unable to find certificate data for %s", cert_id)
+                logger.error("Unable to find certificate data for %s", cert_tag)
                 sys.exit(1)
 
             cert_data = pki.nssdb.convert_cert(cert_data, 'base64', 'pem')
@@ -1095,7 +1095,7 @@ class SubsystemCertExportCLI(pki.cli.CLI):
         if csr_file:
             cert_request = subsystem_cert.get('request')
             if cert_request is None:
-                logger.error('Unable to find certificate request for %s', cert_id)
+                logger.error('Unable to find certificate request for %s', cert_tag)
                 sys.exit(1)
 
             csr_data = pki.nssdb.convert_csr(cert_request, 'base64', 'pem')
@@ -1197,7 +1197,7 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
             sys.exit(1)
 
         subsystem_name = args[0]
-        tag = args[1]
+        cert_tag = args[1]
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -1212,7 +1212,7 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
             logger.error('No %s subsystem in instance %s.',
                          subsystem_name, instance_name)
             sys.exit(1)
-        system_cert = subsystem.get_subsystem_cert(tag)
+        system_cert = subsystem.get_subsystem_cert(cert_tag)
 
         logger.info('Retrieving certificate %s from %s',
                     system_cert['nickname'], system_cert['token'])
@@ -1277,15 +1277,15 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
         else:
             logger.warning('Certificate request not found')
 
-        if tag != 'sslserver' and tag != 'subsystem':
-            cert_id = subsystem_name + '_' + tag
+        if cert_tag != 'sslserver' and cert_tag != 'subsystem':
+            cert_id = subsystem_name + '_' + cert_tag
         else:
-            cert_id = tag
+            cert_id = cert_tag
 
         # store cert request
         instance.store_cert_request(cert_id, system_cert)
 
-        self.print_message('Updated "%s" subsystem certificate' % tag)
+        self.print_message('Updated "%s" subsystem certificate' % cert_tag)
 
 
 class SubsystemCertValidateCLI(pki.cli.CLI):
@@ -1294,7 +1294,7 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
         super().__init__('validate', 'Validate subsystem certificates', deprecated=True)
 
     def usage(self):
-        print('Usage: pki-server subsystem-cert-validate [OPTIONS] <subsystem ID> [<cert_id>]')
+        print('Usage: pki-server subsystem-cert-validate [OPTIONS] <subsystem ID> [cert ID]')
         print()
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
         print('  -v, --verbose                   Run in verbose mode.')
@@ -1347,9 +1347,9 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
         subsystem_name = args[0]
 
         if len(args) >= 2:
-            cert_id = args[1]
+            cert_tag = args[1]
         else:
-            cert_id = None
+            cert_tag = None
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -1365,8 +1365,8 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
                          subsystem_name, instance_name)
             sys.exit(1)
 
-        if cert_id is not None:
-            certs = [subsystem.get_subsystem_cert(cert_id)]
+        if cert_tag is not None:
+            certs = [subsystem.get_subsystem_cert(cert_tag)]
         else:
             certs = subsystem.find_system_certs()
 

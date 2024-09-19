@@ -351,19 +351,19 @@ class PKISubsystem(object):
 
     def find_system_certs(self):
 
-        cert_ids = self.config['%s.cert.list' % self.name].split(',')
+        cert_tags = self.config['%s.cert.list' % self.name].split(',')
 
-        for cert_id in cert_ids:
-            yield self.get_subsystem_cert(cert_id)
+        for cert_tag in cert_tags:
+            yield self.get_subsystem_cert(cert_tag)
 
     def get_cert_infos(self):
 
-        cert_ids = self.config['%s.cert.list' % self.name].split(',')
+        cert_tags = self.config['%s.cert.list' % self.name].split(',')
 
         certs = []
 
-        for cert_id in cert_ids:
-            cert = self.get_cert_info(cert_id)
+        for cert_tag in cert_tags:
+            cert = self.get_cert_info(cert_tag)
             certs.append(cert)
 
         return certs
@@ -469,13 +469,13 @@ class PKISubsystem(object):
 
     def export_system_cert(
             self,
-            cert_id,
+            cert_tag,
             pkcs12_file,
             pkcs12_password_file,
             no_key=False,
             append=False):
 
-        cert = self.get_subsystem_cert(cert_id)
+        cert = self.get_subsystem_cert(cert_tag)
         nickname = cert['nickname']
         token = pki.nssdb.normalize_token(cert['token'])
 
