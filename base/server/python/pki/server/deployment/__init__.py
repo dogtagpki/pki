@@ -5380,6 +5380,10 @@ class PKIDeployer:
 
         subsystem = pki.server.subsystem.ESTSubsystem(self.instance)
         subsystem.create()
+        subsystem.create_conf(exist_ok=True)
+        subsystem.create_registry(exist_ok=True)
+        subsystem.create_logs(exist_ok=True)
+        subsystem.add_est_config(exist_ok=True, force=True)
         return subsystem
 
     def configure_est_backend(self, subsystem):
@@ -5481,7 +5485,6 @@ class PKIDeployer:
         if len(self.instance.get_subsystems()) == 1:
             # if this is the first subsystem, deploy the subsystem without waiting
             subsystem.enable()
-            self.instance.start()
         else:
             # otherwise, deploy the subsystem and wait until it starts
             subsystem.enable(
@@ -5523,12 +5526,11 @@ class PKIDeployer:
 
         if self.subsystem_type == 'EST':
             self.spawn_est()
-            return
-
-        scriptlet = pki.server.deployment.scriptlets.subsystem_layout.PkiScriptlet()
-        scriptlet.deployer = self
-        scriptlet.instance = self.instance
-        scriptlet.spawn(self)
+        else:
+            scriptlet = pki.server.deployment.scriptlets.subsystem_layout.PkiScriptlet()
+            scriptlet.deployer = self
+            scriptlet.instance = self.instance
+            scriptlet.spawn(self)
 
         scriptlet = pki.server.deployment.scriptlets.security_databases.PkiScriptlet()
         scriptlet.deployer = self
@@ -5550,10 +5552,11 @@ class PKIDeployer:
         scriptlet.instance = self.instance
         scriptlet.spawn(self)
 
-        scriptlet = pki.server.deployment.scriptlets.configuration.PkiScriptlet()
-        scriptlet.deployer = self
-        scriptlet.instance = self.instance
-        scriptlet.spawn(self)
+        if self.subsystem_type != 'EST':
+            scriptlet = pki.server.deployment.scriptlets.configuration.PkiScriptlet()
+            scriptlet.deployer = self
+            scriptlet.instance = self.instance
+            scriptlet.spawn(self)
 
         scriptlet = pki.server.deployment.scriptlets.finalization.PkiScriptlet()
         scriptlet.deployer = self
