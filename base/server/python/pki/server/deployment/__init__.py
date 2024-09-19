@@ -849,16 +849,15 @@ class PKIDeployer:
         certs = subsystem.find_system_certs()
         for cert in certs:
 
-            # get CS.cfg tag and pkispawn tag
-            config_tag = cert['id']
-            deploy_tag = config_tag
+            cert_tag = cert['id']
+            cert_param_id = cert_tag
 
-            if config_tag == 'signing':  # for CA and OCSP
-                deploy_tag = subsystem.name + '_signing'
+            if cert_tag == 'signing':  # for CA and OCSP
+                cert_param_id = subsystem.name + '_signing'
 
             # store nickname and tokenname
-            nickname = self.mdict['pki_%s_nickname' % deploy_tag]
-            tokenname = self.mdict['pki_%s_token' % deploy_tag]
+            nickname = self.mdict['pki_%s_nickname' % cert_param_id]
+            tokenname = self.mdict['pki_%s_token' % cert_param_id]
 
             if pki.nssdb.internal_token(tokenname):
                 fullname = nickname
@@ -866,30 +865,30 @@ class PKIDeployer:
             else:
                 fullname = tokenname + ':' + nickname
 
-            subsystem.set_config('%s.%s.nickname' % (subsystem.name, config_tag), nickname)
-            subsystem.set_config('%s.%s.tokenname' % (subsystem.name, config_tag), tokenname)
-            subsystem.set_config('%s.cert.%s.nickname' % (subsystem.name, config_tag), fullname)
+            subsystem.set_config('%s.%s.nickname' % (subsystem.name, cert_tag), nickname)
+            subsystem.set_config('%s.%s.tokenname' % (subsystem.name, cert_tag), tokenname)
+            subsystem.set_config('%s.cert.%s.nickname' % (subsystem.name, cert_tag), fullname)
 
-            keyalgorithm = self.mdict['pki_%s_key_algorithm' % deploy_tag]
+            keyalgorithm = self.mdict['pki_%s_key_algorithm' % cert_param_id]
             signingalgorithm = self.mdict.get(
-                'pki_%s_signing_algorithm' % deploy_tag, keyalgorithm)
+                'pki_%s_signing_algorithm' % cert_param_id, keyalgorithm)
 
             if subsystem.name == 'ca':
-                if config_tag == 'signing':
+                if cert_tag == 'signing':
                     subsystem.set_config('ca.signing.defaultSigningAlgorithm', signingalgorithm)
                     subsystem.set_config('ca.crl.MasterCRL.signingAlgorithm', signingalgorithm)
 
-                elif config_tag == 'ocsp_signing':
+                elif cert_tag == 'ocsp_signing':
                     subsystem.set_config(
                         'ca.ocsp_signing.defaultSigningAlgorithm',
                         signingalgorithm)
 
             elif subsystem.name == 'ocsp':
-                if config_tag == 'signing':
+                if cert_tag == 'signing':
                     subsystem.set_config('ocsp.signing.defaultSigningAlgorithm', signingalgorithm)
 
             elif subsystem.name == 'kra':
-                if config_tag == 'transport':
+                if cert_tag == 'transport':
                     subsystem.set_config('kra.transportUnit.signingAlgorithm', signingalgorithm)
 
             # TODO: move more system cert params here
@@ -1552,8 +1551,8 @@ class PKIDeployer:
                 continue
 
             # check CSR in CS.cfg
-            cert_id = self.get_cert_id(subsystem, tag)
-            param = 'pki_%s_csr_path' % cert_id
+            cert_param_id = self.get_cert_param_id(subsystem, tag)
+            param = 'pki_%s_csr_path' % cert_param_id
 
             if self.mdict.get(param):
                 # CSR already exists
@@ -1863,7 +1862,7 @@ class PKIDeployer:
 
         return False
 
-    def get_cert_id(self, subsystem, tag):
+    def get_cert_param_id(self, subsystem, tag):
 
         if tag == 'signing':
             return '%s_%s' % (subsystem.name, tag)
@@ -2192,8 +2191,8 @@ class PKIDeployer:
 
     def import_system_cert_request(self, subsystem, tag):
 
-        cert_id = self.get_cert_id(subsystem, tag)
-        param = 'pki_%s_csr_path' % cert_id
+        cert_param_id = self.get_cert_param_id(subsystem, tag)
+        param = 'pki_%s_csr_path' % cert_param_id
         source_path = self.mdict.get(param)
 
         if not source_path:
@@ -2265,15 +2264,15 @@ class PKIDeployer:
 
         logger.debug('import_system_cert')
 
-        cert_id = self.get_cert_id(subsystem, tag)
-        param = 'pki_%s_cert_path' % cert_id
+        cert_param_id = self.get_cert_param_id(subsystem, tag)
+        param = 'pki_%s_cert_path' % cert_param_id
         cert_file = self.mdict.get(param)
 
         if not cert_file:
             # no system cert to import
             return
 
-        logger.info('Importing %s cert from %s', cert_id, cert_file)
+        logger.info('Importing %s cert from %s', cert_param_id, cert_file)
 
         if not os.path.exists(cert_file):
             raise Exception('Invalid path in %s: %s' % (param, cert_file))
@@ -2949,9 +2948,9 @@ class PKIDeployer:
 
     def create_cert_setup_request(self, subsystem, tag, cert):
 
-        deploy_tag = tag
+        cert_param_id = tag
         if tag == 'signing':  # for CA and OCSP
-            deploy_tag = subsystem.name + '_signing'
+            cert_param_id = subsystem.name + '_signing'
 
         request = pki.system.CertificateSetupRequest()
         request.tag = tag
@@ -3006,7 +3005,7 @@ class PKIDeployer:
             else:
                 request.systemCert.sslECDH = False
 
-        request.systemCert.keyAlgorithm = self.mdict['pki_%s_key_algorithm' % deploy_tag]
+        request.systemCert.keyAlgorithm = self.mdict['pki_%s_key_algorithm' % cert_param_id]
 
         csr_path = subsystem.csr_file(tag)
 
@@ -3110,12 +3109,12 @@ class PKIDeployer:
                      subject_key_id=None,
                      generic_exts=None):
 
-        cert_id = self.get_cert_id(subsystem, tag)
-        logger.info('Generating %s CSR in %s', cert_id, csr_path)
+        cert_param_id = self.get_cert_param_id(subsystem, tag)
+        logger.info('Generating %s CSR in %s', cert_param_id, csr_path)
 
-        subject_dn = self.mdict['pki_%s_subject_dn' % cert_id]
+        subject_dn = self.mdict['pki_%s_subject_dn' % cert_param_id]
 
-        (key_type, key_size, curve, hash_alg) = self.get_key_params(cert_id)
+        (key_type, key_size, curve, hash_alg) = self.get_key_params(cert_param_id)
 
         """
         For newer HSM in FIPS mode:
@@ -3134,7 +3133,7 @@ class PKIDeployer:
 
         if (subsystem.type == 'KRA' and
                 config.str2bool(self.mdict['pki_hsm_enable']) and
-                (cert_id in ['storage', 'transport'])):
+                (cert_param_id in ['storage', 'transport'])):
             key_wrap = True
             csr_pathname = csr_path
 
