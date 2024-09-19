@@ -2874,9 +2874,10 @@ class ESTSubsystem(PKISubsystem):
     def realm_conf(self):
         return os.path.join(self.conf_dir, 'realm.conf')
 
-    def create(self, exist_ok=False, force=False):
+    def create(self, exist_ok=False):
+        self.instance.makedirs(self.base_dir, exist_ok=exist_ok)
 
-        self.instance.makedirs(self.conf_dir, exist_ok=exist_ok)
+    def add_est_config(self, exist_ok=False, force=False):
 
         default_conf_dir = os.path.join(pki.server.PKIServer.SHARE_DIR, 'est', 'conf')
 
@@ -2965,6 +2966,47 @@ class ESTSubsystem(PKISubsystem):
             self.realm_conf,
             exist_ok=False,
             force=True)
+
+    def is_ready(self, secure_connection=True, timeout=None):
+        """
+        Wait for EST subsystem to become ready to serve requests.
+        Since EST do not implement yet status API the check is done agaist the web app
+
+        :param startup_timeout: Total timeout. Unsuccessful status requests will
+            be retried until this timeout is exceeded. Default: None.
+        :param request_timeout: Connect/receive timeout for each individual
+            status request. Default: None.
+        """
+
+        server_config = self.instance.get_server_config()
+
+        if secure_connection:
+            protocol = 'https'
+            port = server_config.get_secure_port()
+
+        else:
+            protocol = 'http'
+            port = server_config.get_unsecure_port()
+
+        # When waiting for a connection to come alive, don't bother verifying
+        # the certificate at this stage.
+        connection = pki.client.PKIConnection(
+            protocol=protocol,
+            hostname=socket.getfqdn(),
+            port=port,
+            accept='application/json',
+            trust_env=False,
+            verify=False)
+
+        response = connection.get(
+            '/est/',
+            timeout=timeout
+        )
+        if response.status_code == 200:
+            logger.info('Subsystem status: running')
+        else:
+            logger.info('Subsystem status: error')
+        return response.status_code == 200
 
 
 class PKISubsystemFactory(object):
