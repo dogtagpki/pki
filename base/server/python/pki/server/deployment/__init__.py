@@ -3508,9 +3508,9 @@ class PKIDeployer:
 
             requestor = '%s-%s-%s' % (subsystem.type, hostname, secure_port)
 
-            logger.info('Requesting %s cert from %s', tag, ca_url)
+            logger.info('Issuing %s cert from %s', tag, ca_url)
 
-            cert_pem = self.request_cert(
+            cert_pem = self.issue_cert(
                 ca_url,
                 request.systemCert.requestType,
                 request.systemCert.request,
@@ -3654,7 +3654,7 @@ class PKIDeployer:
 
         return system_certs
 
-    def request_cert(
+    def issue_cert(
             self,
             url,
             request_type,
@@ -3989,7 +3989,7 @@ class PKIDeployer:
             ca_port = subsystem.config['securitydomain.httpsadminport']
             ca_url = 'https://%s:%s' % (ca_hostname, ca_port)
 
-        logger.info('Requesting admin cert from %s', ca_url)
+        logger.info('Issuing admin cert from %s', ca_url)
 
         request_type = self.mdict['pki_admin_cert_request_type']
 
@@ -4002,7 +4002,7 @@ class PKIDeployer:
 
         subject = self.mdict['pki_admin_subject_dn']
 
-        pem_cert = self.request_cert(
+        pem_cert = self.issue_cert(
             ca_url,
             request_type,
             admin_csr,
