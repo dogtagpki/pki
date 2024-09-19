@@ -949,6 +949,7 @@ class NSSDatabase(object):
             cka_id=None,
             key_type=None,
             key_size=None,
+            key_wrap=False,
             curve=None,
             hash_alg=None,
             basic_constraints_ext=None,
@@ -985,6 +986,14 @@ class NSSDatabase(object):
                 Raw extension data (``bytes``)
 
         """
+
+        if key_wrap:
+            self.__create_request_for_key_wrap(
+                subject_dn=subject_dn,
+                request_file=request_file,
+                key_size=key_size)
+            return
+
         if os.geteuid() == 0 and self.user:
             os.chown(os.path.dirname(request_file), self.uid, self.gid)
 
@@ -998,6 +1007,7 @@ class NSSDatabase(object):
                 cka_id=cka_id,
                 key_type=key_type,
                 key_size=key_size,
+                key_wrap=key_wrap,
                 curve=curve,
                 hash_alg=hash_alg,
                 basic_constraints_ext=basic_constraints_ext,
@@ -1187,7 +1197,7 @@ class NSSDatabase(object):
         finally:
             shutil.rmtree(tmpdir)
 
-    def create_request_with_wrapping_key(
+    def __create_request_for_key_wrap(
             self,
             subject_dn,
             request_file,
@@ -1473,6 +1483,7 @@ class NSSDatabase(object):
             cka_id=None,
             key_type=None,
             key_size=None,
+            key_wrap=False,
             curve=None,
             hash_alg=None,
             basic_constraints_ext=None,
@@ -1568,6 +1579,9 @@ class NSSDatabase(object):
 
             if key_size:
                 cmd.extend(['--key-size', str(key_size)])
+
+            if key_wrap:
+                cmd.append('--key-wrap')
 
             if curve:
                 cmd.extend(['--curve', curve])

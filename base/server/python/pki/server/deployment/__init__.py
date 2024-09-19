@@ -3112,7 +3112,6 @@ class PKIDeployer:
 
         cert_id = self.get_cert_id(subsystem, tag)
         logger.info('Generating %s CSR in %s', cert_id, csr_path)
-        csr_pathname = os.path.join(nssdb.tmpdir, os.path.basename(csr_path))
 
         subject_dn = self.mdict['pki_%s_subject_dn' % cert_id]
 
@@ -3136,32 +3135,29 @@ class PKIDeployer:
         if (subsystem.type == 'KRA' and
                 config.str2bool(self.mdict['pki_hsm_enable']) and
                 (cert_id in ['storage', 'transport'])):
-
-            logger.debug('generate_csr: calling PKCS10Client for %s', cert_id)
-
-            nssdb.create_request_with_wrapping_key(
-                subject_dn=subject_dn,
-                request_file=csr_path,
-                key_size=key_size)
+            key_wrap = True
+            csr_pathname = csr_path
 
         else:
+            key_wrap = False
+            csr_pathname = os.path.join(nssdb.tmpdir, os.path.basename(csr_path))
 
-            logger.debug('generate_csr: calling certutil for %s', cert_id)
+        nssdb.create_request(
+            subject_dn=subject_dn,
+            request_file=csr_pathname,
+            key_type=key_type,
+            key_size=key_size,
+            key_wrap=key_wrap,
+            curve=curve,
+            hash_alg=hash_alg,
+            basic_constraints_ext=basic_constraints_ext,
+            key_usage_ext=key_usage_ext,
+            extended_key_usage_ext=extended_key_usage_ext,
+            subject_key_id=subject_key_id,
+            generic_exts=generic_exts,
+            use_jss=True)
 
-            nssdb.create_request(
-                subject_dn=subject_dn,
-                request_file=csr_pathname,
-                key_type=key_type,
-                key_size=key_size,
-                curve=curve,
-                hash_alg=hash_alg,
-                basic_constraints_ext=basic_constraints_ext,
-                key_usage_ext=key_usage_ext,
-                extended_key_usage_ext=extended_key_usage_ext,
-                subject_key_id=subject_key_id,
-                generic_exts=generic_exts,
-                use_jss=True)
-
+        if not key_wrap:
             shutil.move(csr_pathname, csr_path)
 
         new_csr_path = subsystem.csr_file(tag)
