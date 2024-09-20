@@ -297,7 +297,7 @@ class PKIConfigParser:
             nargs=1, choices=config.PKI_SUBSYSTEMS,
             metavar='<subsystem>',
             help='where <subsystem> is '
-            'CA, KRA, OCSP, TKS, or TPS')
+            'CA, KRA, OCSP, TKS, TPS or EST')
         self.optional.add_argument(
             '-h', '--help',
             dest='help', action='help',

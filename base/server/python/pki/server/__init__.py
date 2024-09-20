@@ -55,7 +55,7 @@ SYSCONFIG_DIR = '/etc/sysconfig'
 ETC_SYSTEMD_DIR = '/etc/systemd'
 LIB_SYSTEMD_DIR = '/lib/systemd'
 
-SUBSYSTEM_TYPES = ['ca', 'kra', 'ocsp', 'tks', 'tps', 'acme']
+SUBSYSTEM_TYPES = ['ca', 'kra', 'ocsp', 'tks', 'tps', 'acme', 'est']
 
 DEFAULT_DIR_MODE = 0o0770
 DEFAULT_FILE_MODE = 0o0660
