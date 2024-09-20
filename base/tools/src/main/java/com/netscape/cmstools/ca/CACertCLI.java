@@ -45,6 +45,7 @@ public class CACertCLI extends CLI {
         super("cert", "Certificate management commands", parent);
 
         addModule(new CACertFindCLI(this));
+        addModule(new CACertIssueCLI(this));
         addModule(new CACertShowCLI(this));
         addModule(new CACertExportCLI(this));
         addModule(new CACertRevokeCLI(this));

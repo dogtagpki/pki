@@ -184,33 +184,45 @@ jobs:
       - name: Issue subsystem cert
         run: |
           docker exec ca openssl req -text -noout -in ${SHARED}/subsystem.csr
-          docker exec ca pki ca-cert-request-submit --profile caSubsystemCert --csr-file ${SHARED}/subsystem.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > subsystem.reqid
-          docker exec ca pki -n caadmin ca-cert-request-approve `cat subsystem.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > subsystem.certid
-          docker exec ca pki ca-cert-export `cat subsystem.certid` --output-file ${SHARED}/subsystem.crt
+          docker exec ca pki \
+              -n caadmin \
+              ca-cert-issue \
+              --profile caSubsystemCert \
+              --csr-file ${SHARED}/subsystem.csr \
+              --output-file ${SHARED}/subsystem.crt
           docker exec ca openssl x509 -text -noout -in ${SHARED}/subsystem.crt
 
       - name: Issue SSL server cert
         run: |
           docker exec ca openssl req -text -noout -in ${SHARED}/sslserver.csr
-          docker exec ca pki ca-cert-request-submit --profile caServerCert --csr-file ${SHARED}/sslserver.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > sslserver.reqid
-          docker exec ca pki -n caadmin ca-cert-request-approve `cat sslserver.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > sslserver.certid
-          docker exec ca pki ca-cert-export `cat sslserver.certid` --output-file ${SHARED}/sslserver.crt
+          docker exec ca pki \
+              -n caadmin \
+              ca-cert-issue \
+              --profile caServerCert \
+              --csr-file ${SHARED}/sslserver.csr \
+              --output-file ${SHARED}/sslserver.crt
           docker exec ca openssl x509 -text -noout -in ${SHARED}/sslserver.crt
 
       - name: Issue TPS audit signing cert
         run: |
           docker exec ca openssl req -text -noout -in ${SHARED}/tps_audit_signing.csr
-          docker exec ca pki ca-cert-request-submit --profile caAuditSigningCert --csr-file ${SHARED}/tps_audit_signing.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > tps_audit_signing.reqid
-          docker exec ca pki -n caadmin ca-cert-request-approve `cat tps_audit_signing.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > tps_audit_signing.certid
-          docker exec ca pki ca-cert-export `cat tps_audit_signing.certid` --output-file ${SHARED}/tps_audit_signing.crt
+          docker exec ca pki \
+              -n caadmin \
+              ca-cert-issue \
+              --profile caAuditSigningCert \
+              --csr-file ${SHARED}/tps_audit_signing.csr \
+              --output-file ${SHARED}/tps_audit_signing.crt
           docker exec ca openssl x509 -text -noout -in ${SHARED}/tps_audit_signing.crt
 
       - name: Issue TPS admin cert
         run: |
           docker exec ca openssl req -text -noout -in ${SHARED}/tps_admin.csr
-          docker exec ca pki ca-cert-request-submit --profile AdminCert --csr-file ${SHARED}/tps_admin.csr | sed -n 's/Request ID: *\(.*\)/\1/p' > tps_admin.reqid
-          docker exec ca pki -n caadmin ca-cert-request-approve `cat tps_admin.reqid` --force | sed -n 's/Certificate ID: *\(.*\)/\1/p' > tps_admin.certid
-          docker exec ca pki ca-cert-export `cat tps_admin.certid` --output-file ${SHARED}/tps_admin.crt
+          docker exec ca pki \
+              -n caadmin \
+              ca-cert-issue \
+              --profile AdminCert \
+              --csr-file ${SHARED}/tps_admin.csr \
+              --output-file ${SHARED}/tps_admin.crt
           docker exec ca openssl x509 -text -noout -in ${SHARED}/tps_admin.crt
 
       - name: Install TPS in TPS container (step 2)

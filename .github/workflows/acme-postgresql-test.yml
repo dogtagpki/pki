@@ -85,13 +85,14 @@ jobs:
               --subject "CN=postgresql.example.com" \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               --csr sslserver.csr
-          REC_ID=$(docker exec pki pki ca-cert-request-submit \
+
+          docker exec pki pki \
+              -n caadmin \
+              ca-cert-issue \
               --profile caServerCert \
               --csr-file sslserver.csr \
-              --subject "CN=postgresql.example.com" | grep "Request ID")
-          CERT_ID=$(docker exec pki pki -n caadmin ca-cert-request-approve ${REC_ID:14} --force | \
-              grep "Certificate ID")
-          docker exec pki pki ca-cert-export ${CERT_ID:18} --output-file sslserver.crt
+              --subject "CN=postgresql.example.com" \
+              --output-file sslserver.crt
 
           docker exec pki pki nss-cert-import \
               --cert sslserver.crt \
