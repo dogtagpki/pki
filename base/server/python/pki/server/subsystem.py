@@ -351,22 +351,21 @@ class PKISubsystem(object):
 
     def find_system_certs(self):
 
-        cert_tags = self.config['%s.cert.list' % self.name].split(',')
+        cert_list = self.config.get('%s.cert.list' % self.name)
+        if not cert_list:
+            return []
 
-        for cert_tag in cert_tags:
+        for cert_tag in cert_list.split(','):
             yield self.get_subsystem_cert(cert_tag)
 
     def get_cert_infos(self):
 
-        cert_tags = self.config['%s.cert.list' % self.name].split(',')
+        cert_list = self.config.get('%s.cert.list' % self.name)
+        if not cert_list:
+            return []
 
-        certs = []
-
-        for cert_tag in cert_tags:
-            cert = self.get_cert_info(cert_tag)
-            certs.append(cert)
-
-        return certs
+        for cert_tag in cert_list.split(','):
+            yield self.get_cert_info(cert_tag)
 
     def get_subsystem_cert(self, tag):
 

@@ -68,15 +68,15 @@ jobs:
         run: |
           docker exec ipa pki-server subsystem-find | tee output
 
-          # IPA server should have CA subsystem
+          # IPA server should have CA and ACME subsystems
           echo "ca" > expected
+          echo "acme" >> expected
           sed -n 's/^ *Subsystem ID: *\(.*\)$/\1/p' output > actual
           diff expected actual
 
-          docker exec ipa pki-server subsystem-show ca | tee output
-
-          # CA subsystem should be enabled
+          # all subsystems should be enabled
           echo "True" > expected
+          echo "True" >> expected
           sed -n 's/^ *Enabled: *\(.*\)$/\1/p' output > actual
           diff expected actual
 
@@ -248,16 +248,17 @@ jobs:
         run: |
           docker exec ipa pki-server subsystem-find | tee output
 
-          # IPA server should now have CA and KRA subsystems
+          # IPA server should now have CA, KRA, and ACME subsystems
           echo "ca" > expected
           echo "kra" >> expected
+          echo "acme" >> expected
           sed -n 's/^ *Subsystem ID: *\(.*\)$/\1/p' output > actual
           diff expected actual
 
-          docker exec ipa pki-server subsystem-show kra | tee output
-
-          # KRA subsystem should be enabled
+          # all subsystems should be enabled
           echo "True" > expected
+          echo "True" >> expected
+          echo "True" >> expected
           sed -n 's/^ *Enabled: *\(.*\)$/\1/p' output > actual
           diff expected actual
 
