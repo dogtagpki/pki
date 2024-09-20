@@ -95,18 +95,13 @@ jobs:
           docker exec kra cp /var/lib/pki/pki-tomcat/conf/certs/kra_storage.csr $SHARED
           docker exec kra openssl req -text -noout -in $SHARED/kra_storage.csr
 
-          # submit cert request
-          docker exec ca pki ca-cert-request-submit \
-              --profile caStorageCert \
-              --csr-file $SHARED/kra_storage.csr | tee output
-          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
-
           # issue cert
-          docker exec ca pki -n caadmin ca-cert-request-approve $REQUEST_ID --force | tee output
-          CERT_ID=$(sed -n 's/Certificate ID: *\(.*\)/\1/p' output)
-
-          # retrieve cert
-          docker exec ca pki ca-cert-export $CERT_ID --output-file $SHARED/kra_storage.crt
+          docker exec ca pki \
+              -n caadmin \
+              ca-cert-issue \
+              --profile caStorageCert \
+              --csr-file $SHARED/kra_storage.csr \
+              --output-file $SHARED/kra_storage.crt
           docker exec ca openssl x509 -text -noout -in $SHARED/kra_storage.crt
           docker exec kra cp $SHARED/kra_storage.crt /var/lib/pki/pki-tomcat/conf/certs
 
@@ -137,18 +132,13 @@ jobs:
           docker exec kra cp /var/lib/pki/pki-tomcat/conf/certs/kra_transport.csr $SHARED
           docker exec ca openssl req -text -noout -in $SHARED/kra_transport.csr
 
-          # submit cert request
-          docker exec ca pki ca-cert-request-submit \
-              --profile caTransportCert \
-              --csr-file $SHARED/kra_transport.csr | tee output
-          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
-
           # issue cert
-          docker exec ca pki -n caadmin ca-cert-request-approve $REQUEST_ID --force | tee output
-          CERT_ID=$(sed -n 's/Certificate ID: *\(.*\)/\1/p' output)
-
-          # retrieve cert
-          docker exec ca pki ca-cert-export $CERT_ID --output-file $SHARED/kra_transport.crt
+          docker exec ca pki \
+              -n caadmin \
+              ca-cert-issue \
+              --profile caTransportCert \
+              --csr-file $SHARED/kra_transport.csr \
+              --output-file $SHARED/kra_transport.crt
           docker exec ca openssl x509 -text -noout -in $SHARED/kra_transport.crt
           docker exec kra cp $SHARED/kra_transport.crt /var/lib/pki/pki-tomcat/conf/certs
 
@@ -179,18 +169,13 @@ jobs:
           docker exec kra cp /var/lib/pki/pki-tomcat/conf/certs/kra_audit_signing.csr $SHARED
           docker exec ca openssl req -text -noout -in $SHARED/kra_audit_signing.csr
 
-          # submit cert request
-          docker exec ca pki ca-cert-request-submit \
-              --profile caAuditSigningCert \
-              --csr-file $SHARED/kra_audit_signing.csr | tee output
-          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
-
           # issue cert
-          docker exec ca pki -n caadmin ca-cert-request-approve $REQUEST_ID --force | tee output
-          CERT_ID=$(sed -n 's/Certificate ID: *\(.*\)/\1/p' output)
-
-          # retrieve cert
-          docker exec ca pki ca-cert-export $CERT_ID --output-file $SHARED/kra_audit_signing.crt
+          docker exec ca pki \
+              -n caadmin \
+              ca-cert-issue \
+              --profile caAuditSigningCert \
+              --csr-file $SHARED/kra_audit_signing.csr \
+              --output-file $SHARED/kra_audit_signing.crt
           docker exec ca openssl x509 -text -noout -in $SHARED/kra_audit_signing.crt
           docker exec kra cp $SHARED/kra_audit_signing.crt /var/lib/pki/pki-tomcat/conf/certs
 
@@ -221,18 +206,13 @@ jobs:
           docker exec kra cp /var/lib/pki/pki-tomcat/conf/certs/subsystem.csr $SHARED
           docker exec ca openssl req -text -noout -in $SHARED/subsystem.csr
 
-          # submit cert request
-          docker exec ca pki ca-cert-request-submit \
-              --profile caSubsystemCert \
-              --csr-file $SHARED/subsystem.csr | tee output
-          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
-
           # issue cert
-          docker exec ca pki -n caadmin ca-cert-request-approve $REQUEST_ID --force | tee output
-          CERT_ID=$(sed -n 's/Certificate ID: *\(.*\)/\1/p' output)
-
-          # retrieve cert
-          docker exec ca pki ca-cert-export $CERT_ID --output-file $SHARED/subsystem.crt
+          docker exec ca pki \
+              -n caadmin \
+              ca-cert-issue \
+              --profile caSubsystemCert \
+              --csr-file $SHARED/subsystem.csr \
+              --output-file $SHARED/subsystem.crt
           docker exec ca openssl x509 -text -noout -in $SHARED/subsystem.crt
           docker exec kra cp $SHARED/subsystem.crt /var/lib/pki/pki-tomcat/conf/certs
 
@@ -263,18 +243,13 @@ jobs:
           docker exec kra cp /var/lib/pki/pki-tomcat/conf/certs/sslserver.csr $SHARED
           docker exec ca openssl req -text -noout -in $SHARED/sslserver.csr
 
-          # submit cert request
-          docker exec ca pki ca-cert-request-submit \
-              --profile caServerCert \
-              --csr-file $SHARED/sslserver.csr | tee output
-          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
-
           # issue cert
-          docker exec ca pki -n caadmin ca-cert-request-approve $REQUEST_ID --force | tee output
-          CERT_ID=$(sed -n 's/Certificate ID: *\(.*\)/\1/p' output)
-
-          # retrieve cert
-          docker exec ca pki ca-cert-export $CERT_ID --output-file $SHARED/sslserver.crt
+          docker exec ca pki \
+              -n caadmin \
+              ca-cert-issue \
+              --profile caServerCert \
+              --csr-file $SHARED/sslserver.csr \
+              --output-file $SHARED/sslserver.crt
           docker exec ca openssl x509 -text -noout -in $SHARED/sslserver.crt
           docker exec kra cp $SHARED/sslserver.crt /var/lib/pki/pki-tomcat/conf/certs
 
@@ -304,18 +279,13 @@ jobs:
               --csr $SHARED/kra_admin.csr
           docker exec ca openssl req -text -noout -in $SHARED/kra_admin.csr
 
-          # submit cert request
-          docker exec ca pki ca-cert-request-submit \
-              --profile AdminCert \
-              --csr-file $SHARED/kra_admin.csr | tee output
-          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
-
           # issue cert
-          docker exec ca pki -n caadmin ca-cert-request-approve $REQUEST_ID --force | tee output
-          CERT_ID=$(sed -n 's/Certificate ID: *\(.*\)/\1/p' output)
-
-          # retrieve cert
-          docker exec ca pki ca-cert-export $CERT_ID --output-file $SHARED/kra_admin.crt
+          docker exec ca pki \
+              -n caadmin \
+              ca-cert-issue \
+              --profile AdminCert \
+              --csr-file $SHARED/kra_admin.csr \
+              --output-file $SHARED/kra_admin.crt
           docker exec ca openssl x509 -text -noout -in $SHARED/kra_admin.crt
 
           # import cert

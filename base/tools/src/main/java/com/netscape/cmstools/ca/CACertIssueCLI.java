@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -16,6 +17,7 @@ import java.util.Vector;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.dogtagpki.cli.CLIException;
 import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
@@ -26,25 +28,30 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CACertClient;
+import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
+import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertRequestInfos;
+import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
+import com.netscape.certsrv.request.RequestId;
+import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmstools.cli.MainCLI;
 
 import netscape.ldap.util.DN;
 import netscape.ldap.util.RDN;
 
-public class CACertRequestSubmitCLI extends CommandCLI {
+public class CACertIssueCLI extends CommandCLI {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CACertRequestSubmitCLI.class);
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CACertIssueCLI.class);
 
-    CACertRequestCLI certRequestCLI;
+    CACertCLI certCLI;
 
-    public CACertRequestSubmitCLI(CACertRequestCLI CACertRequestCLI) {
-        super("submit", "Submit certificate request", CACertRequestCLI);
-        this.certRequestCLI = CACertRequestCLI;
+    public CACertIssueCLI(CACertCLI certCLI) {
+        super("issue", "Issue certificate", certCLI);
+        this.certCLI = certCLI;
     }
 
     @Override
@@ -105,26 +112,136 @@ public class CACertRequestSubmitCLI extends CommandCLI {
         option.setArgName("requestor");
         options.addOption(option);
 
-        option = new Option(null, "session", true, "DEPRECATED: Session ID");
+        option = new Option(null, "session", true, "Session ID");
         option.setArgName("ID");
         options.addOption(option);
 
-        option = new Option(null, "install-token", true, "DEPRECATED: Install token");
+        option = new Option(null, "install-token", true, "Install token");
         option.setArgName("path");
         options.addOption(option);
 
-        option = new Option(null, "output-format", true, "Output format: PEM (default), DER");
-        option.setArgName("format");
+        option = new Option(null, "input-file", true, "Input file");
+        option.setArgName("file");
         options.addOption(option);
 
         option = new Option(null, "output-file", true, "Output file");
         option.setArgName("file");
         options.addOption(option);
+
+        option = new Option(null, "output-format", true, "Output format: PEM (default), DER");
+        option.setArgName("format");
+        options.addOption(option);
     }
 
     @Override
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <filename> [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " [OPTIONS...]", options);
+    }
+
+    private String loadFile(String fileName) throws FileNotFoundException {
+        try (Scanner scanner = new Scanner(new File(fileName))) {
+            return scanner.useDelimiter("\\A").next();
+        }
+    }
+
+    public byte[] issueCert(
+            CACertClient certClient,
+            CertEnrollmentRequest request,
+            AuthorityID authorityID,
+            X500Name authorityDN,
+            String outputFormat)
+            throws Exception {
+
+        logger.info("Submitting certificate request");
+        CertRequestInfos cri = certClient.enrollRequest(request, authorityID, authorityDN);
+
+        Collection<CertRequestInfo> entries = cri.getEntries();
+        if (entries.size() == 0) {
+            throw new CLIException("Unable to submit certificate request");
+        }
+
+        // get first request info
+        CertRequestInfo requestInfo = entries.iterator().next();
+        RequestId requestId = requestInfo.getRequestID();
+        RequestStatus status = requestInfo.getRequestStatus();
+
+        if (status == RequestStatus.PENDING) {
+            logger.info("Reviewing certificate request " + requestId.toHexString());
+            CertReviewResponse reviewInfo = certClient.reviewRequest(requestId);
+
+            logger.info("Approving certificate request " + requestId.toHexString());
+            certClient.approveRequest(requestId, reviewInfo);
+
+            logger.info("Retrieving certificate request " + requestId.toHexString());
+            requestInfo = certClient.getRequest(requestId);
+
+            status = requestInfo.getRequestStatus();
+        }
+
+        if (status != RequestStatus.COMPLETE) {
+            String message = "Request " + status;
+            String errorMessage = requestInfo.getErrorMessage();
+            if (errorMessage != null) {
+                message += ": " + errorMessage;
+            }
+            throw new CLIException(message);
+        }
+
+        CertId certID = requestInfo.getCertId();
+
+        logger.info("Retrieving certificate " + certID.toHexString());
+        CertData certData = certClient.getCert(certID);
+
+        if (outputFormat == null || "PEM".equalsIgnoreCase(outputFormat)) {
+            return certData.getEncoded().getBytes();
+
+        } else if ("DER".equalsIgnoreCase(outputFormat)) {
+            return Cert.parseCertificate(certData.getEncoded());
+
+        } else {
+            throw new CLIException("Unsupported format: " + outputFormat);
+        }
+    }
+
+    public byte[] issueCert(
+            CACertClient certClient,
+            String requestType,
+            String csr,
+            String profileID,
+            String subjectDN,
+            String[] dnsNames,
+            String requestor,
+            String sessionID,
+            String outputFormat)
+            throws Exception {
+
+        logger.info("Submitting certificate request");
+        X509CertImpl cert = certClient.submitRequest(
+                requestType,
+                csr,
+                profileID,
+                subjectDN,
+                dnsNames,
+                requestor,
+                sessionID);
+
+        if (outputFormat == null || "PEM".equalsIgnoreCase(outputFormat)) {
+            StringWriter sw = new StringWriter();
+
+            try (PrintWriter out = new PrintWriter(sw, true)) {
+                out.println(Cert.HEADER);
+                out.print(Utils.base64encodeMultiLine(cert.getEncoded()));
+                out.println(Cert.FOOTER);
+            }
+
+            return sw.toString().getBytes();
+
+        } else if ("DER".equalsIgnoreCase(outputFormat)) {
+            return cert.getEncoded();
+
+        } else {
+            throw new CLIException("Unsupported format: " + outputFormat);
+        }
     }
 
     @Override
@@ -132,49 +249,49 @@ public class CACertRequestSubmitCLI extends CommandCLI {
 
         String[] cmdArgs = cmd.getArgs();
 
-        String requestFilename = cmdArgs.length > 0 ? cmdArgs[0] : null;
+        String inputFile = cmd.getOptionValue("input-file");
         String profileID = cmd.getOptionValue("profile");
 
-        if (requestFilename == null && profileID == null) {
-            throw new Exception("Missing request file or profile ID.");
+        if (inputFile == null && profileID == null) {
+            throw new CLIException("Missing request file or profile ID.");
         }
 
-        if (requestFilename != null && profileID != null) {
-            throw new Exception("Request file and profile ID are mutually exclusive.");
+        if (inputFile != null && profileID != null) {
+            throw new CLIException("Request file and profile ID are mutually exclusive.");
         }
 
-        AuthorityID aid = null;
+        AuthorityID authorityID = null;
         if (cmd.hasOption("issuer-id")) {
             String aidString = cmd.getOptionValue("issuer-id");
             try {
-                aid = new AuthorityID(aidString);
+                authorityID = new AuthorityID(aidString);
             } catch (IllegalArgumentException e) {
                 throw new Exception("Bad AuthorityID: " + aidString, e);
             }
         }
 
-        X500Name adn = null;
+        X500Name authorityDN = null;
         if (cmd.hasOption("issuer-dn")) {
             String adnString = cmd.getOptionValue("issuer-dn");
             try {
-                adn = new X500Name(adnString);
+                authorityDN = new X500Name(adnString);
             } catch (IOException e) {
                 throw new Exception("Bad DN: " + adnString, e);
             }
         }
 
-        if (aid != null && adn != null) {
-            throw new Exception("--issuer-id and --issuer-dn options are mutually exclusive");
+        if (authorityID != null && authorityDN != null) {
+            throw new CLIException("--issuer-id and --issuer-dn options are mutually exclusive");
         }
 
         String requestType = cmd.getOptionValue("request-type");
 
         CertEnrollmentRequest request;
-        if (requestFilename == null) { // if no request file specified, generate new request from profile
+        if (inputFile == null) { // if no request file specified, generate new request from profile
 
             logger.info("Retrieving " + profileID + " profile");
 
-            CACertClient certClient = certRequestCLI.getCertClient();
+            CACertClient certClient = certCLI.getCertClient();
             request = certClient.getEnrollmentTemplate(profileID);
 
             // set default request type for new request
@@ -182,9 +299,9 @@ public class CACertRequestSubmitCLI extends CommandCLI {
 
         } else { // otherwise, load request from file
 
-            logger.info("Loading request from " + requestFilename);
+            logger.info("Loading request from " + inputFile);
 
-            String xml = loadFile(requestFilename);
+            String xml = loadFile(inputFile);
             request = CertEnrollmentRequest.fromXML(xml);
         }
 
@@ -331,55 +448,44 @@ public class CACertRequestSubmitCLI extends CommandCLI {
         String requestor = cmd.getOptionValue("requestor");
         logger.info("Requestor: " + requestor);
 
+        String outputFormat = cmd.getOptionValue("output-format");
+
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        CACertClient certClient = certRequestCLI.getCertClient();
+        CACertClient certClient = certCLI.getCertClient();
 
         String installToken = cmd.getOptionValue("install-token");
-        String sessionID = cmd.getOptionValue("session");
+        String sessionID;
 
         if (installToken != null) {
-            logger.warn("The --install-token option has been deprecated. Use pki ca-cert-issue instead.");
             sessionID = new String(Files.readAllBytes(Paths.get(installToken)));
         } else {
-            logger.warn("The --session option has been deprecated. Use pki ca-cert-issue instead.");
+            sessionID = cmd.getOptionValue("session");
         }
 
+        byte[] bytes;
         if (sessionID == null) {
-            CertRequestInfos cri = certClient.enrollRequest(request, aid, adn);
-            MainCLI.printMessage("Submitted certificate request");
-            CACertRequestCLI.printCertRequestInfos(cri);
-            return;
-        }
-
-        X509CertImpl cert = certClient.submitRequest(
-                requestType,
-                csr,
-                profileID,
-                subjectDN,
-                dnsNames,
-                requestor,
-                sessionID);
-        byte[] bytes = cert.getEncoded();
-
-        String outputFormat = cmd.getOptionValue("output-format");
-        if (outputFormat == null || "PEM".equalsIgnoreCase(outputFormat)) {
-            StringWriter sw = new StringWriter();
-
-            try (PrintWriter out = new PrintWriter(sw, true)) {
-                out.println(Cert.HEADER);
-                out.print(Utils.base64encodeMultiLine(cert.getEncoded()));
-                out.println(Cert.FOOTER);
-            }
-
-            bytes = sw.toString().getBytes();
-
-        } else if ("DER".equalsIgnoreCase(outputFormat)) {
-            bytes = cert.getEncoded();
+            // issue cert without install token
+            bytes = issueCert(
+                    certClient,
+                    request,
+                    authorityID,
+                    authorityDN,
+                    outputFormat);
 
         } else {
-            throw new Exception("Unsupported format: " + outputFormat);
+            // issue cert with install token
+            bytes = issueCert(
+                    certClient,
+                    requestType,
+                    csr,
+                    profileID,
+                    subjectDN,
+                    dnsNames,
+                    requestor,
+                    sessionID,
+                    outputFormat);
         }
 
         String outputFile = cmd.getOptionValue("output-file");
@@ -390,12 +496,6 @@ public class CACertRequestSubmitCLI extends CommandCLI {
 
         } else {
             System.out.write(bytes);
-        }
-    }
-
-    private String loadFile(String fileName) throws FileNotFoundException {
-        try (Scanner scanner = new Scanner(new File(fileName))) {
-            return scanner.useDelimiter("\\A").next();
         }
     }
 }

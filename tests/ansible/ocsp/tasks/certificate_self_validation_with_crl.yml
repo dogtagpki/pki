@@ -211,108 +211,68 @@
       -D pki_admin_csr_path={{ shared_workspace }}/ocsp_admin.csr
       -v
 
-- name: Issue OCSP signing cert - submit
+- name: Issue OCSP signing cert
   community.docker.docker_container_exec:
     container: "{{ ca_container }}"
-    command: pki ca-cert-request-submit --profile caOCSPCert --csr-file {{ shared_workspace }}/ocsp_signing.csr
+    command: >
+      pki
+      -n caadmin
+      ca-cert-issue
+      --profile caOCSPCert
+      --csr-file {{ shared_workspace }}/ocsp_signing.csr
+      --output-file {{ shared_workspace }}/ocsp_signing.crt
   register:
     ca_command
 
-- name: Issue OCSP signing cert - approve
+- name: Issue subsystem cert
   community.docker.docker_container_exec:
     container: "{{ ca_container }}"
-    command: "pki -n caadmin ca-cert-request-approve {{ ca_command.stdout | regex_search('Request ID: *(.*)', '\\1') | first }} --force"
+    command: >
+      pki
+      -n caadmin
+      ca-cert-issue
+      --profile caSubsystemCert
+      --csr-file {{ shared_workspace }}/subsystem.csr
+      --output-file {{ shared_workspace }}/subsystem.crt
   register:
     ca_command
 
-- name: Issue OCSP signing cert - export
+- name: Issue SSL server cert
   community.docker.docker_container_exec:
     container: "{{ ca_container }}"
-    command: "pki ca-cert-export {{ ca_command.stdout | regex_search('Certificate ID: *(.*)', '\\1') | first }} --output-file {{ shared_workspace }}/ocsp_signing.crt"
+    command: >
+      pki
+      -n caadmin
+      ca-cert-issue
+      --profile caServerCert
+      --csr-file {{ shared_workspace }}/sslserver.csr
+      --output-file {{ shared_workspace }}/sslserver.crt
   register:
     ca_command
 
-- name: Issue subsystem cert - submit
+- name: Issue OCSP audit signing cert
   community.docker.docker_container_exec:
     container: "{{ ca_container }}"
-    command: pki ca-cert-request-submit --profile caSubsystemCert --csr-file {{ shared_workspace }}/subsystem.csr
+    command: >
+      pki
+      -n caadmin
+      ca-cert-issue
+      --profile caAuditSigningCert
+      --csr-file {{ shared_workspace }}/ocsp_audit_signing.csr
+      --output-file {{ shared_workspace }}/ocsp_audit_signing.crt
   register:
     ca_command
 
-- name: Issue subsystem cert - approve
+- name: Issue OCSP admin cert
   community.docker.docker_container_exec:
     container: "{{ ca_container }}"
-    command: "pki -n caadmin ca-cert-request-approve {{ ca_command.stdout | regex_search('Request ID: *(.*)', '\\1') | first }} --force"
-  register:
-    ca_command
-
-- name: Issue subsystem cert - export
-  community.docker.docker_container_exec:
-    container: "{{ ca_container }}"
-    command: "pki ca-cert-export {{ ca_command.stdout | regex_search('Certificate ID: *(.*)', '\\1') | first }} --output-file {{ shared_workspace }}/subsystem.crt"
-  register:
-    ca_command
-
-- name: Issue SSL server cert - submit
-  community.docker.docker_container_exec:
-    container: "{{ ca_container }}"
-    command: pki ca-cert-request-submit --profile caServerCert --csr-file {{ shared_workspace }}/sslserver.csr
-  register:
-    ca_command
-
-- name: Issue SSL server cert - approve
-  community.docker.docker_container_exec:
-    container: "{{ ca_container }}"
-    command: "pki -n caadmin ca-cert-request-approve {{ ca_command.stdout | regex_search('Request ID: *(.*)', '\\1') | first }} --force"
-  register:
-    ca_command
-
-- name: Issue SSL server cert - export
-  community.docker.docker_container_exec:
-    container: "{{ ca_container }}"
-    command: "pki ca-cert-export {{ ca_command.stdout | regex_search('Certificate ID: *(.*)', '\\1') | first }} --output-file {{ shared_workspace }}/sslserver.crt"
-  register:
-    ca_command
-
-- name: Issue OCSP audit signing cert - submit
-  community.docker.docker_container_exec:
-    container: "{{ ca_container }}"
-    command: pki ca-cert-request-submit --profile caAuditSigningCert --csr-file {{ shared_workspace }}/ocsp_audit_signing.csr
-  register:
-    ca_command
-
-- name: Issue OCSP audit signing cert - approve
-  community.docker.docker_container_exec:
-    container: "{{ ca_container }}"
-    command: "pki -n caadmin ca-cert-request-approve {{ ca_command.stdout | regex_search('Request ID: *(.*)', '\\1') | first }} --force"
-  register:
-    ca_command
-
-- name: Issue OCSP audit signing cert - export
-  community.docker.docker_container_exec:
-    container: "{{ ca_container }}"
-    command: "pki ca-cert-export {{ ca_command.stdout | regex_search('Certificate ID: *(.*)', '\\1') | first }} --output-file {{ shared_workspace }}/ocsp_audit_signing.crt"
-  register:
-    ca_command
-
-- name: Issue OCSP admin cert - submit
-  community.docker.docker_container_exec:
-    container: "{{ ca_container }}"
-    command: pki ca-cert-request-submit --profile AdminCert --csr-file {{ shared_workspace }}/ocsp_admin.csr
-  register:
-    ca_command
-
-- name: Issue OCSP admin cert - approve
-  community.docker.docker_container_exec:
-    container: "{{ ca_container }}"
-    command: "pki -n caadmin ca-cert-request-approve {{ ca_command.stdout | regex_search('Request ID: *(.*)', '\\1') | first }} --force"
-  register:
-    ca_command
-
-- name: Issue OCSP admin cert - export
-  community.docker.docker_container_exec:
-    container: "{{ ca_container }}"
-    command: "pki ca-cert-export {{ ca_command.stdout | regex_search('Certificate ID: *(.*)', '\\1') | first }} --output-file {{ shared_workspace }}/ocsp_admin.crt"
+    command: >
+      pki
+      -n caadmin
+      ca-cert-issue
+      --profile AdminCert
+      --csr-file {{ shared_workspace }}/ocsp_admin.csr
+      --output-file {{ shared_workspace }}/ocsp_admin.crt
   register:
     ca_command
 
@@ -454,29 +414,18 @@
   register: good_certificate_check
   failed_when: "'CertStatus=Good' not in good_certificate_check.stdout_lines[-1]"
 
-- name: Create CSR for DS and submit
+- name: Issue DS cert
   community.docker.docker_container_exec:
     container: "{{ ca_container }}"
     command: "{{ item }}"
   loop:
     - pki nss-cert-request --subject "CN={{ ocspds_hostname }}" --ext /usr/share/pki/server/certs/sslserver.conf --subjectAltName "critical, DNS:{{ ocspds_hostname }}" --csr {{ shared_workspace }}/ocspds.csr
-    - pki ca-cert-request-submit --profile caServerCert --csr-file {{ shared_workspace }}/ocspds.csr
-  register:
-    ca_command
-
-- name: Approve CSR request
-  community.docker.docker_container_exec:
-    container: "{{ ca_container }}"
-    command: "pki -n caadmin ca-cert-request-approve {{ ca_command.results[-1].stdout | regex_search('Request ID: *(.*)', '\\1') | first }} --force"
-  register:
-    ca_command
-
-- name: Issue OCSP admin cert - export
-  community.docker.docker_container_exec:
-    container: "{{ ca_container }}"
-    command: "{{ item }}"
-  loop:
-    - "pki ca-cert-export {{ ca_command.stdout | regex_search('Certificate ID: *(.*)', '\\1') | first }} --output-file {{ shared_workspace }}/ocspds.crt"
+    - pki
+          -n caadmin
+          ca-cert-issue
+          --profile caServerCert
+          --csr-file {{ shared_workspace }}/ocspds.csr
+          --output-file {{ shared_workspace }}/ocspds.crt
     - "certutil -d /root/.dogtag/nssdb -A -n ocspds -t ',,' -i {{ shared_workspace }}/ocspds.crt"
     - pk12util -d /root/.dogtag/nssdb -o {{ shared_workspace }}/ocspds.p12 -n ocspds -W {{ ocspds_password }}
   register:

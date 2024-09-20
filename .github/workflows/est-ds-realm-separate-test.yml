@@ -74,13 +74,13 @@ jobs:
           docker exec ca pki nss-cert-request --csr estSSLServer.csr \
               --ext /usr/share/pki/server/certs/sslserver.conf --subject 'CN=est.example.com'
 
-          docker exec ca pki ca-cert-request-submit --csr-file estSSLServer.csr --profile caServerCert | tee output
-          REQUEST_ID=$(sed -n "s/^\s*Request ID:\s*\(\S*\)$/\1/p" output)
+          docker exec ca pki \
+              -n caadmin \
+              ca-cert-issue \
+              --csr-file estSSLServer.csr \
+              --profile caServerCert \
+              --output-file estSSLServer.crt
 
-          docker exec ca pki -n caadmin ca-cert-request-approve $REQUEST_ID --force | tee output
-          CERT_ID=$(sed -n "s/^\s*Certificate ID:\s*\(\S*\)$/\1/p" output)
-
-          docker exec ca pki -n caadmin ca-cert-export --output-file estSSLServer.crt $CERT_ID
           docker exec ca pki nss-cert-import --cert estSSLServer.crt sslserver
 
           docker exec ca pk12util -d /root/.dogtag/nssdb -o $SHARED/est_server.p12 -n sslserver -W Secret.123

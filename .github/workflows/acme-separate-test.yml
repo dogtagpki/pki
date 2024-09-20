@@ -120,18 +120,13 @@ jobs:
           docker exec acme cp /var/lib/pki/pki-tomcat/conf/certs/sslserver.csr $SHARED
           docker exec ca openssl req -text -noout -in $SHARED/sslserver.csr
 
-          # submit cert request
-          docker exec ca pki ca-cert-request-submit \
+          # issue cert
+          docker exec ca pki \
+              -n caadmin \
+              ca-cert-issue \
               --profile caServerCert \
-              --csr-file $SHARED/sslserver.csr | tee output
-          REQUEST_ID=$(sed -n 's/Request ID: *\(.*\)/\1/p' output)
-
-          # approve cert request
-          docker exec ca pki -n caadmin ca-cert-request-approve $REQUEST_ID --force | tee output
-          CERT_ID=$(sed -n 's/Certificate ID: *\(.*\)/\1/p' output)
-
-          # export cert
-          docker exec ca pki ca-cert-export $CERT_ID --output-file $SHARED/sslserver.crt
+              --csr-file $SHARED/sslserver.csr \
+              --output-file $SHARED/sslserver.crt
           docker exec ca openssl x509 -text -noout -in $SHARED/sslserver.crt
 
           # install cert

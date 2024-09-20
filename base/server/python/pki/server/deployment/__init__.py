@@ -3681,7 +3681,7 @@ class PKIDeployer:
                 '-f', self.instance.password_conf,
                 '-U', url,
                 '--ignore-banner',
-                'ca-cert-request-submit',
+                'ca-cert-issue',
                 '--request-type', request_type,
                 '--csr-file', request_file,
                 '--profile', profile,
