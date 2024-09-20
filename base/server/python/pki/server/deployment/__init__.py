@@ -3511,11 +3511,11 @@ class PKIDeployer:
             logger.info('Issuing %s cert from %s', tag, ca_url)
 
             cert_pem = self.issue_cert(
-                ca_url,
-                request.systemCert.requestType,
-                request.systemCert.request,
-                request.systemCert.profile,
-                request.systemCert.subjectDN,
+                url=ca_url,
+                request_type=request.systemCert.requestType,
+                request_data=request.systemCert.request,
+                profile=request.systemCert.profile,
+                subject=request.systemCert.subjectDN,
                 dns_names=request.systemCert.dnsNames,
                 requestor=requestor)
 
@@ -3658,7 +3658,7 @@ class PKIDeployer:
             self,
             url,
             request_type,
-            csr,
+            request_data,
             profile,
             subject,
             dns_names=None,
@@ -3666,10 +3666,10 @@ class PKIDeployer:
 
         tmpdir = tempfile.mkdtemp()
         try:
-            pem_csr = pki.nssdb.convert_csr(csr, 'base64', 'pem')
-            csr_file = os.path.join(tmpdir, 'request.csr')
-            with open(csr_file, 'w', encoding='utf-8') as f:
-                f.write(pem_csr)
+            request_pem = pki.nssdb.convert_csr(request_data, 'base64', 'pem')
+            request_file = os.path.join(tmpdir, 'request.csr')
+            with open(request_file, 'w', encoding='utf-8') as f:
+                f.write(request_pem)
 
             install_token = os.path.join(tmpdir, 'install-token')
             with open(install_token, 'w', encoding='utf-8') as f:
@@ -3683,7 +3683,7 @@ class PKIDeployer:
                 '--ignore-banner',
                 'ca-cert-request-submit',
                 '--request-type', request_type,
-                '--csr-file', csr_file,
+                '--csr-file', request_file,
                 '--profile', profile,
                 '--subject', subject
             ]
@@ -3706,9 +3706,9 @@ class PKIDeployer:
                 cmd.append('--verbose')
 
             logger.debug('Command: %s', ' '.join(cmd))
-            result = subprocess.run(cmd, stdout=subprocess.PIPE, check=True)
+            output = subprocess.check_output(cmd)
 
-            return result.stdout.decode()
+            return output.decode()
 
         finally:
             shutil.rmtree(tmpdir)
@@ -4003,11 +4003,11 @@ class PKIDeployer:
         subject = self.mdict['pki_admin_subject_dn']
 
         pem_cert = self.issue_cert(
-            ca_url,
-            request_type,
-            admin_csr,
-            profile,
-            subject)
+            url=ca_url,
+            request_type=request_type,
+            request_data=admin_csr,
+            profile=profile,
+            subject=subject)
 
         logger.debug('Admin cert:\n%s', pem_cert)
 
