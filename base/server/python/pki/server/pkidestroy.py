@@ -121,8 +121,8 @@ def main(argv):
         if args.pki_subsystem is None:
             interactive = True
             deployer.subsystem_type = parser.read_text(
-                'Subsystem (CA/KRA/OCSP/TKS/TPS)',
-                options=['CA', 'KRA', 'OCSP', 'TKS', 'TPS'],
+                'Subsystem (CA/KRA/OCSP/TKS/TPS/EST)',
+                options=['CA', 'KRA', 'OCSP', 'TKS', 'TPS', 'EST'],
                 default='CA', case_sensitive=False).upper()
         else:
             deployer.subsystem_type = str(args.pki_subsystem).strip('[\']')

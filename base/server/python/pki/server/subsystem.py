@@ -3073,4 +3073,7 @@ class PKISubsystemFactory(object):
         if name == 'acme':
             return ACMESubsystem(instance)
 
+        if name == 'est':
+            return ESTSubsystem(instance)
+
         return PKISubsystem(instance, name)
