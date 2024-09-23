@@ -343,8 +343,8 @@ class PKIDeployer:
 
         server_config = self.instance.get_server_config()
 
-        # find default HTTP connector
-        connector = server_config.get_connector(port='8080')
+        # find current HTTP connector
+        connector = server_config.get_http_connector()
         service = connector.getparent()
 
         # get HTTP connector position
@@ -371,7 +371,7 @@ class PKIDeployer:
             logger.info('Removing HTTP connector')
             service.remove(connector)
 
-        connector = server_config.get_connector(port=self.mdict['pki_https_port'])
+        connector = server_config.get_https_connector()
 
         if connector is None:
             logger.info('Adding HTTPS connector')
