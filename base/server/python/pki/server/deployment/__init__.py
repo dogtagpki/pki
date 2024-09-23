@@ -2697,13 +2697,13 @@ class PKIDeployer:
         hostname = subsystem.config['machineName']
 
         server_config = self.instance.get_server_config()
-        secure_port = server_config.get_secure_port()
+        https_port = server_config.get_https_port()
 
         proxy_secure_port = subsystem.config.get('proxy.securePort')
         if proxy_secure_port:
-            secure_port = proxy_secure_port
+            https_port = proxy_secure_port
 
-        host_id = '%s %s %s' % (subsystem.type, hostname, secure_port)
+        host_id = '%s %s %s' % (subsystem.type, hostname, https_port)
 
         logger.info(
             'Removing %s from security domain at %s',
@@ -2715,7 +2715,7 @@ class PKIDeployer:
                 sd_url,
                 host_id,
                 hostname,
-                secure_port)
+                https_port)
 
         except subprocess.CalledProcessError:
             logger.error(
@@ -2731,7 +2731,7 @@ class PKIDeployer:
 
         server_config = self.instance.get_server_config()
         http_port = server_config.get_http_port()
-        securePort = server_config.get_secure_port()
+        https_port = server_config.get_https_port()
 
         if self.mdict['pki_security_domain_type'] == 'existing':
 
@@ -2757,7 +2757,7 @@ class PKIDeployer:
 
             subsystem.set_config('securitydomain.host', self.mdict['pki_hostname'])
             subsystem.set_config('securitydomain.httpport', http_port)
-            subsystem.set_config('securitydomain.httpsadminport', securePort)
+            subsystem.set_config('securitydomain.httpsadminport', https_port)
 
     def setup_security_domain_manager(self, subsystem):
 
@@ -2765,7 +2765,7 @@ class PKIDeployer:
 
         server_config = self.instance.get_server_config()
         http_port = server_config.get_http_port()
-        securePort = server_config.get_secure_port()
+        https_port = server_config.get_https_port()
 
         proxyUnsecurePort = subsystem.config.get('proxy.unsecurePort')
         if not proxyUnsecurePort:
@@ -2773,7 +2773,7 @@ class PKIDeployer:
 
         proxySecurePort = subsystem.config.get('proxy.securePort')
         if not proxySecurePort:
-            proxySecurePort = securePort
+            proxySecurePort = https_port
 
         if self.mdict['pki_security_domain_type'] == 'existing':
 
@@ -2807,7 +2807,7 @@ class PKIDeployer:
                 subsystem.set_config('securitydomain.select', 'new')
                 subsystem.set_config('securitydomain.host', self.mdict['pki_hostname'])
                 subsystem.set_config('securitydomain.httpport', http_port)
-                subsystem.set_config('securitydomain.httpsadminport', securePort)
+                subsystem.set_config('securitydomain.httpsadminport', https_port)
 
             subsystem.join_security_domain(
                 sd_url,
@@ -3504,9 +3504,9 @@ class PKIDeployer:
             hostname = self.mdict['pki_hostname']
 
             server_config = self.instance.get_server_config()
-            secure_port = server_config.get_secure_port()
+            https_port = server_config.get_https_port()
 
-            requestor = '%s-%s-%s' % (subsystem.type, hostname, secure_port)
+            requestor = '%s-%s-%s' % (subsystem.type, hostname, https_port)
 
             logger.info('Issuing %s cert from %s', tag, ca_url)
 
@@ -4099,9 +4099,9 @@ class PKIDeployer:
     def setup_subsystem_user(self, subsystem, cert):
 
         server_config = self.instance.get_server_config()
-        secure_port = server_config.get_secure_port()
+        https_port = server_config.get_https_port()
 
-        uid = 'CA-%s-%s' % (self.mdict['pki_hostname'], secure_port)
+        uid = 'CA-%s-%s' % (self.mdict['pki_hostname'], https_port)
 
         subsystem.add_user(
             uid,
@@ -4323,9 +4323,9 @@ class PKIDeployer:
 
         server_config = self.instance.get_server_config()
         hostname = self.mdict['pki_hostname']
-        securePort = server_config.get_secure_port()
+        https_port = server_config.get_https_port()
 
-        kra_url = 'https://%s:%s/kra/agent/kra/connector' % (hostname, securePort)
+        kra_url = 'https://%s:%s/kra/agent/kra/connector' % (hostname, https_port)
 
         subsystem_cert = subsystem.get_subsystem_cert('subsystem').get('data')
         transport_cert_info = subsystem.get_subsystem_cert('transport')
@@ -4376,9 +4376,9 @@ class PKIDeployer:
 
         server_config = self.instance.get_server_config()
         hostname = self.mdict['pki_hostname']
-        securePort = server_config.get_secure_port()
+        https_port = server_config.get_https_port()
 
-        ocsp_url = 'https://%s:%s' % (hostname, securePort)
+        ocsp_url = 'https://%s:%s' % (hostname, https_port)
 
         subsystem_cert = subsystem.get_subsystem_cert('subsystem').get('data')
 
@@ -4448,9 +4448,9 @@ class PKIDeployer:
         hostname = self.mdict['pki_hostname']
 
         server_config = self.instance.get_server_config()
-        secure_port = server_config.get_secure_port()
+        https_port = server_config.get_https_port()
 
-        nickname = 'transportCert-%s-%s' % (hostname, secure_port)
+        nickname = 'transportCert-%s-%s' % (hostname, https_port)
 
         tmpdir = tempfile.mkdtemp()
         try:
@@ -4503,7 +4503,7 @@ class PKIDeployer:
             nickname = token + ':' + nickname
 
         server_config = self.instance.get_server_config()
-        securePort = server_config.get_secure_port()
+        https_port = server_config.get_https_port()
 
         cmd = [
             'pki',
@@ -4514,7 +4514,7 @@ class PKIDeployer:
             '--ignore-banner',
             'tks-tpsconnector-show',
             '--host', self.mdict['pki_hostname'],
-            '--port', securePort
+            '--port', https_port
         ]
 
         logger.debug('Command: %s', ' '.join(cmd))
@@ -4537,7 +4537,7 @@ class PKIDeployer:
             nickname = token + ':' + nickname
 
         server_config = self.instance.get_server_config()
-        securePort = server_config.get_secure_port()
+        https_port = server_config.get_https_port()
 
         cmd = [
             'pki',
@@ -4548,7 +4548,7 @@ class PKIDeployer:
             '--ignore-banner',
             'tks-tpsconnector-add',
             '--host', self.mdict['pki_hostname'],
-            '--port', securePort,
+            '--port', https_port,
             '--output-format', 'json'
         ]
 
@@ -4691,9 +4691,9 @@ class PKIDeployer:
         hostname = self.mdict['pki_hostname']
 
         server_config = self.instance.get_server_config()
-        securePort = server_config.get_secure_port()
+        https_port = server_config.get_https_port()
 
-        secret_nickname = 'TPS-%s-%s sharedSecret' % (hostname, securePort)
+        secret_nickname = 'TPS-%s-%s sharedSecret' % (hostname, https_port)
 
         logger.info('Searching for TPS connector in TKS')
         tps_connector = self.get_tps_connector(subsystem)

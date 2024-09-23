@@ -1213,7 +1213,7 @@ class KRAConnector:
         krahost = cs_cfg.get('machineName')
 
         server_config = instance.get_server_config()
-        kraport = server_config.get_secure_port()
+        kraport = server_config.get_https_port()
 
         proxy_secure_port = cs_cfg.get('proxy.securePort', '')
 
@@ -1364,7 +1364,7 @@ class TPSConnector:
         tpshost = cs_cfg.get('machineName')
 
         server_config = instance.get_server_config()
-        tpsport = server_config.get_secure_port()
+        tpsport = server_config.get_https_port()
 
         tkshost = cs_cfg.get('tps.connector.tks1.host')
         tksport = cs_cfg.get('tps.connector.tks1.port')

@@ -411,7 +411,7 @@ grant codeBase "file:%s" {
 
         protocol = 'https'
         hostname = socket.getfqdn()
-        port = server_config.get_secure_port()
+        port = server_config.get_https_port()
 
         if port is None:
             protocol = 'http'
@@ -1085,7 +1085,7 @@ grant codeBase "file:%s" {
 
         protocol = 'https'
         hostname = socket.getfqdn()
-        port = server_config.get_secure_port()
+        port = server_config.get_https_port()
 
         if port is None:
             protocol = 'http'
@@ -1917,7 +1917,7 @@ class ServerConfig(object):
 
         return None
 
-    def get_secure_port(self):
+    def get_https_port(self):
 
         for connector in self.get_connectors():
 

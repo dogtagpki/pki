@@ -610,7 +610,7 @@ class PKISubsystem(object):
 
         if secure_connection:
             protocol = 'https'
-            port = server_config.get_secure_port()
+            port = server_config.get_https_port()
 
         else:
             protocol = 'http'
@@ -3023,7 +3023,7 @@ class ESTSubsystem(PKISubsystem):
 
         if secure_connection:
             protocol = 'https'
-            port = server_config.get_secure_port()
+            port = server_config.get_https_port()
 
         else:
             protocol = 'http'

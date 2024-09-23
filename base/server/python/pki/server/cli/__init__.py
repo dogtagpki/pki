@@ -155,9 +155,9 @@ class PKIServerCLI(pki.cli.CLI):
         if http_port:
             print('  Unsecure Port: %s' % http_port)
 
-        securePort = server_config.get_secure_port()
-        if securePort:
-            print('  Secure Port: %s' % securePort)
+        https_port = server_config.get_https_port()
+        if https_port:
+            print('  Secure Port: %s' % https_port)
 
         ajpPort = server_config.get_ajp_port()
         if ajpPort:
@@ -188,7 +188,7 @@ class PKIServerCLI(pki.cli.CLI):
                 url = 'http://%s:%s/ca' % (hostname, http_port)
                 print('    Unsecure URL:        %s/ee/ca' % url)
 
-                url = 'https://%s:%s/ca' % (hostname, securePort)
+                url = 'https://%s:%s/ca' % (hostname, https_port)
                 print('    Secure Agent URL:    %s/agent/ca' % url)
                 print('    Secure EE URL:       %s/ee/ca' % url)
                 print('    Secure Admin URL:    %s/services' % url)
@@ -211,7 +211,7 @@ class PKIServerCLI(pki.cli.CLI):
             print('    Enabled:             %s' % enabled)
 
             if enabled:
-                url = 'https://%s:%s/kra' % (hostname, securePort)
+                url = 'https://%s:%s/kra' % (hostname, https_port)
                 print('    Secure Agent URL:    %s/agent/kra' % url)
                 print('    Secure Admin URL:    %s/services' % url)
                 print('    PKI Console URL:     %s' % url)
@@ -236,7 +236,7 @@ class PKIServerCLI(pki.cli.CLI):
                 url = 'http://%s:%s/ocsp' % (hostname, http_port)
                 print('    Unsecure URL:        %s/ee/ocsp/<ocsp request blob>' % url)
 
-                url = 'https://%s:%s/ocsp' % (hostname, securePort)
+                url = 'https://%s:%s/ocsp' % (hostname, https_port)
                 print('    Secure Agent URL:    %s/agent/ocsp' % url)
                 print('    Secure EE URL:       %s/ee/ocsp/<ocsp request blob>' % url)
                 print('    Secure Admin URL:    %s/services' % url)
@@ -259,7 +259,7 @@ class PKIServerCLI(pki.cli.CLI):
             print('    Enabled:             %s' % enabled)
 
             if enabled:
-                url = 'https://%s:%s/tks' % (hostname, securePort)
+                url = 'https://%s:%s/tks' % (hostname, https_port)
                 print('    Secure Agent URL:    %s/agent/tks' % url)
                 print('    Secure Admin URL:    %s/services' % url)
                 print('    PKI Console URL:     %s' % url)
@@ -285,7 +285,7 @@ class PKIServerCLI(pki.cli.CLI):
                 print('    Unsecure URL:        %s' % url)
                 print('    Unsecure PHONE HOME: %s/phoneHome' % url)
 
-                url = 'https://%s:%s/tps' % (hostname, securePort)
+                url = 'https://%s:%s/tps' % (hostname, https_port)
                 print('    Secure URL:          %s' % url)
                 print('    Secure PHONE HOME:   %s/phoneHome' % url)
 
