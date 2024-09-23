@@ -1,0 +1,451 @@
+name: EST with postgresql realm
+
+on: workflow_call
+
+env:
+  DB_IMAGE: ${{ vars.DB_IMAGE || 'quay.io/389ds/dirsrv' }}
+
+jobs:
+  # docs/installation/ca/Installing_CA.md
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Retrieve PKI images
+        uses: actions/cache@v4
+        with:
+          key: pki-images-${{ github.sha }}
+          path: pki-images.tar
+
+      - name: Load PKI images
+        run: docker load --input pki-images.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-create.sh \
+              --image=${{ env.DB_IMAGE }} \
+              --hostname=ds.example.com \
+              --password=Secret.123 \
+              --network=example \
+              --network-alias=ds.example.com \
+              ds
+
+      - name: Set up PKI container
+        run: |
+          tests/bin/runner-init.sh \
+          --hostname=pki.example.com \
+          --network=example \
+          --network-alias=ca.example.com \
+          pki
+
+      - name: Install CA
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
+              -v
+
+      - name: Initialize PKI client
+        run: |
+          docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
+
+          docker exec pki pki nss-cert-import \
+              --cert ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
+          docker exec pki pki pkcs12-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password Secret.123
+
+          docker exec pki pki info
+
+      - name: Add CA EST user
+        run: |
+          docker exec pki pki -n caadmin ca-group-add "EST RA Agents"
+          docker exec pki pki -n caadmin ca-user-add \
+              est-ra-1 --fullName "EST RA 1" --password Secret.est
+          docker exec pki pki -n caadmin ca-group-member-add "EST RA Agents" est-ra-1
+          
+      - name: Configure CA est profile
+        run: |
+          docker exec pki pki -n caadmin ca-profile-add \
+              --raw /usr/share/pki/ca/profiles/ca/estServiceCert.cfg
+          docker exec pki pki -n caadmin ca-profile-enable estServiceCert
+          docker exec pki pki-server restart --wait
+
+      - name: Create postgresql certificates
+        run: |
+          docker exec pki pki nss-cert-request \
+              --subject "CN=postgresql.example.com" \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --csr sslserver.csr
+              
+          docker exec pki pki \
+              -n caadmin \
+              ca-cert-issue \
+              --profile caServerCert \
+              --csr-file sslserver.csr \
+              --subject "CN=postgresql.example.com" \
+              --output-file sslserver.crt
+          
+          docker exec pki pki nss-cert-import \
+              --cert sslserver.crt \
+              postgresql
+
+          docker exec pki pk12util -o sslserver.p12 -n postgresql -d /root/.dogtag/nssdb -W secret
+          docker cp pki:sslserver.p12 .
+          openssl pkcs12 -in sslserver.p12 -nocerts -out sslserver.key -noenc -password  pass:secret
+          openssl pkcs12 -in sslserver.p12 -nokeys -clcerts -out sslserver.crt  -password pass:secret
+          openssl pkcs12 -in sslserver.p12 -nokeys -cacerts -out ca.crt  -password pass:secret
+
+      - name: Create postgresql Docker file
+        run: |
+          cat > Dockerfile-Postgresql <<EOF
+          FROM postgres AS postgres-ssl
+
+          # Copy certificates
+          COPY sslserver.key /var/lib/postgresql/server.key
+          COPY sslserver.crt /var/lib/postgresql/server.crt
+          RUN chown postgres:postgres /var/lib/postgresql/server.crt && \
+          chown postgres:postgres /var/lib/postgresql/server.key && \
+          chmod 600 /var/lib/postgresql/server.key
+          EOF
+
+      - name: Build postgrsql image with certificates
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          tags: postgres-ssl
+          target: postgres-ssl
+          file: Dockerfile-Postgresql
+
+      - name: Deploy postgresql
+        run: |
+          docker run -d --name postgresql \
+              --hostname postgresql.example.com \
+              -e POSTGRES_PASSWORD=mysecretpassword \
+              -e POSTGRES_USER=est \
+              postgres-ssl -c ssl=on \
+              -c ssl_cert_file=/var/lib/postgresql/server.crt \
+              -c ssl_key_file=/var/lib/postgresql/server.key
+
+      - name: Connect DB container to network
+        run: docker network connect example postgresql --alias postgresql.example.com
+
+      - name: Set up database drivers
+        run: |
+          docker exec pki dnf install -y postgresql-jdbc
+          docker exec pki ln -s /usr/share/java/postgresql-jdbc/postgresql.jar /usr/share/pki/server/common/lib
+          docker exec pki ln -s /usr/share/java/ongres-scram/client.jar /usr/share/pki/server/common/lib
+          docker exec pki ln -s /usr/share/java/ongres-scram/common.jar /usr/share/pki/server/common/lib
+          docker exec pki ln -s /usr/share/java/ongres-stringprep/saslprep.jar /usr/share/pki/server/common/lib/
+          docker exec pki ln -s /usr/share/java/ongres-stringprep/stringprep.jar /usr/share/pki/server/common/lib/
+          docker exec pki pki-server restart --wait
+
+      - name: Add EST user
+        run: |
+          docker cp ./base/est/shared/realm/postgresql/create.sql postgresql:/tmp/create.sql
+          docker exec postgresql psql -U est -t -A -f /tmp/create.sql  est
+          DIGEST=$(docker exec pki tomcat-digest Secret.123 | sed 's/.*://')
+
+          docker exec postgresql psql -U est -t -A -c "INSERT INTO users VALUES ('est-test-user', 'EST TEST USER', '$DIGEST');"  est 
+          docker exec postgresql psql -U est -t -A -c "INSERT INTO groups VALUES ('estclient', 'EST TEST USERS');"  est 
+          docker exec postgresql psql -U est -t -A -c "INSERT INTO group_members VALUES ('estclient', 'est-test-user');"  est 
+
+      - name: Install EST
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/est.cfg \
+              -s EST \
+              -D est_realm_url="jdbc:postgresql://postgresql.example.com:5432/est?ssl=true&sslmode=require" \
+              -D est_realm_type=postgresql \
+              -D est_realm_user=est \
+              -D est_realm_password=mysecretpassword \
+              -v
+
+      - name: Check EST backend config
+        if: always()
+        run: |
+          docker exec pki cat /etc/pki/pki-tomcat/est/backend.conf
+
+      - name: Check EST authorizer config
+        if: always()
+        run: |
+          docker exec pki cat /etc/pki/pki-tomcat/est/authorizer.conf
+
+      - name: Check EST realm config
+        if: always()
+        run: |
+          docker exec pki cat /etc/pki/pki-tomcat/est/realm.conf
+
+      - name: Check webapps
+        run: |
+          docker exec pki pki-server webapp-find | tee output
+
+          # CA instance should have ROOT, ca, and pki webapps
+          echo "ROOT" > expected
+          echo "ca" >> expected
+          echo "est" >> expected
+          echo "pki" >> expected
+          sed -n 's/^ *Webapp ID: *\(.*\)$/\1/p' output > actual
+          diff expected actual
+
+          docker exec pki pki-server webapp-show ROOT
+          docker exec pki pki-server webapp-show ca
+          docker exec pki pki-server webapp-show est
+          docker exec pki pki-server webapp-show pki
+
+      - name: Check PKI server base dir after installation
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /var/lib/pki/pki-tomcat \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          # TODO: review permissions
+          cat > expected << EOF
+          lrwxrwxrwx pkiuser pkiuser alias -> /var/lib/pki/pki-tomcat/conf/alias
+          lrwxrwxrwx pkiuser pkiuser bin -> /usr/share/tomcat/bin
+          drwxrwx--- pkiuser pkiuser ca
+          drwxrwx--- pkiuser pkiuser common
+          lrwxrwxrwx pkiuser pkiuser conf -> /etc/pki/pki-tomcat
+          drwxrwx--- pkiuser pkiuser est
+          lrwxrwxrwx pkiuser pkiuser lib -> /usr/share/pki/server/lib
+          lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-tomcat
+          drwxrwx--- pkiuser pkiuser temp
+          drwxr-xr-x pkiuser pkiuser webapps
+          drwxrwx--- pkiuser pkiuser work
+          EOF
+
+          diff expected output
+
+      - name: Check PKI server conf dir after installation
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /etc/pki/pki-tomcat \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          # TODO: review permissions
+          cat > expected << EOF
+          drwxrwx--- pkiuser pkiuser Catalina
+          drwxrwx--- pkiuser pkiuser alias
+          drwxrwx--- pkiuser pkiuser ca
+          -rw-r--r-- pkiuser pkiuser catalina.policy
+          lrwxrwxrwx pkiuser pkiuser catalina.properties -> /usr/share/pki/server/conf/catalina.properties
+          drwxrwx--- pkiuser pkiuser certs
+          lrwxrwxrwx pkiuser pkiuser context.xml -> /etc/tomcat/context.xml
+          drwxrwx--- pkiuser pkiuser est
+          lrwxrwxrwx pkiuser pkiuser logging.properties -> /usr/share/pki/server/conf/logging.properties
+          -rw-rw---- pkiuser pkiuser password.conf
+          -rw-rw---- pkiuser pkiuser server.xml
+          -rw-rw---- pkiuser pkiuser serverCertNick.conf
+          -rw-rw---- pkiuser pkiuser tomcat.conf
+          lrwxrwxrwx pkiuser pkiuser web.xml -> /etc/tomcat/web.xml
+          EOF
+
+          diff expected output
+
+      - name: Check PKI server logs dir after installation
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /var/log/pki/pki-tomcat \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          DATE=$(date +'%Y-%m-%d')
+
+          # TODO: review permissions
+          cat > expected << EOF
+          drwxr-x--- pkiuser pkiuser backup
+          drwxrwx--- pkiuser pkiuser ca
+          -rw-rw-r-- pkiuser pkiuser catalina.$DATE.log
+          drwxrwx--- pkiuser pkiuser est
+          -rw-rw-r-- pkiuser pkiuser host-manager.$DATE.log
+          -rw-rw-r-- pkiuser pkiuser localhost.$DATE.log
+          -rw-r--r-- pkiuser pkiuser localhost_access_log.$DATE.txt
+          -rw-rw-r-- pkiuser pkiuser manager.$DATE.log
+          drwxr-xr-x pkiuser pkiuser pki
+          EOF
+
+          diff expected output
+
+      - name: Check EST conf dir
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /etc/pki/pki-tomcat/est \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          # TODO: review permissions
+          cat > expected << EOF
+          -rw-rw-r-- pkiuser pkiuser CS.cfg
+          -rw-rw---- pkiuser pkiuser authorizer.conf
+          -rw-rw---- pkiuser pkiuser backend.conf
+          -rw-rw-r-- pkiuser pkiuser realm.conf
+          EOF
+
+          diff expected output
+
+
+      - name: Test CA certs
+        run: |
+          docker exec pki curl -o cacert.p7 -k https://pki.example.com:8443/.well-known/est/cacerts
+          docker exec pki openssl base64 -d --in cacert.p7 --out cacert.p7.der
+          docker exec pki openssl pkcs7 --in cacert.p7.der -inform DER -print_certs -out cacert.pem
+          docker exec pki openssl x509 -in cacert.pem -text -noout | tee actual
+          docker exec pki openssl x509 -in ca_signing.crt -text -noout | tee expected
+          diff expected actual
+
+      - name: Install est client
+        run: |
+          docker exec pki dnf copr enable -y @pki/libest 
+          docker exec pki dnf install -y libest
+
+      - name: Enroll certificate
+        run: |
+          docker exec -e EST_OPENSSL_CACERT=cacert.pem pki estclient -e -s pki.example.com -p 8443 \
+              --common-name test.example.com -o . -u est-test-user -h Secret.123
+
+          docker exec pki openssl base64 -d --in cert-0-0.pkcs7 --out cert-0-0.pkcs7.der
+          docker exec pki openssl pkcs7 -in cert-0-0.pkcs7.der -inform DER -print_certs -out cert.pem
+          docker exec pki openssl x509 -in cert.pem -subject -noout | tee actual
+          echo "subject=CN=test.example.com" > expected
+          diff expected actual
+
+      - name: Remove EST
+        run: |
+          docker exec pki pkidestroy -i pki-tomcat -s EST -v
+
+      - name: Remove CA
+        run: |
+          docker exec pki pkidestroy -i pki-tomcat -s CA -v
+
+      - name: Check PKI server base dir after removal
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /var/lib/pki/pki-tomcat \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          # TODO: review permissions
+          cat > expected << EOF
+          lrwxrwxrwx pkiuser pkiuser conf -> /etc/pki/pki-tomcat
+          lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-tomcat
+          EOF
+
+          diff expected output
+
+      - name: Check PKI server conf dir after removal
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /etc/pki/pki-tomcat \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          # TODO: review permissions
+          cat > expected << EOF
+          drwxrwx--- pkiuser pkiuser Catalina
+          drwxrwx--- pkiuser pkiuser alias
+          drwxrwx--- pkiuser pkiuser ca
+          -rw-r--r-- pkiuser pkiuser catalina.policy
+          lrwxrwxrwx pkiuser pkiuser catalina.properties -> /usr/share/pki/server/conf/catalina.properties
+          drwxrwx--- pkiuser pkiuser certs
+          lrwxrwxrwx pkiuser pkiuser context.xml -> /etc/tomcat/context.xml
+          drwxrwx--- pkiuser pkiuser est
+          lrwxrwxrwx pkiuser pkiuser logging.properties -> /usr/share/pki/server/conf/logging.properties
+          -rw-rw---- pkiuser pkiuser password.conf
+          -rw-rw---- pkiuser pkiuser server.xml
+          -rw-rw---- pkiuser pkiuser serverCertNick.conf
+          -rw-rw---- pkiuser pkiuser tomcat.conf
+          lrwxrwxrwx pkiuser pkiuser web.xml -> /etc/tomcat/web.xml
+          EOF
+
+          diff expected output
+
+      - name: Check PKI server logs dir after removal
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /var/log/pki/pki-tomcat \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          DATE=$(date +'%Y-%m-%d')
+
+          # TODO: review permissions
+          cat > expected << EOF
+          drwxr-x--- pkiuser pkiuser backup
+          drwxrwx--- pkiuser pkiuser ca
+          -rw-rw-r-- pkiuser pkiuser catalina.$DATE.log
+          drwxrwx--- pkiuser pkiuser est
+          -rw-rw-r-- pkiuser pkiuser host-manager.$DATE.log
+          -rw-rw-r-- pkiuser pkiuser localhost.$DATE.log
+          -rw-r--r-- pkiuser pkiuser localhost_access_log.$DATE.txt
+          -rw-rw-r-- pkiuser pkiuser manager.$DATE.log
+          drwxr-xr-x pkiuser pkiuser pki
+          EOF
+
+          diff expected output
+
+      - name: Check DS server systemd journal
+        if: always()
+        run: |
+          docker exec ds journalctl -x --no-pager -u dirsrv@localhost.service
+
+      - name: Check DS container logs
+        if: always()
+        run: |
+          docker logs ds
+
+      - name: Check PKI server systemd journal
+        if: always()
+        run: |
+          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check CA debug log
+        if: always()
+        run: |
+          docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check EST debug log
+        if: always()
+        run: |
+          docker exec pki find /var/lib/pki/pki-tomcat/logs/est -name "debug.*" -exec cat {} \;
+
+      - name: Gather artifacts
+        if: always()
+        run: |
+          tests/bin/ds-artifacts-save.sh ds
+          tests/bin/pki-artifacts-save.sh pki
+        continue-on-error: true
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: est-postgresql-basic
+          path: /tmp/artifacts
