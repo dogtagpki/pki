@@ -293,7 +293,7 @@ class PKIServer(object):
     def export_ca_cert(self):
 
         server_config = self.get_server_config()
-        connector = server_config.get_connector(name='Secure')
+        connector = server_config.get_https_connector()
 
         if connector is None:
             # HTTPS connector not configured, skip
@@ -1549,7 +1549,7 @@ grant codeBase "file:%s" {
         # Load SSL server cert nickname from server.xml
 
         server_config = self.get_server_config()
-        connector = server_config.get_connector(name='Secure')
+        connector = server_config.get_https_connector()
 
         if connector is None:
             return None
@@ -1576,7 +1576,7 @@ grant codeBase "file:%s" {
             fullname = token + ':' + nickname
 
         server_config = self.get_server_config()
-        connector = server_config.get_connector(name='Secure')
+        connector = server_config.get_https_connector()
 
         if connector is None:
             raise KeyError('Connector not found: Secure')
