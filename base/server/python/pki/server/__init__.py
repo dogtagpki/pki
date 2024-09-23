@@ -415,7 +415,7 @@ grant codeBase "file:%s" {
 
         if port is None:
             protocol = 'http'
-            port = server_config.get_unsecure_port()
+            port = server_config.get_http_port()
 
         connection = pki.client.PKIConnection(
             protocol=protocol,
@@ -1089,7 +1089,7 @@ grant codeBase "file:%s" {
 
         if port is None:
             protocol = 'http'
-            port = server_config.get_unsecure_port()
+            port = server_config.get_http_port()
 
         connection = pki.client.PKIConnection(
             protocol=protocol,
@@ -1905,7 +1905,7 @@ class ServerConfig(object):
         server = self.document.getroot()
         server.set('port', port)
 
-    def get_unsecure_port(self):
+    def get_http_port(self):
 
         for connector in self.get_connectors():
 

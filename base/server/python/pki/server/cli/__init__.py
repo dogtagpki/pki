@@ -151,9 +151,9 @@ class PKIServerCLI(pki.cli.CLI):
 
         server_config = instance.get_server_config()
 
-        unsecurePort = server_config.get_unsecure_port()
-        if unsecurePort:
-            print('  Unsecure Port: %s' % unsecurePort)
+        http_port = server_config.get_http_port()
+        if http_port:
+            print('  Unsecure Port: %s' % http_port)
 
         securePort = server_config.get_secure_port()
         if securePort:
@@ -185,7 +185,7 @@ class PKIServerCLI(pki.cli.CLI):
             print('    Enabled:             %s' % enabled)
 
             if enabled:
-                url = 'http://%s:%s/ca' % (hostname, unsecurePort)
+                url = 'http://%s:%s/ca' % (hostname, http_port)
                 print('    Unsecure URL:        %s/ee/ca' % url)
 
                 url = 'https://%s:%s/ca' % (hostname, securePort)
@@ -233,7 +233,7 @@ class PKIServerCLI(pki.cli.CLI):
             print('    Enabled:             %s' % enabled)
 
             if enabled:
-                url = 'http://%s:%s/ocsp' % (hostname, unsecurePort)
+                url = 'http://%s:%s/ocsp' % (hostname, http_port)
                 print('    Unsecure URL:        %s/ee/ocsp/<ocsp request blob>' % url)
 
                 url = 'https://%s:%s/ocsp' % (hostname, securePort)
@@ -281,7 +281,7 @@ class PKIServerCLI(pki.cli.CLI):
             print('    Enabled:             %s' % enabled)
 
             if enabled:
-                url = 'http://%s:%s/tps' % (hostname, unsecurePort)
+                url = 'http://%s:%s/tps' % (hostname, http_port)
                 print('    Unsecure URL:        %s' % url)
                 print('    Unsecure PHONE HOME: %s/phoneHome' % url)
 

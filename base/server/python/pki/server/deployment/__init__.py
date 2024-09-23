@@ -2730,7 +2730,7 @@ class PKIDeployer:
     def setup_security_domain(self, subsystem):
 
         server_config = self.instance.get_server_config()
-        unsecurePort = server_config.get_unsecure_port()
+        http_port = server_config.get_http_port()
         securePort = server_config.get_secure_port()
 
         if self.mdict['pki_security_domain_type'] == 'existing':
@@ -2756,7 +2756,7 @@ class PKIDeployer:
                 logger.info('Creating new security domain')
 
             subsystem.set_config('securitydomain.host', self.mdict['pki_hostname'])
-            subsystem.set_config('securitydomain.httpport', unsecurePort)
+            subsystem.set_config('securitydomain.httpport', http_port)
             subsystem.set_config('securitydomain.httpsadminport', securePort)
 
     def setup_security_domain_manager(self, subsystem):
@@ -2764,12 +2764,12 @@ class PKIDeployer:
         clone = self.configuration_file.clone
 
         server_config = self.instance.get_server_config()
-        unsecurePort = server_config.get_unsecure_port()
+        http_port = server_config.get_http_port()
         securePort = server_config.get_secure_port()
 
         proxyUnsecurePort = subsystem.config.get('proxy.unsecurePort')
         if not proxyUnsecurePort:
-            proxyUnsecurePort = unsecurePort
+            proxyUnsecurePort = http_port
 
         proxySecurePort = subsystem.config.get('proxy.securePort')
         if not proxySecurePort:
@@ -2806,7 +2806,7 @@ class PKIDeployer:
 
                 subsystem.set_config('securitydomain.select', 'new')
                 subsystem.set_config('securitydomain.host', self.mdict['pki_hostname'])
-                subsystem.set_config('securitydomain.httpport', unsecurePort)
+                subsystem.set_config('securitydomain.httpport', http_port)
                 subsystem.set_config('securitydomain.httpsadminport', securePort)
 
             subsystem.join_security_domain(

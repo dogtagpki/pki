@@ -614,7 +614,7 @@ class PKISubsystem(object):
 
         else:
             protocol = 'http'
-            port = server_config.get_unsecure_port()
+            port = server_config.get_http_port()
 
         # When waiting for a connection to come alive, don't bother verifying
         # the certificate at this stage.
@@ -3027,7 +3027,7 @@ class ESTSubsystem(PKISubsystem):
 
         else:
             protocol = 'http'
-            port = server_config.get_unsecure_port()
+            port = server_config.get_http_port()
 
         # When waiting for a connection to come alive, don't bother verifying
         # the certificate at this stage.
