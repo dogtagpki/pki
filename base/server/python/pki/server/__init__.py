@@ -1907,34 +1907,25 @@ class ServerConfig(object):
 
     def get_http_port(self):
 
-        for connector in self.get_connectors():
-
-            sslEnabled = connector.get('SSLEnabled')
-            protocol = connector.get('protocol')
-
-            if not sslEnabled and not protocol.startswith('AJP/'):
-                return connector.get('port')
+        connector = self.get_http_connector()
+        if connector is not None:
+            return connector.get('port')
 
         return None
 
     def get_https_port(self):
 
-        for connector in self.get_connectors():
-
-            sslEnabled = connector.get('SSLEnabled')
-
-            if sslEnabled:
-                return connector.get('port')
+        connector = self.get_https_connector()
+        if connector is not None:
+            return connector.get('port')
 
         return None
 
     def get_ajp_port(self):
 
-        for connector in self.get_connectors():
-
-            protocol = connector.get('protocol')
-            if protocol.startswith('AJP/'):
-                return connector.get('port')
+        connector = self.get_ajp_connector()
+        if connector is not None:
+            return connector.get('port')
 
         return None
 
@@ -2060,6 +2051,42 @@ class ServerConfig(object):
             xpath = xpath + '[@port="%s"]' % port
 
         return service.find(xpath)
+
+    def get_http_connector(self):
+
+        for connector in self.get_connectors():
+
+            if connector.get('SSLEnabled'):
+                continue
+
+            if connector.get('protocol', '').startswith('AJP/'):
+                continue
+
+            return connector
+
+        return None
+
+    def get_https_connector(self):
+
+        for connector in self.get_connectors():
+
+            if not connector.get('SSLEnabled'):
+                continue
+
+            return connector
+
+        return None
+
+    def get_ajp_connector(self):
+
+        for connector in self.get_connectors():
+
+            if not connector.get('protocol', '').startswith('AJP/'):
+                continue
+
+            return connector
+
+        return None
 
     def create_connector(self, name, index=None):
         '''
