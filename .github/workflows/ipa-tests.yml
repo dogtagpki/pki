@@ -84,6 +84,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/ipa-basic-test.yml
 
+  ipa-kra-test:
+    name: IPA KRA
+    needs: build
+    uses: ./.github/workflows/ipa-kra-test.yml
+
   ipa-acme-test:
     name: IPA ACME
     needs: build

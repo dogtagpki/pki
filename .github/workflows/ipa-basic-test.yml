@@ -42,6 +42,7 @@ jobs:
               -a Secret.123 \
               --no-host-dns \
               --no-ntp
+
           docker exec ipa bash -c "echo Secret.123 | kinit admin"
           docker exec ipa ipa ping
 
@@ -152,6 +153,7 @@ jobs:
           docker exec ipa pki pkcs12-import \
               --pkcs12 /root/ca-agent.p12 \
               --pkcs12-password Secret.123
+
           docker exec ipa pki nss-cert-find
           docker exec ipa pki nss-cert-show ipa-ca-agent
 
@@ -171,9 +173,11 @@ jobs:
               -out ra-agent.p12 \
               -passout pass:Secret.123 \
               -name ipa-ra-agent
+
           docker exec ipa pki pkcs12-import \
               --pkcs12 ra-agent.p12 \
               --pkcs12-password Secret.123
+
           docker exec ipa pki nss-cert-find
           docker exec ipa pki nss-cert-show ipa-ra-agent
 
@@ -184,83 +188,6 @@ jobs:
         run: |
           docker exec ipa ls -la /var/lib/ipa/certs
           docker exec ipa openssl x509 -text -noout -in /var/lib/ipa/certs/httpd.crt
-
-      - name: Install KRA
-        run: |
-          docker exec ipa ipa-kra-install -p Secret.123
-          docker exec ipa pki-server ca-config-find | grep ca.connector.KRA
-
-      - name: Check PKI certs and keys
-        run: |
-          # check certs
-          docker exec ipa pki-server cert-find
-
-          # check keys
-          docker exec ipa certutil -K \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/alias/pwdfile.txt | tee output
-
-          # there should be no orphaned keys
-          echo "0" > expected
-          grep "(orphan)" output | wc -l > actual
-          diff expected actual
-
-      - name: Check KRA users
-        run: |
-          docker exec ipa pki-server kra-user-find
-
-          # check KRA admin user
-          docker exec ipa pki-server kra-user-show admin
-          docker exec ipa pki-server kra-user-cert-find admin
-          docker exec ipa pki-server kra-user-role-find admin
-
-          # check KRA subsystem user
-          docker exec ipa pki-server kra-user-show CA-ipa.example.com-443
-          docker exec ipa pki-server kra-user-cert-find CA-ipa.example.com-443
-          docker exec ipa pki-server kra-user-role-find CA-ipa.example.com-443
-
-          # check IPA KRA user
-          docker exec ipa pki-server kra-user-show ipakra
-          docker exec ipa pki-server kra-user-cert-find ipakra
-          docker exec ipa pki-server kra-user-role-find ipakra
-
-      - name: Check RA agent cert
-        run: |
-          # RA agent should be able to access key requests
-          docker exec ipa pki -n ipa-ra-agent kra-key-request-find
-
-      - name: Check webapps
-        run: |
-          docker exec ipa pki-server webapp-find | tee output
-
-          # IPA server should now have ROOT, acme, ca, kra, and pki webapps
-          echo "ROOT" > expected
-          echo "acme" >> expected
-          echo "ca" >> expected
-          echo "kra" >> expected
-          echo "pki" >> expected
-          sed -n 's/^ *Webapp ID: *\(.*\)$/\1/p' output > actual
-          diff expected actual
-
-          docker exec ipa pki-server webapp-show kra
-
-      - name: Check subsystems
-        run: |
-          docker exec ipa pki-server subsystem-find | tee output
-
-          # IPA server should now have CA, KRA, and ACME subsystems
-          echo "ca" > expected
-          echo "kra" >> expected
-          echo "acme" >> expected
-          sed -n 's/^ *Subsystem ID: *\(.*\)$/\1/p' output > actual
-          diff expected actual
-
-          # all subsystems should be enabled
-          echo "True" > expected
-          echo "True" >> expected
-          echo "True" >> expected
-          sed -n 's/^ *Enabled: *\(.*\)$/\1/p' output > actual
-          diff expected actual
 
       - name: Run PKI healthcheck
         run: docker exec ipa pki-healthcheck --failures-only
@@ -296,67 +223,6 @@ jobs:
           docker exec ipa ipa-run-tests -x --verbose \
               test_xmlrpc/test_ca_plugin.py
 
-      - name: Run test_vault_plugin.py
-        run: |
-          docker exec ipa ipa-run-tests -x --verbose \
-              test_xmlrpc/test_vault_plugin.py
-
-      - name: Check key archival and retrieval
-        run: |
-          # create a vault
-          docker exec ipa ipa vault-add \
-              --type symmetric \
-              --password Secret.123 \
-              testvault
-
-          # there should be 1 active key record initially
-          echo "active" > expected
-          docker exec ipa pki \
-              -n ipa-ra-agent \
-              kra-key-find \
-              --clientKeyID ipa:/users/admin/testvault | tee output
-          sed -n 's/^\s*Status:\s*\(.*\)$/\1/p' output > actual
-          diff expected actual
-
-          # retrieve the vault content
-          docker exec ipa ipa vault-retrieve \
-              --password Secret.123 \
-              --out $SHARED/output \
-              testvault
-
-          # the vault should be empty initially
-          diff /dev/null output
-
-          # generate a private key
-          docker exec ipa openssl genrsa -out $SHARED/private.key 2048
-          docker exec ipa chmod go+r $SHARED/private.key
-          cat private.key
-
-          # archive the private key into the vault
-          docker exec ipa ipa vault-archive \
-              --password Secret.123 \
-              --in $SHARED/private.key \
-              testvault
-
-          # the initial key record should be inactive and the new one should be active
-          echo "inactive" > expected
-          echo "active" >> expected
-          docker exec ipa pki \
-              -n ipa-ra-agent \
-              kra-key-find \
-              --clientKeyID ipa:/users/admin/testvault | tee output
-          sed -n 's/^\s*Status:\s*\(.*\)$/\1/p' output > actual
-          diff expected actual
-
-          # retrieve the vault content
-          docker exec ipa ipa vault-retrieve \
-              --password Secret.123 \
-              --out $SHARED/output \
-              testvault
-
-          # the original private key should be identical to the archived one
-          diff private.key output
-
       - name: Check DS server systemd journal
         if: always()
         run: |
@@ -385,11 +251,6 @@ jobs:
         run: |
           docker exec ipa cat /var/log/ipaserver-install.log
 
-      - name: Check IPA KRA install log
-        if: always()
-        run: |
-          docker exec ipa cat /var/log/ipaserver-kra-install.log
-
       - name: Check PKI server systemd journal
         if: always()
         run: |
@@ -400,11 +261,6 @@ jobs:
         run: |
           docker exec ipa find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
 
-      - name: Check KRA debug log
-        if: always()
-        run: |
-          docker exec ipa find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
-
       - name: Gather artifacts
         if: always()
         run: |
@@ -412,9 +268,6 @@ jobs:
           tests/bin/pki-artifacts-save.sh ipa
           tests/bin/ipa-artifacts-save.sh ipa
         continue-on-error: true
-
-      - name: Remove IPA server
-        run: docker exec ipa ipa-server-install --uninstall -U
 
       - name: Upload artifacts
         if: always()
