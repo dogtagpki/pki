@@ -1869,7 +1869,7 @@ class PKIDeployer:
         else:
             return tag
 
-    def generate_ca_signing_request(self, subsystem):
+    def generate_ca_signing_request(self, nssdb, subsystem):
 
         csr_path = self.mdict.get('pki_ca_signing_csr_path')
         if not csr_path:
@@ -1913,25 +1913,19 @@ class PKIDeployer:
         if not token:
             token = self.mdict['pki_token_name']
 
-        nssdb = self.instance.open_nssdb()
+        self.generate_csr(
+            nssdb=nssdb,
+            subsystem=subsystem,
+            tag=tag,
+            csr_path=csr_path,
+            token=token,
+            basic_constraints_ext=basic_constraints_ext,
+            key_usage_ext=key_usage_ext,
+            generic_exts=generic_exts,
+            subject_key_id=self.configuration_file.req_ski
+        )
 
-        try:
-            self.generate_csr(
-                nssdb=nssdb,
-                subsystem=subsystem,
-                tag=tag,
-                csr_path=csr_path,
-                token=token,
-                basic_constraints_ext=basic_constraints_ext,
-                key_usage_ext=key_usage_ext,
-                generic_exts=generic_exts,
-                subject_key_id=self.configuration_file.req_ski,
-            )
-
-        finally:
-            nssdb.close()
-
-    def generate_kra_storage_request(self, subsystem):
+    def generate_kra_storage_request(self, nssdb, subsystem):
 
         csr_path = self.mdict.get('pki_storage_csr_path')
         if not csr_path:
@@ -1956,23 +1950,17 @@ class PKIDeployer:
         if not token:
             token = self.mdict['pki_token_name']
 
-        nssdb = self.instance.open_nssdb()
+        self.generate_csr(
+            nssdb=nssdb,
+            subsystem=subsystem,
+            tag=tag,
+            csr_path=csr_path,
+            token=token,
+            key_usage_ext=key_usage_ext,
+            extended_key_usage_ext=extended_key_usage_ext
+        )
 
-        try:
-            self.generate_csr(
-                nssdb=nssdb,
-                subsystem=subsystem,
-                tag=tag,
-                csr_path=csr_path,
-                token=token,
-                key_usage_ext=key_usage_ext,
-                extended_key_usage_ext=extended_key_usage_ext
-            )
-
-        finally:
-            nssdb.close()
-
-    def generate_kra_transport_request(self, subsystem):
+    def generate_kra_transport_request(self, nssdb, subsystem):
 
         csr_path = self.mdict.get('pki_transport_csr_path')
         if not csr_path:
@@ -1997,23 +1985,17 @@ class PKIDeployer:
         if not token:
             token = self.mdict['pki_token_name']
 
-        nssdb = self.instance.open_nssdb()
+        self.generate_csr(
+            nssdb=nssdb,
+            subsystem=subsystem,
+            tag=tag,
+            csr_path=csr_path,
+            token=token,
+            key_usage_ext=key_usage_ext,
+            extended_key_usage_ext=extended_key_usage_ext
+        )
 
-        try:
-            self.generate_csr(
-                nssdb=nssdb,
-                subsystem=subsystem,
-                tag=tag,
-                csr_path=csr_path,
-                token=token,
-                key_usage_ext=key_usage_ext,
-                extended_key_usage_ext=extended_key_usage_ext
-            )
-
-        finally:
-            nssdb.close()
-
-    def generate_ocsp_signing_request(self, subsystem):
+    def generate_ocsp_signing_request(self, nssdb, subsystem):
 
         csr_path = self.mdict.get('pki_ocsp_signing_csr_path')
         if not csr_path:
@@ -2026,21 +2008,15 @@ class PKIDeployer:
         if not token:
             token = self.mdict['pki_token_name']
 
-        nssdb = self.instance.open_nssdb()
+        self.generate_csr(
+            nssdb=nssdb,
+            subsystem=subsystem,
+            tag=tag,
+            csr_path=csr_path,
+            token=token
+        )
 
-        try:
-            self.generate_csr(
-                nssdb=nssdb,
-                subsystem=subsystem,
-                tag=tag,
-                csr_path=csr_path,
-                token=token
-            )
-
-        finally:
-            nssdb.close()
-
-    def generate_sslserver_request(self, subsystem):
+    def generate_sslserver_request(self, nssdb, subsystem):
 
         csr_path = self.mdict.get('pki_sslserver_csr_path')
         if not csr_path:
@@ -2065,23 +2041,17 @@ class PKIDeployer:
         if not token:
             token = self.mdict['pki_token_name']
 
-        nssdb = self.instance.open_nssdb()
+        self.generate_csr(
+            nssdb=nssdb,
+            subsystem=subsystem,
+            tag=tag,
+            csr_path=csr_path,
+            token=token,
+            key_usage_ext=key_usage_ext,
+            extended_key_usage_ext=extended_key_usage_ext
+        )
 
-        try:
-            self.generate_csr(
-                nssdb=nssdb,
-                subsystem=subsystem,
-                tag=tag,
-                csr_path=csr_path,
-                token=token,
-                key_usage_ext=key_usage_ext,
-                extended_key_usage_ext=extended_key_usage_ext
-            )
-
-        finally:
-            nssdb.close()
-
-    def generate_subsystem_request(self, subsystem):
+    def generate_subsystem_request(self, nssdb, subsystem):
 
         csr_path = self.mdict.get('pki_subsystem_csr_path')
         if not csr_path:
@@ -2107,23 +2077,17 @@ class PKIDeployer:
         if not token:
             token = self.mdict['pki_token_name']
 
-        nssdb = self.instance.open_nssdb()
+        self.generate_csr(
+            nssdb=nssdb,
+            subsystem=subsystem,
+            tag=tag,
+            csr_path=csr_path,
+            token=token,
+            key_usage_ext=key_usage_ext,
+            extended_key_usage_ext=extended_key_usage_ext
+        )
 
-        try:
-            self.generate_csr(
-                nssdb=nssdb,
-                subsystem=subsystem,
-                tag=tag,
-                csr_path=csr_path,
-                token=token,
-                key_usage_ext=key_usage_ext,
-                extended_key_usage_ext=extended_key_usage_ext
-            )
-
-        finally:
-            nssdb.close()
-
-    def generate_audit_signing_request(self, subsystem):
+    def generate_audit_signing_request(self, nssdb, subsystem):
 
         csr_path = self.mdict.get('pki_audit_signing_csr_path')
         if not csr_path:
@@ -2142,59 +2106,60 @@ class PKIDeployer:
         if not token:
             token = self.mdict['pki_token_name']
 
-        nssdb = self.instance.open_nssdb()
+        self.generate_csr(
+            nssdb=nssdb,
+            subsystem=subsystem,
+            tag=tag,
+            csr_path=csr_path,
+            token=token,
+            key_usage_ext=key_usage_ext
+        )
 
-        try:
-            self.generate_csr(
-                nssdb=nssdb,
-                subsystem=subsystem,
-                tag=tag,
-                csr_path=csr_path,
-                token=token,
-                key_usage_ext=key_usage_ext
-            )
-
-        finally:
-            nssdb.close()
-
-    def generate_admin_request(self, subsystem):
+    def generate_admin_request(self, nssdb, subsystem):
 
         csr_path = self.mdict.get('pki_admin_csr_path')
         if not csr_path:
             return
 
-        client_nssdb = pki.nssdb.NSSDatabase(
+        self.generate_csr(
+            nssdb=nssdb,
+            subsystem=subsystem,
+            tag='admin',
+            csr_path=csr_path
+        )
+
+    def generate_system_cert_requests(self, subsystem):
+
+        nssdb = self.instance.open_nssdb()
+
+        try:
+            if subsystem.name == 'ca':
+                self.generate_ca_signing_request(nssdb, subsystem)
+
+            if subsystem.name == 'kra':
+                self.generate_kra_storage_request(nssdb, subsystem)
+                self.generate_kra_transport_request(nssdb, subsystem)
+
+            if subsystem.name == 'ocsp':
+                self.generate_ocsp_signing_request(nssdb, subsystem)
+
+            if subsystem.name in ['kra', 'ocsp', 'tks', 'tps']:
+                self.generate_sslserver_request(nssdb, subsystem)
+                self.generate_subsystem_request(nssdb, subsystem)
+                self.generate_audit_signing_request(nssdb, subsystem)
+
+        finally:
+            nssdb.close()
+
+        nssdb = pki.nssdb.NSSDatabase(
             directory=self.mdict['pki_client_database_dir'],
             password_file=self.mdict['pki_client_password_conf'])
 
         try:
-            self.generate_csr(
-                nssdb=client_nssdb,
-                subsystem=subsystem,
-                tag='admin',
-                csr_path=csr_path
-            )
-
+            if subsystem.name in ['kra', 'ocsp', 'tks', 'tps']:
+                self.generate_admin_request(nssdb, subsystem)
         finally:
-            client_nssdb.close()
-
-    def generate_system_cert_requests(self, subsystem):
-
-        if subsystem.name == 'ca':
-            self.generate_ca_signing_request(subsystem)
-
-        if subsystem.name == 'kra':
-            self.generate_kra_storage_request(subsystem)
-            self.generate_kra_transport_request(subsystem)
-
-        if subsystem.name == 'ocsp':
-            self.generate_ocsp_signing_request(subsystem)
-
-        if subsystem.name in ['kra', 'ocsp', 'tks', 'tps']:
-            self.generate_sslserver_request(subsystem)
-            self.generate_subsystem_request(subsystem)
-            self.generate_audit_signing_request(subsystem)
-            self.generate_admin_request(subsystem)
+            nssdb.close()
 
     def import_system_cert_request(self, subsystem, tag):
 
