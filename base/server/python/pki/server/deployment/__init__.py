@@ -2406,12 +2406,16 @@ class PKIDeployer:
 
     def import_cert_chain(self, nssdb, subsystem):
 
-        logger.debug('PKIDeployer.import_cert_chain()')
+        nickname = self.mdict['pki_cert_chain_nickname']
+        logger.info('Checking existing cert chain: %s', nickname)
+
+        cert_chain = nssdb.get_cert(nickname)
+        if cert_chain:
+            # cert chain already exists
+            return
 
         subordinate = self.configuration_file.subordinate
         clone = self.configuration_file.clone
-
-        cert_chain = None
 
         cert_chain_path = self.mdict.get('pki_cert_chain_path')
         if cert_chain_path:
@@ -2452,7 +2456,6 @@ class PKIDeployer:
         if not cert_chain:
             return
 
-        nickname = self.mdict['pki_cert_chain_nickname']
         logger.info('Importing cert chain as %s', nickname)
         logger.debug('- cert chain:\n%s', cert_chain)
 
