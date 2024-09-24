@@ -3491,6 +3491,7 @@ class PKIDeployer:
                 url=ca_url,
                 request_type=request.systemCert.requestType,
                 request_data=request.systemCert.request,
+                request_format='base64',
                 profile=request.systemCert.profile,
                 subject=request.systemCert.subjectDN,
                 dns_names=request.systemCert.dnsNames,
@@ -3638,15 +3639,18 @@ class PKIDeployer:
             request_data,
             profile,
             subject,
+            request_format='pem',
             dns_names=None,
             requestor=None):
 
         tmpdir = tempfile.mkdtemp()
         try:
-            request_pem = pki.nssdb.convert_csr(request_data, 'base64', 'pem')
+            if request_format != 'pem':
+                request_data = pki.nssdb.convert_csr(request_data, request_format, 'pem')
+
             request_file = os.path.join(tmpdir, 'request.csr')
             with open(request_file, 'w', encoding='utf-8') as f:
-                f.write(request_pem)
+                f.write(request_data)
 
             install_token = os.path.join(tmpdir, 'install-token')
             with open(install_token, 'w', encoding='utf-8') as f:
@@ -3983,6 +3987,7 @@ class PKIDeployer:
             url=ca_url,
             request_type=request_type,
             request_data=admin_csr,
+            request_format='base64',
             profile=profile,
             subject=subject)
 
