@@ -1913,14 +1913,15 @@ class PKIDeployer:
         if not token:
             token = self.mdict['pki_token_name']
 
-        nssdb = self.instance.open_nssdb(token)
+        nssdb = self.instance.open_nssdb()
 
         try:
             self.generate_csr(
-                nssdb,
-                subsystem,
-                tag,
-                csr_path,
+                nssdb=nssdb,
+                subsystem=subsystem,
+                tag=tag,
+                csr_path=csr_path,
+                token=token,
                 basic_constraints_ext=basic_constraints_ext,
                 key_usage_ext=key_usage_ext,
                 generic_exts=generic_exts,
@@ -1955,14 +1956,15 @@ class PKIDeployer:
         if not token:
             token = self.mdict['pki_token_name']
 
-        nssdb = self.instance.open_nssdb(token)
+        nssdb = self.instance.open_nssdb()
 
         try:
             self.generate_csr(
-                nssdb,
-                subsystem,
-                tag,
-                csr_path,
+                nssdb=nssdb,
+                subsystem=subsystem,
+                tag=tag,
+                csr_path=csr_path,
+                token=token,
                 key_usage_ext=key_usage_ext,
                 extended_key_usage_ext=extended_key_usage_ext
             )
@@ -1995,14 +1997,15 @@ class PKIDeployer:
         if not token:
             token = self.mdict['pki_token_name']
 
-        nssdb = self.instance.open_nssdb(token)
+        nssdb = self.instance.open_nssdb()
 
         try:
             self.generate_csr(
-                nssdb,
-                subsystem,
-                tag,
-                csr_path,
+                nssdb=nssdb,
+                subsystem=subsystem,
+                tag=tag,
+                csr_path=csr_path,
+                token=token,
                 key_usage_ext=key_usage_ext,
                 extended_key_usage_ext=extended_key_usage_ext
             )
@@ -2023,14 +2026,15 @@ class PKIDeployer:
         if not token:
             token = self.mdict['pki_token_name']
 
-        nssdb = self.instance.open_nssdb(token)
+        nssdb = self.instance.open_nssdb()
 
         try:
             self.generate_csr(
-                nssdb,
-                subsystem,
-                tag,
-                csr_path
+                nssdb=nssdb,
+                subsystem=subsystem,
+                tag=tag,
+                csr_path=csr_path,
+                token=token
             )
 
         finally:
@@ -2061,14 +2065,15 @@ class PKIDeployer:
         if not token:
             token = self.mdict['pki_token_name']
 
-        nssdb = self.instance.open_nssdb(token)
+        nssdb = self.instance.open_nssdb()
 
         try:
             self.generate_csr(
-                nssdb,
-                subsystem,
-                tag,
-                csr_path,
+                nssdb=nssdb,
+                subsystem=subsystem,
+                tag=tag,
+                csr_path=csr_path,
+                token=token,
                 key_usage_ext=key_usage_ext,
                 extended_key_usage_ext=extended_key_usage_ext
             )
@@ -2102,14 +2107,15 @@ class PKIDeployer:
         if not token:
             token = self.mdict['pki_token_name']
 
-        nssdb = self.instance.open_nssdb(token)
+        nssdb = self.instance.open_nssdb()
 
         try:
             self.generate_csr(
-                nssdb,
-                subsystem,
-                tag,
-                csr_path,
+                nssdb=nssdb,
+                subsystem=subsystem,
+                tag=tag,
+                csr_path=csr_path,
+                token=token,
                 key_usage_ext=key_usage_ext,
                 extended_key_usage_ext=extended_key_usage_ext
             )
@@ -2136,14 +2142,15 @@ class PKIDeployer:
         if not token:
             token = self.mdict['pki_token_name']
 
-        nssdb = self.instance.open_nssdb(token)
+        nssdb = self.instance.open_nssdb()
 
         try:
             self.generate_csr(
-                nssdb,
-                subsystem,
-                tag,
-                csr_path,
+                nssdb=nssdb,
+                subsystem=subsystem,
+                tag=tag,
+                csr_path=csr_path,
+                token=token,
                 key_usage_ext=key_usage_ext
             )
 
@@ -2162,10 +2169,10 @@ class PKIDeployer:
 
         try:
             self.generate_csr(
-                client_nssdb,
-                subsystem,
-                'admin',
-                csr_path
+                nssdb=client_nssdb,
+                subsystem=subsystem,
+                tag='admin',
+                csr_path=csr_path
             )
 
         finally:
@@ -3106,6 +3113,7 @@ class PKIDeployer:
                      subsystem,
                      tag,
                      csr_path,
+                     token=None,
                      basic_constraints_ext=None,
                      key_usage_ext=None,
                      extended_key_usage_ext=None,
@@ -3147,6 +3155,7 @@ class PKIDeployer:
         nssdb.create_request(
             subject_dn=subject_dn,
             request_file=csr_pathname,
+            token=token,
             key_type=key_type,
             key_size=key_size,
             key_wrap=key_wrap,
@@ -3729,10 +3738,10 @@ class PKIDeployer:
 
         try:
             self.generate_csr(
-                client_nssdb,
-                subsystem,
-                'admin',
-                csr_path
+                nssdb=client_nssdb,
+                subsystem=subsystem,
+                tag='admin',
+                csr_path=csr_path
             )
 
         finally:

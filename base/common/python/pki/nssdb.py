@@ -991,6 +991,7 @@ class NSSDatabase(object):
             self.__create_request_for_key_wrap(
                 subject_dn=subject_dn,
                 request_file=request_file,
+                token=token,
                 key_size=key_size)
             return
 
