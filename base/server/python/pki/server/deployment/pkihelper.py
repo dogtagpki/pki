@@ -668,53 +668,6 @@ class File:
                     raise
         return
 
-    def modify(self, name, uid=None, gid=None,
-               perms=pki.server.DEFAULT_FILE_MODE,
-               acls=None, silent=False, critical_failure=True):
-
-        if not silent:
-            logger.info('Updating %s', name)
-
-        try:
-            if os.path.exists(name):
-                if not os.path.isfile(name):
-                    logger.error(log.PKI_FILE_ALREADY_EXISTS_NOT_A_FILE_1, name)
-                    if critical_failure:
-                        raise Exception(
-                            log.PKI_FILE_ALREADY_EXISTS_NOT_A_FILE_1 % name)
-
-                # Always re-process each file whether it needs it or not
-
-                if not silent:
-                    logger.debug('Command: chmod %o %s', perms, name)
-                os.chmod(name, perms)
-
-                if uid is None:
-                    uid = self.identity.get_uid()
-                if gid is None:
-                    gid = self.identity.get_gid()
-
-                # Store record in installation manifest
-                if not silent:
-                    self.deployer.record(
-                        name,
-                        manifest.RECORD_TYPE_FILE,
-                        uid,
-                        gid,
-                        perms,
-                        acls)
-            else:
-                logger.error(log.PKI_FILE_MISSING_OR_NOT_A_FILE_1, name)
-                if critical_failure:
-                    raise Exception(
-                        log.PKI_FILE_MISSING_OR_NOT_A_FILE_1 %
-                        name)
-        except OSError as exc:
-            logger.error(log.PKI_OSERROR_1, exc)
-            if critical_failure:
-                raise
-        return
-
     def delete(self, name, critical_failure=True):
 
         logger.info('Removing %s', name)

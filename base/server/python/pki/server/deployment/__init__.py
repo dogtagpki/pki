@@ -585,7 +585,9 @@ class PKIDeployer:
 
     def create_server_nssdb(self):
 
-        self.file.modify(self.instance.password_conf)
+        os.chmod(
+            self.instance.password_conf,
+            pki.server.DEFAULT_FILE_MODE)
         self.instance.chown(self.instance.password_conf)
 
         self.instance.makedirs(self.instance.nssdb_dir, exist_ok=True)
@@ -986,10 +988,9 @@ class PKIDeployer:
             self.mdict['pki_client_database_password'],
             pin_sans_token=True)
 
-        self.file.modify(
+        os.chmod(
             self.mdict['pki_client_password_conf'],
-            uid=0,
-            gid=0)
+            pki.server.DEFAULT_FILE_MODE)
 
         # Similarly, create a simple password file containing the
         # PKCS #12 password used when exporting the 'Admin Certificate'
@@ -998,7 +999,9 @@ class PKIDeployer:
         self.password.create_client_pkcs12_password_conf(
             self.mdict['pki_client_pkcs12_password_conf'])
 
-        self.file.modify(self.mdict['pki_client_pkcs12_password_conf'])
+        os.chmod(
+            self.mdict['pki_client_pkcs12_password_conf'],
+            pki.server.DEFAULT_FILE_MODE)
 
         pki.util.makedirs(self.mdict['pki_client_database_dir'], exist_ok=True)
 
@@ -5075,7 +5078,7 @@ class PKIDeployer:
         file.register(manifest_file)
         file.write()
 
-        self.file.modify(manifest_file, silent=True)
+        os.chmod(manifest_file, pki.server.DEFAULT_FILE_MODE)
 
         # For debugging/auditing purposes, store installation manifest into
         # /var/lib/pki/<instance>/logs/<subsystem>/archive/spawn_manifest.<timestamp>
