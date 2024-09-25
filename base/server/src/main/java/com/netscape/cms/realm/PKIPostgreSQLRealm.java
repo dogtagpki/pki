@@ -119,26 +119,18 @@ public class PKIPostgreSQLRealm extends RealmCommon {
         if (saltLength != null) {
             handler.setSaltLength(Integer.parseInt(saltLength));
         }
-
-        String createFile = info.getProperty("dbcreate.file");
-        if (createFile != null) {
-            try{
-                connect();
-                setup(createFile);
-            } catch (Exception e) {
-                throw new LifecycleException("DB creation failed. Creation file: " + createFile, e);
-            }
-        }
-        
     }
 
     /**
      * This method will create the tables if they do not exist.
      */
-    public void setup(String createFile) throws Exception {
+    public void setup() throws Exception {
 
         logger.info("Setting up PostgreSQL realm");
-
+        String createFile = info.getProperty("dbcreate.file");
+        if (createFile == null) {
+            return;
+        }
         String content = new String(Files.readAllBytes(Paths.get(createFile)));
 
         String[] stats = content.split(";");
@@ -179,6 +171,7 @@ public class PKIPostgreSQLRealm extends RealmCommon {
         if (connection == null) { // create the initial connection
             logger.info("Connecting to " + url);
             connection = DriverManager.getConnection(url, info);
+            setup();
             return;
         }
 
