@@ -99,11 +99,6 @@ jobs:
               --network-alias=acme.example.com \
               acme
 
-      - name: Create PKI server for ACME
-        run: |
-          docker exec acme pki-server create
-          docker exec acme pki-server nss-create --password Secret.123
-
       - name: Set up ACME database
         run: |
           docker exec acme ldapmodify \
@@ -147,13 +142,13 @@ jobs:
           drwxrwx--- pkiuser pkiuser acme
           lrwxrwxrwx pkiuser pkiuser alias -> /var/lib/pki/pki-tomcat/conf/alias
           lrwxrwxrwx pkiuser pkiuser bin -> /usr/share/tomcat/bin
-          drwxr-x--- pkiuser pkiuser common
+          drwxrwx--- pkiuser pkiuser common
           lrwxrwxrwx pkiuser pkiuser conf -> /etc/pki/pki-tomcat
           lrwxrwxrwx pkiuser pkiuser lib -> /usr/share/pki/server/lib
           lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-tomcat
-          drwxr-x--- pkiuser pkiuser temp
-          drwxr-x--- pkiuser pkiuser webapps
-          drwxr-x--- pkiuser pkiuser work
+          drwxrwx--- pkiuser pkiuser temp
+          drwxr-xr-x pkiuser pkiuser webapps
+          drwxrwx--- pkiuser pkiuser work
           EOF
 
           diff expected output
@@ -170,12 +165,12 @@ jobs:
 
           # TODO: review permissions
           cat > expected << EOF
-          drwxr-x--- pkiuser pkiuser Catalina
+          drwxrwx--- pkiuser pkiuser Catalina
           drwxrwx--- pkiuser pkiuser acme
           drwxrwx--- pkiuser pkiuser alias
-          -rw-rw---- pkiuser pkiuser catalina.policy
+          -rw-r--r-- pkiuser pkiuser catalina.policy
           lrwxrwxrwx pkiuser pkiuser catalina.properties -> /usr/share/pki/server/conf/catalina.properties
-          drwxr-x--- pkiuser pkiuser certs
+          drwxrwx--- pkiuser pkiuser certs
           lrwxrwxrwx pkiuser pkiuser context.xml -> /etc/tomcat/context.xml
           lrwxrwxrwx pkiuser pkiuser logging.properties -> /usr/share/pki/server/conf/logging.properties
           -rw-rw---- pkiuser pkiuser password.conf
@@ -733,6 +728,7 @@ jobs:
         run: docker exec ca pkidestroy -s CA -v
 
       - name: Check ACME server base dir after removal
+        if: always()
         run: |
           # check file types, owners, and permissions
           docker exec acme ls -l /var/lib/pki/pki-tomcat \
@@ -750,6 +746,7 @@ jobs:
           diff expected output
 
       - name: Check ACME server conf dir after removal
+        if: always()
         run: |
           # check file types, owners, and permissions
           docker exec acme ls -l /etc/pki/pki-tomcat \
@@ -760,12 +757,12 @@ jobs:
 
           # TODO: review permissions
           cat > expected << EOF
-          drwxr-x--- pkiuser pkiuser Catalina
+          drwxrwx--- pkiuser pkiuser Catalina
           drwxrwx--- pkiuser pkiuser acme
           drwxrwx--- pkiuser pkiuser alias
-          -rw-rw---- pkiuser pkiuser catalina.policy
+          -rw-r--r-- pkiuser pkiuser catalina.policy
           lrwxrwxrwx pkiuser pkiuser catalina.properties -> /usr/share/pki/server/conf/catalina.properties
-          drwxr-x--- pkiuser pkiuser certs
+          drwxrwx--- pkiuser pkiuser certs
           lrwxrwxrwx pkiuser pkiuser context.xml -> /etc/tomcat/context.xml
           lrwxrwxrwx pkiuser pkiuser logging.properties -> /usr/share/pki/server/conf/logging.properties
           -rw-rw---- pkiuser pkiuser password.conf
@@ -777,6 +774,7 @@ jobs:
           diff expected output
 
       - name: Check ACME server logs dir after removal
+        if: always()
         run: |
           # check file types, owners, and permissions
           docker exec acme ls -l /var/log/pki/pki-tomcat \

@@ -287,17 +287,20 @@ class PKISubsystem(object):
 
     def remove_registry(self, force=False):
 
-        # Remove /etc/sysconfig/pki/tomcat/<instance>/<subsystem>/default.cfg
+        if os.path.exists(self.default_cfg):
 
-        default_cfg = os.path.join(self.registry_dir, 'default.cfg')
-        logger.info('Removing %s', default_cfg)
-        pki.util.remove(default_cfg, force=force)
+            # Remove /etc/sysconfig/pki/tomcat/<instance>/<subsystem>/default.cfg
 
-        # Remove subsystem registry folder at
-        # /etc/sysconfig/pki/tomcat/<instance>/<subsystem>
+            logger.info('Removing %s', self.default_cfg)
+            pki.util.remove(self.default_cfg, force=force)
 
-        logger.info('Removing %s', self.registry_dir)
-        pki.util.rmtree(self.registry_dir, force=force)
+        if os.path.exists(self.registry_dir):
+
+            # Remove subsystem registry folder at
+            # /etc/sysconfig/pki/tomcat/<instance>/<subsystem>
+
+            logger.info('Removing %s', self.registry_dir)
+            pki.util.rmtree(self.registry_dir, force=force)
 
     def remove_logs(self, force=False):
 

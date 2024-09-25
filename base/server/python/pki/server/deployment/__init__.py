@@ -5184,9 +5184,10 @@ class PKIDeployer:
         logger.info('Creating ACME subsystem')
 
         subsystem = pki.server.subsystem.ACMESubsystem(self.instance)
-        subsystem.create()
-        subsystem.create_conf()
-        subsystem.create_logs()
+        subsystem.create(exist_ok=True)
+        subsystem.create_conf(exist_ok=True)
+        subsystem.create_logs(exist_ok=True)
+        subsystem.create_registry(exist_ok=True)
 
         return subsystem
 
@@ -5488,6 +5489,8 @@ class PKIDeployer:
         '''
 
         logger.info('Removing ACME subsystem')
+
+        subsystem.remove_registry(force=self.force)
 
         if self.remove_logs:
             subsystem.remove_logs(force=self.force)
