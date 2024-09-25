@@ -691,16 +691,6 @@ class Directory:
                 raise
         return
 
-    def exists(self, name):
-        try:
-            if not os.path.exists(name) or not os.path.isdir(name):
-                return False
-            else:
-                return True
-        except OSError as exc:
-            logger.error(log.PKI_OSERROR_1, exc)
-            raise
-
     def is_empty(self, name):
         try:
             if not os.listdir(name):

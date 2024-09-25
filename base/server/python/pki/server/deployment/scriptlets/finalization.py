@@ -20,6 +20,7 @@
 
 from __future__ import absolute_import
 import logging
+import os
 
 # PKI Deployment Imports
 from .. import pkiconfig as config
@@ -89,8 +90,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         #               be deleted!
         #
         if config.str2bool(deployer.mdict['pki_client_database_purge']):
-            if deployer.directory.exists(
-                    deployer.mdict['pki_client_subsystem_dir']):
+            if os.path.exists(deployer.mdict['pki_client_subsystem_dir']):
                 deployer.directory.delete(
                     deployer.mdict['pki_client_subsystem_dir'])
 

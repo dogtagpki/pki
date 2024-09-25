@@ -250,12 +250,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         pki.util.unlink(link=deployer.systemd.systemd_link,
                         force=deployer.force)
 
-        if deployer.directory.exists(deployer.systemd.base_override_dir):
+        if os.path.exists(deployer.systemd.base_override_dir):
             logger.info('Removing %s', deployer.systemd.base_override_dir)
             pki.util.rmtree(path=deployer.systemd.base_override_dir,
                             force=deployer.force)
 
-        if deployer.directory.exists(deployer.systemd.nuxwdog_override_dir):
+        if os.path.exists(deployer.systemd.nuxwdog_override_dir):
             logger.info('Removing %s', deployer.systemd.nuxwdog_override_dir)
             pki.util.rmtree(path=deployer.systemd.nuxwdog_override_dir,
                             force=deployer.force)
