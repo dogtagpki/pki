@@ -27,6 +27,8 @@ from .. import pkiconfig as config
 from .. import pkimessages as log
 from .. import pkiscriptlet
 
+import pki.util
+
 logger = logging.getLogger(__name__)
 
 
@@ -91,8 +93,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         #
         if config.str2bool(deployer.mdict['pki_client_database_purge']):
             if os.path.exists(deployer.mdict['pki_client_subsystem_dir']):
-                deployer.directory.delete(
-                    deployer.mdict['pki_client_subsystem_dir'])
+                pki.util.rmtree(deployer.mdict['pki_client_subsystem_dir'])
 
         # Log final process messages
         logger.info(log.PKISPAWN_END_MESSAGE_2,

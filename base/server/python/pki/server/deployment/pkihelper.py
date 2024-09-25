@@ -627,27 +627,6 @@ class Directory:
         self.mdict = deployer.mdict
         self.identity = deployer.identity
 
-    def delete(self, name, recursive_flag=True, critical_failure=True):
-
-        logger.info('Removing directory %s', name)
-
-        try:
-            if not os.path.exists(name) or not os.path.isdir(name):
-                # Simply issue a warning and continue
-                logger.warning(log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1, name)
-            else:
-                if recursive_flag:
-                    logger.debug('Command: rm -rf %s', name)
-                    shutil.rmtree(name)
-                else:
-                    logger.debug('Command: rmdir %s', name)
-                    os.rmdir(name)
-        except OSError as exc:
-            logger.error(log.PKI_OSERROR_1, exc)
-            if critical_failure:
-                raise
-        return
-
     def is_empty(self, name):
         try:
             if not os.listdir(name):
