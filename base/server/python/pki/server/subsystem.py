@@ -301,14 +301,6 @@ class PKISubsystem(object):
 
     def remove_logs(self, force=False):
 
-        # Remove /var/lib/pki/<instance>/logs/<subsystem>/signedAudit
-        logger.info('Removing %s', self.log_signed_audit_dir)
-        pki.util.rmtree(self.log_signed_audit_dir, force=force)
-
-        # Remove /var/lib/pki/<instance>/logs/<subsystem>/archive
-        logger.info('Removing %s', self.log_archive_dir)
-        pki.util.rmtree(self.log_archive_dir, force=force)
-
         # Remove /var/lib/pki/<instance>/logs/<subsystem>
         logger.info('Removing %s', self.logs_dir)
         pki.util.rmtree(self.logs_dir, force=force)
