@@ -735,16 +735,6 @@ class File:
                 raise
         return
 
-    def exists(self, name):
-        try:
-            if not os.path.exists(name) or not os.path.isfile(name):
-                return False
-            else:
-                return True
-        except OSError as exc:
-            logger.error(log.PKI_OSERROR_1, exc)
-            raise
-
     def copy(self, old_name, new_name, uid=None, gid=None,
              perms=pki.server.DEFAULT_FILE_MODE,
              acls=None,
@@ -892,8 +882,8 @@ class HSM:
         return
 
     def initialize_ncipher(self):
-        if (self.file.exists(config.PKI_HSM_NCIPHER_EXE) and
-                self.file.exists(config.PKI_HSM_NCIPHER_LIB) and
+        if (os.path.exists(config.PKI_HSM_NCIPHER_EXE) and
+                os.path.exists(config.PKI_HSM_NCIPHER_LIB) and
                 self.identity.group_exists(config.PKI_HSM_NCIPHER_GROUP)):
             # Check if 'pki_user' is a member of the default "nCipher" group
             if not self.identity.is_user_a_member_of_group(
