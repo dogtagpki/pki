@@ -101,7 +101,6 @@ class PKIDeployer:
         self.war = None
         self.password = None
         self.hsm = None
-        self.certutil = None
         self.kra_connector = None
         self.systemd = None
         self.tps_connector = None
@@ -189,7 +188,6 @@ class PKIDeployer:
         self.configuration_file = util.ConfigurationFile(self)
         self.password = util.Password(self)
         self.hsm = util.HSM(self)
-        self.certutil = util.Certutil(self)
         self.kra_connector = util.KRAConnector(self)
         self.systemd = util.Systemd(self)
         self.tps_connector = util.TPSConnector(self)
