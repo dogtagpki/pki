@@ -72,7 +72,7 @@ public class GroupServlet extends PKIServlet {
     @WebAction(method = HttpMethod.GET, paths = {"{}"})
     public void getGroup(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HttpSession session = request.getSession();
-        logger.debug("GroupServletBase.addGroup(): session: {}", session.getId());
+        logger.debug("GroupServletBase.getGroup(): session: {}", session.getId());
         String[] pathElement = request.getPathInfo().substring(1).split("/");
         String groupId = pathElement[0];
         GroupData group = groupServletBase.getGroup(groupId, request.getLocale());
