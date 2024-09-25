@@ -616,34 +616,6 @@ class ConfigurationFile:
         return
 
 
-class File:
-    """PKI Deployment File Class (also used for executables)"""
-
-    def __init__(self, deployer):
-        self.deployer = deployer
-        self.mdict = deployer.mdict
-        self.identity = deployer.identity
-
-    def delete(self, name, critical_failure=True):
-
-        logger.info('Removing %s', name)
-
-        try:
-            if not os.path.exists(name) or not os.path.isfile(name):
-                # Simply issue a warning and continue
-                logger.warning(log.PKI_FILE_MISSING_OR_NOT_A_FILE_1, name)
-                return
-
-            logger.debug('Command: rm -f %s', name)
-            os.remove(name)
-
-        except OSError as exc:
-            logger.error(log.PKI_OSERROR_1, exc)
-            if critical_failure:
-                raise
-        return
-
-
 class Password:
     """PKI Deployment Password Class"""
 
@@ -733,7 +705,6 @@ class HSM:
     def __init__(self, deployer):
         self.mdict = deployer.mdict
         self.identity = deployer.identity
-        self.file = deployer.file
 
     def initialize(self):
         if config.str2bool(self.mdict['pki_hsm_enable']):

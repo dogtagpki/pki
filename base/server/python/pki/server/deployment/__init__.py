@@ -98,7 +98,6 @@ class PKIDeployer:
         self.identity = None
         self.namespace = None
         self.configuration_file = None
-        self.file = None
         self.war = None
         self.password = None
         self.hsm = None
@@ -188,7 +187,6 @@ class PKIDeployer:
         self.identity = util.Identity(self)
         self.namespace = util.Namespace(self)
         self.configuration_file = util.ConfigurationFile(self)
-        self.file = util.File(self)
         self.password = util.Password(self)
         self.hsm = util.HSM(self)
         self.certutil = util.Certutil(self)
