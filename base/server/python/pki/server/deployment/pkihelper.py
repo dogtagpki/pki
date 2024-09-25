@@ -283,15 +283,6 @@ class Identity:
         return
 
 
-class Namespace:
-    """PKI Deployment Namespace Class"""
-
-    # Silently verify that the selected 'pki_instance_name' will
-    # NOT produce any namespace collisions
-    def __init__(self, deployer):
-        self.mdict = deployer.mdict
-
-
 class ConfigurationFile:
     """PKI Deployment Configuration File Class"""
 
