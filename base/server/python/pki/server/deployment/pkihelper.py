@@ -22,7 +22,6 @@
 from __future__ import absolute_import
 from __future__ import print_function
 
-import errno
 import getpass
 import logging
 import sys
@@ -38,7 +37,6 @@ from pwd import getpwuid
 # PKI Deployment Imports
 from . import pkiconfig as config
 from .pkiconfig import pki_selinux_config_ports as ports
-from . import pkimanifest as manifest
 from . import pkimessages as log
 from .pkiparser import PKIConfigParser
 
@@ -625,48 +623,6 @@ class File:
         self.deployer = deployer
         self.mdict = deployer.mdict
         self.identity = deployer.identity
-
-    def create(self, name, uid=None, gid=None,
-               perms=pki.server.DEFAULT_FILE_MODE,
-               acls=None, critical_failure=True):
-        try:
-            if not os.path.exists(name):
-
-                logger.debug('Command: touch %s', name)
-                open(name, "w", encoding='utf-8').close()
-
-                logger.debug('Command: chmod %o %s', perms, name)
-                os.chmod(name, perms)
-
-                if uid is None:
-                    uid = self.identity.get_uid()
-                if gid is None:
-                    gid = self.identity.get_gid()
-
-                logger.debug('Command: chown %s:%s %s', uid, gid, name)
-                os.chown(name, uid, gid)
-
-                # Store record in installation manifest
-                self.deployer.record(
-                    name,
-                    manifest.RECORD_TYPE_FILE,
-                    uid,
-                    gid,
-                    perms,
-                    acls)
-            elif not os.path.isfile(name):
-                logger.error(log.PKI_FILE_ALREADY_EXISTS_NOT_A_FILE_1, name)
-                if critical_failure:
-                    raise Exception(
-                        log.PKI_FILE_ALREADY_EXISTS_NOT_A_FILE_1 % name)
-        except OSError as exc:
-            if exc.errno == errno.EEXIST:
-                pass
-            else:
-                logger.error(log.PKI_OSERROR_1, exc)
-                if critical_failure:
-                    raise
-        return
 
     def delete(self, name, critical_failure=True):
 

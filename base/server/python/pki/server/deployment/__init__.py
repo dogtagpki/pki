@@ -1602,7 +1602,7 @@ class PKIDeployer:
         tag = key.split('.')[1]
         csr_path = subsystem.csr_file(tag)
 
-        self.file.create(csr_path)
+        self.instance.touch(csr_path)
         with open(csr_path, 'w', encoding='utf-8') as f:
             f.write(csr_pem)
 
@@ -5009,7 +5009,7 @@ class PKIDeployer:
         deployment_cfg = os.path.join(subsystem.registry_dir, 'deployment.cfg')
         logger.info('Creating %s', deployment_cfg)
 
-        self.file.create(deployment_cfg)
+        self.instance.touch(deployment_cfg)
 
         with open(deployment_cfg, 'w', encoding='utf-8') as f:
             self.user_config.write(f)
@@ -5056,10 +5056,9 @@ class PKIDeployer:
 
             if not os.path.exists(override_file):
 
-                self.file.create(
-                    os.path.join(self.systemd.override_dir, override_file),
-                    uid=0,
-                    gid=0)
+                logger.info('Creating %s', override_file)
+                pathlib.Path(override_file).touch()
+                os.chmod(override_file, pki.server.DEFAULT_FILE_MODE)
 
             with open(override_file, 'w', encoding='utf-8') as fp:
                 parser.write(fp)
