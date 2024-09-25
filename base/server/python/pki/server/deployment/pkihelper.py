@@ -29,7 +29,6 @@ import sys
 import os
 import re
 import requests
-import shutil
 import subprocess
 from grp import getgrgid
 from grp import getgrnam
@@ -731,54 +730,6 @@ class File:
 
         except OSError as exc:
             logger.error(log.PKI_OSERROR_1, exc)
-            if critical_failure:
-                raise
-        return
-
-    def copy(self, old_name, new_name, uid=None, gid=None,
-             perms=pki.server.DEFAULT_FILE_MODE,
-             acls=None,
-             overwrite_flag=False, critical_failure=True):
-
-        logger.info('Creating %s', new_name)
-
-        try:
-            if not os.path.exists(old_name) or not os.path.isfile(old_name):
-                logger.error(log.PKI_FILE_MISSING_OR_NOT_A_FILE_1, old_name)
-                raise Exception(
-                    log.PKI_FILE_MISSING_OR_NOT_A_FILE_1 %
-                    old_name)
-            else:
-                if os.path.exists(new_name):
-                    if not overwrite_flag:
-                        logger.error(log.PKI_FILE_ALREADY_EXISTS_1, new_name)
-                        raise Exception(
-                            log.PKI_FILE_ALREADY_EXISTS_1 % new_name)
-
-                logger.debug('Command: cp -p %s %s', old_name, new_name)
-                shutil.copy2(old_name, new_name)
-                if uid is None:
-                    uid = self.identity.get_uid()
-                if gid is None:
-                    gid = self.identity.get_gid()
-
-                logger.debug('Command: chmod %o %s', perms, new_name)
-                os.chmod(new_name, perms)
-
-                # Store record in installation manifest
-                self.deployer.record(
-                    new_name,
-                    manifest.RECORD_TYPE_FILE,
-                    uid,
-                    gid,
-                    perms,
-                    acls)
-        except (shutil.Error, OSError) as exc:
-            if isinstance(exc, shutil.Error):
-                msg = log.PKI_SHUTIL_ERROR_1
-            else:
-                msg = log.PKI_OSERROR_1
-            logger.error(msg, exc)
             if critical_failure:
                 raise
         return

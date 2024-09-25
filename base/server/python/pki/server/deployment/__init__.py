@@ -2178,11 +2178,7 @@ class PKIDeployer:
             # CSR already imported
             return
 
-        self.file.copy(
-            old_name=source_path,
-            new_name=dest_path,
-            overwrite_flag=True)
-        self.instance.chown(dest_path)
+        self.instance.copy(source_path, dest_path, force=True)
 
     def import_system_cert_requests(self, subsystem):
 
@@ -3143,11 +3139,7 @@ class PKIDeployer:
             shutil.move(csr_pathname, csr_path)
 
         new_csr_path = subsystem.csr_file(tag)
-        self.file.copy(
-            old_name=csr_path,
-            new_name=new_csr_path,
-            overwrite_flag=True)
-        self.instance.chown(new_csr_path)
+        self.instance.copy(csr_path, new_csr_path, force=True)
 
     def create_cert_request(self, nssdb, tag, request):
 
@@ -5027,8 +5019,7 @@ class PKIDeployer:
             'spawn_deployment.cfg.' + self.mdict['pki_timestamp'])
         logger.info('Creating %s', deployment_cfg_archive)
 
-        self.file.copy(deployment_cfg, deployment_cfg_archive)
-        self.instance.chown(deployment_cfg_archive)
+        self.instance.copy(deployment_cfg, deployment_cfg_archive, force=True)
 
     def set_systemd_override(self, section, param, value, fname='local.conf'):
         if fname not in self.systemd.overrides:
@@ -5094,8 +5085,7 @@ class PKIDeployer:
             'spawn_manifest.' + self.mdict['pki_timestamp'])
         logger.info('Creating %s', manifest_archive)
 
-        self.file.copy(manifest_file, manifest_archive)
-        self.instance.chown(manifest_archive)
+        self.instance.copy(manifest_file, manifest_archive, force=True)
 
     def restore_selinux_contexts(self):
 
