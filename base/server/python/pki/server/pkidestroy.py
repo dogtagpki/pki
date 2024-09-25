@@ -193,9 +193,6 @@ def main(argv):
                      deployer.subsystem_type, instance_name)
         sys.exit(1)
 
-    config.default_deployment_cfg = \
-        config.PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE
-
     # establish complete path to previously deployed configuration file
     config.user_deployment_cfg = os.path.join(
         subsystem.base_dir,

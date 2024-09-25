@@ -62,11 +62,8 @@ PKI_DEPLOYMENT_LOG_ROOT = "/var/log/pki"
 #        should always match the 'default' instance name specified below).
 PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME = "pki-tomcat"
 
-DEFAULT_DEPLOYMENT_CONFIGURATION = "default.cfg"
+DEFAULT_DEPLOYMENT_CFG = PKI_DEPLOYMENT_SOURCE_ROOT + '/server/etc/default.cfg'
 USER_DEPLOYMENT_CONFIGURATION = "deployment.cfg"
-
-PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE = \
-    PKI_DEPLOYMENT_SOURCE_ROOT + "/server/etc/" + DEFAULT_DEPLOYMENT_CONFIGURATION
 
 # subtypes of PKI subsystems
 PKI_DEPLOYMENT_CLONED_PKI_SUBSYSTEM = "Cloned"
@@ -83,7 +80,6 @@ PKI_DEPLOYMENT_DEFAULT_TOMCAT_AJP_PORT = 8009
 pki_deployment_executable = None
 
 #     'pkispawn' ONLY
-default_deployment_cfg = None
 user_deployment_cfg = None
 #     'pkidestroy' ONLY
 pki_deployed_instance_name = None

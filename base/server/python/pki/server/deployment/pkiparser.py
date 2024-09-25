@@ -331,15 +331,6 @@ class PKIConfigParser:
         return args
 
     def validate(self, user_deployment_cfg):
-        # always default that configuration file exists
-        if not os.path.exists(config.default_deployment_cfg) or \
-                not os.path.isfile(config.default_deployment_cfg):
-            logger.error(
-                log.PKI_FILE_MISSING_OR_NOT_A_FILE_1,
-                config.default_deployment_cfg)
-            self.arg_parser.print_help()
-            self.arg_parser.exit(-1)
-
         if user_deployment_cfg:
             # verify user configuration file exists
             if not os.path.exists(user_deployment_cfg) or \
@@ -403,7 +394,7 @@ class PKIConfigParser:
         self.deployer.user_config = configparser.ConfigParser()
         self.deployer.user_config.optionxform = str
 
-        with open(config.default_deployment_cfg, encoding='utf-8') as f:
+        with open(config.DEFAULT_DEPLOYMENT_CFG, encoding='utf-8') as f:
             if six.PY2:
                 self.deployer.main_config.readfp(f)
             else:

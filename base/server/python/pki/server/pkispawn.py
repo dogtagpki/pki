@@ -159,9 +159,6 @@ def main(argv):
 
     args = parser.process_command_line_arguments()
 
-    config.default_deployment_cfg = \
-        config.PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE
-
     # -f <user deployment config>
     if args.user_deployment_cfg is not None:
         config.user_deployment_cfg = str(
