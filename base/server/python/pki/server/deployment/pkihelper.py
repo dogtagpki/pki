@@ -627,49 +627,6 @@ class Directory:
         self.mdict = deployer.mdict
         self.identity = deployer.identity
 
-    def create(self, name, uid=None, gid=None,
-               perms=pki.server.DEFAULT_DIR_MODE,
-               acls=None, critical_failure=True):
-
-        logger.info('Creating %s', name)
-
-        try:
-            if not os.path.exists(name):
-
-                logger.debug('Command: mkdir -p %s', name)
-                os.makedirs(name)
-
-                logger.debug('Command: chmod %o %s', perms, name)
-                os.chmod(name, perms)
-
-                if uid is None:
-                    uid = self.identity.get_uid()
-                if gid is None:
-                    gid = self.identity.get_gid()
-
-                # Store record in installation manifest
-                self.deployer.record(
-                    name,
-                    manifest.RECORD_TYPE_DIRECTORY,
-                    uid,
-                    gid,
-                    perms,
-                    acls)
-            elif not os.path.isdir(name):
-                logger.error(log.PKI_DIRECTORY_ALREADY_EXISTS_NOT_A_DIRECTORY_1, name)
-                if critical_failure:
-                    raise Exception(
-                        log.PKI_DIRECTORY_ALREADY_EXISTS_NOT_A_DIRECTORY_1 %
-                        name)
-        except OSError as exc:
-            if exc.errno == errno.EEXIST:
-                pass
-            else:
-                logger.error(log.PKI_OSERROR_1, exc)
-                if critical_failure:
-                    raise
-        return
-
     def delete(self, name, recursive_flag=True, critical_failure=True):
 
         logger.info('Removing directory %s', name)

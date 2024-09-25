@@ -972,11 +972,9 @@ class PKIDeployer:
         # Place 'slightly' less restrictive permissions on
         # the top-level client directory ONLY
 
-        self.directory.create(
+        pki.util.makedirs(
             self.mdict['pki_client_subsystem_dir'],
-            uid=0,
-            gid=0,
-            perms=config.PKI_DEPLOYMENT_DEFAULT_CLIENT_DIR_PERMISSIONS)
+            mode=config.PKI_DEPLOYMENT_DEFAULT_CLIENT_DIR_PERMISSIONS)
 
         # Since 'certutil' does NOT strip the 'token=' portion of
         # the 'token=password' entries, create a client password file
@@ -2327,7 +2325,7 @@ class PKIDeployer:
         pkcs12_dir = os.path.dirname(pkcs12_path)
 
         # Create directory for PKCS #12 file
-        self.directory.create(pkcs12_dir)
+        self.instance.makedirs(pkcs12_dir, exist_ok=True)
 
         nickname = self.mdict['pki_admin_nickname']
 
@@ -5051,16 +5049,20 @@ class PKIDeployer:
         parser.set(section, param, value)
 
     def write_systemd_overrides(self):
+
+        if not os.path.exists(self.systemd.override_dir):
+
+            logger.info('Creating %s', self.systemd.override_dir)
+
+            pki.util.makedirs(
+                self.systemd.override_dir,
+                mode=pki.server.DEFAULT_DIR_MODE)
+
         for fname, parser in self.systemd.overrides.items():
 
             override_file = os.path.join(self.systemd.override_dir, fname)
 
             if not os.path.exists(override_file):
-
-                self.directory.create(
-                    self.systemd.override_dir,
-                    uid=0,
-                    gid=0)
 
                 self.file.create(
                     os.path.join(self.systemd.override_dir, override_file),
