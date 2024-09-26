@@ -943,6 +943,9 @@ class PKIDeployer:
             subsystem.set_config('ocsp.signing.certnickname', signing_nickname)
             subsystem.set_config('ocsp.signing.cacertnickname', signing_nickname)
 
+        if subsystem.type == 'EST':
+            return
+
         audit_nickname = subsystem.config['%s.audit_signing.nickname' % subsystem.name]
         audit_token = subsystem.config['%s.audit_signing.tokenname' % subsystem.name]
 
@@ -3307,8 +3310,12 @@ class PKIDeployer:
     def update_sslserver_cert_nickname(self, subsystem):
 
         sslserver = subsystem.get_subsystem_cert('sslserver')
-        nickname = sslserver['nickname']
-        token = sslserver['token']
+        if sslserver:
+            nickname = sslserver['nickname']
+            token = sslserver['token']
+        else:
+            nickname = self.mdict['pki_sslserver_nickname']
+            token = self.mdict['pki_sslserver_token']
         self.instance.set_sslserver_cert_nickname(nickname, token)
 
     def create_cert_id(self, subsystem, tag, request):
@@ -3563,7 +3570,7 @@ class PKIDeployer:
         external = config.str2bool(self.mdict['pki_external']) or \
             config.str2bool(self.mdict['pki_standalone'])
 
-        tags = subsystem.config['%s.cert.list' % subsystem.name].split(',')
+        tags = subsystem.get_subsystem_certs()
 
         for tag in tags:
 
@@ -5672,13 +5679,10 @@ class PKIDeployer:
             self.spawn_acme()
             return
 
-        if self.subsystem_type == 'EST':
-            self.spawn_est()
-        else:
-            scriptlet = pki.server.deployment.scriptlets.subsystem_layout.PkiScriptlet()
-            scriptlet.deployer = self
-            scriptlet.instance = self.instance
-            scriptlet.spawn(self)
+        scriptlet = pki.server.deployment.scriptlets.subsystem_layout.PkiScriptlet()
+        scriptlet.deployer = self
+        scriptlet.instance = self.instance
+        scriptlet.spawn(self)
 
         scriptlet = pki.server.deployment.scriptlets.security_databases.PkiScriptlet()
         scriptlet.deployer = self
@@ -5700,11 +5704,10 @@ class PKIDeployer:
         scriptlet.instance = self.instance
         scriptlet.spawn(self)
 
-        if self.subsystem_type != 'EST':
-            scriptlet = pki.server.deployment.scriptlets.configuration.PkiScriptlet()
-            scriptlet.deployer = self
-            scriptlet.instance = self.instance
-            scriptlet.spawn(self)
+        scriptlet = pki.server.deployment.scriptlets.configuration.PkiScriptlet()
+        scriptlet.deployer = self
+        scriptlet.instance = self.instance
+        scriptlet.spawn(self)
 
         scriptlet = pki.server.deployment.scriptlets.finalization.PkiScriptlet()
         scriptlet.deployer = self

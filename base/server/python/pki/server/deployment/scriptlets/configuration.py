@@ -182,15 +182,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 deployer.remove_temp_sslserver_cert()
 
             # Store perm SSL server cert nickname and token
-            nickname = system_certs['sslserver']['nickname']
-            token = pki.nssdb.normalize_token(system_certs['sslserver']['token'])
-
-            if not token:
-                token = deployer.mdict.get('pki_sslserver_token')
+            if 'sslserver' in system_certs:
+                nickname = system_certs['sslserver']['nickname']
+                token = pki.nssdb.normalize_token(system_certs['sslserver']['token'])
                 if not token:
-                    token = deployer.mdict['pki_token_name']
-
-            instance.set_sslserver_cert_nickname(nickname, token)
+                    token = deployer.mdict.get('pki_sslserver_token')
+                    if not token:
+                        token = deployer.mdict['pki_token_name']
+                instance.set_sslserver_cert_nickname(nickname, token)
 
         else:
             if config.str2bool(deployer.mdict['pki_hsm_enable']):
