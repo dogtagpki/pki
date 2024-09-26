@@ -219,6 +219,7 @@ jobs:
           -rw-rw---- pkiuser pkiuser authorizer.conf
           -rw-rw---- pkiuser pkiuser backend.conf
           -rw-rw-r-- pkiuser pkiuser realm.conf
+          -rw-rw-r-- pkiuser pkiuser registry.cfg
           EOF
 
           diff expected output
