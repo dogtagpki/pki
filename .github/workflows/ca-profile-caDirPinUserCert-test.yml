@@ -16,7 +16,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get -y install jq moreutils
+          sudo apt-get -y install jq libxml2-utils moreutils xmlstarlet
 
       - name: Clone repository
         uses: actions/checkout@v4
@@ -85,6 +85,15 @@ jobs:
           objectClass: inetOrgPerson
           uid: testuser2
           cn: Test User 2
+          sn: User
+          userPassword: Secret.123
+
+          dn: uid=testuser3,ou=people,dc=example,dc=com
+          objectClass: person
+          objectClass: organizationalPerson
+          objectClass: inetOrgPerson
+          uid: testuser3
+          cn: Test User 3
           sn: User
           userPassword: Secret.123
           EOF
@@ -200,7 +209,7 @@ jobs:
               --pkcs12-password Secret.123
           docker exec pki pki -n caadmin ca-user-show caadmin
 
-      - name: Check enrollment with pki ca-cert-request-submit
+      - name: Check enrollment using pki ca-cert-issue
         run: |
           PIN=$(sed -En 'N; s/^dn:uid=testuser1,.*\npin:(.*)$/\1/p; D' setpin.out)
           echo "PIN: $PIN"
@@ -212,22 +221,19 @@ jobs:
 
           echo "Secret.123" > password.txt
           echo "$PIN" > pin.txt
-          docker exec pki \
-              pki ca-cert-request-submit \
+
+          # issue cert
+          docker exec pki pki \
+              ca-cert-issue \
               --profile caDirPinUserCert \
               --username testuser1 \
               --password-file $SHARED/password.txt \
               --pin-file $SHARED/pin.txt \
               --csr-file $SHARED/testuser1.csr \
-              | tee output
+              --output-file testuser1.crt
 
-          CERT_ID=$(sed -n "s/^\s*Certificate ID:\s*\(\S*\)$/\1/p" output)
-
-          # retrieve cert
-          docker exec pki pki ca-cert-export $CERT_ID --output-file testuser1.crt
+          # import cert
           docker exec pki pki nss-cert-import testuser1 --cert testuser1.crt
-
-          # install cert
           docker exec pki pki nss-cert-show testuser1 | tee output
 
           # the cert should match the key (trust flags must be u,u,u)
@@ -235,7 +241,7 @@ jobs:
           sed -n "s/^\s*Trust Flags:\s*\(\S*\)$/\1/p" output > actual
           diff expected actual
 
-      - name: Check enrollment with curl
+      - name: Check enrollment using XML
         run: |
           PIN=$(sed -En 'N; s/^dn:uid=testuser2,.*\npin:(.*)$/\1/p; D' setpin.out)
           echo "PIN: $PIN"
@@ -249,52 +255,152 @@ jobs:
           docker exec pki curl \
               -k \
               -s \
-              -H "Content-Type: application/json" \
-              -H "Accept: application/json" \
+              -H "Content-Type: application/xml" \
+              -H "Accept: application/xml" \
               https://pki.example.com:8443/ca/rest/certrequests/profiles/caDirPinUserCert \
-              | python -m json.tool > request.json
-
-          cat request.json
+              | xmllint --format - \
+              | tee testuser2-request.xml
 
           # insert username
-          jq '.Attributes.Attribute[.Attributes.Attribute|length] |= . + { "name": "uid", "value": "testuser2" }' \
-              request.json | sponge request.json
+          xmlstarlet edit --inplace \
+              -s "/CertEnrollmentRequest/Attributes" --type elem --name "Attribute" -v "testuser2" \
+              -i "/CertEnrollmentRequest/Attributes/Attribute[not(@name)]" -t attr -n "name" -v "uid" \
+              testuser2-request.xml
 
           # insert password
-          jq '.Attributes.Attribute[.Attributes.Attribute|length] |= . + { "name": "pwd", "value": "Secret.123" }' \
-              request.json | sponge request.json
+          xmlstarlet edit --inplace \
+              -s "/CertEnrollmentRequest/Attributes" --type elem --name "Attribute" -v "Secret.123" \
+              -i "/CertEnrollmentRequest/Attributes/Attribute[not(@name)]" -t attr -n "name" -v "pwd" \
+              testuser2-request.xml
 
           # insert PIN
-          jq --arg PIN "$PIN" '.Attributes.Attribute[.Attributes.Attribute|length] |= . + { "name": "pin", "value": $PIN }' \
-              request.json | sponge request.json
+          xmlstarlet edit --inplace \
+              -s "/CertEnrollmentRequest/Attributes" --type elem --name "Attribute" -v "$PIN" \
+              -i "/CertEnrollmentRequest/Attributes/Attribute[not(@name)]" -t attr -n "name" -v "pin" \
+              testuser2-request.xml
 
           # insert request type
-          jq '( .Input[].Attribute[] | select(.name=="cert_request_type") ).Value |= "pkcs10"' \
-              request.json | sponge request.json
+          xmlstarlet edit --inplace \
+              -u "/CertEnrollmentRequest/Input/Attribute[@name='cert_request_type']/Value" \
+              -v "pkcs10" \
+              testuser2-request.xml
 
           # insert CSR
-          jq --rawfile cert_request testuser2.csr '( .Input[].Attribute[] | select(.name=="cert_request") ).Value |= $cert_request' \
-              request.json | sponge request.json
+          xmlstarlet edit --inplace \
+              -u "/CertEnrollmentRequest/Input/Attribute[@name='cert_request']/Value" \
+              -v "$(cat testuser2.csr)" \
+              testuser2-request.xml
 
-          cat request.json
+          cat testuser2-request.xml
 
           # submit request
           docker exec pki curl \
               -k \
               -s \
               -X POST \
-              -d @$SHARED/request.json \
-              -H "Content-Type: application/json" \
-              -H "Accept: application/json" \
-              https://pki.example.com:8443/ca/rest/certrequests | python -m json.tool | tee output
-          CERT_ID=$(jq -r '.entries[].certId' output)
+              -d @$SHARED/testuser2-request.xml \
+              -H "Content-Type: application/xml" \
+              -H "Accept: application/xml" \
+              https://pki.example.com:8443/ca/rest/certrequests \
+              | xmllint --format - \
+              | tee testuser2-response.xml
+          CERT_ID=$(xmlstarlet sel -t -v '/CertRequestInfos/CertRequestInfo/certID' testuser2-response.xml)
 
           # retrieve cert
-          docker exec pki pki ca-cert-export $CERT_ID --output-file testuser2.crt
-          docker exec pki pki nss-cert-import testuser2 --cert testuser2.crt
+          docker exec pki curl \
+              -k \
+              -s \
+              -H "Content-Type: application/xml" \
+              -H "Accept: application/xml" \
+              https://pki.example.com:8443/ca/rest/certs/$CERT_ID \
+              | xmllint --format - \
+              | tee testuser2-cert.xml
 
-          # install cert
+          # The XML transformation in CertData.toXML() converts "\r"
+          # chars in the cert into "&#13;" which need to be removed.
+          # TODO: Fix CertData.toXML() to avoid adding "&#13;".
+          xmlstarlet sel -t -v '/CertData/Encoded' testuser2-cert.xml \
+              | sed 's/&#13;$//' \
+              | tee testuser2.crt
+
+          # import cert
+          docker exec pki pki nss-cert-import testuser2 --cert $SHARED/testuser2.crt
           docker exec pki pki nss-cert-show testuser2 | tee output
+
+          # the cert should match the key (trust flags must be u,u,u)
+          echo "u,u,u" > expected
+          sed -n "s/^\s*Trust Flags:\s*\(\S*\)$/\1/p" output > actual
+          diff expected actual
+
+      - name: Check enrollment using JSON
+        run: |
+          PIN=$(sed -En 'N; s/^dn:uid=testuser3,.*\npin:(.*)$/\1/p; D' setpin.out)
+          echo "PIN: $PIN"
+
+          # generate cert request
+          docker exec pki pki nss-cert-request \
+              --subject "UID=testuser3" \
+              --csr $SHARED/testuser3.csr
+
+          # retrieve request template
+          docker exec pki curl \
+              -k \
+              -s \
+              -H "Content-Type: application/json" \
+              -H "Accept: application/json" \
+              https://pki.example.com:8443/ca/rest/certrequests/profiles/caDirPinUserCert \
+              | python -m json.tool \
+              | tee testuser3-request.json
+
+          # insert username
+          jq '.Attributes.Attribute[.Attributes.Attribute|length] |= . + { "name": "uid", "value": "testuser3" }' \
+              testuser3-request.json | sponge testuser3-request.json
+
+          # insert password
+          jq '.Attributes.Attribute[.Attributes.Attribute|length] |= . + { "name": "pwd", "value": "Secret.123" }' \
+              testuser3-request.json | sponge testuser3-request.json
+
+          # insert PIN
+          jq --arg PIN "$PIN" '.Attributes.Attribute[.Attributes.Attribute|length] |= . + { "name": "pin", "value": $PIN }' \
+              testuser3-request.json | sponge testuser3-request.json
+
+          # insert request type
+          jq '( .Input[].Attribute[] | select(.name=="cert_request_type") ).Value |= "pkcs10"' \
+              testuser3-request.json | sponge testuser3-request.json
+
+          # insert CSR
+          jq --rawfile cert_request testuser2.csr '( .Input[].Attribute[] | select(.name=="cert_request") ).Value |= $cert_request' \
+              testuser3-request.json | sponge testuser3-request.json
+
+          cat testuser3-request.json
+
+          # submit request
+          docker exec pki curl \
+              -k \
+              -s \
+              -X POST \
+              -d @$SHARED/testuser3-request.json \
+              -H "Content-Type: application/json" \
+              -H "Accept: application/json" \
+              https://pki.example.com:8443/ca/rest/certrequests \
+              | python -m json.tool \
+              | tee testuser3-response.json
+          CERT_ID=$(jq -j '.entries[].certId' testuser3-response.json)
+
+          # retrieve cert
+          docker exec pki curl \
+              -k \
+              -s \
+              -H "Content-Type: application/json" \
+              -H "Accept: application/json" \
+              https://pki.example.com:8443/ca/rest/certs/$CERT_ID \
+              | python -m json.tool \
+              | tee testuser3-cert.json
+          jq -j '.Encoded' testuser3-cert.json | tee testuser3.crt
+
+          # import cert
+          docker exec pki pki nss-cert-import testuser3 --cert $SHARED/testuser3.crt
+          docker exec pki pki nss-cert-show testuser3 | tee output
 
           # the cert should match the key (trust flags must be u,u,u)
           echo "u,u,u" > expected
