@@ -106,7 +106,7 @@ jobs:
 
           docker exec ca pki nss-cert-import --cert estUser.crt estUser
           
-          docker exec ca pki -n caadmin ca-user-cert-add est-ra-1 --input estUser.crt $CERT_ID
+          docker exec ca pki -n caadmin ca-user-cert-add est-ra-1 --input estUser.crt
 
           docker exec ca pki pkcs12-cert-import estUser --pkcs12-file $SHARED/est_server.p12 --pkcs12-password Secret.123 --append
           
@@ -229,6 +229,7 @@ jobs:
           lrwxrwxrwx pkiuser pkiuser logging.properties -> /usr/share/pki/server/conf/logging.properties
           -rw-rw---- pkiuser pkiuser password.conf
           -rw-rw---- pkiuser pkiuser server.xml
+          -rw-rw---- pkiuser pkiuser serverCertNick.conf
           -rw-rw---- pkiuser pkiuser tomcat.conf
           lrwxrwxrwx pkiuser pkiuser web.xml -> /etc/tomcat/web.xml
           EOF
@@ -275,7 +276,7 @@ jobs:
           -rw-rw---- pkiuser pkiuser authorizer.conf
           -rw-rw---- pkiuser pkiuser backend.conf
           -rw-rw-r-- pkiuser pkiuser realm.conf
-          -rw-r--r-- pkiuser pkiuser registry.cfg
+          -rw-rw-r-- pkiuser pkiuser registry.cfg
           EOF
 
           diff expected output
@@ -352,6 +353,7 @@ jobs:
           lrwxrwxrwx pkiuser pkiuser logging.properties -> /usr/share/pki/server/conf/logging.properties
           -rw-rw---- pkiuser pkiuser password.conf
           -rw-rw---- pkiuser pkiuser server.xml
+          -rw-rw---- pkiuser pkiuser serverCertNick.conf
           -rw-rw---- pkiuser pkiuser tomcat.conf
           lrwxrwxrwx pkiuser pkiuser web.xml -> /etc/tomcat/web.xml
           EOF
