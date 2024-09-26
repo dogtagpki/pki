@@ -16,7 +16,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get -y install jq moreutils xmlstarlet
+          sudo apt-get -y install jq libxml2-utils moreutils xmlstarlet
 
       - name: Clone repository
         uses: actions/checkout@v4
@@ -62,12 +62,30 @@ jobs:
            (targetattr=*)
            (version 3.0; acl "Allow anyone to read and search itself"; allow (search, read) userdn = "ldap:///self";)
 
-          dn: uid=testuser,ou=people,dc=example,dc=com
+          dn: uid=testuser1,ou=people,dc=example,dc=com
           objectClass: person
           objectClass: organizationalPerson
           objectClass: inetOrgPerson
-          uid: testuser
-          cn: Test User
+          uid: testuser1
+          cn: Test User 1
+          sn: User
+          userPassword: Secret.123
+
+          dn: uid=testuser2,ou=people,dc=example,dc=com
+          objectClass: person
+          objectClass: organizationalPerson
+          objectClass: inetOrgPerson
+          uid: testuser2
+          cn: Test User 2
+          sn: User
+          userPassword: Secret.123
+
+          dn: uid=testuser3,ou=people,dc=example,dc=com
+          objectClass: person
+          objectClass: organizationalPerson
+          objectClass: inetOrgPerson
+          uid: testuser3
+          cn: Test User 3
           sn: User
           userPassword: Secret.123
           EOF
@@ -100,6 +118,12 @@ jobs:
           docker exec pki pki-server ca-config-set auths.instance.UserDirEnrollment.ldap.ldapconn.port 3389
           docker exec pki pki-server ca-config-set auths.instance.UserDirEnrollment.ldap.ldapconn.secureConn false
 
+          # enable caDirUserCert profile
+          docker exec pki sed -i \
+              -e "s/^\(enable\)=.*/\1=true/" \
+              /var/lib/pki/pki-tomcat/ca/profiles/ca/caDirUserCert.cfg
+
+          # restart CA subsystem
           docker exec pki pki-server ca-redeploy --wait
 
       - name: Set up CA admin
@@ -115,61 +139,121 @@ jobs:
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
 
-      - name: Enable caDirUserCert
+      - name: Check enrollment using pki ca-cert-issue
         run: |
-          docker exec pki pki -n caadmin ca-profile-enable caDirUserCert
-
-      - name: Generate cert request
-        run: |
+          # generate cert request
           docker exec pki pki nss-cert-request \
-              --subject "UID=testuser" \
-              --csr $SHARED/testuser.csr
+              --subject "UID=testuser1" \
+              --csr $SHARED/testuser1.csr
 
-      - name: Create XML request
+          echo "Secret.123" > password.txt
+
+          # issue cert
+          docker exec pki pki ca-cert-issue \
+              --profile caDirUserCert \
+              --username testuser1 \
+              --password-file $SHARED/password.txt \
+              --csr-file $SHARED/testuser1.csr \
+              --output-file testuser1.crt
+
+          # import cert
+          docker exec pki pki nss-cert-import testuser1 --cert testuser1.crt
+          docker exec pki pki nss-cert-show testuser1 | tee output
+
+          # the cert should match the key (trust flags must be u,u,u)
+          echo "u,u,u" > expected
+          sed -n "s/^\s*Trust Flags:\s*\(\S*\)$/\1/p" output > actual
+          diff expected actual
+
+      - name: Check enrollment using XML
         run: |
+          # generate cert request
+          docker exec pki pki nss-cert-request \
+              --subject "UID=testuser2" \
+              --csr $SHARED/testuser2.csr
+
           # retrieve request template
-          docker exec pki pki ca-cert-request-profile-show caDirUserCert --output request.xml
-          docker cp pki:request.xml .
+          docker exec pki curl \
+              -k \
+              -s \
+              -H "Content-Type: application/xml" \
+              -H "Accept: application/xml" \
+              https://pki.example.com:8443/ca/rest/certrequests/profiles/caDirUserCert \
+              | xmllint --format - \
+              | tee testuser2-request.xml
 
           # insert username
           xmlstarlet edit --inplace \
-              -s "/CertEnrollmentRequest/Attributes" --type elem --name "Attribute" -v "testuser" \
+              -s "/CertEnrollmentRequest/Attributes" --type elem --name "Attribute" -v "testuser2" \
               -i "/CertEnrollmentRequest/Attributes/Attribute[not(@name)]" -t attr -n "name" -v "uid" \
-              request.xml
+              testuser2-request.xml
 
           # insert password
           xmlstarlet edit --inplace \
               -s "/CertEnrollmentRequest/Attributes" --type elem --name "Attribute" -v "Secret.123" \
               -i "/CertEnrollmentRequest/Attributes/Attribute[not(@name)]" -t attr -n "name" -v "pwd" \
-              request.xml
+              testuser2-request.xml
 
           # insert request type
           xmlstarlet edit --inplace \
               -u "/CertEnrollmentRequest/Input/Attribute[@name='cert_request_type']/Value" \
               -v "pkcs10" \
-              request.xml
+              testuser2-request.xml
 
           # insert CSR
           xmlstarlet edit --inplace \
               -u "/CertEnrollmentRequest/Input/Attribute[@name='cert_request']/Value" \
-              -v "$(cat testuser.csr)" \
-              request.xml
+              -v "$(cat testuser2.csr)" \
+              testuser2-request.xml
 
-          cat request.xml
+          cat testuser2-request.xml
 
-      - name: Submit XML request
-        run: |
           # submit request
-          docker exec pki pki ca-cert-request-submit $SHARED/request.xml | tee output
-          CERT_ID=$(sed -n "s/^\s*Certificate ID:\s*\(\S*\)$/\1/p" output)
+          docker exec pki curl \
+              -k \
+              -s \
+              -X POST \
+              -d @$SHARED/testuser2-request.xml \
+              -H "Content-Type: application/xml" \
+              -H "Accept: application/xml" \
+              https://pki.example.com:8443/ca/rest/certrequests \
+              | xmllint --format - \
+              | tee testuser2-response.xml
+          CERT_ID=$(xmlstarlet sel -t -v '/CertRequestInfos/CertRequestInfo/certID' testuser2-response.xml)
 
           # retrieve cert
-          docker exec pki pki ca-cert-export $CERT_ID --output-file xml-testuser.crt
-          docker exec pki pki nss-cert-import xml-testuser --cert xml-testuser.crt
-          docker exec pki certutil -L -d /root/.dogtag/nssdb -n xml-testuser
+          docker exec pki curl \
+              -k \
+              -s \
+              -H "Content-Type: application/xml" \
+              -H "Accept: application/xml" \
+              https://pki.example.com:8443/ca/rest/certs/$CERT_ID \
+              | xmllint --format - \
+              | tee testuser2-cert.xml
 
-      - name: Create JSON request
+          # The XML transformation in CertData.toXML() converts "\r"
+          # chars in the cert into "&#13;" which need to be removed.
+          # TODO: Fix CertData.toXML() to avoid adding "&#13;".
+          xmlstarlet sel -t -v '/CertData/Encoded' testuser2-cert.xml \
+              | sed 's/&#13;$//' \
+              | tee testuser2.crt
+
+          # import cert
+          docker exec pki pki nss-cert-import testuser2 --cert $SHARED/testuser2.crt
+          docker exec pki pki nss-cert-show testuser2 | tee output
+
+          # the cert should match the key (trust flags must be u,u,u)
+          echo "u,u,u" > expected
+          sed -n "s/^\s*Trust Flags:\s*\(\S*\)$/\1/p" output > actual
+          diff expected actual
+
+      - name: Check enrollment using JSON
         run: |
+          # generate cert request
+          docker exec pki pki nss-cert-request \
+              --subject "UID=testuser3" \
+              --csr $SHARED/testuser3.csr
+
           # retrieve request template
           docker exec pki curl \
               -k \
@@ -177,43 +261,59 @@ jobs:
               -H "Content-Type: application/json" \
               -H "Accept: application/json" \
               https://pki.example.com:8443/ca/rest/certrequests/profiles/caDirUserCert \
-              | python -m json.tool > request.json
+              | python -m json.tool \
+              | tee testuser3-request.json
 
           # insert username
-          jq '.Attributes.Attribute[.Attributes.Attribute|length] |= . + { "name": "uid", "value": "testuser" }' \
-              request.json | sponge request.json
+          jq '.Attributes.Attribute[.Attributes.Attribute|length] |= . + { "name": "uid", "value": "testuser3" }' \
+              testuser3-request.json | sponge testuser3-request.json
 
           # insert password
           jq '.Attributes.Attribute[.Attributes.Attribute|length] |= . + { "name": "pwd", "value": "Secret.123" }' \
-              request.json | sponge request.json
+              testuser3-request.json | sponge testuser3-request.json
 
           # insert request type
           jq '( .Input[].Attribute[] | select(.name=="cert_request_type") ).Value |= "pkcs10"' \
-              request.json | sponge request.json
+              testuser3-request.json | sponge testuser3-request.json
 
           # insert CSR
-          jq --rawfile cert_request testuser.csr '( .Input[].Attribute[] | select(.name=="cert_request") ).Value |= $cert_request' \
-              request.json | sponge request.json
+          jq --rawfile cert_request testuser3.csr '( .Input[].Attribute[] | select(.name=="cert_request") ).Value |= $cert_request' \
+              testuser3-request.json | sponge testuser3-request.json
 
-          cat request.json
+          cat testuser3-request.json
 
-      - name: Submit JSON request
-        run: |
           # submit request
           docker exec pki curl \
               -k \
               -s \
               -X POST \
-              -d @$SHARED/request.json \
+              -d @$SHARED/testuser3-request.json \
               -H "Content-Type: application/json" \
               -H "Accept: application/json" \
-              https://pki.example.com:8443/ca/rest/certrequests | python -m json.tool | tee output
-          CERT_ID=$(jq -r '.entries[].certId' output)
+              https://pki.example.com:8443/ca/rest/certrequests \
+              | python -m json.tool \
+              | tee testuser3-response.json
+          CERT_ID=$(jq -j '.entries[].certId' testuser3-response.json)
 
           # retrieve cert
-          docker exec pki pki ca-cert-export $CERT_ID --output-file json-testuser.crt
-          docker exec pki pki nss-cert-import json-testuser --cert json-testuser.crt
-          docker exec pki certutil -L -d /root/.dogtag/nssdb -n json-testuser
+          docker exec pki curl \
+              -k \
+              -s \
+              -H "Content-Type: application/json" \
+              -H "Accept: application/json" \
+              https://pki.example.com:8443/ca/rest/certs/$CERT_ID \
+              | python -m json.tool \
+              | tee testuser3-cert.json
+          jq -j '.Encoded' testuser3-cert.json | tee testuser3.crt
+
+          # import cert
+          docker exec pki pki nss-cert-import testuser3 --cert $SHARED/testuser3.crt
+          docker exec pki pki nss-cert-show testuser3 | tee output
+
+          # the cert should match the key (trust flags must be u,u,u)
+          echo "u,u,u" > expected
+          sed -n "s/^\s*Trust Flags:\s*\(\S*\)$/\1/p" output > actual
+          diff expected actual
 
       - name: Remove CA
         run: docker exec pki pkidestroy -s CA -v
