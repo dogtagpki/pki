@@ -74,7 +74,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if config.str2bool(deployer.mdict['pki_registry_enable']):
             subsystem.create_registry(exist_ok=True)
 
-        deployer.create_cs_cfg(subsystem)
+        if deployer.subsystem_type != "EST":
+            deployer.create_cs_cfg(subsystem)
 
         if deployer.subsystem_type == "CA":
 
@@ -287,6 +288,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 pki_target_phone_home_xml,
                 params=deployer.mdict,
                 exist_ok=True)
+
+        elif deployer.subsystem_type == "EST":
+            subsystem.add_est_config(exist_ok=True, force=True)
+            deployer.configure_est_backend(subsystem)
+            deployer.configure_est_authorizer(subsystem)
+            deployer.configure_est_realm(subsystem)
 
         instance.load()
 

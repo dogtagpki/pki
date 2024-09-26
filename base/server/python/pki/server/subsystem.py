@@ -362,6 +362,12 @@ class PKISubsystem(object):
         for cert_tag in cert_list.split(','):
             yield self.get_cert_info(cert_tag)
 
+    def get_subsystem_certs(self):
+        certs = self.config.get('%s.cert.list' % self.name)
+        if certs:
+            return certs.split(',')
+        return []
+
     def get_subsystem_cert(self, tag):
 
         logger.debug('PKISubsystem.get_subsystem_cert(%s)', tag)
@@ -3002,6 +3008,17 @@ class ESTSubsystem(PKISubsystem):
             self.realm_conf,
             exist_ok=False,
             force=True)
+
+    def get_subsystem_cert(self, tag):
+
+        logger.debug('ESTSubsystem.get_subsystem_cert(%s)', tag)
+        return None
+
+    def validate_system_cert(self, tag):
+        """
+        EST subsystem does not keep certificate information in its configuration file so
+        the validation cannot be performed like for other subsystems
+        """
 
     def is_ready(self, secure_connection=True, timeout=None):
         """
