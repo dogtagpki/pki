@@ -1,4 +1,4 @@
-name: EST with ds realm on separate instance
+name: EST on separate instance with provided certificates
 
 on: workflow_call
 
@@ -69,12 +69,46 @@ jobs:
 
           docker exec ca pki info
 
+      - name: Create EST server certificates in p12
+        run: |
+          docker exec ca pki nss-cert-request --csr estSSLServer.csr \
+              --ext /usr/share/pki/server/certs/sslserver.conf --subject 'CN=est.example.com'
+
+          docker exec ca pki \
+              -n caadmin \
+              ca-cert-issue \
+              --csr-file estSSLServer.csr \
+              --profile caServerCert \
+              --output-file estSSLServer.crt
+
+          docker exec ca pki nss-cert-import --cert estSSLServer.crt sslserver
+
+          docker exec ca pki pkcs12-cert-import sslserver --pkcs12-file $SHARED/est_server.p12 --pkcs12-password Secret.123
+
       - name: Add CA EST user
         run: |
           docker exec ca pki -n caadmin ca-group-add "EST RA Agents"
           docker exec ca pki -n caadmin ca-user-add \
               est-ra-1 --fullName "EST RA 1" --password Secret.est
           docker exec ca pki -n caadmin ca-group-member-add "EST RA Agents" est-ra-1
+
+      - name: Create CA EST user certificate end store top p12
+        run: |
+          docker exec ca pki nss-cert-request --csr estUser.csr \
+              --ext /usr/share/pki/server/certs/admin.conf --subject 'UID=estUser'
+
+          docker exec ca pki \
+              -n caadmin \
+              ca-cert-issue \
+              --csr-file estUser.csr \
+              --profile caUserCert \
+              --output-file estUser.crt
+
+          docker exec ca pki nss-cert-import --cert estUser.crt estUser
+          
+          docker exec ca pki -n caadmin ca-user-cert-add est-ra-1 --input estUser.crt
+
+          docker exec ca pki pkcs12-cert-import estUser --pkcs12-file $SHARED/est_server.p12 --pkcs12-password Secret.123 --append
           
       - name: Configure CA est profile
         run: |
@@ -143,8 +177,10 @@ jobs:
               -s EST \
               -D est_realm_url=ldap://estds.example.com:3389 \
               -D pki_ca_uri=https://ca.example.com:8443 \
-              -D pki_cert_chain_path=$SHARED/ca_signing.crt \
-              -D pki_cert_chain_nickname=caSigning \
+              -D est_ca_user_password= \
+              -D est_ca_user_certificate=estUser \
+              -D pki_server_pkcs12_path=$SHARED/est_server.p12 \
+              -D pki_server_pkcs12_password=Secret.123 \
               -v
 
       - name: Check EST server base dir after installation
@@ -392,5 +428,5 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: est-ds-separate
+          name: est-separate-provided-certs
           path: /tmp/artifacts
