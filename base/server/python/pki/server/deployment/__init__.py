@@ -3601,6 +3601,9 @@ class PKIDeployer:
 
             self.setup_system_cert(nssdb, subsystem, tag, system_cert, request)
 
+        if subsystem.type == 'EST':
+            system_certs['sslserver'] = self.create_est_sslserver(nssdb)
+
         logger.info('Setting up trust flags')
 
         if pki.nssdb.internal_token(self.mdict.get('pki_token_name')):
@@ -5646,6 +5649,86 @@ class PKIDeployer:
                 wait=True,
                 max_wait=self.startup_timeout,
                 timeout=self.request_timeout)
+
+    def create_est_sslserver_csr(self, nssdb):
+        subject_dn = self.mdict.get('pki_sslserver_subject_dn')
+
+        csr_file = self.instance.csr_file('sslserver')
+        (key_type, key_size, curve, hash_alg) = self.get_key_params('sslserver')
+
+        key_usage_ext = {
+            'digitalSignature': True,
+            'nonRepudiation': True,
+            'keyEncipherment': True,
+            'dataEncipherment': True,
+            'critical': True
+        }
+
+        extended_key_usage_ext = {
+            'serverAuth': True
+        }
+
+        nssdb.create_request(
+            subject_dn=subject_dn,
+            request_file=csr_file,
+            key_type=key_type,
+            key_size=key_size,
+            curve=curve,
+            hash_alg=hash_alg,
+            key_usage_ext=key_usage_ext,
+            extended_key_usage_ext=extended_key_usage_ext,
+            use_jss=True)
+
+        with open(csr_file, 'r', encoding='utf-8') as f:
+            csr_pem = f.read()
+
+        return csr_pem
+
+    def create_est_sslserver_cert(self, request_data):
+        url = self.mdict['pki_ca_uri']
+        credentials = {}
+
+        if self.mdict['est_ca_user_certificate']:
+            credentials['nickname'] = self.mdict['est_ca_user_certificate']
+
+        if self.mdict['est_ca_user_name']:
+            credentials['username'] = self.mdict['est_ca_user_name']
+
+        if self.mdict['est_ca_user_password']:
+            credentials['password'] = self.mdict['est_ca_user_password']
+
+        if self.mdict['est_ca_user_password_file']:
+            credentials['passwordFile'] = self.mdict['est_ca_user_password_file']
+
+        # TODO: do not hardcode request type
+        return self.issue_cert(
+            url=url,
+            request_type='pkcs10',
+            request_data=request_data,
+            profile=self.mdict['est_ca_profile'],
+            credentials=credentials)
+
+    def create_est_sslserver(self, nssdb):
+        system_cert = {
+            'nickname': self.mdict['pki_sslserver_nickname'],
+            'token': pki.nssdb.normalize_token(self.mdict['pki_sslserver_token'])
+        }
+        nickname = system_cert['nickname']
+        if system_cert['token']:
+            nickname = system_cert['token'] + ':' + nickname
+        logger.info('Checking existing SSL server cert: %s', nickname)
+        cert_pem = nssdb.get_cert(nickname)
+        if cert_pem:
+            # SSL server cert already exists
+            return system_cert
+        logger.info('Creating SSL server cert request')
+        csr_pem = self.create_est_sslserver_csr(nssdb)
+        logger.info('Issuing SSL server cert')
+        cert_pem = self.create_est_sslserver_cert(csr_pem)
+
+        logger.info('Importing SSL server cert as %s', nickname)
+        nssdb.add_cert(nickname=nickname, cert_data=cert_pem)
+        return system_cert
 
     def spawn_est(self):
         subsystem = self.create_est_subsystem()
