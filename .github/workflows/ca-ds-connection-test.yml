@@ -101,17 +101,25 @@ jobs:
 
           docker exec pki pki info
 
-      - name: Create csr requesst
+          docker exec pki pki pkcs12-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password Secret.123
+
+          docker exec pki pki -n caadmin ca-user-show caadmin
+
+      - name: Create cert request
         run: |
           docker exec pki pki nss-cert-request --subject "CN=$HOSTNAME" --ext /usr/share/pki/server/certs/sslserver.conf  --csr sslserver.csr
 
       - name: Test request enrollment
         run: |
           # enrollment should work
-          docker exec pki pki ca-cert-request-submit --profile caServerCert --csr-file sslserver.csr  | tee output
-          grep "Reason:" output | wc -l > actual
-          echo "0" > expected
-          diff expected actual
+          docker exec pki pki \
+              -n caadmin \
+              ca-cert-issue \
+              --profile caServerCert \
+              --csr-file sslserver.csr \
+              --output-file sslserver.crt
           
       - name: Stop the DS
         run: |
@@ -119,10 +127,19 @@ jobs:
           sleep 10
 
           # enrollment should fail
-          docker exec pki pki ca-cert-request-submit --profile caServerCert --csr-file sslserver.csr  | tee output
-          grep "Reason:" output | wc -l > actual
-          echo "1" > expected
-          diff expected actual
+          docker exec pki pki \
+              -n caadmin \
+              ca-cert-issue \
+              --profile caServerCert \
+              --csr-file sslserver.csr \
+              --output-file sslserver.crt \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          cat > expected << EOF
+          PKIException: Unauthorized
+          EOF
+
+          diff expected stderr
 
       - name: Restart the DS
         run: |
@@ -130,10 +147,12 @@ jobs:
           sleep 20
 
           # enrollment should work
-          docker exec pki pki ca-cert-request-submit --profile caServerCert --csr-file sslserver.csr  | tee output
-          grep "Reason:" output | wc -l > actual
-          echo "0" > expected
-          diff expected actual
+          docker exec pki pki \
+              -n caadmin \
+              ca-cert-issue \
+              --profile caServerCert \
+              --csr-file sslserver.csr \
+              --output-file sslserver.crt
 
       - name: Start without the DS
         run: |
@@ -144,10 +163,19 @@ jobs:
           docker exec pki curl -s http://pki.example.com:8080/ca/admin/ca/getStatus
 
           # enrollment should fail
-          docker exec pki pki ca-cert-request-submit --profile caServerCert --csr-file sslserver.csr | tee output
-          grep "Reason:" output | wc -l > actual
-          echo "1" > expected
-          diff expected actual
+          docker exec pki pki \
+              -n caadmin \
+              ca-cert-issue \
+              --profile caServerCert \
+              --csr-file sslserver.csr \
+              --output-file sslserver.crt \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          cat > expected << EOF
+          PKIException: Unauthorized
+          EOF
+
+          diff expected stderr
   
       - name: Start the DS with running CA
         run: |
@@ -155,10 +183,12 @@ jobs:
           sleep 60
 
           # enrollment should work
-          docker exec pki pki ca-cert-request-submit --profile caServerCert --csr-file sslserver.csr | tee output
-          grep "Reason:" output | wc -l > actual
-          echo "0" > expected
-          diff expected actual
+          docker exec pki pki \
+              -n caadmin \
+              ca-cert-issue \
+              --profile caServerCert \
+              --csr-file sslserver.csr \
+              --output-file sslserver.crt
 
       - name: Remove CA
         run: docker exec pki pkidestroy -s CA -v
