@@ -49,7 +49,165 @@ jobs:
 
           docker rm -f pki-dist
 
-      - name: Run rpminspect on SRPM and RPMs
+          # get RPM version and release number
+          VERSION=$(docker exec pki ls build/SRPMS | sed -e 's/^pki-\(.*\)\.src\.rpm$/\1/')
+          echo "VERSION: $VERSION"
+          echo "$VERSION" > VERSION
+
+      - name: Install rpminspect profile
         run: |
-          docker exec pki cp /usr/share/pki/tests/pki-rpminspect.yaml /usr/share/rpminspect/profiles/fedora/pki-rpminspect.yaml
-          docker exec pki /usr/share/pki/tests/bin/rpminspect.sh
+          docker exec pki ls -lR /usr/share/rpminspect/profiles
+          docker exec pki cp \
+              /usr/share/pki/tests/pki-rpminspect.yaml \
+              /usr/share/rpminspect/profiles/fedora
+
+      - name: Check pki SRPM
+        if: always()
+        run: |
+          docker exec pki rpminspect-fedora \
+              -p pki-rpminspect \
+              build/SRPMS/pki-*.src.rpm
+
+      - name: Check dogtag-pki RPM
+        if: always()
+        run: |
+          VERSION=$(cat VERSION)
+          docker exec pki rpminspect-fedora \
+              -p pki-rpminspect \
+              build/RPMS/dogtag-pki-$VERSION.*.rpm
+
+      - name: Check dogtag-pki-acme RPM
+        if: always()
+        run: |
+          VERSION=$(cat VERSION)
+          docker exec pki rpminspect-fedora \
+              -p pki-rpminspect \
+              build/RPMS/dogtag-pki-acme-$VERSION.*.rpm
+
+      - name: Check dogtag-pki-base RPM
+        if: always()
+        run: |
+          VERSION=$(cat VERSION)
+          docker exec pki rpminspect-fedora \
+              -p pki-rpminspect \
+              build/RPMS/dogtag-pki-base-$VERSION.*.rpm
+
+      - name: Check dogtag-pki-ca RPM
+        if: always()
+        run: |
+          VERSION=$(cat VERSION)
+          docker exec pki rpminspect-fedora \
+              -p pki-rpminspect \
+              build/RPMS/dogtag-pki-ca-$VERSION.*.rpm
+
+      - name: Check dogtag-pki-est RPM
+        if: always()
+        run: |
+          VERSION=$(cat VERSION)
+          docker exec pki rpminspect-fedora \
+              -p pki-rpminspect \
+              build/RPMS/dogtag-pki-est-$VERSION.*.rpm
+
+      - name: Check dogtag-pki-java RPM
+        if: always()
+        run: |
+          VERSION=$(cat VERSION)
+          docker exec pki rpminspect-fedora \
+              -p pki-rpminspect \
+              build/RPMS/dogtag-pki-java-$VERSION.*.rpm
+
+      - name: Check dogtag-pki-javadoc RPM
+        if: always()
+        run: |
+          VERSION=$(cat VERSION)
+          docker exec pki rpminspect-fedora \
+              -p pki-rpminspect \
+              build/RPMS/dogtag-pki-javadoc-$VERSION.*.rpm
+
+      - name: Check dogtag-pki-kra RPM
+        if: always()
+        run: |
+          VERSION=$(cat VERSION)
+          docker exec pki rpminspect-fedora \
+              -p pki-rpminspect \
+              build/RPMS/dogtag-pki-kra-$VERSION.*.rpm
+
+      - name: Check dogtag-pki-ocsp RPM
+        if: always()
+        run: |
+          VERSION=$(cat VERSION)
+          docker exec pki rpminspect-fedora \
+              -p pki-rpminspect \
+              build/RPMS/dogtag-pki-ocsp-$VERSION.*.rpm
+
+      - name: Check dogtag-pki-server RPM
+        if: always()
+        run: |
+          VERSION=$(cat VERSION)
+          docker exec pki rpminspect-fedora \
+              -p pki-rpminspect \
+              build/RPMS/dogtag-pki-server-$VERSION.*.rpm
+
+      - name: Check dogtag-pki-tests RPM
+        if: always()
+        run: |
+          VERSION=$(cat VERSION)
+          docker exec pki rpminspect-fedora \
+              -p pki-rpminspect \
+              build/RPMS/dogtag-pki-tests-$VERSION.*.rpm
+
+      - name: Check dogtag-pki-theme RPM
+        if: always()
+        run: |
+          VERSION=$(cat VERSION)
+          docker exec pki rpminspect-fedora \
+              -p pki-rpminspect \
+              build/RPMS/dogtag-pki-theme-$VERSION.*.rpm
+
+      - name: Check dogtag-pki-tks RPM
+        if: always()
+        run: |
+          VERSION=$(cat VERSION)
+          docker exec pki rpminspect-fedora \
+              -p pki-rpminspect \
+              build/RPMS/dogtag-pki-tks-$VERSION.*.rpm
+
+      - name: Check dogtag-pki-tools RPM
+        if: always()
+        run: |
+          VERSION=$(cat VERSION)
+          docker exec pki rpminspect-fedora \
+              -p pki-rpminspect \
+              build/RPMS/dogtag-pki-tools-$VERSION.*.rpm
+
+      - name: Check dogtag-pki-tools-debuginfo RPM
+        if: always()
+        run: |
+          VERSION=$(cat VERSION)
+          docker exec pki rpminspect-fedora \
+              -p pki-rpminspect \
+              build/RPMS/dogtag-pki-tools-debuginfo-$VERSION.*.rpm
+
+      - name: Check dogtag-pki-tps RPM
+        if: always()
+        run: |
+          VERSION=$(cat VERSION)
+          docker exec pki rpminspect-fedora \
+              -p pki-rpminspect \
+              build/RPMS/dogtag-pki-tps-$VERSION.*.rpm
+
+      - name: Check pki-debugsource RPM
+        if: always()
+        run: |
+          VERSION=$(cat VERSION)
+          docker exec pki rpminspect-fedora \
+              -p pki-rpminspect \
+              build/RPMS/pki-debugsource-$VERSION.*.rpm
+
+      - name: Check python3-dogtag-pki RPM
+        if: always()
+        run: |
+          VERSION=$(cat VERSION)
+          docker exec pki rpminspect-fedora \
+              -p pki-rpminspect \
+              build/RPMS/python3-dogtag-pki-$VERSION.*.rpm

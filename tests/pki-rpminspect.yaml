@@ -11,11 +11,8 @@ annocheck:
     jobs:
         - hardened: --skip-lto --skip-cf-protection
 
-# Use Java 21 on Fedora 40+, otherwise use Java 17
-javabytecode:
-    - fc39: 61
-    - fc40: 65
-    - default: 65
+# use javabytecode configuration from rpminspect-data-fedora
+# https://github.com/rpminspect/rpminspect-data-fedora/blob/main/fedora.yaml#L572-L596
 
 runpath:
    # The TPS needs access to this path
