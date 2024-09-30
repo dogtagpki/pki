@@ -44,7 +44,7 @@ public class Client {
     public LinkedHashMap<String, Client> clients = new LinkedHashMap<>();
 
     public Client(PKIClient client, String subsystem, String name) {
-        this(client, subsystem, "rest", name);
+        this(client, subsystem, client.getAPIVersion(), name);
     }
 
     public Client(PKIClient client, String subsystem, String prefix, String name) {

@@ -27,7 +27,7 @@ import com.netscape.certsrv.client.PKIClient;
 public class InfoClient extends Client {
 
     public InfoClient(PKIClient client) throws Exception {
-        super(client, "pki", "v2", "info");
+        super(client, "pki", "info");
     }
 
     public Info getInfo() throws Exception {
