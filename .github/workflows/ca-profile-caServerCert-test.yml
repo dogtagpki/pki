@@ -106,33 +106,19 @@ jobs:
 
           docker exec pki openssl req -text -noout -in sslserver.csr | tee output
 
-          # verfiy SAN extension in cert request
+          # verify SAN extension in cert request
           echo "X509v3 Subject Alternative Name: critical" > expected
           echo "DNS:www.example.com" >> expected
           sed -En 'N; s/^ *(X509v3 Subject Alternative Name: .*)\n *(.*)$/\1\n\2/p; D' output | tee actual
           diff actual expected
 
-          # submit cert request
-          docker exec pki pki \
-              ca-cert-request-submit \
-              --profile caServerCert \
-              --csr-file sslserver.csr | tee output
-
-          REQUEST_ID=$(sed -n -e 's/^ *Request ID: *\(.*\)$/\1/p' output)
-          echo "REQUEST_ID: $REQUEST_ID"
-
           # issue cert
           docker exec pki pki \
               -n caadmin \
-              ca-cert-request-approve \
-              --force \
-              $REQUEST_ID | tee output
-
-          CERT_ID=$(sed -n -e 's/^ *Certificate ID: *\(.*\)$/\1/p' output)
-          echo "CERT_ID: $CERT_ID"
-
-          # export cert
-          docker exec pki pki ca-cert-export $CERT_ID --output-file sslserver.crt
+              ca-cert-issue \
+              --profile caServerCert \
+              --csr-file sslserver.csr \
+              --output-file sslserver.crt
 
           docker exec pki openssl x509 -text -noout -in sslserver.crt | tee output
 
@@ -154,25 +140,26 @@ jobs:
 
           docker exec pki openssl req -text -noout -in sslserver.csr | tee output
 
-          # verfiy SAN extension
+          # verify SAN extension
           echo "X509v3 Subject Alternative Name: critical" > expected
           echo "DNS:pki.example.com" >> expected
           sed -En 'N; s/^ *(X509v3 Subject Alternative Name: .*)\n *(.*)$/\1\n\2/p; D' output | tee actual
           diff actual expected
 
-          # submit cert request
+          # issue cert
           docker exec pki pki \
-              ca-cert-request-submit \
+              -n caadmin \
+              ca-cert-issue \
               --profile caServerCert \
-              --csr-file sslserver.csr | tee output
+              --csr-file sslserver.csr \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
 
-          echo "Request Status: rejected" > expected
-          sed -n "s/^\s*\(Request Status:.*\)$/\1/p" output > actual
-          diff expected actual
+          # request should be rejected by UniqueSubjectNameConstraint
+          cat > expected << EOF
+          ERROR: Request rejected: Subject Name Not Unique CN=server.example.com
+          EOF
 
-          echo "Reason: Subject Name Not Unique CN=server.example.com" > expected
-          sed -n "s/^\s*\(Reason:.*\)$/\1/p" output > actual
-          diff expected actual
+          diff expected stderr
 
       - name: Remove CA
         run: docker exec pki pkidestroy -s CA -v
