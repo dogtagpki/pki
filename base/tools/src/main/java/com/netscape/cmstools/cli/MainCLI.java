@@ -86,6 +86,7 @@ public class MainCLI extends CLI {
     public ClientConfig config = new ClientConfig();
 
     NSSDatabase nssdb;
+    String apiVersion;
 
     public Collection<Integer> rejectedCertStatuses = new HashSet<>();
     public Collection<Integer> ignoredCertStatuses = new HashSet<>();
@@ -139,6 +140,10 @@ public class MainCLI extends CLI {
     @Override
     public String getManPage() {
         return "pki";
+    }
+
+    public String getAPIVersion() {
+        return apiVersion;
     }
 
     public void printVersion() {
@@ -211,6 +216,10 @@ public class MainCLI extends CLI {
 
         option = new Option(null, "token", true, "Security token name");
         option.setArgName("token");
+        options.addOption(option);
+
+        option = new Option(null, "api", true, "API version: v1, v2");
+        option.setArgName("version");
         options.addOption(option);
 
         option = new Option(null, "output", true, "Folder to store HTTP messages");
@@ -454,6 +463,8 @@ public class MainCLI extends CLI {
         // store user password
         config.setPassword(password);
 
+        apiVersion = cmd.getOptionValue("api", "rest");
+
         String list = cmd.getOptionValue("reject-cert-status");
         convertCertStatusList(list, rejectedCertStatuses);
 
@@ -593,7 +604,7 @@ public class MainCLI extends CLI {
         logger.info("Connecting to " + config.getServerURL());
 
         SSLCertificateApprovalCallback callback = createCertApprovalCallback();
-        client = new PKIClient(config, callback);
+        client = new PKIClient(config, apiVersion, callback);
 
         if (output != null) {
             File file = new File(output);

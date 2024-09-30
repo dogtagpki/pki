@@ -48,6 +48,7 @@ public class PKIClient implements AutoCloseable {
 
     public ClientConfig config;
     public PKIConnection connection;
+    public String apiVersion;
     public MediaType messageFormat;
     public InfoClient infoClient;
     public Info info;
@@ -57,7 +58,12 @@ public class PKIClient implements AutoCloseable {
     }
 
     public PKIClient(ClientConfig config, SSLCertificateApprovalCallback callback) throws Exception {
+        this(config, "rest", callback);
+    }
+
+    public PKIClient(ClientConfig config, String apiVersion, SSLCertificateApprovalCallback callback) throws Exception {
         this.config = config;
+        this.apiVersion = apiVersion;
 
         connection = new PKIConnection(config);
         connection.setCallback(callback);
@@ -70,6 +76,10 @@ public class PKIClient implements AutoCloseable {
         }
 
         this.messageFormat = MediaType.valueOf("application/" + messageFormat);
+    }
+
+    public String getAPIVersion() {
+        return apiVersion;
     }
 
     public MediaType getMessageFormat() {

@@ -33,20 +33,18 @@ jobs:
           tests/bin/ds-create.sh \
               --image=${{ env.DS_IMAGE }} \
               --hostname=ds.example.com \
+              --network=example \
+              --network-alias=ds.example.com \
               --password=Secret.123 \
               ds
 
-      - name: Connect DS container to network
-        run: docker network connect example ds --alias ds.example.com
-
       - name: Set up PKI container
         run: |
-          tests/bin/runner-init.sh pki
-        env:
-          HOSTNAME: pki.example.com
-
-      - name: Connect PKI container to network
-        run: docker network connect example pki --alias pki.example.com
+          tests/bin/runner-init.sh \
+              --hostname=pki.example.com \
+              --network=example \
+              --network-alias=pki.example.com \
+              pki
 
       - name: Install CA
         run: |
@@ -249,12 +247,13 @@ jobs:
       - name: Check CA signing cert
         run: |
           docker exec pki pki-server cert-export ca_signing \
-              --cert-file ca_signing.crt
+              --cert-file $SHARED/ca_signing.crt
           docker exec pki openssl req -text -noout \
               -in /var/lib/pki/pki-tomcat/conf/certs/ca_signing.csr
 
           # check CA signing cert extensions
-          docker exec pki /usr/share/pki/tests/ca/bin/test-ca-signing-cert-ext.sh
+          docker exec pki /usr/share/pki/tests/ca/bin/test-ca-signing-cert-ext.sh \
+              $SHARED/ca_signing.crt
 
       - name: Check CA OCSP signing cert
         run: |
@@ -301,22 +300,66 @@ jobs:
 
       - name: Update CA configuration
         run: |
-          # enable signed audit log
+          docker exec pki dnf install -y xmlstarlet
+
+          # disable access log buffer
+          docker exec pki xmlstarlet edit --inplace \
+              -u "//Valve[@className='org.apache.catalina.valves.AccessLogValve']/@buffered" \
+              -v "false" \
+              -i "//Valve[@className='org.apache.catalina.valves.AccessLogValve' and not(@buffered)]" \
+              -t attr \
+              -n "buffered" \
+              -v "false" \
+              /etc/pki/pki-tomcat/server.xml
+
+          # enable CA signed audit log
           docker exec pki pki-server ca-config-set log.instance.SignedAudit.logSigning true
 
-          # restart CA subsystem
-          docker exec pki pki-server ca-redeploy --wait
+          # restart PKI server
+          docker exec pki pki-server restart --wait
 
       - name: Initialize PKI client
         run: |
-          docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
-
           docker exec pki pki nss-cert-import \
-              --cert ca_signing.crt \
+              --cert $SHARED/ca_signing.crt \
               --trust CT,C,C \
               ca_signing
 
+      - name: Check pki info with default API
+        run: |
           docker exec pki pki info
+
+          # check HTTP methods, paths, protocols, status, and authenticated users
+          docker exec pki find /var/log/pki/pki-tomcat \
+              -name "localhost_access_log.*" \
+              -exec cat {} \; \
+              | tail -1 \
+              | sed -e 's/^.* .* \(.*\) \[.*\] "\(.*\)" \(.*\) .*$/\2 \3 \1/' \
+              | tee output
+
+          cat > expected << EOF
+          GET /pki/v1/info HTTP/1.1 200 -
+          EOF
+
+          diff expected output
+
+      - name: Check pki info with API v2
+        run: |
+          docker exec pki pki --api v2 info
+
+          # check HTTP methods, paths, protocols, status, and authenticated users
+          docker exec pki find /var/log/pki/pki-tomcat \
+              -name "localhost_access_log.*" \
+              -exec cat {} \; \
+              | tail -1 \
+              | sed -e 's/^.* .* \(.*\) \[.*\] "\(.*\)" \(.*\) .*$/\2 \3 \1/' \
+              | tee output
+
+          cat > expected << EOF
+          GET /pki/v2/info HTTP/1.1 200 -
+          EOF
+
+          diff expected output
 
       - name: Test CA certs
         run: |
@@ -439,21 +482,12 @@ jobs:
         run: |
           docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
 
+      - name: Check PKI server access log
+        if: always()
+        run: |
+          docker exec pki find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+
       - name: Check CA debug log
         if: always()
         run: |
           docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
-
-      - name: Gather artifacts
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh ds
-          tests/bin/pki-artifacts-save.sh pki
-        continue-on-error: true
-
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ca-basic
-          path: /tmp/artifacts
