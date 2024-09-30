@@ -42,5 +42,6 @@ public class AccountServlet extends PKIServlet {
             logger.info("AccountServlet: Destroying session {}", session.getId());
             session.invalidate();
         }
+        response.sendError(HttpServletResponse.SC_NO_CONTENT);
     }
 }

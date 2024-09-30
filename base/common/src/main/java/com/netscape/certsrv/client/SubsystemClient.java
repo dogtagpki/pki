@@ -60,7 +60,7 @@ public class SubsystemClient extends Client {
         // subsystem name should match the client name
         super(client, name, name);
 
-        accountClient = new AccountClient(client, name, "rest");
+        accountClient = new AccountClient(client, name);
         addClient(accountClient);
     }
 
