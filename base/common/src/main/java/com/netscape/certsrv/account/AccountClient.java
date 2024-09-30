@@ -30,7 +30,7 @@ public class AccountClient extends Client {
     public boolean loggedIn;
 
     public AccountClient(PKIClient client, String subsystem) throws Exception {
-        super(client, subsystem, null, "account");
+        super(client, subsystem, "account");
     }
 
     public AccountClient(PKIClient client, String subsystem, String prefix) throws Exception {
