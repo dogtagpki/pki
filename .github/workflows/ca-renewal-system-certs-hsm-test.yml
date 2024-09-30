@@ -185,7 +185,11 @@ jobs:
               --pkcs12-password Secret.123
           docker exec pki pki nss-cert-show caadmin
 
+          # check CA admin cert
           docker exec pki pki -n caadmin ca-user-show caadmin
+
+          # check CA admin password
+          docker exec pki pki -u caadmin -w Secret.123 ca-user-show caadmin
 
       - name: Restart PKI server with expired certs
         run: |
@@ -263,24 +267,15 @@ jobs:
           docker exec pki pki-server cert-show sslserver | tee output
           CERT_ID=$(sed -n "s/^\s*Serial Number:\s*\(\S*\)$/\1/p" output)
 
-          # submit renewal request
-          docker exec pki pki ca-cert-request-submit \
-              --profile caManualRenewal \
-              --serial $CERT_ID \
-              --renewal | tee output
-          REQUEST_ID=$(sed -n "s/^\s*Request ID:\s*\(\S*\)$/\1/p" output)
-
-          # approve renewal request
+          # renew cert
           docker exec pki pki \
               -u caadmin \
               -w Secret.123 \
-              ca-cert-request-approve \
-              $REQUEST_ID \
-              --force | tee output
-          CERT_ID=$(sed -n "s/^\s*Certificate ID:\s*\(\S*\)$/\1/p" output)
-
-          # export new cert
-          docker exec pki pki ca-cert-export $CERT_ID --output-file sslserver.crt
+              ca-cert-issue \
+              --profile caManualRenewal \
+              --serial $CERT_ID \
+              --renewal \
+              --output-file sslserver.crt
 
           # delete current cert
           docker exec pki pki-server cert-del sslserver
@@ -297,24 +292,15 @@ jobs:
           docker exec pki pki-server cert-show subsystem | tee output
           CERT_ID=$(sed -n "s/^\s*Serial Number:\s*\(\S*\)$/\1/p" output)
 
-          # submit renewal request
-          docker exec pki pki ca-cert-request-submit \
-              --profile caManualRenewal \
-              --serial $CERT_ID \
-              --renewal | tee output
-          REQUEST_ID=$(sed -n "s/^\s*Request ID:\s*\(\S*\)$/\1/p" output)
-
-          # approve renewal request
+          # renew cert
           docker exec pki pki \
               -u caadmin \
               -w Secret.123 \
-              ca-cert-request-approve \
-              $REQUEST_ID \
-              --force | tee output
-          CERT_ID=$(sed -n "s/^\s*Certificate ID:\s*\(\S*\)$/\1/p" output)
-
-          # export new cert
-          docker exec pki pki ca-cert-export $CERT_ID --output-file subsystem.crt
+              ca-cert-issue \
+              --profile caManualRenewal \
+              --serial $CERT_ID \
+              --renewal \
+              --output-file subsystem.crt
 
           # delete current cert
           docker exec pki pki-server cert-del subsystem
@@ -348,24 +334,15 @@ jobs:
           docker exec pki pki-server cert-show ca_audit_signing | tee output
           CERT_ID=$(sed -n "s/^\s*Serial Number:\s*\(\S*\)$/\1/p" output)
 
-          # submit renewal request
-          docker exec pki pki ca-cert-request-submit \
-              --profile caManualRenewal \
-              --serial $CERT_ID \
-              --renewal | tee output
-          REQUEST_ID=$(sed -n "s/^\s*Request ID:\s*\(\S*\)$/\1/p" output)
-
-          # approve renewal request
+          # renew cert
           docker exec pki pki \
               -u caadmin \
               -w Secret.123 \
-              ca-cert-request-approve \
-              $REQUEST_ID \
-              --force | tee output
-          CERT_ID=$(sed -n "s/^\s*Certificate ID:\s*\(\S*\)$/\1/p" output)
-
-          # export new cert
-          docker exec pki pki ca-cert-export $CERT_ID --output-file ca_audit_signing.crt
+              ca-cert-issue \
+              --profile caManualRenewal \
+              --serial $CERT_ID \
+              --renewal \
+              --output-file ca_audit_signing.crt
 
           # delete current cert
           docker exec pki pki-server cert-del ca_audit_signing
@@ -382,24 +359,15 @@ jobs:
           docker exec pki pki-server cert-show ca_ocsp_signing | tee output
           CERT_ID=$(sed -n "s/^\s*Serial Number:\s*\(\S*\)$/\1/p" output)
 
-          # submit renewal request
-          docker exec pki pki ca-cert-request-submit \
-              --profile caManualRenewal \
-              --serial $CERT_ID \
-              --renewal | tee output
-          REQUEST_ID=$(sed -n "s/^\s*Request ID:\s*\(\S*\)$/\1/p" output)
-
-          # approve renewal request
+          # renew cert
           docker exec pki pki \
               -u caadmin \
               -w Secret.123 \
-              ca-cert-request-approve \
-              $REQUEST_ID \
-              --force | tee output
-          CERT_ID=$(sed -n "s/^\s*Certificate ID:\s*\(\S*\)$/\1/p" output)
-
-          # export new cert
-          docker exec pki pki ca-cert-export $CERT_ID --output-file ca_ocsp_signing.crt
+              ca-cert-issue \
+              --profile caManualRenewal \
+              --serial $CERT_ID \
+              --renewal \
+              --output-file ca_ocsp_signing.crt
 
           # delete current cert
           docker exec pki pki-server cert-del ca_ocsp_signing
@@ -416,24 +384,15 @@ jobs:
           docker exec pki pki nss-cert-show caadmin | tee output
           CERT_ID=$(sed -n "s/^\s*Serial Number:\s*\(\S*\)$/\1/p" output)
 
-          # submit renewal request
-          docker exec pki pki ca-cert-request-submit \
-              --profile caManualRenewal \
-              --serial $CERT_ID \
-              --renewal | tee output
-          REQUEST_ID=$(sed -n "s/^\s*Request ID:\s*\(\S*\)$/\1/p" output)
-
-          # approve renewal request
+          # renew cert
           docker exec pki pki \
               -u caadmin \
               -w Secret.123 \
-              ca-cert-request-approve \
-              $REQUEST_ID \
-              --force | tee output
-          CERT_ID=$(sed -n "s/^\s*Certificate ID:\s*\(\S*\)$/\1/p" output)
-
-          # export new cert
-          docker exec pki pki ca-cert-export $CERT_ID --output-file caadmin.crt
+              ca-cert-issue \
+              --profile caManualRenewal \
+              --serial $CERT_ID \
+              --renewal \
+              --output-file caadmin.crt
 
           # delete current cert
           docker exec pki pki nss-cert-del caadmin
