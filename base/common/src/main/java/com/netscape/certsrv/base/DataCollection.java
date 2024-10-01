@@ -20,20 +20,21 @@ package com.netscape.certsrv.base;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * @author Endi S. Dewata
  */
 public class DataCollection<E> {
 
-    protected int total;
+    protected Integer total;
     protected Collection<E> entries = new ArrayList<>();
 
-    public int getTotal() {
+    public Integer getTotal() {
         return total;
     }
 
-    public void setTotal(int total) {
+    public void setTotal(Integer total) {
         this.total = total;
     }
 
@@ -57,11 +58,7 @@ public class DataCollection<E> {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((entries == null) ? 0 : entries.hashCode());
-        result = prime * result + total;
-        return result;
+        return Objects.hash(entries, total);
     }
 
     @Override
@@ -72,14 +69,7 @@ public class DataCollection<E> {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        DataCollection<E> other = (DataCollection<E>) obj;
-        if (entries == null) {
-            if (other.entries != null)
-                return false;
-        } else if (!entries.equals(other.entries))
-            return false;
-        if (total != other.total)
-            return false;
-        return true;
+        DataCollection other = (DataCollection) obj;
+        return Objects.equals(entries, other.entries) && Objects.equals(total, other.total);
     }
 }
