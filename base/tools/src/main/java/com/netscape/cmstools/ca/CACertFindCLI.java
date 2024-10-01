@@ -227,8 +227,11 @@ public class CACertFindCLI extends CommandCLI {
         CACertClient certClient = certCLI.getCertClient();
         CertDataInfos certs = certClient.findCerts(searchData, start, size);
 
-        MainCLI.printMessage(certs.getTotal() + " entries found");
-        if (certs.getTotal() == 0) return;
+        Integer total = certs.getTotal();
+        if (total != null) {
+            MainCLI.printMessage(total + " entries found");
+            if (total == 0) return;
+        }
 
         boolean first = true;
 

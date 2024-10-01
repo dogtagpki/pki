@@ -220,7 +220,8 @@ public class CertServlet extends CAServlet {
                 results.add(createCertDataInfo(rec));
             }
 
-            infos.setTotal(results.size());
+            // do not call infos.setTotal() in API v2
+
             logger.info("Search results: {}", results.size());
             infos.setEntries(results);
         } catch (Exception e) {
