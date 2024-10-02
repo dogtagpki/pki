@@ -250,7 +250,7 @@ jobs:
           docker exec est curl -o cacert.p7 -k https://est.example.com:8443/.well-known/est/cacerts
 
           docker exec est openssl base64 -d --in cacert.p7 --out cacert.p7.der
-          docker exec est openssl pkcs7 --in cacert.p7.der -inform DER -print_certs -out cacert.pem
+          docker exec est openssl pkcs7 --in cacert.p7.der -inform DER -print_certs -quiet -out cacert.pem
           docker exec est openssl x509 -in cacert.pem -text -noout | tee actual
           docker exec est openssl x509 -in $SHARED/ca_signing.crt -text -noout | tee expected
           diff expected actual
@@ -266,7 +266,7 @@ jobs:
               --common-name test.example.com -o . -u est-test-user -h Secret.123
 
           docker exec est openssl base64 -d --in cert-0-0.pkcs7 --out cert-0-0.pkcs7.der
-          docker exec est openssl pkcs7 -in cert-0-0.pkcs7.der -inform DER -print_certs -out cert.pem
+          docker exec est openssl pkcs7 -in cert-0-0.pkcs7.der -inform DER -print_certs -quiet -out cert.pem
           docker exec est openssl x509 -in cert.pem -subject -noout | tee actual
           echo "subject=CN=test.example.com" > expected
           diff expected actual

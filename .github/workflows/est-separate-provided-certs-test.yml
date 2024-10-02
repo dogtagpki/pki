@@ -92,23 +92,23 @@ jobs:
               est-ra-1 --fullName "EST RA 1" --password Secret.est
           docker exec ca pki -n caadmin ca-group-member-add "EST RA Agents" est-ra-1
 
-      - name: Create CA EST user certificate end store top p12
+      - name: Create EST subsystem cert for the user end store into the same p12
         run: |
           docker exec ca pki nss-cert-request --csr estUser.csr \
-              --ext /usr/share/pki/server/certs/admin.conf --subject 'UID=estUser'
+              --ext /usr/share/pki/server/certs/admin.conf --subject 'CN=EST Subsystem Certificate,OU=pki-tomcat,O=EXAMPLE'
 
           docker exec ca pki \
               -n caadmin \
               ca-cert-issue \
               --csr-file estUser.csr \
-              --profile caUserCert \
+              --profile caSubsystemCert \
               --output-file estUser.crt
 
-          docker exec ca pki nss-cert-import --cert estUser.crt estUser
+          docker exec ca pki nss-cert-import --cert estUser.crt "EST subsystem cert"
           
           docker exec ca pki -n caadmin ca-user-cert-add est-ra-1 --input estUser.crt
 
-          docker exec ca pki pkcs12-cert-import estUser --pkcs12-file $SHARED/est_server.p12 --pkcs12-password Secret.123 --append
+          docker exec ca pki pkcs12-cert-import "EST subsystem cert" --pkcs12-file $SHARED/est_server.p12 --pkcs12-password Secret.123 --append
           
       - name: Configure CA est profile
         run: |
@@ -178,7 +178,7 @@ jobs:
               -D est_realm_url=ldap://estds.example.com:3389 \
               -D pki_ca_uri=https://ca.example.com:8443 \
               -D est_ca_user_password= \
-              -D est_ca_user_certificate=estUser \
+              -D est_ca_user_certificate="EST subsystem cert" \
               -D pki_server_pkcs12_path=$SHARED/est_server.p12 \
               -D pki_server_pkcs12_password=Secret.123 \
               -v
@@ -286,7 +286,7 @@ jobs:
           docker exec est curl -o cacert.p7 -k https://est.example.com:8443/.well-known/est/cacerts
 
           docker exec est openssl base64 -d --in cacert.p7 --out cacert.p7.der
-          docker exec est openssl pkcs7 --in cacert.p7.der -inform DER -print_certs -out cacert.pem
+          docker exec est openssl pkcs7 --in cacert.p7.der -inform DER -print_certs -quiet -out cacert.pem
           docker exec est openssl x509 -in cacert.pem -text -noout | tee actual
           docker exec est openssl x509 -in $SHARED/ca_signing.crt -text -noout | tee expected
           diff expected actual
@@ -302,7 +302,7 @@ jobs:
               --common-name test.example.com -o . -u est-test-user -h Secret.123
 
           docker exec est openssl base64 -d --in cert-0-0.pkcs7 --out cert-0-0.pkcs7.der
-          docker exec est openssl pkcs7 -in cert-0-0.pkcs7.der -inform DER -print_certs -out cert.pem
+          docker exec est openssl pkcs7 -in cert-0-0.pkcs7.der -inform DER -print_certs -quiet -out cert.pem
           docker exec est openssl x509 -in cert.pem -subject -noout | tee actual
           echo "subject=CN=test.example.com" > expected
           diff expected actual
