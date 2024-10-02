@@ -579,6 +579,11 @@ jobs:
         run: |
           docker exec primary cat /var/log/httpd/access_log
 
+      - name: Check HTTPD error logs in primary container
+        if: always()
+        run: |
+          docker exec primary cat /var/log/httpd/error_log
+
       - name: Check DS server systemd journal in primary container
         if: always()
         run: |
@@ -673,6 +678,11 @@ jobs:
         if: always()
         run: |
           docker exec secondary cat /var/log/httpd/access_log
+
+      - name: Check HTTPD error logs in secondary container
+        if: always()
+        run: |
+          docker exec secondary cat /var/log/httpd/error_log
 
       - name: Check DS server systemd journal in secondary container
         if: always()

@@ -228,6 +228,11 @@ jobs:
         run: |
           docker exec ipa cat /var/log/httpd/access_log
 
+      - name: Check HTTPD error logs
+        if: always()
+        run: |
+          docker exec ipa cat /var/log/httpd/error_log
+
       - name: Check DS server systemd journal
         if: always()
         run: |
