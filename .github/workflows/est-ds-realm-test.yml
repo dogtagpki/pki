@@ -266,7 +266,7 @@ jobs:
         run: |
           docker exec pki curl -o cacert.p7 -k https://pki.example.com:8443/.well-known/est/cacerts
           docker exec pki openssl base64 -d --in cacert.p7 --out cacert.p7.der
-          docker exec pki openssl pkcs7 --in cacert.p7.der -inform DER -print_certs -out cacert.pem
+          docker exec pki openssl pkcs7 --in cacert.p7.der -inform DER -print_certs -quiet -out cacert.pem
           docker exec pki openssl x509 -in cacert.pem -text -noout | tee actual
           docker exec pki openssl x509 -in ca_signing.crt -text -noout | tee expected
           diff expected actual
@@ -276,14 +276,61 @@ jobs:
           docker exec pki dnf copr enable -y @pki/libest 
           docker exec pki dnf install -y libest
 
-      - name: Enroll certificate
+      - name: Enroll certificate with user/password
         run: |
           docker exec -e EST_OPENSSL_CACERT=cacert.pem pki estclient -e -s pki.example.com -p 8443 \
               --common-name test.example.com -o . -u est-test-user -h Secret.123
 
           docker exec pki openssl base64 -d --in cert-0-0.pkcs7 --out cert-0-0.pkcs7.der
-          docker exec pki openssl pkcs7 -in cert-0-0.pkcs7.der -inform DER -print_certs -out cert.pem
+          docker exec pki openssl pkcs7 -in cert-0-0.pkcs7.der -inform DER -print_certs -quiet -out cert.pem
           docker exec pki openssl x509 -in cert.pem -subject -noout | tee actual
+          echo "subject=CN=test.example.com" > expected
+          diff expected actual
+
+      - name: Add certificate to the user
+        run: |
+          VERSION=$(docker exec pki PrettyPrintCert cert.pem | sed -n 's/\s*Version:\s*v3/2/p')
+          SERIAL_HEX=$(docker exec pki PrettyPrintCert cert.pem | sed -n 's/\s*Serial Number:\s*0x\(.*\)/\1/p')
+          SERIAL=$(python3 -c 'print(int("'$SERIAL_HEX'", 16))')
+          ISSUER=$(docker exec pki PrettyPrintCert cert.pem | sed -n 's/\s*Issuer:\s*\(.*\)/\1/p' | sed 's/, /,/g')
+          SUBJECT=$(docker exec pki PrettyPrintCert cert.pem | sed -n 's/\s*Subject:\s*\(.*\)/\1/p' | sed 's/, /,/g')
+
+          docker exec pki openssl x509 -in cert.pem -outform DER -out cert.der
+          CERTIFICATE=$(docker exec pki openssl base64 -in cert.der | sed 's/^/ /')
+          
+          docker exec -i pki ldapmodify -H ldap://ds.example.com:3389 -D "cn=Directory Manager" -w Secret.123 <<EOF
+          dn: uid=est-test-user,ou=people,dc=est,dc=pki,dc=example,dc=com
+          changetype: modify
+          add: description
+          description: $VERSION;$SERIAL;$ISSUER;$SUBJECT
+          -
+          add: userCertificate
+          userCertificate::$CERTIFICATE
+          EOF
+
+          docker exec -i pki ldapsearch -H ldap://ds.example.com:3389 -D "cn=Directory Manager" -w Secret.123 -b ou=people,dc=est,dc=pki,dc=example,dc=com
+
+      - name: Enroll new certificate with certificate
+        run: |
+          docker exec pki mkdir new_certs
+          docker exec -e EST_OPENSSL_CACERT=cacert.pem pki estclient -e -s pki.example.com -p 8443 \
+              --common-name test-new.example.com -o ./new_certs -c cert.pem -k key-x-x.pem
+
+          docker exec pki openssl base64 -d --in new_certs/cert-0-0.pkcs7 --out new_certs/cert-0-0.pkcs7.der
+          docker exec pki openssl pkcs7 -in new_certs/cert-0-0.pkcs7.der -inform DER -print_certs -quiet -out new_certs/cert.pem
+          docker exec pki openssl x509 -in new_certs/cert.pem -subject -noout | tee actual
+          echo "subject=CN=test-new.example.com" > expected
+          diff expected actual
+          
+      - name: Re-Enroll new certificate with certificate
+        run: |
+          docker exec pki mkdir re_certs
+          docker exec -e EST_OPENSSL_CACERT=cacert.pem pki estclient -r -s pki.example.com -p 8443 \
+              -o ./re_certs -c cert.pem -k key-x-x.pem
+
+          docker exec pki openssl base64 -d --in re_certs/cert-0-0.pkcs7 --out re_certs/cert-0-0.pkcs7.der
+          docker exec pki openssl pkcs7 -in re_certs/cert-0-0.pkcs7.der -inform DER -print_certs -quiet -out re_certs/cert.pem
+          docker exec pki openssl x509 -in re_certs/cert.pem -subject -noout | tee actual
           echo "subject=CN=test.example.com" > expected
           diff expected actual
 
