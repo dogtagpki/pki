@@ -1180,11 +1180,11 @@ class PKIDeployer:
             subsystem.set_config('dbs.request.id.length', self.mdict['pki_request_id_length'])
 
         else:  # legacy
-            subsystem.set_config('dbs.beginRequestNumber', '1')
-            subsystem.set_config('dbs.endRequestNumber', '10000000')
-            subsystem.set_config('dbs.requestIncrement', '10000000')
-            subsystem.set_config('dbs.requestLowWaterMark', '2000000')
-            subsystem.set_config('dbs.requestCloneTransferNumber', '10000')
+            subsystem.set_config('dbs.beginRequestNumber', '1')  # decimal
+            subsystem.set_config('dbs.endRequestNumber', '10000000')  # decimal
+            subsystem.set_config('dbs.requestIncrement', '10000000')  # decimal
+            subsystem.set_config('dbs.requestLowWaterMark', '2000000')  # decimal
+            subsystem.set_config('dbs.requestCloneTransferNumber', '10000')  # decimal
             subsystem.set_config('dbs.requestRangeDN', 'ou=requests,ou=ranges')
 
             request_number_range_start = self.mdict.get('pki_request_number_range_start')
@@ -1195,6 +1195,18 @@ class PKIDeployer:
             if request_number_range_end:
                 subsystem.set_config('dbs.endRequestNumber', request_number_range_end)
 
+            request_increment = self.mdict.get('pki_request_number_range_increment')
+            if request_increment:
+                subsystem.set_config('dbs.requestIncrement', request_increment)
+
+            request_minimum = self.mdict.get('pki_request_number_range_minimum')
+            if request_minimum:
+                subsystem.set_config('dbs.requestLowWaterMark', request_minimum)
+
+            request_transfer = self.mdict.get('pki_request_number_range_transfer')
+            if request_transfer:
+                subsystem.set_config('dbs.requestCloneTransferNumber', request_transfer)
+
         cert_id_generator = self.mdict['pki_cert_id_generator']
 
         if cert_id_generator == 'random':
@@ -1202,12 +1214,13 @@ class PKIDeployer:
             subsystem.set_config('dbs.cert.id.length', self.mdict['pki_cert_id_length'])
 
         else:  # legacy
-            subsystem.set_config('dbs.beginSerialNumber', '1')
-            subsystem.set_config('dbs.endSerialNumber', '10000000')
-            subsystem.set_config('dbs.serialIncrement', '10000000')
-            subsystem.set_config('dbs.serialLowWaterMark', '2000000')
-            subsystem.set_config('dbs.serialCloneTransferNumber', '10000')
+            subsystem.set_config('dbs.beginSerialNumber', '1')  # hex
+            subsystem.set_config('dbs.endSerialNumber', '10000000')  # hex
+            subsystem.set_config('dbs.serialIncrement', '10000000')  # hex
+            subsystem.set_config('dbs.serialLowWaterMark', '2000000')  # hex
+            subsystem.set_config('dbs.serialCloneTransferNumber', '10000')  # hex
             subsystem.set_config('dbs.serialRangeDN', 'ou=certificateRepository,ou=ranges')
+
             if config.str2bool(self.mdict['pki_random_serial_numbers_enable']):
                 subsystem.set_config('dbs.enableRandomSerialNumbers', 'true')
             subsystem.set_config('dbs.randomSerialNumberCounter', '0')
@@ -1219,6 +1232,18 @@ class PKIDeployer:
             serial_number_range_end = self.mdict.get('pki_serial_number_range_end')
             if serial_number_range_end:
                 subsystem.set_config('dbs.endSerialNumber', serial_number_range_end)
+
+            serial_increment = self.mdict.get('pki_serial_number_range_increment')
+            if serial_increment:
+                subsystem.set_config('dbs.serialIncrement', serial_increment)
+
+            serial_minimum = self.mdict.get('pki_serial_number_range_minimum')
+            if serial_minimum:
+                subsystem.set_config('dbs.serialLowWaterMark', serial_minimum)
+
+            serial_transfer = self.mdict.get('pki_serial_number_range_transfer')
+            if serial_transfer:
+                subsystem.set_config('dbs.serialCloneTransferNumber', serial_transfer)
 
         replica_number_range_start = self.mdict.get('pki_replica_number_range_start')
         if replica_number_range_start:
@@ -1244,11 +1269,11 @@ class PKIDeployer:
             subsystem.set_config('dbs.request.id.length', self.mdict['pki_request_id_length'])
 
         else:  # legacy
-            subsystem.set_config('dbs.beginRequestNumber', '1')
-            subsystem.set_config('dbs.endRequestNumber', '10000000')
-            subsystem.set_config('dbs.requestIncrement', '10000000')
-            subsystem.set_config('dbs.requestLowWaterMark', '2000000')
-            subsystem.set_config('dbs.requestCloneTransferNumber', '10000')
+            subsystem.set_config('dbs.beginRequestNumber', '1')  # decimal
+            subsystem.set_config('dbs.endRequestNumber', '10000000')  # decimal
+            subsystem.set_config('dbs.requestIncrement', '10000000')  # decimal
+            subsystem.set_config('dbs.requestLowWaterMark', '2000000')  # decimal
+            subsystem.set_config('dbs.requestCloneTransferNumber', '10000')  # decimal
             subsystem.set_config('dbs.requestRangeDN', 'ou=requests,ou=ranges')
 
         key_id_generator = self.mdict['pki_key_id_generator']
@@ -1258,11 +1283,11 @@ class PKIDeployer:
             subsystem.set_config('dbs.key.id.length', self.mdict['pki_key_id_length'])
 
         else:  # legacy
-            subsystem.set_config('dbs.beginSerialNumber', '1')
-            subsystem.set_config('dbs.endSerialNumber', '10000000')
-            subsystem.set_config('dbs.serialIncrement', '10000000')
-            subsystem.set_config('dbs.serialLowWaterMark', '2000000')
-            subsystem.set_config('dbs.serialCloneTransferNumber', '10000')
+            subsystem.set_config('dbs.beginSerialNumber', '1')  # hex
+            subsystem.set_config('dbs.endSerialNumber', '10000000')  # hex
+            subsystem.set_config('dbs.serialIncrement', '10000000')  # hex
+            subsystem.set_config('dbs.serialLowWaterMark', '2000000')  # hex
+            subsystem.set_config('dbs.serialCloneTransferNumber', '10000')  # hex
             subsystem.set_config('dbs.serialRangeDN', 'ou=keyRepository,ou=ranges')
 
         if config.str2bool(self.mdict['pki_kra_ephemeral_requests']):
