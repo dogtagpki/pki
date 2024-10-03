@@ -253,9 +253,6 @@ jobs:
         run: |
           docker exec ipa cat /var/log/dirsrv/slapd-EXAMPLE-COM/security
 
-      - name: Remove IPA server
-        run: docker exec ipa ipa-server-install --uninstall -U
-
       - name: Check IPA CA install log
         if: always()
         run: |
@@ -283,6 +280,9 @@ jobs:
           tests/bin/pki-artifacts-save.sh ipa
           tests/bin/ipa-artifacts-save.sh ipa
         continue-on-error: true
+
+      - name: Remove IPA server
+        run: docker exec ipa ipa-server-install --uninstall -U
 
       - name: Upload artifacts
         if: always()
