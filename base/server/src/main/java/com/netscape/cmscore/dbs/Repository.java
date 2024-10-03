@@ -539,9 +539,16 @@ public abstract class Repository {
             }
 
             String nextRange = attr.getStringValues().nextElement();
+
+            // parse nextRange as decimal
             BigInteger nextRangeNo = new BigInteger(nextRange);
+
             BigInteger newNextRangeNo = nextRangeNo.add(mIncrementNo);
+
+            // generate new nextRange in decimal
             String newNextRange = newNextRangeNo.toString();
+
+            // generate endRange in decimal
             String endRange = newNextRangeNo.subtract(BigInteger.ONE).toString();
 
             logger.info("Repository: Updating " + DBSubsystem.PROP_NEXT_RANGE + " from " + nextRange + " to " + newNextRange);
@@ -563,8 +570,13 @@ public abstract class Repository {
             LDAPAttributeSet attrs = new LDAPAttributeSet();
             attrs.add(new LDAPAttribute("objectClass", "top"));
             attrs.add(new LDAPAttribute("objectClass", "pkiRange"));
+
+            // store beginRange as decimal
             attrs.add(new LDAPAttribute("beginRange", nextRange));
+
+            // store endRange as decimal
             attrs.add(new LDAPAttribute("endRange", endRange));
+
             attrs.add(new LDAPAttribute("cn", nextRange));
             attrs.add(new LDAPAttribute("host", cs.getHostname()));
             attrs.add(new LDAPAttribute("securePort", engine.getEESSLPort()));

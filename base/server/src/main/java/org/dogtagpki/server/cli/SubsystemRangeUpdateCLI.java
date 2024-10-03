@@ -109,11 +109,18 @@ public class SubsystemRangeUpdateCLI extends SubsystemCLI {
         LdapBoundConnection conn = new LdapBoundConnection(socketFactory, connInfo, authInfo);
 
         try {
+            // parse the end of current cert range as decimal
+            // NOTE: this is a bug, cert range is stored as hex in CS.cfg
             BigInteger endSerialNumber = new BigInteger(dbConfig.getEndSerialNumber());
-            BigInteger nextSerialNumber = endSerialNumber.add(BigInteger.ONE);
+
+            // generate nextRange in decimal
+            String nextSerialNumber = endSerialNumber.add(BigInteger.ONE).toString();
 
             String serialDN = dbConfig.getSerialDN() + "," + baseDN;
-            LDAPAttribute attrSerialNextRange = new LDAPAttribute("nextRange", nextSerialNumber.toString());
+
+            // store nextRange as decimal
+            LDAPAttribute attrSerialNextRange = new LDAPAttribute("nextRange", nextSerialNumber);
+
             LDAPModification serialmod = new LDAPModification(LDAPModification.REPLACE, attrSerialNextRange);
 
             conn.modify(serialDN, serialmod);
@@ -145,11 +152,17 @@ public class SubsystemRangeUpdateCLI extends SubsystemCLI {
         try {
             logger.info("Updating request ID range");
 
+            // parse the end of current range as decimal
             BigInteger endRequestNumber = new BigInteger(dbConfig.getEndRequestNumber());
-            BigInteger nextRequestNumber = endRequestNumber.add(BigInteger.ONE);
+
+            // generate nextRange in decimal
+            String nextRequestNumber = endRequestNumber.add(BigInteger.ONE).toString();
 
             String requestDN = dbConfig.getRequestDN() + "," + baseDN;
-            LDAPAttribute attrRequestNextRange = new LDAPAttribute("nextRange", nextRequestNumber.toString());
+
+            // store nextRange as decimal
+            LDAPAttribute attrRequestNextRange = new LDAPAttribute("nextRange", nextRequestNumber);
+
             LDAPModification requestmod = new LDAPModification(LDAPModification.REPLACE, attrRequestNextRange);
 
             conn.modify(requestDN, requestmod);
