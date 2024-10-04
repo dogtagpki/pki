@@ -22,26 +22,19 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-import com.netscape.cmscore.request.RequestRepository;
+import org.dogtagpki.server.ca.CAEngine;
 
 public class SerialNumberUpdateTask implements Runnable {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SerialNumberUpdateTask.class);
 
-    CertificateRepository certRepository;
-    RequestRepository requestRepository;
-
+    CAEngine engine;
     int interval;
 
     ScheduledExecutorService executorService;
 
-    public SerialNumberUpdateTask(
-            CertificateRepository certRepository,
-            RequestRepository requestRepository,
-            int interval) {
-
-        this.certRepository = certRepository;
-        this.requestRepository = requestRepository;
+    public SerialNumberUpdateTask(CAEngine engine, int interval) {
+        this.engine = engine;
         this.interval = interval;
     }
 
@@ -56,22 +49,10 @@ public class SerialNumberUpdateTask implements Runnable {
         executorService.scheduleWithFixedDelay(this, 0, interval, TimeUnit.SECONDS);
     }
 
-    public synchronized void updateSerialNumbers() throws Exception {
-
-        logger.info("SerialNumberUpdateTask: Updating serial number counter");
-        certRepository.updateCounter();
-
-        logger.info("SerialNumberUpdateTask: Checking serial number ranges");
-        certRepository.checkRanges();
-
-        logger.info("SerialNumberUpdateTask: Checking request ID ranges");
-        requestRepository.checkRanges();
-    }
-
     @Override
     public void run() {
         try {
-            updateSerialNumbers();
+            engine.updateSerialNumbers();
 
         } catch (Exception e) {
             logger.warn("SerialNumberUpdateTask: " + e.getMessage(), e);

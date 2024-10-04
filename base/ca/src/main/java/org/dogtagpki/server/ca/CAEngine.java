@@ -991,11 +991,20 @@ public class CAEngine extends CMSEngine {
 
         logger.info("CAEngine: Starting serial number update task");
 
-        serialNumberUpdateTask = new SerialNumberUpdateTask(
-                certificateRepository,
-                requestRepository,
-                interval);
+        serialNumberUpdateTask = new SerialNumberUpdateTask(this, interval);
         serialNumberUpdateTask.start();
+    }
+
+    public synchronized void updateSerialNumbers() throws Exception {
+
+        logger.info("CAEngine: Updating serial number counter");
+        certificateRepository.updateCounter();
+
+        logger.info("CAEngine: Checking serial number ranges");
+        certificateRepository.checkRanges();
+
+        logger.info("CAEngine: Checking request ID ranges");
+        requestRepository.checkRanges();
     }
 
     @Override
