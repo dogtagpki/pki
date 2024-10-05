@@ -539,10 +539,10 @@ public abstract class Repository {
             }
 
             String nextRange = attr.getStringValues().nextElement();
-            BigInteger nextRangeNo = new BigInteger(nextRange);
+            BigInteger nextRangeNo = new BigInteger(nextRange, mRadix);
             BigInteger newNextRangeNo = nextRangeNo.add(mIncrementNo);
-            String newNextRange = newNextRangeNo.toString();
-            String endRange = newNextRangeNo.subtract(BigInteger.ONE).toString();
+            String newNextRange = newNextRangeNo.toString(mRadix);
+            String endRange = newNextRangeNo.subtract(BigInteger.ONE).toString(mRadix);
 
             logger.info("Repository: Updating " + DBSubsystem.PROP_NEXT_RANGE + " from " + nextRange + " to " + newNextRange);
 
