@@ -148,6 +148,10 @@ public abstract class UpdateNumberRange extends CMSServlet {
                 nextEndConfig = "nextEndReplicaNumber";
             }
 
+            if (dbConfig.getNumberRangeRadix() > 0) {
+                radix = dbConfig.getNumberRangeRadix();
+            }
+
             /* UpdateNumberRange transfers a portion of this instance's
              * number range to a clone.
              *
