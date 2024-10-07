@@ -115,7 +115,15 @@ public abstract class Repository {
      */
     public Repository(DBSubsystem dbSubsystem, int radix) {
         this.dbSubsystem = dbSubsystem;
-        this.mRadix = radix;
+        DatabaseConfig dbc = dbSubsystem.getDBConfigStore();
+        int cRadix = 0;
+        try {
+            cRadix = dbc.getNumberRangeRadix();
+        } catch (EBaseException ex) {
+            logger.debug("Repository: error reading number radix config, using default {} for {}", radix, this.getClass().getName());
+        }
+        this.mRadix = cRadix > 0 ? cRadix : radix;
+        logger.debug("Repository: number radix {} for {}", this.mRadix, this.getClass().getName());
     }
 
     public CMSEngine getCMSEngine() {

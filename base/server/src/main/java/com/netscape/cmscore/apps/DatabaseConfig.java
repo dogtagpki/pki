@@ -66,6 +66,8 @@ public class DatabaseConfig extends ConfigStore {
     public static final String INFINITE_REQUEST_NUMBER = "1000000000";
     public static final String INFINITE_REPLICA_NUMBER = "1000";
 
+    public static final String NUMBER_RANGE_RADIX = "numberRangeRadix";
+
     public static final String ENABLE_SERIAL_MGMT = "enableSerialManagement";
 
     public DatabaseConfig(ConfigStorage storage) {
@@ -298,6 +300,10 @@ public class DatabaseConfig extends ConfigStore {
 
     public void setReplicaIncrement(String replicaIncrement) {
         putString(REPLICA_INCREMENT, replicaIncrement);
+    }
+
+    public int getNumberRangeRadix() throws EBaseException {
+        return getInteger(NUMBER_RANGE_RADIX, -1);
     }
 
     public LDAPConfig getLDAPConfig() throws EBaseException {
