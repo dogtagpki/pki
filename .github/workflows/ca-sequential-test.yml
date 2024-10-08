@@ -85,20 +85,22 @@ jobs:
         run: |
           docker exec pki pki-server ca-cert-request-find | tee output
 
-          grep "Request ID:" output | wc -l > actual
+          sed -n "s/^ *Request ID: *\(.*\)$/\1/p" output > actual
 
           # there should be 6 requests
-          echo "6" > expected
+          seq 1 6 > expected
+
           diff expected actual
 
       - name: Check certs
         run: |
           docker exec pki pki-server ca-cert-find | tee output
 
-          grep "Serial Number:" output | wc -l > actual
+          sed -n "s/^ *Serial Number: *\(.*\)$/\1/p" output > actual
 
           # there should be 6 certs
-          echo "6" > expected
+          seq 1 6 | while read n; do printf "0x%x\n" $n; done > expected
+
           diff expected actual
 
       - name: Check request range config
@@ -436,20 +438,22 @@ jobs:
         run: |
           docker exec pki pki-server ca-cert-request-find | tee output
 
-          grep "Request ID:" output | wc -l > actual
+          sed -n "s/^ *Request ID: *\(.*\)$/\1/p" output > actual
 
           # there should be 16 requests
-          echo "16" > expected
+          seq 1 16 > expected
+
           diff expected actual
 
       - name: Check certs
         run: |
           docker exec pki pki-server ca-cert-find | tee output
 
-          grep "Serial Number:" output | wc -l > actual
+          sed -n "s/^ *Serial Number: *\(.*\)$/\1/p" output > actual
 
           # there should be 16 certs
-          echo "16" > expected
+          seq 1 16 | while read n; do printf "0x%x\n" $n; done > expected
+
           diff expected actual
 
       - name: Check request range config
@@ -590,13 +594,13 @@ jobs:
           diff /dev/null output
 
       ####################################################################################################
-      # Enroll a cert when range is exhausted
+      # Enroll a cert when cert range is exhausted
       #
       # This will create one request but fails to create another cert.
       # For some reason requests can switch to a new range automatically,
       # but certs cannot.
 
-      - name: Enroll a cert when range is exhausted
+      - name: Enroll a cert when cert range is exhausted
         run: |
           docker exec pki pki \
               -n caadmin \
@@ -618,20 +622,22 @@ jobs:
         run: |
           docker exec pki pki-server ca-cert-request-find | tee output
 
-          grep "Request ID:" output | wc -l > actual
+          sed -n "s/^ *Request ID: *\(.*\)$/\1/p" output > actual
 
           # there should be 17 requests
-          echo "17" > expected
+          seq 1 17 > expected
+
           diff expected actual
 
       - name: Check certs
         run: |
           docker exec pki pki-server ca-cert-find | tee output
 
-          grep "Serial Number:" output | wc -l > actual
+          sed -n "s/^ *Serial Number: *\(.*\)$/\1/p" output > actual
 
           # there should be 16 certs
-          echo "16" > expected
+          seq 1 16 | while read n; do printf "0x%x\n" $n; done > expected
+
           diff expected actual
 
       - name: Check request range config
@@ -792,7 +798,7 @@ jobs:
                   -e dbs.requestLowWaterMark \
               | tee actual
 
-          # request range should be 11 - 20 decimal (total: 10, remaining: 3)
+          # request range should be the same
           cat > expected << EOF
           dbs.beginRequestNumber=11
           dbs.endRequestNumber=20
@@ -814,7 +820,7 @@ jobs:
                   -e dbs.serialLowWaterMark \
               | tee actual
 
-          # cert range should be 1 - 10 hex (total: 16, remaining: 0)
+          # cert range should be the same
           cat > expected << EOF
           dbs.beginSerialNumber=1
           dbs.endSerialNumber=10
@@ -954,41 +960,44 @@ jobs:
           diff expected actual
 
       ####################################################################################################
-      # Enroll a cert after updating serial numbers
+      # Enroll 13 additional certs
       #
-      # This should create one request and one cert. For certs,
-      # it should switch to a new range. For requests, there
-      # should be no changes.
+      # This will create 13 requests and 13 certs. Both requests and certs
+      # will switch to the new ranges allocated earlier.
 
-      - name: Enroll a cert after updating serial numbers
+      - name: Enroll 13 additional certs
         run: |
-          docker exec pki pki \
-              -n caadmin \
-              ca-cert-issue \
-              --profile caUserCert \
-              --csr-file testuser.csr \
-              --output-file testuser.crt
+          for i in $(seq 1 13); do
+              docker exec pki pki \
+                  -n caadmin \
+                  ca-cert-issue \
+                  --profile caUserCert \
+                  --csr-file testuser.csr \
+                  --output-file testuser.crt
 
-          docker exec pki openssl x509 -in testuser.crt -text -noout
+              docker exec pki openssl x509 -in testuser.crt -serial -noout
+          done
 
       - name: Check requests
         run: |
           docker exec pki pki-server ca-cert-request-find | tee output
 
-          grep "Request ID:" output | wc -l > actual
+          sed -n "s/^ *Request ID: *\(.*\)$/\1/p" output > actual
 
-          # there should be 18 requests
-          echo "18" > expected
+          # there should be 30 requests (17 existing + 13 new)
+          seq 1 30 > expected
+
           diff expected actual
 
       - name: Check certs
         run: |
           docker exec pki pki-server ca-cert-find | tee output
 
-          grep "Serial Number:" output | wc -l > actual
+          sed -n "s/^ *Serial Number: *\(.*\)$/\1/p" output > actual
 
-          # there should be 17 certs
-          echo "17" > expected
+          # there should be 29 certs (16 existing + 13 new)
+          seq 1 29 | while read n; do printf "0x%x\n" $n; done > expected
+
           diff expected actual
 
       - name: Check request range config
@@ -1002,10 +1011,10 @@ jobs:
                   -e dbs.requestLowWaterMark \
               | tee actual
 
-          # request range should be 11 - 20 decimal (total: 10, remaining: 2)
+          # request range should be 21 - 30 decimal (total: 10, remaining: 0)
           cat > expected << EOF
-          dbs.beginRequestNumber=11
-          dbs.endRequestNumber=20
+          dbs.beginRequestNumber=21
+          dbs.endRequestNumber=30
           dbs.requestCloneTransferNumber=5
           dbs.requestIncrement=10
           dbs.requestLowWaterMark=5
@@ -1024,7 +1033,7 @@ jobs:
                   -e dbs.serialLowWaterMark \
               | tee actual
 
-          # cert range should be 11 - 20 hex (total: 16, remaining: 15)
+          # cert range should be 11 - 20 hex (total: 16, remaining: 3)
           cat > expected << EOF
           dbs.beginSerialNumber=11
           dbs.endSerialNumber=20
@@ -1164,6 +1173,670 @@ jobs:
           diff expected actual
 
       ####################################################################################################
+      # Enroll a cert when request range is exhausted
+      #
+      # This will fail to create a request so no cert will be created either.
+
+      - name: Enroll a cert when request range is exhausted
+        run: |
+          docker exec pki pki \
+              -n caadmin \
+              ca-cert-issue \
+              --profile caUserCert \
+              --csr-file testuser.csr \
+              --output-file testuser.crt \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          cat > expected << EOF
+          PKIException: Unable to create enrollment request: Unable to create enrollment request: All serial numbers are used. The max serial number is 0x31
+          EOF
+
+          diff expected stderr
+
+      - name: Check requests
+        run: |
+          docker exec pki pki-server ca-cert-request-find | tee output
+
+          sed -n "s/^ *Request ID: *\(.*\)$/\1/p" output > actual
+
+          # requests should be the same
+          seq 1 30 > expected
+
+          diff expected actual
+
+      - name: Check certs
+        run: |
+          docker exec pki pki-server ca-cert-find | tee output
+
+          sed -n "s/^ *Serial Number: *\(.*\)$/\1/p" output > actual
+
+          # certs should be the same
+          seq 1 29 | while read n; do printf "0x%x\n" $n; done > expected
+
+          diff expected actual
+
+      - name: Check request range config
+        run: |
+          docker exec pki pki-server ca-config-find \
+              | grep \
+                  -e dbs.beginRequestNumber \
+                  -e dbs.endRequestNumber \
+                  -e dbs.requestCloneTransferNumber \
+                  -e dbs.requestIncrement \
+                  -e dbs.requestLowWaterMark \
+              | tee actual
+
+          # request range should be the same
+          cat > expected << EOF
+          dbs.beginRequestNumber=21
+          dbs.endRequestNumber=30
+          dbs.requestCloneTransferNumber=5
+          dbs.requestIncrement=10
+          dbs.requestLowWaterMark=5
+          EOF
+
+          diff expected actual
+
+      - name: Check cert range config
+        run: |
+          docker exec pki pki-server ca-config-find \
+              | grep \
+                  -e dbs.beginSerialNumber \
+                  -e dbs.endSerialNumber \
+                  -e dbs.serialCloneTransferNumber \
+                  -e dbs.serialIncrement \
+                  -e dbs.serialLowWaterMark \
+              | tee actual
+
+          # cert range should be the same
+          cat > expected << EOF
+          dbs.beginSerialNumber=11
+          dbs.endSerialNumber=20
+          dbs.serialCloneTransferNumber=8
+          dbs.serialIncrement=10
+          dbs.serialLowWaterMark=8
+          EOF
+
+          diff expected actual
+
+      - name: Check request repository
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=ca,ou=requests,dc=ca,dc=pki,dc=example,dc=com \
+              -s base \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          grep \
+              -e serialno: \
+              -e nextRange: \
+              output \
+              | sort > actual
+
+          # request nextRange should be the same
+          cat > expected << EOF
+          nextRange: 31
+          serialno: 010
+          EOF
+
+          diff expected actual
+
+      - name: Check cert repository
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=certificateRepository,ou=ca,dc=ca,dc=pki,dc=example,dc=com \
+              -s base \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          grep \
+              -e serialno: \
+              -e nextRange: \
+              output \
+              | sort > actual
+
+          # cert nextRange should be the same
+          cat > expected << EOF
+          nextRange: 27
+          serialno: 011
+          EOF
+
+          diff expected actual
+
+      - name: Check request range objects
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=requests,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          rm -f actual
+
+          for DN in $(sed -n 's/^dn: *\(.*\)$/\1/p' output)
+          do
+              docker exec ds ldapsearch \
+                  -H ldap://ds.example.com:3389 \
+                  -D "cn=Directory Manager" \
+                  -w Secret.123 \
+                  -b $DN \
+                  -s base \
+                  -o ldif_wrap=no \
+                  -LLL \
+                  | grep \
+                      -e SecurePort: \
+                      -e beginRange: \
+                      -e endRange: \
+                      -e host: \
+                  | sort >> actual
+
+              echo >> actual
+          done
+
+          # request range objects should be the same
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 11
+          endRange: 20
+          host: pki.example.com
+
+          SecurePort: 8443
+          beginRange: 21
+          endRange: 30
+          host: pki.example.com
+
+          EOF
+
+          diff expected actual
+
+      - name: Check cert range objects
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=certificateRepository,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          grep \
+              -e SecurePort: \
+              -e beginRange: \
+              -e endRange: \
+              -e host: \
+              output \
+              | sort > actual
+
+          # cert range objects should be the same
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 11
+          endRange: 26
+          host: pki.example.com
+          EOF
+
+          diff expected actual
+
+      ####################################################################################################
+      # Update serial numbers again
+      #
+      # This will allocate new ranges for requests and certs since
+      # the remaining numbers in their ranges are below the minimum.
+
+      - name: Update serial numbers again
+        run: |
+          docker exec pki pki -n caadmin ca-job-start serialNumberUpdate
+
+      - name: Check request range config
+        run: |
+          docker exec pki pki-server ca-config-find \
+              | grep \
+                  -e dbs.beginRequestNumber \
+                  -e dbs.endRequestNumber \
+                  -e dbs.requestCloneTransferNumber \
+                  -e dbs.requestIncrement \
+                  -e dbs.requestLowWaterMark \
+              | tee actual
+
+          # request range should be the same
+          cat > expected << EOF
+          dbs.beginRequestNumber=21
+          dbs.endRequestNumber=30
+          dbs.requestCloneTransferNumber=5
+          dbs.requestIncrement=10
+          dbs.requestLowWaterMark=5
+          EOF
+
+          diff expected actual
+
+      - name: Check cert range config
+        run: |
+          docker exec pki pki-server ca-config-find \
+              | grep \
+                  -e dbs.beginSerialNumber \
+                  -e dbs.endSerialNumber \
+                  -e dbs.serialCloneTransferNumber \
+                  -e dbs.serialIncrement \
+                  -e dbs.serialLowWaterMark \
+              | tee actual
+
+          # cert range should be the same
+          cat > expected << EOF
+          dbs.beginSerialNumber=11
+          dbs.endSerialNumber=20
+          dbs.serialCloneTransferNumber=8
+          dbs.serialIncrement=10
+          dbs.serialLowWaterMark=8
+          EOF
+
+          diff expected actual
+
+      - name: Check request repository
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=ca,ou=requests,dc=ca,dc=pki,dc=example,dc=com \
+              -s base \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          grep \
+              -e serialno: \
+              -e nextRange: \
+              output \
+              | sort > actual
+
+          # request nextRange should be incremented by 10 decimal to 41 decimal
+          cat > expected << EOF
+          nextRange: 41
+          serialno: 010
+          EOF
+
+          diff expected actual
+
+      - name: Check cert repository
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=certificateRepository,ou=ca,dc=ca,dc=pki,dc=example,dc=com \
+              -s base \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          grep \
+              -e serialno: \
+              -e nextRange: \
+              output \
+              | sort > actual
+
+          # cert nextRange should be incremented by 10 hex (16 decimal) to 43 decimal
+          cat > expected << EOF
+          nextRange: 43
+          serialno: 011
+          EOF
+
+          diff expected actual
+
+      - name: Check request range objects
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=requests,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          rm -f actual
+
+          for DN in $(sed -n 's/^dn: *\(.*\)$/\1/p' output)
+          do
+              docker exec ds ldapsearch \
+                  -H ldap://ds.example.com:3389 \
+                  -D "cn=Directory Manager" \
+                  -w Secret.123 \
+                  -b $DN \
+                  -s base \
+                  -o ldif_wrap=no \
+                  -LLL \
+                  | grep \
+                      -e SecurePort: \
+                      -e beginRange: \
+                      -e endRange: \
+                      -e host: \
+                  | sort >> actual
+
+              echo >> actual
+          done
+
+          # new request range should be 31 - 40 decimal (total: 10)
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 11
+          endRange: 20
+          host: pki.example.com
+
+          SecurePort: 8443
+          beginRange: 21
+          endRange: 30
+          host: pki.example.com
+
+          SecurePort: 8443
+          beginRange: 31
+          endRange: 40
+          host: pki.example.com
+
+          EOF
+
+          diff expected actual
+
+      - name: Check cert range objects
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=certificateRepository,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          rm -f actual
+
+          for DN in $(sed -n 's/^dn: *\(.*\)$/\1/p' output)
+          do
+              docker exec ds ldapsearch \
+                  -H ldap://ds.example.com:3389 \
+                  -D "cn=Directory Manager" \
+                  -w Secret.123 \
+                  -b $DN \
+                  -s base \
+                  -o ldif_wrap=no \
+                  -LLL \
+                  | grep \
+                      -e SecurePort: \
+                      -e beginRange: \
+                      -e endRange: \
+                      -e host: \
+                  | sort >> actual
+
+              echo >> actual
+          done
+
+          # new cert range should be 27 - 42 decimal (total: 16)
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 11
+          endRange: 26
+          host: pki.example.com
+
+          SecurePort: 8443
+          beginRange: 27
+          endRange: 42
+          host: pki.example.com
+
+          EOF
+
+          diff expected actual
+
+      ####################################################################################################
+      # Enroll 10 additional certs
+      #
+      # This will create 10 requests and 10 certs.
+      # Both requests and certs will switch to new ranges.
+
+      - name: Enroll 10 additional certs
+        run: |
+          for i in $(seq 1 10); do
+              docker exec pki pki \
+                  -n caadmin \
+                  ca-cert-issue \
+                  --profile caUserCert \
+                  --csr-file testuser.csr \
+                  --output-file testuser.crt
+
+              docker exec pki openssl x509 -in testuser.crt -serial -noout
+          done
+
+      - name: Check requests
+        run: |
+          docker exec pki pki-server ca-cert-request-find | tee output
+
+          sed -n "s/^ *Request ID: *\(.*\)$/\1/p" output > actual
+
+          # there should be 40 requests (30 existing + 10 new)
+          seq 1 40 > expected
+
+          diff expected actual
+
+      - name: Check certs
+        run: |
+          docker exec pki pki-server ca-cert-find | tee output
+
+          sed -n "s/^ *Serial Number: *\(.*\)$/\1/p" output > actual
+
+          # there should be 39 certs (29 existing + 10 new)
+          # but due to a bug the serial numbers have a gap
+
+          # seq 1 39 | while read n; do printf "0x%x\n" $n; done > expected
+          seq 1 32 | while read n; do printf "0x%x\n" $n; done > expected
+          seq 39 45 | while read n; do printf "0x%x\n" $n; done >> expected
+
+          diff expected actual
+
+      - name: Check request range config
+        run: |
+          docker exec pki pki-server ca-config-find \
+              | grep \
+                  -e dbs.beginRequestNumber \
+                  -e dbs.endRequestNumber \
+                  -e dbs.requestCloneTransferNumber \
+                  -e dbs.requestIncrement \
+                  -e dbs.requestLowWaterMark \
+              | tee actual
+
+          # request range should be 31 - 40 decimal (total: 10, remaining: 0)
+          cat > expected << EOF
+          dbs.beginRequestNumber=31
+          dbs.endRequestNumber=40
+          dbs.requestCloneTransferNumber=5
+          dbs.requestIncrement=10
+          dbs.requestLowWaterMark=5
+          EOF
+
+          diff expected actual
+
+      - name: Check cert range config
+        run: |
+          docker exec pki pki-server ca-config-find \
+              | grep \
+                  -e dbs.beginSerialNumber \
+                  -e dbs.endSerialNumber \
+                  -e dbs.serialCloneTransferNumber \
+                  -e dbs.serialIncrement \
+                  -e dbs.serialLowWaterMark \
+              | tee actual
+
+          # cert range should be 21 - 30 hex (total: 16, remaining: 0)
+          cat > expected << EOF
+          dbs.beginSerialNumber=27
+          dbs.endSerialNumber=36
+          dbs.serialCloneTransferNumber=8
+          dbs.serialIncrement=10
+          dbs.serialLowWaterMark=8
+          EOF
+
+          diff expected actual
+
+      - name: Check request repository
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=ca,ou=requests,dc=ca,dc=pki,dc=example,dc=com \
+              -s base \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          grep \
+              -e serialno: \
+              -e nextRange: \
+              output \
+              | sort > actual
+
+          # request nextRange should be the same
+          cat > expected << EOF
+          nextRange: 41
+          serialno: 010
+          EOF
+
+          diff expected actual
+
+      - name: Check cert repository
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=certificateRepository,ou=ca,dc=ca,dc=pki,dc=example,dc=com \
+              -s base \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          grep \
+              -e serialno: \
+              -e nextRange: \
+              output \
+              | sort > actual
+
+          # cert nextRange should be the same
+          cat > expected << EOF
+          nextRange: 43
+          serialno: 011
+          EOF
+
+          diff expected actual
+
+      - name: Check request range objects
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=requests,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          rm -f actual
+
+          for DN in $(sed -n 's/^dn: *\(.*\)$/\1/p' output)
+          do
+              docker exec ds ldapsearch \
+                  -H ldap://ds.example.com:3389 \
+                  -D "cn=Directory Manager" \
+                  -w Secret.123 \
+                  -b $DN \
+                  -s base \
+                  -o ldif_wrap=no \
+                  -LLL \
+                  | grep \
+                      -e SecurePort: \
+                      -e beginRange: \
+                      -e endRange: \
+                      -e host: \
+                  | sort >> actual
+
+              echo >> actual
+          done
+
+          # request range objects should be the same
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 11
+          endRange: 20
+          host: pki.example.com
+
+          SecurePort: 8443
+          beginRange: 21
+          endRange: 30
+          host: pki.example.com
+
+          SecurePort: 8443
+          beginRange: 31
+          endRange: 40
+          host: pki.example.com
+
+          EOF
+
+          diff expected actual
+
+      - name: Check cert range objects
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=certificateRepository,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          rm -f actual
+
+          for DN in $(sed -n 's/^dn: *\(.*\)$/\1/p' output)
+          do
+              docker exec ds ldapsearch \
+                  -H ldap://ds.example.com:3389 \
+                  -D "cn=Directory Manager" \
+                  -w Secret.123 \
+                  -b $DN \
+                  -s base \
+                  -o ldif_wrap=no \
+                  -LLL \
+                  | grep \
+                      -e SecurePort: \
+                      -e beginRange: \
+                      -e endRange: \
+                      -e host: \
+                  | sort >> actual
+
+              echo >> actual
+          done
+
+          # cert range should be the same
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 11
+          endRange: 26
+          host: pki.example.com
+
+          SecurePort: 8443
+          beginRange: 27
+          endRange: 42
+          host: pki.example.com
+
+          EOF
+
+          diff expected actual
+
+      ####################################################################################################
       # Enroll a cert with RSNv3
       #
       # This should create a request and a cert. The cert
@@ -1203,35 +1876,39 @@ jobs:
               --csr-file testuser.csr \
               --output-file testuser.crt
 
-          docker exec pki openssl x509 -in testuser.crt -serial -noout | tee output
-
-          # serial number should not be 12 hex (18 decimal)
-          echo "serial=12" >> expected
-
-          rc=0
-          diff expected output || rc=$?
-
-          [ $rc -ne 0 ]
+          docker exec pki openssl x509 -in testuser.crt -serial -noout
 
       - name: Check requests
         run: |
           docker exec pki pki-server ca-cert-request-find | tee output
+          sed -n "s/^ *Request ID: *\(.*\)$/\1/p" output > list
 
-          grep "Request ID:" output | wc -l > actual
-
-          # there should be 19 requests
-          echo "19" > expected
+          # there should be 40 requests with sequential request ID
+          seq 1 40 > expected
+          head -n 40 list > actual
           diff expected actual
+
+          # there should be one request with random request ID (longer than 2 chars)
+          REQUEST_ID=$(tail -n 1 list)
+          [ ${#REQUEST_ID} -gt 2 ]
 
       - name: Check certs
         run: |
           docker exec pki pki-server ca-cert-find | tee output
+          sed -n "s/^ *Serial Number: *\(.*\)$/\1/p" output > list
 
-          grep "Serial Number:" output | wc -l > actual
+          # there should be 39 certs with sequential serial numbers
+          # but due to a bug the serial numbers have a gap
 
-          # there should be 18 certs
-          echo "18" > expected
+          # seq 1 39 | while read n; do printf "0x%x\n" $n; done > expected
+          seq 1 32 | while read n; do printf "0x%x\n" $n; done > expected
+          seq 39 45 | while read n; do printf "0x%x\n" $n; done >> expected
+          head -n 39 list > actual
           diff expected actual
+
+          # there should be one cert with random serial number (longer than 4 chars)
+          SERIAL_NUMBER=$(tail -n 1 list)
+          [ ${#SERIAL_NUMBER} -gt 4 ]
 
       ####################################################################################################
       # Cleanup
