@@ -1,0 +1,308 @@
+name: ACME with certbot
+
+on: workflow_call
+
+env:
+  DB_IMAGE: ${{ vars.DB_IMAGE || 'quay.io/389ds/dirsrv' }}
+
+jobs:
+  # docs/installation/acme/Installing_PKI_ACME_Responder.md
+  # docs/user/acme/Using_PKI_ACME_Responder_with_Certbot.md
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Retrieve ACME images
+        uses: actions/cache@v4
+        with:
+          key: acme-images-${{ github.sha }}
+          path: acme-images.tar
+
+      - name: Load ACME images
+        run: docker load --input acme-images.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-container-create.sh ds
+        env:
+          IMAGE: ${{ env.DB_IMAGE }}
+          HOSTNAME: ds.example.com
+          PASSWORD: Secret.123
+
+      - name: Connect DS container to network
+        run: docker network connect example ds --alias ds.example.com
+
+      - name: Set up PKI container
+        run: |
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
+
+      - name: Connect PKI container to network
+        run: docker network connect example pki --alias pki.example.com
+
+      - name: Install CA in PKI container
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
+              -v
+
+      - name: Install CA admin cert
+        run: |
+          docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
+          docker exec pki pki client-cert-import ca_signing --ca-cert ca_signing.crt
+          docker exec pki pki pkcs12-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password Secret.123
+          docker exec pki pki -n caadmin ca-user-show caadmin
+
+      - name: Set up ACME database in DS container
+        run: |
+          docker exec ds ldapmodify \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -f $SHARED/base/acme/database/ds/schema.ldif
+          docker exec ds ldapadd \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -f $SHARED/base/acme/database/ds/create.ldif
+          docker exec ds ldapadd \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -f $SHARED/base/acme/realm/ds/create.ldif
+
+      - name: Install ACME in PKI container
+        run: |
+          docker exec pki pki-server acme-create
+          docker exec pki pki-server acme-database-mod \
+              --type ds \
+              -D url=ldap://ds.example.com:3389
+          docker exec pki pki-server acme-issuer-mod --type pki
+          docker exec pki pki-server acme-realm-mod \
+              --type ds \
+              -D url=ldap://ds.example.com:3389
+          docker exec pki pki-server acme-deploy --wait
+
+      - name: Run PKI healthcheck in PKI container
+        run: docker exec pki pki-healthcheck --failures-only
+
+      - name: Verify ACME in PKI container
+        run: docker exec pki pki acme-info
+
+      - name: Set up client container
+        run: |
+          tests/bin/runner-init.sh client
+        env:
+          HOSTNAME: client.example.com
+
+      - name: Connect client container to network
+        run: docker network connect example client --alias client.example.com
+
+      - name: Install certbot in client container
+        run: docker exec client dnf install -y certbot
+
+      - name: Register ACME account
+        run: |
+          docker exec client certbot register \
+              --server http://pki.example.com:8080/acme/directory \
+              --email testuser@example.com \
+              --agree-tos \
+              --non-interactive
+
+      - name: Enroll using RS256 CSR
+        run: |
+          docker exec client certbot certonly \
+              --server http://pki.example.com:8080/acme/directory \
+              --key-type rsa \
+              --rsa-key-size 2048 \
+              --domain client.example.com \
+              --standalone \
+              --non-interactive \
+              --verbose
+
+      - name: Check RS256 client locally
+        run: |
+          docker exec client pki client-cert-import \
+              --cert /etc/letsencrypt/live/client.example.com/fullchain.pem \
+              rs256
+
+          # store serial number
+          docker exec client pki nss-cert-show rs256 | tee output
+          sed -n 's/^ *Serial Number: *\(.*\)/\1/p' output > rs256.txt
+
+          # subject should be CN=client.example.com
+          echo "CN=client.example.com" > expected
+          sed -n 's/^ *Subject DN: *\(.*\)/\1/p' output > actual
+          diff expected actual
+
+      - name: Check ACME orders after RS256 enrollment
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=orders,dc=acme,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          # there should be one order
+          echo "1" > expected
+          grep "^dn:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check ACME authorizations after RS256 enrollment
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=authorizations,dc=acme,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          # there should be one authorization
+          echo "1" > expected
+          grep "^dn:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check ACME challenges after RS256 enrollment
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=challenges,dc=acme,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          # there should be one challenge
+          echo "1" > expected
+          grep "^dn:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check CA certs after RS256 enrollments
+        run: |
+          docker exec pki pki ca-cert-find | tee output
+
+          # there should be 7 certs
+          echo "7" > expected
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+          # check client cert
+          SERIAL=$(cat rs256.txt)
+          docker exec pki pki ca-cert-show $SERIAL | tee output
+
+          # subject should be CN=client.example.com
+          echo "CN=client.example.com" > expected
+          sed -n 's/^ *Subject DN: *\(.*\)/\1/p' output > actual
+          diff expected actual      
+
+      - name: Enroll using ES256 CSR
+        run: |
+          docker exec client certbot certonly \
+              --server http://pki.example.com:8080/acme/directory \
+              --domain client.example.com \
+              --key-type ecdsa \
+              --elliptic-curve secp256r1 \
+              --standalone \
+              --non-interactive \
+              --duplicate \
+              --verbose
+
+      - name: Check ES256 client locally
+        run: |
+          docker exec client pki client-cert-import \
+              --cert /etc/letsencrypt/live/client.example.com/fullchain.pem \
+              es256
+
+          # store serial number
+          docker exec client pki nss-cert-show es256 | tee output
+          sed -n 's/^ *Serial Number: *\(.*\)/\1/p' output > es256.txt
+
+          # subject should be CN=client.example.com
+          echo "CN=client.example.com" > expected
+          sed -n 's/^ *Subject DN: *\(.*\)/\1/p' output > actual
+          diff expected actual
+
+      - name: Check ACME orders after ES256 enrollment
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=orders,dc=acme,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          # there should be two orders
+          echo "2" > expected
+          grep "^dn:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check ACME authorizations after ES256 enrollment
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=authorizations,dc=acme,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          # there should be two authorizations
+          echo "2" > expected
+          grep "^dn:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check ACME challenges after ES256 enrollment
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=challenges,dc=acme,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          # there should be two challenges
+          echo "2" > expected
+          grep "^dn:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check CA certs after enrollments
+        run: |
+          docker exec pki pki ca-cert-find | tee output
+
+          # there should be 8 certs
+          echo "8" > expected
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+          # check client cert
+          SERIAL=$(cat es256.txt)
+          docker exec pki pki ca-cert-show $SERIAL | tee output
+
+          # subject should be CN=client.example.com
+          echo "CN=client.example.com" > expected
+          sed -n 's/^ *Subject DN: *\(.*\)/\1/p' output > actual
+          diff expected actual
