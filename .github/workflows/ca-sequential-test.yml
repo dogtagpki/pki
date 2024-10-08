@@ -35,13 +35,20 @@ jobs:
       # Create CA with Sequential Serial Numbers
       #
       # requests:
-      # - range: 1 - 10 decimal
+      # - initial range: 1 - 10 decimal
+      # - initial size: 10 decimal
       # - increment: 10 decimal
       # - minimum: 5 decimal
+      #
       # certs:
-      # - range: 1 - 10 hex (1 - 16 decimal)
-      # - increment: 10 hex (16 decimal)
-      # - minimum: 8 decimal
+      # - initial range: 9 - 18 hex (9 - 24 decimal)
+      # - initial size: 10 hex (16 decimal)
+      # - increment: 12 hex (18 decimal)
+      # - minimum: 9 hex (9 decimal)
+      #
+      # Note: cert range params are hexadecimal but due to a bug in
+      # SubsystemRangeUpdateCLI.updateSerialNumberRange() it cannot
+      # contain A to F.
 
       - name: Set up DS container
         run: |
@@ -74,17 +81,16 @@ jobs:
               -D pki_request_number_range_minimum=5 \
               -D pki_request_number_range_transfer=5 \
               -D pki_cert_id_generator=legacy \
-              -D pki_serial_number_range_start=1 \
-              -D pki_serial_number_range_end=10 \
-              -D pki_serial_number_range_increment=10 \
-              -D pki_serial_number_range_minimum=8 \
-              -D pki_serial_number_range_transfer=8 \
+              -D pki_serial_number_range_start=9 \
+              -D pki_serial_number_range_end=18 \
+              -D pki_serial_number_range_increment=12 \
+              -D pki_serial_number_range_minimum=9 \
+              -D pki_serial_number_range_transfer=9 \
               -v
 
       - name: Check requests
         run: |
           docker exec pki pki-server ca-cert-request-find | tee output
-
           sed -n "s/^ *Request ID: *\(.*\)$/\1/p" output > actual
 
           # there should be 6 requests
@@ -95,11 +101,10 @@ jobs:
       - name: Check certs
         run: |
           docker exec pki pki-server ca-cert-find | tee output
-
           sed -n "s/^ *Serial Number: *\(.*\)$/\1/p" output > actual
 
           # there should be 6 certs
-          seq 1 6 | while read n; do printf "0x%x\n" $n; done > expected
+          seq 9 14 | while read n; do printf "0x%x\n" $n; done > expected
 
           diff expected actual
 
@@ -107,7 +112,7 @@ jobs:
         run: |
           tests/ca/bin/ca-request-range-config.sh pki | tee output
 
-          # request range should be 1 - 10 decimal (total: 10, remaining: 4)
+          # request range should be 1 - 10 decimal (size: 10, remaining: 4)
           cat > expected << EOF
           dbs.beginRequestNumber=1
           dbs.endRequestNumber=10
@@ -122,13 +127,13 @@ jobs:
         run: |
           tests/ca/bin/ca-cert-range-config.sh pki | tee output
 
-          # cert range should be 1 - 10 hex (total: 16, remaining: 10)
+          # cert range should be 9 - 18 hex (size: 16, remaining: 10)
           cat > expected << EOF
-          dbs.beginSerialNumber=1
-          dbs.endSerialNumber=10
-          dbs.serialCloneTransferNumber=8
-          dbs.serialIncrement=10
-          dbs.serialLowWaterMark=8
+          dbs.beginSerialNumber=9
+          dbs.endSerialNumber=18
+          dbs.serialCloneTransferNumber=9
+          dbs.serialIncrement=12
+          dbs.serialLowWaterMark=9
           EOF
 
           diff expected output
@@ -137,7 +142,9 @@ jobs:
         run: |
           tests/ca/bin/ca-request-next-range.sh ds | tee output
 
-          # request nextRange should be incremented by 10 decimal to 11
+          # SubsystemRangeUpdateCLI.updateRequestNumberRange() reads dbs.endRequestNumber
+          # as 10 decimal, increments it by 1 to 11 decimal, then stores it as the
+          # initial request nextRange.
           cat > expected << EOF
           nextRange: 11
           EOF
@@ -148,13 +155,11 @@ jobs:
         run: |
           tests/ca/bin/ca-cert-next-range.sh ds | tee output
 
-          # ideally, cert nextRange should be incremented by 10 hex (16 decimal)
-          # to 11 hex (17 decimal), but currently the attribute is always read
-          # as decimal in:
-          # - Repository.getNextRange()
-          # - SubsystemRangeUpdateCLI.updateSerialNumberRange()
+          # SubsystemRangeUpdateCLI.updateSerialNumberRange() incorrectly reads
+          # dbs.endSerialNumber as 18 decimal, increments it by 1 to 19 decimal,
+          # then stores it as the initial cert nextRange.
           cat > expected << EOF
-          nextRange: 11
+          nextRange: 19
           EOF
 
           diff expected output
@@ -176,12 +181,12 @@ jobs:
       ####################################################################################################
       # Enable serial number management
       #
-      # Restarting PKI server with serial management enabled will trigger
-      # a new range allocation for requests since the remaining numbers in
+      # Restarting CA with serial management enabled will trigger a new
+      # range allocation for requests since the remaining numbers in
       # the current range (i.e. 4) is below the minimum (i.e. 5).
       #
       # For certs there is no new allocation since the remaining numbers
-      # in the current range (i.e. 10) is still above the minimum (i.e. 8).
+      # in the current range (i.e. 10) is still above the minimum (i.e. 9).
 
       - name: Enable serial number management
         run: |
@@ -201,7 +206,7 @@ jobs:
         run: |
           tests/ca/bin/ca-request-range-config.sh pki | tee output
 
-          # request range should be 1 - 10 decimal (total: 10, remaining: 4)
+          # request range should be 1 - 10 decimal (size: 10, remaining: 4)
           cat > expected << EOF
           dbs.beginRequestNumber=1
           dbs.endRequestNumber=10
@@ -216,13 +221,13 @@ jobs:
         run: |
           tests/ca/bin/ca-cert-range-config.sh pki | tee output
 
-          # cert range should be 1 - 10 hex (total: 16, remaining: 10)
+          # cert range should be 9 - 18 hex (size: 16, remaining: 10)
           cat > expected << EOF
-          dbs.beginSerialNumber=1
-          dbs.endSerialNumber=10
-          dbs.serialCloneTransferNumber=8
-          dbs.serialIncrement=10
-          dbs.serialLowWaterMark=8
+          dbs.beginSerialNumber=9
+          dbs.endSerialNumber=18
+          dbs.serialCloneTransferNumber=9
+          dbs.serialIncrement=12
+          dbs.serialLowWaterMark=9
           EOF
 
           diff expected output
@@ -244,7 +249,7 @@ jobs:
 
           # cert nextRange should be the same
           cat > expected << EOF
-          nextRange: 11
+          nextRange: 19
           EOF
 
           diff expected output
@@ -253,7 +258,7 @@ jobs:
         run: |
           tests/ca/bin/ca-request-range-objects.sh ds | tee output
 
-          # new request range should be 11 - 20 decimal (total: 10)
+          # new request range should be 11 - 20 decimal (size: 10)
           cat > expected << EOF
           SecurePort: 8443
           beginRange: 11
@@ -272,11 +277,12 @@ jobs:
           diff /dev/null output
 
       ####################################################################################################
-      # Enroll 10 certs
+      # Enroll certs to exhaust cert range
       #
       # This will create 10 requests and 10 certs. For requests, since
-      # the remaining numbers in the current range is below the minimum,
-      # it will automatically switch to the new range.
+      # the remaining numbers in the current range is below the minimum
+      # and already has allocated new range,  it will automatically
+      # switch to the new range.
       #
       # For certs, it will exhaust the current range but not switch to a
       # new range.
@@ -333,7 +339,7 @@ jobs:
           sed -n "s/^ *Serial Number: *\(.*\)$/\1/p" output > actual
 
           # there should be 16 certs
-          seq 1 16 | while read n; do printf "0x%x\n" $n; done > expected
+          seq 9 24 | while read n; do printf "0x%x\n" $n; done > expected
 
           diff expected actual
 
@@ -341,7 +347,7 @@ jobs:
         run: |
           tests/ca/bin/ca-request-range-config.sh pki | tee output
 
-          # request range should be 11 - 20 decimal (total: 10, remaining: 4)
+          # requelst range should be 11 - 20 decimal (size: 10, remaining: 6)
           cat > expected << EOF
           dbs.beginRequestNumber=11
           dbs.endRequestNumber=20
@@ -356,13 +362,13 @@ jobs:
         run: |
           tests/ca/bin/ca-cert-range-config.sh pki | tee output
 
-          # cert range should be 1 - 10 hex (total: 16, remaining: 0)
+          # cert range should be 9 - 18 hex (size: 16, remaining: 0)
           cat > expected << EOF
-          dbs.beginSerialNumber=1
-          dbs.endSerialNumber=10
-          dbs.serialCloneTransferNumber=8
-          dbs.serialIncrement=10
-          dbs.serialLowWaterMark=8
+          dbs.beginSerialNumber=9
+          dbs.endSerialNumber=18
+          dbs.serialCloneTransferNumber=9
+          dbs.serialIncrement=12
+          dbs.serialLowWaterMark=9
           EOF
 
           diff expected output
@@ -384,7 +390,7 @@ jobs:
 
           # cert nextRange should be the same
           cat > expected << EOF
-          nextRange: 11
+          nextRange: 19
           EOF
 
           diff expected output
@@ -414,9 +420,7 @@ jobs:
       ####################################################################################################
       # Enroll a cert when cert range is exhausted
       #
-      # This will create one request but fails to create another cert.
-      # For some reason requests can switch to a new range automatically,
-      # but certs cannot.
+      # This will create one request but fail to create another cert.
 
       - name: Enroll a cert when cert range is exhausted
         run: |
@@ -454,7 +458,7 @@ jobs:
           sed -n "s/^ *Serial Number: *\(.*\)$/\1/p" output > actual
 
           # there should be 16 certs
-          seq 1 16 | while read n; do printf "0x%x\n" $n; done > expected
+          seq 9 24 | while read n; do printf "0x%x\n" $n; done > expected
 
           diff expected actual
 
@@ -462,7 +466,7 @@ jobs:
         run: |
           tests/ca/bin/ca-request-range-config.sh pki | tee output
 
-          # request range should be 11 - 20 decimal (total: 10, remaining: 3)
+          # request range should be 11 - 20 decimal (size: 10, remaining: 3)
           cat > expected << EOF
           dbs.beginRequestNumber=11
           dbs.endRequestNumber=20
@@ -477,13 +481,13 @@ jobs:
         run: |
           tests/ca/bin/ca-cert-range-config.sh pki | tee output
 
-          # cert range should be 1 - 10 hex (total: 16, remaining: 0)
+          # cert range should be 9 - 18 hex (size: 16, remaining: 0)
           cat > expected << EOF
-          dbs.beginSerialNumber=1
-          dbs.endSerialNumber=10
-          dbs.serialCloneTransferNumber=8
-          dbs.serialIncrement=10
-          dbs.serialLowWaterMark=8
+          dbs.beginSerialNumber=9
+          dbs.endSerialNumber=18
+          dbs.serialCloneTransferNumber=9
+          dbs.serialIncrement=12
+          dbs.serialLowWaterMark=9
           EOF
 
           diff expected output
@@ -505,7 +509,7 @@ jobs:
 
           # cert nextRange should be the same
           cat > expected << EOF
-          nextRange: 11
+          nextRange: 19
           EOF
 
           diff expected output
@@ -533,12 +537,12 @@ jobs:
           diff /dev/null output
 
       ####################################################################################################
-      # Update serial numbers
+      # Allocate new ranges
       #
       # This will allocate new ranges for requests and certs since
       # the remaining numbers in their ranges are below the minimum.
 
-      - name: Update serial numbers
+      - name: Allocate new ranges
         run: |
           docker exec pki pki -n caadmin ca-job-start serialNumberUpdate
 
@@ -546,7 +550,7 @@ jobs:
         run: |
           tests/ca/bin/ca-request-range-config.sh pki | tee output
 
-          # request range should be the same
+          # request range should be the same (size: 10, remaining: 3)
           cat > expected << EOF
           dbs.beginRequestNumber=11
           dbs.endRequestNumber=20
@@ -561,13 +565,13 @@ jobs:
         run: |
           tests/ca/bin/ca-cert-range-config.sh pki | tee output
 
-          # cert range should be the same
+          # cert range should be the same (size: 16, remaining: 0)
           cat > expected << EOF
-          dbs.beginSerialNumber=1
-          dbs.endSerialNumber=10
-          dbs.serialCloneTransferNumber=8
-          dbs.serialIncrement=10
-          dbs.serialLowWaterMark=8
+          dbs.beginSerialNumber=9
+          dbs.endSerialNumber=18
+          dbs.serialCloneTransferNumber=9
+          dbs.serialIncrement=12
+          dbs.serialLowWaterMark=9
           EOF
 
           diff expected output
@@ -587,9 +591,9 @@ jobs:
         run: |
           tests/ca/bin/ca-cert-next-range.sh ds | tee output
 
-          # cert nextRequest should incremented by 10 hex (16 decimal) to 27 decimal
+          # cert nextRequest should incremented by 12 hex (18 decimal) to 37 decimal
           cat > expected << EOF
-          nextRange: 27
+          nextRange: 37
           EOF
 
           diff expected output
@@ -598,7 +602,7 @@ jobs:
         run: |
           tests/ca/bin/ca-request-range-objects.sh ds | tee output
 
-          # new request range should be 21 - 30 decimal (total: 10)
+          # new request range should be 21 - 30 decimal (size: 10)
           cat > expected << EOF
           SecurePort: 8443
           beginRange: 11
@@ -618,11 +622,12 @@ jobs:
         run: |
           tests/ca/bin/ca-cert-range-objects.sh ds | tee output
 
-          # new request range should be 11 - 26 decimal (total: 16)
+          # new request range is 19 - 36 decimal (size: 18)
+          # Note: the size should have been consistent (i.e. 16)
           cat > expected << EOF
           SecurePort: 8443
-          beginRange: 11
-          endRange: 26
+          beginRange: 19
+          endRange: 36
           host: pki.example.com
 
           EOF
@@ -630,7 +635,7 @@ jobs:
           diff expected output
 
       ####################################################################################################
-      # Enroll 13 additional certs
+      # Enroll certs to exhaust request range
       #
       # This will create 13 requests and 13 certs. Both requests and certs
       # will switch to the new ranges allocated earlier.
@@ -666,7 +671,7 @@ jobs:
           sed -n "s/^ *Serial Number: *\(.*\)$/\1/p" output > actual
 
           # there should be 29 certs (16 existing + 13 new)
-          seq 1 29 | while read n; do printf "0x%x\n" $n; done > expected
+          seq 9 37 | while read n; do printf "0x%x\n" $n; done > expected
 
           diff expected actual
 
@@ -674,7 +679,7 @@ jobs:
         run: |
           tests/ca/bin/ca-request-range-config.sh pki | tee output
 
-          # request range should be 21 - 30 decimal (total: 10, remaining: 0)
+          # request range should be 21 - 30 decimal (size: 10, remaining: 0)
           cat > expected << EOF
           dbs.beginRequestNumber=21
           dbs.endRequestNumber=30
@@ -689,20 +694,21 @@ jobs:
         run: |
           tests/ca/bin/ca-cert-range-config.sh pki | tee output
 
-          # cert range should be 11 - 20 hex (total: 16, remaining: 3)
+          # cert range is be 19 - 2a hex (size: 18, remaining: 5)
+          # Note: the size should have been consistent (i.e. 16)
           cat > expected << EOF
-          dbs.beginSerialNumber=11
-          dbs.endSerialNumber=20
-          dbs.serialCloneTransferNumber=8
-          dbs.serialIncrement=10
-          dbs.serialLowWaterMark=8
+          dbs.beginSerialNumber=19
+          dbs.endSerialNumber=2a
+          dbs.serialCloneTransferNumber=9
+          dbs.serialIncrement=12
+          dbs.serialLowWaterMark=9
           EOF
 
           diff expected output
 
       - name: Check request next range
         run: |
-          tests/ca/bin/ca-request-next-range.sh ds| tee output
+          tests/ca/bin/ca-request-next-range.sh ds | tee output
 
           # request nextRange should be the same
           cat > expected << EOF
@@ -717,7 +723,7 @@ jobs:
 
           # cert nextRange should be the same
           cat > expected << EOF
-          nextRange: 27
+          nextRange: 37
           EOF
 
           diff expected output
@@ -749,8 +755,8 @@ jobs:
           # cert range objects should be the same
           cat > expected << EOF
           SecurePort: 8443
-          beginRange: 11
-          endRange: 26
+          beginRange: 19
+          endRange: 36
           host: pki.example.com
 
           EOF
@@ -796,7 +802,7 @@ jobs:
           sed -n "s/^ *Serial Number: *\(.*\)$/\1/p" output > actual
 
           # certs should be the same
-          seq 1 29 | while read n; do printf "0x%x\n" $n; done > expected
+          seq 9 37 | while read n; do printf "0x%x\n" $n; done > expected
 
           diff expected actual
 
@@ -804,7 +810,7 @@ jobs:
         run: |
           tests/ca/bin/ca-request-range-config.sh pki | tee output
 
-          # request range should be the same
+          # request range should be the same (size: 10, remaining: 0)
           cat > expected << EOF
           dbs.beginRequestNumber=21
           dbs.endRequestNumber=30
@@ -819,13 +825,13 @@ jobs:
         run: |
           tests/ca/bin/ca-cert-range-config.sh pki | tee output
 
-          # cert range should be the same
+          # cert range should be the same (size: 18, remaining: 5)
           cat > expected << EOF
-          dbs.beginSerialNumber=11
-          dbs.endSerialNumber=20
-          dbs.serialCloneTransferNumber=8
-          dbs.serialIncrement=10
-          dbs.serialLowWaterMark=8
+          dbs.beginSerialNumber=19
+          dbs.endSerialNumber=2a
+          dbs.serialCloneTransferNumber=9
+          dbs.serialIncrement=12
+          dbs.serialLowWaterMark=9
           EOF
 
           diff expected output
@@ -847,7 +853,7 @@ jobs:
 
           # cert nextRange should be the same
           cat > expected << EOF
-          nextRange: 27
+          nextRange: 37
           EOF
 
           diff expected output
@@ -879,8 +885,8 @@ jobs:
           # cert range objects should be the same
           cat > expected << EOF
           SecurePort: 8443
-          beginRange: 11
-          endRange: 26
+          beginRange: 19
+          endRange: 36
           host: pki.example.com
 
           EOF
@@ -888,12 +894,12 @@ jobs:
           diff expected output
 
       ####################################################################################################
-      # Update serial numbers again
+      # Allocate new ranges again
       #
       # This will allocate new ranges for requests and certs since
       # the remaining numbers in their ranges are below the minimum.
 
-      - name: Update serial numbers again
+      - name: Allocate new ranges again
         run: |
           docker exec pki pki -n caadmin ca-job-start serialNumberUpdate
 
@@ -901,7 +907,7 @@ jobs:
         run: |
           tests/ca/bin/ca-request-range-config.sh pki | tee output
 
-          # request range should be the same
+          # request range should be the same (size: 10, remaining: 0)
           cat > expected << EOF
           dbs.beginRequestNumber=21
           dbs.endRequestNumber=30
@@ -916,13 +922,13 @@ jobs:
         run: |
           tests/ca/bin/ca-cert-range-config.sh pki | tee output
 
-          # cert range should be the same
+          # cert range should be the same (size: 18, remaining: 5)
           cat > expected << EOF
-          dbs.beginSerialNumber=11
-          dbs.endSerialNumber=20
-          dbs.serialCloneTransferNumber=8
-          dbs.serialIncrement=10
-          dbs.serialLowWaterMark=8
+          dbs.beginSerialNumber=19
+          dbs.endSerialNumber=2a
+          dbs.serialCloneTransferNumber=9
+          dbs.serialIncrement=12
+          dbs.serialLowWaterMark=9
           EOF
 
           diff expected output
@@ -942,9 +948,9 @@ jobs:
         run: |
           tests/ca/bin/ca-cert-next-range.sh ds | tee output
 
-          # cert nextRange should be incremented by 10 hex (16 decimal) to 43 decimal
+          # cert nextRange should be incremented by 12 hex (18 decimal) to 55 decimal
           cat > expected << EOF
-          nextRange: 43
+          nextRange: 55
           EOF
 
           diff expected output
@@ -953,7 +959,7 @@ jobs:
         run: |
           tests/ca/bin/ca-request-range-objects.sh ds | tee output
 
-          # new request range should be 31 - 40 decimal (total: 10)
+          # new request range should be 31 - 40 decimal (size: 10)
           cat > expected << EOF
           SecurePort: 8443
           beginRange: 11
@@ -978,16 +984,16 @@ jobs:
         run: |
           tests/ca/bin/ca-cert-range-objects.sh ds | tee output
 
-          # new cert range should be 27 - 42 decimal (total: 16)
+          # new cert range should be 37 - 54 decimal (size: 18)
           cat > expected << EOF
           SecurePort: 8443
-          beginRange: 11
-          endRange: 26
+          beginRange: 19
+          endRange: 36
           host: pki.example.com
 
           SecurePort: 8443
-          beginRange: 27
-          endRange: 42
+          beginRange: 37
+          endRange: 54
           host: pki.example.com
 
           EOF
@@ -1033,9 +1039,9 @@ jobs:
           # there should be 39 certs (29 existing + 10 new)
           # but due to a bug the serial numbers have a gap
 
-          # seq 1 39 | while read n; do printf "0x%x\n" $n; done > expected
-          seq 1 32 | while read n; do printf "0x%x\n" $n; done > expected
-          seq 39 45 | while read n; do printf "0x%x\n" $n; done >> expected
+          # seq 9 47 | while read n; do printf "0x%x\n" $n; done > expected
+          seq 9 42 | while read n; do printf "0x%x\n" $n; done > expected
+          seq 55 59 | while read n; do printf "0x%x\n" $n; done >> expected
 
           diff expected actual
 
@@ -1043,7 +1049,7 @@ jobs:
         run: |
           tests/ca/bin/ca-request-range-config.sh pki | tee output
 
-          # request range should be 31 - 40 decimal (total: 10, remaining: 0)
+          # request range should be 31 - 40 decimal (size: 10, remaining: 0)
           cat > expected << EOF
           dbs.beginRequestNumber=31
           dbs.endRequestNumber=40
@@ -1058,13 +1064,14 @@ jobs:
         run: |
           tests/ca/bin/ca-cert-range-config.sh pki | tee output
 
-          # cert range should be 21 - 30 hex (total: 16, remaining: 0)
+          # cert range should have been 2b - 36 hex (size: 18, remaining: 13)
+          # but it jumps to 37 - 48 hex
           cat > expected << EOF
-          dbs.beginSerialNumber=27
-          dbs.endSerialNumber=36
-          dbs.serialCloneTransferNumber=8
-          dbs.serialIncrement=10
-          dbs.serialLowWaterMark=8
+          dbs.beginSerialNumber=37
+          dbs.endSerialNumber=48
+          dbs.serialCloneTransferNumber=9
+          dbs.serialIncrement=12
+          dbs.serialLowWaterMark=9
           EOF
 
           diff expected output
@@ -1084,9 +1091,9 @@ jobs:
         run: |
           tests/ca/bin/ca-cert-next-range.sh ds | tee output
 
-          # cert nextRange should be the same
+          # cert nextRange should be incremented by 12 hex (18 decimal) to 55 decimal
           cat > expected << EOF
-          nextRange: 43
+          nextRange: 55
           EOF
 
           diff expected output
@@ -1123,13 +1130,13 @@ jobs:
           # cert range should be the same
           cat > expected << EOF
           SecurePort: 8443
-          beginRange: 11
-          endRange: 26
+          beginRange: 19
+          endRange: 36
           host: pki.example.com
 
           SecurePort: 8443
-          beginRange: 27
-          endRange: 42
+          beginRange: 37
+          endRange: 54
           host: pki.example.com
 
           EOF
@@ -1184,6 +1191,7 @@ jobs:
           sed -n "s/^ *Request ID: *\(.*\)$/\1/p" output > list
 
           # there should be 40 requests with sequential request ID
+
           seq 1 40 > expected
           head -n 40 list > actual
           diff expected actual
@@ -1200,13 +1208,15 @@ jobs:
           # there should be 39 certs with sequential serial numbers
           # but due to a bug the serial numbers have a gap
 
-          # seq 1 39 | while read n; do printf "0x%x\n" $n; done > expected
-          seq 1 32 | while read n; do printf "0x%x\n" $n; done > expected
-          seq 39 45 | while read n; do printf "0x%x\n" $n; done >> expected
+          # seq 9 47 | while read n; do printf "0x%x\n" $n; done > expected
+          seq 9 42 | while read n; do printf "0x%x\n" $n; done > expected
+          seq 55 59 | while read n; do printf "0x%x\n" $n; done >> expected
+
           head -n 39 list > actual
           diff expected actual
 
           # there should be one cert with random serial number (longer than 4 chars)
+
           SERIAL_NUMBER=$(tail -n 1 list)
           [ ${#SERIAL_NUMBER} -gt 4 ]
 
