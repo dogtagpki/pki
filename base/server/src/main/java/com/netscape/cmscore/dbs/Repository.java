@@ -51,6 +51,7 @@ public abstract class Repository {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Repository.class);
 
     public enum IDGenerator {
+        NEW_LEGACY("newLegacy"),
         LEGACY("legacy"),
         RANDOM("random");
 
