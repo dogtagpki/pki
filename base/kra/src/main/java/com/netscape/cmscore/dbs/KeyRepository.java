@@ -85,7 +85,8 @@ public class KeyRepository extends Repository {
 
             idLength = dbConfig.getInteger(PROP_KEY_ID_LENGTH, DEFAULT_KEY_ID_LENGTH);
             logger.info("KeyRepository: - key ID length: {}", idLength);
-
+        } else if (idGenerator == IDGenerator.NEW_LEGACY) {
+            initNewLegacyGenerator();
         } else {
             initLegacyGenerator();
         }
@@ -166,6 +167,43 @@ public class KeyRepository extends Repository {
                     StringMapper(KeyDBSchema.LDAP_ATTR_REALM));
         }
 
+    }
+
+    protected void initNewLegacyGenerator() throws EBaseException {
+        DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
+
+        rangeDN = dbConfig.getSerialRangeDN() + "," + dbSubsystem.getBaseDN();
+        logger.debug("KeyRepository: - range DN: " + rangeDN);
+
+        mMinSerialNo = dbConfig.getBigInteger(DatabaseConfig.MIN_SERIAL_NUMBER, null);
+        logger.debug("KeyRepository: - min serial: " + mMinSerialNo);
+
+        mMaxSerialNo = dbConfig.getBigInteger(DatabaseConfig.MAX_SERIAL_NUMBER, null);
+        logger.debug("KeyRepository: - max serial: " + mMaxSerialNo);
+
+        nextMinSerialName = DatabaseConfig.NEXT_MIN_SERIAL_NUMBER;
+        String nextMinSerial = dbConfig.getNextBeginSerialNumber();
+        if (nextMinSerial == null || nextMinSerial.equals("-1")) {
+            mNextMinSerialNo = null;
+        } else {
+            mNextMinSerialNo = dbConfig.getBigInteger(DatabaseConfig.NEXT_MIN_SERIAL_NUMBER, null);
+        }
+        logger.debug("KeyRepository: - next min serial: " + mNextMinSerialNo);
+
+        nextMaxSerialName = DatabaseConfig.NEXT_MAX_SERIAL_NUMBER;
+        String nextMaxSerial = dbConfig.getNextEndSerialNumber();
+        if (nextMaxSerial == null || nextMaxSerial.equals("-1")) {
+            mNextMaxSerialNo = null;
+        } else {
+            mNextMaxSerialNo = dbConfig.getBigInteger(DatabaseConfig.NEXT_MAX_SERIAL_NUMBER, null);
+        }
+        logger.debug("KeyRepository: - next max serial: " + mNextMaxSerialNo);
+
+        mLowWaterMarkNo = dbConfig.getBigInteger(DatabaseConfig.SERIAL_LOW_WATER_MARK, null);
+        logger.debug("KeyRepository: - low water mark serial: " + mNextMaxSerialNo);
+
+        mIncrementNo = dbConfig.getBigInteger(DatabaseConfig.SERIAL_INCREMENT, null);
+        logger.debug("KeyRepository: - increment serial: " + mIncrementNo);
     }
 
     public void initLegacyGenerator() throws Exception {
