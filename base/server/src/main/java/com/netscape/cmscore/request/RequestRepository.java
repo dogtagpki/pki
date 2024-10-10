@@ -102,7 +102,8 @@ public class RequestRepository extends Repository {
 
             idLength = dbConfig.getInteger(PROP_REQUEST_ID_LENGTH, DEFAULT_REQUEST_ID_LENGTH);
             logger.debug("RequestRepository: - request ID length: " + idLength);
-
+        } else if (idGenerator == IDGenerator.NEW_LEGACY) {
+            initNewLegacyGenerator();
         } else {
             initLegacyGenerator();
         }
@@ -110,6 +111,45 @@ public class RequestRepository extends Repository {
         // Let RequestRecord class register its
         // database mapping and object mapping values
         RequestRecord.register(dbSubsystem);
+    }
+
+    protected void initNewLegacyGenerator() throws EBaseException {
+        DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
+
+        rangeDN = dbConfig.getRequestRangeDN() + "," + dbSubsystem.getBaseDN();
+        logger.debug("RequestRepository: - range DN: " + rangeDN);
+
+        minSerialName = DatabaseConfig.MIN_REQUEST_NUMBER;
+        mMinSerialNo = dbConfig.getBigInteger(minSerialName, null);
+        logger.debug("RequestRepository: - min serial: " + mMinSerialNo);
+
+        maxSerialName = DatabaseConfig.MAX_REQUEST_NUMBER;
+        mMaxSerialNo = dbConfig.getBigInteger(maxSerialName, null);
+        logger.debug("RequestRepository: - max serial: " + mMaxSerialNo);
+
+        nextMinSerialName = DatabaseConfig.NEXT_MIN_REQUEST_NUMBER;
+        String nextMinSerial = dbConfig.getNextBeginSerialNumber();
+        if (nextMinSerial == null || nextMinSerial.equals("-1")) {
+            mNextMinSerialNo = null;
+        } else {
+            mNextMinSerialNo = dbConfig.getBigInteger(DatabaseConfig.NEXT_MIN_REQUEST_NUMBER, null);
+        }
+        logger.debug("RequestRepository: - next min serial: " + mNextMinSerialNo);
+
+        nextMaxSerialName = DatabaseConfig.NEXT_MAX_REQUEST_NUMBER;
+        String nextMaxSerial = dbConfig.getNextEndSerialNumber();
+        if (nextMaxSerial == null || nextMaxSerial.equals("-1")) {
+            mNextMaxSerialNo = null;
+        } else {
+            mNextMaxSerialNo = dbConfig.getBigInteger(DatabaseConfig.NEXT_MAX_REQUEST_NUMBER, null);
+        }
+        logger.debug("RequestRepository: - next max serial: " + mNextMaxSerialNo);
+
+        mLowWaterMarkNo = dbConfig.getBigInteger(DatabaseConfig.REQUEST_LOW_WATER_MARK, null);
+        logger.debug("RequestRepository: - low water mark serial: " + mNextMaxSerialNo);
+
+        mIncrementNo = dbConfig.getBigInteger(DatabaseConfig.REQUEST_INCREMENT, null);
+        logger.debug("RequestRepository: - increment serial: " + mIncrementNo);
     }
 
     public void initLegacyGenerator() throws Exception {
