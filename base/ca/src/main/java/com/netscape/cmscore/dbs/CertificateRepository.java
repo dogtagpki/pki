@@ -138,10 +138,12 @@ public class CertificateRepository extends Repository {
         rangeDN = mDBConfig.getSerialRangeDN() + "," + dbSubsystem.getBaseDN();
         logger.debug("CertificateRepository: - range DN: " + rangeDN);
 
-        mMinSerialNo = mDBConfig.getBigInteger(DatabaseConfig.MIN_SERIAL_NUMBER, null);
+        minSerialName = DatabaseConfig.MIN_SERIAL_NUMBER;
+        mMinSerialNo = mDBConfig.getBigInteger(minSerialName, null);
         logger.debug("CertificateRepository: - min serial: " + mMinSerialNo);
 
-        mMaxSerialNo = mDBConfig.getBigInteger(DatabaseConfig.MAX_SERIAL_NUMBER, null);
+        maxSerialName = DatabaseConfig.MAX_SERIAL_NUMBER;
+        mMaxSerialNo = mDBConfig.getBigInteger(maxSerialName, null);
         logger.debug("CertificateRepository: - max serial: " + mMaxSerialNo);
 
         nextMinSerialName = DatabaseConfig.NEXT_MIN_SERIAL_NUMBER;
