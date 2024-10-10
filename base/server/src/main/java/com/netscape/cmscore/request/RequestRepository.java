@@ -119,10 +119,12 @@ public class RequestRepository extends Repository {
         rangeDN = dbConfig.getRequestRangeDN() + "," + dbSubsystem.getBaseDN();
         logger.debug("RequestRepository: - range DN: " + rangeDN);
 
-        mMinSerialNo = dbConfig.getBigInteger(DatabaseConfig.MIN_REQUEST_NUMBER, null);
+        minSerialName = DatabaseConfig.MIN_REQUEST_NUMBER;
+        mMinSerialNo = dbConfig.getBigInteger(minSerialName, null);
         logger.debug("RequestRepository: - min serial: " + mMinSerialNo);
 
-        mMaxSerialNo = dbConfig.getBigInteger(DatabaseConfig.MAX_REQUEST_NUMBER, null);
+        maxSerialName = DatabaseConfig.MAX_REQUEST_NUMBER;
+        mMaxSerialNo = dbConfig.getBigInteger(maxSerialName, null);
         logger.debug("RequestRepository: - max serial: " + mMaxSerialNo);
 
         nextMinSerialName = DatabaseConfig.NEXT_MIN_REQUEST_NUMBER;

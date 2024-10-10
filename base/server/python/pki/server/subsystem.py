@@ -1515,7 +1515,7 @@ class PKISubsystem(object):
 
         # request cert/key request ID range if it uses legacy generator
         if self.type in ['CA', 'KRA'] and \
-                self.config.get('dbs.request.id.generator', 'legacy') == 'legacy':
+                self.config.get('dbs.request.id.generator', 'legacy') != 'random':
 
             logger.info('Requesting request ID range')
 
@@ -1527,9 +1527,9 @@ class PKISubsystem(object):
 
         # request cert/key ID range if it uses legacy generator
         if self.type == 'CA' and \
-                self.config.get('dbs.cert.id.generator', 'legacy') == 'legacy' or \
+                self.config.get('dbs.cert.id.generator', 'legacy') != 'random' or \
                 self.type == 'KRA' \
-                and self.config.get('dbs.key.id.generator', 'legacy') == 'legacy':
+                and self.config.get('dbs.key.id.generator', 'legacy') != 'random':
 
             logger.info('Requesting serial number range')
 

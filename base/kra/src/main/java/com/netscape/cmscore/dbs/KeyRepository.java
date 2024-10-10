@@ -175,10 +175,12 @@ public class KeyRepository extends Repository {
         rangeDN = dbConfig.getSerialRangeDN() + "," + dbSubsystem.getBaseDN();
         logger.debug("KeyRepository: - range DN: " + rangeDN);
 
-        mMinSerialNo = dbConfig.getBigInteger(DatabaseConfig.MIN_SERIAL_NUMBER, null);
+        minSerialName = DatabaseConfig.MIN_SERIAL_NUMBER;
+        mMinSerialNo = dbConfig.getBigInteger(minSerialName, null);
         logger.debug("KeyRepository: - min serial: " + mMinSerialNo);
 
-        mMaxSerialNo = dbConfig.getBigInteger(DatabaseConfig.MAX_SERIAL_NUMBER, null);
+        maxSerialName = DatabaseConfig.MAX_SERIAL_NUMBER;
+        mMaxSerialNo = dbConfig.getBigInteger(maxSerialName, null);
         logger.debug("KeyRepository: - max serial: " + mMaxSerialNo);
 
         nextMinSerialName = DatabaseConfig.NEXT_MIN_SERIAL_NUMBER;
