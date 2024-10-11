@@ -32,3 +32,8 @@ jobs:
     name: CA clone with replicated DS
     needs: build
     uses: ./.github/workflows/ca-clone-replicated-ds-test.yml
+
+  ca-clone-sequential-test:
+    name: CA clone with Sequential Serial Numbers
+    needs: build
+    uses: ./.github/workflows/ca-clone-sequential-test.yml
