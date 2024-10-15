@@ -186,48 +186,21 @@ jobs:
           # less than the minimum, no new cert range was allocated
           diff /dev/null output
 
-      - name: Check request repository
+      - name: Check request next range
         run: |
-          docker exec primaryds ldapsearch \
-              -H ldap://primaryds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=ca,ou=requests,dc=ca,dc=pki,dc=example,dc=com \
-              -s base \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          grep \
-              -e serialno: \
-              -e nextRange: \
-              output \
-              | sort > actual
+          tests/ca/bin/ca-request-next-range.sh primaryds | tee output
 
           # since there's an allocated request range, the nextRange
           # should be endRange + 1 which is 21 decimal
           cat > expected << EOF
           nextRange: 21
-          serialno: 010
           EOF
 
-          diff expected actual
+          diff expected output
 
-      - name: Check cert repository
+      - name: Check cert next range
         run: |
-          docker exec primaryds ldapsearch \
-              -H ldap://primaryds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=certificateRepository,ou=ca,dc=ca,dc=pki,dc=example,dc=com \
-              -s base \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          grep \
-              -e serialno: \
-              -e nextRange: \
-              output \
-              | sort > actual
+          tests/ca/bin/ca-cert-next-range.sh primaryds | tee output
 
           # since there's no allocated cert range, the nextRange should be
           # dbs.endSerialNumber + 1 which is 13 hex (19 decimal), but due
@@ -235,10 +208,9 @@ jobs:
           # this is stored as 13 decimal
           cat > expected << EOF
           nextRange: 13
-          serialno: 011
           EOF
 
-          diff expected actual
+          diff expected output
 
       ####################################################################################################
       # Create secondary CA with Sequential Serial Numbers
@@ -421,55 +393,27 @@ jobs:
           # cert range should be the same
           diff /dev/null output
 
-      - name: Check request repository
+      - name: Check request next range
         run: |
-          docker exec secondaryds ldapsearch \
-              -H ldap://secondaryds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=ca,ou=requests,dc=ca,dc=pki,dc=example,dc=com \
-              -s base \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          grep \
-              -e serialno: \
-              -e nextRange: \
-              output \
-              | sort > actual
+          tests/ca/bin/ca-request-next-range.sh secondaryds | tee output
 
           # request nextRange should be the same
           cat > expected << EOF
           nextRange: 21
-          serialno: 010
           EOF
 
-          diff expected actual
+          diff expected output
 
-      - name: Check cert repository
+      - name: Check cert next range
         run: |
-          docker exec secondaryds ldapsearch \
-              -H ldap://secondaryds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=certificateRepository,ou=ca,dc=ca,dc=pki,dc=example,dc=com \
-              -s base \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          grep \
-              -e serialno: \
-              -e nextRange: \
-              output \
-              | sort > actual
+          tests/ca/bin/ca-cert-next-range.sh secondaryds | tee output
 
           # cert nextRange should be the same
           cat > expected << EOF
           nextRange: 13
-          serialno: 011
           EOF
 
-          diff expected actual
+          diff expected output
 
       ####################################################################################################
       # Enroll certs to exhaust request and cert ranges
@@ -621,55 +565,27 @@ jobs:
           # cert range should be the same
           diff /dev/null output
 
-      - name: Check request repository
+      - name: Check request next range
         run: |
-          docker exec primaryds ldapsearch \
-              -H ldap://primaryds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=ca,ou=requests,dc=ca,dc=pki,dc=example,dc=com \
-              -s base \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          grep \
-              -e serialno: \
-              -e nextRange: \
-              output \
-              | sort > actual
+          tests/ca/bin/ca-request-next-range.sh primaryds | tee output
 
           # request nextRange should be the same
           cat > expected << EOF
           nextRange: 21
-          serialno: 010
           EOF
 
-          diff expected actual
+          diff expected output
 
-      - name: Check cert repository
+      - name: Check cert next range
         run: |
-          docker exec primaryds ldapsearch \
-              -H ldap://primaryds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=certificateRepository,ou=ca,dc=ca,dc=pki,dc=example,dc=com \
-              -s base \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          grep \
-              -e serialno: \
-              -e nextRange: \
-              output \
-              | sort > actual
+          tests/ca/bin/ca-cert-next-range.sh primaryds | tee output
 
           # cert nextRange should be the same
           cat > expected << EOF
           nextRange: 13
-          serialno: 011
           EOF
 
-          diff expected actual
+          diff expected output
 
       ####################################################################################################
       # Enroll certs when ranges are exhausted
@@ -857,55 +773,27 @@ jobs:
 
           diff expected output
 
-      - name: Check request repository
+      - name: Check request next range
         run: |
-          docker exec primaryds ldapsearch \
-              -H ldap://primaryds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=ca,ou=requests,dc=ca,dc=pki,dc=example,dc=com \
-              -s base \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          grep \
-              -e serialno: \
-              -e nextRange: \
-              output \
-              | sort > actual
+          tests/ca/bin/ca-request-next-range.sh primaryds | tee output
 
           # request nextRange should be 31 decimal
           cat > expected << EOF
           nextRange: 31
-          serialno: 010
           EOF
 
-          diff expected actual
+          diff expected output
 
-      - name: Check cert repository
+      - name: Check cert next range
         run: |
-          docker exec primaryds ldapsearch \
-              -H ldap://primaryds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=certificateRepository,ou=ca,dc=ca,dc=pki,dc=example,dc=com \
-              -s base \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          grep \
-              -e serialno: \
-              -e nextRange: \
-              output \
-              | sort > actual
+          tests/ca/bin/ca-cert-next-range.sh primaryds | tee output
 
           # cert nextRange should be 49 decimal
           cat > expected << EOF
           nextRange: 49
-          serialno: 011
           EOF
 
-          diff expected actual
+          diff expected output
 
       ####################################################################################################
       # Enroll certs to exhaust the ranges again
@@ -1074,55 +962,27 @@ jobs:
 
           diff expected output
 
-      - name: Check request repository
+      - name: Check request next range
         run: |
-          docker exec primaryds ldapsearch \
-              -H ldap://primaryds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=ca,ou=requests,dc=ca,dc=pki,dc=example,dc=com \
-              -s base \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          grep \
-              -e serialno: \
-              -e nextRange: \
-              output \
-              | sort > actual
+          tests/ca/bin/ca-request-next-range.sh primaryds | tee output
 
           # request nextRange should remain the same
           cat > expected << EOF
           nextRange: 31
-          serialno: 010
           EOF
 
-          diff expected actual
+          diff expected output
 
-      - name: Check cert repository
+      - name: Check cert next range
         run: |
-          docker exec primaryds ldapsearch \
-              -H ldap://primaryds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=certificateRepository,ou=ca,dc=ca,dc=pki,dc=example,dc=com \
-              -s base \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          grep \
-              -e serialno: \
-              -e nextRange: \
-              output \
-              | sort > actual
+          tests/ca/bin/ca-cert-next-range.sh primaryds | tee output
 
           # cert nextRange should remain the same
           cat > expected << EOF
           nextRange: 49
-          serialno: 011
           EOF
 
-          diff expected actual
+          diff expected output
 
       ####################################################################################################
       # Cleanup
