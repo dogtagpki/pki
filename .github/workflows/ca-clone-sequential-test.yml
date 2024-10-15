@@ -134,14 +134,7 @@ jobs:
 
       - name: Check request range config in primary CA
         run: |
-          docker exec primary pki-server ca-config-find \
-              | grep \
-                  -e dbs.beginRequestNumber \
-                  -e dbs.endRequestNumber \
-                  -e dbs.requestCloneTransferNumber \
-                  -e dbs.requestIncrement \
-                  -e dbs.requestLowWaterMark \
-              | tee actual
+          tests/ca/bin/ca-request-range-config.sh primary | tee output
 
           # request range should be 1 - 10 decimal (size: 10, remaining: 4)
           cat > expected << EOF
@@ -152,18 +145,11 @@ jobs:
           dbs.requestLowWaterMark=5
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check cert range config in primary CA
         run: |
-          docker exec primary pki-server ca-config-find \
-              | grep \
-                  -e dbs.beginSerialNumber \
-                  -e dbs.endSerialNumber \
-                  -e dbs.serialCloneTransferNumber \
-                  -e dbs.serialIncrement \
-                  -e dbs.serialLowWaterMark \
-              | tee actual
+          tests/ca/bin/ca-cert-range-config.sh primary | tee output
 
           # cert range should be 1 - 12 hex (size: 18, remaining: 12)
           cat > expected << EOF
@@ -174,7 +160,7 @@ jobs:
           dbs.serialLowWaterMark=9
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check request range objects
         run: |
@@ -370,14 +356,7 @@ jobs:
 
       - name: Check request range config in primary CA
         run: |
-          docker exec primary pki-server ca-config-find \
-              | grep \
-                  -e dbs.beginRequestNumber \
-                  -e dbs.endRequestNumber \
-                  -e dbs.requestCloneTransferNumber \
-                  -e dbs.requestIncrement \
-                  -e dbs.requestLowWaterMark \
-              | tee actual
+          tests/ca/bin/ca-request-range-config.sh primary | tee output
 
           # request range should be the same (size: 10, remaining: 3)
           cat > expected << EOF
@@ -388,18 +367,11 @@ jobs:
           dbs.requestLowWaterMark=5
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check request range config in secondary CA
         run: |
-          docker exec secondary pki-server ca-config-find \
-              | grep \
-                  -e dbs.beginRequestNumber \
-                  -e dbs.endRequestNumber \
-                  -e dbs.requestCloneTransferNumber \
-                  -e dbs.requestIncrement \
-                  -e dbs.requestLowWaterMark \
-              | tee actual
+          tests/ca/bin/ca-request-range-config.sh secondary | tee output
 
           # request range should be 16 - 20 decimal (size: 5, remaining: 5)
           # this range was taken from the primary CA's allocated range
@@ -412,18 +384,11 @@ jobs:
           dbs.requestLowWaterMark=5
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check cert range config in primary CA
         run: |
-          docker exec primary pki-server ca-config-find \
-              | grep \
-                  -e dbs.beginSerialNumber \
-                  -e dbs.endSerialNumber \
-                  -e dbs.serialCloneTransferNumber \
-                  -e dbs.serialIncrement \
-                  -e dbs.serialLowWaterMark \
-              | tee actual
+          tests/ca/bin/ca-cert-range-config.sh primary | tee output
 
           # cert range should be reduced into 1 - 9 hex (size: 9, remaining: 2)
           # the other half was transferred to the secondary CA
@@ -435,18 +400,11 @@ jobs:
           dbs.serialLowWaterMark=9
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check cert range config in secondary CA
         run: |
-          docker exec secondary pki-server ca-config-find \
-              | grep \
-                  -e dbs.beginSerialNumber \
-                  -e dbs.endSerialNumber \
-                  -e dbs.serialCloneTransferNumber \
-                  -e dbs.serialIncrement \
-                  -e dbs.serialLowWaterMark \
-              | tee actual
+          tests/ca/bin/ca-cert-range-config.sh secondary | tee output
 
           # cert range should be a - 12 hex (size: 9, remaining: 9)
           # this range was taken from the primary CA's current range
@@ -458,7 +416,7 @@ jobs:
           dbs.serialLowWaterMark=9
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check request range objects
         run: |
@@ -625,14 +583,7 @@ jobs:
 
       - name: Check request range config in primary CA
         run: |
-          docker exec primary pki-server ca-config-find \
-              | grep \
-                  -e dbs.beginRequestNumber \
-                  -e dbs.endRequestNumber \
-                  -e dbs.requestCloneTransferNumber \
-                  -e dbs.requestIncrement \
-                  -e dbs.requestLowWaterMark \
-              | tee actual
+          tests/ca/bin/ca-request-range-config.sh primary | tee output
 
           # request range should be the same (size: 10, remaining: 1)
           cat > expected << EOF
@@ -643,18 +594,11 @@ jobs:
           dbs.requestLowWaterMark=5
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check request range config in secondary CA
         run: |
-          docker exec secondary pki-server ca-config-find \
-              | grep \
-                  -e dbs.beginRequestNumber \
-                  -e dbs.endRequestNumber \
-                  -e dbs.requestCloneTransferNumber \
-                  -e dbs.requestIncrement \
-                  -e dbs.requestLowWaterMark \
-              | tee actual
+          tests/ca/bin/ca-request-range-config.sh secondary | tee output
 
           # request range should be exhausted (size: 5, remaining: 0)
           cat > expected << EOF
@@ -665,18 +609,11 @@ jobs:
           dbs.requestLowWaterMark=5
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check cert range config in primary CA
         run: |
-          docker exec primary pki-server ca-config-find \
-              | grep \
-                  -e dbs.beginSerialNumber \
-                  -e dbs.endSerialNumber \
-                  -e dbs.serialCloneTransferNumber \
-                  -e dbs.serialIncrement \
-                  -e dbs.serialLowWaterMark \
-              | tee actual
+          tests/ca/bin/ca-cert-range-config.sh primary | tee output
 
           # cert range should be exhausted (size: 9, remaining: 0)
           cat > expected << EOF
@@ -687,18 +624,11 @@ jobs:
           dbs.serialLowWaterMark=9
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check cert range config in secondary CA
         run: |
-          docker exec secondary pki-server ca-config-find \
-              | grep \
-                  -e dbs.beginSerialNumber \
-                  -e dbs.endSerialNumber \
-                  -e dbs.serialCloneTransferNumber \
-                  -e dbs.serialIncrement \
-                  -e dbs.serialLowWaterMark \
-              | tee actual
+          tests/ca/bin/ca-cert-range-config.sh secondary | tee output
 
           # cert range should be the same (size: 9, remaining: 4)
           cat > expected << EOF
@@ -709,7 +639,7 @@ jobs:
           dbs.serialLowWaterMark=9
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check request range objects
         run: |
@@ -870,14 +800,7 @@ jobs:
 
       - name: Check request range config in primary CA
         run: |
-          docker exec primary pki-server ca-config-find \
-              | grep \
-                  -e dbs.beginRequestNumber \
-                  -e dbs.endRequestNumber \
-                  -e dbs.requestCloneTransferNumber \
-                  -e dbs.requestIncrement \
-                  -e dbs.requestLowWaterMark \
-              | tee actual
+          tests/ca/bin/ca-request-range-config.sh primary | tee output
 
           # request range should be the same (size: 10, remaining: 0)
           cat > expected << EOF
@@ -888,18 +811,11 @@ jobs:
           dbs.requestLowWaterMark=5
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check request range config in secondary CA
         run: |
-          docker exec secondary pki-server ca-config-find \
-              | grep \
-                  -e dbs.beginRequestNumber \
-                  -e dbs.endRequestNumber \
-                  -e dbs.requestCloneTransferNumber \
-                  -e dbs.requestIncrement \
-                  -e dbs.requestLowWaterMark \
-              | tee actual
+          tests/ca/bin/ca-request-range-config.sh secondary | tee output
 
           # request range should be exhausted (size: 5, remaining: 0)
           cat > expected << EOF
@@ -910,18 +826,11 @@ jobs:
           dbs.requestLowWaterMark=5
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check cert range config in primary CA
         run: |
-          docker exec primary pki-server ca-config-find \
-              | grep \
-                  -e dbs.beginSerialNumber \
-                  -e dbs.endSerialNumber \
-                  -e dbs.serialCloneTransferNumber \
-                  -e dbs.serialIncrement \
-                  -e dbs.serialLowWaterMark \
-              | tee actual
+          tests/ca/bin/ca-cert-range-config.sh primary | tee output
 
           # cert range should be exhausted (size: 9, remaining: 0)
           cat > expected << EOF
@@ -932,18 +841,11 @@ jobs:
           dbs.serialLowWaterMark=9
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check cert range config in secondary CA
         run: |
-          docker exec secondary pki-server ca-config-find \
-              | grep \
-                  -e dbs.beginSerialNumber \
-                  -e dbs.endSerialNumber \
-                  -e dbs.serialCloneTransferNumber \
-                  -e dbs.serialIncrement \
-                  -e dbs.serialLowWaterMark \
-              | tee actual
+          tests/ca/bin/ca-cert-range-config.sh secondary | tee output
 
           # cert range should be the same (size: 9, remaining: 4)
           cat > expected << EOF
@@ -954,7 +856,7 @@ jobs:
           dbs.serialLowWaterMark=9
           EOF
 
-          diff expected actual
+          diff expected output
 
       ####################################################################################################
       # Allocate new ranges
@@ -1191,14 +1093,7 @@ jobs:
 
       - name: Check request range config in primary CA
         run: |
-          docker exec primary pki-server ca-config-find \
-              | grep \
-                  -e dbs.beginRequestNumber \
-                  -e dbs.endRequestNumber \
-                  -e dbs.requestCloneTransferNumber \
-                  -e dbs.requestIncrement \
-                  -e dbs.requestLowWaterMark \
-              | tee actual
+          tests/ca/bin/ca-request-range-config.sh primary | tee output
 
           # request range should be 11 - 15 decimal (size: 5, remaining: 0)
           cat > expected << EOF
@@ -1209,18 +1104,11 @@ jobs:
           dbs.requestLowWaterMark=5
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check request range config in secondary CA
         run: |
-          docker exec secondary pki-server ca-config-find \
-              | grep \
-                  -e dbs.beginRequestNumber \
-                  -e dbs.endRequestNumber \
-                  -e dbs.requestCloneTransferNumber \
-                  -e dbs.requestIncrement \
-                  -e dbs.requestLowWaterMark \
-              | tee actual
+          tests/ca/bin/ca-request-range-config.sh secondary | tee output
 
           # request range should be 21 - 30 decimal (size: 10, remaining: 0)
           cat > expected << EOF
@@ -1231,18 +1119,11 @@ jobs:
           dbs.requestLowWaterMark=5
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check cert range config in primary CA
         run: |
-          docker exec primary pki-server ca-config-find \
-              | grep \
-                  -e dbs.beginSerialNumber \
-                  -e dbs.endSerialNumber \
-                  -e dbs.serialCloneTransferNumber \
-                  -e dbs.serialIncrement \
-                  -e dbs.serialLowWaterMark \
-              | tee actual
+          tests/ca/bin/ca-cert-range-config.sh primary | tee output
 
           # according to the range object, the cert range should have
           # been d - 1e hex (13 - 30 decimal), but the actual range is
@@ -1255,18 +1136,11 @@ jobs:
           dbs.serialLowWaterMark=9
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check cert range config in secondary CA
         run: |
-          docker exec secondary pki-server ca-config-find \
-              | grep \
-                  -e dbs.beginSerialNumber \
-                  -e dbs.endSerialNumber \
-                  -e dbs.serialCloneTransferNumber \
-                  -e dbs.serialIncrement \
-                  -e dbs.serialLowWaterMark \
-              | tee actual
+          tests/ca/bin/ca-cert-range-config.sh secondary | tee output
 
           # according to the range object, the cert range should have
           # been 1f - 30 hex (31 - 48 decimal), but the actual range is
@@ -1279,7 +1153,7 @@ jobs:
           dbs.serialLowWaterMark=9
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check request range objects
         run: |
