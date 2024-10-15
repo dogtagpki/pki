@@ -164,22 +164,7 @@ jobs:
 
       - name: Check request range objects
         run: |
-          docker exec primaryds ldapsearch \
-              -H ldap://primaryds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=requests,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          grep \
-              -e SecurePort: \
-              -e beginRange: \
-              -e endRange: \
-              -e host: \
-              output \
-              | sort > actual
+          tests/ca/bin/ca-request-range-objects.sh primaryds | tee output
 
           # since the remaining numbers in the current range are below
           # the minimum, a new request range was allocated
@@ -188,20 +173,14 @@ jobs:
           beginRange: 11
           endRange: 20
           host: primary.example.com
+
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check cert range objects
         run: |
-          docker exec primaryds ldapsearch \
-              -H ldap://primaryds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=certificateRepository,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
+         tests/ca/bin/ca-cert-range-objects.sh primaryds | tee output
 
           # since the remaining numbers in the current range are not
           # less than the minimum, no new cert range was allocated
@@ -420,22 +399,7 @@ jobs:
 
       - name: Check request range objects
         run: |
-          docker exec secondaryds ldapsearch \
-              -H ldap://secondaryds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=requests,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          grep \
-              -e SecurePort: \
-              -e beginRange: \
-              -e endRange: \
-              -e host: \
-              output \
-              | sort > actual
+          tests/ca/bin/ca-request-range-objects.sh secondaryds | tee output
 
           # request range should be the same
           # NOTE: there's no indication that half of the range has
@@ -445,20 +409,14 @@ jobs:
           beginRange: 11
           endRange: 20
           host: primary.example.com
+
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check cert range objects
         run: |
-          docker exec secondaryds ldapsearch \
-              -H ldap://secondaryds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=certificateRepository,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
+          tests/ca/bin/ca-cert-range-objects.sh secondaryds | tee output
 
           # cert range should be the same
           diff /dev/null output
@@ -643,22 +601,7 @@ jobs:
 
       - name: Check request range objects
         run: |
-          docker exec primaryds ldapsearch \
-              -H ldap://primaryds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=requests,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          grep \
-              -e SecurePort: \
-              -e beginRange: \
-              -e endRange: \
-              -e host: \
-              output \
-              | sort > actual
+          tests/ca/bin/ca-request-range-objects.sh primaryds | tee output
 
           # request range should be the same
           cat > expected << EOF
@@ -666,20 +609,14 @@ jobs:
           beginRange: 11
           endRange: 20
           host: primary.example.com
+
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check cert range objects
         run: |
-          docker exec primaryds ldapsearch \
-              -H ldap://primaryds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=certificateRepository,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
+          tests/ca/bin/ca-cert-range-objects.sh primaryds | tee output
 
           # cert range should be the same
           diff /dev/null output
@@ -880,36 +817,7 @@ jobs:
 
       - name: Check request range objects
         run: |
-          docker exec primaryds ldapsearch \
-              -H ldap://primaryds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=requests,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          rm -f actual
-
-          for DN in $(sed -n 's/^dn: *\(.*\)$/\1/p' output)
-          do
-              docker exec primaryds ldapsearch \
-                  -H ldap://primaryds.example.com:3389 \
-                  -D "cn=Directory Manager" \
-                  -w Secret.123 \
-                  -b $DN \
-                  -s base \
-                  -o ldif_wrap=no \
-                  -LLL \
-                  | grep \
-                      -e SecurePort: \
-                      -e beginRange: \
-                      -e endRange: \
-                      -e host: \
-                  | sort >> actual
-
-              echo >> actual
-          done
+          tests/ca/bin/ca-request-range-objects.sh primaryds | tee output
 
           # since the remaining numbers are below the minimum in the
           # secondary CA, a new cert request should be allocated for it
@@ -926,40 +834,11 @@ jobs:
 
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check cert range objects
         run: |
-          docker exec primaryds ldapsearch \
-              -H ldap://primaryds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=certificateRepository,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          rm -f actual
-
-          for DN in $(sed -n 's/^dn: *\(.*\)$/\1/p' output)
-          do
-              docker exec primaryds ldapsearch \
-                  -H ldap://primaryds.example.com:3389 \
-                  -D "cn=Directory Manager" \
-                  -w Secret.123 \
-                  -b $DN \
-                  -s base \
-                  -o ldif_wrap=no \
-                  -LLL \
-                  | grep \
-                      -e SecurePort: \
-                      -e beginRange: \
-                      -e endRange: \
-                      -e host: \
-                  | sort >> actual
-
-              echo >> actual
-          done
+          tests/ca/bin/ca-cert-range-objects.sh primaryds | tee output
 
           # since the remaining numbers are below the minimum in both primary
           # and secondary CA, new cert ranges should be allocated for them
@@ -976,7 +855,7 @@ jobs:
 
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check request repository
         run: |
@@ -1157,36 +1036,7 @@ jobs:
 
       - name: Check request range objects
         run: |
-          docker exec primaryds ldapsearch \
-              -H ldap://primaryds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=requests,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          rm -f actual
-
-          for DN in $(sed -n 's/^dn: *\(.*\)$/\1/p' output)
-          do
-              docker exec primaryds ldapsearch \
-                  -H ldap://primaryds.example.com:3389 \
-                  -D "cn=Directory Manager" \
-                  -w Secret.123 \
-                  -b $DN \
-                  -s base \
-                  -o ldif_wrap=no \
-                  -LLL \
-                  | grep \
-                      -e SecurePort: \
-                      -e beginRange: \
-                      -e endRange: \
-                      -e host: \
-                  | sort >> actual
-
-              echo >> actual
-          done
+          tests/ca/bin/ca-request-range-objects.sh primaryds | tee output
 
           # request ranges should remain the same
           cat > expected << EOF
@@ -1202,40 +1052,11 @@ jobs:
 
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check cert range objects
         run: |
-          docker exec primaryds ldapsearch \
-              -H ldap://primaryds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=certificateRepository,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          rm -f actual
-
-          for DN in $(sed -n 's/^dn: *\(.*\)$/\1/p' output)
-          do
-              docker exec primaryds ldapsearch \
-                  -H ldap://primaryds.example.com:3389 \
-                  -D "cn=Directory Manager" \
-                  -w Secret.123 \
-                  -b $DN \
-                  -s base \
-                  -o ldif_wrap=no \
-                  -LLL \
-                  | grep \
-                      -e SecurePort: \
-                      -e beginRange: \
-                      -e endRange: \
-                      -e host: \
-                  | sort >> actual
-
-              echo >> actual
-          done
+          tests/ca/bin/ca-cert-range-objects.sh primaryds | tee output
 
           # cert ranges should remain the same
           cat > expected << EOF
@@ -1251,7 +1072,7 @@ jobs:
 
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check request repository
         run: |

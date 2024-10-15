@@ -189,28 +189,14 @@ jobs:
 
       - name: Check request range objects
         run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=requests,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
+          tests/ca/bin/ca-request-range-objects.sh ds | tee output
 
           # serial number management is disabled so there are no range objects created
           diff /dev/null output
 
       - name: Check cert range objects
         run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=certificateRepository,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
+          tests/ca/bin/ca-cert-range-objects.sh ds | tee output
 
           # serial number management is disabled so there are no range objects created
           diff /dev/null output
@@ -321,22 +307,7 @@ jobs:
 
       - name: Check request range objects
         run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=requests,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          grep \
-              -e SecurePort: \
-              -e beginRange: \
-              -e endRange: \
-              -e host: \
-              output \
-              | sort > actual
+          tests/ca/bin/ca-request-range-objects.sh ds | tee output
 
           # new request range should be 11 - 20 decimal (total: 10)
           cat > expected << EOF
@@ -344,20 +315,14 @@ jobs:
           beginRange: 11
           endRange: 20
           host: pki.example.com
+
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check cert range objects
         run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=certificateRepository,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
+          tests/ca/bin/ca-cert-range-objects.sh ds | tee output
 
           # there should be no new cert range
           diff /dev/null output
@@ -510,22 +475,7 @@ jobs:
 
       - name: Check request range objects
         run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=requests,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          grep \
-              -e SecurePort: \
-              -e beginRange: \
-              -e endRange: \
-              -e host: \
-              output \
-              | sort > actual
+          tests/ca/bin/ca-request-range-objects.sh ds | tee output
 
           # request range objects should be the same
           cat > expected << EOF
@@ -533,20 +483,14 @@ jobs:
           beginRange: 11
           endRange: 20
           host: pki.example.com
+
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check cert range objects
         run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=certificateRepository,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
+          tests/ca/bin/ca-cert-range-objects.sh ds | tee output
 
           # cert range objects should be the same
           diff /dev/null output
@@ -680,22 +624,7 @@ jobs:
 
       - name: Check request range objects
         run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=requests,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          grep \
-              -e SecurePort: \
-              -e beginRange: \
-              -e endRange: \
-              -e host: \
-              output \
-              | sort > actual
+          tests/ca/bin/ca-request-range-objects.sh ds | tee output
 
           # request range objects should be the same
           cat > expected << EOF
@@ -703,20 +632,14 @@ jobs:
           beginRange: 11
           endRange: 20
           host: pki.example.com
+
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check cert range objects
         run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=certificateRepository,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
+          tests/ca/bin/ca-cert-range-objects.sh ds | tee output
 
           # cert range objects should be the same
           diff /dev/null output
@@ -813,36 +736,7 @@ jobs:
 
       - name: Check request range objects
         run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=requests,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          rm -f actual
-
-          for DN in $(sed -n 's/^dn: *\(.*\)$/\1/p' output)
-          do
-              docker exec ds ldapsearch \
-                  -H ldap://ds.example.com:3389 \
-                  -D "cn=Directory Manager" \
-                  -w Secret.123 \
-                  -b $DN \
-                  -s base \
-                  -o ldif_wrap=no \
-                  -LLL \
-                  | grep \
-                      -e SecurePort: \
-                      -e beginRange: \
-                      -e endRange: \
-                      -e host: \
-                  | sort >> actual
-
-              echo >> actual
-          done
+          tests/ca/bin/ca-request-range-objects.sh ds | tee output
 
           # new request range should be 21 - 30 decimal (total: 10)
           cat > expected << EOF
@@ -858,26 +752,11 @@ jobs:
 
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check cert range objects
         run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=certificateRepository,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          grep \
-              -e SecurePort: \
-              -e beginRange: \
-              -e endRange: \
-              -e host: \
-              output \
-              | sort > actual
+          tests/ca/bin/ca-cert-range-objects.sh ds | tee output
 
           # new request range should be 11 - 26 decimal (total: 16)
           cat > expected << EOF
@@ -885,9 +764,10 @@ jobs:
           beginRange: 11
           endRange: 26
           host: pki.example.com
+
           EOF
 
-          diff expected actual
+          diff expected output
 
       ####################################################################################################
       # Enroll 13 additional certs
@@ -1012,36 +892,7 @@ jobs:
 
       - name: Check request range objects
         run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=requests,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          rm -f actual
-
-          for DN in $(sed -n 's/^dn: *\(.*\)$/\1/p' output)
-          do
-              docker exec ds ldapsearch \
-                  -H ldap://ds.example.com:3389 \
-                  -D "cn=Directory Manager" \
-                  -w Secret.123 \
-                  -b $DN \
-                  -s base \
-                  -o ldif_wrap=no \
-                  -LLL \
-                  | grep \
-                      -e SecurePort: \
-                      -e beginRange: \
-                      -e endRange: \
-                      -e host: \
-                  | sort >> actual
-
-              echo >> actual
-          done
+          tests/ca/bin/ca-request-range-objects.sh ds | tee output
 
           # request range objects should be the same
           cat > expected << EOF
@@ -1057,26 +908,11 @@ jobs:
 
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check cert range objects
         run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=certificateRepository,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          grep \
-              -e SecurePort: \
-              -e beginRange: \
-              -e endRange: \
-              -e host: \
-              output \
-              | sort > actual
+          tests/ca/bin/ca-cert-range-objects.sh ds | tee output
 
           # cert range objects should be the same
           cat > expected << EOF
@@ -1084,9 +920,10 @@ jobs:
           beginRange: 11
           endRange: 26
           host: pki.example.com
+
           EOF
 
-          diff expected actual
+          diff expected output
 
       ####################################################################################################
       # Enroll a cert when request range is exhausted
@@ -1213,36 +1050,7 @@ jobs:
 
       - name: Check request range objects
         run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=requests,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          rm -f actual
-
-          for DN in $(sed -n 's/^dn: *\(.*\)$/\1/p' output)
-          do
-              docker exec ds ldapsearch \
-                  -H ldap://ds.example.com:3389 \
-                  -D "cn=Directory Manager" \
-                  -w Secret.123 \
-                  -b $DN \
-                  -s base \
-                  -o ldif_wrap=no \
-                  -LLL \
-                  | grep \
-                      -e SecurePort: \
-                      -e beginRange: \
-                      -e endRange: \
-                      -e host: \
-                  | sort >> actual
-
-              echo >> actual
-          done
+          tests/ca/bin/ca-request-range-objects.sh ds | tee output
 
           # request range objects should be the same
           cat > expected << EOF
@@ -1258,26 +1066,11 @@ jobs:
 
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check cert range objects
         run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=certificateRepository,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          grep \
-              -e SecurePort: \
-              -e beginRange: \
-              -e endRange: \
-              -e host: \
-              output \
-              | sort > actual
+          tests/ca/bin/ca-cert-range-objects.sh ds | tee output
 
           # cert range objects should be the same
           cat > expected << EOF
@@ -1285,9 +1078,10 @@ jobs:
           beginRange: 11
           endRange: 26
           host: pki.example.com
+
           EOF
 
-          diff expected actual
+          diff expected output
 
       ####################################################################################################
       # Update serial numbers again
@@ -1381,36 +1175,7 @@ jobs:
 
       - name: Check request range objects
         run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=requests,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          rm -f actual
-
-          for DN in $(sed -n 's/^dn: *\(.*\)$/\1/p' output)
-          do
-              docker exec ds ldapsearch \
-                  -H ldap://ds.example.com:3389 \
-                  -D "cn=Directory Manager" \
-                  -w Secret.123 \
-                  -b $DN \
-                  -s base \
-                  -o ldif_wrap=no \
-                  -LLL \
-                  | grep \
-                      -e SecurePort: \
-                      -e beginRange: \
-                      -e endRange: \
-                      -e host: \
-                  | sort >> actual
-
-              echo >> actual
-          done
+          tests/ca/bin/ca-request-range-objects.sh ds | tee output
 
           # new request range should be 31 - 40 decimal (total: 10)
           cat > expected << EOF
@@ -1431,40 +1196,11 @@ jobs:
 
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check cert range objects
         run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=certificateRepository,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          rm -f actual
-
-          for DN in $(sed -n 's/^dn: *\(.*\)$/\1/p' output)
-          do
-              docker exec ds ldapsearch \
-                  -H ldap://ds.example.com:3389 \
-                  -D "cn=Directory Manager" \
-                  -w Secret.123 \
-                  -b $DN \
-                  -s base \
-                  -o ldif_wrap=no \
-                  -LLL \
-                  | grep \
-                      -e SecurePort: \
-                      -e beginRange: \
-                      -e endRange: \
-                      -e host: \
-                  | sort >> actual
-
-              echo >> actual
-          done
+          tests/ca/bin/ca-cert-range-objects.sh ds | tee output
 
           # new cert range should be 27 - 42 decimal (total: 16)
           cat > expected << EOF
@@ -1480,7 +1216,7 @@ jobs:
 
           EOF
 
-          diff expected actual
+          diff expected output
 
       ####################################################################################################
       # Enroll 10 additional certs
@@ -1609,36 +1345,7 @@ jobs:
 
       - name: Check request range objects
         run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=requests,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          rm -f actual
-
-          for DN in $(sed -n 's/^dn: *\(.*\)$/\1/p' output)
-          do
-              docker exec ds ldapsearch \
-                  -H ldap://ds.example.com:3389 \
-                  -D "cn=Directory Manager" \
-                  -w Secret.123 \
-                  -b $DN \
-                  -s base \
-                  -o ldif_wrap=no \
-                  -LLL \
-                  | grep \
-                      -e SecurePort: \
-                      -e beginRange: \
-                      -e endRange: \
-                      -e host: \
-                  | sort >> actual
-
-              echo >> actual
-          done
+          tests/ca/bin/ca-request-range-objects.sh ds | tee output
 
           # request range objects should be the same
           cat > expected << EOF
@@ -1659,40 +1366,11 @@ jobs:
 
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check cert range objects
         run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=certificateRepository,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          rm -f actual
-
-          for DN in $(sed -n 's/^dn: *\(.*\)$/\1/p' output)
-          do
-              docker exec ds ldapsearch \
-                  -H ldap://ds.example.com:3389 \
-                  -D "cn=Directory Manager" \
-                  -w Secret.123 \
-                  -b $DN \
-                  -s base \
-                  -o ldif_wrap=no \
-                  -LLL \
-                  | grep \
-                      -e SecurePort: \
-                      -e beginRange: \
-                      -e endRange: \
-                      -e host: \
-                  | sort >> actual
-
-              echo >> actual
-          done
+          tests/ca/bin/ca-cert-range-objects.sh ds | tee output
 
           # cert range should be the same
           cat > expected << EOF
@@ -1708,7 +1386,7 @@ jobs:
 
           EOF
 
-          diff expected actual
+          diff expected output
 
       ####################################################################################################
       # Enroll a cert with RSNv3
