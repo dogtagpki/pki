@@ -133,47 +133,20 @@ jobs:
 
           diff expected output
 
-      - name: Check request repository
+      - name: Check request next range
         run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=ca,ou=requests,dc=ca,dc=pki,dc=example,dc=com \
-              -s base \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          grep \
-              -e serialno: \
-              -e nextRange: \
-              output \
-              | sort > actual
+          tests/ca/bin/ca-request-next-range.sh ds | tee output
 
           # request nextRange should be incremented by 10 decimal to 11
           cat > expected << EOF
           nextRange: 11
-          serialno: 010
           EOF
 
-          diff expected actual
+          diff expected output
 
-      - name: Check cert repository
+      - name: Check cert next range
         run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=certificateRepository,ou=ca,dc=ca,dc=pki,dc=example,dc=com \
-              -s base \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          grep \
-              -e serialno: \
-              -e nextRange: \
-              output \
-              | sort > actual
+          tests/ca/bin/ca-cert-next-range.sh ds | tee output
 
           # ideally, cert nextRange should be incremented by 10 hex (16 decimal)
           # to 11 hex (17 decimal), but currently the attribute is always read
@@ -182,10 +155,9 @@ jobs:
           # - SubsystemRangeUpdateCLI.updateSerialNumberRange()
           cat > expected << EOF
           nextRange: 11
-          serialno: 011
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check request range objects
         run: |
@@ -255,55 +227,27 @@ jobs:
 
           diff expected output
 
-      - name: Check request repository
+      - name: Check request next range
         run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=ca,ou=requests,dc=ca,dc=pki,dc=example,dc=com \
-              -s base \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          grep \
-              -e serialno: \
-              -e nextRange: \
-              output \
-              | sort > actual
+          tests/ca/bin/ca-request-next-range.sh ds | tee output
 
           # request nextRange should be incremented by 10 decimal
           cat > expected << EOF
           nextRange: 21
-          serialno: 010
           EOF
 
-          diff expected actual
+          diff expected output
 
-      - name: Check cert repository
+      - name: Check cert next range
         run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=certificateRepository,ou=ca,dc=ca,dc=pki,dc=example,dc=com \
-              -s base \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          grep \
-              -e serialno: \
-              -e nextRange: \
-              output \
-              | sort > actual
+          tests/ca/bin/ca-cert-next-range.sh ds | tee output
 
           # cert nextRange should be the same
           cat > expected << EOF
           nextRange: 11
-          serialno: 011
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check request range objects
         run: |
@@ -423,55 +367,27 @@ jobs:
 
           diff expected output
 
-      - name: Check request repository
+      - name: Check request next range
         run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=ca,ou=requests,dc=ca,dc=pki,dc=example,dc=com \
-              -s base \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          grep \
-              -e serialno: \
-              -e nextRange: \
-              output \
-              | sort > actual
+          tests/ca/bin/ca-request-next-range.sh ds | tee output
 
           # request nextRange should be the same
           cat > expected << EOF
           nextRange: 21
-          serialno: 010
           EOF
 
-          diff expected actual
+          diff expected output
 
-      - name: Check cert repository
+      - name: Check cert next range
         run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=certificateRepository,ou=ca,dc=ca,dc=pki,dc=example,dc=com \
-              -s base \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          grep \
-              -e serialno: \
-              -e nextRange: \
-              output \
-              | sort > actual
+          tests/ca/bin/ca-cert-next-range.sh ds | tee output
 
           # cert nextRange should be the same
           cat > expected << EOF
           nextRange: 11
-          serialno: 011
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check request range objects
         run: |
@@ -572,55 +488,27 @@ jobs:
 
           diff expected output
 
-      - name: Check request repository
+      - name: Check request next range
         run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=ca,ou=requests,dc=ca,dc=pki,dc=example,dc=com \
-              -s base \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          grep \
-              -e serialno: \
-              -e nextRange: \
-              output \
-              | sort > actual
+          tests/ca/bin/ca-request-next-range.sh ds | tee output
 
           # request nextRange should be the same
           cat > expected << EOF
           nextRange: 21
-          serialno: 010
           EOF
 
-          diff expected actual
+          diff expected output
 
-      - name: Check cert repository
+      - name: Check cert next range
         run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=certificateRepository,ou=ca,dc=ca,dc=pki,dc=example,dc=com \
-              -s base \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          grep \
-              -e serialno: \
-              -e nextRange: \
-              output \
-              | sort > actual
+          tests/ca/bin/ca-cert-next-range.sh ds | tee output
 
           # cert nextRange should be the same
           cat > expected << EOF
           nextRange: 11
-          serialno: 011
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check request range objects
         run: |
@@ -684,55 +572,27 @@ jobs:
 
           diff expected output
 
-      - name: Check request repository
+      - name: Check request next range
         run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=ca,ou=requests,dc=ca,dc=pki,dc=example,dc=com \
-              -s base \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          grep \
-              -e serialno: \
-              -e nextRange: \
-              output \
-              | sort > actual
+          tests/ca/bin/ca-request-next-range.sh ds | tee output
 
           # request nextRange should be incremented by 10 decimal to 31 decimal
           cat > expected << EOF
           nextRange: 31
-          serialno: 010
           EOF
 
-          diff expected actual
+          diff expected output
 
-      - name: Check cert repository
+      - name: Check cert next range
         run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=certificateRepository,ou=ca,dc=ca,dc=pki,dc=example,dc=com \
-              -s base \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          grep \
-              -e serialno: \
-              -e nextRange: \
-              output \
-              | sort > actual
+          tests/ca/bin/ca-cert-next-range.sh ds | tee output
 
           # cert nextRequest should incremented by 10 hex (16 decimal) to 27 decimal
           cat > expected << EOF
           nextRange: 27
-          serialno: 011
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check request range objects
         run: |
@@ -840,55 +700,27 @@ jobs:
 
           diff expected output
 
-      - name: Check request repository
+      - name: Check request next range
         run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=ca,ou=requests,dc=ca,dc=pki,dc=example,dc=com \
-              -s base \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          grep \
-              -e serialno: \
-              -e nextRange: \
-              output \
-              | sort > actual
+          tests/ca/bin/ca-request-next-range.sh ds| tee output
 
           # request nextRange should be the same
           cat > expected << EOF
           nextRange: 31
-          serialno: 010
           EOF
 
-          diff expected actual
+          diff expected output
 
-      - name: Check cert repository
+      - name: Check cert next range
         run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=certificateRepository,ou=ca,dc=ca,dc=pki,dc=example,dc=com \
-              -s base \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          grep \
-              -e serialno: \
-              -e nextRange: \
-              output \
-              | sort > actual
+          tests/ca/bin/ca-cert-next-range.sh ds | tee output
 
           # cert nextRange should be the same
           cat > expected << EOF
           nextRange: 27
-          serialno: 011
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check request range objects
         run: |
@@ -998,55 +830,27 @@ jobs:
 
           diff expected output
 
-      - name: Check request repository
+      - name: Check request next range
         run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=ca,ou=requests,dc=ca,dc=pki,dc=example,dc=com \
-              -s base \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          grep \
-              -e serialno: \
-              -e nextRange: \
-              output \
-              | sort > actual
+          tests/ca/bin/ca-request-next-range.sh ds | tee output
 
           # request nextRange should be the same
           cat > expected << EOF
           nextRange: 31
-          serialno: 010
           EOF
 
-          diff expected actual
+          diff expected output
 
-      - name: Check cert repository
+      - name: Check cert next range
         run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=certificateRepository,ou=ca,dc=ca,dc=pki,dc=example,dc=com \
-              -s base \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          grep \
-              -e serialno: \
-              -e nextRange: \
-              output \
-              | sort > actual
+          tests/ca/bin/ca-cert-next-range.sh ds | tee output
 
           # cert nextRange should be the same
           cat > expected << EOF
           nextRange: 27
-          serialno: 011
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check request range objects
         run: |
@@ -1123,55 +927,27 @@ jobs:
 
           diff expected output
 
-      - name: Check request repository
+      - name: Check request next range
         run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=ca,ou=requests,dc=ca,dc=pki,dc=example,dc=com \
-              -s base \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          grep \
-              -e serialno: \
-              -e nextRange: \
-              output \
-              | sort > actual
+          tests/ca/bin/ca-request-next-range.sh ds | tee output
 
           # request nextRange should be incremented by 10 decimal to 41 decimal
           cat > expected << EOF
           nextRange: 41
-          serialno: 010
           EOF
 
-          diff expected actual
+          diff expected output
 
-      - name: Check cert repository
+      - name: Check cert next range
         run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=certificateRepository,ou=ca,dc=ca,dc=pki,dc=example,dc=com \
-              -s base \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          grep \
-              -e serialno: \
-              -e nextRange: \
-              output \
-              | sort > actual
+          tests/ca/bin/ca-cert-next-range.sh ds | tee output
 
           # cert nextRange should be incremented by 10 hex (16 decimal) to 43 decimal
           cat > expected << EOF
           nextRange: 43
-          serialno: 011
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check request range objects
         run: |
@@ -1293,55 +1069,27 @@ jobs:
 
           diff expected output
 
-      - name: Check request repository
+      - name: Check request next range
         run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=ca,ou=requests,dc=ca,dc=pki,dc=example,dc=com \
-              -s base \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          grep \
-              -e serialno: \
-              -e nextRange: \
-              output \
-              | sort > actual
+          tests/ca/bin/ca-request-next-range.sh ds | tee output
 
           # request nextRange should be the same
           cat > expected << EOF
           nextRange: 41
-          serialno: 010
           EOF
 
-          diff expected actual
+          diff expected output
 
-      - name: Check cert repository
+      - name: Check cert next range
         run: |
-          docker exec ds ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=certificateRepository,ou=ca,dc=ca,dc=pki,dc=example,dc=com \
-              -s base \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          grep \
-              -e serialno: \
-              -e nextRange: \
-              output \
-              | sort > actual
+          tests/ca/bin/ca-cert-next-range.sh ds | tee output
 
           # cert nextRange should be the same
           cat > expected << EOF
           nextRange: 43
-          serialno: 011
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check request range objects
         run: |
