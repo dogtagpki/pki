@@ -53,7 +53,7 @@ public abstract class Repository {
     public static final int HEX = 16;
 
     public enum IDGenerator {
-        NEW_LEGACY("newLegacy"),
+        LEGACY_2("legacy2"),
         LEGACY("legacy"),
         RANDOM("random");
 
@@ -439,7 +439,7 @@ public abstract class Repository {
         DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
 
         String serial = mMinSerialNo.toString(mRadix);
-        if (mRadix == HEX && idGenerator == IDGenerator.NEW_LEGACY) {
+        if (mRadix == HEX && idGenerator == IDGenerator.LEGACY_2) {
             serial = "0x" + serial;
         }
         logger.debug("Repository: Setting min serial number: " + serial);
@@ -459,7 +459,7 @@ public abstract class Repository {
         DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
 
         String serial = mMaxSerialNo.toString(mRadix);
-        if (mRadix == HEX && idGenerator == IDGenerator.NEW_LEGACY) {
+        if (mRadix == HEX && idGenerator == IDGenerator.LEGACY_2) {
             serial = "0x" + serial;
         }
         logger.debug("Repository: Setting max serial number: " + serial);
@@ -483,7 +483,7 @@ public abstract class Repository {
             dbConfig.remove(nextMinSerialName);
         } else {
             String serial = mNextMinSerialNo.toString(mRadix);
-            if (mRadix == HEX && idGenerator == IDGenerator.NEW_LEGACY) {
+            if (mRadix == HEX && idGenerator == IDGenerator.LEGACY_2) {
                 serial = "0x" + serial;
             }
             logger.debug("Repository: Setting next min number: " + serial);
@@ -508,7 +508,7 @@ public abstract class Repository {
             dbConfig.remove(nextMaxSerialName);
         } else {
             String serial = mNextMaxSerialNo.toString(mRadix);
-            if (mRadix == HEX && idGenerator == IDGenerator.NEW_LEGACY) {
+            if (mRadix == HEX && idGenerator == IDGenerator.LEGACY_2) {
                 serial = "0x" + serial;
             }
             logger.debug("Repository: Setting next max number: " + serial);
@@ -645,7 +645,7 @@ public abstract class Repository {
 
             logger.info("Repository: Searching for conflicting entries");
 
-            String minSerial = idGenerator == IDGenerator.NEW_LEGACY ? 
+            String minSerial = idGenerator == IDGenerator.LEGACY_2 ? 
                     mMinSerialNo.toString() : mMinSerialNo.toString(mRadix);
             String filter = "(&(nsds5ReplConflict=*)(objectClass=pkiRange)(host= " +
                     cs.getHostname() + ")(SecurePort=" + engine.getEESSLPort() +
@@ -722,7 +722,7 @@ public abstract class Repository {
             logger.debug("Repository: Requesting next range");
             String nextRange = getNextRange();
             logger.debug("Repository: next range: " + nextRange);
-            if (idGenerator == IDGenerator.NEW_LEGACY) {
+            if (idGenerator == IDGenerator.LEGACY_2) {
                 mNextMinSerialNo = new BigInteger(nextRange);
             } else {
                 mNextMinSerialNo = new BigInteger(nextRange, mRadix);

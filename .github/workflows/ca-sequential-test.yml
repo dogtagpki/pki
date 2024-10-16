@@ -1144,11 +1144,11 @@ jobs:
           diff expected output
 
       ####################################################################################################
-      # Switch cert request ID generator to newLegacy and verify if serials
+      # Switch cert request ID generator to legacy2 and verify if serials
       # have gaps when range is updated
       #
       # It should work like the legacy but with correct range.
-      - name: Switch to newLegacy
+      - name: Switch to legacy2
         run: |
           # Update CS.cfg
           docker exec ds ldapsearch \
@@ -1171,9 +1171,9 @@ jobs:
           docker exec pki pki-server ca-config-set dbs.serialIncrement 0x10
           docker exec pki pki-server ca-config-set dbs.serialLowWaterMark 0x8
           docker exec pki pki-server ca-config-set dbs.serialCloneTransferNumber 0x8
-          docker exec pki pki-server ca-config-set dbs.request.id.generator newLegacy
+          docker exec pki pki-server ca-config-set dbs.request.id.generator legacy2
 
-          docker exec pki pki-server ca-config-set dbs.cert.id.generator newLegacy
+          docker exec pki pki-server ca-config-set dbs.cert.id.generator legacy2
 
           # Update new_range in DS
           NEW_NEXT=$((END_SERIAL + 1))
@@ -1714,7 +1714,7 @@ jobs:
           diff expected actual
 
       ####################################################################################################
-      # Checking certs no gap should be present after switching to newLegacy
+      # Checking certs no gap should be present after switching to legacy2
       # so the last gap is between 32 and 39
       #
       - name: Check certs

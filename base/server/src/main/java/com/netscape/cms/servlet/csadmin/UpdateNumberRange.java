@@ -164,7 +164,7 @@ public abstract class UpdateNumberRange extends CMSServlet {
 
             BigInteger endNum;
             BigInteger transferSize;
-            if (repo.getIDGenerator() == Repository.IDGenerator.NEW_LEGACY) {
+            if (repo.getIDGenerator() == Repository.IDGenerator.LEGACY_2) {
                 endNum = dbConfig.getBigInteger(endNumConfig);
                 transferSize = dbConfig.getBigInteger(cloneNumConfig);
             } else {
@@ -232,7 +232,7 @@ public abstract class UpdateNumberRange extends CMSServlet {
                      * this scenario is unlikely to arise.  Furthermore,
                      * recovery is automatic thanks to the scheduled tasks.
                      */
-                    if (repo.getIDGenerator() == Repository.IDGenerator.NEW_LEGACY) {
+                    if (repo.getIDGenerator() == Repository.IDGenerator.LEGACY_2) {
                         endNum = dbConfig.getBigInteger(nextEndConfig);
                     } else {
                         endNum = new BigInteger(dbConfig.getString(nextEndConfig, ""), radix);                        
@@ -245,7 +245,7 @@ public abstract class UpdateNumberRange extends CMSServlet {
 
                     repo.setNextMaxSerial(newEndNum);
                     String strNewEndNum = newEndNum.toString(radix);
-                    if (repo.getIDGenerator() == Repository.IDGenerator.NEW_LEGACY && radix == Repository.HEX) {
+                    if (repo.getIDGenerator() == Repository.IDGenerator.LEGACY_2 && radix == Repository.HEX) {
                             strNewEndNum = "0x" + strNewEndNum;
                     }
                     dbConfig.putString(nextEndConfig, strNewEndNum);
@@ -258,7 +258,7 @@ public abstract class UpdateNumberRange extends CMSServlet {
                     BigInteger newEndNum = beginNum.subtract(BigInteger.ONE);
                     repo.setMaxSerial(newEndNum);
                     String newValStr = newEndNum.toString(radix);
-                    if (repo.getIDGenerator() == Repository.IDGenerator.NEW_LEGACY && radix == Repository.HEX) {
+                    if (repo.getIDGenerator() == Repository.IDGenerator.LEGACY_2 && radix == Repository.HEX) {
                         newValStr = "0x" + newValStr;
                     }
                     dbConfig.putString(endNumConfig, newValStr);
@@ -292,7 +292,7 @@ public abstract class UpdateNumberRange extends CMSServlet {
             JSONObject jsonObj = new JSONObject();
             ObjectNode responseNode = jsonObj.getMapper().createObjectNode();
             responseNode.put("Status", SUCCESS);
-            if(repo.getIDGenerator() == Repository.IDGenerator.NEW_LEGACY && radix == Repository.HEX) {
+            if(repo.getIDGenerator() == Repository.IDGenerator.LEGACY_2 && radix == Repository.HEX) {
                 responseNode.put("beginNumber", "0x" + beginNum.toString(radix));
                 responseNode.put("endNumber", "0x" + endNum.toString(radix));                
             } else {

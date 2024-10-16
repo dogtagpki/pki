@@ -112,7 +112,7 @@ public class SubsystemRangeUpdateCLI extends SubsystemCLI {
 
         try {
             BigInteger endSerialNumber;
-            if (idGenerator == IDGenerator.NEW_LEGACY) {
+            if (idGenerator == IDGenerator.LEGACY_2) {
                 endSerialNumber = dbConfig.getBigInteger(DatabaseConfig.MAX_SERIAL_NUMBER);
             } else {
                 // parse the end of current cert range as decimal
@@ -159,7 +159,7 @@ public class SubsystemRangeUpdateCLI extends SubsystemCLI {
             logger.info("Updating request ID range");
 
             BigInteger endRequestNumber;
-            if (idGenerator == IDGenerator.NEW_LEGACY) {
+            if (idGenerator == IDGenerator.LEGACY_2) {
                 endRequestNumber = dbConfig.getBigInteger(DatabaseConfig.MAX_REQUEST_NUMBER);
             } else {
                 // parse the end of current range as decimal

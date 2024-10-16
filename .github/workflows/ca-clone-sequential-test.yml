@@ -985,11 +985,11 @@ jobs:
           diff expected output
 
       ####################################################################################################
-      # Switch cert request ID generator to newLegacy and verify if serials
+      # Switch cert request ID generator to legacy2 and verify if serials
       # have gaps when range is updated
       #
       # It should work like the legacy but with correct range.
-      - name: Switch primary to newLegacy
+      - name: Switch primary to legacy2
         run: |
           # Update CS.cfg
           docker exec primaryds ldapsearch \
@@ -1012,9 +1012,9 @@ jobs:
           docker exec primary pki-server ca-config-set dbs.serialIncrement 0x12
           docker exec primary pki-server ca-config-set dbs.serialLowWaterMark 0x9
           docker exec primary pki-server ca-config-set dbs.serialCloneTransferNumber 0x9
-          docker exec primary pki-server ca-config-set dbs.request.id.generator newLegacy
+          docker exec primary pki-server ca-config-set dbs.request.id.generator legacy2
 
-          docker exec primary pki-server ca-config-set dbs.cert.id.generator newLegacy
+          docker exec primary pki-server ca-config-set dbs.cert.id.generator legacy2
 
           # Update new_range in DS
           docker exec primaryds ldapsearch \
@@ -1041,7 +1041,7 @@ jobs:
           # restart CA subsystem
           docker exec primary pki-server restart --wait
 
-      - name: Switch secondary to newLegacy
+      - name: Switch secondary to legacy2
         run: |
           # Update CS.cfg
           docker exec secondaryds ldapsearch \
@@ -1064,9 +1064,9 @@ jobs:
           docker exec secondary pki-server ca-config-set dbs.serialIncrement 0x12
           docker exec secondary pki-server ca-config-set dbs.serialLowWaterMark 0x9
           docker exec secondary pki-server ca-config-set dbs.serialCloneTransferNumber 0x9
-          docker exec secondary pki-server ca-config-set dbs.request.id.generator newLegacy
+          docker exec secondary pki-server ca-config-set dbs.request.id.generator legacy2
 
-          docker exec secondary pki-server ca-config-set dbs.cert.id.generator newLegacy
+          docker exec secondary pki-server ca-config-set dbs.cert.id.generator legacy2
 
           # Update new_range in secondary DS is not necessary. It is in sync with the primary
           # restart CA subsystem

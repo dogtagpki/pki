@@ -102,8 +102,8 @@ public class RequestRepository extends Repository {
 
             idLength = dbConfig.getInteger(PROP_REQUEST_ID_LENGTH, DEFAULT_REQUEST_ID_LENGTH);
             logger.debug("RequestRepository: - request ID length: " + idLength);
-        } else if (idGenerator == IDGenerator.NEW_LEGACY) {
-            initNewLegacyGenerator();
+        } else if (idGenerator == IDGenerator.LEGACY_2) {
+            initLegacy2Generator();
         } else {
             initLegacyGenerator();
         }
@@ -113,7 +113,7 @@ public class RequestRepository extends Repository {
         RequestRecord.register(dbSubsystem);
     }
 
-    protected void initNewLegacyGenerator() throws EBaseException {
+    protected void initLegacy2Generator() throws EBaseException {
         DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
 
         rangeDN = dbConfig.getRequestRangeDN() + "," + dbSubsystem.getBaseDN();

@@ -126,14 +126,14 @@ public class CertificateRepository extends Repository {
 
             idLength = mDBConfig.getInteger(PROP_CERT_ID_LENGTH, DEFAULT_CERT_ID_LENGTH);
             logger.debug("CertificateRepository: - cert ID length: " + idLength);
-        } else if (idGenerator == IDGenerator.NEW_LEGACY) {
-            initNewLegacyGenerator();
+        } else if (idGenerator == IDGenerator.LEGACY_2) {
+            initLegacy2Generator();
         } else {
             initLegacyGenerator();
         }
     }
 
-    protected void initNewLegacyGenerator() throws EBaseException {
+    protected void initLegacy2Generator() throws EBaseException {
 
         rangeDN = mDBConfig.getSerialRangeDN() + "," + dbSubsystem.getBaseDN();
         logger.debug("CertificateRepository: - range DN: " + rangeDN);

@@ -85,8 +85,8 @@ public class KeyRepository extends Repository {
 
             idLength = dbConfig.getInteger(PROP_KEY_ID_LENGTH, DEFAULT_KEY_ID_LENGTH);
             logger.info("KeyRepository: - key ID length: {}", idLength);
-        } else if (idGenerator == IDGenerator.NEW_LEGACY) {
-            initNewLegacyGenerator();
+        } else if (idGenerator == IDGenerator.LEGACY_2) {
+            initLegacy2Generator();
         } else {
             initLegacyGenerator();
         }
@@ -169,7 +169,7 @@ public class KeyRepository extends Repository {
 
     }
 
-    protected void initNewLegacyGenerator() throws EBaseException {
+    protected void initLegacy2Generator() throws EBaseException {
         DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
 
         rangeDN = dbConfig.getSerialRangeDN() + "," + dbSubsystem.getBaseDN();
