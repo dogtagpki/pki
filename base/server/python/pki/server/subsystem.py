@@ -1563,6 +1563,22 @@ class PKISubsystem(object):
 
         self.run(cmd, as_current_user=as_current_user)
 
+    def update_range_generator(self, generator, generator_type,  as_current_user=False):
+
+        cmd = [self.name + '-range-generator-update']
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        cmd.append('--type')
+        cmd.append(generator_type)
+        cmd.append(generator)
+
+        self.run(cmd, as_current_user=as_current_user)
+
     def retrieve_config(self, master_url, names, substores, session_id=None, install_token=None):
 
         tmpdir = tempfile.mkdtemp()
