@@ -991,99 +991,22 @@ jobs:
       # It should work like the legacy but with correct range.
       - name: Switch primary to legacy2
         run: |
-          # Update CS.cfg
-          docker exec primaryds ldapsearch \
-              -H ldap://primaryds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=certificateRepository,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL '(&(host=primary.example.com)(SecurePort=8443))' beginRange | tee output
-
-          # Since there is a range the value are retrieved from the range. In general, id range is not
-          # present the value from CS.cfg are used.
-          BEGIN_SERIAL=0x$(cat output | sed -n 's/beginRange: \(.*\)/\1/p' | sort -n | tail -1)
-          END_SERIAL=$(printf "0x%x\n" $(( BEGIN_SERIAL + 0x12 -1 )) )
-
-          docker exec primary pki-server ca-config-set dbs.beginSerialNumber $BEGIN_SERIAL
-          docker exec primary pki-server ca-config-set dbs.endSerialNumber $END_SERIAL
-
-          docker exec primary pki-server ca-config-set dbs.serialIncrement 0x12
-          docker exec primary pki-server ca-config-set dbs.serialLowWaterMark 0x9
-          docker exec primary pki-server ca-config-set dbs.serialCloneTransferNumber 0x9
-          docker exec primary pki-server ca-config-set dbs.request.id.generator legacy2
-
-          docker exec primary pki-server ca-config-set dbs.cert.id.generator legacy2
-
-          # Update new_range in DS
-          docker exec primaryds ldapsearch \
-              -H ldap://primaryds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=certificateRepository,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL endRange | tee output              
-
-          END_RANGE=0x$(cat output | sed -n 's/endRange: \(.*\)/\1/p' | sort -n | tail -1)
-          NEW_NEXT=$((END_RANGE + 1))
-          docker exec -i primaryds ldapmodify \
-              -H ldap://primaryds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 << EOF
-          dn: ou=certificateRepository,ou=ca,dc=ca,dc=pki,dc=example,dc=com
-          changeType: modify
-          replace: nextRange
-          nextRange: $NEW_NEXT
-          EOF
-
-          # restart CA subsystem
-          docker exec primary pki-server restart --wait
+          docker exec primary pki-server stop
+          docker exec primary pki-server ca-range-generator-update --type request legacy2
+          docker exec primary pki-server ca-range-generator-update --type cert legacy2
+          docker exec primary pki-server start --wait
 
       - name: Switch secondary to legacy2
         run: |
-          # Update CS.cfg
-          docker exec secondaryds ldapsearch \
-              -H ldap://secondaryds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=certificateRepository,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL '(&(host=secondary.example.com)(SecurePort=8443))' beginRange | tee output
-
-          # Since there is a range the value are retrieved from the range. In general, id range is not
-          # present the value from CS.cfg are used.
-          BEGIN_SERIAL=0x$(cat output | sed -n 's/beginRange: \(.*\)/\1/p' | sort -n | tail -1)
-          END_SERIAL=$(printf "0x%x\n" $(( BEGIN_SERIAL + 0x12 -1 )) )
-
-          docker exec secondary pki-server ca-config-set dbs.beginSerialNumber $BEGIN_SERIAL
-          docker exec secondary pki-server ca-config-set dbs.endSerialNumber $END_SERIAL
-
-          docker exec secondary pki-server ca-config-set dbs.serialIncrement 0x12
-          docker exec secondary pki-server ca-config-set dbs.serialLowWaterMark 0x9
-          docker exec secondary pki-server ca-config-set dbs.serialCloneTransferNumber 0x9
-          docker exec secondary pki-server ca-config-set dbs.request.id.generator legacy2
-
-          docker exec secondary pki-server ca-config-set dbs.cert.id.generator legacy2
-
-          # Update new_range in secondary DS is not necessary. It is in sync with the primary
-          # restart CA subsystem
-          docker exec secondary pki-server restart --wait
+          docker exec secondary pki-server stop
+          docker exec secondary pki-server ca-range-generator-update --type request legacy2
+          docker exec secondary pki-server ca-range-generator-update --type cert legacy2
+          docker exec secondary pki-server start --wait
 
       - name: Check request range config in primary CA
         run: |
-          docker exec primary pki-server ca-config-find \
-              | grep \
-                  -e dbs.beginRequestNumber \
-                  -e dbs.endRequestNumber \
-                  -e dbs.requestCloneTransferNumber \
-                  -e dbs.requestIncrement \
-                  -e dbs.requestLowWaterMark \
-              | tee actual
+          tests/ca/bin/ca-request-range-config.sh primary | tee output
 
-          # request range should be 11 - 15 decimal (size: 5, remaining: 0)
           cat > expected << EOF
           dbs.beginRequestNumber=11
           dbs.endRequestNumber=15
@@ -1092,20 +1015,12 @@ jobs:
           dbs.requestLowWaterMark=5
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check request range config in secondary CA
         run: |
-          docker exec secondary pki-server ca-config-find \
-              | grep \
-                  -e dbs.beginRequestNumber \
-                  -e dbs.endRequestNumber \
-                  -e dbs.requestCloneTransferNumber \
-                  -e dbs.requestIncrement \
-                  -e dbs.requestLowWaterMark \
-              | tee actual
+          tests/ca/bin/ca-request-range-config.sh secondary | tee output
 
-          # request range should be 21 - 30 decimal (size: 10, remaining: 0)
           cat > expected << EOF
           dbs.beginRequestNumber=21
           dbs.endRequestNumber=30
@@ -1114,90 +1029,40 @@ jobs:
           dbs.requestLowWaterMark=5
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check cert range config in primary CA
         run: |
-          docker exec primary pki-server ca-config-find \
-              | grep \
-                  -e dbs.beginSerialNumber \
-                  -e dbs.endSerialNumber \
-                  -e dbs.serialCloneTransferNumber \
-                  -e dbs.serialIncrement \
-                  -e dbs.serialLowWaterMark \
-              | tee actual
+          tests/ca/bin/ca-cert-range-config.sh primary | tee output
 
-          # according to the range object, the cert range should have
-          # been d - 1e hex (13 - 30 decimal), but the actual range is
-          # 13 - 24 hex (19 - 36 decimal)
           cat > expected << EOF
           dbs.beginSerialNumber=0x13
-          dbs.endSerialNumber=0x24
+          dbs.endSerialNumber=0x30
           dbs.serialCloneTransferNumber=0x9
           dbs.serialIncrement=0x12
           dbs.serialLowWaterMark=0x9
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check cert range config in secondary CA
         run: |
-          docker exec secondary pki-server ca-config-find \
-              | grep \
-                  -e dbs.beginSerialNumber \
-                  -e dbs.endSerialNumber \
-                  -e dbs.serialCloneTransferNumber \
-                  -e dbs.serialIncrement \
-                  -e dbs.serialLowWaterMark \
-              | tee actual
+          tests/ca/bin/ca-cert-range-config.sh secondary | tee output
 
-          # according to the range object, the cert range should have
-          # been 1f - 30 hex (31 - 48 decimal), but the actual range is
-          # 31 - 42 hex (49 - 66 decimal), so 25 - 30 hex is missing
           cat > expected << EOF
           dbs.beginSerialNumber=0x31
-          dbs.endSerialNumber=0x42
+          dbs.endSerialNumber=0x48
           dbs.serialCloneTransferNumber=0x9
           dbs.serialIncrement=0x12
           dbs.serialLowWaterMark=0x9
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check request range objects
         run: |
-          docker exec primaryds ldapsearch \
-              -H ldap://primaryds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=requests,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
+          tests/ca/bin/ca-request-range-objects.sh primaryds | tee output
 
-          rm -f actual
-
-          for DN in $(sed -n 's/^dn: *\(.*\)$/\1/p' output)
-          do
-              docker exec primaryds ldapsearch \
-                  -H ldap://primaryds.example.com:3389 \
-                  -D "cn=Directory Manager" \
-                  -w Secret.123 \
-                  -b $DN \
-                  -s base \
-                  -o ldif_wrap=no \
-                  -LLL \
-                  | grep \
-                      -e SecurePort: \
-                      -e beginRange: \
-                      -e endRange: \
-                      -e host: \
-                  | sort >> actual
-
-              echo >> actual
-          done
-
-          # request ranges should remain the same
           cat > expected << EOF
           SecurePort: 8443
           beginRange: 11
@@ -1221,40 +1086,11 @@ jobs:
 
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check cert range objects
         run: |
-          docker exec primaryds ldapsearch \
-              -H ldap://primaryds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=certificateRepository,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
-
-          rm -f actual
-
-          for DN in $(sed -n 's/^dn: *\(.*\)$/\1/p' output)
-          do
-              docker exec primaryds ldapsearch \
-                  -H ldap://primaryds.example.com:3389 \
-                  -D "cn=Directory Manager" \
-                  -w Secret.123 \
-                  -b $DN \
-                  -s base \
-                  -o ldif_wrap=no \
-                  -LLL \
-                  | grep \
-                      -e SecurePort: \
-                      -e beginRange: \
-                      -e endRange: \
-                      -e host: \
-                  | sort >> actual
-
-              echo >> actual
-          done
+          tests/ca/bin/ca-cert-range-objects.sh primaryds | tee output
 
           # cert ranges should remain the same
           cat > expected << EOF
@@ -1270,57 +1106,27 @@ jobs:
 
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check request repository
         run: |
-          docker exec primaryds ldapsearch \
-              -H ldap://primaryds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=ca,ou=requests,dc=ca,dc=pki,dc=example,dc=com \
-              -s base \
-              -o ldif_wrap=no \
-              -LLL | tee output
+          tests/ca/bin/ca-request-next-range.sh primaryds | tee output
 
-          grep \
-              -e serialno: \
-              -e nextRange: \
-              output \
-              | sort > actual
-
-          # request nextRange should remain the same
           cat > expected << EOF
           nextRange: 51
-          serialno: 010
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check cert repository
         run: |
-          docker exec primaryds ldapsearch \
-              -H ldap://primaryds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=certificateRepository,ou=ca,dc=ca,dc=pki,dc=example,dc=com \
-              -s base \
-              -o ldif_wrap=no \
-              -LLL | tee output
+          tests/ca/bin/ca-cert-next-range.sh primaryds | tee output
 
-          grep \
-              -e serialno: \
-              -e nextRange: \
-              output \
-              | sort > actual
-
-          # cert nextRange should remain the same
           cat > expected << EOF
           nextRange: 73
-          serialno: 011
           EOF
 
-          diff expected actual
+          diff expected output
 
       ####################################################################################################
       # Enroll additional certs updating the range
@@ -1429,16 +1235,8 @@ jobs:
 
       - name: Check request range config in primary CA
         run: |
-          docker exec primary pki-server ca-config-find \
-              | grep \
-                  -e dbs.beginRequestNumber \
-                  -e dbs.endRequestNumber \
-                  -e dbs.requestCloneTransferNumber \
-                  -e dbs.requestIncrement \
-                  -e dbs.requestLowWaterMark \
-              | tee actual
+          tests/ca/bin/ca-request-range-config.sh primary | tee output
 
-          # request range should be 11 - 15 decimal (size: 5, remaining: 0)
           cat > expected << EOF
           dbs.beginRequestNumber=51
           dbs.endRequestNumber=60
@@ -1447,20 +1245,12 @@ jobs:
           dbs.requestLowWaterMark=5
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check request range config in secondary CA
         run: |
-          docker exec secondary pki-server ca-config-find \
-              | grep \
-                  -e dbs.beginRequestNumber \
-                  -e dbs.endRequestNumber \
-                  -e dbs.requestCloneTransferNumber \
-                  -e dbs.requestIncrement \
-                  -e dbs.requestLowWaterMark \
-              | tee actual
+          tests/ca/bin/ca-request-range-config.sh secondary | tee output
 
-          # request range should be 21 - 30 decimal (size: 10, remaining: 0)
           cat > expected << EOF
           dbs.beginRequestNumber=71
           dbs.endRequestNumber=80
@@ -1469,22 +1259,26 @@ jobs:
           dbs.requestLowWaterMark=5
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check cert range config in primary CA
         run: |
-          docker exec primary pki-server ca-config-find \
-              | grep \
-                  -e dbs.beginSerialNumber \
-                  -e dbs.endSerialNumber \
-                  -e dbs.serialCloneTransferNumber \
-                  -e dbs.serialIncrement \
-                  -e dbs.serialLowWaterMark \
-              | tee actual
+          tests/ca/bin/ca-cert-range-config.sh primary | tee output
 
-          # according to the range object, the cert range should have
-          # been d - 1e hex (13 - 30 decimal), but the actual range is
-          # 13 - 24 hex (19 - 36 decimal)
+          cat > expected << EOF
+          dbs.beginSerialNumber=0x13
+          dbs.endSerialNumber=0x30
+          dbs.serialCloneTransferNumber=0x9
+          dbs.serialIncrement=0x12
+          dbs.serialLowWaterMark=0x9
+          EOF
+
+          diff expected output
+
+      - name: Check cert range config in secondary CA
+        run: |
+          tests/ca/bin/ca-cert-range-config.sh secondary | tee output
+
           cat > expected << EOF
           dbs.beginSerialNumber=0x49
           dbs.endSerialNumber=0x5a
@@ -1493,66 +1287,12 @@ jobs:
           dbs.serialLowWaterMark=0x9
           EOF
 
-          diff expected actual
-
-      - name: Check cert range config in secondary CA
-        run: |
-          docker exec secondary pki-server ca-config-find \
-              | grep \
-                  -e dbs.beginSerialNumber \
-                  -e dbs.endSerialNumber \
-                  -e dbs.serialCloneTransferNumber \
-                  -e dbs.serialIncrement \
-                  -e dbs.serialLowWaterMark \
-              | tee actual
-
-          # according to the range object, the cert range should have
-          # been 1f - 30 hex (31 - 48 decimal), but the actual range is
-          # 31 - 42 hex (49 - 66 decimal), so 25 - 30 hex is missing
-          cat > expected << EOF
-          dbs.beginSerialNumber=0x5b
-          dbs.endSerialNumber=0x6c
-          dbs.serialCloneTransferNumber=0x9
-          dbs.serialIncrement=0x12
-          dbs.serialLowWaterMark=0x9
-          EOF
-
-          diff expected actual
+          diff expected output
 
       - name: Check request range objects
         run: |
-          docker exec primaryds ldapsearch \
-              -H ldap://primaryds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=requests,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
+          tests/ca/bin/ca-request-range-objects.sh primaryds | tee output
 
-          rm -f actual
-
-          for DN in $(sed -n 's/^dn: *\(.*\)$/\1/p' output)
-          do
-              docker exec primaryds ldapsearch \
-                  -H ldap://primaryds.example.com:3389 \
-                  -D "cn=Directory Manager" \
-                  -w Secret.123 \
-                  -b $DN \
-                  -s base \
-                  -o ldif_wrap=no \
-                  -LLL \
-                  | grep \
-                      -e SecurePort: \
-                      -e beginRange: \
-                      -e endRange: \
-                      -e host: \
-                  | sort >> actual
-
-              echo >> actual
-          done
-
-          # request ranges should remain the same
           cat > expected << EOF
           SecurePort: 8443
           beginRange: 11
@@ -1601,42 +1341,12 @@ jobs:
 
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check cert range objects
         run: |
-          docker exec primaryds ldapsearch \
-              -H ldap://primaryds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=certificateRepository,ou=ranges,dc=ca,dc=pki,dc=example,dc=com \
-              -s one \
-              -o ldif_wrap=no \
-              -LLL | tee output
+          tests/ca/bin/ca-cert-range-objects.sh primaryds | tee output
 
-          rm -f actual
-
-          for DN in $(sed -n 's/^dn: *\(.*\)$/\1/p' output)
-          do
-              docker exec primaryds ldapsearch \
-                  -H ldap://primaryds.example.com:3389 \
-                  -D "cn=Directory Manager" \
-                  -w Secret.123 \
-                  -b $DN \
-                  -s base \
-                  -o ldif_wrap=no \
-                  -LLL \
-                  | grep \
-                      -e SecurePort: \
-                      -e beginRange: \
-                      -e endRange: \
-                      -e host: \
-                  | sort >> actual
-
-              echo >> actual
-          done
-
-          # cert ranges should remain the same
           cat > expected << EOF
           SecurePort: 8443
           beginRange: 13
@@ -1651,12 +1361,12 @@ jobs:
           SecurePort: 8443
           beginRange: 73
           endRange: 90
-          host: primary.example.com
+          host: secondary.example.com
 
           SecurePort: 8443
           beginRange: 91
           endRange: 108
-          host: secondary.example.com
+          host: primary.example.com
 
           SecurePort: 8443
           beginRange: 109
@@ -1665,57 +1375,27 @@ jobs:
 
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check request repository
         run: |
-          docker exec primaryds ldapsearch \
-              -H ldap://primaryds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=ca,ou=requests,dc=ca,dc=pki,dc=example,dc=com \
-              -s base \
-              -o ldif_wrap=no \
-              -LLL | tee output
+          tests/ca/bin/ca-request-next-range.sh primaryds | tee output
 
-          grep \
-              -e serialno: \
-              -e nextRange: \
-              output \
-              | sort > actual
-
-          # request nextRange should remain the same
           cat > expected << EOF
           nextRange: 101
-          serialno: 010
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check cert repository
         run: |
-          docker exec primaryds ldapsearch \
-              -H ldap://primaryds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b ou=certificateRepository,ou=ca,dc=ca,dc=pki,dc=example,dc=com \
-              -s base \
-              -o ldif_wrap=no \
-              -LLL | tee output
+          tests/ca/bin/ca-cert-next-range.sh primaryds | tee output
 
-          grep \
-              -e serialno: \
-              -e nextRange: \
-              output \
-              | sort > actual
-
-          # cert nextRange should remain the same
           cat > expected << EOF
           nextRange: 127
-          serialno: 011
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check requests
         run: |
@@ -1741,14 +1421,10 @@ jobs:
           sed -n "s/^ *Serial Number: *\(.*\)$/\1/p" output > actual
 
 
-          # There are two permanent gaps generated with legagy id generator, a gap each CA.
-          # After the switch there are not more gaps. The serial from 79 to 91 are in the range
-          # of the primary CAand will be filled while the 36-49 and 66-73 will remain. 
+          # There is only a permanent gap generated with legagy id generator
 
-          seq 1 36 | while read n; do printf "0x%x\n" $n; done > expected
-          seq 49 66 | while read n; do printf "0x%x\n" $n; done >> expected
-          seq 73 79 | while read n; do printf "0x%x\n" $n; done >> expected
-          seq 91 108 | while read n; do printf "0x%x\n" $n; done >> expected
+          seq 1 43 | while read n; do printf "0x%x\n" $n; done > expected
+          seq 49 84 | while read n; do printf "0x%x\n" $n; done >> expected
 
           diff expected actual
 
