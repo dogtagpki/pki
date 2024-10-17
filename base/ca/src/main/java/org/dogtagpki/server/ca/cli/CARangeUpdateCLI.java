@@ -39,9 +39,9 @@ public class CARangeUpdateCLI extends SubsystemRangeUpdateCLI {
         String value = dbConfig.getString(
                 CertificateRepository.PROP_CERT_ID_GENERATOR,
                 CertificateRepository.DEFAULT_CERT_ID_GENERATOR);
-        IDGenerator idGenerator = IDGenerator.fromString(value);
+        idGenerator = IDGenerator.fromString(value);
 
-        if (idGenerator != IDGenerator.LEGACY) {
+        if (idGenerator == IDGenerator.RANDOM) {
             logger.info("No need to update certificate ID range");
             return;
         }

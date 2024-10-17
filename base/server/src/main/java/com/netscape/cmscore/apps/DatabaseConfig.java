@@ -37,6 +37,7 @@ public class DatabaseConfig extends ConfigStore {
 
     public static final String SERIAL_BASEDN = "serialDN";
     public static final String SERIAL_RANGE_DN = "serialRangeDN";
+    public static final String SERIAL_CLONE_TRANSFER_NUMBER = "serialCloneTransferNumber";
 
     public static final String MIN_REQUEST_NUMBER = "beginRequestNumber";
     public static final String MAX_REQUEST_NUMBER = "endRequestNumber";
@@ -49,6 +50,7 @@ public class DatabaseConfig extends ConfigStore {
 
     public static final String REQUEST_BASEDN = "requestDN";
     public static final String REQUEST_RANGE_DN = "requestRangeDN";
+    public static final String REQUEST_CLONE_TRANSFER_NUMBER = "requestCloneTransferNumber";
 
     public static final String MIN_REPLICA_NUMBER = "beginReplicaNumber";
     public static final String MAX_REPLICA_NUMBER = "endReplicaNumber";
@@ -65,6 +67,8 @@ public class DatabaseConfig extends ConfigStore {
     public static final String INFINITE_SERIAL_NUMBER = "1000000000";
     public static final String INFINITE_REQUEST_NUMBER = "1000000000";
     public static final String INFINITE_REPLICA_NUMBER = "1000";
+
+    public static final String NUMBER_RANGE_RADIX = "numberRangeRadix";
 
     public static final String ENABLE_SERIAL_MGMT = "enableSerialManagement";
 
@@ -122,6 +126,14 @@ public class DatabaseConfig extends ConfigStore {
 
     public void setSerialRangeDN(String serialRangeDN) {
         putString(SERIAL_RANGE_DN, serialRangeDN);
+    }
+
+    public String getSerialCloneTransferNumber() throws EBaseException {
+        return getString(SERIAL_CLONE_TRANSFER_NUMBER, "");
+    }
+
+    public void setSerialCloneTransferNumber(String serialCloneTransferNumber) {
+        putString(SERIAL_CLONE_TRANSFER_NUMBER, serialCloneTransferNumber);
     }
 
     public String getBeginSerialNumber() throws EBaseException {
@@ -186,6 +198,14 @@ public class DatabaseConfig extends ConfigStore {
 
     public void setRequestRangeDN(String requestRangeDN) {
         putString(REQUEST_RANGE_DN, requestRangeDN);
+    }
+
+    public String getRequestCloneTransferNumber() throws EBaseException {
+        return getString(REQUEST_CLONE_TRANSFER_NUMBER, "");
+    }
+
+    public void setRequestCloneTransferNumber(String requestCloneTransferNumber) {
+        putString(REQUEST_CLONE_TRANSFER_NUMBER, requestCloneTransferNumber);
     }
 
     public String getBeginRequestNumber() throws EBaseException {
@@ -298,6 +318,10 @@ public class DatabaseConfig extends ConfigStore {
 
     public void setReplicaIncrement(String replicaIncrement) {
         putString(REPLICA_INCREMENT, replicaIncrement);
+    }
+
+    public int getNumberRangeRadix() throws EBaseException {
+        return getInteger(NUMBER_RANGE_RADIX, -1);
     }
 
     public LDAPConfig getLDAPConfig() throws EBaseException {

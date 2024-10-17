@@ -4,6 +4,7 @@ import java.security.cert.CertificateException;
 
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
+import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.dbs.DBRegistry;
 import com.netscape.cmscore.dbs.DBSSession;
 import com.netscape.cmscore.dbs.DBSubsystem;
@@ -28,11 +29,13 @@ public class CMSBaseTestHelper {
     private static DBSubsystemStub dbSubsystem;
     static DBRegistry registry;
     static DBSSession session;
+    static DatabaseConfig databaseConfig;
 
     public static final void setUp() {
         setDbSubsystem(new DBSubsystemStub());
         registry = new DBRegistry();
         session = new DBSSession();
+        databaseConfig = new DatabaseConfig(null);
     }
 
     public static X509CertImpl getFakeCert() throws CertificateException {
@@ -71,6 +74,11 @@ public class CMSBaseTestHelper {
         @Override
         public DBRegistry getRegistry() {
             return registry;
+        }
+
+        @Override
+        public DatabaseConfig getDBConfigStore() {
+            return databaseConfig;
         }
     }
 }

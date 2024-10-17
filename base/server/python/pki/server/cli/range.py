@@ -25,6 +25,7 @@ class RangeCLI(pki.cli.CLI):
         self.add_module(RangeShowCLI(self))
         self.add_module(RangeRequestCLI(self))
         self.add_module(RangeUpdateCLI(self))
+        self.add_module(RangeGeneratorCLI(self))
 
 
 class RangeShowCLI(pki.cli.CLI):
@@ -258,3 +259,153 @@ class RangeUpdateCLI(pki.cli.CLI):
             sys.exit(1)
 
         subsystem.update_ranges()
+
+class RangeGeneratorCLI(pki.cli.CLI):
+
+    def __init__(self, parent):
+        super().__init__('generator', '%s range generator configuration' % parent.parent.name.upper())
+
+        self.parent = parent
+        self.add_module(RangeGeneratorShowCLI(self))
+        self.add_module(RangeGeneratorUpdateCLI(self))
+
+class RangeGeneratorShowCLI(pki.cli.CLI):
+
+    def __init__(self, parent):
+        super().__init__('show', 'Display %s range generator' % parent.parent.parent.name.upper())
+
+        self.parent = parent
+
+    def print_help(self):
+        print('Usage: pki-server %s-range-generator-show [OPTIONS]' % self.parent.parent.parent.name)
+        print()
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
+        print('      --help                         Show help message.')
+        print()
+
+    def execute(self, argv):
+        try:
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logger.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        subsystem_name = self.parent.parent.parent.name
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logger.error('Invalid option: %s', o)
+                self.print_help()
+                sys.exit(1)
+
+        instance = pki.server.PKIServerFactory.create(instance_name)
+        if not instance.exists():
+            logger.error('Invalid instance: %s', instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        subsystem = instance.get_subsystem(subsystem_name)
+
+        if not subsystem:
+            logger.error('No %s subsystem in instance %s',
+                         subsystem_name.upper(), instance_name)
+            sys.exit(1)
+
+        print('  Request ID generator: %s' % subsystem.config.get('dbs.request.id.generator'))
+        print('  Cert ID generator: %s' % subsystem.config.get('dbs.cert.id.generator'))
+
+class RangeGeneratorUpdateCLI(pki.cli.CLI):
+
+    def __init__(self, parent):
+        super().__init__('update', 'Update %s range generator' % parent.parent.parent.name.upper())
+
+        self.parent = parent
+
+    def print_help(self):
+        print('Usage: pki-server %s-range-generator-update [OPTIONS] <new generator>' % self.parent.parent.parent.name)
+        print()
+        print('  -t, --type <generator type>        Type for the generator (request or cert).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
+        print('      --help                         Show help message.')
+        print()
+
+    def execute(self, argv):
+        try:
+            opts, args = getopt.gnu_getopt(argv, 'i:t:v', [
+                'instance=', 'type=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logger.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        if len(args) != 1:
+            logger.error('Missing new generator')
+            self.print_help()
+            sys.exit(1)
+
+        new_generator = args[0]
+        instance_name = 'pki-tomcat'
+        subsystem_name = self.parent.parent.parent.name
+
+        for o, a in opts:
+            if o in ('-t', '--type'):
+                generator_type = a
+
+            elif o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logger.error('Invalid option: %s', o)
+                self.print_help()
+                sys.exit(1)
+
+        instance = pki.server.PKIServerFactory.create(instance_name)
+        if not instance.exists():
+            logger.error('Invalid instance: %s', instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        subsystem = instance.get_subsystem(subsystem_name)
+
+        if not subsystem:
+            logger.error('No %s subsystem in instance %s',
+                         subsystem_name.upper(), instance_name)
+            sys.exit(1)
+
+        subsystem.update_range_generator(new_generator, generator_type)

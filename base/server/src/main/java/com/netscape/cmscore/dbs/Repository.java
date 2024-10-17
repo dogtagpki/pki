@@ -50,7 +50,10 @@ public abstract class Repository {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Repository.class);
 
+    public static final int HEX = 16;
+
     public enum IDGenerator {
+        LEGACY_2("legacy2"),
         LEGACY("legacy"),
         RANDOM("random");
 
@@ -115,7 +118,15 @@ public abstract class Repository {
      */
     public Repository(DBSubsystem dbSubsystem, int radix) {
         this.dbSubsystem = dbSubsystem;
-        this.mRadix = radix;
+        DatabaseConfig dbc = dbSubsystem.getDBConfigStore();
+        int cRadix = 0;
+        try {
+            cRadix = dbc.getNumberRangeRadix();
+        } catch (EBaseException ex) {
+            logger.debug("Repository: error reading number radix config, using default {} for {}", radix, this.getClass().getName());
+        }
+        this.mRadix = cRadix > 0 ? cRadix : radix;
+        logger.debug("Repository: number radix {} for {}", this.mRadix, this.getClass().getName());
     }
 
     public CMSEngine getCMSEngine() {
@@ -428,6 +439,9 @@ public abstract class Repository {
         DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
 
         String serial = mMinSerialNo.toString(mRadix);
+        if (mRadix == HEX && idGenerator == IDGenerator.LEGACY_2) {
+            serial = "0x" + serial;
+        }
         logger.debug("Repository: Setting min serial number: " + serial);
 
         dbConfig.putString(minSerialName, serial);
@@ -445,6 +459,9 @@ public abstract class Repository {
         DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
 
         String serial = mMaxSerialNo.toString(mRadix);
+        if (mRadix == HEX && idGenerator == IDGenerator.LEGACY_2) {
+            serial = "0x" + serial;
+        }
         logger.debug("Repository: Setting max serial number: " + serial);
 
         dbConfig.putString(maxSerialName, serial);
@@ -466,6 +483,9 @@ public abstract class Repository {
             dbConfig.remove(nextMinSerialName);
         } else {
             String serial = mNextMinSerialNo.toString(mRadix);
+            if (mRadix == HEX && idGenerator == IDGenerator.LEGACY_2) {
+                serial = "0x" + serial;
+            }
             logger.debug("Repository: Setting next min number: " + serial);
             dbConfig.putString(nextMinSerialName, serial);
         }
@@ -488,6 +508,9 @@ public abstract class Repository {
             dbConfig.remove(nextMaxSerialName);
         } else {
             String serial = mNextMaxSerialNo.toString(mRadix);
+            if (mRadix == HEX && idGenerator == IDGenerator.LEGACY_2) {
+                serial = "0x" + serial;
+            }
             logger.debug("Repository: Setting next max number: " + serial);
             dbConfig.putString(nextMaxSerialName, serial);
         }
@@ -622,9 +645,11 @@ public abstract class Repository {
 
             logger.info("Repository: Searching for conflicting entries");
 
+            String minSerial = idGenerator == IDGenerator.LEGACY_2 ? 
+                    mMinSerialNo.toString() : mMinSerialNo.toString(mRadix);
             String filter = "(&(nsds5ReplConflict=*)(objectClass=pkiRange)(host= " +
                     cs.getHostname() + ")(SecurePort=" + engine.getEESSLPort() +
-                    ")(beginRange=" + mMinSerialNo.toString(mRadix) + "))";
+                    ")(beginRange=" + minSerial + "))";
 
             LDAPSearchResults results = conn.search(rangeDN, LDAPv3.SCOPE_SUB, filter, null, false);
 
@@ -697,8 +722,11 @@ public abstract class Repository {
             logger.debug("Repository: Requesting next range");
             String nextRange = getNextRange();
             logger.debug("Repository: next range: " + nextRange);
-
-            mNextMinSerialNo = new BigInteger(nextRange, mRadix);
+            if (idGenerator == IDGenerator.LEGACY_2) {
+                mNextMinSerialNo = new BigInteger(nextRange);
+            } else {
+                mNextMinSerialNo = new BigInteger(nextRange, mRadix);
+            }
             if (mNextMinSerialNo == null) {
                 logger.debug("Repository: Next range not available");
             } else {

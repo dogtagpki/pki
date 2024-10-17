@@ -16,5 +16,6 @@ public class CARangeCLI extends CLI {
         super("range", "CA range management commands", parent);
 
         addModule(new CARangeUpdateCLI(this));
+        addModule(new CARangeGeneratorCLI(this));
     }
 }
