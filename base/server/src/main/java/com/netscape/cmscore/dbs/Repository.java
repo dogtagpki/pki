@@ -51,6 +51,7 @@ public abstract class Repository {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Repository.class);
 
     public static final int HEX = 16;
+    public static final int DEC = 10;
 
     public enum IDGenerator {
         LEGACY_2("legacy2"),
@@ -118,15 +119,7 @@ public abstract class Repository {
      */
     public Repository(DBSubsystem dbSubsystem, int radix) {
         this.dbSubsystem = dbSubsystem;
-        DatabaseConfig dbc = dbSubsystem.getDBConfigStore();
-        int cRadix = 0;
-        try {
-            cRadix = dbc.getNumberRangeRadix();
-        } catch (EBaseException ex) {
-            logger.debug("Repository: error reading number radix config, using default {} for {}", radix, this.getClass().getName());
-        }
-        this.mRadix = cRadix > 0 ? cRadix : radix;
-        logger.debug("Repository: number radix {} for {}", this.mRadix, this.getClass().getName());
+        this.mRadix = radix;
     }
 
     public CMSEngine getCMSEngine() {

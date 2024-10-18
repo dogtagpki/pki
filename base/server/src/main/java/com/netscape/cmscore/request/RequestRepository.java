@@ -58,6 +58,7 @@ public class RequestRepository extends Repository {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestRepository.class);
 
     public static final String PROP_REQUEST_ID_GENERATOR = "request.id.generator";
+    public static final String PROP_REQUEST_ID_RADIX = "request.id.radix";
     public static final String DEFAULT_REQUEST_ID_GENERATOR = "legacy";
 
     public static final String PROP_REQUEST_ID_LENGTH = "request.id.length";
@@ -77,8 +78,15 @@ public class RequestRepository extends Repository {
             DBSubsystem dbSubsystem,
             String filter) {
 
-        super(dbSubsystem, 10);
-
+        super(dbSubsystem, DEC);
+        DatabaseConfig dbc = dbSubsystem.getDBConfigStore();
+        try {
+            this.mRadix = dbc.getInteger(PROP_REQUEST_ID_RADIX, DEC);
+            logger.debug("CertificateRepository: number radix {}", this.mRadix);
+            
+        } catch (EBaseException ex) {
+            logger.debug("CertificateRepository: error reading number radix config, using default {} for ", HEX);
+        }
         this.secureRandom = secureRandom;
         this.filter = filter;
     }

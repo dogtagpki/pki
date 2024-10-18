@@ -38,7 +38,7 @@ public class ReplicaIDRepository extends Repository {
      * Constructs a certificate repository.
      */
     public ReplicaIDRepository(DBSubsystem dbSubsystem) {
-        super(dbSubsystem, 10);
+        super(dbSubsystem, DEC);
     }
 
     @Override

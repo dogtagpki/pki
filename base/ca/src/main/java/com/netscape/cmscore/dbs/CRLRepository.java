@@ -49,7 +49,7 @@ public class CRLRepository extends Repository {
      * Constructs a CRL repository.
      */
     public CRLRepository(DBSubsystem dbSubsystem) {
-        super(dbSubsystem, 10);
+        super(dbSubsystem, DEC);
     }
 
     @Override

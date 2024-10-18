@@ -80,6 +80,7 @@ public class CertificateRepository extends Repository {
     private static final BigInteger BI_MINUS_ONE = BigInteger.ONE.negate();
 
     public static final String PROP_CERT_ID_GENERATOR = "cert.id.generator";
+    public static final String PROP_CERT_ID_RADIX = "cert.id.radix";
     public static final String DEFAULT_CERT_ID_GENERATOR = "legacy";
 
     public static final String PROP_CERT_ID_LENGTH = "cert.id.length";
@@ -103,8 +104,15 @@ public class CertificateRepository extends Repository {
             SecureRandom secureRandom,
             DBSubsystem dbSubsystem) {
 
-        super(dbSubsystem, 16);
-
+        super(dbSubsystem, HEX);
+        DatabaseConfig dbc = dbSubsystem.getDBConfigStore();
+        try {
+            this.mRadix = dbc.getInteger(PROP_CERT_ID_RADIX, HEX);
+            logger.debug("CertificateRepository: number radix {}", this.mRadix);
+            
+        } catch (EBaseException ex) {
+            logger.debug("CertificateRepository: error reading number radix config, using default {} for ", HEX);
+        }
         this.secureRandom = secureRandom;
     }
 
