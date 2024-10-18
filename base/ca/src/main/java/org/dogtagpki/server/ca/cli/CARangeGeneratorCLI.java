@@ -10,7 +10,7 @@ import org.dogtagpki.cli.CLI;
 /**
  * @author Marco Fargetta {@literal <mfargett@redhat.com>}
  */
-public class CARangeGeneratorCLI extends CLI{
+public class CARangeGeneratorCLI extends CLI {
 
     public CARangeGeneratorCLI(CLI parent) {
         super("generator", "CA range generator commands", parent);

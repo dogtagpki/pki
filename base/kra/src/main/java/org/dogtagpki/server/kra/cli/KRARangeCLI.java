@@ -16,5 +16,6 @@ public class KRARangeCLI extends CLI {
         super("range", "KRA range management commands", parent);
 
         addModule(new KRARangeUpdateCLI(this));
+        addModule(new KRARangeGeneratorCLI(this));
     }
 }

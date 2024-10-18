@@ -45,7 +45,7 @@ public class KeyRepository extends Repository {
     public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeyRepository.class);
 
     public static final String PROP_KEY_ID_GENERATOR = "key.id.generator";
-    public static final String PROP_CERT_ID_RADIX = "key.id.radix";
+    public static final String PROP_KEY_ID_RADIX = "key.id.radix";
     public static final String DEFAULT_KEY_ID_GENERATOR = "legacy";
 
     public static final String PROP_KEY_ID_LENGTH = "key.id.length";
@@ -66,7 +66,7 @@ public class KeyRepository extends Repository {
         super(dbSubsystem, HEX);
         DatabaseConfig dbc = dbSubsystem.getDBConfigStore();
         try {
-            this.mRadix = dbc.getInteger(PROP_CERT_ID_RADIX, HEX);
+            this.mRadix = dbc.getInteger(PROP_KEY_ID_RADIX, HEX);
             logger.debug("KeyRepository: number radix {}", this.mRadix);
             
         } catch (EBaseException ex) {
