@@ -210,6 +210,8 @@ jobs:
           cat > expected << EOF
           dbs.beginRequestNumber=1
           dbs.endRequestNumber=10
+          dbs.nextBeginRequestNumber=11
+          dbs.nextEndRequestNumber=20
           dbs.requestCloneTransferNumber=5
           dbs.requestIncrement=10
           dbs.requestLowWaterMark=5
@@ -554,6 +556,8 @@ jobs:
           cat > expected << EOF
           dbs.beginRequestNumber=11
           dbs.endRequestNumber=20
+          dbs.nextBeginRequestNumber=21
+          dbs.nextEndRequestNumber=30
           dbs.requestCloneTransferNumber=5
           dbs.requestIncrement=10
           dbs.requestLowWaterMark=5
@@ -569,6 +573,8 @@ jobs:
           cat > expected << EOF
           dbs.beginSerialNumber=9
           dbs.endSerialNumber=18
+          dbs.nextBeginSerialNumber=19
+          dbs.nextEndSerialNumber=2a
           dbs.serialCloneTransferNumber=9
           dbs.serialIncrement=12
           dbs.serialLowWaterMark=9
@@ -911,6 +917,8 @@ jobs:
           cat > expected << EOF
           dbs.beginRequestNumber=21
           dbs.endRequestNumber=30
+          dbs.nextBeginRequestNumber=31
+          dbs.nextEndRequestNumber=40
           dbs.requestCloneTransferNumber=5
           dbs.requestIncrement=10
           dbs.requestLowWaterMark=5
@@ -926,6 +934,8 @@ jobs:
           cat > expected << EOF
           dbs.beginSerialNumber=19
           dbs.endSerialNumber=2a
+          dbs.nextBeginSerialNumber=37
+          dbs.nextEndSerialNumber=48
           dbs.serialCloneTransferNumber=9
           dbs.serialIncrement=12
           dbs.serialLowWaterMark=9
