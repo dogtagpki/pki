@@ -996,6 +996,37 @@ jobs:
           docker exec primary pki-server ca-range-generator-update --type cert legacy2
           docker exec primary pki-server start --wait
 
+      - name: Check cert range objects
+        run: |
+          tests/ca/bin/ca-cert-range-objects.sh primaryds | tee output
+
+          # cert ranges should remain the same
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 31
+          endRange: 48
+          host: secondary.example.com
+
+          SecurePort: 8443
+          beginRange: 19
+          endRange: 48
+          host: primary.example.com
+
+          EOF
+
+          diff expected output
+
+      - name: Check cert next range
+        run: |
+          tests/ca/bin/ca-cert-next-range.sh primaryds | tee output
+
+          # cert nextRange should remain the same
+          cat > expected << EOF
+          nextRange: 49
+          EOF
+
+          diff expected output
+
       - name: Switch secondary to legacy2
         run: |
           docker exec secondary pki-server stop
@@ -1095,13 +1126,13 @@ jobs:
           # cert ranges should remain the same
           cat > expected << EOF
           SecurePort: 8443
-          beginRange: 13
-          endRange: 30
+          beginRange: 19
+          endRange: 48
           host: primary.example.com
 
           SecurePort: 8443
-          beginRange: 31
-          endRange: 48
+          beginRange: 49
+          endRange: 72
           host: secondary.example.com
 
           EOF
@@ -1349,13 +1380,13 @@ jobs:
 
           cat > expected << EOF
           SecurePort: 8443
-          beginRange: 13
-          endRange: 30
+          beginRange: 19
+          endRange: 48
           host: primary.example.com
 
           SecurePort: 8443
-          beginRange: 31
-          endRange: 48
+          beginRange: 49
+          endRange: 72
           host: secondary.example.com
 
           SecurePort: 8443

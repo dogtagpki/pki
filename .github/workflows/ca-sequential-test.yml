@@ -1200,7 +1200,7 @@ jobs:
           tests/ca/bin/ca-cert-next-range.sh ds | tee output
 
           cat > expected << EOF
-          nextRange: 55
+          nextRange: 85
           EOF
 
           diff expected output
@@ -1242,13 +1242,13 @@ jobs:
           # new cert range should be 27 - 42 decimal (total: 16)
           cat > expected << EOF
           SecurePort: 8443
-          beginRange: 19
-          endRange: 36
+          beginRange: 25
+          endRange: 54
           host: pki.example.com
 
           SecurePort: 8443
-          beginRange: 37
-          endRange: 54
+          beginRange: 55
+          endRange: 84
           host: pki.example.com
 
           EOF
@@ -1430,13 +1430,13 @@ jobs:
 
           cat > expected << EOF
           SecurePort: 8443
-          beginRange: 19
-          endRange: 36
+          beginRange: 25
+          endRange: 54
           host: pki.example.com
 
           SecurePort: 8443
-          beginRange: 37
-          endRange: 54
+          beginRange: 55
+          endRange: 84
           host: pki.example.com
 
           SecurePort: 8443
