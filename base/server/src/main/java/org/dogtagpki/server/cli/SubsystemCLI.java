@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.apps.ServerConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.FileConfigStorage;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
@@ -30,6 +31,7 @@ import com.netscape.cmsutil.password.PasswordStore;
 public abstract class SubsystemCLI extends CommandCLI {
 
     public static final Logger logger = LoggerFactory.getLogger(SubsystemCLI.class);
+    private static final String SERVER_XML = "server.xml";
 
     protected SubsystemCLI(String name, String description, CLI parent) {
         super(name, description, parent);
@@ -63,5 +65,19 @@ public abstract class SubsystemCLI extends CommandCLI {
                 connInfo.getPort(),
                 connInfo.getSecure());
         return authInfo;
+    }
+
+    protected String getSecurePort(EngineConfig config) throws Exception {
+
+        String path = CMS.getInstanceDir() + File.separator + "conf" + File.separator + SERVER_XML;
+
+        ServerConfig serverConfig = ServerConfig.load(path);
+        String securePort = serverConfig.getSecurePort();
+
+        String port = config.getString("proxy.securePort", "");
+        if (!port.equals("")) {
+            securePort = port;
+        }
+        return securePort;
     }
 }

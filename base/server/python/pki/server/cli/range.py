@@ -260,14 +260,17 @@ class RangeUpdateCLI(pki.cli.CLI):
 
         subsystem.update_ranges()
 
+
 class RangeGeneratorCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super().__init__('generator', '%s range generator configuration' % parent.parent.name.upper())
+        super().__init__('generator',
+                         '%s range generator configuration' % parent.parent.name.upper())
 
         self.parent = parent
         self.add_module(RangeGeneratorShowCLI(self))
         self.add_module(RangeGeneratorUpdateCLI(self))
+
 
 class RangeGeneratorShowCLI(pki.cli.CLI):
 
@@ -277,7 +280,8 @@ class RangeGeneratorShowCLI(pki.cli.CLI):
         self.parent = parent
 
     def print_help(self):
-        print('Usage: pki-server %s-range-generator-show [OPTIONS]' % self.parent.parent.parent.name)
+        print('Usage: pki-server %s-range-generator-show [OPTIONS]' %
+              self.parent.parent.parent.name)
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
         print('  -v, --verbose                      Run in verbose mode.')
@@ -335,6 +339,7 @@ class RangeGeneratorShowCLI(pki.cli.CLI):
         print('  Request ID generator: %s' % subsystem.config.get('dbs.request.id.generator'))
         print('  Cert ID generator: %s' % subsystem.config.get('dbs.cert.id.generator'))
 
+
 class RangeGeneratorUpdateCLI(pki.cli.CLI):
 
     def __init__(self, parent):
@@ -343,7 +348,8 @@ class RangeGeneratorUpdateCLI(pki.cli.CLI):
         self.parent = parent
 
     def print_help(self):
-        print('Usage: pki-server %s-range-generator-update [OPTIONS] <new generator>' % self.parent.parent.parent.name)
+        print('Usage: pki-server %s-range-generator-update [OPTIONS] <new generator>' %
+              self.parent.parent.parent.name)
         print()
         print('  -t, --type <generator type>        Type for the generator (request or cert).')
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
@@ -371,6 +377,7 @@ class RangeGeneratorUpdateCLI(pki.cli.CLI):
         new_generator = args[0]
         instance_name = 'pki-tomcat'
         subsystem_name = self.parent.parent.parent.name
+        generator_type = None
 
         for o, a in opts:
             if o in ('-t', '--type'):
@@ -393,6 +400,11 @@ class RangeGeneratorUpdateCLI(pki.cli.CLI):
                 logger.error('Invalid option: %s', o)
                 self.print_help()
                 sys.exit(1)
+
+        if not generator_type:
+            logger.error('No <generator type> specified')
+            self.print_help()
+            sys.exit(1)
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():

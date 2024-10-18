@@ -1563,7 +1563,7 @@ class PKISubsystem(object):
 
         self.run(cmd, as_current_user=as_current_user)
 
-    def update_range_generator(self, generator, generator_type,  as_current_user=False):
+    def update_range_generator(self, generator, generator_type, as_current_user=False):
 
         cmd = [self.name + '-range-generator-update']
 

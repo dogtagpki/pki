@@ -24,6 +24,7 @@ import com.netscape.cmsutil.password.PasswordStore;
 import com.netscape.cmsutil.password.PasswordStoreConfig;
 import java.math.BigInteger;
 import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPModification;
 import netscape.ldap.LDAPSearchResults;
@@ -115,7 +116,9 @@ public abstract class SubsystemRangeGeneratorUpdateCLI extends SubsystemCLI {
                     authInfo,
                     dbConfig,
                     baseDN,
-                    generator);
+                    generator,
+                    cs.getHostname(),
+                    getSecurePort(cs));
             cs.commit(false);
         } else if (generatorType.equals("request")) {
             updateRequestNumberRangeGenerator(
@@ -132,7 +135,8 @@ public abstract class SubsystemRangeGeneratorUpdateCLI extends SubsystemCLI {
     }
 
     protected void updateSerialNumberRangeGenerator(PKISocketFactory socketFactory, LdapConnInfo connInfo,
-            LdapAuthInfo authInfo, DatabaseConfig dbConfig, String baseDN, IDGenerator newGenerator) throws Exception {
+            LdapAuthInfo authInfo, DatabaseConfig dbConfig, String baseDN, IDGenerator newGenerator,
+            String hostName, String securePort) throws Exception {
         
         if (newGenerator == IDGenerator.RANDOM && idGenerator != IDGenerator.RANDOM) {
             logger.debug("Remove serial ranges from configuration");
@@ -184,29 +188,7 @@ public abstract class SubsystemRangeGeneratorUpdateCLI extends SubsystemCLI {
                     dbConfig.setNextEndSerialNumber("0x" + nextEndSerial);
                 }
 
-                LDAPSearchResults results = conn.search(rangeDN, LDAPv3.SCOPE_SUB, "(objectClass=pkiRange)", null, false);
-
-                BigInteger lastUsedSerial = BigInteger.ZERO;
-                while (results.hasMoreElements()) {
-                    LDAPEntry entry = results.next();
-                    String endRange = entry.getAttribute("endRange").getStringValues().nextElement();
-                    BigInteger next = new BigInteger(endRange, 16);
-                    if (lastUsedSerial.compareTo(next) < 0) {
-                        lastUsedSerial = next;
-                    }
-                }
-
-                if (lastUsedSerial == BigInteger.ZERO) {
-                    lastUsedSerial = new BigInteger(endSerialNumber, 16);
-                }
-                BigInteger nextSerialNumber = lastUsedSerial.add(BigInteger.ONE);
-                String serialDN = dbConfig.getSerialDN() + "," + baseDN;
-                // store nextRange as decimal
-                LDAPAttribute attrSerialNextRange = new LDAPAttribute("nextRange", nextSerialNumber.toString());
-
-                LDAPModification serialmod = new LDAPModification(LDAPModification.REPLACE, attrSerialNextRange);
-
-                conn.modify(serialDN, serialmod);
+                updateRanges(dbConfig, conn, baseDN, rangeDN, endSerialNumber, hostName, securePort);
             } finally {
                 conn.disconnect();
             }
@@ -240,5 +222,70 @@ public abstract class SubsystemRangeGeneratorUpdateCLI extends SubsystemCLI {
             return;
         }
         throw new EBaseException("Update to " + newGenerator + " not supported");
+    }
+    
+    private void updateRanges(DatabaseConfig dbConfig, LdapBoundConnection conn, String baseDN, String rangeDN, String defaultEndSerialNumber,
+        String hostName, String securePort) throws Exception{
+
+        LDAPSearchResults ranges = conn.search(rangeDN, LDAPv3.SCOPE_SUB, "(objectClass=pkiRange)", null, false);
+
+        BigInteger lastUsedSerial = BigInteger.ZERO;
+        boolean nextRangeToUpdate = true;
+        while (ranges.hasMoreElements()) {
+            LDAPEntry entry = ranges.next();
+            String endRange = entry.getAttribute("endRange").getStringValues().nextElement();
+            String host = entry.getAttribute("host").getStringValues().nextElement();
+            String port = entry.getAttribute("securePort").getStringValues().nextElement();
+            BigInteger next = new BigInteger(endRange, 16);
+            if (lastUsedSerial.compareTo(next) < 0) {
+                lastUsedSerial = next;
+                nextRangeToUpdate = host.equals(hostName) && port.equals(securePort);
+                
+            }
+        }
+
+        if (nextRangeToUpdate) {
+            if (lastUsedSerial == BigInteger.ZERO) {
+                lastUsedSerial = new BigInteger(defaultEndSerialNumber, 16);
+            }
+            BigInteger nextSerialNumber = lastUsedSerial.add(BigInteger.ONE);
+            String serialDN = dbConfig.getSerialDN() + "," + baseDN;
+            // store nextRange as decimal
+            LDAPAttribute attrSerialNextRange = new LDAPAttribute("nextRange", nextSerialNumber.toString());
+
+            LDAPModification serialmod = new LDAPModification(LDAPModification.REPLACE, attrSerialNextRange);
+
+            conn.modify(serialDN, serialmod);
+        }
+
+        LDAPSearchResults instanceRanges = conn.search(rangeDN, LDAPv3.SCOPE_SUB, "(&(objectClass=pkiRange)(host= " +
+                    hostName + ")(SecurePort=" + securePort + "))", null, false);
+        while (instanceRanges.hasMoreElements()) {
+            LDAPEntry entry = instanceRanges.next();
+            String beginRange = entry.getAttribute("beginRange").getStringValues().nextElement();
+            BigInteger beginRangeNo = new BigInteger(beginRange, 16);
+            String endRange = entry.getAttribute("endRange").getStringValues().nextElement();
+            BigInteger endRangeNo = new BigInteger(endRange, 16);
+            LDAPAttributeSet attrs = new LDAPAttributeSet();
+            attrs.add(new LDAPAttribute("objectClass", "top"));
+            attrs.add(new LDAPAttribute("objectClass", "pkiRange"));
+
+            // store beginRange as decimal
+            attrs.add(new LDAPAttribute("beginRange", beginRangeNo.toString()));
+
+            // store endRange as decimal
+            attrs.add(new LDAPAttribute("endRange", endRangeNo.toString()));
+
+            attrs.add(new LDAPAttribute("cn", beginRangeNo.toString()));
+            attrs.add(new LDAPAttribute("host", hostName));
+            attrs.add(new LDAPAttribute("securePort", securePort));
+
+            String dn = "cn=" + beginRangeNo.toString() + "," + rangeDN;
+            LDAPEntry rangeEntry = new LDAPEntry(dn, attrs);
+            logger.info("SubsystemRangeGeneratorUpdateCLI.updateRanges: Remove entry " + entry.getDN());
+            conn.delete(entry.getDN());
+            logger.info("SubsystemRangeGeneratorUpdateCLI.updateRanges: Adding entry " + dn);
+            conn.add(rangeEntry);
+        }
     }
 }

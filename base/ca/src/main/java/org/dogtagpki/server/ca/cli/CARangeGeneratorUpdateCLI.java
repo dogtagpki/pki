@@ -30,7 +30,7 @@ public class CARangeGeneratorUpdateCLI extends SubsystemRangeGeneratorUpdateCLI 
 
     @Override
     protected void updateSerialNumberRangeGenerator(PKISocketFactory socketFactory, LdapConnInfo connInfo,
-            LdapAuthInfo authInfo, DatabaseConfig dbConfig, String baseDN, IDGenerator newGenerator) throws Exception {
+            LdapAuthInfo authInfo, DatabaseConfig dbConfig, String baseDN, IDGenerator newGenerator, String hostName, String securePort) throws Exception {
         String value = dbConfig.getString(
                 CertificateRepository.PROP_CERT_ID_GENERATOR,
                 CertificateRepository.DEFAULT_CERT_ID_GENERATOR);
@@ -46,7 +46,7 @@ public class CARangeGeneratorUpdateCLI extends SubsystemRangeGeneratorUpdateCLI 
             dbConfig.put(CertificateRepository.PROP_CERT_ID_GENERATOR, newGenerator.toString());
         }
 
-        super.updateSerialNumberRangeGenerator(socketFactory, connInfo, authInfo, dbConfig, baseDN, newGenerator);
+        super.updateSerialNumberRangeGenerator(socketFactory, connInfo, authInfo, dbConfig, baseDN, newGenerator, hostName, securePort);
     }
 
     
