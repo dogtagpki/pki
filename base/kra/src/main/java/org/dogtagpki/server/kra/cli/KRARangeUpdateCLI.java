@@ -41,7 +41,7 @@ public class KRARangeUpdateCLI extends SubsystemRangeUpdateCLI {
                 KeyRepository.DEFAULT_KEY_ID_GENERATOR);
         IDGenerator idGenerator = IDGenerator.fromString(value);
 
-        if (idGenerator != IDGenerator.LEGACY) {
+        if (idGenerator == IDGenerator.RANDOM) {
             logger.info("No need to update key ID range");
             return;
         }
