@@ -67,21 +67,18 @@ public class CRLRepository extends Repository {
         rangeDN = dbConfig.getRequestRangeDN() + "," + dbSubsystem.getBaseDN();
         logger.info("CRLRepository: - range DN: " + rangeDN);
 
-        minSerialName = DatabaseConfig.MIN_REQUEST_NUMBER;
         String minSerial = dbConfig.getBeginRequestNumber();
         if (minSerial != null) {
             mMinSerialNo = new BigInteger(minSerial, mRadix);
         }
         logger.info("CRLRepository: - min serial: " + mMinSerialNo);
 
-        maxSerialName = DatabaseConfig.MAX_REQUEST_NUMBER;
         String maxSerial = dbConfig.getEndRequestNumber();
         if (maxSerial != null) {
             mMaxSerialNo = new BigInteger(maxSerial, mRadix);
         }
         logger.info("CRLRepository: - max serial: " + mMaxSerialNo);
 
-        nextMinSerialName = DatabaseConfig.NEXT_MIN_REQUEST_NUMBER;
         String nextMinSerial = dbConfig.getNextBeginRequestNumber();
         if (nextMinSerial == null || nextMinSerial.equals("-1")) {
             mNextMinSerialNo = null;
@@ -90,7 +87,6 @@ public class CRLRepository extends Repository {
         }
         logger.info("CRLRepository: - next min serial: " + mNextMinSerialNo);
 
-        nextMaxSerialName = DatabaseConfig.NEXT_MAX_REQUEST_NUMBER;
         String nextMaxSerial = dbConfig.getNextEndRequestNumber();
         if (nextMaxSerial == null || nextMaxSerial.equals("-1")) {
             mNextMaxSerialNo = null;
@@ -127,6 +123,52 @@ public class CRLRepository extends Repository {
         reg.registerAttribute(CRLIssuingPointRecord.ATTR_CRL,
                 new ByteArrayMapper(Schema.LDAP_ATTR_CRL));
         */
+    }
+
+    public void setMinSerialConfig() throws EBaseException {
+
+        DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
+        String serial = mMinSerialNo.toString(mRadix);
+        logger.debug("CRLRepository: Setting min serial number: " + serial);
+        dbConfig.setBeginRequestNumber(serial);
+    }
+
+    public void setMaxSerialConfig() throws EBaseException {
+
+        DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
+        String serial = mMaxSerialNo.toString(mRadix);
+        logger.debug("CRLRepository: Setting max serial number: " + serial);
+        dbConfig.setEndRequestNumber(serial);
+    }
+
+    public void setNextMinSerialConfig() throws EBaseException {
+
+        DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
+
+        if (mNextMinSerialNo == null) {
+            logger.debug("CRLRepository: Removing next min number");
+            dbConfig.removeNextBeginRequestNumber();
+
+        } else {
+            String serial = mNextMinSerialNo.toString(mRadix);
+            logger.debug("CRLRepository: Setting next min number: " + serial);
+            dbConfig.setNextBeginRequestNumber(serial);
+        }
+    }
+
+    public void setNextMaxSerialConfig() throws EBaseException {
+
+        DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
+
+        if (mNextMaxSerialNo == null) {
+            logger.debug("CRLRepository: Removing next max number");
+            dbConfig.removeNextEndRequestNumber();
+
+        } else {
+            String serial = mNextMaxSerialNo.toString(mRadix);
+            logger.debug("CRLRepository: Setting next max number: " + serial);
+            dbConfig.setNextEndRequestNumber(serial);
+        }
     }
 
     /**

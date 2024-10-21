@@ -175,21 +175,18 @@ public class KeyRepository extends Repository {
         rangeDN = dbConfig.getSerialRangeDN() + "," + dbSubsystem.getBaseDN();
         logger.info("KeyRepository: - range DN: {}", rangeDN);
 
-        minSerialName = DatabaseConfig.MIN_SERIAL_NUMBER;
         String minSerial = dbConfig.getBeginSerialNumber();
         if (minSerial != null) {
             mMinSerialNo = new BigInteger(minSerial, mRadix);
         }
         logger.info("KeyRepository: - min serial: {}", mMinSerialNo);
 
-        maxSerialName = DatabaseConfig.MAX_SERIAL_NUMBER;
         String maxSerial = dbConfig.getEndSerialNumber();
         if (maxSerial != null) {
             mMaxSerialNo = new BigInteger(maxSerial, mRadix);
         }
         logger.info("KeyRepository: - max serial: {}", mMaxSerialNo);
 
-        nextMinSerialName = DatabaseConfig.NEXT_MIN_SERIAL_NUMBER;
         String nextMinSerial = dbConfig.getNextBeginSerialNumber();
         if (nextMinSerial == null || nextMinSerial.equals("-1")) {
             mNextMinSerialNo = null;
@@ -198,7 +195,6 @@ public class KeyRepository extends Repository {
         }
         logger.info("KeyRepository: - next min serial: {}", mNextMinSerialNo);
 
-        nextMaxSerialName = DatabaseConfig.NEXT_MAX_SERIAL_NUMBER;
         String nextMaxSerial = dbConfig.getNextEndSerialNumber();
         if (nextMaxSerial == null || nextMaxSerial.equals("-1")) {
             mNextMaxSerialNo = null;
@@ -215,6 +211,52 @@ public class KeyRepository extends Repository {
         String incrementNo = dbConfig.getSerialIncrement();
         if (incrementNo != null) {
             mIncrementNo = new BigInteger(incrementNo, mRadix);
+        }
+    }
+
+    public void setMinSerialConfig() throws EBaseException {
+
+        DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
+        String serial = mMinSerialNo.toString(mRadix);
+        logger.debug("KeyRepository: Setting min serial number: " + serial);
+        dbConfig.setBeginSerialNumber(serial);
+    }
+
+    public void setMaxSerialConfig() throws EBaseException {
+
+        DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
+        String serial = mMaxSerialNo.toString(mRadix);
+        logger.debug("KeyRepository: Setting max serial number: " + serial);
+        dbConfig.setEndSerialNumber(serial);
+    }
+
+    public void setNextMinSerialConfig() throws EBaseException {
+
+        DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
+
+        if (mNextMinSerialNo == null) {
+            logger.debug("KeyRepository: Removing next min number");
+            dbConfig.removeNextBeginSerialNumber();
+
+        } else {
+            String serial = mNextMinSerialNo.toString(mRadix);
+            logger.debug("KeyRepository: Setting next min number: " + serial);
+            dbConfig.setNextBeginSerialNumber(serial);
+        }
+    }
+
+    public void setNextMaxSerialConfig() throws EBaseException {
+
+        DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
+
+        if (mNextMaxSerialNo == null) {
+            logger.debug("KeyRepository: Removing next max number");
+            dbConfig.removeNextEndSerialNumber();
+
+        } else {
+            String serial = mNextMaxSerialNo.toString(mRadix);
+            logger.debug("KeyRepository: Setting next max number: " + serial);
+            dbConfig.setNextEndSerialNumber(serial);
         }
     }
 
