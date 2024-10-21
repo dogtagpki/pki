@@ -148,12 +148,20 @@ public class DatabaseConfig extends ConfigStore {
         putString(NEXT_MIN_SERIAL_NUMBER, nextBeginSerialNumber);
     }
 
+    public void removeNextBeginSerialNumber() throws EBaseException {
+        remove(NEXT_MIN_SERIAL_NUMBER);
+    }
+
     public String getNextEndSerialNumber() throws EBaseException {
         return getString(NEXT_MAX_SERIAL_NUMBER, "-1");
     }
 
     public void setNextEndSerialNumber(String nextEndSerialNumber) {
         putString(NEXT_MAX_SERIAL_NUMBER, nextEndSerialNumber);
+    }
+
+    public void removeNextEndSerialNumber() throws EBaseException {
+        remove(NEXT_MAX_SERIAL_NUMBER);
     }
 
     public String getSerialLowWaterMark() throws EBaseException {
@@ -212,12 +220,20 @@ public class DatabaseConfig extends ConfigStore {
         putString(NEXT_MIN_REQUEST_NUMBER, nextBeginRequestNumber);
     }
 
+    public void removeNextBeginRequestNumber() throws EBaseException {
+        remove(NEXT_MIN_REQUEST_NUMBER);
+    }
+
     public String getNextEndRequestNumber() throws EBaseException {
         return getString(NEXT_MAX_REQUEST_NUMBER, "-1");
     }
 
     public void setNextEndRequestNumber(String nextEndRequestNumber) {
         putString(NEXT_MAX_REQUEST_NUMBER, nextEndRequestNumber);
+    }
+
+    public void removeNextEndRequestNumber() throws EBaseException {
+        remove(NEXT_MAX_REQUEST_NUMBER);
     }
 
     public String getRequestLowWaterMark() throws EBaseException {
@@ -276,12 +292,20 @@ public class DatabaseConfig extends ConfigStore {
         putString(NEXT_MIN_REPLICA_NUMBER, nextBeginReplicaNumber);
     }
 
+    public void removeNextBeginReplicaNumber() throws EBaseException {
+        remove(NEXT_MIN_REPLICA_NUMBER);
+    }
+
     public String getNextEndReplicaNumber() throws EBaseException {
         return getString(NEXT_MAX_REPLICA_NUMBER, "-1");
     }
 
     public void setNextEndReplicaNumber(String nextEndReplicaNumber) {
         putString(NEXT_MAX_REPLICA_NUMBER, nextEndReplicaNumber);
+    }
+
+    public void removeNextEndReplicaNumber() throws EBaseException {
+        remove(NEXT_MAX_REPLICA_NUMBER);
     }
 
     public String getReplicaLowWaterMark() throws EBaseException {

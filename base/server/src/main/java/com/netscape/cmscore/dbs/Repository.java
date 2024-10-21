@@ -25,7 +25,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.DBException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
 
 import netscape.ldap.LDAPAttribute;
@@ -78,16 +77,10 @@ public abstract class Repository {
     // (the next serialNo to be issued) - 1
     private BigInteger mSerialNo = null;
 
-    protected String minSerialName;
     protected BigInteger mMinSerialNo;
-
-    protected String maxSerialName;
     protected BigInteger mMaxSerialNo;
 
-    protected String nextMinSerialName;
     protected BigInteger mNextMinSerialNo;
-
-    protected String nextMaxSerialName;
     protected BigInteger mNextMaxSerialNo;
 
     protected BigInteger mCounter = null;
@@ -422,78 +415,28 @@ public abstract class Repository {
      *
      * @exception EBaseException failed to set
      */
-    public void setMinSerialConfig() throws EBaseException {
-
-        EngineConfig cs = engine.getConfig();
-        DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
-
-        String serial = mMinSerialNo.toString(mRadix);
-        logger.debug("Repository: Setting min serial number: " + serial);
-
-        dbConfig.putString(minSerialName, serial);
-        cs.commit(false);
-    }
+    public abstract void setMinSerialConfig() throws EBaseException;
 
     /**
      * Sets maximum serial number limit in config file
      *
      * @exception EBaseException failed to set
      */
-    public void setMaxSerialConfig() throws EBaseException {
-
-        EngineConfig cs = engine.getConfig();
-        DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
-
-        String serial = mMaxSerialNo.toString(mRadix);
-        logger.debug("Repository: Setting max serial number: " + serial);
-
-        dbConfig.putString(maxSerialName, serial);
-        cs.commit(false);
-    }
+    public abstract void setMaxSerialConfig() throws EBaseException;
 
     /**
      * Sets minimum serial number limit for next range in config file
      *
      * @exception EBaseException failed to set
      */
-    public void setNextMinSerialConfig() throws EBaseException {
-
-        EngineConfig cs = engine.getConfig();
-        DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
-
-        if (mNextMinSerialNo == null) {
-            logger.debug("Repository: Removing next min number");
-            dbConfig.remove(nextMinSerialName);
-        } else {
-            String serial = mNextMinSerialNo.toString(mRadix);
-            logger.debug("Repository: Setting next min number: " + serial);
-            dbConfig.putString(nextMinSerialName, serial);
-        }
-
-        cs.commit(false);
-    }
+    public abstract void setNextMinSerialConfig() throws EBaseException;
 
     /**
      * Sets maximum serial number limit for next range in config file
      *
      * @exception EBaseException failed to set
      */
-    public void setNextMaxSerialConfig() throws EBaseException {
-
-        EngineConfig cs = engine.getConfig();
-        DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
-
-        if (mNextMaxSerialNo == null) {
-            logger.debug("Repository: Removing next max number");
-            dbConfig.remove(nextMaxSerialName);
-        } else {
-            String serial = mNextMaxSerialNo.toString(mRadix);
-            logger.debug("Repository: Setting next max number: " + serial);
-            dbConfig.putString(nextMaxSerialName, serial);
-        }
-
-        cs.commit(false);
-    }
+    public abstract void setNextMaxSerialConfig() throws EBaseException;
 
     /**
      * Switch to the next range and persist the changes.
@@ -512,6 +455,9 @@ public abstract class Repository {
         setMaxSerialConfig();
         setNextMinSerialConfig();
         setNextMaxSerialConfig();
+
+        EngineConfig cs = engine.getConfig();
+        cs.commit(false);
     }
 
     /**
@@ -708,6 +654,9 @@ public abstract class Repository {
 
                 setNextMinSerialConfig();
                 setNextMaxSerialConfig();
+
+                EngineConfig cs = engine.getConfig();
+                cs.commit(false);
             }
         }
 
@@ -721,6 +670,9 @@ public abstract class Repository {
 
                 setNextMinSerialConfig();
                 setNextMaxSerialConfig();
+
+                EngineConfig cs = engine.getConfig();
+                cs.commit(false);
             }
         }
     }

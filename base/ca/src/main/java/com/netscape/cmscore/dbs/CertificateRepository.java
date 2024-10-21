@@ -137,21 +137,18 @@ public class CertificateRepository extends Repository {
         rangeDN = mDBConfig.getSerialRangeDN() + "," + dbSubsystem.getBaseDN();
         logger.debug("CertificateRepository: - range DN: " + rangeDN);
 
-        minSerialName = DatabaseConfig.MIN_SERIAL_NUMBER;
         String minSerial = mDBConfig.getBeginSerialNumber();
         if (minSerial != null) {
             mMinSerialNo = new BigInteger(minSerial, mRadix);
         }
         logger.debug("CertificateRepository: - min serial: " + mMinSerialNo);
 
-        maxSerialName = DatabaseConfig.MAX_SERIAL_NUMBER;
         String maxSerial = mDBConfig.getEndSerialNumber();
         if (maxSerial != null) {
             mMaxSerialNo = new BigInteger(maxSerial, mRadix);
         }
         logger.debug("CertificateRepository: - max serial: " + mMaxSerialNo);
 
-        nextMinSerialName = DatabaseConfig.NEXT_MIN_SERIAL_NUMBER;
         String nextMinSerial = mDBConfig.getNextBeginSerialNumber();
         if (nextMinSerial == null || nextMinSerial.equals("-1")) {
             mNextMinSerialNo = null;
@@ -160,7 +157,6 @@ public class CertificateRepository extends Repository {
         }
         logger.debug("CertificateRepository: - next min serial: " + mNextMinSerialNo);
 
-        nextMaxSerialName = DatabaseConfig.NEXT_MAX_SERIAL_NUMBER;
         String nextMaxSerial = mDBConfig.getNextEndSerialNumber();
         if (nextMaxSerial == null || nextMaxSerial.equals("-1")) {
             mNextMaxSerialNo = null;
@@ -177,6 +173,52 @@ public class CertificateRepository extends Repository {
         String incrementNo = mDBConfig.getSerialIncrement();
         if (incrementNo != null) {
             mIncrementNo = new BigInteger(incrementNo, mRadix);
+        }
+    }
+
+    public void setMinSerialConfig() throws EBaseException {
+
+        DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
+        String serial = mMinSerialNo.toString(mRadix);
+        logger.debug("CertificateRepository: Setting min serial number: " + serial);
+        dbConfig.setBeginSerialNumber(serial);
+    }
+
+    public void setMaxSerialConfig() throws EBaseException {
+
+        DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
+        String serial = mMaxSerialNo.toString(mRadix);
+        logger.debug("CertificateRepository: Setting max serial number: " + serial);
+        dbConfig.setEndSerialNumber(serial);
+    }
+
+    public void setNextMinSerialConfig() throws EBaseException {
+
+        DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
+
+        if (mNextMinSerialNo == null) {
+            logger.debug("CertificateRepository: Removing next min number");
+            dbConfig.removeNextBeginSerialNumber();
+
+        } else {
+            String serial = mNextMinSerialNo.toString(mRadix);
+            logger.debug("CertificateRepository: Setting next min number: " + serial);
+            dbConfig.setNextBeginSerialNumber(serial);
+        }
+    }
+
+    public void setNextMaxSerialConfig() throws EBaseException {
+
+        DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
+
+        if (mNextMaxSerialNo == null) {
+            logger.debug("CertificateRepository: Removing next max number");
+            dbConfig.removeNextEndSerialNumber();
+
+        } else {
+            String serial = mNextMaxSerialNo.toString(mRadix);
+            logger.debug("CertificateRepository: Setting next max number: " + serial);
+            dbConfig.setNextEndSerialNumber(serial);
         }
     }
 
