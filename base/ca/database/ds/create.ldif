@@ -150,16 +150,6 @@ objectClass: top
 objectClass: organizationalUnit
 ou: replica
 
-dn: ou=requests, ou=ranges,{rootSuffix}
-objectClass: top
-objectClass: organizationalUnit
-ou: requests
-
-dn: ou=certificateRepository, ou=ranges,{rootSuffix}
-objectClass: top
-objectClass: organizationalUnit
-ou: certificateRepository
-
 dn: ou=certificateProfiles,ou=ca,{rootSuffix}
 objectClass: top
 objectClass: organizationalUnit

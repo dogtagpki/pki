@@ -107,13 +107,3 @@ objectClass: top
 objectClass: organizationalUnit
 ou: replica
 
-dn: ou=requests, ou=ranges,{rootSuffix}
-objectClass: top
-objectClass: organizationalUnit
-ou: requests
-
-dn: ou=keyRepository, ou=ranges,{rootSuffix}
-objectClass: top
-objectClass: organizationalUnit
-ou: certificateRepository
-

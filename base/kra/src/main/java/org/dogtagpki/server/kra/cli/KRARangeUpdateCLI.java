@@ -29,6 +29,17 @@ public class KRARangeUpdateCLI extends SubsystemRangeUpdateCLI {
     }
 
     @Override
+    public void init(DatabaseConfig dbConfig) throws Exception {
+
+        super.init(dbConfig);
+
+       String value = dbConfig.getString(
+                KeyRepository.PROP_KEY_ID_GENERATOR,
+                KeyRepository.DEFAULT_KEY_ID_GENERATOR);
+        serialIDGenerator = IDGenerator.fromString(value);
+    }
+
+    @Override
     public void updateSerialNumberRange(
             PKISocketFactory socketFactory,
             LdapConnInfo connInfo,
@@ -36,12 +47,7 @@ public class KRARangeUpdateCLI extends SubsystemRangeUpdateCLI {
             DatabaseConfig dbConfig,
             String baseDN) throws Exception {
 
-        String value = dbConfig.getString(
-                KeyRepository.PROP_KEY_ID_GENERATOR,
-                KeyRepository.DEFAULT_KEY_ID_GENERATOR);
-        IDGenerator idGenerator = IDGenerator.fromString(value);
-
-        if (idGenerator == IDGenerator.RANDOM) {
+        if (serialIDGenerator == IDGenerator.RANDOM) {
             logger.info("No need to update key ID range");
             return;
         }
