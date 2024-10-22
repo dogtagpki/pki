@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.Repository.IDGenerator;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
@@ -84,19 +85,25 @@ public class SubsystemRangeUpdateCLI extends SubsystemCLI {
 
         DatabaseConfig dbConfig = cs.getDatabaseConfig();
 
+        // currently the cert nextRange is stored in cert repository's base DN
+        String serialNextRangeDN = dbConfig.getSerialDN() + "," + baseDN;
+
         updateSerialNumberRange(
                 socketFactory,
                 connInfo,
                 authInfo,
                 dbConfig,
-                baseDN);
+                serialNextRangeDN);
+
+        // currently the request nextRange is stored in request repository's base DN
+        String requestNextRangeDN = dbConfig.getRequestDN() + "," + baseDN;
 
         updateRequestNumberRange(
                 socketFactory,
                 connInfo,
                 authInfo,
                 dbConfig,
-                baseDN);
+                requestNextRangeDN);
     }
 
     public void updateSerialNumberRange(
@@ -104,7 +111,7 @@ public class SubsystemRangeUpdateCLI extends SubsystemCLI {
             LdapConnInfo connInfo,
             LdapAuthInfo authInfo,
             DatabaseConfig dbConfig,
-            String baseDN) throws Exception {
+            String nextRangeDN) throws Exception {
 
         LdapBoundConnection conn = new LdapBoundConnection(socketFactory, connInfo, authInfo);
 
@@ -116,14 +123,12 @@ public class SubsystemRangeUpdateCLI extends SubsystemCLI {
             // generate nextRange in decimal
             String nextSerialNumber = endSerialNumber.add(BigInteger.ONE).toString();
 
-            String serialDN = dbConfig.getSerialDN() + "," + baseDN;
-
             // store nextRange as decimal
-            LDAPAttribute attrSerialNextRange = new LDAPAttribute("nextRange", nextSerialNumber);
+            LDAPAttribute attrSerialNextRange = new LDAPAttribute(DBSubsystem.PROP_NEXT_RANGE, nextSerialNumber);
 
             LDAPModification serialmod = new LDAPModification(LDAPModification.REPLACE, attrSerialNextRange);
 
-            conn.modify(serialDN, serialmod);
+            conn.modify(nextRangeDN, serialmod);
 
         } finally {
             conn.disconnect();
@@ -135,7 +140,7 @@ public class SubsystemRangeUpdateCLI extends SubsystemCLI {
             LdapConnInfo connInfo,
             LdapAuthInfo authInfo,
             DatabaseConfig dbConfig,
-            String baseDN) throws Exception {
+            String nextRangeDN) throws Exception {
 
         String value = dbConfig.getString(
                 RequestRepository.PROP_REQUEST_ID_GENERATOR,
@@ -158,14 +163,12 @@ public class SubsystemRangeUpdateCLI extends SubsystemCLI {
             // generate nextRange in decimal
             String nextRequestNumber = endRequestNumber.add(BigInteger.ONE).toString();
 
-            String requestDN = dbConfig.getRequestDN() + "," + baseDN;
-
             // store nextRange as decimal
-            LDAPAttribute attrRequestNextRange = new LDAPAttribute("nextRange", nextRequestNumber);
+            LDAPAttribute attrRequestNextRange = new LDAPAttribute(DBSubsystem.PROP_NEXT_RANGE, nextRequestNumber);
 
             LDAPModification requestmod = new LDAPModification(LDAPModification.REPLACE, attrRequestNextRange);
 
-            conn.modify(requestDN, requestmod);
+            conn.modify(nextRangeDN, requestmod);
 
         } finally {
             conn.disconnect();

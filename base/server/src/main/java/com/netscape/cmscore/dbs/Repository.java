@@ -461,6 +461,14 @@ public abstract class Repository {
     }
 
     /**
+     * This method returns the DN of the entry that holds the nextRange attribute.
+     */
+    public String getNextRangeDN() {
+        // currently the nextRange is stored in repository's base DN
+        return mBaseDN;
+    }
+
+    /**
      * Gets start of next range from database.
      * Increments the nextRange attribute and allocates
      * this range to the current instance by creating a pkiRange object.
@@ -476,15 +484,17 @@ public abstract class Repository {
         try {
             LDAPConnection conn = session.getConnection();
 
-            logger.info("Repository: Reading entry " + mBaseDN);
-            LDAPEntry entry = conn.read(mBaseDN);
+            String nextRangeDN = getNextRangeDN();
+            logger.info("Repository: Getting " + DBSubsystem.PROP_NEXT_RANGE + " from " + nextRangeDN);
+            LDAPEntry entry = conn.read(nextRangeDN);
 
             LDAPAttribute attr = entry.getAttribute(DBSubsystem.PROP_NEXT_RANGE);
             if (attr == null) {
-                throw new Exception("Missing attribute" + DBSubsystem.PROP_NEXT_RANGE);
+                throw new Exception("Missing " + DBSubsystem.PROP_NEXT_RANGE + " attribute");
             }
 
             String nextRange = attr.getStringValues().nextElement();
+            logger.info("Repository: Current " + DBSubsystem.PROP_NEXT_RANGE + ": " + nextRange);
 
             // parse nextRange as decimal
             BigInteger nextRangeNo = new BigInteger(nextRange);
@@ -493,11 +503,10 @@ public abstract class Repository {
 
             // generate new nextRange in decimal
             String newNextRange = newNextRangeNo.toString();
+            logger.info("Repository: New " + DBSubsystem.PROP_NEXT_RANGE + ": " + newNextRange);
 
             // generate endRange in decimal
             String endRange = newNextRangeNo.subtract(BigInteger.ONE).toString();
-
-            logger.info("Repository: Updating " + DBSubsystem.PROP_NEXT_RANGE + " from " + nextRange + " to " + newNextRange);
 
             // To make sure attrNextRange always increments, first delete the current value and then increment.
             // Two operations in the same transaction
@@ -508,8 +517,8 @@ public abstract class Repository {
                     new LDAPModification(LDAPModification.ADD, attrNextRange)
             };
 
-            logger.info("Repository: Modifying entry " + mBaseDN);
-            conn.modify(mBaseDN, mods);
+            logger.info("Repository: Updating " + DBSubsystem.PROP_NEXT_RANGE + " in " + nextRangeDN);
+            conn.modify(nextRangeDN, mods);
 
             // Add new range object
 
