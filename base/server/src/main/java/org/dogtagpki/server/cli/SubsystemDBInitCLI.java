@@ -7,13 +7,16 @@ package org.dogtagpki.server.cli;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.cli.CLI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.cms.servlet.csadmin.LDAPConfigurator;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.dbs.Repository.IDGenerator;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
@@ -21,6 +24,7 @@ import com.netscape.cmscore.ldapconn.LdapBoundConnection;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
+import com.netscape.cmscore.request.RequestRepository;
 import com.netscape.cmsutil.password.PasswordStore;
 import com.netscape.cmsutil.password.PasswordStoreConfig;
 
@@ -31,8 +35,15 @@ public class SubsystemDBInitCLI extends SubsystemCLI {
 
     public static Logger logger = LoggerFactory.getLogger(SubsystemDBInitCLI.class);
 
+    protected IDGenerator requestIDGenerator;
+    protected IDGenerator serialIDGenerator;
+
     public SubsystemDBInitCLI(CLI parent) {
         super("init", "Initialize " + parent.getParent().getName().toUpperCase() + " database", parent);
+    }
+
+    public SubsystemDBInitCLI(String name, String description, CLI parent) {
+        super(name, description, parent);
     }
 
     @Override
@@ -54,6 +65,78 @@ public class SubsystemDBInitCLI extends SubsystemCLI {
         options.addOption("v", "verbose", false, "Run in verbose mode.");
         options.addOption(null, "debug", false, "Run in debug mode.");
         options.addOption(null, "help", false, "Show help message.");
+    }
+
+    public void init(DatabaseConfig dbConfig) throws Exception {
+
+        String value = dbConfig.getString(
+                RequestRepository.PROP_REQUEST_ID_GENERATOR,
+                RequestRepository.DEFAULT_REQUEST_ID_GENERATOR);
+        requestIDGenerator = IDGenerator.fromString(value);
+    }
+
+    public void createRangesSubtree(
+            LDAPConfig ldapConfig,
+            LDAPConfigurator ldapConfigurator) throws Exception {
+
+        if (requestIDGenerator == IDGenerator.LEGACY_2 ||
+                serialIDGenerator == IDGenerator.LEGACY_2) {
+
+            // create ou=ranges_v2 for SSNv2
+            ldapConfigurator.createEntry(
+                    "ou=ranges_v2," + ldapConfig.getBaseDN(),
+                    new String[] { "organizationalUnit" });
+            return;
+        }
+
+        // ou=ranges for SSNv1 is defined in create.ldif so it will
+        // be created automatically
+    }
+
+    public void createRequestRangesSubtree(
+            LDAPConfig ldapConfig,
+            DatabaseConfig dbConfig,
+            LDAPConfigurator ldapConfigurator) throws Exception {
+
+        String requestRangeRDN = dbConfig.getRequestRangeDN();
+
+        if (StringUtils.isEmpty(requestRangeRDN)) {
+            // dbs.requestRangeDN only exists in CA and KRA
+            return;
+        }
+
+        if (requestIDGenerator == IDGenerator.RANDOM) {
+            return;
+        }
+
+        // create ou=requests,ou=ranges for SSNv1 or
+        // ou=requests,ou=ranges_v2 for SSNv2
+        ldapConfigurator.createEntry(
+                requestRangeRDN + "," + ldapConfig.getBaseDN(),
+                new String[] { "organizationalUnit" });
+    }
+
+    public void createSerialRangesSubtree(
+            LDAPConfig ldapConfig,
+            DatabaseConfig dbConfig,
+            LDAPConfigurator ldapConfigurator) throws Exception {
+
+        String serialRangeRDN = dbConfig.getSerialRangeDN();
+
+        if (StringUtils.isEmpty(serialRangeRDN)) {
+            // dbs.serialRangeDN only exists in CA and KRA
+            return;
+        }
+
+        if (serialIDGenerator == IDGenerator.RANDOM) {
+            return;
+        }
+
+        // create ou=certificateRepository,ou=ranges for SSNv1 or
+        // ou=certificateRepository,ou=ranges_v2 for SSNv2
+        ldapConfigurator.createEntry(
+                serialRangeRDN + "," + ldapConfig.getBaseDN(),
+                new String[] { "organizationalUnit" });
     }
 
     @Override
@@ -90,6 +173,9 @@ public class SubsystemDBInitCLI extends SubsystemCLI {
         LdapBoundConnection conn = new LdapBoundConnection(socketFactory, connInfo, authInfo);
         LDAPConfigurator ldapConfigurator = new LDAPConfigurator(conn, ldapConfig);
 
+        DatabaseConfig dbConfig = cs.getDatabaseConfig();
+        init(dbConfig);
+
         try {
             if (!cmd.hasOption("skip-config")) {
                 ldapConfigurator.configureServer();
@@ -105,6 +191,11 @@ public class SubsystemDBInitCLI extends SubsystemCLI {
 
             if (!cmd.hasOption("skip-containers")) {
                 ldapConfigurator.createContainers(subsystem);
+
+                createRangesSubtree(ldapConfig, ldapConfigurator);
+                createRequestRangesSubtree(ldapConfig, dbConfig, ldapConfigurator);
+                createSerialRangesSubtree(ldapConfig, dbConfig, ldapConfigurator);
+
                 ldapConfigurator.setupACL(subsystem);
             }
 

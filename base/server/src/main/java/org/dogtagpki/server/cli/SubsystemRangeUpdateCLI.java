@@ -38,7 +38,8 @@ public class SubsystemRangeUpdateCLI extends SubsystemCLI {
 
     public static final Logger logger = LoggerFactory.getLogger(SubsystemRangeUpdateCLI.class);
 
-    protected IDGenerator idGenerator;
+    protected IDGenerator requestIDGenerator;
+    protected IDGenerator serialIDGenerator;
 
     public SubsystemRangeUpdateCLI(CLI parent) {
         super("update", "Update " + parent.getParent().getName().toUpperCase() + " ranges", parent);
@@ -54,6 +55,14 @@ public class SubsystemRangeUpdateCLI extends SubsystemCLI {
         option = new Option("f", true, "NSS database password configuration");
         option.setArgName("password config");
         options.addOption(option);
+    }
+
+    public void init(DatabaseConfig dbConfig) throws Exception {
+
+        String value = dbConfig.getString(
+                RequestRepository.PROP_REQUEST_ID_GENERATOR,
+                RequestRepository.DEFAULT_REQUEST_ID_GENERATOR);
+        requestIDGenerator = IDGenerator.fromString(value);
     }
 
     @Override
@@ -85,6 +94,7 @@ public class SubsystemRangeUpdateCLI extends SubsystemCLI {
         socketFactory.init(socketConfig);
 
         DatabaseConfig dbConfig = cs.getDatabaseConfig();
+        init(dbConfig);
 
         updateSerialNumberRange(
                 socketFactory,
@@ -108,11 +118,16 @@ public class SubsystemRangeUpdateCLI extends SubsystemCLI {
             DatabaseConfig dbConfig,
             String baseDN) throws Exception {
 
+        if (serialIDGenerator == IDGenerator.RANDOM) {
+            logger.info("No need to update serial number range");
+            return;
+        }
+
         LdapBoundConnection conn = new LdapBoundConnection(socketFactory, connInfo, authInfo);
 
         try {
             BigInteger endSerialNumber;
-            if (idGenerator == IDGenerator.LEGACY_2) {
+            if (serialIDGenerator == IDGenerator.LEGACY_2) {
                 endSerialNumber = dbConfig.getBigInteger(DatabaseConfig.MAX_SERIAL_NUMBER);
             } else {
                 // parse the end of current cert range as decimal
@@ -142,12 +157,7 @@ public class SubsystemRangeUpdateCLI extends SubsystemCLI {
             DatabaseConfig dbConfig,
             String baseDN) throws Exception {
 
-        String value = dbConfig.getString(
-                RequestRepository.PROP_REQUEST_ID_GENERATOR,
-                RequestRepository.DEFAULT_REQUEST_ID_GENERATOR);
-        idGenerator = IDGenerator.fromString(value);
-
-        if (idGenerator == IDGenerator.RANDOM) {
+        if (requestIDGenerator == IDGenerator.RANDOM) {
             logger.info("No need to update request ID range");
             return;
         }
@@ -158,7 +168,7 @@ public class SubsystemRangeUpdateCLI extends SubsystemCLI {
             logger.info("Updating request ID range");
 
             BigInteger endRequestNumber;
-            if (idGenerator == IDGenerator.LEGACY_2) {
+            if (requestIDGenerator == IDGenerator.LEGACY_2) {
                 endRequestNumber = dbConfig.getBigInteger(DatabaseConfig.MAX_REQUEST_NUMBER);
             } else {
                 // parse the end of current range as decimal
