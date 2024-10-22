@@ -49,7 +49,7 @@ public class CRLRepository extends Repository {
      * Constructs a CRL repository.
      */
     public CRLRepository(DBSubsystem dbSubsystem) {
-        super(dbSubsystem, 10);
+        super(dbSubsystem, DEC);
     }
 
     @Override
@@ -67,23 +67,17 @@ public class CRLRepository extends Repository {
         rangeDN = dbConfig.getRequestRangeDN() + "," + dbSubsystem.getBaseDN();
         logger.info("CRLRepository: - range DN: " + rangeDN);
 
-        String minSerial = dbConfig.getBeginRequestNumber();
-        if (minSerial != null) {
-            mMinSerialNo = new BigInteger(minSerial, mRadix);
-        }
+        mMinSerialNo = dbConfig.getBigInteger(DatabaseConfig.MIN_REQUEST_NUMBER, null);
         logger.info("CRLRepository: - min serial: " + mMinSerialNo);
 
-        String maxSerial = dbConfig.getEndRequestNumber();
-        if (maxSerial != null) {
-            mMaxSerialNo = new BigInteger(maxSerial, mRadix);
-        }
+        mMaxSerialNo = dbConfig.getBigInteger(DatabaseConfig.MAX_REQUEST_NUMBER, null);
         logger.info("CRLRepository: - max serial: " + mMaxSerialNo);
 
         String nextMinSerial = dbConfig.getNextBeginRequestNumber();
         if (nextMinSerial == null || nextMinSerial.equals("-1")) {
             mNextMinSerialNo = null;
         } else {
-            mNextMinSerialNo = new BigInteger(nextMinSerial, mRadix);
+            mNextMinSerialNo = dbConfig.getBigInteger(DatabaseConfig.NEXT_MIN_REQUEST_NUMBER, null);
         }
         logger.info("CRLRepository: - next min serial: " + mNextMinSerialNo);
 
@@ -91,19 +85,15 @@ public class CRLRepository extends Repository {
         if (nextMaxSerial == null || nextMaxSerial.equals("-1")) {
             mNextMaxSerialNo = null;
         } else {
-            mNextMaxSerialNo = new BigInteger(nextMaxSerial, mRadix);
+            mNextMaxSerialNo = dbConfig.getBigInteger(DatabaseConfig.NEXT_MAX_REQUEST_NUMBER, null);
         }
         logger.info("CRLRepository: - next max serial: " + mNextMaxSerialNo);
 
-        String lowWaterMark = dbConfig.getRequestLowWaterMark();
-        if (lowWaterMark != null) {
-            mLowWaterMarkNo = new BigInteger(lowWaterMark, mRadix);
-        }
-
-        String incrementNo = dbConfig.getRequestIncrement();
-        if (incrementNo != null) {
-            mIncrementNo = new BigInteger(incrementNo, mRadix);
-        }
+        mLowWaterMarkNo = dbConfig.getBigInteger(DatabaseConfig.REQUEST_LOW_WATER_MARK, null);
+        logger.debug("CRLRepository: - low water mark serial: " + mNextMaxSerialNo);
+        
+        mIncrementNo = dbConfig.getBigInteger(DatabaseConfig.REQUEST_INCREMENT, null);
+        logger.debug("CRLRepository: - increment serial: " + mIncrementNo);
 
         /*
         DBRegistry reg = dbService.getRegistry();
@@ -129,6 +119,9 @@ public class CRLRepository extends Repository {
 
         DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
         String serial = mMinSerialNo.toString(mRadix);
+        if (mRadix == HEX && idGenerator == IDGenerator.LEGACY_2) {
+           serial = "0x" + serial;
+        }
         logger.debug("CRLRepository: Setting min serial number: " + serial);
         dbConfig.setBeginRequestNumber(serial);
     }
@@ -137,6 +130,9 @@ public class CRLRepository extends Repository {
 
         DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
         String serial = mMaxSerialNo.toString(mRadix);
+        if (mRadix == HEX && idGenerator == IDGenerator.LEGACY_2) {
+           serial = "0x" + serial;
+        }
         logger.debug("CRLRepository: Setting max serial number: " + serial);
         dbConfig.setEndRequestNumber(serial);
     }
@@ -151,6 +147,9 @@ public class CRLRepository extends Repository {
 
         } else {
             String serial = mNextMinSerialNo.toString(mRadix);
+            if (mRadix == HEX && idGenerator == IDGenerator.LEGACY_2) {
+               serial = "0x" + serial;
+            }
             logger.debug("CRLRepository: Setting next min number: " + serial);
             dbConfig.setNextBeginRequestNumber(serial);
         }
@@ -166,6 +165,9 @@ public class CRLRepository extends Repository {
 
         } else {
             String serial = mNextMaxSerialNo.toString(mRadix);
+            if (mRadix == HEX && idGenerator == IDGenerator.LEGACY_2) {
+               serial = "0x" + serial;
+            }
             logger.debug("CRLRepository: Setting next max number: " + serial);
             dbConfig.setNextEndRequestNumber(serial);
         }

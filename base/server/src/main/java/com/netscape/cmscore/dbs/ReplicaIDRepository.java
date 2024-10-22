@@ -38,7 +38,7 @@ public class ReplicaIDRepository extends Repository {
      * Constructs a certificate repository.
      */
     public ReplicaIDRepository(DBSubsystem dbSubsystem) {
-        super(dbSubsystem, 10);
+        super(dbSubsystem, DEC);
     }
 
     @Override
@@ -54,23 +54,17 @@ public class ReplicaIDRepository extends Repository {
         rangeDN = dbConfig.getReplicaRangeDN() + "," + dbSubsystem.getBaseDN();
         logger.info("ReplicaIDRepository: - range DN: " + rangeDN);
 
-        String minSerial = dbConfig.getBeginReplicaNumber();
-        if (minSerial != null) {
-            mMinSerialNo = new BigInteger(minSerial, mRadix);
-        }
+        mMinSerialNo = dbConfig.getBigInteger(DatabaseConfig.MIN_REPLICA_NUMBER, null);
         logger.info("ReplicaIDRepository: - min serial: " + mMinSerialNo);
 
-        String maxSerial = dbConfig.getEndReplicaNumber();
-        if (maxSerial != null) {
-            mMaxSerialNo = new BigInteger(maxSerial, mRadix);
-        }
+        mMaxSerialNo = dbConfig.getBigInteger(DatabaseConfig.MAX_REPLICA_NUMBER, null);
         logger.info("ReplicaIDRepository: - max serial: " + mMaxSerialNo);
 
         String nextMinSerial = dbConfig.getNextBeginReplicaNumber();
         if (nextMinSerial == null || nextMinSerial.equals("-1")) {
             mNextMinSerialNo = null;
         } else {
-            mNextMinSerialNo = new BigInteger(nextMinSerial, mRadix);
+            mNextMinSerialNo = dbConfig.getBigInteger(DatabaseConfig.NEXT_MIN_REPLICA_NUMBER, null);
         }
         logger.info("ReplicaIDRepository: - next min serial: " + mNextMinSerialNo);
 
@@ -78,25 +72,24 @@ public class ReplicaIDRepository extends Repository {
         if (nextMaxSerial == null || nextMaxSerial.equals("-1")) {
             mNextMaxSerialNo = null;
         } else {
-            mNextMaxSerialNo = new BigInteger(nextMaxSerial, mRadix);
+            mNextMaxSerialNo = dbConfig.getBigInteger(DatabaseConfig.NEXT_MAX_REPLICA_NUMBER, null);
         }
         logger.info("ReplicaIDRepository: - next max serial: " + mNextMaxSerialNo);
 
-        String lowWaterMark = dbConfig.getReplicaLowWaterMark();
-        if (lowWaterMark != null) {
-            mLowWaterMarkNo = new BigInteger(lowWaterMark, mRadix);
-        }
+        mLowWaterMarkNo = dbConfig.getBigInteger(DatabaseConfig.REPLICA_LOW_WATER_MARK, null);
+        logger.debug("ReplicaIDRepository: - low water mark serial: " + mNextMaxSerialNo);
 
-        String incrementNo = dbConfig.getReplicaIncrement();
-        if (incrementNo != null) {
-            mIncrementNo = new BigInteger(incrementNo, mRadix);
-        }
+        mIncrementNo = dbConfig.getBigInteger(DatabaseConfig.REPLICA_INCREMENT, null);
+        logger.debug("ReplicaIDRepository: - increment serial: " + mIncrementNo);
     }
 
     public void setMinSerialConfig() throws EBaseException {
 
         DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
         String serial = mMinSerialNo.toString(mRadix);
+        if (mRadix == HEX && idGenerator == IDGenerator.LEGACY_2) {
+           serial = "0x" + serial;
+        }
         logger.debug("ReplicaIDRepository: Setting min serial number: " + serial);
         dbConfig.setBeginReplicaNumber(serial);
     }
@@ -105,6 +98,9 @@ public class ReplicaIDRepository extends Repository {
 
         DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
         String serial = mMaxSerialNo.toString(mRadix);
+        if (mRadix == HEX && idGenerator == IDGenerator.LEGACY_2) {
+           serial = "0x" + serial;
+        }
         logger.debug("ReplicaIDRepository: Setting max serial number: " + serial);
         dbConfig.setEndReplicaNumber(serial);
     }
@@ -119,6 +115,9 @@ public class ReplicaIDRepository extends Repository {
 
         } else {
             String serial = mNextMinSerialNo.toString(mRadix);
+            if (mRadix == HEX && idGenerator == IDGenerator.LEGACY_2) {
+               serial = "0x" + serial;
+            }
             logger.debug("ReplicaIDRepository: Setting next min number: " + serial);
             dbConfig.setNextBeginReplicaNumber(serial);
         }
@@ -134,6 +133,9 @@ public class ReplicaIDRepository extends Repository {
 
         } else {
             String serial = mNextMaxSerialNo.toString(mRadix);
+            if (mRadix == HEX && idGenerator == IDGenerator.LEGACY_2) {
+               serial = "0x" + serial;
+            }
             logger.debug("ReplicaIDRepository: Setting next max number: " + serial);
             dbConfig.setNextEndReplicaNumber(serial);
         }

@@ -124,25 +124,22 @@ public abstract class UpdateNumberRange extends CMSServlet {
                 repo.checkRanges();
             }
 
-            int radix = 10;
+            int radix = repo.getRadix();
             String endNumConfig = null;
             String cloneNumConfig = null;
             String nextEndConfig = null;
 
             if (type.equals("request")) {
-                radix = 10;
                 endNumConfig = "endRequestNumber";
                 cloneNumConfig = "requestCloneTransferNumber";
                 nextEndConfig = "nextEndRequestNumber";
 
             } else if (type.equals("serialNo")) {
-                radix = 16;
                 endNumConfig = "endSerialNumber";
                 cloneNumConfig = "serialCloneTransferNumber";
                 nextEndConfig = "nextEndSerialNumber";
 
             } else if (type.equals("replicaId")) {
-                radix = 10;
                 endNumConfig = "endReplicaNumber";
                 cloneNumConfig = "replicaCloneTransferNumber";
                 nextEndConfig = "nextEndReplicaNumber";
@@ -161,12 +158,19 @@ public abstract class UpdateNumberRange extends CMSServlet {
              * cases this is done by a scheduled task).
              */
 
-            String endNumStr = dbConfig.getString(endNumConfig);
-            BigInteger endNum = new BigInteger(endNumStr, radix);
+            BigInteger endNum;
+            BigInteger transferSize;
+            if (repo.getIDGenerator() == Repository.IDGenerator.LEGACY_2) {
+                endNum = dbConfig.getBigInteger(endNumConfig);
+                transferSize = dbConfig.getBigInteger(cloneNumConfig);
+            } else {
+                String endNumStr = dbConfig.getString(endNumConfig);
+                endNum = new BigInteger(endNumStr, radix);
+                
+                String transferSizeStr = dbConfig.getString(cloneNumConfig, "");
+                transferSize = new BigInteger(transferSizeStr, radix);
+            }
             logger.info("UpdateNumberRange: dbs." + endNumConfig + ": " + endNum);
-
-            String transferSizeStr = dbConfig.getString(cloneNumConfig, "");
-            BigInteger transferSize = new BigInteger(transferSizeStr, radix);
             logger.info("UpdateNumberRange: dbs." + cloneNumConfig + ": " + transferSize);
 
             // transferred range will start at beginNum
@@ -224,7 +228,11 @@ public abstract class UpdateNumberRange extends CMSServlet {
                      * this scenario is unlikely to arise.  Furthermore,
                      * recovery is automatic thanks to the scheduled tasks.
                      */
-                    endNum = new BigInteger(dbConfig.getString(nextEndConfig, ""), radix);
+                    if (repo.getIDGenerator() == Repository.IDGenerator.LEGACY_2) {
+                        endNum = dbConfig.getBigInteger(nextEndConfig);
+                    } else {
+                        endNum = new BigInteger(dbConfig.getString(nextEndConfig, ""), radix);                        
+                    }
                     BigInteger newEndNum = endNum.subtract(transferSize);
 
                     logger.info("UpdateNumberRange: Transferring from the end of next range");
@@ -232,7 +240,11 @@ public abstract class UpdateNumberRange extends CMSServlet {
                     logger.info("UpdateNumberRange:   Next range new end: " + newEndNum);
 
                     repo.setNextMaxSerial(newEndNum);
-                    dbConfig.putString(nextEndConfig, newEndNum.toString(radix));
+                    String strNewEndNum = newEndNum.toString(radix);
+                    if (repo.getIDGenerator() == Repository.IDGenerator.LEGACY_2 && radix == Repository.HEX) {
+                            strNewEndNum = "0x" + strNewEndNum;
+                    }
+                    dbConfig.putString(nextEndConfig, strNewEndNum);
                     beginNum = newEndNum.add(BigInteger.ONE);
 
                 } else {
@@ -242,6 +254,9 @@ public abstract class UpdateNumberRange extends CMSServlet {
                     BigInteger newEndNum = beginNum.subtract(BigInteger.ONE);
                     repo.setMaxSerial(newEndNum);
                     String newValStr = newEndNum.toString(radix);
+                    if (repo.getIDGenerator() == Repository.IDGenerator.LEGACY_2 && radix == Repository.HEX) {
+                        newValStr = "0x" + newValStr;
+                    }
                     dbConfig.putString(endNumConfig, newValStr);
 
                     logger.info("UpdateNumberRange: New current range: " + nextSerial + ".." + newEndNum);
@@ -273,8 +288,13 @@ public abstract class UpdateNumberRange extends CMSServlet {
             JSONObject jsonObj = new JSONObject();
             ObjectNode responseNode = jsonObj.getMapper().createObjectNode();
             responseNode.put("Status", SUCCESS);
-            responseNode.put("beginNumber", beginNum.toString(radix));
-            responseNode.put("endNumber", endNum.toString(radix));
+            if(repo.getIDGenerator() == Repository.IDGenerator.LEGACY_2 && radix == Repository.HEX) {
+                responseNode.put("beginNumber", "0x" + beginNum.toString(radix));
+                responseNode.put("endNumber", "0x" + endNum.toString(radix));                
+            } else {
+                responseNode.put("beginNumber", beginNum.toString(radix));
+                responseNode.put("endNumber", endNum.toString(radix));
+            }
             jsonObj.getRootNode().set("Response", responseNode);
             outputResult(httpResp, "application/json", jsonObj.toByteArray());
             cs.commit(false);

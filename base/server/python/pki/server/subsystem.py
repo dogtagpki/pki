@@ -1515,7 +1515,7 @@ class PKISubsystem(object):
 
         # request cert/key request ID range if it uses legacy generator
         if self.type in ['CA', 'KRA'] and \
-                self.config.get('dbs.request.id.generator', 'legacy') == 'legacy':
+                self.config.get('dbs.request.id.generator', 'legacy') != 'random':
 
             logger.info('Requesting request ID range')
 
@@ -1527,9 +1527,9 @@ class PKISubsystem(object):
 
         # request cert/key ID range if it uses legacy generator
         if self.type == 'CA' and \
-                self.config.get('dbs.cert.id.generator', 'legacy') == 'legacy' or \
+                self.config.get('dbs.cert.id.generator', 'legacy') != 'random' or \
                 self.type == 'KRA' \
-                and self.config.get('dbs.key.id.generator', 'legacy') == 'legacy':
+                and self.config.get('dbs.key.id.generator', 'legacy') != 'random':
 
             logger.info('Requesting serial number range')
 
@@ -1560,6 +1560,22 @@ class PKISubsystem(object):
 
         elif logger.isEnabledFor(logging.INFO):
             cmd.append('--verbose')
+
+        self.run(cmd, as_current_user=as_current_user)
+
+    def update_id_generator(self, generator, generator_object, as_current_user=False):
+
+        cmd = [self.name + '-id-generator-update']
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        cmd.append('--type')
+        cmd.append(generator)
+        cmd.append(generator_object)
 
         self.run(cmd, as_current_user=as_current_user)
 

@@ -49,7 +49,11 @@ public abstract class Repository {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Repository.class);
 
+    public static final int HEX = 16;
+    public static final int DEC = 10;
+
     public enum IDGenerator {
+        LEGACY_2("legacy2"),
         LEGACY("legacy"),
         RANDOM("random");
 
@@ -415,6 +419,7 @@ public abstract class Repository {
      *
      * @exception EBaseException failed to set
      */
+
     public abstract void setMinSerialConfig() throws EBaseException;
 
     /**
@@ -422,6 +427,7 @@ public abstract class Repository {
      *
      * @exception EBaseException failed to set
      */
+
     public abstract void setMaxSerialConfig() throws EBaseException;
 
     /**
@@ -429,6 +435,7 @@ public abstract class Repository {
      *
      * @exception EBaseException failed to set
      */
+
     public abstract void setNextMinSerialConfig() throws EBaseException;
 
     /**
@@ -568,9 +575,11 @@ public abstract class Repository {
 
             logger.info("Repository: Searching for conflicting entries");
 
+            String minSerial = idGenerator == IDGenerator.LEGACY_2 ? 
+                    mMinSerialNo.toString() : mMinSerialNo.toString(mRadix);
             String filter = "(&(nsds5ReplConflict=*)(objectClass=pkiRange)(host= " +
                     cs.getHostname() + ")(SecurePort=" + engine.getEESSLPort() +
-                    ")(beginRange=" + mMinSerialNo.toString(mRadix) + "))";
+                    ")(beginRange=" + minSerial + "))";
 
             LDAPSearchResults results = conn.search(rangeDN, LDAPv3.SCOPE_SUB, filter, null, false);
 
@@ -643,8 +652,13 @@ public abstract class Repository {
             logger.debug("Repository: Requesting next range");
             String nextRange = getNextRange();
             logger.debug("Repository: next range: " + nextRange);
-
-            mNextMinSerialNo = new BigInteger(nextRange, mRadix);
+            if (idGenerator == IDGenerator.LEGACY_2) {
+                mNextMinSerialNo = new BigInteger(nextRange);
+            } else {
+                // nextRange is read as decimal in other places and with radix (hex default) here making
+                // its value inconsistent
+                mNextMinSerialNo = new BigInteger(nextRange, mRadix);
+            }
             if (mNextMinSerialNo == null) {
                 logger.debug("Repository: Next range not available");
             } else {

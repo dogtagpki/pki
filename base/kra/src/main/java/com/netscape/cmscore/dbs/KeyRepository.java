@@ -45,6 +45,7 @@ public class KeyRepository extends Repository {
     public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeyRepository.class);
 
     public static final String PROP_KEY_ID_GENERATOR = "key.id.generator";
+    public static final String PROP_KEY_ID_RADIX = "key.id.radix";
     public static final String DEFAULT_KEY_ID_GENERATOR = "legacy";
 
     public static final String PROP_KEY_ID_LENGTH = "key.id.length";
@@ -62,7 +63,15 @@ public class KeyRepository extends Repository {
             SecureRandom secureRandom,
             DBSubsystem dbSubsystem) {
 
-        super(dbSubsystem, 16);
+        super(dbSubsystem, HEX);
+        DatabaseConfig dbc = dbSubsystem.getDBConfigStore();
+        try {
+            this.mRadix = dbc.getInteger(PROP_KEY_ID_RADIX, HEX);
+            logger.debug("KeyRepository: number radix {}", this.mRadix);
+            
+        } catch (EBaseException ex) {
+            logger.debug("KeyRepository: error reading number radix config, using default {} for ", HEX);
+        }
 
         this.secureRandom = secureRandom;
     }
@@ -85,7 +94,8 @@ public class KeyRepository extends Repository {
 
             idLength = dbConfig.getInteger(PROP_KEY_ID_LENGTH, DEFAULT_KEY_ID_LENGTH);
             logger.info("KeyRepository: - key ID length: {}", idLength);
-
+        } else if (idGenerator == IDGenerator.LEGACY_2) {
+            initLegacy2Generator();
         } else {
             initLegacyGenerator();
         }
@@ -168,6 +178,41 @@ public class KeyRepository extends Repository {
 
     }
 
+    protected void initLegacy2Generator() throws EBaseException {
+        DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
+
+        rangeDN = dbConfig.getSerialRangeDN() + "," + dbSubsystem.getBaseDN();
+        logger.debug("KeyRepository: - range DN: " + rangeDN);
+
+        mMinSerialNo = dbConfig.getBigInteger(DatabaseConfig.MIN_SERIAL_NUMBER, null);
+        logger.debug("KeyRepository: - min serial: " + mMinSerialNo);
+
+        mMaxSerialNo = dbConfig.getBigInteger(DatabaseConfig.MAX_SERIAL_NUMBER, null);
+        logger.debug("KeyRepository: - max serial: " + mMaxSerialNo);
+
+        String nextMinSerial = dbConfig.getNextBeginSerialNumber();
+        if (nextMinSerial == null || nextMinSerial.equals("-1")) {
+            mNextMinSerialNo = null;
+        } else {
+            mNextMinSerialNo = dbConfig.getBigInteger(DatabaseConfig.NEXT_MIN_SERIAL_NUMBER, null);
+        }
+        logger.debug("KeyRepository: - next min serial: " + mNextMinSerialNo);
+
+        String nextMaxSerial = dbConfig.getNextEndSerialNumber();
+        if (nextMaxSerial == null || nextMaxSerial.equals("-1")) {
+            mNextMaxSerialNo = null;
+        } else {
+            mNextMaxSerialNo = dbConfig.getBigInteger(DatabaseConfig.NEXT_MAX_SERIAL_NUMBER, null);
+        }
+        logger.debug("KeyRepository: - next max serial: " + mNextMaxSerialNo);
+
+        mLowWaterMarkNo = dbConfig.getBigInteger(DatabaseConfig.SERIAL_LOW_WATER_MARK, null);
+        logger.debug("KeyRepository: - low water mark serial: " + mNextMaxSerialNo);
+
+        mIncrementNo = dbConfig.getBigInteger(DatabaseConfig.SERIAL_INCREMENT, null);
+        logger.debug("KeyRepository: - increment serial: " + mIncrementNo);
+    }
+
     public void initLegacyGenerator() throws Exception {
 
         DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
@@ -218,6 +263,9 @@ public class KeyRepository extends Repository {
 
         DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
         String serial = mMinSerialNo.toString(mRadix);
+        if (mRadix == HEX && idGenerator == IDGenerator.LEGACY_2) {
+           serial = "0x" + serial;
+        }
         logger.debug("KeyRepository: Setting min serial number: " + serial);
         dbConfig.setBeginSerialNumber(serial);
     }
@@ -226,6 +274,9 @@ public class KeyRepository extends Repository {
 
         DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
         String serial = mMaxSerialNo.toString(mRadix);
+        if (mRadix == HEX && idGenerator == IDGenerator.LEGACY_2) {
+           serial = "0x" + serial;
+        }
         logger.debug("KeyRepository: Setting max serial number: " + serial);
         dbConfig.setEndSerialNumber(serial);
     }
@@ -240,6 +291,9 @@ public class KeyRepository extends Repository {
 
         } else {
             String serial = mNextMinSerialNo.toString(mRadix);
+            if (mRadix == HEX && idGenerator == IDGenerator.LEGACY_2) {
+               serial = "0x" + serial;
+            }
             logger.debug("KeyRepository: Setting next min number: " + serial);
             dbConfig.setNextBeginSerialNumber(serial);
         }
@@ -255,6 +309,9 @@ public class KeyRepository extends Repository {
 
         } else {
             String serial = mNextMaxSerialNo.toString(mRadix);
+            if (mRadix == HEX && idGenerator == IDGenerator.LEGACY_2) {
+               serial = "0x" + serial;
+            }
             logger.debug("KeyRepository: Setting next max number: " + serial);
             dbConfig.setNextEndSerialNumber(serial);
         }
