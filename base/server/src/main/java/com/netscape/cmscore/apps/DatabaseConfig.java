@@ -37,6 +37,7 @@ public class DatabaseConfig extends ConfigStore {
 
     public static final String SERIAL_BASEDN = "serialDN";
     public static final String SERIAL_RANGE_DN = "serialRangeDN";
+    public static final String SERIAL_CLONE_TRANSFER_NUMBER = "serialCloneTransferNumber";
 
     public static final String MIN_REQUEST_NUMBER = "beginRequestNumber";
     public static final String MAX_REQUEST_NUMBER = "endRequestNumber";
@@ -49,6 +50,7 @@ public class DatabaseConfig extends ConfigStore {
 
     public static final String REQUEST_BASEDN = "requestDN";
     public static final String REQUEST_RANGE_DN = "requestRangeDN";
+    public static final String REQUEST_CLONE_TRANSFER_NUMBER = "requestCloneTransferNumber";
 
     public static final String MIN_REPLICA_NUMBER = "beginReplicaNumber";
     public static final String MAX_REPLICA_NUMBER = "endReplicaNumber";
@@ -124,6 +126,14 @@ public class DatabaseConfig extends ConfigStore {
         putString(SERIAL_RANGE_DN, serialRangeDN);
     }
 
+    public String getSerialCloneTransferNumber() throws EBaseException {
+        return getString(SERIAL_CLONE_TRANSFER_NUMBER, "");
+    }
+
+    public void setSerialCloneTransferNumber(String serialCloneTransferNumber) {
+        putString(SERIAL_CLONE_TRANSFER_NUMBER, serialCloneTransferNumber);
+    }
+
     public String getBeginSerialNumber() throws EBaseException {
         return getString(MIN_SERIAL_NUMBER, "0");
     }
@@ -194,6 +204,14 @@ public class DatabaseConfig extends ConfigStore {
 
     public void setRequestRangeDN(String requestRangeDN) {
         putString(REQUEST_RANGE_DN, requestRangeDN);
+    }
+
+    public String getRequestCloneTransferNumber() throws EBaseException {
+        return getString(REQUEST_CLONE_TRANSFER_NUMBER, "");
+    }
+
+    public void setRequestCloneTransferNumber(String requestCloneTransferNumber) {
+        putString(REQUEST_CLONE_TRANSFER_NUMBER, requestCloneTransferNumber);
     }
 
     public String getBeginRequestNumber() throws EBaseException {

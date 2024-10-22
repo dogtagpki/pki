@@ -38,6 +38,8 @@ public class SubsystemRangeUpdateCLI extends SubsystemCLI {
 
     public static final Logger logger = LoggerFactory.getLogger(SubsystemRangeUpdateCLI.class);
 
+    protected IDGenerator idGenerator;
+
     public SubsystemRangeUpdateCLI(CLI parent) {
         super("update", "Update " + parent.getParent().getName().toUpperCase() + " ranges", parent);
     }
@@ -109,17 +111,20 @@ public class SubsystemRangeUpdateCLI extends SubsystemCLI {
         LdapBoundConnection conn = new LdapBoundConnection(socketFactory, connInfo, authInfo);
 
         try {
-            // parse the end of current cert range as decimal
-            // NOTE: this is a bug, cert range is stored as hex in CS.cfg
-            BigInteger endSerialNumber = new BigInteger(dbConfig.getEndSerialNumber());
-
-            // generate nextRange in decimal
-            String nextSerialNumber = endSerialNumber.add(BigInteger.ONE).toString();
+            BigInteger endSerialNumber;
+            if (idGenerator == IDGenerator.LEGACY_2) {
+                endSerialNumber = dbConfig.getBigInteger(DatabaseConfig.MAX_SERIAL_NUMBER);
+            } else {
+                // parse the end of current cert range as decimal
+                // NOTE: this is a bug, cert range is stored as hex in CS.cfg
+                endSerialNumber = new BigInteger(dbConfig.getEndSerialNumber());
+            }
+            BigInteger nextSerialNumber = endSerialNumber.add(BigInteger.ONE);
 
             String serialDN = dbConfig.getSerialDN() + "," + baseDN;
 
             // store nextRange as decimal
-            LDAPAttribute attrSerialNextRange = new LDAPAttribute("nextRange", nextSerialNumber);
+            LDAPAttribute attrSerialNextRange = new LDAPAttribute("nextRange", nextSerialNumber.toString());
 
             LDAPModification serialmod = new LDAPModification(LDAPModification.REPLACE, attrSerialNextRange);
 
@@ -140,9 +145,9 @@ public class SubsystemRangeUpdateCLI extends SubsystemCLI {
         String value = dbConfig.getString(
                 RequestRepository.PROP_REQUEST_ID_GENERATOR,
                 RequestRepository.DEFAULT_REQUEST_ID_GENERATOR);
-        IDGenerator idGenerator = IDGenerator.fromString(value);
+        idGenerator = IDGenerator.fromString(value);
 
-        if (idGenerator != IDGenerator.LEGACY) {
+        if (idGenerator == IDGenerator.RANDOM) {
             logger.info("No need to update request ID range");
             return;
         }
@@ -152,16 +157,19 @@ public class SubsystemRangeUpdateCLI extends SubsystemCLI {
         try {
             logger.info("Updating request ID range");
 
-            // parse the end of current range as decimal
-            BigInteger endRequestNumber = new BigInteger(dbConfig.getEndRequestNumber());
-
-            // generate nextRange in decimal
-            String nextRequestNumber = endRequestNumber.add(BigInteger.ONE).toString();
+            BigInteger endRequestNumber;
+            if (idGenerator == IDGenerator.LEGACY_2) {
+                endRequestNumber = dbConfig.getBigInteger(DatabaseConfig.MAX_REQUEST_NUMBER);
+            } else {
+                // parse the end of current range as decimal
+                endRequestNumber = new BigInteger(dbConfig.getEndRequestNumber());
+            }
+            BigInteger nextRequestNumber = endRequestNumber.add(BigInteger.ONE);
 
             String requestDN = dbConfig.getRequestDN() + "," + baseDN;
 
             // store nextRange as decimal
-            LDAPAttribute attrRequestNextRange = new LDAPAttribute("nextRange", nextRequestNumber);
+            LDAPAttribute attrRequestNextRange = new LDAPAttribute("nextRange", nextRequestNumber.toString());
 
             LDAPModification requestmod = new LDAPModification(LDAPModification.REPLACE, attrRequestNextRange);
 

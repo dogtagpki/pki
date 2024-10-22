@@ -58,6 +58,7 @@ public class RequestRepository extends Repository {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestRepository.class);
 
     public static final String PROP_REQUEST_ID_GENERATOR = "request.id.generator";
+    public static final String PROP_REQUEST_ID_RADIX = "request.id.radix";
     public static final String DEFAULT_REQUEST_ID_GENERATOR = "legacy";
 
     public static final String PROP_REQUEST_ID_LENGTH = "request.id.length";
@@ -77,8 +78,15 @@ public class RequestRepository extends Repository {
             DBSubsystem dbSubsystem,
             String filter) {
 
-        super(dbSubsystem, 10);
-
+        super(dbSubsystem, DEC);
+        DatabaseConfig dbc = dbSubsystem.getDBConfigStore();
+        try {
+            this.mRadix = dbc.getInteger(PROP_REQUEST_ID_RADIX, DEC);
+            logger.debug("CertificateRepository: number radix {}", this.mRadix);
+            
+        } catch (EBaseException ex) {
+            logger.debug("CertificateRepository: error reading number radix config, using default {} for ", HEX);
+        }
         this.secureRandom = secureRandom;
         this.filter = filter;
     }
@@ -102,7 +110,8 @@ public class RequestRepository extends Repository {
 
             idLength = dbConfig.getInteger(PROP_REQUEST_ID_LENGTH, DEFAULT_REQUEST_ID_LENGTH);
             logger.debug("RequestRepository: - request ID length: " + idLength);
-
+        } else if (idGenerator == IDGenerator.LEGACY_2) {
+            initLegacy2Generator();
         } else {
             initLegacyGenerator();
         }
@@ -110,6 +119,41 @@ public class RequestRepository extends Repository {
         // Let RequestRecord class register its
         // database mapping and object mapping values
         RequestRecord.register(dbSubsystem);
+    }
+
+    protected void initLegacy2Generator() throws EBaseException {
+        DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
+
+        rangeDN = dbConfig.getRequestRangeDN() + "," + dbSubsystem.getBaseDN();
+        logger.debug("RequestRepository: - range DN: " + rangeDN);
+
+        mMinSerialNo = dbConfig.getBigInteger(DatabaseConfig.MIN_REQUEST_NUMBER, null);
+        logger.debug("RequestRepository: - min serial: " + mMinSerialNo);
+
+        mMaxSerialNo = dbConfig.getBigInteger(DatabaseConfig.MAX_REQUEST_NUMBER, null);
+        logger.debug("RequestRepository: - max serial: " + mMaxSerialNo);
+
+        String nextMinSerial = dbConfig.getNextBeginSerialNumber();
+        if (nextMinSerial == null || nextMinSerial.equals("-1")) {
+            mNextMinSerialNo = null;
+        } else {
+            mNextMinSerialNo = dbConfig.getBigInteger(DatabaseConfig.NEXT_MIN_REQUEST_NUMBER, null);
+        }
+        logger.debug("RequestRepository: - next min serial: " + mNextMinSerialNo);
+
+        String nextMaxSerial = dbConfig.getNextEndSerialNumber();
+        if (nextMaxSerial == null || nextMaxSerial.equals("-1")) {
+            mNextMaxSerialNo = null;
+        } else {
+            mNextMaxSerialNo = dbConfig.getBigInteger(DatabaseConfig.NEXT_MAX_REQUEST_NUMBER, null);
+        }
+        logger.debug("RequestRepository: - next max serial: " + mNextMaxSerialNo);
+
+        mLowWaterMarkNo = dbConfig.getBigInteger(DatabaseConfig.REQUEST_LOW_WATER_MARK, null);
+        logger.debug("RequestRepository: - low water mark serial: " + mNextMaxSerialNo);
+
+        mIncrementNo = dbConfig.getBigInteger(DatabaseConfig.REQUEST_INCREMENT, null);
+        logger.debug("RequestRepository: - increment serial: " + mIncrementNo);
     }
 
     public void initLegacyGenerator() throws Exception {
@@ -162,6 +206,9 @@ public class RequestRepository extends Repository {
 
         DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
         String serial = mMinSerialNo.toString(mRadix);
+        if (mRadix == HEX && idGenerator == IDGenerator.LEGACY_2) {
+           serial = "0x" + serial;
+        }
         logger.debug("RequestRepository: Setting min serial number: " + serial);
         dbConfig.setBeginRequestNumber(serial);
     }
@@ -170,6 +217,9 @@ public class RequestRepository extends Repository {
 
         DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
         String serial = mMaxSerialNo.toString(mRadix);
+        if (mRadix == HEX && idGenerator == IDGenerator.LEGACY_2) {
+           serial = "0x" + serial;
+        }
         logger.debug("RequestRepository: Setting max serial number: " + serial);
         dbConfig.setEndRequestNumber(serial);
     }
@@ -184,6 +234,9 @@ public class RequestRepository extends Repository {
 
         } else {
             String serial = mNextMinSerialNo.toString(mRadix);
+            if (mRadix == HEX && idGenerator == IDGenerator.LEGACY_2) {
+               serial = "0x" + serial;
+            }
             logger.debug("RequestRepository: Setting next min number: " + serial);
             dbConfig.setNextBeginRequestNumber(serial);
         }
@@ -199,6 +252,9 @@ public class RequestRepository extends Repository {
 
         } else {
             String serial = mNextMaxSerialNo.toString(mRadix);
+            if (mRadix == HEX && idGenerator == IDGenerator.LEGACY_2) {
+               serial = "0x" + serial;
+            }
             logger.debug("RequestRepository: Setting next max number: " + serial);
             dbConfig.setNextEndRequestNumber(serial);
         }
