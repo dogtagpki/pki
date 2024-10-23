@@ -1154,6 +1154,367 @@ jobs:
           diff expected output
 
       ####################################################################################################
+      # Switch cert request ID generator to legacy2 and verify if serials
+      # have gaps when range is updated
+      #
+      # It should work like the legacy but with correct range.
+      - name: Switch to legacy2
+        run: |
+          docker exec pki pki-server stop
+          docker exec pki pki-server ca-id-generator-update --type legacy2 request
+          docker exec pki pki-server ca-id-generator-update --type legacy2 cert
+          docker exec pki pki-server start --wait
+          
+
+      - name: Check request range config
+        run: |
+          tests/ca/bin/ca-request-range-config.sh pki | tee output
+          # request range should be the same
+          cat > expected << EOF
+          dbs.beginRequestNumber=31
+          dbs.endRequestNumber=40
+          dbs.nextBeginRequestNumber=41
+          dbs.nextEndRequestNumber=50
+          dbs.requestCloneTransferNumber=5
+          dbs.requestIncrement=10
+          dbs.requestLowWaterMark=5
+          EOF
+
+          diff expected output
+
+      - name: Check cert range config
+        run: |
+          tests/ca/bin/ca-cert-range-config.sh pki | tee output
+          
+          cat > expected << EOF
+          dbs.beginSerialNumber=0x37
+          dbs.endSerialNumber=0x54
+          dbs.serialCloneTransferNumber=0x9
+          dbs.serialIncrement=0x12
+          dbs.serialLowWaterMark=0x9
+          EOF
+
+          diff expected output
+
+      - name: Check the radix in for the new generator
+        run: |
+          docker exec pki pki-server ca-config-show dbs.request.id.radix | tee output
+          docker exec pki pki-server ca-config-show dbs.cert.id.radix | tee -a output
+
+          cat > expected <<EOF                                                                                                                                                                                                                                 
+          10
+          16
+          EOF
+
+          diff expected output
+
+      - name: Check request repository
+        run: |
+          tests/ca/bin/ca-request-next-range.sh ds | tee output
+
+          # request nextRange should be incremented by 10 decimal to 41 decimal
+          cat > expected << EOF
+          nextRange: 51
+          EOF
+
+          diff expected output
+
+      - name: Check cert repository
+        run: |
+          tests/ca/bin/ca-cert-next-range.sh ds | tee output
+
+          cat > expected << EOF
+          nextRange: 85
+          EOF
+
+          diff expected output
+
+      - name: Check request range objects
+        run: |
+          tests/ca/bin/ca-request-range-objects.sh ds | tee output
+
+          # new request range should be 31 - 40 decimal (total: 10)
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 11
+          endRange: 20
+          host: pki.example.com
+
+          SecurePort: 8443
+          beginRange: 21
+          endRange: 30
+          host: pki.example.com
+
+          SecurePort: 8443
+          beginRange: 31
+          endRange: 40
+          host: pki.example.com
+
+          SecurePort: 8443
+          beginRange: 41
+          endRange: 50
+          host: pki.example.com
+
+          EOF
+
+          diff expected output
+
+      - name: Check cert range objects
+        run: |
+          tests/ca/bin/ca-cert-range-objects.sh ds | tee output
+
+          # new cert range should be the same but converted to decimal
+          # first range move from 19-36 (hex) to 25-54 (dec)
+          # second range move from 37-54 (hex) to 55-84 (dec)
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 25
+          endRange: 54
+          host: pki.example.com
+
+          SecurePort: 8443
+          beginRange: 55
+          endRange: 84
+          host: pki.example.com
+
+          EOF
+
+          diff expected output
+
+      ####################################################################################################
+      # Enroll additional certs updating the range
+      #
+
+      - name: Enroll additional certs 
+        run: |
+          # Enroll until request range exhausted
+          for i in $(seq 1 9); do
+              docker exec pki pki \
+                  -n caadmin \
+                  ca-cert-issue \
+                  --profile caUserCert \
+                  --csr-file testuser.csr \
+                  --output-file testuser.crt
+
+              docker exec pki openssl x509 -in testuser.crt -serial -noout
+          done
+          docker exec pki pki -n caadmin ca-job-start serialNumberUpdate
+          # Enroll until request range exhausted
+          for i in $(seq 1 10); do
+              docker exec pki pki \
+                  -n caadmin \
+                  ca-cert-issue \
+                  --profile caUserCert \
+                  --csr-file testuser.csr \
+                  --output-file testuser.crt
+
+              docker exec pki openssl x509 -in testuser.crt -serial -noout
+          done
+          docker exec pki pki -n caadmin ca-job-start serialNumberUpdate
+          # Enroll until request range exhausted
+          for i in $(seq 1 10); do
+              docker exec pki pki \
+                  -n caadmin \
+                  ca-cert-issue \
+                  --profile caUserCert \
+                  --csr-file testuser.csr \
+                  --output-file testuser.crt
+
+              docker exec pki openssl x509 -in testuser.crt -serial -noout
+          done
+          docker exec pki pki -n caadmin ca-job-start serialNumberUpdate
+          # Enroll until request range exhausted
+          for i in $(seq 1 10); do
+              docker exec pki pki \
+                  -n caadmin \
+                  ca-cert-issue \
+                  --profile caUserCert \
+                  --csr-file testuser.csr \
+                  --output-file testuser.crt
+
+              docker exec pki openssl x509 -in testuser.crt -serial -noout
+          done
+          docker exec pki pki -n caadmin ca-job-start serialNumberUpdate
+          # Enroll until request range exhausted
+          for i in $(seq 1 10); do
+              docker exec pki pki \
+                  -n caadmin \
+                  ca-cert-issue \
+                  --profile caUserCert \
+                  --csr-file testuser.csr \
+                  --output-file testuser.crt
+
+              docker exec pki openssl x509 -in testuser.crt -serial -noout
+          done
+          docker exec pki pki -n caadmin ca-job-start serialNumberUpdate
+          
+      - name: Check request range config
+        run: |
+          tests/ca/bin/ca-request-range-config.sh pki | tee output
+
+          cat > expected << EOF
+          dbs.beginRequestNumber=81
+          dbs.endRequestNumber=90
+          dbs.nextBeginRequestNumber=91
+          dbs.nextEndRequestNumber=100
+          dbs.requestCloneTransferNumber=5
+          dbs.requestIncrement=10
+          dbs.requestLowWaterMark=5
+          EOF
+
+          diff expected output
+
+      - name: Check cert range config
+        run: |
+          tests/ca/bin/ca-cert-range-config.sh pki | tee output
+
+          cat > expected << EOF
+          dbs.beginSerialNumber=0x67
+          dbs.endSerialNumber=0x78
+          dbs.serialCloneTransferNumber=0x9
+          dbs.serialIncrement=0x12
+          dbs.serialLowWaterMark=0x9
+          EOF
+
+          diff expected output
+
+      - name: Check request repository
+        run: |
+          tests/ca/bin/ca-request-next-range.sh ds | tee output
+
+          cat > expected << EOF
+          nextRange: 101
+          EOF
+
+          diff expected output
+
+      - name: Check cert repository
+        run: |
+          tests/ca/bin/ca-cert-next-range.sh ds | tee output
+
+          cat > expected << EOF
+          nextRange: 121
+          EOF
+
+          diff expected output
+
+      - name: Check request range objects
+        run: |
+          tests/ca/bin/ca-request-range-objects.sh ds | tee output
+
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 11
+          endRange: 20
+          host: pki.example.com
+
+          SecurePort: 8443
+          beginRange: 21
+          endRange: 30
+          host: pki.example.com
+
+          SecurePort: 8443
+          beginRange: 31
+          endRange: 40
+          host: pki.example.com
+
+          SecurePort: 8443
+          beginRange: 41
+          endRange: 50
+          host: pki.example.com
+
+          SecurePort: 8443
+          beginRange: 51
+          endRange: 60
+          host: pki.example.com
+
+          SecurePort: 8443
+          beginRange: 61
+          endRange: 70
+          host: pki.example.com
+
+          SecurePort: 8443
+          beginRange: 71
+          endRange: 80
+          host: pki.example.com
+
+          SecurePort: 8443
+          beginRange: 81
+          endRange: 90
+          host: pki.example.com
+ 
+          SecurePort: 8443
+          beginRange: 91
+          endRange: 100
+          host: pki.example.com
+
+          EOF
+
+          diff expected output
+
+      - name: Check cert range objects
+        run: |
+          tests/ca/bin/ca-cert-range-objects.sh ds | tee output
+
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 25
+          endRange: 54
+          host: pki.example.com
+
+          SecurePort: 8443
+          beginRange: 55
+          endRange: 84
+          host: pki.example.com
+
+          SecurePort: 8443
+          beginRange: 85
+          endRange: 102
+          host: pki.example.com
+
+          SecurePort: 8443
+          beginRange: 103
+          endRange: 120
+          host: pki.example.com
+
+          EOF
+
+          diff expected output
+
+      ####################################################################################################
+      # Checking request no gap should be present after switching to legacy2
+      #
+      - name: Check requests
+        run: |
+          docker exec pki pki-server ca-cert-request-find | tee output
+
+          sed -n "s/^ *Request ID: *\(.*\)$/\1/p" output > actual
+
+          # there should be 40 requests (30 existing + 10 new)
+          seq 1 89 > expected
+
+          diff expected actual
+
+      ####################################################################################################
+      # Checking certs no gap should be present after switching to legacy2
+      # so the last gap is between 32 and 39
+      #
+      - name: Check certs
+        run: |
+          docker exec pki pki-server ca-cert-find | tee output
+
+          sed -n "s/^ *Serial Number: *\(.*\)$/\1/p" output > actual
+
+          # there should be 39 certs (29 existing + 10 new)
+          # but due to a bug the serial numbers have a gap
+
+          # seq 1 39 | while read n; do printf "0x%x\n" $n; done > expected
+          seq 9 42 | while read n; do printf "0x%x\n" $n; done > expected
+          seq 55 108 | while read n; do printf "0x%x\n" $n; done >> expected
+
+          diff expected actual
+
+      ####################################################################################################
       # Enroll a cert with RSNv3
       #
       # This should create a request and a cert. The cert
