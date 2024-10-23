@@ -993,6 +993,549 @@ jobs:
           diff expected output
 
       ####################################################################################################
+      # Switch cert request ID generator to legacy2 and verify if serials
+      # have gaps when range is updated
+      #
+      # It should work like the legacy but with correct range.
+      - name: Stop the CAs
+        run: |
+          docker exec primary pki-server stop
+          docker exec secondary pki-server stop
+
+      - name: Switch primary to legacy2
+        run: |
+          docker exec primary pki-server ca-id-generator-update --type legacy2 request
+          docker exec primary pki-server ca-id-generator-update --type legacy2 cert
+
+      - name: Check request range objects
+        run: |
+          tests/ca/bin/ca-request-range-objects.sh primaryds | tee output
+
+          # request ranges should remain the same
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 11
+          endRange: 20
+          host: primary.example.com
+
+          SecurePort: 8443
+          beginRange: 21
+          endRange: 30
+          host: secondary.example.com
+
+          EOF
+
+          diff expected output
+
+      - name: Check request next range
+        run: |
+          tests/ca/bin/ca-request-next-range.sh primaryds | tee output
+
+          # request nextRange should remain the same
+          cat > expected << EOF
+          nextRange: 31
+          EOF
+
+          diff expected output
+
+      - name: Check cert range objects
+        run: |
+          tests/ca/bin/ca-cert-range-objects.sh primaryds | tee output
+
+          # cert ranges should remain the same but converted from hex to decimal
+          # the range value for the primary move from 13-30 (hex) to 19-48 (dec) 
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 31
+          endRange: 48
+          host: secondary.example.com
+
+          SecurePort: 8443
+          beginRange: 19
+          endRange: 48
+          host: primary.example.com
+
+          EOF
+
+          diff expected output
+
+      - name: Check cert next range
+        run: |
+          tests/ca/bin/ca-cert-next-range.sh primaryds | tee output
+
+          # cert nextRange should remain the same
+          cat > expected << EOF
+          nextRange: 49
+          EOF
+
+          diff expected output
+
+      - name: Switch secondary to legacy2
+        run: |
+          docker exec secondary pki-server ca-id-generator-update --type legacy2 request
+          docker exec secondary pki-server ca-id-generator-update --type legacy2 cert
+
+      - name: Start the CAs
+        run: |
+          docker exec primary pki-server start --wait
+          docker exec secondary pki-server start --wait
+
+      - name: Check request range config in primary CA
+        run: |
+          tests/ca/bin/ca-request-range-config.sh primary | tee output
+
+          cat > expected << EOF
+          dbs.beginRequestNumber=11
+          dbs.endRequestNumber=15
+          dbs.nextBeginRequestNumber=31
+          dbs.nextEndRequestNumber=40
+          dbs.requestCloneTransferNumber=5
+          dbs.requestIncrement=10
+          dbs.requestLowWaterMark=5
+          EOF
+
+          diff expected output
+
+      - name: Check request range config in secondary CA
+        run: |
+          tests/ca/bin/ca-request-range-config.sh secondary | tee output
+
+          cat > expected << EOF
+          dbs.beginRequestNumber=21
+          dbs.endRequestNumber=30
+          dbs.nextBeginRequestNumber=41
+          dbs.nextEndRequestNumber=50
+          dbs.requestCloneTransferNumber=5
+          dbs.requestIncrement=10
+          dbs.requestLowWaterMark=5
+          EOF
+
+          diff expected output
+
+      - name: Check the radix for the new generator in all CAs
+        run: |
+          docker exec primary pki-server ca-config-show dbs.request.id.radix | tee output
+          docker exec secondary pki-server ca-config-show dbs.request.id.radix | tee -a output
+          docker exec primary pki-server ca-config-show dbs.cert.id.radix | tee -a output
+          docker exec secondary pki-server ca-config-show dbs.cert.id.radix | tee -a output
+
+          cat > expected <<EOF                                                                                                                                                                                                                                 
+          10
+          10
+          16
+          16
+          EOF
+
+          diff expected output
+          
+      - name: Check cert range config in primary CA
+        run: |
+          tests/ca/bin/ca-cert-range-config.sh primary | tee output
+
+          cat > expected << EOF
+          dbs.beginSerialNumber=0x13
+          dbs.endSerialNumber=0x30
+          dbs.serialCloneTransferNumber=0x9
+          dbs.serialIncrement=0x12
+          dbs.serialLowWaterMark=0x9
+          EOF
+
+          diff expected output
+
+      - name: Check cert range config in secondary CA
+        run: |
+          tests/ca/bin/ca-cert-range-config.sh secondary | tee output
+
+          cat > expected << EOF
+          dbs.beginSerialNumber=0x31
+          dbs.endSerialNumber=0x48
+          dbs.serialCloneTransferNumber=0x9
+          dbs.serialIncrement=0x12
+          dbs.serialLowWaterMark=0x9
+          EOF
+
+          diff expected output
+
+      - name: Check request range objects
+        run: |
+          tests/ca/bin/ca-request-range-objects.sh primaryds | tee output
+
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 11
+          endRange: 20
+          host: primary.example.com
+
+          SecurePort: 8443
+          beginRange: 21
+          endRange: 30
+          host: secondary.example.com
+
+          SecurePort: 8443
+          beginRange: 31
+          endRange: 40
+          host: primary.example.com
+
+          SecurePort: 8443
+          beginRange: 41
+          endRange: 50
+          host: secondary.example.com
+
+          EOF
+
+          diff expected output
+
+      - name: Check cert range objects
+        run: |
+          tests/ca/bin/ca-cert-range-objects.sh primaryds | tee output
+
+          # cert ranges should remain the same but in dec.
+          # the range value for the primary move from 13-30 (hex) to 19-48 (dec)
+          # the range value for the secondary move from 31-48 (hex) to 49-72 (dec)          
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 19
+          endRange: 48
+          host: primary.example.com
+
+          SecurePort: 8443
+          beginRange: 49
+          endRange: 72
+          host: secondary.example.com
+
+          EOF
+
+          diff expected output
+
+      - name: Check request repository
+        run: |
+          tests/ca/bin/ca-request-next-range.sh primaryds | tee output
+
+          cat > expected << EOF
+          nextRange: 51
+          EOF
+
+          diff expected output
+
+      - name: Check cert repository
+        run: |
+          tests/ca/bin/ca-cert-next-range.sh primaryds | tee output
+
+          cat > expected << EOF
+          nextRange: 73
+          EOF
+
+          diff expected output
+
+      ####################################################################################################
+      # Enroll additional certs updating the range
+      #
+
+      - name: Enroll certs in primary and secondary
+        run: |
+          # Enroll until request range exhausted
+          for i in $(seq 1 10); do
+              docker exec primary pki \
+                  -n caadmin \
+                  ca-cert-issue \
+                  --profile caUserCert \
+                  --csr-file testuser.csr \
+                  --output-file testuser.crt
+
+              docker exec primary openssl x509 -in testuser.crt -serial -noout
+          done
+
+          for i in $(seq 1 10); do
+              docker exec secondary pki \
+                  -n caadmin \
+                  ca-cert-issue \
+                  --profile caUserCert \
+                  --csr-file testuser.csr \
+                  --output-file testuser.crt
+
+              docker exec secondary openssl x509 -in testuser.crt -serial -noout
+          done
+
+      - name: Allocate new ranges
+        run: |
+          docker exec primary pki \
+              -n caadmin \
+              ca-job-start \
+              serialNumberUpdate
+
+          docker exec secondary pki \
+              -n caadmin \
+              ca-job-start \
+              serialNumberUpdate
+
+          # wait for DS replication
+          sleep 5
+
+
+      - name: Enroll certs in primary and secondary
+        run: |
+          # Enroll until request range exhausted
+          for i in $(seq 1 10); do
+              docker exec primary pki \
+                  -n caadmin \
+                  ca-cert-issue \
+                  --profile caUserCert \
+                  --csr-file testuser.csr \
+                  --output-file testuser.crt
+
+              docker exec primary openssl x509 -in testuser.crt -serial -noout
+          done
+
+          for i in $(seq 1 10); do
+              docker exec secondary pki \
+                  -n caadmin \
+                  ca-cert-issue \
+                  --profile caUserCert \
+                  --csr-file testuser.csr \
+                  --output-file testuser.crt
+
+              docker exec secondary openssl x509 -in testuser.crt -serial -noout
+          done
+
+      - name: Allocate new ranges
+        run: |
+          docker exec secondary pki \
+              -n caadmin \
+              ca-job-start \
+              serialNumberUpdate
+
+          docker exec primary pki \
+              -n caadmin \
+              ca-job-start \
+              serialNumberUpdate
+
+      - name: Enroll certs in secondary
+        run: |
+          # Enroll until request range exhausted
+          for i in $(seq 1 10); do
+              docker exec secondary pki \
+                  -n caadmin \
+                  ca-cert-issue \
+                  --profile caUserCert \
+                  --csr-file testuser.csr \
+                  --output-file testuser.crt
+
+              docker exec secondary openssl x509 -in testuser.crt -serial -noout
+          done
+
+      - name: Allocate new ranges
+        run: |
+          docker exec secondary pki \
+              -n caadmin \
+              ca-job-start \
+              serialNumberUpdate
+          # wait for DS replication
+          sleep 5
+
+      - name: Check request range config in primary CA
+        run: |
+          tests/ca/bin/ca-request-range-config.sh primary | tee output
+
+          cat > expected << EOF
+          dbs.beginRequestNumber=51
+          dbs.endRequestNumber=60
+          dbs.nextBeginRequestNumber=81
+          dbs.nextEndRequestNumber=90
+          dbs.requestCloneTransferNumber=5
+          dbs.requestIncrement=10
+          dbs.requestLowWaterMark=5
+          EOF
+
+          diff expected output
+
+      - name: Check request range config in secondary CA
+        run: |
+          tests/ca/bin/ca-request-range-config.sh secondary | tee output
+
+          cat > expected << EOF
+          dbs.beginRequestNumber=71
+          dbs.endRequestNumber=80
+          dbs.nextBeginRequestNumber=91
+          dbs.nextEndRequestNumber=100
+          dbs.requestCloneTransferNumber=5
+          dbs.requestIncrement=10
+          dbs.requestLowWaterMark=5
+          EOF
+
+          diff expected output
+
+      - name: Check cert range config in primary CA
+        run: |
+          tests/ca/bin/ca-cert-range-config.sh primary | tee output
+
+          cat > expected << EOF
+          dbs.beginSerialNumber=0x13
+          dbs.endSerialNumber=0x30
+          dbs.nextBeginSerialNumber=0x5b
+          dbs.nextEndSerialNumber=0x6c
+          dbs.serialCloneTransferNumber=0x9
+          dbs.serialIncrement=0x12
+          dbs.serialLowWaterMark=0x9
+          EOF
+
+          diff expected output
+
+      - name: Check cert range config in secondary CA
+        run: |
+          tests/ca/bin/ca-cert-range-config.sh secondary | tee output
+
+          cat > expected << EOF
+          dbs.beginSerialNumber=0x49
+          dbs.endSerialNumber=0x5a
+          dbs.nextBeginSerialNumber=0x6d
+          dbs.nextEndSerialNumber=0x7e
+          dbs.serialCloneTransferNumber=0x9
+          dbs.serialIncrement=0x12
+          dbs.serialLowWaterMark=0x9
+          EOF
+
+          diff expected output
+
+      - name: Check request range objects
+        run: |
+          tests/ca/bin/ca-request-range-objects.sh primaryds | tee output
+
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 11
+          endRange: 20
+          host: primary.example.com
+
+          SecurePort: 8443
+          beginRange: 21
+          endRange: 30
+          host: secondary.example.com
+
+          SecurePort: 8443
+          beginRange: 31
+          endRange: 40
+          host: primary.example.com
+
+          SecurePort: 8443
+          beginRange: 41
+          endRange: 50
+          host: secondary.example.com
+
+          SecurePort: 8443
+          beginRange: 51
+          endRange: 60
+          host: primary.example.com
+
+          SecurePort: 8443
+          beginRange: 61
+          endRange: 70
+          host: secondary.example.com
+
+          SecurePort: 8443
+          beginRange: 71
+          endRange: 80
+          host: secondary.example.com
+
+          SecurePort: 8443
+          beginRange: 81
+          endRange: 90
+          host: primary.example.com
+
+          SecurePort: 8443
+          beginRange: 91
+          endRange: 100
+          host: secondary.example.com
+
+          EOF
+
+          diff expected output
+
+      - name: Check cert range objects
+        run: |
+          tests/ca/bin/ca-cert-range-objects.sh primaryds | tee output
+
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 19
+          endRange: 48
+          host: primary.example.com
+
+          SecurePort: 8443
+          beginRange: 49
+          endRange: 72
+          host: secondary.example.com
+
+          SecurePort: 8443
+          beginRange: 73
+          endRange: 90
+          host: secondary.example.com
+
+          SecurePort: 8443
+          beginRange: 91
+          endRange: 108
+          host: primary.example.com
+
+          SecurePort: 8443
+          beginRange: 109
+          endRange: 126
+          host: secondary.example.com
+
+          EOF
+
+          diff expected output
+
+      - name: Check request repository
+        run: |
+          tests/ca/bin/ca-request-next-range.sh primaryds | tee output
+
+          cat > expected << EOF
+          nextRange: 101
+          EOF
+
+          diff expected output
+
+      - name: Check cert repository
+        run: |
+          tests/ca/bin/ca-cert-next-range.sh primaryds | tee output
+
+          cat > expected << EOF
+          nextRange: 127
+          EOF
+
+          diff expected output
+
+      - name: Check requests
+        run: |
+          docker exec secondary pki-server ca-cert-request-find | tee output
+          sed -n "s/^ *Request ID: *\(.*\)$/\1/p" output > actual
+
+          # there should be 25 requests
+          seq 1 9 > expected     # primary CA
+          seq 16 20 >> expected  # secondary CA
+          seq 10 15 >> expected  # primary CA
+          seq 21 30 >> expected  # secondary CA
+          seq 31 40 >> expected  # primary CA
+          seq 41 50 >> expected  # secondary CA
+          seq 51 60 >> expected  # primary CA
+          seq 61 70 >> expected  # secondary CA
+          seq 71 80 >> expected  # secondary CA
+
+          diff expected actual
+
+      - name: Check certs
+        run: |
+          docker exec primary pki-server ca-cert-find | tee output
+          sed -n "s/^ *Serial Number: *\(.*\)$/\1/p" output > actual
+
+
+          # There is only a permanent gap generated with legagy id generator
+
+          seq 1 43 | while read n; do printf "0x%x\n" $n; done > expected
+          seq 49 84 | while read n; do printf "0x%x\n" $n; done >> expected
+
+          diff expected actual
+
+      ####################################################################################################
       # Cleanup
 
       - name: Remove secondary CA
