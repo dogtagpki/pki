@@ -494,20 +494,77 @@ jobs:
           docker exec primary pki securitydomain-host-find
           docker exec primary pkidestroy -s CA -v
 
-      - name: Gather artifacts
+      - name: Check primary DS server systemd journal
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh primaryds
-          tests/bin/pki-artifacts-save.sh primary
-          tests/bin/ds-artifacts-save.sh secondaryds
-          tests/bin/pki-artifacts-save.sh secondary
-          tests/bin/ds-artifacts-save.sh tertiaryds
-          tests/bin/pki-artifacts-save.sh tertiary
-        continue-on-error: true
+          docker exec primaryds journalctl -x --no-pager -u dirsrv@localhost.service
 
-      - name: Upload artifacts
+      - name: Check primary DS container logs
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ca-clone
-          path: /tmp/artifacts
+        run: |
+          docker logs primaryds
+
+      - name: Check primary PKI server systemd journal
+        if: always()
+        run: |
+          docker exec primary journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check primary PKI server access log
+        if: always()
+        run: |
+          docker exec primary find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+
+      - name: Check primary CA debug log
+        if: always()
+        run: |
+          docker exec primary find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check secondary DS server systemd journal
+        if: always()
+        run: |
+          docker exec secondaryds journalctl -x --no-pager -u dirsrv@localhost.service
+
+      - name: Check secondary DS container logs
+        if: always()
+        run: |
+          docker logs secondaryds
+
+      - name: Check secondary PKI server systemd journal
+        if: always()
+        run: |
+          docker exec secondary journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check secondary PKI server access log
+        if: always()
+        run: |
+          docker exec secondary find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+
+      - name: Check secondary CA debug log
+        if: always()
+        run: |
+          docker exec secondary find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check tertiary DS server systemd journal
+        if: always()
+        run: |
+          docker exec tertiaryds journalctl -x --no-pager -u dirsrv@localhost.service
+
+      - name: Check tertiary DS container logs
+        if: always()
+        run: |
+          docker logs tertiaryds
+
+      - name: Check tertiary PKI server systemd journal
+        if: always()
+        run: |
+          docker exec tertiary journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check tertiary PKI server access log
+        if: always()
+        run: |
+          docker exec tertiary find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+
+      - name: Check tertiary CA debug log
+        if: always()
+        run: |
+          docker exec tertiary find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
