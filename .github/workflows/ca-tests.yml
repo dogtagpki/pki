@@ -78,10 +78,10 @@ jobs:
     needs: build
     uses: ./.github/workflows/ca-rsnv1-test.yml
 
-  ca-sequential-test:
-    name: CA with Sequential Serial Numbers
+  ca-ssnv1-test:
+    name: CA with SSNv1
     needs: build
-    uses: ./.github/workflows/ca-sequential-test.yml
+    uses: ./.github/workflows/ca-ssnv1-test.yml
 
   ca-pruning-test:
     name: CA database pruning

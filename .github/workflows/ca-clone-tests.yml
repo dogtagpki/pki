@@ -33,7 +33,7 @@ jobs:
     needs: build
     uses: ./.github/workflows/ca-clone-replicated-ds-test.yml
 
-  ca-clone-sequential-test:
-    name: CA clone with Sequential Serial Numbers
+  ca-clone-ssnv1-test:
+    name: CA clone with SSNv1
     needs: build
-    uses: ./.github/workflows/ca-clone-sequential-test.yml
+    uses: ./.github/workflows/ca-clone-ssnv1-test.yml
