@@ -63,11 +63,6 @@ jobs:
     needs: build
     uses: ./.github/workflows/ca-hsm-test.yml
 
-  ca-nuxwdog-test:
-    name: CA with Nuxwdog
-    needs: build
-    uses: ./.github/workflows/ca-nuxwdog-test.yml
-
   ca-ds-connection-test:
     name: CA connection with DS
     needs: build
@@ -82,6 +77,11 @@ jobs:
     name: CA with SSNv1
     needs: build
     uses: ./.github/workflows/ca-ssnv1-test.yml
+
+  ca-ssnv2-test:
+    name: CA with SSNv2
+    needs: build
+    uses: ./.github/workflows/ca-ssnv2-test.yml
 
   ca-pruning-test:
     name: CA database pruning

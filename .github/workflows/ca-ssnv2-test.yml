@@ -1,0 +1,1326 @@
+name: CA with SSNv2
+#
+# This test creates a CA subsystem with SSNv2 for certs and requests,
+# performs enrollments, and verifies that the ranges are maintained
+# properly in CS.cfg and DS.
+
+on: workflow_call
+
+env:
+  DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Retrieve PKI images
+        uses: actions/cache@v4
+        with:
+          key: pki-images-${{ github.sha }}
+          path: pki-images.tar
+
+      - name: Load PKI images
+        run: docker load --input pki-images.tar
+
+      - name: Create network
+        run: docker network create example
+
+      ####################################################################################################
+      # Create CA with Sequential Serial Numbers
+      #
+      # requests:
+      # - initial range: 1 - 10
+      # - initial size: 10
+      # - increment: 10
+      # - minimum: 5
+      #
+      # certs:
+      # - initial range: 0x9 - 0x18
+      # - initial size: 0x10
+      # - increment: 0x12
+      # - minimum: 0x9
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-create.sh \
+              --image=${{ env.DS_IMAGE }} \
+              --hostname=ds.example.com \
+              --network=example \
+              --network-alias=ds.example.com \
+              --password=Secret.123 \
+              ds
+
+      - name: Set up PKI container
+        run: |
+          tests/bin/runner-init.sh \
+              --hostname=pki.example.com \
+              --network=example \
+              --network-alias=pki.example.com \
+              pki
+
+      - name: Create CA
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_request_id_generator=legacy2 \
+              -D pki_request_number_range_start=1 \
+              -D pki_request_number_range_end=10 \
+              -D pki_request_number_range_increment=10 \
+              -D pki_request_number_range_minimum=5 \
+              -D pki_request_number_range_transfer=5 \
+              -D pki_cert_id_generator=legacy2 \
+              -D pki_serial_number_range_start=0x9 \
+              -D pki_serial_number_range_end=0x18 \
+              -D pki_serial_number_range_increment=0x12 \
+              -D pki_serial_number_range_minimum=0x9 \
+              -D pki_serial_number_range_transfer=0x9 \
+              -v
+
+      - name: Install admin cert
+        run: |
+          docker exec pki pki-server cert-export \
+              --cert-file ca_signing.crt \
+              ca_signing
+
+          docker exec pki pki nss-cert-import \
+              --cert ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
+          docker exec pki pki pkcs12-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password Secret.123
+
+      - name: Check requests
+        if: always()
+        run: |
+          docker exec pki pki-server ca-cert-request-find | tee output
+          sed -n "s/^ *Request ID: *\(.*\)$/\1/p" output > actual
+
+          # there should be 6 requests
+          seq 1 6 > expected
+
+          diff expected actual
+
+      - name: Check certs
+        if: always()
+        run: |
+          docker exec pki pki-server ca-cert-find | tee output
+          sed -n "s/^ *Serial Number: *\(.*\)$/\1/p" output > actual
+
+          # there should be 6 certs
+          printf "0x%x\n" {9..14} > expected
+
+          diff expected actual
+
+      - name: Check request range config
+        if: always()
+        run: |
+          tests/ca/bin/ca-request-range-config.sh pki | tee output
+
+          # current range should be 1 - 10 (size: 10, remaining: 4)
+          cat > expected << EOF
+          dbs.beginRequestNumber=1
+          dbs.endRequestNumber=10
+          dbs.requestCloneTransferNumber=5
+          dbs.requestIncrement=10
+          dbs.requestLowWaterMark=5
+          EOF
+
+          diff expected output
+
+      - name: Check cert range config
+        if: always()
+        run: |
+          tests/ca/bin/ca-cert-range-config.sh pki | tee output
+
+          # current range should be 0x9 - 0x18 (size: 0x10, remaining: 0xa)
+          cat > expected << EOF
+          dbs.beginSerialNumber=0x9
+          dbs.endSerialNumber=0x18
+          dbs.serialCloneTransferNumber=0x9
+          dbs.serialIncrement=0x12
+          dbs.serialLowWaterMark=0x9
+          EOF
+
+          diff expected output
+
+      - name: Check request range objects
+        if: always()
+        run: |
+          tests/ca/bin/ca-request-range-objects-ssnv2.sh ds | tee output
+
+          # there should be no new range
+          diff /dev/null output
+
+      - name: Check cert range objects
+        if: always()
+        run: |
+          tests/ca/bin/ca-cert-range-objects-ssnv2.sh ds | tee output
+
+          # there should be no new range
+          diff /dev/null output
+
+      - name: Check request next range
+        if: always()
+        run: |
+          tests/ca/bin/ca-request-next-range-ssnv2.sh ds | tee output
+
+          # request nextRange should be dbs.endRequestNumber + 1 = 11
+          cat > expected << EOF
+          nextRange: 11
+          EOF
+
+          diff expected output
+
+      - name: Check cert next range
+        if: always()
+        run: |
+          tests/ca/bin/ca-cert-next-range-ssnv2.sh ds | tee output
+
+          # cert nextRange should be dbs.endSerialNumber + 1 = 0x19 or 25
+          cat > expected << EOF
+          nextRange: 25
+          EOF
+
+          diff expected output
+
+      ####################################################################################################
+      # Enable serial number management
+      #
+      # Restarting CA with serial management enabled will trigger a new
+      # range allocation for requests since the remaining numbers in
+      # the current range (i.e. 4) is below the minimum (i.e. 5).
+      #
+      # For certs there is no new allocation since the remaining numbers
+      # in the current range (i.e. 10) is still above the minimum (i.e. 9).
+
+      - name: Enable serial number management
+        if: always()
+        run: |
+          docker exec pki pki-server ca-config-set dbs.enableSerialManagement true
+
+          # disable serial number update background task
+          docker exec pki pki-server ca-config-set ca.serialNumberUpdateInterval 0
+
+          # enable serial number update manual job
+          docker exec pki pki-server ca-config-set jobsScheduler.enabled true
+          docker exec pki pki-server ca-config-set jobsScheduler.job.serialNumberUpdate.enabled true
+
+          # restart CA subsystem
+          docker exec pki pki-server ca-redeploy --wait
+
+      - name: Check request range config
+        if: always()
+        run: |
+          tests/ca/bin/ca-request-range-config.sh pki | tee output
+
+          # current range should be 1 - 10 (size: 10, remaining: 4)
+          # new range should be 11 - 20 (size: 10, remaining: 10)
+          cat > expected << EOF
+          dbs.beginRequestNumber=1
+          dbs.endRequestNumber=10
+          dbs.nextBeginRequestNumber=11
+          dbs.nextEndRequestNumber=20
+          dbs.requestCloneTransferNumber=5
+          dbs.requestIncrement=10
+          dbs.requestLowWaterMark=5
+          EOF
+
+          diff expected output
+
+      - name: Check cert range config
+        if: always()
+        run: |
+          tests/ca/bin/ca-cert-range-config.sh pki | tee output
+
+          # current range should be 0x9 - 0x18 (size: 0x10, remaining: 0xa)
+          cat > expected << EOF
+          dbs.beginSerialNumber=0x9
+          dbs.endSerialNumber=0x18
+          dbs.serialCloneTransferNumber=0x9
+          dbs.serialIncrement=0x12
+          dbs.serialLowWaterMark=0x9
+          EOF
+
+          diff expected output
+
+      - name: Check request range objects
+        if: always()
+        run: |
+          tests/ca/bin/ca-request-range-objects-ssnv2.sh ds | tee output
+
+          # new range should be 11 - 20 (size: 10)
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 11
+          endRange: 20
+          host: pki.example.com
+
+          EOF
+
+          diff expected output
+
+      - name: Check cert range objects
+        if: always()
+        run: |
+          tests/ca/bin/ca-cert-range-objects-ssnv2.sh ds | tee output
+
+          # there should be no new range
+          diff /dev/null output
+
+      - name: Check request next range
+        if: always()
+        run: |
+          tests/ca/bin/ca-request-next-range-ssnv2.sh ds | tee output
+
+          # nextRange should be endRange + 1 = 21
+          cat > expected << EOF
+          nextRange: 21
+          EOF
+
+          diff expected output
+
+      - name: Check cert next range
+        if: always()
+        run: |
+          tests/ca/bin/ca-cert-next-range-ssnv2.sh ds | tee output
+
+          # nextRange should be the same
+          cat > expected << EOF
+          nextRange: 25
+          EOF
+
+          diff expected output
+
+      ####################################################################################################
+      # Enroll certs to exhaust cert range
+      #
+      # This will create 10 requests and 10 certs. For requests, since
+      # the remaining numbers in the current range is below the minimum
+      # and already has allocated new range,  it will automatically
+      # switch to the new range.
+      #
+      # For certs, it will exhaust the current range but not switch to a
+      # new range.
+
+      - name: Enroll 10 certs
+        if: always()
+        run: |
+          docker exec pki pki \
+              nss-cert-request \
+              --subject "uid=testuser" \
+              --ext /usr/share/pki/tools/examples/certs/testuser.conf \
+              --csr testuser.csr
+
+          for i in $(seq 1 10); do
+              docker exec pki pki \
+                  -n caadmin \
+                  ca-cert-issue \
+                  --profile caUserCert \
+                  --csr-file testuser.csr \
+                  --output-file testuser.crt
+
+              docker exec pki openssl x509 -in testuser.crt -serial -noout
+          done
+
+      - name: Check requests
+        if: always()
+        run: |
+          docker exec pki pki-server ca-cert-request-find | tee output
+
+          sed -n "s/^ *Request ID: *\(.*\)$/\1/p" output > actual
+
+          # there should be 16 requests
+          seq 1 16 > expected
+
+          diff expected actual
+
+      - name: Check certs
+        if: always()
+        run: |
+          docker exec pki pki-server ca-cert-find | tee output
+
+          sed -n "s/^ *Serial Number: *\(.*\)$/\1/p" output > actual
+
+          # there should be 16 certs
+          printf "0x%x\n" {9..24} > expected
+
+          diff expected actual
+
+      - name: Check request range config
+        if: always()
+        run: |
+          tests/ca/bin/ca-request-range-config.sh pki | tee output
+
+          # current range should be 11 - 20 (size: 10, remaining: 4)
+          cat > expected << EOF
+          dbs.beginRequestNumber=11
+          dbs.endRequestNumber=20
+          dbs.requestCloneTransferNumber=5
+          dbs.requestIncrement=10
+          dbs.requestLowWaterMark=5
+          EOF
+
+          diff expected output
+
+      - name: Check cert range config
+        if: always()
+        run: |
+          tests/ca/bin/ca-cert-range-config.sh pki | tee output
+
+          # current range should be 0x9 - 0x18 (size: 0x10, remaining: 0x0)
+          cat > expected << EOF
+          dbs.beginSerialNumber=0x9
+          dbs.endSerialNumber=0x18
+          dbs.serialCloneTransferNumber=0x9
+          dbs.serialIncrement=0x12
+          dbs.serialLowWaterMark=0x9
+          EOF
+
+          diff expected output
+
+      - name: Check request range objects
+        if: always()
+        run: |
+          tests/ca/bin/ca-request-range-objects-ssnv2.sh ds | tee output
+
+          # there should be no new range
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 11
+          endRange: 20
+          host: pki.example.com
+
+          EOF
+
+          diff expected output
+
+      - name: Check cert range objects
+        if: always()
+        run: |
+          tests/ca/bin/ca-cert-range-objects-ssnv2.sh ds | tee output
+
+          # there should be no new range
+          diff /dev/null output
+
+      - name: Check request next range
+        if: always()
+        run: |
+          tests/ca/bin/ca-request-next-range-ssnv2.sh ds | tee output
+
+          # nextRange should be the same
+          cat > expected << EOF
+          nextRange: 21
+          EOF
+
+          diff expected output
+
+      - name: Check cert next range
+        if: always()
+        run: |
+          tests/ca/bin/ca-cert-next-range-ssnv2.sh ds | tee output
+
+          # nextRange should be the same
+          cat > expected << EOF
+          nextRange: 25
+          EOF
+
+          diff expected output
+
+      ####################################################################################################
+      # Enroll a cert when cert range is exhausted
+      #
+      # This will create a request but fail to create a cert.
+
+      - name: Enroll a cert when cert range is exhausted
+        if: always()
+        run: |
+          docker exec pki pki \
+              -n caadmin \
+              ca-cert-issue \
+              --profile caUserCert \
+              --csr-file testuser.csr \
+              --output-file testuser.crt \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          # TODO: fix missing request ID and typo
+          cat > expected << EOF
+          PKIException: Server Internal Error: Request  was completed with errors.
+          CA has exausted all available serial numbers
+          EOF
+
+          diff expected stderr
+
+      - name: Check requests
+        if: always()
+        run: |
+          docker exec pki pki-server ca-cert-request-find | tee output
+
+          sed -n "s/^ *Request ID: *\(.*\)$/\1/p" output > actual
+
+          # there should be 17 requests
+          seq 1 17 > expected
+
+          diff expected actual
+
+      - name: Check certs
+        if: always()
+        run: |
+          docker exec pki pki-server ca-cert-find | tee output
+
+          sed -n "s/^ *Serial Number: *\(.*\)$/\1/p" output > actual
+
+          # there should be 16 certs
+          printf "0x%x\n" {9..24} > expected
+
+          diff expected actual
+
+      - name: Check request range config
+        if: always()
+        run: |
+          tests/ca/bin/ca-request-range-config.sh pki | tee output
+
+          # current range should be 11 - 20 (size: 10, remaining: 3)
+          cat > expected << EOF
+          dbs.beginRequestNumber=11
+          dbs.endRequestNumber=20
+          dbs.requestCloneTransferNumber=5
+          dbs.requestIncrement=10
+          dbs.requestLowWaterMark=5
+          EOF
+
+          diff expected output
+
+      - name: Check cert range config
+        if: always()
+        run: |
+          tests/ca/bin/ca-cert-range-config.sh pki | tee output
+
+          # current range should be 0x9 - 0x18 (size: 0x10, remaining: 0x0)
+          cat > expected << EOF
+          dbs.beginSerialNumber=0x9
+          dbs.endSerialNumber=0x18
+          dbs.serialCloneTransferNumber=0x9
+          dbs.serialIncrement=0x12
+          dbs.serialLowWaterMark=0x9
+          EOF
+
+          diff expected output
+
+      - name: Check request range objects
+        if: always()
+        run: |
+          tests/ca/bin/ca-request-range-objects-ssnv2.sh ds | tee output
+
+          # there should be no new range
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 11
+          endRange: 20
+          host: pki.example.com
+
+          EOF
+
+          diff expected output
+
+      - name: Check cert range objects
+        if: always()
+        run: |
+          tests/ca/bin/ca-cert-range-objects-ssnv2.sh ds | tee output
+
+          # there should be no new range
+          diff /dev/null output
+
+      - name: Check request next range
+        if: always()
+        run: |
+          tests/ca/bin/ca-request-next-range-ssnv2.sh ds | tee output
+
+          # request nextRange should be the same
+          cat > expected << EOF
+          nextRange: 21
+          EOF
+
+          diff expected output
+
+      - name: Check cert next range
+        if: always()
+        run: |
+          tests/ca/bin/ca-cert-next-range-ssnv2.sh ds | tee output
+
+          # cert nextRange should be the same
+          cat > expected << EOF
+          nextRange: 25
+          EOF
+
+          diff expected output
+
+      ####################################################################################################
+      # Allocate new ranges
+      #
+      # This will allocate new ranges for requests and certs since
+      # the remaining numbers in their ranges are below the minimum.
+
+      - name: Allocate new ranges
+        if: always()
+        run: |
+          docker exec pki pki -n caadmin ca-job-start serialNumberUpdate
+
+      - name: Check request range config
+        if: always()
+        run: |
+          tests/ca/bin/ca-request-range-config.sh pki | tee output
+
+          # current range should be 11 - 20 (size: 10, remaining: 3)
+          # new range should be 21 - 30 (size: 10, remaining: 10)
+          cat > expected << EOF
+          dbs.beginRequestNumber=11
+          dbs.endRequestNumber=20
+          dbs.nextBeginRequestNumber=21
+          dbs.nextEndRequestNumber=30
+          dbs.requestCloneTransferNumber=5
+          dbs.requestIncrement=10
+          dbs.requestLowWaterMark=5
+          EOF
+
+          diff expected output
+
+      - name: Check cert range config
+        if: always()
+        run: |
+          tests/ca/bin/ca-cert-range-config.sh pki | tee output
+
+          # current range should be 0x9 - 0x18 (size: 0x10, remaining: 0x0)
+          # new range should be 0x19 - 0x2a (size: 0x12, remaining: 0x12)
+          cat > expected << EOF
+          dbs.beginSerialNumber=0x9
+          dbs.endSerialNumber=0x18
+          dbs.nextBeginSerialNumber=0x19
+          dbs.nextEndSerialNumber=0x2a
+          dbs.serialCloneTransferNumber=0x9
+          dbs.serialIncrement=0x12
+          dbs.serialLowWaterMark=0x9
+          EOF
+
+          diff expected output
+
+      - name: Check request range objects
+        if: always()
+        run: |
+          tests/ca/bin/ca-request-range-objects-ssnv2.sh ds | tee output
+
+          # new request range should be 21 - 30 (size: 10)
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 11
+          endRange: 20
+          host: pki.example.com
+
+          SecurePort: 8443
+          beginRange: 21
+          endRange: 30
+          host: pki.example.com
+
+          EOF
+
+          diff expected output
+
+      - name: Check cert range objects
+        if: always()
+        run: |
+          tests/ca/bin/ca-cert-range-objects-ssnv2.sh ds | tee output
+
+          # new cert range should be 0x19 - 0x2a or 25 - 42 (size: 0x12)
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 25
+          endRange: 42
+          host: pki.example.com
+
+          EOF
+
+          diff expected output
+
+      - name: Check request next range
+        if: always()
+        run: |
+          tests/ca/bin/ca-request-next-range-ssnv2.sh ds | tee output
+
+          # request nextRange should be incremented by 10 to 31
+          cat > expected << EOF
+          nextRange: 31
+          EOF
+
+          diff expected output
+
+      - name: Check cert next range
+        if: always()
+        run: |
+          tests/ca/bin/ca-cert-next-range-ssnv2.sh ds | tee output
+
+          # cert nextRequest should incremented by 0x12 to 0x2b or 43
+          cat > expected << EOF
+          nextRange: 43
+          EOF
+
+          diff expected output
+
+      ####################################################################################################
+      # Enroll certs to exhaust request range
+      #
+      # This will create 13 requests and 13 certs. Both requests and certs
+      # will switch to the new ranges allocated earlier.
+
+      - name: Enroll 13 additional certs
+        if: always()
+        run: |
+          for i in $(seq 1 13); do
+              docker exec pki pki \
+                  -n caadmin \
+                  ca-cert-issue \
+                  --profile caUserCert \
+                  --csr-file testuser.csr \
+                  --output-file testuser.crt
+
+              docker exec pki openssl x509 -in testuser.crt -serial -noout
+          done
+
+      - name: Check requests
+        if: always()
+        run: |
+          docker exec pki pki-server ca-cert-request-find | tee output
+
+          sed -n "s/^ *Request ID: *\(.*\)$/\1/p" output > actual
+
+          # there should be 30 requests (17 existing + 13 new)
+          seq 1 30 > expected
+
+          diff expected actual
+
+      - name: Check certs
+        if: always()
+        run: |
+          docker exec pki pki-server ca-cert-find | tee output
+
+          sed -n "s/^ *Serial Number: *\(.*\)$/\1/p" output > actual
+
+          # there should be 29 certs (16 existing + 13 new)
+          printf "0x%x\n" {9..37} > expected
+
+          diff expected actual
+
+      - name: Check request range config
+        if: always()
+        run: |
+          tests/ca/bin/ca-request-range-config.sh pki | tee output
+
+          # current range should be 21 - 30 (size: 10, remaining: 0)
+          cat > expected << EOF
+          dbs.beginRequestNumber=21
+          dbs.endRequestNumber=30
+          dbs.requestCloneTransferNumber=5
+          dbs.requestIncrement=10
+          dbs.requestLowWaterMark=5
+          EOF
+
+          diff expected output
+
+      - name: Check cert range config
+        if: always()
+        run: |
+          tests/ca/bin/ca-cert-range-config.sh pki | tee output
+
+          # current range should be 0x19 - 0x2a (size: 0x12, remaining: 0x5)
+          cat > expected << EOF
+          dbs.beginSerialNumber=0x19
+          dbs.endSerialNumber=0x2a
+          dbs.serialCloneTransferNumber=0x9
+          dbs.serialIncrement=0x12
+          dbs.serialLowWaterMark=0x9
+          EOF
+
+          diff expected output
+
+      - name: Check request range objects
+        if: always()
+        run: |
+          tests/ca/bin/ca-request-range-objects-ssnv2.sh ds | tee output
+
+          # request range objects should be the same
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 11
+          endRange: 20
+          host: pki.example.com
+
+          SecurePort: 8443
+          beginRange: 21
+          endRange: 30
+          host: pki.example.com
+
+          EOF
+
+          diff expected output
+
+      - name: Check cert range objects
+        if: always()
+        run: |
+          tests/ca/bin/ca-cert-range-objects-ssnv2.sh ds | tee output
+
+          # cert range objects should be the same
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 25
+          endRange: 42
+          host: pki.example.com
+
+          EOF
+
+          diff expected output
+
+      - name: Check request next range
+        if: always()
+        run: |
+          tests/ca/bin/ca-request-next-range-ssnv2.sh ds | tee output
+
+          # request nextRange should be the same
+          cat > expected << EOF
+          nextRange: 31
+          EOF
+
+          diff expected output
+
+      - name: Check cert next range
+        if: always()
+        run: |
+          tests/ca/bin/ca-cert-next-range-ssnv2.sh ds | tee output
+
+          # cert nextRange should be the same
+          cat > expected << EOF
+          nextRange: 43
+          EOF
+
+          diff expected output
+
+      ####################################################################################################
+      # Enroll a cert when request range is exhausted
+      #
+      # This will fail to create a request so no cert will be created either.
+
+      - name: Enroll a cert when request range is exhausted
+        if: always()
+        run: |
+          docker exec pki pki \
+              -n caadmin \
+              ca-cert-issue \
+              --profile caUserCert \
+              --csr-file testuser.csr \
+              --output-file testuser.crt \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          cat > expected << EOF
+          PKIException: Unable to create enrollment request: Unable to create enrollment request: All serial numbers are used. The max serial number is 0x31
+          EOF
+
+          diff expected stderr
+
+      - name: Check requests
+        if: always()
+        run: |
+          docker exec pki pki-server ca-cert-request-find | tee output
+
+          sed -n "s/^ *Request ID: *\(.*\)$/\1/p" output > actual
+
+          # requests should be the same
+          seq 1 30 > expected
+
+          diff expected actual
+
+      - name: Check certs
+        if: always()
+        run: |
+          docker exec pki pki-server ca-cert-find | tee output
+
+          sed -n "s/^ *Serial Number: *\(.*\)$/\1/p" output > actual
+
+          # certs should be the same
+          printf "0x%x\n" {9..37} > expected
+
+          diff expected actual
+
+      - name: Check request range config
+        if: always()
+        run: |
+          tests/ca/bin/ca-request-range-config.sh pki | tee output
+
+          # current range should be 21 - 30 (size: 10, remaining: 0)
+          cat > expected << EOF
+          dbs.beginRequestNumber=21
+          dbs.endRequestNumber=30
+          dbs.requestCloneTransferNumber=5
+          dbs.requestIncrement=10
+          dbs.requestLowWaterMark=5
+          EOF
+
+          diff expected output
+
+      - name: Check cert range config
+        if: always()
+        run: |
+          tests/ca/bin/ca-cert-range-config.sh pki | tee output
+
+          # current range should be 0x19 - 0x2a (size: 0x12, remaining: 0x5)
+          cat > expected << EOF
+          dbs.beginSerialNumber=0x19
+          dbs.endSerialNumber=0x2a
+          dbs.serialCloneTransferNumber=0x9
+          dbs.serialIncrement=0x12
+          dbs.serialLowWaterMark=0x9
+          EOF
+
+          diff expected output
+
+      - name: Check request range objects
+        if: always()
+        run: |
+          tests/ca/bin/ca-request-range-objects-ssnv2.sh ds | tee output
+
+          # request range objects should be the same
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 11
+          endRange: 20
+          host: pki.example.com
+
+          SecurePort: 8443
+          beginRange: 21
+          endRange: 30
+          host: pki.example.com
+
+          EOF
+
+          diff expected output
+
+      - name: Check cert range objects
+        if: always()
+        run: |
+          tests/ca/bin/ca-cert-range-objects-ssnv2.sh ds | tee output
+
+          # cert range objects should be the same
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 25
+          endRange: 42
+          host: pki.example.com
+
+          EOF
+
+          diff expected output
+
+      - name: Check request next range
+        if: always()
+        run: |
+          tests/ca/bin/ca-request-next-range-ssnv2.sh ds | tee output
+
+          # request nextRange should be the same
+          cat > expected << EOF
+          nextRange: 31
+          EOF
+
+          diff expected output
+
+      - name: Check cert next range
+        if: always()
+        run: |
+          tests/ca/bin/ca-cert-next-range-ssnv2.sh ds | tee output
+
+          # cert nextRange should be the same
+          cat > expected << EOF
+          nextRange: 43
+          EOF
+
+          diff expected output
+
+      ####################################################################################################
+      # Allocate new ranges again
+      #
+      # This will allocate new ranges for requests and certs since
+      # the remaining numbers in their ranges are below the minimum.
+
+      - name: Allocate new ranges again
+        if: always()
+        run: |
+          docker exec pki pki -n caadmin ca-job-start serialNumberUpdate
+
+      - name: Check request range config
+        if: always()
+        run: |
+          tests/ca/bin/ca-request-range-config.sh pki | tee output
+
+          # current range should be 21 - 30 (size: 10, remaining: 0)
+          # next range should be 31 - 40 (size: 10, remaining: 0)
+          cat > expected << EOF
+          dbs.beginRequestNumber=21
+          dbs.endRequestNumber=30
+          dbs.nextBeginRequestNumber=31
+          dbs.nextEndRequestNumber=40
+          dbs.requestCloneTransferNumber=5
+          dbs.requestIncrement=10
+          dbs.requestLowWaterMark=5
+          EOF
+
+          diff expected output
+
+      - name: Check cert range config
+        if: always()
+        run: |
+          tests/ca/bin/ca-cert-range-config.sh pki | tee output
+
+          # current range should be 0x19 - 0x2a (size: 0x12, remaining: 0x5)
+          # next range should be 0x2b - 0x3c (size: 0x12, remaining: 0x12)
+          cat > expected << EOF
+          dbs.beginSerialNumber=0x19
+          dbs.endSerialNumber=0x2a
+          dbs.nextBeginSerialNumber=0x2b
+          dbs.nextEndSerialNumber=0x3c
+          dbs.serialCloneTransferNumber=0x9
+          dbs.serialIncrement=0x12
+          dbs.serialLowWaterMark=0x9
+          EOF
+
+          diff expected output
+
+      - name: Check request range objects
+        if: always()
+        run: |
+          tests/ca/bin/ca-request-range-objects-ssnv2.sh ds | tee output
+
+          # new range should be 31 - 40 (size: 10)
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 11
+          endRange: 20
+          host: pki.example.com
+
+          SecurePort: 8443
+          beginRange: 21
+          endRange: 30
+          host: pki.example.com
+
+          SecurePort: 8443
+          beginRange: 31
+          endRange: 40
+          host: pki.example.com
+
+          EOF
+
+          diff expected output
+
+      - name: Check cert range objects
+        if: always()
+        run: |
+          tests/ca/bin/ca-cert-range-objects-ssnv2.sh ds | tee output
+
+          # new range should be 0x2b - 0x3c or 43 - 60 (size: 0x12)
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 25
+          endRange: 42
+          host: pki.example.com
+
+          SecurePort: 8443
+          beginRange: 43
+          endRange: 60
+          host: pki.example.com
+
+          EOF
+
+          diff expected output
+
+      - name: Check request next range
+        if: always()
+        run: |
+          tests/ca/bin/ca-request-next-range-ssnv2.sh ds | tee output
+
+          # request nextRange should be incremented by 10 to 41
+          cat > expected << EOF
+          nextRange: 41
+          EOF
+
+          diff expected output
+
+      - name: Check cert next range
+        if: always()
+        run: |
+          tests/ca/bin/ca-cert-next-range-ssnv2.sh ds | tee output
+
+          # cert nextRange should be incremented by 0x12 to 0x47 or 61
+          cat > expected << EOF
+          nextRange: 61
+          EOF
+
+          diff expected output
+
+      ####################################################################################################
+      # Enroll 10 additional certs
+      #
+      # This will create 10 requests and 10 certs.
+      # Both requests and certs will switch to new ranges.
+
+      - name: Enroll 10 additional certs
+        if: always()
+        run: |
+          for i in $(seq 1 10); do
+              docker exec pki pki \
+                  -n caadmin \
+                  ca-cert-issue \
+                  --profile caUserCert \
+                  --csr-file testuser.csr \
+                  --output-file testuser.crt
+
+              docker exec pki openssl x509 -in testuser.crt -serial -noout
+          done
+
+      - name: Check requests
+        if: always()
+        run: |
+          docker exec pki pki-server ca-cert-request-find | tee output
+
+          sed -n "s/^ *Request ID: *\(.*\)$/\1/p" output > actual
+
+          # there should be 40 requests (30 existing + 10 new)
+          seq 1 40 > expected
+
+          diff expected actual
+
+      - name: Check certs
+        if: always()
+        run: |
+          docker exec pki pki-server ca-cert-find | tee output
+
+          sed -n "s/^ *Serial Number: *\(.*\)$/\1/p" output > actual
+
+          # there should be 39 certs (29 existing + 10 new)
+          printf "0x%x\n" {9..47} > expected
+
+          diff expected actual
+
+      - name: Check request range config
+        if: always()
+        run: |
+          tests/ca/bin/ca-request-range-config.sh pki | tee output
+
+          # request range should be 31 - 40 (size: 10, remaining: 0)
+          cat > expected << EOF
+          dbs.beginRequestNumber=31
+          dbs.endRequestNumber=40
+          dbs.requestCloneTransferNumber=5
+          dbs.requestIncrement=10
+          dbs.requestLowWaterMark=5
+          EOF
+
+          diff expected output
+
+      - name: Check cert range config
+        if: always()
+        run: |
+          tests/ca/bin/ca-cert-range-config.sh pki | tee output
+
+          # current range should be 0x2b - 0x3c (size: 0x12, remaining: 0xd)
+          cat > expected << EOF
+          dbs.beginSerialNumber=0x2b
+          dbs.endSerialNumber=0x3c
+          dbs.serialCloneTransferNumber=0x9
+          dbs.serialIncrement=0x12
+          dbs.serialLowWaterMark=0x9
+          EOF
+
+          diff expected output
+
+      - name: Check request range objects
+        if: always()
+        run: |
+          tests/ca/bin/ca-request-range-objects-ssnv2.sh ds | tee output
+
+          # request range objects should be the same
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 11
+          endRange: 20
+          host: pki.example.com
+
+          SecurePort: 8443
+          beginRange: 21
+          endRange: 30
+          host: pki.example.com
+
+          SecurePort: 8443
+          beginRange: 31
+          endRange: 40
+          host: pki.example.com
+
+          EOF
+
+          diff expected output
+
+      - name: Check cert range objects
+        if: always()
+        run: |
+          tests/ca/bin/ca-cert-range-objects-ssnv2.sh ds | tee output
+
+          # cert range objects should be the same
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 25
+          endRange: 42
+          host: pki.example.com
+
+          SecurePort: 8443
+          beginRange: 43
+          endRange: 60
+          host: pki.example.com
+
+          EOF
+
+          diff expected output
+
+      - name: Check request next range
+        if: always()
+        run: |
+          tests/ca/bin/ca-request-next-range-ssnv2.sh ds | tee output
+
+          # request nextRange should be the same
+          cat > expected << EOF
+          nextRange: 41
+          EOF
+
+          diff expected output
+
+      - name: Check cert next range
+        if: always()
+        run: |
+          tests/ca/bin/ca-cert-next-range-ssnv2.sh ds | tee output
+
+          # cert nextRange should be the same
+          cat > expected << EOF
+          nextRange: 61
+          EOF
+
+          diff expected output
+
+      ####################################################################################################
+      # Enroll a cert with RSNv3
+      #
+      # This should create a request and a cert. The cert
+      # should be issued with a non-sequential serial number.
+
+      - name: Switch to RSNv3
+        if: always()
+        run: |
+          # switch cert request ID generator to RSNv3
+          docker exec pki pki-server ca-config-unset dbs.beginRequestNumber
+          docker exec pki pki-server ca-config-unset dbs.endRequestNumber
+          docker exec pki pki-server ca-config-unset dbs.requestIncrement
+          docker exec pki pki-server ca-config-unset dbs.requestLowWaterMark
+          docker exec pki pki-server ca-config-unset dbs.requestCloneTransferNumber
+          docker exec pki pki-server ca-config-unset dbs.requestRangeDN
+
+          docker exec pki pki-server ca-config-set dbs.request.id.generator random
+
+          # switch cert ID generator to RSNv3
+          docker exec pki pki-server ca-config-unset dbs.beginSerialNumber
+          docker exec pki pki-server ca-config-unset dbs.endSerialNumber
+          docker exec pki pki-server ca-config-unset dbs.serialIncrement
+          docker exec pki pki-server ca-config-unset dbs.serialLowWaterMark
+          docker exec pki pki-server ca-config-unset dbs.serialCloneTransferNumber
+          docker exec pki pki-server ca-config-unset dbs.serialRangeDN
+
+          docker exec pki pki-server ca-config-set dbs.cert.id.generator random
+
+          # restart CA subsystem
+          docker exec pki pki-server ca-redeploy --wait
+
+      - name: Enroll a cert with RSNv3
+        if: always()
+        run: |
+          docker exec pki pki \
+              -n caadmin \
+              ca-cert-issue \
+              --profile caUserCert \
+              --csr-file testuser.csr \
+              --output-file testuser.crt
+
+          docker exec pki openssl x509 -in testuser.crt -serial -noout
+
+      - name: Check requests
+        if: always()
+        run: |
+          docker exec pki pki-server ca-cert-request-find | tee output
+          sed -n "s/^ *Request ID: *\(.*\)$/\1/p" output > list
+
+          # there should be 40 requests with sequential request ID
+
+          seq 1 40 > expected
+          head -n 40 list > actual
+          diff expected actual
+
+          # there should be one request with random request ID (longer than 2 chars)
+          REQUEST_ID=$(tail -n 1 list)
+          [ ${#REQUEST_ID} -gt 2 ]
+
+      - name: Check certs
+        if: always()
+        run: |
+          docker exec pki pki-server ca-cert-find | tee output
+          sed -n "s/^ *Serial Number: *\(.*\)$/\1/p" output > list
+
+          # there should be 39 certs with sequential serial numbers
+
+          printf "0x%x\n" {9..47} > expected
+          head -n 39 list > actual
+          diff expected actual
+
+          # there should be one cert with random serial number (longer than 4 chars)
+
+          SERIAL_NUMBER=$(tail -n 1 list)
+          [ ${#SERIAL_NUMBER} -gt 4 ]
+
+      ####################################################################################################
+      # Cleanup
+
+      - name: Remove CA
+        run: docker exec pki pkidestroy -s CA -v
+
+      - name: Check DS server systemd journal
+        if: always()
+        run: |
+          docker exec ds journalctl -x --no-pager -u dirsrv@localhost.service
+
+      - name: Check DS container logs
+        if: always()
+        run: |
+          docker logs ds
+
+      - name: Check PKI server systemd journal
+        if: always()
+        run: |
+          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check PKI server access log
+        if: always()
+        run: |
+          docker exec pki find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+
+      - name: Check CA debug log
+        if: always()
+        run: |
+          docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
