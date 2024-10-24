@@ -1161,8 +1161,8 @@ jobs:
       - name: Switch to legacy2
         run: |
           docker exec pki pki-server stop
-          docker exec pki pki-server ca-id-generator-update --type legacy2 request
-          docker exec pki pki-server ca-id-generator-update --type legacy2 cert
+          docker exec pki pki-server ca-id-generator-update -v --type legacy2 request
+          docker exec pki pki-server ca-id-generator-update -v --type legacy2 cert
           docker exec pki pki-server start --wait
           
 
@@ -1268,7 +1268,7 @@ jobs:
 
       - name: Check new request range objects
         run: |
-          tests/ca/bin/ca-request-range-objects.sh ds ou=requests,ou=ranges_v2 | tee output
+          tests/ca/bin/ca-request-range-objects.sh -t legacy2 ds | tee output
 
           # new request range should be 31 - 40 decimal (total: 10)
           cat > expected << EOF
@@ -1320,7 +1320,7 @@ jobs:
 
       - name: Check new cert range objects
         run: |
-          tests/ca/bin/ca-cert-range-objects.sh ds ou=certificateRepository,ou=ranges_v2 | tee output
+          tests/ca/bin/ca-cert-range-objects.sh -t legacy2 ds | tee output
 
           # new cert range should be the same but converted to decimal
           # first range move from 19-36 (hex) to 25-54 (dec)
@@ -1484,7 +1484,7 @@ jobs:
 
       - name: Check new request range objects
         run: |
-          tests/ca/bin/ca-request-range-objects.sh ds ou=requests,ou=ranges_v2 | tee output
+          tests/ca/bin/ca-request-range-objects.sh -t legacy2 ds | tee output
 
           cat > expected << EOF
           SecurePort: 8443
@@ -1560,7 +1560,7 @@ jobs:
 
       - name: Check new cert range objects
         run: |
-          tests/ca/bin/ca-cert-range-objects.sh ds ou=certificateRepository,ou=ranges_v2 | tee output
+          tests/ca/bin/ca-cert-range-objects.sh -t legacy2 ds | tee output
 
           cat > expected << EOF
           SecurePort: 8443

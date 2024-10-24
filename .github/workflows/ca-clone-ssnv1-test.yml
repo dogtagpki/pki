@@ -1003,8 +1003,8 @@ jobs:
 
       - name: Switch primary to legacy2
         run: |
-          docker exec primary pki-server ca-id-generator-update --type legacy2 request
-          docker exec primary pki-server ca-id-generator-update --type legacy2 cert
+          docker exec primary pki-server ca-id-generator-update -v --type legacy2 request
+          docker exec primary pki-server ca-id-generator-update -v --type legacy2 cert
 
       - name: Check old request range objects
         run: |
@@ -1028,7 +1028,7 @@ jobs:
 
       - name: Check new request range objects
         run: |
-          tests/ca/bin/ca-request-range-objects.sh primaryds ou=requests,ou=ranges_v2 | tee output
+          tests/ca/bin/ca-request-range-objects.sh -t legacy2 primaryds | tee output
 
           # request ranges should remain the same
           cat > expected << EOF
@@ -1075,7 +1075,7 @@ jobs:
 
       - name: Check new cert range objects
         run: |
-          tests/ca/bin/ca-cert-range-objects.sh primaryds ou=certificateRepository,ou=ranges_v2 | tee output
+          tests/ca/bin/ca-cert-range-objects.sh -t legacy2 primaryds | tee output
 
           # cert ranges should remain the same but converted from hex to decimal
           # the range value for the primary move from 13-30 (hex) to 19-48 (dec) 
@@ -1102,8 +1102,8 @@ jobs:
 
       - name: Switch secondary to legacy2
         run: |
-          docker exec secondary pki-server ca-id-generator-update --type legacy2 request
-          docker exec secondary pki-server ca-id-generator-update --type legacy2 cert
+          docker exec secondary pki-server ca-id-generator-update -v --type legacy2 request
+          docker exec secondary pki-server ca-id-generator-update -v --type legacy2 cert
 
       - name: Start the CAs
         run: |
@@ -1223,7 +1223,7 @@ jobs:
 
       - name: Check new request range objects
         run: |
-          tests/ca/bin/ca-request-range-objects.sh primaryds ou=requests,ou=ranges_v2 | tee output
+          tests/ca/bin/ca-request-range-objects.sh -t legacy2 primaryds | tee output
 
           cat > expected << EOF
           SecurePort: 8443
@@ -1272,7 +1272,7 @@ jobs:
 
       - name: Check new cert range objects
         run: |
-          tests/ca/bin/ca-cert-range-objects.sh primaryds ou=certificateRepository,ou=ranges_v2 | tee output
+          tests/ca/bin/ca-cert-range-objects.sh -t legacy2 primaryds | tee output
 
           # cert ranges should remain the same but in dec.
           # the range value for the primary move from 13-30 (hex) to 19-48 (dec)
@@ -1502,7 +1502,7 @@ jobs:
 
       - name: Check new request range objects
         run: |
-          tests/ca/bin/ca-request-range-objects.sh primaryds ou=requests,ou=ranges_v2 | tee output
+          tests/ca/bin/ca-request-range-objects.sh -t legacy2 primaryds | tee output
 
           cat > expected << EOF
           SecurePort: 8443
@@ -1576,7 +1576,7 @@ jobs:
 
       - name: Check new cert range objects
         run: |
-          tests/ca/bin/ca-cert-range-objects.sh primaryds ou=certificateRepository,ou=ranges_v2 | tee output
+          tests/ca/bin/ca-cert-range-objects.sh -t legacy2 primaryds | tee output
 
           cat > expected << EOF
           SecurePort: 8443
