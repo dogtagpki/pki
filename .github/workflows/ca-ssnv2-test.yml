@@ -156,7 +156,7 @@ jobs:
       - name: Check request range objects
         if: always()
         run: |
-          tests/ca/bin/ca-request-range-objects.sh ds | tee output
+          tests/ca/bin/ca-request-range-objects.sh -t legacy2 ds | tee output
 
           # there should be no new range
           diff /dev/null output
@@ -164,7 +164,7 @@ jobs:
       - name: Check cert range objects
         if: always()
         run: |
-          tests/ca/bin/ca-cert-range-objects.sh ds | tee output
+          tests/ca/bin/ca-cert-range-objects.sh -t legacy2 ds | tee output
 
           # there should be no new range
           diff /dev/null output
@@ -256,7 +256,7 @@ jobs:
       - name: Check request range objects
         if: always()
         run: |
-          tests/ca/bin/ca-request-range-objects.sh ds | tee output
+          tests/ca/bin/ca-request-range-objects.sh -t legacy2 ds | tee output
 
           # new range should be 11 - 20 (size: 10)
           cat > expected << EOF
@@ -272,7 +272,7 @@ jobs:
       - name: Check cert range objects
         if: always()
         run: |
-          tests/ca/bin/ca-cert-range-objects.sh ds | tee output
+          tests/ca/bin/ca-cert-range-objects.sh -t legacy2 ds | tee output
 
           # there should be no new range
           diff /dev/null output
@@ -391,7 +391,7 @@ jobs:
       - name: Check request range objects
         if: always()
         run: |
-          tests/ca/bin/ca-request-range-objects.sh ds | tee output
+          tests/ca/bin/ca-request-range-objects.sh -t legacy2 ds | tee output
 
           # there should be no new range
           cat > expected << EOF
@@ -407,7 +407,7 @@ jobs:
       - name: Check cert range objects
         if: always()
         run: |
-          tests/ca/bin/ca-cert-range-objects.sh ds | tee output
+          tests/ca/bin/ca-cert-range-objects.sh -t legacy2 ds | tee output
 
           # there should be no new range
           diff /dev/null output
@@ -519,7 +519,7 @@ jobs:
       - name: Check request range objects
         if: always()
         run: |
-          tests/ca/bin/ca-request-range-objects.sh ds | tee output
+          tests/ca/bin/ca-request-range-objects.sh -t legacy2 ds | tee output
 
           # there should be no new range
           cat > expected << EOF
@@ -535,7 +535,7 @@ jobs:
       - name: Check cert range objects
         if: always()
         run: |
-          tests/ca/bin/ca-cert-range-objects.sh ds | tee output
+          tests/ca/bin/ca-cert-range-objects.sh -t legacy2 ds | tee output
 
           # there should be no new range
           diff /dev/null output
@@ -616,7 +616,7 @@ jobs:
       - name: Check request range objects
         if: always()
         run: |
-          tests/ca/bin/ca-request-range-objects.sh ds | tee output
+          tests/ca/bin/ca-request-range-objects.sh -t legacy2 ds | tee output
 
           # new request range should be 21 - 30 (size: 10)
           cat > expected << EOF
@@ -637,7 +637,7 @@ jobs:
       - name: Check cert range objects
         if: always()
         run: |
-          tests/ca/bin/ca-cert-range-objects.sh ds | tee output
+          tests/ca/bin/ca-cert-range-objects.sh -t legacy2 ds | tee output
 
           # new cert range should be 0x19 - 0x2a or 25 - 42 (size: 0x12)
           cat > expected << EOF
@@ -753,7 +753,7 @@ jobs:
       - name: Check request range objects
         if: always()
         run: |
-          tests/ca/bin/ca-request-range-objects.sh ds | tee output
+          tests/ca/bin/ca-request-range-objects.sh -t legacy2 ds | tee output
 
           # request range objects should be the same
           cat > expected << EOF
@@ -774,7 +774,7 @@ jobs:
       - name: Check cert range objects
         if: always()
         run: |
-          tests/ca/bin/ca-cert-range-objects.sh ds | tee output
+          tests/ca/bin/ca-cert-range-objects.sh -t legacy2 ds | tee output
 
           # cert range objects should be the same
           cat > expected << EOF
@@ -892,7 +892,7 @@ jobs:
       - name: Check request range objects
         if: always()
         run: |
-          tests/ca/bin/ca-request-range-objects.sh ds | tee output
+          tests/ca/bin/ca-request-range-objects.sh -t legacy2 ds | tee output
 
           # request range objects should be the same
           cat > expected << EOF
@@ -913,7 +913,7 @@ jobs:
       - name: Check cert range objects
         if: always()
         run: |
-          tests/ca/bin/ca-cert-range-objects.sh ds | tee output
+          tests/ca/bin/ca-cert-range-objects.sh -t legacy2 ds | tee output
 
           # cert range objects should be the same
           cat > expected << EOF
@@ -1002,7 +1002,7 @@ jobs:
       - name: Check request range objects
         if: always()
         run: |
-          tests/ca/bin/ca-request-range-objects.sh ds | tee output
+          tests/ca/bin/ca-request-range-objects.sh -t legacy2 ds | tee output
 
           # new range should be 31 - 40 (size: 10)
           cat > expected << EOF
@@ -1028,7 +1028,7 @@ jobs:
       - name: Check cert range objects
         if: always()
         run: |
-          tests/ca/bin/ca-cert-range-objects.sh ds | tee output
+          tests/ca/bin/ca-cert-range-objects.sh -t legacy2 ds | tee output
 
           # new range should be 0x2b - 0x3c or 43 - 60 (size: 0x12)
           cat > expected << EOF
@@ -1149,7 +1149,7 @@ jobs:
       - name: Check request range objects
         if: always()
         run: |
-          tests/ca/bin/ca-request-range-objects.sh ds | tee output
+          tests/ca/bin/ca-request-range-objects.sh -t legacy2 ds | tee output
 
           # request range objects should be the same
           cat > expected << EOF
@@ -1175,7 +1175,7 @@ jobs:
       - name: Check cert range objects
         if: always()
         run: |
-          tests/ca/bin/ca-cert-range-objects.sh ds | tee output
+          tests/ca/bin/ca-cert-range-objects.sh -t legacy2 ds | tee output
 
           # cert range objects should be the same
           cat > expected << EOF
