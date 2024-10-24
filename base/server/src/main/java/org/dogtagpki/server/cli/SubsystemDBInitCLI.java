@@ -7,12 +7,14 @@ package org.dogtagpki.server.cli;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.cli.CLI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.cms.servlet.csadmin.LDAPConfigurator;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
@@ -68,6 +70,8 @@ public class SubsystemDBInitCLI extends SubsystemCLI {
         String database = ldapConfig.getDatabase();
         String baseDN = ldapConfig.getBaseDN();
 
+        DatabaseConfig dbConfig = cs.getDatabaseConfig();
+
         logger.info("Initializing database " + database + " for " + baseDN);
 
         PasswordStoreConfig psc = cs.getPasswordStoreConfig();
@@ -105,6 +109,21 @@ public class SubsystemDBInitCLI extends SubsystemCLI {
 
             if (!cmd.hasOption("skip-containers")) {
                 ldapConfigurator.createContainers(subsystem);
+
+                String requestRangeRDN = dbConfig.getRequestRangeDN();
+                if (!StringUtils.isEmpty(requestRangeRDN)) {
+                    ldapConfigurator.createEntry(
+                            requestRangeRDN + "," + ldapConfig.getBaseDN(),
+                            new String[] { "organizationalUnit" });
+                }
+
+                String serialRangeRDN = dbConfig.getSerialRangeDN();
+                if (!StringUtils.isEmpty(serialRangeRDN)) {
+                    ldapConfigurator.createEntry(
+                            serialRangeRDN + "," + ldapConfig.getBaseDN(),
+                            new String[] { "organizationalUnit" });
+                }
+
                 ldapConfigurator.setupACL(subsystem);
             }
 

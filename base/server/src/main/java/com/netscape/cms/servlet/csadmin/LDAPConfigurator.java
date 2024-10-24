@@ -238,6 +238,18 @@ public class LDAPConfigurator {
         }
     }
 
+    public void createEntry(String dn, String[] objectClasses) throws Exception {
+
+        logger.info("Adding " + dn);
+
+        LDAPAttributeSet attrs = new LDAPAttributeSet();
+        attrs.add(new LDAPAttribute("objectClass", objectClasses));
+
+        LDAPEntry entry = new LDAPEntry(dn, attrs);
+
+        connection.add(entry);
+    }
+
     public void validateDatabaseOwnership(String database, String baseDN) throws Exception {
 
         logger.info("Validating database " + database + " is owned by " + baseDN);
