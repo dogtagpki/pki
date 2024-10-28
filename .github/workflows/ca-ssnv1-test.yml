@@ -1196,14 +1196,26 @@ jobs:
 
           diff expected output
 
-      - name: Check the radix in for the new generator
+      - name: Check the radix configured for the new generator
         run: |
           docker exec pki pki-server ca-config-show dbs.request.id.radix | tee output
           docker exec pki pki-server ca-config-show dbs.cert.id.radix | tee -a output
 
-          cat > expected <<EOF                                                                                                                                                                                                                                 
+          cat > expected <<EOF
           10
           16
+          EOF
+
+          diff expected output
+
+      - name: Check ranges entry is configured in a new tree
+        run: |
+          docker exec pki pki-server ca-config-show dbs.serialRangeDN | tee output
+          docker exec pki pki-server ca-config-show dbs.requestRangeDN | tee -a output
+
+          cat > expected <<EOF
+          ou=certificateRepository,ou=ranges_v2
+          ou=requests,ou=ranges_v2
           EOF
 
           diff expected output
@@ -1229,9 +1241,34 @@ jobs:
 
           diff expected output
 
-      - name: Check request range objects
+      - name: Check old request range objects
         run: |
           tests/ca/bin/ca-request-range-objects-ssnv1.sh ds | tee output
+
+          # new request range should be 31 - 40 decimal (total: 10)
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 11
+          endRange: 20
+          host: pki.example.com
+
+          SecurePort: 8443
+          beginRange: 21
+          endRange: 30
+          host: pki.example.com
+
+          SecurePort: 8443
+          beginRange: 31
+          endRange: 40
+          host: pki.example.com
+
+          EOF
+
+          diff expected output
+
+      - name: Check new request range objects
+        run: |
+          tests/ca/bin/ca-request-range-objects-ssnv1.sh ds ou=requests,ou=ranges_v2 | tee output
 
           # new request range should be 31 - 40 decimal (total: 10)
           cat > expected << EOF
@@ -1259,9 +1296,31 @@ jobs:
 
           diff expected output
 
-      - name: Check cert range objects
+      - name: Check old cert range objects
         run: |
           tests/ca/bin/ca-cert-range-objects-ssnv1.sh ds | tee output
+
+          # new cert range should be the same but converted to decimal
+          # first range move from 19-36 (hex) to 25-54 (dec)
+          # second range move from 37-54 (hex) to 55-84 (dec)
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 19
+          endRange: 36
+          host: pki.example.com
+
+          SecurePort: 8443
+          beginRange: 37
+          endRange: 54
+          host: pki.example.com
+
+          EOF
+
+          diff expected output
+
+      - name: Check new cert range objects
+        run: |
+          tests/ca/bin/ca-cert-range-objects-ssnv1.sh ds ou=certificateRepository,ou=ranges_v2 | tee output
 
           # new cert range should be the same but converted to decimal
           # first range move from 19-36 (hex) to 25-54 (dec)
@@ -1398,9 +1457,34 @@ jobs:
 
           diff expected output
 
-      - name: Check request range objects
+      - name: Check old request range objects
         run: |
           tests/ca/bin/ca-request-range-objects-ssnv1.sh ds | tee output
+
+          # new request range should be 31 - 40 decimal (total: 10)
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 11
+          endRange: 20
+          host: pki.example.com
+
+          SecurePort: 8443
+          beginRange: 21
+          endRange: 30
+          host: pki.example.com
+
+          SecurePort: 8443
+          beginRange: 31
+          endRange: 40
+          host: pki.example.com
+
+          EOF
+
+          diff expected output
+
+      - name: Check new request range objects
+        run: |
+          tests/ca/bin/ca-request-range-objects-ssnv1.sh ds ou=requests,ou=ranges_v2 | tee output
 
           cat > expected << EOF
           SecurePort: 8443
@@ -1452,9 +1536,31 @@ jobs:
 
           diff expected output
 
-      - name: Check cert range objects
+      - name: Check old cert range objects
         run: |
           tests/ca/bin/ca-cert-range-objects-ssnv1.sh ds | tee output
+
+          # new cert range should be the same but converted to decimal
+          # first range move from 19-36 (hex) to 25-54 (dec)
+          # second range move from 37-54 (hex) to 55-84 (dec)
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 19
+          endRange: 36
+          host: pki.example.com
+
+          SecurePort: 8443
+          beginRange: 37
+          endRange: 54
+          host: pki.example.com
+
+          EOF
+
+          diff expected output
+
+      - name: Check new cert range objects
+        run: |
+          tests/ca/bin/ca-cert-range-objects-ssnv1.sh ds ou=certificateRepository,ou=ranges_v2 | tee output
 
           cat > expected << EOF
           SecurePort: 8443
