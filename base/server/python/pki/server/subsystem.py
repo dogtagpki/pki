@@ -1563,7 +1563,9 @@ class PKISubsystem(object):
 
         self.run(cmd, as_current_user=as_current_user)
 
-    def update_id_generator(self, generator, generator_object, as_current_user=False):
+    def update_id_generator(
+            self, generator, generator_object,
+            range_object=None, as_current_user=False):
 
         cmd = [self.name + '-id-generator-update']
 
@@ -1572,6 +1574,10 @@ class PKISubsystem(object):
 
         elif logger.isEnabledFor(logging.INFO):
             cmd.append('--verbose')
+
+        if range_object:
+            cmd.append('--range')
+            cmd.append(range_object)
 
         cmd.append('--type')
         cmd.append(generator)

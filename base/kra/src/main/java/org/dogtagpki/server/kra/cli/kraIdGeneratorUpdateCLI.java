@@ -8,9 +8,7 @@ package org.dogtagpki.server.kra.cli;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.cmscore.dbs.Repository;
-import com.netscape.cmscore.ldapconn.LdapAuthInfo;
-import com.netscape.cmscore.ldapconn.LdapConnInfo;
-import com.netscape.cmscore.ldapconn.PKISocketFactory;
+import com.netscape.cmscore.ldapconn.LdapBoundConnection;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.server.cli.SubsystemIdGeneratorUpdateCLI;
 
@@ -24,8 +22,9 @@ public class kraIdGeneratorUpdateCLI extends SubsystemIdGeneratorUpdateCLI {
     }
 
     @Override
-    protected void updateSerialNumberRangeGenerator(PKISocketFactory socketFactory, LdapConnInfo connInfo,
-            LdapAuthInfo authInfo, DatabaseConfig dbConfig, String baseDN, Repository.IDGenerator newGenerator, String hostName, String securePort) throws Exception {
+    protected void updateSerialNumberRangeGenerator(LdapBoundConnection conn,
+            DatabaseConfig dbConfig, String baseDN, String newRangesName,
+            Repository.IDGenerator newGenerator, String hostName, String securePort) throws Exception {
         String value = dbConfig.getString(
                 KeyRepository.PROP_KEY_ID_GENERATOR,
                 KeyRepository.DEFAULT_KEY_ID_GENERATOR);
@@ -40,6 +39,6 @@ public class kraIdGeneratorUpdateCLI extends SubsystemIdGeneratorUpdateCLI {
             dbConfig.put(KeyRepository.PROP_KEY_ID_RADIX, Integer.toString(Repository.HEX));
         }
 
-        super.updateSerialNumberRangeGenerator(socketFactory, connInfo, authInfo, dbConfig, baseDN, newGenerator, hostName, securePort);
+        super.updateSerialNumberRangeGenerator(conn, dbConfig, baseDN, newRangesName, newGenerator, hostName, securePort);
     }
 }
