@@ -9,9 +9,7 @@ import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.Repository;
 import com.netscape.cmscore.dbs.Repository.IDGenerator;
-import com.netscape.cmscore.ldapconn.LdapAuthInfo;
-import com.netscape.cmscore.ldapconn.LdapConnInfo;
-import com.netscape.cmscore.ldapconn.PKISocketFactory;
+import com.netscape.cmscore.ldapconn.LdapBoundConnection;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.server.cli.SubsystemIdGeneratorUpdateCLI;
 import org.slf4j.Logger;
@@ -28,8 +26,9 @@ public class CAIdGeneratorUpdateCLI extends SubsystemIdGeneratorUpdateCLI {
     }
 
     @Override
-    protected void updateSerialNumberRangeGenerator(PKISocketFactory socketFactory, LdapConnInfo connInfo,
-            LdapAuthInfo authInfo, DatabaseConfig dbConfig, String baseDN, IDGenerator newGenerator, String hostName, String securePort) throws Exception {
+    protected void updateSerialNumberRangeGenerator(LdapBoundConnection conn,
+            DatabaseConfig dbConfig, String baseDN, String newRangesName,
+            IDGenerator newGenerator, String hostName, String securePort) throws Exception {
         String value = dbConfig.getString(
                 CertificateRepository.PROP_CERT_ID_GENERATOR,
                 CertificateRepository.DEFAULT_CERT_ID_GENERATOR);
@@ -46,7 +45,7 @@ public class CAIdGeneratorUpdateCLI extends SubsystemIdGeneratorUpdateCLI {
             dbConfig.put(CertificateRepository.PROP_CERT_ID_RADIX, Integer.toString(Repository.HEX));
         }
 
-        super.updateSerialNumberRangeGenerator(socketFactory, connInfo, authInfo, dbConfig, baseDN, newGenerator, hostName, securePort);
+        super.updateSerialNumberRangeGenerator(conn, dbConfig, baseDN, newRangesName, newGenerator, hostName, securePort);
     }
 
     

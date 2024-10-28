@@ -115,18 +115,19 @@ class IdGeneratorUpdateCLI(pki.cli.CLI):
         print('Usage: pki-server %s-id-generator-update [OPTIONS] <object>' %
               self.parent.parent.parent.name)
         print()
-        print('  <object>                           Element to apply the generator (e.g. cert).')
-        print('  -t, --type <generator type>        Type of generator to use (e.g. random).')
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
-        print('  -v, --verbose                      Run in verbose mode.')
-        print('      --debug                        Run in debug mode.')
-        print('      --help                         Show help message.')
+        print('  <object>                         Element to apply the generator (e.g. cert).')
+        print('  -t, --type <generator type>      Type of generator to use (e.g. random).')
+        print('  -r, --range <rangeTree>          Name for the new range tree if needed.')
+        print('  -i, --instance <instance ID>     Instance ID (default: pki-tomcat).')
+        print('  -v, --verbose                    Run in verbose mode.')
+        print('      --debug                      Run in debug mode.')
+        print('      --help                       Show help message.')
         print()
 
     def execute(self, argv):
         try:
-            opts, args = getopt.gnu_getopt(argv, 'i:t:v', [
-                'instance=', 'type=',
+            opts, args = getopt.gnu_getopt(argv, 'i:t:r:v', [
+                'instance=', 'type=', 'range=',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -143,10 +144,14 @@ class IdGeneratorUpdateCLI(pki.cli.CLI):
         instance_name = 'pki-tomcat'
         subsystem_name = self.parent.parent.parent.name
         generator = None
+        range_object = None
 
         for o, a in opts:
             if o in ('-t', '--type'):
                 generator = a
+
+            elif o in ('-r', '--range'):
+                range_object = a
 
             elif o in ('-i', '--instance'):
                 instance_name = a
@@ -185,4 +190,4 @@ class IdGeneratorUpdateCLI(pki.cli.CLI):
                          subsystem_name.upper(), instance_name)
             sys.exit(1)
 
-        subsystem.update_id_generator(generator, generator_object)
+        subsystem.update_id_generator(generator, generator_object, range_object)
