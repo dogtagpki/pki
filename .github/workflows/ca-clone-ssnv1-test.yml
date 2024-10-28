@@ -1006,7 +1006,7 @@ jobs:
           docker exec primary pki-server ca-id-generator-update --type legacy2 request
           docker exec primary pki-server ca-id-generator-update --type legacy2 cert
 
-      - name: Check request range objects
+      - name: Check old request range objects
         run: |
           tests/ca/bin/ca-request-range-objects-ssnv1.sh primaryds | tee output
 
@@ -1026,6 +1026,21 @@ jobs:
 
           diff expected output
 
+      - name: Check new request range objects
+        run: |
+          tests/ca/bin/ca-request-range-objects-ssnv1.sh primaryds ou=requests,ou=ranges_v2 | tee output
+
+          # request ranges should remain the same
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 11
+          endRange: 20
+          host: primary.example.com
+
+          EOF
+
+          diff expected output
+
       - name: Check request next range
         run: |
           tests/ca/bin/ca-request-next-range-ssnv1.sh primaryds | tee output
@@ -1037,7 +1052,7 @@ jobs:
 
           diff expected output
 
-      - name: Check cert range objects
+      - name: Check old cert range objects
         run: |
           tests/ca/bin/ca-cert-range-objects-ssnv1.sh primaryds | tee output
 
@@ -1045,10 +1060,26 @@ jobs:
           # the range value for the primary move from 13-30 (hex) to 19-48 (dec) 
           cat > expected << EOF
           SecurePort: 8443
+          beginRange: 13
+          endRange: 30
+          host: primary.example.com
+
+          SecurePort: 8443
           beginRange: 31
           endRange: 48
           host: secondary.example.com
 
+          EOF
+
+          diff expected output
+
+      - name: Check new cert range objects
+        run: |
+          tests/ca/bin/ca-cert-range-objects-ssnv1.sh primaryds ou=certificateRepository,ou=ranges_v2 | tee output
+
+          # cert ranges should remain the same but converted from hex to decimal
+          # the range value for the primary move from 13-30 (hex) to 19-48 (dec) 
+          cat > expected << EOF
           SecurePort: 8443
           beginRange: 19
           endRange: 48
@@ -1127,6 +1158,22 @@ jobs:
 
           diff expected output
           
+      - name: Check the new range object is configured in a different DN in all CAs
+        run: |
+          docker exec primary pki-server ca-config-show dbs.serialRangeDN | tee output
+          docker exec primary pki-server ca-config-show dbs.requestRangeDN | tee -a output
+          docker exec secondary pki-server ca-config-show dbs.serialRangeDN | tee -a output
+          docker exec secondary pki-server ca-config-show dbs.requestRangeDN | tee -a output
+
+          cat > expected <<EOF
+          ou=certificateRepository,ou=ranges_v2
+          ou=requests,ou=ranges_v2
+          ou=certificateRepository,ou=ranges_v2
+          ou=requests,ou=ranges_v2
+          EOF
+
+          diff expected output
+
       - name: Check cert range config in primary CA
         run: |
           tests/ca/bin/ca-cert-range-config.sh primary | tee output
@@ -1155,9 +1202,28 @@ jobs:
 
           diff expected output
 
-      - name: Check request range objects
+      - name: Check old request range objects
         run: |
           tests/ca/bin/ca-request-range-objects-ssnv1.sh primaryds | tee output
+
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 11
+          endRange: 20
+          host: primary.example.com
+
+          SecurePort: 8443
+          beginRange: 21
+          endRange: 30
+          host: secondary.example.com
+
+          EOF
+
+          diff expected output
+
+      - name: Check new request range objects
+        run: |
+          tests/ca/bin/ca-request-range-objects-ssnv1.sh primaryds ou=requests,ou=ranges_v2 | tee output
 
           cat > expected << EOF
           SecurePort: 8443
@@ -1184,9 +1250,29 @@ jobs:
 
           diff expected output
 
-      - name: Check cert range objects
+      - name: Check old cert range objects
         run: |
           tests/ca/bin/ca-cert-range-objects-ssnv1.sh primaryds | tee output
+
+          # cert ranges should remain the same
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 13
+          endRange: 30
+          host: primary.example.com
+
+          SecurePort: 8443
+          beginRange: 31
+          endRange: 48
+          host: secondary.example.com
+
+          EOF
+
+          diff expected output
+
+      - name: Check new cert range objects
+        run: |
+          tests/ca/bin/ca-cert-range-objects-ssnv1.sh primaryds ou=certificateRepository,ou=ranges_v2 | tee output
 
           # cert ranges should remain the same but in dec.
           # the range value for the primary move from 13-30 (hex) to 19-48 (dec)
@@ -1395,9 +1481,28 @@ jobs:
 
           diff expected output
 
-      - name: Check request range objects
+      - name: Check old request range objects
         run: |
           tests/ca/bin/ca-request-range-objects-ssnv1.sh primaryds | tee output
+
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 11
+          endRange: 20
+          host: primary.example.com
+
+          SecurePort: 8443
+          beginRange: 21
+          endRange: 30
+          host: secondary.example.com
+
+          EOF
+
+          diff expected output
+
+      - name: Check new request range objects
+        run: |
+          tests/ca/bin/ca-request-range-objects-ssnv1.sh primaryds ou=requests,ou=ranges_v2 | tee output
 
           cat > expected << EOF
           SecurePort: 8443
@@ -1449,9 +1554,29 @@ jobs:
 
           diff expected output
 
-      - name: Check cert range objects
+      - name: Check old cert range objects
         run: |
           tests/ca/bin/ca-cert-range-objects-ssnv1.sh primaryds | tee output
+
+          # cert ranges should remain the same
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 13
+          endRange: 30
+          host: primary.example.com
+
+          SecurePort: 8443
+          beginRange: 31
+          endRange: 48
+          host: secondary.example.com
+
+          EOF
+
+          diff expected output
+
+      - name: Check new cert range objects
+        run: |
+          tests/ca/bin/ca-cert-range-objects-ssnv1.sh primaryds ou=certificateRepository,ou=ranges_v2 | tee output
 
           cat > expected << EOF
           SecurePort: 8443
