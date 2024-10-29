@@ -133,7 +133,7 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
 
     public void init(PKISocketConfig config) {
 
-        logger.info("PKISocketFactory: Initializing PKISocketFactory");
+        logger.debug("PKISocketFactory: Initializing PKISocketFactory");
 
         if (config == null) {
             // use defaults
@@ -177,7 +177,7 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
 
     public SSLSocket makeSSLSocket(String host, int port) throws UnknownHostException, IOException {
 
-        logger.info("PKISocketFactory: Creating SSL socket for " + host + ":" + port);
+        logger.debug("PKISocketFactory: Creating SSL socket for " + host + ":" + port);
 
         // let it inherit TLS range and cipher settings
 
@@ -249,7 +249,7 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
 
         try {
             if (!secure) {
-                logger.info("PKISocketFactory: Creating socket for " + host + ":" + port);
+                logger.debug("PKISocketFactory: Creating socket for " + host + ":" + port);
                 s = new Socket(host, port);
 
             } else {
