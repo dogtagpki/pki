@@ -109,6 +109,15 @@ public class SubsystemDBInitCLI extends SubsystemCLI {
             return;
         }
 
+        if (serialIDGenerator == IDGenerator.LEGACY_2) {
+            // create serial ranges subtree for SSNv2
+            // use repository object class to support nextRange
+            ldapConfigurator.createEntry(
+                    requestRangeRDN + "," + ldapConfig.getBaseDN(),
+                    new String[] { "repository" });
+            return;
+        }
+
         // create ou=requests,ou=ranges for SSNv1 or
         // ou=requests,ou=ranges_v2 for SSNv2
         ldapConfigurator.createEntry(
@@ -125,15 +134,25 @@ public class SubsystemDBInitCLI extends SubsystemCLI {
 
         if (StringUtils.isEmpty(serialRangeRDN)) {
             // dbs.serialRangeDN only exists in CA and KRA
+            // serial ranges subtree is not needed for other subsystems
             return;
         }
 
         if (serialIDGenerator == IDGenerator.RANDOM) {
+            // serial ranges subtree is not needed for RSNv3
             return;
         }
 
-        // create ou=certificateRepository,ou=ranges for SSNv1 or
-        // ou=certificateRepository,ou=ranges_v2 for SSNv2
+        if (serialIDGenerator == IDGenerator.LEGACY_2) {
+            // create serial ranges subtree for SSNv2
+            // use repository object class to support nextRange
+            ldapConfigurator.createEntry(
+                    serialRangeRDN + "," + ldapConfig.getBaseDN(),
+                    new String[] { "repository" });
+            return;
+        }
+
+        // create serial ranges subtree for SSNv1
         ldapConfigurator.createEntry(
                 serialRangeRDN + "," + ldapConfig.getBaseDN(),
                 new String[] { "organizationalUnit" });

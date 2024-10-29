@@ -467,6 +467,11 @@ public abstract class Repository {
         cs.commit(false);
     }
 
+    public String getNextRangeDN() {
+        // store nextRange in repository subtree for SSNv1
+        return mBaseDN;
+    }
+
     /**
      * Gets start of next range from database.
      * Increments the nextRange attribute and allocates
@@ -483,12 +488,13 @@ public abstract class Repository {
         try {
             LDAPConnection conn = session.getConnection();
 
-            logger.info("Repository: Reading entry " + mBaseDN);
-            LDAPEntry entry = conn.read(mBaseDN);
+            String nextRangeDN = getNextRangeDN();
+            logger.info("Repository: Reading next range from " + nextRangeDN);
+            LDAPEntry entry = conn.read(nextRangeDN);
 
             LDAPAttribute attr = entry.getAttribute(DBSubsystem.PROP_NEXT_RANGE);
             if (attr == null) {
-                throw new Exception("Missing attribute" + DBSubsystem.PROP_NEXT_RANGE);
+                throw new Exception("Missing attribute " + DBSubsystem.PROP_NEXT_RANGE);
             }
 
             String nextRange = attr.getStringValues().nextElement();
@@ -504,7 +510,8 @@ public abstract class Repository {
             // generate endRange in decimal
             String endRange = newNextRangeNo.subtract(BigInteger.ONE).toString();
 
-            logger.info("Repository: Updating " + DBSubsystem.PROP_NEXT_RANGE + " from " + nextRange + " to " + newNextRange);
+            logger.info("Repository: Updating next range in " + nextRangeDN);
+            logger.info("Repository: - " + DBSubsystem.PROP_NEXT_RANGE + ": " + nextRange + " -> " + newNextRange);
 
             // To make sure attrNextRange always increments, first delete the current value and then increment.
             // Two operations in the same transaction
@@ -515,8 +522,7 @@ public abstract class Repository {
                     new LDAPModification(LDAPModification.ADD, attrNextRange)
             };
 
-            logger.info("Repository: Modifying entry " + mBaseDN);
-            conn.modify(mBaseDN, mods);
+            conn.modify(nextRangeDN, mods);
 
             // Add new range object
 
@@ -575,7 +581,7 @@ public abstract class Repository {
 
             logger.info("Repository: Searching for conflicting entries");
 
-            String minSerial = idGenerator == IDGenerator.LEGACY_2 ? 
+            String minSerial = idGenerator == IDGenerator.LEGACY_2 ?
                     mMinSerialNo.toString() : mMinSerialNo.toString(mRadix);
             String filter = "(&(nsds5ReplConflict=*)(objectClass=pkiRange)(host= " +
                     cs.getHostname() + ")(SecurePort=" + engine.getEESSLPort() +

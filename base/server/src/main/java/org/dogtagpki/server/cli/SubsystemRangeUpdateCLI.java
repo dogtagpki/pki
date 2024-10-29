@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.Repository.IDGenerator;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
@@ -65,6 +66,32 @@ public class SubsystemRangeUpdateCLI extends SubsystemCLI {
         requestIDGenerator = IDGenerator.fromString(value);
     }
 
+    public String getRequestNextRangeDN(
+            LDAPConfig ldapConfig,
+            DatabaseConfig dbConfig) throws Exception {
+
+        if (requestIDGenerator == IDGenerator.LEGACY_2) {
+            // the request nextRange is stored in request repository's range DN
+            return dbConfig.getRequestRangeDN() + "," + ldapConfig.getBaseDN();
+        }
+
+        // the request nextRange is stored in request repository's base DN
+        return dbConfig.getRequestDN() + "," + ldapConfig.getBaseDN();
+    }
+
+    public String getSerialNextRangeDN(
+            LDAPConfig ldapConfig,
+            DatabaseConfig dbConfig) throws Exception {
+
+        if (serialIDGenerator == IDGenerator.LEGACY_2) {
+            // the cert/key nextRange is stored in cert/key repository's range DN
+            return dbConfig.getSerialRangeDN() + "," + ldapConfig.getBaseDN();
+        }
+
+        // the cert/key nextRange is stored in cert/key repository's base DN
+        return dbConfig.getSerialDN() + "," + ldapConfig.getBaseDN();
+    }
+
     @Override
     public void execute(CommandLine cmd) throws Exception {
 
@@ -100,6 +127,7 @@ public class SubsystemRangeUpdateCLI extends SubsystemCLI {
                 socketFactory,
                 connInfo,
                 authInfo,
+                ldapConfig,
                 dbConfig,
                 baseDN);
 
@@ -107,6 +135,7 @@ public class SubsystemRangeUpdateCLI extends SubsystemCLI {
                 socketFactory,
                 connInfo,
                 authInfo,
+                ldapConfig,
                 dbConfig,
                 baseDN);
     }
@@ -115,6 +144,7 @@ public class SubsystemRangeUpdateCLI extends SubsystemCLI {
             PKISocketFactory socketFactory,
             LdapConnInfo connInfo,
             LdapAuthInfo authInfo,
+            LDAPConfig ldapConfig,
             DatabaseConfig dbConfig,
             String baseDN) throws Exception {
 
@@ -126,6 +156,9 @@ public class SubsystemRangeUpdateCLI extends SubsystemCLI {
         LdapBoundConnection conn = new LdapBoundConnection(socketFactory, connInfo, authInfo);
 
         try {
+            String nextRangeDN = getSerialNextRangeDN(ldapConfig, dbConfig);
+            logger.info("Updating serial next range in " + nextRangeDN);
+
             BigInteger endSerialNumber;
             if (serialIDGenerator == IDGenerator.LEGACY_2) {
                 endSerialNumber = dbConfig.getBigInteger(DatabaseConfig.MAX_SERIAL_NUMBER);
@@ -136,14 +169,13 @@ public class SubsystemRangeUpdateCLI extends SubsystemCLI {
             }
             BigInteger nextSerialNumber = endSerialNumber.add(BigInteger.ONE);
 
-            String serialDN = dbConfig.getSerialDN() + "," + baseDN;
-
             // store nextRange as decimal
-            LDAPAttribute attrSerialNextRange = new LDAPAttribute("nextRange", nextSerialNumber.toString());
+            logger.info("- next range: " + nextSerialNumber.toString() + " (0x" + nextSerialNumber.toString(16) + ")");
+            LDAPAttribute attrSerialNextRange = new LDAPAttribute(DBSubsystem.PROP_NEXT_RANGE, nextSerialNumber.toString());
 
             LDAPModification serialmod = new LDAPModification(LDAPModification.REPLACE, attrSerialNextRange);
 
-            conn.modify(serialDN, serialmod);
+            conn.modify(nextRangeDN, serialmod);
 
         } finally {
             conn.disconnect();
@@ -154,6 +186,7 @@ public class SubsystemRangeUpdateCLI extends SubsystemCLI {
             PKISocketFactory socketFactory,
             LdapConnInfo connInfo,
             LdapAuthInfo authInfo,
+            LDAPConfig ldapConfig,
             DatabaseConfig dbConfig,
             String baseDN) throws Exception {
 
@@ -165,7 +198,8 @@ public class SubsystemRangeUpdateCLI extends SubsystemCLI {
         LdapBoundConnection conn = new LdapBoundConnection(socketFactory, connInfo, authInfo);
 
         try {
-            logger.info("Updating request ID range");
+            String nextRangeDN = getRequestNextRangeDN(ldapConfig, dbConfig);
+            logger.info("Updating request ID next range in " + nextRangeDN);
 
             BigInteger endRequestNumber;
             if (requestIDGenerator == IDGenerator.LEGACY_2) {
@@ -176,14 +210,12 @@ public class SubsystemRangeUpdateCLI extends SubsystemCLI {
             }
             BigInteger nextRequestNumber = endRequestNumber.add(BigInteger.ONE);
 
-            String requestDN = dbConfig.getRequestDN() + "," + baseDN;
-
             // store nextRange as decimal
-            LDAPAttribute attrRequestNextRange = new LDAPAttribute("nextRange", nextRequestNumber.toString());
+            LDAPAttribute attrRequestNextRange = new LDAPAttribute(DBSubsystem.PROP_NEXT_RANGE, nextRequestNumber.toString());
 
             LDAPModification requestmod = new LDAPModification(LDAPModification.REPLACE, attrRequestNextRange);
 
-            conn.modify(requestDN, requestmod);
+            conn.modify(nextRangeDN, requestmod);
 
         } finally {
             conn.disconnect();

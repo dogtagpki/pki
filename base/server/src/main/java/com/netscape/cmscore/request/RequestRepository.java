@@ -83,7 +83,7 @@ public class RequestRepository extends Repository {
         try {
             this.mRadix = dbc.getInteger(PROP_REQUEST_ID_RADIX, DEC);
             logger.debug("CertificateRepository: number radix {}", this.mRadix);
-            
+
         } catch (EBaseException ex) {
             logger.debug("CertificateRepository: error reading number radix config, using default {} for ", HEX);
         }
@@ -200,6 +200,17 @@ public class RequestRepository extends Repository {
         if (incrementNo != null) {
             mIncrementNo = new BigInteger(incrementNo, mRadix);
         }
+    }
+
+    public String getNextRangeDN() {
+
+        if (idGenerator == IDGenerator.LEGACY_2) {
+            // store nextRange in range subtree for SSNv2
+            return rangeDN;
+        }
+
+        // store nextRange in repository subtree for SSNv1
+        return super.getNextRangeDN();
     }
 
     public void setMinSerialConfig() throws EBaseException {

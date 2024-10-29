@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.Repository.IDGenerator;
+import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
@@ -44,6 +45,7 @@ public class CARangeUpdateCLI extends SubsystemRangeUpdateCLI {
             PKISocketFactory socketFactory,
             LdapConnInfo connInfo,
             LdapAuthInfo authInfo,
+            LDAPConfig ldapConfig,
             DatabaseConfig dbConfig,
             String baseDN) throws Exception {
 
@@ -58,6 +60,7 @@ public class CARangeUpdateCLI extends SubsystemRangeUpdateCLI {
                 socketFactory,
                 connInfo,
                 authInfo,
+                ldapConfig,
                 dbConfig,
                 baseDN);
     }
