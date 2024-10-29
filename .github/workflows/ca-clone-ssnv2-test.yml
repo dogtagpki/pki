@@ -172,7 +172,7 @@ jobs:
       - name: Check request range objects
         if: always()
         run: |
-          tests/ca/bin/ca-request-range-objects-ssnv2.sh primaryds | tee output
+          tests/ca/bin/ca-request-range-objects.sh primaryds | tee output
 
           # new range should be 11 - 20 (size: 10)
           cat > expected << EOF
@@ -188,7 +188,7 @@ jobs:
       - name: Check cert range objects
         if: always()
         run: |
-          tests/ca/bin/ca-cert-range-objects-ssnv2.sh primaryds | tee output
+          tests/ca/bin/ca-cert-range-objects.sh primaryds | tee output
 
           # there should be no new range
           diff /dev/null output
@@ -196,7 +196,7 @@ jobs:
       - name: Check request next range
         if: always()
         run: |
-          tests/ca/bin/ca-request-next-range-ssnv2.sh primaryds | tee output
+          tests/ca/bin/ca-request-next-range.sh primaryds | tee output
 
           # nextRange should be endRange + 1 = 11
           cat > expected << EOF
@@ -208,7 +208,7 @@ jobs:
       - name: Check cert next range
         if: always()
         run: |
-          tests/ca/bin/ca-cert-next-range-ssnv2.sh primaryds | tee output
+          tests/ca/bin/ca-cert-next-range.sh primaryds | tee output
 
           # nextRange should be dbs.endSerialNumber + 1 = 0x19 or 25
           cat > expected << EOF
@@ -386,7 +386,7 @@ jobs:
       - name: Check request range objects
         if: always()
         run: |
-          tests/ca/bin/ca-request-range-objects-ssnv2.sh secondaryds | tee output
+          tests/ca/bin/ca-request-range-objects.sh secondaryds | tee output
 
           # there should be no new range
           # NOTE: there's no indication that part of is has
@@ -404,7 +404,7 @@ jobs:
       - name: Check cert range objects
         if: always()
         run: |
-          tests/ca/bin/ca-cert-range-objects-ssnv2.sh secondaryds | tee output
+          tests/ca/bin/ca-cert-range-objects.sh secondaryds | tee output
 
           # there should be no new range
           diff /dev/null output
@@ -412,7 +412,7 @@ jobs:
       - name: Check request next range
         if: always()
         run: |
-          tests/ca/bin/ca-request-next-range-ssnv2.sh secondaryds | tee output
+          tests/ca/bin/ca-request-next-range.sh secondaryds | tee output
 
           # nextRange should be the same
           cat > expected << EOF
@@ -424,7 +424,7 @@ jobs:
       - name: Check cert next range
         if: always()
         run: |
-          tests/ca/bin/ca-cert-next-range-ssnv2.sh secondaryds | tee output
+          tests/ca/bin/ca-cert-next-range.sh secondaryds | tee output
 
           # nextRange should be the same
           cat > expected << EOF
@@ -555,7 +555,7 @@ jobs:
       - name: Check request range objects
         if: always()
         run: |
-          tests/ca/bin/ca-request-range-objects-ssnv2.sh primaryds | tee output
+          tests/ca/bin/ca-request-range-objects.sh primaryds | tee output
 
           # there should be no new range
           cat > expected << EOF
@@ -571,7 +571,7 @@ jobs:
       - name: Check cert range objects
         if: always()
         run: |
-          tests/ca/bin/ca-cert-range-objects-ssnv2.sh primaryds | tee output
+          tests/ca/bin/ca-cert-range-objects.sh primaryds | tee output
 
           # there should be no new range
           diff /dev/null output
@@ -579,7 +579,7 @@ jobs:
       - name: Check request next range
         if: always()
         run: |
-          tests/ca/bin/ca-request-next-range-ssnv2.sh primaryds | tee output
+          tests/ca/bin/ca-request-next-range.sh primaryds | tee output
 
           # nextRange should be the same
           cat > expected << EOF
@@ -591,7 +591,7 @@ jobs:
       - name: Check cert next range
         if: always()
         run: |
-          tests/ca/bin/ca-cert-next-range-ssnv2.sh primaryds | tee output
+          tests/ca/bin/ca-cert-next-range.sh primaryds | tee output
 
           # nextRange should be the same
           cat > expected << EOF
@@ -843,7 +843,7 @@ jobs:
       - name: Check request range objects
         if: always()
         run: |
-          tests/ca/bin/ca-request-range-objects-ssnv2.sh primaryds | tee output
+          tests/ca/bin/ca-request-range-objects.sh primaryds | tee output
 
           # new range should be 21 - 30 (size: 10)
           cat > expected << EOF
@@ -864,7 +864,7 @@ jobs:
       - name: Check cert range objects
         if: always()
         run: |
-          tests/ca/bin/ca-cert-range-objects-ssnv2.sh primaryds | tee output
+          tests/ca/bin/ca-cert-range-objects.sh primaryds | tee output
 
           # new range should be 0x2b - 0x3c or 43 - 60 (size: 0x12)
           cat > expected << EOF
@@ -885,7 +885,7 @@ jobs:
       - name: Check request next range
         if: always()
         run: |
-          tests/ca/bin/ca-request-next-range-ssnv2.sh primaryds | tee output
+          tests/ca/bin/ca-request-next-range.sh primaryds | tee output
 
           # nextRange should be endRange + 1 = 31
           cat > expected << EOF
@@ -897,7 +897,7 @@ jobs:
       - name: Check cert next range
         if: always()
         run: |
-          tests/ca/bin/ca-cert-next-range-ssnv2.sh primaryds | tee output
+          tests/ca/bin/ca-cert-next-range.sh primaryds | tee output
 
           # nextRange should be endRange + 1 = 61 or 0x3d
           cat > expected << EOF
@@ -1039,7 +1039,7 @@ jobs:
       - name: Check request range objects
         if: always()
         run: |
-          tests/ca/bin/ca-request-range-objects-ssnv2.sh primaryds | tee output
+          tests/ca/bin/ca-request-range-objects.sh primaryds | tee output
 
           # there should be no new range
           cat > expected << EOF
@@ -1060,7 +1060,7 @@ jobs:
       - name: Check cert range objects
         if: always()
         run: |
-          tests/ca/bin/ca-cert-range-objects-ssnv2.sh primaryds | tee output
+          tests/ca/bin/ca-cert-range-objects.sh primaryds | tee output
 
           # there should be no new range
           cat > expected << EOF
@@ -1081,7 +1081,7 @@ jobs:
       - name: Check request next range
         if: always()
         run: |
-          tests/ca/bin/ca-request-next-range-ssnv2.sh primaryds | tee output
+          tests/ca/bin/ca-request-next-range.sh primaryds | tee output
 
           # nextRange should be the same
           cat > expected << EOF
@@ -1093,7 +1093,7 @@ jobs:
       - name: Check cert next range
         if: always()
         run: |
-          tests/ca/bin/ca-cert-next-range-ssnv2.sh primaryds | tee output
+          tests/ca/bin/ca-cert-next-range.sh primaryds | tee output
 
           # nextRange should be the same
           cat > expected << EOF

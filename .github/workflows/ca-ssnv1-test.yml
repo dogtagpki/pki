@@ -140,7 +140,7 @@ jobs:
 
       - name: Check request next range
         run: |
-          tests/ca/bin/ca-request-next-range-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-request-next-range.sh ds | tee output
 
           # SubsystemRangeUpdateCLI.updateRequestNumberRange() reads dbs.endRequestNumber
           # as 10 decimal, increments it by 1 to 11 decimal, then stores it as the
@@ -153,7 +153,7 @@ jobs:
 
       - name: Check cert next range
         run: |
-          tests/ca/bin/ca-cert-next-range-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-cert-next-range.sh ds | tee output
 
           # SubsystemRangeUpdateCLI.updateSerialNumberRange() incorrectly reads
           # dbs.endSerialNumber as 18 decimal, increments it by 1 to 19 decimal,
@@ -166,14 +166,14 @@ jobs:
 
       - name: Check request range objects
         run: |
-          tests/ca/bin/ca-request-range-objects-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-request-range-objects.sh ds | tee output
 
           # serial number management is disabled so there are no range objects created
           diff /dev/null output
 
       - name: Check cert range objects
         run: |
-          tests/ca/bin/ca-cert-range-objects-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-cert-range-objects.sh ds | tee output
 
           # serial number management is disabled so there are no range objects created
           diff /dev/null output
@@ -236,7 +236,7 @@ jobs:
 
       - name: Check request next range
         run: |
-          tests/ca/bin/ca-request-next-range-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-request-next-range.sh ds | tee output
 
           # request nextRange should be incremented by 10 decimal
           cat > expected << EOF
@@ -247,7 +247,7 @@ jobs:
 
       - name: Check cert next range
         run: |
-          tests/ca/bin/ca-cert-next-range-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-cert-next-range.sh ds | tee output
 
           # cert nextRange should be the same
           cat > expected << EOF
@@ -258,7 +258,7 @@ jobs:
 
       - name: Check request range objects
         run: |
-          tests/ca/bin/ca-request-range-objects-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-request-range-objects.sh ds | tee output
 
           # new request range should be 11 - 20 decimal (size: 10)
           cat > expected << EOF
@@ -273,7 +273,7 @@ jobs:
 
       - name: Check cert range objects
         run: |
-          tests/ca/bin/ca-cert-range-objects-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-cert-range-objects.sh ds | tee output
 
           # there should be no new cert range
           diff /dev/null output
@@ -377,7 +377,7 @@ jobs:
 
       - name: Check request next range
         run: |
-          tests/ca/bin/ca-request-next-range-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-request-next-range.sh ds | tee output
 
           # request nextRange should be the same
           cat > expected << EOF
@@ -388,7 +388,7 @@ jobs:
 
       - name: Check cert next range
         run: |
-          tests/ca/bin/ca-cert-next-range-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-cert-next-range.sh ds | tee output
 
           # cert nextRange should be the same
           cat > expected << EOF
@@ -399,7 +399,7 @@ jobs:
 
       - name: Check request range objects
         run: |
-          tests/ca/bin/ca-request-range-objects-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-request-range-objects.sh ds | tee output
 
           # request range objects should be the same
           cat > expected << EOF
@@ -414,7 +414,7 @@ jobs:
 
       - name: Check cert range objects
         run: |
-          tests/ca/bin/ca-cert-range-objects-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-cert-range-objects.sh ds | tee output
 
           # cert range objects should be the same
           diff /dev/null output
@@ -496,7 +496,7 @@ jobs:
 
       - name: Check request next range
         run: |
-          tests/ca/bin/ca-request-next-range-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-request-next-range.sh ds | tee output
 
           # request nextRange should be the same
           cat > expected << EOF
@@ -507,7 +507,7 @@ jobs:
 
       - name: Check cert next range
         run: |
-          tests/ca/bin/ca-cert-next-range-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-cert-next-range.sh ds | tee output
 
           # cert nextRange should be the same
           cat > expected << EOF
@@ -518,7 +518,7 @@ jobs:
 
       - name: Check request range objects
         run: |
-          tests/ca/bin/ca-request-range-objects-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-request-range-objects.sh ds | tee output
 
           # request range objects should be the same
           cat > expected << EOF
@@ -533,7 +533,7 @@ jobs:
 
       - name: Check cert range objects
         run: |
-          tests/ca/bin/ca-cert-range-objects-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-cert-range-objects.sh ds | tee output
 
           # cert range objects should be the same
           diff /dev/null output
@@ -584,7 +584,7 @@ jobs:
 
       - name: Check request next range
         run: |
-          tests/ca/bin/ca-request-next-range-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-request-next-range.sh ds | tee output
 
           # request nextRange should be incremented by 10 decimal to 31 decimal
           cat > expected << EOF
@@ -595,7 +595,7 @@ jobs:
 
       - name: Check cert next range
         run: |
-          tests/ca/bin/ca-cert-next-range-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-cert-next-range.sh ds | tee output
 
           # cert nextRequest should incremented by 12 hex (18 decimal) to 37 decimal
           cat > expected << EOF
@@ -606,7 +606,7 @@ jobs:
 
       - name: Check request range objects
         run: |
-          tests/ca/bin/ca-request-range-objects-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-request-range-objects.sh ds | tee output
 
           # new request range should be 21 - 30 decimal (size: 10)
           cat > expected << EOF
@@ -626,7 +626,7 @@ jobs:
 
       - name: Check cert range objects
         run: |
-          tests/ca/bin/ca-cert-range-objects-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-cert-range-objects.sh ds | tee output
 
           # new request range is 19 - 36 decimal (size: 18)
           # Note: the size should have been consistent (i.e. 16)
@@ -714,7 +714,7 @@ jobs:
 
       - name: Check request next range
         run: |
-          tests/ca/bin/ca-request-next-range-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-request-next-range.sh ds | tee output
 
           # request nextRange should be the same
           cat > expected << EOF
@@ -725,7 +725,7 @@ jobs:
 
       - name: Check cert next range
         run: |
-          tests/ca/bin/ca-cert-next-range-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-cert-next-range.sh ds | tee output
 
           # cert nextRange should be the same
           cat > expected << EOF
@@ -736,7 +736,7 @@ jobs:
 
       - name: Check request range objects
         run: |
-          tests/ca/bin/ca-request-range-objects-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-request-range-objects.sh ds | tee output
 
           # request range objects should be the same
           cat > expected << EOF
@@ -756,7 +756,7 @@ jobs:
 
       - name: Check cert range objects
         run: |
-          tests/ca/bin/ca-cert-range-objects-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-cert-range-objects.sh ds | tee output
 
           # cert range objects should be the same
           cat > expected << EOF
@@ -844,7 +844,7 @@ jobs:
 
       - name: Check request next range
         run: |
-          tests/ca/bin/ca-request-next-range-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-request-next-range.sh ds | tee output
 
           # request nextRange should be the same
           cat > expected << EOF
@@ -855,7 +855,7 @@ jobs:
 
       - name: Check cert next range
         run: |
-          tests/ca/bin/ca-cert-next-range-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-cert-next-range.sh ds | tee output
 
           # cert nextRange should be the same
           cat > expected << EOF
@@ -866,7 +866,7 @@ jobs:
 
       - name: Check request range objects
         run: |
-          tests/ca/bin/ca-request-range-objects-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-request-range-objects.sh ds | tee output
 
           # request range objects should be the same
           cat > expected << EOF
@@ -886,7 +886,7 @@ jobs:
 
       - name: Check cert range objects
         run: |
-          tests/ca/bin/ca-cert-range-objects-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-cert-range-objects.sh ds | tee output
 
           # cert range objects should be the same
           cat > expected << EOF
@@ -945,7 +945,7 @@ jobs:
 
       - name: Check request next range
         run: |
-          tests/ca/bin/ca-request-next-range-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-request-next-range.sh ds | tee output
 
           # request nextRange should be incremented by 10 decimal to 41 decimal
           cat > expected << EOF
@@ -956,7 +956,7 @@ jobs:
 
       - name: Check cert next range
         run: |
-          tests/ca/bin/ca-cert-next-range-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-cert-next-range.sh ds | tee output
 
           # cert nextRange should be incremented by 12 hex (18 decimal) to 55 decimal
           cat > expected << EOF
@@ -967,7 +967,7 @@ jobs:
 
       - name: Check request range objects
         run: |
-          tests/ca/bin/ca-request-range-objects-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-request-range-objects.sh ds | tee output
 
           # new request range should be 31 - 40 decimal (size: 10)
           cat > expected << EOF
@@ -992,7 +992,7 @@ jobs:
 
       - name: Check cert range objects
         run: |
-          tests/ca/bin/ca-cert-range-objects-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-cert-range-objects.sh ds | tee output
 
           # new cert range should be 37 - 54 decimal (size: 18)
           cat > expected << EOF
@@ -1088,7 +1088,7 @@ jobs:
 
       - name: Check request next range
         run: |
-          tests/ca/bin/ca-request-next-range-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-request-next-range.sh ds | tee output
 
           # request nextRange should be the same
           cat > expected << EOF
@@ -1099,7 +1099,7 @@ jobs:
 
       - name: Check cert next range
         run: |
-          tests/ca/bin/ca-cert-next-range-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-cert-next-range.sh ds | tee output
 
           # cert nextRange should be incremented by 12 hex (18 decimal) to 55 decimal
           cat > expected << EOF
@@ -1110,7 +1110,7 @@ jobs:
 
       - name: Check request range objects
         run: |
-          tests/ca/bin/ca-request-range-objects-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-request-range-objects.sh ds | tee output
 
           # request range objects should be the same
           cat > expected << EOF
@@ -1135,7 +1135,7 @@ jobs:
 
       - name: Check cert range objects
         run: |
-          tests/ca/bin/ca-cert-range-objects-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-cert-range-objects.sh ds | tee output
 
           # cert range should be the same
           cat > expected << EOF
@@ -1222,7 +1222,7 @@ jobs:
 
       - name: Check request repository
         run: |
-          tests/ca/bin/ca-request-next-range-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-request-next-range.sh ds | tee output
 
           # request nextRange should be incremented by 10 decimal to 41 decimal
           cat > expected << EOF
@@ -1233,7 +1233,7 @@ jobs:
 
       - name: Check cert repository
         run: |
-          tests/ca/bin/ca-cert-next-range-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-cert-next-range.sh ds | tee output
 
           cat > expected << EOF
           nextRange: 85
@@ -1243,7 +1243,7 @@ jobs:
 
       - name: Check old request range objects
         run: |
-          tests/ca/bin/ca-request-range-objects-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-request-range-objects.sh ds | tee output
 
           # new request range should be 31 - 40 decimal (total: 10)
           cat > expected << EOF
@@ -1268,7 +1268,7 @@ jobs:
 
       - name: Check new request range objects
         run: |
-          tests/ca/bin/ca-request-range-objects-ssnv1.sh ds ou=requests,ou=ranges_v2 | tee output
+          tests/ca/bin/ca-request-range-objects.sh ds ou=requests,ou=ranges_v2 | tee output
 
           # new request range should be 31 - 40 decimal (total: 10)
           cat > expected << EOF
@@ -1298,7 +1298,7 @@ jobs:
 
       - name: Check old cert range objects
         run: |
-          tests/ca/bin/ca-cert-range-objects-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-cert-range-objects.sh ds | tee output
 
           # new cert range should be the same but converted to decimal
           # first range move from 19-36 (hex) to 25-54 (dec)
@@ -1320,7 +1320,7 @@ jobs:
 
       - name: Check new cert range objects
         run: |
-          tests/ca/bin/ca-cert-range-objects-ssnv1.sh ds ou=certificateRepository,ou=ranges_v2 | tee output
+          tests/ca/bin/ca-cert-range-objects.sh ds ou=certificateRepository,ou=ranges_v2 | tee output
 
           # new cert range should be the same but converted to decimal
           # first range move from 19-36 (hex) to 25-54 (dec)
@@ -1439,7 +1439,7 @@ jobs:
 
       - name: Check request repository
         run: |
-          tests/ca/bin/ca-request-next-range-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-request-next-range.sh ds | tee output
 
           cat > expected << EOF
           nextRange: 101
@@ -1449,7 +1449,7 @@ jobs:
 
       - name: Check cert repository
         run: |
-          tests/ca/bin/ca-cert-next-range-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-cert-next-range.sh ds | tee output
 
           cat > expected << EOF
           nextRange: 121
@@ -1459,7 +1459,7 @@ jobs:
 
       - name: Check old request range objects
         run: |
-          tests/ca/bin/ca-request-range-objects-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-request-range-objects.sh ds | tee output
 
           # new request range should be 31 - 40 decimal (total: 10)
           cat > expected << EOF
@@ -1484,7 +1484,7 @@ jobs:
 
       - name: Check new request range objects
         run: |
-          tests/ca/bin/ca-request-range-objects-ssnv1.sh ds ou=requests,ou=ranges_v2 | tee output
+          tests/ca/bin/ca-request-range-objects.sh ds ou=requests,ou=ranges_v2 | tee output
 
           cat > expected << EOF
           SecurePort: 8443
@@ -1538,7 +1538,7 @@ jobs:
 
       - name: Check old cert range objects
         run: |
-          tests/ca/bin/ca-cert-range-objects-ssnv1.sh ds | tee output
+          tests/ca/bin/ca-cert-range-objects.sh ds | tee output
 
           # new cert range should be the same but converted to decimal
           # first range move from 19-36 (hex) to 25-54 (dec)
@@ -1560,7 +1560,7 @@ jobs:
 
       - name: Check new cert range objects
         run: |
-          tests/ca/bin/ca-cert-range-objects-ssnv1.sh ds ou=certificateRepository,ou=ranges_v2 | tee output
+          tests/ca/bin/ca-cert-range-objects.sh ds ou=certificateRepository,ou=ranges_v2 | tee output
 
           cat > expected << EOF
           SecurePort: 8443
