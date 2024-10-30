@@ -244,7 +244,7 @@ public class AgentCertRequestServlet extends CAServlet {
                 filter,
                 maxTime,
                 start,
-                pageSize + 1);
+                pageSize);
 
         while(reqs.hasNext()) {
             Request request = reqs.next().toRequest();
