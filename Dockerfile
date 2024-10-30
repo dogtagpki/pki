@@ -47,7 +47,7 @@ WORKDIR /root/pki
 
 # Install PKI build dependencies
 RUN dnf install -y rpm-build \
-    && dnf builddep -y --skip-unavailable --spec pki.spec \
+    && dnf builddep -y --skip-unavailable pki.spec \
     && rpm -e --nodeps $(rpm -qa | grep -E "^dogtag-|^python3-dogtag-") \
     && dnf clean all \
     && rm -rf /var/cache/dnf
@@ -64,7 +64,7 @@ COPY --from=quay.io/dogtagpki/jss-dist:latest /root/RPMS /tmp/RPMS/
 COPY --from=quay.io/dogtagpki/ldapjdk-dist:latest /root/RPMS /tmp/RPMS/
 
 # Install build dependencies
-RUN dnf localinstall -y /tmp/RPMS/* \
+RUN dnf install -y /tmp/RPMS/* \
     && dnf clean all \
     && rm -rf /var/cache/dnf \
     && rm -rf /tmp/RPMS
@@ -95,7 +95,7 @@ COPY --from=quay.io/dogtagpki/ldapjdk-dist:latest /root/RPMS /tmp/RPMS/
 COPY --from=pki-dist /root/RPMS /tmp/RPMS/
 
 # Install runtime packages
-RUN dnf localinstall -y /tmp/RPMS/* \
+RUN dnf install -y /tmp/RPMS/* \
     && dnf clean all \
     && rm -rf /var/cache/dnf \
     && rm -rf /tmp/RPMS
