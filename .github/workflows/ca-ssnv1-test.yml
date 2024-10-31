@@ -89,6 +89,7 @@ jobs:
               -v
 
       - name: Check requests
+        if: always()
         run: |
           docker exec pki pki-server ca-cert-request-find | tee output
           sed -n "s/^ *Request ID: *\(.*\)$/\1/p" output > actual
@@ -99,6 +100,7 @@ jobs:
           diff expected actual
 
       - name: Check certs
+        if: always()
         run: |
           docker exec pki pki-server ca-cert-find | tee output
           sed -n "s/^ *Serial Number: *\(.*\)$/\1/p" output > actual
@@ -109,6 +111,7 @@ jobs:
           diff expected actual
 
       - name: Check request range config
+        if: always()
         run: |
           tests/ca/bin/ca-request-range-config.sh pki | tee output
 
@@ -124,6 +127,7 @@ jobs:
           diff expected output
 
       - name: Check cert range config
+        if: always()
         run: |
           tests/ca/bin/ca-cert-range-config.sh pki | tee output
 
@@ -139,6 +143,7 @@ jobs:
           diff expected output
 
       - name: Check request next range
+        if: always()
         run: |
           tests/ca/bin/ca-request-next-range.sh ds | tee output
 
@@ -152,6 +157,7 @@ jobs:
           diff expected output
 
       - name: Check cert next range
+        if: always()
         run: |
           tests/ca/bin/ca-cert-next-range.sh ds | tee output
 
@@ -165,6 +171,7 @@ jobs:
           diff expected output
 
       - name: Check request range objects
+        if: always()
         run: |
           tests/ca/bin/ca-request-range-objects.sh ds | tee output
 
@@ -172,6 +179,7 @@ jobs:
           diff /dev/null output
 
       - name: Check cert range objects
+        if: always()
         run: |
           tests/ca/bin/ca-cert-range-objects.sh ds | tee output
 
@@ -203,6 +211,7 @@ jobs:
           docker exec pki pki-server ca-redeploy --wait
 
       - name: Check request range config
+        if: always()
         run: |
           tests/ca/bin/ca-request-range-config.sh pki | tee output
 
@@ -220,6 +229,7 @@ jobs:
           diff expected output
 
       - name: Check cert range config
+        if: always()
         run: |
           tests/ca/bin/ca-cert-range-config.sh pki | tee output
 
@@ -235,6 +245,7 @@ jobs:
           diff expected output
 
       - name: Check request next range
+        if: always()
         run: |
           tests/ca/bin/ca-request-next-range.sh ds | tee output
 
@@ -246,6 +257,7 @@ jobs:
           diff expected output
 
       - name: Check cert next range
+        if: always()
         run: |
           tests/ca/bin/ca-cert-next-range.sh ds | tee output
 
@@ -257,6 +269,7 @@ jobs:
           diff expected output
 
       - name: Check request range objects
+        if: always()
         run: |
           tests/ca/bin/ca-request-range-objects.sh ds | tee output
 
@@ -272,6 +285,7 @@ jobs:
           diff expected output
 
       - name: Check cert range objects
+        if: always()
         run: |
           tests/ca/bin/ca-cert-range-objects.sh ds | tee output
 
@@ -305,6 +319,7 @@ jobs:
               --pkcs12-password Secret.123
 
       - name: Enroll 10 certs
+        if: always()
         run: |
           docker exec pki pki \
               nss-cert-request \
@@ -324,6 +339,7 @@ jobs:
           done
 
       - name: Check requests
+        if: always()
         run: |
           docker exec pki pki-server ca-cert-request-find | tee output
 
@@ -335,6 +351,7 @@ jobs:
           diff expected actual
 
       - name: Check certs
+        if: always()
         run: |
           docker exec pki pki-server ca-cert-find | tee output
 
@@ -346,6 +363,7 @@ jobs:
           diff expected actual
 
       - name: Check request range config
+        if: always()
         run: |
           tests/ca/bin/ca-request-range-config.sh pki | tee output
 
@@ -361,6 +379,7 @@ jobs:
           diff expected output
 
       - name: Check cert range config
+        if: always()
         run: |
           tests/ca/bin/ca-cert-range-config.sh pki | tee output
 
@@ -376,6 +395,7 @@ jobs:
           diff expected output
 
       - name: Check request next range
+        if: always()
         run: |
           tests/ca/bin/ca-request-next-range.sh ds | tee output
 
@@ -387,6 +407,7 @@ jobs:
           diff expected output
 
       - name: Check cert next range
+        if: always()
         run: |
           tests/ca/bin/ca-cert-next-range.sh ds | tee output
 
@@ -398,6 +419,7 @@ jobs:
           diff expected output
 
       - name: Check request range objects
+        if: always()
         run: |
           tests/ca/bin/ca-request-range-objects.sh ds | tee output
 
@@ -413,6 +435,7 @@ jobs:
           diff expected output
 
       - name: Check cert range objects
+        if: always()
         run: |
           tests/ca/bin/ca-cert-range-objects.sh ds | tee output
 
@@ -425,6 +448,7 @@ jobs:
       # This will create one request but fail to create another cert.
 
       - name: Enroll a cert when cert range is exhausted
+        if: always()
         run: |
           docker exec pki pki \
               -n caadmin \
@@ -443,6 +467,7 @@ jobs:
           diff expected stderr
 
       - name: Check requests
+        if: always()
         run: |
           docker exec pki pki-server ca-cert-request-find | tee output
 
@@ -454,6 +479,7 @@ jobs:
           diff expected actual
 
       - name: Check certs
+        if: always()
         run: |
           docker exec pki pki-server ca-cert-find | tee output
 
@@ -465,6 +491,7 @@ jobs:
           diff expected actual
 
       - name: Check request range config
+        if: always()
         run: |
           tests/ca/bin/ca-request-range-config.sh pki | tee output
 
@@ -480,6 +507,7 @@ jobs:
           diff expected output
 
       - name: Check cert range config
+        if: always()
         run: |
           tests/ca/bin/ca-cert-range-config.sh pki | tee output
 
@@ -495,6 +523,7 @@ jobs:
           diff expected output
 
       - name: Check request next range
+        if: always()
         run: |
           tests/ca/bin/ca-request-next-range.sh ds | tee output
 
@@ -506,6 +535,7 @@ jobs:
           diff expected output
 
       - name: Check cert next range
+        if: always()
         run: |
           tests/ca/bin/ca-cert-next-range.sh ds | tee output
 
@@ -517,6 +547,7 @@ jobs:
           diff expected output
 
       - name: Check request range objects
+        if: always()
         run: |
           tests/ca/bin/ca-request-range-objects.sh ds | tee output
 
@@ -532,6 +563,7 @@ jobs:
           diff expected output
 
       - name: Check cert range objects
+        if: always()
         run: |
           tests/ca/bin/ca-cert-range-objects.sh ds | tee output
 
@@ -545,10 +577,12 @@ jobs:
       # the remaining numbers in their ranges are below the minimum.
 
       - name: Allocate new ranges
+        if: always()
         run: |
           docker exec pki pki -n caadmin ca-job-start serialNumberUpdate
 
       - name: Check request range config
+        if: always()
         run: |
           tests/ca/bin/ca-request-range-config.sh pki | tee output
 
@@ -566,6 +600,7 @@ jobs:
           diff expected output
 
       - name: Check cert range config
+        if: always()
         run: |
           tests/ca/bin/ca-cert-range-config.sh pki | tee output
 
@@ -583,6 +618,7 @@ jobs:
           diff expected output
 
       - name: Check request next range
+        if: always()
         run: |
           tests/ca/bin/ca-request-next-range.sh ds | tee output
 
@@ -594,6 +630,7 @@ jobs:
           diff expected output
 
       - name: Check cert next range
+        if: always()
         run: |
           tests/ca/bin/ca-cert-next-range.sh ds | tee output
 
@@ -605,6 +642,7 @@ jobs:
           diff expected output
 
       - name: Check request range objects
+        if: always()
         run: |
           tests/ca/bin/ca-request-range-objects.sh ds | tee output
 
@@ -625,6 +663,7 @@ jobs:
           diff expected output
 
       - name: Check cert range objects
+        if: always()
         run: |
           tests/ca/bin/ca-cert-range-objects.sh ds | tee output
 
@@ -647,6 +686,7 @@ jobs:
       # will switch to the new ranges allocated earlier.
 
       - name: Enroll 13 additional certs
+        if: always()
         run: |
           for i in $(seq 1 13); do
               docker exec pki pki \
@@ -660,6 +700,7 @@ jobs:
           done
 
       - name: Check requests
+        if: always()
         run: |
           docker exec pki pki-server ca-cert-request-find | tee output
 
@@ -671,6 +712,7 @@ jobs:
           diff expected actual
 
       - name: Check certs
+        if: always()
         run: |
           docker exec pki pki-server ca-cert-find | tee output
 
@@ -682,6 +724,7 @@ jobs:
           diff expected actual
 
       - name: Check request range config
+        if: always()
         run: |
           tests/ca/bin/ca-request-range-config.sh pki | tee output
 
@@ -697,6 +740,7 @@ jobs:
           diff expected output
 
       - name: Check cert range config
+        if: always()
         run: |
           tests/ca/bin/ca-cert-range-config.sh pki | tee output
 
@@ -713,6 +757,7 @@ jobs:
           diff expected output
 
       - name: Check request next range
+        if: always()
         run: |
           tests/ca/bin/ca-request-next-range.sh ds | tee output
 
@@ -724,6 +769,7 @@ jobs:
           diff expected output
 
       - name: Check cert next range
+        if: always()
         run: |
           tests/ca/bin/ca-cert-next-range.sh ds | tee output
 
@@ -735,6 +781,7 @@ jobs:
           diff expected output
 
       - name: Check request range objects
+        if: always()
         run: |
           tests/ca/bin/ca-request-range-objects.sh ds | tee output
 
@@ -755,6 +802,7 @@ jobs:
           diff expected output
 
       - name: Check cert range objects
+        if: always()
         run: |
           tests/ca/bin/ca-cert-range-objects.sh ds | tee output
 
@@ -775,6 +823,7 @@ jobs:
       # This will fail to create a request so no cert will be created either.
 
       - name: Enroll a cert when request range is exhausted
+        if: always()
         run: |
           docker exec pki pki \
               -n caadmin \
@@ -791,6 +840,7 @@ jobs:
           diff expected stderr
 
       - name: Check requests
+        if: always()
         run: |
           docker exec pki pki-server ca-cert-request-find | tee output
 
@@ -802,6 +852,7 @@ jobs:
           diff expected actual
 
       - name: Check certs
+        if: always()
         run: |
           docker exec pki pki-server ca-cert-find | tee output
 
@@ -813,6 +864,7 @@ jobs:
           diff expected actual
 
       - name: Check request range config
+        if: always()
         run: |
           tests/ca/bin/ca-request-range-config.sh pki | tee output
 
@@ -828,6 +880,7 @@ jobs:
           diff expected output
 
       - name: Check cert range config
+        if: always()
         run: |
           tests/ca/bin/ca-cert-range-config.sh pki | tee output
 
@@ -843,6 +896,7 @@ jobs:
           diff expected output
 
       - name: Check request next range
+        if: always()
         run: |
           tests/ca/bin/ca-request-next-range.sh ds | tee output
 
@@ -854,6 +908,7 @@ jobs:
           diff expected output
 
       - name: Check cert next range
+        if: always()
         run: |
           tests/ca/bin/ca-cert-next-range.sh ds | tee output
 
@@ -865,6 +920,7 @@ jobs:
           diff expected output
 
       - name: Check request range objects
+        if: always()
         run: |
           tests/ca/bin/ca-request-range-objects.sh ds | tee output
 
@@ -885,6 +941,7 @@ jobs:
           diff expected output
 
       - name: Check cert range objects
+        if: always()
         run: |
           tests/ca/bin/ca-cert-range-objects.sh ds | tee output
 
@@ -906,10 +963,12 @@ jobs:
       # the remaining numbers in their ranges are below the minimum.
 
       - name: Allocate new ranges again
+        if: always()
         run: |
           docker exec pki pki -n caadmin ca-job-start serialNumberUpdate
 
       - name: Check request range config
+        if: always()
         run: |
           tests/ca/bin/ca-request-range-config.sh pki | tee output
 
@@ -927,6 +986,7 @@ jobs:
           diff expected output
 
       - name: Check cert range config
+        if: always()
         run: |
           tests/ca/bin/ca-cert-range-config.sh pki | tee output
 
@@ -944,6 +1004,7 @@ jobs:
           diff expected output
 
       - name: Check request next range
+        if: always()
         run: |
           tests/ca/bin/ca-request-next-range.sh ds | tee output
 
@@ -955,6 +1016,7 @@ jobs:
           diff expected output
 
       - name: Check cert next range
+        if: always()
         run: |
           tests/ca/bin/ca-cert-next-range.sh ds | tee output
 
@@ -966,6 +1028,7 @@ jobs:
           diff expected output
 
       - name: Check request range objects
+        if: always()
         run: |
           tests/ca/bin/ca-request-range-objects.sh ds | tee output
 
@@ -991,6 +1054,7 @@ jobs:
           diff expected output
 
       - name: Check cert range objects
+        if: always()
         run: |
           tests/ca/bin/ca-cert-range-objects.sh ds | tee output
 
@@ -1017,6 +1081,7 @@ jobs:
       # Both requests and certs will switch to new ranges.
 
       - name: Enroll 10 additional certs
+        if: always()
         run: |
           for i in $(seq 1 10); do
               docker exec pki pki \
@@ -1030,6 +1095,7 @@ jobs:
           done
 
       - name: Check requests
+        if: always()
         run: |
           docker exec pki pki-server ca-cert-request-find | tee output
 
@@ -1041,6 +1107,7 @@ jobs:
           diff expected actual
 
       - name: Check certs
+        if: always()
         run: |
           docker exec pki pki-server ca-cert-find | tee output
 
@@ -1056,6 +1123,7 @@ jobs:
           diff expected actual
 
       - name: Check request range config
+        if: always()
         run: |
           tests/ca/bin/ca-request-range-config.sh pki | tee output
 
@@ -1071,6 +1139,7 @@ jobs:
           diff expected output
 
       - name: Check cert range config
+        if: always()
         run: |
           tests/ca/bin/ca-cert-range-config.sh pki | tee output
 
@@ -1087,6 +1156,7 @@ jobs:
           diff expected output
 
       - name: Check request next range
+        if: always()
         run: |
           tests/ca/bin/ca-request-next-range.sh ds | tee output
 
@@ -1098,6 +1168,7 @@ jobs:
           diff expected output
 
       - name: Check cert next range
+        if: always()
         run: |
           tests/ca/bin/ca-cert-next-range.sh ds | tee output
 
@@ -1109,6 +1180,7 @@ jobs:
           diff expected output
 
       - name: Check request range objects
+        if: always()
         run: |
           tests/ca/bin/ca-request-range-objects.sh ds | tee output
 
@@ -1134,6 +1206,7 @@ jobs:
           diff expected output
 
       - name: Check cert range objects
+        if: always()
         run: |
           tests/ca/bin/ca-cert-range-objects.sh ds | tee output
 
@@ -1159,6 +1232,7 @@ jobs:
       #
       # It should work like the legacy but with correct range.
       - name: Switch to legacy2
+        if: always()
         run: |
           docker exec pki pki-server stop
           docker exec pki pki-server ca-id-generator-update -v --type legacy2 request
@@ -1167,6 +1241,7 @@ jobs:
           
 
       - name: Check request range config
+        if: always()
         run: |
           tests/ca/bin/ca-request-range-config.sh pki | tee output
           # request range should be the same
@@ -1183,6 +1258,7 @@ jobs:
           diff expected output
 
       - name: Check cert range config
+        if: always()
         run: |
           tests/ca/bin/ca-cert-range-config.sh pki | tee output
           
@@ -1197,6 +1273,7 @@ jobs:
           diff expected output
 
       - name: Check the radix configured for the new generator
+        if: always()
         run: |
           docker exec pki pki-server ca-config-show dbs.request.id.radix | tee output
           docker exec pki pki-server ca-config-show dbs.cert.id.radix | tee -a output
@@ -1209,6 +1286,7 @@ jobs:
           diff expected output
 
       - name: Check ranges entry is configured in a new tree
+        if: always()
         run: |
           docker exec pki pki-server ca-config-show dbs.serialRangeDN | tee output
           docker exec pki pki-server ca-config-show dbs.requestRangeDN | tee -a output
@@ -1221,6 +1299,7 @@ jobs:
           diff expected output
 
       - name: Check request repository
+        if: always()
         run: |
           tests/ca/bin/ca-request-next-range.sh ds | tee output
 
@@ -1232,6 +1311,7 @@ jobs:
           diff expected output
 
       - name: Check cert repository
+        if: always()
         run: |
           tests/ca/bin/ca-cert-next-range.sh ds | tee output
 
@@ -1242,6 +1322,7 @@ jobs:
           diff expected output
 
       - name: Check old request range objects
+        if: always()
         run: |
           tests/ca/bin/ca-request-range-objects.sh ds | tee output
 
@@ -1267,6 +1348,7 @@ jobs:
           diff expected output
 
       - name: Check new request range objects
+        if: always()
         run: |
           tests/ca/bin/ca-request-range-objects.sh -t legacy2 ds | tee output
 
@@ -1297,6 +1379,7 @@ jobs:
           diff expected output
 
       - name: Check old cert range objects
+        if: always()
         run: |
           tests/ca/bin/ca-cert-range-objects.sh ds | tee output
 
@@ -1319,6 +1402,7 @@ jobs:
           diff expected output
 
       - name: Check new cert range objects
+        if: always()
         run: |
           tests/ca/bin/ca-cert-range-objects.sh -t legacy2 ds | tee output
 
@@ -1345,6 +1429,7 @@ jobs:
       #
 
       - name: Enroll additional certs 
+        if: always()
         run: |
           # Enroll until request range exhausted
           for i in $(seq 1 9); do
@@ -1408,6 +1493,7 @@ jobs:
           docker exec pki pki -n caadmin ca-job-start serialNumberUpdate
           
       - name: Check request range config
+        if: always()
         run: |
           tests/ca/bin/ca-request-range-config.sh pki | tee output
 
@@ -1424,6 +1510,7 @@ jobs:
           diff expected output
 
       - name: Check cert range config
+        if: always()
         run: |
           tests/ca/bin/ca-cert-range-config.sh pki | tee output
 
@@ -1438,6 +1525,7 @@ jobs:
           diff expected output
 
       - name: Check request repository
+        if: always()
         run: |
           tests/ca/bin/ca-request-next-range.sh ds | tee output
 
@@ -1448,6 +1536,7 @@ jobs:
           diff expected output
 
       - name: Check cert repository
+        if: always()
         run: |
           tests/ca/bin/ca-cert-next-range.sh ds | tee output
 
@@ -1458,6 +1547,7 @@ jobs:
           diff expected output
 
       - name: Check old request range objects
+        if: always()
         run: |
           tests/ca/bin/ca-request-range-objects.sh ds | tee output
 
@@ -1483,6 +1573,7 @@ jobs:
           diff expected output
 
       - name: Check new request range objects
+        if: always()
         run: |
           tests/ca/bin/ca-request-range-objects.sh -t legacy2 ds | tee output
 
@@ -1537,6 +1628,7 @@ jobs:
           diff expected output
 
       - name: Check old cert range objects
+        if: always()
         run: |
           tests/ca/bin/ca-cert-range-objects.sh ds | tee output
 
@@ -1559,6 +1651,7 @@ jobs:
           diff expected output
 
       - name: Check new cert range objects
+        if: always()
         run: |
           tests/ca/bin/ca-cert-range-objects.sh -t legacy2 ds | tee output
 
@@ -1591,6 +1684,7 @@ jobs:
       # Checking request no gap should be present after switching to legacy2
       #
       - name: Check requests
+        if: always()
         run: |
           docker exec pki pki-server ca-cert-request-find | tee output
 
@@ -1606,6 +1700,7 @@ jobs:
       # so the last gap is between 32 and 39
       #
       - name: Check certs
+        if: always()
         run: |
           docker exec pki pki-server ca-cert-find | tee output
 
@@ -1627,6 +1722,7 @@ jobs:
       # should be issued with a non-sequential serial number.
 
       - name: Switch to RSNv3
+        if: always()
         run: |
           # switch cert request ID generator to RSNv3
           docker exec pki pki-server ca-config-unset dbs.beginRequestNumber
@@ -1652,6 +1748,7 @@ jobs:
           docker exec pki pki-server ca-redeploy --wait
 
       - name: Enroll a cert with RSNv3
+        if: always()
         run: |
           docker exec pki pki \
               -n caadmin \
@@ -1663,6 +1760,7 @@ jobs:
           docker exec pki openssl x509 -in testuser.crt -serial -noout
 
       - name: Check requests
+        if: always()
         run: |
           docker exec pki pki-server ca-cert-request-find | tee output
           sed -n "s/^ *Request ID: *\(.*\)$/\1/p" output > list
@@ -1678,6 +1776,7 @@ jobs:
           [ ${#REQUEST_ID} -gt 2 ]
 
       - name: Check certs
+        if: always()
         run: |
           docker exec pki pki-server ca-cert-find | tee output
           sed -n "s/^ *Serial Number: *\(.*\)$/\1/p" output > list
