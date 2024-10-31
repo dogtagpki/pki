@@ -196,7 +196,7 @@ jobs:
       - name: Check request next range
         if: always()
         run: |
-          tests/ca/bin/ca-request-next-range.sh primaryds | tee output
+          tests/ca/bin/ca-request-next-range.sh -t legacy2 primaryds | tee output
 
           # nextRange should be endRange + 1 = 11
           cat > expected << EOF
@@ -208,7 +208,7 @@ jobs:
       - name: Check cert next range
         if: always()
         run: |
-          tests/ca/bin/ca-cert-next-range.sh primaryds | tee output
+          tests/ca/bin/ca-cert-next-range.sh -t legacy2 primaryds | tee output
 
           # nextRange should be dbs.endSerialNumber + 1 = 0x19 or 25
           cat > expected << EOF
@@ -412,7 +412,7 @@ jobs:
       - name: Check request next range
         if: always()
         run: |
-          tests/ca/bin/ca-request-next-range.sh secondaryds | tee output
+          tests/ca/bin/ca-request-next-range.sh -t legacy2 secondaryds | tee output
 
           # nextRange should be the same
           cat > expected << EOF
@@ -424,7 +424,7 @@ jobs:
       - name: Check cert next range
         if: always()
         run: |
-          tests/ca/bin/ca-cert-next-range.sh secondaryds | tee output
+          tests/ca/bin/ca-cert-next-range.sh -t legacy2 secondaryds | tee output
 
           # nextRange should be the same
           cat > expected << EOF
@@ -579,7 +579,7 @@ jobs:
       - name: Check request next range
         if: always()
         run: |
-          tests/ca/bin/ca-request-next-range.sh primaryds | tee output
+          tests/ca/bin/ca-request-next-range.sh -t legacy2 primaryds | tee output
 
           # nextRange should be the same
           cat > expected << EOF
@@ -591,7 +591,7 @@ jobs:
       - name: Check cert next range
         if: always()
         run: |
-          tests/ca/bin/ca-cert-next-range.sh primaryds | tee output
+          tests/ca/bin/ca-cert-next-range.sh -t legacy2 primaryds | tee output
 
           # nextRange should be the same
           cat > expected << EOF
@@ -885,7 +885,7 @@ jobs:
       - name: Check request next range
         if: always()
         run: |
-          tests/ca/bin/ca-request-next-range.sh primaryds | tee output
+          tests/ca/bin/ca-request-next-range.sh -t legacy2 primaryds | tee output
 
           # nextRange should be endRange + 1 = 31
           cat > expected << EOF
@@ -897,7 +897,7 @@ jobs:
       - name: Check cert next range
         if: always()
         run: |
-          tests/ca/bin/ca-cert-next-range.sh primaryds | tee output
+          tests/ca/bin/ca-cert-next-range.sh -t legacy2 primaryds | tee output
 
           # nextRange should be endRange + 1 = 61 or 0x3d
           cat > expected << EOF
@@ -1081,7 +1081,7 @@ jobs:
       - name: Check request next range
         if: always()
         run: |
-          tests/ca/bin/ca-request-next-range.sh primaryds | tee output
+          tests/ca/bin/ca-request-next-range.sh -t legacy2 primaryds | tee output
 
           # nextRange should be the same
           cat > expected << EOF
@@ -1093,7 +1093,7 @@ jobs:
       - name: Check cert next range
         if: always()
         run: |
-          tests/ca/bin/ca-cert-next-range.sh primaryds | tee output
+          tests/ca/bin/ca-cert-next-range.sh -t legacy2 primaryds | tee output
 
           # nextRange should be the same
           cat > expected << EOF

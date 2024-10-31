@@ -1063,7 +1063,7 @@ jobs:
           docker exec primary pki-server ca-id-generator-update -v --type legacy2 request
           docker exec primary pki-server ca-id-generator-update -v --type legacy2 cert
 
-      - name: Check old request range objects
+      - name: Check request range objects for SSNv1
         if: always()
         run: |
           tests/ca/bin/ca-request-range-objects.sh primaryds | tee output
@@ -1084,7 +1084,7 @@ jobs:
 
           diff expected output
 
-      - name: Check new request range objects
+      - name: Check request range objects for SSNv2
         if: always()
         run: |
           tests/ca/bin/ca-request-range-objects.sh -t legacy2 primaryds | tee output
@@ -1100,7 +1100,7 @@ jobs:
 
           diff expected output
 
-      - name: Check request next range
+      - name: Check request next range for SSNv1
         if: always()
         run: |
           tests/ca/bin/ca-request-next-range.sh primaryds | tee output
@@ -1112,7 +1112,19 @@ jobs:
 
           diff expected output
 
-      - name: Check old cert range objects
+      - name: Check request next range for SSNv2
+        if: always()
+        run: |
+          tests/ca/bin/ca-request-next-range.sh -t legacy2 primaryds | tee output
+
+          # request nextRange should remain the same
+          cat > expected << EOF
+          nextRange: 21
+          EOF
+
+          diff expected output
+
+      - name: Check cert range objects for SSNv1
         if: always()
         run: |
           tests/ca/bin/ca-cert-range-objects.sh primaryds | tee output
@@ -1134,7 +1146,7 @@ jobs:
 
           diff expected output
 
-      - name: Check new cert range objects
+      - name: Check cert range objects for SSNv2
         if: always()
         run: |
           tests/ca/bin/ca-cert-range-objects.sh -t legacy2 primaryds | tee output
@@ -1151,12 +1163,24 @@ jobs:
 
           diff expected output
 
-      - name: Check cert next range
+      - name: Check cert next range for SSNv1
         if: always()
         run: |
           tests/ca/bin/ca-cert-next-range.sh primaryds | tee output
 
-          # cert nextRange should remain the same
+          # next range should remain the same
+          cat > expected << EOF
+          nextRange: 49
+          EOF
+
+          diff expected output
+
+      - name: Check cert next range for SSNv2
+        if: always()
+        run: |
+          tests/ca/bin/ca-cert-next-range.sh -t legacy2 primaryds | tee output
+
+          # next range should be endRange + 1
           cat > expected << EOF
           nextRange: 49
           EOF
@@ -1273,7 +1297,7 @@ jobs:
 
           diff expected output
 
-      - name: Check old request range objects
+      - name: Check request range objects for SSNv1
         if: always()
         run: |
           tests/ca/bin/ca-request-range-objects.sh primaryds | tee output
@@ -1293,7 +1317,7 @@ jobs:
 
           diff expected output
 
-      - name: Check new request range objects
+      - name: Check request range objects for SSNv2
         if: always()
         run: |
           tests/ca/bin/ca-request-range-objects.sh -t legacy2 primaryds | tee output
@@ -1323,7 +1347,29 @@ jobs:
 
           diff expected output
 
-      - name: Check old cert range objects
+      - name: Check request next range for SSNv1
+        if: always()
+        run: |
+          tests/ca/bin/ca-request-next-range.sh primaryds | tee output
+
+          cat > expected << EOF
+          nextRange: 31
+          EOF
+
+          diff expected output
+
+      - name: Check request next range for SSNv2
+        if: always()
+        run: |
+          tests/ca/bin/ca-request-next-range.sh -t legacy2 primaryds | tee output
+
+          cat > expected << EOF
+          nextRange: 51
+          EOF
+
+          diff expected output
+
+      - name: Check cert range objects for SSNv1
         if: always()
         run: |
           tests/ca/bin/ca-cert-range-objects.sh primaryds | tee output
@@ -1344,7 +1390,7 @@ jobs:
 
           diff expected output
 
-      - name: Check new cert range objects
+      - name: Check cert range objects for SSNv2
         if: always()
         run: |
           tests/ca/bin/ca-cert-range-objects.sh -t legacy2 primaryds | tee output
@@ -1367,22 +1413,24 @@ jobs:
 
           diff expected output
 
-      - name: Check request repository
-        if: always()
-        run: |
-          tests/ca/bin/ca-request-next-range.sh primaryds | tee output
-
-          cat > expected << EOF
-          nextRange: 51
-          EOF
-
-          diff expected output
-
-      - name: Check cert repository
+      - name: Check cert next range for SSNv1
         if: always()
         run: |
           tests/ca/bin/ca-cert-next-range.sh primaryds | tee output
 
+          # next range should remain the same
+          cat > expected << EOF
+          nextRange: 49
+          EOF
+
+          diff expected output
+
+      - name: Check cert next range for SSNv2
+        if: always()
+        run: |
+          tests/ca/bin/ca-cert-next-range.sh -t legacy2 primaryds | tee output
+
+          # next range should be endRange + 1
           cat > expected << EOF
           nextRange: 73
           EOF
@@ -1568,7 +1616,7 @@ jobs:
 
           diff expected output
 
-      - name: Check old request range objects
+      - name: Check request range objects for SSNv1
         if: always()
         run: |
           tests/ca/bin/ca-request-range-objects.sh primaryds | tee output
@@ -1588,7 +1636,7 @@ jobs:
 
           diff expected output
 
-      - name: Check new request range objects
+      - name: Check request range objects for SSNv2
         if: always()
         run: |
           tests/ca/bin/ca-request-range-objects.sh -t legacy2 primaryds | tee output
@@ -1643,7 +1691,29 @@ jobs:
 
           diff expected output
 
-      - name: Check old cert range objects
+      - name: Check request next range for SSNv1
+        if: always()
+        run: |
+          tests/ca/bin/ca-request-next-range.sh primaryds | tee output
+
+          cat > expected << EOF
+          nextRange: 31
+          EOF
+
+          diff expected output
+
+      - name: Check request next range for SSNv2
+        if: always()
+        run: |
+          tests/ca/bin/ca-request-next-range.sh -t legacy2 primaryds | tee output
+
+          cat > expected << EOF
+          nextRange: 101
+          EOF
+
+          diff expected output
+
+      - name: Check cert range objects for SSNv1
         if: always()
         run: |
           tests/ca/bin/ca-cert-range-objects.sh primaryds | tee output
@@ -1664,7 +1734,7 @@ jobs:
 
           diff expected output
 
-      - name: Check new cert range objects
+      - name: Check cert range objects for SSNv2
         if: always()
         run: |
           tests/ca/bin/ca-cert-range-objects.sh -t legacy2 primaryds | tee output
@@ -1699,22 +1769,24 @@ jobs:
 
           diff expected output
 
-      - name: Check request repository
-        if: always()
-        run: |
-          tests/ca/bin/ca-request-next-range.sh primaryds | tee output
-
-          cat > expected << EOF
-          nextRange: 101
-          EOF
-
-          diff expected output
-
-      - name: Check cert repository
+      - name: Check cert next range for SSNv1
         if: always()
         run: |
           tests/ca/bin/ca-cert-next-range.sh primaryds | tee output
 
+          # next range should remain the same
+          cat > expected << EOF
+          nextRange: 49
+          EOF
+
+          diff expected output
+
+      - name: Check cert next range for SSNv2
+        if: always()
+        run: |
+          tests/ca/bin/ca-cert-next-range.sh -t legacy2 primaryds | tee output
+
+          # next range should be endRange + 1
           cat > expected << EOF
           nextRange: 127
           EOF
