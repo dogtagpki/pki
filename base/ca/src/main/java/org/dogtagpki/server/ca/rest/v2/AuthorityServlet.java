@@ -122,8 +122,8 @@ public class AuthorityServlet extends CAServlet {
             out.println(cert);
             return;
         }
-        if (accept.equals(MediaType.ANYTYPE) || accept.contains(MediaType.APPLICATION_PKIX_CERT)) {
-            response.setContentType(MediaType.APPLICATION_PKIX_CERT);
+        if (accept.equals(MediaType.ANYTYPE) || accept.contains(MediaType.APPLICATION_PKCS7)) {
+            response.setContentType(MediaType.APPLICATION_PKCS7);
             byte[] cert = authority.getBinaryChain(aid);
             OutputStream out = response.getOutputStream();
             out.write(cert);
