@@ -593,6 +593,7 @@ Requires:         openldap-clients
 Requires:         nss-tools >= 3.36.1
 Requires:         %{product_id}-java = %{version}-%{release}
 Requires:         p11-kit-trust
+Requires:         file
 
 # PKICertImport depends on certutil and openssl
 Requires:         nss-tools
