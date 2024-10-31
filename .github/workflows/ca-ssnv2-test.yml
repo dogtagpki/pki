@@ -172,7 +172,7 @@ jobs:
       - name: Check request next range
         if: always()
         run: |
-          tests/ca/bin/ca-request-next-range.sh ds | tee output
+          tests/ca/bin/ca-request-next-range.sh -t legacy2 ds | tee output
 
           # request nextRange should be dbs.endRequestNumber + 1 = 11
           cat > expected << EOF
@@ -184,7 +184,7 @@ jobs:
       - name: Check cert next range
         if: always()
         run: |
-          tests/ca/bin/ca-cert-next-range.sh ds | tee output
+          tests/ca/bin/ca-cert-next-range.sh -t legacy2 ds | tee output
 
           # cert nextRange should be dbs.endSerialNumber + 1 = 0x19 or 25
           cat > expected << EOF
@@ -280,7 +280,7 @@ jobs:
       - name: Check request next range
         if: always()
         run: |
-          tests/ca/bin/ca-request-next-range.sh ds | tee output
+          tests/ca/bin/ca-request-next-range.sh -t legacy2 ds | tee output
 
           # nextRange should be endRange + 1 = 21
           cat > expected << EOF
@@ -292,7 +292,7 @@ jobs:
       - name: Check cert next range
         if: always()
         run: |
-          tests/ca/bin/ca-cert-next-range.sh ds | tee output
+          tests/ca/bin/ca-cert-next-range.sh -t legacy2 ds | tee output
 
           # nextRange should be the same
           cat > expected << EOF
@@ -415,7 +415,7 @@ jobs:
       - name: Check request next range
         if: always()
         run: |
-          tests/ca/bin/ca-request-next-range.sh ds | tee output
+          tests/ca/bin/ca-request-next-range.sh -t legacy2 ds | tee output
 
           # nextRange should be the same
           cat > expected << EOF
@@ -427,7 +427,7 @@ jobs:
       - name: Check cert next range
         if: always()
         run: |
-          tests/ca/bin/ca-cert-next-range.sh ds | tee output
+          tests/ca/bin/ca-cert-next-range.sh -t legacy2 ds | tee output
 
           # nextRange should be the same
           cat > expected << EOF
@@ -543,7 +543,7 @@ jobs:
       - name: Check request next range
         if: always()
         run: |
-          tests/ca/bin/ca-request-next-range.sh ds | tee output
+          tests/ca/bin/ca-request-next-range.sh -t legacy2 ds | tee output
 
           # request nextRange should be the same
           cat > expected << EOF
@@ -555,7 +555,7 @@ jobs:
       - name: Check cert next range
         if: always()
         run: |
-          tests/ca/bin/ca-cert-next-range.sh ds | tee output
+          tests/ca/bin/ca-cert-next-range.sh -t legacy2 ds | tee output
 
           # cert nextRange should be the same
           cat > expected << EOF
@@ -653,7 +653,7 @@ jobs:
       - name: Check request next range
         if: always()
         run: |
-          tests/ca/bin/ca-request-next-range.sh ds | tee output
+          tests/ca/bin/ca-request-next-range.sh -t legacy2 ds | tee output
 
           # request nextRange should be incremented by 10 to 31
           cat > expected << EOF
@@ -665,7 +665,7 @@ jobs:
       - name: Check cert next range
         if: always()
         run: |
-          tests/ca/bin/ca-cert-next-range.sh ds | tee output
+          tests/ca/bin/ca-cert-next-range.sh -t legacy2 ds | tee output
 
           # cert nextRequest should incremented by 0x12 to 0x2b or 43
           cat > expected << EOF
@@ -790,7 +790,7 @@ jobs:
       - name: Check request next range
         if: always()
         run: |
-          tests/ca/bin/ca-request-next-range.sh ds | tee output
+          tests/ca/bin/ca-request-next-range.sh -t legacy2 ds | tee output
 
           # request nextRange should be the same
           cat > expected << EOF
@@ -802,7 +802,7 @@ jobs:
       - name: Check cert next range
         if: always()
         run: |
-          tests/ca/bin/ca-cert-next-range.sh ds | tee output
+          tests/ca/bin/ca-cert-next-range.sh -t legacy2 ds | tee output
 
           # cert nextRange should be the same
           cat > expected << EOF
@@ -929,7 +929,7 @@ jobs:
       - name: Check request next range
         if: always()
         run: |
-          tests/ca/bin/ca-request-next-range.sh ds | tee output
+          tests/ca/bin/ca-request-next-range.sh -t legacy2 ds | tee output
 
           # request nextRange should be the same
           cat > expected << EOF
@@ -941,7 +941,7 @@ jobs:
       - name: Check cert next range
         if: always()
         run: |
-          tests/ca/bin/ca-cert-next-range.sh ds | tee output
+          tests/ca/bin/ca-cert-next-range.sh -t legacy2 ds | tee output
 
           # cert nextRange should be the same
           cat > expected << EOF
@@ -1049,7 +1049,7 @@ jobs:
       - name: Check request next range
         if: always()
         run: |
-          tests/ca/bin/ca-request-next-range.sh ds | tee output
+          tests/ca/bin/ca-request-next-range.sh -t legacy2 ds | tee output
 
           # request nextRange should be incremented by 10 to 41
           cat > expected << EOF
@@ -1061,7 +1061,7 @@ jobs:
       - name: Check cert next range
         if: always()
         run: |
-          tests/ca/bin/ca-cert-next-range.sh ds | tee output
+          tests/ca/bin/ca-cert-next-range.sh -t legacy2 ds | tee output
 
           # cert nextRange should be incremented by 0x12 to 0x47 or 61
           cat > expected << EOF
@@ -1196,7 +1196,7 @@ jobs:
       - name: Check request next range
         if: always()
         run: |
-          tests/ca/bin/ca-request-next-range.sh ds | tee output
+          tests/ca/bin/ca-request-next-range.sh -t legacy2 ds | tee output
 
           # request nextRange should be the same
           cat > expected << EOF
@@ -1208,7 +1208,7 @@ jobs:
       - name: Check cert next range
         if: always()
         run: |
-          tests/ca/bin/ca-cert-next-range.sh ds | tee output
+          tests/ca/bin/ca-cert-next-range.sh -t legacy2 ds | tee output
 
           # cert nextRange should be the same
           cat > expected << EOF
