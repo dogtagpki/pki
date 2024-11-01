@@ -352,7 +352,7 @@ LABEL name="pki-acme" \
       com.redhat.component="$COMPONENT"
 
 # Install PKI dependencies
-RUN dnf install -y bind-utils iputils abrt-java-connector postgresql postgresql-jdbc
+RUN dnf install -y bind-utils iputils postgresql postgresql-jdbc
 
 # Install PostgreSQL JDBC driver
 RUN ln -s /usr/share/java/postgresql-jdbc/postgresql.jar /usr/share/pki/server/common/lib/postgresql.jar

@@ -42,7 +42,7 @@ COPY . /tmp/pki/
 WORKDIR /tmp/pki
 
 # Build and install PKI packages
-RUN dnf install -y rpm-build bind-utils iputils abrt-java-connector postgresql postgresql-jdbc \
+RUN dnf install -y rpm-build bind-utils iputils postgresql postgresql-jdbc \
     && dnf builddep -y --spec pki.spec \
     && ./build.sh --with-pkgs=base,server,acme --work-dir=build rpm \
     && dnf localinstall -y build/RPMS/* \
