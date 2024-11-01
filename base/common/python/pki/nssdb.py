@@ -31,7 +31,6 @@ import shutil
 import stat
 import subprocess
 import tempfile
-import datetime
 import grp
 import pwd
 
@@ -2100,8 +2099,8 @@ class NSSDatabase(object):
         cert['issuer'] = pki.convert_x509_name_to_dn(cert_obj.issuer)
         cert['subject'] = pki.convert_x509_name_to_dn(cert_obj.subject)
 
-        cert['not_before'] = self.convert_time_to_millis(cert_obj.not_valid_before)
-        cert['not_after'] = self.convert_time_to_millis(cert_obj.not_valid_after)
+        cert['not_before'] = self.convert_time_to_millis(cert_obj.not_valid_before_utc)
+        cert['not_after'] = self.convert_time_to_millis(cert_obj.not_valid_after_utc)
         cert['trust_flags'] = self.get_trust(nickname=nickname, token=token)
 
         logger.debug('NSSDatabase.get_cert_info(%s) ends', nickname)
@@ -2110,8 +2109,7 @@ class NSSDatabase(object):
 
     @staticmethod
     def convert_time_to_millis(date):
-        epoch = datetime.datetime.utcfromtimestamp(0)
-        return (date - epoch).total_seconds() * 1000
+        return date.timestamp() * 1000
 
     def export_cert_from_db(self,
                             nickname,
