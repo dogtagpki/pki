@@ -36,5 +36,5 @@ jobs:
           # so the exported p12, having sha1 signature are not accepted.
           # Waiting to update the export to configure a different algorithm for the signature
           # the following line enable SHA1 so PKICertImport can import p12 files. 
-          docker exec pki update-crypto-policies --set DEFAULT:SHA1
+          # docker exec pki update-crypto-policies --set DEFAULT:SHA1
           docker exec pki bash /usr/share/pki/tests/util/bin/test_PKICertImport.bash
