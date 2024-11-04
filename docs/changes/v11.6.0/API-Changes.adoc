@@ -1,0 +1,5 @@
+= API Changes =
+
+== NSSDatabase.get_cert_info() changes ==
+
+The `NSSDatabase.get_cert_info()` has been modified to return `not_before` and `not_after` attributes in UTC timezone.

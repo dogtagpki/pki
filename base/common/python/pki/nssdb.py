@@ -31,6 +31,7 @@ import shutil
 import stat
 import subprocess
 import tempfile
+import datetime
 import grp
 import pwd
 
@@ -2099,8 +2100,22 @@ class NSSDatabase(object):
         cert['issuer'] = pki.convert_x509_name_to_dn(cert_obj.issuer)
         cert['subject'] = pki.convert_x509_name_to_dn(cert_obj.subject)
 
-        cert['not_before'] = self.convert_time_to_millis(cert_obj.not_valid_before_utc)
-        cert['not_after'] = self.convert_time_to_millis(cert_obj.not_valid_after_utc)
+        if hasattr(cert_obj, 'not_valid_before_utc'):
+            # available since Python Cryptography 42
+            not_before = cert_obj.not_valid_before_utc
+        else:
+            # use the deprecated attribute then convert into UTC
+            not_valid_before = cert_obj.not_valid_before.replace(tzinfo=datetime.timezone.utc)
+        cert['not_before'] = self.convert_time_to_millis(not_before)
+
+        if hasattr(cert_obj, 'not_valid_after_utc'):
+            # available since Python Cryptography 42
+            not_after = cert_obj.not_valid_after_utc
+        else:
+            # use the deprecated attribute then convert into UTC
+            not_after = cert_obj.not_valid_after.replace(tzinfo=datetime.timezone.utc)
+        cert['not_after'] = self.convert_time_to_millis(not_after)
+
         cert['trust_flags'] = self.get_trust(nickname=nickname, token=token)
 
         logger.debug('NSSDatabase.get_cert_info(%s) ends', nickname)
