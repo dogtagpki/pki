@@ -2105,7 +2105,7 @@ class NSSDatabase(object):
             not_before = cert_obj.not_valid_before_utc
         else:
             # use the deprecated attribute then convert into UTC
-            not_valid_before = cert_obj.not_valid_before.replace(tzinfo=datetime.timezone.utc)
+            not_before = cert_obj.not_valid_before.replace(tzinfo=datetime.timezone.utc)
         cert['not_before'] = self.convert_time_to_millis(not_before)
 
         if hasattr(cert_obj, 'not_valid_after_utc'):
