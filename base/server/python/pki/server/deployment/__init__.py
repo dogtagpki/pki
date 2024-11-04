@@ -1217,10 +1217,7 @@ class PKIDeployer:
 
         subsystem.set_config('dbs.cert.id.generator', cert_id_generator)
 
-        if cert_id_generator == 'random':
-            subsystem.set_config('dbs.cert.id.length', self.mdict['pki_cert_id_length'])
-
-        else:  # legacy
+        if cert_id_generator == 'legacy':
             subsystem.set_config('dbs.beginSerialNumber', '1')  # hex
             subsystem.set_config('dbs.endSerialNumber', '10000000')  # hex
             subsystem.set_config('dbs.serialIncrement', '10000000')  # hex
@@ -1251,11 +1248,54 @@ class PKIDeployer:
             if serial_transfer:
                 subsystem.set_config('dbs.serialCloneTransferNumber', serial_transfer)
 
-            if cert_id_generator == 'legacy2':
-                serial_dn = 'ou=certificateRepository,ou=ranges_v2'
-            else:
-                serial_dn = 'ou=certificateRepository,ou=ranges'
-            subsystem.set_config('dbs.serialRangeDN', serial_dn)
+            subsystem.set_config('dbs.serialRangeDN', 'ou=certificateRepository,ou=ranges')
+
+        elif cert_id_generator == 'legacy2':
+            subsystem.set_config('dbs.beginSerialNumber', '0x1')  # hex
+            subsystem.set_config('dbs.endSerialNumber', '0x10000000')  # hex
+            subsystem.set_config('dbs.serialIncrement', '0x10000000')  # hex
+            subsystem.set_config('dbs.serialLowWaterMark', '0x2000000')  # hex
+            subsystem.set_config('dbs.serialCloneTransferNumber', '0x10000')  # hex
+
+            if config.str2bool(self.mdict['pki_random_serial_numbers_enable']):
+                subsystem.set_config('dbs.enableRandomSerialNumbers', 'true')
+            subsystem.set_config('dbs.randomSerialNumberCounter', '0')
+
+            serial_number_range_start = self.mdict.get('pki_serial_number_range_start')
+            if serial_number_range_start:
+                if not serial_number_range_start.startswith('0x'):
+                    raise Exception('pki_serial_number_range_start format not valid, expecting 0x...')
+                subsystem.set_config('dbs.beginSerialNumber', serial_number_range_start)
+
+            serial_number_range_end = self.mdict.get('pki_serial_number_range_end')
+            if serial_number_range_end:
+                if not serial_number_range_end.startswith('0x'):
+                    raise Exception('pki_serial_number_range_end format not valid, expecting 0x...')
+                subsystem.set_config('dbs.endSerialNumber', serial_number_range_end)
+
+            serial_increment = self.mdict.get('pki_serial_number_range_increment')
+            if serial_increment:
+                if not serial_increment.startswith('0x'):
+                    raise Exception('pki_serial_number_range_increment format not valid, expecting 0x...')
+                subsystem.set_config('dbs.serialIncrement', serial_increment)
+
+            serial_minimum = self.mdict.get('pki_serial_number_range_minimum')
+            if serial_minimum:
+                if not serial_minimum.startswith('0x'):
+                    raise Exception('pki_serial_number_range_minimum format not valid, expecting 0x...')
+                subsystem.set_config('dbs.serialLowWaterMark', serial_minimum)
+
+            serial_transfer = self.mdict.get('pki_serial_number_range_transfer')
+            if serial_transfer:
+                if not serial_transfer.startswith('0x'):
+                    raise Exception('pki_serial_number_range_transfer format not valid, expecting 0x...')
+                subsystem.set_config('dbs.serialCloneTransferNumber', serial_transfer)
+
+            subsystem.set_config('dbs.serialRangeDN', 'ou=certificateRepository,ou=ranges_v2')
+
+        else:  # random
+            subsystem.set_config('dbs.cert.id.length', self.mdict['pki_cert_id_length'])
+
 
         replica_number_range_start = self.mdict.get('pki_replica_number_range_start')
         if replica_number_range_start:
@@ -1298,21 +1338,26 @@ class PKIDeployer:
 
         subsystem.set_config('dbs.key.id.generator', key_id_generator)
 
-        if key_id_generator == 'random':
-            subsystem.set_config('dbs.key.id.length', self.mdict['pki_key_id_length'])
-
-        else:  # legacy
+        if key_id_generator == 'legacy':
             subsystem.set_config('dbs.beginSerialNumber', '1')  # hex
             subsystem.set_config('dbs.endSerialNumber', '10000000')  # hex
             subsystem.set_config('dbs.serialIncrement', '10000000')  # hex
             subsystem.set_config('dbs.serialLowWaterMark', '2000000')  # hex
             subsystem.set_config('dbs.serialCloneTransferNumber', '10000')  # hex
 
-            if key_id_generator == 'legacy2':
-                serial_dn = 'ou=keyRepository,ou=ranges_v2'
-            else:
-                serial_dn = 'ou=keyRepository,ou=ranges'
-            subsystem.set_config('dbs.serialRangeDN', serial_dn)
+            subsystem.set_config('dbs.serialRangeDN', 'ou=keyRepository,ou=ranges')
+
+        elif key_id_generator == 'legacy2':
+            subsystem.set_config('dbs.beginSerialNumber', '0x1')  # hex
+            subsystem.set_config('dbs.endSerialNumber', '0x10000000')  # hex
+            subsystem.set_config('dbs.serialIncrement', '0x10000000')  # hex
+            subsystem.set_config('dbs.serialLowWaterMark', '0x2000000')  # hex
+            subsystem.set_config('dbs.serialCloneTransferNumber', '0x10000')  # hex
+
+            subsystem.set_config('dbs.serialRangeDN', 'ou=keyRepository,ou=ranges_v2')
+
+        else:  # random
+            subsystem.set_config('dbs.key.id.length', self.mdict['pki_key_id_length'])
 
         if config.str2bool(self.mdict['pki_kra_ephemeral_requests']):
             logger.debug('Setting ephemeral requests to true')
