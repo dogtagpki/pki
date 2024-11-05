@@ -1108,15 +1108,15 @@ jobs:
           diff expected output
 
       ####################################################################################################
-      # Enroll 10 additional certs
+      # Enroll 7 additional certs
       #
-      # This will create 10 requests and 10 certs.
+      # This will create 7 requests and 7 certs.
       # Both requests and certs will switch to new ranges.
 
-      - name: Enroll 10 additional certs
+      - name: Enroll 7 additional certs
         if: always()
         run: |
-          for i in $(seq 1 10); do
+          for i in $(seq 1 7); do
               docker exec pki pki \
                   -n caadmin \
                   ca-cert-issue \
@@ -1134,8 +1134,8 @@ jobs:
 
           sed -n "s/^ *Request ID: *\(.*\)$/\1/p" output > actual
 
-          # there should be 40 requests (30 existing + 10 new)
-          seq 1 40 > expected
+          # there should be 37 requests (30 existing + 7 new)
+          seq 1 37 > expected
 
           diff expected actual
 
@@ -1146,8 +1146,8 @@ jobs:
 
           sed -n "s/^ *Serial Number: *\(.*\)$/\1/p" output > actual
 
-          # there should be 39 certs (29 existing + 10 new)
-          printf "0x%x\n" {9..47} > expected
+          # there should be 36 certs (29 existing + 7 new)
+          printf "0x%x\n" {9..44} > expected
 
           diff expected actual
 
@@ -1156,7 +1156,7 @@ jobs:
         run: |
           tests/ca/bin/ca-request-range-config.sh pki | tee output
 
-          # request range should be 31 - 40 (size: 10, remaining: 0)
+          # request range should be 31 - 40 (size: 10, remaining: 3)
           cat > expected << EOF
           dbs.beginRequestNumber=31
           dbs.endRequestNumber=40
@@ -1172,7 +1172,7 @@ jobs:
         run: |
           tests/ca/bin/ca-cert-range-config.sh pki | tee output
 
-          # current range should be 0x2b - 0x3c (size: 0x12, remaining: 0xd)
+          # current range should be 0x2b - 0x3c (size: 0x12, remaining: 0x10)
           cat > expected << EOF
           dbs.beginSerialNumber=0x2b
           dbs.endSerialNumber=0x3c
@@ -1253,6 +1253,207 @@ jobs:
           EOF
 
           diff expected output
+
+      ####################################################################################################
+      # Enroll a cert with a conflicting request ID
+      #
+      # This simulates a scenario where there is already a completed request in
+      # the database, possibly due to a bug or an incorrect range configuration,
+      # with an ID that will be used by the next request created by the CA.
+      #
+      # Ideally the conflict should be handled transparently, so a new request
+      # should be created with a new ID, leaving the conflicting request intact,
+      # and a new cert should be issued as usual.
+      #
+      # However, currently there is no new request created, the conflicting
+      # request is changed to pending, and the CLI is failing.
+
+      - name: Create a request with the next ID
+        if: always()
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "cn=37,ou=ca,ou=requests,dc=ca,dc=pki,dc=example,dc=com" \
+              -s base \
+              -o ldif_wrap=no \
+              -LLL | tee request.ldif
+
+          sed -i \
+              -e "s/^dn: cn=37,/dn: cn=38,/" \
+              -e "s/^serialno: 0237/serialno: 0238/" \
+              -e "s/^cn: 37/cn: 38/" \
+              request.ldif
+
+          docker exec ds ldapadd \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -f $SHARED/request.ldif
+
+      - name: Enroll a cert with a conflicting request ID
+        if: always()
+        run: |
+          docker exec pki pki \
+              -n caadmin \
+              ca-cert-issue \
+              --profile caUserCert \
+              --csr-file testuser.csr \
+              --output-file testuser.crt \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          # the CLI should complete successfully, but currently it's failing
+          cat > expected << EOF
+          ERROR: Request pending
+          EOF
+
+          diff expected stderr
+
+      - name: Check requests
+        if: always()
+        run: |
+          docker exec pki pki-server ca-cert-request-find | tee output
+          sed -n "s/^ *Request ID: *\(.*\)$/\1/p" output > actual
+
+          # there should be 39 requests (37 existing + 1 conflicting + 1 new)
+          # but currently the CA reuses the conflicting request instead of
+          # creating a new one
+          seq 1 38 > expected
+
+          diff expected actual
+
+      - name: Check certs
+        if: always()
+        run: |
+          docker exec pki pki-server ca-cert-find | tee output
+          sed -n "s/^ *Serial Number: *\(.*\)$/\1/p" output > actual
+
+          # there should be 37 certs (36 existing + 1 new)
+          printf "0x%x\n" {9..45} > expected
+
+          diff expected actual
+
+      ####################################################################################################
+      # Enroll a cert with a conflicting serial number
+      #
+      # This test simulates a scenario where there is already a cert in the
+      # database, possibly due to a bug or an incorrect range configuration,
+      # with a serial number that will be used by the next cert issued by
+      # the CA.
+      #
+      # Ideally a request should be created as usual and a new cert should be
+      # issued with a new serial number.
+      #
+      # However, currently a new request is created but no new cert is issued
+      # and the CLI fails.
+
+      - name: Create a cert with the next serial number
+        if: always()
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "cn=45,ou=certificateRepository,ou=ca,dc=ca,dc=pki,dc=example,dc=com" \
+              -s base \
+              -o ldif_wrap=no \
+              -LLL | tee cert.ldif
+
+          sed -i \
+              -e "s/^dn: cn=45,/dn: cn=46,/" \
+              -e "s/^serialno: 0245/serialno: 0246/" \
+              -e "s/^cn: 45/cn: 46/" \
+              cert.ldif
+
+          docker exec ds ldapadd \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -f $SHARED/cert.ldif
+
+      - name: Enroll a cert with a conflicting serial number
+        if: always()
+        run: |
+          docker exec pki pki \
+              -n caadmin \
+              ca-cert-issue \
+              --profile caUserCert \
+              --csr-file testuser.csr \
+              --output-file testuser.crt \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          # the CLI should complete successfully, but currently it's failing
+          cat > expected << EOF
+          PKIException: Server Internal Error: Unable to add certificate record: Record already exists: Already exists
+          EOF
+
+          diff expected stderr
+
+      - name: Check requests
+        if: always()
+        run: |
+          docker exec pki pki-server ca-cert-request-find | tee output
+          sed -n "s/^ *Request ID: *\(.*\)$/\1/p" output > actual
+
+          # there should be 39 requests (38 existing + 1 new)
+          seq 1 39 > expected
+
+          diff expected actual
+
+      - name: Check certs
+        if: always()
+        run: |
+          docker exec pki pki-server ca-cert-find | tee output
+          sed -n "s/^ *Serial Number: *\(.*\)$/\1/p" output > actual
+
+          # there should be 39 requests (37 existing + 1 conflicting + 1 new)
+          # but currently there is no new cert issued
+          printf "0x%x\n" {9..46} > expected
+
+          diff expected actual
+
+      ####################################################################################################
+      # Enroll a cert after conflicts
+      #
+      # This will create a request and a cert indicating that the CA
+      # remains functional after encountering conflicts in the database.
+
+      - name: Enroll a cert after conflicts
+        if: always()
+        run: |
+          docker exec pki pki \
+              -n caadmin \
+              ca-cert-issue \
+              --profile caUserCert \
+              --csr-file testuser.csr \
+              --output-file testuser.crt
+
+      - name: Check requests
+        if: always()
+        run: |
+          docker exec pki pki-server ca-cert-request-find | tee output
+          sed -n "s/^ *Request ID: *\(.*\)$/\1/p" output > actual
+
+          # there should be 40 requests (39 existing + 1 new)
+          seq 1 40 > expected
+
+          diff expected actual
+
+      - name: Check certs
+        if: always()
+        run: |
+          docker exec pki pki-server ca-cert-find | tee output
+          sed -n "s/^ *Serial Number: *\(.*\)$/\1/p" output > actual
+
+          # there should be 39 certs (38 existing + 1 new)
+          printf "0x%x\n" {9..47} > expected
+
+          diff expected actual
 
       ####################################################################################################
       # Enroll a cert with RSNv3
