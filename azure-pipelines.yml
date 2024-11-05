@@ -66,7 +66,7 @@ jobs:
       docker cp /tmp/RPMS/. runner:RPMS
       docker exec runner bash -c "dnf install -y RPMS/*"
 
-      docker exec runner dnf builddep -y --spec /root/src/pki.spec
+      docker exec runner dnf builddep -y /root/src/pki.spec
     displayName: Install PKI dependencies
 
   - script: |
