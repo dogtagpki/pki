@@ -64,6 +64,43 @@ jobs:
               --network-alias=pki.example.com \
               pki
 
+      ####################################################################################################
+      # Try to install with wrong parameter format first and then cleanup and restart correctly
+      - name: Create CA with unsupported range format
+        run: |
+          cat > expected <<EOF
+          Loading deployment configuration from /usr/share/pki/server/examples/installation/ca.cfg.
+          Installing CA into /var/lib/pki/pki-tomcat.
+          
+          Installation failed: pki_serial_number_range_start format not valid, expecting 0x...
+          
+          EOF
+          
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_request_id_generator=legacy2 \
+              -D pki_request_number_range_start=1 \
+              -D pki_request_number_range_end=10 \
+              -D pki_request_number_range_increment=10 \
+              -D pki_request_number_range_minimum=5 \
+              -D pki_request_number_range_transfer=5 \
+              -D pki_cert_id_generator=legacy2 \
+              -D pki_serial_number_range_start=9 \
+              -D pki_serial_number_range_end=18 \
+              -D pki_serial_number_range_increment=12 \
+              -D pki_serial_number_range_minimum=9 \
+              -D pki_serial_number_range_transfer=9 \
+              -v | tee actual || true
+
+              diff expected actual
+
+      - name: Cleanup CA installation
+        run: |
+          docker exec pki pkidestroy -s CA --remove-conf --remove-logs --force
+          docker exec pki rm -rf /root/.dogtag/pki-tomcat
+
       - name: Create CA
         run: |
           docker exec pki pkispawn \
