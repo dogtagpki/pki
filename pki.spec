@@ -2,10 +2,9 @@
 Name:             pki
 ################################################################################
 
-%global           vendor_id dogtag
 %global           product_name Dogtag PKI
-%global           product_id %{vendor_id}-pki
-%global           theme %{vendor_id}
+%global           product_id dogtag-pki
+%global           theme dogtag
 
 # Upstream version number:
 %global           major_version 11
