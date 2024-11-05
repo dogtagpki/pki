@@ -366,6 +366,17 @@ jobs:
           docker exec pki /usr/share/pki/tests/ca/bin/test-ca-signing-cert.sh
           docker exec pki /usr/share/pki/tests/ca/bin/test-subsystem-cert.sh
 
+      - name: Check certs in DS
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "ou=certificateRepository,ou=ca,dc=ca,dc=pki,dc=example,dc=com" \
+              -o ldif_wrap=no \
+              -LLL
+
       - name: Check pki ca-cert-find with default API
         run: |
           docker exec pki pki ca-cert-find | tee output
@@ -431,6 +442,17 @@ jobs:
 
           diff expected output
 
+      - name: Check users in DS
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "ou=people,dc=ca,dc=pki,dc=example,dc=com" \
+              -o ldif_wrap=no \
+              -LLL
+
       - name: Check pki ca-user-show with default API
         run: |
           docker exec pki pki pkcs12-import \
@@ -476,6 +498,17 @@ jobs:
           EOF
 
           diff expected output
+
+      - name: Check cert requests in DS
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "ou=requests,dc=ca,dc=pki,dc=example,dc=com" \
+              -o ldif_wrap=no \
+              -LLL
 
       - name: Check cert requests in CA
         run: |
