@@ -1255,22 +1255,24 @@ jobs:
           diff expected output
 
       ####################################################################################################
-      # Enroll a cert with a conflicting request ID
+      # Enroll a cert with a conflicting request record ID
       #
-      # This simulates a scenario where there is already a completed request in
-      # the database, possibly due to a bug or an incorrect range configuration,
-      # with an ID that will be used by the next request created by the CA.
+      # This simulates a scenario where there is already a completed request
+      # record in the database, possibly due to a bug or an incorrect range
+      # configuration, with an ID that will be used by the next request record
+      # created by the CA.
       #
       # Ideally the conflict should be handled transparently, so a new request
-      # should be created with a new ID, leaving the conflicting request intact,
-      # and a new cert should be issued as usual.
+      # record should be created with a new ID, leaving the conflicting request
+      # record intact, and a new cert record should be issued as usual.
       #
-      # However, currently there is no new request created, the conflicting
-      # request is changed to pending, and the CLI is failing.
+      # However, currently the CA reuses and modifies the conflicting request
+      # record and there is no new request record created.
 
-      - name: Create a request with the next ID
+      - name: Create a request record with the next ID
         if: always()
         run: |
+          # get the latest request record
           docker exec ds ldapsearch \
               -H ldap://ds.example.com:3389 \
               -D "cn=Directory Manager" \
@@ -1281,12 +1283,15 @@ jobs:
               -o ldif_wrap=no \
               -LLL | tee request.ldif
 
+          # replace the ID with the next ID
           sed -i \
               -e "s/^dn: cn=37,/dn: cn=38,/" \
-              -e "s/^serialno: 0237/serialno: 0238/" \
+              -e "s/^requestId: 0237/requestId: 0238/" \
+              -e "s/^extdata-requestid: 37/extdata-requestid: 38/" \
               -e "s/^cn: 37/cn: 38/" \
               request.ldif
 
+          # add the updated request record
           docker exec ds ldapadd \
               -H ldap://ds.example.com:3389 \
               -D "cn=Directory Manager" \
@@ -1294,44 +1299,61 @@ jobs:
               -x \
               -f $SHARED/request.ldif
 
-      - name: Enroll a cert with a conflicting request ID
+      - name: Enroll a cert with a conflicting request record ID
         if: always()
         run: |
+          # create a new CSR
+          docker exec pki pki \
+              nss-cert-request \
+              --subject "uid=testuser2" \
+              --ext /usr/share/pki/tools/examples/certs/testuser.conf \
+              --csr testuser2.csr
+
+          # the CLI should complete successfully
           docker exec pki pki \
               -n caadmin \
               ca-cert-issue \
               --profile caUserCert \
-              --csr-file testuser.csr \
-              --output-file testuser.crt \
-              > >(tee stdout) 2> >(tee stderr >&2) || true
+              --csr-file testuser2.csr \
+              --output-file testuser2.crt
 
-          # the CLI should complete successfully, but currently it's failing
-          cat > expected << EOF
-          ERROR: Request pending
-          EOF
-
-          diff expected stderr
-
-      - name: Check requests
+      - name: Check request records
         if: always()
         run: |
           docker exec pki pki-server ca-cert-request-find | tee output
           sed -n "s/^ *Request ID: *\(.*\)$/\1/p" output > actual
 
-          # there should be 39 requests (37 existing + 1 conflicting + 1 new)
-          # but currently the CA reuses the conflicting request instead of
+          # there should be 39 request records (37 existing + 1 conflicting + 1 new)
+          # but currently the CA reuses the conflicting request record instead of
           # creating a new one
           seq 1 38 > expected
 
           diff expected actual
 
-      - name: Check certs
+      - name: Check conflicting request record
+        if: always()
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "cn=38,ou=ca,ou=requests,dc=ca,dc=pki,dc=example,dc=com" \
+              -s base \
+              -o ldif_wrap=no \
+              -LLL | tee request-after.ldif
+
+          # the conflicting request record should not change
+          # but currently it is updated to store the new CSR
+          diff request.ldif request-after.ldif || true
+
+      - name: Check cert records
         if: always()
         run: |
           docker exec pki pki-server ca-cert-find | tee output
           sed -n "s/^ *Serial Number: *\(.*\)$/\1/p" output > actual
 
-          # there should be 37 certs (36 existing + 1 new)
+          # there should be 37 cert records (36 existing + 1 new)
           printf "0x%x\n" {9..45} > expected
 
           diff expected actual
