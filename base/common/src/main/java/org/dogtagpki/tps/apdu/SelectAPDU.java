@@ -30,6 +30,18 @@ public class SelectAPDU extends APDU {
         setP1(p1);
         setP2(p2);
         setData(theData);
+        // Add trailer byte
+        TPSBuffer trailer = new TPSBuffer(1);
+        setTrailer(trailer);
+    }
+
+    // This constructor is used to make a card mgr request with no data
+    public SelectAPDU(byte p1, byte p2)
+    {
+        setCLA((byte) 0x00);
+        setINS((byte) 0xa4);
+        setP1(p1);
+        setP2(p2);
     }
 
     @Override

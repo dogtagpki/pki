@@ -16,7 +16,7 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.kra;
-
+import java.util.Arrays;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FilterOutputStream;
@@ -27,8 +27,7 @@ import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.SecureRandom;
 
-import org.dogtagpki.server.kra.KRAEngine;
-import org.dogtagpki.server.kra.KRAEngineConfig;
+import org.dogtagpki.tps.main.TPSBuffer;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
@@ -37,33 +36,45 @@ import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.SymmetricKey;
-import org.mozilla.jss.netscape.security.provider.RSAPublicKey;
-import org.mozilla.jss.netscape.security.util.Utils;
-import org.mozilla.jss.netscape.security.util.WrappingParams;
+import org.mozilla.jss.crypto.KeyPairAlgorithm;
 import org.mozilla.jss.pkcs11.PK11SymKey;
 import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
 import org.mozilla.jss.util.Base64OutputStream;
 
+import org.dogtagpki.server.kra.KRAEngine;
+import org.dogtagpki.server.kra.KRAEngineConfig;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
+import com.netscape.cmscore.dbs.KeyRecord;
+import com.netscape.cmscore.dbs.KeyRepository;
+
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalProcessedEvent;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalRequestEvent;
 import com.netscape.certsrv.logging.event.SecurityDataExportEvent;
 import com.netscape.certsrv.logging.event.ServerSideKeyGenEvent;
 import com.netscape.certsrv.logging.event.ServerSideKeyGenProcessedEvent;
+
+import com.netscape.cmscore.logging.Auditor;
+import com.netscape.cmscore.request.Request;
+
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
+import com.netscape.cms.logging.Logger;
+import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.key.KeyRecordParser;
 import com.netscape.cmscore.dbs.KeyRecord;
-import com.netscape.cmscore.dbs.KeyRepository;
-import com.netscape.cmscore.logging.Auditor;
-import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
+
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.provider.RSAPublicKey;
+import org.mozilla.jss.netscape.security.util.WrappingParams;
 
 /**
  * A class representing keygen/archival request procesor for requests
@@ -91,25 +102,9 @@ public class NetkeyKeygenService implements IService {
     public final static String ATTR_PROOF_OF_ARCHIVAL =
             "proofOfArchival";
 
-    private KeyRecoveryAuthority mKRA;
-    private TransportKeyUnit mTransportUnit;
+    private KeyRecoveryAuthority mKRA = null;
+    private TransportKeyUnit mTransportUnit = null;
     private IStorageKeyUnit mStorageUnit = null;
-
-    // AC: KDF SPEC CHANGE - Audit logging helper functions.
-    // Converts a byte array to an ASCII-hex string.
-    //   We implemented this ourselves rather than using this.pp.toHexArray() because
-    //   the team preferred CUID and KDD strings to be without ":" separators every byte.
-    final char[] bytesToHex_hexArray = "0123456789ABCDEF".toCharArray();
-
-    private String bytesToHex(byte[] bytes) {
-        char[] hexChars = new char[bytes.length * 2];
-        for (int i = 0; i < bytes.length; i++) {
-            int thisChar = bytes[i] & 0x000000FF;
-            hexChars[i * 2] = bytesToHex_hexArray[thisChar >>> 4]; // div 16
-            hexChars[i * 2 + 1] = bytesToHex_hexArray[thisChar & 0x0F];
-        }
-        return new String(hexChars);
-    }
 
     /**
      * Constructs request processor.
@@ -131,7 +126,7 @@ public class NetkeyKeygenService implements IService {
             archOpts = (PKIArchiveOptions)
                     (new PKIArchiveOptions.Template()).decode(bis);
         } catch (Exception e) {
-            logger.warn("NetkeyKeygenService: getPKIArchiveOptions " + e.getMessage(), e);
+            logger.debug("NetkeyKeygenService: getPKIArchiveOptions " + e.toString());
         }
         return archOpts;
     }
@@ -152,6 +147,22 @@ public class NetkeyKeygenService implements IService {
         }
     }
 
+    // AC: KDF SPEC CHANGE - Audit logging helper functions.
+    // Converts a byte array to an ASCII-hex string.
+    //   We implemented this ourselves rather than using this.pp.toHexArray() because
+    //   the team preferred CUID and KDD strings to be without ":" separators every byte.
+    final char[] bytesToHex_hexArray = "0123456789ABCDEF".toCharArray();
+
+    private String bytesToHex(byte[] bytes) {
+        char[] hexChars = new char[bytes.length * 2];
+        for (int i = 0; i < bytes.length; i++) {
+            int thisChar = bytes[i] & 0x000000FF;
+            hexChars[i * 2] = bytesToHex_hexArray[thisChar >>> 4]; // div 16
+            hexChars[i * 2 + 1] = bytesToHex_hexArray[thisChar & 0x0F];
+        }
+        return new String(hexChars);
+    }
+
     /**
      * Services an archival request from netkey.
      * <P>
@@ -160,34 +171,41 @@ public class NetkeyKeygenService implements IService {
      * @return serving successful or not
      * @exception EBaseException failed to serve
      */
-    @Override
     public boolean serviceRequest(Request request)
             throws EBaseException {
-
-        KRAEngine engine = KRAEngine.getInstance();
-        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
-
+        String auditSubjectID = null;
         byte[] wrapped_des_key;
-        byte[] wrapped_aes_key = null;
+        byte[] wrapped_aes_key = null; 
         String method = "NetkeyKeygenService: serviceRequest: ";
 
         byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
+        int ivLength = EncryptionAlgorithm.AES_128_CBC.getIVLength();
+
+        logger.debug(method + " cbc iv len: " + ivLength);
+
+        KRAEngine engine = KRAEngine.getInstance();
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
+        Auditor auditor = engine.getAuditor();
+
+        byte iv_cbc[] = new byte[ivLength];
         String iv_s = "";
         try {
             SecureRandom random = jssSubsystem.getRandomNumberGenerator();
             random.nextBytes(iv);
         } catch (Exception e) {
-            logger.error("NetkeyKeygenService.serviceRequest:  " + e.getMessage(), e);
+            logger.debug("NetkeyKeygenService.serviceRequest:  " + e.toString());
             throw new EBaseException(e);
         }
 
         IVParameterSpec algParam = null;
-        IVParameterSpec desAlgParam =  new IVParameterSpec(iv);
+        IVParameterSpec desAlgParam =	new IVParameterSpec(iv);
+        IVParameterSpec aesCBCAlgParam =   new IVParameterSpec(iv_cbc);
 
         KRAEngineConfig configStore = engine.getConfig();
         boolean allowEncDecrypt_archival = configStore.getBoolean("kra.allowEncDecrypt.archival", false);
 
-        boolean useOAEPKeyWrap = configStore.getUseOAEPKeyWrap();
+        boolean useOAEPKeyWrap = configStore.getBoolean("keyWrap.useOAEP",false);
+
         wrapped_des_key = null;
         boolean archive = true;
         byte[] publicKeyData = null;
@@ -208,8 +226,7 @@ public class NetkeyKeygenService implements IService {
         String rKeytype = request.getExtDataInString(Request.NETKEY_ATTR_KEY_TYPE);
         RequestId requestId = request.getRequestId();
 
-        Auditor auditor = engine.getAuditor();
-        String auditSubjectID = rCUID + ":" + rUserid;
+        auditSubjectID = rCUID + ":" + rUserid;
 
         SessionContext sContext = SessionContext.getContext();
         String agentId = "";
@@ -225,15 +242,24 @@ public class NetkeyKeygenService implements IService {
 
         String rWrappedDesKeyString = request.getExtDataInString(Request.NETKEY_ATTR_DRMTRANS_DES_KEY);
         String rWrappedAesKeyString = request.getExtDataInString(Request.NETKEY_ATTR_DRMTRANS_AES_KEY);
+        String aesKeyWrapAlg        = request.getExtDataInString(Request.NETKEY_ATTR_SSKEYGEN_AES_KEY_WRAP_ALG);
+
+        logger.debug(method + " Request.NETKEY_ATTR_SSKEYGEN_AES_KEY_WRAP_ALG: " + Request.NETKEY_ATTR_SSKEYGEN_AES_KEY_WRAP_ALG);
+
+        if(aesKeyWrapAlg != null) {
+            logger.debug(method + " aesKeyWrapAlg: " + aesKeyWrapAlg);
+        } else {
+            logger.debug(method + " no aesKeyWrapAlg provided.");
+        }
 
         boolean useAesTransWrapped = false;
 
         if(rWrappedAesKeyString != null && rWrappedAesKeyString.length() > 0)  {
             useAesTransWrapped = true;
-            //If we are getting an aes trans wrapped key, make that the priority moving forwoard.
+	    //If we are getting an aes trans wrapped key, make that the priority moving forwoard.
             wrapped_aes_key = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rWrappedAesKeyString);
             logger.debug(method + "TMS has sent trans wrapped aes key.");
-            request.setExtData(Request.NETKEY_ATTR_DRMTRANS_AES_KEY,"");
+	    request.setExtData(Request.NETKEY_ATTR_DRMTRANS_AES_KEY,"");
         }
 
         // the request reocrd field delayLDAPCommit == "true" will cause
@@ -253,10 +279,6 @@ public class NetkeyKeygenService implements IService {
         } else
             logger.debug("NetkeyKeygenService: serviceRequest: key type = "+ rKeytype);
 
-        if(wrapped_aes_key != null) {
-            logger.debug(method + " wrapped aes key size " + wrapped_aes_key.length);
-        }
-
         /* for EC, keysize is ignored, only key curve is used */
         String rKeysize = "2048";
         int keysize = 2048;
@@ -273,19 +295,21 @@ public class NetkeyKeygenService implements IService {
 
         // get the token for generating user keys
         CryptoToken keygenToken = mKRA.getKeygenToken();
+
         if (keygenToken == null) {
-            logger.warn("NetkeyKeygenService: failed getting keygenToken");
+            logger.debug("NetkeyKeygenService: failed getting keygenToken");
             request.setExtData(Request.RESULT, Integer.valueOf(10));
             return false;
-        }
-        logger.debug("NetkeyKeygenService: got keygenToken");
+        } else
+            logger.debug("NetkeyKeygenService: got keygenToken");
 
-        if(wrapped_aes_key != null) {
-             logger.debug(method + " wrapped aes key size " + wrapped_aes_key.length);
+	if(wrapped_aes_key != null) {
+            logger.debug(method + " wrapped aes key size " + wrapped_aes_key.length);
         }
 
+        //Create legacy DES and new AES wrapping params, one or the other will be used.
         if ((wrapped_des_key != null) &&
-            (wrapped_des_key.length > 0) || useAesTransWrapped == true) {
+                (wrapped_des_key.length > 0) || useAesTransWrapped == true) {
 
             KeyWrapAlgorithm wrapAlg = KeyWrapAlgorithm.RSA;
 
@@ -293,19 +317,15 @@ public class NetkeyKeygenService implements IService {
                 wrapAlg = KeyWrapAlgorithm.RSA_OAEP;
             }
 
-            //Create legacy DES and new AES wrapping params, one or the other will be used.
-            //
-
             WrappingParams wrapParams = new WrappingParams(
                     SymmetricKey.DES3, KeyGenAlgorithm.DES3, 0,
                     wrapAlg, EncryptionAlgorithm.DES3_CBC_PAD,
                     KeyWrapAlgorithm.DES3_CBC_PAD, EncryptionUnit.IV, EncryptionUnit.IV);
 
-            WrappingParams aesWrapParams = new WrappingParams(
-                      SymmetricKey.AES, KeyGenAlgorithm.AES,0,
-                      wrapAlg, EncryptionAlgorithm.AES_128_CBC_PAD,
-                      KeyWrapAlgorithm.AES_KEY_WRAP_PAD,EncryptionUnit.IV, EncryptionUnit.IV);
-
+             WrappingParams aesWrapParams = new WrappingParams(
+                    SymmetricKey.AES, KeyGenAlgorithm.AES,0,
+                     wrapAlg, EncryptionAlgorithm.AES_128_CBC_PAD,
+                     KeyWrapAlgorithm.AES_KEY_WRAP_PAD,EncryptionUnit.IV, EncryptionUnit.IV);
 
             /* XXX could be done in HSM*/
             KeyPair keypair = null;
@@ -319,7 +339,7 @@ public class NetkeyKeygenService implements IService {
                 null /* usageList*/);
 
             if (keypair == null) {
-                logger.warn("NetkeyKeygenService: failed generating key pair for " + rCUID + ":" + rUserid);
+                logger.debug("NetkeyKeygenService: failed generating key pair for " + rCUID + ":" + rUserid);
                 request.setExtData(Request.RESULT, Integer.valueOf(4));
 
                 auditor.log(new ServerSideKeyGenProcessedEvent(
@@ -335,24 +355,26 @@ public class NetkeyKeygenService implements IService {
             logger.debug("NetkeyKeygenService: finished generate key pair for " + rCUID + ":" + rUserid);
 
             java.security.PrivateKey privKey;
+
             try {
                 publicKeyData = keypair.getPublic().getEncoded();
                 if (publicKeyData == null) {
                     request.setExtData(Request.RESULT, Integer.valueOf(4));
-                    logger.warn("NetkeyKeygenService: failed getting publickey encoded");
+                    logger.debug("NetkeyKeygenService: failed getting publickey encoded");
                     return false;
-                }
-                //logger.debug("NetkeyKeygenService: public key binary length ="+ publicKeyData.length);
-                if (rKeytype.equals("EC")) {
-                    /* url encode */
-                    PubKey = org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(publicKeyData);
-                    logger.debug("NetkeyKeygenService: EC PubKey special encoded");
                 } else {
-                    PubKey = base64Encode(publicKeyData);
-                }
+                    //logger.debug("NetkeyKeygenService: public key binary length ="+ publicKeyData.length);
+                    if (rKeytype.equals("EC")) {
+                        /* url encode */
+                        PubKey = org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(publicKeyData);
+                        logger.debug("NetkeyKeygenService: EC PubKey special encoded");
+                    } else {
+                        PubKey = base64Encode(publicKeyData);
+                    }
 
-                //logger.debug("NetkeyKeygenService: public key length =" + PubKey.length());
-                request.setExtData("public_key", PubKey);
+                    //logger.debug("NetkeyKeygenService: public key length =" + PubKey.length());
+                    request.setExtData("public_key", PubKey);
+                }
 
                 auditor.log(new ServerSideKeyGenProcessedEvent(
                         agentId,
@@ -363,56 +385,67 @@ public class NetkeyKeygenService implements IService {
 
                 //...extract the private key handle (not privatekeydata)
                 privKey = keypair.getPrivate();
-
                 if (privKey == null) {
                     request.setExtData(Request.RESULT, Integer.valueOf(4));
-                    logger.warn("NetkeyKeygenService: failed getting private key");
+                    logger.debug("NetkeyKeygenService: failed getting private key");
                     return false;
+                } else {
+                    logger.debug("NetkeyKeygenService: got private key");
                 }
-                logger.debug("NetkeyKeygenService: got private key");
 
-                // unwrap the DES or AES key
-                // If we are given an AES key, use it, otherwise use DES if it's the only one offered.
-
+                // unwrap the DES or AES key 
+		// If we are given an AES key, use it, otherwise use DES if it's the only one offered.
                 PK11SymKey sk = null;
 
                 if(useAesTransWrapped == false) {
-                     try {
-                         sk = (PK11SymKey) mTransportUnit.unwrap_sym(wrapped_des_key, wrapParams);
-                         logger.debug("NetkeyKeygenService: received DES key");
-                     } catch (Exception e) {
-                         logger.warn("NetkeyKeygenService: no DES key: probably because crypto token no longer supports DES. " + e);
-                         request.setExtData(Request.RESULT, Integer.valueOf(4));
-                         return false;
-                     }
-                 } else {
-                     //Unwrap the included trans wrapped AES key.
-                     logger.debug(method + "Attempt to unwrap the trans wrapped AES session key.");
-                     try {
-                         sk = (PK11SymKey) mTransportUnit.unwrap_sym(wrapped_aes_key, aesWrapParams);
-                         logger.debug(method + " received AES session key");
-                     } catch (Exception e) {
-                         logger.warn(method + " no AES session key: or DES kek key. " + e);
-                         request.setExtData(Request.RESULT, Integer.valueOf(4));
-                         return false;
-                     }
+                    try {
+                        sk = (PK11SymKey) mTransportUnit.unwrap_sym(wrapped_des_key, wrapParams);
+                        logger.debug("NetkeyKeygenService: received DES key");
+                    } catch (Exception e) {
+                        logger.debug("NetkeyKeygenService: no DES key: probably because crypto token no longer supports DES. " + e);
+                        request.setExtData(Request.RESULT, Integer.valueOf(4));
+                        return false;
+                    }
+                } else {
+                    //Unwrap the included trans wrapped AES key.
+                    logger.debug(method + "Attempt to unwrap the trans wrapped AES session key.");
+                    try {
+                        sk = (PK11SymKey) mTransportUnit.unwrap_sym(wrapped_aes_key, aesWrapParams);
+                        logger.debug(method + " received AES session key");
+                    } catch (Exception e) {
+                        logger.debug(method + " no AES session key: or DES kek key. " + e);
+                        request.setExtData(Request.RESULT, Integer.valueOf(4));
+                        return false;
+                    }
                  }
-
                 // 3 wrapping should be done in HSM
-                // wrap private key with session key
+                // wrap private key with session key 
                 logger.debug("NetkeyKeygenService: wrapper token=" + keygenToken.getName());
                 logger.debug("NetkeyKeygenService: key transport key is on slot: " + sk.getOwningToken().getName());
 
-
                 KeyWrapAlgorithm symWrapAlg = KeyWrapAlgorithm.DES3_CBC_PAD;
                 if(useAesTransWrapped == true) {
-                    //Here we must use AES KWP because it's the only common AES key wrap to be supoprted on hsm, nss, and soon the coolkey applet.
-                    //Should make this configurable at some point.
-                    symWrapAlg = KeyWrapAlgorithm.AES_KEY_WRAP_PAD_KWP;
-                    algParam =  null;
+                    //Here we recomment to use AES KWP because it's the only common AES key wrap to be supoprted on hsm, nss, and soon the coolkey applet.
+		    //But now we are going to make it configurable to AES CBC based on interest in doing so. KWP is the one that is assured to work
+		    //with the applet and nss / hsm envorinments. CBC can be chosen at the admin's discretion.
+                   
+                    if(aesKeyWrapAlg != null && "CBC".equalsIgnoreCase(aesKeyWrapAlg)) {
+                    // We want CBC
+                        logger.debug(method + " TPS has selected CBC for AES key wrap method.");
+                        symWrapAlg = KeyWrapAlgorithm.AES_CBC_PAD;
+
+                        algParam =  aesCBCAlgParam;
+                        iv_s = org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(iv_cbc);
+
+                    } else { 
+                        symWrapAlg = KeyWrapAlgorithm.AES_KEY_WRAP_PAD_KWP;
+		        algParam =  null;
+                        iv_s = org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(iv);
+                    }
                     logger.debug(method + " attemptedAesKeyWrap = true ");
                 } else {
                     algParam = desAlgParam;
+                    iv_s = org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(iv);
                     logger.debug(method + " attemptedAesKeyWrap = false ");
                 }
 
@@ -422,9 +455,6 @@ public class NetkeyKeygenService implements IService {
                         (PrivateKey) privKey,
                         algParam,
                         symWrapAlg);
-
-                logger.debug("NetkeyKeygenService: wrap on private key called");
-                //logger.debug(method + " wrapped priv key: " + bytesToHex(wrapped));
 
                 /*
                   logger.debug("NetkeyKeygenService: wrap called");
@@ -444,7 +474,7 @@ public class NetkeyKeygenService implements IService {
                 org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(wrapped);
                 if (wrappedPrivKeyString == null) {
                     request.setExtData(Request.RESULT, Integer.valueOf(4));
-                    logger.warn("NetkeyKeygenService: failed generating wrapped private key");
+                    logger.debug("NetkeyKeygenService: failed generating wrapped private key");
                     auditor.log(new SecurityDataExportEvent(
                             agentId,
                             ILogger.FAILURE,
@@ -454,22 +484,23 @@ public class NetkeyKeygenService implements IService {
                             PubKey));
 
                     return false;
+                } else {
+                    request.setExtData("wrappedUserPrivate", wrappedPrivKeyString);
+
+                    auditor.log(new SecurityDataExportEvent(
+                            agentId,
+                            ILogger.SUCCESS,
+                            auditSubjectID,
+                            null,
+                            null,
+                            PubKey));
                 }
-                request.setExtData("wrappedUserPrivate", wrappedPrivKeyString);
 
-                auditor.log(new SecurityDataExportEvent(
-                        agentId,
-                        ILogger.SUCCESS,
-                        auditSubjectID,
-                        null,
-                        null,
-                        PubKey));
-
-                iv_s = org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(iv);
+                //iv_s = org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(iv);
                 request.setExtData("iv_s", iv_s);
 
             } catch (Exception e) {
-                logger.warn("NetkeyKeygenService: " + e.getMessage(), e);
+                logger.debug(e.toString());
                 request.setExtData(Request.RESULT, Integer.valueOf(4));
                 return false;
             }
@@ -485,7 +516,7 @@ public class NetkeyKeygenService implements IService {
                     //                       encKey OCTET_STRING,
                     //                    }
                     //
-                    //            logger.info("KRA encrypts internal private");
+                    //            mKRA.log(ILogger.LL_INFO, "KRA encrypts internal private");
 
                     auditor.log(SecurityDataArchivalRequestEvent.createSuccessEvent(
                             agentId,
@@ -505,7 +536,6 @@ public class NetkeyKeygenService implements IService {
                         // the IVs are the same.
                         params.setPayloadEncryptionIV(params.getPayloadWrappingIV());
 
-                        logger.debug("NetKeyKeygenService: wrap params: " + params);
                         privateKeyData = mStorageUnit.wrap((org.mozilla.jss.crypto.PrivateKey) privKey, params);
 
                     } catch (Exception e) {
@@ -555,8 +585,8 @@ public class NetkeyKeygenService implements IService {
                                 }
                             }
                         } catch (Exception e) {
-                            logger.warn("NetkeyKeygenService: ASN1Util.getECCurveBytesByX509PublicKeyByte(): " + e.getMessage(), e);
-                            logger.warn("NetkeyKeygenService: exception allowed. continue");
+                            logger.debug("NetkeyKeygenService: ASN1Util.getECCurveBytesByX509PublicKeyByte() throws exception: "+ e.toString());
+                            logger.debug("NetkeyKeygenService: exception allowed. continue");
                         }
 
                         metaInfo.set(KeyRecordParser.OUT_KEY_EC_CURVE,
@@ -596,7 +626,7 @@ public class NetkeyKeygenService implements IService {
                 request.setExtData(Request.RESULT, Integer.valueOf(1));
 
             } catch (Exception e) {
-                logger.warn("NetkeyKeygenService: " + e.getMessage(), e);
+                logger.debug(e.toString());
 
                 auditor.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
                         agentId,

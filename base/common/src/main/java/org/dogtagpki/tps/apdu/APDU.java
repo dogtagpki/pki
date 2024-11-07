@@ -58,7 +58,9 @@ public abstract class APDU {
         APDU_GET_ISSUERINFO,
         APDU_GENERATE_KEY_ECC,
         APDU_GET_LIFECYCLE,
-        APDU_CLEAR_KEY_SLOTS
+        APDU_CLEAR_KEY_SLOTS,
+        APDU_DELETE_KEYS   // ** G&D 256 Key Rollover Support **
+
     }
 
     protected byte cla;
@@ -146,6 +148,23 @@ public abstract class APDU {
         if (m_mac_size > 0) {
             encoding.add(mac);
         }
+
+        if (trailer != null) {
+            encoding.add(trailer);
+        }
+
+        return encoding;
+    }
+
+    // New method for IDEMIA token processing
+    public TPSBuffer getEncodingWithLength() {
+
+        TPSBuffer encoding = new TPSBuffer();
+
+        encoding.add(cla);
+        encoding.add(ins);
+        encoding.add(p1);
+        encoding.add(p2);
 
         if (trailer != null) {
             encoding.add(trailer);

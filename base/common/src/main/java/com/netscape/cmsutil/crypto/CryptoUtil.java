@@ -2471,6 +2471,51 @@ public class CryptoUtil {
         return listWrappedKeys;
     }
 
+     public static List<byte[]> exportSharedSecretWithAES(String nickname, java.security.cert.X509Certificate wrappingCert,
+            SymmetricKey wrappingKey,boolean useOAEPKeyWrap) throws Exception {
+
+        CryptoManager cm = CryptoManager.getInstance();
+        CryptoToken token = cm.getInternalKeyStorageToken();
+        String method = "CrytoUtil.exportSharedSecret";
+        List<byte[]> listWrappedKeys = new ArrayList<byte[]>();
+
+        logger.debug(method + " nickname: " + nickname);
+
+        SymmetricKey sharedSecretKey = null;
+
+        try {
+            sharedSecretKey = getSymKeyByName(token, nickname);
+        } catch (Exception e) {
+            logger.debug(method + " can't find shared secret: " + nickname);
+            throw new IOException("Shared secret " + nickname + " does not exist");
+        }
+
+        PublicKey pub = wrappingCert.getPublicKey();
+        PK11PubKey pubK = PK11PubKey.fromSPKI(pub.getEncoded());
+
+        //Wrap the temp AES key with the cert
+        byte[] wrappedKey = wrapUsingPublicKey(token, pubK, wrappingKey, useOAEPKeyWrap ? KeyWrapAlgorithm.RSA_OAEP: KeyWrapAlgorithm.RSA);
+
+        listWrappedKeys.add(wrappedKey);
+        //Use the AES key to wrap the shared secret
+
+        KeyWrapAlgorithm  wrapAlg = KeyWrapAlgorithm.AES_CBC_PAD;
+        int ivLen = wrapAlg.getBlockSize();
+        byte[] iv = new byte[ivLen];
+
+        IVParameterSpec ivsp = new IVParameterSpec(iv);
+
+        byte[] wrappedSharedSecret = wrapUsingSymmetricKey(token, wrappingKey, sharedSecretKey, ivsp, wrapAlg);
+
+        listWrappedKeys.add(wrappedSharedSecret);
+
+        if (listWrappedKeys.size() != 2) {
+            throw new IOException("Can't write out shared secret data to export for nickname: " + nickname);
+        }
+
+        return listWrappedKeys;
+    }
+
     public static void importSharedSecret(byte[] wrappedSessionKey,byte[] wrappedSharedSecret,String subsystemCertNickname,String sharedSecretNickname) throws Exception, NotInitializedException, TokenException,
             NoSuchAlgorithmException, ObjectNotFoundException, InvalidKeyException, InvalidAlgorithmParameterException,
             IOException {
@@ -2689,8 +2734,8 @@ public class CryptoUtil {
         String method = "CryptoUtil.unwrapAESKeyFromBytes: ";
 
         logger.debug(method + "begins:  isPerm: " + isPerm);
-	//for now assume 128 bits aes
-        if(inputKeyArray.length > 16) {
+	//support 128 or 256 bits aes
+        if(inputKeyArray.length > 32) {
             throw new Exception(method + "invalid input data size.");
         }
 

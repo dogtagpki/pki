@@ -249,7 +249,7 @@ public class TPSConnectorProcessor {
                 return null;
             }
 
-            List<byte[]> listWrappedKeys = CryptoUtil.exportSharedSecret(nickname, certs[certs.length -1], tempKey, getUseOAEPKeyWrap());
+            List<byte[]> listWrappedKeys = CryptoUtil.exportSharedSecretWithAES(nickname, certs[certs.length -1], tempKey,getUseOAEPKeyWrap());
             byte[] wrappedSessionKey = listWrappedKeys.get(0);
             byte[] wrappedSharedSecret = listWrappedKeys.get(1);
 

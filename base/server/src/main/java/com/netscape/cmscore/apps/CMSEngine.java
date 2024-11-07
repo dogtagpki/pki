@@ -875,7 +875,6 @@ public class CMSEngine {
     public void init() throws Exception {
 
         logger.info("Initializing " + name + " subsystem");
-
         loadSubsystems();
         initSubsystems();
 
@@ -978,7 +977,6 @@ public class CMSEngine {
 
             Subsystem subsystem = (Subsystem) Class.forName(className).getDeclaredConstructor().newInstance();
             subsystem.setCMSEngine(this);
-
             subsystems.put(id, subsystem);
             subsystemInfos.put(id, subsystemInfoConfig);
         }

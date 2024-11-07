@@ -1,8 +1,10 @@
 package org.dogtagpki.server.tps.mapping;
-
 import org.dogtagpki.server.tps.TPSEngine;
 import org.dogtagpki.server.tps.TPSEngineConfig;
 import org.dogtagpki.tps.main.TPSException;
+
+import org.dogtagpki.tps.main.TPSException;
+
 
 /**
  * This class implements the base TPS mapping filter Resolver instance
@@ -10,7 +12,7 @@ import org.dogtagpki.tps.main.TPSException;
  * @author cfu
  */
 public abstract class BaseMappingResolver {
-    protected TPSEngineConfig configStore;
+    protected TPSEngineConfig configStore = null;
     protected String instanceName = "";
     protected String prefix = "";
 
@@ -21,8 +23,10 @@ public abstract class BaseMappingResolver {
         instanceName = instName;
         prefix = MappingResolverManager.MAPPING_RESOLVER_CFG +
                 "." + instanceName;
+
         TPSEngine engine = TPSEngine.getInstance();
         configStore = engine.getConfig();
+
     }
 
     public String getName() {
@@ -38,5 +42,8 @@ public abstract class BaseMappingResolver {
 
     public abstract String getResolvedMapping(FilterMappingParams mappingParams, String nameToMap)
             throws TPSException;
-
+    
+    // ** G&D 256 Key Rollover Support **
+    public abstract String getResolvedMapping(FilterMappingParams mappingParams, String nameToMap, Integer symKeySize)
+            throws TPSException;
 }

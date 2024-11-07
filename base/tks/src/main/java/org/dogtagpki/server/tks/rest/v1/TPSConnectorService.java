@@ -44,6 +44,7 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
     TKSEngineConfig cs = engine.getConfig();
 
     public static final int AES_SESS_KEYSIZE = 128;
+    public static final int AES_SESS_KEYSIZE_256 = 256;
     public UGSubsystem userGroupManager = engine.getUGSubsystem();
 
     @Override
@@ -302,14 +303,14 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
                 throw new BadRequestException("Shared secret already exists");
             }
 
-            CryptoUtil.createSharedSecret(nickname,KeyGenAlgorithm.AES,AES_SESS_KEYSIZE);
+            CryptoUtil.createSharedSecret(nickname,KeyGenAlgorithm.AES,AES_SESS_KEYSIZE_256);
 
             TPSConnectorConfig tpsConfig = cs.getTPSConnectorConfig(id);
             tpsConfig.setNickname(nickname);
             cs.commit(true);
 
             //Create aes session sym key to wrap the shared secret.
-            SymmetricKey tempKey = CryptoUtil.createAESSessionKeyOnInternal(AES_SESS_KEYSIZE);
+            SymmetricKey tempKey = CryptoUtil.createAESSessionKeyOnInternal(AES_SESS_KEYSIZE_256);
 
             if (tempKey == null) {
                 return createNoContentResponse();
@@ -317,7 +318,7 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
 
             logger.debug("TPSConnectorService.createSharedSecret. about to export shared secret : " + nickname + " certs.length " + certs.length);
             logger.debug("TPSConnectorService.createSharedSecert cert: " + certs[certs.length -1]);
-            List<byte[]> listWrappedKeys = CryptoUtil.exportSharedSecret(nickname, certs[certs.length -1], tempKey, getUseOAEPKeyWrap());
+            List<byte[]> listWrappedKeys = CryptoUtil.exportSharedSecretWithAES(nickname, certs[certs.length -1], tempKey,getUseOAEPKeyWrap());
             logger.debug("TPSConnectorService.createSharedSecret. done exporting shared secret : " + nickname);
 
             byte[] wrappedSessionKey = listWrappedKeys.get(0);

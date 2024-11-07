@@ -278,7 +278,7 @@ jobs:
               --pkcs12-password Secret.123
           docker exec pki pki -n caadmin tps-user-show tpsadmin
 
-      - name: Set up TPS authentication
+      - name: Set up TPS authentication and misc cfg settings
         run: |
           # import sample TPS users
           docker exec pki ldapadd \
@@ -296,6 +296,10 @@ jobs:
           docker exec pki pki-server tps-config-set \
               auths.instance.ldap1.ldap.basedn \
               ou=people,dc=example,dc=com
+
+          # configure TPS to allow tpsclient tests to work
+          docker exec pki pki-server tps-config-set \
+              channel.scp01.no.le.byte true
 
           # restart TPS subsystem
           docker exec pki pki-server tps-redeploy --wait

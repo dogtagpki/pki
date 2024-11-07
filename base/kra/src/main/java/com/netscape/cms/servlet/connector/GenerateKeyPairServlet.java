@@ -161,6 +161,11 @@ public class GenerateKeyPairServlet extends CMSServlet {
         String rKeytype = req.getParameter(IRemoteRequest.KRA_KEYGEN_KeyType);
         String rKeycurve = req.getParameter(IRemoteRequest.KRA_KEYGEN_EC_KeyCurve);
 
+        //Optional AES key wrap alg, default KWP anyway.
+        String rAesWrapAlg = req.getParameter(IRemoteRequest.KRA_Aes_Wrap_Alg);
+        logger.debug("GenerateKeyPairServlet: processServerSideKeygen():  rAesWrapAlg: " + rAesWrapAlg);
+
+
         //Get trans wrapped aes session key if provided.
         String raesKeyString = req.getParameter(IRemoteRequest.KRA_Trans_AesKey);
 
@@ -240,6 +245,10 @@ public class GenerateKeyPairServlet extends CMSServlet {
             thisreq.setExtData(Request.NETKEY_ATTR_KEY_SIZE, rKeysize);
             thisreq.setExtData(Request.NETKEY_ATTR_KEY_TYPE, rKeytype);
             thisreq.setExtData(Request.NETKEY_ATTR_KEY_EC_CURVE, rKeycurve);
+
+            if((rAesWrapAlg != null) && (rAesWrapAlg.length() >0)) {
+                thisreq.setExtData(Request.NETKEY_ATTR_SSKEYGEN_AES_KEY_WRAP_ALG,rAesWrapAlg);
+            }
 
             queue.processRequest(thisreq);
             Integer result = thisreq.getExtDataInInteger(Request.RESULT);

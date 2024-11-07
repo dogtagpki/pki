@@ -59,6 +59,11 @@ public class TKSComputeSessionKeyResponse extends RemoteResponse
         return (TPSBuffer) nameValTable.get(IRemoteRequest.TKS_RESPONSE_KeyCheck);
     }
 
+    // Applet and Alg Selection by Token Range Support
+    public TPSBuffer getKeyCheckDes() {
+        return (TPSBuffer) nameValTable.get(IRemoteRequest.TKS_RESPONSE_KeyCheck_Des);
+    }
+
     public TPSBuffer getHostCryptogram() {
         return (TPSBuffer) nameValTable.get(IRemoteRequest.TKS_RESPONSE_HostCryptogram);
     }
