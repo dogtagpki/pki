@@ -10,6 +10,7 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.dbs.IDBRegistry;
 import com.netscape.certsrv.dbs.IDBSSession;
 import com.netscape.certsrv.dbs.IDBSubsystem;
+import com.netscape.certsrv.dbs.repository.IRepository.IDGenerator;
 
 /**
  * A default stub ojbect for tests to extend.
@@ -152,6 +153,11 @@ public class DBSubsystemDefaultStub implements IDBSubsystem {
     }
 
     @Override
+    public BigInteger getNextRange2(int repo, int radix) {
+        return null;
+    }
+
+    @Override
     public boolean hasRangeConflict(int repo) {
         // TODO Auto-generated method stub
         return false;
@@ -179,6 +185,11 @@ public class DBSubsystemDefaultStub implements IDBSubsystem {
     public String getEntryAttribute(String dn, String attrName,
                                     String defaultValue, String errorValue) {
         // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public String getIdGenerator(int repo) {
         return null;
     }
 }

@@ -29,6 +29,24 @@ import com.netscape.certsrv.base.EBaseException;
  * @version $Revision$, $Date$
  */
 public interface IRepository {
+    public enum IDGenerator {
+        LEGACY("legacy"),
+        LEGACY_2("legacy2");
+        private String name;
+        private IDGenerator(String name) {
+            this.name = name;
+        }
+        @Override
+        public String toString() {
+            return name;
+        }
+        public static IDGenerator fromString(String name) {
+            for (IDGenerator idGenerator : values()) {
+                if (idGenerator.name.equals(name)) return idGenerator;
+            }
+            throw new IllegalArgumentException("Invalid ID generator: " + name);
+        }
+    }
 
     /**
      * Retrieves the next serial number, and also increase the
@@ -85,4 +103,8 @@ public interface IRepository {
      */
     public void setEnableSerialMgmt(boolean value) throws EBaseException;
 
+    /**
+     * Gets the id generator associated with the repository instance
+     */
+    public IDGenerator getIDGenerator();
 }

@@ -1107,6 +1107,192 @@ class CASubsystem(PKISubsystem):
 
         return request
 
+    def update_id_generator(
+            self, generator, generator_object,
+            range_object=None, as_current_user=False):
+
+        if generator != 'legacy2':
+            raise pki.PKIException(
+                'Not supported generator: ' + generator, None)
+
+        if generator_object == 'cert':
+            self.update_serial_number_range_generator(generator)
+        if generator_object == 'request':
+            self.update_request_number_range_generator(generator)
+        self.save()
+
+    def update_serial_number_range_generator(self, generator):
+        con = self.open_database()
+        if self.config.get('dbs.cert.id.generator') == generator or generator == 'legacy':
+            return
+        self.config.update({'dbs.cert.id.generator': generator})
+        base_dn = self.config.get('internaldb.basedn')
+        self.create_ranges_entry(con, base_dn, 'ranges_v2', 'certificateRepository')
+        range_dn = self.config.get('dbs.serialRangeDN')
+
+        increment = int(self.config.get('dbs.serialIncrement'), 16)
+        self.config.update({'dbs.serialIncrement': '0x' + self.config.get('dbs.serialIncrement')})
+        self.config.update({'dbs.serialLowWaterMark': '0x' + self.config.get('dbs.serialLowWaterMark')})
+        self.config.update({'dbs.serialCloneTransferNumber': '0x' + self.config.get('dbs.serialCloneTransferNumber')})
+        begin_serial = int(self.config.get('dbs.beginSerialNumber'), 16)
+        self.config.update({'dbs.beginSerialNumber': '0x' + self.config.get('dbs.beginSerialNumber')})
+        end_serial = int(self.config.get('dbs.endSerialNumber'), 16)
+
+        if end_serial == begin_serial + increment - 1:
+            try:
+                entry = con.ldap.search_s(
+                    'cn=' + hex(begin_serial)[2:] + self.config.get('dbs.serialRangeDN') + base_dn,
+                    ldap.SCOPE_BASE
+                )
+                end_serial = int(entry[0][1].get('endRange'), 16)
+            except:
+                pass
+
+        self.config.update({'dbs.endSerialNumber': hex(end_serial)})
+
+        if 'dbs.nextBeginSerialNumber' in self.config.keys():
+            begin_serial = int(self.config.get('dbs.nextBeginSerialNumber'), 16)
+            end_serial = int(self.config.get('dbs.nextEndSerialNumber'), 16)
+            if end_serial == begin_serial + increment - 1:
+                entry = con.ldap.search_s(
+                    ('cn=' + self.config.get('dbs.nextBeginSerialNumber') +
+                     ',' + self.config.get('dbs.serialRangeDN') + ',' + base_dn),
+                    ldap.SCOPE_BASE
+                )
+                end_serial = int(entry[0][1].get('endRange')[0], 16)
+            self.config.update(
+                {'dbs.nextEndSerialNumber': hex(end_serial)})
+            self.config.update(
+                {
+                    'dbs.nextBeginSerialNumber':
+                    '0x' + self.config.get('dbs.nextBeginSerialNumber')
+                })
+
+        next_range_obj = con.ldap.search_s(
+            'ou=%s,ou=%s'%('certificateRepository', 'ranges_v2') + ',' + base_dn,
+            ldap.SCOPE_BASE)
+        next_range = int(next_range_obj[0][1].get('nextRange')[0])
+        new_next_range = -1
+
+        entries = con.ldap.search_s(
+            range_dn + ',' + base_dn,
+            ldap.SCOPE_ONELEVEL,
+            ('(&(objectClass=pkiRange)(host={0})(SecurePort={1}))').format(
+                self.config.get('service.machineName'), self.config.get('service.securePort')
+            )
+        )
+        for dn, entry in entries:
+            entry.update({'beginRange': str(int(entry.get('beginRange')[0], 16))})
+            entry.update({'endRange': str(int(entry.get('endRange')[0], 16))})
+            con.ldap.add_s(
+                'cn=' + entry.get('beginRange') + ',ou=certificateRepository,ou=ranges_v2' + ',' + base_dn,
+                [
+                    ('cn', entry.get('beginRange')),
+                    ('objectClass', entry.get('objectClass')),
+                    ('host', entry.get('host')),
+                    ('SecurePort', entry.get('SecurePort')),
+                    ('beginRange', entry.get('beginRange')),
+                    ('endRange', entry.get('endRange'))
+                ]
+            )
+            if int(entry.get('endRange')[0]) > new_next_range:
+                new_next_range = int(entry.get('endRange')[0]) + 1
+        if new_next_range < end_serial:
+            new_next_range = end_serial + 1
+
+        if new_next_range > next_range:
+            con.ldap.modify_s(
+                'ou=%s,ou=%s'%('certificateRepository', 'ranges_v2') + ',' + base_dn,
+                [
+                    (ldap.MOD_REPLACE, 'nextRange', str(new_next_range))
+                ]
+            )
+
+        self.config.update({'dbs.serialRangeDN': 'ou=%s,ou=%s'%('certificateRepository', 'ranges_v2')})
+        self.config.update({'dbs.serialDN': 'ou=%s,ou=%s'%('certificateRepository', 'ranges_v2')})
+        con.close()
+
+    def update_request_number_range_generator(self, generator):
+        con = self.open_database()
+        if self.config.get('dbs.request.id.generator') == generator or generator == 'legacy':
+            return
+        self.config.update({'dbs.request.id.generator': generator})
+        base_dn = self.config.get('internaldb.basedn')
+        self.create_ranges_entry(con, base_dn, 'ranges_v2', 'requests')
+        range_dn = self.config.get('dbs.requestRangeDN')
+
+        entries = con.ldap.search_s(
+            range_dn + ',' + base_dn,
+            ldap.SCOPE_ONELEVEL,
+            ('(&(objectClass=pkiRange)(host={0})(SecurePort={1}))').format(
+                self.config.get('service.machineName'), self.config.get('service.securePort')
+            )
+        )
+        for dn, entry in entries:
+            con.ldap.add_s(
+                'cn=' + entry.get('cn')[0] + ',ou=requests,ou=ranges_v2' + ',' + base_dn,
+                [
+                    ('cn', entry.get('cn')),
+                    ('objectClass', entry.get('objectClass')),
+                    ('host', entry.get('host')),
+                    ('SecurePort', entry.get('SecurePort')),
+                    ('beginRange', entry.get('beginRange')),
+                    ('endRange', entry.get('endRange'))
+                ]
+            )
+
+        next_range_obj = con.ldap.search_s(
+            'ou=%s,ou=%s'%('ca', 'requests') + ',' + base_dn,
+            ldap.SCOPE_BASE)
+        next_range = int(next_range_obj[0][1].get('nextRange')[0])
+
+        new_next_range_obj = con.ldap.search_s(
+            'ou=%s,ou=%s'%('requests', 'ranges_v2') + ',' + base_dn,
+            ldap.SCOPE_BASE)
+        new_next_range = int(new_next_range_obj[0][1].get('nextRange')[0])
+
+        if new_next_range < next_range:
+            con.ldap.modify_s(
+                'ou=%s,ou=%s'%('requests', 'ranges_v2') + ',' + base_dn,
+                [
+                    (ldap.MOD_REPLACE, 'nextRange', str(next_range))
+                ]
+            )
+        self.config.update({'dbs.requestRangeDN': 'ou=%s,ou=%s'%('requests', 'ranges_v2')})
+        self.config.update({'dbs.requestDN': 'ou=%s,ou=%s'%('requests', 'ranges_v2')})
+        con.close()
+
+    def create_ranges_entry(self, con, base_dn, new_ranges, range_object):
+        ranges_dn = 'ou=' + new_ranges + ',' + base_dn
+        try:
+            entry = con.ldap.search_s(
+                ranges_dn,
+                ldap.SCOPE_BASE)
+        except:
+            # If the range object does not exist or it is not reachable it is created 
+            new_entry = [
+                ('objectClass', ['top', 'organizationalUnit']),
+                ('ou', new_ranges)
+            ]
+            con.ldap.add_s(
+                ranges_dn,
+                new_entry
+            )
+
+        new_range_entry = 'ou=' + range_object + ',' + ranges_dn
+        new_entry = [
+            ('objectClass', ['top', 'repository']),
+            ('ou', range_object),
+            ('nextRange', '-1')
+        ]
+        try:
+            con.ldap.add_s(
+                new_range_entry,
+                new_entry
+            )
+        except:
+            # In case of clone the entry is not generated again
+            pass
 
 # register CASubsystem
 SUBSYSTEM_CLASSES['ca'] = CASubsystem

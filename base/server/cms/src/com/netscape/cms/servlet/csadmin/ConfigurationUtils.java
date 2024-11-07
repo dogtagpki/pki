@@ -4182,12 +4182,10 @@ public class ConfigurationUtils {
 
         String endRequestNumStr = cs.getString("dbs.endRequestNumber", "");
         String endSerialNumStr = cs.getString("dbs.endSerialNumber", "");
+        
         String type = cs.getString("cs.type");
+        String serialGenerator = cs.getString("dbs.cert.id.generator", "legacy");
         String basedn = cs.getString("internaldb.basedn");
-
-        BigInteger endRequestNum = new BigInteger(endRequestNumStr);
-        BigInteger endSerialNum = new BigInteger(endSerialNumStr);
-        BigInteger oneNum = new BigInteger("1");
 
         // update global next range entries
         IConfigStore dbCfg = cs.getSubStore("internaldb");
@@ -4196,17 +4194,30 @@ public class ConfigurationUtils {
         LDAPConnection conn = dbFactory.getConn();
 
         String serialdn = "";
+        String requestdn = "";
+        BigInteger endRequestNum = new BigInteger(endRequestNumStr);
+        BigInteger oneNum = new BigInteger("1");
+        BigInteger endSerialNum;
         if (type.equals("CA")) {
-            serialdn = "ou=certificateRepository,ou=" + LDAPUtil.escapeRDNValue(type.toLowerCase()) + "," + basedn;
+            serialdn = cs.getString("dbs.serialDN") + "," + basedn;
+            requestdn = cs.getString("dbs.requestDN") + "," + basedn;
+            if (serialGenerator != null && serialGenerator.equals("legacy2")) {
+                endSerialNumStr = endSerialNumStr.substring(2);
+                endSerialNum = new BigInteger(endSerialNumStr, 16);
+            } else {
+                endSerialNum = new BigInteger(endSerialNumStr);
+            }
         } else {
             serialdn = "ou=keyRepository,ou=" + LDAPUtil.escapeRDNValue(type.toLowerCase()) + "," + basedn;
+            requestdn = "ou=" + LDAPUtil.escapeRDNValue(type.toLowerCase()) + ",ou=requests," + basedn;
+            endSerialNum = new BigInteger(endSerialNumStr);
         }
+
         LDAPAttribute attrSerialNextRange =
                 new LDAPAttribute("nextRange", endSerialNum.add(oneNum).toString());
         LDAPModification serialmod = new LDAPModification(LDAPModification.REPLACE, attrSerialNextRange);
         conn.modify(serialdn, serialmod);
 
-        String requestdn = "ou=" + LDAPUtil.escapeRDNValue(type.toLowerCase()) + ",ou=requests," + basedn;
         LDAPAttribute attrRequestNextRange =
                 new LDAPAttribute("nextRange", endRequestNum.add(oneNum).toString());
         LDAPModification requestmod = new LDAPModification(LDAPModification.REPLACE, attrRequestNextRange);

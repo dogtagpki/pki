@@ -96,7 +96,8 @@ public class DBSubsystem implements IDBSubsystem {
     private static final String PROP_SERIAL_INCREMENT = "serialIncrement";
     private static final String PROP_SERIAL_BASEDN = "serialDN";
     private static final String PROP_SERIAL_RANGE_DN = "serialRangeDN";
-
+    private static final String PROP_CERT_ID_GENERATOR = "cert.id.generator";
+    
     private static final String PROP_MIN_REQUEST_NUMBER = "beginRequestNumber";
     private static final String PROP_MAX_REQUEST_NUMBER = "endRequestNumber";
     private static final String PROP_NEXT_MIN_REQUEST_NUMBER = "nextBeginRequestNumber";
@@ -138,6 +139,7 @@ public class DBSubsystem implements IDBSubsystem {
     private static final String PROP_INCREMENT = "increment";
     private static final String PROP_INCREMENT_NAME = "increment_name";
     private static final String PROP_RANGE_DN = "rangeDN";
+    private static final String PROP_GENERATOR = "id.generator";
 
     private ILogger mLogger = null;
 
@@ -389,6 +391,16 @@ public class DBSubsystem implements IDBSubsystem {
     }
 
     /**
+     * Gets maximum serial number limit in next range in config file
+     *
+     * @param repo repo identifier
+     * @return max serial number in next range
+     */
+    public String getIdGenerator(int repo) {
+        return mRepos[repo].get(PROP_GENERATOR);
+    }
+
+    /**
      * Gets start of next range from database.
      * Increments the nextRange attribute and allocates
      * this range to the current instance by creating a pkiRange object.
@@ -465,6 +477,93 @@ public class DBSubsystem implements IDBSubsystem {
         }
 
         return nextRange;
+    }
+
+    /**
+     * Gets number corresponding to start of next range from database
+     *
+     * Increments the nextRange attribute and allocates
+     * this range to the current instance by creating a pkiRange object.
+     *
+     * This use the format defined for legacy2 generator.
+     *
+     * @param repo repo identifier
+     * @param radix radix to use for storing numbers
+     * @return start of next range
+     */
+    public BigInteger getNextRange2(int repo, int radix) {
+        LDAPConnection conn = null;
+        BigInteger nextRangeNo = null;
+        try {
+            Hashtable<String, String> h = mRepos[repo];
+            conn = mLdapConnFactory.getConn();
+            String dn = h.get(PROP_BASEDN) + "," + mBaseDN;
+            String rangeDN = h.get(PROP_RANGE_DN) + "," + mBaseDN;
+
+            CMS.debug("DBSubsystem: retrieving " + dn);
+            LDAPEntry entry = conn.read(dn);
+
+            LDAPAttribute attr = entry.getAttribute(PROP_NEXT_RANGE);
+            if (attr == null) {
+                throw new Exception("Missing Attribute" + PROP_NEXT_RANGE + "in Entry " + dn);
+            }
+            String nextRange = (String) attr.getStringValues().nextElement();
+
+            nextRangeNo = new BigInteger(nextRange);
+            String  increment = h.get(PROP_INCREMENT);
+            if (increment.startsWith("0x")) {
+                increment = increment.substring(2);
+            }
+            BigInteger incrementNo = new BigInteger(increment, radix);
+
+            String newNextRange = nextRangeNo.add(incrementNo).toString();
+
+            // To make sure attrNextRange always increments, first delete the current value and then
+            // increment.  Two operations in the same transaction
+            LDAPAttribute attrNextRange = new LDAPAttribute(PROP_NEXT_RANGE, newNextRange);
+            LDAPModification[] mods = {
+                    new LDAPModification(LDAPModification.DELETE, attr),
+                    new LDAPModification(LDAPModification.ADD, attrNextRange) };
+
+            CMS.debug("DBSubsystem: updating " + PROP_NEXT_RANGE + " from " + nextRange + " to " + newNextRange);
+
+            conn.modify(dn, mods);
+
+            // Add new range object
+            String endRange = nextRangeNo.add(incrementNo).subtract(BigInteger.ONE).toString();
+            LDAPAttributeSet attrs = new LDAPAttributeSet();
+            attrs.add(new LDAPAttribute("objectClass", "top"));
+            attrs.add(new LDAPAttribute("objectClass", "pkiRange"));
+            attrs.add(new LDAPAttribute("beginRange", nextRange));
+            attrs.add(new LDAPAttribute("endRange", endRange));
+            attrs.add(new LDAPAttribute("cn", nextRange));
+            attrs.add(new LDAPAttribute("host", CMS.getEESSLHost()));
+            attrs.add(new LDAPAttribute("securePort", CMS.getEESSLPort()));
+            String dn2 = "cn=" + nextRange + "," + rangeDN;
+            LDAPEntry rangeEntry = new LDAPEntry(dn2, attrs);
+
+            CMS.debug("DBSubsystem: adding new range object: " + dn2);
+
+            conn.add(rangeEntry);
+
+            CMS.debug("DBSubsystem: getNextRange  Next range has been added: " +
+                    nextRange + " - " + endRange);
+
+        } catch (Exception e) {
+            CMS.debug(e);
+            nextRangeNo = null;
+        } finally {
+            try {
+                if ((conn != null) && (mLdapConnFactory != null)) {
+                    CMS.debug("Releasing ldap connection");
+                    mLdapConnFactory.returnConn(conn);
+                }
+            } catch (Exception e) {
+                CMS.debug("Error releasing the ldap connection" + e.toString());
+            }
+        }
+
+        return nextRangeNo;
     }
 
     /**
@@ -576,6 +675,9 @@ public class DBSubsystem implements IDBSubsystem {
             certs.put(PROP_INCREMENT_NAME, PROP_SERIAL_INCREMENT);
             certs.put(PROP_INCREMENT, mDBConfig.getString(
                     PROP_SERIAL_INCREMENT, PROP_INFINITE_SERIAL_NUMBER));
+
+            certs.put(PROP_GENERATOR, mDBConfig.getString(
+                    PROP_CERT_ID_GENERATOR, "legacy"));
 
             mRepos[CERTS] = certs;
 

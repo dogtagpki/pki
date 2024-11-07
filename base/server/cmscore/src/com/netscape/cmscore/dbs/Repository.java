@@ -48,7 +48,6 @@ import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
  */
 
 public abstract class Repository implements IRepository {
-
     private BigInteger BI_INCREMENT = null;
     // (the next serialNo to be issued) - 1
     private BigInteger mSerialNo = null;
@@ -77,6 +76,7 @@ public abstract class Repository implements IRepository {
     private int mRepo = -1;
 
     private BigInteger mLastSerialNo = null;
+    protected IDGenerator idGenerator = IDGenerator.LEGACY;
 
     /**
      * Constructs a repository.
@@ -88,6 +88,18 @@ public abstract class Repository implements IRepository {
         mBaseDN = baseDN;
 
         BI_INCREMENT = new BigInteger(Integer.toString(increment));
+    }
+
+    public IDGenerator getIDGenerator() {
+        return idGenerator;
+    }
+
+    protected void setIDGenerator(IDGenerator idGenerator) {
+        this.idGenerator = idGenerator;
+    }
+
+    protected void setIDGenerator(String idGenerator) {
+        this.idGenerator = IDGenerator.fromString(idGenerator);
     }
 
     /**
@@ -264,7 +276,11 @@ public abstract class Repository implements IRepository {
             CMS.debug("Repository: Instance of Request Repository or CRLRepository.");
             mRepo = IDBSubsystem.REQUESTS;
         }
-
+        String generator = mDB.getIdGenerator(mRepo);
+        CMS.debug("Repository: Using id generator " + generator);
+        if (generator != null && !generator.isEmpty()) {
+            idGenerator = IDGenerator.fromString(generator);
+        }
         mMinSerial = mDB.getMinSerialConfig(mRepo);
         mMaxSerial = mDB.getMaxSerialConfig(mRepo);
         mNextMinSerial = mDB.getNextMinSerialConfig(mRepo);
@@ -272,10 +288,22 @@ public abstract class Repository implements IRepository {
         String increment = mDB.getIncrementConfig(mRepo);
         String lowWaterMark = mDB.getLowWaterMarkConfig(mRepo);
 
+        if (idGenerator == IDGenerator.LEGACY_2 && mRadix == 16) {
+            mMinSerial = mMinSerial.substring(2);
+            mMaxSerial = mMaxSerial.substring(2);
+            increment = increment.substring(2);
+            lowWaterMark = lowWaterMark.substring(2);
+            if (mNextMinSerial != null && mNextMinSerial.length() > 2) {
+                mNextMinSerial = mNextMinSerial.substring(2);
+                mNextMaxSerial = mNextMaxSerial.substring(2);
+            }
+        }
+
         CMS.debug("Repository: minSerial:" + mMinSerial + " maxSerial: " + mMaxSerial);
         CMS.debug("Repository: nextMinSerial: " + ((mNextMinSerial == null)?"":mNextMinSerial) +
                              " nextMaxSerial: " + ((mNextMaxSerial == null)?"":mNextMaxSerial));
         CMS.debug("Repository: increment:" + increment + " lowWaterMark: " + lowWaterMark);
+        CMS.debug("Repository: id generator " + idGenerator.toString());
 
         if (mMinSerial != null)
             mMinSerialNo = new BigInteger(mMinSerial, mRadix);
@@ -491,8 +519,13 @@ public abstract class Repository implements IRepository {
         mCounter = BigInteger.ZERO;
 
         // persist the changes
-        mDB.setMinSerialConfig(mRepo, mMinSerialNo.toString(mRadix));
-        mDB.setMaxSerialConfig(mRepo, mMaxSerialNo.toString(mRadix));
+        if (idGenerator == IDGenerator.LEGACY_2 && mRadix == 16) {
+            mDB.setMinSerialConfig(mRepo, "0x" + mMinSerialNo.toString(mRadix));
+            mDB.setMaxSerialConfig(mRepo, "0x" + mMaxSerialNo.toString(mRadix));
+        } else {
+            mDB.setMinSerialConfig(mRepo, mMinSerialNo.toString(mRadix));
+            mDB.setMaxSerialConfig(mRepo, mMaxSerialNo.toString(mRadix));
+        }
         mDB.setNextMinSerialConfig(mRepo, null);
         mDB.setNextMaxSerialConfig(mRepo, null);
     }
@@ -543,18 +576,27 @@ public abstract class Repository implements IRepository {
 
         if ((numsAvail.compareTo(mLowWaterMarkNo) < 0) && (!CMS.isPreOpMode())) {
             CMS.debug("Repository: Requesting next range");
-            String nextRange = mDB.getNextRange(mRepo);
-            CMS.debug("Repository: next range: " + nextRange);
-
-            mNextMinSerialNo = new BigInteger(nextRange, mRadix);
+            if (idGenerator == IDGenerator.LEGACY_2 && mRadix == 16) {
+                mNextMinSerialNo = mDB.getNextRange2(mRepo, mRadix);
+                CMS.debug("Repository: next range: " + mNextMinSerialNo.toString(mRadix));
+            } else {
+                String nextRange = mDB.getNextRange(mRepo);
+                CMS.debug("Repository: next range: " + nextRange);
+                mNextMinSerialNo = new BigInteger(nextRange, mRadix);
+            }
             if (mNextMinSerialNo == null) {
                 CMS.debug("Repository: Next range not available");
             } else {
                 CMS.debug("Repository: Next min serial number: " + mNextMinSerialNo.toString(mRadix));
                 mNextMaxSerialNo = mNextMinSerialNo.add(mIncrementNo).subtract(BigInteger.ONE);
                 numsAvail = numsAvail.add(mIncrementNo);
-                mDB.setNextMinSerialConfig(mRepo, mNextMinSerialNo.toString(mRadix));
-                mDB.setNextMaxSerialConfig(mRepo, mNextMaxSerialNo.toString(mRadix));
+                if (idGenerator == IDGenerator.LEGACY_2 && mRadix == 16) {
+                    mDB.setNextMinSerialConfig(mRepo, "0x" + mNextMinSerialNo.toString(mRadix));
+                    mDB.setNextMaxSerialConfig(mRepo, "0x" + mNextMaxSerialNo.toString(mRadix));
+                } else {
+                    mDB.setNextMinSerialConfig(mRepo, mNextMinSerialNo.toString(mRadix));
+                    mDB.setNextMaxSerialConfig(mRepo, mNextMaxSerialNo.toString(mRadix));
+                }
             }
         }
 

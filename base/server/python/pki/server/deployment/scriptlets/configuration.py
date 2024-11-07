@@ -1058,6 +1058,29 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 subsystem.config['kra.ephemeralRequests'] = 'true'
                 subsystem.save()
 
+        # update id generator parameter
+        if subsystem.name == 'ca':
+            if deployer.mdict['pki_cert_id_generator'] == 'legacy2':
+                subsystem.config['dbs.cert.id.generator'] = 'legacy2'
+                subsystem.config['dbs.serialDN'] = 'ou=certificateRepository,ou=ranges_v2'
+                subsystem.config['dbs.serialRangeDN'] = 'ou=certificateRepository,ou=ranges_v2'
+                subsystem.config['dbs.cert.id.generator'] = 'legacy2'
+                subsystem.config['dbs.serialIncrement'] = '0x10000000'
+                subsystem.config['dbs.serialLowWaterMark'] = '0x2000000'
+                subsystem.config['dbs.serialCloneTransferNumber'] = '0x10000'
+                if deployer.mdict['pki_serial_number_range_start'][0:2] != '0x':
+                    raise Exception(
+                        "pki_serial_number_range_start foramt not supported by legacy2 generator")
+                if deployer.mdict['pki_serial_number_range_end'][0:2] != '0x':
+                    raise Exception(
+                        "pki_serial_number_range_end foramt not supported by legacy2 generator")
+                subsystem.save()
+            if deployer.mdict['pki_request_id_generator'] == 'legacy2':
+                subsystem.config['dbs.request.id.generator'] = 'legacy2'
+                subsystem.config['dbs.requestDN'] = 'ou=requests,ou=ranges_v2'
+                subsystem.config['dbs.requestRangeDN'] = 'ou=requests,ou=ranges_v2'
+                subsystem.save()
+
         token = deployer.mdict['pki_token_name']
         nssdb = instance.open_nssdb(token)
 

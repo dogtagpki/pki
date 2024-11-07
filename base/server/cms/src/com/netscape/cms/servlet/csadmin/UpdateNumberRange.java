@@ -36,6 +36,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.dbs.repository.IRepository;
+import com.netscape.certsrv.dbs.repository.IRepository.IDGenerator;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
@@ -132,7 +133,7 @@ public class UpdateNumberRange extends CMSServlet {
             String cloneNumConfig = null;
             String nextEndConfig = null;
             int radix = 10;
-
+            IDGenerator generator = IDGenerator.LEGACY;
             IRepository repo = null;
             if (cstype.equals("KRA")) {
                 IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) CMS.getSubsystem(
@@ -151,6 +152,7 @@ public class UpdateNumberRange extends CMSServlet {
                     repo = ca.getRequestQueue().getRequestRepository();
                 } else if (type.equals("serialNo")) {
                     repo = ca.getCertificateRepository();
+                    generator = repo.getIDGenerator();
                 } else if (type.equals("replicaId")) {
                     repo = ca.getReplicaRepository();
                 }
@@ -182,8 +184,13 @@ public class UpdateNumberRange extends CMSServlet {
             }
 
             String endNumStr = cs.getString(endNumConfig, "");
-            endNum = new BigInteger(endNumStr, radix);
             String decrementStr = cs.getString(cloneNumConfig, "");
+            if (generator == IDGenerator.LEGACY_2 && radix == 16) {
+                endNumStr = endNumStr.substring(2);
+                decrementStr = decrementStr.substring(2);
+            }
+                
+            endNum = new BigInteger(endNumStr, radix);
             BigInteger decrement = new BigInteger(decrementStr, radix);
             beginNum = endNum.subtract(decrement).add(oneNum);
 
@@ -195,18 +202,29 @@ public class UpdateNumberRange extends CMSServlet {
             synchronized (repo) {
                 if (beginNum.compareTo(repo.peekNextSerialNumber()) < 0) {
                     String nextEndNumStr = cs.getString(nextEndConfig, "");
+                    if (generator == IDGenerator.LEGACY_2 && radix == 16) {
+                        nextEndNumStr = nextEndNumStr.substring(2);
+                    }
                     BigInteger endNum2 = new BigInteger(nextEndNumStr, radix);
                     CMS.debug("Transferring from the end of on-deck range");
                     String newValStr = endNum2.subtract(decrement).toString(radix);
                     repo.setNextMaxSerial(newValStr);
-                    cs.putString(nextEndConfig, newValStr);
+                    if (generator == IDGenerator.LEGACY_2 && radix == 16) {
+                        cs.putString(nextEndConfig, "0x" + newValStr);
+                    } else {
+                        cs.putString(nextEndConfig, newValStr);
+                    }
                     beginNum = endNum2.subtract(decrement).add(oneNum);
                     endNum = endNum2;
                 } else {
                     CMS.debug("Transferring from the end of the current range");
                     String newValStr = beginNum.subtract(oneNum).toString(radix);
                     repo.setMaxSerial(newValStr);
-                    cs.putString(endNumConfig, newValStr);
+                    if (generator == IDGenerator.LEGACY_2 && radix == 16) {
+                        cs.putString(endNumConfig, "0x" + newValStr);
+                    } else {
+                        cs.putString(endNumConfig, newValStr);
+                    }
                 }
             }
 
@@ -230,20 +248,28 @@ public class UpdateNumberRange extends CMSServlet {
             // insert info
             CMS.debug("UpdateNumberRange: Sending response");
 
+            String beginNumStr = beginNum.toString(radix);
+            endNumStr = endNum.toString(radix);
+
+            if (generator == IDGenerator.LEGACY_2 && radix == 16) {
+                beginNumStr = "0x" + beginNumStr;
+                endNumStr = "0x" + endNumStr;
+            }
+            
             // send success status back to the requestor
             XMLObject xmlObj = new XMLObject();
             Node root = xmlObj.createRoot("XMLResponse");
 
             xmlObj.addItemToContainer(root, "Status", SUCCESS);
-            xmlObj.addItemToContainer(root, "beginNumber", beginNum.toString(radix));
-            xmlObj.addItemToContainer(root, "endNumber", endNum.toString(radix));
+            xmlObj.addItemToContainer(root, "beginNumber", beginNumStr);
+            xmlObj.addItemToContainer(root, "endNumber", endNumStr);
             byte[] cb = xmlObj.toByteArray();
 
             outputResult(httpResp, "application/xml", cb);
             cs.commit(false);
 
-            auditParams += "+beginNumber;;" + beginNum.toString(radix) +
-                          "+endNumber;;" + endNum.toString(radix);
+            auditParams += "+beginNumber;;" + beginNumStr +
+                "+endNumber;;" + endNumStr;
 
             auditMessage = CMS.getLogMessage(
                                AuditEvent.CONFIG_SERIAL_NUMBER,

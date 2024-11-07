@@ -29,7 +29,7 @@ import tempfile
 
 import pki.cli
 import pki.server.cli.audit
-
+import pki.server.cli.id
 
 class CACLI(pki.cli.CLI):
 
@@ -40,6 +40,7 @@ class CACLI(pki.cli.CLI):
         self.add_module(CACertCLI())
         self.add_module(CACloneCLI())
         self.add_module(pki.server.cli.audit.AuditCLI(self))
+        self.add_module(pki.server.cli.id.IdCLI(self))
 
 
 class CACertCLI(pki.cli.CLI):

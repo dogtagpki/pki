@@ -181,6 +181,20 @@ public interface IDBSubsystem extends ISubsystem {
     public String getNextRange(int repo);
 
     /**
+     * Gets number corresponding to start of next range from database
+     *
+     * Increments the nextRange attribute and allocates
+     * this range to the current instance by creating a pkiRange object.
+     *
+     * This use the format defined for legacy2 generator.
+     *
+     * @param repo repo identifier
+     * @param radix radix to use for storing numbers
+     * @return start of next range
+     */
+    public BigInteger getNextRange2(int repo, int radix);
+
+    /**
      * Determines if a range conflict has been observed in database
      *
      * @param repo repo identifier
@@ -203,6 +217,11 @@ public interface IDBSubsystem extends ISubsystem {
      * @exception EBaseException failed to set
      */
     public void setEnableSerialMgmt(boolean value) throws EBaseException;
+
+    /**
+     * Get the id generator name
+     */
+    public String getIdGenerator(int repo);
 
     /**
      * Gets internal DB configuration store
