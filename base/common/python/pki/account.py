@@ -18,8 +18,14 @@
 # Copyright (C) 2013 Red Hat, Inc.
 # All rights reserved.
 #
-from __future__ import absolute_import
+
+import inspect
+import json
+import logging
+
 import pki
+
+logger = logging.getLogger(__name__)
 
 
 class AccountClient:
@@ -35,27 +41,43 @@ class AccountClient:
        * call logout() to invalidate the session.
     """
 
-    def __init__(self, connection, subsystem=None):
+    def __init__(self, parent, subsystem=None):
         """
         Creates an AccountClient for the connection.
 
-        :param connection: connection to be associated with the AccountClient
-        :type connection: pki.PKIConnection
+        :param parent: PKIClient object
+        :type parent: pki.client.PKIClient
         :returns: AccountClient
         """
 
-        self.connection = connection
+        if isinstance(parent, pki.client.PKIConnection):
 
-        self.login_url = '/rest/account/login'
-        self.logout_url = '/rest/account/logout'
+            logger.warning(
+                '%s:%s: The PKIConnection parameter in AccountClient.__init__() has been deprecated. '
+                'Provide PKIClient instead.',
+                inspect.stack()[1].filename, inspect.stack()[1].lineno)
 
-        if connection.subsystem is None:
+            self.subsystem_client = None
+            self.pki_client = None
+            self.connection = parent
 
-            if subsystem is None:
+            # in legacy code the subsystem name is specified in AccountClient
+            # in PKIConnection
+            if subsystem:
+                self.subsystem_name = subsystem
+            elif self.connection.subsystem:
+                self.subsystem_name = self.connection.subsystem
+            else:
                 raise Exception('Missing subsystem for AccountClient')
 
-            self.login_url = '/' + subsystem + self.login_url
-            self.logout_url = '/' + subsystem + self.logout_url
+        else:
+            self.subsystem_client = parent
+            self.pki_client = self.subsystem_client.parent
+            self.connection = self.pki_client.connection
+
+            # in newer code the subsystem name is specified in subsystem client
+            # (e.g. CAClient, KRAClient)
+            self.subsystem_name = self.subsystem_client.name
 
     @pki.handle_exceptions()
     def login(self):
@@ -65,7 +87,26 @@ class AccountClient:
 
         :returns: None
         """
-        self.connection.get(self.login_url)
+
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/account/login' % api_path
+
+        # in legacy code the PKIConnection object might already have the subsystem name
+        # in newer code the subsystem name needs to be included in the path
+        if not self.connection.subsystem:
+            path = '/' + self.subsystem_name + path
+
+        response = self.connection.get(path)
+
+        json_response = response.json()
+        logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
+
+        # TODO: return Account object instead of JSON/XML
+        return json_response
 
     @pki.handle_exceptions()
     def logout(self):
@@ -75,4 +116,17 @@ class AccountClient:
 
         :returns: None
         """
-        self.connection.get(self.logout_url)
+
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/account/logout' % api_path
+
+        # in legacy code the PKIConnection object might already have the subsystem name
+        # in newer code the subsystem name needs to be included in the path
+        if not self.connection.subsystem:
+            path = '/' + self.subsystem_name + path
+
+        self.connection.get(path)
