@@ -29,6 +29,7 @@ import logging
 import os
 import ssl
 import warnings
+import urllib
 
 import requests
 from requests import adapters
@@ -37,6 +38,9 @@ try:
     from requests.packages.urllib3.exceptions import InsecureRequestWarning
 except ImportError:
     from urllib3.exceptions import InsecureRequestWarning
+
+import pki.info
+import pki.util
 
 logger = logging.getLogger(__name__)
 
@@ -169,7 +173,10 @@ class PKIConnection:
 
         self.protocol = protocol
         self.hostname = hostname
-        self.port = port
+        self.port = str(port)
+
+        # TODO: remove subsystem name from PKIConnection once all supported code
+        # has been changed to use PKIClient.
         self.subsystem = subsystem
 
         self.rootURI = self.protocol + '://' + self.hostname
@@ -364,6 +371,103 @@ class PKIConnection:
         r = self.session.delete(target_path, headers=headers)
         r.raise_for_status()
         return r
+
+
+class PKIClient:
+
+    def __init__(
+            self,
+            url,
+            trust_env=None,
+            verify=True,
+            ca_bundle=None,
+            api_version=None):
+
+        self.url = urllib.parse.urlparse(url)
+
+        if self.url.port:
+            port = self.url.port
+        elif self.url.scheme == 'http':
+            port = 80
+        elif self.url.scheme == 'https':
+            port = 443
+        else:
+            raise Exception('Unsupported URL scheme: %s' % self.url.scheme)
+
+        self.info = None
+        self.server_version = None
+        self.api_version = api_version
+
+        if api_version == 'v1':
+            self.api_path = 'rest'
+        else:
+            self.api_path = api_version
+
+        # TODO: do not hard-code message format
+        self.connection = PKIConnection(
+            protocol=self.url.scheme,
+            hostname=self.url.hostname,
+            port=port,
+            accept='application/json',
+            trust_env=trust_env,
+            verify=verify,
+            cert_paths=ca_bundle
+        )
+
+        self.info_client = pki.info.InfoClient(self)
+
+    def set_client_auth(self, client_cert, client_key=None):
+        self.connection.set_authentication_cert(client_cert, client_key)
+
+    def connect(self):
+
+        logger.info('Connecting to %s', urllib.parse.urlunparse(self.url))
+
+        self.info = self.info_client.get_info()
+
+        self.server_version = pki.util.Version(self.info.version)
+        logger.debug('- server version: %s', self.server_version)
+
+        # if not specified, set REST API version and path based on server version
+        if not self.api_version:
+            if self.server_version >= pki.util.Version('11.6.0'):
+                # use REST API v2 for PKI 11.6.0 or later
+                self.api_version = 'v2'
+                self.api_path = 'v2'
+            else:
+                self.api_version = 'v1'
+                self.api_path = 'rest'
+
+        logger.debug('- API version: %s', self.api_version)
+        logger.debug('- API path: %s', self.api_path)
+
+    def get_info(self):
+
+        if not self.info:
+            self.connect()
+
+        return self.info
+
+    def get_server_version(self):
+
+        if not self.server_version:
+            self.connect()
+
+        return self.server_version
+
+    def get_api_version(self):
+
+        if not self.api_version:
+            self.connect()
+
+        return self.api_version
+
+    def get_api_path(self):
+
+        if not self.api_path:
+            self.connect()
+
+        return self.api_path
 
 
 def main():

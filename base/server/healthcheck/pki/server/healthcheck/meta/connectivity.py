@@ -1,11 +1,14 @@
 import logging
 
-from pki.server.healthcheck.meta.plugin import MetaPlugin, registry
 from ipahealthcheck.core.plugin import Result, duration
 from ipahealthcheck.core import constants
-from pki.client import PKIConnection
-from pki.cert import CertClient
-from pki.systemcert import SystemCertClient
+
+import pki.ca
+import pki.cert
+import pki.client
+import pki.systemcert
+
+from pki.server.healthcheck.meta.plugin import MetaPlugin, registry
 
 logger = logging.getLogger(__name__)
 
@@ -43,12 +46,15 @@ class DogtagCACertsConnectivityCheck(MetaPlugin):
 
                 # Make a plain HTTPS GET to "find" one certificate, to test that
                 # the server is up AND is able to respond back
-                connection = PKIConnection(protocol='https',
-                                           hostname='localhost',
-                                           port=https_port,
-                                           verify=False)
+                server_url = 'https://localhost:' + https_port
 
-                cert_client = CertClient(connection)
+                pki_client = pki.client.PKIClient(
+                    url=server_url,
+                    verify=False)
+
+                ca_client = pki.ca.CAClient(pki_client)
+
+                cert_client = pki.cert.CertClient(ca_client)
                 cert = cert_client.list_certs(size=1)
                 cert_info = cert.cert_data_info_list[0]
                 if cert_info:
@@ -63,13 +69,13 @@ class DogtagCACertsConnectivityCheck(MetaPlugin):
                         yield Result(self, constants.ERROR,
                                      msg="Unable to read serial number from retrieved cert",
                                      cert_info=cert_info,
-                                     serverURI=connection.serverURI,
+                                     serverURI=server_url,
                                      cert_url=cert_client.cert_url)
                 else:
                     logger.info("Request was made but none of the certs were retrieved")
                     yield Result(self, constants.ERROR,
                                  msg="PKI server is up. But, unable to retrieve any certs",
-                                 serverURI=connection.serverURI,
+                                 serverURI=server_url,
                                  rest_path=cert_client.cert_url)
 
             else:
@@ -118,12 +124,12 @@ class DogtagKRAConnectivityCheck(MetaPlugin):
 
                 # Make a plain HTTPS GET to retrieve KRA transport cert, to test that
                 # the server is up AND is able to respond back
-                connection = PKIConnection(protocol='https',
+                connection = pki.client.PKIConnection(protocol='https',
                                            hostname='localhost',
                                            port=https_port,
                                            verify=False)
 
-                system_cert_client = SystemCertClient(connection)
+                system_cert_client = pki.systemcert.SystemCertClient(connection)
 
                 # This gets the KRA cert from CS.cfg via REST API. In future, the system
                 # certs will be moved into LDAP. This means that even if LDAP is down
