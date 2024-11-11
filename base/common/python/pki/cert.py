@@ -19,15 +19,15 @@
 #     Abhishek Koneru <akoneru@redhat.com>
 #     Ade Lee <alee@redhat.com>
 
-from __future__ import absolute_import
-from __future__ import print_function
 import copy
+import inspect
 import json
 import logging
 
 from six import iteritems
 
 import pki
+import pki.ca
 import pki.client as client
 import pki.encoder as encoder
 import pki.profile as profile
@@ -600,17 +600,31 @@ class CertClient(object):
     Java interface class defining the REST API for Certificate resources.
     """
 
-    def __init__(self, connection):
+    def __init__(self, parent):
         """ Constructor """
 
-        self.connection = connection
+        if isinstance(parent, pki.client.PKIConnection):
+
+            logger.warning(
+                '%s:%s: The PKIConnection parameter in CertClient.__init__() has been deprecated. '
+                'Provide PKIClient instead.',
+                inspect.stack()[1].filename, inspect.stack()[1].lineno)
+
+            self.ca_client = None
+            self.pki_client = None
+            self.connection = parent
+
+        else:
+            self.ca_client = parent
+            self.pki_client = self.ca_client.parent
+            self.connection = self.pki_client.connection
 
         self.cert_url = '/rest/certs'
         self.agent_cert_url = '/rest/agent/certs'
         self.cert_requests_url = '/rest/certrequests'
         self.agent_cert_requests_url = '/rest/agent/certrequests'
 
-        if connection.subsystem is None:
+        if not self.connection.subsystem:
             self.cert_url = '/ca' + self.cert_url
             self.agent_cert_url = '/ca' + self.agent_cert_url
             self.cert_requests_url = '/ca' + self.cert_requests_url
@@ -642,14 +656,28 @@ class CertClient(object):
             the certificates that satisfy the search criteria.
             If cert_search_request=None, returns all the certificates.
         """
-        url = self.cert_url + '/search'
+
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/certs/search' % api_path
+
+        # in legacy code the PKIConnection object might already have the subsystem name
+        # in newer code the subsystem name needs to be included in the path
+        if not self.connection.subsystem:
+            path = '/ca' + path
+
+        logger.info('Getting CA certs from %s', path)
+
         query_params = {"maxResults": max_results, "maxTime": max_time,
                         "start": start, "size": size}
         cert_search_request = CertSearchRequest(**cert_search_params)
         search_request = json.dumps(cert_search_request,
                                     cls=encoder.CustomTypeEncoder,
                                     sort_keys=True)
-        response = self.connection.post(url, search_request, self.headers,
+        response = self.connection.post(path, search_request, self.headers,
                                         query_params)
 
         json_response = response.json()

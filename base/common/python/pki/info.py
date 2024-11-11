@@ -21,11 +21,11 @@
 """
 Module containing the Python client classes for the InfoClient
 """
-from __future__ import absolute_import
-from __future__ import print_function
 
+import inspect
 import json
 import logging
+import requests.exceptions
 
 from six import iteritems
 
@@ -103,20 +103,56 @@ class InfoClient(object):
     server Info resources.
     """
 
-    def __init__(self, connection):
+    def __init__(self, parent):
         """ Constructor """
 
-        self.connection = connection
+        if isinstance(parent, pki.client.PKIConnection):
 
-        self.info_url = '/pki/v2/info'
+            logger.warning(
+                '%s:%s: The PKIConnection parameter in InfoClient.__init__() has been deprecated. '
+                'Provide PKIClient instead.',
+                inspect.stack()[1].filename, inspect.stack()[1].lineno)
+
+            self.pki_client = None
+            self.connection = parent
+
+        else:
+            self.pki_client = parent
+            self.connection = self.pki_client.connection
 
     @pki.handle_exceptions()
     def get_info(self):
         """ Return an Info object form a PKI server """
 
+        if self.pki_client and self.pki_client.api_path:
+            # use REST API path specified in PKIClient
+            api_paths = [self.pki_client.api_path]
+
+        else:
+            # try all possible REST API paths
+            api_paths = ['v2', 'rest']
+
         headers = {'Content-type': 'application/json',
                    'Accept': 'application/json'}
-        response = self.connection.get(self.info_url, headers)
+
+        response = None
+
+        for api_path in api_paths:
+            try:
+                path = '/pki/%s/info' % api_path
+                logger.info('Getting PKI server info from %s', path)
+
+                response = self.connection.get(path, headers)
+                # REST API path available -> done
+                break
+
+            except requests.exceptions.HTTPError as e:
+                if e.response.status_code != 404:
+                    raise
+                # REST API path not available -> try another
+
+        if not response:
+            raise Exception('Unable to get PKI server info')
 
         json_response = response.json()
         logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
