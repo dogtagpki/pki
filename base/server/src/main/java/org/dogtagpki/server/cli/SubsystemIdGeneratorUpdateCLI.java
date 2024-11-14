@@ -163,7 +163,7 @@ public abstract class SubsystemIdGeneratorUpdateCLI extends SubsystemCLI {
 
             String serialIncrement = dbConfig.getSerialIncrement();
             dbConfig.setSerialIncrement("0x" + serialIncrement);
-            BigInteger incremennt = new BigInteger(serialIncrement, 16);
+            BigInteger increment = new BigInteger(serialIncrement, 16);
 
             String serialLowWaterMark = dbConfig.getSerialLowWaterMark();
             dbConfig.setSerialLowWaterMark("0x" + serialLowWaterMark);
@@ -176,7 +176,7 @@ public abstract class SubsystemIdGeneratorUpdateCLI extends SubsystemCLI {
             BigInteger beginSerialNo = new BigInteger(beginSerialNumber, 16);
             String endSerialNumber = dbConfig.getEndSerialNumber();
             BigInteger endSerialNo = new BigInteger(endSerialNumber, 16);
-            if (endSerialNo.equals(beginSerialNo.add(incremennt).subtract(BigInteger.ONE))){
+            if (endSerialNo.equals(beginSerialNo.add(increment).subtract(BigInteger.ONE))){
                 try {
                     LDAPEntry entrySerial = conn.read("cn=" + beginSerialNumber+"," + rangeDN);
                     LDAPAttribute attrEnd = entrySerial.getAttribute("endRange");
@@ -198,22 +198,24 @@ public abstract class SubsystemIdGeneratorUpdateCLI extends SubsystemCLI {
             String nextBeginSerial = dbConfig.getNextBeginSerialNumber();
             String nextEndSerial = dbConfig.getNextEndSerialNumber();
             if (nextBeginSerial != null && !nextBeginSerial.equals("-1")) {
+                BigInteger nextBeginSerialNo = new BigInteger(nextBeginSerial, 16);
                 dbConfig.setNextBeginSerialNumber("0x" + nextBeginSerial);
-
-                try {
-                    LDAPEntry entryNextSerial = conn.read("cn=" + nextBeginSerial + "," + rangeDN);
-                    LDAPAttribute attrNextEnd = entryNextSerial.getAttribute("endRange");
-                    if (attrNextEnd != null) {
-                        nextEndSerial = attrNextEnd.getStringValues().nextElement();
+                BigInteger nextEndSerialNo = new BigInteger(nextEndSerial, 16);
+                if (nextEndSerialNo.equals(nextBeginSerialNo.add(increment).subtract(BigInteger.ONE))) {
+                    try {
+                        LDAPEntry entryNextSerial = conn.read("cn=" + nextBeginSerial + "," + rangeDN);
+                        LDAPAttribute attrNextEnd = entryNextSerial.getAttribute("endRange");
+                        if (attrNextEnd != null) {
+                            nextEndSerial = attrNextEnd.getStringValues().nextElement();
+                        }
+                    } catch (LDAPException ldae) {
+                        if (ldae.getLDAPResultCode() == 32) {
+                            logger.debug("No range available, using config vaules");
+                        } else {
+                            logger.error("LDAP error", ldae);
+                            return;
+                        }
                     }
-                } catch (LDAPException ldae) {
-                    if (ldae.getLDAPResultCode() == 32) {
-                        logger.debug("No range available, using config vaules");
-                    } else {
-                        logger.error("LDAP error", ldae);
-                        return;
-                    }
-
                 }
                 dbConfig.setNextEndSerialNumber("0x" + nextEndSerial);
                 endSerialNumber = nextEndSerial;
