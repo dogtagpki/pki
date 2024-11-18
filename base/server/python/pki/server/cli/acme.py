@@ -984,6 +984,15 @@ class ACMEIssuerShowCLI(pki.cli.CLI):
             if profile:
                 print('  Certificate Profile: %s' % profile)
 
+            authority_id = config.get('authority-id')
+            if authority_id:
+                print('  Authority ID: %s' % authority_id)
+
+            authority_dn = config.get('authority-dn')
+            if authority_dn:
+                print('  Authority DN: %s' % authority_dn)
+
+
 
 class ACMEIssuerModifyCLI(pki.cli.CLI):
 
@@ -1162,6 +1171,23 @@ class ACMEIssuerModifyCLI(pki.cli.CLI):
             profile = config.get('profile')
             profile = pki.util.read_text('  Certificate Profile', default=profile, required=True)
             pki.util.set_property(config, 'profile', profile)
+
+            print()
+            print('Enter ID of the authority for issuing ACME certificates '
+                  '(empty for main CA, subCA ID otherwise).')
+            authority_id = config.get('authority-id')
+            authority_id = pki.util.read_text('  Authority ID', default=authority_id, required=True)
+            if authority_id:
+                pki.util.set_property(config, 'authority-id', authority_id)
+
+            if not authority_id:
+                print()
+                print('Enter DN of the authority for issuing ACME certificates '
+                      '(empty for main CA, subCA DN otherwise).')
+                authority_dn = config.get('authority-dn')
+                authority_dn = pki.util.read_text('  Authority ID', default=authority_id, required=True)
+                if authority_dn:
+                    pki.util.set_property(config, 'authority-dn', authority_dn)
 
         subsystem.update_issuer_config(config)
 
