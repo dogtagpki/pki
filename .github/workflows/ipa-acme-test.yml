@@ -78,6 +78,14 @@ jobs:
           docker exec ipa bash -c "pki acme-info | sed -n 's/\s*Status:\s\+\(\S\+\).*/\1/p' > ${SHARED}/actual"
           diff expected actual
 
+      - name: Specify main CA as Authority ID for ACME in IPA container
+        run: |
+          caid=$(docker exec ipa ipa -e in_server=true ca-show ipa --raw | sed -n 's/\s*ipacaid:\s\+\(\S\+\).*/\1/p' )
+          docker exec ipa pki-server acme-issuer-mod --type pki "-Dauthority-id=${caid}"
+          echo "${caid}" > expected
+          docker exec ipa bash -c "pki-server acme-issuer-show | sed -n 's/\s*Authority ID:\s\+\(\S\+\).*/\1/p' > ${SHARED}/actual"
+          diff expected actual
+
       - name: Run client container
         run: |
           docker run \
