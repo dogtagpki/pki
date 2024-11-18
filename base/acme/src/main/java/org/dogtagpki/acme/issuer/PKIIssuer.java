@@ -22,9 +22,11 @@ import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.RevocationReason;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 
 import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.ca.CAClient;
+import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.cert.CertRequestInfo;
@@ -48,6 +50,8 @@ public class PKIIssuer extends ACMEIssuer {
 
     private ClientConfig clientConfig = new ClientConfig();
     private String profile;
+    private AuthorityID authorityID;
+    private X500Name authorityDN;
 
     public String getProfile() {
         return profile;
@@ -108,6 +112,18 @@ public class PKIIssuer extends ACMEIssuer {
 
         profile = config.getParameter("profile");
         logger.info("- profile: " + profile);
+
+        String aid = config.getParameter("authority-id");
+        if (aid != null) {
+            authorityID = new AuthorityID(aid);
+            logger.info("- authority-id: " + aid);
+        }
+
+        String adn = config.getParameter("authority-dn");
+        if (adn != null) {
+            authorityDN = new X500Name(adn);
+            logger.info("- authority-dn: " + adn);
+        }
     }
 
     @Override
@@ -164,7 +180,8 @@ public class PKIIssuer extends ACMEIssuer {
 
             logger.info("Request:\n" + certEnrollmentRequest);
 
-            CertRequestInfos infos = certClient.enrollRequest(certEnrollmentRequest, null, null);
+            CertRequestInfos infos = certClient.enrollRequest(
+			    certEnrollmentRequest, authorityID, authorityDN);
 
             logger.info("Responses:");
             CertRequestInfo info = infos.getEntries().iterator().next();
