@@ -40,6 +40,21 @@ To use client certificate authentication, specify the client certificate nicknam
 To use basic authentication, specify the username in the *username* parameter
 and the password in the *password* parameter.
 
+## Configuring CA authority
+
+PKI issuer can direct ACME enrollment requests to the specific CA authority.
+The authority can be specified either by using its ID or LDAP DN as part of the
+`issuer.conf` with `authority-id` or `authority-dn` parameters. These
+parameters can also be added with the following command:
+
+----
+$ pki-server acme-issuer-mod --type pki \
+    -Dauthority-id=some-ID
+----
+
+By default PKI issuer does not pass any authority ID or LDAP DN, meaning the
+request would be handled by the main CA.
+
 ## See Also
 
 * link:Configuring_ACME_Issuer.md[Configuring ACME Issuer]
