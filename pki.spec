@@ -1273,8 +1273,10 @@ CXX_FLAGS="$CXX_FLAGS -g -fPIE -pie"
 # https://sourceware.org/annobin/annobin.html/Test-gaps.html
 C_FLAGS="$C_FLAGS -fplugin=annobin"
 
+%ifarch x86_64
 # https://sourceware.org/annobin/annobin.html/Test-cf-protection.html
 C_FLAGS="$C_FLAGS -fcf-protection=full"
+%endif
 
 # https://sourceware.org/annobin/annobin.html/Test-optimization.html
 C_FLAGS="$C_FLAGS -O2"
