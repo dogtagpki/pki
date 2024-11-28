@@ -89,6 +89,7 @@ public class DBSubsystem {
     public static final String PROP_SERIAL_INCREMENT = "serialIncrement";
     public static final String PROP_SERIAL_BASEDN = "serialDN";
     public static final String PROP_SERIAL_RANGE_DN = "serialRangeDN";
+    public static final String PROP_SERIAL_CLONE_TRANSFER_NUMBER = "serialCloneTransferNumber";
 
     public static final String PROP_MIN_REQUEST_NUMBER = "beginRequestNumber";
     public static final String PROP_MAX_REQUEST_NUMBER = "endRequestNumber";
@@ -98,6 +99,7 @@ public class DBSubsystem {
     public static final String PROP_REQUEST_INCREMENT = "requestIncrement";
     public static final String PROP_REQUEST_BASEDN = "requestDN";
     public static final String PROP_REQUEST_RANGE_DN = "requestRangeDN";
+    public static final String PROP_REQUEST_CLONE_TRANSFER_NUMBER = "requestCloneTransferNumber";
 
     public static final String PROP_MIN_REPLICA_NUMBER = "beginReplicaNumber";
     public static final String PROP_MAX_REPLICA_NUMBER = "endReplicaNumber";

@@ -34,6 +34,7 @@ import pki.server.cli.audit
 import pki.server.cli.config
 import pki.server.cli.db
 import pki.server.cli.group
+import pki.server.cli.id
 import pki.server.cli.range
 import pki.server.cli.subsystem
 import pki.server.cli.user
@@ -58,6 +59,7 @@ class CACLI(pki.cli.CLI):
         self.add_module(pki.server.cli.group.GroupCLI(self))
         self.add_module(CAProfileCLI())
         self.add_module(pki.server.cli.range.RangeCLI(self))
+        self.add_module(pki.server.cli.id.IdCLI(self))
         self.add_module(pki.server.cli.user.UserCLI(self))
 
 

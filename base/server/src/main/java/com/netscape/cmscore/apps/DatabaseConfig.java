@@ -69,6 +69,13 @@ public class DatabaseConfig extends PropConfigStore {
         putString(DBSubsystem.PROP_SERIAL_RANGE_DN, serialRangeDN);
     }
 
+    public String getSerialCloneTransferNumber() throws EBaseException {
+        return getString(DBSubsystem.PROP_SERIAL_CLONE_TRANSFER_NUMBER, "");
+    }
+
+    public void setSerialCloneTransferNumber(String serialCloneTransferNumber) {
+        putString(DBSubsystem.PROP_SERIAL_CLONE_TRANSFER_NUMBER, serialCloneTransferNumber);
+    }
     public String getBeginSerialNumber() throws EBaseException {
         return getString(DBSubsystem.PROP_MIN_SERIAL_NUMBER, "0");
     }

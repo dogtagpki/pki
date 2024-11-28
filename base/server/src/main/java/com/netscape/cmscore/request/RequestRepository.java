@@ -53,7 +53,8 @@ import com.netscape.cmscore.security.JssSubsystem;
 public class RequestRepository extends Repository {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestRepository.class);
-
+    public static final String PROP_REQUEST_ID_GENERATOR = "request.id.generator";
+    public static final String DEFAULT_REQUEST_ID_GENERATOR = "legacy";
     protected String filter;
 
     /**
@@ -73,6 +74,12 @@ public class RequestRepository extends Repository {
         logger.info("RequestRepository: - filter: " + filter);
 
         DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
+
+        String value = dbConfig.getString(PROP_REQUEST_ID_GENERATOR, null);
+        logger.debug("CertificateRepository: - cert ID generator: " + value);
+        if (value != null) {
+            setIDGenerator(value);
+        }
 
         mBaseDN = dbConfig.getRequestDN() + "," + dbSubsystem.getBaseDN();
         logger.info("RequestRepository: - base DN: " + mBaseDN);
@@ -125,6 +132,17 @@ public class RequestRepository extends Repository {
         // Let RequestRecord class register its
         // database mapping and object mapping values
         RequestRecord.register(dbSubsystem);
+    }
+
+    public String getNextRangeDN() {
+
+        if (idGenerator == IDGenerator.LEGACY_2) {
+            // store nextRange in range subtree for SSNv2
+            return rangeDN;
+        }
+
+        // store nextRange in repository subtree for SSNv1
+        return super.getNextRangeDN();
     }
 
     public RequestRepository(

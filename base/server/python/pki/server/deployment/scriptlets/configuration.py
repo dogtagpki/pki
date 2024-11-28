@@ -229,6 +229,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             subsystem.config['ca.defaultOcspUri'] = ocsp_uri
 
         if subsystem.name == 'ca':
+            cert_id_generator = deployer.mdict.get('pki_cert_id_generator')
+            if cert_id_generator:
+                subsystem.config['dbs.cert.id.generator'] = cert_id_generator
+
             serial_number_range_start = deployer.mdict.get('pki_serial_number_range_start')
             if serial_number_range_start:
                 subsystem.config['dbs.beginSerialNumber'] = serial_number_range_start
@@ -236,6 +240,21 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             serial_number_range_end = deployer.mdict.get('pki_serial_number_range_end')
             if serial_number_range_end:
                 subsystem.config['dbs.endSerialNumber'] = serial_number_range_end
+
+            if cert_id_generator == 'legacy2':
+                if not serial_number_range_start.startswith('0x'):
+                    raise Exception('pki_serial_number_range_start format not valid, expecting 0x...')
+                if not serial_number_range_end.startswith('0x'):
+                    raise Exception('pki_serial_number_range_end format not valid, expecting 0x...')
+                subsystem.config['dbs.serialIncrement'] = '0x10000000'
+                subsystem.config['dbs.serialLowWaterMark'] = '0x2000000'
+                subsystem.config['dbs.serialCloneTransferNumber'] = '0x10000'
+                subsystem.config['dbs.requestRangeDN'] = 'ou=requests,ou=ranges_v2'
+                subsystem.config['dbs.serialRangeDN'] = 'ou=certificateRepository,ou=ranges_v2'
+
+            request_id_generator = deployer.mdict.get('pki_request_id_generator')
+            if request_id_generator:
+                subsystem.config['dbs.request.id.generator'] = request_id_generator
 
             request_number_range_start = deployer.mdict.get('pki_request_number_range_start')
             if request_number_range_start:
@@ -252,6 +271,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             replica_number_range_end = deployer.mdict.get('pki_replica_number_range_end')
             if replica_number_range_end:
                 subsystem.config['dbs.endReplicaNumber'] = replica_number_range_end
+
 
         if subsystem.name == 'kra':
             if config.str2bool(deployer.mdict['pki_kra_ephemeral_requests']):

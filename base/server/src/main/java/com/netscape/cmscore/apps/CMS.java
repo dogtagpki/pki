@@ -80,6 +80,10 @@ public final class CMS {
         return System.getenv("PKI_VERSION");  // defined in tomcat.conf
     }
 
+    public static String getInstanceDir() {
+        return System.getProperty("catalina.base");  // defined by Tomcat
+    }
+
     /**
      * Retrieves the localized user message from UserMessages.properties.
      *

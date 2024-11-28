@@ -81,6 +81,9 @@ public class CertificateRepository extends Repository {
     private static final String PROP_MINIMUM_RANDOM_BITS = "minimumRandomBits";
     private static final BigInteger BI_MINUS_ONE = (BigInteger.ZERO).subtract(BigInteger.ONE);
 
+    public static final String PROP_CERT_ID_GENERATOR = "cert.id.generator";
+    public static final String DEFAULT_CERT_ID_GENERATOR = "legacy";
+
     private boolean mConsistencyCheck = false;
 
     private int mBitLength = 0;
@@ -102,25 +105,81 @@ public class CertificateRepository extends Repository {
 
         mDBConfig = dbSubsystem.getDBConfigStore();
 
+        String value = mDBConfig.getString(PROP_CERT_ID_GENERATOR, null);
+        logger.debug("CertificateRepository: - cert ID generator: " + value);
+        if (value != null) {
+            setIDGenerator(value);
+        }
+
+        if (idGenerator == IDGenerator.LEGACY_2) {
+            initLegacy2Generator();
+        } else {
+            initLegacyGenerator();
+        }
+    }
+
+    protected void initLegacy2Generator() throws EBaseException {
+
         mBaseDN = mDBConfig.getSerialDN() + "," + dbSubsystem.getBaseDN();
         logger.info("CertificateRepository: - base DN: " + mBaseDN);
 
         rangeDN = mDBConfig.getSerialRangeDN() + "," + dbSubsystem.getBaseDN();
-        logger.info("CertificateRepository: - range DN: " + rangeDN);
+        logger.debug("CertificateRepository: - range DN: " + rangeDN);
+
+        minSerialName = DBSubsystem.PROP_MIN_SERIAL_NUMBER;
+        mMinSerialNo = mDBConfig.getBigInteger(DBSubsystem.PROP_MIN_SERIAL_NUMBER, null);
+        logger.debug("CertificateRepository: - min serial: " + mMinSerialNo);
+
+        maxSerialName = DBSubsystem.PROP_MAX_SERIAL_NUMBER;
+        mMaxSerialNo = mDBConfig.getBigInteger(DBSubsystem.PROP_MAX_SERIAL_NUMBER, null);
+        logger.debug("CertificateRepository: - max serial: " + mMaxSerialNo);
+
+        nextMinSerialName = DBSubsystem.PROP_NEXT_MIN_SERIAL_NUMBER;
+        String nextMinSerial = mDBConfig.getNextBeginSerialNumber();
+        if (nextMinSerial == null || nextMinSerial.equals("-1")) {
+            mNextMinSerialNo = null;
+        } else {
+            mNextMinSerialNo = mDBConfig.getBigInteger(DBSubsystem.PROP_NEXT_MIN_SERIAL_NUMBER, null);
+        }
+        logger.debug("CertificateRepository: - next min serial: " + mNextMinSerialNo);
+
+        nextMaxSerialName = DBSubsystem.PROP_NEXT_MAX_SERIAL_NUMBER;
+        String nextMaxSerial = mDBConfig.getNextEndSerialNumber();
+        if (nextMaxSerial == null || nextMaxSerial.equals("-1")) {
+            mNextMaxSerialNo = null;
+        } else {
+            mNextMaxSerialNo = mDBConfig.getBigInteger(DBSubsystem.PROP_NEXT_MAX_SERIAL_NUMBER, null);
+        }
+        logger.debug("CertificateRepository: - next max serial: " + mNextMaxSerialNo);
+
+        mLowWaterMarkNo = mDBConfig.getBigInteger(DBSubsystem.PROP_SERIAL_LOW_WATER_MARK, null);
+        logger.debug("CertificateRepository: - low water mark serial: " + mNextMaxSerialNo);
+
+        mIncrementNo = mDBConfig.getBigInteger(DBSubsystem.PROP_SERIAL_INCREMENT, null);
+        logger.debug("CertificateRepository: - increment serial: " + mIncrementNo);
+    }
+
+    public void initLegacyGenerator() throws EBaseException {
+
+        mBaseDN = mDBConfig.getSerialDN() + "," + dbSubsystem.getBaseDN();
+        logger.info("CertificateRepository: - base DN: " + mBaseDN);
+
+        rangeDN = mDBConfig.getSerialRangeDN() + "," + dbSubsystem.getBaseDN();
+        logger.debug("CertificateRepository: - range DN: " + rangeDN);
 
         minSerialName = DBSubsystem.PROP_MIN_SERIAL_NUMBER;
         String minSerial = mDBConfig.getBeginSerialNumber();
         if (minSerial != null) {
             mMinSerialNo = new BigInteger(minSerial, mRadix);
         }
-        logger.info("CertificateRepository: - min serial: " + mMinSerialNo);
+        logger.debug("CertificateRepository: - min serial: " + mMinSerialNo);
 
         maxSerialName = DBSubsystem.PROP_MAX_SERIAL_NUMBER;
         String maxSerial = mDBConfig.getEndSerialNumber();
         if (maxSerial != null) {
             mMaxSerialNo = new BigInteger(maxSerial, mRadix);
         }
-        logger.info("CertificateRepository: - max serial: " + mMaxSerialNo);
+        logger.debug("CertificateRepository: - max serial: " + mMaxSerialNo);
 
         nextMinSerialName = DBSubsystem.PROP_NEXT_MIN_SERIAL_NUMBER;
         String nextMinSerial = mDBConfig.getNextBeginSerialNumber();
@@ -129,7 +188,7 @@ public class CertificateRepository extends Repository {
         } else {
             mNextMinSerialNo = new BigInteger(nextMinSerial, mRadix);
         }
-        logger.info("CertificateRepository: - next min serial: " + mNextMinSerialNo);
+        logger.debug("CertificateRepository: - next min serial: " + mNextMinSerialNo);
 
         nextMaxSerialName = DBSubsystem.PROP_NEXT_MAX_SERIAL_NUMBER;
         String nextMaxSerial = mDBConfig.getNextEndSerialNumber();
@@ -138,7 +197,7 @@ public class CertificateRepository extends Repository {
         } else {
             mNextMaxSerialNo = new BigInteger(nextMaxSerial, mRadix);
         }
-        logger.info("CertificateRepository: - next max serial: " + mNextMaxSerialNo);
+        logger.debug("CertificateRepository: - next max serial: " + mNextMaxSerialNo);
 
         String lowWaterMark = mDBConfig.getSerialLowWaterMark();
         if (lowWaterMark != null) {
@@ -292,6 +351,18 @@ public class CertificateRepository extends Repository {
         } while (nextSerialNumber == null && i < n);
 
         return nextSerialNumber;
+    }
+
+    @Override
+    public String getNextRangeDN() {
+
+        if (idGenerator == IDGenerator.LEGACY_2) {
+            // store nextRange in range subtree for SSNv2
+            return rangeDN;
+        }
+
+        // store nextRange in repository subtree for SSNv1
+        return super.getNextRangeDN();
     }
 
     /**

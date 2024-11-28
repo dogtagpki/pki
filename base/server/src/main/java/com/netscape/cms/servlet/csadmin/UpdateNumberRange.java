@@ -160,12 +160,19 @@ public abstract class UpdateNumberRange extends CMSServlet {
              * cases this is done by a scheduled task).
              */
 
-            String endNumStr = dbConfig.getString(endNumConfig);
-            BigInteger endNum = new BigInteger(endNumStr, radix);
-            logger.info("UpdateNumberRange: dbs." + endNumConfig + ": " + endNum);
+            BigInteger endNum;
+            BigInteger transferSize;
+            if (repo.getIDGenerator() == IRepository.IDGenerator.LEGACY_2) {
+                endNum = dbConfig.getBigInteger(endNumConfig);
+                transferSize = dbConfig.getBigInteger(cloneNumConfig);
+            } else {
+                String endNumStr = dbConfig.getString(endNumConfig);
+                endNum = new BigInteger(endNumStr, radix);
 
-            String transferSizeStr = dbConfig.getString(cloneNumConfig, "");
-            BigInteger transferSize = new BigInteger(transferSizeStr, radix);
+                String transferSizeStr = dbConfig.getString(cloneNumConfig, "");
+                transferSize = new BigInteger(transferSizeStr, radix);
+            }
+            logger.info("UpdateNumberRange: dbs." + endNumConfig + ": " + endNum);
             logger.info("UpdateNumberRange: dbs." + cloneNumConfig + ": " + transferSize);
 
             // transferred range will start at beginNum
@@ -223,7 +230,11 @@ public abstract class UpdateNumberRange extends CMSServlet {
                      * this scenario is unlikely to arise.  Furthermore,
                      * recovery is automatic thanks to the scheduled tasks.
                      */
-                    endNum = new BigInteger(dbConfig.getString(nextEndConfig, ""), radix);
+                    if (repo.getIDGenerator() == IRepository.IDGenerator.LEGACY_2) {
+                        endNum = dbConfig.getBigInteger(nextEndConfig);
+                    } else {
+                        endNum = new BigInteger(dbConfig.getString(nextEndConfig, ""), radix);
+                    }
                     BigInteger newEndNum = endNum.subtract(transferSize);
 
                     logger.info("UpdateNumberRange: Transferring from the end of next range");
@@ -231,7 +242,11 @@ public abstract class UpdateNumberRange extends CMSServlet {
                     logger.info("UpdateNumberRange:   Next range new end: " + newEndNum);
 
                     repo.setNextMaxSerial(newEndNum);
-                    dbConfig.putString(nextEndConfig, newEndNum.toString(radix));
+                    String strNewEndNum = newEndNum.toString(radix);
+                    if (repo.getIDGenerator() == IRepository.IDGenerator.LEGACY_2 && radix == 16) {
+                            strNewEndNum = "0x" + strNewEndNum;
+                    }
+                    dbConfig.putString(nextEndConfig, strNewEndNum);
                     beginNum = newEndNum.add(BigInteger.ONE);
 
                 } else {
@@ -241,8 +256,10 @@ public abstract class UpdateNumberRange extends CMSServlet {
                     BigInteger newEndNum = beginNum.subtract(BigInteger.ONE);
                     repo.setMaxSerial(newEndNum);
                     String newValStr = newEndNum.toString(radix);
+                    if (repo.getIDGenerator() == IRepository.IDGenerator.LEGACY_2 && radix == 16) {
+                        newValStr = "0x" + newValStr;
+                    }
                     dbConfig.putString(endNumConfig, newValStr);
-
                     logger.info("UpdateNumberRange: New current range: " + nextSerial + ".." + newEndNum);
                 }
 
@@ -273,8 +290,13 @@ public abstract class UpdateNumberRange extends CMSServlet {
             Node root = xmlObj.createRoot("XMLResponse");
 
             xmlObj.addItemToContainer(root, "Status", SUCCESS);
-            xmlObj.addItemToContainer(root, "beginNumber", beginNum.toString(radix));
-            xmlObj.addItemToContainer(root, "endNumber", endNum.toString(radix));
+            if(repo.getIDGenerator() == IRepository.IDGenerator.LEGACY_2 && radix == 16) {
+                xmlObj.addItemToContainer(root, "beginNumber", "0x" + beginNum.toString(radix));
+                xmlObj.addItemToContainer(root, "endNumber", "0x" + endNum.toString(radix));
+            } else {
+                xmlObj.addItemToContainer(root, "beginNumber", beginNum.toString(radix));
+                xmlObj.addItemToContainer(root, "endNumber", endNum.toString(radix));
+            }
             byte[] cb = xmlObj.toByteArray();
 
             outputResult(httpResp, "application/xml", cb);

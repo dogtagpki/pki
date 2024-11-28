@@ -83,6 +83,7 @@ public abstract class Repository implements IRepository {
     protected Hashtable<String, String> repositoryConfig = new Hashtable<>();
 
     private BigInteger mLastSerialNo = null;
+    protected IDGenerator idGenerator = IDGenerator.LEGACY;
 
     /**
      * Constructs a repository.
@@ -162,6 +163,18 @@ public abstract class Repository implements IRepository {
 
     protected void setLastSerialNo(BigInteger lastSN) {
         mLastSerialNo = lastSN;
+    }
+
+    public IDGenerator getIDGenerator() {
+        return idGenerator;
+    }
+
+    public void setIDGenerator(IDGenerator idGenerator) {
+        this.idGenerator = idGenerator;
+    }
+
+    public void setIDGenerator(String idGenerator) {
+        this.idGenerator = IDGenerator.fromString(idGenerator);
     }
 
     /**
@@ -362,6 +375,9 @@ public abstract class Repository implements IRepository {
         DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
 
         String serial = mMinSerialNo.toString(mRadix);
+        if (mRadix == 16 && idGenerator == IDGenerator.LEGACY_2) {
+            serial = "0x" + serial;
+        }
         logger.debug("Repository: Setting min serial number: " + serial);
 
         dbConfig.putString(minSerialName, serial);
@@ -380,6 +396,9 @@ public abstract class Repository implements IRepository {
         DatabaseConfig dbConfig = dbSubsystem.getDBConfigStore();
 
         String serial = mMaxSerialNo.toString(mRadix);
+        if (mRadix == 16 && idGenerator == IDGenerator.LEGACY_2) {
+            serial = "0x" + serial;
+        }
         logger.debug("Repository: Setting max serial number: " + serial);
 
         dbConfig.putString(maxSerialName, serial);
@@ -402,6 +421,9 @@ public abstract class Repository implements IRepository {
             dbConfig.remove(nextMinSerialName);
         } else {
             String serial = mNextMinSerialNo.toString(mRadix);
+            if (mRadix == 16 && idGenerator == IDGenerator.LEGACY_2) {
+                serial = "0x" + serial;
+            }
             logger.debug("Repository: Setting next min number: " + serial);
             dbConfig.putString(nextMinSerialName, serial);
         }
@@ -425,6 +447,9 @@ public abstract class Repository implements IRepository {
             dbConfig.remove(nextMaxSerialName);
         } else {
             String serial = mNextMaxSerialNo.toString(mRadix);
+            if (mRadix == 16 && idGenerator == IDGenerator.LEGACY_2) {
+                serial = "0x" + serial;
+            }
             logger.debug("Repository: Setting next max number: " + serial);
             dbConfig.putString(nextMaxSerialName, serial);
         }
@@ -451,6 +476,11 @@ public abstract class Repository implements IRepository {
         setNextMaxSerialConfig();
     }
 
+    public String getNextRangeDN() {
+        // store nextRange in repository subtree for SSNv1
+        return mBaseDN;
+    }
+
     /**
      * Gets start of next range from database.
      * Increments the nextRange attribute and allocates
@@ -467,9 +497,9 @@ public abstract class Repository implements IRepository {
 
         try {
             LDAPConnection conn = session.getConnection();
-
-            logger.info("Repository: Reading entry " + mBaseDN);
-            LDAPEntry entry = conn.read(mBaseDN);
+            String nextRangeDN = getNextRangeDN();
+            logger.info("Repository: Reading entry " + nextRangeDN);
+            LDAPEntry entry = conn.read(nextRangeDN);
 
             LDAPAttribute attr = entry.getAttribute(DBSubsystem.PROP_NEXT_RANGE);
             if (attr == null) {
@@ -493,8 +523,8 @@ public abstract class Repository implements IRepository {
                     new LDAPModification(LDAPModification.ADD, attrNextRange)
             };
 
-            logger.info("Repository: Modifying entry " + mBaseDN);
-            conn.modify(mBaseDN, mods);
+            logger.info("Repository: Modifying entry " + nextRangeDN);
+            conn.modify(nextRangeDN, mods);
 
             // Add new range object
 
@@ -549,9 +579,12 @@ public abstract class Repository implements IRepository {
 
             logger.info("Repository: Searching for conflicting entries");
 
+            String minSerial = idGenerator == IDGenerator.LEGACY_2 ?
+                    mMinSerialNo.toString() : mMinSerialNo.toString(mRadix);
+
             String filter = "(&(nsds5ReplConflict=*)(objectClass=pkiRange)(host= " +
                     cs.getHostname() + ")(SecurePort=" + engine.getEESSLPort() +
-                    ")(beginRange=" + mMinSerialNo.toString(mRadix) + "))";
+                    ")(beginRange=" + minSerial + "))";
 
             LDAPSearchResults results = conn.search(rangeDN, LDAPv3.SCOPE_SUB, filter, null, false);
 
@@ -627,7 +660,11 @@ public abstract class Repository implements IRepository {
             String nextRange = getNextRange();
             logger.debug("Repository: next range: " + nextRange);
 
-            mNextMinSerialNo = new BigInteger(nextRange, mRadix);
+            if (idGenerator == IDGenerator.LEGACY_2) {
+                mNextMinSerialNo = new BigInteger(nextRange);
+            } else {
+                mNextMinSerialNo = new BigInteger(nextRange, mRadix);
+            }
             if (mNextMinSerialNo == null) {
                 logger.debug("Repository: Next range not available");
             } else {
