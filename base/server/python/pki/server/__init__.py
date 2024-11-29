@@ -1209,7 +1209,6 @@ class CASubsystem(PKISubsystem):
             )
 
         self.config.update({'dbs.serialRangeDN': 'ou=%s,ou=%s'%('certificateRepository', 'ranges_v2')})
-        self.config.update({'dbs.serialDN': 'ou=%s,ou=%s'%('certificateRepository', 'ranges_v2')})
         con.close()
 
     def update_request_number_range_generator(self, generator):
@@ -1259,7 +1258,6 @@ class CASubsystem(PKISubsystem):
                 ]
             )
         self.config.update({'dbs.requestRangeDN': 'ou=%s,ou=%s'%('requests', 'ranges_v2')})
-        self.config.update({'dbs.requestDN': 'ou=%s,ou=%s'%('requests', 'ranges_v2')})
         con.close()
 
     def create_ranges_entry(self, con, base_dn, new_ranges, range_object):

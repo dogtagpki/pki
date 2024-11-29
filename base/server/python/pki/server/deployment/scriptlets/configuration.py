@@ -1062,7 +1062,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if subsystem.name == 'ca':
             if deployer.mdict['pki_cert_id_generator'] == 'legacy2':
                 subsystem.config['dbs.cert.id.generator'] = 'legacy2'
-                subsystem.config['dbs.serialDN'] = 'ou=certificateRepository,ou=ranges_v2'
                 subsystem.config['dbs.serialRangeDN'] = 'ou=certificateRepository,ou=ranges_v2'
                 subsystem.config['dbs.cert.id.generator'] = 'legacy2'
                 subsystem.config['dbs.serialIncrement'] = '0x10000000'
@@ -1077,7 +1076,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 subsystem.save()
             if deployer.mdict['pki_request_id_generator'] == 'legacy2':
                 subsystem.config['dbs.request.id.generator'] = 'legacy2'
-                subsystem.config['dbs.requestDN'] = 'ou=requests,ou=ranges_v2'
                 subsystem.config['dbs.requestRangeDN'] = 'ou=requests,ou=ranges_v2'
                 subsystem.save()
 

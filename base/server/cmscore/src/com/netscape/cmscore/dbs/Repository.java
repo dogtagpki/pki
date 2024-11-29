@@ -576,7 +576,7 @@ public abstract class Repository implements IRepository {
 
         if ((numsAvail.compareTo(mLowWaterMarkNo) < 0) && (!CMS.isPreOpMode())) {
             CMS.debug("Repository: Requesting next range");
-            if (idGenerator == IDGenerator.LEGACY_2 && mRadix == 16) {
+            if (idGenerator == IDGenerator.LEGACY_2) {
                 mNextMinSerialNo = mDB.getNextRange2(mRepo, mRadix);
                 CMS.debug("Repository: next range: " + mNextMinSerialNo.toString(mRadix));
             } else {

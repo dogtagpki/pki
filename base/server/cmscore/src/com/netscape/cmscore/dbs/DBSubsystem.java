@@ -106,6 +106,7 @@ public class DBSubsystem implements IDBSubsystem {
     private static final String PROP_REQUEST_INCREMENT = "requestIncrement";
     private static final String PROP_REQUEST_BASEDN = "requestDN";
     private static final String PROP_REQUEST_RANGE_DN = "requestRangeDN";
+    private static final String PROP_REQUEST_ID_GENERATOR = "request.id.generator";
 
     private static final String PROP_MIN_REPLICA_NUMBER = "beginReplicaNumber";
     private static final String PROP_MAX_REPLICA_NUMBER = "endReplicaNumber";
@@ -497,8 +498,8 @@ public class DBSubsystem implements IDBSubsystem {
         try {
             Hashtable<String, String> h = mRepos[repo];
             conn = mLdapConnFactory.getConn();
-            String dn = h.get(PROP_BASEDN) + "," + mBaseDN;
             String rangeDN = h.get(PROP_RANGE_DN) + "," + mBaseDN;
+            String dn = rangeDN; 
 
             CMS.debug("DBSubsystem: retrieving " + dn);
             LDAPEntry entry = conn.read(dn);
@@ -710,6 +711,9 @@ public class DBSubsystem implements IDBSubsystem {
             requests.put(PROP_INCREMENT_NAME, PROP_REQUEST_INCREMENT);
             requests.put(PROP_INCREMENT, mDBConfig.getString(
                     PROP_REQUEST_INCREMENT, PROP_INFINITE_REQUEST_NUMBER));
+
+            requests.put(PROP_GENERATOR, mDBConfig.getString(
+                    PROP_REQUEST_ID_GENERATOR, "legacy"));
 
             mRepos[REQUESTS] = requests;
 
