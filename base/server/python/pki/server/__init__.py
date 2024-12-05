@@ -771,6 +771,7 @@ grant codeBase "file:%s" {
         self.create_web_xml(exist_ok=True)
 
         # copy /etc/tomcat/tomcat.conf
+        # to /var/lib/pki/<instance>/conf/tomcat.conf
         self.copy(
             Tomcat.TOMCAT_CONF,
             self.tomcat_conf,
@@ -784,20 +785,21 @@ grant codeBase "file:%s" {
         java_home = os.getenv('JAVA_HOME')
         tomcat_conf.set('JAVA_HOME', java_home)
 
+        # update CATALINA_BASE
+        tomcat_conf.set('CATALINA_BASE', self.base_dir)
+
         # store current PKI version
         tomcat_conf.set('PKI_VERSION', pki.specification_version())
 
         tomcat_conf.write()
 
-        service_conf = os.path.join(SYSCONFIG_DIR, 'tomcat')
+        # copy /var/lib/pki/<instance>/conf/tomcat.conf
+        # to /etc/sysconfig/<type>@<instance>
         self.copy(
-            service_conf,
+            self.tomcat_conf,
             self.service_conf,
             exist_ok=True,
             force=force)
-
-        with open(self.service_conf, 'a', encoding='utf-8') as f:
-            print('CATALINA_BASE="%s"' % self.base_dir, file=f)
 
     def create_conf_dir(self, exist_ok=False):
 

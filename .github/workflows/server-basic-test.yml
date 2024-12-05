@@ -97,6 +97,11 @@ jobs:
         run: |
           docker exec pki cat /etc/pki/pki-tomcat/server.xml
 
+      - name: Check pki-tomcat tomcat.conf
+        if: always()
+        run: |
+          docker exec pki cat /etc/pki/pki-tomcat/tomcat.conf
+
       - name: Check pki-tomcat server logs dir after installation
         run: |
           # check file types, owners, and permissions
@@ -298,6 +303,11 @@ jobs:
         if: always()
         run: |
           docker exec pki cat /var/lib/tomcats/pki/conf/server.xml
+
+      - name: Check tomcat@pki tomcat.conf
+        if: always()
+        run: |
+          docker exec pki cat /var/lib/tomcats/pki/conf/tomcat.conf
 
       - name: Check tomcat@pki server logs dir after installation
         run: |
