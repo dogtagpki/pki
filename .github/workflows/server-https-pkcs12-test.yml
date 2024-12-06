@@ -268,6 +268,7 @@ jobs:
           cat > expected << EOF
             Server URL: https://pki.example.com:8443
             Server Name: Dogtag Certificate System
+            Server Version: 11.6.0
           EOF
 
           diff expected stdout
@@ -316,6 +317,7 @@ jobs:
           cat > expected << EOF
             Server URL: https://server.example.com:8443
             Server Name: Dogtag Certificate System
+            Server Version: 11.6.0
           EOF
 
           diff expected stdout
@@ -339,6 +341,7 @@ jobs:
           cat > expected << EOF
             Server URL: https://pki.example.com:8443
             Server Name: Dogtag Certificate System
+            Server Version: 11.6.0
           EOF
 
           diff expected stdout
