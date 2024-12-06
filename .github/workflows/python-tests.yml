@@ -12,3 +12,18 @@ jobs:
     name: Python lint
     needs: build
     uses: ./.github/workflows/python-lint-test.yml
+
+  python-ca-test:
+    name: CA Python API
+    needs: build
+    uses: ./.github/workflows/python-ca-test.yml
+
+  python-ca-rest-api-v1-test:
+    name: CA Python API with REST API v1
+    needs: build
+    uses: ./.github/workflows/python-ca-rest-api-v1-test.yml
+
+  python-kra-test:
+    name: KRA Python API
+    needs: build
+    uses: ./.github/workflows/python-kra-test.yml
