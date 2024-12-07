@@ -4,6 +4,7 @@
 
 *Note: Prior to installing DS instances, make sure the procedure for link:Installing_DS_Packages[installing DS packages] has been performed on the host system.*
 
+The following are steps to create a DS instance for a PKI instance.
 
 Generate a DS configuration file (e.g. `ds.inf`):
 
