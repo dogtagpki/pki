@@ -2,7 +2,7 @@
 //
 = Creating DS Instance =
 
-*Note: Prior to installing a DS instance, one needs to link:Installing_DS_Packages[install DS packages].*
+*Note: Prior to installing DS instances, make sure the procedure for link:Installing_DS_Packages[installing DS packages] has been performed on the host system.*
 
 
 Generate a DS configuration file (e.g. `ds.inf`):
