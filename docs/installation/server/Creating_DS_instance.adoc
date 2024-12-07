@@ -4,9 +4,15 @@
 
 *Note: Prior to installing DS instances, make sure the procedure for link:Installing_DS_Packages[installing DS packages] has been performed on the host system.*
 
-The following are steps to create a DS instance for a PKI instance.
+This section describes the process to prepare a local DS instance for PKI server.
 
-Generate a DS configuration file (e.g. `ds.inf`):
+Normally the DS installation will automatically generate a self-signed signing certificate and a server certificate for SSL connection.
+In this procedure the certificate generation and the SSL connection will be disabled by default,
+but it can be enabled after installation if necessary.
+
+For DS 1.3 or older, see link:https://github.com/dogtagpki/pki/wiki/DS-1.3-Installation[DS 1.3 Installation].
+
+== Generate a DS configuration file (e.g. `ds.inf`): ==
 
 ----
 $ dscreate create-template ds.inf
@@ -39,7 +45,7 @@ Finally, create the instance:
 $ dscreate from-file ds.inf
 ----
 
-= Creating PKI Subtree =
+== Creating PKI Subtree ==
 
 Initially the DS instance is empty. Use an LDAP client to add a root entry and PKI base entry, for example:
 
@@ -53,17 +59,17 @@ EOF
 
 The subtree for each PKI subsystem will be created when the subsystem is installed. See link:PKI-LDAP-Tree[PKI LDAP Tree].
 
-= Enabling SSL Connection =
+== Enabling SSL Connection ==
 
 If required, PKI can use SSL connection to DS.
 
 To enable SSL connection in DS, see link:Enabling-SSL-Connection-in-DS[Enabling SSL Connection in DS].
 
-= Configuring Replication =
+== Configuring Replication ==
 
 See link:https://github.com/dogtagpki/389-ds-base/wiki/Configuring-DS-Replication[Configuring DS Replication].
 
-= Removing DS Instance =
+== Removing DS Instance ==
 
 To remove DS instance:
 
@@ -71,7 +77,7 @@ To remove DS instance:
 $ dsctl localhost remove --do-it
 ----
 
-= Log Files =
+== Log Files ==
 
 DS log files are available in `/var/log/dirsrv/slapd-localhost`:
 
@@ -79,7 +85,7 @@ DS log files are available in `/var/log/dirsrv/slapd-localhost`:
 * audit
 * errors
 
-= See Also =
+== See Also ==
 
 * link:https://www.dogtagpki.org/wiki/DS[DS]
 * link:https://www.dogtagpki.org/wiki/DS_SSL[DS SSL]
