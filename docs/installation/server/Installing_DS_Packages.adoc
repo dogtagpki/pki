@@ -1,0 +1,8 @@
+= Installing DS Packages =
+
+Prior to installing DS instances, one needs to install the DS packages.
+To install DS packages:
+
+----
+$ dnf install -y 389-ds-base
+----
