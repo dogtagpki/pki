@@ -1,6 +1,6 @@
 // This page is copied and modifed from https://github.com/dogtagpki/pki/wiki/Installing-DS-Server
 //
-= Creating DS Instance =
+= Directory Server Instance Creation =
 
 *Note: Prior to installing DS instances, make sure the procedure for link:Installing_DS_Packages[installing DS packages] has been performed on the host system.*
 
@@ -12,7 +12,8 @@ but it can be enabled after installation if necessary.
 
 For DS 1.3 or older, see link:https://github.com/dogtagpki/pki/wiki/DS-1.3-Installation[DS 1.3 Installation].
 
-== Generate a DS configuration file (e.g. `ds.inf`): ==
+== Creating a DS Instance ==
+=== Generate a DS configuration file (e.g. `ds.inf`): ===
 
 ----
 $ dscreate create-template ds.inf
@@ -38,6 +39,8 @@ where
 * *self_sign_cert* specifies whether to create self-signed certificates for SSL connection. In this example it's set to `False`. The SSL connection can be enabled after installation in link:Enabling-SSL-Connection-in-DS[this document].
 
 For more information see the parameter descriptions in the DS configuration file itself (i.e. `ds.inf`) and in link:https://directory.fedoraproject.org/docs/389ds/design/dsadm-dsconf.html[DS documentation].
+
+=== Creating an instance ===
 
 Finally, create the instance:
 
