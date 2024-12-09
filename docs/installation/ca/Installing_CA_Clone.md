@@ -1,4 +1,5 @@
-This page has been moved to [Installing_CA_Clone.adoc](../ca/Installing_CA_Clone.adoc)
+This page has been converted/moved to [Installing_CA_Clone.adoc](../ca/Installing_CA_Clone.adoc)
+Content below is to be removed after finalizing.
 
 Installing CA Clone
 ===================
