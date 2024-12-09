@@ -7,8 +7,8 @@ This page describes the process to install a CA subsystem instance with a self-s
 == Prerequisites ==
 Prior to installation, please ensure that the following are configured:
 
-* link:../server/FQDN_Configuration.adoc[Setting the FQDN of the host system]
-* link:../server/Creating_DS_instance.adoc[Creating a directory server instance and adding base entries]
+* link:../others/FQDN_Configuration.adoc[Setting the FQDN of the host system]
+* link:../others/Creating_DS_instance.adoc[Creating a directory server instance and adding base entries]
 
 == CA Subsystem Installation ==
 
