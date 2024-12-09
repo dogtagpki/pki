@@ -1,3 +1,6 @@
+This page has been converted/moved to [Installing_CA_Clone_with_HSM.adoc](../ca/Installing_CA_Clone_with_HSM.adoc)
+Remove the following content after finalizing.
+
 Installing CA Clone with HSM
 ============================
 
