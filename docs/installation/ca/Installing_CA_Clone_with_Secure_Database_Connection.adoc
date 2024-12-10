@@ -35,7 +35,7 @@ Note that the certificate subject DN should match the clone's hostname ( i.e `--
 
 Then enable the SSL connection as described in link:../others/Enabling-SSL-Connection-in-DS.adoc#enabling-ssl-connection[Enabling SSL Connection].
 
-After the successful DS restart, Export the DS Signing Certificate into 'ds_signing.crt' as described in link:https://github.com/dogtagpki/pki/wiki/Exporting-DS-Certificates#exporting-ds-signing-certificate[Exporting DS Signing Certificate].
+After the successful DS restart, Export the DS Signing Certificate into 'ds_signing.crt' as described in link:../others/Exporting-DS-Certificates.adoc#exporting-ds-signing-certificate[Exporting DS Signing Certificate].
 
 Some useful tips:
 
