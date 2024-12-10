@@ -3,7 +3,7 @@
 
 This page describes the process to enable SSL connection in DS
 using a self-signed signing certificate and server certificate
-created using link:PKI-NSS-CLI[PKI NSS CLI] commands.
+created using link:PKI-NSS-CLI.adoc[PKI NSS CLI] commands.
 
 This page assumes that a DS instance named `localhost` already exists,
 it does not have certificates, and the SSL connection is disabled.
