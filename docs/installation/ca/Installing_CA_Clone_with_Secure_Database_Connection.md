@@ -1,3 +1,7 @@
+This page has been converted/moved to [Installing_CA_Clone_with_Secure_Database_Connection.adoc](../ca/Installing_CA_Clone_with_Secure_Database_Connection.adoc)
+
+Content below is to be removed after finalizing.
+
 Installing CA Clone with Secure Database Connection
 ===================================================
 
