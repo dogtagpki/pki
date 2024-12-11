@@ -18,14 +18,9 @@
 # All rights reserved.
 #
 
-from __future__ import absolute_import
-from __future__ import print_function
-
-import getopt
+import argparse
 import logging
 import sys
-
-from lxml import etree
 
 import pki.cli
 import pki.nssdb
@@ -40,7 +35,25 @@ class MigrateCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('migrate', 'Migrate system')
 
-        self.parser = etree.XMLParser(remove_blank_text=True)
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument(
+            'instance_name',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server migrate [OPTIONS] [<instance ID>]')
@@ -52,39 +65,23 @@ class MigrateCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = None
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) > 0:
-            instance_name = args[0]
+        if args.instance_name:
+            instance_name = args.instance_name
+        else:
+            instance_name = args.instance
 
         if instance_name:
 
