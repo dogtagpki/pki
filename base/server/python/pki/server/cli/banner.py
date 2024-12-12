@@ -18,10 +18,7 @@
 # All rights reserved.
 #
 
-from __future__ import absolute_import
-from __future__ import print_function
-
-import getopt
+import argparse
 import logging
 import io
 import sys
@@ -45,7 +42,25 @@ class BannerShowCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('show', 'Show banner')
 
-    def usage(self):
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
+    def print_help(self):
         print('Usage: pki-server banner-show [OPTIONS]')
         print()
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
@@ -56,36 +71,19 @@ class BannerShowCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
-            self.usage()
-            sys.exit(1)
+        if args.help:
+            self.print_help()
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.usage()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.usage()
-                sys.exit(1)
+        instance_name = args.instance
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -107,7 +105,29 @@ class BannerValidateCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('validate', 'Validate banner')
 
-    def usage(self):
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--file')
+        self.parser.add_argument(
+            '--silent',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
+    def print_help(self):
         print('Usage: pki-server banner-validate [OPTIONS]')
         print()
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
@@ -120,44 +140,21 @@ class BannerValidateCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'file=', 'silent',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
-            self.usage()
-            sys.exit(1)
+        if args.help:
+            self.print_help()
+            return
 
-        instance_name = 'pki-tomcat'
-        banner_file = None
-        silent = False
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--file':
-                banner_file = a
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--silent':
-                silent = True
-
-            elif o == '--help':
-                self.usage()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.usage()
-                sys.exit(1)
+        instance_name = args.instance
+        banner_file = args.file
+        silent = args.silent
 
         try:
             if banner_file:
