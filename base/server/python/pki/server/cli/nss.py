@@ -18,12 +18,9 @@
 # All rights reserved.
 #
 
-from __future__ import absolute_import
-from __future__ import print_function
-import getopt
+import argparse
 import getpass
 import logging
-import sys
 
 import pki.cli
 
@@ -42,6 +39,32 @@ class NSSCreateCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('create', 'Create NSS database in PKI server')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '--no-password',
+            action='store_true')
+        self.parser.add_argument('--password')
+        self.parser.add_argument('--password-file')
+        self.parser.add_argument(
+            '--force',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server nss-create [OPTIONS]')
         print()
@@ -57,53 +80,23 @@ class NSSCreateCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:d:v', [
-                'instance=',
-                'no-password', 'password=', 'password-file=', 'force',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            print('ERROR: %s' % e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        no_password = False
-        password = None
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
+        no_password = args.no_password
+        password = args.password
         password_file = None
-        force = False
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o == '--no-password':
-                no_password = True
-
-            elif o == '--password':
-                password = a
-
-            elif o == '--password-file':
-                password_file = a
-
-            elif o == '--force':
-                force = True
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                print('ERROR: unknown option: %s' % o)
-                self.print_help()
-                sys.exit(1)
+        force = args.force
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -136,6 +129,27 @@ class NSSRemoveCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('remove', 'Remove NSS database in PKI server')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '--force',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server nss-remove [OPTIONS]')
         print()
@@ -148,41 +162,20 @@ class NSSRemoveCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:d:v', [
-                'instance=',
-                'password=', 'password-file=', 'force',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            print('ERROR: %s' % e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        force = False
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--force':
-                force = True
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                print('ERROR: unknown option: %s' % o)
-                self.print_help()
-                sys.exit(1)
+        instance_name = args.instance
+        force = args.force
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
