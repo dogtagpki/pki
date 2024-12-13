@@ -18,9 +18,7 @@
 # All rights reserved.
 #
 
-from __future__ import absolute_import
-from __future__ import print_function
-import getopt
+import argparse
 import inspect
 import logging
 import sys
@@ -60,6 +58,24 @@ class WebappFindCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('find', 'Find webapps')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server webapp-find [OPTIONS]')
         print()
@@ -71,39 +87,19 @@ class WebappFindCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            print('ERROR: %s' % e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                print('ERROR: Unknown option: %s' % o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) > 0:
-            instance_name = args[0]
+        instance_name = args.instance
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -139,48 +135,44 @@ class WebappShowCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('show', inspect.cleandoc(self.__class__.__doc__))
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('webapp_id')
+
     def print_help(self):
         print(textwrap.dedent(self.__class__.help))
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) < 1:
-            logger.error('Missing webapp ID')
-            self.print_help()
-            sys.exit(1)
-
-        webapp_id = args[0]
+        instance_name = args.instance
+        webapp_id = args.webapp_id
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -202,6 +194,37 @@ class WebappDeployCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('deploy', 'Deploy webapp')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--descriptor')
+        self.parser.add_argument('--doc-base')
+        self.parser.add_argument(
+            '--wait',
+            action='store_true')
+        self.parser.add_argument(
+            '--max-wait',
+            type=int,
+            default=60)
+        self.parser.add_argument(
+            '--timeout',
+            type=int)
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('webapp_id')
+
     def print_help(self):
         print('Usage: pki-server webapp-deploy [OPTIONS] <webapp ID>')
         print()
@@ -218,65 +241,27 @@ class WebappDeployCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'wait', 'max-wait=', 'timeout=',
-                'descriptor=', 'doc-base=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            print('ERROR: %s' % e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        descriptor = None
-        doc_base = None
-        wait = False
-        max_wait = 60
-        timeout = None
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--descriptor':
-                descriptor = a
-
-            elif o == '--doc-base':
-                doc_base = a
-
-            elif o == '--wait':
-                wait = True
-
-            elif o == '--max-wait':
-                max_wait = int(a)
-
-            elif o == '--timeout':
-                timeout = int(a)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                print('ERROR: Unknown option: %s' % o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) < 1:
-            raise Exception('Missing Webapp ID')
+        instance_name = args.instance
+        descriptor = args.descriptor
+        doc_base = args.doc_base
+        wait = args.wait
+        max_wait = args.max_wait
+        timeout = args.timeout
+        webapp_id = args.webapp_id
 
         instance = pki.server.PKIServerFactory.create(instance_name)
-
-        webapp_id = args[0]
 
         if not instance.exists():
             raise Exception('Invalid instance: %s' % instance_name)
@@ -295,6 +280,35 @@ class WebappUndeployCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('undeploy', 'Undeploy webapp')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '--wait',
+            action='store_true')
+        self.parser.add_argument(
+            '--max-wait',
+            type=int,
+            default=60)
+        self.parser.add_argument(
+            '--timeout',
+            type=int)
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('webapp_id')
+
     def print_help(self):
         print('Usage: pki-server webapp-undeploy [OPTIONS] [<webapp ID>]')
         print()
@@ -309,54 +323,23 @@ class WebappUndeployCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'wait', 'max-wait=', 'timeout=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            print('ERROR: %s' % e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        wait = False
-        max_wait = 60
-        timeout = None
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--wait':
-                wait = True
-
-            elif o == '--max-wait':
-                max_wait = int(a)
-
-            elif o == '--timeout':
-                timeout = int(a)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                print('ERROR: Unknown option: %s' % o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) < 1:
-            raise Exception('Missing Webapp ID')
-
-        webapp_id = args[0]
+        instance_name = args.instance
+        wait = args.wait
+        max_wait = args.max_wait
+        timeout = args.timeout
+        webapp_id = args.webapp_id
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
