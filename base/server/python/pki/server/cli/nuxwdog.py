@@ -18,22 +18,16 @@
 # All rights reserved.
 #
 
-from __future__ import absolute_import
-from __future__ import print_function
-
+import argparse
 import fileinput
-import getopt
 import logging
+from lxml import etree
 import os
 import re
 import subprocess
-import sys
-
-import pki.server
-from lxml import etree
 
 import pki.cli
-import pki.server.instance
+import pki.server
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +43,6 @@ class NuxwdogCLI(pki.cli.CLI):
 class NuxwdogEnableCLI(pki.cli.CLI):
 
     def __init__(self):
-        self.parser = etree.XMLParser(remove_blank_text=True)
         self.nuxwdog_listener_class = (
             'com.netscape.cms.tomcat.PKIListener'
         )
@@ -57,6 +50,20 @@ class NuxwdogEnableCLI(pki.cli.CLI):
             'com.netscape.cms.tomcat.NuxwdogPasswordStore'
         )
         super().__init__('enable', 'Enable nuxwdog')
+
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
 
     def print_help(self):
         print('Usage: pki-server nuxwdog-enable [OPTIONS]')
@@ -67,30 +74,18 @@ class NuxwdogEnableCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        for o, _ in opts:
-            if o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
         instances = pki.server.instance.PKIInstance.instances()
 
@@ -144,7 +139,8 @@ class NuxwdogEnableCLI(pki.cli.CLI):
 
         conf_file = self.get_conf_file(instance)
 
-        document = etree.parse(filename, self.parser)
+        parser = etree.XMLParser(remove_blank_text=True)
+        document = etree.parse(filename, parser)
 
         server = document.getroot()
 
@@ -221,7 +217,6 @@ class NuxwdogEnableCLI(pki.cli.CLI):
 class NuxwdogDisableCLI(pki.cli.CLI):
 
     def __init__(self):
-        self.parser = etree.XMLParser(remove_blank_text=True)
         self.nuxwdog_listener_class = (
             'com.netscape.cms.tomcat.PKIListener'
         )
@@ -229,6 +224,20 @@ class NuxwdogDisableCLI(pki.cli.CLI):
             'org.dogtagpki.jss.tomcat.PlainPasswordFile'
         )
         super().__init__('disable', 'Disable nuxwdog')
+
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
 
     def print_help(self):
         print('Usage: pki-server nuxwdog-disable [OPTIONS]')
@@ -239,30 +248,18 @@ class NuxwdogDisableCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        for o, _ in opts:
-            if o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
         instances = pki.server.instance.PKIInstance.instances()
 
@@ -299,7 +296,8 @@ class NuxwdogDisableCLI(pki.cli.CLI):
 
         pw_conf = os.path.join(instance.conf_dir, 'password.conf')
 
-        document = etree.parse(filename, self.parser)
+        parser = etree.XMLParser(remove_blank_text=True)
+        document = etree.parse(filename, parser)
 
         server = document.getroot()
 
