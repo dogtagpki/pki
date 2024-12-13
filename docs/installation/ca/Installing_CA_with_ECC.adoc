@@ -28,7 +28,7 @@ Prior to installation, please ensure that the following are configured:
 Prepare a deployment configuration (e.g. `ca-ecc.cfg`) to deploy CA subsystem.
 By default the subsystem will be deployed into a Tomcat instance called `pki-tomcat`.
 
-A sample deployment configuration is available at [/usr/share/pki/server/examples/installation/ca-ecc.cfg](../../../base/server/examples/installation/ca-ecc.cfg).
+A sample deployment configuration is available at link:../../../base/server/examples/installation/ca-ecc.cfg[/usr/share/pki/server/examples/installation/ca-ecc.cfg].
 
 To start the installation execute the following command:
 
