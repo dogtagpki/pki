@@ -18,9 +18,7 @@
 # All rights reserved.
 #
 
-from __future__ import absolute_import, print_function
-
-import getopt
+import argparse
 import logging
 import sys
 
@@ -45,7 +43,26 @@ class SubsystemConfigFindCLI(pki.cli.CLI):
 
     def __init__(self, parent):
         super().__init__('find', 'Find %s configuration parameters' % parent.parent.name.upper())
+
         self.parent = parent
+
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
 
     def print_help(self):
         print('Usage: pki-server %s-config-find [OPTIONS]' % self.parent.parent.name)
@@ -58,36 +75,19 @@ class SubsystemConfigFindCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        instance_name = args.instance
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -113,7 +113,27 @@ class SubsystemConfigShowCLI(pki.cli.CLI):
         super().__init__(
             'show',
             'Show %s configuration parameter value' % parent.parent.name.upper())
+
         self.parent = parent
+
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('name')
 
     def print_help(self):
         print('Usage: pki-server %s-config-show [OPTIONS] <name>' % self.parent.parent.name)
@@ -126,44 +146,20 @@ class SubsystemConfigShowCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) < 1:
-            logger.error('Missing %s configuration parameter name',
-                         self.parent.parent.name.upper())
-            self.print_help()
-            sys.exit(1)
-
-        name = args[0]
+        instance_name = args.instance
+        name = args.name
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -194,7 +190,28 @@ class SubsystemConfigSetCLI(pki.cli.CLI):
         super().__init__(
             'set',
             'Set %s configuration parameter value' % parent.parent.name.upper())
+
         self.parent = parent
+
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('name')
+        self.parser.add_argument('value')
 
     def print_help(self):
         print('Usage: pki-server %s-config-set [OPTIONS] <name> <value>'
@@ -208,51 +225,21 @@ class SubsystemConfigSetCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) < 1:
-            logger.error('Missing %s configuration parameter name',
-                         self.parent.parent.name.upper())
-            self.print_help()
-            sys.exit(1)
-
-        if len(args) < 2:
-            logger.error('Missing %s configuration parameter value',
-                         self.parent.parent.name.upper())
-            self.print_help()
-            sys.exit(1)
-
-        name = args[0]
-        value = args[1]
+        instance_name = args.instance
+        name = args.name
+        value = args.value
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -276,7 +263,27 @@ class SubsystemConfigUnsetCLI(pki.cli.CLI):
 
     def __init__(self, parent):
         super().__init__('unset', 'Unset %s configuration parameter' % parent.parent.name.upper())
+
         self.parent = parent
+
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('name')
 
     def print_help(self):
         print('Usage: pki-server %s-config-unset [OPTIONS] <name>'
@@ -290,44 +297,20 @@ class SubsystemConfigUnsetCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) < 1:
-            logger.error('Missing %s configuration parameter name',
-                         self.parent.parent.name.upper())
-            self.print_help()
-            sys.exit(1)
-
-        name = args[0]
+        instance_name = args.instance
+        name = args.name
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
