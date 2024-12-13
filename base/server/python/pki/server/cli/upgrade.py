@@ -18,11 +18,8 @@
 # All rights reserved.
 #
 
-from __future__ import absolute_import
-from __future__ import print_function
-import getopt
+import argparse
 import logging
-import sys
 
 import pki.cli
 import pki.upgrade
@@ -36,7 +33,48 @@ class UpgradeCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('upgrade', 'Upgrade PKI server')
 
-    def usage(self):
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '--status',
+            action='store_true')
+        self.parser.add_argument(
+            '--revert',
+            action='store_true')
+        self.parser.add_argument(
+            '--validate',
+            action='store_true')
+        self.parser.add_argument(
+            '-X',
+            action='store_true')
+        self.parser.add_argument(
+            '--remove-tracker',
+            action='store_true')
+        self.parser.add_argument(
+            '--reset-tracker',
+            action='store_true')
+        self.parser.add_argument('--set-tracker')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '-h',
+            '--help',
+            action='store_true')
+        self.parser.add_argument(
+            'instance_name',
+            nargs='?')
+
+    def print_help(self):
         print('Usage: pki-server upgrade [OPTIONS] [<instance ID>]')
         print()
         print('  --status                       Show upgrade status only. Do not perform upgrade.')
@@ -60,73 +98,36 @@ class UpgradeCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'hi:s:t:vX', [
-                'instance=',
-                'status', 'revert', 'validate',
-                'remove-tracker', 'reset-tracker', 'set-tracker=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
-            self.usage()
-            sys.exit(1)
+        if args.help:
+            self.print_help()
+            return
+        elif args.X:
+            self.advancedOptions()
+            return
 
-        instance_name = None
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        status = False
-        revert = False
-        validate = False
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-        remove_tracker = False
-        reset_tracker = False
+        if args.instance_name:
+            instance_name = args.instance_name
+        else:
+            instance_name = args.instance
+
+        status = args.status
+        revert = args.revert
+        validate = args.validate
+
+        remove_tracker = args.remove_tracker
+        reset_tracker = args.reset_tracker
 
         tracker_version = None
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o == '--status':
-                status = True
-
-            elif o == '--revert':
-                revert = True
-
-            elif o == '--validate':
-                validate = True
-
-            elif o == '--remove-tracker':
-                remove_tracker = True
-
-            elif o == '--reset-tracker':
-                reset_tracker = True
-
-            elif o == '--set-tracker':
-                tracker_version = pki.util.Version(a)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-h', '--help'):
-                self.usage()
-                sys.exit()
-
-            elif o == '-X':
-                self.usage()
-                self.advancedOptions()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.usage()
-                sys.exit(1)
-
-        if len(args) > 0:
-            instance_name = args[0]
+        if args.set_tracker:
+            tracker_version = pki.util.Version(args.set_tracker)
 
         if instance_name:
             instance = pki.server.PKIServerFactory.create(instance_name)
