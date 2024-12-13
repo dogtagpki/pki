@@ -18,10 +18,7 @@
 # All rights reserved.
 #
 
-from __future__ import absolute_import
-from __future__ import print_function
-
-import getopt
+import argparse
 import sys
 import logging
 
@@ -40,6 +37,28 @@ class EnableSelfTestCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('enable', 'Enable selftests.')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '--subsystem',
+            action='append')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('selftest_id')
+
     def print_help(self):
         print('Usage: pki-server selftest-enable [OPTIONS] [<Selftest ID>]')
         print()
@@ -50,38 +69,21 @@ class EnableSelfTestCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:', [
-                'subsystem=', 'instance=', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        # To hold the subsystem names
-        subsystems = []
-        test = None
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        if len(args) == 1:
-            test = args[0]
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o == '--subsystem':
-                subsystems.append(a)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                print('ERROR: unknown option ' + o)
-                self.print_help()
-                sys.exit(1)
+        instance_name = args.instance
+        subsystem_names = args.subsystem
+        test = args.selftest_id
 
         # Load instance
         instance = pki.server.PKIServerFactory.create(instance_name)
@@ -96,11 +98,11 @@ class EnableSelfTestCLI(pki.cli.CLI):
         target_subsystems = []
 
         # Load subsystem or subsystems
-        if not subsystems:
+        if not subsystem_names:
             for subsys in instance.get_subsystems():
                 target_subsystems.append(subsys)
         else:
-            for subsys in subsystems:
+            for subsys in subsystem_names:
                 target_subsystems.append(instance.get_subsystem(subsys))
 
         try:
@@ -119,6 +121,28 @@ class DisableSelftestCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('disable', 'Disable selftests.')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '--subsystem',
+            action='append')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('selftest_id')
+
     def print_help(self):
         print('Usage: pki-server selftest-disable [OPTIONS] [<Selftest ID>]')
         print()
@@ -129,38 +153,21 @@ class DisableSelftestCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:', [
-                'subsystem=', 'instance=', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        # To hold the subsystem names
-        subsystems = []
-        test = None
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        if len(args) == 1:
-            test = args[0]
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o == '--subsystem':
-                subsystems.append(a)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                print('ERROR: unknown option ' + o)
-                self.print_help()
-                sys.exit(1)
+        instance_name = args.instance
+        subsystem_names = args.subsystem
+        test = args.selftest_id
 
         # Load instance
         instance = pki.server.PKIServerFactory.create(instance_name)
@@ -175,11 +182,11 @@ class DisableSelftestCLI(pki.cli.CLI):
         target_subsystems = []
 
         # Load subsystem or subsystems
-        if not subsystems:
+        if not subsystem_names:
             for subsys in instance.get_subsystems():
                 target_subsystems.append(subsys)
         else:
-            for subsys in subsystems:
+            for subsys in subsystem_names:
                 target_subsystems.append(instance.get_subsystem(subsys))
 
         try:
