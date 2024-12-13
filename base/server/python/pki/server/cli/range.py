@@ -3,9 +3,8 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
-from __future__ import absolute_import
-from __future__ import print_function
-import getopt
+
+import argparse
 import logging
 import sys
 
@@ -34,6 +33,24 @@ class RangeShowCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server %s-range-show [OPTIONS]' % self.parent.parent.name)
         print()
@@ -44,37 +61,21 @@ class RangeShowCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
         subsystem_name = self.parent.parent.name
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -110,6 +111,27 @@ class RangeRequestCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--master')
+        self.parser.add_argument('--session')
+        self.parser.add_argument('--install-token')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server %s-range-request [OPTIONS]' % self.parent.parent.name)
         print()
@@ -123,50 +145,24 @@ class RangeRequestCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'master=', 'session=', 'install-token=',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
         subsystem_name = self.parent.parent.name
-        master_url = None
-        session_id = None
-        install_token = None
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o == '--master':
-                master_url = a
-
-            elif o == '--session':
-                session_id = a
-
-            elif o == '--install-token':
-                install_token = a
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        master_url = args.master
+        session_id = args.session
+        install_token = args.install_token
 
         if not master_url:
             raise Exception('Missing master URL')
@@ -201,6 +197,24 @@ class RangeUpdateCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server %s-range-update [OPTIONS]' % self.parent.parent.name)
         print()
@@ -211,37 +225,21 @@ class RangeUpdateCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
         subsystem_name = self.parent.parent.name
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
