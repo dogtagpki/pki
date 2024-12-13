@@ -3,9 +3,8 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
-from __future__ import absolute_import
-from __future__ import print_function
-import getopt
+
+import argparse
 import logging
 import sys
 
@@ -43,6 +42,24 @@ class IdGeneratorShowCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server %s-id-generator-show [OPTIONS]' %
               self.parent.parent.parent.name)
@@ -54,37 +71,21 @@ class IdGeneratorShowCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
         subsystem_name = self.parent.parent.parent.name
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -111,6 +112,27 @@ class IdGeneratorUpdateCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('-t', '--type')
+        self.parser.add_argument('-r', '--range')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('object_name')
+
     def print_help(self):
         print('Usage: pki-server %s-id-generator-update [OPTIONS] <object>' %
               self.parent.parent.parent.name)
@@ -125,51 +147,24 @@ class IdGeneratorUpdateCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:t:r:v', [
-                'instance=', 'type=', 'range=',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        if len(args) != 1:
-            logger.error('Missing object for generator')
-            self.print_help()
-            sys.exit(1)
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        generator_object = args[0]
-        instance_name = 'pki-tomcat'
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
         subsystem_name = self.parent.parent.parent.name
-        generator = None
-        range_object = None
-
-        for o, a in opts:
-            if o in ('-t', '--type'):
-                generator = a
-
-            elif o in ('-r', '--range'):
-                range_object = a
-
-            elif o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        generator_object = args.object_name
+        generator = args.type
+        range_object = args.range
 
         if not generator:
             logger.error('No <generator type> specified')
