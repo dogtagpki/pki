@@ -1,3 +1,6 @@
+This page has been converted/moved to [Installing_Subordinate_CAdoc](../ca/Installing_Subordinate_CA.adoc).
+Content below is to be removed after finalizing.
+
 Installing Subordinate CA
 =========================
 
