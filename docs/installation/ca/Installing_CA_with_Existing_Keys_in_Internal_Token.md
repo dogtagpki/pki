@@ -1,3 +1,6 @@
+This page has been converted/moved to [Installing_CA_with_Existing_Keys_in_Internal_Token.adoc](../ca/Installing_CA_with_Existing_Keys_in_Internal_Token.adoc).
+Content below is to be removed after finalizing.
+
 Installing CA with Existing Keys in Internal Token
 ==================================================
 
