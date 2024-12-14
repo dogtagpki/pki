@@ -1,3 +1,6 @@
+This page has been converted/moved to [Installing_CA_with_Secure_Database_Connection.adoc](../ca/Installing_CA_with_Secure_Database_Connection.adoc).
+Content below is to be removed after finalizing.
+
 Installing CA with Secure Database Connection
 =============================================
 
