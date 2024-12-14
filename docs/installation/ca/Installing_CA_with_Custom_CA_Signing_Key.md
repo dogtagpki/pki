@@ -1,3 +1,6 @@
+This page has been converted/moved to [Installing_CA_with_Custom_CA_Signing_Key.adoc](../ca/Installing_CA_with_Custom_CA_Signing_Key.adoc).
+Content below is to be removed after finalizing.
+
 Installing CA with Custom CA Signing Key
 ========================================
 
