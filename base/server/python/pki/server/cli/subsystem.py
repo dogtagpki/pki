@@ -20,10 +20,7 @@
 # All rights reserved.
 #
 
-from __future__ import absolute_import
-from __future__ import print_function
-
-import getopt
+import argparse
 import getpass
 import inspect
 import logging
@@ -63,6 +60,24 @@ class SubsystemFindCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('find', 'Find subsystems')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def usage(self):
         print('Usage: pki-server subsystem-find [OPTIONS]')
         print()
@@ -74,36 +89,19 @@ class SubsystemFindCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
-            self.usage()
-            sys.exit(1)
+        if args.help:
+            self.print_help()
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.usage()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.usage()
-                sys.exit(1)
+        instance_name = args.instance
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -130,6 +128,25 @@ class SubsystemShowCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('show', 'Show subsystem')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('subsystem_id')
+
     def usage(self):
         print('Usage: pki-server subsystem-show [OPTIONS] <subsystem ID>')
         print()
@@ -141,43 +158,20 @@ class SubsystemShowCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
-            self.usage()
-            sys.exit(1)
+        if args.help:
+            self.print_help()
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.usage()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.usage()
-                sys.exit(1)
-
-        if len(args) != 1:
-            logger.error('Missing subsystem ID')
-            self.usage()
-            sys.exit(1)
-
-        subsystem_name = args[0]
+        instance_name = args.instance
+        subsystem_name = args.subsystem_id
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -202,7 +196,7 @@ class SubsystemCreateCLI(pki.cli.CLI):
     '''
 
     help = '''\
-        Usage: pki-server {subsystem}-create [OPTIONS] <subsystem ID>
+        Usage: pki-server {subsystem}-create [OPTIONS]
 
           -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
           -v, --verbose                      Run in verbose mode.
@@ -218,43 +212,44 @@ class SubsystemCreateCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print(textwrap.dedent(self.__class__.help).format(
             subsystem=self.parent.name))
 
     def execute(self, argv):
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
         subsystem_name = self.parent.name
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -281,6 +276,37 @@ class SubsystemDeployCLI(pki.cli.CLI):
         super().__init__('deploy', 'Deploy %s subsystem' % parent.name.upper())
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '--wait',
+            action='store_true')
+        self.parser.add_argument(
+            '--max-wait',
+            type=int,
+            default=60)
+        self.parser.add_argument(
+            '--timeout',
+            type=int)
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument(
+            'name',
+            nargs='?')
+
     def print_help(self):
         print('Usage: pki-server %s-deploy [OPTIONS] [name]' % self.parent.name)
         print()
@@ -295,53 +321,26 @@ class SubsystemDeployCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'wait', 'max-wait=', 'timeout=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
         name = self.parent.name
-        instance_name = 'pki-tomcat'
-        wait = False
-        max_wait = 60
-        timeout = None
+        wait = args.wait
+        max_wait = args.max_wait
+        timeout = args.timeout
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o == '--wait':
-                wait = True
-
-            elif o == '--max-wait':
-                max_wait = int(a)
-
-            elif o == '--timeout':
-                timeout = int(a)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) > 0:
-            name = args[0]
+        if args.name:
+            name = args.name
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -368,7 +367,38 @@ class SubsystemUndeployCLI(pki.cli.CLI):
 
     def __init__(self, parent):
         super().__init__('undeploy', 'Undeploy %s subsystem' % parent.name.upper())
-        self.parenet = parent
+        self.parent = parent
+
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '--wait',
+            action='store_true')
+        self.parser.add_argument(
+            '--max-wait',
+            type=int,
+            default=60)
+        self.parser.add_argument(
+            '--timeout',
+            type=int)
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument(
+            'name',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server %s-undeploy [OPTIONS] [name]' % self.parent.name)
@@ -384,53 +414,26 @@ class SubsystemUndeployCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'wait', 'max-wait=', 'timeout=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
         name = self.parent.name
-        instance_name = 'pki-tomcat'
-        wait = False
-        max_wait = 60
-        timeout = None
+        wait = args.wait
+        max_wait = args.max_wait
+        timeout = args.timeout
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o == '--wait':
-                wait = True
-
-            elif o == '--max-wait':
-                max_wait = int(a)
-
-            elif o == '--timeout':
-                timeout = int(a)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) > 0:
-            name = args[0]
+        if args.name:
+            name = args.name
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -471,59 +474,63 @@ class SubsystemRedeployCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '--wait',
+            action='store_true')
+        self.parser.add_argument(
+            '--max-wait',
+            type=int,
+            default=60)
+        self.parser.add_argument(
+            '--timeout',
+            type=int)
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument(
+            'name',
+            nargs='?')
+
     def print_help(self):
         print(textwrap.dedent(self.__class__.help).format(
             subsystem=self.parent.name))
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'wait', 'max-wait=', 'timeout=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
         name = self.parent.name
-        instance_name = 'pki-tomcat'
-        wait = False
-        max_wait = 60
-        timeout = None
+        wait = args.wait
+        max_wait = args.max_wait
+        timeout = args.timeout
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o == '--wait':
-                wait = True
-
-            elif o == '--max-wait':
-                max_wait = int(a)
-
-            elif o == '--timeout':
-                timeout = int(a)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) > 0:
-            name = args[0]
+        if args.name:
+            name = args.name
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -557,8 +564,35 @@ class SubsystemEnableCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('enable', 'Enable subsystem')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '--all',
+            action='store_true')
+        self.parser.add_argument(
+            '--silent',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument(
+            'subsystem_id',
+            nargs='?')
+
     def usage(self):
-        print('Usage: pki-server subsystem-enable [OPTIONS] <subsystem ID>')
+        print('Usage: pki-server subsystem-enable [OPTIONS] [<subsystem ID>]')
         print()
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
         print('      --all                       Enable all subsystems.')
@@ -570,44 +604,21 @@ class SubsystemEnableCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'all', 'silent',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
-            self.usage()
-            sys.exit(1)
+        if args.help:
+            self.print_help()
+            return
 
-        instance_name = 'pki-tomcat'
-        all_subsystems = False
-        silent = False
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--all':
-                all_subsystems = True
-
-            elif o == '--silent':
-                silent = True
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.usage()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.usage()
-                sys.exit(1)
+        instance_name = args.instance
+        all_subsystems = args.all
+        silent = args.silent
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -627,12 +638,12 @@ class SubsystemEnableCLI(pki.cli.CLI):
 
             return
 
-        if len(args) != 1:
+        if not args.subsystem_id:
             logger.error('Missing subsystem ID')
             self.usage()
             sys.exit(1)
 
-        subsystem_name = args[0]
+        subsystem_name = args.subsystem_id
 
         subsystem = instance.get_subsystem(subsystem_name)
         if not subsystem:
@@ -658,8 +669,32 @@ class SubsystemDisableCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('disable', 'Disable subsystem')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '--all',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument(
+            'subsystem_id',
+            nargs='?')
+
     def usage(self):
-        print('Usage: pki-server subsystem-disable [OPTIONS] <subsystem ID>')
+        print('Usage: pki-server subsystem-disable [OPTIONS] [<subsystem ID>]')
         print()
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
         print('      --all                       Disable all subsystems.')
@@ -670,40 +705,20 @@ class SubsystemDisableCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'all',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
-            self.usage()
-            sys.exit(1)
+        if args.help:
+            self.print_help()
+            return
 
-        instance_name = 'pki-tomcat'
-        all_subsystems = False
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--all':
-                all_subsystems = True
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.usage()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.usage()
-                sys.exit(1)
+        instance_name = args.instance
+        all_subsystems = args.all
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -722,12 +737,12 @@ class SubsystemDisableCLI(pki.cli.CLI):
 
             return
 
-        if len(args) != 1:
+        if not args.subsystem_id:
             logger.error('Missing subsystem ID')
             self.usage()
             sys.exit(1)
 
-        subsystem_name = args[0]
+        subsystem_name = args.subsystem_id
 
         subsystem = instance.get_subsystem(subsystem_name)
         if not subsystem:
@@ -778,6 +793,28 @@ class SubsystemCertFindCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('find', 'Find subsystem certificates')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '--show-all',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('subsystem_id')
+
     def print_help(self):
         print('Usage: pki-server subsystem-cert-find [OPTIONS] <subsystem ID>')
         print()
@@ -790,47 +827,21 @@ class SubsystemCertFindCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'show-all',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        show_all = False
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--show-all':
-                show_all = True
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) != 1:
-            logger.error('Missing subsystem ID')
-            self.print_help()
-            sys.exit(1)
-
-        subsystem_name = args[0]
+        instance_name = args.instance
+        show_all = args.show_all
+        subsystem_name = args.subsystem_id
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -870,6 +881,29 @@ class SubsystemCertShowCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('show', 'Show subsystem certificate')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '--show-all',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('subsystem_id')
+        self.parser.add_argument('cert_id')
+
     def usage(self):
         print('Usage: pki-server subsystem-cert-show [OPTIONS] <subsystem ID> <cert ID>')
         print()
@@ -882,53 +916,23 @@ class SubsystemCertShowCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'show-all',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
-            self.usage()
-            sys.exit(1)
+        if args.help:
+            self.print_help()
+            return
 
-        instance_name = 'pki-tomcat'
-        show_all = False
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--show-all':
-                show_all = True
+        instance_name = args.instance
+        show_all = args.show_all
 
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.usage()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.usage()
-                sys.exit(1)
-
-        if len(args) < 1:
-            logger.error('Missing subsystem ID')
-            self.usage()
-            sys.exit(1)
-
-        if len(args) < 2:
-            logger.error('Missing cert ID')
-            self.usage()
-            sys.exit(1)
-
-        subsystem_name = args[0]
-        cert_tag = args[1]
+        subsystem_name = args.subsystem_id
+        cert_tag = args.cert_id
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -952,6 +956,45 @@ class SubsystemCertExportCLI(pki.cli.CLI):
 
     def __init__(self):
         super().__init__('export', 'Export subsystem certificate')
+
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--cert-file')
+        self.parser.add_argument('--csr-file')
+        self.parser.add_argument('--pkcs12-file')
+        self.parser.add_argument('--pkcs12-password')
+        self.parser.add_argument('--pkcs12-password-file')
+        self.parser.add_argument(
+            '--append',
+            action='store_true')
+        self.parser.add_argument(
+            '--no-trust-flags',
+            action='store_true')
+        self.parser.add_argument(
+            '--no-key',
+            action='store_true')
+        self.parser.add_argument(
+            '--no-chain',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('subsystem_id')
+        self.parser.add_argument(
+            'cert_id',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server subsystem-cert-export [OPTIONS] <subsystem ID> [cert ID]')
@@ -977,81 +1020,31 @@ class SubsystemCertExportCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'cert-file=', 'csr-file=',
-                'pkcs12-file=', 'pkcs12-password=', 'pkcs12-password-file=',
-                'append', 'no-trust-flags', 'no-key', 'no-chain',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        cert_file = None
-        csr_file = None
-        pkcs12_file = None
-        pkcs12_password = None
-        pkcs12_password_file = None
-        append = False
-        include_trust_flags = True
-        include_key = True
-        include_chain = True
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--cert-file':
-                cert_file = a
+        instance_name = args.instance
+        cert_file = args.cert_file
+        csr_file = args.csr_file
+        pkcs12_file = args.pkcs12_file
+        pkcs12_password = args.pkcs12_password
+        pkcs12_password_file = args.pkcs12_password_file
+        append = args.append
+        include_trust_flags = not args.no_trust_flags
+        include_key = not args.no_key
+        include_chain = not args.no_chain
 
-            elif o == '--csr-file':
-                csr_file = a
-
-            elif o == '--pkcs12-file':
-                pkcs12_file = a
-
-            elif o == '--pkcs12-password':
-                pkcs12_password = a
-
-            elif o == '--pkcs12-password-file':
-                pkcs12_password_file = a
-
-            elif o == '--append':
-                append = True
-
-            elif o == '--no-trust-flags':
-                include_trust_flags = False
-
-            elif o == '--no-key':
-                include_key = False
-
-            elif o == '--no-chain':
-                include_chain = False
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) < 1:
-            logger.error('Missing subsystem ID')
-            self.print_help()
-            sys.exit(1)
-
-        subsystem_name = args[0]
+        subsystem_name = args.subsystem_id
+        cert_tag = args.cert_id
 
         if not (cert_file or csr_file or pkcs12_file):
             logger.error('Missing output file')
@@ -1073,8 +1066,7 @@ class SubsystemCertExportCLI(pki.cli.CLI):
             sys.exit(1)
         subsystem_cert = None
 
-        if len(args) >= 2:
-            cert_tag = args[1]
+        if cert_tag:
             subsystem_cert = subsystem.get_subsystem_cert(cert_tag)
 
         if (cert_file or csr_file) and not subsystem_cert:
@@ -1138,6 +1130,27 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('update', 'Update subsystem certificate')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--cert')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('subsystem_id')
+        self.parser.add_argument('cert_id')
+
     def usage(self):
         print('Usage: pki-server subsystem-cert-update [OPTIONS] <subsystem ID> <cert ID>')
         print()
@@ -1150,54 +1163,23 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'cert=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
-            self.usage()
-            sys.exit(1)
+        if args.help:
+            self.print_help()
+            return
 
-        instance_name = 'pki-tomcat'
-        cert_file = None
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
+        instance_name = args.instance
+        cert_file = args.cert
 
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.usage()
-                sys.exit()
-
-            elif o == '--cert':
-                cert_file = a
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.usage()
-                sys.exit(1)
-
-        if len(args) < 1:
-            logger.error('Missing subsystem ID')
-            self.usage()
-            sys.exit(1)
-
-        if len(args) < 2:
-            logger.error('Missing cert ID')
-            self.usage()
-            sys.exit(1)
-
-        subsystem_name = args[0]
-        cert_tag = args[1]
+        subsystem_name = args.subsystem_id
+        cert_tag = args.cert_id
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -1293,6 +1275,28 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('validate', 'Validate subsystem certificates', deprecated=True)
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('subsystem_id')
+        self.parser.add_argument(
+            'cert_id',
+            nargs='?')
+
     def usage(self):
         print('Usage: pki-server subsystem-cert-validate [OPTIONS] <subsystem ID> [cert ID]')
         print()
@@ -1308,48 +1312,21 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
             'The pki-server subsystem-cert-validate has been deprecated. '
             'Use pki-server cert-validate instead.')
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
-            self.usage()
-            sys.exit(1)
+        if args.help:
+            self.print_help()
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.usage()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.usage()
-                sys.exit(1)
-
-        if len(args) < 1:
-            logger.error('Missing subsystem ID')
-            self.usage()
-            sys.exit(1)
-
-        subsystem_name = args[0]
-
-        if len(args) >= 2:
-            cert_tag = args[1]
-        else:
-            cert_tag = None
+        instance_name = args.instance
+        subsystem_name = args.subsystem_id
+        cert_tag = args.cert_id
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
