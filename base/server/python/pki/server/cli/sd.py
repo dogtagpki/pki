@@ -3,9 +3,8 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
-from __future__ import absolute_import
-from __future__ import print_function
-import getopt
+
+import argparse
 import logging
 import sys
 
@@ -29,6 +28,25 @@ class SDCreateCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('create', 'Create security domain')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--name')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server sd-create [OPTIONS]')
         print()
@@ -41,41 +59,20 @@ class SDCreateCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'name=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        name = None
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--name':
-                name = a
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        instance_name = args.instance
+        name = args.name
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -107,6 +104,24 @@ class SDSubsystemFindCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('find', 'Find security domain subsystems')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server sd-subsystem-find [OPTIONS]')
         print()
@@ -118,36 +133,19 @@ class SDSubsystemFindCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        instance_name = args.instance
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -169,6 +167,37 @@ class SDSubsystemAddCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('add', 'Add security domain subsystem')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--subsystem')
+        self.parser.add_argument('--hostname')
+        self.parser.add_argument('--unsecure-port')
+        self.parser.add_argument(
+            '--secure-port',
+            default='8443')
+        self.parser.add_argument(
+            '--domain-manager',
+            action='store_true')
+        self.parser.add_argument(
+            '--clone',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('subsystem_id')
+
     def print_help(self):
         print('Usage: pki-server sd-subsystem-add [OPTIONS] <subsystem ID>')
         print()
@@ -186,68 +215,26 @@ class SDSubsystemAddCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'subsystem=', 'hostname=', 'unsecure-port=', 'secure-port=',
-                'domain-manager', 'clone',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        subsystem_type = None
-        hostname = None
-        unsecure_port = None
-        secure_port = '8443'
-        domain_manager = False
-        clone = False
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--subsystem':
-                subsystem_type = a
-
-            elif o == '--hostname':
-                hostname = a
-
-            elif o == '--unsecure-port':
-                unsecure_port = a
-
-            elif o == '--secure-port':
-                secure_port = a
-
-            elif o == '--domain-manager':
-                domain_manager = True
-
-            elif o == '--clone':
-                clone = True
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) < 1:
-            logger.error('Missing subsystem ID')
-            self.print_help()
-            sys.exit(1)
-
-        subsystem_id = args[0]
+        instance_name = args.instance
+        subsystem_type = args.subsystem
+        hostname = args.hostname
+        unsecure_port = args.unsecure_port
+        secure_port = args.secure_port
+        domain_manager = args.domain_manager
+        clone = args.clone
+        subsystem_id = args.subsystem_id
 
         if not subsystem_type:
             logger.error('Missing subsystem type')
@@ -286,6 +273,25 @@ class SDSubsystemRemoveCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('del', 'Remove security domain subsystem')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('subsystem_id')
+
     def print_help(self):
         print('Usage: pki-server sd-subsystem-del [OPTIONS] <subsystem ID>')
         print()
@@ -297,43 +303,20 @@ class SDSubsystemRemoveCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) < 1:
-            logger.error('Missing subsystem ID')
-            self.print_help()
-            sys.exit(1)
-
-        subsystem_id = args[0]
+        instance_name = args.instance
+        subsystem_id = args.subsystem_id
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
