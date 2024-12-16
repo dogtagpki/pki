@@ -1269,13 +1269,14 @@ popd
 C_FLAGS="-s"
 CXX_FLAGS="$CXX_FLAGS -g -fPIE -pie"
 
-%if 0%{?fedora}
+%if 0%{?fedora} || 0%{?rhel} && 0%{?rhel} >= 10
 # https://sourceware.org/annobin/annobin.html/Test-gaps.html
 C_FLAGS="$C_FLAGS -fplugin=annobin"
 
 %ifarch x86_64
 # https://sourceware.org/annobin/annobin.html/Test-cf-protection.html
 C_FLAGS="$C_FLAGS -fcf-protection=full"
+CXX_FLAGS="$CXX_FLAGS -fcf-protection=full"
 %endif
 
 # https://sourceware.org/annobin/annobin.html/Test-optimization.html
@@ -1287,7 +1288,7 @@ C_FLAGS="$C_FLAGS -D_GLIBCXX_ASSERTIONS"
 CXX_FLAGS="$CXX_FLAGS -D_GLIBCXX_ASSERTIONS"
 
 # https://sourceware.org/annobin/annobin.html/Test-lto.html
-C_FLAGS="$C_FLAGS -fno-lto"
+C_FLAGS="$C_FLAGS -flto"
 
 # https://sourceware.org/annobin/annobin.html/Test-fortify.html
 C_FLAGS="$C_FLAGS -D_FORTIFY_SOURCE=3"
