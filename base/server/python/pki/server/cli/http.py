@@ -18,9 +18,7 @@
 # All rights reserved.
 #
 
-from __future__ import absolute_import
-from __future__ import print_function
-import getopt
+import argparse
 import inspect
 import logging
 import sys
@@ -104,6 +102,34 @@ class HTTPConnectorAddCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('add', 'Add connector')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--port')
+        self.parser.add_argument('--protocol')
+        self.parser.add_argument('--scheme')
+        self.parser.add_argument('--secure')
+        self.parser.add_argument('--sslEnabled')
+        self.parser.add_argument('--sslImpl')
+        self.parser.add_argument('--sslProtocol')
+        self.parser.add_argument('--certVerification')
+        self.parser.add_argument('--trustManager')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('name')
+
     def print_help(self):
         print('Usage: pki-server http-connector-add [OPTIONS] <connector ID>')
         print()
@@ -124,83 +150,32 @@ class HTTPConnectorAddCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'port=', 'protocol=', 'scheme=',
-                'secure=', 'sslEnabled=', 'sslImpl=',
-                'sslProtocol=', 'certVerification=', 'trustManager=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            print('ERROR: %s' % e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        port = None
-        protocol = None
-        scheme = None
-        secure = None
-        sslEnabled = None
-        sslImpl = None
-        sslProtocol = None
-        certVerification = None
-        trustManager = None
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--port':
-                port = a
-
-            elif o == '--protocol':
-                protocol = a
-
-            elif o == '--scheme':
-                scheme = a
-
-            elif o == '--secure':
-                secure = a
-
-            elif o == '--sslEnabled':
-                sslEnabled = a
-
-            elif o == '--sslImpl':
-                sslImpl = a
-
-            elif o == '--sslProtocol':
-                sslProtocol = a
-
-            elif o == '--certVerification':
-                certVerification = a
-
-            elif o == '--trustManager':
-                trustManager = a
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                print('ERROR: Unknown option: %s' % o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) != 1:
-            raise Exception('Missing connector ID')
+        instance_name = args.instance
+        port = args.port
+        protocol = args.protocol
+        scheme = args.scheme
+        secure = args.secure
+        sslEnabled = args.sslEnabled
+        sslImpl = args.sslImpl
+        sslProtocol = args.sslProtocol
+        certVerification = args.certVerification
+        trustManager = args.trustManager
+        name = args.name
 
         if port is None:
             raise Exception('Missing port number')
-
-        name = args[0]
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -242,6 +217,25 @@ class HTTPConnectorDeleteCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('del', 'Delete connector')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('name')
+
     def print_help(self):
         print('Usage: pki-server http-connector-del [OPTIONS] <connector ID>')
         print()
@@ -253,43 +247,20 @@ class HTTPConnectorDeleteCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            print('ERROR: %s' % e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                print('ERROR: Unknown option: %s' % o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) != 1:
-            print('ERROR: Missing connector ID')
-            self.print_help()
-            sys.exit(1)
-
-        name = args[0]
+        instance_name = args.instance
+        name = args.name
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -309,6 +280,24 @@ class HTTPConnectorFindCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('find', 'Find connectors')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server http-connector-find [OPTIONS]')
         print()
@@ -320,36 +309,19 @@ class HTTPConnectorFindCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            print('ERROR: %s' % e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                print('ERROR: Unknown option: %s' % o)
-                self.print_help()
-                sys.exit(1)
+        instance_name = args.instance
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -380,6 +352,25 @@ class HTTPConnectorShowCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('show', 'Show connector')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('name')
+
     def print_help(self):
         print('Usage: pki-server http-connector-show [OPTIONS] <connector ID>')
         print()
@@ -391,43 +382,20 @@ class HTTPConnectorShowCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            print('ERROR: %s' % e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                print('ERROR: Unknown option: %s' % o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) != 1:
-            print('ERROR: Missing connector ID')
-            self.print_help()
-            sys.exit(1)
-
-        name = args[0]
+        instance_name = args.instance
+        name = args.name
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -450,6 +418,40 @@ class HTTPConnectorModCLI(pki.cli.CLI):
 
     def __init__(self):
         super().__init__('mod', 'Modify connector')
+
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--type')
+        self.parser.add_argument('--nss-database-dir')
+        self.parser.add_argument('--nss-password-file')
+        self.parser.add_argument('--keystore-file')
+        self.parser.add_argument('--keystore-password-file')
+        self.parser.add_argument('--server-cert-nickname-file')
+        self.parser.add_argument('--port')
+        self.parser.add_argument('--protocol')
+        self.parser.add_argument('--scheme')
+        self.parser.add_argument('--secure')
+        self.parser.add_argument('--sslEnabled')
+        self.parser.add_argument('--sslImp')
+        self.parser.add_argument('--sslProtocol')
+        self.parser.add_argument('--cartVerification')
+        self.parser.add_argument('--trustManager')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('name')
 
     def print_help(self):
         print('Usage: pki-server http-connector-mod [OPTIONS] <connector ID>')
@@ -474,96 +476,32 @@ class HTTPConnectorModCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'type=',
-                'nss-database-dir=', 'nss-password-file=',
-                'keystore-file=', 'keystore-password-file=',
-                'server-cert-nickname-file=',
-                'port=', 'protocol=', 'scheme=',
-                'secure=', 'sslEnabled=', 'sslImpl=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            print('ERROR: %s' % e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        connector_type = None
-        nss_database_dir = None
-        nss_password_file = None
-        keystore_file = None
-        keystore_password_file = None
-        server_cert_nickname_file = None
-        port = None
-        protocol = None
-        scheme = None
-        secure = None
-        sslEnabled = None
-        sslImpl = None
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--type':
-                connector_type = a
-
-            elif o == '--nss-database-dir':
-                nss_database_dir = a
-
-            elif o == '--nss-password-file':
-                nss_password_file = a
-
-            elif o == '--keystore-file':
-                keystore_file = a
-
-            elif o == '--keystore-password-file':
-                keystore_password_file = a
-
-            elif o == '--server-cert-nickname-file':
-                server_cert_nickname_file = a
-
-            elif o == '--port':
-                port = a
-
-            elif o == '--protocol':
-                protocol = a
-
-            elif o == '--scheme':
-                scheme = a
-
-            elif o == '--secure':
-                secure = a
-
-            elif o == '--sslEnabled':
-                sslEnabled = a
-
-            elif o == '--sslImpl':
-                sslImpl = a
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                print('ERROR: Unknown option: %s' % o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) != 1:
-            print('ERROR: Missing connector ID')
-            self.print_help()
-            sys.exit(1)
-
-        name = args[0]
+        instance_name = args.instance
+        connector_type = args.type
+        nss_database_dir = args.nss_database_dir
+        nss_password_file = args.nss_password_file
+        keystore_file = args.keystore_file
+        keystore_password_file = args.keystore_password_file
+        server_cert_nickname_file = args.server_cert_nickname_file
+        port = args.port
+        protocol = args.protocol
+        scheme = args.scheme
+        secure = args.secure
+        sslEnabled = args.sslEnabled
+        sslImpl = args.sslImpl
+        name = args.name
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -668,6 +606,29 @@ class SSLHostAddCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('add', 'Add SSL host configuration')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--sslProtocol')
+        self.parser.add_argument('--certVerification')
+        self.parser.add_argument('--trustManager')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('connector_name')
+        self.parser.add_argument('hostname')
+
     def print_help(self):
         print('Usage: pki-server http-connector-host-add [OPTIONS] <connector ID> <hostname>')
         print()
@@ -682,59 +643,24 @@ class SSLHostAddCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'sslProtocol=', 'certVerification=', 'trustManager=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            print('ERROR: %s' % e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        sslProtocol = None
-        certVerification = None
-        trustManager = None
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--sslProtocol':
-                sslProtocol = a
-
-            elif o == '--certVerification':
-                certVerification = a
-
-            elif o == '--trustManager':
-                trustManager = a
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                print('ERROR: Unknown option: %s' % o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) < 1:
-            raise Exception('Missing connector ID')
-
-        connector_name = args[0]
-
-        if len(args) < 2:
-            raise Exception('Missing hostname')
-
-        hostname = args[1]
+        instance_name = args.instance
+        sslProtocol = args.sslProtocol
+        certVerification = args.certVerification
+        trustManager = args.trustManager
+        connector_name = args.connector_name
+        hostname = args.hostname
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -771,6 +697,26 @@ class SSLHostDeleteCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('del', 'Delete SSL host configuration')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('connector_name')
+        self.parser.add_argument('hostname')
+
     def print_help(self):
         print('Usage: pki-server http-connector-host-del [OPTIONS] <connector ID> <hostname>')
         print()
@@ -782,46 +728,21 @@ class SSLHostDeleteCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            print('ERROR: %s' % e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                print('ERROR: Unknown option: %s' % o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) < 1:
-            raise Exception('Missing connector ID')
-
-        connector_name = args[0]
-
-        if len(args) < 2:
-            raise Exception('Missing hostname')
-
-        hostname = args[1]
+        instance_name = args.instance
+        connector_name = args.connector_name
+        hostname = args.hostname
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -847,6 +768,25 @@ class SSLHostFindCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('find', 'Find SSL host configurations')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('connector_name')
+
     def print_help(self):
         print('Usage: pki-server http-connector-sslhost-find [OPTIONS] <connector ID>')
         print()
@@ -858,41 +798,20 @@ class SSLHostFindCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            print('ERROR: %s' % e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                print('ERROR: Unknown option: %s' % o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) < 1:
-            raise Exception('Missing connector ID')
-
-        connector_name = args[0]
+        instance_name = args.instance
+        connector_name = args.connector_name
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -943,67 +862,52 @@ class SSLHostModifyCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('mod', inspect.cleandoc(self.__class__.__doc__))
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--sslProtocol')
+        self.parser.add_argument('--certVerification')
+        self.parser.add_argument('--trustManager')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('connector_name')
+        self.parser.add_argument('hostname')
+
     def print_help(self):
         print(textwrap.dedent(self.__class__.help))
 
     def execute(self, argv):
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'sslProtocol=', 'certVerification=', 'trustManager=',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        sslProtocol = None
-        certVerification = None
-        trustManager = None
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--sslProtocol':
-                sslProtocol = a
-
-            elif o == '--certVerification':
-                certVerification = a
-
-            elif o == '--trustManager':
-                trustManager = a
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) < 1:
-            logger.error('Missing connector ID')
-            self.print_help()
-            sys.exit(1)
-
-        connector_name = args[0]
-
-        if len(args) < 2:
-            logger.error('Missing hostname')
-            self.print_help()
-            sys.exit(1)
-
-        hostname = args[1]
+        instance_name = args.instance
+        sslProtocol = args.sslProtocol
+        certVerification = args.certVerification
+        trustManager = args.trustManager
+        connector_name = args.connector_name
+        hostname = args.hostname
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -1052,54 +956,46 @@ class SSLHostShowCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('show', inspect.cleandoc(self.__class__.__doc__))
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('connector_name')
+        self.parser.add_argument('hostname')
+
     def print_help(self):
         print(textwrap.dedent(self.__class__.help))
 
     def execute(self, argv):
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) < 1:
-            logger.error('Missing connector ID')
-            self.print_help()
-            sys.exit(1)
-
-        connector_name = args[0]
-
-        if len(args) < 2:
-            logger.error('Missing hostname')
-            self.print_help()
-            sys.exit(1)
-
-        hostname = args[1]
+        instance_name = args.instance
+        connector_name = args.connector_name
+        hostname = args.hostname
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -1158,6 +1054,41 @@ class SSLCertAddCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('add', 'Add SSL certificate configuration')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '--connector',
+            default='Secure')
+        self.parser.add_argument(
+            '--sslHost',
+            default='_default_')
+        self.parser.add_argument('--certFile')
+        self.parser.add_argument('--keyAlias')
+        self.parser.add_argument('--keyFile')
+        self.parser.add_argument('--keystoreType')
+        self.parser.add_argument('--keystoreProvider')
+        self.parser.add_argument('--keystoreFile')
+        self.parser.add_argument('--keystorePassword')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument(
+            'type',
+            nargs='?',
+            default='UNDEFINED')
+
     def print_help(self):
         print('Usage: pki-server http-connector-cert-add '
               '[OPTIONS] [<type>]')
@@ -1179,80 +1110,29 @@ class SSLCertAddCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'connector=', 'sslHost=',
-                'certFile=', 'keyAlias=', 'keyFile=',
-                'keystoreType=', 'keystoreProvider=', 'keystoreFile=', 'keystorePassword=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            print('ERROR: %s' % e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        connector_name = 'Secure'
-        hostname = '_default_'
-        certFile = None
-        keyAlias = None
-        keyFile = None
-        keystoreType = None
-        keystoreProvider = None
-        keystoreFile = None
-        keystorePassword = None
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--connector':
-                connector_name = a
-
-            elif o == '--sslHost':
-                hostname = a
-
-            elif o == '--certFile':
-                certFile = a
-
-            elif o == '--keyAlias':
-                keyAlias = a
-
-            elif o == '--keyFile':
-                keyFile = a
-
-            elif o == '--keystoreType':
-                keystoreType = a
-
-            elif o == '--keystoreProvider':
-                keystoreProvider = a
-
-            elif o == '--keystoreFile':
-                keystoreFile = a
-
-            elif o == '--keystorePassword':
-                keystorePassword = a
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                print('ERROR: Unknown option: %s' % o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) < 1:
-            certType = 'UNDEFINED'
-        else:
-            certType = args[0]
+        instance_name = args.instance
+        connector_name = args.connector
+        hostname = args.sslHost
+        certFile = args.certFile
+        keyAlias = args.keyAlias
+        keyFile = args.keyFile
+        keystoreType = args.keystoreType
+        keystoreProvider = args.keystoreProvider
+        keystoreFile = args.keystoreFile
+        keystorePassword = args.keystorePassword
+        certType = args.type
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -1298,6 +1178,34 @@ class SSLCertDeleteCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('del', 'Delete SSL certificate configuration')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '--connector',
+            default='Secure')
+        self.parser.add_argument(
+            '--sslHost',
+            default='_default_')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument(
+            'type',
+            nargs='?',
+            default='UNDEFINED')
+
     def print_help(self):
         print('Usage: pki-server http-connector-cert-del '
               '[OPTIONS] [<type>]')
@@ -1312,50 +1220,22 @@ class SSLCertDeleteCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'connector=', 'sslHost=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            print('ERROR: %s' % e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        connector_name = 'Secure'
-        hostname = '_default_'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--connector':
-                connector_name = a
-
-            elif o == '--sslHost':
-                hostname = a
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                print('ERROR: Unknown option: %s' % o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) < 1:
-            certType = 'UNDEFINED'
-        else:
-            certType = args[0]
+        instance_name = args.instance
+        connector_name = args.connector
+        hostname = args.sslHost
+        certType = args.type
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -1386,6 +1266,30 @@ class SSLCertFindLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('find', 'Find SSL certificate configurations')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '--connector',
+            default='Secure')
+        self.parser.add_argument(
+            '--sslHost',
+            default='_default_')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server http-connector-cert-find '
               '[OPTIONS]')
@@ -1400,45 +1304,21 @@ class SSLCertFindLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'connector=', 'sslHost=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            print('ERROR: %s' % e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        connector_name = 'Secure'
-        hostname = '_default_'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--connector':
-                connector_name = a
-
-            elif o == '--sslHost':
-                hostname = a
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                print('ERROR: Unknown option: %s' % o)
-                self.print_help()
-                sys.exit(1)
+        instance_name = args.instance
+        connector_name = args.connector
+        hostname = args.sslHost
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
