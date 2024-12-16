@@ -18,10 +18,7 @@
 # All rights reserved.
 #
 
-from __future__ import absolute_import
-from __future__ import print_function
-
-import getopt
+import argparse
 import logging
 import os
 import shutil
@@ -92,7 +89,26 @@ class AuditConfigShowCLI(pki.cli.CLI):
 
     def __init__(self, parent):
         super().__init__('config-show', 'Display audit configuration')
+
         self.parent = parent
+
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
 
     def print_help(self):
         print('Usage: pki-server %s-audit-config-show [OPTIONS]' % self.parent.parent.name)
@@ -104,36 +120,20 @@ class AuditConfigShowCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        instance_name = args.instance
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -157,7 +157,45 @@ class AuditConfigModifyCLI(pki.cli.CLI):
 
     def __init__(self, parent):
         super().__init__('config-mod', 'Modify audit configuration')
+
         self.parent = parent
+
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--enabled')
+        self.parser.add_argument('--logFile')
+        self.parser.add_argument(
+            '--bufferSize',
+            type=int)
+        self.parser.add_argument(
+            '--flushInterval',
+            type=int)
+        self.parser.add_argument(
+            '--maxFileSize',
+            type=int)
+        self.parser.add_argument(
+            '--rolloverInterval',
+            type=int)
+        self.parser.add_argument(
+            '--expirationTime',
+            type=int)
+        self.parser.add_argument('--logSigning')
+        self.parser.add_argument('--signingCert')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
 
     def print_help(self):
         print('Usage: pki-server %s-audit-config-mod [OPTIONS]' % self.parent.parent.name)
@@ -178,90 +216,40 @@ class AuditConfigModifyCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'enabled=',
-                'logFile=', 'bufferSize=', 'flushInterval=',
-                'maxFileSize=', 'rolloverInterval=', 'expirationTime=',
-                'logSigning=', 'signingCert=',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        enabled = None
-        logFile = None
-        bufferSize = None
-        flushInterval = None
-        maxFileSize = None
-        rolloverInterval = None
-        expirationTime = None
-        logSigning = None
-        signingCert = None
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--enabled':
-                if a.lower().title() not in ['True', 'False']:
-                    raise ValueError("Invalid input: Enabled must be True or False")
-                enabled = a.lower() == 'true'
+        instance_name = args.instance
 
-            elif o == '--logFile':
-                logFile = a
+        if args.enabled:
+            enabled = args.enabled.lower() == 'true'
+        else:
+            enabled = None
 
-            elif o == '--bufferSize':
-                if not a.isdigit():
-                    raise ValueError("Invalid input: Buffer size must be a number")
-                bufferSize = a
+        logFile = args.logFile
 
-            elif o == '--flushInterval':
-                if not a.isdigit():
-                    raise ValueError("Invalid input: Flush interval must be a number")
-                flushInterval = a
+        bufferSize = args.bufferSize
+        flushInterval = args.flushInterval
+        maxFileSize = args.maxFileSize
+        rolloverInterval = args.rolloverInterval
+        expirationTime = args.expirationTime
 
-            elif o == '--maxFileSize':
-                if not a.isdigit():
-                    raise ValueError("Invalid input: Max file size must be a number")
-                maxFileSize = a
+        if args.logSigning:
+            logSigning = args.logSigning.lower() == 'true'
+        else:
+            logSigning = None
 
-            elif o == '--rolloverInterval':
-                if not a.isdigit():
-                    raise ValueError("Invalid input: Rollover interval must be a number")
-                rolloverInterval = a
-
-            elif o == '--expirationTime':
-                if not a.isdigit():
-                    raise ValueError("Invalid input: Expiration time must be a number")
-                expirationTime = a
-
-            elif o == '--logSigning':
-                if a.lower().title() not in ['True', 'False']:
-                    raise ValueError("Invalid input: Log signing must be True or False")
-                logSigning = a.lower() == 'true'
-
-            elif o == '--signingCert':
-                signingCert = a
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        signingCert = args.signingCert
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -327,6 +315,26 @@ class AuditEventFindCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--enabled')
+        self.parser.add_argument('--enabledByDefault')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server %s-audit-event-find [OPTIONS]' % self.parent.parent.name)
         print()
@@ -346,45 +354,29 @@ class AuditEventFindCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'enabled=', 'enabledByDefault=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        enabled = None
-        enabled_by_default = None
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--enabled':
-                enabled = a == 'True'
+        instance_name = args.instance
 
-            elif o == '--enabledByDefault':
-                enabled_by_default = a == 'True'
+        if args.enabled:
+            enabled = args.enabled.lower() == 'true'
+        else:
+            enabled = None
 
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        if args.enabledByDefault:
+            enabled_by_default = args.enabledByDefault.lower() == 'true'
+        else:
+            enabled_by_default = None
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -423,6 +415,25 @@ class AuditEventShowCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('event_name')
+
     def print_help(self):
         print('Usage: pki-server %s-audit-event-show [OPTIONS] <event name>'
               % self.parent.parent.name)
@@ -435,44 +446,20 @@ class AuditEventShowCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) == 0:
-            raise getopt.GetoptError("Missing event name.")
-
-        if len(args) > 1:
-            raise getopt.GetoptError("Too many arguments specified.")
-
-        event_name = args[0]
+        instance_name = args.instance
+        event_name = args.event_name
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -500,6 +487,25 @@ class AuditEventEnableCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('event_name')
+
     def print_help(self):
         print('Usage: pki-server %s-audit-event-enable [OPTIONS] <event_name>'
               % self.parent.parent.name)
@@ -512,42 +518,20 @@ class AuditEventEnableCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) == 0:
-            raise getopt.GetoptError("Missing event name.")
-        if len(args) > 1:
-            raise getopt.GetoptError("Too many arguments specified.")
-        event_name = args[0]
+        instance_name = args.instance
+        event_name = args.event_name
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -588,6 +572,28 @@ class AuditEventUpdateCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-f',
+            '--filter')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('event_name')
+
     def print_help(self):
         print('Usage: pki-server %s-audit-event-update <event_name> '
               '[OPTIONS]' % self.parent.parent.name)
@@ -601,47 +607,21 @@ class AuditEventUpdateCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:f:v', [
-                'instance=', 'filter=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        event_filter = None
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o in ('-f', '--filter'):
-                event_filter = a
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) == 0:
-            raise getopt.GetoptError("Missing event name.")
-        if len(args) > 1:
-            raise getopt.GetoptError("Too many arguments specified.")
-
-        event_name = args[0]
+        instance_name = args.instance
+        event_filter = args.event_filter
+        event_name = args.event_name
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -671,6 +651,25 @@ class AuditEventDisableCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('event_name')
+
     def print_help(self):
         print('Usage: pki-server %s-audit-event-disable [OPTIONS] <event_name>'
               % self.parent.parent.name)
@@ -683,43 +682,20 @@ class AuditEventDisableCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) == 0:
-            raise getopt.GetoptError("Missing event name.")
-        if len(args) > 1:
-            raise getopt.GetoptError("Too many arguments specified.")
-
-        event_name = args[0]
+        instance_name = args.instance
+        event_name = args.event_name
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -760,6 +736,24 @@ class AuditFileFindCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server %s-audit-file-find [OPTIONS]' % self.parent.parent.name)
         print()
@@ -771,36 +765,19 @@ class AuditFileFindCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        instance_name = args.instance
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -837,6 +814,24 @@ class AuditFileVerifyCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server %s-audit-file-verify [OPTIONS]' % self.parent.parent.name)
         print()
@@ -848,36 +843,19 @@ class AuditFileVerifyCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        instance_name = args.instance
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
