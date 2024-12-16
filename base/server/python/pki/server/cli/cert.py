@@ -19,12 +19,9 @@
 # All rights reserved.
 #
 
-from __future__ import absolute_import
-from __future__ import print_function
-
+import argparse
 from contextlib import contextmanager
 import datetime
-import getopt
 import getpass
 import inspect
 import logging
@@ -106,6 +103,27 @@ class CertFindCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('find', 'Find system certificates.')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '--show-all',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server cert-find [OPTIONS]')
         print()
@@ -118,40 +136,20 @@ class CertFindCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'show-all',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        show_all = False
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--show-all':
-                show_all = True
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('option %s not recognized', o)
-                self.print_help()
-                sys.exit(1)
+        instance_name = args.instance
+        show_all = args.show_all
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -193,6 +191,31 @@ class CertShowCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('show', 'Display system certificate details.')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '--show-all',
+            action='store_true')
+        self.parser.add_argument(
+            '--pretty-print',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('cert_id')
+
     def print_help(self):
         print('Usage: pki-server cert-show [OPTIONS] <cert ID>')
         print()
@@ -206,51 +229,22 @@ class CertShowCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'show-all', 'pretty-print',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        show_all = False
-        pretty_print = False
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--show-all':
-                show_all = True
-
-            elif o == '--pretty-print':
-                pretty_print = True
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('option %s not recognized', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) < 1:
-            logger.error('Missing cert ID.')
-            self.print_help()
-            sys.exit(1)
-
-        cert_id = args[0]
+        instance_name = args.instance
+        show_all = args.show_all
+        pretty_print = args.pretty_print
+        cert_id = args.cert_id
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -309,47 +303,44 @@ class CertValidateCLI(pki.cli.CLI):
             'validate',
             inspect.cleandoc(self.__class__.__doc__))
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('cert_id')
+
     def print_help(self):
         print(textwrap.dedent(self.__class__.help))
 
     def execute(self, argv):
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) < 1:
-            logger.error('Missing cert ID')
-            self.print_help()
-            sys.exit(1)
-
-        cert_id = args[0]
+        instance_name = args.instance
+        cert_id = args.cert_id
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -379,6 +370,25 @@ class CertUpdateCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('update', 'Update system certificate.')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('cert_id')
+
     def print_help(self):
         print('Usage: pki-server cert-update [OPTIONS] <cert ID>')
         print()
@@ -390,43 +400,20 @@ class CertUpdateCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('option %s not recognized', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) < 1:
-            logger.error('Missing cert ID.')
-            self.print_help()
-            sys.exit(1)
-
-        cert_id = args[0]
+        instance_name = args.instance
+        cert_id = args.cert_id
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -522,61 +509,53 @@ class CertRequestCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('request', inspect.cleandoc(self.__class__.__doc__))
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--token')
+        self.parser.add_argument('--subject')
+        self.parser.add_argument('--ext')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('cert_id')
+
     def print_help(self):
         print(textwrap.dedent(self.__class__.help))
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'token=', 'subject=', 'ext=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        token = None
-        subject_dn = None
-        ext_conf = None
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--token':
-                token = a
-
-            elif o == '--subject':
-                subject_dn = a
-
-            elif o == '--ext':
-                ext_conf = a
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) < 1:
-            raise Exception('Missing certificate ID')
+        instance_name = args.instance
+        token = args.token
+        subject_dn = args.subject
+        ext_conf = args.ext
+        cert_id = args.cert_id
 
         if subject_dn is None:
             raise Exception('Missing subject DN')
-
-        cert_id = args[0]
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -635,135 +614,107 @@ class CertCreateCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('create', inspect.cleandoc(self.__class__.__doc__))
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--token')
+        self.parser.add_argument('--issuer')
+        self.parser.add_argument('--ext')
+        self.parser.add_argument(
+            '-p',
+            '--port',
+            type=int,
+            default=8443)
+        self.parser.add_argument('-d')
+        self.parser.add_argument('-c')
+        self.parser.add_argument('-C')
+        self.parser.add_argument('-n')
+        self.parser.add_argument(
+            '--temp',
+            action='store_true')
+        self.parser.add_argument('--serial')
+        self.parser.add_argument('--output')
+        self.parser.add_argument(
+            '--renew',
+            action='store_true')
+        self.parser.add_argument('-u')
+        self.parser.add_argument('-w')
+        self.parser.add_argument('-W')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('cert_id')
+
     def print_help(self):
         print(textwrap.dedent(self.__class__.help))
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:d:c:C:n:u:w:W:p:v', [
-                'instance=', 'token=', 'issuer=', 'ext=',
-                'temp', 'serial=',
-                'output=', 'renew', 'port=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        token = None
-        issuer = None
-        ext_conf = None
-        temp_cert = False
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
+        token = args.token
+        issuer = args.issuer
+        ext_conf = args.ext
+        temp_cert = args.temp
+
         serial = None
+        if args.serial:
+            # string containing the dec or hex value for the identifier
+            serial = str(int(args.serial, 0))
+
         client_nssdb = os.getenv('HOME') + '/.dogtag/nssdb'
-        client_nssdb_password = None
-        client_nssdb_pass_file = None
-        client_cert = None
-        output = None
-        renew = False
-        agent_username = None
-        agent_password = None
-        agent_password_file = None
-        port = '8443'
+        if args.d:
+            client_nssdb = args
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        client_nssdb_password = args.c
+        client_nssdb_pass_file = args.C
+        client_cert = args.n
+        output = args.output
+        renew = args.renew
+        agent_username = args.u
+        agent_password = args.w
+        agent_password_file = args.W
+        cert_id = args.cert_id
 
-            elif o == '--token':
-                token = a
-
-            elif o == '--issuer':
-                issuer = a
-
-            elif o == '--ext':
-                ext_conf = a
-
-            elif o == '-d':
-                client_nssdb = a
-
-            elif o == '-c':
-                client_nssdb_password = a
-
-            elif o == '-C':
-                client_nssdb_pass_file = a
-
-            elif o == '-n':
-                if agent_username:
-                    logger.error('-n cannot be used with -u')
-                    sys.exit(1)
-                client_cert = a
-
-            elif o == '--temp':
-                temp_cert = True
-
-            elif o == '--serial':
-                # string containing the dec or hex value for the identifier
-                serial = str(int(a, 0))
-
-            elif o == '--output':
-                output = a
-
-            elif o == '--renew':
-                renew = True
-
-            elif o == '-u':
-                if client_cert:
-                    logger.error('-u cannot be used with -n')
-                    sys.exit(1)
-                agent_username = a
-
-            elif o == '-w':
-                if agent_password_file:
-                    logger.error('-w cannot be used with -W')
-                    sys.exit(1)
-                agent_password = a
-
-            elif o == '-W':
-                if agent_password:
-                    logger.error('-W cannot be used with -w')
-                    sys.exit(1)
-                agent_password_file = a
-
-            elif o in ('-p', '--port'):
-                port = a
-                try:
-                    n = int(port)
-                    if n < 1 or n > 65535:
-                        raise ValueError
-                except ValueError:
-                    logger.error('-p, --port requires a valid port number as integer')
-                    sys.exit(1)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('option %s not recognized', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) < 1:
-            logger.error('Missing cert ID.')
-            self.print_help()
+        if client_cert and agent_username:
+            logger.error('-n cannot be used with -u')
             sys.exit(1)
+
+        if agent_password and agent_password_file:
+            logger.error('-w cannot be used with -W')
+            sys.exit(1)
+
+        if args.port < 1 or args.port > 65535:
+            raise ValueError('Invalid port number: %d' % args.port)
+
+        port = str(args.port)
 
         # Read the password file for password value
         if agent_password_file:
             with open(agent_password_file, encoding='utf-8') as f:
                 agent_password = f.read().strip()
-
-        cert_id = args[0]
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -818,60 +769,50 @@ class CertImportCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('import', inspect.cleandoc(self.__class__.__doc__))
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--token')
+        self.parser.add_argument('--nickname')
+        self.parser.add_argument('--input')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('cert_id')
+
     def print_help(self):
         print(textwrap.dedent(self.__class__.help))
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'token=', 'nickname=', 'input=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        token = None
-        nickname = None
-        cert_file = None
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--token':
-                token = a
-
-            elif o == '--nickname':
-                nickname = a
-
-            elif o == '--input':
-                cert_file = a
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('option %s not recognized', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) < 1:
-            logger.error('Missing cert ID.')
-            self.print_help()
-            sys.exit(1)
-
-        cert_id = args[0]
+        instance_name = args.instance
+        token = args.token
+        nickname = args.nickname
+        cert_file = args.input
+        cert_id = args.cert_id
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -896,6 +837,45 @@ class CertImportCLI(pki.cli.CLI):
 class CertExportCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('export', 'Export system certificate.')
+
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--cert-file')
+        self.parser.add_argument('--csr-file')
+        self.parser.add_argument('--pkcs12-file')
+        self.parser.add_argument('--pkcs12-password')
+        self.parser.add_argument('--pkcs12-password-file')
+        self.parser.add_argument('--friendly-name')
+        self.parser.add_argument('--cert-encryption')
+        self.parser.add_argument('--key-encryption')
+        self.parser.add_argument(
+            '--append',
+            action='store_true')
+        self.parser.add_argument(
+            '--no-trust-flags',
+            action='store_true')
+        self.parser.add_argument(
+            '--no-key',
+            action='store_true')
+        self.parser.add_argument(
+            '--no-chain',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('cert_id')
 
     def print_help(self):
         print('Usage: pki-server cert-export [OPTIONS] <Cert ID>')
@@ -936,95 +916,32 @@ class CertExportCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'cert-file=', 'csr-file=',
-                'pkcs12-file=', 'pkcs12-password=', 'pkcs12-password-file=',
-                'friendly-name=',
-                'cert-encryption=', 'key-encryption=',
-                'append', 'no-trust-flags', 'no-key', 'no-chain',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        cert_file = None
-        csr_file = None
-        pkcs12_file = None
-        pkcs12_password = None
-        pkcs12_password_file = None
-        friendly_name = None
-        cert_encryption = None
-        key_encryption = None
-        append = False
-        include_trust_flags = True
-        include_key = True
-        include_chain = True
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--cert-file':
-                cert_file = a
-
-            elif o == '--csr-file':
-                csr_file = a
-
-            elif o == '--pkcs12-file':
-                pkcs12_file = a
-
-            elif o == '--pkcs12-password':
-                pkcs12_password = a
-
-            elif o == '--pkcs12-password-file':
-                pkcs12_password_file = a
-
-            elif o == '--friendly-name':
-                friendly_name = a
-
-            elif o == '--cert-encryption':
-                cert_encryption = a
-
-            elif o == '--key-encryption':
-                key_encryption = a
-
-            elif o == '--append':
-                append = True
-
-            elif o == '--no-trust-flags':
-                include_trust_flags = False
-
-            elif o == '--no-key':
-                include_key = False
-
-            elif o == '--no-chain':
-                include_chain = False
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('option %s not recognized', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) < 1:
-            logger.error('Missing cert ID.')
-            self.print_help()
-            sys.exit(1)
-
-        cert_id = args[0]
+        instance_name = args.instance
+        cert_file = args.cert_file
+        csr_file = args.csr_file
+        pkcs12_file = args.pkcs12_file
+        pkcs12_password = args.pkcs12_password
+        pkcs12_password_file = args.pkcs12_password_file
+        friendly_name = args.friendly_name
+        cert_encryption = args.cert_encryption
+        key_encryption = args.key_encryption
+        append = args.append
+        include_trust_flags = not args.no_trust_flags
+        include_key = not args.no_key
+        include_chain = not args.no_chain
+        cert_id = args.cert_id
 
         if not (cert_file or csr_file or pkcs12_file):
             logger.error('missing output file')
@@ -1157,6 +1074,28 @@ class CertRemoveCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('del', 'Remove system certificate.')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '--remove-key',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('cert_id')
+
     def print_help(self):
         print('Usage: pki-server cert-del [OPTIONS] <Cert ID>')
         # CertID:  subsystem, sslserver, kra_storage, kra_transport, ca_ocsp_signing,
@@ -1172,47 +1111,21 @@ class CertRemoveCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'remove-key',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        remove_key = False
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--remove-key':
-                remove_key = True
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('option %s not recognized', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) < 1:
-            logger.error('Missing cert ID.')
-            self.print_help()
-            sys.exit(1)
-
-        cert_id = args[0]
+        instance_name = args.instance
+        remove_key = args.remove_key
+        cert_id = args.cert_id
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -1228,8 +1141,6 @@ class CertRemoveCLI(pki.cli.CLI):
 
 
 class CertFixCLI(pki.cli.CLI):
-    def __init__(self):
-        super().__init__('fix', 'Fix expired system certificate(s).')
 
     PKIDBUSER_LDIF_TEMPLATE = (
         "dn: {dn}\n"
@@ -1237,6 +1148,37 @@ class CertFixCLI(pki.cli.CLI):
         "add: userCertificate\n"
         "userCertificate:< file://{der_file}\n"
     )
+
+    def __init__(self):
+        super().__init__('fix', 'Fix expired system certificate(s).')
+
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--cert')
+        self.parser.add_argument('--extra-cert')
+        self.parser.add_argument('--agent-uid')
+        self.parser.add_argument('--ldapi-socket')
+        self.parser.add_argument('--ldap-url')
+        self.parser.add_argument(
+            '-p',
+            '--port',
+            type=int,
+            default=8443)
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
 
     def print_help(self):
         print('Usage: pki-server cert-fix [OPTIONS]')
@@ -1257,85 +1199,58 @@ class CertFixCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-        logging.getLogger().setLevel(logging.INFO)
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:p:v', [
-                'instance=', 'cert=', 'extra-cert=', 'agent-uid=',
-                'ldapi-socket=', 'ldap-url=', 'port=', 'verbose', 'debug', 'help',
-            ])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
+
         all_certs = True
         fix_certs = []
         extra_certs = []
-        agent_uid = None
+
+        if args.cert:
+            all_certs = False
+            fix_certs.append(args.cert)
+            
+        if args.extra_cert:
+            # TODO: add support for hex serial number
+            try:
+                int(args.extra_cert)
+            except ValueError:
+                logger.error('--extra-cert requires serial number as integer')
+                sys.exit(1)
+            all_certs = False
+            extra_certs.append(args.extra_cert)
+
+        agent_uid = args.agent_uid
         ldap_url = None
         use_ldapi = False
-        port = '8443'
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        if args.ldap_socket and args.ldap_url:
+            logger.error('--ldapi-socket cannot be used with --ldap-url')
+            sys.exit(1)
 
-            elif o == '--cert':
-                all_certs = False
-                fix_certs.append(a)
+        if args.ldap_socket:
+            use_ldapi = True
+            ldap_url = 'ldapi://{}'.format(quote(args.ldap_socket, safe=''))
 
-            elif o == '--extra-cert':
-                try:
-                    int(a)
-                except ValueError:
-                    logger.error('--extra-cert requires serial number as integer')
-                    sys.exit(1)
-                all_certs = False
-                extra_certs.append(a)
+        if args.ldap_url:
+            ldap_url = args.ldap_url
 
-            elif o == '--agent-uid':
-                agent_uid = a
+        if args.port < 1 or args.port > 65535:
+            raise ValueError('Invalid port number: %d' % args.port)
 
-            elif o == '--ldapi-socket':
-                if ldap_url is not None:
-                    logger.error('--ldapi-socket cannot be used with --ldap-url')
-                    sys.exit(1)
-                use_ldapi = True
-                ldap_url = 'ldapi://{}'.format(quote(a, safe=''))
-
-            elif o == '--ldap-url':
-                if use_ldapi:
-                    logger.error('--ldap-url cannot be used with --ldapi-socket')
-                    sys.exit(1)
-                ldap_url = a
-
-            elif o in ('-p', '--port'):
-                port = a
-                try:
-                    n = int(port)
-                    if n < 1 or n > 65535:
-                        raise ValueError
-                except ValueError:
-                    logger.error('-p, --port requires a valid port number as integer')
-                    sys.exit(1)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('option %s not recognized', o)
-                self.print_help()
-                sys.exit(1)
+        port = str(args.port)
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
