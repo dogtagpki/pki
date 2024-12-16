@@ -18,9 +18,7 @@
 # All rights reserved.
 #
 
-from __future__ import absolute_import
-from __future__ import print_function
-import getopt
+import argparse
 import getpass
 import inspect
 import logging
@@ -49,6 +47,29 @@ class DBSchemaUpgradeCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('schema-upgrade', 'Upgrade PKI database schema')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-D',
+            '--bind-dn',
+            default='cn=Directory Manager')
+        self.parser.add_argument('-w', '--bind-password')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server db-schema-upgrade [OPTIONS]')
         print()
@@ -61,44 +82,22 @@ class DBSchemaUpgradeCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:D:w:v', [
-                'instance=', 'bind-dn=', 'bind-password=',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        bind_dn = 'cn=Directory Manager'
-        bind_password = None
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o in ('-D', '--bind-dn'):
-                bind_dn = a
-
-            elif o in ('-w', '--bind-password'):
-                bind_password = a
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        instance_name = args.instance
+        bind_dn = args.bind_dn
+        bind_password = args.bind_password
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -134,6 +133,27 @@ class DBUpgradeCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('upgrade', 'Upgrade PKI server database')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '--as-current-user',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server db-upgrade [OPTIONS]')
         print()
@@ -145,45 +165,26 @@ class DBUpgradeCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'as-current-user',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        as_current_user = False
-        verbose = False
         debug = False
+        verbose = False
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        if args.debug:
+            debug = True
+            logging.getLogger().setLevel(logging.DEBUG)
 
-            elif o == '--as-current-user':
-                as_current_user = True
+        elif args.verbose:
+            verbose = True
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-                verbose = True
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-                debug = True
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        instance_name = args.instance
+        as_current_user = args.as_current_user
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -290,6 +291,24 @@ class SubsystemDBConfigShowCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server %s-db-config-show [OPTIONS]' % self.parent.parent.parent.name)
         print()
@@ -300,36 +319,20 @@ class SubsystemDBConfigShowCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        instance_name = args.instance
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -358,6 +361,42 @@ class SubsystemDBConfigModifyCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--hostname')
+        self.parser.add_argument(
+            '--port',
+            type=int)
+        self.parser.add_argument('--secure')
+        self.parser.add_argument('--auth')
+        self.parser.add_argument('--bindDN')
+        self.parser.add_argument('--bindPWPrompt')
+        self.parser.add_argument('--nickname')
+        self.parser.add_argument('--database')
+        self.parser.add_argument('--baseDN')
+        self.parser.add_argument('--multiSuffix')
+        self.parser.add_argument(
+            '--maxConns',
+            type=int)
+        self.parser.add_argument(
+            '--minConns',
+            type=int)
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server %s-db-config-mod [OPTIONS]' % self.parent.parent.parent.name)
         print()
@@ -381,101 +420,49 @@ class SubsystemDBConfigModifyCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'hostname=', 'port=', 'secure=',
-                'auth=',
-                'bindDN=', 'bindPWPrompt=',
-                'nickname=',
-                'database=', 'baseDN=', 'multiSuffix=',
-                'maxConns=', 'minConns=',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        hostname = None
-        port = None
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
+        hostname = args.hostname
+        port = str(args.port)
+
         secure = None
+        if args.secure:
+            if args.secure.lower() not in ['true', 'false']:
+                raise ValueError('Invalid input: --secure accepts True or False')
+            secure = args.secure.lower() == 'true'
+
         auth = None
-        bindDN = None
-        bindPWPrompt = None
-        nickname = None
-        database = None
-        baseDN = None
+        if args.auth:
+            if args.auth not in ['BasicAuth', 'SslClientAuth']:
+                raise ValueError('Invalid input: %s' % args.auth)
+            auth = args.auth
+
+        bindDN = args.bindDN
+        bindPWPrompt = args.bindPWPrompt
+        nickname = args.nickname
+        database = args.database
+        baseDN = args.baseDN
+
         multiSuffix = None
-        maxConns = None
-        minConns = None
+        if args.multiSuffix:
+            if args.multiSuffix.lower() not in ['true', 'false']:
+                raise ValueError('Invalid input: --multiSuffix accepts True or False')
+            multiSuffix = args.multiSuffix.lower() == 'true'
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o == '--hostname':
-                hostname = a
-
-            elif o == '--port':
-                if not a.isdigit():
-                    raise ValueError('Invalid input: %s accepts a number' % o)
-                port = a
-
-            elif o == '--secure':
-                if a.lower() not in ['true', 'false']:
-                    raise ValueError('Invalid input: %s accepts True or False' % o)
-                secure = a.lower() == 'true'
-
-            elif o == '--auth':
-                if a not in ['BasicAuth', 'SslClientAuth']:
-                    raise ValueError('Invalid input: %s' % a)
-                auth = a
-
-            elif o == '--bindDN':
-                bindDN = a
-
-            elif o == '--bindPWPrompt':
-                bindPWPrompt = a
-
-            elif o == '--nickname':
-                nickname = a
-
-            elif o == '--database':
-                database = a
-
-            elif o == '--baseDN':
-                baseDN = a
-
-            elif o == '--multiSuffix':
-                if a.lower() not in ['true', 'false']:
-                    raise ValueError('Invalid input: %s accepts True or False' % o)
-                multiSuffix = a.lower() == 'true'
-
-            elif o == '--maxConns':
-                if not a.isdigit():
-                    raise ValueError('Invalid input: %s accepts a number' % o)
-                maxConns = a
-
-            elif o == '--minConns':
-                if not a.isdigit():
-                    raise ValueError('Invalid input: %s accepts a number' % o)
-                minConns = a
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        maxConns = args.maxConns
+        minConns = args.minConns
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -548,6 +535,27 @@ class SubsystemDBInfoCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '--as-current-user',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server %s-db-info [OPTIONS]' % self.parent.parent.name)
         print()
@@ -559,46 +567,24 @@ class SubsystemDBInfoCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'as-current-user',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
         subsystem_name = self.parent.parent.name
-        as_current_user = False
+        as_current_user = args.as_current_user
 
         cmd = [subsystem_name + '-db-info']
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o == '--as-current-user':
-                as_current_user = True
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-                cmd.append('--verbose')
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-                cmd.append('--debug')
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -639,42 +625,44 @@ class SubsystemDBCreateCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print(textwrap.dedent(self.__class__.help).format(
             subsystem=self.parent.parent.name))
 
     def execute(self, argv):
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
         subsystem_name = self.parent.parent.name
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -719,60 +707,61 @@ class SubsystemDBInitCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '--skip-config',
+            action='store_true')
+        self.parser.add_argument(
+            '--skip-schema',
+            action='store_true')
+        self.parser.add_argument(
+            '--skip-base',
+            action='store_true')
+        self.parser.add_argument(
+            '--skip-containers',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print(textwrap.dedent(self.__class__.help).format(
             subsystem=self.parent.parent.name))
 
     def execute(self, argv):
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'skip-config', 'skip-schema',
-                'skip-base', 'skip-containers',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
         subsystem_name = self.parent.parent.name
 
-        skip_config = False
-        skip_schema = False
-        skip_base = False
-        skip_containers = False
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o == '--skip-config':
-                skip_config = True
-
-            elif o == '--skip-schema':
-                skip_schema = True
-
-            elif o == '--skip-base':
-                skip_base = True
-
-            elif o == '--skip-containers':
-                skip_containers = True
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        skip_config = args.skip_config
+        skip_schema = args.skip_schema
+        skip_base = args.skip_base
+        skip_containers = args.skip_containers
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -802,6 +791,30 @@ class SubsystemDBEmptyCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '--force',
+            action='store_true')
+        self.parser.add_argument(
+            '--as-current-user',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server %s-db-empty [OPTIONS]' % self.parent.parent.name)
         print()
@@ -814,46 +827,23 @@ class SubsystemDBEmptyCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'force', 'as-current-user',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
         subsystem_name = self.parent.parent.name
-        force = False
-        as_current_user = False
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o == '--force':
-                force = True
-
-            elif o == '--as-current-user':
-                as_current_user = True
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        force = args.force
+        as_current_user = args.as_current_user
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -881,6 +871,30 @@ class SubsystemDBRemoveCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '--force',
+            action='store_true')
+        self.parser.add_argument(
+            '--as-current-user',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server %s-db-remove [OPTIONS]' % self.parent.parent.name)
         print()
@@ -893,46 +907,23 @@ class SubsystemDBRemoveCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'force', 'as-current-user',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
         subsystem_name = self.parent.parent.name
-        force = False
-        as_current_user = False
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o == '--force':
-                force = True
-
-            elif o == '--as-current-user':
-                as_current_user = True
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        force = args.force
+        as_current_user = args.as_current_user
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -962,6 +953,27 @@ class SubsystemDBUpgradeCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '--as-current-user',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server %s-db-upgrade [OPTIONS]' % self.parent.parent.name)
         print()
@@ -973,46 +985,24 @@ class SubsystemDBUpgradeCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'as-current-user',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
         subsystem_name = self.parent.parent.name
-        as_current_user = False
+        as_current_user = args.as_current_user
 
         cmd = [subsystem_name + '-db-upgrade']
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o == '--as-current-user':
-                as_current_user = True
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-                cmd.append('--verbose')
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-                cmd.append('--debug')
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -1071,54 +1061,50 @@ class SubsystemDBAccessGrantCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '--as-current-user',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('dn')
+
     def print_help(self):
         print(textwrap.dedent(self.__class__.help).format(
             subsystem=self.parent.parent.parent.name))
 
     def execute(self, argv):
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'as-current-user',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
         subsystem_name = self.parent.parent.parent.name
-        as_current_user = False
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o == '--as-current-user':
-                as_current_user = True
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) < 1:
-            logger.error('Missing DN')
-            self.print_help()
-            sys.exit(1)
-
-        dn = args[0]
+        as_current_user = args.as_current_user
+        dn = args.dn
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
@@ -1161,54 +1147,50 @@ class SubsystemDBAccessRevokeCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '--as-current-user',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('dn')
+
     def print_help(self):
         print(textwrap.dedent(self.__class__.help).format(
             subsystem=self.parent.parent.parent.name))
 
     def execute(self, argv):
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'as-current-user',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
         subsystem_name = self.parent.parent.parent.name
-        as_current_user = False
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o == '--as-current-user':
-                as_current_user = True
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) < 1:
-            logger.error('Missing DN')
-            self.print_help()
-            sys.exit(1)
-
-        dn = args[0]
+        as_current_user = args.as_current_user
+        dn = args.dn
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
@@ -1266,42 +1248,44 @@ class SubsystemDBIndexAddCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print(textwrap.dedent(self.__class__.help).format(
             subsystem=self.parent.parent.parent.name))
 
     def execute(self, argv):
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
         subsystem_name = self.parent.parent.parent.name
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
@@ -1343,42 +1327,44 @@ class SubsystemDBIndexRebuildCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print(textwrap.dedent(self.__class__.help).format(
             subsystem=self.parent.parent.parent.name))
 
     def execute(self, argv):
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
         subsystem_name = self.parent.parent.parent.name
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
@@ -1443,73 +1429,58 @@ class SubsystemDBReplicationEnableCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--url')
+        self.parser.add_argument('--bind-dn')
+        self.parser.add_argument('--bind-password')
+        self.parser.add_argument('--replica-bind-dn')
+        self.parser.add_argument('--replica-bind-password')
+        self.parser.add_argument('--replica-id')
+        self.parser.add_argument('--suffix')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print(textwrap.dedent(self.__class__.help).format(
             subsystem=self.parent.parent.parent.name))
 
     def execute(self, argv):
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'url=', 'bind-dn=', 'bind-password=',
-                'replica-bind-dn=', 'replica-bind-password=',
-                'replica-id=', 'suffix=',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
         subsystem_name = self.parent.parent.parent.name
-        url = None
-        bind_dn = None
-        bind_password = None
-        replica_bind_dn = None
-        replica_bind_password = None
-        replica_id = None
-        suffix = None
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o == '--url':
-                url = urllib.parse.urlparse(a)
-
-            elif o == '--bind-dn':
-                bind_dn = a
-
-            elif o == '--bind-password':
-                bind_password = a
-
-            elif o == '--replica-bind-dn':
-                replica_bind_dn = a
-
-            elif o == '--replica-bind-password':
-                replica_bind_password = a
-
-            elif o == '--replica-id':
-                replica_id = a
-
-            elif o == '--suffix':
-                suffix = a
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        url = urllib.parse.urlparse(args.url)
+        bind_dn = args.bind_dn
+        bind_password = args.bind_password
+        replica_bind_dn = args.replica_bind_dn
+        replica_bind_password = args.replica_bind_password
+        replica_id = args.replica_id
+        suffix = args.suffix
 
         # user must provide the replica ID is required since
         # in the future the auto-generated replica ID will no
@@ -1603,84 +1574,62 @@ class SubsystemDBReplicationAgreementAddCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--url')
+        self.parser.add_argument('--bind-dn')
+        self.parser.add_argument('--bind-password')
+        self.parser.add_argument('--replica-url')
+        self.parser.add_argument('--replica-bind-dn')
+        self.parser.add_argument('--replica-bind-password')
+        self.parser.add_argument('--replication-security')
+        self.parser.add_argument('--suffix')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('name')
+
     def print_help(self):
         print(textwrap.dedent(self.__class__.help).format(
             subsystem=self.parent.parent.parent.parent.name))
 
     def execute(self, argv):
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'url=', 'bind-dn=', 'bind-password=',
-                'replica-url=', 'replica-bind-dn=', 'replica-bind-password=',
-                'replication-security=', 'suffix=',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
         subsystem_name = self.parent.parent.parent.parent.name
-        url = None
-        bind_dn = None
-        bind_password = None
-        replica_url = None
-        replica_bind_dn = None
-        replica_bind_password = None
-        replication_security = None
-        suffix = None
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o == '--url':
-                url = urllib.parse.urlparse(a)
-
-            elif o == '--bind-dn':
-                bind_dn = a
-
-            elif o == '--bind-password':
-                bind_password = a
-
-            elif o == '--replica-url':
-                replica_url = a
-
-            elif o == '--replica-bind-dn':
-                replica_bind_dn = a
-
-            elif o == '--replica-bind-password':
-                replica_bind_password = a
-
-            elif o == '--replication-security':
-                replication_security = a
-
-            elif o == '--suffix':
-                suffix = a
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) < 1:
-            logger.error('Missing replication agreement name')
-            self.print_help()
-            sys.exit(1)
-
-        name = args[0]
+        url = urllib.parse.urlparse(args.url)
+        bind_dn = args.bind_dn
+        bind_password = args.bind_password
+        replica_url = args.replica_url
+        replica_bind_dn = args.replica_bind_dn
+        replica_bind_password = args.replica_bind_password
+        replication_security = args.replication_security
+        suffix = args.suffix
+        name = args.name
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
@@ -1748,66 +1697,54 @@ class SubsystemDBReplicationAgreementInitCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--url')
+        self.parser.add_argument('--bind-dn')
+        self.parser.add_argument('--bind-password')
+        self.parser.add_argument('--suffix')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('name')
+
     def print_help(self):
         print(textwrap.dedent(self.__class__.help).format(
             subsystem=self.parent.parent.parent.parent.name))
 
     def execute(self, argv):
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'url=', 'bind-dn=', 'bind-password=', 'suffix=',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
         subsystem_name = self.parent.parent.parent.parent.name
-        url = None
-        bind_dn = None
-        bind_password = None
-        suffix = None
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o == '--url':
-                url = urllib.parse.urlparse(a)
-
-            elif o == '--bind-dn':
-                bind_dn = a
-
-            elif o == '--bind-password':
-                bind_password = a
-
-            elif o == '--suffix':
-                suffix = a
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) < 1:
-            logger.error('Missing replication agreement name')
-            self.print_help()
-            sys.exit(1)
-
-        name = args[0]
+        url = urllib.parse.urlparse(args.url)
+        bind_dn = args.bind_dn
+        bind_password = args.bind_password
+        suffix = args.suffix
+        name = args.name
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
@@ -1867,6 +1804,27 @@ class SubsystemDBVLVFindCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '--as-current-user',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server %s-db-vlv-find [OPTIONS]' % self.parent.parent.parent.name)
         print()
@@ -1878,42 +1836,22 @@ class SubsystemDBVLVFindCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'as-current-user',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
         subsystem_name = self.parent.parent.parent.name
-        as_current_user = False
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o == '--as-current-user':
-                as_current_user = True
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        as_current_user = args.as_current_user
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
@@ -1942,6 +1880,27 @@ class SubsystemDBVLVAddCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '--as-current-user',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server %s-db-vlv-add [OPTIONS]' % self.parent.parent.parent.name)
         print()
@@ -1953,42 +1912,22 @@ class SubsystemDBVLVAddCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'as-current-user',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
         subsystem_name = self.parent.parent.parent.name
-        as_current_user = False
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o == '--as-current-user':
-                as_current_user = True
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        as_current_user = args.as_current_user
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
@@ -2017,6 +1956,27 @@ class SubsystemDBVLVDeleteCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '--as-current-user',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server %s-db-vlv-del [OPTIONS]' % self.parent.parent.parent.name)
         print()
@@ -2028,42 +1988,22 @@ class SubsystemDBVLVDeleteCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'as-current-user',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
         subsystem_name = self.parent.parent.parent.name
-        as_current_user = False
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o == '--as-current-user':
-                as_current_user = True
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        as_current_user = args.as_current_user
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
@@ -2092,6 +2032,27 @@ class SubsystemDBVLVReindexCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '--as-current-user',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server %s-db-vlv-reindex [OPTIONS]' % self.parent.parent.parent.name)
         print()
@@ -2103,42 +2064,22 @@ class SubsystemDBVLVReindexCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'as-current-user',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
         subsystem_name = self.parent.parent.parent.name
-        as_current_user = False
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o == '--as-current-user':
-                as_current_user = True
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        as_current_user = args.as_current_user
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
