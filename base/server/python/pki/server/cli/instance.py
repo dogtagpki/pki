@@ -18,10 +18,7 @@
 # All rights reserved.
 #
 
-from __future__ import absolute_import
-from __future__ import print_function
-
-import getopt
+import argparse
 import getpass
 import logging
 import os
@@ -71,6 +68,42 @@ class InstanceCertExportCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('export', 'Export system certificates')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--pkcs12-file')
+        self.parser.add_argument('--pkcs12-password')
+        self.parser.add_argument('--pkcs12-password-file')
+        self.parser.add_argument(
+            '--append',
+            action='store_true')
+        self.parser.add_argument(
+            '--no-trust-flags',
+            action='store_true')
+        self.parser.add_argument(
+            '--no-key',
+            action='store_true')
+        self.parser.add_argument(
+            '--no-chain',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument(
+            'nicknames',
+            nargs='*')
+
     def print_help(self):
         print('Usage: pki-server instance-cert-export [OPTIONS] [nicknames...]')
         print()
@@ -91,68 +124,28 @@ class InstanceCertExportCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'pkcs12-file=', 'pkcs12-password=', 'pkcs12-password-file=',
-                'append', 'no-trust-flags', 'no-key', 'no-chain',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        nicknames = args
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        instance_name = 'pki-tomcat'
-        pkcs12_file = None
-        pkcs12_password = None
-        pkcs12_password_file = None
-        append = False
-        include_trust_flags = True
-        include_key = True
-        include_chain = True
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        instance_name = args.instance
+        pkcs12_file = args.pkcs12_file
+        pkcs12_password = args.pkcs12_password
+        pkcs12_password_file = args.pkcs12_password_file
+        append = args.append
+        include_trust_flags = not args.no_trust_flags
+        include_key = not args.no_key
+        include_chain = not args.no_chain
 
-            elif o == '--pkcs12-file':
-                pkcs12_file = a
-
-            elif o == '--pkcs12-password':
-                pkcs12_password = a
-
-            elif o == '--pkcs12-password-file':
-                pkcs12_password_file = a
-
-            elif o == '--append':
-                append = True
-
-            elif o == '--no-trust-flags':
-                include_trust_flags = False
-
-            elif o == '--no-key':
-                include_key = False
-
-            elif o == '--no-chain':
-                include_chain = False
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        nicknames = args.nicknames
 
         if not pkcs12_file:
             logger.error('missing output file')
@@ -190,6 +183,20 @@ class InstanceFindCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('find', 'Find instances')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server instance-find [OPTIONS]')
         print()
@@ -200,30 +207,17 @@ class InstanceFindCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        for o, _ in opts:
-            if o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
         results = []
         if os.path.exists(pki.server.PKIServer.BASE_DIR):
@@ -254,6 +248,21 @@ class InstanceShowCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('show', 'Show instance')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('instance_id')
+
     def print_help(self):
         print('Usage: pki-server instance-show [OPTIONS] <instance ID>')
         print()
@@ -264,37 +273,19 @@ class InstanceShowCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        for o, _ in opts:
-            if o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) != 1:
-            logger.error('Missing instance ID')
-            self.print_help()
-            sys.exit(1)
-
-        instance_name = args[0]
+        instance_name = args.instance_id
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -312,6 +303,21 @@ class InstanceStartCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('start', 'Start instance')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('instance_id')
+
     def print_help(self):
         print('Usage: pki-server instance-start [OPTIONS] <instance ID>')
         print()
@@ -322,37 +328,19 @@ class InstanceStartCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        for o, _ in opts:
-            if o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) != 1:
-            logger.error('Missing instance ID')
-            self.print_help()
-            sys.exit(1)
-
-        instance_name = args[0]
+        instance_name = args.instance_id
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -375,6 +363,21 @@ class InstanceStopCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('stop', 'Stop instance')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('instance_id')
+
     def print_help(self):
         print('Usage: pki-server instance-stop [OPTIONS] <instance ID>')
         print()
@@ -385,37 +388,19 @@ class InstanceStopCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        for o, _ in opts:
-            if o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) != 1:
-            logger.error('Missing instance ID')
-            self.print_help()
-            sys.exit(1)
-
-        instance_name = args[0]
+        instance_name = args.instance_id
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -438,6 +423,22 @@ class InstanceMigrateCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('migrate', 'Migrate instance')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument('--tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('instance_id')
+
     def print_help(self):
         print('Usage: pki-server instance-migrate [OPTIONS] <instance ID>')
         print()
@@ -449,46 +450,24 @@ class InstanceMigrateCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'tomcat=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        tomcat_version = None
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o == '--tomcat':
-                tomcat_version = pki.util.Version(a)
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) != 1:
-            logger.error('Missing instance ID')
-            self.print_help()
-            sys.exit(1)
-
-        instance_name = args[0]
-
-        if not tomcat_version:
+        if args.tomcat:
+            tomcat_version = pki.util.Version(args.tomcat)
+        else:
             tomcat_version = pki.server.Tomcat.get_version()
+
+        instance_name = args.instance_id
 
         logger.info('Migrating to Tomcat %s', tomcat_version)
 
@@ -514,6 +493,21 @@ class InstanceNuxwdogEnableCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('nuxwdog-enable', 'Instance enable nuxwdog')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('instance_id')
+
     def print_help(self):
         print('Usage: pki-server instance-nuxwdog-enable [OPTIONS] <instance ID>')
         print()
@@ -523,37 +517,20 @@ class InstanceNuxwdogEnableCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        for o, _ in opts:
-            if o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) != 1:
-            logger.error('Missing instance ID')
-            self.print_help()
-            sys.exit(1)
-
-        instance_name = args[0]
+        instance_name = args.instance_id
 
         module = self.get_top_module().find_module('nuxwdog-enable')
         module = pki.server.cli.nuxwdog.NuxwdogEnableCLI()
@@ -576,6 +553,21 @@ class InstanceNuxwdogDisableCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('nuxwdog-disable', 'Instance disable nuxwdog')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('instance_id')
+
     def print_help(self):
         print('Usage: pki-server instance-nuxwdog-disable [OPTIONS] <instance ID>')
         print()
@@ -585,37 +577,20 @@ class InstanceNuxwdogDisableCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        for o, _ in opts:
-            if o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) != 1:
-            logger.error('Missing instance ID')
-            self.print_help()
-            sys.exit(1)
-
-        instance_name = args[0]
+        instance_name = args.instance_id
 
         module = self.get_top_module().find_module('nuxwdog-disable')
 
@@ -638,6 +613,32 @@ class InstanceExternalCertAddCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('externalcert-add', 'Add external certificate or chain to the instance')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--cert-file')
+        self.parser.add_argument(
+            '--trust-args',
+            default='\",,\"')
+        self.parser.add_argument('--nickname')
+        self.parser.add_argument(
+            '--token',
+            default=pki.nssdb.INTERNAL_TOKEN_NAME)
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server instance-externalcert-add [OPTIONS]')
         print()
@@ -653,53 +654,24 @@ class InstanceExternalCertAddCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'cert-file=', 'trust-args=', 'nickname=', 'token=',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        cert_file = None
-        trust_args = '\",,\"'
-        nickname = None
-        token = pki.nssdb.INTERNAL_TOKEN_NAME
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--cert-file':
-                cert_file = a
-
-            elif o == '--trust-args':
-                trust_args = a
-
-            elif o == '--nickname':
-                nickname = a
-
-            elif o == '--token':
-                token = a
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        instance_name = args.instance
+        cert_file = args.cert_file
+        trust_args = args.trust_args
+        nickname = args.nickname
+        token = args.token
 
         if not cert_file:
             logger.error('Missing input file containing certificate')
@@ -752,6 +724,28 @@ class InstanceExternalCertDeleteCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('externalcert-del', 'Delete external certificate from the instance')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--nickname')
+        self.parser.add_argument(
+            '--token',
+            default=pki.nssdb.INTERNAL_TOKEN_NAME)
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server instance-externalcert-del [OPTIONS]')
         print()
@@ -764,44 +758,22 @@ class InstanceExternalCertDeleteCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'nickname=', 'token=',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        nickname = None
-        token = pki.nssdb.INTERNAL_TOKEN_NAME
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--nickname':
-                nickname = a
-
-            elif o == '--token':
-                token = a
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        instance_name = args.instance
+        nickname = args.nickname
+        token = args.token
 
         if not nickname:
             logger.error('Missing nickname')
