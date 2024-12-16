@@ -57,7 +57,9 @@ class EnableSelfTestCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('selftest_id')
+        self.parser.add_argument(
+            'selftest_id',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server selftest-enable [OPTIONS] [<Selftest ID>]')
@@ -141,7 +143,9 @@ class DisableSelftestCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('selftest_id')
+        self.parser.add_argument(
+            'selftest_id',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server selftest-disable [OPTIONS] [<Selftest ID>]')
