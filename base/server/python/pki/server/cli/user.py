@@ -3,9 +3,8 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
-from __future__ import absolute_import
-from __future__ import print_function
-import getopt
+
+import argparse
 import inspect
 import logging
 import sys
@@ -66,96 +65,74 @@ class UserAddCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--full-name')
+        self.parser.add_argument('--email')
+        self.parser.add_argument('--password')
+        self.parser.add_argument('--password-file')
+        self.parser.add_argument('--cert')
+        self.parser.add_argument('--cert-format')
+        self.parser.add_argument('--phone')
+        self.parser.add_argument('--type')
+        self.parser.add_argument('--state')
+        self.parser.add_argument('--tps-profiles')
+        self.parser.add_argument(
+            '--ignore-duplicate',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('user_id')
+
     def print_help(self):
         print(textwrap.dedent(self.__class__.help).format(
             subsystem=self.parent.parent.name))
 
     def execute(self, argv):
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'full-name=', 'email=',
-                'password=', 'password-file=',
-                'cert=', 'cert-format=',
-                'phone=', 'type=', 'state=', 'tps-profiles=', 'ignore-duplicate'
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
         subsystem_name = self.parent.parent.name
-        full_name = None
-        email = None
-        password = None
-        password_file = None
-        cert_path = None
-        cert_format = None
-        phone = None
-        user_type = None
-        state = None
+        full_name = args.full_name
+        email = args.email
+        password = args.password
+        password_file = args.password_file
+        cert_path = args.cert
+        cert_format = args.cert_format
+        phone = args.phone
+        user_type = args.type
+        state = args.state
+
         tps_profiles = None
-        ignore_duplicate = False
+        if args.tps_profiles:
+            tps_profiles = [x.strip() for x in args.tps_profiles.split(',')]
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o == '--full-name':
-                full_name = a
-
-            elif o == '--email':
-                email = a
-
-            elif o == '--password':
-                password = a
-
-            elif o == '--password-file':
-                password_file = a
-
-            elif o == '--cert':
-                cert_path = a
-
-            elif o == '--cert-format':
-                cert_format = a
-
-            elif o == '--phone':
-                phone = a
-
-            elif o == '--type':
-                user_type = a
-
-            elif o == '--state':
-                state = a
-
-            elif o == '--tps-profiles':
-                tps_profiles = [x.strip() for x in a.split(',')]
-
-            elif o == '--ignore-duplicate':
-                ignore_duplicate = True
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) < 1:
-            logger.error('Missing user ID')
-            self.print_help()
-            sys.exit(1)
-
-        user_id = args[0]
+        ignore_duplicate = args.ignore_duplicate
+        user_id = args.user_id
 
         if not full_name:
             logger.error('Missing full name')
@@ -202,6 +179,25 @@ class UserFindCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--see-also')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server %s-user-find [OPTIONS]' % self.parent.parent.name)
         print()
@@ -213,41 +209,22 @@ class UserFindCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'see-also=',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
         subsystem_name = self.parent.parent.name
-        see_also = None
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o == '--see-also':
-                see_also = a
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        see_also = args.see_also
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -303,6 +280,29 @@ class UserModifyCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--password')
+        self.parser.add_argument('--password-file')
+        self.parser.add_argument('--add-see-also')
+        self.parser.add_argument('--del-see-also')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('user_id')
+
     def print_help(self):
         print('Usage: pki-server %s-user-mod [OPTIONS] <user ID>' % self.parent.parent.name)
         print()
@@ -317,61 +317,26 @@ class UserModifyCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'password=', 'password-file=',
-                'add-see-also=', 'del-see-also=',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
         subsystem_name = self.parent.parent.name
-        password = None
-        password_file = None
-        add_see_also = None
-        del_see_also = None
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o == '--password':
-                password = a
-
-            elif o == '--password-file':
-                password_file = a
-
-            elif o == '--add-see-also':
-                add_see_also = a
-
-            elif o == '--del-see-also':
-                del_see_also = a
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) < 1:
-            logger.error('Missing user ID')
-            self.print_help()
-            sys.exit(1)
-
-        user_id = args[0]
+        password = args.password
+        password_file = args.password_file
+        add_see_also = args.add_see_also
+        del_see_also = args.del_see_also
+        user_id = args.user_id
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -417,50 +382,46 @@ class UserRemoveCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('user_id')
+
     def print_help(self):
         print(textwrap.dedent(self.__class__.help).format(
             subsystem=self.parent.parent.name))
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
         subsystem_name = self.parent.parent.name
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) < 1:
-            logger.error('Missing user ID')
-            self.print_help()
-            sys.exit(1)
-
-        user_id = args[0]
+        user_id = args.user_id
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -486,6 +447,25 @@ class UserShowCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('user_id')
+
     def print_help(self):
         print('Usage: pki-server %s-user-show [OPTIONS] <user ID>' % self.parent.parent.name)
         print()
@@ -496,44 +476,22 @@ class UserShowCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
         subsystem_name = self.parent.parent.name
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) < 1:
-            logger.error('Missing user ID')
-            self.print_help()
-            sys.exit(1)
-
-        user_id = args[0]
+        user_id = args.user_id
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -592,6 +550,25 @@ class UserCertFindCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('user_id')
+
     def print_help(self):
         print('Usage: pki-server %s-user-cert-find [OPTIONS] <user ID>'
               % self.parent.parent.parent.name)
@@ -603,44 +580,22 @@ class UserCertFindCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
         subsystem_name = self.parent.parent.parent.name
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) < 1:
-            logger.error('Missing user ID')
-            self.print_help()
-            sys.exit(1)
-
-        user_id = args[0]
+        user_id = args.user_id
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -666,6 +621,32 @@ class UserCertAddCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--cert')
+        self.parser.add_argument(
+            '--format',
+            default='PEM')
+        self.parser.add_argument(
+            '--ignore-duplicate',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('user_id')
+
     def print_help(self):
         print('Usage: pki-server %s-user-cert-add [OPTIONS] <user ID>'
               % self.parent.parent.parent.name)
@@ -680,56 +661,25 @@ class UserCertAddCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'cert=', 'format=', 'ignore-duplicate'
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
         subsystem_name = self.parent.parent.parent.name
-        cert_path = None
-        cert_format = 'PEM'
-        ignore_duplicate = False
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o == '--cert':
-                cert_path = a
-
-            elif o == '--format':
-                cert_format = a
-
-            elif o == '--ignore-duplicate':
-                ignore_duplicate = True
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) < 1:
-            logger.error('Missing user ID')
-            self.print_help()
-            sys.exit(1)
-
-        user_id = args[0]
+        cert_path = args.cert
+        cert_format = args.format
+        ignore_duplicate = args.ignore_duplicate
+        user_id = args.user_id
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -774,56 +724,48 @@ class UserCertRemoveCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('user_id')
+        self.parser.add_argument('cert_id')
+
     def print_help(self):
         print(textwrap.dedent(self.__class__.help).format(
             subsystem=self.parent.parent.parent.name))
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
         subsystem_name = self.parent.parent.parent.name
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) < 1:
-            logger.error('Missing user ID')
-            self.print_help()
-            sys.exit(1)
-
-        if len(args) < 2:
-            logger.error('Missing certificate ID')
-            self.print_help()
-            sys.exit(1)
-
-        user_id = args[0]
-        cert_id = args[1]
+        user_id = args.user_id
+        cert_id = args.cert_id
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -876,53 +818,48 @@ class UserRoleFindCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--output-format')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('user_id')
+
     def print_help(self):
         print(textwrap.dedent(self.__class__.help).format(
             subsystem=self.parent.parent.parent.name))
 
     def execute(self, argv):
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'output-format=',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
         subsystem_name = self.parent.parent.parent.name
-        output_format = None
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o == '--output-format':
-                output_format = a
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) < 1:
-            logger.error('Missing user ID')
-            self.print_help()
-            sys.exit(1)
-
-        user_id = args[0]
+        output_format = args.output_format
+        user_id = args.user_id
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -963,56 +900,49 @@ class UserRoleAddCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('user_id')
+        self.parser.add_argument('role_id')
+
     def print_help(self):
         print(textwrap.dedent(self.__class__.help).format(
             subsystem=self.parent.parent.parent.name))
 
     def execute(self, argv):
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
         subsystem_name = self.parent.parent.parent.name
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) < 1:
-            logger.error('Missing user ID')
-            self.print_help()
-            sys.exit(1)
-
-        user_id = args[0]
-
-        if len(args) < 2:
-            logger.error('Missing role ID')
-            self.print_help()
-            sys.exit(1)
-
-        role_id = args[1]
+        user_id = args.user_id
+        role_id = args.role_id
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -1053,56 +983,49 @@ class UserRoleRemoveCLI(pki.cli.CLI):
 
         self.parent = parent
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('user_id')
+        self.parser.add_argument('role_id')
+
     def print_help(self):
         print(textwrap.dedent(self.__class__.help).format(
             subsystem=self.parent.parent.parent.name))
 
     def execute(self, argv):
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        args = self.parser.parse_args(args=argv)
+
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
         subsystem_name = self.parent.parent.parent.name
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) < 1:
-            logger.error('Missing user ID')
-            self.print_help()
-            sys.exit(1)
-
-        user_id = args[0]
-
-        if len(args) < 2:
-            logger.error('Missing role ID')
-            self.print_help()
-            sys.exit(1)
-
-        role_id = args[1]
+        user_id = args.user_id
+        role_id = args.role_id
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
