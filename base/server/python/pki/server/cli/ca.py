@@ -18,9 +18,7 @@
 # All rights reserved.
 #
 
-from __future__ import absolute_import
-from __future__ import print_function
-import getopt
+import argparse
 import inspect
 import io
 import logging
@@ -97,46 +95,44 @@ class CACertFindCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('find', inspect.cleandoc(self.__class__.__doc__))
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--status')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print(textwrap.dedent(self.__class__.help))
 
     def execute(self, argv):
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'status=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        status = None
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--status':
-                status = a
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        instance_name = args.instance
+        status = args.status
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -184,99 +180,80 @@ class CACertCreateCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('create', inspect.cleandoc(self.__class__.__doc__))
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--csr')
+        self.parser.add_argument(
+            '--csr-format',
+            default='PEM')
+        self.parser.add_argument('--request')
+        self.parser.add_argument('--profile')
+        self.parser.add_argument(
+            '--type',
+            default='selfsign')
+        self.parser.add_argument('--key-id')
+        self.parser.add_argument('--key-token')
+        self.parser.add_argument(
+            '--key-algorithm',
+            default='SHA256withRSA')
+        self.parser.add_argument(
+            '--signing-algorithm',
+            default='SHA256withRSA')
+        self.parser.add_argument('--serial')
+        self.parser.add_argument(
+            '--format',
+            default='PEM')
+        self.parser.add_argument('--cert')
+        self.parser.add_argument(
+            '--import-cert',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print(textwrap.dedent(self.__class__.help))
 
     def execute(self, argv):
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'csr=', 'csr-format=', 'request=',
-                'profile=', 'type=',
-                'key-id=', 'key-token=', 'key-algorithm=',
-                'signing-algorithm=',
-                'serial=', 'format=', 'cert=',
-                'import-cert',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        csr_path = None
-        csr_format = None
-        request_id = None
-        profile_path = None
-        cert_type = None
-        key_id = None
-        key_token = None
-        key_algorithm = None
-        signing_algorithm = None
-        serial = None
-        cert_format = None
-        cert_path = None
-        import_cert = False
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--csr':
-                csr_path = a
-
-            elif o == '--csr-format':
-                csr_format = a
-
-            elif o == '--request':
-                request_id = a
-
-            elif o == '--profile':
-                profile_path = a
-
-            elif o == '--type':
-                cert_type = a
-
-            elif o == '--key-id':
-                key_id = a
-
-            elif o == '--key-token':
-                key_token = a
-
-            elif o == '--key-algorithm':
-                key_algorithm = a
-
-            elif o == '--signing-algorithm':
-                signing_algorithm = a
-
-            elif o == '--serial':
-                serial = a
-
-            elif o == '--format':
-                cert_format = a
-
-            elif o == '--cert':
-                cert_path = a
-
-            elif o == '--import-cert':
-                import_cert = True
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        instance_name = args.instance
+        csr_path = args.csr
+        csr_format = args.csr_format
+        request_id = args.request
+        profile_path = args.profile
+        cert_type = args.type
+        key_id = args.key_id
+        key_token = args.key_token
+        key_algorithm = args.key_algorithm
+        signing_algorithm = args.signing_algorithm
+        serial = args.serial
+        cert_format = args.format
+        cert_path = args.cert
+        import_cert = args.import_cert
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -330,6 +307,34 @@ class CACertImportCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('import', 'Import certificate into CA')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--cert')
+        self.parser.add_argument(
+            '--format',
+            default='PEM')
+        self.parser.add_argument('--csr')
+        self.parser.add_argument(
+            '--csr-format',
+            default='PEM')
+        self.parser.add_argument('--profile')
+        self.parser.add_argument('--request')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server ca-cert-import [OPTIONS]')
         print()
@@ -347,63 +352,25 @@ class CACertImportCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'cert=', 'format=',
-                'csr=', 'csr-format=',
-                'profile=', 'request=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        cert_path = None
-        cert_format = None
-        csr_path = None
-        csr_format = None
-        profile_path = None
-        request_id = None
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--cert':
-                cert_path = a
-
-            elif o == '--format':
-                cert_format = a
-
-            elif o == '--csr':
-                csr_path = a
-
-            elif o == '--csr-format':
-                csr_format = a
-
-            elif o == '--profile':
-                profile_path = a
-
-            elif o == '--request':
-                request_id = a
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        instance_name = args.instance
+        cert_path = args.cert
+        cert_format = args.format
+        csr_path = args.csr
+        csr_format = args.csr_format
+        profile_path = args.profile
+        request_id = args.request
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -440,6 +407,25 @@ class CACertRemoveCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('del', 'Remove certificate in CA')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('serial_number')
+
     def print_help(self):
         print('Usage: pki-server ca-cert-remove [OPTIONS] <serial number>')
         print()
@@ -451,42 +437,20 @@ class CACertRemoveCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        if len(args) != 1:
-            logger.error('Missing serial number')
-            self.print_help()
-            sys.exit(1)
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        serial_number = args[0]
-        instance_name = 'pki-tomcat'
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        instance_name = args.instance
+        serial_number = args.serial_number
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -516,6 +480,27 @@ class CACertChainExportCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('export', 'Export certificate chain')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--pkcs12-file')
+        self.parser.add_argument('--pkcs12-password')
+        self.parser.add_argument('--pkcs12-password-file')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server ca-cert-chain-export [OPTIONS]')
         print()
@@ -530,49 +515,29 @@ class CACertChainExportCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'pkcs12-file=', 'pkcs12-password=', 'pkcs12-password-file=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        pkcs12_file = None
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
+        pkcs12_file = args.pkcs12_file
+
         pkcs12_password = None
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        if args.pkcs12_password:
+            pkcs12_password = args.pkcs12_password.encode()
 
-            elif o == '--pkcs12-file':
-                pkcs12_file = a
-
-            elif o == '--pkcs12-password':
-                pkcs12_password = a.encode()
-
-            elif o == '--pkcs12-password-file':
-                with io.open(a, 'rb') as f:
-                    pkcs12_password = f.read()
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        if args.pkcs12_password_file:
+            with io.open(args.pkcs12_password_file, 'rb') as f:
+                pkcs12_password = f.read()
 
         if not pkcs12_file:
             logger.error('Missing PKCS #12 file')
@@ -633,6 +598,26 @@ class CACertRequestFindCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('find', 'Find CA certificate requests')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--cert')
+        self.parser.add_argument('--cert-file')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server ca-cert-request-find [OPTIONS]')
         print()
@@ -646,44 +631,24 @@ class CACertRequestFindCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'cert=', 'cert-file=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        cert = None
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--cert':
-                cert = a
+        instance_name = args.instance
+        cert = args.cert
 
-            elif o == '--cert-file':
-                with io.open(a, 'rb') as f:
-                    cert = f.read()
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        if args.cert_file:
+            with io.open(args.cert_file, 'rb') as f:
+                cert = f.read()
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -716,6 +681,26 @@ class CACertRequestShowCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('show', 'Show CA certificate request')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--output-file')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('request_id')
+
     def print_help(self):
         print('Usage: pki-server ca-cert-request-show [OPTIONS] <request ID>')
         print()
@@ -728,46 +713,21 @@ class CACertRequestShowCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'output-file=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        if len(args) != 1:
-            logger.error('Missing request ID')
-            self.print_help()
-            sys.exit(1)
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        request_id = args[0]
-        instance_name = 'pki-tomcat'
-        output_file = None
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o == '--output-file':
-                output_file = a
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        instance_name = args.instance
+        output_file = args.output_file
+        request_id = args.request_id
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -796,6 +756,30 @@ class CACertRequestImportCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('import', 'Import certificate request into CA')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--csr')
+        self.parser.add_argument(
+            '--format',
+            default='PEM')
+        self.parser.add_argument('--profile')
+        self.parser.add_argument('--request')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server ca-cert-request-import [OPTIONS]')
         print()
@@ -811,53 +795,23 @@ class CACertRequestImportCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'csr=', 'format=', 'profile=', 'request=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        request_path = None
-        request_format = None
-        profile_path = None
-        request_id = None
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--csr':
-                request_path = a
-
-            elif o == '--format':
-                request_format = a
-
-            elif o == '--profile':
-                profile_path = a
-
-            elif o == '--request':
-                request_id = a
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        instance_name = args.instance
+        request_path = args.csr
+        request_format = args.format
+        profile_path = args.profile
+        request_id = args.request
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -916,41 +870,42 @@ class CACRLShowCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('show', inspect.cleandoc(self.__class__.__doc__))
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print(textwrap.dedent(self.__class__.help))
 
     def execute(self, argv):
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        instance_name = args.instance
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -1037,41 +992,42 @@ class CACRLIPFindCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('find', inspect.cleandoc(self.__class__.__doc__))
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print(textwrap.dedent(self.__class__.help))
 
     def execute(self, argv):
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        instance_name = args.instance
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -1115,47 +1071,44 @@ class CACRLIPShowCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('show', inspect.cleandoc(self.__class__.__doc__))
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('id')
+
     def print_help(self):
         print(textwrap.dedent(self.__class__.help))
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        if len(args) != 1:
-            logger.error('Missing CRL issuing point ID')
-            self.print_help()
-            sys.exit(1)
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        ip_id = args[0]
-        instance_name = 'pki-tomcat'
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        instance_name = args.instance
+        ip_id = args.id
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -1194,63 +1147,59 @@ class CACRLIPModifyCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('mod', inspect.cleandoc(self.__class__.__doc__))
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--desc')
+        self.parser.add_argument('--class')
+        self.parser.add_argument(
+            '--enable',
+            default='true')
+        self.parser.add_argument(
+            '-D',
+            action='append')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('id')
+
     def print_help(self):
         print(textwrap.dedent(self.__class__.help))
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:D:v', [
-                'instance=', 'desc=', 'class=', 'enable=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        if len(args) != 1:
-            logger.error('Missing CRL issuing point ID')
-            self.print_help()
-            sys.exit(1)
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        ip_id = args[0]
-        instance_name = 'pki-tomcat'
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
+        ip_id = args.id
+
         config = {}
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o == '--desc':
-                config['description'] = a
-
-            elif o == '--class':
-                config['class'] = a
-
-            elif o == '--enable':
-                config['enable'] = a
-
-            elif o == '-D':
-                i = a.index('=')
-                name = a[0:i]
-                value = a[i + 1:]
-                config[name] = value
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        for param in args.D:
+            i = param.index('=')
+            name = param[0:i]
+            value = param[i + 1:]
+            config[name] = value
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -1281,6 +1230,30 @@ class CAClonePrepareCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('prepare', 'Prepare CA clone')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--pkcs12-file')
+        self.parser.add_argument('--pkcs12-password')
+        self.parser.add_argument('--pkcs12-password-file')
+        self.parser.add_argument(
+            '--no-key',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server ca-clone-prepare [OPTIONS]')
         print()
@@ -1296,54 +1269,31 @@ class CAClonePrepareCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'pkcs12-file=', 'pkcs12-password=', 'pkcs12-password-file=',
-                'no-key',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        pkcs12_file = None
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
+        pkcs12_file = args.pkcs12_file
+
         pkcs12_password = None
-        no_key = False
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        if args.pkcs12_password:
+            pkcs12_password = args.pkcs12_password.encode()
 
-            elif o == '--pkcs12-file':
-                pkcs12_file = a
+        if args.pkcs12_password_file:
+            with io.open(args.pkcs12_password_file, 'rb') as f:
+                pkcs12_password = f.read()
 
-            elif o == '--pkcs12-password':
-                pkcs12_password = a.encode()
-
-            elif o == '--pkcs12-password-file':
-                with io.open(a, 'rb') as f:
-                    pkcs12_password = f.read()
-
-            elif o == '--no-key':
-                no_key = True
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        no_key = args.no_key
 
         if not pkcs12_file:
             logger.error('Missing PKCS #12 file')
@@ -1424,41 +1374,42 @@ class CAProfileFindCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('find', inspect.cleandoc(self.__class__.__doc__))
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print(textwrap.dedent(self.__class__.help))
 
     def execute(self, argv):
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        instance_name = args.instance
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -1489,11 +1440,36 @@ class CAProfileImportCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('import', 'Import CA profiles')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '--input-folder',
+            default='/usr/share/pki/ca/profiles/ca')
+        self.parser.add_argument(
+            '--as-current-user',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server ca-profile-import [OPTIONS]')
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
-        print('      --input-folder <path>          Input folder.')
+        print('      --input-folder <path>          '
+              'Input folder (default: /usr/share/pki/ca/profiles/ca)')
         print('      --as-current-user              Run as current user.')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
@@ -1502,45 +1478,21 @@ class CAProfileImportCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'input-folder=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        input_folder = '/usr/share/pki/ca/profiles/ca'
-        as_current_user = False
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--input-folder':
-                input_folder = a
-
-            elif o == '--as-current-user':
-                as_current_user = True
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        instance_name = args.instance
+        input_folder = args.input_folder
+        as_current_user = args.as_current_user
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -1571,7 +1523,7 @@ class CAProfileModifyCLI(pki.cli.CLI):
               --name <name>                  Profile name')
               --desc <description>           Profile description')
               --visible <boolean>            Profile visibile')
-              --enable <boolean>             Profile enabled')
+              --enabled <boolean>            Profile enabled')
           -v, --verbose                      Run in verbose mode.
               --debug                        Run in debug mode.
               --help                         Show help message.
@@ -1580,65 +1532,54 @@ class CAProfileModifyCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('mod', inspect.cleandoc(self.__class__.__doc__))
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--name')
+        self.parser.add_argument('--desc')
+        self.parser.add_argument('--visible')
+        self.parser.add_argument('--enabled')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('profile_id')
+
     def print_help(self):
         print(textwrap.dedent(self.__class__.help))
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'name=', 'desc=', 'visible=', 'enabled=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        if len(args) < 1:
-            logger.error('Missing profile ID')
-            self.print_help()
-            sys.exit(1)
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        profile_id = args[0]
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-        instance_name = 'pki-tomcat'
-        profile_name = None
-        profile_description = None
-        profile_visible = None
-        profile_enabled = None
+        instance_name = args.instance
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        profile_name = args.name
+        profile_description = args.desc
+        profile_visible = args.visible
+        profile_enabled = args.enabled
 
-            elif o == '--name':
-                profile_name = a
-
-            elif o == '--desc':
-                profile_description = a
-
-            elif o == '--visible':
-                profile_visible = a
-
-            elif o == '--enabled':
-                profile_enabled = a
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        profile_id = args.profile_id
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
