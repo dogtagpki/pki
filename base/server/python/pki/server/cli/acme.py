@@ -6,12 +6,9 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
-from __future__ import absolute_import
-from __future__ import print_function
-import getopt
+import argparse
 import logging
 import os
-import sys
 
 import pki.cli
 import pki.server
@@ -43,6 +40,27 @@ class ACMECreateCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('create', 'Create ACME subsystem')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '--force',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server acme-create [OPTIONS]')
         print()
@@ -55,41 +73,20 @@ class ACMECreateCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'database=', 'issuer=',
-                'force',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        force = False
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--force':
-                force = True
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        instance_name = args.instance
+        force = args.force
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -109,6 +106,33 @@ class ACMERemoveCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('remove', 'Remove ACME subsystem')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '--remove-conf',
+            action='store_true')
+        self.parser.add_argument(
+            '--remove-logs',
+            action='store_true')
+        self.parser.add_argument(
+            '--force',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server acme-remove [OPTIONS]')
         print()
@@ -123,49 +147,22 @@ class ACMERemoveCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'remove-conf', 'remove-logs', 'force',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        remove_conf = False
-        remove_logs = False
-        force = False
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--remove-conf':
-                remove_conf = True
-
-            elif o == '--remove-logs':
-                remove_logs = True
-
-            elif o == '--force':
-                force = True
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        instance_name = args.instance
+        remove_conf = args.remove_conf
+        remove_logs = args.remove_logs
+        force = args.force
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -190,6 +187,37 @@ class ACMEDeployCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('deploy', 'Deploy ACME subsystem')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '--wait',
+            action='store_true')
+        self.parser.add_argument(
+            '--max-wait',
+            type=int,
+            default=60)
+        self.parser.add_argument(
+            '--timeout',
+            type=int)
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument(
+            'name',
+            nargs='?')
+
     def print_help(self):
         print('Usage: pki-server acme-deploy [OPTIONS] [name]')
         print()
@@ -204,53 +232,23 @@ class ACMEDeployCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'wait', 'max-wait=', 'timeout=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        name = 'acme'
-        instance_name = 'pki-tomcat'
-        wait = False
-        max_wait = 60
-        timeout = None
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--wait':
-                wait = True
-
-            elif o == '--max-wait':
-                max_wait = int(a)
-
-            elif o == '--timeout':
-                timeout = int(a)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) > 0:
-            name = args[0]
+        instance_name = args.instance
+        wait = args.wait
+        max_wait = args.max_wait
+        timeout = args.timeout
+        name = args.name
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -278,6 +276,37 @@ class ACMEUndeployCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('undeploy', 'Undeploy ACME subsystem')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '--wait',
+            action='store_true')
+        self.parser.add_argument(
+            '--max-wait',
+            type=int,
+            default=60)
+        self.parser.add_argument(
+            '--timeout',
+            type=int)
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument(
+            'name',
+            nargs='?')
+
     def print_help(self):
         print('Usage: pki-server acme-undeploy [OPTIONS] [name]')
         print()
@@ -292,53 +321,23 @@ class ACMEUndeployCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'wait', 'max-wait=', 'timeout=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        name = 'acme'
-        instance_name = 'pki-tomcat'
-        wait = False
-        max_wait = 60
-        timeout = None
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--wait':
-                wait = True
-
-            elif o == '--max-wait':
-                max_wait = int(a)
-
-            elif o == '--timeout':
-                timeout = int(a)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) > 0:
-            name = args[0]
+        instance_name = args.instance
+        wait = args.wait
+        max_wait = args.max_wait
+        timeout = args.timeout
+        name = args.name
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -368,6 +367,24 @@ class ACMEMetadataShowCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('show', 'Show ACME metadata configuration')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server acme-metadata-show [OPTIONS]')
         print()
@@ -379,36 +396,19 @@ class ACMEMetadataShowCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        instance_name = args.instance
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -451,6 +451,24 @@ class ACMEMetadataModifyCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('mod', 'Modify ACME metadata configuration')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server acme-metadata-mod [OPTIONS]')
         print()
@@ -462,36 +480,19 @@ class ACMEMetadataModifyCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        instance_name = args.instance
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -559,6 +560,24 @@ class ACMEDatabaseShowCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('show', 'Show ACME database configuration')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server acme-database-show [OPTIONS]')
         print()
@@ -570,36 +589,19 @@ class ACMEDatabaseShowCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        instance_name = args.instance
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -675,6 +677,28 @@ class ACMEDatabaseModifyCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('mod', 'Modify ACME database configuration')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--type')
+        self.parser.add_argument(
+            '-D',
+            action='append')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server acme-database-mod [OPTIONS]')
         print()
@@ -689,49 +713,30 @@ class ACMEDatabaseModifyCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:vD:', [
-                'instance=', 'type=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        database_type = None
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
+
+        database_type = args.type
+        if database_type not in pki.server.subsystem.ACME_DATABASE_TYPES.values():
+            raise Exception('Invalid database type: {0}'.format(database_type))
+
         props = {}
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o == '--type':
-                database_type = a
-                if database_type not in pki.server.subsystem.ACME_DATABASE_TYPES.values():
-                    raise Exception('Invalid database type: {0}'.format(database_type))
-
-            elif o == '-D':
-                parts = a.split('=', 1)
-                name = parts[0]
-                value = parts[1]
-                props[name] = value
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        for param in args.D:
+            parts = param.split('=', 1)
+            name = parts[0]
+            value = parts[1]
+            props[name] = value
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -887,6 +892,24 @@ class ACMEIssuerShowCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('show', 'Show ACME issuer configuration')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server acme-issuer-show [OPTIONS]')
         print()
@@ -898,36 +921,19 @@ class ACMEIssuerShowCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        instance_name = args.instance
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -993,11 +999,32 @@ class ACMEIssuerShowCLI(pki.cli.CLI):
                 print('  Authority DN: %s' % authority_dn)
 
 
-
 class ACMEIssuerModifyCLI(pki.cli.CLI):
 
     def __init__(self):
         super().__init__('mod', 'Modify ACME issuer configuration')
+
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--type')
+        self.parser.add_argument(
+            '-D',
+            action='append')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
 
     def print_help(self):
         print('Usage: pki-server acme-issuer-mod [OPTIONS]')
@@ -1013,49 +1040,30 @@ class ACMEIssuerModifyCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:vD:', [
-                'instance=', 'type=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        issuer_type = None
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
+
+        issuer_type = args.type
+        if issuer_type not in pki.server.subsystem.ACME_ISSUER_TYPES.values():
+            raise Exception('Invalid issuer type: {0}'.format(issuer_type))
+
         props = {}
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o == '--type':
-                issuer_type = a
-                if issuer_type not in pki.server.subsystem.ACME_ISSUER_TYPES.values():
-                    raise Exception('Invalid issuer type: {0}'.format(issuer_type))
-
-            elif o == '-D':
-                parts = a.split('=', 1)
-                name = parts[0]
-                value = parts[1]
-                props[name] = value
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        for param in args.D:
+            parts = param.split('=', 1)
+            name = parts[0]
+            value = parts[1]
+            props[name] = value
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -1206,6 +1214,24 @@ class ACMERealmShowCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('show', 'Show ACME realm configuration')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server acme-realm-show [OPTIONS]')
         print()
@@ -1217,36 +1243,19 @@ class ACMERealmShowCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        instance_name = args.instance
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -1332,6 +1341,28 @@ class ACMERealmModifyCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('mod', 'Modify ACME realm configuration')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--type')
+        self.parser.add_argument(
+            '-D',
+            action='append')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server acme-realm-mod [OPTIONS]')
         print()
@@ -1346,49 +1377,30 @@ class ACMERealmModifyCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:vD:', [
-                'instance=', 'type=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        realm_type = None
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
+
+        realm_type = args.type
+        if realm_type not in pki.server.subsystem.ACME_REALM_TYPES.values():
+            raise Exception('Invalid realm type: {0}'.format(realm_type))
+
         props = {}
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o == '--type':
-                realm_type = a
-                if realm_type not in pki.server.subsystem.ACME_REALM_TYPES.values():
-                    raise Exception('Invalid realm type: {0}'.format(realm_type))
-
-            elif o == '-D':
-                parts = a.split('=', 1)
-                name = parts[0]
-                value = parts[1]
-                props[name] = value
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        for param in args.D:
+            parts = param.split('=', 1)
+            name = parts[0]
+            value = parts[1]
+            props[name] = value
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
