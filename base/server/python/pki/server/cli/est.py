@@ -3,12 +3,9 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 
-from __future__ import absolute_import
-from __future__ import print_function
-import getopt
+import argparse
 import logging
 import os
-import sys
 
 import pki.cli
 import pki.server
@@ -36,6 +33,31 @@ class ESTCreateCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('create', 'Create EST subsystem')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default=DEFAULT_INSTANCE_NAME)
+        self.parser.add_argument(
+            '--force',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument(
+            'name',
+            nargs='?',
+            default=DEFAULT_SUBSYSTEM_NAME)
+
     def print_help(self):
         print('Usage: pki-server est-create [OPTIONS] [name]')
         print()
@@ -48,45 +70,21 @@ class ESTCreateCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'database=', 'issuer=',
-                'force',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        name = DEFAULT_SUBSYSTEM_NAME
-        instance_name = DEFAULT_INSTANCE_NAME
-        force = False
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--force':
-                force = True
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) > 0:
-            name = args[0]
+        instance_name = args.instance
+        name = args.name
+        force = args.force
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -104,6 +102,31 @@ class ESTRemoveCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('remove', 'Remove EST subsystem')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default=DEFAULT_INSTANCE_NAME)
+        self.parser.add_argument(
+            '--force',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument(
+            'name',
+            nargs='?',
+            default=DEFAULT_SUBSYSTEM_NAME)
+
     def print_help(self):
         print('Usage: pki-server est-remove [OPTIONS] [name]')
         print()
@@ -116,45 +139,21 @@ class ESTRemoveCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
-                'force',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        name = DEFAULT_SUBSYSTEM_NAME
-        instance_name = DEFAULT_INSTANCE_NAME
-        force = False
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--force':
-                force = True
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) > 0:
-            name = args[0]
+        instance_name = args.instance
+        name = args.name
+        force = args.force
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
