@@ -18,10 +18,7 @@
 # All rights reserved.
 #
 
-from __future__ import absolute_import
-from __future__ import print_function
-
-import getopt
+import argparse
 import io
 import logging
 import os
@@ -72,6 +69,30 @@ class KRAClonePrepareCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('prepare', 'Prepare KRA clone')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--pkcs12-file')
+        self.parser.add_argument('--pkcs12-password')
+        self.parser.add_argument('--pkcs12-password-file')
+        self.parser.add_argument(
+            '--no-key',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki-server kra-clone-prepare [OPTIONS]')
         print()
@@ -87,53 +108,31 @@ class KRAClonePrepareCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'pkcs12-file=', 'pkcs12-password=', 'pkcs12-password-file=',
-                'no-key',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        pkcs12_file = None
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
+        pkcs12_file = args.pkcs12_file
+
         pkcs12_password = None
-        no_key = False
 
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
+        if args.pkcs12_password:
+            pkcs12_password = args.pkcs12_password.encode()
 
-            elif o == '--pkcs12-file':
-                pkcs12_file = a
+        if args.pkcs12_password_file:
+            with io.open(args.pkcs12_password_file, 'rb') as f:
+                pkcs12_password = f.read()
 
-            elif o == '--pkcs12-password':
-                pkcs12_password = a.encode()
-
-            elif o == '--pkcs12-password-file':
-                with io.open(a, 'rb') as f:
-                    pkcs12_password = f.read()
-
-            elif o == '--no-key':
-                no_key = True
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        no_key = args.no_key
 
         if not pkcs12_file:
             logger.error('Missing PKCS #12 file')
