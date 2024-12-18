@@ -148,7 +148,7 @@ jobs:
       - name: Restart server
         run: |
           docker restart server
-          sleep 5
+          sleep 10
 
           # wait for server to restart
           docker exec client curl \
