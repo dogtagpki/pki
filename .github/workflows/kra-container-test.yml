@@ -489,6 +489,8 @@ jobs:
           docker restart ca
           sleep 10
 
+          docker network reload --all
+
           # wait for CA to restart
           docker exec client curl \
               --retry 180 \
@@ -624,6 +626,8 @@ jobs:
         run: |
           docker restart kra
           sleep 10
+
+          docker network reload --all
 
           # wait for KRA to restart
           docker exec client curl \

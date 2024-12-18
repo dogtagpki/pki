@@ -489,6 +489,8 @@ jobs:
           docker restart ca
           sleep 10
 
+          docker network reload --all
+
           # wait for CA to restart
           docker exec client curl \
               --retry 180 \
@@ -646,6 +648,8 @@ jobs:
         run: |
           docker restart ocsp
           sleep 10
+
+          docker network reload --all
 
           # wait for OCSP to restart
           docker exec client curl \
