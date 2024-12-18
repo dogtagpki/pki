@@ -19,12 +19,8 @@
 # All rights reserved.
 #
 
-from __future__ import absolute_import
-from __future__ import print_function
-
-import getopt
+import argparse
 import logging
-import sys
 
 import pki
 import pki.cli
@@ -45,6 +41,20 @@ class PasswordGenerateCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('generate', 'Generate secure random password')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki password-generate [OPTIONS]')
         print()
@@ -55,29 +65,16 @@ class PasswordGenerateCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'v', [
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        for o, _ in opts:
-            if o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
         print(pki.generate_password())
