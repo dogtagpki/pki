@@ -487,7 +487,7 @@ jobs:
       - name: Restart CA
         run: |
           docker restart ca
-          sleep 5
+          sleep 10
 
           # wait for CA to restart
           docker exec client curl \
@@ -623,7 +623,7 @@ jobs:
       - name: Restart KRA
         run: |
           docker restart kra
-          sleep 5
+          sleep 10
 
           # wait for KRA to restart
           docker exec client curl \

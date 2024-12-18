@@ -312,6 +312,7 @@ jobs:
       - name: Restart CA
         run: |
           docker restart ca
+          sleep 10
 
           # wait for CA to restart
           docker exec client curl \

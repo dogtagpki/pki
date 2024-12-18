@@ -228,15 +228,21 @@ rm /tmp/sslserver.crt
 echo "################################################################################"
 echo "INFO: Starting PKI server"
 
+trap "kill -- -$(ps -o pgid= $PID | grep -o '[0-9]*')" TERM
+
 if [ "$UID" = "0" ]; then
     # In Docker the server runs as root user but it will switch
     # into pkiuser (UID=17) that belongs to the root group (GID=0).
-    pki-server run
+    pki-server run &
+    PID=$!
+    wait $PID
 
 else
     # In OpenShift/Podman the server runs as a non-root user
     # (with a random UID) that belongs to the root group (GID=0).
     #
     # https://www.redhat.com/en/blog/jupyter-on-openshift-part-6-running-as-an-assigned-user-id
-    pki-server run --as-current-user
+    pki-server run --as-current-user &
+    PID=$!
+    wait $PID
 fi
