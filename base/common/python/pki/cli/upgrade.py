@@ -18,9 +18,7 @@
 # All rights reserved.
 #
 
-from __future__ import absolute_import
-from __future__ import print_function
-import getopt
+import argparse
 import logging
 import sys
 
@@ -31,7 +29,7 @@ import pki.util
 logger = logging.getLogger(__name__)
 
 
-def usage():
+def print_help():
     print('Usage: pki-upgrade [OPTIONS]')
     print()
     print('  --status                       Show upgrade status only. Do not perform upgrade.')
@@ -55,64 +53,67 @@ def advancedOptions():
 
 def main(argv):
 
-    try:
-        opts, _ = getopt.gnu_getopt(argv, 'hi:s:t:vX', [
-            'status', 'revert', 'validate',
-            'remove-tracker', 'reset-tracker', 'set-tracker=',
-            'verbose', 'debug', 'help'])
+    parser = argparse.ArgumentParser(
+        prog='pki-upgrade',
+        add_help=False)
+    parser.add_argument(
+        '--status',
+        action='store_true')
+    parser.add_argument(
+        '--revert',
+        action='store_true')
+    parser.add_argument(
+        '--validate',
+        action='store_true')
+    parser.add_argument(
+        '-X',
+        action='store_true')
+    parser.add_argument(
+        '--remove-tracker',
+        action='store_true')
+    parser.add_argument(
+        '--reset-tracker',
+        action='store_true')
+    parser.add_argument('--set-tracker')
+    parser.add_argument(
+        '-v',
+        '--verbose',
+        action='store_true')
+    parser.add_argument(
+        '--debug',
+        action='store_true')
+    parser.add_argument(
+        '-h',
+        '--help',
+        action='store_true')
 
-    except getopt.GetoptError as e:
-        logger.error(e)
-        usage()
-        sys.exit(1)
+    args = parser.parse_args(args=argv)
 
-    status = False
-    revert = False
-    validate = False
+    if args.help:
+        print_help()
+        return
 
-    remove_tracker = False
-    reset_tracker = False
+    if args.X:
+        print_help()
+        advancedOptions()
+        return
+
+    if args.debug:
+        logging.getLogger().setLevel(logging.DEBUG)
+
+    elif args.verbose:
+        logging.getLogger().setLevel(logging.INFO)
+
+    status = args.status
+    revert = args.revert
+    validate = args.validate
+
+    remove_tracker = args.remove_tracker
+    reset_tracker = args.reset_tracker
 
     tracker_version = None
-
-    for o, a in opts:
-        if o == '--status':
-            status = True
-
-        elif o == '--revert':
-            revert = True
-
-        elif o == '--validate':
-            validate = True
-
-        elif o == '--remove-tracker':
-            remove_tracker = True
-
-        elif o == '--reset-tracker':
-            reset_tracker = True
-
-        elif o == '--set-tracker':
-            tracker_version = pki.util.Version(a)
-
-        elif o in ('-v', '--verbose'):
-            logging.getLogger().setLevel(logging.INFO)
-
-        elif o == '--debug':
-            logging.getLogger().setLevel(logging.DEBUG)
-
-        elif o in ('-h', '--help'):
-            usage()
-            sys.exit()
-
-        elif o == '-X':
-            usage()
-            advancedOptions()
-            sys.exit()
-
-        else:
-            logger.error('Unknown option: %s', o)
-            usage()
-            sys.exit(1)
+    if args.set_tracker:
+        tracker_version = pki.util.Version(args.set_tracker)
 
     upgrader = pki.upgrade.PKIUpgrader()
 

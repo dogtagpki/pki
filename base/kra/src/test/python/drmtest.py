@@ -32,10 +32,7 @@ Some setup is required to run the tests here successfully.
 See drmtest.readme.txt.
 """
 
-from __future__ import absolute_import
-from __future__ import print_function
-
-import getopt
+import argparse
 import random
 import shutil
 import string
@@ -295,7 +292,7 @@ def run_test(protocol, hostname, port, client_cert, certdb_dir,
     print_key_info(key_info)
 
 
-def usage():
+def print_help():
     print('Usage: drmtest.py [OPTIONS]')
     print()
     print('  -P <protocol>                  KRA server protocol (default: https).')
@@ -307,40 +304,32 @@ def usage():
 
 
 def main(argv):
-    try:
-        opts, _ = getopt.getopt(argv[1:], 'h:P:p:n:d:c:', ['help'])
 
-    except getopt.GetoptError as e:
-        print('ERROR: ' + str(e))
-        usage()
-        sys.exit(1)
+    parser = argparse.ArgumentParser(
+        prog=name,
+        add_help=False)
+    parser.add_argument(
+        '-P',
+        default='https')
+    parser.add_argument(
+        '-h',
+        default='localhost')
+    parser.add_argument(
+        '-p',
+        default='8443')
+    parser.add_argument(
+        '-n',
+        default='kraagent.pem')
+    parser.add_argument(
+        '--help',
+        action='store_true')
 
-    protocol = 'https'
-    hostname = 'localhost'
-    port = '8443'
-    client_cert = 'kraagent.pem'
+    args = parser.parse_args(args=argv)
 
-    for o, a in opts:
-        if o == '-P':
-            protocol = a
-
-        elif o == '-h':
-            hostname = a
-
-        elif o == '-p':
-            port = a
-
-        elif o == '-n':
-            client_cert = a
-
-        elif o == '--help':
-            usage()
-            sys.exit()
-
-        else:
-            print('ERROR: unknown option ' + o)
-            usage()
-            sys.exit(1)
+    protocol = args.P
+    hostname = args.h
+    port = args.p
+    client_cert = args.n
 
     certdb_dir = tempfile.mkdtemp(prefix='pki-kra-test-')
     print("NSS database dir: %s" % certdb_dir)

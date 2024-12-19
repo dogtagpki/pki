@@ -18,8 +18,7 @@
 # All rights reserved.
 #
 
-from __future__ import absolute_import
-from __future__ import print_function
+import argparse
 import getopt
 import logging
 import socket
@@ -295,6 +294,34 @@ class CreateCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('create', 'Create PKI server')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument('--user')
+        self.parser.add_argument('--group')
+        self.parser.add_argument('--conf')
+        self.parser.add_argument('--logs')
+        self.parser.add_argument(
+            '--with-maven-deps',
+            action='store_true')
+        self.parser.add_argument(
+            '--force',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument(
+            'instance_name',
+            nargs='?',
+            default='pki-tomcat')
+
     def print_help(self):
         print('Usage: pki-server create [OPTIONS] [<instance ID>]')
         print()
@@ -311,61 +338,25 @@ class CreateCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'v', [
-                'user=', 'group=', 'conf=', 'logs=',
-                'with-maven-deps', 'force',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        user = None
-        group = None
-        conf_dir = None
-        logs_dir = None
-        with_maven_deps = False
-        force = False
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o == '--user':
-                user = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--group':
-                group = a
-
-            elif o == '--conf':
-                conf_dir = a
-
-            elif o == '--logs':
-                logs_dir = a
-
-            elif o == '--with-maven-deps':
-                with_maven_deps = True
-
-            elif o == '--force':
-                force = True
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) > 0:
-            instance_name = args[0]
+        instance_name = args.instance_name
+        user = args.user
+        group = args.group
+        conf_dir = args.conf
+        logs_dir = args.logs
+        with_maven_deps = args.with_maven_deps
+        force = args.force
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -397,6 +388,33 @@ class RemoveCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('remove', 'Remove PKI server')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '--remove-conf',
+            action='store_true')
+        self.parser.add_argument(
+            '--remove-logs',
+            action='store_true')
+        self.parser.add_argument(
+            '--force',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument(
+            'instance_name',
+            nargs='?',
+            default='pki-tomcat')
+
     def print_help(self):
         print('Usage: pki-server remove [OPTIONS] [<instance ID>]')
         print()
@@ -410,48 +428,22 @@ class RemoveCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'v', [
-                'remove-conf', 'remove-logs', 'force',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        remove_conf = False
-        remove_logs = False
-        force = False
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, _ in opts:
-            if o == '--remove-conf':
-                remove_conf = True
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--remove-logs':
-                remove_logs = True
-
-            elif o == '--force':
-                force = True
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) > 0:
-            instance_name = args[0]
+        instance_name = args.instance_name
+        remove_conf = args.remove_conf
+        remove_logs = args.remove_logs
+        force = args.force
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -472,6 +464,24 @@ class StatusCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('status', 'Display PKI service status')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument(
+            'instance_name',
+            nargs='?',
+            default='pki-tomcat')
+
     def print_help(self):
         print('Usage: pki-server status [OPTIONS] [<instance ID>]')
         print()
@@ -482,35 +492,19 @@ class StatusCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'v', [
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, _ in opts:
-            if o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) > 0:
-            instance_name = args[0]
+        instance_name = args.instance_name
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -528,6 +522,34 @@ class StartCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('start', 'Start PKI service')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '--wait',
+            action='store_true')
+        self.parser.add_argument(
+            '--max-wait',
+            type=int,
+            default=60)
+        self.parser.add_argument(
+            '--timeout',
+            type=int)
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument(
+            'instance_name',
+            nargs='?',
+            default='pki-tomcat')
+
     def print_help(self):
         print('Usage: pki-server start [OPTIONS] [<instance ID>]')
         print()
@@ -541,48 +563,22 @@ class StartCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'v', [
-                'wait', 'max-wait=', 'timeout=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        wait = False
-        max_wait = 60
-        timeout = None
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o == '--wait':
-                wait = True
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--max-wait':
-                max_wait = int(a)
-
-            elif o == '--timeout':
-                timeout = int(a)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) > 0:
-            instance_name = args[0]
+        instance_name = args.instance_name
+        wait = args.wait
+        max_wait = args.max_wait
+        timeout = args.timeout
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -602,6 +598,34 @@ class StopCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('stop', 'Stop PKI service')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '--wait',
+            action='store_true')
+        self.parser.add_argument(
+            '--max-wait',
+            type=int,
+            default=60)
+        self.parser.add_argument(
+            '--timeout',
+            type=int)
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument(
+            'instance_name',
+            nargs='?',
+            default='pki-tomcat')
+
     def print_help(self):
         print('Usage: pki-server stop [OPTIONS] [<instance ID>]')
         print()
@@ -615,48 +639,22 @@ class StopCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'v', [
-                'wait', 'max-wait=', 'timeout=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        wait = False
-        max_wait = 60
-        timeout = None
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o == '--wait':
-                wait = True
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--max-wait':
-                max_wait = int(a)
-
-            elif o == '--timeout':
-                timeout = int(a)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) > 0:
-            instance_name = args[0]
+        instance_name = args.instance_name
+        wait = args.wait
+        max_wait = args.max_wait
+        timeout = args.timeout
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -676,6 +674,34 @@ class RestartCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('restart', 'Restart PKI service')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '--wait',
+            action='store_true')
+        self.parser.add_argument(
+            '--max-wait',
+            type=int,
+            default=60)
+        self.parser.add_argument(
+            '--timeout',
+            type=int)
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument(
+            'instance_name',
+            nargs='?',
+            default='pki-tomcat')
+
     def print_help(self):
         print('Usage: pki-server restart [OPTIONS] [<instance ID>]')
         print()
@@ -689,48 +715,22 @@ class RestartCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'v', [
-                'wait', 'max-wait=', 'timeout=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        wait = False
-        max_wait = 60
-        timeout = None
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o == '--wait':
-                wait = True
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--max-wait':
-                max_wait = int(a)
-
-            elif o == '--timeout':
-                timeout = int(a)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) > 0:
-            instance_name = args[0]
+        instance_name = args.instance_name
+        wait = args.wait
+        max_wait = args.max_wait
+        timeout = args.timeout
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -745,6 +745,37 @@ class RunCLI(pki.cli.CLI):
 
     def __init__(self):
         super().__init__('run', 'Run PKI server in foreground')
+
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '--as-current-user',
+            action='store_true')
+        self.parser.add_argument(
+            '--with-jdb',
+            action='store_true')
+        self.parser.add_argument(
+            '--with-gdb',
+            action='store_true')
+        self.parser.add_argument(
+            '--with-valgrind',
+            action='store_true')
+        self.parser.add_argument('--agentpath')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument(
+            'instance_name',
+            nargs='?',
+            default='pki-tomcat')
 
     def print_help(self):
         print('Usage: pki-server run [OPTIONS] [<instance ID>]')
@@ -761,58 +792,24 @@ class RunCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, args = getopt.gnu_getopt(argv, 'v', [
-                'as-current-user',
-                'with-jdb', 'with-gdb', 'with-valgrind',
-                'agentpath=',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        instance_name = 'pki-tomcat'
-        as_current_user = False
-        with_jdb = False
-        with_gdb = False
-        with_valgrind = False
-        agentpath = None
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o == '--as-current-user':
-                as_current_user = True
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--with-jdb':
-                with_jdb = True
-
-            elif o == '--with-gdb':
-                with_gdb = True
-
-            elif o == '--with-valgrind':
-                with_valgrind = True
-
-            elif o == '--agentpath':
-                agentpath = a
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
-        if len(args) > 0:
-            instance_name = args[0]
+        instance_name = args.instance_name
+        as_current_user = args.as_current_user
+        with_jdb = args.with_jdb
+        with_gdb = args.with_gdb
+        with_valgrind = args.with_valgrind
+        agentpath = args.agentpath
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 

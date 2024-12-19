@@ -19,9 +19,7 @@
 # All rights reserved.
 #
 
-from __future__ import absolute_import
-from __future__ import print_function
-import getopt
+import argparse
 import logging
 import os
 import re
@@ -50,6 +48,38 @@ class PKCS12ImportCLI(pki.cli.CLI):
         super(PKCS12ImportCLI, self).__init__(
             'import', 'Import PKCS #12 file into NSS database')
 
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument('--pkcs12')
+        self.parser.add_argument('--pkcs12-file')
+        self.parser.add_argument('--password')
+        self.parser.add_argument('--pkcs12-password')
+        self.parser.add_argument('--password-file')
+        self.parser.add_argument('--pkcs12-password-file')
+        self.parser.add_argument(
+            '--no-trust-flags',
+            action='store_true')
+        self.parser.add_argument(
+            '--no-user-certs',
+            action='store_true')
+        self.parser.add_argument(
+            '--no-ca-certs',
+            action='store_true')
+        self.parser.add_argument(
+            '--overwrite',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
     def print_help(self):
         print('Usage: pki pkcs12-import [OPTIONS]')
         print()
@@ -70,71 +100,43 @@ class PKCS12ImportCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'v', [
-                'pkcs12=', 'password=', 'password-file=',
-                'pkcs12-file=', 'pkcs12-password=', 'pkcs12-password-file=',
-                'no-trust-flags', 'no-user-certs', 'no-ca-certs', 'overwrite',
-                'verbose', 'debug', 'help'])
+        args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        pkcs12_file = None
-        pkcs12_password = None
-        password_file = None
-        no_trust_flags = False
-        import_user_certs = True
-        import_ca_certs = True
-        overwrite = False
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-        for o, a in opts:
-            if o == '--pkcs12':
-                pkcs12_file = a
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--pkcs12-file':
-                pkcs12_file = a
+        pkcs12_file = args.pkcs12
 
-            elif o == '--password':
-                pkcs12_password = a
+        if args.pkcs12_file:
+            logger.warning('The --pkcs12-file option has been deprecated.'
+                           'Use --pkcs12 instead.')
+            pkcs12_file = args.pkcs12_file
 
-            elif o == '--pkcs12-password':
-                pkcs12_password = a
+        pkcs12_password = args.password
 
-            elif o == '--password-file':
-                password_file = a
+        if args.pkcs12_password:
+            logger.warning('The --pkcs12-password option has been deprecated.'
+                           'Use --password instead.')
+            pkcs12_password = args.pkcs12_password
 
-            elif o == '--pkcs12-password-file':
-                password_file = a
+        password_file = args.password_file
 
-            elif o == '--no-trust-flags':
-                no_trust_flags = True
+        if args.pkcs12_password_file:
+            logger.warning('The --pkcs12-password-file option has been deprecated.'
+                           'Use --password-file instead.')
+            password_file = args.pkcs12_password_file
 
-            elif o == '--no-user-certs':
-                import_user_certs = False
-
-            elif o == '--no-ca-certs':
-                import_ca_certs = False
-
-            elif o == '--overwrite':
-                overwrite = True
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Invalid option: %s', o)
-                self.print_help()
-                sys.exit(1)
+        no_trust_flags = args.no_trust_flags
+        import_user_certs = not args.no_user_certs
+        import_ca_certs = not args.no_ca_certs
+        overwrite = args.overwrite
 
         if not pkcs12_file:
             logger.error('Missing PKCS #12 file')
