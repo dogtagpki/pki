@@ -1,3 +1,5 @@
+This content has been copied/converted to [Installing_OCSP_with_External_Certificates.adoc](Installing_OCSP_with_External_Certificates).  The content below will be removed once finalized.
+
 Installing OCSP with External Certificates
 ==========================================
 
