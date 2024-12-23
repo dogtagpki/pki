@@ -1,4 +1,3 @@
-// This content was initially copied/converted from Installing_OCSP_Clone_with_HSM.md
 
 = Installing OCSP Clone with HSM =
 
