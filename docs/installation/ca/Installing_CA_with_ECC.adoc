@@ -1,5 +1,3 @@
-// The initial content was copied/converted from Installing_CA_with_ECC.md
-
 = Installing CA with ECC =
 
 == Overview ==
