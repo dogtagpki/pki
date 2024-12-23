@@ -1,4 +1,3 @@
-// this asciidoc file is converted from Installing_OCSP_Clone.md and modifed with needed changes
 = Installing OCSP Clone =
 
 == Overview ==
