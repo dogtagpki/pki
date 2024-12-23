@@ -1,3 +1,5 @@
+This page has been converted/moved to [Installing_OCSP_Clone_with_HSM.adoc](../ocsp/Installing_OCSP_Clone_with_HSM.adoc). Content below is to be removed after finalizing
+
 Installing OCSP Clone with HSM
 ==============================
 
