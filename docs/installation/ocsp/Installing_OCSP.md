@@ -1,3 +1,5 @@
+// This page has been converted/moved to Installing_OCSP.adoc. Content below is to be removed after finalizing.
+
 Installing OCSP
 ===============
 
