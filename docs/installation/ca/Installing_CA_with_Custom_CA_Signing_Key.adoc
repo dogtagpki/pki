@@ -1,4 +1,3 @@
-// The content of this file was initially copied/converted from Installing_CA_with_Custom_CA_Signing_Key..md
 = Installing CA with Custom CA Signing Key =
 
 == Overview ==
