@@ -1,5 +1,3 @@
-// initial content copied/converted from Installing_Subordinate_CA.md
-
 = Installing Subordinate CA =
 
 == Overview ==
