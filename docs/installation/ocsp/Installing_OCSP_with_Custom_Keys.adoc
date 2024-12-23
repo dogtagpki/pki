@@ -1,4 +1,3 @@
-// The content was initialy copied/converted from Installing_OCSP_with_Custom_Keys.md
 
 = Installing OCSP with Custom Keys =
 
