@@ -1,3 +1,5 @@
+This page has been copied/converted to [Installing_OCSP_with_Custom_Keys.adoc](Installing_OCSP_with_Custom_Keys.adoc). The content below will be removed once finalized.
+
 Installing OCSP with Custom Keys
 ================================
 
