@@ -36,7 +36,7 @@ where
 * *instance_name* specifies the name of the DS instance. In this example it's set to `localhost`.
 * *root_password* specifies the password for DS admin (i.e. `cn=Directory Manager`). In this example it's set to `Secret.123`.
 * *suffix* specifies the namespace for the DS instance. In this example it's set to `dc=example,dc=com`.
-* *self_sign_cert* specifies whether to create self-signed certificates for SSL connection. In this example it's set to `False`. The SSL connection can be enabled after installation in link:Enabling-SSL-Connection-in-DS[this document].
+* *self_sign_cert* specifies whether to create self-signed certificates for SSL connection. In this example it's set to `False`. The SSL connection can be enabled after installation in link:https://github.com/dogtagpki/389-ds-base/wiki/Configuring-SSL-Connection[this document].
 
 For more information see the parameter descriptions in the DS configuration file itself (i.e. `ds.inf`) and in link:https://directory.fedoraproject.org/docs/389ds/design/dsadm-dsconf.html[DS documentation].
 
