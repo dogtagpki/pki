@@ -12,6 +12,9 @@ Prepare a file (e.g. ocsp.cfg) that contains the deployment configuration, for e
 
 ```
 [DEFAULT]
+pki_instance_name=pki-tomcat
+pki_https_port=8443
+pki_http_port=8080
 pki_server_database_password=Secret.123
 
 pki_hsm_enable=True
@@ -19,6 +22,10 @@ pki_hsm_libfile=/usr/lib64/pkcs11/libsofthsm2.so
 pki_hsm_modulename=softhsm
 pki_token_name=HSM
 pki_token_password=Secret.HSM
+
+[Tomcat]
+pki_ajp_port=8009
+pki_tomcat_server_port=8005
 
 [OCSP]
 pki_admin_cert_file=ca_admin.cert
@@ -33,6 +40,8 @@ pki_client_pkcs12_password=Secret.123
 pki_ds_base_dn=dc=ocsp,dc=pki,dc=example,dc=com
 pki_ds_database=ocsp
 pki_ds_password=Secret.123
+pki_ds_ldap_port=389
+pki_ds_ldaps_port=636
 
 pki_security_domain_name=EXAMPLE
 pki_security_domain_user=caadmin
