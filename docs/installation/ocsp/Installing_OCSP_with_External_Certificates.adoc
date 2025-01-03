@@ -64,7 +64,7 @@ pki_cert_chain_nickname=ca_signing
 pki_cert_chain_path=ca_signing.crt
 ```
 
-A sample deployment configuration is available at [/usr/share/pki/server/examples/installation/ocsp-external-certs-step2.cfg](../../../base/server/examples/installation/ocsp-external-certs-step2.cfg).
+A sample deployment configuration is available at link:../../../base/server/examples/installation/ocsp-external-certs-step2.cfg[/usr/share/pki/server/examples/installation/ocsp-external-certs-step2.cfg].
 
 Finally, execute the following command:
 
