@@ -2,7 +2,7 @@
 //
 = Directory Server Instance Creation =
 
-*Note: Prior to installing DS instances, make sure the procedure for link:Installing_DS_Packages[installing DS packages] has been performed on the host system.*
+*Note: Prior to installing DS instances, make sure the procedure for link:Installing_DS_Packages.adoc[installing DS packages] has been performed on the host system.*
 
 This section describes the process to prepare a local DS instance for PKI server.
 
@@ -37,7 +37,7 @@ where
 * *instance_name* specifies the name of the DS instance. In this example it's set to `localhost`.
 * *root_password* specifies the password for DS admin (i.e. `cn=Directory Manager`). In this example it's set to `Secret.123`.
 * *suffix* specifies the namespace for the DS instance. In this example it's set to `dc=example,dc=com`.
-* *self_sign_cert* specifies whether to create self-signed certificates for SSL connection. In this example it's set to `False`. The SSL connection can be enabled after installation in link:https://github.com/dogtagpki/389-ds-base/wiki/Configuring-SSL-Connection[this document].
+* *self_sign_cert* specifies whether to create self-signed certificates for SSL connection. In this example it's set to `False`. The SSL connection can be enabled after installation in link:https://github.com/dogtagpki/389-ds-base/wiki/Configuring-SSL-Connection.adoc[this document].
 
 For more information see the parameter descriptions in the DS configuration file itself (i.e. `ds.inf`) and in link:https://directory.fedoraproject.org/docs/389ds/design/dsadm-dsconf.html[DS documentation].
 
@@ -61,13 +61,13 @@ dc: pki
 EOF
 ----
 
-The subtree for each PKI subsystem will be created when the subsystem is installed. See link:PKI-LDAP-Tree[PKI LDAP Tree].
+The subtree for each PKI subsystem will be created when the subsystem is installed. See link:../others/PKI-LDAP-Tree.adoc[PKI LDAP Tree].
 
 == Enabling SSL Connection ==
 
 If required, PKI can use SSL connection to DS.
 
-To enable SSL connection in DS, see link:../others/Enabling-SSL-Connection-in-DS[Enabling SSL Connection in DS].
+To enable SSL connection in DS, see link:../others/Enabling-SSL-Connection-in-DS.adoc[Enabling SSL Connection in DS].
 
 == Configuring Replication ==
 
