@@ -85,11 +85,11 @@ Store the external CA certificate chain in a file (e.g. ca_signing.crt). The cer
 
 See also:
 
-* https://github.com/dogtagpki/pki/wiki/Generating-OCSP-Signing-Certificate[Generating OCSP Signing Certificate]
-* https://github.com/dogtagpki/pki/wiki/Generating-Subsystem-Certificate[Generating Subsystem Certificate]
-* https://github.com/dogtagpki/pki/wiki/Generating-SSL-Server-Certificate[Generating SSL Server Certificate](https://github.com/dogtagpki/pki/wiki/Generating-SSL-Server-Certificate)
-* https://github.com/dogtagpki/pki/wiki/Generating-Audit-Signing-Certificate[Generating Audit Signing Certificate]
-* https://github.com/dogtagpki/pki/wiki/Generating-Admin-Certificate[Generating Admin Certificate](https://github.com/dogtagpki/pki/wiki/Generating-Admin-Certificate)
+* link:https://github.com/dogtagpki/pki/wiki/Generating-OCSP-Signing-Certificate[Generating OCSP Signing Certificate]
+* link:https://github.com/dogtagpki/pki/wiki/Generating-Subsystem-Certificate[Generating Subsystem Certificate]
+* link:https://github.com/dogtagpki/pki/wiki/Generating-SSL-Server-Certificate[Generating SSL Server Certificate]
+* link:https://github.com/dogtagpki/pki/wiki/Generating-Audit-Signing-Certificate[Generating Audit Signing Certificate]
+* link:https://github.com/dogtagpki/pki/wiki/Generating-Admin-Certificate[Generating Admin Certificate]
 
 == Finishing OCSP Subsystem Installation ==
 
