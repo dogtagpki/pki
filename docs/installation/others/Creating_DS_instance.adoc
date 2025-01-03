@@ -13,6 +13,7 @@ but it can be enabled after installation if necessary.
 For DS 1.3 or older, see link:https://github.com/dogtagpki/pki/wiki/DS-1.3-Installation[DS 1.3 Installation].
 
 == Creating a DS Instance ==
+
 === Generate a DS configuration file (e.g. `ds.inf`): ===
 
 ----
@@ -66,7 +67,7 @@ The subtree for each PKI subsystem will be created when the subsystem is install
 
 If required, PKI can use SSL connection to DS.
 
-To enable SSL connection in DS, see link:Enabling-SSL-Connection-in-DS[Enabling SSL Connection in DS].
+To enable SSL connection in DS, see link:../others/Enabling-SSL-Connection-in-DS[Enabling SSL Connection in DS].
 
 == Configuring Replication ==
 
