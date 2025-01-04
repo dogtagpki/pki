@@ -12,6 +12,12 @@ jobs:
     env:
       SHARED: /tmp/workdir/pki
     steps:
+      - name: Install dependencies
+        run: |
+          # workaround for https://github.com/containers/podman/issues/21683
+          sudo ls -lR /var/lib/containers
+          sudo rm -rf /var/lib/containers/*
+
       - name: Clone repository
         uses: actions/checkout@v4
 
