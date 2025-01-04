@@ -12,7 +12,7 @@ Prior to installation, please ensure that the following are configured:
 
 == DS Configuration ==
 
-Once the prerequisites listed above are completed, export the DS signing certificate into `ds_signing.p12` and copy the certificate into clone system with the following command:
+Once the prerequisites listed above are completed on the clone system, go on the existing system and export the DS signing certificate into `ds_signing.p12` and copy the certificate into clone system with the following command:
 
 ```
 $ pki -d /etc/dirsrv/slapd-localhost \
