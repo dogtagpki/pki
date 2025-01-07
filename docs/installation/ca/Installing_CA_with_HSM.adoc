@@ -61,6 +61,7 @@ $ pkispawn -f ca.cfg -s CA
 ```
 
 It will install CA subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
+
 * server NSS database: /var/lib/pki/pki-tomcat/conf/alias
 * admin NSS database: ~/.dogtag/pki-tomcat/ca/alias
 
