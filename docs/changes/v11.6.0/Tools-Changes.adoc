@@ -53,3 +53,15 @@ to specify the user certificate.
 
 The `pki-server ca-cert-create` command has been updated to provide an option
 to import the new certificate into CA database.
+
+== Update pkispawn to support EST and ACME subsystem ==
+
+The `pki-server <subsystem>-user-add` command has been updated to provide an option
+
+== Update pkispawn
+
+The `pkispawn` command has been updated to include ACME and EST subsystem deployment.
+
+== Update pkidestroy
+
+The `pkidestroy` command has been updated to include ACME and EST subsystem removal.
