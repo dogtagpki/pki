@@ -43,5 +43,5 @@ JovTekCfljA=
 -----END NEW CERTIFICATE REQUEST-----
 ----
 
-To generate a certificate request and submit it to CA, see link:Submitting-Certificate-Request-with-Key-Archival[Submitting Certificate Request with Key Archival].
+To generate a certificate request and submit it to CA, see link:../Submitting-Certificate-Request-with-Key-Archival.adoc[Submitting Certificate Request with Key Archival].
 

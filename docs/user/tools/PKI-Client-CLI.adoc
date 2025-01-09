@@ -1,0 +1,194 @@
+= PKI Client CLI =
+
+== Overview ==
+
+PKI provides CLI to manage client environment.
+
+== Initializing Client Database ==
+
+A client database is needed for client certificate authentication and various other operations.
+
+A new client database can be initialized with the following command:
+
+----
+$ pki -c Secret.123 client-init
+------------------
+Client initialized
+------------------
+----
+
+By default it will create a database in `~/.dogtag/nssdb` with the specified password.
+
+This operation is optional for the admin. When the admin creates a new subsystem, a client security database will automatically be created (e.g. `~/.dogtag/pki-tomcat/ca/alias`). The database can be used directly as follows:
+
+----
+$ pki -d ~/.dogtag/pki-tomcat/ca/alias -c Secret.123 -n caadmin ca-user-find
+----
+
+== Listing Client Certificates ==
+
+The certificates in the client security database can be listed using the following command:
+
+----
+$ pki -c Secret.123 client-cert-find
+----------------------
+2 certificate(s) found
+----------------------
+  Serial Number: 0x1
+  Nickname: CA Signing Certificate - EXAMPLE
+  Subject DN: CN=CA Signing Certificate,OU=pki-tomcat,O=EXAMPLE
+  Issuer DN: CN=CA Signing Certificate,OU=pki-tomcat,O=EXAMPLE
+
+  Serial Number: 0xa
+  Nickname: testuser
+  Subject DN: UID=testuser
+  Issuer DN: CN=CA Signing Certificate,OU=pki-tomcat,O=EXAMPLE
+----------------------------
+Number of entries returned 2
+----------------------------
+----
+
+== Requesting Client Certificate ==
+
+The `pki client-cert-request` can be used to request a client certificate from the CA.
+
+If key archival is not needed, use a PKCS #10 request. If key archival is needed, use a CRMF request.
+
+=== PKCS #10 Request ===
+
+To generate and submit a PKCS #10 request:
+
+----
+$ pki -c Secret.123 client-cert-request uid=testuser
+-----------------------------
+Submitted certificate request
+-----------------------------
+  Request ID: 7
+  Type: enrollment
+  Request Status: pending
+  Operation Result: success
+----
+
+=== CRMF Request ===
+
+Use a profile that supports key archival, e.g. caSigningUserCert. Prior to PKI 10.3 use caDualCert profile.
+
+To generate and submit a CRMF request:
+
+----
+$ pki -c Secret.123 client-cert-request uid=testuser --profile caSigningUserCert --type crmf
+-----------------------------
+Submitted certificate request
+-----------------------------
+  Request ID: 28
+  Type: enrollment
+  Request Status: pending
+  Operation Result: success
+----
+
+By default it will download the transport certificate from the CA. To use a transport certificate stored in a local file, specify `--transport <filename>`. Either way, the transport certificate will be imported into the client's NSS database.
+
+See also link:Submitting-Certificate-Request-with-Key-Archival.adoc[Submitting Certificate Request with Key Archival].
+
+== Importing CA Certificate ==
+
+This operation is optional. When the CLI connects to the server via SSL it will check if the CA certificate already exists in the client security database. If it does not exist, the CLI will ask the user whether to download and import the CA certificate from the CA server.
+
+----
+$ pki ... user-find
+WARNING: UNTRUSTED ISSUER encountered on 'CN=pki.example.com,O=EXAMPLE' indicates a non-trusted CA cert 'CN=CA Signing Certificate,O=EXAMPLE'
+Import CA certificate (Y/n)?
+CA server URI [http://pki.example.com:8080/ca]:
+----
+
+Alternatively, the server certificate chain can be imported manually. To download and import CA certificate from the CA server:
+
+----
+$ pki client-cert-import "CA Certificate" --ca-server
+-------------------------------------
+Imported certificate "CA Certificate"
+-------------------------------------
+----
+
+To import CA certificate from a file:
+
+----
+$ pki client-cert-import "CA Certificate" --ca-cert ca.pem
+-------------------------------------
+Imported certificate "CA Certificate"
+-------------------------------------
+----
+
+== Importing Client Certificate ==
+
+To import client certificate directly from CA:
+
+----
+$ pki client-cert-import testuser --serial 0x8
+----
+
+To import client certificate from file:
+
+----
+$ pki client-cert-import testuser --cert testuser.crt
+----
+
+== Importing Client Certificate and Private key ==
+
+This operation is also optional for the admin. When the admin creates a new subsystem the admin certificate (e.g. caadmin) and the private key will automatically be stored in the client security database. The admin certificate can be used directly as follows:
+
+----
+$ pki ... -n caadmin ...
+----
+
+Otherwise, the client certificate and the private key can be imported from a PKCS #12 file using the following command:
+
+----
+$ pk12util -i client_cert.p12 -d ~/.dogtag/nssdb -K Secret.123 -W Secret.123
+pk12util: PKCS12 IMPORT SUCCESSFUL
+----
+
+----
+$ pki -c Secret.123 client-cert-import --pkcs12 ca_admin_cert.p12 --pkcs12-password Secret.123
+----------------------------------------
+Imported certificates from PKCS #12 file
+----------------------------------------
+----
+
+== Displaying Client Certificate Usages ==
+
+To display client certificate usage:
+
+----
+$ pki client-cert-validate testuser
+Cert has the following usages: SSLClient,UserCertImport,VerifyCA,ProtectedObjectSigner,AnyCA
+----
+
+== Validating Client Certificate ==
+
+To validate client certificate usage:
+
+----
+$ pki client-cert-validate testuser --certusage SSLClient
+Valid certificate: testuser
+----
+
+== Removing Client Certificate ==
+
+Client certificates can be removed with the following command:
+
+----
+$ pki client-cert-del testuser
+------------------------------
+Removed certificate "testuser"
+------------------------------
+----
+
+**Note:** This command has been deprecated in PKI 11.5. Use `pki nss-cert-del` instead.
+
+== See Also ==
+
+* link:PKI-CLI.adoc[PKI CLI]
+* link:Generating-CSR/Generating-Certificate-Request.adoc[Generating Certificate Request]
+* link:docs/design/Cert_Enrollment_Profiles/Certificate-Profiles.adoc[Certificate Profiles]
+
