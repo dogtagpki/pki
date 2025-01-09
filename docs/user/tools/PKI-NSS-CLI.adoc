@@ -1,5 +1,5 @@
 // the initial content was copied from https://github.com/dogtagpki/pki/wiki/PKI-NSS-CLI
-= PKI Client CLI =
+= PKI NSS CLI =
 
 == Overview ==
 
