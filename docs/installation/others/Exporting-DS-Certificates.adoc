@@ -1,5 +1,7 @@
 // initial content copied from https://github.com/dogtagpki/pki/wiki/Exporting-DS-Certificates
-= Overview =
+= Exporting DS Certificates =
+
+== Overview ==
 
 This page describes the process to export the signing certificate and the server certificate from the NSS database of a DS instance.
 
@@ -8,7 +10,7 @@ but they can also be created after installation.
 
 This page assumes that a DS instance named `localhost` is already created and has the certificates.
 
-= Exporting DS Signing Certificate =
+== Exporting DS Signing Certificate ==
 
 To export DS signing certificate:
 
@@ -16,7 +18,7 @@ To export DS signing certificate:
 $ certutil -L -d /etc/dirsrv/slapd-localhost -n Self-Signed-CA -a > ds_signing.crt
 ----
 
-= Exporting DS Server Certificate =
+== Exporting DS Server Certificate ==
 
 To export DS server certificate:
 
