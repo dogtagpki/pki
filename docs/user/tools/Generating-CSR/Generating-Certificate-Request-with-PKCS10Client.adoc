@@ -1,0 +1,41 @@
+= Generating Certificate Request with PKCS10Client =
+
+The `PKCS10Client` command can be used to generate a PKCS #10 request. For example:
+
+----
+$ PKCS10Client \
+    -d ~/.dogtag/nssdb \
+    -p Secret.123 \
+    -a rsa \
+    -l 2048 \
+    -o testuser.csr \
+    -n "uid=testuser,ou=people,dc=example,dc=com"
+PKCS10Client: Certificate request written into testuser.csr
+PKCS10Client: PKCS#10 request key id written into testuser.csr.keyId
+----
+
+The CSR will be stored in `testuser.csr`:
+
+----
+-----BEGIN CERTIFICATE REQUEST-----
+MIICnjCCAYYCAQAwWTETMBEGCgmSJomT8ixkARkWA2NvbTEXMBUGCgmSJomT8ixkARkWB2V4YW1w
+bGUxDzANBgNVBAsMBnBlb3BsZTEYMBYGCgmSJomT8ixkAQEMCHRlc3R1c2VyMIIBIjANBgkqhkiG
+9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtRip472Jza92YAPnCZ6vyF32QGC+hpPnLbJv9kXRHWCVIHnM
+J/Ifxa8MGitf3jqsy7pZMwW4MJwPMa4ai2jwE4u14dOVH4NMxjwM+IuEbWVbyenMS3HO1vCpo49X
+mwZbL3wvM83UJgd89l6qtqY5t9vmgzixDB83cxsoIQBXK2MiBl6ndn5lMP2CPdtF6vRt6CVOneN6
+u/nBlLv4FFJUDYep5fVLz8HvaQhcApa3/rIMxf1L919Eu+gj6WfvbW/vk+UM6UswoRQSgTr2Yl4n
+Zyqt7H0c8wOsEqkESKrCvZYiBC8rMOgYJ2uoBGJBjvXXAFo6Br1OvVOSB/h+oJtq2wIDAQABoAAw
+DQYJKoZIhvcNAQELBQADggEBAIF8nUIwYPjPLDd61XO7Ai5uA5NhzHj/QIL25KdzSuDguURSsLMQ
+X4APwvCvmS77VL6wqrKx3yRoND3JhoU8WZ619vrpb76WXgs0Zm8zO8YigTbAJiFIak3BU6H+2wdX
+OhPSFZjdAdx4rY/qt2HwpkiJhuh1SkbboW8pKWwOeJmpPEc7GzzGxz/BcxfuAGg7FAwJTFFQWnZu
+rsN6Sls1sdkp7DFm+kA5IhVkv2IL9Pqc5IJoqvGAwrz/vBGGm5gZS/stEadHwBPdOHjK/3htWfwh
+Q7M9P7pkGWo/D1hTox//hpO29Lxxx6drmxVJpA4PAQLXtcd91EKkkYPEFBKv/pc=
+-----END CERTIFICATE REQUEST-----
+----
+
+The key ID will be stored in `testuser.csr.keyId`:
+
+----
+15d1047e2bb988e75a8c66cd75d3fec430fe1f4c
+----
+

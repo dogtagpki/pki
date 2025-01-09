@@ -25,5 +25,5 @@ $ pki nss-remove
 
 == See Also ==
 
-* link:PKI-NSS-Certificate-CLI[PKI NSS Certificate CLI]
-* link:PKI-NSS-Key-CLI[PKI NSS Key CLI]
+* link:PKI-NSS-Certificate-CLI.adoc[PKI NSS Certificate CLI]
+* link:PKI-NSS-Key-CLI.adoc[PKI NSS Key CLI]
