@@ -14,7 +14,7 @@ PKI CA provides certificate profiles that can be used by end-entities for certif
 
 == See Also ==
 
-* link:Certificate-Profiles[Certificate Profiles]
+* link:Certificate-Profiles.adoc[Certificate Profiles]
 * link:Certificate-Profile-Constraints[Certificate Profile Constraints]
 * link:Certificate-Profile-Defaults[Certificate Profile Defaults]
 * link:Configuring-Certificate-Profiles[Configuring Certificate Profiles]
