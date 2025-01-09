@@ -1,5 +1,7 @@
 // This content was copied and adjusted from https://github.com/dogtagpki/pki/wiki/Enabling-SSL-Connection-in-DS
-= Overview =
+= Enabling SSL Connection in DS =
+
+== Overview ==
 
 This page describes the process to enable SSL connection in DS
 using a self-signed signing certificate and server certificate
@@ -11,7 +13,7 @@ it does not have certificates, and the SSL connection is disabled.
 *Note:* In newer DS versions the certificates are created and the SSL connection is enabled by default,
 so it's not necessary to follow this procedure.
 
-= Creating DS Signing Certificate =
+== Creating DS Signing Certificate ==
 
 First, generate DS signing CSR with the following command:
 
@@ -70,7 +72,7 @@ $ certutil -L -d /etc/dirsrv/slapd-localhost -n Self-Signed-CA
             User
 ----
 
-= Creating DS Server Certificate =
+== Creating DS Server Certificate ==
 
 First, generate DS server CSR with the following command:
 
@@ -122,7 +124,7 @@ $ certutil -L -d /etc/dirsrv/slapd-localhost -n Server-Cert
             User
 ----
 
-= Enabling SSL Connection =
+== Enabling SSL Connection ==
 
 To enable SSL connection in the DS instance:
 
@@ -148,7 +150,7 @@ $ LDAPTLS_REQCERT=never ldapsearch \
     -s base
 ----
 
-= See Also =
+== See Also ==
 
 * link:https://www.port389.org/docs/389ds/howto/howto-ssl.html[Configuring TLS/SSL Enabled 389 Directory Server]
 * link:https://access.redhat.com/documentation/en-us/red_hat_directory_server/11/html/administration_guide/enabling_tls#doc-wrapper[RHDS 11: Enabling TLS]
