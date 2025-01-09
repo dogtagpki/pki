@@ -1,0 +1,36 @@
+= Bootstrap Profiles =
+
+== Overview ==
+
+Bootstrap profiles are used to generate the initial system certificates during CA installation. These profiles are not used after installation.
+
+The templates for bootstrap profiles are stored in link:https://github.com/dogtagpki/pki/tree/master/base/ca/shared/conf[/usr/share/pki/ca/conf]. 
+
+* CA signing certificate:
+** https://github.com/dogtagpki/pki/blob/master/base/ca/shared/conf/caCert.profile[caCert.profile]
+
+* CA OCSP signing certificate:
+** https://github.com/dogtagpki/pki/blob/master/base/ca/shared/conf/caOCSPCert.profile[caOCSPCert.profile]
+
+* CA Audit signing certificate:
+** https://github.com/dogtagpki/pki/blob/master/base/ca/shared/conf/caAuditSigningCert.profile[caAuditSigningCert.profile]
+
+* Subsystem certificate:
+** https://github.com/dogtagpki/pki/blob/master/base/ca/shared/conf/rsaSubsystemCert.profile[rsaSubsystemCert.profile]
+** https://github.com/dogtagpki/pki/blob/master/base/ca/shared/conf/eccSubsystemCert.profile[eccSubsystemCert.profile]
+
+* Server certificate:
+** https://github.com/dogtagpki/pki/blob/master/base/ca/shared/conf/eccServerCert.profile[eccServerCert.profile]
+** https://github.com/dogtagpki/pki/blob/master/base/ca/shared/conf/rsaServerCert.profile[rsaServerCert.profile]
+
+* CA Admin certificate:
+** https://github.com/dogtagpki/pki/blob/master/base/ca/shared/conf/rsaAdminCert.profile[rsaAdminCert.profile]
+** https://github.com/dogtagpki/pki/blob/master/base/ca/shared/conf/eccAdminCert.profile[eccAdminCert.profile]
+
+== See Also ==
+
+* link:Configuring-Bootstrap-Profiles[Configuring Bootstrap Profiles]
+* link:Configuring-Certificate-Profiles[Configuring Certificate Profiles]
+* link:Certificate-Profile-Constraints[Certificate Profile Constraints]
+* link:https://www.ietf.org/rfc/rfc3280.txt[RFC 3280 - Certificate and Certificate Revocation List (CRL) Profile]
+* link:https://frasertweedale.github.io/blog-redhat/posts/2019-03-04-dogtag-system-cert-lifetime.html[Customising Dogtag system certificate lifetimes]
