@@ -1,0 +1,17 @@
+= Certificate Profiles =
+
+== Overview ==
+////
+original author: Christina Fu <cfu@redhat.com>
+////
+
+image::https://raw.githubusercontent.com/wiki/dogtagpki/pki/images/PKI_ProfileFramework_cfu.png[Certificate Enrollment Profile Framework]
+
+The Certificate System uses certificate profiles to configure the content of the certificate, the constraints for issuing the certificate, the enrollment method used, and the input and output forms for that enrollment. A single certificate profile is associated with issuing a particular type of certificate.
+
+A set of certificate profiles is included for the most common certificate types; the profile settings can be modified. Certificate profiles are configured by an administrator, and then sent to the agent services page for agent approval. Once a certificate profile is approved, it is enabled for use. A dynamically-generated HTML form for the certificate profile is used in the end-entities page for certificate enrollment, which calls on the certificate profile. The server verifies that the defaults and constraints set in the certificate profile are met before acting on the request and uses the certificate profile to determine the content of the issued certificate.
+
+Certificate profiles can be crafted to meet all kinds of needs.  For example:
+
+* link:Bootstrap-Profiles[Bootstrap Profiles] - used to generate system certificates during CA installation
+* link:CA-Certificate-Profiles[CA Certificate Profiles] - provided by CA for use by end-entities post installation
