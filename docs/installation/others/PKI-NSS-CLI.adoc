@@ -1,9 +1,11 @@
 // the initial content was copied from https://github.com/dogtagpki/pki/wiki/PKI-NSS-CLI
-= Overview =
+= PKI Client CLI =
+
+== Overview ==
 
 The `pki nss` commands can be used to manage an NSS database and its contents.
 
-= Creating NSS Database =
+== Creating NSS Database ==
 
 To create a new NSS database:
 
@@ -13,7 +15,7 @@ $ pki nss-create
 
 By default it will create the NSS database in `~/.dogtag/nssdb`.
 
-= Removing NSS Database =
+== Removing NSS Database ==
 
 To remove an existing NSS database:
 
@@ -21,7 +23,7 @@ To remove an existing NSS database:
 $ pki nss-remove
 ----
 
-= See Also =
+== See Also ==
 
 * link:PKI-NSS-Certificate-CLI[PKI NSS Certificate CLI]
 * link:PKI-NSS-Key-CLI[PKI NSS Key CLI]
