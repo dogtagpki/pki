@@ -190,5 +190,5 @@ Removed certificate "testuser"
 
 * link:PKI-CLI.adoc[PKI CLI]
 * link:Generating-CSR/Generating-Certificate-Request.adoc[Generating Certificate Request]
-* link:docs/design/Cert_Enrollment_Profiles/Certificate-Profiles.adoc[Certificate Profiles]
+* link:../../design/Cert_Enrollment_Profiles/Certificate-Profiles.adoc[Certificate Profiles]
 
