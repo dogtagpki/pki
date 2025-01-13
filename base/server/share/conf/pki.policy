@@ -26,6 +26,13 @@ grant codeBase "file:${catalina.home}/bin/tomcat-juli.jar" {
         permission java.io.FilePermission "${catalina.base}/logs/-", "read,write";
 };
 
+// If log rotate is initiated by a log call using slf4j-impl
+// the library need to have read/write access to log folder or
+// the policy will denied access and the rotation fails
+grant codeBase "file:/usr/share/java/slf4j/-" {
+        permission java.io.FilePermission "${catalina.base}/logs/-", "read,write";
+};
+
 // According to /etc/tomcat/catalina.policy:
 // If using a per instance lib directory, i.e. ${catalina.base}/lib,
 // then the following permission will need to be uncommented
@@ -49,3 +56,4 @@ grant codeBase "file:/usr/share/java/pki/-" {
 grant codeBase "file:${catalina.base}/webapps/-" {
         permission java.security.AllPermission;
 };
+
