@@ -8,7 +8,9 @@ env:
 jobs:
   test:
     name: Test
-    runs-on: ubuntu-latest
+    # workaround for Podman issue on Ubuntu 24
+    # https://github.com/containers/podman/issues/21683
+    runs-on: ubuntu-22.04
     env:
       SHARED: /tmp/workdir/pki
     steps:
@@ -51,10 +53,12 @@ jobs:
 
       - name: Install Podman
         run: |
-          docker exec pki dnf install -y podman fuse-overlayfs
-          docker exec pki podman info
+          docker exec pki dnf install -y podman sqlite fuse-overlayfs
+          docker exec pki ls -lR /usr/share/containers
+          docker exec pki cat /usr/share/containers/containers.conf
+          docker exec pki cat /usr/share/containers/storage.conf
 
-      - name: Configure rootless container
+      - name: Configure Podman
         run: |
           # enable SETUID and SETGID capabilities
           # https://github.com/containers/podman/discussions/21739
@@ -86,7 +90,7 @@ jobs:
           mount_program = "/usr/bin/fuse-overlayfs"
           EOF
 
-          docker exec -u pkiuser pki podman system info --format=json | tee output
+          docker exec -u pkiuser pki podman info --format=json | tee output
 
           # rootless should be enabled
           echo "true" > expected
