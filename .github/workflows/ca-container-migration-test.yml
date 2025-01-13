@@ -97,8 +97,30 @@ jobs:
 
       - name: Install Podman
         run: |
-          docker exec pki dnf install -y podman
-          docker exec pki podman info
+          docker exec pki dnf install -y podman sqlite
+          docker exec pki ls -lR /usr/share/containers
+          docker exec pki cat /usr/share/containers/containers.conf
+          docker exec pki cat /usr/share/containers/storage.conf
+
+      - name: Configure Podman
+        run: |
+          OS_VERSION=$(lsb_release -r -s | sed 's/\..*$//')
+          echo "OS_VERSION: $OS_VERSION"
+
+          # workaround for Podman issue on Ubuntu 24
+          # https://github.com/containers/podman/issues/21683
+          if [ "$OS_VERSION" -ge "24" ]; then
+              docker exec -i pki sqlite3 /var/lib/containers/storage/db.sql << EOF
+          update DBConfig set GraphDriver = 'overlay' where GraphDriver = '';
+          EOF
+          fi
+
+          docker exec pki podman info --format=json | tee output
+
+          # rootless should be disabled
+          echo "false" > expected
+          jq -r '.host.security.rootless' output > actual
+          diff expected actual
 
       - name: Load PKI images into root user's space
         run: |
