@@ -66,9 +66,9 @@ the database. Installation instructions can be found link:https://www.postgresql
 
 After the installation, verify the database connection with the
 following command:
-
-``` $
-psql -U est -d est ```
+```
+$ psql -U est -d est
+```
     
 To use the _PostreSQL_ DB the user tables should be created with the
 sql file provided in
