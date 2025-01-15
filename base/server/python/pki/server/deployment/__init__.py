@@ -5188,11 +5188,29 @@ class PKIDeployer:
         self.instance.copy(manifest_file, manifest_archive, force=True)
 
     def restore_selinux_contexts(self):
-
-        selinux.restorecon(self.instance.base_dir, True)
-        selinux.restorecon(config.PKI_DEPLOYMENT_LOG_ROOT, True)
-        selinux.restorecon(self.instance.actual_logs_dir, True)
-        selinux.restorecon(self.instance.actual_conf_dir, True)
+        # The restocon API is not working in RHEL
+        # (see https://issues.redhat.com/browse/RHEL-73348).
+        #
+        #selinux.restorecon(self.instance.base_dir, True)
+        #selinux.restorecon(config.PKI_DEPLOYMENT_LOG_ROOT, True)
+        #selinux.restorecon(self.instance.actual_logs_dir, True)
+        #selinux.restorecon(self.instance.actual_conf_dir, True)
+        folders = [
+            self.instance.base_dir,
+            config.PKI_DEPLOYMENT_LOG_ROOT,
+            self.instance.actual_logs_dir,
+            self.instance.actual_conf_dir
+        ]
+        for folder in folders:
+            cmd = [
+                '/usr/sbin/restorecon',
+                '-R'
+            ]
+            if logger.isEnabledFor(logging.DEBUG):
+                cmd.append('-v')
+            cmd.append(folder)
+            logger.debug('Command: %s', ' '.join(cmd))
+            subprocess.run(cmd, check=True)
 
     def selinux_context_exists(self, records, context_value):
         '''
