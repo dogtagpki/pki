@@ -237,7 +237,7 @@ public class MainCLI extends CLI {
         option = new Option(null, "ignore-banner", false, "Ignore access banner");
         options.addOption(option);
 
-        option = new Option(null, "message-format", true, "Message format: xml (default), json");
+        option = new Option(null, "message-format", true, "Message format: json (default), xml");
         option.setArgName("format");
         options.addOption(option);
 
