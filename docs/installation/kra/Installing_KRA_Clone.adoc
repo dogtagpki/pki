@@ -44,12 +44,12 @@ $ pki -d /var/lib/pki/pki-tomcat/conf/alias -f /var/lib/pki/pki-tomcat/conf/pass
 Prepare a deployment configuration (e.g. `kra-clone.cfg`) to deploy KRA subsystem clone.
 By default the subsystem will be deployed into a Tomcat instance called `pki-tomcat`.
 
-A sample deployment configuration is available at [/usr/share/pki/server/examples/installation/kra-clone.cfg](../../../base/server/examples/installation/kra-clone.cfg).
+A sample deployment configuration is available at link:../../../base/server/examples/installation/kra-clone.cfg[/usr/share/pki/server/examples/installation/kra-clone.cfg].
 It assumes that the primary CA and KRA subsystems are running at https://primary.example.com:8443,
 the CA signing certificate has been exported into `ca_signing.crt`,
 and the admin certificate and key have been exported into `ca_admin_cert.p12`.
 The PKCS #12 password is specified in the `pki_client_pkcs12_password` parameter.
-See [Installing CA](../ca/Installing_CA.md) for details.
+See link:../ca/Installing_CA.md[Installing CA] for details.
 
 To start the installation execute the following command:
 

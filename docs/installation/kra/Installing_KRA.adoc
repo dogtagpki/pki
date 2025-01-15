@@ -13,7 +13,7 @@ Prior to installation, please ensure that the following are configured:
 == KRA Subsystem Installation ==
 
 Prepare a file (e.g. kra.cfg) that contains the deployment configuration.
-A sample deployment configuration is available at [/usr/share/pki/server/examples/installation/kra.cfg](../../../base/server/examples/installation/kra.cfg).
+A sample deployment configuration is available at link:../../../base/server/examples/installation/kra.cfg[/usr/share/pki/server/examples/installation/kra.cfg].
 
 Then execute the following command:
 

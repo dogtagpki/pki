@@ -93,12 +93,12 @@ Store the external CA certificate chain in a file (e.g. ca_signing.crt). The cer
 
 See also:
 
-* [Generating KRA Storage Certificate](https://github.com/dogtagpki/pki/wiki/Generating-KRA-Storage-Certificate)
-* [Generating KRA Transport Certificate](https://github.com/dogtagpki/pki/wiki/Generating-KRA-Transport-Certificate)
-* [Generating Subsystem Certificate](https://github.com/dogtagpki/pki/wiki/Generating-Subsystem-Certificate)
-* [Generating SSL Server Certificate](https://github.com/dogtagpki/pki/wiki/Generating-SSL-Server-Certificate)
-* [Generating Audit Signing Certificate](https://github.com/dogtagpki/pki/wiki/Generating-Audit-Signing-Certificate)
-* [Generating Admin Certificate](https://github.com/dogtagpki/pki/wiki/Generating-Admin-Certificate)
+* link:https://github.com/dogtagpki/pki/wiki/Generating-KRA-Storage-Certificate[Generating KRA Storage Certificate]
+* link:https://github.com/dogtagpki/pki/wiki/Generating-KRA-Transport-Certificate[Generating KRA Transport Certificate]
+* link:https://github.com/dogtagpki/pki/wiki/Generating-Subsystem-Certificate[Generating Subsystem Certificate]
+* link:https://github.com/dogtagpki/pki/wiki/Generating-SSL-Server-Certificate[Generating SSL Server Certificate]
+* link:https://github.com/dogtagpki/pki/wiki/Generating-Audit-Signing-Certificate[Generating Audit Signing Certificate]
+* link:https://github.com/dogtagpki/pki/wiki/Generating-Admin-Certificate[Generating Admin Certificate]
 
 == Finishing KRA Subsystem Installation
 

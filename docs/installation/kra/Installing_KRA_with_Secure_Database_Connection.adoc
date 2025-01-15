@@ -6,7 +6,7 @@ This page describes the process to install a KRA subsystem with a secure databas
 
 Ensure that the secure connection has been enabled on the directory server.
 Export the signing certificate for the directory server into ds_signing.crt.
-This step is described [here](https://www.dogtagpki.org/wiki/DS_SSL).
+This step is described link:https://www.dogtagpki.org/wiki/DS_SSL[here].
 
 == KRA Subsystem Installation
 
