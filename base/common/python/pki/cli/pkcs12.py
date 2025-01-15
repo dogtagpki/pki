@@ -230,11 +230,11 @@ class PKCS12ImportCLI(pki.cli.CLI):
                 cert_file = os.path.join(tmpdir, 'ca-cert.pem')
 
                 nssdb = pki.nssdb.NSSDatabase(
-                    main_cli.database,
+                    main_cli.nss_database,
                     token=main_cli.token,
-                    password=main_cli.password,
-                    password_file=main_cli.password_file,
-                    password_conf=main_cli.password_conf)
+                    password=main_cli.nss_password,
+                    password_file=main_cli.nss_password_file,
+                    password_conf=main_cli.nss_password_conf)
 
                 for cert_info in certs:
 

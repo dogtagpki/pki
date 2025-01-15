@@ -20,9 +20,7 @@
 #
 
 import collections
-import getopt
 import logging
-import sys
 from six import itervalues
 
 logger = logging.getLogger(__name__)
@@ -184,40 +182,11 @@ class CLI(object):
 
         return (module, module_args)
 
-    def execute(self, argv, args=None):
+    def execute(self, argv, args=None):  # pylint: disable=W0613
         '''
         :param argv: Argument values
         :param args: Parsed arguments
         '''
-        try:
-            opts, args = getopt.getopt(argv, 'v', [
-                'verbose', 'help'])
-
-        except getopt.GetoptError as e:
-            logger.error(e)
-            self.print_help()
-            sys.exit(1)
-
-        if len(args) == 0:
-            self.print_help()
-            sys.exit()
-
-        for o, _ in opts:
-            if o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                logger.error('Unknown option: %s', o)
-                self.print_help()
-                sys.exit(1)
-
         (module, module_argv) = self.parse_args(argv)
 
         module.execute(module_argv)

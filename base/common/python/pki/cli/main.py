@@ -18,6 +18,7 @@
 # All rights reserved.
 #
 
+import argparse
 import logging
 import os
 import shlex
@@ -41,39 +42,148 @@ class PKICLI(pki.cli.CLI):
         super(PKICLI, self).__init__(
             'pki', 'PKI command-line interface')
 
-        self.database = None
+        self.properties = {}
+
+        self.nss_database = None
+        self.nss_password = None
+        self.nss_password_file = None
+        self.nss_password_conf = None
+
+        self.token = None
+        self.nickname = None
+        self.username = None
         self.password = None
         self.password_file = None
-        self.password_conf = None
-        self.token = None
+
+        self.url = None
+        self.protocol = None
+        self.hostname = None
+        self.port = None
+        self.subsystem = None
+        self.api = None
+        self.output = None
+        self.message_format = None
+
+        self.reject_cert_status = False
+        self.ignore_cert_status = False
         self.ignore_banner = False
 
         self.add_module(pki.cli.password.PasswordCLI())
         self.add_module(pki.cli.pkcs12.PKCS12CLI())
+
+    def create_parser(self, subparsers=None):
+
+        # create main parser
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+
+        self.parser.add_argument(
+            '--client-type',
+            default='java')
+        self.parser.add_argument(
+            '-D',
+            action='append')
+
+        self.parser.add_argument('-d')
+        self.parser.add_argument('-c')
+        self.parser.add_argument('-C')
+        self.parser.add_argument('-f')
+        self.parser.add_argument('--token')
+        self.parser.add_argument('-n')
+        self.parser.add_argument('-u')
+        self.parser.add_argument('-w')
+        self.parser.add_argument('-W')
+
+        self.parser.add_argument('-U')
+        self.parser.add_argument('-P')
+        self.parser.add_argument('-h')
+        self.parser.add_argument('-p')
+        self.parser.add_argument('-t')
+        self.parser.add_argument('--api')
+        self.parser.add_argument('--output')
+        self.parser.add_argument('--message-format')
+        self.parser.add_argument('--reject-cert-status')
+        self.parser.add_argument('--ignore-cert-status')
+        self.parser.add_argument(
+            '--ignore-banner',
+            action='store_true')
+
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument(
+            '--version',
+            action='store_true')
+
+        self.parser.add_argument(
+            'remainder',
+            nargs=argparse.REMAINDER)
+
+        # create parsers in modules
+        super().create_parser()
 
     def get_full_module_name(self, module_name):
         return module_name
 
     def print_help(self):
         print('Usage: pki [OPTIONS]')
+
         print()
-        print('      --client-type <type>     PKI client type (default: java)')
-        print('   -d <path>                   NSS database location ' +
+        print('      --client-type <type>       PKI client type (default: java)')
+        print('   -D <name>=<value>             System propery')
+
+        print('   -d <path>                     NSS database location ' +
               '(default: ~/.dogtag/nssdb)')
-        print('   -c <password>               NSS database password ' +
+        print('   -c <password>                 NSS database password ' +
               '(mutually exclusive to -C and -f options)')
-        print('   -C <password file>          NSS database password file ' +
+        print('   -C <password file>            NSS database password file ' +
               '(mutually exclusive to -c and -f options)')
-        print('   -f <password config>        NSS database password configuration ' +
+        print('   -f <password config>          NSS database password configuration ' +
               '(mutually exclusive to -c and -C options)')
-        print('      --token <name>           Security token name')
+        print('      --token <name>             Security token name')
+        print('   -n <nickname>                 Nickname for client certificate authentication ' +
+              '(mutually exclusive to -u option)')
+        print('   -u <username>                 Username for basic authentication ' +
+              '(mutually exclusive to -n option)')
+        print('   -w <password>                 Password for basic authentication ' +
+              '(mutually exclusive to -W option)')
+        print('   -W <file>                     Password file for basic authentication ' +
+              '(mutually exclusive to -w option)')
+
+        print('   -U <URL>                      PKI server URL')
+        print('   -P <protocol>                 Protocol (default: https)')
+        print('   -h <hostname>                 Hostname')
+        print('   -p <port>                     Port (default: 8443)')
+        print('   -t <subsystem>                Subsystem type (deprecated)')
+
+        print('      --api <version>            API version: v1, v2')
+        print('      --output <folder>          Folder to store HTTP messages')
+        print('      --message-format <format>  Message format: json (default), xml')
+
+        print('      --reject-cert-status       Comma-separated list of rejected ' +
+              'certificate validity statuses')
+        print('      --ignore-cert-status       Comma-separated list of ignored ' +
+              'certificate validity statuses')
+        print('      --ignore-banner            Ignore banner')
         print()
         print('  -v, --verbose                Run in verbose mode.')
         print('      --debug                  Show debug messages.')
         print('      --help                   Show help message.')
+        print('      --version                Show version number.')
         print()
 
         super(PKICLI, self).print_help()
+
+    def print_version(self):
+        print('PKI Command-Line Interface %s' % pki.implementation_version())
 
     def set_nss_default_db_type(self):
         """Validate NSS_DEFAULT_DB_TYPE
@@ -90,7 +200,7 @@ class PKICLI(pki.cli.CLI):
             )
         return dbtype
 
-    def execute_java(self, args, properties=None, stdout=sys.stdout):
+    def execute_java(self, args, stdout=sys.stdout):
 
         self.set_nss_default_db_type()
 
@@ -110,35 +220,74 @@ class PKICLI(pki.cli.CLI):
                 java_fips_cmd
             ])
 
-        if not properties:
-            properties = {}
-
-        for name in properties:
-            option = '-D' + name + '=' + properties[name]
+        for name in self.properties:
+            option = '-D' + name + '=' + self.properties[name]
             cmd.append(option)
 
         logging_config = os.getenv('PKI_LOGGING_CONFIG')
-        if logging_config and 'java.util.logging.config.file' not in properties:
+        if logging_config and 'java.util.logging.config.file' not in self.properties:
             cmd.append('-Djava.util.logging.config.file=' + logging_config)
 
         cmd.append('com.netscape.cmstools.cli.MainCLI')
 
         # restore options for Java commands
 
-        if self.database:
-            cmd.extend(['-d', self.database])
+        if self.nss_database:
+            cmd.extend(['-d', self.nss_database])
 
-        if self.password:
-            cmd.extend(['-c', self.password])
+        if self.nss_password is not None:
+            cmd.extend(['-c', self.nss_password])
 
-        if self.password_file:
-            cmd.extend(['-C', self.password_file])
+        if self.nss_password_file:
+            cmd.extend(['-C', self.nss_password_file])
 
-        if self.password_conf:
-            cmd.extend(['-f', self.password_conf])
+        if self.nss_password_conf:
+            cmd.extend(['-f', self.nss_password_conf])
 
         if not pki.nssdb.internal_token(self.token):
             cmd.extend(['--token', self.token])
+
+        if self.nickname:
+            cmd.extend(['-n', self.nickname])
+
+        if self.username:
+            cmd.extend(['-u', self.username])
+
+        if self.password is not None:
+            cmd.extend(['-w', self.password])
+
+        if self.password_file:
+            cmd.extend(['-W', self.password_file])
+
+        if self.url:
+            cmd.extend(['-U', self.url])
+
+        if self.protocol:
+            cmd.extend(['-P', self.protocol])
+
+        if self.hostname:
+            cmd.extend(['-h', self.hostname])
+
+        if self.port:
+            cmd.extend(['-p', self.port])
+
+        if self.subsystem:
+            cmd.extend(['-t', self.subsystem])
+
+        if self.api:
+            cmd.extend(['--api', self.api])
+
+        if self.output:
+            cmd.extend(['--output', self.output])
+
+        if self.message_format:
+            cmd.extend(['--message-format', self.message_format])
+
+        if self.reject_cert_status:
+            cmd.extend(['--reject-cert-status', self.reject_cert_status])
+
+        if self.ignore_cert_status:
+            cmd.extend(['--ignore-cert-status', self.ignore_cert_status])
 
         if self.ignore_banner:
             cmd.extend(['--ignore-banner'])
@@ -162,128 +311,67 @@ class PKICLI(pki.cli.CLI):
         args = shlex.split(value)
         args.extend(argv)
 
-        client_type = 'java'
+        args = self.parser.parse_args(args=argv)
 
-        properties = {}
-        pki_options = []
-        command = None
-        cmd_args = []
+        if args.help:
+            self.print_help()
+            return
 
-        # read pki options before the command
-        # remove options for Python module
+        if args.version:
+            self.print_version()
+            return
 
-        i = 0
-        while i < len(args):
-            # if arg is a command, stop
-            if args[i][0] != '-':
-                command = args[i]
-                break
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-            # get properties
-            if args[i] == '-D':
-                try:
-                    name, value = args[i + 1].split('=', 1)
-                    properties[name] = value
-                except IndexError:
-                    break
-                i = i + 2
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            # get database path
-            if args[i] == '-d':
-                try:
-                    self.database = args[i + 1]
-                except IndexError:
-                    break
-                pki_options.append(args[i])
-                pki_options.append(args[i + 1])
-                i = i + 2
+        client_type = args.client_type
 
-            # get database password
-            elif args[i] == '-c':
-                try:
-                    self.password = args[i + 1]
-                except IndexError:
-                    break
-                pki_options.append(args[i])
-                pki_options.append(args[i + 1])
-                i = i + 2
+        if args.D:
+            for param in args.D:
+                name, value = param.split('=', 1)
+                self.properties[name] = value
 
-            # get database password file path
-            elif args[i] == '-C':
-                try:
-                    self.password_file = args[i + 1]
-                except IndexError:
-                    break
-                pki_options.append(args[i])
-                pki_options.append(args[i + 1])
-                i = i + 2
+        self.nss_database = args.d
+        self.nss_password = args.c
+        self.nss_password_file = args.C
+        self.nss_password_conf = args.f
 
-            # get database password config path
-            elif args[i] == '-f':
-                try:
-                    self.password_conf = args[i + 1]
-                except IndexError:
-                    break
-                pki_options.append(args[i])
-                pki_options.append(args[i + 1])
-                i = i + 2
+        self.token = args.token
+        self.nickname = args.n
+        self.username = args.u
+        self.password = args.w
+        self.password_file = args.W
 
-            # get token name
-            elif args[i] == '--token':
-                try:
-                    self.token = args[i + 1]
-                except IndexError:
-                    break
-                pki_options.append(args[i])
-                pki_options.append(args[i + 1])
-                i = i + 2
+        self.url = args.U
+        self.protocol = args.P
+        self.hostname = args.h
+        self.port = args.p
+        self.subsystem = args.t
+        self.api = args.api
+        self.output = args.output
+        self.message_format = args.message_format
 
-            # check ignore banner option
-            elif args[i] == '--ignore-banner':
-                self.ignore_banner = True
-                pki_options.append(args[i])
-                i = i + 1
+        self.reject_cert_status = args.reject_cert_status
+        self.ignore_cert_status = args.ignore_cert_status
+        self.ignore_banner = args.ignore_banner
 
-            # check verbose option
-            elif args[i] == '-v' or args[i] == '--verbose':
-                logging.getLogger().setLevel(logging.INFO)
-                pki_options.append(args[i])
-                i = i + 1
-
-            # check debug option
-            elif args[i] == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-                pki_options.append(args[i])
-                i = i + 1
-
-            # get client type
-            elif args[i] == '--client-type':
-                try:
-                    client_type = args[i + 1]
-                except IndexError:
-                    break
-                pki_options.append(args[i])
-                pki_options.append(args[i + 1])
-                i = i + 2
-
-            else:  # otherwise, save the arg for the next module
-                cmd_args.append(args[i])
-                i = i + 1
-
-        # save the rest of the args
-        while i < len(args):
-            cmd_args.append(args[i])
-            i = i + 1
-
-        logger.debug('PKI options: %s', ' '.join(pki_options))
-        logger.debug('PKI command: %s %s', command, ' '.join(cmd_args))
+        command = args.remainder[0]
+        logger.debug('Command: %s', command)
 
         if client_type == 'python' or command in PYTHON_COMMANDS:
-            (module, module_args) = self.parse_args(cmd_args)
+            module = self.find_module(command)
+            logger.debug('Module: %s', module.get_full_name())
+
+            module_args = args.remainder[1:]
+            logger.debug('Arguments: %s', ' '.join(module_args))
+
             module.execute(module_args)
 
         elif client_type == 'java':
-            self.execute_java(cmd_args, properties)
+            self.execute_java(args.remainder)
 
         else:
             raise Exception('Unsupported client type: ' + client_type)
