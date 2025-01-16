@@ -87,9 +87,10 @@ class SubsystemFindCLI(pki.cli.CLI):
         print('      --help                      Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -156,9 +157,10 @@ class SubsystemShowCLI(pki.cli.CLI):
         print('      --help                      Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -234,9 +236,10 @@ class SubsystemCreateCLI(pki.cli.CLI):
         print(textwrap.dedent(self.__class__.help).format(
             subsystem=self.parent.name))
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -319,9 +322,10 @@ class SubsystemDeployCLI(pki.cli.CLI):
         print('      --help                         Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -412,9 +416,10 @@ class SubsystemUndeployCLI(pki.cli.CLI):
         print('      --help                         Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -509,9 +514,10 @@ class SubsystemRedeployCLI(pki.cli.CLI):
         print(textwrap.dedent(self.__class__.help).format(
             subsystem=self.parent.name))
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -602,9 +608,10 @@ class SubsystemEnableCLI(pki.cli.CLI):
         print('      --help                      Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -703,9 +710,10 @@ class SubsystemDisableCLI(pki.cli.CLI):
         print('      --help                      Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -825,9 +833,10 @@ class SubsystemCertFindCLI(pki.cli.CLI):
         print('      --help                      Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -914,9 +923,10 @@ class SubsystemCertShowCLI(pki.cli.CLI):
         print('      --help                      Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -1018,9 +1028,10 @@ class SubsystemCertExportCLI(pki.cli.CLI):
         print('      --help                         Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -1161,9 +1172,10 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
         print('      --help                      Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -1306,13 +1318,14 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
         print('      --help                      Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
         logger.warning(
             'The pki-server subsystem-cert-validate has been deprecated. '
             'Use pki-server cert-validate instead.')
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()

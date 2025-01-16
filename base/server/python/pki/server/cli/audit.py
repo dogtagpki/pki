@@ -119,9 +119,10 @@ class AuditConfigShowCLI(pki.cli.CLI):
         print('      --help                         Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -215,9 +216,10 @@ class AuditConfigModifyCLI(pki.cli.CLI):
         print('      --help                         Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -352,9 +354,10 @@ class AuditEventFindCLI(pki.cli.CLI):
               '  Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -444,9 +447,10 @@ class AuditEventShowCLI(pki.cli.CLI):
         print('      --help                         Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -516,9 +520,10 @@ class AuditEventEnableCLI(pki.cli.CLI):
         print('      --help                         Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -605,9 +610,10 @@ class AuditEventUpdateCLI(pki.cli.CLI):
         print('      --help                         Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -680,9 +686,10 @@ class AuditEventDisableCLI(pki.cli.CLI):
         print('      --help                         Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -763,9 +770,10 @@ class AuditFileFindCLI(pki.cli.CLI):
         print('      --help                         Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -841,9 +849,10 @@ class AuditFileVerifyCLI(pki.cli.CLI):
         print('      --help                         Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()

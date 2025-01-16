@@ -101,9 +101,10 @@ class UserAddCLI(pki.cli.CLI):
         print(textwrap.dedent(self.__class__.help).format(
             subsystem=self.parent.parent.name))
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -208,9 +209,10 @@ class UserFindCLI(pki.cli.CLI):
         print('      --help                         Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -316,9 +318,10 @@ class UserModifyCLI(pki.cli.CLI):
         print('      --help                         Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -405,9 +408,10 @@ class UserRemoveCLI(pki.cli.CLI):
         print(textwrap.dedent(self.__class__.help).format(
             subsystem=self.parent.parent.name))
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -475,9 +479,10 @@ class UserShowCLI(pki.cli.CLI):
         print('      --help                         Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -579,9 +584,10 @@ class UserCertFindCLI(pki.cli.CLI):
         print('      --help                         Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -660,9 +666,10 @@ class UserCertAddCLI(pki.cli.CLI):
         print('      --help                         Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -748,9 +755,10 @@ class UserCertRemoveCLI(pki.cli.CLI):
         print(textwrap.dedent(self.__class__.help).format(
             subsystem=self.parent.parent.parent.name))
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -842,9 +850,10 @@ class UserRoleFindCLI(pki.cli.CLI):
         print(textwrap.dedent(self.__class__.help).format(
             subsystem=self.parent.parent.parent.name))
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -924,9 +933,10 @@ class UserRoleAddCLI(pki.cli.CLI):
         print(textwrap.dedent(self.__class__.help).format(
             subsystem=self.parent.parent.parent.name))
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -1007,9 +1017,10 @@ class UserRoleRemoveCLI(pki.cli.CLI):
         print(textwrap.dedent(self.__class__.help).format(
             subsystem=self.parent.parent.parent.name))
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()

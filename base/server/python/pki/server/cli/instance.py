@@ -122,9 +122,10 @@ class InstanceCertExportCLI(pki.cli.CLI):
         print('      --help                         Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -205,9 +206,10 @@ class InstanceFindCLI(pki.cli.CLI):
         print('      --help                         Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -271,9 +273,10 @@ class InstanceShowCLI(pki.cli.CLI):
         print('      --help                         Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -326,9 +329,10 @@ class InstanceStartCLI(pki.cli.CLI):
         print('      --help                         Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -386,9 +390,10 @@ class InstanceStopCLI(pki.cli.CLI):
         print('      --help                         Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -448,9 +453,10 @@ class InstanceMigrateCLI(pki.cli.CLI):
         print('      --help                   Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -516,9 +522,10 @@ class InstanceNuxwdogEnableCLI(pki.cli.CLI):
         print('      --help                         Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -576,9 +583,10 @@ class InstanceNuxwdogDisableCLI(pki.cli.CLI):
         print('      --help                         Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -653,9 +661,10 @@ class InstanceExternalCertAddCLI(pki.cli.CLI):
         print('      --help                         Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -757,9 +766,10 @@ class InstanceExternalCertDeleteCLI(pki.cli.CLI):
         print('      --help                         Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()

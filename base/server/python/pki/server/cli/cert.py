@@ -134,9 +134,10 @@ class CertFindCLI(pki.cli.CLI):
         print('      --help                      Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -227,9 +228,10 @@ class CertShowCLI(pki.cli.CLI):
         print('      --help                      Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -325,9 +327,10 @@ class CertValidateCLI(pki.cli.CLI):
     def print_help(self):
         print(textwrap.dedent(self.__class__.help))
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -398,9 +401,10 @@ class CertUpdateCLI(pki.cli.CLI):
         print('      --help                      Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -534,9 +538,10 @@ class CertRequestCLI(pki.cli.CLI):
     def print_help(self):
         print(textwrap.dedent(self.__class__.help))
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -659,9 +664,10 @@ class CertCreateCLI(pki.cli.CLI):
     def print_help(self):
         print(textwrap.dedent(self.__class__.help))
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -794,9 +800,10 @@ class CertImportCLI(pki.cli.CLI):
     def print_help(self):
         print(textwrap.dedent(self.__class__.help))
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -914,9 +921,10 @@ class CertExportCLI(pki.cli.CLI):
         print(' - PBE/SHA1/DES3/CBC')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -1109,9 +1117,10 @@ class CertRemoveCLI(pki.cli.CLI):
         print('      --help                      Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -1198,9 +1207,10 @@ class CertFixCLI(pki.cli.CLI):
         print('      --help                      Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()

@@ -18,9 +18,6 @@
 # All rights reserved.
 #
 
-from __future__ import absolute_import
-from __future__ import print_function
-
 import logging
 import subprocess
 import sys
@@ -38,7 +35,8 @@ if __name__ == '__main__':
     cli = pki.server.cli.PKIServerCLI()
 
     try:
-        cli.execute(sys.argv)
+        # exclude script name
+        cli.execute(sys.argv[1:])
 
     except KeyboardInterrupt as e:
 

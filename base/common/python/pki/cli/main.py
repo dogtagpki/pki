@@ -18,8 +18,6 @@
 # All rights reserved.
 #
 
-from __future__ import absolute_import
-from __future__ import print_function
 import logging
 import os
 import shlex
@@ -157,12 +155,12 @@ class PKICLI(pki.cli.CLI):
 
         subprocess.check_call(cmd, stdout=stdout)
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
         # append global options
         value = os.getenv('PKI_CLI_OPTIONS')
         args = shlex.split(value)
-        args.extend(argv[1:])
+        args.extend(argv)
 
         client_type = 'java'
 
@@ -298,7 +296,8 @@ if __name__ == '__main__':
     cli = PKICLI()
 
     try:
-        cli.execute(sys.argv)
+        # exclude script name
+        cli.execute(sys.argv[1:])
 
     except subprocess.CalledProcessError as e:
 

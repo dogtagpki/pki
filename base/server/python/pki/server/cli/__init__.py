@@ -112,9 +112,9 @@ class PKIServerCLI(pki.cli.CLI):
 
         super().print_help()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
         try:
-            opts, args = getopt.getopt(argv[1:], 'v', [
+            opts, args = getopt.getopt(argv, 'v', [
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -336,9 +336,10 @@ class CreateCLI(pki.cli.CLI):
         print('      --help                    Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -426,9 +427,10 @@ class RemoveCLI(pki.cli.CLI):
         print('      --help                    Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -490,9 +492,10 @@ class StatusCLI(pki.cli.CLI):
         print('      --help                    Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -561,9 +564,10 @@ class StartCLI(pki.cli.CLI):
         print('      --help                    Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -637,9 +641,10 @@ class StopCLI(pki.cli.CLI):
         print('      --help                    Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -713,9 +718,10 @@ class RestartCLI(pki.cli.CLI):
         print('      --help                    Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -790,9 +796,10 @@ class RunCLI(pki.cli.CLI):
         print('      --help                    Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()

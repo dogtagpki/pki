@@ -19,9 +19,6 @@
 # All rights reserved.
 #
 
-from __future__ import absolute_import
-from __future__ import print_function
-
 import collections
 import getopt
 import logging
@@ -181,8 +178,11 @@ class CLI(object):
 
         return (module, module_args)
 
-    def execute(self, argv):
-
+    def execute(self, argv, args=None):
+        '''
+        :param argv: Argument values
+        :param args: Parsed arguments
+        '''
         try:
             opts, args = getopt.getopt(argv, 'v', [
                 'verbose', 'help'])
@@ -212,6 +212,6 @@ class CLI(object):
                 self.print_help()
                 sys.exit(1)
 
-        (module, module_args) = self.parse_args(argv)
+        (module, module_argv) = self.parse_args(argv)
 
-        module.execute(module_args)
+        module.execute(module_argv)

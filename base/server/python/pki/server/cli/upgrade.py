@@ -96,9 +96,10 @@ class UpgradeCLI(pki.cli.CLI):
         print('  --reset-tracker                Reset tracker to match package version.')
         print('  --set-tracker <version>        Set tracker to a specific version.')
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()

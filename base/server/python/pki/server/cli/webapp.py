@@ -85,9 +85,10 @@ class WebappFindCLI(pki.cli.CLI):
         print('      --help                      Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -157,9 +158,10 @@ class WebappShowCLI(pki.cli.CLI):
     def print_help(self):
         print(textwrap.dedent(self.__class__.help))
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -239,9 +241,10 @@ class WebappDeployCLI(pki.cli.CLI):
         print('      --help                      Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
@@ -321,9 +324,10 @@ class WebappUndeployCLI(pki.cli.CLI):
         print('      --help                      Show help message.')
         print()
 
-    def execute(self, argv):
+    def execute(self, argv, args=None):
 
-        args = self.parser.parse_args(args=argv)
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
