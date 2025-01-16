@@ -18,7 +18,6 @@
 # All rights reserved.
 #
 
-import argparse
 import inspect
 import logging
 import sys
@@ -102,9 +101,9 @@ class HTTPConnectorAddCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('add', 'Add connector')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -220,9 +219,9 @@ class HTTPConnectorDeleteCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('del', 'Delete connector')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -286,9 +285,9 @@ class HTTPConnectorFindCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('find', 'Find connectors')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -361,9 +360,9 @@ class HTTPConnectorShowCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('show', 'Show connector')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -431,9 +430,9 @@ class HTTPConnectorModCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('mod', 'Modify connector')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -621,9 +620,9 @@ class SSLHostAddCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('add', 'Add SSL host configuration')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -715,9 +714,9 @@ class SSLHostDeleteCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('del', 'Delete SSL host configuration')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -789,9 +788,9 @@ class SSLHostFindCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('find', 'Find SSL host configurations')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -886,9 +885,9 @@ class SSLHostModifyCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('mod', inspect.cleandoc(self.__class__.__doc__))
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -983,9 +982,9 @@ class SSLHostShowCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('show', inspect.cleandoc(self.__class__.__doc__))
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -1084,9 +1083,9 @@ class SSLCertAddCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('add', 'Add SSL certificate configuration')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -1211,9 +1210,9 @@ class SSLCertDeleteCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('del', 'Delete SSL certificate configuration')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -1302,9 +1301,9 @@ class SSLCertFindLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('find', 'Find SSL certificate configurations')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(

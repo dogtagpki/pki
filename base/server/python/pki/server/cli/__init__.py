@@ -19,7 +19,6 @@
 #
 
 import argparse
-import getopt
 import logging
 import socket
 import sys
@@ -99,6 +98,31 @@ class PKIServerCLI(pki.cli.CLI):
 
         self.add_module(pki.server.cli.upgrade.UpgradeCLI())
 
+    def create_parser(self, subparsers=None):
+
+        # create main parser
+        self.parser = argparse.ArgumentParser(
+            prog=self.name,
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
+        # create subparsers
+        subparsers = self.parser.add_subparsers(dest='command')
+        super().create_parser(subparsers=subparsers)
+
     def get_full_module_name(self, module_name):
         return module_name
 
@@ -113,34 +137,26 @@ class PKIServerCLI(pki.cli.CLI):
         super().print_help()
 
     def execute(self, argv, args=None):
-        try:
-            opts, args = getopt.getopt(argv, 'v', [
-                'verbose', 'debug', 'help'])
+        if not args:
+            args = self.parser.parse_args(args=argv)
 
-        except getopt.GetoptError as e:
-            logger.error(e)
+        if args.help:
             self.print_help()
-            sys.exit(1)
+            return
 
-        for o, _ in opts:
-            if o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
 
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
 
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
+        command = args.command
+        logger.debug('Command: %s', command)
 
-            else:
-                logger.error('Unknown option %s', o)
-                self.print_help()
-                sys.exit(1)
+        module = self.find_module(command)
+        logger.debug('Module: %s', module.get_full_name())
 
-        logger.debug('Command: %s', ' '.join(args))
-
-        super().execute(args)
+        module.execute(argv, args=args)
 
     @staticmethod
     def print_status(instance):
@@ -294,9 +310,9 @@ class CreateCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('create', 'Create PKI server')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument('--user')
@@ -391,9 +407,9 @@ class RemoveCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('remove', 'Remove PKI server')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -470,9 +486,9 @@ class StatusCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('status', 'Display PKI service status')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -531,9 +547,9 @@ class StartCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('start', 'Start PKI service')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -610,9 +626,9 @@ class StopCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('stop', 'Stop PKI service')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -689,9 +705,9 @@ class RestartCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('restart', 'Restart PKI service')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -764,9 +780,9 @@ class RunCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('run', 'Run PKI server in foreground')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
