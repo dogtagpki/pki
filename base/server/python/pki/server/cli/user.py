@@ -65,6 +65,8 @@ class UserAddCLI(pki.cli.CLI):
 
         self.parent = parent
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -180,6 +182,8 @@ class UserFindCLI(pki.cli.CLI):
 
         self.parent = parent
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -281,6 +285,8 @@ class UserModifyCLI(pki.cli.CLI):
         super().__init__('mod', 'Modify %s user' % parent.parent.name.upper())
 
         self.parent = parent
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,
@@ -385,6 +391,8 @@ class UserRemoveCLI(pki.cli.CLI):
 
         self.parent = parent
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -450,6 +458,8 @@ class UserShowCLI(pki.cli.CLI):
         super().__init__('show', 'Display %s user' % parent.parent.name.upper())
 
         self.parent = parent
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,
@@ -555,6 +565,8 @@ class UserCertFindCLI(pki.cli.CLI):
 
         self.parent = parent
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -626,6 +638,8 @@ class UserCertAddCLI(pki.cli.CLI):
         super().__init__('add', 'Add %s user cert' % parent.parent.parent.name.upper())
 
         self.parent = parent
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,
@@ -731,6 +745,8 @@ class UserCertRemoveCLI(pki.cli.CLI):
 
         self.parent = parent
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -826,6 +842,8 @@ class UserRoleFindCLI(pki.cli.CLI):
 
         self.parent = parent
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -908,6 +926,8 @@ class UserRoleAddCLI(pki.cli.CLI):
                 subsystem=parent.parent.parent.name.upper()))
 
         self.parent = parent
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,
@@ -992,6 +1012,8 @@ class UserRoleRemoveCLI(pki.cli.CLI):
                 subsystem=parent.parent.parent.name.upper()))
 
         self.parent = parent
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,

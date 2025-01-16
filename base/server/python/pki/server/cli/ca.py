@@ -95,6 +95,8 @@ class CACertFindCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('find', inspect.cleandoc(self.__class__.__doc__))
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -180,6 +182,8 @@ class CACertCreateCLI(pki.cli.CLI):
 
     def __init__(self):
         super().__init__('create', inspect.cleandoc(self.__class__.__doc__))
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,
@@ -309,6 +313,8 @@ class CACertImportCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('import', 'Import certificate into CA')
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -410,6 +416,8 @@ class CACertRemoveCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('del', 'Remove certificate in CA')
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -483,6 +491,8 @@ class CACertChainExportCLI(pki.cli.CLI):
 
     def __init__(self):
         super().__init__('export', 'Export certificate chain')
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,
@@ -603,6 +613,8 @@ class CACertRequestFindCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('find', 'Find CA certificate requests')
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -687,6 +699,8 @@ class CACertRequestShowCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('show', 'Show CA certificate request')
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -762,6 +776,8 @@ class CACertRequestImportCLI(pki.cli.CLI):
 
     def __init__(self):
         super().__init__('import', 'Import certificate request into CA')
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,
@@ -877,6 +893,8 @@ class CACRLShowCLI(pki.cli.CLI):
 
     def __init__(self):
         super().__init__('show', inspect.cleandoc(self.__class__.__doc__))
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,
@@ -1001,6 +1019,8 @@ class CACRLIPFindCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('find', inspect.cleandoc(self.__class__.__doc__))
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -1081,6 +1101,8 @@ class CACRLIPShowCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('show', inspect.cleandoc(self.__class__.__doc__))
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -1157,6 +1179,8 @@ class CACRLIPModifyCLI(pki.cli.CLI):
 
     def __init__(self):
         super().__init__('mod', inspect.cleandoc(self.__class__.__doc__))
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,
@@ -1241,6 +1265,8 @@ class CAClonePrepareCLI(pki.cli.CLI):
 
     def __init__(self):
         super().__init__('prepare', 'Prepare CA clone')
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,
@@ -1387,6 +1413,8 @@ class CAProfileFindCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('find', inspect.cleandoc(self.__class__.__doc__))
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -1453,6 +1481,8 @@ class CAProfileImportCLI(pki.cli.CLI):
 
     def __init__(self):
         super().__init__('import', 'Import CA profiles')
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,
@@ -1546,6 +1576,8 @@ class CAProfileModifyCLI(pki.cli.CLI):
 
     def __init__(self):
         super().__init__('mod', inspect.cleandoc(self.__class__.__doc__))
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,

@@ -47,6 +47,8 @@ class DBSchemaUpgradeCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('schema-upgrade', 'Upgrade PKI database schema')
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -133,6 +135,8 @@ class DBUpgradeCLI(pki.cli.CLI):
 
     def __init__(self):
         super().__init__('upgrade', 'Upgrade PKI server database')
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,
@@ -293,6 +297,8 @@ class SubsystemDBConfigShowCLI(pki.cli.CLI):
 
         self.parent = parent
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -363,6 +369,8 @@ class SubsystemDBConfigModifyCLI(pki.cli.CLI):
             'Modify %s database configuration' % parent.parent.parent.name.upper())
 
         self.parent = parent
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,
@@ -539,6 +547,8 @@ class SubsystemDBInfoCLI(pki.cli.CLI):
 
         self.parent = parent
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -630,6 +640,8 @@ class SubsystemDBCreateCLI(pki.cli.CLI):
 
         self.parent = parent
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -712,6 +724,8 @@ class SubsystemDBInitCLI(pki.cli.CLI):
                 subsystem=parent.parent.name.upper()))
 
         self.parent = parent
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,
@@ -798,6 +812,8 @@ class SubsystemDBEmptyCLI(pki.cli.CLI):
 
         self.parent = parent
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -878,6 +894,8 @@ class SubsystemDBRemoveCLI(pki.cli.CLI):
         super().__init__('remove', 'Remove %s database' % parent.parent.name.upper())
 
         self.parent = parent
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,
@@ -961,6 +979,8 @@ class SubsystemDBUpgradeCLI(pki.cli.CLI):
             'Upgrade %s database' % parent.parent.name.upper())
 
         self.parent = parent
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,
@@ -1071,6 +1091,8 @@ class SubsystemDBAccessGrantCLI(pki.cli.CLI):
 
         self.parent = parent
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -1157,6 +1179,8 @@ class SubsystemDBAccessRevokeCLI(pki.cli.CLI):
                 subsystem=parent.parent.parent.name.upper()))
 
         self.parent = parent
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,
@@ -1260,6 +1284,8 @@ class SubsystemDBIndexAddCLI(pki.cli.CLI):
 
         self.parent = parent
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -1339,6 +1365,8 @@ class SubsystemDBIndexRebuildCLI(pki.cli.CLI):
                 subsystem=parent.parent.parent.name.upper()))
 
         self.parent = parent
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,
@@ -1442,6 +1470,8 @@ class SubsystemDBReplicationEnableCLI(pki.cli.CLI):
                 subsystem=parent.parent.parent.name.upper()))
 
         self.parent = parent
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,
@@ -1589,6 +1619,8 @@ class SubsystemDBReplicationAgreementAddCLI(pki.cli.CLI):
 
         self.parent = parent
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -1713,6 +1745,8 @@ class SubsystemDBReplicationAgreementInitCLI(pki.cli.CLI):
 
         self.parent = parent
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -1821,6 +1855,8 @@ class SubsystemDBVLVFindCLI(pki.cli.CLI):
 
         self.parent = parent
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -1897,6 +1933,8 @@ class SubsystemDBVLVAddCLI(pki.cli.CLI):
             'Add %s VLVs' % parent.parent.parent.name.upper())
 
         self.parent = parent
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,
@@ -1975,6 +2013,8 @@ class SubsystemDBVLVDeleteCLI(pki.cli.CLI):
 
         self.parent = parent
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -2051,6 +2091,8 @@ class SubsystemDBVLVReindexCLI(pki.cli.CLI):
             'Re-index %s VLVs' % parent.parent.parent.name.upper())
 
         self.parent = parent
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,

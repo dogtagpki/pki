@@ -35,6 +35,8 @@ if __name__ == '__main__':
     cli = pki.server.cli.PKIServerCLI()
 
     try:
+        cli.create_parser()
+
         # exclude script name
         cli.execute(sys.argv[1:])
 

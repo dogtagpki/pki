@@ -33,6 +33,8 @@ class UpgradeCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('upgrade', 'Upgrade PKI server')
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)

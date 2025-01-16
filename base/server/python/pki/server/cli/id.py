@@ -42,6 +42,8 @@ class IdGeneratorShowCLI(pki.cli.CLI):
 
         self.parent = parent
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -112,6 +114,8 @@ class IdGeneratorUpdateCLI(pki.cli.CLI):
         super().__init__('update', 'Update %s id generator' % parent.parent.parent.name.upper())
 
         self.parent = parent
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,

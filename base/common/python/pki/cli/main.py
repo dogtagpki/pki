@@ -296,6 +296,8 @@ if __name__ == '__main__':
     cli = PKICLI()
 
     try:
+        cli.create_parser()
+
         # exclude script name
         cli.execute(sys.argv[1:])
 

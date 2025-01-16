@@ -38,6 +38,7 @@ class CLI(object):
         self.deprecated = deprecated
 
         self.modules = collections.OrderedDict()
+        self.parser = None
 
     def get_full_name(self):
         if self.parent:
@@ -100,6 +101,11 @@ class CLI(object):
 
             if not module or not command:
                 return module
+
+    def create_parser(self):
+
+        for module in self.modules.values():
+            module.create_parser()
 
     def parse_command(self, command):
 

@@ -32,6 +32,8 @@ class GroupFindCLI(pki.cli.CLI):
 
         self.parent = parent
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -118,6 +120,8 @@ class GroupMemberFindCLI(pki.cli.CLI):
 
         self.parent = parent
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -202,6 +206,8 @@ class GroupMemberAddCLI(pki.cli.CLI):
 
         self.parent = parent
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -278,6 +284,8 @@ class GroupMemberRemoveCLI(pki.cli.CLI):
             'Remove %s group member' % parent.parent.parent.name.upper())
 
         self.parent = parent
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,

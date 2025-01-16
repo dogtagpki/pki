@@ -58,6 +58,8 @@ class WebappFindCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('find', 'Find webapps')
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -136,6 +138,8 @@ class WebappShowCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('show', inspect.cleandoc(self.__class__.__doc__))
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -195,6 +199,8 @@ class WebappDeployCLI(pki.cli.CLI):
 
     def __init__(self):
         super().__init__('deploy', 'Deploy webapp')
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,
@@ -282,6 +288,8 @@ class WebappUndeployCLI(pki.cli.CLI):
 
     def __init__(self):
         super().__init__('undeploy', 'Undeploy webapp')
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,

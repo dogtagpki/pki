@@ -41,6 +41,8 @@ class PasswordGenerateCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('generate', 'Generate secure random password')
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)

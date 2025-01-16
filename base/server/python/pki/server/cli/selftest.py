@@ -37,6 +37,8 @@ class EnableSelfTestCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('enable', 'Enable selftests.')
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -123,6 +125,8 @@ class EnableSelfTestCLI(pki.cli.CLI):
 class DisableSelftestCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('disable', 'Disable selftests.')
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,

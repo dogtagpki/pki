@@ -42,6 +42,8 @@ class BannerShowCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('show', 'Show banner')
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -105,6 +107,8 @@ class BannerValidateCLI(pki.cli.CLI):
 
     def __init__(self):
         super().__init__('validate', 'Validate banner')
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,

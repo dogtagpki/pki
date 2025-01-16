@@ -33,6 +33,8 @@ class ESTCreateCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('create', 'Create EST subsystem')
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -102,6 +104,8 @@ class ESTRemoveCLI(pki.cli.CLI):
 
     def __init__(self):
         super().__init__('remove', 'Remove EST subsystem')
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,

@@ -48,6 +48,8 @@ class PKCS12ImportCLI(pki.cli.CLI):
         super(PKCS12ImportCLI, self).__init__(
             'import', 'Import PKCS #12 file into NSS database')
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)

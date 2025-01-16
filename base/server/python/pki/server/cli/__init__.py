@@ -294,6 +294,8 @@ class CreateCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('create', 'Create PKI server')
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -389,6 +391,8 @@ class RemoveCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('remove', 'Remove PKI server')
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -466,6 +470,8 @@ class StatusCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('status', 'Display PKI service status')
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -524,6 +530,8 @@ class StartCLI(pki.cli.CLI):
 
     def __init__(self):
         super().__init__('start', 'Start PKI service')
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,
@@ -602,6 +610,8 @@ class StopCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('stop', 'Stop PKI service')
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -679,6 +689,8 @@ class RestartCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('restart', 'Restart PKI service')
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -751,6 +763,8 @@ class RunCLI(pki.cli.CLI):
 
     def __init__(self):
         super().__init__('run', 'Run PKI server in foreground')
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,

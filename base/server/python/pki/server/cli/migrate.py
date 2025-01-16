@@ -35,6 +35,8 @@ class MigrateCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('migrate', 'Migrate system')
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)

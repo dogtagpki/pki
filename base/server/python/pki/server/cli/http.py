@@ -102,6 +102,8 @@ class HTTPConnectorAddCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('add', 'Add connector')
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -218,6 +220,8 @@ class HTTPConnectorDeleteCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('del', 'Delete connector')
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -281,6 +285,8 @@ class HTTPConnectorFindCLI(pki.cli.CLI):
 
     def __init__(self):
         super().__init__('find', 'Find connectors')
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,
@@ -355,6 +361,8 @@ class HTTPConnectorShowCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('show', 'Show connector')
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -422,6 +430,8 @@ class HTTPConnectorModCLI(pki.cli.CLI):
 
     def __init__(self):
         super().__init__('mod', 'Modify connector')
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,
@@ -611,6 +621,8 @@ class SSLHostAddCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('add', 'Add SSL host configuration')
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -703,6 +715,8 @@ class SSLHostDeleteCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('del', 'Delete SSL host configuration')
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -774,6 +788,8 @@ class SSLHostFindCLI(pki.cli.CLI):
 
     def __init__(self):
         super().__init__('find', 'Find SSL host configurations')
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,
@@ -870,6 +886,8 @@ class SSLHostModifyCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('mod', inspect.cleandoc(self.__class__.__doc__))
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -964,6 +982,8 @@ class SSLHostShowCLI(pki.cli.CLI):
 
     def __init__(self):
         super().__init__('show', inspect.cleandoc(self.__class__.__doc__))
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,
@@ -1063,6 +1083,8 @@ class SSLCertAddCLI(pki.cli.CLI):
 
     def __init__(self):
         super().__init__('add', 'Add SSL certificate configuration')
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,
@@ -1189,6 +1211,8 @@ class SSLCertDeleteCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('del', 'Delete SSL certificate configuration')
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -1277,6 +1301,8 @@ class SSLCertFindLI(pki.cli.CLI):
 
     def __init__(self):
         super().__init__('find', 'Find SSL certificate configurations')
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,

@@ -33,6 +33,8 @@ class RangeShowCLI(pki.cli.CLI):
 
         self.parent = parent
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -111,6 +113,8 @@ class RangeRequestCLI(pki.cli.CLI):
         super().__init__('request', 'Request ranges from %s master' % parent.parent.name.upper())
 
         self.parent = parent
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,
@@ -198,6 +202,8 @@ class RangeUpdateCLI(pki.cli.CLI):
         super().__init__('update', 'Update %s ranges' % parent.parent.name.upper())
 
         self.parent = parent
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,

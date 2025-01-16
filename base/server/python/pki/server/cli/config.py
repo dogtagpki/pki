@@ -46,6 +46,8 @@ class SubsystemConfigFindCLI(pki.cli.CLI):
 
         self.parent = parent
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -116,6 +118,8 @@ class SubsystemConfigShowCLI(pki.cli.CLI):
             'Show %s configuration parameter value' % parent.parent.name.upper())
 
         self.parent = parent
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,
@@ -195,6 +199,8 @@ class SubsystemConfigSetCLI(pki.cli.CLI):
 
         self.parent = parent
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -268,6 +274,8 @@ class SubsystemConfigUnsetCLI(pki.cli.CLI):
         super().__init__('unset', 'Unset %s configuration parameter' % parent.parent.name.upper())
 
         self.parent = parent
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,

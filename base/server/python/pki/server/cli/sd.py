@@ -28,6 +28,8 @@ class SDCreateCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('create', 'Create security domain')
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -105,6 +107,8 @@ class SDSubsystemFindCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('find', 'Find security domain subsystems')
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -168,6 +172,8 @@ class SDSubsystemAddCLI(pki.cli.CLI):
 
     def __init__(self):
         super().__init__('add', 'Add security domain subsystem')
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,
@@ -275,6 +281,8 @@ class SDSubsystemRemoveCLI(pki.cli.CLI):
 
     def __init__(self):
         super().__init__('del', 'Remove security domain subsystem')
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,

@@ -51,6 +51,8 @@ class NuxwdogEnableCLI(pki.cli.CLI):
         )
         super().__init__('enable', 'Enable nuxwdog')
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -225,6 +227,8 @@ class NuxwdogDisableCLI(pki.cli.CLI):
             'org.dogtagpki.jss.tomcat.PlainPasswordFile'
         )
         super().__init__('disable', 'Disable nuxwdog')
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,

@@ -69,6 +69,8 @@ class KRAClonePrepareCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('prepare', 'Prepare KRA clone')
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)

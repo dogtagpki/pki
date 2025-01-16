@@ -39,6 +39,8 @@ class NSSCreateCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('create', 'Create NSS database in PKI server')
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -129,6 +131,8 @@ class NSSRemoveCLI(pki.cli.CLI):
 
     def __init__(self):
         super().__init__('remove', 'Remove NSS database in PKI server')
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,

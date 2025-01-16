@@ -92,6 +92,8 @@ class AuditConfigShowCLI(pki.cli.CLI):
 
         self.parent = parent
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -160,6 +162,8 @@ class AuditConfigModifyCLI(pki.cli.CLI):
         super().__init__('config-mod', 'Modify audit configuration')
 
         self.parent = parent
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,
@@ -317,6 +321,8 @@ class AuditEventFindCLI(pki.cli.CLI):
 
         self.parent = parent
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -418,6 +424,8 @@ class AuditEventShowCLI(pki.cli.CLI):
 
         self.parent = parent
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -490,6 +498,8 @@ class AuditEventEnableCLI(pki.cli.CLI):
         super().__init__('event-enable', 'Enable audit event configurations')
 
         self.parent = parent
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,
@@ -577,6 +587,8 @@ class AuditEventUpdateCLI(pki.cli.CLI):
 
         self.parent = parent
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -656,6 +668,8 @@ class AuditEventDisableCLI(pki.cli.CLI):
         super().__init__('event-disable', 'Disable audit event configurations')
 
         self.parent = parent
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,
@@ -743,6 +757,8 @@ class AuditFileFindCLI(pki.cli.CLI):
 
         self.parent = parent
 
+    def create_parser(self):
+
         self.parser = argparse.ArgumentParser(
             prog=self.name,
             add_help=False)
@@ -821,6 +837,8 @@ class AuditFileVerifyCLI(pki.cli.CLI):
         super().__init__('file-verify', 'Verify audit log files')
 
         self.parent = parent
+
+    def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
             prog=self.name,
