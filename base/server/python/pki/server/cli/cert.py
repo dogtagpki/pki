@@ -19,7 +19,6 @@
 # All rights reserved.
 #
 
-import argparse
 from contextlib import contextmanager
 import datetime
 import getpass
@@ -44,6 +43,7 @@ logger = logging.getLogger(__name__)
 
 
 class CertCLI(pki.cli.CLI):
+
     def __init__(self):
         super().__init__('cert', 'System certificate management commands')
         self.add_module(CertFindCLI())
@@ -103,9 +103,9 @@ class CertFindCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('find', 'Find system certificates.')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -194,9 +194,9 @@ class CertShowCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('show', 'Display system certificate details.')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -309,9 +309,9 @@ class CertValidateCLI(pki.cli.CLI):
             'validate',
             inspect.cleandoc(self.__class__.__doc__))
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -379,9 +379,9 @@ class CertUpdateCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('update', 'Update system certificate.')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -521,9 +521,9 @@ class CertRequestCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('request', inspect.cleandoc(self.__class__.__doc__))
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -629,9 +629,9 @@ class CertCreateCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('create', inspect.cleandoc(self.__class__.__doc__))
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -787,9 +787,8 @@ class CertImportCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('import', inspect.cleandoc(self.__class__.__doc__))
 
-    def create_parser(self):
-
-        self.parser = argparse.ArgumentParser(
+    def create_parser(self, subparsers=None):
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -859,9 +858,9 @@ class CertExportCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('export', 'Export system certificate.')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -1098,9 +1097,9 @@ class CertRemoveCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('del', 'Remove system certificate.')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -1179,9 +1178,9 @@ class CertFixCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('fix', 'Fix expired system certificate(s).')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(

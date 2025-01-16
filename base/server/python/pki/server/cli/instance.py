@@ -18,7 +18,6 @@
 # All rights reserved.
 #
 
-import argparse
 import getpass
 import logging
 import os
@@ -68,9 +67,9 @@ class InstanceCertExportCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('export', 'Export system certificates')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -186,9 +185,9 @@ class InstanceFindCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('find', 'Find instances')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -254,9 +253,9 @@ class InstanceShowCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('show', 'Show instance')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -312,9 +311,9 @@ class InstanceStartCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('start', 'Start instance')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -375,9 +374,9 @@ class InstanceStopCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('stop', 'Stop instance')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -438,9 +437,9 @@ class InstanceMigrateCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('migrate', 'Migrate instance')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument('--tomcat')
@@ -511,9 +510,9 @@ class InstanceNuxwdogEnableCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('nuxwdog-enable', 'Instance enable nuxwdog')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -574,9 +573,9 @@ class InstanceNuxwdogDisableCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('nuxwdog-disable', 'Instance disable nuxwdog')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -637,9 +636,9 @@ class InstanceExternalCertAddCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('externalcert-add', 'Add external certificate or chain to the instance')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -751,9 +750,9 @@ class InstanceExternalCertDeleteCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('externalcert-del', 'Delete external certificate from the instance')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(

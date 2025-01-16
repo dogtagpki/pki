@@ -20,7 +20,6 @@
 # All rights reserved.
 #
 
-import argparse
 import getpass
 import inspect
 import logging
@@ -60,9 +59,9 @@ class SubsystemFindCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('find', 'Find subsystems')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -131,9 +130,9 @@ class SubsystemShowCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('show', 'Show subsystem')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -218,9 +217,9 @@ class SubsystemCreateCLI(pki.cli.CLI):
 
         self.parent = parent
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -285,9 +284,9 @@ class SubsystemDeployCLI(pki.cli.CLI):
         super().__init__('deploy', 'Deploy %s subsystem' % parent.name.upper())
         self.parent = parent
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -381,9 +380,9 @@ class SubsystemUndeployCLI(pki.cli.CLI):
         super().__init__('undeploy', 'Undeploy %s subsystem' % parent.name.upper())
         self.parent = parent
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -489,9 +488,9 @@ class SubsystemRedeployCLI(pki.cli.CLI):
 
         self.parent = parent
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -582,9 +581,9 @@ class SubsystemEnableCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('enable', 'Enable subsystem')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -690,9 +689,9 @@ class SubsystemDisableCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('disable', 'Disable subsystem')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -817,9 +816,9 @@ class SubsystemCertFindCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('find', 'Find subsystem certificates')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -908,9 +907,9 @@ class SubsystemCertShowCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('show', 'Show subsystem certificate')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -987,9 +986,9 @@ class SubsystemCertExportCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('export', 'Export subsystem certificate')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -1163,9 +1162,9 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('update', 'Update subsystem certificate')
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -1311,9 +1310,9 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('validate', 'Validate subsystem certificates', deprecated=True)
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
-        self.parser = argparse.ArgumentParser(
+        self.parser = subparsers.add_parser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(

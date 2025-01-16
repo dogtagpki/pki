@@ -102,10 +102,10 @@ class CLI(object):
             if not module or not command:
                 return module
 
-    def create_parser(self):
+    def create_parser(self, subparsers=None):
 
         for module in self.modules.values():
-            module.create_parser()
+            module.create_parser(subparsers=subparsers)
 
     def parse_command(self, command):
 
