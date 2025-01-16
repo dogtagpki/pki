@@ -104,6 +104,59 @@ Additionally, java driver for PostgreSQL need to be installed in the EST server 
 # ln -s /usr/share/java/ongres-stringprep/stringprep.jar /usr/share/pki/server/common/lib/
 ```
 
+=== TLS mutual authentication ===
+
+The above configurations of *LDAP* or *PostgreSQL* allow client
+authentication using _username/password_. In some cases or for
+specific operation, such as re-enroll for a new certificate, mutual
+authentication with client certificate is required.
+
+Realm configuration already support certificate based authentication
+out-of-the-box but in order to authenticate a user some additional
+information are needed. In more detail, the user entry has to include
+a _description_ containing some certificate details and the binary
+certificate.
+
+The _description_ has the format
+`<Version>;<Serial>;<Issuer>;<subject>`. The version is the hex value
+(without _0x_), and the serial is in decimal. As an example, if the user
+has a certificate with the following values:
+
+```
+$ openssl x509 -in cert.pem -subject -serial -issuer -text -noout |head -11
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            33:1c:9e:b7:9a:2d:cc:17:69:24:a2:81:4e:06:07:40
+        Signature Algorithm: sha256WithRSAEncryption
+        Issuer: O=EXAMPLE, OU=pki-tomcat, CN=CA Signing Certificate
+        Validity
+            Not Before: Jan 16 11:31:11 2025 GMT
+            Not After : Apr 16 11:31:11 2025 GMT
+        Subject: CN=test.example.com
+```
+
+Then the user entry `est-test-user` defined above can be modified in the
+DS case with the ldif:
+```
+$ cat certificate.ldif
+dn: uid=est-test-user,ou=people,dc=est,dc=pki,dc=example,dc=com
+changetype: modify
+add: description
+description: 2;67939231264256858734977554404570695488;CN=CA Signing Certificate,OU=pki-tomcat,O=EXAMPLE;CN=test.example.com
+-
+add: userCertificate
+userCertificate::<certificate_base64>
+```
+replacing the `<certificate_base64>` with the actual value.
+
+In case of PostgreSQL the information goes in the _user_certs_ table
+so it can be added with:
+```
+$ psql -U est -t -A -c "INSERT INTO user_certs VALUES ('est-test-user', '2;67939231264256858734977554404570695488;CN=CA Signing Certificate,OU=pki-tomcat,O=EXAMPLE;CN=test.example.com', pg_read_binary_file('/cert.der'));" est
+```
+
 == Installation ==
 
 An example `pkispawn` installation configuration is provided in
