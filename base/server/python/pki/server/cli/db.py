@@ -50,7 +50,7 @@ class DBSchemaUpgradeCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -139,7 +139,7 @@ class DBUpgradeCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -300,7 +300,7 @@ class SubsystemDBConfigShowCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -373,7 +373,7 @@ class SubsystemDBConfigModifyCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -550,7 +550,7 @@ class SubsystemDBInfoCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -643,7 +643,7 @@ class SubsystemDBCreateCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -728,7 +728,7 @@ class SubsystemDBInitCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -815,7 +815,7 @@ class SubsystemDBEmptyCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -898,7 +898,7 @@ class SubsystemDBRemoveCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -983,7 +983,7 @@ class SubsystemDBUpgradeCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -1094,7 +1094,7 @@ class SubsystemDBAccessGrantCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -1183,7 +1183,7 @@ class SubsystemDBAccessRevokeCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -1287,7 +1287,7 @@ class SubsystemDBIndexAddCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -1369,7 +1369,7 @@ class SubsystemDBIndexRebuildCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -1474,7 +1474,7 @@ class SubsystemDBReplicationEnableCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -1622,7 +1622,7 @@ class SubsystemDBReplicationAgreementAddCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -1748,7 +1748,7 @@ class SubsystemDBReplicationAgreementInitCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -1858,7 +1858,7 @@ class SubsystemDBVLVFindCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -1937,7 +1937,7 @@ class SubsystemDBVLVAddCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -2016,7 +2016,7 @@ class SubsystemDBVLVDeleteCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -2095,7 +2095,7 @@ class SubsystemDBVLVReindexCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',

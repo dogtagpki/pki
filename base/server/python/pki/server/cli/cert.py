@@ -106,7 +106,7 @@ class CertFindCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -197,7 +197,7 @@ class CertShowCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -312,7 +312,7 @@ class CertValidateCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -382,7 +382,7 @@ class CertUpdateCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -524,7 +524,7 @@ class CertRequestCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -632,7 +632,7 @@ class CertCreateCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -790,7 +790,7 @@ class CertImportCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -862,7 +862,7 @@ class CertExportCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -1101,7 +1101,7 @@ class CertRemoveCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -1182,7 +1182,7 @@ class CertFixCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',

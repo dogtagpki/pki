@@ -71,7 +71,7 @@ class InstanceCertExportCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -189,7 +189,7 @@ class InstanceFindCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-v',
@@ -257,7 +257,7 @@ class InstanceShowCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-v',
@@ -315,7 +315,7 @@ class InstanceStartCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-v',
@@ -378,7 +378,7 @@ class InstanceStopCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-v',
@@ -441,7 +441,7 @@ class InstanceMigrateCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument('--tomcat')
         self.parser.add_argument(
@@ -514,7 +514,7 @@ class InstanceNuxwdogEnableCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-v',
@@ -577,7 +577,7 @@ class InstanceNuxwdogDisableCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-v',
@@ -640,7 +640,7 @@ class InstanceExternalCertAddCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -754,7 +754,7 @@ class InstanceExternalCertDeleteCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',

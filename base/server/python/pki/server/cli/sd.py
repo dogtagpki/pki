@@ -31,7 +31,7 @@ class SDCreateCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -110,7 +110,7 @@ class SDSubsystemFindCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -176,7 +176,7 @@ class SDSubsystemAddCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -285,7 +285,7 @@ class SDSubsystemRemoveCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',

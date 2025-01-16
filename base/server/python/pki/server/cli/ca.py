@@ -98,7 +98,7 @@ class CACertFindCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -186,7 +186,7 @@ class CACertCreateCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -316,7 +316,7 @@ class CACertImportCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -419,7 +419,7 @@ class CACertRemoveCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -495,7 +495,7 @@ class CACertChainExportCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -616,7 +616,7 @@ class CACertRequestFindCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -702,7 +702,7 @@ class CACertRequestShowCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -780,7 +780,7 @@ class CACertRequestImportCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -897,7 +897,7 @@ class CACRLShowCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -1022,7 +1022,7 @@ class CACRLIPFindCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -1104,7 +1104,7 @@ class CACRLIPShowCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -1183,7 +1183,7 @@ class CACRLIPModifyCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -1269,7 +1269,7 @@ class CAClonePrepareCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -1416,7 +1416,7 @@ class CAProfileFindCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -1485,7 +1485,7 @@ class CAProfileImportCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
@@ -1580,7 +1580,7 @@ class CAProfileModifyCLI(pki.cli.CLI):
     def create_parser(self):
 
         self.parser = argparse.ArgumentParser(
-            prog=self.name,
+            self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
             '-i',
