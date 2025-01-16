@@ -1,4 +1,4 @@
-== Installing KRA Clone with HSM ==
+= Installing KRA Clone with HSM =
 
 == Overview ==
 

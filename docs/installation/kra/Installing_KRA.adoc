@@ -1,4 +1,4 @@
-== Installing KRA ==
+= Installing KRA =
 
 == Overview ==
 

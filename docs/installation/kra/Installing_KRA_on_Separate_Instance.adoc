@@ -1,4 +1,4 @@
-== Installing KRA on Separate Instance ==
+= Installing KRA on Separate Instance =
 
 == Overview ==
 
