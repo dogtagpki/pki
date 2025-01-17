@@ -1,1 +1,1 @@
-This page has been converted/moved to [Installing_CA.adoc](../ca/Installing_CA.adoc)
+Converted/moved to [Installing_CA.adoc](../ca/Installing_CA.adoc)
