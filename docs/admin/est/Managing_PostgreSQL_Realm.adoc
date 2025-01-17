@@ -1,0 +1,89 @@
+= Managing PostgreSQL Realm =
+
+If you have chosen to use *PostgreSQL* for user management, you first
+need to prepare a database (e.g. est) and a user (e.g. est) to access
+the database. Installation instructions can be found link:https://www.postgresql.org/download/linux[here].
+
+After the installation, verify the database connection with the
+following command:
+----
+$ psql -U est -d est
+----
+    
+To use the _PostreSQL_ DB the user tables should be created with the
+sql file provided in
+`/usr/share/pki/est/conf/realm/postgresql/create.sql` and then filled
+with the user information. The tables can be created with the command:
+----
+$ psql -U est -t -A -f /tmp/create.sql est
+----
+Then fill the tables with the commands:
+----
+$ psql -U est -t -A -c "INSERT INTO users VALUES ('est-test-user', 'EST TEST USER', '<tomcat_digest>');"  est 
+$ psql -U est -t -A -c "INSERT INTO groups VALUES ('estclient', 'EST TEST USERS');"  est 
+$ psql -U est -t -A -c "INSERT INTO group_members VALUES ('estclient', 'est-test-user');"  est 
+----
+
+Note: the tomcat digest for the password can be obtained with the command:
+----
+$ tomcat-digest <user_password>
+----
+
+It is possible to use different schemas but in this case a custom
+`statements.conf` file (provided in the same folder) has to be
+provided in order to retrieve the user information from the DB.
+
+Additionally, java driver for PostgreSQL need to be installed in the EST server and linked into library folder of pki:
+
+----
+# dnf install -y postgresql-jdbc
+# ln -s /usr/share/java/postgresql-jdbc/postgresql.jar /usr/share/pki/server/common/lib
+# ln -s /usr/share/java/ongres-scram/client.jar /usr/share/pki/server/common/lib
+# ln -s /usr/share/java/ongres-scram/common.jar /usr/share/pki/server/common/lib
+# ln -s /usr/share/java/ongres-stringprep/saslprep.jar /usr/share/pki/server/common/lib/
+# ln -s /usr/share/java/ongres-stringprep/stringprep.jar /usr/share/pki/server/common/lib/
+----
+
+== TLS mutual authentication ==
+
+The above configurations allow client authentication using
+_username/password_. In some cases or for specific operation, such as
+re-enroll for a new certificate, mutual authentication with client
+certificate is required.
+
+Realm configuration already support certificate based authentication
+out-of-the-box but in order to authenticate a user some additional
+information are needed. In more detail, the user entry has to include
+a _description_ containing some certificate details and the binary
+certificate.
+
+The _description_ has the format
+`<Version>;<Serial>;<Issuer>;<subject>`. The version is the hex value
+(without _0x_), the serial is in decimal and issuer and subject are
+distinguished name (DN). The format for DN is from the more specific
+attribute to the more general (note: some tools, like *OpenSSL*, have
+different order), separated by comma.
+
+These information are stored in the _user_certs_ table. As an example, if the user
+has a certificate with the following values:
+
+----
+$ openssl x509 -in cert.pem -subject -serial -issuer -text -noout |head -11
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            33:1c:9e:b7:9a:2d:cc:17:69:24:a2:81:4e:06:07:40
+        Signature Algorithm: sha256WithRSAEncryption
+        Issuer: O=EXAMPLE, OU=pki-tomcat, CN=CA Signing Certificate
+        Validity
+            Not Before: Jan 16 11:31:11 2025 GMT
+            Not After : Apr 16 11:31:11 2025 GMT
+        Subject: CN=test.example.com
+----
+
+Then the user entry `est-test-user` defined above requires a new entry in 
+the _user_certs_ table which can be added with:
+----
+$ psql -U est -t -A -c "INSERT INTO user_certs VALUES ('est-test-user', '2;67939231264256858734977554404570695488;CN=CA Signing Certificate,OU=pki-tomcat,O=EXAMPLE;CN=test.example.com', pg_read_binary_file('/cert.der'));" est
+----

@@ -10,9 +10,9 @@ link:https://github.com/dogtagpki/pki/wiki/PKI-Server-Create-CLI[here]).
 
 Create the _EST subsystem_ inside the pki server instance:
 
-```
+----
 # pki-server est-create
-```
+----
 
 Configure the issuance backend. The class
 `org.dogtagpki.est.DogtagRABackend` is used for the EST instance to
@@ -25,7 +25,7 @@ communicate with the CA. This requires:
 * the enrollment _profile_.
 
 
-```
+----
 # cat >/var/lib/pki/pki-tomcat/conf/est/backend.conf <<EOF
 class=org.dogtagpki.est.DogtagRABackend
 url=https://$(hostname):8443
@@ -33,7 +33,7 @@ profile=estServiceCert
 username=est-ra-1
 password=password4ESTUser
 EOF
-```
+----
 
 Note: to use TLS mutual authentication instead of _username/password_, one needs to:
 
@@ -53,12 +53,12 @@ Configure request authorization. The class
 delegate the authorization to an external process configured with the
 parameter *executable*:
 
-```
+----
 # cat >/var/lib/pki/pki-tomcat/conf/est/authorizer.conf <<EOF
 class=org.dogtagpki.est.ExternalProcessRequestAuthorizer
 executable=/usr/share/pki/est/bin/estauthz
 EOF
-```
+----
 
 The executable script in this example performs a simple check of the user role and it
 is available link:/base/est/bin/estauthz[here]. It can be replaced if a
@@ -67,26 +67,26 @@ more sophisticated authorization framework has to be adopted.
 
 Deploy the EST application:
 
-```
+----
 # pki-server est-deploy
-```
+----
 
 Configure the authentication. The authentication allows one to use realms
 from _tomcat_ or developed for dogtag. As an example we use an in
 memory realm:
 
-```
+----
 # cat >/var/lib/pki/pki-tomcat/conf/est/realm.conf <<EOF
 class=com.netscape.cms.realm.PKIInMemoryRealm
 username=alice
 password=4me2Test
 roles=estclient
 EOF
-```
+----
 
 Finally, restart the server:
 
-```
+----
 # pki-server restart --wait
-```
+----
 

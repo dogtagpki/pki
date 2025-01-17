@@ -3,166 +3,13 @@
 After the prerequisite in xref:../est/Installing_EST.adoc[Installing
 EST], it is possible to install *EST*.
 
-== REALM user DB ==
-
-
-*EST* subsystem has its own realm authentication with a separate
-user DB. _LDAP_, _PostreSQL_ and file based DB are supported. The DB
-has to be prepared in advance for authentication to work. User
-management is handled on the selected DB, outside EST.
-
-=== LDAP based DB ===
-
-If you have chosen to use an LDAP instance for user management, before
-adding users, please ensure that you have configured the directory
-server and added base entries. The step is described
-https://github.com/dogtagpki/pki/wiki/DS-Installation[here].
-
-The user DB requires a node containing the users (_inetOrgPerson_) and
-a node containing the groups (_groupOfUniqueNames_). Therefore, if
-the base dn is `dc=pki,dc=example,dc=com` it is possible to create a
-tree with a user using the command:
-
-```
-ldapadd -x -H ldap://estds.example.com:389 \
-    -D "cn=Directory Manager"  -w Secret.123 << EOF
-dn: dc=est,dc=pki,dc=example,dc=com
-objectClass: domain
-dc: est 
-          
-dn: ou=people,dc=est,dc=pki,dc=example,dc=com
-ou: people
-objectClass: top
-objectClass: organizationalUnit
-          
-dn: ou=groups,dc=est,dc=pki,dc=example,dc=com
-ou: groups
-objectClass: top
-objectClass: organizationalUnit
-          
-dn: uid=est-test-user,ou=people,dc=est,dc=pki,dc=example,dc=com
-objectClass: top
-objectClass: person
-objectClass: organizationalPerson
-objectClass: inetOrgPerson
-uid: est-test-user
-sn: EST TEST USER
-cn: EST TEST USER
-userPassword: Secret.123
-
-dn: cn=estclient,ou=groups,dc=est,dc=pki,dc=example,dc=com
-objectClass: top
-objectClass: groupOfUniqueNames
-cn: estclient
-uniqueMember: uid=est-test-user,ou=People,dc=est,dc=pki,dc=example,dc=com
-EOF
-```
-
-=== PostgreSQL based DB ===
-
-If you have chosen to use *PostgreSQL* for user management, you first
-need to prepare a database (e.g. est) and a user (e.g. est) to access
-the database. Installation instructions can be found link:https://www.postgresql.org/download/linux[here].
-
-After the installation, verify the database connection with the
-following command:
-```
-$ psql -U est -d est
-```
-    
-To use the _PostreSQL_ DB the user tables should be created with the
-sql file provided in
-`/usr/share/pki/est/conf/realm/postgresql/create.sql` and then filled
-with the user information. The tables can be created with the command:
-```
-$ psql -U est -t -A -f /tmp/create.sql est
-```
-Then fill the tables with the commands:
-```
-$ psql -U est -t -A -c "INSERT INTO users VALUES ('est-test-user', 'EST TEST USER', '<tomcat_digest>');"  est 
-$ psql -U est -t -A -c "INSERT INTO groups VALUES ('estclient', 'EST TEST USERS');"  est 
-$ psql -U est -t -A -c "INSERT INTO group_members VALUES ('estclient', 'est-test-user');"  est 
-```
-
-Note: the tomcat digest for the password can be obtained with the command:
-```
-$ tomcat-digest <user_password>
-```
-
-It is possible to use different schemas but in this case a custom
-`statements.conf` file (provided in the same folder) has to be
-provided in order to retrieve the user information from the DB.
-
-Additionally, java driver for PostgreSQL need to be installed in the EST server and linked into library folder of pki:
-
-```
-# dnf install -y postgresql-jdbc
-# ln -s /usr/share/java/postgresql-jdbc/postgresql.jar /usr/share/pki/server/common/lib
-# ln -s /usr/share/java/ongres-scram/client.jar /usr/share/pki/server/common/lib
-# ln -s /usr/share/java/ongres-scram/common.jar /usr/share/pki/server/common/lib
-# ln -s /usr/share/java/ongres-stringprep/saslprep.jar /usr/share/pki/server/common/lib/
-# ln -s /usr/share/java/ongres-stringprep/stringprep.jar /usr/share/pki/server/common/lib/
-```
-
-=== TLS mutual authentication ===
-
-The above configurations of *LDAP* or *PostgreSQL* allow client
-authentication using _username/password_. In some cases or for
-specific operation, such as re-enroll for a new certificate, mutual
-authentication with client certificate is required.
-
-Realm configuration already support certificate based authentication
-out-of-the-box but in order to authenticate a user some additional
-information are needed. In more detail, the user entry has to include
-a _description_ containing some certificate details and the binary
-certificate.
-
-The _description_ has the format
-`<Version>;<Serial>;<Issuer>;<subject>`. The version is the hex value
-(without _0x_), and the serial is in decimal. As an example, if the user
-has a certificate with the following values:
-
-```
-$ openssl x509 -in cert.pem -subject -serial -issuer -text -noout |head -11
-Certificate:
-    Data:
-        Version: 3 (0x2)
-        Serial Number:
-            33:1c:9e:b7:9a:2d:cc:17:69:24:a2:81:4e:06:07:40
-        Signature Algorithm: sha256WithRSAEncryption
-        Issuer: O=EXAMPLE, OU=pki-tomcat, CN=CA Signing Certificate
-        Validity
-            Not Before: Jan 16 11:31:11 2025 GMT
-            Not After : Apr 16 11:31:11 2025 GMT
-        Subject: CN=test.example.com
-```
-
-Then the user entry `est-test-user` defined above can be modified in the
-DS case with the ldif:
-```
-$ cat certificate.ldif
-dn: uid=est-test-user,ou=people,dc=est,dc=pki,dc=example,dc=com
-changetype: modify
-add: description
-description: 2;67939231264256858734977554404570695488;CN=CA Signing Certificate,OU=pki-tomcat,O=EXAMPLE;CN=test.example.com
--
-add: userCertificate
-userCertificate::<certificate_base64>
-```
-replacing the `<certificate_base64>` with the actual value.
-
-In case of PostgreSQL the information goes in the _user_certs_ table
-so it can be added with:
-```
-$ psql -U est -t -A -c "INSERT INTO user_certs VALUES ('est-test-user', '2;67939231264256858734977554404570695488;CN=CA Signing Certificate,OU=pki-tomcat,O=EXAMPLE;CN=test.example.com', pg_read_binary_file('/cert.der'));" est
-```
 
 == Installation ==
 
 An example `pkispawn` installation configuration is provided in
 `/usr/share/pki/server/examples/installation/est.cfg` with the following content:
 
-```
+----
 [DEFAULT]
 pki_server_database_password=Secret.123
 pki_admin_setup=False
@@ -174,7 +21,7 @@ est_realm_bind_password=Secret.123
 est_ca_user_name=est-ra-1
 est_ca_user_password=Secret.est
 pki_sslserver_nickname=sslserver
-```
+----
 
 The following commands will install an EST subsystem on a PKI server
 instance that already has a CA subsystem in it. By default the PKI
@@ -184,17 +31,17 @@ please refer to the command's manual page.
 
 To install EST in the same instance of the CA and with the DS realm run the command:
 
-```
+----
 # pkispawn \
     -f /usr/share/pki/server/examples/installation/est.cfg \
     -s EST \
     -D est_realm_url=ldap://estds.example.com:389 \
     -v
-```
+----
 
 Note that the `est_realm_url` points to the user DB. The other configurations that could be modified according to the deployment are:
 
-```
+----
 est_ca_profile=estServiceCert
 est_ca_user_name=
 est_ca_user_password=
@@ -214,7 +61,7 @@ est_realm_users_dn=ou=people,dc=est,dc=pki,dc=example,dc=com
 est_realm_groups_dn=ou=groups,dc=est,dc=pki,dc=example,dc=com
 est_realm_statements=/usr/share/pki/est/conf/realm/postgresql/statements.conf
 est_authorizer_exec_path=/usr/share/pki/est/bin/estauthz
-```
+----
 
 The `est_ca_*` provides information related to the user and profile
 configured in the CA for the EST subsystem.
@@ -229,7 +76,7 @@ are: ds, postgresql and in-memory.
 
 As an example, to install EST with PostgreSQL the command will be:
 
-```
+----
 # pkispawn \
     -f /usr/share/pki/server/examples/installation/est.cfg \
     -s EST \
@@ -238,7 +85,7 @@ As an example, to install EST with PostgreSQL the command will be:
     -D est_realm_user=est \
     -D est_realm_password=mysecretpassword \
     -v
-```
+----
 
 The `est_realm_custom` is a path to a custom realm configuration for
 tomcat and if provided it will overwrite all other realm related
@@ -271,7 +118,7 @@ To create the PKCS12 with the certificate it is possible to
 request a server certificate for EST from the CA (and later the
 RA user certificate) and then export them as exemplified below:
 
-```
+----
 # pki nss-cert-request --csr estSSLServer.csr \
     --ext /usr/share/pki/server/certs/sslserver.conf --subject 'CN=est.example.com'
 
@@ -284,13 +131,13 @@ RA user certificate) and then export them as exemplified below:
 # pki nss-cert-import --cert estSSLServer.crt sslserver
 
 # pki pkcs12-cert-import sslserver --pkcs12-file $SHARED/est_server.p12 --pkcs12-password Secret.123
-```
+----
 
 Similarly, to generate a subsystem certificate for EST, associate to
 the EST RA user (est-ra-1) previously configured in the CA, and add in the same
 PKCS12 of the SSL server certificate:
 
-```
+----
 # pki nss-cert-request --csr est-ra-1.csr \
     --ext /usr/share/pki/server/certs/admin.conf \
     --subject 'CN=EST Subsystem Certificate,OU=pki-tomcat,O=EXAMPLE'
@@ -305,11 +152,11 @@ PKCS12 of the SSL server certificate:
 # pki -n caadmin ca-user-cert-add est-ra-1 --input est-ra-1.crt
 
 # pki pkcs12-cert-import "est-ra-1" --pkcs12-file $SHARED/est_server.p12 --pkcs12-password Secret.123 --append
-```
+----
 
 Using the generated PKCS#12 bundle, the command to deploy EST is:
 
-```
+----
 # pkispawn \
     -f /usr/share/pki/server/examples/installation/est.cfg \
     -s EST \
@@ -320,7 +167,7 @@ Using the generated PKCS#12 bundle, the command to deploy EST is:
     -D pki_server_pkcs12_path=est_server.p12 \
     -D pki_server_pkcs12_password=Secret.123 \
     -v
-```
+----
 
 
 === Installation on separate instance without certificates ===
@@ -333,13 +180,13 @@ configuration file. In such a case the CA signing certificate is
 needed. Retrieving the certificate can be done in the CA server with
 the command:
 
-```
+----
 # pki-server cert-export ca_signing --cert-file ca_signing.crt
-```
+----
 
 It is possible to install EST with the following command:
 
-```
+----
 # pkispawn \
     -f /usr/share/pki/server/examples/installation/est.cfg \
     -s EST \
@@ -348,7 +195,7 @@ It is possible to install EST with the following command:
     -D pki_cert_chain_path=ca_signing.crt \
     -D pki_cert_chain_nickname=caSigning \
     -v
-```
+----
 
 After the installation it is possible to update the EST server
 certificates with a new certificate using a different profile if the
@@ -363,9 +210,9 @@ and configured in the file
 To remove the EST subsystem it is possible to use the `pkidestroy`
 command as follow:
 
-```
+----
 # pkidestroy -s EST -v
-```
+----
 
 Note: the configuration and log folders are not removed. To remove
 everything add the the options: `--remove-conf` `--remove-logs`.
