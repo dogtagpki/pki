@@ -1,0 +1,103 @@
+= Managing DS Realm =
+
+If you have chosen to use an LDAP instance for user management, before
+adding users, please ensure that you have configured the directory
+server and added base entries. Installation instructions can be found
+https://github.com/dogtagpki/pki/wiki/DS-Installation[here].
+
+The user DB requires a node containing the users (_inetOrgPerson_) and
+a node containing the groups (_groupOfUniqueNames_). Therefore, if
+the base dn is `dc=pki,dc=example,dc=com` it is possible to create a
+tree with a user using the command:
+
+----
+ldapadd -x -H ldap://estds.example.com:389 \
+    -D "cn=Directory Manager"  -w Secret.123 << EOF
+dn: dc=est,dc=pki,dc=example,dc=com
+objectClass: domain
+dc: est
+          
+dn: ou=people,dc=est,dc=pki,dc=example,dc=com
+ou: people
+objectClass: top
+objectClass: organizationalUnit
+          
+dn: ou=groups,dc=est,dc=pki,dc=example,dc=com
+ou: groups
+objectClass: top
+objectClass: organizationalUnit
+          
+dn: uid=est-test-user,ou=people,dc=est,dc=pki,dc=example,dc=com
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+uid: est-test-user
+sn: EST TEST USER
+cn: EST TEST USER
+userPassword: Secret.123
+
+dn: cn=estclient,ou=groups,dc=est,dc=pki,dc=example,dc=com
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: estclient
+uniqueMember: uid=est-test-user,ou=People,dc=est,dc=pki,dc=example,dc=com
+EOF
+----
+
+== TLS mutual authentication ==
+
+The above configurations allow client authentication using
+_username/password_. In some cases or for specific operation, such as
+re-enroll for a new certificate, mutual authentication with client
+certificate is required.
+
+Realm configuration already support certificate based authentication
+out-of-the-box but in order to authenticate a user some additional
+information are needed. In more detail, the user entry has to include
+a _description_ containing some certificate details and the binary
+certificate.
+
+The _description_ has the format
+`<Version>;<Serial>;<Issuer>;<subject>`. The version is the hex value
+(without _0x_), the serial is in decimal and issuer and subject are
+distinguished name (DN). The format for DN is from the more specific
+attribute to the more general (note: some tools, like *OpenSSL*, have
+different order), separated by comma. As an example, if the user has
+a certificate with the following values:
+
+----
+$ openssl x509 -in cert.pem -subject -serial -issuer -text -noout |head -11
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            33:1c:9e:b7:9a:2d:cc:17:69:24:a2:81:4e:06:07:40
+        Signature Algorithm: sha256WithRSAEncryption
+        Issuer: O=EXAMPLE, OU=pki-tomcat, CN=CA Signing Certificate
+        Validity
+            Not Before: Jan 16 11:31:11 2025 GMT
+            Not After : Apr 16 11:31:11 2025 GMT
+        Subject: CN=test.example.com
+----
+
+Then the user entry `est-test-user` defined above can be modified in the
+DS case with the command:
+----
+$ ldapmodify -H ldap://ds.example.com:3389 \
+    -D "cn=Directory Manager" -w Secret.123 <<EOF
+dn: uid=est-test-user,ou=people,dc=est,dc=pki,dc=example,dc=com
+changetype: modify
+add: description
+description: 2;67939231264256858734977554404570695488;CN=CA Signing Certificate,OU=pki-tomcat,O=EXAMPLE;CN=test.example.com
+-
+add: userCertificate
+userCertificate::<certificate_base64>
+EOF
+----
+    
+replacing the `<certificate_base64>` with the actual value. To obtain
+the value from the DER certificate it is possible to use the command:
+----
+$ openssl base64 -in cert.der | sed 's/^/ /'
+----
