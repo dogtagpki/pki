@@ -1,1 +1,1 @@
-This page has been converted/moved to [Installing_OCSP_with_ECC.adoc](Installing_OCSP_with_ECC.adoc)
+Converted/moved to [Installing_OCSP_with_ECC.adoc](../ocsp/Installing_OCSP_with_ECC.adoc)

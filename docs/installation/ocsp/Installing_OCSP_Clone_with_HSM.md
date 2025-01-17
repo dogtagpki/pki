@@ -1,1 +1,1 @@
-This page has been converted/moved to [Installing_OCSP_Clone_with_HSM.adoc](../ocsp/Installing_OCSP_Clone_with_HSM.adoc).
+Converted/moved to [Installing_OCSP_Clone_with_HSM.adoc](../ocsp/Installing_OCSP_Clone_with_HSM.adoc)

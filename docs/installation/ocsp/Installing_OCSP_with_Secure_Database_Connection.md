@@ -1,1 +1,1 @@
-This page has been converted to [Installing_OCSP_with_Secure_Database_Connection.adoc](Installing_OCSP_with_Secure_Database_Connection.adoc).
+Converted/moved to [Installing_OCSP_with_Secure_Database_Connection.adoc](../ocsp/Installing_OCSP_with_Secure_Database_Connection.adoc)
