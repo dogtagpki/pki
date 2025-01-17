@@ -24,6 +24,7 @@ if [ "$HOSTTYPE" = "x86_64" ]; then
 else
    LIB_DIR="/usr/lib"
 fi
+SBIN_DIR="/usr/sbin"
 
 SYSCONF_DIR="/etc"
 SHARE_DIR="/usr/share"
@@ -73,6 +74,7 @@ usage() {
     echo "    --prefix-dir=<path>    Prefix directory (default: $PREFIX_DIR)"
     echo "    --include-dir=<path>   Include directory (default: $INCLUDE_DIR)"
     echo "    --lib-dir=<path>       Library directory (default: $LIB_DIR)"
+    echo "    --sbin-dir=<path>      Superuser binary directory (default: $SBIN_DIR)"
     echo "    --sysconf-dir=<path>   System configuration directory (default: $SYSCONF_DIR)"
     echo "    --share-dir=<path>     Share directory (default: $SHARE_DIR)"
     echo "    --cmake=<path>         Path to CMake executable"
@@ -264,6 +266,9 @@ while getopts v-: arg ; do
         lib-dir=?*)
             LIB_DIR=$(readlink -f "$LONG_OPTARG")
             ;;
+        sbin-dir=?*)
+            SBIN_DIR=$(readlink -f "$LONG_OPTARG")
+            ;;
         sysconf-dir=?*)
             SYSCONF_DIR=$(readlink -f "$LONG_OPTARG")
             ;;
@@ -416,6 +421,7 @@ if [ "$DEBUG" = true ] ; then
     echo "PREFIX_DIR: $PREFIX_DIR"
     echo "INCLUDE_DIR: $INCLUDE_DIR"
     echo "LIB_DIR: $LIB_DIR"
+    echo "SBIN_DIR: $SBIN_DIR"
     echo "SYSCONF_DIR: $SYSCONF_DIR"
     echo "SHARE_DIR: $SHARE_DIR"
     echo "CMAKE: $CMAKE"
@@ -637,6 +643,7 @@ if [ "$BUILD_TARGET" = "dist" ] ; then
 
     OPTIONS+=(-DINCLUDE_INSTALL_DIR:PATH=$INCLUDE_DIR)
     OPTIONS+=(-DLIB_INSTALL_DIR:PATH=$LIB_DIR)
+    OPTIONS+=(-DSBIN_INSTALL_DIR:PATH=$SBIN_DIR)
     OPTIONS+=(-DSYSCONF_INSTALL_DIR:PATH=$SYSCONF_DIR)
     OPTIONS+=(-DSHARE_INSTALL_PREFIX:PATH=$SHARE_DIR)
 
