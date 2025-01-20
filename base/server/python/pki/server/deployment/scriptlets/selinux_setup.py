@@ -21,6 +21,7 @@
 from __future__ import absolute_import
 import logging
 import selinux
+import subprocess
 import sys
 import time
 
@@ -48,10 +49,29 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     suffix = "(/.*)?"
 
     def restore_context(self, mdict):
-        selinux.restorecon(mdict['pki_instance_path'], True)
-        selinux.restorecon(config.PKI_DEPLOYMENT_LOG_ROOT, True)
-        selinux.restorecon(mdict['pki_instance_log_path'], True)
-        selinux.restorecon(mdict['pki_instance_configuration_path'], True)
+        # The restocon API is not working in RHEL
+        # (see https://issues.redhat.com/browse/RHEL-73348).
+        #
+        #selinux.restorecon(mdict['pki_instance_path'], True)
+        #selinux.restorecon(config.PKI_DEPLOYMENT_LOG_ROOT, True)
+        #selinux.restorecon(mdict['pki_instance_log_path'], True)
+        #selinux.restorecon(mdict['pki_instance_configuration_path'], True)
+        folders = [
+            mdict['pki_instance_path'],
+            config.PKI_DEPLOYMENT_LOG_ROOT,
+            mdict['pki_instance_log_path'],
+            mdict['pki_instance_configuration_path']
+        ]
+        for folder in folders:
+            cmd = [
+                '/usr/sbin/restorecon',
+                '-R'
+            ]
+            if logger.isEnabledFor(logging.DEBUG):
+                cmd.append('-v')
+            cmd.append(folder)
+            logger.debug('Command: %s', ' '.join(cmd))
+            subprocess.run(cmd, check=True)
 
     # Helper function to check if a given `context_value` exists in the given
     # set of `records`. This method can process both port contexts and file contexts
