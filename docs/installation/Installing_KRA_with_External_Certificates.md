@@ -1,1 +1,0 @@
-This page has been moved to [kra/Installing_KRA_with_External_Certificates.md](kra/Installing_KRA_with_External_Certificates.md).

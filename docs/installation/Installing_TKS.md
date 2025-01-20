@@ -1,1 +1,0 @@
-This page has been moved to [tks/Installing_TKS.md](tks/Installing_TKS.md).

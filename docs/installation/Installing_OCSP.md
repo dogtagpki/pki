@@ -1,1 +1,0 @@
-This page has been moved to [ocsp/Installing_OCSP.md](ocsp/Installing_OCSP.md).

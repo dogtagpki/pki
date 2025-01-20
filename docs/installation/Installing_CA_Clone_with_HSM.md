@@ -1,1 +1,0 @@
-This page has been moved to [ca/Installing_CA_Clone_with_HSM.md](ca/Installing_CA_Clone_with_HSM.md).

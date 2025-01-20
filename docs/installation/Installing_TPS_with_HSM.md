@@ -1,1 +1,0 @@
-This page has been moved to [tps/Installing_TPS_with_HSM.md](tps/Installing_TPS_with_HSM.md).

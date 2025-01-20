@@ -1,1 +1,0 @@
-This page has been moved to [ca/Installing_CA_Clone.md](ca/Installing_CA_Clone.md).

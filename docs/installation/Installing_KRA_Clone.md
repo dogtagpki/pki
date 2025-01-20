@@ -1,1 +1,0 @@
-This page has been moved to [kra/Installing_KRA_Clone.md](kra/Installing_KRA_Clone.md).

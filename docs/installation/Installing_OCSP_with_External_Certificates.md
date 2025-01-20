@@ -1,1 +1,0 @@
-This page has been moved to [ocsp/Installing_OCSP_with_External_Certificates.md](ocsp/Installing_OCSP_with_External_Certificates.md).

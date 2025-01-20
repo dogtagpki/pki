@@ -1,1 +1,0 @@
-This page has been moved to [tps/Installing_TPS.md](tps/Installing_TPS.md).

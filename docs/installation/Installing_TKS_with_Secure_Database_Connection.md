@@ -1,1 +1,0 @@
-This page has been moved to [tks/Installing_TKS_with_Secure_Database_Connection.md](tks/Installing_TKS_with_Secure_Database_Connection.md).
