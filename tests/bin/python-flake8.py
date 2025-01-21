@@ -6,14 +6,12 @@ SCRIPT_NAME=`basename "$SCRIPT_PATH"`
 BIN_DIR=`dirname "$SCRIPT_PATH"`
 TESTS_DIR=`dirname "$BIN_DIR"`
 
-RC_FILE="$TESTS_DIR/pylintrc"
 FLAKE8_CONFIG="$TESTS_DIR/tox.ini"
 
 usage() {
     echo "Usage: $SCRIPT_NAME [OPTIONS]"
     echo
     echo "Options:"
-    echo "    --rcfile=<path>        pylint configuration (default: $RC_FILE)"
     echo "    --config=<path>        flake8 configuration (default: $FLAKE8_CONFIG)"
     echo " -v,--verbose              Run in verbose mode."
     echo "    --debug                Run in debug mode."
@@ -29,9 +27,6 @@ while getopts v-: arg ; do
         LONG_OPTARG="${OPTARG#*=}"
 
         case $OPTARG in
-        rcfile=?*)
-            RC_FILE="$LONG_OPTARG"
-            ;;
         config?*)
             FLAKE8_CONFIG="$LONG_OPTARG"
             ;;
@@ -42,7 +37,7 @@ while getopts v-: arg ; do
         '')
             break # "--" terminates argument processing
             ;;
-        rcfile* | config*)
+        config*)
             echo "ERROR: Missing argument for --$OPTARG option" >&2
             exit 1
             ;;
@@ -70,12 +65,6 @@ done
 SOURCES="$SOURCES `find /usr/share/pki/upgrade -name "*.py"`"
 SOURCES="$SOURCES `find /usr/share/pki/server/upgrade -name "*.py"`"
 
-echo "Running pylint..."
-pylint-3 \
-    --rcfile=${RC_FILE} \
-    $SOURCES
-
-echo "Running flake8..."
 python3-flake8 \
     --config ${FLAKE8_CONFIG} \
     $SOURCES
