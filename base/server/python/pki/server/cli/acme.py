@@ -1213,7 +1213,8 @@ class ACMEIssuerModifyCLI(pki.cli.CLI):
             print('Enter ID of the authority for issuing ACME certificates '
                   '(empty for main CA, subCA ID otherwise).')
             authority_id = config.get('authority-id')
-            authority_id = pki.util.read_text('  Authority ID', default=authority_id, required=True)
+            authority_id = pki.util.read_text(
+                '  Authority ID', default=authority_id, required=True)
             if authority_id:
                 pki.util.set_property(config, 'authority-id', authority_id)
 
@@ -1222,7 +1223,8 @@ class ACMEIssuerModifyCLI(pki.cli.CLI):
                 print('Enter DN of the authority for issuing ACME certificates '
                       '(empty for main CA, subCA DN otherwise).')
                 authority_dn = config.get('authority-dn')
-                authority_dn = pki.util.read_text('  Authority ID', default=authority_id, required=True)
+                authority_dn = pki.util.read_text(
+                    '  Authority ID', default=authority_id, required=True)
                 if authority_dn:
                     pki.util.set_property(config, 'authority-dn', authority_dn)
 

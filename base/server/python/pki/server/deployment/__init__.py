@@ -1264,38 +1264,37 @@ class PKIDeployer:
             serial_number_range_start = self.mdict.get('pki_serial_number_range_start')
             if serial_number_range_start:
                 if not serial_number_range_start.startswith('0x'):
-                    raise Exception('pki_serial_number_range_start format not valid, expecting 0x...')
+                    raise Exception('pki_serial_number_range_start must start with 0x')
                 subsystem.set_config('dbs.beginSerialNumber', serial_number_range_start)
 
             serial_number_range_end = self.mdict.get('pki_serial_number_range_end')
             if serial_number_range_end:
                 if not serial_number_range_end.startswith('0x'):
-                    raise Exception('pki_serial_number_range_end format not valid, expecting 0x...')
+                    raise Exception('pki_serial_number_range_end must start with 0x')
                 subsystem.set_config('dbs.endSerialNumber', serial_number_range_end)
 
             serial_increment = self.mdict.get('pki_serial_number_range_increment')
             if serial_increment:
                 if not serial_increment.startswith('0x'):
-                    raise Exception('pki_serial_number_range_increment format not valid, expecting 0x...')
+                    raise Exception('pki_serial_number_range_increment must start with 0x')
                 subsystem.set_config('dbs.serialIncrement', serial_increment)
 
             serial_minimum = self.mdict.get('pki_serial_number_range_minimum')
             if serial_minimum:
                 if not serial_minimum.startswith('0x'):
-                    raise Exception('pki_serial_number_range_minimum format not valid, expecting 0x...')
+                    raise Exception('pki_serial_number_range_minimum must start with 0x')
                 subsystem.set_config('dbs.serialLowWaterMark', serial_minimum)
 
             serial_transfer = self.mdict.get('pki_serial_number_range_transfer')
             if serial_transfer:
                 if not serial_transfer.startswith('0x'):
-                    raise Exception('pki_serial_number_range_transfer format not valid, expecting 0x...')
+                    raise Exception('pki_serial_number_range_transfer must start with 0x')
                 subsystem.set_config('dbs.serialCloneTransferNumber', serial_transfer)
 
             subsystem.set_config('dbs.serialRangeDN', 'ou=certificateRepository,ou=ranges_v2')
 
         else:  # random
             subsystem.set_config('dbs.cert.id.length', self.mdict['pki_cert_id_length'])
-
 
         replica_number_range_start = self.mdict.get('pki_replica_number_range_start')
         if replica_number_range_start:
@@ -5191,10 +5190,10 @@ class PKIDeployer:
         # The restocon API is not working in RHEL
         # (see https://issues.redhat.com/browse/RHEL-73348).
         #
-        #selinux.restorecon(self.instance.base_dir, True)
-        #selinux.restorecon(config.PKI_DEPLOYMENT_LOG_ROOT, True)
-        #selinux.restorecon(self.instance.actual_logs_dir, True)
-        #selinux.restorecon(self.instance.actual_conf_dir, True)
+        # selinux.restorecon(self.instance.base_dir, True)
+        # selinux.restorecon(config.PKI_DEPLOYMENT_LOG_ROOT, True)
+        # selinux.restorecon(self.instance.actual_logs_dir, True)
+        # selinux.restorecon(self.instance.actual_conf_dir, True)
         folders = [
             self.instance.base_dir,
             config.PKI_DEPLOYMENT_LOG_ROOT,

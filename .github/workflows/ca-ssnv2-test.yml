@@ -72,7 +72,7 @@ jobs:
           Loading deployment configuration from /usr/share/pki/server/examples/installation/ca.cfg.
           Installing CA into /var/lib/pki/pki-tomcat.
           
-          Installation failed: pki_serial_number_range_start format not valid, expecting 0x...
+          Installation failed: pki_serial_number_range_start must start with 0x
           
           EOF
           
