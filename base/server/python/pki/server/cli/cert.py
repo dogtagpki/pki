@@ -1250,7 +1250,7 @@ class CertFixCLI(pki.cli.CLI):
         if args.cert:
             all_certs = False
             fix_certs.append(args.cert)
-            
+
         if args.extra_cert:
             # TODO: add support for hex serial number
             try:

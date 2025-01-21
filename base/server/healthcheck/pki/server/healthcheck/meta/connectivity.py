@@ -124,10 +124,11 @@ class DogtagKRAConnectivityCheck(MetaPlugin):
 
                 # Make a plain HTTPS GET to retrieve KRA transport cert, to test that
                 # the server is up AND is able to respond back
-                connection = pki.client.PKIConnection(protocol='https',
-                                           hostname='localhost',
-                                           port=https_port,
-                                           verify=False)
+                connection = pki.client.PKIConnection(
+                    protocol='https',
+                    hostname='localhost',
+                    port=https_port,
+                    verify=False)
 
                 system_cert_client = pki.systemcert.SystemCertClient(connection)
 
