@@ -1265,13 +1265,13 @@ class CertFixCLI(pki.cli.CLI):
         ldap_url = None
         use_ldapi = False
 
-        if args.ldap_socket and args.ldap_url:
+        if args.ldapi_socket and args.ldap_url:
             logger.error('--ldapi-socket cannot be used with --ldap-url')
             sys.exit(1)
 
-        if args.ldap_socket:
+        if args.ldapi_socket:
             use_ldapi = True
-            ldap_url = 'ldapi://{}'.format(quote(args.ldap_socket, safe=''))
+            ldap_url = 'ldapi://{}'.format(quote(args.ldapi_socket, safe=''))
 
         if args.ldap_url:
             ldap_url = args.ldap_url
