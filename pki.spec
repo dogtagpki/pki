@@ -1333,6 +1333,7 @@ pkgs=base\
     --prefix-dir=%{_prefix} \
     --include-dir=%{_includedir} \
     --lib-dir=%{_libdir} \
+    --sbin-dir=%{_sbindir} \
     --sysconf-dir=%{_sysconfdir} \
     --share-dir=%{_datadir} \
     --cmake=%{__cmake} \
