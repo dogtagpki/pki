@@ -110,6 +110,30 @@ jobs:
           grep "(orphan)" output | wc -l > actual
           diff expected actual
 
+      - name: Check CA database config
+        run: |
+          docker exec ipa pki-server ca-config-find | grep "^internaldb\." | tee output
+
+          cat > expected << EOF
+          internaldb._000=##
+          internaldb._001=## Internal Database
+          internaldb._002=##
+          internaldb.basedn=o=ipaca
+          internaldb.database=ipaca
+          internaldb.ldapauth.authtype=SslClientAuth
+          internaldb.ldapauth.bindDN=cn=Directory Manager
+          internaldb.ldapauth.bindPWPrompt=internaldb
+          internaldb.ldapauth.clientCertNickname=subsystemCert cert-pki-ca
+          internaldb.ldapconn.host=ipa.example.com
+          internaldb.ldapconn.port=636
+          internaldb.ldapconn.secureConn=true
+          internaldb.maxConns=15
+          internaldb.minConns=3
+          internaldb.multipleSuffix.enable=false
+          EOF
+
+          diff expected output
+
       - name: Check CA users
         run: |
           docker exec ipa pki-server ca-user-find

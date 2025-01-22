@@ -49,7 +49,31 @@ jobs:
               --no-host-dns \
               --no-ntp
 
-      - name: Check CA config in primary IPA
+      - name: Check CA database config in primary IPA
+        run: |
+          docker exec primary pki-server ca-config-find | grep "^internaldb\." | tee output
+
+          cat > expected << EOF
+          internaldb._000=##
+          internaldb._001=## Internal Database
+          internaldb._002=##
+          internaldb.basedn=o=ipaca
+          internaldb.database=ipaca
+          internaldb.ldapauth.authtype=SslClientAuth
+          internaldb.ldapauth.bindDN=cn=Directory Manager
+          internaldb.ldapauth.bindPWPrompt=internaldb
+          internaldb.ldapauth.clientCertNickname=subsystemCert cert-pki-ca
+          internaldb.ldapconn.host=primary.example.com
+          internaldb.ldapconn.port=636
+          internaldb.ldapconn.secureConn=true
+          internaldb.maxConns=15
+          internaldb.minConns=3
+          internaldb.multipleSuffix.enable=false
+          EOF
+
+          diff expected output
+
+      - name: Check CA CRL config in primary IPA
         run: |
           docker exec primary pki-server ca-config-find | grep ca.crl.MasterCRL
 
@@ -155,7 +179,31 @@ jobs:
 
           docker exec secondary ipa config-show
 
-      - name: Check CA config in primary IPA
+      - name: Check CA database config in secondary IPA
+        run: |
+          docker exec secondary pki-server ca-config-find | grep "^internaldb\." | tee output
+
+          cat > expected << EOF
+          internaldb._000=##
+          internaldb._001=## Internal Database
+          internaldb._002=##
+          internaldb.basedn=o=ipaca
+          internaldb.database=ipaca
+          internaldb.ldapauth.authtype=SslClientAuth
+          internaldb.ldapauth.bindDN=cn=Directory Manager
+          internaldb.ldapauth.bindPWPrompt=internaldb
+          internaldb.ldapauth.clientCertNickname=subsystemCert cert-pki-ca
+          internaldb.ldapconn.host=secondary.example.com
+          internaldb.ldapconn.port=636
+          internaldb.ldapconn.secureConn=true
+          internaldb.maxConns=15
+          internaldb.minConns=3
+          internaldb.multipleSuffix.enable=false
+          EOF
+
+          diff expected output
+
+      - name: Check CA CRL config in primary IPA
         run: |
           docker exec primary pki-server ca-config-find | grep ca.crl.MasterCRL
 
@@ -174,7 +222,7 @@ jobs:
           docker exec primary pki-server ca-config-show ca.listenToCloneModifications | tee actual
           diff expected actual
 
-      - name: Check CA config in secondary IPA
+      - name: Check CA CRL config in secondary IPA
         run: |
           docker exec secondary pki-server ca-config-find | grep ca.crl.MasterCRL
 
