@@ -111,7 +111,7 @@ jobs:
           docker exec kra pki-server create
           docker exec kra pki-server nss-create --password Secret.123
 
-          docker exec kra pki-server password-add "hardware-HSM" --password "Secret.HSM"
+          docker exec kra pki-server password-set "hardware-HSM" --password "Secret.HSM"
           docker exec kra cat /var/lib/pki/pki-tomcat/conf/password.conf
 
       - name: Issue KRA storage cert

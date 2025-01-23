@@ -319,7 +319,7 @@ jobs:
       - name: Configure connection to KRA database
         run: |
           # store DS password
-          docker exec kra pki-server password-add \
+          docker exec kra pki-server password-set \
               --password Secret.123 \
               internaldb
 

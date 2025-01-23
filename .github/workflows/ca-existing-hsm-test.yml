@@ -70,7 +70,7 @@ jobs:
           docker exec pki pki-server create
           docker exec pki pki-server nss-create --no-password
 
-          docker exec pki pki-server password-add "hardware-HSM" --password "Secret.HSM"
+          docker exec pki pki-server password-set "hardware-HSM" --password "Secret.HSM"
           docker exec pki cat /var/lib/pki/pki-tomcat/conf/password.conf
 
       - name: Create CA signing cert

@@ -142,7 +142,7 @@ jobs:
       - name: Configure connection to CA database
         run: |
           # store DS password
-          docker exec pki pki-server password-add \
+          docker exec pki pki-server password-set \
               --password Secret.123 \
               internaldb
 

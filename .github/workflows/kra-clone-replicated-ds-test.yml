@@ -136,7 +136,7 @@ jobs:
       - name: Configure connection to CA database
         run: |
           # store DS password
-          docker exec secondary pki-server password-add \
+          docker exec secondary pki-server password-set \
               --password Secret.123 \
               internaldb
 
