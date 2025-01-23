@@ -4,7 +4,7 @@
 
 This document describes the process to configure ACME responder to use a DS database.
 It assumes that the DS database has been installed as described in
-link:https://github.com/dogtagpki/pki/wiki/DS-Installation[DS Installation].
+link:../others/Creating_DS_instance.adoc[Creating a directory server instance and adding base entries]
 
 ## Initializing DS Database
 
