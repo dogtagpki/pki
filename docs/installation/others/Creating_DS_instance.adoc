@@ -10,8 +10,6 @@ Normally the DS installation will automatically generate a self-signed signing c
 In this procedure the certificate generation and the SSL connection will be disabled by default,
 but it can be enabled after installation if necessary.
 
-For DS 1.3 or older, see link:https://github.com/dogtagpki/pki/wiki/DS-1.3-Installation[DS 1.3 Installation].
-
 == Creating a DS Instance ==
 
 === Generate a DS configuration file (e.g. `ds.inf`): ===
