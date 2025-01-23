@@ -97,7 +97,7 @@ class NSSCreateCLI(pki.cli.CLI):
         instance_name = args.instance
         no_password = args.no_password
         password = args.password
-        password_file = None
+        password_file = args.password_file
         force = args.force
 
         instance = pki.server.PKIServerFactory.create(instance_name)
