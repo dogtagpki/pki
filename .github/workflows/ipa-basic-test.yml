@@ -166,6 +166,7 @@ jobs:
       - name: Check CA admin cert
         run: |
           docker exec ipa ls -la /root/.dogtag/pki-tomcat
+          docker exec ipa cat /root/.dogtag/pki-tomcat/ca_admin.cert
           docker exec ipa openssl x509 -text -noout -in /root/.dogtag/pki-tomcat/ca_admin.cert
 
           # import CA admin cert and key into the client's NSS database
