@@ -335,9 +335,10 @@ public class NSSDatabase {
             X509CertImpl certImpl,
             String trustFlags) throws Exception {
 
-        CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
-        logger.info("NSSDatabase: Importing cert " + nickname + " into " + token.getName());
+        tokenName = tokenName == null ? CryptoUtil.INTERNAL_TOKEN_NAME : tokenName;
+        logger.debug("Importing cert " + nickname + " into " + tokenName + " token");
 
+        CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
         CryptoStore store = token.getCryptoStore();
 
         org.mozilla.jss.crypto.X509Certificate cert = store.importCert(

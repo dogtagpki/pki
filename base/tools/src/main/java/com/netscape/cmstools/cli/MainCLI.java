@@ -517,7 +517,7 @@ public class MainCLI extends CLI {
             }
         }
 
-        logger.info("Initializing NSS");
+        logger.debug("Initializing NSS");
         CryptoManager.initialize(nssdb.getPath().toString());
 
         CryptoManager manager;
@@ -535,7 +535,7 @@ public class MainCLI extends CLI {
             String tokenName = config.getTokenName();
             tokenName = tokenName == null ? CryptoUtil.INTERNAL_TOKEN_NAME : tokenName;
 
-            logger.info("Logging into " + tokenName + " token");
+            logger.debug("Logging into " + tokenName + " token");
 
             CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
             Password password = new Password(config.getNSSPassword().toCharArray());
@@ -557,7 +557,7 @@ public class MainCLI extends CLI {
 
             for (String tokenName : passwords.keySet()) {
 
-                logger.info("Logging into " + tokenName + " token");
+                logger.debug("Logging into " + tokenName + " token");
 
                 CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
                 Password password = new Password(passwords.get(tokenName).toCharArray());
@@ -577,7 +577,7 @@ public class MainCLI extends CLI {
 
         String tokenName = config.getTokenName();
         tokenName = tokenName == null ? CryptoUtil.INTERNAL_TOKEN_NAME : tokenName;
-        logger.info("Using " + tokenName + " token");
+        logger.debug("Using " + tokenName + " token");
 
         CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
         manager.setThreadToken(token);
