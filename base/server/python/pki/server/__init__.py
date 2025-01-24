@@ -1773,6 +1773,8 @@ grant codeBase "file:%s" {
         :rtype: None
         """
 
+        logger.info('Renewing cert %s', hex(serial))
+
         # Instantiate the CertClient
         cert_client = pki.cert.CertClient(connection)
 
@@ -1786,10 +1788,10 @@ grant codeBase "file:%s" {
         request_data = ret[0].request
         cert_data = ret[0].cert
 
-        logger.info('Request ID: %s', request_data.request_id)
-        logger.info('Request Status: %s', request_data.request_status)
-        logger.debug('request_data: %s', request_data)
-        logger.debug('cert_data: %s', cert_data)
+        logger.info('- request ID: %s', hex(int(request_data.request_id)))
+        logger.info('- request status: %s', request_data.request_status)
+        logger.debug('- request data: %s', request_data)
+        logger.debug('- cert data: %s', cert_data)
 
         if not cert_data:
             raise PKIServerException('Unable to renew system '
@@ -1801,13 +1803,14 @@ grant codeBase "file:%s" {
             raise PKIServerException('Unable to retrieve serial number of '
                                      'renewed certificate.')
 
-        logger.info('Serial Number: %s', cert_serial_number)
-        logger.info('Issuer: %s', cert_data.issuer_dn)
-        logger.info('Subject: %s', cert_data.subject_dn)
-        logger.debug('Pretty Print:')
+        logger.info('- serial number: %s', cert_serial_number)
+        logger.info('- issuer: %s', cert_data.issuer_dn)
+        logger.info('- subject: %s', cert_data.subject_dn)
         logger.debug(cert_data.pretty_repr)
 
         new_cert_data = cert_client.get_cert(cert_serial_number=cert_serial_number)
+
+        logger.info('Storing cert into %s', output)
         with open(output, 'w', encoding='utf-8') as f:
             f.write(new_cert_data.encoded)
 

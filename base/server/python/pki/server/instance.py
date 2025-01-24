@@ -907,12 +907,12 @@ class PKIInstance(pki.server.PKIServer):
             if temp_cert:
                 assert subsystem is not None  # temp_cert only supported with cert_id
 
-                logger.info('Trying to create a new temp cert for %s.', cert_id)
+                logger.info('Creating temp cert for %s', cert_id)
 
                 # Create Temp Cert and write it to new_cert_file
                 subsystem.temp_cert_create(nssdb, cert_tag, serial, new_cert_file)
 
-                logger.info('Temp cert for %s is available at %s.', cert_id, new_cert_file)
+                logger.info('Storing temp cert into %s', new_cert_file)
 
             else:
                 # Create permanent certificate
@@ -920,7 +920,7 @@ class PKIInstance(pki.server.PKIServer):
                     # TODO: Support rekey
                     raise pki.server.PKIServerException('Rekey is not supported yet.')
 
-                logger.info('Trying to setup a secure connection to CA subsystem.')
+                logger.debug('Setting up secure connection to CA')
                 if username and password:
                     connection = pki.server.PKIServer.setup_password_authentication(
                         username, password, subsystem_name='ca', secure_port=secure_port,
@@ -938,11 +938,8 @@ class PKIInstance(pki.server.PKIServer):
                         tmpdir=tmpdir,
                         secure_port=secure_port
                     )
-                logger.info('Secure connection with CA is established.')
 
-                logger.info('Placing cert creation request for serial: %s', serial)
                 pki.server.PKIServer.renew_certificate(connection, new_cert_file, serial)
-                logger.info('New cert is available at: %s', new_cert_file)
 
         finally:
             nssdb.close()

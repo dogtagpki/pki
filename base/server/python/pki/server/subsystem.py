@@ -1070,7 +1070,7 @@ class PKISubsystem(object):
         :return: None
         :rtype: None
         """
-        logger.info('Generate temp SSL certificate')
+        logger.debug('Generating temp SSL certificate')
 
         if cert_tag != 'sslserver':
             raise pki.server.PKIServerException(

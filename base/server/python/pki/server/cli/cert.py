@@ -30,7 +30,6 @@ import subprocess
 import sys
 from tempfile import NamedTemporaryFile
 import textwrap
-import time
 
 from six.moves.urllib.parse import quote  # pylint: disable=F0401,E0611
 
@@ -1317,8 +1316,8 @@ class CertFixCLI(pki.cli.CLI):
 
                     fix_certs.append(cert['id'])
 
-        logger.info('Fixing the following system certs: %s', fix_certs)
-        logger.info('Renewing the following additional certs: %s', extra_certs)
+        logger.info('Fixing certs: %s', ', '.join(fix_certs))
+        logger.info('Additional certs: %s', ', '.join(extra_certs))
 
         # Get the CA subsystem and find out Base DN.
         ca_subsystem = instance.get_subsystem('ca')
@@ -1332,8 +1331,8 @@ class CertFixCLI(pki.cli.CLI):
             dm_pass = getpass.getpass(prompt='Enter Directory Manager password: ')
 
         # 2. Stop the server, if it's up
-        logger.info('Stopping the instance to proceed with system cert renewal')
-        instance.stop()
+        logger.info('Stopping PKI server')
+        instance.stop(wait=True)
 
         # 3. Find the subsystem and disable Self-tests
         try:
@@ -1428,11 +1427,11 @@ class CertFixCLI(pki.cli.CLI):
                 # 8. Delete existing certs and then import the renewed system cert(s)
                 for cert_id in fix_certs:
                     # Delete the existing cert from the instance
-                    logger.debug('Removing old %s cert from instance %s', cert_id, instance_name)
+                    logger.info('Removing old %s cert from NSS database', cert_id)
                     instance.cert_del(cert_id)
 
                     # Import this new cert into the instance
-                    logger.debug('Importing new %s cert into instance %s', cert_id, instance_name)
+                    logger.info('Importing new %s cert into NSS database', cert_id)
                     instance.cert_import(cert_id)
 
                 # If subsystem cert was renewed and server was using
@@ -1460,8 +1459,8 @@ class CertFixCLI(pki.cli.CLI):
                             subprocess.check_call(cmd)
 
             # 10. Bring up the server
-            logger.info('Starting the instance with renewed certs')
-            instance.start()
+            logger.info('Starting PKI server with renewed certs')
+            instance.start(wait=True)
 
         except pki.server.PKIServerException as e:
             logger.error(str(e))
@@ -1498,15 +1497,13 @@ def suppress_selftest(subsystems):
 @contextmanager
 def start_stop(instance):
     """Start the server, run the block, and guarantee stop afterwards."""
-    logger.info('Starting the instance')
-    instance.start()
-    logger.info('Sleeping for 10 seconds to allow server time to start...')
-    time.sleep(10)
+    logger.info('Starting PKI server')
+    instance.start(wait=True)
     try:
         yield
     finally:
-        logger.info('Stopping the instance')
-        instance.stop()
+        logger.info('Stopping PKI server')
+        instance.stop(wait=True)
 
 
 @contextmanager
