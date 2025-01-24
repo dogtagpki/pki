@@ -99,6 +99,12 @@ jobs:
           docker exec pki pki securitydomain-show | tee output
           diff expected output
 
+      - name: Check CA admin cert
+        run: |
+          docker exec pki ls -la /root/.dogtag/pki-tomcat
+          docker exec pki cat /root/.dogtag/pki-tomcat/ca_admin.cert
+          docker exec pki openssl x509 -text -noout -in /root/.dogtag/pki-tomcat/ca_admin.cert
+
       - name: Install KRA
         run: |
           docker exec pki pkispawn \
@@ -293,14 +299,16 @@ jobs:
               -in /var/lib/pki/pki-tomcat/conf/certs/sslserver.csr
           docker exec pki openssl x509 -text -noout -in sslserver.crt
 
-      - name: Check KRA admin cert
+      - name: Check CA admin cert after installing KRA
         run: |
+          docker exec pki ls -la /root/.dogtag/pki-tomcat
+          docker exec pki cat /root/.dogtag/pki-tomcat/ca_admin.cert
           docker exec pki openssl x509 -text -noout -in /root/.dogtag/pki-tomcat/ca_admin.cert
 
       - name: Run PKI healthcheck
         run: docker exec pki pki-healthcheck --failures-only
 
-      - name: Verify KRA admin
+      - name: Check accesing KRA using CA admin cert
         run: |
           docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
 
