@@ -52,18 +52,23 @@ jobs:
           docker exec pki pkispawn \
               -f /usr/share/pki/server/examples/installation/ca.cfg \
               -s CA \
+              -D pki_instance_name=localhost \
               -D pki_ds_url=ldap://ds.example.com:3389 \
               -v
 
       - name: Check system certs
         run: |
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -d /var/lib/pki/localhost/conf/alias \
               nss-cert-find | tee system-certs.orig
 
       - name: Check CA admin
         run: |
-          docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
+          docker exec pki pki-server \
+              cert-export \
+              -i localhost \
+              --cert-file ca_signing.crt \
+              ca_signing
 
           docker exec pki pki nss-cert-import \
               --cert ca_signing.crt \
@@ -71,7 +76,7 @@ jobs:
               ca_signing
 
           docker exec pki pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12 /root/.dogtag/localhost/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
 
           docker exec pki pki nss-cert-find | tee admin-cert.orig
@@ -80,12 +85,15 @@ jobs:
 
       - name: Remove CA
         run: |
-          docker exec pki pkidestroy -s CA -v
+          docker exec pki pkidestroy \
+              -i localhost \
+              -s CA \
+              -v
 
       - name: Check PKI server base dir after first removal
         run: |
           # check file types, owners, and permissions
-          docker exec pki ls -l /var/lib/pki/pki-tomcat \
+          docker exec pki ls -l /var/lib/pki/localhost \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -94,8 +102,8 @@ jobs:
           # Tomcat and CA should be removed leaving just the conf and logs folders
           # TODO: review permissions
           cat > expected << EOF
-          lrwxrwxrwx pkiuser pkiuser conf -> /etc/pki/pki-tomcat
-          lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-tomcat
+          lrwxrwxrwx pkiuser pkiuser conf -> /etc/pki/localhost
+          lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/localhost
           EOF
 
           diff expected output
@@ -103,7 +111,7 @@ jobs:
       - name: Check PKI server conf dir after first removal
         run: |
           # check file types, owners, and permissions
-          docker exec pki ls -l /etc/pki/pki-tomcat \
+          docker exec pki ls -l /etc/pki/localhost \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -130,12 +138,12 @@ jobs:
           diff expected output
 
           # save the original config
-          docker exec pki cp -r /etc/pki/pki-tomcat /etc/pki/pki-tomcat.orig
+          docker exec pki cp -r /etc/pki/localhost /etc/pki/localhost.orig
 
       - name: Check PKI server logs dir after first removal
         run: |
           # check file types, owners, and permissions
-          docker exec pki ls -l /var/log/pki/pki-tomcat \
+          docker exec pki ls -l /var/log/pki/localhost \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -163,16 +171,17 @@ jobs:
           docker exec pki pkispawn \
               -f /usr/share/pki/server/examples/installation/ca.cfg \
               -s CA \
+              -D pki_instance_name=localhost \
               -D pki_ds_url=ldap://ds.example.com:3389 \
               -v
 
       - name: Check PKI server config after second installation
         run: |
           # server config should not change
-          docker exec pki diff /etc/pki/pki-tomcat.orig/server.xml /etc/pki/pki-tomcat/server.xml
+          docker exec pki diff /etc/pki/localhost.orig/server.xml /etc/pki/localhost/server.xml
 
           # passwords should not change
-          docker exec pki diff /etc/pki/pki-tomcat.orig/password.conf /etc/pki/pki-tomcat/password.conf
+          docker exec pki diff /etc/pki/localhost.orig/password.conf /etc/pki/localhost/password.conf
 
       - name: Check CA config after second installation
         run: |
@@ -182,14 +191,14 @@ jobs:
           # - remove params that cannot be compared
           docker exec pki sed \
               -e '/^installDate=/d' \
-              /etc/pki/pki-tomcat.orig/ca/CS.cfg \
+              /etc/pki/localhost.orig/ca/CS.cfg \
               | sort > expected
 
           # normalize actual result:
           # - remove params that cannot be compared
           docker exec pki sed \
               -e '/^installDate=/d' \
-              /etc/pki/pki-tomcat/ca/CS.cfg \
+              /etc/pki/localhost/ca/CS.cfg \
               | sort > actual
 
           # CA config should not change
@@ -198,7 +207,7 @@ jobs:
       - name: Check system certs again
         run: |
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -d /var/lib/pki/localhost/conf/alias \
               nss-cert-find | tee system-certs.new
 
           # system certs should not change
@@ -216,11 +225,12 @@ jobs:
       - name: Check CA debug log
         if: always()
         run: |
-          docker exec pki find /var/log/pki/pki-tomcat/ca -name "debug.*" -exec cat {} \;
+          docker exec pki find /var/log/pki/localhost/ca -name "debug.*" -exec cat {} \;
 
       - name: Remove CA again
         run: |
           docker exec pki pkidestroy \
+              -i localhost \
               -s CA \
               --remove-conf \
               --remove-logs \
@@ -229,11 +239,11 @@ jobs:
       - name: Check PKI server base dir after second removal
         run: |
           # check file types, owners, and permissions
-          docker exec pki ls -l /var/lib/pki/pki-tomcat \
+          docker exec pki ls -l /var/lib/pki/localhost \
               > >(tee stdout) 2> >(tee stderr >&2) || true
 
           cat > expected << EOF
-          ls: cannot access '/var/lib/pki/pki-tomcat': No such file or directory
+          ls: cannot access '/var/lib/pki/localhost': No such file or directory
           EOF
 
           diff expected stderr
@@ -241,11 +251,11 @@ jobs:
       - name: Check PKI server conf dir after second removal
         run: |
           # check file types, owners, and permissions
-          docker exec pki ls -l /etc/pki/pki-tomcat \
+          docker exec pki ls -l /etc/pki/localhost \
               > >(tee stdout) 2> >(tee stderr >&2) || true
 
           cat > expected << EOF
-          ls: cannot access '/etc/pki/pki-tomcat': No such file or directory
+          ls: cannot access '/etc/pki/localhost': No such file or directory
           EOF
 
           diff expected stderr
@@ -253,11 +263,11 @@ jobs:
       - name: Check PKI server logs dir after second removal
         run: |
           # check file types, owners, and permissions
-          docker exec pki ls -l /var/log/pki/pki-tomcat \
+          docker exec pki ls -l /var/log/pki/localhost \
               > >(tee stdout) 2> >(tee stderr >&2) || true
 
           cat > expected << EOF
-          ls: cannot access '/var/log/pki/pki-tomcat': No such file or directory
+          ls: cannot access '/var/log/pki/localhost': No such file or directory
           EOF
 
           diff expected stderr
@@ -275,7 +285,7 @@ jobs:
       - name: Check PKI server systemd journal
         if: always()
         run: |
-          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec pki journalctl -x --no-pager -u pki-tomcatd@localhost.service
 
       - name: Gather artifacts
         if: always()
