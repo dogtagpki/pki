@@ -94,6 +94,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/ipa-acme-test.yml
 
+  ipa-renewal-test:
+    name: IPA renewal
+    needs: build
+    uses: ./.github/workflows/ipa-renewal-test.yml
+
   ipa-subca-test:
     name: IPA with Sub-CA
     needs: build

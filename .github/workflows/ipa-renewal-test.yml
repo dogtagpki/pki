@@ -1,0 +1,293 @@
+name: IPA renewal
+
+on: workflow_call
+
+env:
+  DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Retrieve IPA images
+        uses: actions/cache@v4
+        with:
+          key: ipa-images-${{ github.sha }}
+          path: ipa-images.tar
+
+      - name: Load IPA images
+        run: docker load --input ipa-images.tar
+
+      - name: Run IPA container
+        run: |
+          tests/bin/runner-init.sh \
+              --image=ipa-runner \
+              --hostname=ipa.example.com \
+              ipa
+
+      - name: Configure short-lived SSL server cert profile
+        run: |
+          # set cert validity to 10 minute
+          VALIDITY_DEFAULT="2.default.params"
+          docker exec ipa sed -i \
+              -e "s/^$VALIDITY_DEFAULT.range=.*$/$VALIDITY_DEFAULT.range=10/" \
+              -e "/^$VALIDITY_DEFAULT.range=.*$/a $VALIDITY_DEFAULT.rangeUnit=minute" \
+              /usr/share/pki/ca/conf/rsaServerCert.profile
+
+          docker exec ipa cat /usr/share/pki/ca/conf/rsaServerCert.profile
+
+      - name: Configure short-lived subsystem cert profile
+        run: |
+          # set cert validity to 10 minute
+          VALIDITY_DEFAULT="2.default.params"
+          docker exec ipa sed -i \
+              -e "s/^$VALIDITY_DEFAULT.range=.*$/$VALIDITY_DEFAULT.range=10/" \
+              -e "/^$VALIDITY_DEFAULT.range=.*$/a $VALIDITY_DEFAULT.rangeUnit=minute" \
+              /usr/share/pki/ca/conf/rsaSubsystemCert.profile
+
+          docker exec ipa cat /usr/share/pki/ca/conf/rsaSubsystemCert.profile
+
+      - name: Configure short-lived audit signing cert profile
+        run: |
+          # set cert validity to 10 minute
+          VALIDITY_DEFAULT="2.default.params"
+          docker exec ipa sed -i \
+              -e "s/^$VALIDITY_DEFAULT.range=.*$/$VALIDITY_DEFAULT.range=10/" \
+              -e "/^$VALIDITY_DEFAULT.range=.*$/a $VALIDITY_DEFAULT.rangeUnit=minute" \
+              /usr/share/pki/ca/conf/caAuditSigningCert.profile
+
+          docker exec ipa cat /usr/share/pki/ca/conf/caAuditSigningCert.profile
+
+      - name: Configure short-lived OCSP signing cert profile
+        run: |
+          # set cert validity to 10 minute
+          VALIDITY_DEFAULT="2.default.params"
+          docker exec ipa sed -i \
+              -e "s/^$VALIDITY_DEFAULT.range=.*$/$VALIDITY_DEFAULT.range=10/" \
+              -e "/^$VALIDITY_DEFAULT.range=.*$/a $VALIDITY_DEFAULT.rangeUnit=minute" \
+              /usr/share/pki/ca/conf/caOCSPCert.profile
+
+          docker exec ipa cat /usr/share/pki/ca/conf/caOCSPCert.profile
+
+      - name: Configure short-lived admin cert profile
+        run: |
+          # set cert validity to 10 minute
+          VALIDITY_DEFAULT="2.default.params"
+          docker exec ipa sed -i \
+              -e "s/^$VALIDITY_DEFAULT.range=.*$/$VALIDITY_DEFAULT.range=10/" \
+              -e "/^$VALIDITY_DEFAULT.range=.*$/a $VALIDITY_DEFAULT.rangeUnit=minute" \
+              /usr/share/pki/ca/conf/rsaAdminCert.profile
+
+          docker exec ipa cat /usr/share/pki/ca/conf/rsaAdminCert.profile
+
+      - name: Install IPA server with CA
+        run: |
+          docker exec ipa sysctl net.ipv6.conf.lo.disable_ipv6=0
+          docker exec ipa ipa-server-install \
+              -U \
+              --domain example.com \
+              -r EXAMPLE.COM \
+              -p Secret.123 \
+              -a Secret.123 \
+              --no-host-dns \
+              --no-ntp
+
+          echo Secret.123 | docker exec -i ipa kinit admin
+
+          docker exec ipa pki-server cert-export ca_signing --cert-file ca_signing.crt
+
+      - name: Check HTTPD certs
+        run: |
+          docker exec ipa ls -la /var/lib/ipa/certs
+          docker exec ipa openssl x509 -text -noout -in /var/lib/ipa/certs/httpd.crt
+
+      - name: Check DS certs
+        run: |
+          docker exec ipa pki -d /etc/dirsrv/slapd-EXAMPLE-COM nss-cert-find
+          docker exec ipa pki -d /etc/dirsrv/slapd-EXAMPLE-COM nss-cert-show "EXAMPLE.COM IPA CA"
+          docker exec ipa pki -d /etc/dirsrv/slapd-EXAMPLE-COM nss-cert-show "Server-Cert"
+
+      - name: Check PKI system certs
+        run: |
+          # check certs
+          docker exec ipa pki-server cert-find
+
+      - name: Check CA database config
+        run: |
+          docker exec ipa pki-server ca-config-find | grep "^internaldb\." | tee output
+
+          cat > expected << EOF
+          internaldb._000=##
+          internaldb._001=## Internal Database
+          internaldb._002=##
+          internaldb.basedn=o=ipaca
+          internaldb.database=ipaca
+          internaldb.ldapauth.authtype=SslClientAuth
+          internaldb.ldapauth.bindDN=cn=Directory Manager
+          internaldb.ldapauth.bindPWPrompt=internaldb
+          internaldb.ldapauth.clientCertNickname=subsystemCert cert-pki-ca
+          internaldb.ldapconn.host=ipa.example.com
+          internaldb.ldapconn.port=636
+          internaldb.ldapconn.secureConn=true
+          internaldb.maxConns=15
+          internaldb.minConns=3
+          internaldb.multipleSuffix.enable=false
+          EOF
+
+          diff expected output
+
+      - name: Check CA admin cert
+        run: |
+          docker exec ipa ls -la /root/.dogtag/pki-tomcat
+          docker exec ipa cat /root/.dogtag/pki-tomcat/ca_admin.cert
+          #docker exec ipa openssl x509 -text -noout -in /root/.dogtag/pki-tomcat/ca_admin.cert
+
+          # import CA admin cert and key into the client's NSS database
+          docker exec ipa pki nss-cert-import \
+              --cert ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
+          docker exec ipa pki pkcs12-import \
+              --pkcs12 /root/ca-agent.p12 \
+              --password Secret.123
+
+          docker exec ipa pki nss-cert-find
+          docker exec ipa pki nss-cert-show ipa-ca-agent
+
+          # CA admin should be able to access PKI users
+          docker exec ipa pki -n ipa-ca-agent ca-user-find
+
+      - name: Check RA agent cert
+        run: |
+          docker exec ipa ls -la /var/lib/ipa
+          docker exec ipa openssl x509 -text -noout -in /var/lib/ipa/ra-agent.pem
+
+          # import RA agent cert and key into a PKCS #12 file
+          # then import it into the client's NSS database
+          docker exec ipa openssl pkcs12 -export \
+              -in /var/lib/ipa/ra-agent.pem \
+              -inkey /var/lib/ipa/ra-agent.key \
+              -out ra-agent.p12 \
+              -passout pass:Secret.123 \
+              -name ipa-ra-agent
+
+          docker exec ipa pki pkcs12-import \
+              --pkcs12 ra-agent.p12 \
+              --password Secret.123
+
+          docker exec ipa pki nss-cert-find
+          docker exec ipa pki nss-cert-show ipa-ra-agent
+
+          # RA agent should be able to access cert requests
+          docker exec ipa pki -n ipa-ra-agent ca-cert-request-find
+
+      - name: Run PKI healthcheck
+        run: |
+          docker exec ipa pki-healthcheck --failures-only \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          cat > expected << EOF
+          Expiring in a day: ocsp_signing
+          Expiring in a day: sslserver
+          Expiring in a day: subsystem
+          Expiring in a day: audit_signing
+          EOF
+
+          diff expected stderr
+
+      - name: Renew certs using ipa-cert-fix
+        run: |
+          echo yes | docker exec -i ipa ipa-cert-fix
+
+      - name: Check HTTPD certs after renewal
+        run: |
+          docker exec ipa ls -la /var/lib/ipa/certs
+          docker exec ipa openssl x509 -text -noout -in /var/lib/ipa/certs/httpd.crt
+
+      - name: Check DS certs after renewal
+        run: |
+          docker exec ipa pki -d /etc/dirsrv/slapd-EXAMPLE-COM nss-cert-find
+          docker exec ipa pki -d /etc/dirsrv/slapd-EXAMPLE-COM nss-cert-show "EXAMPLE.COM IPA CA"
+          docker exec ipa pki -d /etc/dirsrv/slapd-EXAMPLE-COM nss-cert-show "Server-Cert"
+
+      - name: Check PKI system certs after renewal
+        run: |
+          docker exec ipa pki-server cert-find
+
+      - name: Check CA admin cert after renewal
+        run: |
+          docker exec ipa ls -la /root/.dogtag/pki-tomcat
+          docker exec ipa cat /root/.dogtag/pki-tomcat/ca_admin.cert
+          docker exec ipa openssl x509 -text -noout -in /root/.dogtag/pki-tomcat/ca_admin.cert
+
+      - name: Check RA agent cert after renewal
+        run: |
+          docker exec ipa ls -la /var/lib/ipa
+          docker exec ipa openssl x509 -text -noout -in /var/lib/ipa/ra-agent.pem
+
+      - name: Run PKI healthcheck after renewal
+        run: |
+          docker exec ipa pki-healthcheck --failures-only \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          diff /dev/null stderr
+
+      - name: Check HTTPD access logs
+        if: always()
+        run: |
+          docker exec ipa cat /var/log/httpd/access_log
+
+      - name: Check HTTPD error logs
+        if: always()
+        run: |
+          docker exec ipa cat /var/log/httpd/error_log
+
+      - name: Check DS server systemd journal
+        if: always()
+        run: |
+          docker exec ipa journalctl -x --no-pager -u dirsrv@EXAMPLE-COM.service
+
+      - name: Check DS access logs
+        if: always()
+        run: |
+          docker exec ipa cat /var/log/dirsrv/slapd-EXAMPLE-COM/access
+
+      - name: Check DS error logs
+        if: always()
+        run: |
+          docker exec ipa cat /var/log/dirsrv/slapd-EXAMPLE-COM/errors
+
+      - name: Check DS security logs
+        if: always()
+        run: |
+          docker exec ipa cat /var/log/dirsrv/slapd-EXAMPLE-COM/security
+
+      - name: Check IPA CA install log
+        if: always()
+        run: |
+          docker exec ipa cat /var/log/ipaserver-install.log
+
+      - name: Check PKI server systemd journal
+        if: always()
+        run: |
+          docker exec ipa journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check PKI server access log
+        if: always()
+        run: |
+          docker exec ipa find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+
+      - name: Check CA debug log
+        if: always()
+        run: |
+          docker exec ipa find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+
+      - name: Remove IPA server
+        run: docker exec ipa ipa-server-install --uninstall -U
