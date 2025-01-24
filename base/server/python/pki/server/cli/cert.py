@@ -1186,8 +1186,12 @@ class CertFixCLI(pki.cli.CLI):
             '-i',
             '--instance',
             default='pki-tomcat')
-        self.parser.add_argument('--cert')
-        self.parser.add_argument('--extra-cert')
+        self.parser.add_argument(
+            '--cert',
+            action='append')
+        self.parser.add_argument(
+            '--extra-cert',
+            action='append')
         self.parser.add_argument('--agent-uid')
         self.parser.add_argument('--ldapi-socket')
         self.parser.add_argument('--ldap-url')
@@ -1196,6 +1200,7 @@ class CertFixCLI(pki.cli.CLI):
             '--port',
             type=int,
             default=8443)
+        self.parser.add_argument('--dm-password')
         self.parser.add_argument(
             '-v',
             '--verbose',
@@ -1219,6 +1224,7 @@ class CertFixCLI(pki.cli.CLI):
         print('      --ldapi-socket <Path>       Path to DS LDAPI socket')
         print('      --ldap-url <URL>            LDAP URL (mutually exclusive to --ldapi-socket)')
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('      --dm-password <password>    Directory Manager password')
         print('  -p, --port <port number>        Secure port number (default: 8443).')
         print('  -v, --verbose                   Run in verbose mode.')
         print('      --debug                     Run in debug mode.')
@@ -1248,17 +1254,18 @@ class CertFixCLI(pki.cli.CLI):
 
         if args.cert:
             all_certs = False
-            fix_certs.append(args.cert)
+            fix_certs.extend(args.cert)
 
         if args.extra_cert:
-            # TODO: add support for hex serial number
-            try:
-                int(args.extra_cert)
-            except ValueError:
-                logger.error('--extra-cert requires serial number as integer')
-                sys.exit(1)
             all_certs = False
-            extra_certs.append(args.extra_cert)
+            for extra_cert in args.extra_cert:
+                # TODO: add support for hex serial number
+                try:
+                    int(extra_cert)
+                except ValueError:
+                    logger.error('--extra-cert requires serial number as integer')
+                    sys.exit(1)
+                extra_certs.append(extra_cert)
 
         agent_uid = args.agent_uid
         ldap_url = None
@@ -1325,8 +1332,13 @@ class CertFixCLI(pki.cli.CLI):
         dbuser_dn = 'uid=pkidbuser,ou=people,{}'.format(basedn)
         agent_dn = 'uid={},ou=people,{}'.format(agent_uid, basedn)
 
-        dm_pass = ''
-        if not use_ldapi:
+        if use_ldapi:
+            dm_pass = ''
+
+        elif args.dm_password:
+            dm_pass = args.dm_password
+
+        else:
             # Prompt for DM password
             dm_pass = getpass.getpass(prompt='Enter Directory Manager password: ')
 
@@ -1547,6 +1559,10 @@ def ldap_password_authn(
     ldappasswd_performed = False
 
     for subsystem in subsystems:
+
+        if subsystem.type in ['ACME', 'EST']:
+            # pki-server cert-fix does not support ACME and EST
+            continue
 
         logger.info('Configuring LDAP connection for %s', subsystem.type)
 
