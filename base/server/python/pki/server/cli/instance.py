@@ -224,25 +224,26 @@ class InstanceFindCLI(pki.cli.CLI):
         elif args.verbose:
             logging.getLogger().setLevel(logging.INFO)
 
-        results = []
+        instances = []
         if os.path.exists(pki.server.PKIServer.BASE_DIR):
-            for f in os.listdir(pki.server.PKIServer.BASE_DIR):
+            for instance_name in os.listdir(pki.server.PKIServer.BASE_DIR):
 
-                if not os.path.isdir:
+                instance = pki.server.PKIServerFactory.create(instance_name)
+
+                if not instance.exists():
                     continue
 
-                results.append(f)
+                instances.append(instance)
 
-        self.print_message('%s entries matched' % len(results))
+        self.print_message('%s entries matched' % len(instances))
 
         first = True
-        for instance_name in results:
+        for instance in instances:
             if first:
                 first = False
             else:
                 print()
 
-            instance = pki.server.PKIServerFactory.create(instance_name)
             instance.load()
 
             InstanceCLI.print_instance(instance)

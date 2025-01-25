@@ -56,6 +56,29 @@ jobs:
               -D pki_ds_url=ldap://ds.example.com:3389 \
               -v
 
+      - name: Check instance
+        run: |
+          docker exec pki pki-server instance-find | tee output
+
+          cat > expected << EOF
+          -----------------
+          1 entries matched
+          -----------------
+            Instance ID: localhost
+            Active: True
+          EOF
+
+          diff expected output
+
+          docker exec pki pki-server instance-show localhost | tee output
+
+          cat > expected << EOF
+            Instance ID: localhost
+            Active: True
+          EOF
+
+          diff expected output
+
       - name: Check system certs
         run: |
           docker exec pki pki \
@@ -89,6 +112,28 @@ jobs:
               -i localhost \
               -s CA \
               -v
+
+      - name: Check instance
+        run: |
+          docker exec pki pki-server instance-find \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          cat > expected << EOF
+          -----------------
+          0 entries matched
+          -----------------
+          EOF
+
+          diff expected stdout
+
+          docker exec pki pki-server instance-show localhost \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          cat > expected << EOF
+          ERROR: Invalid instance localhost.
+          EOF
+
+          diff expected stderr
 
       - name: Check PKI server base dir after first removal
         run: |
@@ -175,6 +220,29 @@ jobs:
               -D pki_ds_url=ldap://ds.example.com:3389 \
               -v
 
+      - name: Check instance
+        run: |
+          docker exec pki pki-server instance-find | tee output
+
+          cat > expected << EOF
+          -----------------
+          1 entries matched
+          -----------------
+            Instance ID: localhost
+            Active: True
+          EOF
+
+          diff expected output
+
+          docker exec pki pki-server instance-show localhost | tee output
+
+          cat > expected << EOF
+            Instance ID: localhost
+            Active: True
+          EOF
+
+          diff expected output
+
       - name: Check PKI server config after second installation
         run: |
           # server config should not change
@@ -235,6 +303,28 @@ jobs:
               --remove-conf \
               --remove-logs \
               -v
+
+      - name: Check instance
+        run: |
+          docker exec pki pki-server instance-find \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          cat > expected << EOF
+          -----------------
+          0 entries matched
+          -----------------
+          EOF
+
+          diff expected stdout
+
+          docker exec pki pki-server instance-show localhost \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          cat > expected << EOF
+          ERROR: Invalid instance localhost.
+          EOF
+
+          diff expected stderr
 
       - name: Check PKI server base dir after second removal
         run: |
