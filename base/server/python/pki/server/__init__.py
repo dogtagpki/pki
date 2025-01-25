@@ -278,7 +278,17 @@ class PKIServer(object):
         return self.exists()
 
     def exists(self):
-        return os.path.exists(self.base_dir)
+        '''
+        Check whether the PKI server instance exists.
+
+        This method checks the bin folder under the instance's base folder.
+        If the folder exists the method will return True, otherwise False.
+
+        The instance's base folder itself is not a reliable indicator since
+        there might be files (e.g. config files, logs) left in the folder
+        after removing an instance.
+        '''
+        return os.path.isdir(self.bin_dir)
 
     def validate(self):
         if not self.exists():
