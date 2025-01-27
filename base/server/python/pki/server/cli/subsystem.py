@@ -814,7 +814,7 @@ class SubsystemCertCLI(pki.cli.CLI):
 class SubsystemCertFindCLI(pki.cli.CLI):
 
     def __init__(self):
-        super().__init__('find', 'Find subsystem certificates')
+        super().__init__('find', 'Find subsystem certificates', deprecated=True)
 
     def create_parser(self, subparsers=None):
 
@@ -851,6 +851,10 @@ class SubsystemCertFindCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv, args=None):
+
+        logger.warning(
+            'The pki-server subsystem-cert-find has been deprecated. '
+            'Use pki-server cert-find instead.')
 
         if not args:
             args = self.parser.parse_args(args=argv)
@@ -905,7 +909,7 @@ class SubsystemCertFindCLI(pki.cli.CLI):
 class SubsystemCertShowCLI(pki.cli.CLI):
 
     def __init__(self):
-        super().__init__('show', 'Show subsystem certificate')
+        super().__init__('show', 'Show subsystem certificate', deprecated=True)
 
     def create_parser(self, subparsers=None):
 
@@ -943,6 +947,10 @@ class SubsystemCertShowCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv, args=None):
+
+        logger.warning(
+            'The pki-server subsystem-cert-show has been deprecated. '
+            'Use pki-server cert-show instead.')
 
         if not args:
             args = self.parser.parse_args(args=argv)
