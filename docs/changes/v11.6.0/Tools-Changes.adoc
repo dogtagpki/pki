@@ -66,9 +66,14 @@ The `pkispawn` command has been updated to include ACME and EST subsystem deploy
 
 The `pkidestroy` command has been updated to include ACME and EST subsystem removal.
 
-== Add pki-server pki-server password-set/unset ==
+== Add pki-server password-set/unset ==
 
 The `pki-server password-set/unset` commands have been added
 to replace `pki-server password-add/del`.
 
 The `pki-server password-add/del` commands have been deprecated.
+
+== Deprecate pki-server subsystem-cert-find/show ==
+
+The `pki-server subsystem-cert-find/show` commands have been deprecated.
+Use `pki-server cert-find/show` commands instead.
