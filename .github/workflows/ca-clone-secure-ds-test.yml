@@ -34,20 +34,18 @@ jobs:
           tests/bin/ds-create.sh \
               --image=${{ env.DS_IMAGE }} \
               --hostname=primaryds.example.com \
+              --network=example \
+              --network-alias=primaryds.example.com \
               --password=Secret.123 \
               primaryds
 
-      - name: Connect primary DS container to network
-        run: docker network connect example primaryds --alias primaryds.example.com
-
       - name: Set up primary PKI container
         run: |
-          tests/bin/runner-init.sh primary
-        env:
-          HOSTNAME: primary.example.com
-
-      - name: Connect primary PKI container to network
-        run: docker network connect example primary --alias primary.example.com
+          tests/bin/runner-init.sh \
+              --hostname=primary.example.com \
+              --network=example \
+              --network-alias=primary.example.com \
+              primary
 
       - name: Create DS signing cert in primary PKI container
         run: |
@@ -56,6 +54,7 @@ jobs:
               --subject "CN=DS Signing Certificate" \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --csr ds_signing.csr
+
           docker exec primary pki \
               nss-cert-issue \
               --csr ds_signing.csr \
@@ -67,7 +66,7 @@ jobs:
               --trust CT,C,C \
               Self-Signed-CA
 
-          docker exec primary certutil -L -d /root/.dogtag/nssdb
+          docker exec primary pki nss-cert-find
 
       - name: Create DS server cert in primary PKI container
         run: |
@@ -76,6 +75,7 @@ jobs:
               --subject "CN=primaryds.example.com" \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               --csr ds_server.csr
+
           docker exec primary pki \
               nss-cert-issue \
               --issuer Self-Signed-CA \
@@ -87,9 +87,9 @@ jobs:
               --cert ds_server.crt \
               Server-Cert
 
-          docker exec primary certutil -L -d /root/.dogtag/nssdb
+          docker exec primary pki nss-cert-find
 
-      - name: Import certs into primary DS container
+      - name: Import DS certs into primary DS container
         run: |
           docker exec primary pk12util \
               -d /root/.dogtag/nssdb \
@@ -121,25 +121,123 @@ jobs:
               -D pki_ds_url=ldaps://primaryds.example.com:3636 \
               -v
 
-          docker exec primary pki-server cert-find
+      - name: Check NSS database in primary PKI container
+        run: |
+          # NSS database should contain DS cert and PKI certs
+          docker exec primary pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-cert-find \
+              | tee output
+
+          sed -n \
+              -e 's/^ *\(Nickname: .*\)$/\1/p' \
+              -e 's/^ *\(Trust Flags: .*\)$/\1/p' \
+              -e 's/^$//p' \
+              output > actual
+
+          cat > expected << EOF
+          Nickname: ds_signing
+          Trust Flags: CT,C,C
+
+          Nickname: ca_signing
+          Trust Flags: CTu,Cu,Cu
+
+          Nickname: ca_ocsp_signing
+          Trust Flags: u,u,u
+
+          Nickname: sslserver
+          Trust Flags: u,u,u
+
+          Nickname: subsystem
+          Trust Flags: u,u,u
+
+          Nickname: ca_audit_signing
+          Trust Flags: u,u,Pu
+          EOF
+
+          diff expected actual
+
+      - name: Create external cert in primary PKI container
+        run: |
+          docker exec primary pki \
+              nss-cert-request \
+              --subject "CN=External Certificate" \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --csr external.csr
+
+          docker exec primary pki \
+              nss-cert-issue \
+              --csr external.csr \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --cert external.crt
+
+          docker exec primary pki nss-cert-import \
+              --cert external.crt \
+              --trust CT,C,C \
+              external
+
+          docker exec primary pki nss-cert-find
+
+      - name: Import external cert into primary PKI server
+        run: |
+          docker exec primary pki-server \
+              instance-externalcert-add \
+              --cert-file external.crt \
+              --nickname external \
+              --trust-args CT,C,C
+
+          # NSS database should contain the external cert
+          docker exec primary pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-cert-show \
+              external \
+              | tee output
+
+          sed -n \
+              -e 's/^ *\(Nickname: .*\)$/\1/p' \
+              -e 's/^ *\(Trust Flags: .*\)$/\1/p' \
+              output > actual
+
+          cat > expected << EOF
+          Nickname: external
+          Trust Flags: CT,C,C
+          EOF
+
+          diff expected actual
+
+          # external_certs.conf should contain the external cert
+          docker exec primary cat /etc/pki/pki-tomcat/external_certs.conf | tee output
+
+          cat > expected << EOF
+          0.nickname=external
+          0.token=internal
+          EOF
+
+          diff expected output
 
       - name: Verify DS connection in primary PKI container
         run: |
-          docker exec primary pki-server ca-db-config-show > output
-          cat output
+          docker exec primary pki-server ca-db-config-show | tee output
+
           echo "primaryds.example.com" > expected
           sed -n 's/^\s\+Hostname:\s\+\(\S\+\)$/\1/p' output > actual
           diff expected actual
+
           echo "3636" > expected
           sed -n 's/^\s\+Port:\s\+\(\S\+\)$/\1/p' output > actual
           diff expected actual
+
           echo "true" > expected
           sed -n 's/^\s\+Secure:\s\+\(\S\+\)$/\1/p' output > actual
           diff expected actual
 
       - name: Verify users and DS hosts in primary PKI container
         run: |
-          docker exec primary pki-server cert-export ca_signing --cert-file ca_signing.crt
+          docker exec primary pki-server cert-export \
+              --cert-file ca_signing.crt \
+              ca_signing
 
           docker exec primary pki nss-cert-import \
               --cert ca_signing.crt \
@@ -148,7 +246,8 @@ jobs:
 
           docker exec primary pki pkcs12-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
-              --pkcs12-password Secret.123
+              --password Secret.123
+
           docker exec primary pki -n caadmin ca-user-find
           docker exec primary pki securitydomain-host-find
 
@@ -161,37 +260,38 @@ jobs:
           tests/bin/ds-create.sh \
               --image=${{ env.DS_IMAGE }} \
               --hostname=secondaryds.example.com \
+              --network=example \
+              --network-alias=secondaryds.example.com \
               --password=Secret.123 \
               secondaryds
 
-      - name: Connect secondary DS container to network
-        run: docker network connect example secondaryds --alias secondaryds.example.com
-
       - name: Set up secondary PKI container
         run: |
-          tests/bin/runner-init.sh secondary
-        env:
-          HOSTNAME: secondary.example.com
-
-      - name: Connect secondary PKI container to network
-        run: docker network connect example secondary --alias secondary.example.com
+          tests/bin/runner-init.sh \
+              --hostname=secondary.example.com \
+              --network=example \
+              --network-alias=secondary.example.com \
+              secondary
 
       - name: Import DS signing cert into secondary PKI container
         run: |
           docker exec primary pki \
               pkcs12-export \
-              --pkcs12-file ${SHARED}/ds_signing.p12 \
-              --pkcs12-password Secret.123 \
+              --pkcs12 $SHARED/ds_signing.p12 \
+              --password Secret.123 \
               Self-Signed-CA
+
           docker exec secondary pki \
               pkcs12-import \
-              --pkcs12-file ${SHARED}/ds_signing.p12 \
-              --pkcs12-password Secret.123
+              --pkcs12 $SHARED/ds_signing.p12 \
+              --password Secret.123
+
           docker exec secondary pki \
               nss-cert-export \
               --output-file ds_signing.crt \
               Self-Signed-CA
-          docker exec secondary certutil -L -d /root/.dogtag/nssdb
+
+          docker exec secondary pki nss-cert-find
 
       - name: Create DS server cert in secondary PKI container
         run: |
@@ -200,6 +300,7 @@ jobs:
               --subject "CN=secondaryds.example.com" \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               --csr ds_server.csr
+
           docker exec secondary pki \
               nss-cert-issue \
               --issuer Self-Signed-CA \
@@ -211,9 +312,9 @@ jobs:
               --cert ds_server.crt \
               Server-Cert
 
-          docker exec secondary certutil -L -d /root/.dogtag/nssdb
+          docker exec secondary pki nss-cert-find
 
-      - name: Import certs into secondary DS container
+      - name: Import DS certs into secondary DS container
         run: |
           docker exec secondary pk12util \
               -d /root/.dogtag/nssdb \
@@ -237,19 +338,117 @@ jobs:
               --image=${{ env.DS_IMAGE }} \
               secondaryds
 
+      - name: Export certs for cloning from primary PKI container
+        run: |
+          # export CA signing cert
+          docker exec primary pki-server \
+              cert-export \
+              --cert-file $SHARED/ca_signing.crt \
+              ca_signing
+
+          # export PKI certs including external cert but without sslserver cert
+          docker exec primary pki-server \
+              ca-clone-prepare \
+              --pkcs12-file $SHARED/ca-certs.p12 \
+              --pkcs12-password Secret.123
+
+          docker exec primary pki \
+              pkcs12-cert-find \
+              --pkcs12-file $SHARED/ca-certs.p12 \
+              --password Secret.123 \
+              | tee output
+
+          sed -n \
+              -e 's/^ *\(Friendly Name: .*\)$/\1/p' \
+              -e 's/^ *\(Trust Flags: .*\)$/\1/p' \
+              -e 's/^$//p' \
+              output > actual
+
+          cat > expected << EOF
+          Friendly Name: subsystem
+          Trust Flags: u,u,u
+
+          Friendly Name: ca_signing
+          Trust Flags: CTu,Cu,Cu
+
+          Friendly Name: ca_ocsp_signing
+          Trust Flags: u,u,u
+
+          Friendly Name: ca_audit_signing
+          Trust Flags: u,u,Pu
+
+          Friendly Name: external
+          Trust Flags: CT,C,C
+          EOF
+
+          diff expected actual
+
+          # export external_certs.conf
+          docker cp primary:/etc/pki/pki-tomcat/external_certs.conf .
+
       - name: Install CA in secondary PKI container
         run: |
-          docker exec primary pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
-          docker exec primary pki-server ca-clone-prepare --pkcs12-file ${SHARED}/ca-certs.p12 --pkcs12-password Secret.123
+          # install secondary CA with the same DS cert, PKI certs, and external cert
           docker exec secondary pkispawn \
               -f /usr/share/pki/server/examples/installation/ca-secure-ds-secondary.cfg \
               -s CA \
-              -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
-              -D pki_clone_pkcs12_path=${SHARED}/ca-certs.p12 \
+              -D pki_cert_chain_path=$SHARED/ca_signing.crt \
+              -D pki_clone_pkcs12_path=$SHARED/ca-certs.p12 \
               -D pki_ds_url=ldaps://secondaryds.example.com:3636 \
+              -D pki_server_external_certs_path=$SHARED/external_certs.conf \
               -v
 
-          docker exec secondary pki-server cert-find
+      - name: Check NSS database in secondary PKI container
+        run: |
+          # NSS database should contain DS cert, PKI certs, and external cert
+          docker exec secondary pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-cert-find \
+              | tee output
+
+          sed -n \
+              -e 's/^ *\(Nickname: .*\)$/\1/p' \
+              -e 's/^ *\(Trust Flags: .*\)$/\1/p' \
+              -e 's/^$//p' \
+              output > actual
+
+          cat > expected << EOF
+          Nickname: external
+          Trust Flags: CT,C,C
+
+          Nickname: subsystem
+          Trust Flags: u,u,u
+
+          Nickname: ca_signing
+          Trust Flags: CTu,Cu,Cu
+
+          Nickname: ca_ocsp_signing
+          Trust Flags: u,u,u
+
+          Nickname: ca_audit_signing
+          Trust Flags: u,u,Pu
+
+          Nickname: ds_signing
+          Trust Flags: CT,C,C
+
+          Nickname: sslserver
+          Trust Flags: u,u,u
+          EOF
+
+          diff expected actual
+
+      - name: Check external cert in secondary PKI server
+        run: |
+          # external_certs.conf should contain the external cert
+          docker exec secondary cat /etc/pki/pki-tomcat/external_certs.conf | tee output
+
+          cat > expected << EOF
+          0.nickname=external
+          0.token=internal
+          EOF
+
+          diff expected output
 
       - name: Run PKI healthcheck in primary PKI container
         run: docker exec primary pki-healthcheck --failures-only
@@ -259,31 +458,42 @@ jobs:
 
       - name: Verify DS connection in secondary PKI container
         run: |
-          docker exec secondary pki-server ca-db-config-show > output
-          cat output
+          docker exec secondary pki-server ca-db-config-show | tee output
+
           echo "secondaryds.example.com" > expected
           sed -n 's/^\s\+Hostname:\s\+\(\S\+\)$/\1/p' output > actual
           diff expected actual
+
           echo "3636" > expected
           sed -n 's/^\s\+Port:\s\+\(\S\+\)$/\1/p' output > actual
           diff expected actual
+
           echo "true" > expected
           sed -n 's/^\s\+Secure:\s\+\(\S\+\)$/\1/p' output > actual
           diff expected actual
 
       - name: Verify users and SD hosts in secondary PKI container
         run: |
-          docker exec primary cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${SHARED}/ca_admin_cert.p12
-          docker exec secondary pki-server cert-export ca_signing --cert-file ca_signing.crt
+          docker exec primary cp \
+              /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              $SHARED/ca_admin_cert.p12
 
-          docker exec secondary pki nss-cert-import \
+          docker exec secondary pki-server \
+              cert-export \
+              --cert-file ca_signing.crt \
+              ca_signing
+
+          docker exec secondary pki \
+              nss-cert-import \
               --cert ca_signing.crt \
               --trust CT,C,C \
               ca_signing
 
-          docker exec secondary pki pkcs12-import \
-              --pkcs12 ${SHARED}/ca_admin_cert.p12 \
-              --pkcs12-password Secret.123
+          docker exec secondary pki \
+              pkcs12-import \
+              --pkcs12 $SHARED/ca_admin_cert.p12 \
+              --password Secret.123
+
           docker exec secondary pki -n caadmin ca-user-find
           docker exec secondary pki securitydomain-host-find
 
@@ -304,14 +514,85 @@ jobs:
               ds_signing.crt
           docker exec secondary cat cert_bundle.pem
 
-          # install secondary CA with cert bundle
+          # re-install secondary CA with cert bundle, PKI certs, and external cert
           docker exec secondary pkispawn \
               -f /usr/share/pki/server/examples/installation/ca-secure-ds-secondary.cfg \
               -s CA \
               -D pki_cert_chain_path=cert_bundle.pem \
-              -D pki_clone_pkcs12_path=${SHARED}/ca-certs.p12 \
+              -D pki_clone_pkcs12_path=$SHARED/ca-certs.p12 \
               -D pki_ds_url=ldaps://secondaryds.example.com:3636 \
+              -D pki_server_external_certs_path=$SHARED/external_certs.conf \
               -v
+
+      - name: Check NSS database in secondary PKI container again
+        run: |
+          # NSS database should contain DS cert, PKI certs, and external cert
+          docker exec secondary pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-cert-find \
+              | tee output
+
+          sed -n \
+              -e 's/^ *\(Nickname: .*\)$/\1/p' \
+              -e 's/^ *\(Trust Flags: .*\)$/\1/p' \
+              -e 's/^$//p' \
+              output > actual
+
+          cat > expected << EOF
+          Nickname: external
+          Trust Flags: CT,C,C
+
+          Nickname: subsystem
+          Trust Flags: u,u,u
+
+          Nickname: ca_signing
+          Trust Flags: CTu,Cu,Cu
+
+          Nickname: ca_ocsp_signing
+          Trust Flags: u,u,u
+
+          Nickname: ca_audit_signing
+          Trust Flags: u,u,Pu
+
+          Nickname: ds_signing
+          Trust Flags: CT,C,C
+
+          Nickname: sslserver
+          Trust Flags: u,u,u
+          EOF
+
+          diff expected actual
+
+      - name: Remove external cert from secondary PKI server
+        run: |
+          docker exec secondary pki-server \
+              instance-externalcert-del \
+              --nickname external
+
+          # NSS database should not contain the external cert
+          docker exec secondary pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-cert-show \
+              external \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          cat > expected << EOF
+          ERROR: Certificate not found: external
+          EOF
+
+          diff expected stderr
+
+          # external_certs.conf should be removed
+          docker exec secondary cat /etc/pki/pki-tomcat/external_certs.conf \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          cat > expected << EOF
+          cat: /etc/pki/pki-tomcat/external_certs.conf: No such file or directory
+          EOF
+
+          diff expected stderr
 
       - name: Remove CA from secondary PKI container
         run: |
@@ -324,19 +605,3 @@ jobs:
           docker exec primary pki -n caadmin ca-user-find
           docker exec primary pki securitydomain-host-find
           docker exec primary pkidestroy -s CA -v
-
-      - name: Gather artifacts
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh primaryds
-          tests/bin/pki-artifacts-save.sh primary
-          tests/bin/ds-artifacts-save.sh secondaryds
-          tests/bin/pki-artifacts-save.sh secondary
-        continue-on-error: true
-
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ca-clone-secure-ds
-          path: /tmp/artifacts
