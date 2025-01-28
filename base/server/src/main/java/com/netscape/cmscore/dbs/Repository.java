@@ -394,15 +394,17 @@ public abstract class Repository {
                 logger.debug("Reached the end of the range.  Attempting to move to next range");
                 if (!hasNextRange()) {
                     if (rangeLength == null || mCounter.compareTo(rangeLength) >= 0) {
+                        String latest = mRadix == HEX ? "0x" + mMaxSerialNo.toString(HEX) : mMaxSerialNo.toString();
                         throw new DBException(CMS.getUserMessage("CMS_DBS_LIMIT_REACHED",
-                                                                  mLastSerialNo.toString()));
+                                                                  latest));
                     }
                     return;
                 }
                 switchToNextRange();
             } else {
+                String latest = mRadix == HEX ? "0x" + mMaxSerialNo.toString(HEX) : mMaxSerialNo.toString();
                 throw new DBException(CMS.getUserMessage("CMS_DBS_LIMIT_REACHED",
-                        mLastSerialNo.toString()));
+                        latest));
             }
         }
     }
