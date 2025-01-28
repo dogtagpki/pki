@@ -1783,7 +1783,7 @@ grant codeBase "file:%s" {
         :rtype: None
         """
 
-        logger.info('Renewing cert %s', hex(serial))
+        logger.info('Renewing cert %s', hex(int(serial)))
 
         # Instantiate the CertClient
         cert_client = pki.cert.CertClient(connection)
@@ -1804,8 +1804,7 @@ grant codeBase "file:%s" {
         logger.debug('- cert data: %s', cert_data)
 
         if not cert_data:
-            raise PKIServerException('Unable to renew system '
-                                     'certificate for serial: %s' % serial)
+            raise PKIServerException('Unable to renew certificate %s' % hex(int(serial)))
 
         # store cert_id for usage later
         cert_serial_number = cert_data.serial_number
