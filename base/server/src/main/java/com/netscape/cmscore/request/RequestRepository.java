@@ -133,7 +133,7 @@ public class RequestRepository extends Repository {
         mMaxSerialNo = dbConfig.getBigInteger(DatabaseConfig.MAX_REQUEST_NUMBER, null);
         logger.debug("RequestRepository: - max serial: " + mMaxSerialNo);
 
-        String nextMinSerial = dbConfig.getNextBeginSerialNumber();
+        String nextMinSerial = dbConfig.getNextBeginRequestNumber();
         if (nextMinSerial == null || nextMinSerial.equals("-1")) {
             mNextMinSerialNo = null;
         } else {
@@ -141,7 +141,7 @@ public class RequestRepository extends Repository {
         }
         logger.debug("RequestRepository: - next min serial: " + mNextMinSerialNo);
 
-        String nextMaxSerial = dbConfig.getNextEndSerialNumber();
+        String nextMaxSerial = dbConfig.getNextEndRequestNumber();
         if (nextMaxSerial == null || nextMaxSerial.equals("-1")) {
             mNextMaxSerialNo = null;
         } else {
