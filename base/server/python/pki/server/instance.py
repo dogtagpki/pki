@@ -454,6 +454,18 @@ class PKIInstance(pki.server.PKIServer):
 
         return external_certs
 
+    @staticmethod
+    def store_external_certs_conf(conf_file, external_certs):
+
+        logger.info('Storing external certs into %s', conf_file)
+
+        with open(conf_file, 'w', encoding='utf-8') as f:
+            indx = 0
+            for cert in external_certs:
+                f.write('%s.nickname=%s\n' % (str(indx), cert.nickname))
+                f.write('%s.token=%s\n' % (str(indx), cert.token))
+                indx += 1
+
     def external_cert_exists(self, nickname, token):
         for cert in self.external_certs:
             if cert.nickname == nickname and cert.token == token:
@@ -464,21 +476,16 @@ class PKIInstance(pki.server.PKIServer):
         if self.external_cert_exists(nickname, token):
             return
         self.external_certs.append(pki.server.ExternalCert(nickname, token))
-        self.save_external_cert_data()
+        self.store_external_certs()
 
     def delete_external_cert(self, nickname, token):
         for cert in self.external_certs:
             if cert.nickname == nickname and cert.token == token:
                 self.external_certs.remove(cert)
-        self.save_external_cert_data()
+        self.store_external_certs()
 
-    def save_external_cert_data(self):
-        with open(self.external_certs_conf, 'w', encoding='utf-8') as f:
-            indx = 0
-            for cert in self.external_certs:
-                f.write('%s.nickname=%s\n' % (str(indx), cert.nickname))
-                f.write('%s.token=%s\n' % (str(indx), cert.token))
-                indx += 1
+    def store_external_certs(self):
+        PKIInstance.store_external_certs_conf(self.external_certs_conf, self.external_certs)
 
     def export_external_certs(self, pkcs12_file, pkcs12_password_file,
                               append=False):
