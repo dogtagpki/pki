@@ -560,24 +560,6 @@ class PKIDeployer:
 
         return (key_type, key_size, curve, hash_alg)
 
-    def update_external_certs_conf(self, external_path):
-
-        external_certs = pki.server.instance.PKIInstance.load_external_certs_conf(
-            external_path)
-
-        if not external_certs:
-            return
-
-        # load existing external certs
-        self.instance.load_external_certs()
-
-        # add new external certs
-        for cert in external_certs:
-            logger.info('Adding %s cert', cert.nickname)
-            self.instance.add_external_cert(cert.nickname, cert.token)
-
-        self.instance.store_external_certs()
-
     def create_server_nssdb(self):
 
         os.chmod(
@@ -654,13 +636,6 @@ class PKIDeployer:
             nssdb.import_pkcs12(
                 pkcs12_file=pki_server_pkcs12_path,
                 pkcs12_password=pki_server_pkcs12_password)
-
-            # update external CA file (if needed)
-            external_certs_path = self.mdict['pki_server_external_certs_path']
-            if not external_certs_path:
-                return
-
-            self.update_external_certs_conf(external_certs_path)
 
         finally:
             nssdb.close()
@@ -804,6 +779,33 @@ class PKIDeployer:
 
         finally:
             nssdb.close()
+
+    def import_external_certs(self):
+        '''
+        Import external certificates.
+        '''
+
+        param = 'pki_server_external_certs_path'
+        external_certs_path = self.mdict.get(param)
+
+        if not external_certs_path:
+            return
+
+        external_certs = pki.server.instance.PKIInstance.load_external_certs_conf(
+            external_certs_path)
+
+        if not external_certs:
+            return
+
+        # load existing external certs
+        self.instance.load_external_certs()
+
+        # add new external certs
+        for cert in external_certs:
+            logger.info('Adding %s cert', cert.nickname)
+            self.instance.add_external_cert(cert.nickname, cert.token)
+
+        self.instance.store_external_certs()
 
     def create_cs_cfg(self, subsystem):
 

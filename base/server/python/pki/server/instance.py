@@ -392,7 +392,7 @@ class PKIInstance(pki.server.PKIServer):
 
     def load_external_certs(self):
         for external_cert in PKIInstance.load_external_certs_conf(self.external_certs_conf):
-            self.external_certs.append(external_cert)
+            self.add_external_cert(external_cert.nickname, external_cert.token)
 
     def remove(self, remove_conf=False, remove_logs=False, force=False):
 
@@ -494,6 +494,12 @@ class PKIInstance(pki.server.PKIServer):
                 self.external_certs.remove(cert)
 
     def store_external_certs(self):
+
+        if len(self.external_certs) == 0:
+            logger.info('Removing %s', self.external_certs_conf)
+            pki.util.remove(self.external_certs_conf)
+            return
+
         PKIInstance.store_external_certs_conf(self.external_certs_conf, self.external_certs)
 
     def export_external_certs(self, pkcs12_file, pkcs12_password_file,
