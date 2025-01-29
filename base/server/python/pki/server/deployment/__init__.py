@@ -562,16 +562,14 @@ class PKIDeployer:
 
     def update_external_certs_conf(self, external_path):
 
-        external_certs = pki.server.instance.PKIInstance.read_external_certs(
+        external_certs = pki.server.instance.PKIInstance.load_external_certs_conf(
             external_path)
 
         if not external_certs:
             return
 
         # load existing external certs
-        self.instance.load_external_certs(
-            os.path.join(self.instance.conf_dir, 'external_certs.conf')
-        )
+        self.instance.load_external_certs()
 
         # add new external certs
         for cert in external_certs:

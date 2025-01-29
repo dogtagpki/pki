@@ -388,10 +388,10 @@ class PKIInstance(pki.server.PKIServer):
                     self.group = m.group(1)
                     logger.debug('- group: %s', self.group)
 
-        self.load_external_certs(self.external_certs_conf)
+        self.load_external_certs()
 
-    def load_external_certs(self, conf_file):
-        for external_cert in PKIInstance.read_external_certs(conf_file):
+    def load_external_certs(self):
+        for external_cert in PKIInstance.load_external_certs_conf(self.external_certs_conf):
             self.external_certs.append(external_cert)
 
     def remove(self, remove_conf=False, remove_logs=False, force=False):
@@ -431,9 +431,11 @@ class PKIInstance(pki.server.PKIServer):
         pki.util.rmtree(self.registry_dir, force=force)
 
     @staticmethod
-    def read_external_certs(conf_file):
+    def load_external_certs_conf(conf_file):
+
+        logger.info('Loading external certs from %s', conf_file)
+
         external_certs = []
-        # load external certs data
         if os.path.exists(conf_file) and os.stat(conf_file).st_size > 0:
             tmp_certs = {}
             lines = open(conf_file, encoding='utf-8').read().splitlines()
@@ -449,6 +451,7 @@ class PKIInstance(pki.server.PKIServer):
 
                 setattr(tmp_certs[indx], attr, value)
             external_certs = tmp_certs.values()
+
         return external_certs
 
     def external_cert_exists(self, nickname, token):
