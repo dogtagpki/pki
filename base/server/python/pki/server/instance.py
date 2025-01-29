@@ -476,13 +476,11 @@ class PKIInstance(pki.server.PKIServer):
         if self.external_cert_exists(nickname, token):
             return
         self.external_certs.append(pki.server.ExternalCert(nickname, token))
-        self.store_external_certs()
 
     def delete_external_cert(self, nickname, token):
         for cert in self.external_certs:
             if cert.nickname == nickname and cert.token == token:
                 self.external_certs.remove(cert)
-        self.store_external_certs()
 
     def store_external_certs(self):
         PKIInstance.store_external_certs_conf(self.external_certs_conf, self.external_certs)

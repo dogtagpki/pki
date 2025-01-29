@@ -575,6 +575,8 @@ class PKIDeployer:
         for cert in external_certs:
             self.instance.add_external_cert(cert.nickname, cert.token)
 
+        self.instance.store_external_certs()
+
     def create_server_nssdb(self):
 
         os.chmod(

@@ -742,8 +742,11 @@ class InstanceExternalCertAddCLI(pki.cli.CLI):
         return [nickname]
 
     def update_instance_config(self, instance, nicks, token):
+
         for nickname in nicks:
             instance.add_external_cert(nickname, token)
+
+        instance.store_external_certs()
 
 
 class InstanceExternalCertDeleteCLI(pki.cli.CLI):
@@ -820,6 +823,7 @@ class InstanceExternalCertDeleteCLI(pki.cli.CLI):
 
         self.remove_cert(instance, nickname, token)
         instance.delete_external_cert(nickname, token)
+        instance.store_external_certs()
 
         self.print_message('Certificate removed from instance %s.' %
                            instance_name)
