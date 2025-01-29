@@ -39,6 +39,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         deployer.import_server_pkcs12()
         deployer.import_clone_pkcs12()
         deployer.install_cert_chain()
+        deployer.import_external_certs()
 
         if config.str2bool(deployer.mdict['pki_ds_setup']):
             deployer.import_ds_ca_cert()
