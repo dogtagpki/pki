@@ -118,21 +118,21 @@ class PKCS12ImportCLI(pki.cli.CLI):
         pkcs12_file = args.pkcs12
 
         if args.pkcs12_file:
-            logger.warning('The --pkcs12-file option has been deprecated.'
+            logger.warning('The --pkcs12-file option has been deprecated. '
                            'Use --pkcs12 instead.')
             pkcs12_file = args.pkcs12_file
 
         pkcs12_password = args.password
 
         if args.pkcs12_password:
-            logger.warning('The --pkcs12-password option has been deprecated.'
+            logger.warning('The --pkcs12-password option has been deprecated. '
                            'Use --password instead.')
             pkcs12_password = args.pkcs12_password
 
         password_file = args.password_file
 
         if args.pkcs12_password_file:
-            logger.warning('The --pkcs12-password-file option has been deprecated.'
+            logger.warning('The --pkcs12-password-file option has been deprecated. '
                            'Use --password-file instead.')
             password_file = args.pkcs12_password_file
 
