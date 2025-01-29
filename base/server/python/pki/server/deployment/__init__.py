@@ -573,6 +573,7 @@ class PKIDeployer:
 
         # add new external certs
         for cert in external_certs:
+            logger.info('Adding %s cert', cert.nickname)
             self.instance.add_external_cert(cert.nickname, cert.token)
 
         self.instance.store_external_certs()

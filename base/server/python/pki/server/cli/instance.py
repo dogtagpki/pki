@@ -730,6 +730,9 @@ class InstanceExternalCertAddCLI(pki.cli.CLI):
                            instance_name)
 
     def import_certs(self, instance, cert_file, nickname, token, trust_args):
+
+        logger.info('Importing %s into %s', cert_file, instance.nssdb_dir)
+
         password = instance.get_token_password(token)
         certdb = pki.nssdb.NSSDatabase(
             directory=instance.nssdb_dir,
@@ -744,6 +747,7 @@ class InstanceExternalCertAddCLI(pki.cli.CLI):
     def update_instance_config(self, instance, nicks, token):
 
         for nickname in nicks:
+            logger.info('Adding %s cert', nickname)
             instance.add_external_cert(nickname, token)
 
         instance.store_external_certs()
@@ -822,7 +826,10 @@ class InstanceExternalCertDeleteCLI(pki.cli.CLI):
         instance.load()
 
         self.remove_cert(instance, nickname, token)
+
+        logger.info('Removing %s cert', nickname)
         instance.delete_external_cert(nickname, token)
+
         instance.store_external_certs()
 
         self.print_message('Certificate removed from instance %s.' %

@@ -435,24 +435,32 @@ class PKIInstance(pki.server.PKIServer):
 
         logger.info('Loading external certs from %s', conf_file)
 
-        external_certs = []
-        if os.path.exists(conf_file) and os.stat(conf_file).st_size > 0:
-            tmp_certs = {}
-            lines = open(conf_file, encoding='utf-8').read().splitlines()
-            for line in lines:
-                m = re.search('(\\d+)\\.(\\w+)=(.*)', line)
-                if not m:
-                    raise pki.PKIException('Error parsing %s' % conf_file)
-                indx = m.group(1)
-                attr = m.group(2)
-                value = m.group(3)
-                if indx not in tmp_certs:
-                    tmp_certs[indx] = pki.server.ExternalCert()
+        if not os.path.exists(conf_file):
+            logger.info('File does not exist: %s', conf_file)
+            return []
 
-                setattr(tmp_certs[indx], attr, value)
-            external_certs = tmp_certs.values()
+        lines = open(conf_file, encoding='utf-8').read().splitlines()
 
-        return external_certs
+        tmp_certs = {}
+        for line in lines:
+
+            m = re.search('(\\d+)\\.(\\w+)=(.*)', line)
+            if not m:
+                raise pki.PKIException('Error parsing %s' % conf_file)
+
+            indx = m.group(1)
+            attr = m.group(2)
+            value = m.group(3)
+
+            if attr == 'nickname':
+                logger.debug('- %s', value)
+
+            if indx not in tmp_certs:
+                tmp_certs[indx] = pki.server.ExternalCert()
+
+            setattr(tmp_certs[indx], attr, value)
+
+        return tmp_certs.values()
 
     @staticmethod
     def store_external_certs_conf(conf_file, external_certs):
@@ -462,6 +470,9 @@ class PKIInstance(pki.server.PKIServer):
         with open(conf_file, 'w', encoding='utf-8') as f:
             indx = 0
             for cert in external_certs:
+
+                logger.debug('- %s', cert.nickname)
+
                 f.write('%s.nickname=%s\n' % (str(indx), cert.nickname))
                 f.write('%s.token=%s\n' % (str(indx), cert.token))
                 indx += 1
