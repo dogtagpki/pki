@@ -124,6 +124,19 @@ jobs:
               --cert admin.crt \
               caadmin
 
+      - name: Check pki-server ca CLI help message
+        run: |
+          docker exec pki pki-server ca
+          docker exec pki pki-server ca --help
+
+          # TODO: validate output
+
+      - name: Check pki-server ca-create CLI help message
+        run: |
+          docker exec pki pki-server ca-create --help
+
+          # TODO: validate output
+
       - name: Create CA subsystem
         run: |
           docker exec pki pki-server ca-create -v
@@ -402,17 +415,3 @@ jobs:
         if: always()
         run: |
           docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
-
-      - name: Gather artifacts
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh ds
-          tests/bin/pki-artifacts-save.sh pki
-        continue-on-error: true
-
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ca-existing-ds
-          path: /tmp/artifacts
