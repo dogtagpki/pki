@@ -8,6 +8,11 @@ jobs:
     uses: ./.github/workflows/wait-for-build.yml
     secrets: inherit
 
+  pki-basic-test:
+    name: Basic PKI CLI
+    needs: build
+    uses: ./.github/workflows/pki-basic-test.yml
+
   PKICertImport-test:
     name: PKICertImport
     needs: build

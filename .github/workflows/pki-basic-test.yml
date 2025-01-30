@@ -1,0 +1,70 @@
+name: Basic PKI CLI
+# https://github.com/dogtagpki/pki/wiki/PKI-CLI
+
+on: workflow_call
+
+env:
+  DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Retrieve PKI images
+        uses: actions/cache@v4
+        with:
+          key: pki-images-${{ github.sha }}
+          path: pki-images.tar
+
+      - name: Load PKI images
+        run: docker load --input pki-images.tar
+
+      - name: Set up runner container
+        run: |
+          tests/bin/runner-init.sh \
+              --hostname=pki.example.com \
+              pki
+
+      - name: Check pki CLI help message
+        run: |
+          docker exec pki pki
+          docker exec pki pki --help
+
+          # TODO: validate output
+
+      - name: Check pki CLI version
+        run: |
+          docker exec pki pki --version
+
+          # TODO: validate output
+
+      - name: Check pki CLI with wrong option
+        run: |
+          docker exec pki pki --wrong \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          # TODO: validate output
+
+      - name: Check pki CLI with wrong sub-command
+        run: |
+          docker exec pki pki wrong \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          cat > expected << EOF
+          ERROR: Invalid module "wrong".
+          EOF
+
+          diff expected stderr
+
+      - name: Check pki nss CLI help message
+        run: |
+          docker exec pki pki nss
+          docker exec pki pki nss --help
+
+          # TODO: validate output

@@ -1,4 +1,5 @@
 name: Basic server
+# https://github.com/dogtagpki/pki/wiki/PKI-Server-CLI
 
 on: workflow_call
 
@@ -36,6 +37,43 @@ jobs:
 
       - name: Connect server container to network
         run: docker network connect example pki --alias pki.example.com
+
+      - name: Check pki-server CLI help message
+        run: |
+          docker exec pki pki-server
+          docker exec pki pki-server --help
+
+          # TODO: validate output
+
+      - name: Check pki-server CLI version
+        run: |
+          docker exec pki pki-server --version
+
+          # TODO: validate output
+
+      - name: Check pki-server CLI with wrong option
+        run: |
+          docker exec pki pki-server --wrong \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          # TODO: validate output
+
+      - name: Check pki-server CLI with wrong sub-command
+        run: |
+          docker exec pki pki-server wrong \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          cat > expected << EOF
+          ERROR: Invalid module "wrong".
+          EOF
+
+          diff expected stderr
+
+      - name: Check pki-server create CLI help message
+        run: |
+          docker exec pki pki-server create --help
+
+          # TODO: validate output
 
       - name: Create pki-tomcat server
         run: |
@@ -412,24 +450,3 @@ jobs:
           EOF
 
           diff expected output
-
-      - name: Gather artifacts from server container
-        if: always()
-        run: |
-          tests/bin/pki-artifacts-save.sh pki
-
-          docker exec pki ls -la /var/lib/tomcats/pki/conf
-          mkdir -p /tmp/artifacts/pki/var/lib/tomcats/pki/conf
-          docker cp pki:/var/lib/tomcats/pki/conf/* /tmp/artifacts/var/lib/tomcats/pki/conf
-
-          docker exec pki ls -la /var/lib/tomcats/pki/logs
-          mkdir -p /tmp/artifacts/pki/var/lib/tomcats/pki/logs
-          docker cp pki:/var/lib/tomcats/pki/logs/* /tmp/artifacts/var/lib/tomcats/pki/logs
-        continue-on-error: true
-
-      - name: Upload artifacts from server container
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: server-basic-test
-          path: /tmp/artifacts
