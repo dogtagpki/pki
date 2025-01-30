@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
+import argparse
 import logging
 import os
 
@@ -41,7 +42,7 @@ class ACMECreateCLI(pki.cli.CLI):
 
     def create_parser(self, subparsers=None):
 
-        self.parser = subparsers.add_parser(
+        self.parser = argparse.ArgumentParser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -110,7 +111,7 @@ class ACMERemoveCLI(pki.cli.CLI):
 
     def create_parser(self, subparsers=None):
 
-        self.parser = subparsers.add_parser(
+        self.parser = argparse.ArgumentParser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -194,7 +195,7 @@ class ACMEDeployCLI(pki.cli.CLI):
 
     def create_parser(self, subparsers=None):
 
-        self.parser = subparsers.add_parser(
+        self.parser = argparse.ArgumentParser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -286,7 +287,7 @@ class ACMEUndeployCLI(pki.cli.CLI):
 
     def create_parser(self, subparsers=None):
 
-        self.parser = subparsers.add_parser(
+        self.parser = argparse.ArgumentParser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -380,7 +381,7 @@ class ACMEMetadataShowCLI(pki.cli.CLI):
 
     def create_parser(self, subparsers=None):
 
-        self.parser = subparsers.add_parser(
+        self.parser = argparse.ArgumentParser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -467,7 +468,7 @@ class ACMEMetadataModifyCLI(pki.cli.CLI):
 
     def create_parser(self, subparsers=None):
 
-        self.parser = subparsers.add_parser(
+        self.parser = argparse.ArgumentParser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -579,7 +580,7 @@ class ACMEDatabaseShowCLI(pki.cli.CLI):
 
     def create_parser(self, subparsers=None):
 
-        self.parser = subparsers.add_parser(
+        self.parser = argparse.ArgumentParser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -699,7 +700,7 @@ class ACMEDatabaseModifyCLI(pki.cli.CLI):
 
     def create_parser(self, subparsers=None):
 
-        self.parser = subparsers.add_parser(
+        self.parser = argparse.ArgumentParser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -917,7 +918,7 @@ class ACMEIssuerShowCLI(pki.cli.CLI):
 
     def create_parser(self, subparsers=None):
 
-        self.parser = subparsers.add_parser(
+        self.parser = argparse.ArgumentParser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -1032,7 +1033,7 @@ class ACMEIssuerModifyCLI(pki.cli.CLI):
 
     def create_parser(self, subparsers=None):
 
-        self.parser = subparsers.add_parser(
+        self.parser = argparse.ArgumentParser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -1247,7 +1248,7 @@ class ACMERealmShowCLI(pki.cli.CLI):
 
     def create_parser(self, subparsers=None):
 
-        self.parser = subparsers.add_parser(
+        self.parser = argparse.ArgumentParser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -1377,7 +1378,7 @@ class ACMERealmModifyCLI(pki.cli.CLI):
 
     def create_parser(self, subparsers=None):
 
-        self.parser = subparsers.add_parser(
+        self.parser = argparse.ArgumentParser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(

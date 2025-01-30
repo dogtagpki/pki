@@ -18,6 +18,7 @@
 # All rights reserved.
 #
 
+import argparse
 import logging
 import sys
 
@@ -40,7 +41,7 @@ class JSSEnableCLI(pki.cli.CLI):
 
     def create_parser(self, subparsers=None):
 
-        self.parser = subparsers.add_parser(
+        self.parser = argparse.ArgumentParser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -109,7 +110,7 @@ class JSSDisableCLI(pki.cli.CLI):
 
     def create_parser(self, subparsers=None):
 
-        self.parser = subparsers.add_parser(
+        self.parser = argparse.ArgumentParser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(

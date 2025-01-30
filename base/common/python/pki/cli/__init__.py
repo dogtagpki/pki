@@ -19,6 +19,7 @@
 # All rights reserved.
 #
 
+import argparse
 import collections
 import logging
 from six import itervalues
@@ -73,7 +74,7 @@ class CLI(object):
                 continue
 
             full_name = module.get_full_name()
-            print(' {:30}{:30}'.format(full_name, module.description))
+            print(' {:32}{:30}'.format(full_name, module.description))
 
         first = True
 
@@ -88,7 +89,7 @@ class CLI(object):
                 first = False
 
             full_name = module.get_full_name()
-            print(' {:30}{:30}'.format(full_name, module.description))
+            print(' {:32}{:30}'.format(full_name, module.description))
 
     def find_module(self, command):
 
@@ -101,6 +102,29 @@ class CLI(object):
                 return module
 
     def create_parser(self, subparsers=None):
+
+        if not self.parser:
+            # create default parser
+            self.parser = argparse.ArgumentParser(
+                prog=self.name,
+                add_help=False)
+
+            # add basic arguments
+            self.parser.add_argument(
+                '-v',
+                '--verbose',
+                action='store_true')
+            self.parser.add_argument(
+                '--debug',
+                action='store_true')
+            self.parser.add_argument(
+                '--help',
+                action='store_true')
+
+            # capture sub-command and args
+            self.parser.add_argument(
+                'remainder',
+                nargs=argparse.REMAINDER)
 
         for module in self.modules.values():
             module.create_parser(subparsers=subparsers)
@@ -162,31 +186,54 @@ class CLI(object):
 
         return (module, sub_command)
 
-    def parse_args(self, args):
+    def execute(self, argv, args=None):
+        '''
+        :param argv: Argument values
+        :param args: Parsed arguments
+        '''
 
-        command = args[0]
+        if not args:
+            args = self.parser.parse_args(args=argv)
+
+        if args.help:
+            self.print_help()
+            return
+
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        command = None
+        if len(args.remainder) > 0:
+            command = args.remainder[0]
+        logger.debug('Command: %s', command)
+
+        if not command:
+            self.print_help()
+            return
+
         (module, sub_command) = self.parse_command(command)
 
         if not module:
             raise Exception('Invalid module "%s".' % command)
 
+        logger.debug('Module: %s', module.get_full_name())
+
         # Prepare module arguments.
         if sub_command:
             # If module command exists, include it as arguments:
             # <module command> <args>...
-            module_args = [sub_command] + args[1:]
+            module_args = [sub_command] + args.remainder[1:]
 
         else:
             # Otherwise, pass the original arguments: <args>...
-            module_args = args[1:]
+            module_args = args.remainder[1:]
 
-        return (module, module_args)
+        module.execute(module_args)
 
-    def execute(self, argv, args=None):  # pylint: disable=W0613
-        '''
-        :param argv: Argument values
-        :param args: Parsed arguments
-        '''
-        (module, module_argv) = self.parse_args(argv)
 
-        module.execute(module_argv)
+class CLIException(Exception):
+
+    pass

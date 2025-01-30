@@ -18,6 +18,7 @@
 # All rights reserved.
 #
 
+import argparse
 import io
 import logging
 import os
@@ -70,7 +71,7 @@ class KRAClonePrepareCLI(pki.cli.CLI):
 
     def create_parser(self, subparsers=None):
 
-        self.parser = subparsers.add_parser(
+        self.parser = argparse.ArgumentParser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
