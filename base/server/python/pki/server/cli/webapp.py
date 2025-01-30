@@ -18,6 +18,7 @@
 # All rights reserved.
 #
 
+import argparse
 import inspect
 import logging
 import sys
@@ -59,7 +60,7 @@ class WebappFindCLI(pki.cli.CLI):
 
     def create_parser(self, subparsers=None):
 
-        self.parser = subparsers.add_parser(
+        self.parser = argparse.ArgumentParser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -139,7 +140,7 @@ class WebappShowCLI(pki.cli.CLI):
 
     def create_parser(self, subparsers=None):
 
-        self.parser = subparsers.add_parser(
+        self.parser = argparse.ArgumentParser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -201,7 +202,7 @@ class WebappDeployCLI(pki.cli.CLI):
 
     def create_parser(self, subparsers=None):
 
-        self.parser = subparsers.add_parser(
+        self.parser = argparse.ArgumentParser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -290,7 +291,7 @@ class WebappUndeployCLI(pki.cli.CLI):
 
     def create_parser(self, subparsers=None):
 
-        self.parser = subparsers.add_parser(
+        self.parser = argparse.ArgumentParser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(

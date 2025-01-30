@@ -174,10 +174,10 @@ class PKICLI(pki.cli.CLI):
               'certificate validity statuses')
         print('      --ignore-banner            Ignore banner')
         print()
-        print('  -v, --verbose                Run in verbose mode.')
-        print('      --debug                  Show debug messages.')
-        print('      --help                   Show help message.')
-        print('      --version                Show version number.')
+        print('  -v, --verbose                  Run in verbose mode.')
+        print('      --debug                    Show debug messages.')
+        print('      --help                     Show help message.')
+        print('      --version                  Show version number.')
         print()
 
         super(PKICLI, self).print_help()
@@ -358,8 +358,14 @@ class PKICLI(pki.cli.CLI):
         self.ignore_cert_status = args.ignore_cert_status
         self.ignore_banner = args.ignore_banner
 
-        command = args.remainder[0]
+        command = None
+        if len(args.remainder) > 0:
+            command = args.remainder[0]
         logger.debug('Command: %s', command)
+
+        if not command:
+            self.print_help()
+            return
 
         if client_type == 'python' or command in PYTHON_COMMANDS:
             module = self.find_module(command)

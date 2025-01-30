@@ -105,10 +105,6 @@ class PKIServerCLI(pki.cli.CLI):
             prog=self.name,
             add_help=False)
         self.parser.add_argument(
-            '-i',
-            '--instance',
-            default='pki-tomcat')
-        self.parser.add_argument(
             '-v',
             '--verbose',
             action='store_true')
@@ -118,10 +114,16 @@ class PKIServerCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
+        self.parser.add_argument(
+            '--version',
+            action='store_true')
 
-        # create subparsers
-        subparsers = self.parser.add_subparsers(dest='command')
-        super().create_parser(subparsers=subparsers)
+        self.parser.add_argument(
+            'remainder',
+            nargs=argparse.REMAINDER)
+
+        # create parsers in modules
+        super().create_parser()
 
     def get_full_module_name(self, module_name):
         return module_name
@@ -129,19 +131,28 @@ class PKIServerCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server [OPTIONS]')
         print()
-        print('  -v, --verbose                Run in verbose mode.')
-        print('      --debug                  Show debug messages.')
-        print('      --help                   Show help message.')
+        print('  -v, --verbose                  Run in verbose mode.')
+        print('      --debug                    Show debug messages.')
+        print('      --help                     Show help message.')
+        print('      --version                  Show version number.')
         print()
 
         super().print_help()
 
+    def print_version(self):
+        print('PKI Server Command-Line Interface %s' % pki.implementation_version())
+
     def execute(self, argv, args=None):
+
         if not args:
             args = self.parser.parse_args(args=argv)
 
         if args.help:
             self.print_help()
+            return
+
+        if args.version:
+            self.print_version()
             return
 
         if args.debug:
@@ -150,13 +161,26 @@ class PKIServerCLI(pki.cli.CLI):
         elif args.verbose:
             logging.getLogger().setLevel(logging.INFO)
 
-        command = args.command
+        command = None
+        if len(args.remainder) > 0:
+            command = args.remainder[0]
         logger.debug('Command: %s', command)
 
+        if not command:
+            self.print_help()
+            return
+
         module = self.find_module(command)
+
+        if not module:
+            raise pki.cli.CLIException('Invalid module "%s".' % command)
+
         logger.debug('Module: %s', module.get_full_name())
 
-        module.execute(argv, args=args)
+        module_args = args.remainder[1:]
+        logger.debug('Arguments: %s', ' '.join(module_args))
+
+        module.execute(module_args)
 
     @staticmethod
     def print_status(instance):
@@ -312,7 +336,7 @@ class CreateCLI(pki.cli.CLI):
 
     def create_parser(self, subparsers=None):
 
-        self.parser = subparsers.add_parser(
+        self.parser = argparse.ArgumentParser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument('--user')
@@ -409,7 +433,7 @@ class RemoveCLI(pki.cli.CLI):
 
     def create_parser(self, subparsers=None):
 
-        self.parser = subparsers.add_parser(
+        self.parser = argparse.ArgumentParser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -488,7 +512,7 @@ class StatusCLI(pki.cli.CLI):
 
     def create_parser(self, subparsers=None):
 
-        self.parser = subparsers.add_parser(
+        self.parser = argparse.ArgumentParser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -549,7 +573,7 @@ class StartCLI(pki.cli.CLI):
 
     def create_parser(self, subparsers=None):
 
-        self.parser = subparsers.add_parser(
+        self.parser = argparse.ArgumentParser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -628,7 +652,7 @@ class StopCLI(pki.cli.CLI):
 
     def create_parser(self, subparsers=None):
 
-        self.parser = subparsers.add_parser(
+        self.parser = argparse.ArgumentParser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -707,7 +731,7 @@ class RestartCLI(pki.cli.CLI):
 
     def create_parser(self, subparsers=None):
 
-        self.parser = subparsers.add_parser(
+        self.parser = argparse.ArgumentParser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -782,7 +806,7 @@ class RunCLI(pki.cli.CLI):
 
     def create_parser(self, subparsers=None):
 
-        self.parser = subparsers.add_parser(
+        self.parser = argparse.ArgumentParser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(

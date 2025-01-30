@@ -18,6 +18,7 @@
 # All rights reserved.
 #
 
+import argparse
 import sys
 import logging
 
@@ -38,7 +39,7 @@ class EnableSelfTestCLI(pki.cli.CLI):
 
     def create_parser(self, subparsers=None):
 
-        self.parser = subparsers.add_parser(
+        self.parser = argparse.ArgumentParser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
@@ -127,7 +128,7 @@ class DisableSelftestCLI(pki.cli.CLI):
 
     def create_parser(self, subparsers=None):
 
-        self.parser = subparsers.add_parser(
+        self.parser = argparse.ArgumentParser(
             self.get_full_name(),
             add_help=False)
         self.parser.add_argument(
