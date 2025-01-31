@@ -865,7 +865,7 @@ jobs:
               > >(tee stdout) 2> >(tee stderr >&2) || true
 
           cat > expected << EOF
-          PKIException: Unable to create enrollment request: Unable to create enrollment request: All serial numbers are used. The max serial number is 0x31
+          PKIException: Unable to create enrollment request: Unable to create enrollment request: All serial numbers are used. The max serial number is 30
           EOF
 
           diff expected stderr
