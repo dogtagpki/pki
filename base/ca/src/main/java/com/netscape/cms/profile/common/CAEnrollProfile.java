@@ -22,11 +22,21 @@ import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.CAEngineConfig;
+import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.EncryptionAlgorithm;
+import org.mozilla.jss.crypto.IVParameterSpec;
+import org.mozilla.jss.crypto.KeyGenAlgorithm;
+import org.mozilla.jss.crypto.KeyWrapAlgorithm;
+import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
 import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
-import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
 import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
 import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
@@ -37,10 +47,13 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
 
 import com.netscape.ca.CAService;
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.connector.Connector;
+import com.netscape.certsrv.connector.ConnectorConfig;
+import com.netscape.certsrv.connector.ConnectorsConfig;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalRequestEvent;
 import com.netscape.certsrv.logging.event.ServerSideKeygenEnrollKeyRetrievalEvent;
@@ -65,7 +78,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  */
 public class CAEnrollProfile extends EnrollProfile {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CAEnrollProfile.class);
+    public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CAEnrollProfile.class);
 
     public CAEnrollProfile() {
     }
@@ -125,7 +138,7 @@ public class CAEnrollProfile extends EnrollProfile {
 
         // if PKI Archive Option present, send this request
         // to DRM
-        byte optionsData[] = request.getExtDataInByteArray(Request.REQUEST_ARCHIVE_OPTIONS);
+        byte[] optionsData = request.getExtDataInByteArray(Request.REQUEST_ARCHIVE_OPTIONS);
 
         byte[] transWrappedSessionKey = null;
         byte[] sessionWrappedPassphrase = null;
@@ -135,19 +148,11 @@ public class CAEnrollProfile extends EnrollProfile {
             logger.info("CAEnrollProfile: Processing server-side keygen enrollment");
             request.setExtData(Request.SSK_STAGE, Request.SSK_STAGE_KEYGEN);
 
-            /*
-             * temporarily remove the items not needed for SSK_STAGE_KEYGEN
-             * so not to pass them to KRA.
-             * They will be put back at SSK_STAGE_KEY_RETRIEVE below
-             */
-            transWrappedSessionKey = request.getExtDataInByteArray("serverSideKeygenP12PasswdTransSession");
+            Map<String, byte[]> passwordsGenerated = convertP12Password(request);
+            transWrappedSessionKey = passwordsGenerated.get("serverSideKeygenP12PasswdTransSession");
 
-            sessionWrappedPassphrase = request.getExtDataInByteArray("serverSideKeygenP12PasswdEnc");
+            sessionWrappedPassphrase = passwordsGenerated.get("serverSideKeygenP12PasswdEnc");
 
-            request.setExtData("serverSideKeygenP12PasswdTransSession", "");
-            request.deleteExtData("serverSideKeygenP12PasswdTransSession");
-            request.setExtData("serverSideKeygenP12PasswdEnc", "");
-            request.deleteExtData("serverSideKeygenP12PasswdEnc");
 
             try {
                 Connector kraConnector = caService.getKRAConnector();
@@ -342,7 +347,7 @@ public class CAEnrollProfile extends EnrollProfile {
                     } catch (IOException e) {
                         old_ski = null;
                     }
-                    if (old_ski != null) { 
+                    if (old_ski != null) {
                         byte[] old_ski_val = old_ski.getIdentifier();
                         if (old_ski_val != null) {
                             int old_ski_len = old_ski_val.length;
@@ -377,11 +382,7 @@ public class CAEnrollProfile extends EnrollProfile {
                     logger.debug(method + "did not find SubjectKey_Id");
                   */
 
-            } catch (IOException e) {
-                logger.error(method + e.getMessage(), e);
-                throw new EProfileException(e);
-
-            } catch (CertificateException e) {
+            } catch (CertificateException | IOException e) {
                 logger.error(method + e.getMessage(), e);
                 throw new EProfileException(e);
             } catch (Exception e) {
@@ -529,6 +530,115 @@ public class CAEnrollProfile extends EnrollProfile {
         } else {
             request.setExtData("isEncryptionCert", "false");
         }
+    }
+
+    private Map<String, byte[]> convertP12Password (Request request) throws EProfileException {
+        String method = "CAEnrollProfile: convertP12Password: ";
+        Map<String, byte[]> returnPass = null;
+
+        String p12passwd = request.getExtDataInString("serverSideKeygenP12Passwd");
+
+        org.mozilla.jss.crypto.X509Certificate transCert = null;
+
+        CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority ca = engine.getCA();
+        CAConfig caConfig = ca.getConfigStore();
+        ConnectorsConfig connectorsConfig = caConfig.getConnectorsConfig();
+        ConnectorConfig kraConnectorConfig = connectorsConfig.getConnectorConfig("KRA");
+
+        try {
+            CryptoManager cm = CryptoManager.getInstance();
+            String transportNickname = kraConnectorConfig.getString("transportCertNickname", "KRA Transport Certificate");
+            transCert = cm.findCertByNickname(transportNickname);
+        } catch (Exception e) {
+            logger.debug(method + "'KRA transport certificate' not found in nssdb; need to be manually setup for Server-Side keygen enrollment");
+            throw new EProfileException(CMS.getUserMessage("CMS_MISSING_KRA_TRANSPORT_CERT_IN_CA_NSSDB"));
+
+            /* future; cert nickname can't be controlled yet at import in jss
+            logger.debug(method + "KRA transport certificate not found in nssdb; getting from CS.cfg");
+            transportCertStr = connectorsConfig.getString("KRA.transportCert", "");
+            logger.debug(method + "transportCert found in CS.cfg: " + transportCertStr);
+
+            byte[] transportCertB = Utils.base64decode(transportCertStr);
+            logger.debug(method + "transportCertB.length=" + transportCertB.length);
+            // hmmm, can't yet control the nickname
+            transCert = cm.importCACertPackage(transportCertB);
+            logger.debug(method + "KRA transport certificate imported");
+            */
+        }
+
+        try
+        {
+            // todo: make things configurable in CS.cfg or profile
+            CryptoToken ct =
+                CryptoUtil.getCryptoToken(CryptoUtil.INTERNAL_TOKEN_NAME);
+            if (ct == null)
+                logger.debug(method + "crypto token null");
+
+            EncryptionAlgorithm encryptAlgorithm =
+                    EncryptionAlgorithm.AES_128_CBC_PAD;
+
+            CAEngineConfig caCfg = engine.getConfig();
+            boolean useOAEP = caCfg.getUseOAEPKeyWrap();
+
+            KeyWrapAlgorithm wrapAlgorithm = KeyWrapAlgorithm.RSA;
+            if(useOAEP == true) {
+                wrapAlgorithm = KeyWrapAlgorithm.RSA_OAEP;
+            }
+
+            logger.debug(method + "KeyWrapAlgorithm: " + wrapAlgorithm);
+
+            SymmetricKey sessionKey = CryptoUtil.generateKey(
+                    ct,
+                    KeyGenAlgorithm.AES,
+                    128,
+                    null,
+                    true);
+
+            byte[] iv = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
+            byte[] sessionWrappedPassphrase = CryptoUtil.encryptUsingSymmetricKey(
+                    ct,
+                    sessionKey,
+                    p12passwd.getBytes("UTF-8"),
+                    encryptAlgorithm,
+                    new IVParameterSpec(iv));
+
+            logger.debug(method + "sessionWrappedPassphrase.length=" + sessionWrappedPassphrase.length);
+
+            byte[] transWrappedSessionKey = CryptoUtil.wrapUsingPublicKey(
+                    ct,
+                    transCert.getPublicKey(),
+                    sessionKey,
+                    wrapAlgorithm);
+            logger.debug(method + " transWrappedSessionKey.length =" +transWrappedSessionKey.length);
+
+            CertificateSubjectName reqSubj =
+                    request.getExtDataInCertSubjectName(Request.REQUEST_SUBJECT_NAME);
+            String subj = "unknown serverKeyGenUser";
+            if (reqSubj != null) {
+                X500Name xN = reqSubj.getX500Name();
+                subj = xN.toString();
+                logger.debug(method + "subj = " + subj);
+            }
+            // store in request to pass to kra
+            request.setExtData(Request.SECURITY_DATA_CLIENT_KEY_ID,
+                    subj);
+            returnPass = new HashMap<>();
+
+            returnPass.put("serverSideKeygenP12PasswdEnc",
+                    sessionWrappedPassphrase);
+            returnPass.put("serverSideKeygenP12PasswdTransSession",
+                    transWrappedSessionKey);
+
+            // delete
+            request.setExtData("serverSideKeygenP12Passwd", "");
+            request.deleteExtData("serverSideKeygenP12Passwd");
+        } catch(Exception e) {
+            logger.debug("{}{}", method, e.toString());
+            throw new EProfileException(e.getMessage());
+
+        }
+        return returnPass;
     }
 
 }

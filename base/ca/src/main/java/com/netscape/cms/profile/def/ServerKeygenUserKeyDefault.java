@@ -23,28 +23,14 @@ import java.security.interfaces.DSAParams;
 import java.util.Locale;
 import java.util.Vector;
 
-import org.dogtagpki.server.ca.CAConfig;
-import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
-import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.crypto.CryptoToken;
-import org.mozilla.jss.crypto.EncryptionAlgorithm;
-import org.mozilla.jss.crypto.IVParameterSpec;
-import org.mozilla.jss.crypto.KeyGenAlgorithm;
-import org.mozilla.jss.crypto.KeyWrapAlgorithm;
-import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.netscape.security.provider.DSAPublicKey;
 import org.mozilla.jss.netscape.security.provider.RSAPublicKey;
 import org.mozilla.jss.netscape.security.x509.AlgorithmId;
-import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
 import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
-import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 
-import com.netscape.ca.CertificateAuthority;
-import com.netscape.certsrv.connector.ConnectorConfig;
-import com.netscape.certsrv.connector.ConnectorsConfig;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
@@ -63,7 +49,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  */
 public class ServerKeygenUserKeyDefault extends EnrollDefault {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SubjectNameDefault.class);
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ServerKeygenUserKeyDefault.class);
 
     public static final String CONFIG_ENABLE_ARCHIVAL = "enableArchival";
     public static final String CONFIG_LEN = "keySize";
@@ -228,7 +214,7 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
 
     @Override
     public String getText(Locale locale) {
-        String params[] = {
+        String[] params = {
                 getConfig(CONFIG_TYPE),
                 getConfig(CONFIG_LEN)
             };
@@ -283,107 +269,7 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
                 logger.debug(method + "p12passwd not found");
                 throw new EPropertyException(CMS.getUserMessage("CMS_PASSWORD_EMPTY_PASSWORD"));
             }
-
-            // Encrypt the password before putting it back in
-            String transportCertStr = null;
-            CryptoManager cm = CryptoManager.getInstance();
-            org.mozilla.jss.crypto.X509Certificate transCert = null;
-
-            CAEngine engine = CAEngine.getInstance();
-            CertificateAuthority ca = engine.getCA();
-            CAConfig caConfig = ca.getConfigStore();
-            ConnectorsConfig connectorsConfig = caConfig.getConnectorsConfig();
-            ConnectorConfig kraConnectorConfig = connectorsConfig.getConnectorConfig("KRA");
-
-            try {
-                String transportNickname = kraConnectorConfig.getString("transportCertNickname", "KRA Transport Certificate");
-                transCert = cm.findCertByNickname(transportNickname);
-            } catch (Exception e) {
-                logger.debug(method + "'KRA transport certificate' not found in nssdb; need to be manually setup for Server-Side keygen enrollment");
-                throw new EPropertyException(CMS.getUserMessage("CMS_MISSING_KRA_TRANSPORT_CERT_IN_CA_NSSDB"));
-
-                /* future; cert nickname can't be controlled yet at import in jss
-                logger.debug(method + "KRA transport certificate not found in nssdb; getting from CS.cfg");
-                transportCertStr = connectorsConfig.getString("KRA.transportCert", "");
-                logger.debug(method + "transportCert found in CS.cfg: " + transportCertStr);
-
-                byte[] transportCertB = Utils.base64decode(transportCertStr);
-                logger.debug(method + "transportCertB.length=" + transportCertB.length);
-                // hmmm, can't yet control the nickname
-                transCert = cm.importCACertPackage(transportCertB);
-                logger.debug(method + "KRA transport certificate imported");
-                */
-            }
-
-            {
-                // todo: make things configurable in CS.cfg or profile
-                CryptoToken ct =
-                    CryptoUtil.getCryptoToken(CryptoUtil.INTERNAL_TOKEN_NAME);
-                if (ct == null)
-                    logger.debug(method + "crypto token null");
-
-                EncryptionAlgorithm encryptAlgorithm =
-                        EncryptionAlgorithm.AES_128_CBC_PAD;
-
-                CAEngineConfig caCfg = engine.getConfig();
-                boolean useOAEP = caCfg.getUseOAEPKeyWrap();
-
-                KeyWrapAlgorithm wrapAlgorithm = KeyWrapAlgorithm.RSA;
-                if(useOAEP == true) {
-                    wrapAlgorithm = KeyWrapAlgorithm.RSA_OAEP;
-                }
-
-                logger.debug(method + "KeyWrapAlgorithm: " + wrapAlgorithm);
-
-                SymmetricKey sessionKey = CryptoUtil.generateKey(
-                        ct,
-                        KeyGenAlgorithm.AES,
-                        128,
-                        null,
-                        true);
-
-                byte[] iv = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
-                byte[] sessionWrappedPassphrase = CryptoUtil.encryptUsingSymmetricKey(
-                        ct,
-                        sessionKey,
-                        p12passwd.getBytes("UTF-8"),
-                        encryptAlgorithm,
-                        new IVParameterSpec(iv));
-
-                logger.debug(method + "sessionWrappedPassphrase.length=" + sessionWrappedPassphrase.length);
-
-                byte[] transWrappedSessionKey = CryptoUtil.wrapUsingPublicKey(
-                        ct,
-                        transCert.getPublicKey(),
-                        sessionKey,
-                        wrapAlgorithm);
-                logger.debug(method + " transWrappedSessionKey.length =" +transWrappedSessionKey.length);
-
-                CertificateSubjectName reqSubj =
-                        request.getExtDataInCertSubjectName(Request.REQUEST_SUBJECT_NAME);
-                String subj = "unknown serverKeyGenUser";
-                if (reqSubj != null) {
-                    X500Name xN = reqSubj.getX500Name();
-                    subj = xN.toString();
-                    logger.debug(method + "subj = " + subj);
-                }
-                // store in request to pass to kra
-                request.setExtData(Request.SECURITY_DATA_CLIENT_KEY_ID,
-                        subj);
-
-                request.setExtData("serverSideKeygenP12PasswdEnc",
-                        sessionWrappedPassphrase);
-                request.setExtData("serverSideKeygenP12PasswdTransSession",
-                        transWrappedSessionKey);
-
-                // delete
-                request.setExtData("serverSideKeygenP12Passwd", "");
-                request.deleteExtData("serverSideKeygenP12Passwd");
-            }
-
-            //
             request.setExtData("isServerSideKeygen", "true");
-            CryptoToken token = cm.getInternalKeyStorageToken();
 
             String keyTypeStr = request.getExtDataInString("keyType");
             String keyType = "RSA";
