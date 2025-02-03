@@ -2128,6 +2128,49 @@ class NSSDatabase(object):
 
         return cert
 
+    def verify_cert(
+            self,
+            nickname=None,
+            token=None,
+            cert_data=None,
+            cert_file=None,
+            cert_format='PEM'):
+
+        if cert_file and not cert_data:
+            with open(cert_file, 'r', encoding='utf-8') as f:
+                cert_data = f.read()
+
+        if cert_data:
+            cert_data = convert_cert(cert_data, cert_format, 'PEM')
+
+        cmd = [
+            'pki',
+            '-d', self.directory,
+            '-f', self.password_conf
+        ]
+
+        token = self.get_effective_token(token)
+
+        if token:
+            cmd.extend(['--token', token])
+
+        cmd.append('nss-cert-verify')
+
+        if nickname:
+            if token:
+                fullname = token + ':' + nickname
+            else:
+                fullname = nickname
+            cmd.append(fullname)
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        self.run(cmd, input=cert_data, text=True, check=True, runas=True)
+
     @staticmethod
     def convert_time_to_millis(date):
         return date.timestamp() * 1000
