@@ -1,5 +1,6 @@
-package org.dogtagpki.tomcat;
+package org.dogtagpki.cert;
 
+import java.security.SignatureException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -20,8 +21,8 @@ public class PKITrustManager implements X509TrustManager {
 
     final static Logger logger = LoggerFactory.getLogger(PKITrustManager.class);
 
-    final static String SERVER_AUTH_OID = "1.3.6.1.5.5.7.3.1";
-    final static String CLIENT_AUTH_OID = "1.3.6.1.5.5.7.3.2";
+    public final static String SERVER_AUTH_OID = "1.3.6.1.5.5.7.3.1";
+    public final static String CLIENT_AUTH_OID = "1.3.6.1.5.5.7.3.2";
 
     public void checkCertChain(X509Certificate[] certChain, String keyUsage) throws Exception {
 
@@ -57,6 +58,10 @@ public class PKITrustManager implements X509TrustManager {
         }
     }
 
+    public void checkCert(X509Certificate cert) throws Exception {
+        checkCert(cert, getAcceptedIssuers(), null);
+    }
+
     public void checkCert(X509Certificate cert, X509Certificate[] caCerts, String keyUsage) throws Exception {
 
         logger.debug("PKITrustManager: checkCert(" + cert.getSubjectDN() + "):");
@@ -74,13 +79,13 @@ public class PKITrustManager implements X509TrustManager {
                 cert.verify(caCert.getPublicKey(), "Mozilla-JSS");
                 issuer = caCert;
                 break;
-            } catch (Exception e) {
-                logger.debug("PKITrustManager: invalid certificate: " + e);
+            } catch (SignatureException e) {
+                logger.debug("PKITrustManager: cert not issued by " + caCert.getSubjectDN() + ": " + e.getMessage());
             }
         }
 
         if (issuer == null) {
-            throw new CertificateException("Unable to validate signature: " + cert.getSubjectDN());
+            throw new SignatureException("Unable to validate certificate signature: " + cert.getSubjectDN());
         }
 
         logger.debug("PKITrustManager: cert signed by " + issuer.getSubjectDN());

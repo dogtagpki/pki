@@ -569,7 +569,7 @@ class HTTPConnectorModCLI(pki.cli.CLI):
             HTTPConnectorCLI.set_param(connector, 'keyAlias', 'sslserver')
 
             HTTPConnectorCLI.set_param(connector, 'trustManagerClassName',
-                                       'org.dogtagpki.tomcat.PKITrustManager')
+                                       'org.dogtagpki.cert.PKITrustManager')
 
             HTTPConnectorCLI.set_param(connector, 'certdbDir', nss_database_dir)
             HTTPConnectorCLI.set_param(connector, 'passwordClass',

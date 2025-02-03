@@ -189,28 +189,6 @@ jobs:
               nss-key-find \
               --nickname sslserver | tee sslserver.key.before
 
-      - name: Create admin cert
-        run: |
-          docker exec pki pki \
-              nss-cert-request \
-              --subject "CN=Administrator" \
-              --ext /usr/share/pki/server/certs/admin.conf \
-              --csr admin.csr
-          docker exec pki pki \
-              nss-cert-issue \
-              --issuer ca_signing \
-              --csr admin.csr \
-              --ext /usr/share/pki/server/certs/admin.conf \
-              --cert admin.crt
-
-          docker exec pki pki nss-cert-import \
-              --cert admin.crt \
-              caadmin
-
-          docker exec pki pki \
-              nss-cert-show \
-              caadmin
-
       - name: Export system certs
         run: |
           docker exec pki pki \
@@ -227,8 +205,44 @@ jobs:
               --pkcs12 ca-certs.p12 \
               --password Secret.123
 
-      - name: Install CA with existing certs
+      - name: Create self-signed admin cert
         run: |
+          # create cert request
+          docker exec pki pki \
+              nss-cert-request \
+              --subject "CN=Administrator" \
+              --ext /usr/share/pki/server/certs/admin.conf \
+              --csr admin.csr
+
+          # create self-signed cert
+          docker exec pki pki \
+              nss-cert-issue \
+              --csr admin.csr \
+              --ext /usr/share/pki/server/certs/admin.conf \
+              --cert admin.crt
+
+          # import cert
+          docker exec pki pki \
+              nss-cert-import \
+              --cert admin.crt \
+              caadmin
+
+          # check cert
+          docker exec pki pki nss-cert-show caadmin
+
+          # cert should be invalid
+          docker exec pki pki nss-cert-verify caadmin \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          cat > expected << EOF
+          ERROR: Invalid certificate: Unable to validate certificate signature: CN=Administrator
+          EOF
+
+          diff expected stderr
+
+      - name: Install CA with existing system certs and self-signed admin cert
+        run: |
+          # run step 1
           docker exec pki pkispawn \
               -f /usr/share/pki/server/examples/installation/ca.cfg \
               -s CA \
@@ -236,7 +250,67 @@ jobs:
               -D pki_external=True \
               -D pki_external_step_two=False \
               -v
-          sleep 1  # avoid pkispawn log conflict due to identical timestamps
+
+          # run step 2
+          rc=0
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_external=True \
+              -D pki_external_step_two=True \
+              -D pki_pkcs12_path=ca-certs.p12 \
+              -D pki_pkcs12_password=Secret.123 \
+              -D pki_ca_signing_csr_path=ca_signing.csr \
+              -D pki_ocsp_signing_csr_path=ca_ocsp_signing.csr \
+              -D pki_audit_signing_csr_path=ca_audit_signing.csr \
+              -D pki_subsystem_csr_path=subsystem.csr \
+              -D pki_sslserver_csr_path=sslserver.csr \
+              -D pki_admin_cert_path=admin.crt \
+              -D pki_admin_csr_path=admin.csr \
+              -v \
+              || rc=$?
+
+          # pkispawn should fail
+          [ $rc -ne 0 ]
+
+      - name: Create CA-signed admin cert
+        run: |
+          # remove old cert
+          docker exec pki pki nss-cert-del caadmin
+
+          # create CA-signed cert
+          docker exec pki pki \
+              nss-cert-issue \
+              --issuer ca_signing \
+              --csr admin.csr \
+              --ext /usr/share/pki/server/certs/admin.conf \
+              --cert admin.crt
+
+          # import new cert
+          docker exec pki pki \
+              nss-cert-import \
+              --cert admin.crt \
+              caadmin
+
+          # check new cert
+          docker exec pki pki nss-cert-show caadmin
+
+          # cert should be valid
+          docker exec pki pki nss-cert-verify caadmin
+
+      - name: Install CA with existing system certs and CA-signed admin cert
+        run: |
+          # run step 1
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_external=True \
+              -D pki_external_step_two=False \
+              -v
+
+          # run step 2
           docker exec pki pkispawn \
               -f /usr/share/pki/server/examples/installation/ca.cfg \
               -s CA \
@@ -253,6 +327,8 @@ jobs:
               -D pki_admin_cert_path=admin.crt \
               -D pki_admin_csr_path=admin.csr \
               -v
+
+          # pkispawn should succeed
 
       - name: Run PKI healthcheck
         run: docker exec pki pki-healthcheck --failures-only

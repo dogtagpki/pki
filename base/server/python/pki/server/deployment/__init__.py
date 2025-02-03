@@ -44,9 +44,10 @@ from lxml import etree
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 
-import pki.nssdb
 import pki.account
+import pki.cli
 import pki.client
+import pki.nssdb
 import pki.pkcs12
 import pki.server
 import pki.server.deployment.scriptlets.configuration
@@ -2538,7 +2539,7 @@ class PKIDeployer:
 
     def import_system_certs(self, nssdb, subsystem):
 
-        logger.debug("import_system_certs")
+        logger.debug("PKIDeployer.import_system_certs()")
 
         if subsystem.name == 'ca':
             self.import_system_cert(nssdb, subsystem, 'signing', 'CT,C,C')
@@ -2546,22 +2547,12 @@ class PKIDeployer:
 
         if subsystem.name == 'kra':
             self.import_ca_signing_cert(nssdb)
-
             self.import_system_cert(nssdb, subsystem, 'storage')
             self.import_system_cert(nssdb, subsystem, 'transport')
 
-            admin_cert = self.load_admin_cert()
-            if admin_cert:
-                self.import_admin_cert(admin_cert)
-
         if subsystem.name == 'ocsp':
             self.import_ca_signing_cert(nssdb)
-
             self.import_system_cert(nssdb, subsystem, 'signing')
-
-            admin_cert = self.load_admin_cert()
-            if admin_cert:
-                self.import_admin_cert(admin_cert)
 
         self.import_system_cert(nssdb, subsystem, 'sslserver')
         self.import_system_cert(nssdb, subsystem, 'subsystem')
@@ -2578,6 +2569,23 @@ class PKIDeployer:
         # the correct nicknames.
 
         self.import_cert_chain(nssdb, subsystem)
+
+        # Import admin cert after importing the cert chain so that
+        # it can be verified.
+
+        if subsystem.name in ['kra', 'ocsp']:
+
+            admin_cert = self.load_admin_cert()
+            if admin_cert:
+
+                cert_file = self.mdict.get('pki_admin_cert_path')
+                try:
+                    logger.info('Verifying admin cert in %s', cert_file)
+                    self.instance.verify_cert(admin_cert)
+                except Exception:
+                    raise pki.cli.CLIException('Invalid admin certificate in %s' % cert_file)
+
+                self.import_admin_cert(admin_cert)
 
     def update_system_certs(self, subsystem):
 
@@ -4000,6 +4008,13 @@ class PKIDeployer:
                 pem_cert = pki.nssdb.convert_cert(cert_info['data'], 'base64', 'pem')
                 logger.debug('Admin cert:\n%s', pem_cert)
 
+                try:
+                    logger.info('Verifying admin cert in %s', client_nssdb.directory)
+                    self.instance.verify_cert(pem_cert)
+                except Exception:
+                    raise pki.cli.CLIException(
+                        'Invalid admin certificate in %s' % client_nssdb.directory)
+
                 if external and subsystem.type != 'CA' or standalone:
                     # no need to re-import admin cert into NSS database
                     self.store_admin_cert(pem_cert)
@@ -4019,24 +4034,27 @@ class PKIDeployer:
                     and os.path.exists(pkcs12_file) \
                     and os.path.getsize(pkcs12_file) > 0:
 
-                logger.info('Importing admin cert from %s', pkcs12_file)
+                logger.info('Exporting admin cert from %s', pkcs12_file)
                 pkcs12_password = self.mdict['pki_client_pkcs12_password']
+
+                pkcs12 = pki.pkcs12.PKCS12(
+                    path=pkcs12_file,
+                    password=pkcs12_password)
+
+                pem_cert = pkcs12.get_cert(nickname)
+                logger.debug('Admin cert:\n%s', pem_cert)
+
+                try:
+                    logger.info('Verifying admin cert in %s', pkcs12_file)
+                    self.instance.verify_cert(pem_cert)
+                except Exception:
+                    raise pki.cli.CLIException('Invalid admin certificate in %s' % pkcs12_file)
+
+                logger.info('Importing admin cert into %s', client_nssdb.directory)
 
                 client_nssdb.import_pkcs12(
                     pkcs12_file=pkcs12_file,
                     pkcs12_password=pkcs12_password)
-
-                cert_info = client_nssdb.get_cert_info(nickname)
-
-            if cert_info:
-                logger.info('Found %s cert in %s:', nickname, pkcs12_file)
-                logger.info('- serial: %s', hex(cert_info['serial_number']))
-                logger.info('- subject: %s', cert_info['subject'])
-                logger.info('- issuer: %s', cert_info['issuer'])
-                logger.info('- trust flags: %s', cert_info['trust_flags'])
-
-                pem_cert = pki.nssdb.convert_cert(cert_info['data'], 'base64', 'pem')
-                logger.debug('Admin cert:\n%s', pem_cert)
 
                 if external and subsystem.type != 'CA' or standalone:
                     # no need to re-import admin cert into NSS database
@@ -4058,6 +4076,12 @@ class PKIDeployer:
 
             logger.debug('Admin cert:\n%s', pem_cert)
 
+            try:
+                logger.info('Verifying admin cert in %s', cert_path)
+                self.instance.verify_cert(pem_cert)
+            except Exception:
+                raise pki.cli.CLIException('Invalid admin certificate in %s' % cert_path)
+
             if external and subsystem.type != 'CA' or standalone:
                 self.import_admin_cert(pem_cert)
                 self.store_admin_cert(pem_cert)
@@ -4075,6 +4099,12 @@ class PKIDeployer:
                 pem_cert = f.read()
 
             logger.debug('Admin cert:\n%s', pem_cert)
+
+            try:
+                logger.info('Verifying admin cert in %s', cert_file)
+                self.instance.verify_cert(pem_cert)
+            except Exception:
+                raise pki.cli.CLIException('Invalid admin certificate in %s' % cert_file)
 
             if external and subsystem.type != 'CA' or standalone:
                 self.import_admin_cert(pem_cert)

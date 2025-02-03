@@ -4,3 +4,8 @@
 
 The IDM Console Framework has been merged into PKI Console.
 Dependencies on IDM Console Framework have been removed.
+
+== Relocate PKITrustManager ==
+
+The `org.dogtagpki.tomcat.PKITrustManager` in `pki-tomcat.jar` has been moved into
+`org.dogtagpki.cert.PKITrustManager` in `pki-common.jar`.

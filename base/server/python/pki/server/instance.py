@@ -970,6 +970,16 @@ class PKIInstance(pki.server.PKIServer):
             nssdb.close()
             shutil.rmtree(tmpdir)
 
+    def verify_cert(self, cert_data):
+
+        nssdb = self.open_nssdb()
+
+        try:
+            nssdb.verify_cert(cert_data=cert_data)
+
+        finally:
+            nssdb.close()
+
     def configure_ajp_connectors_secret(self):
 
         logger.info('Configuring AJP connectors secret')
