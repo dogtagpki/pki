@@ -1417,6 +1417,14 @@ public class CMSEngine {
             String className = mConfig.getString("passwordCheckerClass",
                     "com.netscape.cms.password.PasswordChecker");
             PasswordChecker check = (PasswordChecker) Class.forName(className).getDeclaredConstructor().newInstance();
+            check.setMinSize(mConfig.getInteger("passwordChecker.minSize", 8));
+            check.setMinUpperLetter(mConfig.getInteger("passwordChecker.minUpperLetter", 0));
+            check.setMinLowerLetter(mConfig.getInteger("passwordChecker.minLowerLetter", 0));
+            check.setMinNumber(mConfig.getInteger("passwordChecker.minNumber", 0));
+            check.setMinSpecialChar(mConfig.getInteger("passwordChecker.minSpecialChar", 0));
+            check.setSeqLength(mConfig.getInteger("passwordChecker.seqLength", 0));
+            check.setMaxRepeatedChar(mConfig.getInteger("passwordChecker.maxRepeatedChar", 0));
+            check.setCracklibCheck(mConfig.getBoolean("passwordChecker.cracklibCheck", false));
 
             return check;
         } catch (Exception e) {

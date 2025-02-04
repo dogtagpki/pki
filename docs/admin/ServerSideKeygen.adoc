@@ -84,6 +84,20 @@ output.o1.class_id=pkcs12OutputImpl
 
 === Policyset
 
+Password for the generated PKCS12 can be enforced with the follwing policy:
+
+[lietaral]
+policyset.userCertSet.11.constraint.class_id=p12ExportPasswordConstraintImpl
+policyset.userCertSet.11.constraint.name=PKCS12 Password Constraint
+policyset.userCertSet.11.constraint.params.password.minSize=20
+policyset.userCertSet.11.constraint.params.password.minCharCategory=2,2,2,2
+policyset.userCertSet.11.constraint.params.password.seqLength=6
+policyset.userCertSet.11.constraint.params.password.maxRepeatedChar=3
+policyset.userCertSet.11.constraint.params.password.cracklibCheck=false
+policyset.userCertSet.11.default.class_id=noDefaultImpl
+policyset.userCertSet.11.default.name=No Default
+
+
 Key type and key size parameters can be configured as exemplified below:
 
 [literal]

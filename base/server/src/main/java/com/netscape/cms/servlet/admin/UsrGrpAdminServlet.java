@@ -676,7 +676,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                                 ILogger.FAILURE,
                                 auditParams(req)));
 
-                    throw new EUsrGrpException(passwdCheck.getReason(pword));
+                    throw new EUsrGrpException(passwdCheck.getReason(req.getLocale()));
                 }
 
                 user.setPassword(pword);
@@ -1808,7 +1808,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                                 ILogger.FAILURE,
                                 auditParams(req)));
 
-                    throw new EUsrGrpException(passwdCheck.getReason(pword));
+                    throw new EUsrGrpException(passwdCheck.getReason(req.getLocale()));
                 }
 
                 user.setPassword(pword);

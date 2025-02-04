@@ -40,3 +40,22 @@ A new `pki_authdb_url` parameter has been added for `pkispawn` to replace the fo
 * `pki_authdb_hostname`
 * `pki_authdb_port`
 * `pki_authdb_secure_conn`
+
+== Implement new policy constraint for p12 password ==
+
+A new policy constraint is defined to enforce the password quality: *p12ExportPasswordConstraintImpl*. The constraint allows to check:
+
+* `password.minSize` - the minimum size for the password;
+* `password.minUpperLetter` - the minimum number of capital letters;
+* `password.minLowerLetter` - the minimum number of lower letters;
+* `password.minNumber` - the minimum number of digits;
+* `password.minSpecialChar` - the minimum number of punctuation characters;
+* `password.seqLength` - the size of substring sequence which cannot be repeated;
+* `password.maxRepeatedChar` - maximum number of repeating for each character;
+* `password.cracklibCheck` - a boolean to request an additional check with *cracklib* (it has to be installed if not present).
+
+The same options can be configured in the `CS.cfg` replacing
+`password.*` with `passwordChecker.*`. The configuration in `CS.cfg`
+are used for all the passwords but each profile can overwrite to allow
+stronger or weaker passwords.
+

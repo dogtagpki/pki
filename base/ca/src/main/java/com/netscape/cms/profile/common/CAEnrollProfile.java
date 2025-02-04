@@ -148,10 +148,10 @@ public class CAEnrollProfile extends EnrollProfile {
             logger.info("CAEnrollProfile: Processing server-side keygen enrollment");
             request.setExtData(Request.SSK_STAGE, Request.SSK_STAGE_KEYGEN);
 
-            Map<String, byte[]> passwordsGenerated = convertP12Password(request);
-            transWrappedSessionKey = passwordsGenerated.get("serverSideKeygenP12PasswdTransSession");
+            Map<String, byte[]> p12PasswordInfo = processP12Password(request);
+            transWrappedSessionKey = p12PasswordInfo.get("serverSideKeygenP12PasswdTransSession");
 
-            sessionWrappedPassphrase = passwordsGenerated.get("serverSideKeygenP12PasswdEnc");
+            sessionWrappedPassphrase = p12PasswordInfo.get("serverSideKeygenP12PasswdEnc");
 
 
             try {
@@ -532,8 +532,17 @@ public class CAEnrollProfile extends EnrollProfile {
         }
     }
 
-    private Map<String, byte[]> convertP12Password (Request request) throws EProfileException {
-        String method = "CAEnrollProfile: convertP12Password: ";
+    /**
+     * Read the p12 password and generate symmetric keys
+     *
+     * The password is read from the request and removed after the keys are generated.
+     *
+     * @param request
+     * @return symmetric keys
+     * @throws EProfileException
+     */
+    private Map<String, byte[]> processP12Password (Request request) throws EProfileException {
+        String method = "CAEnrollProfile: processP12Password: ";
         Map<String, byte[]> returnPass = null;
 
         String p12passwd = request.getExtDataInString("serverSideKeygenP12Passwd");
@@ -551,20 +560,8 @@ public class CAEnrollProfile extends EnrollProfile {
             String transportNickname = kraConnectorConfig.getString("transportCertNickname", "KRA Transport Certificate");
             transCert = cm.findCertByNickname(transportNickname);
         } catch (Exception e) {
-            logger.debug(method + "'KRA transport certificate' not found in nssdb; need to be manually setup for Server-Side keygen enrollment");
+            logger.error(method + "'KRA transport certificate' not found in nssdb; need to be manually setup for Server-Side keygen enrollment");
             throw new EProfileException(CMS.getUserMessage("CMS_MISSING_KRA_TRANSPORT_CERT_IN_CA_NSSDB"));
-
-            /* future; cert nickname can't be controlled yet at import in jss
-            logger.debug(method + "KRA transport certificate not found in nssdb; getting from CS.cfg");
-            transportCertStr = connectorsConfig.getString("KRA.transportCert", "");
-            logger.debug(method + "transportCert found in CS.cfg: " + transportCertStr);
-
-            byte[] transportCertB = Utils.base64decode(transportCertStr);
-            logger.debug(method + "transportCertB.length=" + transportCertB.length);
-            // hmmm, can't yet control the nickname
-            transCert = cm.importCACertPackage(transportCertB);
-            logger.debug(method + "KRA transport certificate imported");
-            */
         }
 
         try
@@ -572,8 +569,6 @@ public class CAEnrollProfile extends EnrollProfile {
             // todo: make things configurable in CS.cfg or profile
             CryptoToken ct =
                 CryptoUtil.getCryptoToken(CryptoUtil.INTERNAL_TOKEN_NAME);
-            if (ct == null)
-                logger.debug(method + "crypto token null");
 
             EncryptionAlgorithm encryptAlgorithm =
                     EncryptionAlgorithm.AES_128_CBC_PAD;
@@ -582,7 +577,7 @@ public class CAEnrollProfile extends EnrollProfile {
             boolean useOAEP = caCfg.getUseOAEPKeyWrap();
 
             KeyWrapAlgorithm wrapAlgorithm = KeyWrapAlgorithm.RSA;
-            if(useOAEP == true) {
+            if(useOAEP) {
                 wrapAlgorithm = KeyWrapAlgorithm.RSA_OAEP;
             }
 
