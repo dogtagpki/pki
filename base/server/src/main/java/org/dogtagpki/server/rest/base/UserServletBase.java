@@ -433,7 +433,7 @@ public class UserServletBase {
                 PasswordChecker passwdCheck = engine.getPasswordChecker();
 
                 if (!passwdCheck.isGoodPassword(pword)) {
-                    throw new EUsrGrpException(passwdCheck.getReason(pword));
+                    throw new EUsrGrpException(passwdCheck.getReason(loc));
                 }
 
                 user.setPassword(pword);
@@ -536,7 +536,7 @@ public class UserServletBase {
                 PasswordChecker passwdCheck = engine.getPasswordChecker();
 
                 if (!passwdCheck.isGoodPassword(pword)) {
-                    throw new EUsrGrpException(passwdCheck.getReason(pword));
+                    throw new EUsrGrpException(passwdCheck.getReason(loc));
                 }
 
                 user.setPassword(pword);

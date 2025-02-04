@@ -313,7 +313,7 @@ public class UserService extends SubsystemService implements UserResource {
                 PasswordChecker passwdCheck = engine.getPasswordChecker();
 
                 if (!passwdCheck.isGoodPassword(pword)) {
-                    throw new EUsrGrpException(passwdCheck.getReason(pword));
+                    throw new EUsrGrpException(passwdCheck.getReason());
                 }
 
                 user.setPassword(pword);
@@ -440,7 +440,7 @@ public class UserService extends SubsystemService implements UserResource {
                 PasswordChecker passwdCheck = engine.getPasswordChecker();
 
                 if (!passwdCheck.isGoodPassword(pword)) {
-                    throw new EUsrGrpException(passwdCheck.getReason(pword));
+                    throw new EUsrGrpException(passwdCheck.getReason());
                 }
 
                 user.setPassword(pword);
@@ -826,7 +826,7 @@ public class UserService extends SubsystemService implements UserResource {
                         }
 
                         if (leafCert instanceof PK11Cert) {
-                            ((PK11Cert) leafCert).setSSLTrust(
+                            leafCert.setSSLTrust(
                                     PK11Cert.VALID_CA |
                                     PK11Cert.TRUSTED_CA |
                                     PK11Cert.TRUSTED_CLIENT_CA);
