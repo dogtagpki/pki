@@ -3986,8 +3986,25 @@ class PKIDeployer:
             password_file=self.mdict['pki_client_password_conf'])
 
         try:
-            logger.info('Checking %s cert in %s', nickname, client_nssdb.directory)
+            logger.info('Checking admin cert in %s', client_nssdb.directory)
             cert_info = client_nssdb.get_cert_info(nickname)
+
+            if cert_info:
+                logger.info('Found %s cert in %s:', nickname, client_nssdb.directory)
+                logger.info('- serial: %s', hex(cert_info['serial_number']))
+                logger.info('- subject: %s', cert_info['subject'])
+                logger.info('- issuer: %s', cert_info['issuer'])
+                logger.info('- trust flags: %s', cert_info['trust_flags'])
+
+                pem_cert = pki.nssdb.convert_cert(cert_info['data'], 'base64', 'pem')
+                logger.debug('Admin cert:\n%s', pem_cert)
+
+                if external and subsystem.type != 'CA' or standalone:
+                    # no need to re-import admin cert into NSS database
+                    self.store_admin_cert(pem_cert)
+                    self.export_admin_pkcs12()
+
+                return pem_cert
 
             # If the admin cert doesn't exist in the client NSS database and the admin
             # PKCS #12 file is specified and not empty, import the PKCS #12 file.
@@ -3995,7 +4012,9 @@ class PKIDeployer:
             # https://github.com/freeipa/freeipa/blob/master/ipaserver/install/krainstance.py
 
             pkcs12_file = self.mdict['pki_client_admin_cert_p12']
-            if not cert_info and pkcs12_file \
+            logger.info('Checking admin cert in %s', pkcs12_file)
+
+            if pkcs12_file \
                     and os.path.exists(pkcs12_file) \
                     and os.path.getsize(pkcs12_file) > 0:
 
@@ -4009,34 +4028,29 @@ class PKIDeployer:
                 cert_info = client_nssdb.get_cert_info(nickname)
 
             if cert_info:
-                logger.info('Found %s cert:', nickname)
+                logger.info('Found %s cert in %s:', nickname, pkcs12_file)
                 logger.info('- serial: %s', hex(cert_info['serial_number']))
                 logger.info('- subject: %s', cert_info['subject'])
                 logger.info('- issuer: %s', cert_info['issuer'])
                 logger.info('- trust flags: %s', cert_info['trust_flags'])
 
                 pem_cert = pki.nssdb.convert_cert(cert_info['data'], 'base64', 'pem')
+                logger.debug('Admin cert:\n%s', pem_cert)
 
-            else:
-                logger.info('admin cert does not exist in NSS database')
-                pem_cert = None
+                if external and subsystem.type != 'CA' or standalone:
+                    # no need to re-import admin cert into NSS database
+                    self.store_admin_cert(pem_cert)
+                    # no need to re-export admin cert into PKCS #12 file
+
+                return pem_cert
 
         finally:
             client_nssdb.close()
 
-        if pem_cert:
-            logger.debug('Admin cert:\n%s', pem_cert)
-
-            if external and subsystem.type != 'CA' or standalone:
-                self.import_admin_cert(pem_cert)
-                self.store_admin_cert(pem_cert)
-                self.export_admin_pkcs12()
-
-            return pem_cert
-
         cert_path = self.mdict.get('pki_admin_cert_path')
-        if cert_path:
+        logger.info('Checking admin cert in %s', cert_path)
 
+        if cert_path:
             logger.info('Loading admin cert from %s', cert_path)
             with open(cert_path, 'r', encoding='utf-8') as f:
                 pem_cert = f.read()
@@ -4072,7 +4086,7 @@ class PKIDeployer:
         admin_csr = self.create_admin_csr(subsystem)
 
         if subsystem.type == 'CA':
-            logger.info('Creating admin cert')
+            logger.info('Getting admin cert from local CA')
             pem_cert = self.create_admin_cert(subsystem, admin_csr)
             logger.debug('Admin cert:\n%s', pem_cert)
 
@@ -4092,7 +4106,7 @@ class PKIDeployer:
             ca_port = subsystem.config['securitydomain.httpsadminport']
             ca_url = 'https://%s:%s' % (ca_hostname, ca_port)
 
-        logger.info('Issuing admin cert from %s', ca_url)
+        logger.info('Getting admin cert from %s', ca_url)
 
         request_type = self.mdict['pki_admin_cert_request_type']
 
