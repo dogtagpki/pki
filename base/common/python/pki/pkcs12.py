@@ -71,3 +71,29 @@ class PKCS12(object):
         ])
 
         subprocess.check_call(cmd)
+
+    def get_cert(self, nickname, cert_format='PEM'):
+
+        cmd = ['pki']
+
+        if self.nssdb:
+            cmd.extend([
+                '-d', self.nssdb.directory,
+                '-C', self.nssdb.password_file
+            ])
+
+        cmd.extend([
+            'pkcs12-cert-export',
+            '--pkcs12-file', self.path,
+            '--pkcs12-password-file', self.password_file,
+            '--cert-format', cert_format
+        ])
+
+        cmd.append(nickname)
+
+        result = subprocess.run(
+            cmd,
+            stdout=subprocess.PIPE,
+            check=True)
+
+        return result.stdout.decode('utf-8')
