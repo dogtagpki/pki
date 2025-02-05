@@ -394,10 +394,7 @@ or if the baseDN is already replicated as part of a top-level suffix.
 
 **pki_clone_reindex_data**  
 Defaults to False.
-This parameter is only relevant when **pki_clone_setup_replication** is set to False.
-In this case, it is expected that the database has been prepared and replicated as noted above.
-Part of that preparation could involve adding indexes and indexing the data.
-If you would like the Dogtag installer to add the indexes and reindex the data instead, set **pki_clone_reindex_data** to True.
+If set to True, the installer rebuilds the search indexes on the clone.
 
 **pki_clone_replication_master_port**, **pki_clone_replication_clone_port**  
 Ports on which replication occurs.

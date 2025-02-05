@@ -1774,11 +1774,40 @@ class PKIDeployer:
         # Always create search and VLV indexes since they will not be replicated
         subsystem.add_indexes()
 
-        # If the database is already replicated but not yet indexed, rebuild the indexes
-        if config.str2bool(self.mdict['pki_clone']) and \
-                not config.str2bool(self.mdict['pki_clone_setup_replication']) and \
-                config.str2bool(self.mdict['pki_clone_reindex_data']):
-            subsystem.rebuild_indexes()
+        # When installing PKI replica the DS replication needs to be set up.
+        # With older 389 DS the search indexes do not need to be rebuilt, but
+        # since version 3.0 the search indexes need to rebuilt as well. By
+        # default pkispawn will use these params:
+        # - pki_clone_setup_replication=True
+        # - pki_clone_reindex_data=False
+        #
+        # When installing IPA CA replica the DS replication is already set up
+        # by IPA so pkispawn does not need to set it up again, but it still
+        # needs to rebuild the search indexes. For this case IPA will specify
+        # these params:
+        # - pki_clone_setup_replication=False
+        # - pki_clone_reindex_data=True
+        #
+        # IPA KRA subtree resides under IPA CA subtree, so when installing IPA
+        # KRA replica pkispawn does not need to set up the DS replication nor
+        # rebuild the search indexes. For this case IPA will specify these
+        # params:
+        # - pki_clone_setup_replication=False
+        # - pki_clone_reindex_data=False
+        #
+        # So pkispawn needs to rebuild the search indexes on the replica if
+        # pki_clone_setup_replication=True or pki_clone_reindex_data=True.
+        #
+        # See also:
+        # - https://issues.redhat.com/browse/RHEL-63015
+        # - https://github.com/dogtagpki/pki/blob/master/base/server/etc/default.cfg
+        # - https://github.com/freeipa/freeipa/blob/master/ipaserver/install/cainstance.py
+        # - https://github.com/freeipa/freeipa/blob/master/ipaserver/install/krainstance.py
+
+        if config.str2bool(self.mdict['pki_clone']):
+            if config.str2bool(self.mdict['pki_clone_setup_replication']) or \
+                    config.str2bool(self.mdict['pki_clone_reindex_data']):
+                subsystem.rebuild_indexes()
 
         subsystem.add_vlv()
         subsystem.reindex_vlv()
