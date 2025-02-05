@@ -975,7 +975,8 @@ class PKIDeployer:
 
         pki.util.makedirs(
             self.mdict['pki_client_subsystem_dir'],
-            mode=config.PKI_DEPLOYMENT_DEFAULT_CLIENT_DIR_PERMISSIONS)
+            mode=config.PKI_DEPLOYMENT_DEFAULT_CLIENT_DIR_PERMISSIONS,
+            exist_ok=True)
 
         # Since 'certutil' does NOT strip the 'token=' portion of
         # the 'token=password' entries, create a client password file
