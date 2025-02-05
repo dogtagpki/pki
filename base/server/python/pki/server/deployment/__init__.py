@@ -2612,7 +2612,8 @@ class PKIDeployer:
                     logger.info('Verifying admin cert in %s', cert_file)
                     self.instance.verify_cert(admin_cert)
                 except Exception:
-                    raise pki.cli.CLIException('Invalid admin certificate in %s' % cert_file)
+                    raise pki.cli.CLIException(
+                        'Invalid/obsolete admin certificate in %s' % cert_file)
 
                 self.import_admin_cert(admin_cert)
 
@@ -4042,7 +4043,7 @@ class PKIDeployer:
                     self.instance.verify_cert(pem_cert)
                 except Exception:
                     raise pki.cli.CLIException(
-                        'Invalid admin certificate in %s' % client_nssdb.directory)
+                        'Invalid/obsolete admin certificate in %s' % client_nssdb.directory)
 
                 if external and subsystem.type != 'CA' or standalone:
                     # no need to re-import admin cert into NSS database
@@ -4077,7 +4078,8 @@ class PKIDeployer:
                     logger.info('Verifying admin cert in %s', pkcs12_file)
                     self.instance.verify_cert(pem_cert)
                 except Exception:
-                    raise pki.cli.CLIException('Invalid admin certificate in %s' % pkcs12_file)
+                    raise pki.cli.CLIException(
+                        'Invalid/obsolete admin certificate in %s' % pkcs12_file)
 
                 logger.info('Importing admin cert into %s', client_nssdb.directory)
 
@@ -4109,7 +4111,8 @@ class PKIDeployer:
                 logger.info('Verifying admin cert in %s', cert_path)
                 self.instance.verify_cert(pem_cert)
             except Exception:
-                raise pki.cli.CLIException('Invalid admin certificate in %s' % cert_path)
+                raise pki.cli.CLIException(
+                    'Invalid/obsolete admin certificate in %s' % cert_path)
 
             if external and subsystem.type != 'CA' or standalone:
                 self.import_admin_cert(pem_cert)
@@ -4133,7 +4136,8 @@ class PKIDeployer:
                 logger.info('Verifying admin cert in %s', cert_file)
                 self.instance.verify_cert(pem_cert)
             except Exception:
-                raise pki.cli.CLIException('Invalid admin certificate in %s' % cert_file)
+                raise pki.cli.CLIException(
+                    'Invalid/obsolete admin certificate in %s' % cert_file)
 
             if external and subsystem.type != 'CA' or standalone:
                 self.import_admin_cert(pem_cert)

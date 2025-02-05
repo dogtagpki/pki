@@ -100,9 +100,9 @@ jobs:
 
           docker exec pki pki pkcs12-import \
               --pkcs12 /root/.dogtag/localhost/ca_admin_cert.p12 \
-              --pkcs12-password Secret.123
+              --password Secret.123
 
-          docker exec pki pki nss-cert-find | tee admin-cert.orig
+          docker exec pki pki nss-cert-show caadmin | tee admin-cert.orig
 
           docker exec pki pki -n caadmin ca-user-show caadmin
 
@@ -211,7 +211,18 @@ jobs:
 
           diff expected output
 
-      - name: Install CA again
+      - name: Check admin cert after first removal
+        run: |
+          docker exec pki ls -l /root/.dogtag/localhost
+
+          docker exec pki pki nss-cert-show \
+              --cert-file /root/.dogtag/localhost/ca_admin.cert
+
+          docker exec pki pki pkcs12-cert-find \
+              --pkcs12 /root/.dogtag/localhost/ca_admin_cert.p12 \
+              --password Secret.123
+
+      - name: Install CA with the same config
         run: |
           docker exec pki pkispawn \
               -f /usr/share/pki/server/examples/installation/ca.cfg \
@@ -283,7 +294,7 @@ jobs:
 
       - name: Check CA admin again
         run: |
-          docker exec pki pki nss-cert-find | tee admin-cert.new
+          docker exec pki pki nss-cert-show caadmin | tee admin-cert.new
 
           # admin cert should not change
           diff admin-cert.orig admin-cert.new
@@ -361,6 +372,102 @@ jobs:
           EOF
 
           diff expected stderr
+
+      - name: Check admin cert after second removal
+        run: |
+          docker exec pki ls -l /root/.dogtag/localhost
+
+          docker exec pki pki nss-cert-show \
+              --cert-file /root/.dogtag/localhost/ca_admin.cert
+
+          docker exec pki pki pkcs12-cert-find \
+              --pkcs12 /root/.dogtag/localhost/ca_admin_cert.p12 \
+              --password Secret.123
+
+      - name: Install CA with new config and old admin cert
+        run: |
+          rc=0
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_instance_name=localhost \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
+              -v \
+              || rc=$?
+
+          # pkispawn should fail
+          [ $rc -ne 0 ]
+
+      - name: Remove old admin cert
+        run: |
+          docker exec pki rm -f /root/.dogtag/localhost/ca_admin.cert
+          docker exec pki rm -f /root/.dogtag/localhost/ca_admin_cert.p12
+
+      - name: Install CA with new config and no admin cert
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_instance_name=localhost \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
+              -v
+
+          # pkispawn should succeed
+
+      - name: Check system certs again
+        run: |
+          docker exec pki pki \
+              -d /var/lib/pki/localhost/conf/alias \
+              nss-cert-find | tee system-certs.new
+
+          # system certs should be different
+          rc=0
+          diff system-certs.orig system-certs.new || rc=$?
+
+          [ $rc -ne 0 ]
+
+      - name: Check CA admin
+        run: |
+          # remove old certs
+          docker exec pki pki nss-cert-del caadmin
+          docker exec pki pki nss-cert-del ca_signing
+
+          # export new CA signing cert
+          docker exec pki pki-server \
+              cert-export \
+              -i localhost \
+              --cert-file ca_signing.crt \
+              ca_signing
+
+          # import new CA signing cert
+          docker exec pki pki nss-cert-import \
+              --cert ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
+          # import new admin cert
+          docker exec pki pki pkcs12-import \
+              --pkcs12 /root/.dogtag/localhost/ca_admin_cert.p12 \
+              --password Secret.123
+
+          docker exec pki pki nss-cert-show caadmin | tee admin-cert.new
+
+          # admin cert should be different
+          rc=0
+          diff admin-cert.orig admin-cert.new || rc=$?
+
+          [ $rc -ne 0 ]
+
+          docker exec pki pki -n caadmin ca-user-show caadmin
+
+      - name: Remove CA again
+        run: |
+          docker exec pki pkidestroy \
+              -i localhost \
+              -s CA \
+              --remove-conf \
+              --remove-logs \
+              -v
 
       - name: Check DS server systemd journal
         if: always()
