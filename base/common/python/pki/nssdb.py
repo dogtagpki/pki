@@ -92,11 +92,17 @@ def convert_data(data, input_format, output_format,
     It supports CSR, certificate, and PKCS #7 certificate chain.
     '''
 
+    if input_format:
+        input_format = input_format.upper()
+
+    if output_format:
+        output_format = output_format.upper()
+
     if input_format == output_format:
         return data
 
     # converting from base-64 to PEM
-    if input_format == 'base64' and output_format == 'pem':
+    if input_format == 'BASE64' and output_format == 'PEM':
 
         # join base-64 data into a single line
         data = data.replace('\r', '').replace('\n', '')
@@ -108,7 +114,7 @@ def convert_data(data, input_format, output_format,
         return '%s\n%s\n%s\n' % (header, '\n'.join(lines), footer)
 
     # converting from PEM to base-64
-    if input_format == 'pem' and output_format == 'base64':
+    if input_format == 'PEM' and output_format == 'BASE64':
 
         # initialize list of headers if not provided
         if not headers:
