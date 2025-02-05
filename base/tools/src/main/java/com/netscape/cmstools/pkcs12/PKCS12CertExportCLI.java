@@ -21,20 +21,22 @@ package com.netscape.cmstools.pkcs12;
 import java.io.BufferedReader;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.codec.binary.Hex;
+import org.dogtagpki.cli.CLIException;
 import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.netscape.security.pkcs.PKCS12;
 import org.mozilla.jss.netscape.security.pkcs.PKCS12CertInfo;
 import org.mozilla.jss.netscape.security.pkcs.PKCS12Util;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmstools.cli.MainCLI;
@@ -76,6 +78,10 @@ public class PKCS12CertExportCLI extends CommandCLI {
 
         option = new Option(null, "cert-id", true, "Certificate ID to export");
         option.setArgName("ID");
+        options.addOption(option);
+
+        option = new Option(null, "cert-format", true, "Certificate format: PEM (default), DER");
+        option.setArgName("format");
         options.addOption(option);
     }
 
@@ -125,48 +131,67 @@ public class PKCS12CertExportCLI extends CommandCLI {
             throw new Exception("Missing PKCS #12 password.");
         }
 
-        String certFile = cmd.getOptionValue("cert-file");
-
-        if (certFile == null) {
-            throw new Exception("Missing certificate file.");
-        }
-
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
         Password password = new Password(passwordString.toCharArray());
+        Collection<X509Certificate> certs = new ArrayList<>();
 
         try {
             PKCS12Util util = new PKCS12Util();
             PKCS12 pkcs12 = util.loadFromFile(pkcs12File, password);
 
-            Collection<PKCS12CertInfo> certInfos = new ArrayList<>();
-
             if (nickname != null) {
-                certInfos.addAll(pkcs12.getCertInfosByFriendlyName(nickname));
+                for (PKCS12CertInfo certInfo : pkcs12.getCertInfosByFriendlyName(nickname)) {
+                    certs.add(certInfo.getCert());
+                }
 
             } else {
                 PKCS12CertInfo certInfo = pkcs12.getCertInfoByID(certID);
                 if (certInfo != null) {
-                    certInfos.add(certInfo);
-                }
-            }
-
-            if (certInfos.isEmpty()) {
-                throw new Exception("Certificate not found.");
-            }
-
-            try (PrintStream os = new PrintStream(new FileOutputStream(certFile))) {
-                for (PKCS12CertInfo certInfo : certInfos) {
-                    X509CertImpl cert = certInfo.getCert();
-                    os.println(Cert.HEADER);
-                    os.print(Utils.base64encode(cert.getEncoded(), true));
-                    os.println(Cert.FOOTER);
+                    certs.add(certInfo.getCert());
                 }
             }
 
         } finally {
             password.clear();
+        }
+
+        if (certs.isEmpty()) {
+            throw new Exception("Certificate not found");
+        }
+
+        String format = cmd.getOptionValue("cert-format", "PEM").toUpperCase();
+        byte[] output = null;
+
+        if (format.equals("PEM")) {
+            StringWriter sw = new StringWriter();
+            try (PrintWriter out = new PrintWriter(sw, true)) {
+                for (X509Certificate cert : certs) {
+                    out.println(Cert.HEADER);
+                    out.print(Utils.base64encodeMultiLine(cert.getEncoded()));
+                    out.println(Cert.FOOTER);
+                }
+            }
+            output = sw.toString().getBytes();
+
+        } else if (format.equals("DER")) {
+            for (X509Certificate cert : certs) {
+                output = cert.getEncoded();
+            }
+
+        } else {
+            throw new CLIException("Unsupported format: " + format);
+        }
+
+        String certFile = cmd.getOptionValue("cert-file");
+        if (certFile == null) {
+            System.out.write(output);
+
+        } else {
+            try (FileOutputStream os = new FileOutputStream(certFile)) {
+                os.write(output);
+            }
         }
     }
 }
