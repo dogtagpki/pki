@@ -59,6 +59,7 @@ if __name__ == '__main__':
 
     except pki.cli.CLIException as e:
         logger.error(str(e))
+        sys.exit(1)
 
     except Exception as e:  # pylint: disable=broad-except
 
