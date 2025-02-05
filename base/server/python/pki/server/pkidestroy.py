@@ -246,6 +246,12 @@ def main(argv):
         print()
         sys.exit(1)
 
+    except pki.cli.CLIException as e:
+        print()
+        print('Uninstallation failed: %s' % str(e))
+        print()
+        sys.exit(1)
+
     except Exception as e:  # pylint: disable=broad-except
         log_error_details()
         print()
