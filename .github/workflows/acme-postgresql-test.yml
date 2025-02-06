@@ -33,20 +33,18 @@ jobs:
           tests/bin/ds-create.sh \
               --image=${{ env.DS_IMAGE }} \
               --hostname=ds.example.com \
+              --network=example \
+              --network-alias=ds.example.com \
               --password=Secret.123 \
               ds
 
-      - name: Connect DS container to network
-        run: docker network connect example ds --alias ds.example.com
-
       - name: Set up PKI container
         run: |
-          tests/bin/runner-init.sh pki
-        env:
-          HOSTNAME: pki.example.com
-
-      - name: Connect PKI container to network
-        run: docker network connect example pki --alias pki.example.com
+          tests/bin/runner-init.sh \
+              --hostname=pki.example.com \
+              --network=example \
+              --network-alias=pki.example.com \
+              pki
 
       - name: Install CA in PKI container
         run: |
@@ -127,16 +125,18 @@ jobs:
 
       - name: Deploy postgresql
         run: |
-          docker run -d --name postgresql \
+          docker run \
+              --name postgresql \
               --hostname postgresql.example.com \
+              --network example \
+              --network-alias postgresql.example.com \
               -e POSTGRES_PASSWORD=mysecretpassword \
               -e POSTGRES_USER=acme \
-              postgres-ssl -c ssl=on \
+              --detach \
+              postgres-ssl \
+              -c ssl=on \
               -c ssl_cert_file=/var/lib/postgresql/server.crt \
               -c ssl_key_file=/var/lib/postgresql/server.key
-
-      - name: Connect DB container to network
-        run: docker network connect example postgresql --alias postgresql.example.com
 
       - name: Set up database drivers
         run: |
@@ -249,12 +249,11 @@ jobs:
 
       - name: Set up client container
         run: |
-          tests/bin/runner-init.sh client
-        env:
-          HOSTNAME: client.example.com
-
-      - name: Connect client container to network
-        run: docker network connect example client --alias client.example.com
+          tests/bin/runner-init.sh \
+              --hostname=client.example.com \
+              --network=example \
+              --network-alias=client.example.com \
+              client
 
       - name: Install certbot in client container
         run: docker exec client dnf install -y certbot
@@ -574,36 +573,3 @@ jobs:
         if: always()
         run: |
           docker exec client cat /var/log/letsencrypt/letsencrypt.log
-
-      - name: Gather artifacts from server containers
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki ds
-          tests/bin/pki-artifacts-save.sh pki
-        continue-on-error: true
-
-      - name: Gather artifacts from client container
-        if: always()
-        run: |
-          mkdir -p /tmp/artifacts/client
-          docker logs client > /tmp/artifacts/client/container.out 2> /tmp/artifacts/client/container.err
-          mkdir -p /tmp/artifacts/client/etc/letsencrypt
-          docker cp client:/etc/letsencrypt/live /tmp/artifacts/client/etc/letsencrypt
-          mkdir -p /tmp/artifacts/client/var/log/letsencrypt
-          docker cp client:/var/log/letsencrypt/letsencrypt.log /tmp/artifacts/client/var/log/letsencrypt
-        continue-on-error: true
-
-      - name: Upload artifacts from server containers
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: acme-postgresql-server
-          path: |
-            /tmp/artifacts/pki
-
-      - name: Upload artifacts from client container
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: acme-postgresql-client
-          path: /tmp/artifacts/client

@@ -42,6 +42,7 @@ jobs:
           tests/bin/runner-init.sh \
               --hostname=client.example.com \
               --network=example \
+              --network-alias=client.example.com \
               client
 
       - name: Install dependencies in client container
@@ -269,33 +270,3 @@ jobs:
         if: always()
         run: |
           docker logs client 2>&1
-
-      - name: Gather artifacts
-        if: always()
-        run: |
-          mkdir -p /tmp/artifacts/acme
-          cp -r certs /tmp/artifacts/acme
-          cp -r metadata /tmp/artifacts/acme
-          cp -r database /tmp/artifacts/acme
-          cp -r issuer /tmp/artifacts/acme
-          cp -r realm /tmp/artifacts/acme
-          cp -r conf /tmp/artifacts/acme
-          cp -r logs /tmp/artifacts/acme
-
-          docker logs acme > /tmp/artifacts/acme/container.out 2> /tmp/artifacts/acme/container.err
-
-          docker exec client ls -la /etc/letsencrypt/live
-          mkdir -p /tmp/artifacts/client/etc/letsencrypt
-          docker cp client:/etc/letsencrypt/live /tmp/artifacts/client/etc/letsencrypt
-
-          docker exec client ls -la /var/log/letsencrypt
-          mkdir -p /tmp/artifacts/client/var/log/letsencrypt
-          docker cp client:/var/log/letsencrypt/letsencrypt.log /tmp/artifacts/client/var/log/letsencrypt
-        continue-on-error: true
-
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: acme-container
-          path: /tmp/artifacts
