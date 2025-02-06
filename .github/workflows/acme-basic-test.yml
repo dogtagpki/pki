@@ -34,20 +34,18 @@ jobs:
           tests/bin/ds-create.sh \
               --image=${{ env.DS_IMAGE }} \
               --hostname=ds.example.com \
+              --network=example \
+              --network-alias=ds.example.com \
               --password=Secret.123 \
               ds
 
-      - name: Connect DS container to network
-        run: docker network connect example ds --alias ds.example.com
-
       - name: Set up PKI container
         run: |
-          tests/bin/runner-init.sh pki
-        env:
-          HOSTNAME: pki.example.com
-
-      - name: Connect PKI container to network
-        run: docker network connect example pki --alias pki.example.com
+          tests/bin/runner-init.sh \
+              --hostname=pki.example.com \
+              --network=example \
+              --network-alias=pki.example.com \
+              pki
 
       - name: Install CA in PKI container
         run: |
@@ -59,7 +57,9 @@ jobs:
 
       - name: Install CA admin cert
         run: |
-          docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
+          docker exec pki pki-server cert-export \
+              --cert-file ca_signing.crt \
+              ca_signing
 
           docker exec pki pki nss-cert-import \
               --cert ca_signing.crt \
@@ -69,6 +69,7 @@ jobs:
           docker exec pki pki pkcs12-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
+
           docker exec pki pki -n caadmin ca-user-show caadmin
 
       - name: Check initial CA certs
@@ -80,23 +81,31 @@ jobs:
           grep "Serial Number:" output | wc -l > actual
           diff expected actual
 
-      - name: Set up ACME database in DS container
+      - name: Set up ACME database
         run: |
-          docker exec ds ldapmodify \
+          docker exec pki ldapmodify \
               -H ldap://ds.example.com:3389 \
               -D "cn=Directory Manager" \
               -w Secret.123 \
-              -f $SHARED/base/acme/database/ds/schema.ldif
-          docker exec ds ldapadd \
+              -f /usr/share/pki/acme/database/ds/schema.ldif
+          docker exec pki ldapadd \
               -H ldap://ds.example.com:3389 \
               -D "cn=Directory Manager" \
               -w Secret.123 \
-              -f $SHARED/base/acme/database/ds/create.ldif
-          docker exec ds ldapadd \
+              -f /usr/share/pki/acme/database/ds/index.ldif
+          docker exec pki ldapadd \
               -H ldap://ds.example.com:3389 \
               -D "cn=Directory Manager" \
               -w Secret.123 \
-              -f $SHARED/base/acme/realm/ds/create.ldif
+              -f /usr/share/pki/acme/database/ds/create.ldif
+
+      - name: Set up ACME realm
+        run: |
+          docker exec pki ldapadd \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -f /usr/share/pki/acme/realm/ds/create.ldif
 
       - name: Install ACME in PKI container
         run: |
@@ -341,12 +350,11 @@ jobs:
 
       - name: Set up client container
         run: |
-          tests/bin/runner-init.sh client
-        env:
-          HOSTNAME: client.example.com
-
-      - name: Connect client container to network
-        run: docker network connect example client --alias client.example.com
+          tests/bin/runner-init.sh \
+              --hostname=client.example.com \
+              --network=example \
+              --network-alias=client.example.com \
+              client
 
       - name: Install certbot in client container
         run: docker exec client dnf install -y certbot
@@ -793,28 +801,3 @@ jobs:
         if: always()
         run: |
           docker exec client cat /var/log/letsencrypt/letsencrypt.log
-
-      - name: Gather artifacts from server containers
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki ds
-          tests/bin/pki-artifacts-save.sh pki
-        continue-on-error: true
-
-      - name: Gather artifacts from client container
-        if: always()
-        run: |
-          mkdir -p /tmp/artifacts/client
-          docker logs client > /tmp/artifacts/client/container.out 2> /tmp/artifacts/client/container.err
-          mkdir -p /tmp/artifacts/client/etc/letsencrypt
-          docker cp client:/etc/letsencrypt/live /tmp/artifacts/client/etc/letsencrypt
-          mkdir -p /tmp/artifacts/client/var/log/letsencrypt
-          docker cp client:/var/log/letsencrypt/letsencrypt.log /tmp/artifacts/client/var/log/letsencrypt
-        continue-on-error: true
-
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: acme-basic
-          path: /tmp/artifacts

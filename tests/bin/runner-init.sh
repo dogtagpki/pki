@@ -47,7 +47,7 @@ while getopts v-: arg ; do
             NETWORK="$LONG_OPTARG"
             ;;
         network-alias=?*)
-            ALIAS="$LONG_OPTARG"
+            ALIASES+=("$LONG_OPTARG")
             ;;
         verbose)
             VERBOSE=true
@@ -100,7 +100,7 @@ if [ "$DEBUG" = true ] ; then
     echo "IMAGE: $IMAGE"
     echo "HOSTNAME: $HOSTNAME"
     echo "NETWORK: $NETWORK"
-    echo "ALIAS: $ALIAS"
+    echo "ALIASES: ${$ALIASES[@]}"
 fi
 
 OPTIONS=()
@@ -132,10 +132,10 @@ then
     OPTIONS+=(--network $NETWORK)
 fi
 
-if [ "$ALIAS" != "" ]
-then
+for ALIAS in "${ALIASES[@]}"
+do
     OPTIONS+=(--network-alias $ALIAS)
-fi
+done
 
 docker run "${OPTIONS[@]}" $IMAGE "/usr/sbin/init"
 

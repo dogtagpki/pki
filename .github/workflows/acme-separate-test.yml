@@ -110,7 +110,15 @@ jobs:
               -H ldap://acmeds.example.com:3389 \
               -D "cn=Directory Manager" \
               -w Secret.123 \
+              -f /usr/share/pki/acme/database/ds/index.ldif
+          docker exec acme ldapadd \
+              -H ldap://acmeds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
               -f /usr/share/pki/acme/database/ds/create.ldif
+
+      - name: Set up ACME realm
+        run: |
           docker exec acme ldapadd \
               -H ldap://acmeds.example.com:3389 \
               -D "cn=Directory Manager" \
@@ -843,30 +851,3 @@ jobs:
         if: always()
         run: |
           docker exec client cat /var/log/letsencrypt/letsencrypt.log
-
-      - name: Gather artifacts from server containers
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh cads
-          tests/bin/pki-artifacts-save.sh ca
-          tests/bin/ds-artifacts-save.sh acmeds
-          tests/bin/pki-artifacts-save.sh acme
-        continue-on-error: true
-
-      - name: Gather artifacts from client container
-        if: always()
-        run: |
-          mkdir -p /tmp/artifacts/client
-          docker logs client > /tmp/artifacts/client/container.out 2> /tmp/artifacts/client/container.err
-          mkdir -p /tmp/artifacts/client/etc/letsencrypt
-          docker cp client:/etc/letsencrypt/live /tmp/artifacts/client/etc/letsencrypt
-          mkdir -p /tmp/artifacts/client/var/log/letsencrypt
-          docker cp client:/var/log/letsencrypt/letsencrypt.log /tmp/artifacts/client/var/log/letsencrypt
-        continue-on-error: true
-
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: acme-separate
-          path: /tmp/artifacts
