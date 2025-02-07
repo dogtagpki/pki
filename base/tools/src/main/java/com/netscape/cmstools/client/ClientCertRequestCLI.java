@@ -58,7 +58,6 @@ import com.netscape.certsrv.cert.CertRequestInfos;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
-import com.netscape.cmstools.CRMFPopClient;
 import com.netscape.cmstools.ca.CACertRequestCLI;
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -456,9 +455,6 @@ public class ClientCertRequestCLI extends CommandCLI {
         CryptoManager manager = CryptoManager.getInstance();
         CryptoToken token = manager.getThreadToken();
 
-        CRMFPopClient client = new CRMFPopClient();
-        client.setUseOAEP(useOAEP);
-
         Name subject = CryptoUtil.createName(subjectDN, attributeEncoding);
 
         KeyPair keyPair;
@@ -491,8 +487,15 @@ public class ClientCertRequestCLI extends CommandCLI {
             throw new Exception("Unknown algorithm: " + algorithm);
         }
 
-        CertRequest certRequest = client.createCertRequest(
-                token, transportCert, algorithm, keyPair, subject, keyWrapAlgorithm);
+        CertRequest certRequest = CryptoUtil.createCertRequest(
+                false, // use_shared_secret
+                token,
+                transportCert,
+                algorithm,
+                keyPair,
+                subject,
+                keyWrapAlgorithm,
+                useOAEP);
 
         ProofOfPossession pop = null;
         if (withPop) {

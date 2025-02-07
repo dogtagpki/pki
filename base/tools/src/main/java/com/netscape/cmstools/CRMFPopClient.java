@@ -46,11 +46,9 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.dogtagpki.common.CAInfoClient;
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.asn1.PrintableString;
-import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
@@ -59,15 +57,9 @@ import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
-import org.mozilla.jss.netscape.security.util.WrappingParams;
-import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
-import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
 import org.mozilla.jss.pkix.crmf.CertRequest;
-import org.mozilla.jss.pkix.crmf.CertTemplate;
-import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
 import org.mozilla.jss.pkix.crmf.ProofOfPossession;
 import org.mozilla.jss.pkix.primitive.AVA;
-import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.util.Password;
 
@@ -531,10 +523,15 @@ public class CRMFPopClient {
             }
 
             if (verbose) System.out.println("Creating certificate request");
-            CertRequest certRequest = client.createCertRequest(
+            CertRequest certRequest = CryptoUtil.createCertRequest(
                     use_shared_secret,
-                    token, transportCert, algorithm, keyPair,
-                    subject, keyWrapAlgorithm);
+                    token,
+                    transportCert,
+                    algorithm,
+                    keyPair,
+                    subject,
+                    keyWrapAlgorithm,
+                    client.useOAEP());
 
             ProofOfPossession pop = null;
 
@@ -619,77 +616,6 @@ public class CRMFPopClient {
 
     public boolean isVerbose() {
         return verbose;
-    }
-
-    public CertRequest createCertRequest(
-            CryptoToken token,
-            X509Certificate transportCert,
-            String algorithm,
-            KeyPair keyPair,
-            Name subject,
-            KeyWrapAlgorithm keyWrapAlgorithm) throws Exception {
-        return createCertRequest(false, token, transportCert, algorithm, keyPair,
-            subject, keyWrapAlgorithm);
-    }
-
-    public CertRequest createCertRequest(
-            boolean use_shared_secret,
-            CryptoToken token,
-            X509Certificate transportCert,
-            String algorithm,
-            KeyPair keyPair,
-            Name subject,
-            KeyWrapAlgorithm keyWrapAlgorithm) throws Exception {
-
-        CertTemplate certTemplate = CryptoUtil.createCertTemplate(subject, keyPair.getPublic());
-
-        SEQUENCE seq = new SEQUENCE();
-
-        if (transportCert != null) { // add key archive Option
-            byte[] iv = CryptoUtil.getNonceData(keyWrapAlgorithm.getBlockSize());
-            OBJECT_IDENTIFIER kwOID = CryptoUtil.getOID(keyWrapAlgorithm);
-
-            /* TODO(alee)
-             *
-             * HACK HACK!
-             * algorithms like AES KeyWrap do not require an IV, but we need to include one
-             * in the AlgorithmIdentifier above, or the creation and parsing of the
-             * PKIArchiveOptions options will fail.  So we include an IV in aid, but null it
-             * later to correctly encrypt the data
-             */
-            AlgorithmIdentifier aid = new AlgorithmIdentifier(kwOID, new OCTET_STRING(iv));
-
-            Class<?>[] iv_classes = keyWrapAlgorithm.getParameterClasses();
-            if (iv_classes == null || iv_classes.length == 0)
-                iv = null;
-
-            WrappingParams params = CryptoUtil.getWrappingParams(keyWrapAlgorithm, iv, useOAEP());
-
-            PKIArchiveOptions opts = CryptoUtil.createPKIArchiveOptions(
-                    token,
-                    transportCert.getPublicKey(),
-                    (PrivateKey) keyPair.getPrivate(),
-                    params,
-                    aid);
-
-            seq.addElement(new AVA(new OBJECT_IDENTIFIER("1.3.6.1.5.5.7.5.1.4"), opts));
-        } // key archival option
-
-        /*
-        OCTET_STRING ostr = createIDPOPLinkWitness();
-        seq.addElement(new AVA(OBJECT_IDENTIFIER.id_cmc_idPOPLinkWitness, ostr));
-        */
-
-        if (use_shared_secret) { // per rfc 5272
-            System.out.println("CRMFPopClient: use_shared_secret true. Generating SubjectKeyIdentifier extension.");
-            KeyIdentifier subjKeyId = CryptoUtil.createKeyIdentifier(keyPair);
-            OBJECT_IDENTIFIER oid = new OBJECT_IDENTIFIER(PKIXExtensions.SubjectKey_Id.toString());
-            SEQUENCE extns = new SEQUENCE();
-            extns.addElement(new AVA(oid, new OCTET_STRING(subjKeyId.getIdentifier())));
-            certTemplate.setExtensions(extns);
-        }
-
-        return new CertRequest(new INTEGER(1), certTemplate, seq);
     }
 
     public OCTET_STRING createIDPOPLinkWitness() throws Exception {
