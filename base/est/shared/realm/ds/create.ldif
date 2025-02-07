@@ -11,3 +11,9 @@ dn: ou=groups,dc=est,dc=pki,dc=example,dc=com
 ou: groups
 objectClass: top
 objectClass: organizationalUnit
+
+dn: cn=estclient,ou=groups,dc=est,dc=pki,dc=example,dc=com
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: estclient
+

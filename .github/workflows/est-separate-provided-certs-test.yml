@@ -262,7 +262,7 @@ jobs:
           docker exec est openssl x509 -in $SHARED/ca_signing.crt -text -noout | tee expected
           diff expected actual
 
-      - name: Create EST users
+      - name: Create EST user
         run: |
           docker exec -i est ldapadd -x -H ldap://estds.example.com:3389 \
               -D "cn=Directory Manager"  -w Secret.123 << EOF
@@ -275,11 +275,15 @@ jobs:
           sn: EST TEST USER
           cn: EST TEST USER
           userPassword: Secret.123
+          EOF
           
+      - name: Add EST user to estclient group
+        run: |
+          docker exec -i est ldapmodify -x -H ldap://estds.example.com:3389 \
+              -D "cn=Directory Manager"  -w Secret.123 << EOF
           dn: cn=estclient,ou=groups,dc=est,dc=pki,dc=example,dc=com
-          objectClass: top
-          objectClass: groupOfUniqueNames
-          cn: estclient
+          changetype: modify
+          add: uniqueMember
           uniqueMember: uid=est-test-user,ou=People,dc=est,dc=pki,dc=example,dc=com
           EOF
 
