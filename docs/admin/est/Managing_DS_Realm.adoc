@@ -3,7 +3,7 @@
 The user DB requires a node containing the users (_inetOrgPerson_) and
 a node containing the groups (_groupOfUniqueNames_). Therefore, if the
 base dn is `dc=pki,dc=example,dc=com` it is possible to add a user
-using the command:
+and associate to _estclient_ group using the following commands:
 
 ----
 ldapadd -x -H ldap://estds.example.com:389 \
@@ -17,11 +17,14 @@ uid: est-test-user
 sn: EST TEST USER
 cn: EST TEST USER
 userPassword: Secret.123
+EOF
 
+
+ldapmodify -x -H ldap://estds.example.com:389 \
+    -D "cn=Directory Manager"  -w Secret.123 << EOF
 dn: cn=estclient,ou=groups,dc=est,dc=pki,dc=example,dc=com
-objectClass: top
-objectClass: groupOfUniqueNames
-cn: estclient
+changetype: modify
+add: uniqueMember
 uniqueMember: uid=est-test-user,ou=People,dc=est,dc=pki,dc=example,dc=com
 EOF
 ----

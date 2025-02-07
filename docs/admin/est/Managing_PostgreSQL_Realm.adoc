@@ -1,10 +1,9 @@
 = Managing PostgreSQL Realm =
 
-To add a in the tables it is possible to execeute the following commands:
+To add a user and associate to the _estclient_ group it is possible to execeute the following commands:
 
 ----
 $ psql -U est -t -A -c "INSERT INTO users VALUES ('est-test-user', 'EST TEST USER', '<tomcat_digest>');"  est 
-$ psql -U est -t -A -c "INSERT INTO groups VALUES ('estclient', 'EST TEST USERS');"  est 
 $ psql -U est -t -A -c "INSERT INTO group_members VALUES ('estclient', 'est-test-user');"  est 
 ----
 

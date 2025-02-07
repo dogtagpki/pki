@@ -231,7 +231,7 @@ jobs:
           diff expected output
 
 
-      - name: Create EST users
+      - name: Create EST user
         run: |
           docker exec -i pki ldapadd -x -H ldap://ds.example.com:3389 \
               -D "cn=Directory Manager"  -w Secret.123 << EOF
@@ -246,11 +246,15 @@ jobs:
           cn: EST TEST USER
           usertype: undefined
           userPassword: Secret.123
+          EOF
           
+      - name: Add EST user to estclient group
+        run: |
+          docker exec -i pki ldapmodify -x -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager"  -w Secret.123 << EOF
           dn: cn=estclient,ou=groups,dc=est,dc=pki,dc=example,dc=com
-          objectClass: top
-          objectClass: groupOfUniqueNames
-          cn: estclient
+          changetype: modify
+          add: uniqueMember
           uniqueMember: uid=est-test-user,ou=People,dc=est,dc=pki,dc=example,dc=com
           EOF
 

@@ -21,3 +21,5 @@ CREATE TABLE "group_members" (
     "user_id"          VARCHAR NOT NULL,
     PRIMARY KEY ("group_id", "user_id")
 );
+
+INSERT INTO groups VALUES ('estclient', 'EST users');
