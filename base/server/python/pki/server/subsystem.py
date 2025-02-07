@@ -3010,7 +3010,7 @@ class ESTSubsystem(PKISubsystem):
 
         if realm_type:
             # if realm type is specified, load the realm.conf template
-            realm_conf = os.path.join(template_dir, '%s.conf' % realm_type)
+            realm_conf = os.path.join(template_dir, realm_type, '%s.conf' % realm_type)
         else:
             # otherwise, load the current realm.conf in the instance
             realm_conf = self.realm_conf

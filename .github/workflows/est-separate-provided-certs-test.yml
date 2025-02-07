@@ -127,41 +127,6 @@ jobs:
               --network-alias=estds.example.com \
               estds
 
-      - name: Create EST users
-        run: |
-          docker exec -i estds ldapadd -x -H ldap://estds.example.com:3389 \
-              -D "cn=Directory Manager"  -w Secret.123 << EOF
-          dn: dc=est,dc=pki,dc=example,dc=com
-          objectClass: domain
-          dc: est 
-          
-          dn: ou=people,dc=est,dc=pki,dc=example,dc=com
-          ou: people
-          objectClass: top
-          objectClass: organizationalUnit
-          
-          dn: ou=groups,dc=est,dc=pki,dc=example,dc=com
-          ou: groups
-          objectClass: top
-          objectClass: organizationalUnit
-          
-          dn: uid=est-test-user,ou=people,dc=est,dc=pki,dc=example,dc=com
-          objectClass: top
-          objectClass: person
-          objectClass: organizationalPerson
-          objectClass: inetOrgPerson
-          uid: est-test-user
-          sn: EST TEST USER
-          cn: EST TEST USER
-          userPassword: Secret.123
-          
-          dn: cn=estclient,ou=groups,dc=est,dc=pki,dc=example,dc=com
-          objectClass: top
-          objectClass: groupOfUniqueNames
-          cn: estclient
-          uniqueMember: uid=est-test-user,ou=People,dc=est,dc=pki,dc=example,dc=com
-          EOF
-
       - name: Set up EST container
         run: |
           tests/bin/runner-init.sh \
@@ -170,6 +135,12 @@ jobs:
           --network-alias=est.example.com \
           est
 
+      - name: Set up EST user DB
+        run: |
+          docker exec -i est ldapadd -x -H ldap://estds.example.com:3389 \
+              -D "cn=Directory Manager"  -w Secret.123 \
+              -f /usr/share/pki/est/conf/realm/ds/create.ldif
+          
       - name: Install EST
         run: |
           docker exec est pkispawn \
@@ -290,6 +261,27 @@ jobs:
           docker exec est openssl x509 -in cacert.pem -text -noout | tee actual
           docker exec est openssl x509 -in $SHARED/ca_signing.crt -text -noout | tee expected
           diff expected actual
+
+      - name: Create EST users
+        run: |
+          docker exec -i est ldapadd -x -H ldap://estds.example.com:3389 \
+              -D "cn=Directory Manager"  -w Secret.123 << EOF
+          dn: uid=est-test-user,ou=people,dc=est,dc=pki,dc=example,dc=com
+          objectClass: top
+          objectClass: person
+          objectClass: organizationalPerson
+          objectClass: inetOrgPerson
+          uid: est-test-user
+          sn: EST TEST USER
+          cn: EST TEST USER
+          userPassword: Secret.123
+          
+          dn: cn=estclient,ou=groups,dc=est,dc=pki,dc=example,dc=com
+          objectClass: top
+          objectClass: groupOfUniqueNames
+          cn: estclient
+          uniqueMember: uid=est-test-user,ou=People,dc=est,dc=pki,dc=example,dc=com
+          EOF
 
       - name: Install est client
         run: |
@@ -414,19 +406,3 @@ jobs:
         if: always()
         run: |
           docker exec est find /var/lib/pki/pki-tomcat/logs/est -name "debug.*" -exec cat {} \;
-
-      - name: Gather artifacts
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh cads
-          tests/bin/ds-artifacts-save.sh estds
-          tests/bin/pki-artifacts-save.sh ca
-          tests/bin/pki-artifacts-save.sh est
-        continue-on-error: true
-
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: est-separate-provided-certs
-          path: /tmp/artifacts

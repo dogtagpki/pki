@@ -1,0 +1,13 @@
+dn: dc=est,dc=pki,dc=example,dc=com
+objectClass: domain
+dc: est
+
+dn: ou=people,dc=est,dc=pki,dc=example,dc=com
+ou: people
+objectClass: top
+objectClass: organizationalUnit
+
+dn: ou=groups,dc=est,dc=pki,dc=example,dc=com
+ou: groups
+objectClass: top
+objectClass: organizationalUnit

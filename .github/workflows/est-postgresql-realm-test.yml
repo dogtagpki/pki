@@ -152,15 +152,10 @@ jobs:
           docker exec pki ln -s /usr/share/java/ongres-stringprep/stringprep.jar /usr/share/pki/server/common/lib/
           docker exec pki pki-server restart --wait
 
-      - name: Add EST user
+      - name: Set up EST user DB
         run: |
           docker cp ./base/est/shared/realm/postgresql/create.sql postgresql:/tmp/create.sql
           docker exec postgresql psql -U est -t -A -f /tmp/create.sql  est
-          DIGEST=$(docker exec pki tomcat-digest Secret.123 | sed 's/.*://')
-
-          docker exec postgresql psql -U est -t -A -c "INSERT INTO users VALUES ('est-test-user', 'EST TEST USER', '$DIGEST');"  est 
-          docker exec postgresql psql -U est -t -A -c "INSERT INTO groups VALUES ('estclient', 'EST TEST USERS');"  est 
-          docker exec postgresql psql -U est -t -A -c "INSERT INTO group_members VALUES ('estclient', 'est-test-user');"  est 
 
       - name: Install EST
         run: |
@@ -315,6 +310,14 @@ jobs:
           docker exec pki openssl x509 -in cacert.pem -text -noout | tee actual
           docker exec pki openssl x509 -in ca_signing.crt -text -noout | tee expected
           diff expected actual
+
+      - name: Add EST user
+        run: |
+          DIGEST=$(docker exec pki tomcat-digest Secret.123 | sed 's/.*://')
+
+          docker exec postgresql psql -U est -t -A -c "INSERT INTO users VALUES ('est-test-user', 'EST TEST USER', '$DIGEST');"  est 
+          docker exec postgresql psql -U est -t -A -c "INSERT INTO groups VALUES ('estclient', 'EST TEST USERS');"  est 
+          docker exec postgresql psql -U est -t -A -c "INSERT INTO group_members VALUES ('estclient', 'est-test-user');"  est 
 
       - name: Install est client
         run: |
@@ -479,17 +482,3 @@ jobs:
         if: always()
         run: |
           docker exec pki find /var/lib/pki/pki-tomcat/logs/est -name "debug.*" -exec cat {} \;
-
-      - name: Gather artifacts
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh ds
-          tests/bin/pki-artifacts-save.sh pki
-        continue-on-error: true
-
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: est-postgresql-basic
-          path: /tmp/artifacts
