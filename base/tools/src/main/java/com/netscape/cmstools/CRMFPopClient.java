@@ -45,9 +45,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
-import org.dogtagpki.common.CAInfo;
 import org.dogtagpki.common.CAInfoClient;
-import org.dogtagpki.common.KRAInfoResource;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.BIT_STRING;
@@ -89,7 +87,6 @@ import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 import org.mozilla.jss.util.Password;
 
-import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.request.RequestId;
@@ -538,8 +535,10 @@ public class CRMFPopClient {
                 int port = Integer.parseInt(hostPort.substring(hostPort.indexOf(':')+1));
                 config.setServerURL("http", host, port);
 
-                PKIClient pkiclient = new PKIClient(config);
-                kwAlg = getKeyWrapAlgotihm(pkiclient);
+                try (PKIClient pkiclient = new PKIClient(config)) {
+                    CAInfoClient caInfoClient = new CAInfoClient(pkiclient, "ca");
+                    kwAlg = caInfoClient.getKeyWrapAlgotihm();
+                }
             }
 
             if (verbose && (transportCert != null)) System.out.println("Using key wrap algorithm: " + kwAlg);
@@ -619,36 +618,6 @@ public class CRMFPopClient {
             printError(e.getMessage());
             System.exit(1);
         }
-    }
-
-    public static String getKeyWrapAlgotihm(PKIClient pkiclient)
-            throws Exception {
-        String kwAlg = null;
-        CAInfoClient infoClient = new CAInfoClient(pkiclient, "ca");
-        String archivalMechanism = KRAInfoResource.KEYWRAP_MECHANISM;
-
-        try {
-            CAInfo info = infoClient.getInfo();
-            archivalMechanism = info.getArchivalMechanism();
-            kwAlg = info.getKeyWrapAlgorithm();
-        } catch (PKIException e) {
-            if (e.getCode() == 404) {
-                // assume this is an older server,
-                archivalMechanism = KRAInfoResource.KEYWRAP_MECHANISM;
-                kwAlg = KeyWrapAlgorithm.DES3_CBC_PAD.toString();
-            } else {
-                throw new Exception("Failed to retrieve archive wrapping information from the CA: " + e, e);
-            }
-        } catch (Exception e) {
-            throw new Exception("Failed to retrieve archive wrapping information from the CA: " + e, e);
-        }
-
-        if (!archivalMechanism.equals(KRAInfoResource.KEYWRAP_MECHANISM)) {
-            // new server with encryption set.  Use something we know will
-            // work.  AES-128-CBC
-            kwAlg = KeyWrapAlgorithm.AES_CBC_PAD.toString();
-        }
-        return kwAlg;
     }
 
     public void setVerbose(boolean verbose) {

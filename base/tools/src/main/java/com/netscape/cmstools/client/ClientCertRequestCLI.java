@@ -35,6 +35,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.ca.CASystemCertClient;
 import org.dogtagpki.cli.CommandCLI;
+import org.dogtagpki.common.CAInfoClient;
 import org.dogtagpki.nss.NSSDatabase;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
@@ -300,7 +301,8 @@ public class ClientCertRequestCLI extends CommandCLI {
             X509Certificate transportCert = manager.importCACertPackage(transportCertData);
 
             // get archival and key wrap mechanisms from CA
-            String kwAlg = CRMFPopClient.getKeyWrapAlgotihm(client);
+            CAInfoClient caInfoClient = new CAInfoClient(client, "ca");
+            String kwAlg = caInfoClient.getKeyWrapAlgotihm();
             KeyWrapAlgorithm keyWrapAlgorithm = KeyWrapAlgorithm.fromString(kwAlg);
 
             csr = generateCrmfRequest(transportCert, subjectDN, attributeEncoding,

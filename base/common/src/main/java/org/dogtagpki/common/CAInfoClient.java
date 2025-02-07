@@ -18,6 +18,9 @@
 
 package org.dogtagpki.common;
 
+import org.mozilla.jss.crypto.KeyWrapAlgorithm;
+
+import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
 
@@ -32,6 +35,39 @@ public class CAInfoClient extends Client {
 
     public CAInfo getInfo() throws Exception {
         return get(CAInfo.class);
+    }
+
+    public String getKeyWrapAlgotihm() throws Exception {
+
+        String archivalMechanism = KRAInfoResource.KEYWRAP_MECHANISM;
+        String kwAlg = null;
+
+        try {
+            CAInfo info = getInfo();
+            archivalMechanism = info.getArchivalMechanism();
+            kwAlg = info.getKeyWrapAlgorithm();
+
+        } catch (PKIException e) {
+            if (e.getCode() == 404) {
+                // assume this is an older server
+                archivalMechanism = KRAInfoResource.KEYWRAP_MECHANISM;
+                kwAlg = KeyWrapAlgorithm.DES3_CBC_PAD.toString();
+
+            } else {
+                throw new Exception("Failed to retrieve archive wrapping information from the CA: " + e, e);
+            }
+
+        } catch (Exception e) {
+            throw new Exception("Failed to retrieve archive wrapping information from the CA: " + e, e);
+        }
+
+        if (!archivalMechanism.equals(KRAInfoResource.KEYWRAP_MECHANISM)) {
+            // new server with encryption set.  Use something we know will
+            // work.  AES-128-CBC
+            kwAlg = KeyWrapAlgorithm.AES_CBC_PAD.toString();
+        }
+
+        return kwAlg;
     }
 }
 
