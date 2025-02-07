@@ -69,6 +69,7 @@ import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.UserCertConflictException;
 import org.mozilla.jss.SecretDecoderRing.KeyManager;
 import org.mozilla.jss.asn1.ANY;
+import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.ASN1Value;
 import org.mozilla.jss.asn1.BIT_STRING;
 import org.mozilla.jss.asn1.BMPString;
@@ -158,6 +159,7 @@ import org.mozilla.jss.pkix.crmf.CertTemplate;
 import org.mozilla.jss.pkix.crmf.EncryptedKey;
 import org.mozilla.jss.pkix.crmf.EncryptedValue;
 import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
+import org.mozilla.jss.pkix.crmf.ProofOfPossession;
 import org.mozilla.jss.pkix.primitive.AVA;
 import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.pkix.primitive.Name;
@@ -1185,6 +1187,19 @@ public class CryptoUtil {
         pkcs10.encodeAndSign(signer);
 
         return pkcs10;
+    }
+
+    public static byte[] createCRMFRequest(
+            CertRequest certRequest,
+            ProofOfPossession pop) throws Exception {
+
+        CertReqMsg crmfMessage = new CertReqMsg(certRequest, pop, null);
+        //crmfMessage.verify();
+
+        SEQUENCE seq = new SEQUENCE();
+        seq.addElement(crmfMessage);
+
+        return ASN1Util.encode(seq);
     }
 
     public static boolean isEncoded(String elementValue) {

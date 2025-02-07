@@ -44,6 +44,7 @@ import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.pkix.crmf.CertRequest;
 import org.mozilla.jss.pkix.crmf.ProofOfPossession;
@@ -505,6 +506,7 @@ public class ClientCertRequestCLI extends CommandCLI {
             pop = client.createPop(algorithm, signature);
         }
 
-        return client.createCRMFRequest(certRequest, pop);
+        byte[] crmfRequest = CryptoUtil.createCRMFRequest(certRequest, pop);
+        return Utils.base64encode(crmfRequest, true);
     }
 }

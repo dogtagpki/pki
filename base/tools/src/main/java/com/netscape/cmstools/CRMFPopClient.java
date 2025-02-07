@@ -47,7 +47,6 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.dogtagpki.common.CAInfoClient;
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.BIT_STRING;
 import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
@@ -66,7 +65,6 @@ import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.util.WrappingParams;
 import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
 import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
-import org.mozilla.jss.pkix.crmf.CertReqMsg;
 import org.mozilla.jss.pkix.crmf.CertRequest;
 import org.mozilla.jss.pkix.crmf.CertTemplate;
 import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
@@ -570,7 +568,8 @@ public class CRMFPopClient {
             }
 
             if (verbose) System.out.println("Creating CRMF request");
-            String request = client.createCRMFRequest(certRequest, pop);
+            byte[] crmfRequest = CryptoUtil.createCRMFRequest(certRequest, pop);
+            String request = Utils.base64encode(crmfRequest, true);
 
             StringWriter sw = new StringWriter();
             try (PrintWriter out = new PrintWriter(sw)) {
@@ -771,20 +770,6 @@ public class CRMFPopClient {
 
         POPOSigningKey popoKey = new POPOSigningKey(null, algorithmID, new BIT_STRING(signature, 0));
         return ProofOfPossession.createSignature(popoKey);
-    }
-
-    public String createCRMFRequest(
-            CertRequest certRequest,
-            ProofOfPossession pop) throws Exception {
-
-        CertReqMsg crmfMessage = new CertReqMsg(certRequest, pop, null);
-        //crmfMessage.verify();
-
-        SEQUENCE seq = new SEQUENCE();
-        seq.addElement(crmfMessage);
-
-        byte[] encodedCrmfMessage = ASN1Util.encode(seq);
-        return Utils.base64encode(encodedCrmfMessage, true);
     }
 
     public void submitRequest(
