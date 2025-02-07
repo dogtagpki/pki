@@ -518,7 +518,7 @@ public class ClientCertRequestCLI extends CommandCLI {
             signer.update(bo.toByteArray());
             byte[] signature = signer.sign();
 
-            pop = CryptoUtil.createPop(algorithm, signature);
+            pop = CryptoUtil.createPop(signatureAlgorithm, signature);
         }
 
         byte[] crmfRequest = CryptoUtil.createCRMFRequest(certRequest, pop);

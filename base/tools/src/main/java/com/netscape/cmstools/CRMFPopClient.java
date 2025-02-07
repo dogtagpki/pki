@@ -568,7 +568,7 @@ public class CRMFPopClient {
                 byte[] signature = signer.sign();
 
                 if (verbose) System.out.println("Creating POP");
-                pop = CryptoUtil.createPop(algorithm, signature);
+                pop = CryptoUtil.createPop(signatureAlgorithm, signature);
             }
 
             if (verbose) System.out.println("Creating CRMF request");

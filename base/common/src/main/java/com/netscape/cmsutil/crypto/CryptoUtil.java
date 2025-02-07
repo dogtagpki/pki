@@ -1234,20 +1234,10 @@ public class CryptoUtil {
     }
 
     public static ProofOfPossession createPop(
-            String algorithm,
+            SignatureAlgorithm signatureAlgorithm,
             byte[] signature) throws Exception {
 
-        AlgorithmIdentifier algorithmID;
-        if (algorithm.equals("rsa")) {
-            algorithmID = new AlgorithmIdentifier(SignatureAlgorithm.RSASignatureWithSHA256Digest.toOID(), null);
-
-        } else if (algorithm.equals("ec")) {
-            algorithmID = new AlgorithmIdentifier(SignatureAlgorithm.ECSignatureWithSHA256Digest.toOID(), null);
-
-        } else {
-            throw new Exception("Unknown algorithm: " + algorithm);
-        }
-
+        AlgorithmIdentifier algorithmID = new AlgorithmIdentifier(signatureAlgorithm.toOID(), null);
         POPOSigningKey popoKey = new POPOSigningKey(null, algorithmID, new BIT_STRING(signature, 0));
         return ProofOfPossession.createSignature(popoKey);
     }
