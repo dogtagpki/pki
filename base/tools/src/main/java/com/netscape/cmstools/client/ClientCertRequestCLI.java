@@ -313,9 +313,36 @@ public class ClientCertRequestCLI extends CommandCLI {
             String kwAlg = caInfoClient.getKeyWrapAlgotihm();
             KeyWrapAlgorithm keyWrapAlgorithm = KeyWrapAlgorithm.fromString(kwAlg);
 
-            csr = generateCrmfRequest(transportCert, subjectDN, attributeEncoding,
-                    algorithm, length, curve, sslECDH, temporary, sensitive, extractable, withPop,
-                    keyWrapAlgorithm, useOAEP);
+            KeyPair keyPair;
+
+            if ("rsa".equals(algorithm)) {
+
+                keyPair = generateRSAKeyPair(
+                        length,
+                        wrap);
+
+            } else if ("ec".equals(algorithm)) {
+
+                keyPair = generateECCKeyPair(
+                        curve,
+                        sslECDH,
+                        temporary,
+                        sensitive,
+                        extractable);
+
+            } else {
+                throw new Exception("Error: Unknown algorithm: " + algorithm);
+            }
+
+            csr = createCRMFRequest(
+                    keyPair,
+                    transportCert,
+                    subjectDN,
+                    attributeEncoding,
+                    algorithm,
+                    withPop,
+                    keyWrapAlgorithm,
+                    useOAEP);
 
         } else {
             throw new Exception("Unknown request type: " + requestType);
@@ -473,17 +500,12 @@ public class ClientCertRequestCLI extends CommandCLI {
         return CertUtil.toPEM(pkcs10);
     }
 
-    public String generateCrmfRequest(
+    public String createCRMFRequest(
+            KeyPair keyPair,
             X509Certificate transportCert,
             String subjectDN,
             boolean attributeEncoding,
             String algorithm,
-            int length,
-            String curve,
-            boolean sslECDH,
-            boolean temporary,
-            int sensitive,
-            int extractable,
             boolean withPop,
             KeyWrapAlgorithm keyWrapAlgorithm,
             boolean useOAEP) throws Exception {
@@ -492,36 +514,6 @@ public class ClientCertRequestCLI extends CommandCLI {
         CryptoToken token = manager.getThreadToken();
 
         Name subject = CryptoUtil.createName(subjectDN, attributeEncoding);
-
-        KeyPair keyPair;
-        if (algorithm.equals("rsa")) {
-
-            Usage[] usages = null;
-            Usage[] usagesMask = null;
-
-            keyPair = CryptoUtil.generateRSAKeyPair(
-                    token,
-                    length,
-                    usages,
-                    usagesMask);
-
-        } else if (algorithm.equals("ec")) {
-
-            Usage[] usages = null;
-            Usage[] usagesMask = sslECDH ? CryptoUtil.ECDH_USAGES_MASK : CryptoUtil.ECDHE_USAGES_MASK;
-
-            keyPair = CryptoUtil.generateECCKeyPair(
-                    token,
-                    curve,
-                    temporary,
-                    sensitive,
-                    extractable,
-                    usages,
-                    usagesMask);
-
-        } else {
-            throw new Exception("Unknown algorithm: " + algorithm);
-        }
 
         CertRequest certRequest = CryptoUtil.createCertRequest(
                 false, // use_shared_secret
