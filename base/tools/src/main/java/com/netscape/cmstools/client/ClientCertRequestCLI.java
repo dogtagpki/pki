@@ -20,14 +20,15 @@ package com.netscape.cmstools.client;
 
 import java.io.ByteArrayOutputStream;
 import java.io.Console;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyPair;
-import java.util.ArrayList;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.interfaces.DSAPublicKey;
+import java.security.interfaces.RSAPublicKey;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
@@ -37,6 +38,7 @@ import org.dogtagpki.ca.CASystemCertClient;
 import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.common.CAInfoClient;
 import org.dogtagpki.nss.NSSDatabase;
+import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage;
@@ -44,9 +46,12 @@ import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkix.crmf.CertRequest;
 import org.mozilla.jss.pkix.crmf.ProofOfPossession;
 import org.mozilla.jss.pkix.primitive.Name;
@@ -109,11 +114,14 @@ public class ClientCertRequestCLI extends CommandCLI {
         option.setArgName("key length");
         options.addOption(option);
 
-        option = new Option(null, "curve", true, "ECC key curve name (default: nistp256)");
-        option.setArgName("curve name");
+        option = new Option(null, "wrap", false, "Generate RSA key for wrapping/unwrapping");
         options.addOption(option);
 
         option = new Option(null, "oaep", false, "Use OAEP key wrap algorithm.");
+        options.addOption(option);
+
+        option = new Option(null, "curve", true, "ECC key curve name (default: nistp256)");
+        option.setArgName("curve name");
         options.addOption(option);
 
         option = new Option(null, "ssl-ecdh", false, "SSL certificate with ECDH ECDSA");
@@ -183,6 +191,8 @@ public class ClientCertRequestCLI extends CommandCLI {
         // rsa, ec
         String algorithm = cmd.getOptionValue("algorithm", "rsa");
         int length = Integer.parseInt(cmd.getOptionValue("length", "2048"));
+        boolean wrap = cmd.hasOption("wrap");
+        boolean useOAEP = cmd.hasOption("oaep");
 
         String curve = cmd.getOptionValue("curve", "nistp256");
         boolean sslECDH = cmd.hasOption("ssl-ecdh");
@@ -250,42 +260,39 @@ public class ClientCertRequestCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         NSSDatabase nssdb = mainCLI.getNSSDatabase();
 
-        String password = mainCLI.config.getNSSPassword();
+        mainCLI.init();
+        PKIClient client = getClient();
 
         String csr;
-        PKIClient client;
         if ("pkcs10".equals(requestType)) {
-            if ("rsa".equals(algorithm)) {
-                csr = generatePkcs10Request(
-                        nssdb.getDirectory(),
-                        password,
-                        algorithm,
-                        Integer.toString(length),
-                        subjectDN);
-            }
 
-            else if ("ec".equals(algorithm)) {
-                csr = generatePkcs10Request(
-                        nssdb.getDirectory(),
-                        password,
-                        algorithm,
+            KeyPair keyPair;
+
+            if ("rsa".equals(algorithm)) {
+
+                keyPair = generateRSAKeyPair(
+                        length,
+                        wrap);
+
+            } else if ("ec".equals(algorithm)) {
+
+                keyPair = generateECCKeyPair(
                         curve,
-                        subjectDN);
+                        sslECDH,
+                        temporary,
+                        sensitive,
+                        extractable);
+
             } else {
                 throw new Exception("Error: Unknown algorithm: " + algorithm);
             }
 
-            // initialize database after PKCS10Client to avoid conflict
-            mainCLI.init();
-            client = getClient();
+            csr = createPKCS10Request(
+                    nssdb,
+                    keyPair,
+                    subjectDN);
 
         } else if ("crmf".equals(requestType)) {
-
-            // initialize database before CRMFPopClient to load transport certificate
-            mainCLI.init();
-            client = getClient();
-
-            boolean useOAEP = cmd.hasOption("oaep");
 
             String encoded;
             if (transportCertFilename == null) {
@@ -396,46 +403,74 @@ public class ClientCertRequestCLI extends CommandCLI {
         CACertRequestCLI.printCertRequestInfos(infos);
     }
 
-    public String generatePkcs10Request(
-            File certDatabase,
-            String password,
-            String algorithm,
-            String length,
+    public KeyPair generateRSAKeyPair(
+            int length,
+            boolean wrap) throws Exception {
+
+        CryptoManager manager = CryptoManager.getInstance();
+        CryptoToken token = manager.getThreadToken();
+
+        Usage[] usages = wrap ? CryptoUtil.RSA_KEYPAIR_USAGES : null;
+        Usage[] usagesMask = wrap ? CryptoUtil.RSA_KEYPAIR_USAGES_MASK : null;
+
+        return CryptoUtil.generateRSAKeyPair(
+                token,
+                length,
+                usages,
+                usagesMask);
+    }
+
+    public KeyPair generateECCKeyPair(
+            String curve,
+            boolean sslECDH,
+            boolean temporary,
+            int sensitive,
+            int extractable) throws Exception {
+
+        CryptoManager manager = CryptoManager.getInstance();
+        CryptoToken token = manager.getThreadToken();
+
+        Usage[] usages = null;
+        Usage[] usagesMask = sslECDH ? CryptoUtil.ECDH_USAGES_MASK : CryptoUtil.ECDHE_USAGES_MASK;
+
+        return CryptoUtil.generateECCKeyPair(
+                token,
+                curve,
+                temporary,
+                sensitive,
+                extractable,
+                usages,
+                usagesMask);
+    }
+
+    public String createPKCS10Request(
+            NSSDatabase nssdb,
+            KeyPair keyPair,
             String subjectDN) throws Exception {
 
-        File csrFile = File.createTempFile("pki-client-cert-request-", ".csr", certDatabase);
-        csrFile.deleteOnExit();
+        PublicKey publicKey = keyPair.getPublic();
+        X509Key key = CryptoUtil.createX509Key(publicKey);
 
-        String lenOrCurve = "ec".equals(algorithm) ? "-c" : "-l";
-
-        List<String> command = new ArrayList<>();
-        command.add("PKCS10Client");
-        command.add("-d");
-        command.add(certDatabase.getAbsolutePath());
-
-        if (password != null) {
-            command.add("-p");
-            command.add(password);
+        String keyAlgorithm;
+        if (publicKey instanceof RSAPublicKey) {
+            keyAlgorithm = "SHA256withRSA";
+        } else if (CryptoUtil.isECCKey(key)) {
+            keyAlgorithm = "SHA256withEC";
+        } else if (publicKey instanceof DSAPublicKey) {
+            keyAlgorithm = "DSA";
+        } else {
+            throw new NoSuchAlgorithmException("Unsupported algorithm: " + publicKey.getAlgorithm());
         }
 
-        command.add("-a");
-        command.add(algorithm);
-        command.add(lenOrCurve);
-        command.add("" + length);
-        command.add("-o");
-        command.add(csrFile.getAbsolutePath());
-        command.add("-n");
-        command.add(subjectDN);
+        Extensions extensions = new Extensions();
 
-        try {
-            runExternal(command);
-        } catch (Exception e) {
-            throw new Exception("Unable to generate CSR: " + e.getMessage(), e);
-        }
+        PKCS10 pkcs10 = nssdb.createPKCS10Request(
+                keyPair,
+                subjectDN,
+                keyAlgorithm,
+                extensions);
 
-        logger.info("CSR generated: " + csrFile);
-
-        return new String(Files.readAllBytes(csrFile.toPath()));
+        return CertUtil.toPEM(pkcs10);
     }
 
     public String generateCrmfRequest(
