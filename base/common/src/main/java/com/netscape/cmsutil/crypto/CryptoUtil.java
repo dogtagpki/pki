@@ -2593,6 +2593,51 @@ public class CryptoUtil {
         return cipher.doFinal(data);
     }
 
+    public static WrappingParams getWrappingParams(
+            KeyWrapAlgorithm kwAlg,
+            byte[] iv,
+            boolean useOAEP) throws Exception {
+
+        IVParameterSpec ivps = iv != null ? new IVParameterSpec(iv) : null;
+        KeyWrapAlgorithm rsaKeyWrapAlg = KeyWrapAlgorithm.RSA;
+
+        if (useOAEP) {
+            rsaKeyWrapAlg = KeyWrapAlgorithm.RSA_OAEP;
+        }
+
+        if (kwAlg == KeyWrapAlgorithm.AES_KEY_WRAP_PAD ||
+            kwAlg == KeyWrapAlgorithm.AES_CBC_PAD) {
+            return new WrappingParams(
+                SymmetricKey.AES, KeyGenAlgorithm.AES,128 ,
+                rsaKeyWrapAlg, EncryptionAlgorithm.AES_128_CBC_PAD,
+                kwAlg, ivps, ivps);
+        }
+
+        if (kwAlg == KeyWrapAlgorithm.AES_KEY_WRAP) {
+            return new WrappingParams(
+                SymmetricKey.AES, KeyGenAlgorithm.AES, 128,
+                rsaKeyWrapAlg, EncryptionAlgorithm.AES_128_CBC,
+                kwAlg, ivps, ivps);
+        }
+
+        if (kwAlg == KeyWrapAlgorithm.DES3_CBC_PAD) {
+            return new WrappingParams(
+                    SymmetricKey.DES3, KeyGenAlgorithm.DES3, 168,
+                    rsaKeyWrapAlg, EncryptionAlgorithm.DES3_CBC_PAD,
+                    KeyWrapAlgorithm.DES3_CBC_PAD,
+                    ivps, ivps);
+        }
+
+        if (kwAlg == KeyWrapAlgorithm.AES_KEY_WRAP_PAD_KWP) {
+            return new WrappingParams(
+                SymmetricKey.AES, KeyGenAlgorithm.AES, 128,
+                rsaKeyWrapAlg, EncryptionAlgorithm.AES_128_KEY_WRAP_KWP,
+                kwAlg, ivps, ivps);
+        }
+
+        throw new Exception("Invalid encryption algorithm: " + kwAlg);
+    }
+
     public static byte[] wrapUsingSymmetricKey(CryptoToken token, SymmetricKey wrappingKey, SymmetricKey data,
             IVParameterSpec ivspec, KeyWrapAlgorithm alg) throws Exception {
         KeyWrapper wrapper = token.getKeyWrapper(alg);

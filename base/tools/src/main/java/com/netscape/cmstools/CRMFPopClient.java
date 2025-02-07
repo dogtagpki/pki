@@ -55,15 +55,11 @@ import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.asn1.PrintableString;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.crypto.CryptoToken;
-import org.mozilla.jss.crypto.EncryptionAlgorithm;
-import org.mozilla.jss.crypto.IVParameterSpec;
-import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
-import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
@@ -673,7 +669,7 @@ public class CRMFPopClient {
             if (iv_classes == null || iv_classes.length == 0)
                 iv = null;
 
-            WrappingParams params = getWrappingParams(keyWrapAlgorithm, iv);
+            WrappingParams params = CryptoUtil.getWrappingParams(keyWrapAlgorithm, iv, useOAEP());
 
             PKIArchiveOptions opts = CryptoUtil.createPKIArchiveOptions(
                     token,
@@ -700,42 +696,6 @@ public class CRMFPopClient {
         }
 
         return new CertRequest(new INTEGER(1), certTemplate, seq);
-    }
-
-    private WrappingParams getWrappingParams(KeyWrapAlgorithm kwAlg, byte[] iv) throws Exception {
-        IVParameterSpec ivps = iv != null ? new IVParameterSpec(iv): null;
-
-        KeyWrapAlgorithm rsaKeyWrapAlg = KeyWrapAlgorithm.RSA;
-        if(useOAEP()) {
-            rsaKeyWrapAlg = KeyWrapAlgorithm.RSA_OAEP;
-        }
-        if (kwAlg == KeyWrapAlgorithm.AES_KEY_WRAP_PAD ||
-            kwAlg == KeyWrapAlgorithm.AES_CBC_PAD) {
-
-            return new WrappingParams(
-                SymmetricKey.AES, KeyGenAlgorithm.AES,128 ,
-                rsaKeyWrapAlg, EncryptionAlgorithm.AES_128_CBC_PAD,
-                kwAlg, ivps, ivps);
-        } else if (kwAlg == KeyWrapAlgorithm.AES_KEY_WRAP) {
-            return new WrappingParams(
-                SymmetricKey.AES, KeyGenAlgorithm.AES, 128,
-                rsaKeyWrapAlg, EncryptionAlgorithm.AES_128_CBC,
-                kwAlg, ivps, ivps);
-        } else if (kwAlg == KeyWrapAlgorithm.DES3_CBC_PAD) {
-            return new WrappingParams(
-                    SymmetricKey.DES3, KeyGenAlgorithm.DES3, 168,
-                    rsaKeyWrapAlg, EncryptionAlgorithm.DES3_CBC_PAD,
-                    KeyWrapAlgorithm.DES3_CBC_PAD,
-                    ivps, ivps);
-        } else  if (kwAlg == KeyWrapAlgorithm.AES_KEY_WRAP_PAD_KWP) {
-	    return new WrappingParams(
-                SymmetricKey.AES, KeyGenAlgorithm.AES, 128,
-                rsaKeyWrapAlg, EncryptionAlgorithm.AES_128_KEY_WRAP_KWP,
-                kwAlg, ivps, ivps);
-	} else
-	{
-            throw new Exception("Invalid encryption algorithm");
-        }
     }
 
     public OCTET_STRING createIDPOPLinkWitness() throws Exception {
