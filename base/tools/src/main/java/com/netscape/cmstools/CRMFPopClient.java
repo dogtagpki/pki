@@ -938,17 +938,6 @@ public class CRMFPopClient {
         EntityUtils.consume(entity);
     }
 
-    public boolean isEncoded(String elementValue) {
-
-        if (elementValue == null) return false;
-
-        return elementValue.startsWith("UTF8String:")
-                || elementValue.startsWith("PrintableString:")
-                || elementValue.startsWith("BMPString:")
-                || elementValue.startsWith("TeletexString:")
-                || elementValue.startsWith("UniversalString:");
-    }
-
     public AVA createAVA(OBJECT_IDENTIFIER oid, int n, String elementValue) throws Exception {
 
         String encodingType = n > 0 ? elementValue.substring(0, n) : null;
@@ -1000,7 +989,7 @@ public class CRMFPopClient {
 
             if (attribute.equalsIgnoreCase("UID")) {
                 AVA ava;
-                if (encodingEnabled && isEncoded(value)) {
+                if (encodingEnabled && CryptoUtil.isEncoded(value)) {
                     ava = createAVA(new OBJECT_IDENTIFIER("0.9.2342.19200300.100.1.1"), n, value);
                 } else {
                     ava = new AVA(new OBJECT_IDENTIFIER("0.9.2342.19200300.100.1.1"), new PrintableString(value));
@@ -1011,35 +1000,35 @@ public class CRMFPopClient {
                 jssName.addCountryName(value);
 
             } else if (attribute.equalsIgnoreCase("CN")) {
-                if (encodingEnabled && isEncoded(value)) {
+                if (encodingEnabled && CryptoUtil.isEncoded(value)) {
                     jssName.addElement(createAVA(Name.commonName, n, value));
                 } else {
                     jssName.addCommonName(value);
                 }
 
             } else if (attribute.equalsIgnoreCase("L")) {
-                if (encodingEnabled && isEncoded(value)) {
+                if (encodingEnabled && CryptoUtil.isEncoded(value)) {
                     jssName.addElement(createAVA(Name.localityName, n, value));
                 } else {
                     jssName.addLocalityName(value);
                 }
 
             } else if (attribute.equalsIgnoreCase("O")) {
-                if (encodingEnabled && isEncoded(value)) {
+                if (encodingEnabled && CryptoUtil.isEncoded(value)) {
                     jssName.addElement(createAVA(Name.organizationName, n, value));
                 } else {
                     jssName.addOrganizationName(value);
                 }
 
             } else if (attribute.equalsIgnoreCase("ST")) {
-                if (encodingEnabled && isEncoded(value)) {
+                if (encodingEnabled && CryptoUtil.isEncoded(value)) {
                     jssName.addElement(createAVA(Name.stateOrProvinceName, n, value));
                 } else {
                     jssName.addStateOrProvinceName(value);
                 }
 
             } else if (attribute.equalsIgnoreCase("OU")) {
-                if (encodingEnabled && isEncoded(value)) {
+                if (encodingEnabled && CryptoUtil.isEncoded(value)) {
                     jssName.addElement(createAVA(Name.organizationalUnitName, n, value));
                 } else {
                     jssName.addOrganizationalUnitName(value);

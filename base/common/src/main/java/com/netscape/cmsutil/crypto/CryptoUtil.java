@@ -1187,19 +1187,15 @@ public class CryptoUtil {
         return pkcs10;
     }
 
-    static boolean isEncoded (String elementValue) {
-        boolean encoded = false;
+    public static boolean isEncoded(String elementValue) {
 
-        //System.out.println("CryptoUtil: isEncoded: elementValue =" +
-        //    elementValue);
-        if (elementValue != null && ((elementValue.startsWith("UTF8String:")) ||
-                                     (elementValue.startsWith("PrintableString:")) ||
-                                     (elementValue.startsWith("BMPString:")) ||
-                                     (elementValue.startsWith("TeletexString:")) ||
-                                     (elementValue.startsWith("UniversalString:")))) {
-            encoded = true;
-        }
-        return encoded;
+        if (elementValue == null) return false;
+
+        return elementValue.startsWith("UTF8String:")
+                || elementValue.startsWith("PrintableString:")
+                || elementValue.startsWith("BMPString:")
+                || elementValue.startsWith("TeletexString:")
+                || elementValue.startsWith("UniversalString:");
     }
 
     static Name addNameElement (Name name, OBJECT_IDENTIFIER oid, int n, String elementValue) {
