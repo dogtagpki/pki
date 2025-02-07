@@ -1,32 +1,13 @@
 = Managing DS Realm =
 
-If you have chosen to use an LDAP instance for user management, before
-adding users, please ensure that you have configured the directory
-server and added base entries. Installation instructions can be found
-https://github.com/dogtagpki/pki/wiki/DS-Installation[here].
-
 The user DB requires a node containing the users (_inetOrgPerson_) and
-a node containing the groups (_groupOfUniqueNames_). Therefore, if
-the base dn is `dc=pki,dc=example,dc=com` it is possible to create a
-tree with a user using the command:
+a node containing the groups (_groupOfUniqueNames_). Therefore, if the
+base dn is `dc=pki,dc=example,dc=com` it is possible to add a user
+using the command:
 
 ----
 ldapadd -x -H ldap://estds.example.com:389 \
     -D "cn=Directory Manager"  -w Secret.123 << EOF
-dn: dc=est,dc=pki,dc=example,dc=com
-objectClass: domain
-dc: est
-          
-dn: ou=people,dc=est,dc=pki,dc=example,dc=com
-ou: people
-objectClass: top
-objectClass: organizationalUnit
-          
-dn: ou=groups,dc=est,dc=pki,dc=example,dc=com
-ou: groups
-objectClass: top
-objectClass: organizationalUnit
-          
 dn: uid=est-test-user,ou=people,dc=est,dc=pki,dc=example,dc=com
 objectClass: top
 objectClass: person
