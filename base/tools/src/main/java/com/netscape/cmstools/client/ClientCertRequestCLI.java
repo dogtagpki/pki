@@ -458,7 +458,7 @@ public class ClientCertRequestCLI extends CommandCLI {
         CRMFPopClient client = new CRMFPopClient();
         client.setUseOAEP(useOAEP);
 
-        Name subject = client.createName(subjectDN, attributeEncoding);
+        Name subject = CryptoUtil.createName(subjectDN, attributeEncoding);
 
         KeyPair keyPair;
         if (algorithm.equals("rsa")) {

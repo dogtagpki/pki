@@ -1164,7 +1164,7 @@ public class CryptoUtil {
         if (!encodeSubj)
             name = new X500Name(subjectName);
         else {
-            Name n = getJssName(encodeSubj, subjectName);
+            Name n = createName(subjectName, encodeSubj);
             ByteArrayOutputStream subjectEncStream = new ByteArrayOutputStream();
             n.encode(subjectEncStream);
             byte[] b = subjectEncStream.toByteArray();
@@ -1229,113 +1229,77 @@ public class CryptoUtil {
         return null;
     }
 
-    static Name getJssName(boolean enable_encoding, String dn) {
+    public static Name createName(String dn, boolean encodingEnabled) throws Exception {
 
-        X500Name x5Name = null;
+        X500Name x500Name = new X500Name(dn);
+        Name jssName = new Name();
 
-        //System.out.println("CryptoUtil: getJssName: dn= " + dn);
-        try {
-            x5Name = new X500Name(dn);
-        } catch (IOException e) {
+        for (org.mozilla.jss.netscape.security.x509.RDN rdn : x500Name.getNames()) {
 
-            System.out.println("CryptoUtil: Illegal Subject Name:  " + dn + " Error: " + e.toString());
-            System.out.println("CryptoUtil: Filling in default Subject Name......");
-            return null;
-        }
+            String rdnStr = rdn.toString();
+            logger.info("CryptoUtil: RDN: " + rdnStr);
 
-        Name ret = new Name();
-        org.mozilla.jss.netscape.security.x509.RDN[] names = null;
-        names = x5Name.getNames();
-        int nameLen = x5Name.getNamesLength();
-
-        org.mozilla.jss.netscape.security.x509.RDN cur = null;
-
-        for (int i = 0; i < nameLen; i++) {
-            cur = names[i];
-            String rdnStr = cur.toString();
             String[] split = rdnStr.split("=");
-
-            if (split.length != 2)
+            if (split.length != 2) {
                 continue;
-            // System.out.println("  getJssName: split[0] =" + split[0]);
-            // System.out.println("  getJssName: split[1] =" + split[1]);
-            int n = split[1].indexOf(':');
+            }
 
-            try {
-                if (split[0].equals("UID")) {
-                    if (enable_encoding && isEncoded(split[1])) {
-                        ret.addElement(createAVA(new OBJECT_IDENTIFIER("0.9.2342.19200300.100.1.1"), n, split[1]));
-                    } else {
-                        ret.addElement(new AVA(new OBJECT_IDENTIFIER("0.9.2342.19200300.100.1.1"), new PrintableString(split[1])));
-                    }
+            String attribute = split[0];
+            String value = split[1];
+
+            int n = value.indexOf(':');
+
+            if (attribute.equalsIgnoreCase("UID")) {
+                if (encodingEnabled && isEncoded(value)) {
+                    jssName.addElement(createAVA(new OBJECT_IDENTIFIER("0.9.2342.19200300.100.1.1"), n, value));
+                } else {
+                    jssName.addElement(new AVA(new OBJECT_IDENTIFIER("0.9.2342.19200300.100.1.1"), new PrintableString(value)));
                 }
 
-                if (split[0].equals("C")) {
-                    ret.addCountryName(split[1]);
-                    //                   System.out.println("C found : " + split[1]);
-                    continue;
+            } else if (attribute.equalsIgnoreCase("C")) {
+                jssName.addCountryName(value);
+
+            } else if (attribute.equalsIgnoreCase("CN")) {
+                if (encodingEnabled && isEncoded(value)) {
+                    jssName.addElement(createAVA(Name.commonName, n, value));
+                } else {
+                    jssName.addCommonName(value);
                 }
 
-                if (split[0].equals("CN")) {
-                    if (enable_encoding && isEncoded(split[1])) {
-                        // System.out.println("    getJssName: encoded CN");
-                        ret.addElement(createAVA(Name.commonName, n, split[1]));
-                    } else {
-                        // System.out.println("    getJssName: not encoded CN");
-                        ret.addCommonName(split[1]);
-                    }
-                    //                  System.out.println("CN found : " + split[1]);
-                    continue;
+            } else if (attribute.equalsIgnoreCase("L")) {
+                if (encodingEnabled && isEncoded(value)) {
+                    jssName.addElement(createAVA(Name.localityName, n, value));
+                } else {
+                    jssName.addLocalityName(value);
                 }
 
-                if (split[0].equals("L")) {
-                    if (enable_encoding && isEncoded(split[1])) {
-                        ret.addElement(createAVA(Name.localityName, n, split[1]));
-                    } else {
-                        ret.addLocalityName(split[1]);
-                    }
-                    //                 System.out.println("L found : " + split[1]);
-                    continue;
+            } else if (attribute.equalsIgnoreCase("O")) {
+                if (encodingEnabled && isEncoded(value)) {
+                    jssName.addElement(createAVA(Name.organizationName, n, value));
+                } else {
+                    jssName.addOrganizationName(value);
                 }
 
-                if (split[0].equals("O")) {
-                    if (enable_encoding && isEncoded(split[1])) {
-                        // System.out.println("    getJssName: encoded O");
-                        ret.addElement(createAVA(Name.organizationName, n, split[1]));
-                    } else {
-                        // System.out.println("    getJssName: not encoded O");
-                        ret.addOrganizationName(split[1]);
-                    }
-                    //                System.out.println("O found : " + split[1]);
-                    continue;
+            } else if (attribute.equalsIgnoreCase("ST")) {
+                if (encodingEnabled && isEncoded(value)) {
+                    jssName.addElement(createAVA(Name.stateOrProvinceName, n, value));
+                } else {
+                    jssName.addStateOrProvinceName(value);
                 }
 
-                if (split[0].equals("ST")) {
-                    if (enable_encoding && isEncoded(split[1])) {
-                        ret.addElement(createAVA(Name.stateOrProvinceName, n, split[1]));
-                    } else {
-                        ret.addStateOrProvinceName(split[1]);
-                    }
-                    //               System.out.println("ST found : " + split[1]);
-                    continue;
+            } else if (attribute.equalsIgnoreCase("OU")) {
+                if (encodingEnabled && isEncoded(value)) {
+                    jssName.addElement(createAVA(Name.organizationalUnitName, n, value));
+                } else {
+                    jssName.addOrganizationalUnitName(value);
                 }
 
-                if (split[0].equals("OU")) {
-                    if (enable_encoding && isEncoded(split[1])) {
-                        // System.out.println("    getJssName: encoded OU");
-                        ret.addElement(createAVA(Name.organizationalUnitName, n, split[1]));
-                    } else {
-                        // System.out.println("    getJssName: not encoded OU");
-                        ret.addOrganizationalUnitName(split[1]);
-                    }
-                    //              System.out.println("OU found : " + split[1]);
-                }
-            } catch (Exception e) {
-                System.out.println("CryptoUtil: Error constructing RDN: " + rdnStr + " Error: " + e.toString());
+            } else {
+                throw new Exception("Unsupported attribute: " + attribute);
             }
         }
 
-        return ret;
+        return jssName;
     }
     public static KeyIdentifier createKeyIdentifier(KeyPair keypair) throws InvalidKeyException {
         String method = "CryptoUtil: createKeyIdentifier: ";

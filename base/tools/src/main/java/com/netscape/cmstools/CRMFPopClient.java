@@ -70,7 +70,6 @@ import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.util.WrappingParams;
 import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
 import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
-import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.pkix.crmf.CertReqMsg;
 import org.mozilla.jss.pkix.crmf.CertRequest;
 import org.mozilla.jss.pkix.crmf.CertTemplate;
@@ -463,7 +462,7 @@ public class CRMFPopClient {
             }
 
             if (verbose) System.out.println("Parsing subject DN");
-            Name subject = client.createName(subjectDN, encodingEnabled);
+            Name subject = CryptoUtil.createName(subjectDN, encodingEnabled);
 
             if (subject == null) {
                 subject = new Name();
@@ -932,76 +931,5 @@ public class CRMFPopClient {
         }
 
         EntityUtils.consume(entity);
-    }
-
-    public Name createName(String dn, boolean encodingEnabled) throws Exception {
-
-        X500Name x500Name = new X500Name(dn);
-        Name jssName = new Name();
-
-        for (org.mozilla.jss.netscape.security.x509.RDN rdn : x500Name.getNames()) {
-
-            String rdnStr = rdn.toString();
-            if (verbose) System.out.println("RDN: " + rdnStr);
-
-            String[] split = rdnStr.split("=");
-            if (split.length != 2) continue;
-
-            String attribute = split[0];
-            String value = split[1];
-
-            int n = value.indexOf(':');
-
-            if (attribute.equalsIgnoreCase("UID")) {
-                if (encodingEnabled && CryptoUtil.isEncoded(value)) {
-                    jssName.addElement(CryptoUtil.createAVA(new OBJECT_IDENTIFIER("0.9.2342.19200300.100.1.1"), n, value));
-                } else {
-                    jssName.addElement(new AVA(new OBJECT_IDENTIFIER("0.9.2342.19200300.100.1.1"), new PrintableString(value)));
-                }
-
-            } else if (attribute.equalsIgnoreCase("C")) {
-                jssName.addCountryName(value);
-
-            } else if (attribute.equalsIgnoreCase("CN")) {
-                if (encodingEnabled && CryptoUtil.isEncoded(value)) {
-                    jssName.addElement(CryptoUtil.createAVA(Name.commonName, n, value));
-                } else {
-                    jssName.addCommonName(value);
-                }
-
-            } else if (attribute.equalsIgnoreCase("L")) {
-                if (encodingEnabled && CryptoUtil.isEncoded(value)) {
-                    jssName.addElement(CryptoUtil.createAVA(Name.localityName, n, value));
-                } else {
-                    jssName.addLocalityName(value);
-                }
-
-            } else if (attribute.equalsIgnoreCase("O")) {
-                if (encodingEnabled && CryptoUtil.isEncoded(value)) {
-                    jssName.addElement(CryptoUtil.createAVA(Name.organizationName, n, value));
-                } else {
-                    jssName.addOrganizationName(value);
-                }
-
-            } else if (attribute.equalsIgnoreCase("ST")) {
-                if (encodingEnabled && CryptoUtil.isEncoded(value)) {
-                    jssName.addElement(CryptoUtil.createAVA(Name.stateOrProvinceName, n, value));
-                } else {
-                    jssName.addStateOrProvinceName(value);
-                }
-
-            } else if (attribute.equalsIgnoreCase("OU")) {
-                if (encodingEnabled && CryptoUtil.isEncoded(value)) {
-                    jssName.addElement(CryptoUtil.createAVA(Name.organizationalUnitName, n, value));
-                } else {
-                    jssName.addOrganizationalUnitName(value);
-                }
-
-            } else {
-                throw new Exception("Unsupported attribute: " + attribute);
-            }
-        }
-
-        return jssName;
     }
 }
