@@ -496,7 +496,7 @@ public class ClientCertRequestCLI extends CommandCLI {
 
         ProofOfPossession pop = null;
         if (withPop) {
-            Signature signer = client.createSigner(token, algorithm, keyPair);
+            Signature signer = CryptoUtil.createSigner(token, algorithm, keyPair);
 
             ByteArrayOutputStream bo = new ByteArrayOutputStream();
             certRequest.encode(bo);

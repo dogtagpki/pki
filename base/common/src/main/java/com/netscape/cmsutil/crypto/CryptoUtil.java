@@ -1190,6 +1190,27 @@ public class CryptoUtil {
         return pkcs10;
     }
 
+    public static Signature createSigner(
+            CryptoToken token,
+            String algorithm,
+            KeyPair keyPair) throws Exception {
+
+        Signature signer;
+        if (algorithm.equals("rsa")) {
+            signer =  token.getSignatureContext(SignatureAlgorithm.RSASignatureWithSHA256Digest);
+
+        } else if (algorithm.equals("ec")) {
+            signer =  token.getSignatureContext(SignatureAlgorithm.ECSignatureWithSHA256Digest);
+
+        } else {
+            throw new Exception("Unknown algorithm: " + algorithm);
+        }
+
+        signer.initSign((org.mozilla.jss.crypto.PrivateKey) keyPair.getPrivate());
+
+        return signer;
+    }
+
     public static ProofOfPossession createPop(
             String algorithm,
             byte[] signature) throws Exception {
