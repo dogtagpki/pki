@@ -23,6 +23,10 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.PrintStream;
 import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.interfaces.DSAPublicKey;
+import java.security.interfaces.RSAPublicKey;
 
 import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
@@ -34,6 +38,7 @@ import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
 import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -341,10 +346,25 @@ public class PKCS10Client {
                 extns.add(extn);
             }
 
-            PKCS10 certReq = CryptoUtil.createCertificationRequest(
+            PublicKey publicKey = pair.getPublic();
+            X509Key key = CryptoUtil.createX509Key(publicKey);
+
+            String algorithm;
+            if (publicKey instanceof RSAPublicKey) {
+                algorithm = "SHA256withRSA";
+            } else if (CryptoUtil.isECCKey(key)) {
+                algorithm = "SHA256withEC";
+            } else if (publicKey instanceof DSAPublicKey) {
+                algorithm = "DSA";
+            } else {
+                throw new NoSuchAlgorithmException("Unsupported algorithm: " + publicKey.getAlgorithm());
+            }
+
+            PKCS10 certReq = CryptoUtil.createPKCS10Request(
                     subjectName,
                     enable_encoding,
                     pair,
+                    algorithm,
                     extns);
 
             if (verbose) {

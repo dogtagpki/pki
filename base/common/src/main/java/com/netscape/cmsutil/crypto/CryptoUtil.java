@@ -1109,45 +1109,7 @@ public class CryptoUtil {
     /**
      * Creates a PKCS #10 request.
      */
-    public static PKCS10 createCertificationRequest(
-            String subjectName,
-            KeyPair keyPair,
-            Extensions exts) throws Exception {
-        return createCertificationRequest(subjectName, false, keyPair, exts);
-    }
-    // encodeSubj works with PKCS10Client "-k" option
-    public static PKCS10 createCertificationRequest(
-            String subjectName,
-            boolean encodeSubj,
-            KeyPair keyPair,
-            Extensions exts) throws Exception {
-
-        PublicKey publicKey = keyPair.getPublic();
-        X509Key key = createX509Key(publicKey);
-
-        String alg;
-        if (publicKey instanceof RSAPublicKey) {
-            alg = "SHA256withRSA";
-        } else if (isECCKey(key)) {
-            alg = "SHA256withEC";
-        } else if (publicKey instanceof DSAPublicKey) {
-            alg = "DSA";
-        } else {
-            throw new NoSuchAlgorithmException("Unsupported algorithm: " + publicKey.getAlgorithm());
-        }
-
-        return createCertificationRequest(subjectName, encodeSubj, keyPair, alg, exts);
-    }
-
-    public static PKCS10 createCertificationRequest(
-            String subjectName,
-            KeyPair keyPair,
-            String alg,
-            Extensions exts) throws Exception {
-        return createCertificationRequest(subjectName, false, keyPair, alg, exts);
-    }
-    // encodeSubj works with PKCS10Client "-k" option
-    public static PKCS10 createCertificationRequest(
+    public static PKCS10 createPKCS10Request(
             String subjectName,
             boolean encodeSubj,
             KeyPair keyPair,

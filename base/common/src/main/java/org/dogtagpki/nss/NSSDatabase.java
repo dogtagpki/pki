@@ -1065,8 +1065,9 @@ public class NSSDatabase {
         logger.debug("NSSDatabase: - subjecct: " + subject);
         logger.debug("NSSDatabase: - algorithm: " + algorithm);
 
-        return CryptoUtil.createCertificationRequest(
+        return CryptoUtil.createPKCS10Request(
                 subject,
+                false,
                 keyPair,
                 algorithm,
                 extensions);
