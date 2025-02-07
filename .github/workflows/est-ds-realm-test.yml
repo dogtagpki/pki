@@ -83,6 +83,12 @@ jobs:
           docker exec pki pki -n caadmin ca-profile-enable estServiceCert
           docker exec pki pki-server restart --wait
 
+      - name: Set up EST user DB
+        run: |
+          docker exec -i pki ldapadd -x -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager"  -w Secret.123 \
+              -f /usr/share/pki/est/conf/realm/ds/create.ldif
+
       - name: Install EST
         run: |
           docker exec pki pkispawn \
@@ -229,20 +235,6 @@ jobs:
         run: |
           docker exec -i pki ldapadd -x -H ldap://ds.example.com:3389 \
               -D "cn=Directory Manager"  -w Secret.123 << EOF
-          dn: dc=est,dc=pki,dc=example,dc=com
-          objectClass: domain
-          dc: est 
-          
-          dn: ou=people,dc=est,dc=pki,dc=example,dc=com
-          ou: people
-          objectClass: top
-          objectClass: organizationalUnit
-          
-          dn: ou=groups,dc=est,dc=pki,dc=example,dc=com
-          ou: groups
-          objectClass: top
-          objectClass: organizationalUnit
-          
           dn: uid=est-test-user,ou=people,dc=est,dc=pki,dc=example,dc=com
           objectClass: top
           objectClass: person
@@ -438,17 +430,3 @@ jobs:
         if: always()
         run: |
           docker exec pki find /var/lib/pki/pki-tomcat/logs/est -name "debug.*" -exec cat {} \;
-
-      - name: Gather artifacts
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh ds
-          tests/bin/pki-artifacts-save.sh pki
-        continue-on-error: true
-
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: est-ds-basic
-          path: /tmp/artifacts
