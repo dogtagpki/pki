@@ -1,23 +1,7 @@
 = Managing PostgreSQL Realm =
 
-If you have chosen to use *PostgreSQL* for user management, you first
-need to prepare a database (e.g. est) and a user (e.g. est) to access
-the database. Installation instructions can be found link:https://www.postgresql.org/download/linux[here].
+To add a in the tables it is possible to execeute the following commands:
 
-After the installation, verify the database connection with the
-following command:
-----
-$ psql -U est -d est
-----
-    
-To use the _PostreSQL_ DB the user tables should be created with the
-sql file provided in
-`/usr/share/pki/est/conf/realm/postgresql/create.sql` and then filled
-with the user information. The tables can be created with the command:
-----
-$ psql -U est -t -A -f /tmp/create.sql est
-----
-Then fill the tables with the commands:
 ----
 $ psql -U est -t -A -c "INSERT INTO users VALUES ('est-test-user', 'EST TEST USER', '<tomcat_digest>');"  est 
 $ psql -U est -t -A -c "INSERT INTO groups VALUES ('estclient', 'EST TEST USERS');"  est 
@@ -27,21 +11,6 @@ $ psql -U est -t -A -c "INSERT INTO group_members VALUES ('estclient', 'est-test
 Note: the tomcat digest for the password can be obtained with the command:
 ----
 $ tomcat-digest <user_password>
-----
-
-It is possible to use different schemas but in this case a custom
-`statements.conf` file (provided in the same folder) has to be
-provided in order to retrieve the user information from the DB.
-
-Additionally, java driver for PostgreSQL need to be installed in the EST server and linked into library folder of pki:
-
-----
-# dnf install -y postgresql-jdbc
-# ln -s /usr/share/java/postgresql-jdbc/postgresql.jar /usr/share/pki/server/common/lib
-# ln -s /usr/share/java/ongres-scram/client.jar /usr/share/pki/server/common/lib
-# ln -s /usr/share/java/ongres-scram/common.jar /usr/share/pki/server/common/lib
-# ln -s /usr/share/java/ongres-stringprep/saslprep.jar /usr/share/pki/server/common/lib/
-# ln -s /usr/share/java/ongres-stringprep/stringprep.jar /usr/share/pki/server/common/lib/
 ----
 
 == TLS mutual authentication ==

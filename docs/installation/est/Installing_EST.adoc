@@ -65,18 +65,16 @@ Enabled profile "estServiceCert"
 
 Note: before enabling the profile verify if the options satisfy the requirement for the deployment.
 
+*EST* subsystem has its own realm authentication with a separate
+user DB. _LDAP_, _PostreSQL_ and file based DB are supported. The DB
+has to be prepared in advance for authentication to work. Instructions
+to set up the user DB are available in
+xref:../est/SetUpRealmDB.adoc[Set Up Realm DB].
+
 
 
 
 == EST Subsystem Installation ==
-
-*EST* subsystem has its own realm authentication with a separate
-user DB. _LDAP_, _PostreSQL_ and file based DB are supported. The DB
-has to be prepared in advance for authentication to work. User
-management is handled on the selected DB, outside EST. Management
-information of _LDAP_ DB is available in the page
-xref:../../admin/est/Managing_DS_Realm.adoc[Managing DS Realm] while
-for _PostgreSQL_ in the page xref:../../admin/est/Managing_PostgreSQL_Realm.adoc[Managing PostgreSQL Realm].
 
 There are two options for the installation:
 
@@ -92,6 +90,15 @@ There are two options for the installation:
 
 
 == Verifying EST ==
+Before enrolling certificates EST users must be added in the user
+database.  The user management is not part of EST commands and has to
+be done outside EST. Guide on how To add user into DS realm is
+available in the page
+xref:../../admin/est/Managing_DS_Realm.adoc[Managing DS Realm] while
+for _PostgreSQL_ in the page
+xref:../../admin/est/Managing_PostgreSQL_Realm.adoc[Managing
+PostgreSQL Realm].
+
 
 Use `curl` to verify that the *EST subsystem* is deployed and is able to communicate with the *CA subsystem*.
 
