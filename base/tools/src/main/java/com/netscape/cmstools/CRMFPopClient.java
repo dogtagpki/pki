@@ -49,15 +49,11 @@ import org.dogtagpki.common.CAInfoClient;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.BIT_STRING;
-import org.mozilla.jss.asn1.BMPString;
 import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.asn1.PrintableString;
 import org.mozilla.jss.asn1.SEQUENCE;
-import org.mozilla.jss.asn1.TeletexString;
-import org.mozilla.jss.asn1.UTF8String;
-import org.mozilla.jss.asn1.UniversalString;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.IVParameterSpec;
@@ -938,37 +934,6 @@ public class CRMFPopClient {
         EntityUtils.consume(entity);
     }
 
-    public AVA createAVA(OBJECT_IDENTIFIER oid, int n, String elementValue) throws Exception {
-
-        String encodingType = n > 0 ? elementValue.substring(0, n) : null;
-        String nameValue = n > 0 ? elementValue.substring(n+1) : null;
-
-        if (encodingType != null && encodingType.length() > 0
-                && nameValue != null && nameValue.length() > 0) {
-
-            if (encodingType.equals("UTF8String")) {
-                return new AVA(oid, new UTF8String(nameValue));
-
-            } else if (encodingType.equals("PrintableString")) {
-                return new AVA(oid, new PrintableString(nameValue));
-
-            } else if (encodingType.equals("BMPString")) {
-                return new AVA(oid, new BMPString(nameValue));
-
-            } else if (encodingType.equals("TeletexString")) {
-                return new AVA(oid, new TeletexString(nameValue));
-
-            } else if (encodingType.equals("UniversalString")) {
-                return new AVA(oid, new UniversalString(nameValue));
-
-            } else {
-                throw new Exception("Unsupported encoding: " + encodingType);
-            }
-        }
-
-        return null;
-    }
-
     public Name createName(String dn, boolean encodingEnabled) throws Exception {
 
         X500Name x500Name = new X500Name(dn);
@@ -988,48 +953,46 @@ public class CRMFPopClient {
             int n = value.indexOf(':');
 
             if (attribute.equalsIgnoreCase("UID")) {
-                AVA ava;
                 if (encodingEnabled && CryptoUtil.isEncoded(value)) {
-                    ava = createAVA(new OBJECT_IDENTIFIER("0.9.2342.19200300.100.1.1"), n, value);
+                    jssName.addElement(CryptoUtil.createAVA(new OBJECT_IDENTIFIER("0.9.2342.19200300.100.1.1"), n, value));
                 } else {
-                    ava = new AVA(new OBJECT_IDENTIFIER("0.9.2342.19200300.100.1.1"), new PrintableString(value));
+                    jssName.addElement(new AVA(new OBJECT_IDENTIFIER("0.9.2342.19200300.100.1.1"), new PrintableString(value)));
                 }
-                jssName.addElement(ava);
 
             } else if (attribute.equalsIgnoreCase("C")) {
                 jssName.addCountryName(value);
 
             } else if (attribute.equalsIgnoreCase("CN")) {
                 if (encodingEnabled && CryptoUtil.isEncoded(value)) {
-                    jssName.addElement(createAVA(Name.commonName, n, value));
+                    jssName.addElement(CryptoUtil.createAVA(Name.commonName, n, value));
                 } else {
                     jssName.addCommonName(value);
                 }
 
             } else if (attribute.equalsIgnoreCase("L")) {
                 if (encodingEnabled && CryptoUtil.isEncoded(value)) {
-                    jssName.addElement(createAVA(Name.localityName, n, value));
+                    jssName.addElement(CryptoUtil.createAVA(Name.localityName, n, value));
                 } else {
                     jssName.addLocalityName(value);
                 }
 
             } else if (attribute.equalsIgnoreCase("O")) {
                 if (encodingEnabled && CryptoUtil.isEncoded(value)) {
-                    jssName.addElement(createAVA(Name.organizationName, n, value));
+                    jssName.addElement(CryptoUtil.createAVA(Name.organizationName, n, value));
                 } else {
                     jssName.addOrganizationName(value);
                 }
 
             } else if (attribute.equalsIgnoreCase("ST")) {
                 if (encodingEnabled && CryptoUtil.isEncoded(value)) {
-                    jssName.addElement(createAVA(Name.stateOrProvinceName, n, value));
+                    jssName.addElement(CryptoUtil.createAVA(Name.stateOrProvinceName, n, value));
                 } else {
                     jssName.addStateOrProvinceName(value);
                 }
 
             } else if (attribute.equalsIgnoreCase("OU")) {
                 if (encodingEnabled && CryptoUtil.isEncoded(value)) {
-                    jssName.addElement(createAVA(Name.organizationalUnitName, n, value));
+                    jssName.addElement(CryptoUtil.createAVA(Name.organizationalUnitName, n, value));
                 } else {
                     jssName.addOrganizationalUnitName(value);
                 }

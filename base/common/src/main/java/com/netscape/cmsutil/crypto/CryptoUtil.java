@@ -1198,39 +1198,35 @@ public class CryptoUtil {
                 || elementValue.startsWith("UniversalString:");
     }
 
-    static Name addNameElement (Name name, OBJECT_IDENTIFIER oid, int n, String elementValue) {
-        // System.out.println("CryptoUtil: addNameElement: elementValue =" +
-        //     elementValue);
-        try {
-            String encodingType = (n > 0)? elementValue.substring(0, n): null;
-            // System.out.println("CryptoUtil: addNameElement: encodingType =" +
-            //     encodingType);
-            String nameValue = (n > 0)? elementValue.substring(n+1): null;
-            // System.out.println("CryptoUtil: addNameElement: nameValue =" +
-            //     nameValue);
-            if (encodingType != null && encodingType.length() > 0 &&
-                nameValue != null && nameValue.length() > 0) {
-                if (encodingType.equals("UTF8String")) {
-                // System.out.println("CryptoUtil: addNameElement: UTF8String");
-                    name.addElement( new AVA(oid, new UTF8String(nameValue)));
-                } else if (encodingType.equals("PrintableString")) {
-                // System.out.println("CryptoUtil: addNameElement: PrintableString");
-                    name.addElement( new AVA(oid, new PrintableString(nameValue)));
-                } else if (encodingType.equals("BMPString")) {
-                // System.out.println("CryptoUtil: addNameElement: BMPString");
-                    name.addElement( new AVA(oid, new BMPString(nameValue)));
-                } else if (encodingType.equals("TeletexString")) {
-                // System.out.println("CryptoUtil: addNameElement: TeletexString");
-                    name.addElement( new AVA(oid, new TeletexString(nameValue)));
-                } else if (encodingType.equals("UniversalString")) {
-                // System.out.println("CryptoUtil: addNameElement: UniversalString");
-                    name.addElement( new AVA(oid, new UniversalString(nameValue)));
-                }
+    public static AVA createAVA(OBJECT_IDENTIFIER oid, int n, String elementValue) throws Exception {
+
+        String encodingType = n > 0 ? elementValue.substring(0, n) : null;
+        String nameValue = n > 0 ? elementValue.substring(n+1) : null;
+
+        if (encodingType != null && encodingType.length() > 0
+                && nameValue != null && nameValue.length() > 0) {
+
+            if (encodingType.equals("UTF8String")) {
+                return new AVA(oid, new UTF8String(nameValue));
+
+            } else if (encodingType.equals("PrintableString")) {
+                return new AVA(oid, new PrintableString(nameValue));
+
+            } else if (encodingType.equals("BMPString")) {
+                return new AVA(oid, new BMPString(nameValue));
+
+            } else if (encodingType.equals("TeletexString")) {
+                return new AVA(oid, new TeletexString(nameValue));
+
+            } else if (encodingType.equals("UniversalString")) {
+                return new AVA(oid, new UniversalString(nameValue));
+
+            } else {
+                throw new Exception("Unsupported encoding: " + encodingType);
             }
-        }  catch (Exception e)  {
-            System.out.println("CryptoUtil: Error adding name element: " + elementValue + " Error: "  + e.toString());
         }
-        return name;
+
+        return null;
     }
 
     static Name getJssName(boolean enable_encoding, String dn) {
@@ -1268,15 +1264,10 @@ public class CryptoUtil {
             try {
                 if (split[0].equals("UID")) {
                     if (enable_encoding && isEncoded(split[1])) {
-                        // System.out.println("    getJssName: encoded UID");
-                        ret = addNameElement(ret, new OBJECT_IDENTIFIER("0.9.2342.19200300.100.1.1"),
-                                             n, split[1]);
+                        ret.addElement(createAVA(new OBJECT_IDENTIFIER("0.9.2342.19200300.100.1.1"), n, split[1]));
                     } else {
-                        // System.out.println("    getJssName: not encoded UID");
-                        ret.addElement(new AVA(new OBJECT_IDENTIFIER("0.9.2342.19200300.100.1.1"),
-                                               new PrintableString(split[1])));
+                        ret.addElement(new AVA(new OBJECT_IDENTIFIER("0.9.2342.19200300.100.1.1"), new PrintableString(split[1])));
                     }
-                    //                 System.out.println("UID found : " + split[1]);
                 }
 
                 if (split[0].equals("C")) {
@@ -1288,7 +1279,7 @@ public class CryptoUtil {
                 if (split[0].equals("CN")) {
                     if (enable_encoding && isEncoded(split[1])) {
                         // System.out.println("    getJssName: encoded CN");
-                        ret = addNameElement (ret, Name.commonName, n, split[1]);
+                        ret.addElement(createAVA(Name.commonName, n, split[1]));
                     } else {
                         // System.out.println("    getJssName: not encoded CN");
                         ret.addCommonName(split[1]);
@@ -1299,7 +1290,7 @@ public class CryptoUtil {
 
                 if (split[0].equals("L")) {
                     if (enable_encoding && isEncoded(split[1])) {
-                        ret = addNameElement (ret, Name.localityName, n, split[1]);
+                        ret.addElement(createAVA(Name.localityName, n, split[1]));
                     } else {
                         ret.addLocalityName(split[1]);
                     }
@@ -1310,7 +1301,7 @@ public class CryptoUtil {
                 if (split[0].equals("O")) {
                     if (enable_encoding && isEncoded(split[1])) {
                         // System.out.println("    getJssName: encoded O");
-                        ret = addNameElement (ret, Name.organizationName, n, split[1]);
+                        ret.addElement(createAVA(Name.organizationName, n, split[1]));
                     } else {
                         // System.out.println("    getJssName: not encoded O");
                         ret.addOrganizationName(split[1]);
@@ -1321,7 +1312,7 @@ public class CryptoUtil {
 
                 if (split[0].equals("ST")) {
                     if (enable_encoding && isEncoded(split[1])) {
-                        ret = addNameElement (ret, Name.stateOrProvinceName, n, split[1]);
+                        ret.addElement(createAVA(Name.stateOrProvinceName, n, split[1]));
                     } else {
                         ret.addStateOrProvinceName(split[1]);
                     }
@@ -1332,7 +1323,7 @@ public class CryptoUtil {
                 if (split[0].equals("OU")) {
                     if (enable_encoding && isEncoded(split[1])) {
                         // System.out.println("    getJssName: encoded OU");
-                        ret = addNameElement (ret, Name.organizationalUnitName, n, split[1]);
+                        ret.addElement(createAVA(Name.organizationalUnitName, n, split[1]));
                     } else {
                         // System.out.println("    getJssName: not encoded OU");
                         ret.addOrganizationalUnitName(split[1]);
