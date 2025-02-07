@@ -159,6 +159,7 @@ import org.mozilla.jss.pkix.crmf.CertTemplate;
 import org.mozilla.jss.pkix.crmf.EncryptedKey;
 import org.mozilla.jss.pkix.crmf.EncryptedValue;
 import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
+import org.mozilla.jss.pkix.crmf.POPOSigningKey;
 import org.mozilla.jss.pkix.crmf.ProofOfPossession;
 import org.mozilla.jss.pkix.primitive.AVA;
 import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
@@ -1187,6 +1188,25 @@ public class CryptoUtil {
         pkcs10.encodeAndSign(signer);
 
         return pkcs10;
+    }
+
+    public static ProofOfPossession createPop(
+            String algorithm,
+            byte[] signature) throws Exception {
+
+        AlgorithmIdentifier algorithmID;
+        if (algorithm.equals("rsa")) {
+            algorithmID = new AlgorithmIdentifier(SignatureAlgorithm.RSASignatureWithSHA256Digest.toOID(), null);
+
+        } else if (algorithm.equals("ec")) {
+            algorithmID = new AlgorithmIdentifier(SignatureAlgorithm.ECSignatureWithSHA256Digest.toOID(), null);
+
+        } else {
+            throw new Exception("Unknown algorithm: " + algorithm);
+        }
+
+        POPOSigningKey popoKey = new POPOSigningKey(null, algorithmID, new BIT_STRING(signature, 0));
+        return ProofOfPossession.createSignature(popoKey);
     }
 
     public static byte[] createCRMFRequest(

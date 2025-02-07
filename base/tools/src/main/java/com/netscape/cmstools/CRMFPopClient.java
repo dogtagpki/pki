@@ -47,7 +47,6 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.dogtagpki.common.CAInfoClient;
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.asn1.BIT_STRING;
 import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.OCTET_STRING;
@@ -68,7 +67,6 @@ import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
 import org.mozilla.jss.pkix.crmf.CertRequest;
 import org.mozilla.jss.pkix.crmf.CertTemplate;
 import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
-import org.mozilla.jss.pkix.crmf.POPOSigningKey;
 import org.mozilla.jss.pkix.crmf.ProofOfPossession;
 import org.mozilla.jss.pkix.primitive.AVA;
 import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
@@ -564,7 +562,7 @@ public class CRMFPopClient {
                 byte[] signature = signer.sign();
 
                 if (verbose) System.out.println("Creating POP");
-                pop = client.createPop(algorithm, signature);
+                pop = CryptoUtil.createPop(algorithm, signature);
             }
 
             if (verbose) System.out.println("Creating CRMF request");
@@ -753,23 +751,6 @@ public class CRMFPopClient {
         signer.initSign((org.mozilla.jss.crypto.PrivateKey) keyPair.getPrivate());
 
         return signer;
-    }
-
-    public ProofOfPossession createPop(String algorithm, byte[] signature) throws Exception {
-
-        AlgorithmIdentifier algorithmID;
-        if (algorithm.equals("rsa")) {
-            algorithmID = new AlgorithmIdentifier(SignatureAlgorithm.RSASignatureWithSHA256Digest.toOID(), null);
-
-        } else if (algorithm.equals("ec")) {
-            algorithmID = new AlgorithmIdentifier(SignatureAlgorithm.ECSignatureWithSHA256Digest.toOID(), null);
-
-        } else {
-            throw new Exception("Unknown algorithm: " + algorithm);
-        }
-
-        POPOSigningKey popoKey = new POPOSigningKey(null, algorithmID, new BIT_STRING(signature, 0));
-        return ProofOfPossession.createSignature(popoKey);
     }
 
     public void submitRequest(
