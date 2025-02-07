@@ -54,6 +54,7 @@ import org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.Signature;
+import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
@@ -527,7 +528,6 @@ public class CRMFPopClient {
                     use_shared_secret,
                     token,
                     transportCert,
-                    algorithm,
                     keyPair,
                     subject,
                     keyWrapAlgorithm,
@@ -538,7 +538,19 @@ public class CRMFPopClient {
             if (!popOption.equals("POP_NONE")) {
 
                 if (verbose) System.out.println("Creating signer");
-                Signature signer = CryptoUtil.createSigner(token, algorithm, keyPair);
+
+                SignatureAlgorithm signatureAlgorithm;
+                if (algorithm.equals("rsa")) {
+                    signatureAlgorithm = SignatureAlgorithm.RSASignatureWithSHA256Digest;
+
+                } else if (algorithm.equals("ec")) {
+                    signatureAlgorithm = SignatureAlgorithm.ECSignatureWithSHA256Digest;
+
+                } else {
+                    throw new Exception("Unknown algorithm: " + algorithm);
+                }
+
+                Signature signer = CryptoUtil.createSigner(token, signatureAlgorithm, keyPair);
 
                 if (popOption.equals("POP_SUCCESS")) {
 

@@ -1166,7 +1166,6 @@ public class CryptoUtil {
             boolean use_shared_secret,
             CryptoToken token,
             X509Certificate transportCert,
-            String algorithm,
             KeyPair keyPair,
             Name subject,
             KeyWrapAlgorithm keyWrapAlgorithm,
@@ -1225,20 +1224,10 @@ public class CryptoUtil {
 
     public static Signature createSigner(
             CryptoToken token,
-            String algorithm,
+            SignatureAlgorithm signatureAlgorithm,
             KeyPair keyPair) throws Exception {
 
-        Signature signer;
-        if (algorithm.equals("rsa")) {
-            signer =  token.getSignatureContext(SignatureAlgorithm.RSASignatureWithSHA256Digest);
-
-        } else if (algorithm.equals("ec")) {
-            signer =  token.getSignatureContext(SignatureAlgorithm.ECSignatureWithSHA256Digest);
-
-        } else {
-            throw new Exception("Unknown algorithm: " + algorithm);
-        }
-
+        Signature signer = token.getSignatureContext(signatureAlgorithm);
         signer.initSign((org.mozilla.jss.crypto.PrivateKey) keyPair.getPrivate());
 
         return signer;
