@@ -30,7 +30,6 @@ import java.nio.file.Paths;
 import java.security.Key;
 import java.security.KeyPair;
 import java.security.MessageDigest;
-import java.security.PublicKey;
 
 import javax.crypto.Mac;
 
@@ -70,7 +69,6 @@ import org.mozilla.jss.pkix.crmf.ProofOfPossession;
 import org.mozilla.jss.pkix.primitive.AVA;
 import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.pkix.primitive.Name;
-import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.client.ClientConfig;
@@ -643,7 +641,7 @@ public class CRMFPopClient {
             Name subject,
             KeyWrapAlgorithm keyWrapAlgorithm) throws Exception {
 
-        CertTemplate certTemplate = createCertTemplate(subject, keyPair.getPublic());
+        CertTemplate certTemplate = CryptoUtil.createCertTemplate(subject, keyPair.getPublic());
 
         SEQUENCE seq = new SEQUENCE();
 
@@ -719,16 +717,6 @@ public class CRMFPopClient {
         byte[] finalDigest = hmac.doFinal();
 
         return new OCTET_STRING(finalDigest);
-    }
-
-    public CertTemplate createCertTemplate(Name subject, PublicKey publicKey) throws Exception {
-
-        CertTemplate template = new CertTemplate();
-        template.setVersion(new INTEGER(2));
-        template.setSubject(subject);
-        template.setPublicKey(new SubjectPublicKeyInfo(publicKey));
-
-        return template;
     }
 
     public void submitRequest(

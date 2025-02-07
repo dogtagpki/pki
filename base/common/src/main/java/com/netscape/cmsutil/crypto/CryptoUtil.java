@@ -1190,6 +1190,16 @@ public class CryptoUtil {
         return pkcs10;
     }
 
+    public static CertTemplate createCertTemplate(Name subject, PublicKey publicKey) throws Exception {
+
+        CertTemplate template = new CertTemplate();
+        template.setVersion(new INTEGER(2));
+        template.setSubject(subject);
+        template.setPublicKey(new SubjectPublicKeyInfo(publicKey));
+
+        return template;
+    }
+
     public static Signature createSigner(
             CryptoToken token,
             String algorithm,
