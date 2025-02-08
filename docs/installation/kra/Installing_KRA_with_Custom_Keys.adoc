@@ -30,11 +30,10 @@ pki_admin_uid=kraadmin
 
 pki_client_pkcs12_password=Secret.123
 
+pki_ds_url=ldap://localhost.localdomain:389
 pki_ds_base_dn=dc=kra,dc=pki,dc=example,dc=com
 pki_ds_database=kra
 pki_ds_password=Secret.123
-pki_ds_ldap_port=389
-pki_ds_ldaps_port=636
 
 pki_security_domain_name=EXAMPLE
 pki_security_domain_user=caadmin
