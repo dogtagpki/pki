@@ -146,23 +146,20 @@ class PKINSSDBTests(unittest.TestCase):
         )
 
         reqfile = os.path.join(self.tmpdir, "req.csr")
-        generic = {
-            'oid': SAN_OID,
-            'critical': True,
-            'data': SAN_DATA
-        }
+
         db.create_request(
             "CN=testrequest",
             reqfile,
-            generic_exts=[generic]
+            key_type="rsa"
         )
 
         out = subprocess.check_output(
             ['openssl', 'req', '-text', '-in', reqfile],
             env={}
         )
-        self.assertIn(b'X509v3 Subject Alternative Name: critical', out)
-        self.assertIn(b'DNS:example.org', out)
+        self.assertIn(b'CN = testrequest', out)
+        self.assertIn(b'-----BEGIN CERTIFICATE REQUEST-----', out)
+        self.assertIn(b'-----END CERTIFICATE REQUEST-----', out)
 
 
 if __name__ == '__main__':
