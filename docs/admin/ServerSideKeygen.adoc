@@ -114,7 +114,7 @@ This policy  allows to set:
 
  If the constraint does not include specific configuration it will
 read the options from the `CS.cfg`. In the case the name is different,
-the suffix `password.*` is replaced by `passwordChecker.*`. The
+the prefix `password.*` is replaced by `passwordChecker.*`. The
 configuration in `CS.cfg` are used for all the passwords but each
 profile can overwrite to allow stronger or weaker passwords.
 
