@@ -1,10 +1,10 @@
 = Managing PostgreSQL Realm =
 
-To add a user and associate to the _estclient_ group it is possible to execeute the following commands:
+To add a user and associate to the _EST Users_ group it is possible to execeute the following commands:
 
 ----
 $ psql -U est -t -A -c "INSERT INTO users VALUES ('est-test-user', 'EST TEST USER', '<tomcat_digest>');"  est 
-$ psql -U est -t -A -c "INSERT INTO group_members VALUES ('estclient', 'est-test-user');"  est 
+$ psql -U est -t -A -c "INSERT INTO group_members VALUES ('EST Users', 'est-test-user');"  est 
 ----
 
 Note: the tomcat digest for the password can be obtained with the command:

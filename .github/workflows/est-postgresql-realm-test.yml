@@ -316,7 +316,7 @@ jobs:
           DIGEST=$(docker exec pki tomcat-digest Secret.123 | sed 's/.*://')
 
           docker exec postgresql psql -U est -t -A -c "INSERT INTO users VALUES ('est-test-user', 'EST TEST USER', '$DIGEST');"  est 
-          docker exec postgresql psql -U est -t -A -c "INSERT INTO group_members VALUES ('estclient', 'est-test-user');"  est 
+          docker exec postgresql psql -U est -t -A -c "INSERT INTO group_members VALUES ('EST Users', 'est-test-user');"  est 
 
       - name: Install est client
         run: |

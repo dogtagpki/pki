@@ -277,11 +277,11 @@ jobs:
           userPassword: Secret.123
           EOF
           
-      - name: Add EST user to estclient group
+      - name: Add EST user to EST Users group
         run: |
           docker exec -i est ldapmodify -x -H ldap://estds.example.com:3389 \
               -D "cn=Directory Manager"  -w Secret.123 << EOF
-          dn: cn=estclient,ou=groups,dc=est,dc=pki,dc=example,dc=com
+          dn: cn=EST Users,ou=groups,dc=est,dc=pki,dc=example,dc=com
           changetype: modify
           add: uniqueMember
           uniqueMember: uid=est-test-user,ou=People,dc=est,dc=pki,dc=example,dc=com

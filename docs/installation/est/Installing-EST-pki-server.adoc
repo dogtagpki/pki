@@ -1,6 +1,6 @@
 = EST installation using `pki-server` =
 
-After the prerequisite in xref:../est/Installing_EST.adoc[Installing EST], it is
+After the prerequisite in xref:../est/Installing-EST.adoc[Installing EST], it is
 possible to install *EST*.
 
 A PKI Tomcat instance has to be already available, if it is not present then it
@@ -46,7 +46,7 @@ Note: to use TLS mutual authentication instead of _username/password_, one needs
 
 An example on how to get the certificate and configure EST with TLS
 mutual configuration is provided in the `pkispawn` installation guide
-xref:../est/Installing_EST_pkispawn.adoc#installation-on-separate-instance-with-certificates[here].
+xref:../est/Installing-EST-pkispawn.adoc#installation-on-separate-instance-with-certificates[here].
 
 Configure request authorization. The class
 `org.dogtagpki.est.ExternalProcessRequestAuthorizer` allows to
