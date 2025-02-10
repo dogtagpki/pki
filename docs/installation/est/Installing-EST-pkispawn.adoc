@@ -1,6 +1,6 @@
 = EST installation using `pkispawn` =
 
-After the prerequisite in xref:../est/Installing_EST.adoc[Installing
+After the prerequisite in xref:../est/Installing-EST.adoc[Installing
 EST], it is possible to install *EST*.
 
 

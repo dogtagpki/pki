@@ -69,7 +69,7 @@ Note: before enabling the profile verify if the options satisfy the requirement 
 user DB. _LDAP_, _PostreSQL_ and file based DB are supported. The DB
 has to be prepared in advance for authentication to work. Instructions
 to set up the user DB are available in
-xref:../est/SetUpRealmDB.adoc[Set Up Realm DB].
+xref:../est/Set-Up-Realm-DB.adoc[Set Up Realm DB].
 
 
 
@@ -79,10 +79,10 @@ xref:../est/SetUpRealmDB.adoc[Set Up Realm DB].
 There are two options for the installation:
 
     * Basic installation with `pkispawn`
-      xref:../est/Installing_EST_pkispawn.adoc[Installing_EST_pkispawn];
+      xref:../est/Installing-EST-pkispawn.adoc[Installing EST pkispawn];
 
     * Advanced installation with `pki-server`
-      xref:../est/Installing_EST_pki-server.adoc[Installing_EST_pki-server],
+      xref:../est/Installing-EST-pki-server.adoc[Installing EST pki-server],
       which requires more manual configuration but provides more
       control over the installation process since each step can be
       verified and eventually customised and repeated.
@@ -94,9 +94,9 @@ Before enrolling certificates EST users must be added in the user
 database.  The user management is not part of EST commands and has to
 be done outside EST. Guide on how To add user into DS realm is
 available in the page
-xref:../../admin/est/Managing_DS_Realm.adoc[Managing DS Realm] while
+xref:../../admin/est/Managing-DS-Realm.adoc[Managing DS Realm] while
 for _PostgreSQL_ in the page
-xref:../../admin/est/Managing_PostgreSQL_Realm.adoc[Managing
+xref:../../admin/est/Managing-PostgreSQL-Realm.adoc[Managing
 PostgreSQL Realm].
 
 

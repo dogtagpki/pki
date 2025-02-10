@@ -22,4 +22,4 @@ CREATE TABLE "group_members" (
     PRIMARY KEY ("group_id", "user_id")
 );
 
-INSERT INTO groups VALUES ('estclient', 'EST users');
+INSERT INTO groups VALUES ('EST Users', 'Users enabled to enroll certificates');

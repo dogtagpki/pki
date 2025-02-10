@@ -12,8 +12,9 @@ ou: groups
 objectClass: top
 objectClass: organizationalUnit
 
-dn: cn=estclient,ou=groups,dc=est,dc=pki,dc=example,dc=com
+dn: cn=EST Users,ou=groups,dc=est,dc=pki,dc=example,dc=com
 objectClass: top
 objectClass: groupOfUniqueNames
-cn: estclient
+cn: EST Users
+description: Users enabled to enroll certificate
 

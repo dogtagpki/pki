@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 import json, sys
-ALLOWED_ROLE = 'estclient'
+ALLOWED_ROLE = 'EST Users'
 obj = json.loads(sys.stdin.read())
 if not ALLOWED_ROLE in obj['authzData']['principal']['roles']:
     print(f'Principal does not have required role {ALLOWED_ROLE!r}')
