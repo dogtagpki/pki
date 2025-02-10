@@ -28,11 +28,11 @@ import java.security.PublicKey;
 import java.security.interfaces.DSAPublicKey;
 import java.security.interfaces.RSAPublicKey;
 
+import org.dogtagpki.nss.NSSDatabase;
 import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.InitializationValues;
 import org.mozilla.jss.crypto.CryptoToken;
-import org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.x509.Extensions;
@@ -42,6 +42,7 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
+import com.netscape.cmsutil.password.PlainPasswordFile;
 
 /**
  * Generates an ECC or RSA key pair in the security database, constructs a
@@ -219,8 +220,10 @@ public class PKCS10Client {
             CryptoManager.initialize(vals);
 
             CryptoManager cm = CryptoManager.getInstance();
+
+            tokenName = tokenName == null ? CryptoUtil.INTERNAL_TOKEN_NAME : tokenName;
             CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
-            tokenName = token.getName();
+
             if(verbose) {
                 System.out.println("PKCS10Client: Debug: got token.");
             }
@@ -231,6 +234,8 @@ public class PKCS10Client {
                 System.out.println("PKCS10Client: Debug: thread token set.");
             }
 
+            PlainPasswordFile passwordStore = new PlainPasswordFile();
+
             if (passwordFile != null) {
                 String line;
                 try (BufferedReader in = new BufferedReader(new FileReader(passwordFile))) {
@@ -239,6 +244,7 @@ public class PKCS10Client {
                         line = "";
                     }
                 }
+
                 Password pass = new Password(line.toCharArray());
 
                 try {
@@ -249,6 +255,9 @@ public class PKCS10Client {
                 } finally {
                     pass.clear();
                 }
+
+                passwordStore.putPassword(tokenName, line);
+
             } else if (password != null) {
                 Password pass = new Password(password.toCharArray());
 
@@ -260,7 +269,12 @@ public class PKCS10Client {
                 } finally {
                     pass.clear();
                 }
+
+                passwordStore.putPassword(tokenName, password);
             }
+
+            NSSDatabase nssdb = new NSSDatabase(dbdir);
+            nssdb.setPasswordStore(passwordStore);
 
             KeyPair pair = null;
 
@@ -270,28 +284,20 @@ public class PKCS10Client {
                     System.out.println("PKCS10Client: rsa_keygen_wrap_unwrap_ops: " + rsa_keygen_wrap_unwrap_ops);
                 }
 
-                Usage[] usages = rsa_keygen_wrap_unwrap_ops ? CryptoUtil.RSA_KEYPAIR_USAGES : null;
-                Usage[] usagesMask = rsa_keygen_wrap_unwrap_ops ? CryptoUtil.RSA_KEYPAIR_USAGES_MASK : null;
-
-                pair = CryptoUtil.generateRSAKeyPair(
+                pair = nssdb.createRSAKeyPair(
                         token,
                         rsa_keylen,
-                        usages,
-                        usagesMask);
+                        rsa_keygen_wrap_unwrap_ops);
 
             }  else if (alg.equals("ec")) {
 
-                Usage[] usages = null;
-                Usage[] usagesMask = ec_ssl_ecdh ? CryptoUtil.ECDH_USAGES_MASK : CryptoUtil.ECDHE_USAGES_MASK;
-
-                pair = CryptoUtil.generateECCKeyPair(
+                pair = nssdb.createECKeyPair(
                         token,
                         ecc_curve,
+                        ec_ssl_ecdh,
                         ec_temporary,
                         ec_sensitive,
-                        ec_extractable,
-                        usages,
-                        usagesMask);
+                        ec_extractable);
 
                 if (pair == null) {
                     System.out.println("PKCS10Client: pair null.");
