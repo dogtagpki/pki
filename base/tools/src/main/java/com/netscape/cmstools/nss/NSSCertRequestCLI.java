@@ -21,7 +21,6 @@ import org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.X509Key;
-import org.mozilla.jss.pkcs11.PK11PrivKey;
 
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.cmstools.cli.MainCLI;
@@ -159,13 +158,11 @@ public class NSSCertRequestCLI extends CommandCLI {
         X509Key subjectKey = CryptoUtil.createX509Key(keyPair.getPublic());
         extensions = generator.createExtensions(subjectKey);
 
-        PK11PrivKey privateKey = (PK11PrivKey) keyPair.getPrivate();
-        String keyAlgorithm = hash + "with" + privateKey.getType();
-
         PKCS10 pkcs10 = nssdb.createPKCS10Request(
                 keyPair,
                 subject,
-                keyAlgorithm,
+                false,
+                hash,
                 extensions);
 
         String format = cmd.getOptionValue("format");

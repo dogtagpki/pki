@@ -1076,16 +1076,37 @@ public class NSSDatabase {
     public PKCS10 createPKCS10Request(
             KeyPair keyPair,
             String subject,
-            String algorithm,
+            boolean encodingEnabled,
+            String hash,
             Extensions extensions) throws Exception {
 
         logger.debug("NSSDatabase: Creating PKCS #10 request");
         logger.debug("NSSDatabase: - subjecct: " + subject);
+
+        PK11PrivKey privateKey = (PK11PrivKey) keyPair.getPrivate();
+        String algorithm = hash + "with" + privateKey.getType();
+
+        /*
+        PublicKey publicKey = keyPair.getPublic();
+        X509Key key = CryptoUtil.createX509Key(publicKey);
+
+        String keyAlgorithm;
+        if (publicKey instanceof RSAPublicKey) {
+            keyAlgorithm = "SHA256withRSA";
+        } else if (CryptoUtil.isECCKey(key)) {
+            keyAlgorithm = "SHA256withEC";
+        } else if (publicKey instanceof DSAPublicKey) {
+            keyAlgorithm = "DSA";
+        } else {
+            throw new NoSuchAlgorithmException("Unsupported algorithm: " + publicKey.getAlgorithm());
+        }
+        */
+
         logger.debug("NSSDatabase: - algorithm: " + algorithm);
 
         return CryptoUtil.createPKCS10Request(
                 subject,
-                false,
+                encodingEnabled,
                 keyPair,
                 algorithm,
                 extensions);

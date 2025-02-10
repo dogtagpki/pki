@@ -23,10 +23,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
-import java.security.interfaces.DSAPublicKey;
-import java.security.interfaces.RSAPublicKey;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
@@ -47,7 +43,6 @@ import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.X500Name;
-import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CACertClient;
@@ -59,7 +54,6 @@ import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.cmstools.ca.CACertRequestCLI;
 import com.netscape.cmstools.cli.MainCLI;
-import com.netscape.cmsutil.crypto.CryptoUtil;
 
 import netscape.ldap.util.DN;
 import netscape.ldap.util.RDN;
@@ -285,10 +279,16 @@ public class ClientCertRequestCLI extends CommandCLI {
         String csr;
         if ("pkcs10".equals(requestType)) {
 
-            csr = createPKCS10Request(
-                    nssdb,
+            Extensions extensions = new Extensions();
+
+            PKCS10 pkcs10 = nssdb.createPKCS10Request(
                     keyPair,
-                    subjectDN);
+                    subjectDN,
+                    false,
+                    "SHA256",
+                    extensions);
+
+            csr = CertUtil.toPEM(pkcs10);
 
         } else if ("crmf".equals(requestType)) {
 
@@ -416,35 +416,5 @@ public class ClientCertRequestCLI extends CommandCLI {
         CertRequestInfos infos = certClient.enrollRequest(request, aid, adn);
 
         CACertRequestCLI.printCertRequestInfos(infos);
-    }
-
-    public String createPKCS10Request(
-            NSSDatabase nssdb,
-            KeyPair keyPair,
-            String subjectDN) throws Exception {
-
-        PublicKey publicKey = keyPair.getPublic();
-        X509Key key = CryptoUtil.createX509Key(publicKey);
-
-        String keyAlgorithm;
-        if (publicKey instanceof RSAPublicKey) {
-            keyAlgorithm = "SHA256withRSA";
-        } else if (CryptoUtil.isECCKey(key)) {
-            keyAlgorithm = "SHA256withEC";
-        } else if (publicKey instanceof DSAPublicKey) {
-            keyAlgorithm = "DSA";
-        } else {
-            throw new NoSuchAlgorithmException("Unsupported algorithm: " + publicKey.getAlgorithm());
-        }
-
-        Extensions extensions = new Extensions();
-
-        PKCS10 pkcs10 = nssdb.createPKCS10Request(
-                keyPair,
-                subjectDN,
-                keyAlgorithm,
-                extensions);
-
-        return CertUtil.toPEM(pkcs10);
     }
 }
