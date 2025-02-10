@@ -1,0 +1,263 @@
+name: PKCS10Client
+
+on: workflow_call
+
+env:
+  DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Retrieve PKI images
+        uses: actions/cache@v4
+        with:
+          key: pki-images-${{ github.sha }}
+          path: pki-images.tar
+
+      - name: Load PKI images
+        run: docker load --input pki-images.tar
+
+      - name: Set up runner container
+        run: |
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
+
+      - name: Install ASN.1 parser
+        run: |
+          docker exec pki dnf install -y dumpasn1
+
+      - name: Create CA signing cert with RSA key
+        run: |
+          docker exec pki pki nss-create --force
+
+          docker exec pki pki \
+              nss-cert-request \
+              --key-type RSA \
+              --subject "CN=Certificate Authority" \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --csr ca_signing.csr
+
+          docker exec pki pki \
+              nss-cert-issue \
+              --csr ca_signing.csr \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --cert ca_signing.crt
+
+          docker exec pki pki \
+              nss-cert-import \
+              --cert ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
+      - name: Create SSL server cert request with RSA key
+        run: |
+          docker exec pki PKCS10Client \
+              -d /root/.dogtag/nssdb \
+              -a rsa \
+              -n "CN=pki.example.com" \
+              -o sslserver.csr \
+              -v | tee output
+
+          # check PEM CSR
+          docker exec pki cat sslserver.csr
+
+          # check CSR with OpenSSL
+          docker exec pki openssl req -in sslserver.csr -text -noout
+
+          # convert CSR into DER
+          docker exec pki openssl req -in sslserver.csr -outform der -out sslserver.der
+
+          # Currently PKCS10Client generates an invalid CSR
+          # so dumpasn1 will fail with the following message:
+          #   Error: Object has zero length.
+          #
+          # TODO: Fix PKCS10Client to generate a valid CSR
+
+          # display ASN.1 CSR
+          docker exec pki dumpasn1 sslserver.der || true
+
+      - name: Issue SSL server cert
+        run: |
+          docker exec pki pki \
+              nss-cert-issue \
+              --issuer ca_signing \
+              --csr sslserver.csr \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --cert sslserver.crt
+
+          docker exec pki openssl x509 -text -noout -in sslserver.crt
+
+      - name: Import SSL server cert
+        run: |
+          docker exec pki pki \
+              nss-cert-import \
+              --cert sslserver.crt \
+              sslserver
+
+          # get key ID
+          docker exec pki certutil -K -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\)\s\+NSS Certificate DB:sslserver$/\1/p' output > sslserver_key_id
+
+      - name: Verify trust flags
+        run: |
+          echo "u,u,u" > expected
+
+          docker exec pki certutil -L -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^sslserver\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff actual expected
+
+          docker exec pki pki nss-cert-show sslserver | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff actual expected
+
+      - name: Verify key type
+        run: |
+          echo rsa > expected
+
+          docker exec pki certutil -K -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^<.*>\s\+\(\S\+\)\s\+\S\+\s\+NSS Certificate DB:sslserver$/\1/p' output > actual
+          diff actual expected
+
+          docker exec pki pki nss-key-find --nickname sslserver | tee output
+          sed -n 's/\s*Type:\s*\(\S\+\)\s*$/\L\1/p' output > actual
+          diff actual expected
+
+      - name: Delete SSL server cert and key
+        run: |
+          docker exec pki pki nss-cert-del --remove-key sslserver
+
+          docker exec pki certutil -L -d /root/.dogtag/nssdb | tee output
+
+          # SSL server cert should not exist
+          echo "ca_signing CTu,Cu,Cu" > expected
+          sed -n -e '1,4d' -e 's/^\(.*\S\)\s\+\(\S\+\)\s*$/\1 \2/p' output > actual
+          diff expected actual
+
+          docker exec pki certutil -K -d /root/.dogtag/nssdb | tee output
+
+          # SSL server key should not exist
+          echo "NSS Certificate DB:ca_signing" > expected
+          sed -n 's/^<.*>\s\+\S\+\s\+\S\+\s\+\(.*\)$/\1/p' output | sort > actual
+          diff expected actual
+
+      - name: Create CA signing cert with EC key
+        run: |
+          docker exec pki pki nss-create --force
+
+          docker exec pki pki \
+              nss-cert-request \
+              --key-type EC \
+              --subject "CN=Certificate Authority" \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --csr ca_signing.csr
+
+          docker exec pki pki \
+              nss-cert-issue \
+              --csr ca_signing.csr \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --cert ca_signing.crt
+
+          docker exec pki pki \
+              nss-cert-import \
+              --cert ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
+      - name: Create SSL server cert request with EC key
+        run: |
+          docker exec pki PKCS10Client \
+              -d /root/.dogtag/nssdb \
+              -a ec \
+              -n "CN=pki.example.com" \
+              -o sslserver.csr \
+              -v | tee output
+
+          # check PEM CSR
+          docker exec pki cat sslserver.csr
+
+          # check CSR with OpenSSL
+          docker exec pki openssl req -in sslserver.csr -text -noout
+
+          # convert CSR into DER
+          docker exec pki openssl req -in sslserver.csr -outform der -out sslserver.der
+
+          # Currently PKCS10Client generates an invalid CSR
+          # so dumpasn1 will fail with the following message:
+          #   Error: Object has zero length.
+          #
+          # TODO: Fix PKCS10Client to generate a valid CSR
+
+          # display ASN.1 CSR
+          docker exec pki dumpasn1 sslserver.der || true
+
+      - name: Issue SSL server cert
+        run: |
+          docker exec pki pki \
+              nss-cert-issue \
+              --issuer ca_signing \
+              --csr sslserver.csr \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --cert sslserver.crt
+
+          docker exec pki openssl x509 -text -noout -in sslserver.crt
+
+      - name: Import SSL server cert
+        run: |
+          docker exec pki pki \
+              nss-cert-import \
+              --cert sslserver.crt \
+              sslserver
+
+          # get key ID
+          docker exec pki certutil -K -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\)\s\+NSS Certificate DB:sslserver$/\1/p' output > sslserver_key_id
+
+      - name: Verify trust flags
+        run: |
+          echo "u,u,u" > expected
+
+          docker exec pki certutil -L -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^sslserver\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff actual expected
+
+          docker exec pki pki nss-cert-show sslserver | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff actual expected
+
+      - name: Verify key type
+        run: |
+          echo ec > expected
+
+          docker exec pki certutil -K -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^<.*>\s\+\(\S\+\)\s\+\S\+\s\+NSS Certificate DB:sslserver$/\1/p' output > actual
+          diff actual expected
+
+          docker exec pki pki nss-key-find --nickname sslserver | tee output
+          sed -n 's/\s*Type:\s*\(\S\+\)\s*$/\L\1/p' output > actual
+          diff actual expected
+
+      - name: Delete SSL server cert and key
+        run: |
+          docker exec pki pki nss-cert-del --remove-key sslserver
+
+          docker exec pki certutil -L -d /root/.dogtag/nssdb | tee output
+
+          # SSL server cert should not exist
+          echo "ca_signing CTu,Cu,Cu" > expected
+          sed -n -e '1,4d' -e 's/^\(.*\S\)\s\+\(\S\+\)\s*$/\1 \2/p' output > actual
+          diff expected actual
+
+          docker exec pki certutil -K -d /root/.dogtag/nssdb | tee output
+
+          # SSL server key should not exist
+          echo "NSS Certificate DB:ca_signing" > expected
+          sed -n 's/^<.*>\s\+\S\+\s\+\S\+\s\+\(.*\)$/\1/p' output | sort > actual
+          diff expected actual
