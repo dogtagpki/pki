@@ -83,6 +83,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/ca-nuxwdog-test.yml
 
+  ca-password-enforcment-test:
+    name: CA password enforcement
+    needs: build
+    uses: ./.github/workflows/ca-password-enforcement-test.yml
+
   scep-test:
     name: SCEP responder
     needs: build
