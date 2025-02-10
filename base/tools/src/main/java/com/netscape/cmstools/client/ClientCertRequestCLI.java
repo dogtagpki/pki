@@ -18,7 +18,6 @@
 
 package com.netscape.cmstools.client;
 
-import java.io.ByteArrayOutputStream;
 import java.io.Console;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -42,18 +41,13 @@ import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
-import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.Cert;
-import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509Key;
-import org.mozilla.jss.pkix.crmf.CertRequest;
-import org.mozilla.jss.pkix.crmf.ProofOfPossession;
-import org.mozilla.jss.pkix.primitive.Name;
 
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CACertClient;
@@ -315,15 +309,28 @@ public class ClientCertRequestCLI extends CommandCLI {
             String kwAlg = caInfoClient.getKeyWrapAlgotihm();
             KeyWrapAlgorithm keyWrapAlgorithm = KeyWrapAlgorithm.fromString(kwAlg);
 
-            csr = createCRMFRequest(
+            SignatureAlgorithm signatureAlgorithm;
+            if (algorithm.equals("rsa")) {
+                signatureAlgorithm = SignatureAlgorithm.RSASignatureWithSHA256Digest;
+
+            } else if (algorithm.equals("ec")) {
+                signatureAlgorithm = SignatureAlgorithm.ECSignatureWithSHA256Digest;
+
+            } else {
+                throw new Exception("Unknown algorithm: " + algorithm);
+            }
+
+            csr = nssdb.createCRMFRequest(
+                    token,
                     keyPair,
                     transportCert,
                     subjectDN,
                     attributeEncoding,
-                    algorithm,
+                    signatureAlgorithm,
                     withPop,
                     keyWrapAlgorithm,
-                    useOAEP);
+                    useOAEP,
+                    false); // useSharedSecret
 
         } else {
             throw new Exception("Unknown request type: " + requestType);
@@ -439,57 +446,5 @@ public class ClientCertRequestCLI extends CommandCLI {
                 extensions);
 
         return CertUtil.toPEM(pkcs10);
-    }
-
-    public String createCRMFRequest(
-            KeyPair keyPair,
-            X509Certificate transportCert,
-            String subjectDN,
-            boolean attributeEncoding,
-            String algorithm,
-            boolean withPop,
-            KeyWrapAlgorithm keyWrapAlgorithm,
-            boolean useOAEP) throws Exception {
-
-        CryptoManager manager = CryptoManager.getInstance();
-        CryptoToken token = manager.getThreadToken();
-
-        Name subject = CryptoUtil.createName(subjectDN, attributeEncoding);
-
-        CertRequest certRequest = CryptoUtil.createCertRequest(
-                false, // use_shared_secret
-                token,
-                transportCert,
-                keyPair,
-                subject,
-                keyWrapAlgorithm,
-                useOAEP);
-
-        ProofOfPossession pop = null;
-        if (withPop) {
-
-            SignatureAlgorithm signatureAlgorithm;
-            if (algorithm.equals("rsa")) {
-                signatureAlgorithm = SignatureAlgorithm.RSASignatureWithSHA256Digest;
-
-            } else if (algorithm.equals("ec")) {
-                signatureAlgorithm = SignatureAlgorithm.ECSignatureWithSHA256Digest;
-
-            } else {
-                throw new Exception("Unknown algorithm: " + algorithm);
-            }
-
-            Signature signer = CryptoUtil.createSigner(token, signatureAlgorithm, keyPair);
-
-            ByteArrayOutputStream bo = new ByteArrayOutputStream();
-            certRequest.encode(bo);
-            signer.update(bo.toByteArray());
-            byte[] signature = signer.sign();
-
-            pop = CryptoUtil.createPop(signatureAlgorithm, signature);
-        }
-
-        byte[] crmfRequest = CryptoUtil.createCRMFRequest(certRequest, pop);
-        return Utils.base64encode(crmfRequest, true);
     }
 }

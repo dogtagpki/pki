@@ -20,6 +20,7 @@ package org.dogtagpki.nss;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.InputStream;
@@ -58,7 +59,10 @@ import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage;
+import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.PrivateKey;
+import org.mozilla.jss.crypto.Signature;
+import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.netscape.security.extensions.AccessDescription;
 import org.mozilla.jss.netscape.security.extensions.AuthInfoAccessExtension;
 import org.mozilla.jss.netscape.security.extensions.ExtendedKeyUsageExtension;
@@ -95,6 +99,9 @@ import org.mozilla.jss.pkcs11.PK11ECPrivateKey;
 import org.mozilla.jss.pkcs11.PK11PrivKey;
 import org.mozilla.jss.pkcs11.PK11PubKey;
 import org.mozilla.jss.pkcs11.PK11RSAPrivateKey;
+import org.mozilla.jss.pkix.crmf.CertRequest;
+import org.mozilla.jss.pkix.crmf.ProofOfPossession;
+import org.mozilla.jss.pkix.primitive.Name;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.password.PasswordStore;
@@ -1082,6 +1089,45 @@ public class NSSDatabase {
                 keyPair,
                 algorithm,
                 extensions);
+    }
+
+    public String createCRMFRequest(
+            CryptoToken token,
+            KeyPair keyPair,
+            org.mozilla.jss.crypto.X509Certificate transportCert,
+            String subjectDN,
+            boolean attributeEncoding,
+            SignatureAlgorithm signatureAlgorithm,
+            boolean withPop,
+            KeyWrapAlgorithm keyWrapAlgorithm,
+            boolean useOAEP,
+            boolean useSharedSecret) throws Exception {
+
+        Name subject = CryptoUtil.createName(subjectDN, attributeEncoding);
+
+        CertRequest certRequest = CryptoUtil.createCertRequest(
+                useSharedSecret,
+                token,
+                transportCert,
+                keyPair,
+                subject,
+                keyWrapAlgorithm,
+                useOAEP);
+
+        ProofOfPossession pop = null;
+        if (withPop) {
+            Signature signer = CryptoUtil.createSigner(token, signatureAlgorithm, keyPair);
+
+            ByteArrayOutputStream bo = new ByteArrayOutputStream();
+            certRequest.encode(bo);
+            signer.update(bo.toByteArray());
+            byte[] signature = signer.sign();
+
+            pop = CryptoUtil.createPop(signatureAlgorithm, signature);
+        }
+
+        byte[] crmfRequest = CryptoUtil.createCRMFRequest(certRequest, pop);
+        return Utils.base64encode(crmfRequest, true);
     }
 
     public static int validityUnitFromString(String validityUnit) throws Exception {
