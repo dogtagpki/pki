@@ -17,7 +17,6 @@ import org.dogtagpki.nss.NSSDatabase;
 import org.dogtagpki.nss.NSSExtensionGenerator;
 import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.crypto.CryptoToken;
-import org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.X509Key;
@@ -120,25 +119,17 @@ public class NSSCertRequestCLI extends CommandCLI {
 
         } else if ("RSA".equalsIgnoreCase(keyType)) {
 
-            Usage[] usages = keyWrap ? CryptoUtil.RSA_KEYPAIR_USAGES : null;
-            Usage[] usagesMask = keyWrap ? CryptoUtil.RSA_KEYPAIR_USAGES_MASK : null;
-
             keyPair = nssdb.createRSAKeyPair(
                     token,
                     Integer.parseInt(keySize),
-                    usages,
-                    usagesMask);
+                    keyWrap);
 
         } else if ("EC".equalsIgnoreCase(keyType)) {
-
-            Usage[] usages = null;
-            Usage[] usagesMask = sslECDH ? CryptoUtil.ECDH_USAGES_MASK : CryptoUtil.ECDHE_USAGES_MASK;
 
             keyPair = nssdb.createECKeyPair(
                     token,
                     curve,
-                    usages,
-                    usagesMask);
+                    sslECDH);
 
         } else {
             throw new Exception("Unsupported key type: " + keyType);

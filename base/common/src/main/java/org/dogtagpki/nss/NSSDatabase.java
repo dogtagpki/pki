@@ -1033,11 +1033,13 @@ public class NSSDatabase {
     public KeyPair createECKeyPair(
             CryptoToken token,
             String curveName,
-            Usage[] usages,
-            Usage[] usagesMask) throws Exception {
+            boolean sslECDH) throws Exception {
 
         logger.debug("NSSDatabase: Creating EC key");
         logger.debug("NSSDatabase: - curve: " + curveName);
+
+        Usage[] usages = null;
+        Usage[] usagesMask = sslECDH ? CryptoUtil.ECDH_USAGES_MASK : CryptoUtil.ECDHE_USAGES_MASK;
 
         return CryptoUtil.generateECCKeyPair(
                 token,
