@@ -48,6 +48,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/pki-pkcs7-test.yml
 
+  PKCS10Client-test:
+    name: PKCS10Client
+    needs: build
+    uses: ./.github/workflows/PKCS10Client-test.yml
+
   pki-pkcs11-test:
     name: PKI PKCS11 CLI
     needs: build
