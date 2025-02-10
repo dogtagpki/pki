@@ -982,10 +982,14 @@ public class NSSDatabase {
 
     public KeyPair createRSAKeyPair(
             CryptoToken token,
-            int keySize) throws Exception {
+            int keySize,
+            boolean keyWrap) throws Exception {
 
         logger.debug("NSSDatabase: Creating RSA key");
         logger.debug("NSSDatabase: - size: " + keySize);
+
+        Usage[] usages = keyWrap ? CryptoUtil.RSA_KEYPAIR_USAGES : null;
+        Usage[] usagesMask = keyWrap ? CryptoUtil.RSA_KEYPAIR_USAGES_MASK : null;
 
         return CryptoUtil.generateRSAKeyPair(
                 token,
@@ -993,8 +997,8 @@ public class NSSDatabase {
                 null,
                 null,
                 null,
-                null,
-                null);
+                usages,
+                usagesMask);
     }
 
     public KeyPair createECKeyPair(
@@ -1040,19 +1044,26 @@ public class NSSDatabase {
 
     public KeyPair createECKeyPair(
             CryptoToken token,
-            String curveName) throws Exception {
+            String curveName,
+            boolean sslECDH,
+            boolean temporary,
+            int sensitive,
+            int extractable) throws Exception {
 
         logger.debug("NSSDatabase: Creating EC key");
         logger.debug("NSSDatabase: - curve: " + curveName);
 
+        Usage[] usages = null;
+        Usage[] usagesMask = sslECDH ? CryptoUtil.ECDH_USAGES_MASK : CryptoUtil.ECDHE_USAGES_MASK;
+
         return CryptoUtil.generateECCKeyPair(
                 token,
                 curveName,
-                null,
-                null,
-                null,
-                null,
-                null);
+                temporary,
+                sensitive,
+                extractable,
+                usages,
+                usagesMask);
     }
 
     public PKCS10 createPKCS10Request(

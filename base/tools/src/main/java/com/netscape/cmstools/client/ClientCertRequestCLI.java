@@ -41,7 +41,6 @@ import org.dogtagpki.nss.NSSDatabase;
 import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
-import org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
@@ -263,29 +262,34 @@ public class ClientCertRequestCLI extends CommandCLI {
         mainCLI.init();
         PKIClient client = getClient();
 
+        CryptoManager manager = CryptoManager.getInstance();
+        CryptoToken token = manager.getThreadToken();
+
+        KeyPair keyPair;
+
+        if ("rsa".equals(algorithm)) {
+
+            keyPair = nssdb.createRSAKeyPair(
+                    token,
+                    length,
+                    wrap);
+
+        } else if ("ec".equals(algorithm)) {
+
+            keyPair = nssdb.createECKeyPair(
+                    token,
+                    curve,
+                    sslECDH,
+                    temporary,
+                    sensitive,
+                    extractable);
+
+        } else {
+            throw new Exception("Unknown algorithm: " + algorithm);
+        }
+
         String csr;
         if ("pkcs10".equals(requestType)) {
-
-            KeyPair keyPair;
-
-            if ("rsa".equals(algorithm)) {
-
-                keyPair = generateRSAKeyPair(
-                        length,
-                        wrap);
-
-            } else if ("ec".equals(algorithm)) {
-
-                keyPair = generateECCKeyPair(
-                        curve,
-                        sslECDH,
-                        temporary,
-                        sensitive,
-                        extractable);
-
-            } else {
-                throw new Exception("Error: Unknown algorithm: " + algorithm);
-            }
 
             csr = createPKCS10Request(
                     nssdb,
@@ -304,35 +308,12 @@ public class ClientCertRequestCLI extends CommandCLI {
             }
 
             byte[] transportCertData = Cert.parseCertificate(encoded);
-
-            CryptoManager manager = CryptoManager.getInstance();
             X509Certificate transportCert = manager.importCACertPackage(transportCertData);
 
             // get archival and key wrap mechanisms from CA
             CAInfoClient caInfoClient = new CAInfoClient(client, "ca");
             String kwAlg = caInfoClient.getKeyWrapAlgotihm();
             KeyWrapAlgorithm keyWrapAlgorithm = KeyWrapAlgorithm.fromString(kwAlg);
-
-            KeyPair keyPair;
-
-            if ("rsa".equals(algorithm)) {
-
-                keyPair = generateRSAKeyPair(
-                        length,
-                        wrap);
-
-            } else if ("ec".equals(algorithm)) {
-
-                keyPair = generateECCKeyPair(
-                        curve,
-                        sslECDH,
-                        temporary,
-                        sensitive,
-                        extractable);
-
-            } else {
-                throw new Exception("Error: Unknown algorithm: " + algorithm);
-            }
 
             csr = createCRMFRequest(
                     keyPair,
@@ -428,46 +409,6 @@ public class ClientCertRequestCLI extends CommandCLI {
         CertRequestInfos infos = certClient.enrollRequest(request, aid, adn);
 
         CACertRequestCLI.printCertRequestInfos(infos);
-    }
-
-    public KeyPair generateRSAKeyPair(
-            int length,
-            boolean wrap) throws Exception {
-
-        CryptoManager manager = CryptoManager.getInstance();
-        CryptoToken token = manager.getThreadToken();
-
-        Usage[] usages = wrap ? CryptoUtil.RSA_KEYPAIR_USAGES : null;
-        Usage[] usagesMask = wrap ? CryptoUtil.RSA_KEYPAIR_USAGES_MASK : null;
-
-        return CryptoUtil.generateRSAKeyPair(
-                token,
-                length,
-                usages,
-                usagesMask);
-    }
-
-    public KeyPair generateECCKeyPair(
-            String curve,
-            boolean sslECDH,
-            boolean temporary,
-            int sensitive,
-            int extractable) throws Exception {
-
-        CryptoManager manager = CryptoManager.getInstance();
-        CryptoToken token = manager.getThreadToken();
-
-        Usage[] usages = null;
-        Usage[] usagesMask = sslECDH ? CryptoUtil.ECDH_USAGES_MASK : CryptoUtil.ECDHE_USAGES_MASK;
-
-        return CryptoUtil.generateECCKeyPair(
-                token,
-                curve,
-                temporary,
-                sensitive,
-                extractable,
-                usages,
-                usagesMask);
     }
 
     public String createPKCS10Request(
