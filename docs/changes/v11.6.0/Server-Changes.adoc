@@ -54,8 +54,12 @@ A new policy constraint is defined to enforce the password quality: *p12ExportPa
 * `password.maxRepeatedChar` - maximum number of repeating for each character;
 * `password.cracklibCheck` - a boolean to request an additional check with *cracklib* (it has to be installed if not present).
 
-The same options can be configured in the `CS.cfg` replacing
-`password.*` with `passwordChecker.*`. The configuration in `CS.cfg`
-are used for all the passwords but each profile can overwrite to allow
-stronger or weaker passwords.
+
+These parameter can be configured in each profile using the input
+*serverKeygenInputImpl* and the output *pkcs12OutputImpl*.  If the
+constraint does not include specific configuration it will read the
+options from the `CS.cfg`. In the case the name is different, the
+suffix `password.*` is replaced by `passwordChecker.*`. The configuration in
+`CS.cfg` are used for all the passwords but each profile can overwrite
+to allow stronger or weaker passwords.
 
