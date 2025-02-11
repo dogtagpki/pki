@@ -1,0 +1,476 @@
+name: ACME container with CA
+# This test will create a Fedora client container, a DS container, a
+# CA container, and an ACME container. The client container will be
+# used to initialize the other containers and run tests using certbot.
+
+on: workflow_call
+
+env:
+  DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+
+          # Currently certbot fails to run inside podman.
+          # TODO: Replace docker with podman when the issue is resolved.
+          # sudo apt-get -y purge --auto-remove docker-ce-cli
+          # sudo apt-get -y install podman-docker
+
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Retrieve ACME images
+        uses: actions/cache@v4
+        with:
+          key: acme-images-${{ github.sha }}
+          path: acme-images.tar
+
+      - name: Load ACME images
+        run: docker load --input acme-images.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up client container
+        run: |
+          tests/bin/runner-init.sh \
+              --hostname=client.example.com \
+              --network=example \
+              --network-alias=client.example.com \
+              client
+
+      - name: Install dependencies in client container
+        run: docker exec client dnf install -y certbot
+
+      # https://github.com/dogtagpki/pki/wiki/Deploying-DS-Container
+      - name: Set up CA DS container
+        run: |
+          tests/bin/ds-create.sh \
+              --image=${{ env.DS_IMAGE }} \
+              --hostname=cads.example.com \
+              --network=example \
+              --network-alias=cads.example.com \
+              --password=Secret.123 \
+              cads
+
+      - name: Create CA shared folders
+        run: |
+          mkdir -p ca/certs
+          mkdir -p ca/conf
+          mkdir -p ca/logs
+
+      - name: Create CA signing cert
+        run: |
+          docker exec client pki \
+              nss-cert-request \
+              --subject "CN=CA Signing Certificate" \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --csr $SHARED/ca/certs/ca_signing.csr
+
+          docker exec client pki \
+              nss-cert-issue \
+              --csr $SHARED/ca/certs/ca_signing.csr \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --validity-length 1 \
+              --validity-unit year \
+              --cert $SHARED/ca/certs/ca_signing.crt
+
+          docker exec client pki nss-cert-import \
+              --cert $SHARED/ca/certs/ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
+          docker exec client pki nss-cert-show ca_signing
+
+      - name: Create SSL server cert for CA
+        run: |
+          docker exec client pki \
+              nss-cert-request \
+              --subject "CN=ca.example.com" \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --csr $SHARED/ca/certs/sslserver.csr
+
+          docker exec client pki \
+              nss-cert-issue \
+              --issuer ca_signing \
+              --csr $SHARED/ca/certs/sslserver.csr \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --cert $SHARED/ca/certs/sslserver.crt
+
+          docker exec client pki nss-cert-import \
+              --cert $SHARED/ca/certs/sslserver.crt \
+              ca_sslserver
+
+          docker exec client pki nss-cert-show ca_sslserver
+
+      - name: Create OCSP signing cert for CA
+        run: |
+          docker exec client pki \
+              nss-cert-request \
+              --subject "CN=OCSP Signing Certificate" \
+              --ext /usr/share/pki/server/certs/ocsp_signing.conf \
+              --csr $SHARED/ca/certs/ca_ocsp_signing.csr
+
+          docker exec client pki \
+              nss-cert-issue \
+              --issuer ca_signing \
+              --csr $SHARED/ca/certs/ca_ocsp_signing.csr \
+              --ext /usr/share/pki/server/certs/ocsp_signing.conf \
+              --cert $SHARED/ca/certs/ca_ocsp_signing.crt
+
+          docker exec client pki nss-cert-import \
+              --cert $SHARED/ca/certs/ca_ocsp_signing.crt \
+              ca_ocsp_signing
+
+          docker exec client pki nss-cert-show ca_ocsp_signing
+
+      - name: Export CA certs and keys
+        run: |
+          echo Secret.123 > ca/certs/password
+
+          docker exec client pki pkcs12-export \
+              --pkcs12 $SHARED/ca/certs/server.p12 \
+              --password-file $SHARED/ca/certs/password \
+              ca_signing \
+              ca_sslserver \
+              ca_ocsp_signing
+
+          docker exec client pki pkcs12-cert-mod \
+              --pkcs12 $SHARED/ca/certs/server.p12 \
+              --password Secret.123 \
+              --friendly-name sslserver \
+              ca_sslserver
+
+          docker exec client pki pkcs12-cert-find \
+              --pkcs12 $SHARED/ca/certs/server.p12 \
+              --password Secret.123
+
+      # https://github.com/dogtagpki/pki/wiki/Deploying-CA-Container
+      - name: Set up CA container
+        run: |
+          docker run \
+              --name ca \
+              --hostname ca.example.com \
+              --network example \
+              --network-alias ca.example.com \
+              -v $PWD/ca/certs:/certs \
+              -v $PWD/ca/conf:/conf \
+              -v $PWD/ca/logs:/logs \
+              -e PKI_DS_URL=ldap://cads.example.com:3389 \
+              -e PKI_DS_PASSWORD=Secret.123 \
+              --detach \
+              pki-ca
+
+          # wait for CA to start
+          docker exec client curl \
+              --retry 180 \
+              --retry-delay 0 \
+              --retry-connrefused \
+              -s \
+              -k \
+              -o /dev/null \
+              https://ca.example.com:8443
+
+      - name: Check CA info
+        run: |
+          docker exec client pki \
+              -U https://ca.example.com:8443 \
+              info
+
+      # https://github.com/dogtagpki/pki/wiki/Setting-up-CA-Database
+      - name: Initialize CA database
+        run: |
+          docker exec ca pki-server ca-db-init -v
+          docker exec ca pki-server ca-db-index-add -v
+          docker exec ca pki-server ca-db-vlv-add -v
+
+      - name: Create admin cert
+        run: |
+          # create cert request
+          docker exec client pki nss-cert-request \
+              --subject "CN=Administrator" \
+              --ext /usr/share/pki/server/certs/admin.conf \
+              --csr $SHARED/admin.csr
+
+          # issue cert
+          docker exec client pki nss-cert-issue \
+              --issuer ca_signing \
+              --csr $SHARED/admin.csr \
+              --ext /usr/share/pki/server/certs/admin.conf \
+              --cert $SHARED/admin.crt
+
+          # import cert
+          docker exec client pki nss-cert-import \
+              --cert $SHARED/admin.crt \
+              admin
+
+      # https://github.com/dogtagpki/pki/wiki/Setting-up-CA-Admin-User
+      - name: Add CA admin user
+        run: |
+          # create CA admin user
+          docker exec ca pki-server ca-user-add \
+              --full-name Administrator \
+              --type adminType \
+              --password Secret.123 \
+              admin
+
+          # set up CA admin roles
+          docker exec ca pki-server ca-user-role-add admin "Administrators"
+          docker exec ca pki-server ca-user-role-add admin "Certificate Manager Agents"
+
+      - name: Check CA admin user
+        run: |
+          docker exec client pki \
+              -U https://ca.example.com:8443 \
+              -u admin \
+              -w Secret.123 \
+              ca-user-show \
+              admin
+
+      # https://github.com/dogtagpki/pki/wiki/Deploying-DS-Container
+      - name: Set up ACME DS container
+        run: |
+          tests/bin/ds-create.sh \
+              --image=${{ env.DS_IMAGE }} \
+              --hostname=acmeds.example.com \
+              --network=example \
+              --network-alias=acmeds.example.com \
+              --password=Secret.123 \
+              acmeds
+
+      - name: Create ACME shared folders
+        run: |
+          mkdir -p acme/certs
+          mkdir -p acme/metadata
+          mkdir -p acme/database
+          mkdir -p acme/issuer
+          mkdir -p acme/realm
+          mkdir -p acme/conf
+          mkdir -p acme/logs
+
+      - name: Create SSL server cert for ACME
+        run: |
+          # create cert request
+          docker exec client pki nss-cert-request \
+              --subject "CN=acme.example.com" \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --csr $SHARED/acme/certs/sslserver.csr
+
+          # issue cert
+          docker exec client pki nss-cert-issue \
+              --issuer ca_signing \
+              --csr $SHARED/acme/certs/sslserver.csr \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --cert $SHARED/acme/certs/sslserver.crt
+
+          # import cert
+          docker exec client pki nss-cert-import \
+              --cert $SHARED/acme/certs/sslserver.crt \
+              acme_sslserver
+
+          docker exec client pki nss-cert-show acme_sslserver
+
+      - name: Export ACME certs and keys
+        run: |
+          echo Secret.123 > acme/certs/password
+
+          docker exec client pki pkcs12-export \
+              --pkcs12 $SHARED/acme/certs/certs.p12 \
+              --password-file $SHARED/acme/certs/password \
+              acme_sslserver
+
+          docker exec client pki pkcs12-cert-mod \
+              --pkcs12 $SHARED/acme/certs/certs.p12 \
+              --password-file $SHARED/acme/certs/password \
+              --friendly-name sslserver \
+              acme_sslserver
+
+          docker exec client pki pkcs12-cert-find \
+              --pkcs12 $SHARED/acme/certs/certs.p12 \
+              --password-file $SHARED/acme/certs/password
+
+      - name: Configure ACME database
+        run: |
+          echo "org.dogtagpki.acme.database.DSDatabase" > acme/database/class
+          echo "ldap://acmeds.example.com:3389" > acme/database/url
+          echo "BasicAuth" > acme/database/authType
+          echo "cn=Directory Manager" > acme/database/bindDN
+          echo "Secret.123" > acme/database/bindPassword
+          echo "dc=acme,dc=pki,dc=example,dc=com" > acme/database/baseDN
+
+      - name: Configure ACME issuer
+        run: |
+          echo "org.dogtagpki.acme.issuer.PKIIssuer" > acme/issuer/class
+          echo "https://ca.example.com:8443" > acme/issuer/url
+          echo "acmeServerCert" > acme/issuer/profile
+          echo "admin" > acme/issuer/username
+          echo "Secret.123" > acme/issuer/password
+
+      - name: Configure ACME realm
+        run: |
+          echo "org.dogtagpki.acme.realm.DSRealm" > acme/realm/class
+          echo "ldap://acmeds.example.com:3389" > acme/realm/url
+          echo "BasicAuth" > acme/realm/authType
+          echo "cn=Directory Manager" > acme/realm/bindDN
+          echo "Secret.123" > acme/realm/bindPassword
+          echo "ou=people,dc=acme,dc=pki,dc=example,dc=com" > acme/realm/usersDN
+          echo "ou=groups,dc=acme,dc=pki,dc=example,dc=com" > acme/realm/groupsDN
+
+      # https://github.com/dogtagpki/pki/wiki/Deploying-ACME-Container
+      - name: Set up ACME container
+        run: |
+          docker run \
+              --name acme \
+              --hostname acme.example.com \
+              --network example \
+              --network-alias acme.example.com \
+              -v $PWD/acme/certs:/certs \
+              -v $PWD/acme/metadata:/metadata \
+              -v $PWD/acme/database:/database \
+              -v $PWD/acme/issuer:/issuer \
+              -v $PWD/acme/realm:/realm \
+              -v $PWD/acme/conf:/conf \
+              -v $PWD/acme/logs:/logs \
+              --detach \
+              pki-acme
+
+          # wait for ACME to start
+          docker exec client curl \
+              --retry 60 \
+              --retry-delay 0 \
+              --retry-connrefused \
+              -s \
+              -k \
+              -o /dev/null \
+              http://acme.example.com:8080/acme/directory
+
+      - name: Check ACME status
+        run: |
+          docker exec client pki \
+              -U https://acme.example.com:8443 \
+              acme-info
+
+      - name: Set up ACME database
+        run: |
+          docker exec acme ldapmodify \
+              -H ldap://acmeds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -f /usr/share/pki/acme/database/ds/schema.ldif
+
+          docker exec acme ldapadd \
+              -H ldap://acmeds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -f /usr/share/pki/acme/database/ds/index.ldif
+
+          docker exec acme ldapadd \
+              -H ldap://acmeds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -f /usr/share/pki/acme/database/ds/create.ldif
+
+      - name: Set up ACME realm
+        run: |
+          docker exec acme ldapadd \
+              -H ldap://acmeds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -f /usr/share/pki/acme/realm/ds/create.ldif
+
+      - name: Register ACME account
+        run: |
+          docker exec client certbot register \
+              --server http://acme.example.com:8080/acme/directory \
+              --email user1@example.com \
+              --agree-tos \
+              --non-interactive
+
+      - name: Enroll client cert
+        run: |
+          docker exec client certbot certonly \
+              --server http://acme.example.com:8080/acme/directory \
+              -d client.example.com \
+              --key-type rsa \
+              --standalone \
+              --non-interactive
+
+      - name: Check client cert
+        run: |
+          docker exec client ls -l /etc/letsencrypt/live/client.example.com
+          docker exec client cat /etc/letsencrypt/live/client.example.com/cert.pem
+
+          docker exec client openssl x509 \
+              -text \
+              -noout \
+              -in /etc/letsencrypt/live/client.example.com/cert.pem
+
+          docker exec client pki nss-cert-verify \
+              --cert /etc/letsencrypt/live/client.example.com/cert.pem
+
+      - name: Renew client cert
+        run: |
+          docker exec client certbot renew \
+              --server http://acme.example.com:8080/acme/directory \
+              --cert-name client.example.com \
+              --force-renewal \
+              --no-random-sleep-on-renew \
+              --non-interactive
+
+      - name: Revoke client cert
+        run: |
+          docker exec client certbot revoke \
+              --server http://acme.example.com:8080/acme/directory \
+              --cert-name client.example.com \
+              --non-interactive
+
+      - name: Update ACME account
+        run: |
+          docker exec client certbot update_account \
+              --server http://acme.example.com:8080/acme/directory \
+              --email user2@example.com \
+              --non-interactive
+
+      - name: Remove ACME account
+        run: |
+          docker exec client certbot unregister \
+              --server http://acme.example.com:8080/acme/directory \
+              --non-interactive
+
+      - name: Check CA DS container logs
+        if: always()
+        run: |
+          docker logs cads 2>&1
+
+      - name: Check CA container logs
+        if: always()
+        run: |
+          docker logs ca 2>&1
+
+      - name: Check ACME DS container logs
+        if: always()
+        run: |
+          docker logs acmeds 2>&1
+
+      - name: Check ACME container logs
+        if: always()
+        run: |
+          docker logs acme 2>&1
+
+      - name: Check client container logs
+        if: always()
+        run: |
+          docker logs client 2>&1
+
+      - name: Check certbot logs
+        if: always()
+        run: |
+          docker exec client cat /var/log/letsencrypt/letsencrypt.log

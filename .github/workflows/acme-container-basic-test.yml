@@ -1,4 +1,4 @@
-name: ACME container
+name: Basic ACME container
 
 on: workflow_call
 
@@ -6,7 +6,6 @@ env:
   DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
 
 jobs:
-  # docs/installation/podman/Deploying_PKI_ACME_Responder_on_Podman.md
   test:
     name: Test
     runs-on: ubuntu-latest
@@ -58,6 +57,7 @@ jobs:
           mkdir conf
           mkdir logs
 
+      # https://github.com/dogtagpki/pki/wiki/Deploying-ACME-Container
       - name: Set up ACME container
         run: |
           docker run \
@@ -147,7 +147,6 @@ jobs:
           # everything should be owned by root group (GID=0)
           # TODO: review owners/permissions
           cat > expected << EOF
-          drwxrwx--- root backup
           -rw-rw-rw- root catalina.$DATE.log
           -rw-rw-rw- root host-manager.$DATE.log
           -rw-rw-rw- root localhost.$DATE.log

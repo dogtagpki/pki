@@ -823,6 +823,12 @@ class RunCLI(pki.cli.CLI):
             action='store_true')
         self.parser.add_argument('--agentpath')
         self.parser.add_argument(
+            '--skip-upgrade',
+            action='store_true')
+        self.parser.add_argument(
+            '--skip-migration',
+            action='store_true')
+        self.parser.add_argument(
             '-v',
             '--verbose',
             action='store_true')
@@ -840,6 +846,8 @@ class RunCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server run [OPTIONS] [<instance ID>]')
         print()
+        print('      --skip-upgrade            Skip config upgrade.')
+        print('      --skip-migration          Skip config migration.')
         print('      --as-current-user         Run as current user.')
         print('      --with-jdb                Run with Java debugger.')
         print('      --with-gdb                Run with GNU debugger.')
@@ -871,6 +879,8 @@ class RunCLI(pki.cli.CLI):
         with_gdb = args.with_gdb
         with_valgrind = args.with_valgrind
         agentpath = args.agentpath
+        skip_upgrade = args.skip_upgrade
+        skip_migration = args.skip_migration
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -886,7 +896,9 @@ class RunCLI(pki.cli.CLI):
                 with_jdb=with_jdb,
                 with_gdb=with_gdb,
                 with_valgrind=with_valgrind,
-                agentpath=agentpath)
+                agentpath=agentpath,
+                skip_upgrade=skip_upgrade,
+                skip_migration=skip_migration)
 
         except KeyboardInterrupt:
             logger.debug('Server stopped')

@@ -22,6 +22,15 @@ then
     cp -r /var/lib/pki/pki-tomcat/conf.default/* /conf
 fi
 
+if [ -z "$(ls -A /conf/alias 2> /dev/null)" ]
+then
+    echo "INFO: Creating default NSS database"
+    mkdir -p /conf/alias
+    pki-server nss-create --no-password
+fi
+
+mkdir -p /conf/certs
+
 if [ "$UID" = "0" ]
 then
     chown -Rf pkiuser:root /conf
@@ -44,7 +53,7 @@ fi
 if [ -f /certs/sslserver.csr ]
 then
     echo "INFO: Importing SSL server CSR"
-    cp /certs/ca_signing.csr /conf/certs/sslserver.csr
+    cp /certs/sslserver.csr /conf/certs/sslserver.csr
 fi
 
 echo "################################################################################"
@@ -233,7 +242,7 @@ trap "kill -- -$(ps -o pgid= $PID | grep -o '[0-9]*')" TERM
 if [ "$UID" = "0" ]; then
     # In Docker the server runs as root user but it will switch
     # into pkiuser (UID=17) that belongs to the root group (GID=0).
-    pki-server run &
+    pki-server run --skip-upgrade --skip-migration &
     PID=$!
     wait $PID
 
@@ -242,7 +251,7 @@ else
     # (with a random UID) that belongs to the root group (GID=0).
     #
     # https://www.redhat.com/en/blog/jupyter-on-openshift-part-6-running-as-an-assigned-user-id
-    pki-server run --as-current-user &
+    pki-server run --as-current-user --skip-upgrade --skip-migration &
     PID=$!
     wait $PID
 fi
