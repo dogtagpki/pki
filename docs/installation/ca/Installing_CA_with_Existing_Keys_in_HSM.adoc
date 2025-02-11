@@ -7,11 +7,7 @@ where the keys are stored in HSM.
 To avoid conflicts with the existing CA subsystem, the new CA subsystem will use new SSL server and subsystem certificates,
 so they will not be included in the installation process.
 
-== Prerequisites ==
-Prior to installation, please ensure that the following are configured:
-
-* link:../others/FQDN_Configuration.adoc[Setting the FQDN of the host system]
-* link:../others/Creating_DS_instance.adoc[Creating a directory server instance and adding base entries]
+Prior to installation, please ensure that the link:../others/Installation_Prerequisites.adoc[Installation Prerequisites] are configured.
 
 == Starting CA Subsystem Installation ==
 Prepare a file (e.g. ca-step1.cfg) that contains the deployment configuration step 1, for example:

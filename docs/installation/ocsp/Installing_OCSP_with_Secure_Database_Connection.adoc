@@ -4,16 +4,11 @@
 
 This page describes the process to install an OCSP subsystem with a secure database connection.
 
+Prior to installation, please ensure that the link:../others/Installation_Prerequisites.adoc[Installation Prerequisites] are configured.
 
+Additional steps:
 
-== Prerequisites ==
-Prior to installation, please ensure that the following are configured:
-
-* link:../others/FQDN_Configuration.adoc[Setting the FQDN of the host system]
-* link:../others/Creating_DS_instance.adoc[Creating a directory server instance and adding base entries]
-** Ensure that the secure connection has been enabled on the directory server.
-Export the signing certificate for the directory server into ds_signing.crt.
-This step is described link:https://github.com/dogtagpki/389-ds-base/wiki/Configuring-SSL-Connection[here].
+Ensure that the secure connection has been enabled on the directory server, and export the signing certificate for the directory server into ds_signing.crt. This step is described link:https://github.com/dogtagpki/389-ds-base/wiki/Configuring-SSL-Connection[here].
 
 == OCSP Subsystem Installation ==
 

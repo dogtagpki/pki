@@ -9,11 +9,7 @@ where the system certificates and their keys are stored in HSM.
 Since the certificates and the keys are already in HSM, it's not necessary to export them into a
 PKCS #12 file to create a clone.
 
-== Prerequisites ==
-Prior to installation, please ensure that the following are configured:
-
-* link:../others/FQDN_Configuration.adoc[Setting the FQDN of the host system]
-* link:../others/Creating_DS_instance.adoc[Creating a directory server instance and adding base entries]
+Prior to installation, please ensure that the link:../others/Installation_Prerequisites.adoc[Installation Prerequisites] are configured.
 
 == OCSP Subsystem Installation ==
 
