@@ -550,7 +550,9 @@ grant codeBase "file:%s" {
             with_jdb=False,
             with_gdb=False,
             with_valgrind=False,
-            agentpath=None):
+            agentpath=None,
+            skip_upgrade=False,
+            skip_migration=False):
 
         p = self.execute(
             command,
@@ -558,17 +560,22 @@ grant codeBase "file:%s" {
             with_jdb=with_jdb,
             with_gdb=with_gdb,
             with_valgrind=with_valgrind,
-            agentpath=agentpath)
+            agentpath=agentpath,
+            skip_upgrade=skip_upgrade,
+            skip_migration=skip_migration)
 
         p.wait()
 
+    # pylint: disable=W0613
     def execute(
             self, command,
             as_current_user=False,
             with_jdb=False,
             with_gdb=False,
             with_valgrind=False,
-            agentpath=None):
+            agentpath=None,
+            skip_upgrade=False,
+            skip_migration=False):
 
         logger.debug('Environment variables:')
         for name in self.config:

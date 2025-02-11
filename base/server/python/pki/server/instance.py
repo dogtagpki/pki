@@ -185,7 +185,9 @@ class PKIInstance(pki.server.PKIServer):
             with_jdb=False,
             with_gdb=False,
             with_valgrind=False,
-            agentpath=None):
+            agentpath=None,
+            skip_upgrade=False,
+            skip_migration=False):
 
         if command == 'start':
 
@@ -205,33 +207,35 @@ class PKIInstance(pki.server.PKIServer):
                 if current_user != self.user:
                     prefix.extend(['/usr/sbin/runuser', '-u', self.user, '--'])
 
-            # run pki-server upgrade <instance>
-            cmd = prefix + ['/usr/sbin/pki-server', 'upgrade']
+            if not skip_upgrade:
+                # run pki-server upgrade <instance>
+                cmd = prefix + ['/usr/sbin/pki-server', 'upgrade']
 
-            if logger.isEnabledFor(logging.DEBUG):
-                cmd.append('--debug')
+                if logger.isEnabledFor(logging.DEBUG):
+                    cmd.append('--debug')
 
-            elif logger.isEnabledFor(logging.INFO):
-                cmd.append('--verbose')
+                elif logger.isEnabledFor(logging.INFO):
+                    cmd.append('--verbose')
 
-            cmd.append(instance_id)
+                cmd.append(instance_id)
 
-            logger.debug('Command: %s', ' '.join(cmd))
-            subprocess.run(cmd, env=self.config, check=True)
+                logger.debug('Command: %s', ' '.join(cmd))
+                subprocess.run(cmd, env=self.config, check=True)
 
-            # run pki-server migrate <instance>
-            cmd = prefix + ['/usr/sbin/pki-server', 'migrate']
+            if not skip_migration:
+                # run pki-server migrate <instance>
+                cmd = prefix + ['/usr/sbin/pki-server', 'migrate']
 
-            if logger.isEnabledFor(logging.DEBUG):
-                cmd.append('--debug')
+                if logger.isEnabledFor(logging.DEBUG):
+                    cmd.append('--debug')
 
-            elif logger.isEnabledFor(logging.INFO):
-                cmd.append('--verbose')
+                elif logger.isEnabledFor(logging.INFO):
+                    cmd.append('--verbose')
 
-            cmd.append(instance_id)
+                cmd.append(instance_id)
 
-            logger.debug('Command: %s', ' '.join(cmd))
-            subprocess.run(cmd, env=self.config, check=True)
+                logger.debug('Command: %s', ' '.join(cmd))
+                subprocess.run(cmd, env=self.config, check=True)
 
             # run pkidaemon start <instance>
             cmd = prefix + ['/usr/bin/pkidaemon', 'start', instance_id]

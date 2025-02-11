@@ -68,6 +68,19 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           outputs: type=docker
 
+      - name: Build pki-ca image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          build-args: |
+            BASE_IMAGE=${{ env.BASE_IMAGE }}
+            COPR_REPO=${{ env.COPR_REPO }}
+            BUILD_OPTS=--with-pkgs=base,server,ca,acme --without-test
+          tags: pki-ca
+          target: pki-ca
+          cache-from: type=local,src=/tmp/.buildx-cache
+          outputs: type=docker
+
       - name: Build pki-acme image
         uses: docker/build-push-action@v5
         with:
@@ -84,7 +97,7 @@ jobs:
       - name: Save ACME images
         run: |
           docker images
-          docker save -o acme-images.tar pki-runner pki-acme
+          docker save -o acme-images.tar pki-runner pki-ca pki-acme
 
       - name: Store ACME images
         uses: actions/cache@v4
@@ -112,10 +125,15 @@ jobs:
     needs: build
     uses: ./.github/workflows/acme-switchover-test.yml
 
-  acme-container-test:
-    name: ACME container
+  acme-container-basic-test:
+    name: Basic ACME container
     needs: build
-    uses: ./.github/workflows/acme-container-test.yml
+    uses: ./.github/workflows/acme-container-basic-test.yml
+
+  acme-container-ca-test:
+    name: ACME container with CA
+    needs: build
+    uses: ./.github/workflows/acme-container-ca-test.yml
 
   acme-postgresql-test:
     name: ACME with postgresql back-end

@@ -166,7 +166,8 @@ class UserAddCLI(pki.cli.CLI):
             user_type=user_type,
             state=state,
             tps_profiles=tps_profiles,
-            ignore_duplicate=ignore_duplicate)
+            ignore_duplicate=ignore_duplicate,
+            as_current_user=True)
 
         if cert_path:
             subsystem.add_user_cert(

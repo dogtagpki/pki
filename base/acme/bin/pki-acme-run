@@ -19,6 +19,8 @@ then
     cp -r /var/lib/pki/pki-tomcat/conf.default/* /conf
 fi
 
+mkdir -p /conf/acme
+
 if [ "$UID" = "0" ]
 then
     chown -Rf pkiuser:root /conf
