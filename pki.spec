@@ -1198,6 +1198,16 @@ fi
 %mvn_package org.dogtagpki.pki:pki-console        pki-console
 %endif
 
+%if 0%{?fedora}
+# Create a sysusers.d config file
+	
+cat > %{product_id}.sysusers.conf <<EOF
+g %{pki_username} %{pki_gid}
+u %{pki_groupname} %{pki_uid} 'Certificate System' %{pki_homedir} -
+EOF
+
+%endif
+
 ################################################################################
 %build
 ################################################################################
@@ -1504,6 +1514,13 @@ xmlstarlet edit --inplace \
 
 %if %{with server}
 
+%if 0%{?fedora}
+
+install -m0644 -D %{product_id}.sysusers.conf %{buildroot}%{_sysusersdir}/%{product_id}.conf
+%pre -n %{product_id}-server
+
+%else
+
 %pre -n %{product_id}-server
 
 # create PKI group if it doesn't exist
@@ -1513,6 +1530,8 @@ getent group %{pki_groupname} >/dev/null || groupadd -f -g %{pki_gid} -r %{pki_g
 if ! getent passwd %{pki_username} >/dev/null ; then
     useradd -r -u %{pki_uid} -g %{pki_groupname} -d %{pki_homedir} -s /sbin/nologin -c "Certificate System" %{pki_username}
 fi
+
+%endif
 
 # create PKI home directory if it doesn't exist
 if [ ! -d %{pki_homedir} ] ; then
@@ -1783,7 +1802,9 @@ fi
 %{_mandir}/man8/pki-healthcheck.8.gz
 %{_datadir}/pki/setup/
 %{_datadir}/pki/server/
-
+%if 0%{?fedora}
+%{_sysusersdir}/%{product_id}.conf
+%endif
 %if %{without maven}
 %{_datadir}/java/pki/pki-server.jar
 %{_datadir}/java/pki/pki-server-webapp.jar
