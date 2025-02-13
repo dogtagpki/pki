@@ -1266,45 +1266,8 @@ popd
 %endif
 
 # Remove all symbol table and relocation information from the executable.
-C_FLAGS="-s"
-CXX_FLAGS="$CXX_FLAGS -g -fPIE -pie"
-
-%if 0%{?fedora} || 0%{?rhel} && 0%{?rhel} >= 10
-# https://sourceware.org/annobin/annobin.html/Test-gaps.html
-C_FLAGS="$C_FLAGS -fplugin=annobin"
-
-%ifarch x86_64
-# https://sourceware.org/annobin/annobin.html/Test-cf-protection.html
-C_FLAGS="$C_FLAGS -fcf-protection=full"
-CXX_FLAGS="$CXX_FLAGS -fcf-protection=full"
-%endif
-
-# https://sourceware.org/annobin/annobin.html/Test-optimization.html
-C_FLAGS="$C_FLAGS -O2"
-CXX_FLAGS="$CXX_FLAGS -O2"
-
-# https://sourceware.org/annobin/annobin.html/Test-glibcxx-assertions.html
-C_FLAGS="$C_FLAGS -D_GLIBCXX_ASSERTIONS"
-CXX_FLAGS="$CXX_FLAGS -D_GLIBCXX_ASSERTIONS"
-
-# https://sourceware.org/annobin/annobin.html/Test-lto.html
-C_FLAGS="$C_FLAGS -flto"
-
-# https://sourceware.org/annobin/annobin.html/Test-fortify.html
-C_FLAGS="$C_FLAGS -D_FORTIFY_SOURCE=3"
-CXX_FLAGS="$CXX_FLAGS -D_FORTIFY_SOURCE=3"
-
-# https://sourceware.org/annobin/annobin.html/Test-stack-clash.html
-C_FLAGS="$C_FLAGS -fstack-clash-protection"
-CXX_FLAGS="$CXX_FLAGS -fstack-clash-protection"
-
-%ifarch aarch64
-# https://sourceware.org/annobin/annobin.html/Test-dynamic-tags.html
-C_FLAGS="$C_FLAGS -mbranch-protection=standard"
-CXX_FLAGS="$CXX_FLAGS -mbranch-protection=standard"
-%endif
-
-%endif
+C_FLAGS="%{optflags}"
+CXX_FLAGS="%{optflags}"
 
 pkgs=base\
 %{?with_server:,server}\
