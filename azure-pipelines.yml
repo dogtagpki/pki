@@ -117,6 +117,11 @@ jobs:
           -e '/^\/usr\/share\/pki\/lib\/resteasy-jackson2-provider-.*\.jar/d' \
           -e '/^\/usr\/share\/pki\/server\/common\/lib\/resteasy-servlet-initializer-.*\.jar/d' \
           file_list
+
+      # exclude user managemant files only available in RPM
+      sed -i \
+          -e '/^\/usr\/lib\/sysusers\.d\/dogtag-pki\.conf/d' \
+          file_list
     displayName: Get list of files from RPM packages
 
   - script: |
