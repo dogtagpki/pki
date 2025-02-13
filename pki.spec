@@ -2,9 +2,10 @@
 Name:             pki
 ################################################################################
 
+%global           vendor_id dogtag
 %global           product_name Dogtag PKI
-%global           product_id dogtag-pki
-%global           theme dogtag
+%global           product_id %{vendor_id}-pki
+%global           theme %{vendor_id}
 
 # Upstream version number:
 %global           major_version 11
@@ -139,6 +140,9 @@ ExcludeArch: i686
 %define pki_uid 17
 %define pki_groupname pkiuser
 %define pki_gid 17
+
+# Create a home directory for PKI user at /home/pkiuser
+# to store rootless Podman container.
 %define pki_homedir /home/%{pki_username}
 
 %global saveFileContext() \
@@ -226,9 +230,9 @@ BuildRequires:    mvn(org.apache.tomcat:tomcat-servlet-api) >= 9.0.62
 BuildRequires:    mvn(org.apache.tomcat:tomcat-jaspic-api) >= 9.0.62
 BuildRequires:    mvn(org.apache.tomcat:tomcat-util-scan) >= 9.0.62
 
-BuildRequires:    mvn(org.dogtagpki.jss:jss-base) >= 5.5.0
-BuildRequires:    mvn(org.dogtagpki.jss:jss-tomcat) >= 5.5.0
-BuildRequires:    mvn(org.dogtagpki.ldap-sdk:ldapjdk) >= 5.5.0
+BuildRequires:    mvn(org.dogtagpki.jss:jss-base) >= 5.6.0
+BuildRequires:    mvn(org.dogtagpki.jss:jss-tomcat) >= 5.6.0
+BuildRequires:    mvn(org.dogtagpki.ldap-sdk:ldapjdk) >= 5.6.0
 
 # Python build dependencies
 BuildRequires:    python3 >= 3.6
@@ -556,6 +560,7 @@ Provides:         bundled(jaxb-api)
 Provides:         bundled(jackson-annotations)
 Provides:         bundled(jackson-core)
 Provides:         bundled(jackson-databind)
+Provides:         bundled(jackson-modules-base)
 Provides:         bundled(jackson-jaxrs-providers)
 Provides:         bundled(jackson-jaxrs-json-provider)
 
@@ -567,8 +572,8 @@ Provides:         bundled(resteasy-client)
 Provides:         bundled(resteasy-jackson2-provider)
 %endif
 
-Requires:         mvn(org.dogtagpki.jss:jss-base) >= 5.5.0
-Requires:         mvn(org.dogtagpki.ldap-sdk:ldapjdk) >= 5.5.0
+Requires:         mvn(org.dogtagpki.jss:jss-base) >= 5.6.0
+Requires:         mvn(org.dogtagpki.ldap-sdk:ldapjdk) >= 5.6.0
 Requires:         %{product_id}-base = %{version}-%{release}
 
 %description -n   %{product_id}-java
@@ -641,7 +646,7 @@ Provides:         bundled(resteasy-servlet-initializer)
 %endif
 
 Requires:         tomcat >= 1:9.0.62
-Requires:         mvn(org.dogtagpki.jss:jss-tomcat) >= 5.5.0
+Requires:         mvn(org.dogtagpki.jss:jss-tomcat) >= 5.6.0
 
 Requires:         systemd
 Requires(post):   systemd-units
@@ -1200,7 +1205,7 @@ fi
 
 %if 0%{?fedora}
 # Create a sysusers.d config file
-	
+
 cat > %{product_id}.sysusers.conf <<EOF
 g %{pki_username} %{pki_gid}
 u %{pki_groupname} %{pki_uid} 'Certificate System' %{pki_homedir} -
