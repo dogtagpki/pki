@@ -195,12 +195,9 @@ jobs:
           # check stderr
           cat > expected << EOF
           WARNING: UNKNOWN_ISSUER encountered on 'CN=pki.example.com' indicates an unknown CA cert 'CN=CA Signing Certificate'
-          Trust this certificate (y/N)? IOException: Unable to write to socket: Unable to validate CN=pki.example.com: Unknown issuer: CN=CA Signing Certificate
+          Trust this certificate (y/N)? SEVERE: FATAL: SSL alert sent: UNKNOWN_CA
+          IOException: Unable to write to socket: Unable to validate CN=pki.example.com: Unknown issuer: CN=CA Signing Certificate
           EOF
-
-          # TODO: Update the expected stderr once the missing SSL alert is fixed
-          # Trust this certificate (y/N)? SEVERE: FATAL: SSL alert sent: UNKNOWN_CA
-          # IOException: Unable to write to socket: Unable to validate CN=pki.example.com: Unknown issuer: CN=CA Signing Certificate
 
           diff expected stderr
 
@@ -229,12 +226,9 @@ jobs:
           cat > expected << EOF
           WARNING: BAD_CERT_DOMAIN encountered on 'CN=pki.example.com' indicates a common-name mismatch
           WARNING: UNKNOWN_ISSUER encountered on 'CN=pki.example.com' indicates an unknown CA cert 'CN=CA Signing Certificate'
-          Trust this certificate (y/N)? IOException: Unable to write to socket: Unable to validate CN=pki.example.com: Bad certificate domain: CN=pki.example.com
+          Trust this certificate (y/N)? SEVERE: FATAL: SSL alert sent: ACCESS_DENIED
+          IOException: Unable to write to socket: Unable to validate CN=pki.example.com: Bad certificate domain: CN=pki.example.com
           EOF
-
-          # TODO: Update the expected stderr once the missing SSL alert is fixed
-          # Trust this certificate (y/N)? SEVERE: FATAL: SSL alert sent: ACCESS_DENIED
-          # IOException: Unable to write to socket: Unable to validate CN=pki.example.com: Bad certificate domain: CN=pki.example.com
 
           diff expected stderr
 
@@ -359,11 +353,9 @@ jobs:
           # check stderr
           cat > expected << EOF
           ERROR: EXPIRED_CERTIFICATE encountered on 'CN=pki.example.com' results in a denied SSL server cert!
+          SEVERE: FATAL: SSL alert sent: CERTIFICATE_EXPIRED
           IOException: Unable to write to socket: Unable to validate CN=pki.example.com: Expired certificate: CN=pki.example.com
           EOF
-
-          # TODO: Update the expected stderr once the missing SSL alert is fixed
-          # SEVERE: FATAL: SSL alert sent: CERTIFICATE_EXPIRED
 
           diff expected stderr
 
