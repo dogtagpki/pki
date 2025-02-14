@@ -253,4 +253,7 @@ docker exec $NAME ldapsearch \
     -x \
     -b "$SUFFIX"
 
+# allow more time to connect to network
+sleep 5
+
 echo "DS container is ready"
