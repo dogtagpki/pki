@@ -4,8 +4,8 @@
 
 If you have chosen to use an LDAP instance for user management, before
 adding users, please ensure that you have configured the directory
-server and added base entries. Installation instructions can be found
-https://github.com/dogtagpki/pki/wiki/DS-Installation[here].
+server and added base entries. Directory server setup instructions can be found 
+in the link:../others/Installation_Prerequisites.adoc[Installation Prerequisites].
 
 The user DB requires a group node for the people and one for the
 groups.  A simple dif file is available in
