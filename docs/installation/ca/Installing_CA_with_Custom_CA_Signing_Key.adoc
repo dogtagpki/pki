@@ -1,11 +1,11 @@
-= Installing CA with Custom CA Signing Key =
+= Installing CA with Custom CA Signing Key 
 
-== Overview ==
+== Overview 
 This page describes the process to install a CA subsystem with a custom CA signing key, CSR, and certificate.
 
 Prior to installation, please ensure that the link:../others/Installation_Prerequisites.adoc[Installation Prerequisites] are configured.
 
-== Starting CA Subsystem Installation ==
+== Starting CA Subsystem Installation 
 Prepare a file (e.g. ca-step1.cfg) that contains the deployment configuration step 1, for example:
 
 ```
@@ -58,7 +58,7 @@ It will install CA subsystem in a Tomcat instance (default is pki-tomcat) and cr
 
 Since there is no CSR path parameter specified, it will not generate the CA signing key by default.
 
-== Generating CA Signing Key, CSR, and Certificate ==
+== Generating CA Signing Key, CSR, and Certificate 
 Generate a custom CA signing key in the server NSS database, then generate a CSR and store it in a file (e.g. ca_signing.csr).
 
 Use the CSR to issue the CA signing certificate:
@@ -75,7 +75,7 @@ If the CA signing certificate was issued by an external CA, store the external C
 //
 // * link:https://github.com/dogtagpki/pki/wiki/Generating-CA-Signing-Certificate[Generating CA Signing Certificate]
 
-== Finishing CA Subsystem Installation ==
+== Finishing CA Subsystem Installation 
 Prepare another file (e.g. ca-step2.cfg) that contains the deployment configuration step 2. The file can be copied from step 1 (i.e. ca-step1.cfg) with additional changes below.
 
 Specify step 2 with the following parameter:
@@ -109,7 +109,7 @@ Finally, execute the following command:
 $ pkispawn -f ca-step2.cfg -s CA
 ```
 
-== Verifying System Certificates ==
+== Verifying System Certificates 
 Verify that the server NSS database contains the following certificates:
 
 ```
@@ -126,7 +126,7 @@ ca_audit_signing                                             u,u,Pu
 sslserver                                                    u,u,u
 ```
 
-== Verifying Admin Certificate ==
+== Verifying Admin Certificate 
 Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
 
 ```

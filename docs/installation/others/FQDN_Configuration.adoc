@@ -1,15 +1,15 @@
 // this content was copied and modified from https://github.com/dogtagpki/pki/wiki
 //
-= FQDN Configuration =
+= FQDN Configuration 
 
-== Overview ==
+== Overview 
 
 In order to have a properly functioning PKI system,
 each machine in the system must have a correct fully qualified domain name.
 
 This page describes the process to configure the fully qualified domain name on each machine.
 
-== Verifying FQDN ==
+== Verifying FQDN 
 
 To verify the current FQDN, execute the following command:
 
@@ -18,7 +18,7 @@ To verify the current FQDN, execute the following command:
 pki.example.com
 ----
 
-== Configuring FQDN ==
+== Configuring FQDN 
 If the host name is not what you expect it to be, run hostnamectl to set the hostname.  For example,
 
 set the hostname of your pki machine as follows:

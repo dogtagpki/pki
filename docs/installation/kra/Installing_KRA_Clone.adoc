@@ -1,12 +1,12 @@
-= Installing KRA Clone =
+= Installing KRA Clone 
 
-== Overview ==
+== Overview 
 
 This page describes the process to install a KRA subsystem as a clone of an existing KRA subsystem.
 
 Prior to installation, please ensure that the link:../others/Installation_Prerequisites.adoc[Installation Prerequisites] are configured.
 
-== Exporting Existing KRA System Certificates ==
+== Exporting Existing KRA System Certificates 
 
 On the existing system, export the KRA system certificates with the following command:
 
@@ -35,7 +35,7 @@ $ pki -d /var/lib/pki/pki-tomcat/conf/alias -f /var/lib/pki/pki-tomcat/conf/pass
     --append
 ```
 
-== KRA Subsystem Installation ==
+== KRA Subsystem Installation 
 
 Prepare a deployment configuration (e.g. `kra-clone.cfg`) to deploy KRA subsystem clone.
 By default the subsystem will be deployed into a Tomcat instance called `pki-tomcat`.
@@ -53,7 +53,7 @@ To start the installation execute the following command:
 $ pkispawn -f kra-clone.cfg -s KRA
 ```
 
-== KRA System Certificates ==
+== KRA System Certificates 
 
 After installation the existing KRA system certificates (including the certificate chain)
 and their keys will be stored in the server NSS database (i.e. `/var/lib/pki/pki-tomcat/conf/alias`),
@@ -90,7 +90,7 @@ The valid certificate IDs for KRA are:
 Note that the `pki-server cert-export` command takes a certificate ID instead of a nickname.
 For simplicity the nicknames in this example are configured to be the same as the certificate IDs.
 
-== Admin Certificate ==
+== Admin Certificate 
 
 To use the admin certificate from the CA subsystem, prepare a client NSS database (default is `~/.dogtag/nssdb`):
 

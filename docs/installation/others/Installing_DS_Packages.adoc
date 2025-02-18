@@ -1,5 +1,5 @@
 // This was copied partially from https://github.com/dogtagpki/pki/wiki/Installing-DS-Server
-= Installing DS Packages =
+= Installing DS Packages 
 
 Prior to installing DS instances, one needs to install the DS packages.
 To install DS packages:

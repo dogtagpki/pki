@@ -1,6 +1,6 @@
-= Installing Standalone KRA =
+= Installing Standalone KRA 
 
-== Overview ==
+== Overview 
 
 This page describes the process to install a standalone KRA subsystem.
 In link:Installing_KRA.md[regular KRA installation] the KRA certificates are issued automatically by the CA and the KRA will join the CA's security domain.
@@ -12,7 +12,7 @@ The installation process consists multiple steps:
 * Issuing the certificates
 * Completing installation with the certificates
 
-== Generating Certificate Requests ==
+== Generating Certificate Requests 
 
 Prepare a file (e.g. kra-standalone-step1.cfg) that contains the first deployment configuration.
 
@@ -26,7 +26,7 @@ $ pkispawn -f kra-standalone-step1.cfg -s KRA
 
 It will create an NSS database in /var/lib/pki/pki-tomcat/alias and generate CSRs in the specified paths.
 
-== Issuing Certificates ==
+== Issuing Certificates 
 
 Use the CSRs to obtain KRA certificates:
 
@@ -37,7 +37,7 @@ Use the CSRs to obtain KRA certificates:
 * link:https://github.com/dogtagpki/pki/wiki/Generating-Audit-Signing-Certificate[Generating Audit Signing Certificate]
 * link:https://github.com/dogtagpki/pki/wiki/Generating-Admin-Certificate[Generating Admin Certificate]
 
-== Completing Installation ==
+== Completing Installation 
 
 Prepare another file (e.g. kra-standalone-step2.cfg) that contains the second deployment configuration.
 The file can be created from the first file (i.e. kra-standalone-step1.cfg) with the following changes:
@@ -76,7 +76,7 @@ Finally, execute the following command:
 $ pkispawn -f kra-standalone-step2.cfg -s KRA
 ----
 
-== Verifying Admin Certificate ==
+== Verifying Admin Certificate 
 
 Import the CA signing certificate:
 

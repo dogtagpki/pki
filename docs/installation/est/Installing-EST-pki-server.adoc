@@ -1,4 +1,4 @@
-= EST installation using `pki-server` =
+= EST installation using `pki-server` 
 
 After the prerequisite in xref:../est/Installing-EST.adoc[Installing EST], it is
 possible to install *EST*.

@@ -1,6 +1,6 @@
-= Set up realm DB =
+= Set up realm DB 
 
-== Preparing DS DB ==
+== Preparing DS DB 
 
 If you have chosen to use an LDAP instance for user management, before
 adding users, please ensure that you have configured the directory
@@ -26,7 +26,7 @@ require to modify the authorization script
 `/usr/share/pki/est/bin/estauthz`.
 
 
-== Preparaing PostgreSQL DB ==
+== Preparaing PostgreSQL DB 
 
 
 If you have chosen to use *PostgreSQL* for user management, you first

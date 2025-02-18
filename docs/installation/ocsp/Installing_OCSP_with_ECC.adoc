@@ -1,6 +1,6 @@
-= Installing OCSP with ECC =
+= Installing OCSP with ECC 
 
-== Overview ==
+== Overview 
 
 This page describes the process to install a OCSP subsystem with ECC.
 
@@ -18,7 +18,7 @@ Supported ECC key algorithms:
 
 Prior to installation, please ensure that the link:../others/Installation_Prerequisites.adoc[Installation Prerequisites] are configured.
 
-== OCSP Subsystem Installation ==
+== OCSP Subsystem Installation 
 
 Prepare a file (e.g. ocsp.cfg) that contains the deployment configuration, for example:
 
@@ -84,7 +84,7 @@ It will install OCSP subsystem in a Tomcat instance (default is pki-tomcat) and 
 * server NSS database: /var/lib/pki/pki-tomcat/conf/alias
 * admin NSS database: ~/.dogtag/pki-tomcat/kra/alias
 
-== Verifying System Certificates ==
+== Verifying System Certificates 
 
 Verify that the server NSS database contains the following certificates:
 
@@ -101,7 +101,7 @@ ocsp_signing                                                 u,u,u
 sslserver                                                    u,u,u
 ```
 
-== Verifying Admin Certificate ==
+== Verifying Admin Certificate 
 
 Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
 

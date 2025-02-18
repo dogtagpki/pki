@@ -1,10 +1,10 @@
-= Overview =
+= Overview 
 
 This page describes the process to install a CA subsystem with link:https://github.com/dogtagpki/pki/wiki/Random-Certificate-Serial-Numbers-v3[Random Certificate Serial Numbers v3] in PKI 11.2 or later.
 
 NOTE: RSNv3 is enabled by default since PKI 11.5.
 
-= Installation Procedure =
+= Installation Procedure 
 
 To install CA with random serial numbers v3, follow the normal link:Installing_CA.adoc[CA installation] procedure, then specify the parameters below.
 
@@ -24,7 +24,7 @@ pki_request_id_generator=random
 
 The certificate request ID length (in bits) can be specified in the `pki_request_id_length` parameter. The default is `128` bits.
 
-= Verification =
+= Verification 
 
 After installation the certificates will have random serial numbers, for example:
 

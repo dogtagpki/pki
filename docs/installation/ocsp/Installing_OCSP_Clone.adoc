@@ -1,12 +1,12 @@
-= Installing OCSP Clone =
+= Installing OCSP Clone 
 
-== Overview ==
+== Overview 
 
 This page describes the process to install a OCSP subsystem as a clone of an existing OCSP subsystem.
 
 Prior to installation, please ensure that the link:../others/Installation_Prerequisites.adoc[Installation Prerequisites] are configured.
 
-== Exporting Existing OCSP System Certificates ==
+== Exporting Existing OCSP System Certificates 
 
 On the existing system, export the existing OCSP system certificates with the following command:
 
@@ -34,7 +34,7 @@ $ pki -d /var/lib/pki/pki-tomcat/conf/alias -f /var/lib/pki/pki-tomcat/conf/pass
     --append
 ```
 
-== OCSP Subsystem Installation ==
+== OCSP Subsystem Installation 
 
 Prepare a deployment configuration (e.g. `ocsp-clone.cfg`) to deploy OCSP subsystem clone.
 By default the subsystem will be deployed into a Tomcat instance called `pki-tomcat`.
@@ -52,7 +52,7 @@ To start the installation execute the following command:
 $ pkispawn -f ocsp-clone.cfg -s OCSP
 ```
 
-== OCSP System Certificates ==
+== OCSP System Certificates 
 
 After installation the existing OCSP system certificates (including the certificate chain)
 and their keys will be stored in the server NSS database (i.e. `/var/lib/pki/pki-tomcat/conf/alias`),
@@ -87,7 +87,7 @@ The valid certificate IDs for OCSP are:
 Note that the `pki-server cert-export` command takes a certificate ID instead of a nickname.
 For simplicity the nicknames in this example are configured to be the same as the certificate ID.
 
-== Admin Certificate ==
+== Admin Certificate 
 
 To use the admin certificate from the CA subsystem, prepare a client NSS database (default is `~/.dogtag/nssdb`):
 

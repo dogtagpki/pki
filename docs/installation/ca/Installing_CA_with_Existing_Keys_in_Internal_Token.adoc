@@ -1,6 +1,6 @@
-= Installing CA with Existing Keys in Internal Token =
+= Installing CA with Existing Keys in Internal Token 
 
-== Overview ==
+== Overview 
 
 This page describes the process to install a CA subsystem with the system keys, CSRs, and certificates from an existing CA
 where the keys are stored in internal token.
@@ -10,7 +10,7 @@ so they will not be included in the installation process.
 
 Prior to installation, please ensure that the link:../others/Installation_Prerequisites.adoc[Installation Prerequisites] are configured.
 
-== Starting CA Subsystem Installation ==
+== Starting CA Subsystem Installation 
 Prepare a file (e.g. ca-existing-certs-step1.cfg) that contains the first deployment configuration.
 
 A sample deployment configuration is available at link:../../../base/server/examples/installation/ca-existing-certs-step1.cfg[/usr/share/pki/server/examples/installation/ca-existing-certs-step1.cfg].
@@ -28,7 +28,7 @@ It will install CA subsystem in a Tomcat instance (default is pki-tomcat) and cr
 
 Since there are no CSR path parameters specified, it will not generate CA system and admin keys.
 
-== Exporting Existing System Keys, CSRs, Certificates ==
+== Exporting Existing System Keys, CSRs, Certificates 
 Export the system keys and certificates from the existing CA into a PKCS #12 file with the following command:
 
 ```
@@ -55,7 +55,7 @@ $ sed -n "/^ca.audit_signing.certreq=/ s/^[^=]*=// p" < /var/lib/pki/pki-tomcat/
 $ echo "-----END CERTIFICATE REQUEST-----" >> ca_audit_signing.csr
 ```
 
-== Finishing CA Subsystem Installation ==
+== Finishing CA Subsystem Installation 
 Prepare another file (e.g. ca-existing-certs-step2.cfg) that contains the second deployment configuration.
 The file can be created from the first file (i.e. ca-existing-certs-step1.cfg) with the following changes:
 
@@ -92,7 +92,7 @@ Finally, execute the following command:
 $ pkispawn -f ca-existing-certs-step2.cfg -s CA
 ```
 
-== Verifying System Certificates ==
+== Verifying System Certificates 
 Verify that the server NSS database contains the following certificates:
 
 ```
@@ -108,7 +108,7 @@ ca_audit_signing                                             u,u,Pu
 sslserver                                                    u,u,u
 ```
 
-== Verifying Admin Certificate ==
+== Verifying Admin Certificate 
 Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
 
 ```

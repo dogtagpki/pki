@@ -1,6 +1,6 @@
-= Installing CA with ECC =
+= Installing CA with ECC 
 
-== Overview ==
+== Overview 
 This page describes the process to install a CA subsystem with ECC self-signed CA signing certificate.
 
 Supported ECC curves:
@@ -17,7 +17,7 @@ Supported ECC key algorithms:
 
 Prior to installation, please ensure that the link:../others/Installation_Prerequisites.adoc[Installation Prerequisites] are configured.
 
-== CA Subsystem Installation ==
+== CA Subsystem Installation 
 
 Prepare a deployment configuration (e.g. `ca-ecc.cfg`) to deploy CA subsystem.
 By default the subsystem will be deployed into a Tomcat instance called `pki-tomcat`.
@@ -30,7 +30,7 @@ To start the installation execute the following command:
 $ pkispawn -f ca-ecc.cfg -s CA
 ```
 
-== CA System Certificates ==
+== CA System Certificates 
 
 After installation the CA system certificates and keys will be stored
 in the server NSS database (i.e. `/var/lib/pki/pki-tomcat/conf/alias`):
@@ -65,7 +65,7 @@ The valid certificate IDs for CA are:
 Note that the `pki-server cert-export` command takes a certificate ID instead of a nickname.
 For simplicity the nicknames in this example are configured to be the same as the certificate ID.
 
-== Admin Certificate ==
+== Admin Certificate 
 
 After installation the admin certificate and key will be stored
 in `~/.dogtag/pki-tomcat/ca_admin_cert.p12`.

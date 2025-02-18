@@ -1,12 +1,12 @@
-= Installing KRA on Separate Instance =
+= Installing KRA on Separate Instance 
 
-== Overview ==
+== Overview 
 
 This page describes the process to install a KRA subsystem on an instance/host separate from the CA.
 
 Prior to installation, please ensure that the link:../others/Installation_Prerequisites.adoc[Installation Prerequisites] are configured.
 
-== KRA Subsystem Installation ==
+== KRA Subsystem Installation 
 
 Prepare a file (e.g. kra-separate.cfg) that contains the deployment configuration.
 
@@ -33,7 +33,7 @@ to verify the CA's SSL server certificate when contacting the security domain.
 It is up to the administrator to securely transport the CA root certificate
 (public key only!) to the system prior to KRA installation.
 
-== Verifying System Certificates ==
+== Verifying System Certificates 
 
 Verify that the server NSS database contains the following certificates:
 
@@ -51,7 +51,7 @@ kra_audit_signing                                            u,u,Pu
 sslserver                                                    u,u,u
 ```
 
-== Verifying Admin Certificate ==
+== Verifying Admin Certificate 
 
 Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
 
@@ -87,7 +87,7 @@ User "kraadmin"
   State: 1
 ```
 
-== Verifying KRA Connector ==
+== Verifying KRA Connector 
 
 Verify that the KRA connector is configured in the CA subsystem:
 

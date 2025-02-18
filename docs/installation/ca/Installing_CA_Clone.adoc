@@ -1,6 +1,6 @@
-= Installing CA Clone =
+= Installing CA Clone 
 
-== Overview ==
+== Overview 
 This page describes the process to install a CA subsystem as a clone of an existing CA subsystem.
 
 Prior to installation, please ensure that the link:../others/Installation_Prerequisites.adoc[Installation Prerequisites] are configured.
@@ -11,7 +11,7 @@ Additional useful tips:
 - Make sure the firewall on the clone allows external access to LDAP from the master
 - Not having a `dc=pki,dc=example,dc=com` entry in LDAP will give the same error as not being able to connect to the LDAP server.
 
-== Exporting Existing CA System Certificates ==
+== Exporting Existing CA System Certificates 
 
 On the existing system, export the CA system certificates with the following command:
 
@@ -56,7 +56,7 @@ $ pki-server cert-export subsystem \
     --csr-file subsystem.csr
 ```
 
-== SELinux Permissions ==
+== SELinux Permissions 
 
 After copying the `ca-certs.p12` to the clone machine, ensure that appropriate SELinux rules are added:
 
@@ -71,7 +71,7 @@ Also, make sure the `ca-certs.p12` file is owned by the `pkiuser`
 $ chown pkiuser:pkiuser ca-certs.p12
 ----
 
-== CA Subsystem Installation ==
+== CA Subsystem Installation 
 
 Prepare a deployment configuration (e.g. `ca-clone.cfg`) to deploy CA subsystem clone.
 By default the subsystem will be deployed into a Tomcat instance called `pki-tomcat`.
@@ -98,7 +98,7 @@ To start the installation execute the following command:
 $ pkispawn -f ca-clone.cfg -s CA
 ```
 
-== CA System Certificates ==
+== CA System Certificates 
 
 After installation the existing CA system certificates (including the certificate chain)
 and their keys will be stored in the server NSS database (i.e. `/var/lib/pki/pki-tomcat/conf/alias`),
@@ -134,7 +134,7 @@ The valid certificate IDs for CA are:
 Note that the `pki-server cert-export` command takes a certificate ID instead of a nickname.
 For simplicity the nicknames in this example are configured to be the same as the certificate IDs.
 
-== Admin Certificate ==
+== Admin Certificate 
 
 To use the admin certificate from the primary CA subsystem, prepare a client NSS database (default is `~/.dogtag/nssdb`):
 

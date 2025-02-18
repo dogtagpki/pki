@@ -1,10 +1,10 @@
-= EST installation using `pkispawn` =
+= EST installation using `pkispawn` 
 
 After the prerequisite in xref:../est/Installing-EST.adoc[Installing
 EST], it is possible to install *EST*.
 
 
-== Installation ==
+== Installation 
 
 An example `pkispawn` installation configuration is provided in
 `/usr/share/pki/server/examples/installation/est.cfg` with the following content:
@@ -91,7 +91,7 @@ The `est_realm_custom` is a path to a custom realm configuration for
 tomcat and if provided it will overwrite all other realm related
 configurations.
 
-=== Installation on separate instance with certificates ===
+=== Installation on separate instance with certificates 
 
 EST can also be installed on a tomcat instance that’s separate from
 the CA.
@@ -170,7 +170,7 @@ Using the generated PKCS#12 bundle, the command to deploy EST is:
 ----
 
 
-=== Installation on separate instance without certificates ===
+=== Installation on separate instance without certificates 
 
 If the PKCS#12 bundle certificates are not provided to `pkispawn`,
 during the installation, the EST server cert will be issued
@@ -205,7 +205,7 @@ and configured in the file
 `/var/lib/pki/pki-tomcat/conf/est/backend.conf`.
 
 
-== Removing EST ==
+== Removing EST 
 
 To remove the EST subsystem it is possible to use the `pkidestroy`
 command as follow:

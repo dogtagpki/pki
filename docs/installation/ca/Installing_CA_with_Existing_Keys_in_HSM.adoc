@@ -1,6 +1,6 @@
-= Installing CA with Existing Keys in HSM =
+= Installing CA with Existing Keys in HSM 
 
-== Overview ==
+== Overview 
 This page describes the process to install a CA subsystem with the system keys, CSRs, and certificates from an existing CA
 where the keys are stored in HSM.
 
@@ -9,7 +9,7 @@ so they will not be included in the installation process.
 
 Prior to installation, please ensure that the link:../others/Installation_Prerequisites.adoc[Installation Prerequisites] are configured.
 
-== Starting CA Subsystem Installation ==
+== Starting CA Subsystem Installation 
 Prepare a file (e.g. ca-step1.cfg) that contains the deployment configuration step 1, for example:
 
 ```
@@ -68,7 +68,7 @@ It will install CA subsystem in a Tomcat instance (default is pki-tomcat) and cr
 
 Since there are no CSR path parameters specified, it will not generate CA system and admin keys.
 
-== Exporting Existing System Certificates and CSRs ==
+== Exporting Existing System Certificates and CSRs 
 Export the system certificates from the existing CA with the following commands:
 
 ```
@@ -93,7 +93,7 @@ $ sed -n "/^ca.audit_signing.certreq=/ s/^[^=]*=// p" < /var/lib/pki/pki-tomcat/
 $ echo "-----END CERTIFICATE REQUEST-----" >> ca_audit_signing.csr
 ```
 
-== Finishing CA Subsystem Installation ==
+== Finishing CA Subsystem Installation 
 Prepare another file (e.g. ca-step2.cfg) that contains the deployment configuration step 2.
 The file can be copied from step 1 (i.e. ca-step1.cfg) with additional changes below.
 
@@ -131,7 +131,7 @@ Finally, execute the following command:
 $ pkispawn -f ca-step2.cfg -s CA
 ```
 
-== Verifying System Certificates ==
+== Verifying System Certificates 
 Verify that the internal token contains the following certificates:
 
 ```
@@ -159,7 +159,7 @@ HSM:ca_audit_signing                                         u,u,Pu
 HSM:sslserver/pki.example.com                                u,u,u
 ```
 
-== Verifying Admin Certificate ==
+== Verifying Admin Certificate 
 Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
 
 ```

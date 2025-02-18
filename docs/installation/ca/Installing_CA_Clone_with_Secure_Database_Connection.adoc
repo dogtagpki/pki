@@ -1,12 +1,12 @@
-= Installing CA Clone with Secure Database Connection =
+= Installing CA Clone with Secure Database Connection 
 
-== Overview ==
+== Overview 
 
 This page describes the process to install a CA subsystem as clone of an existing CA subsystem with a secure database connection.
 
 Prior to installation, please ensure that the link:../others/Installation_Prerequisites.adoc[Installation Prerequisites] are configured.
 
-== DS Configuration ==
+== DS Configuration 
 
 Once the prerequisites listed above are completed on the clone system, go on the existing system and export the DS signing certificate into `ds_signing.p12` and copy the certificate into clone system with the following command:
 
@@ -39,7 +39,7 @@ Some useful tips:
        not being able to connect to the LDAP server.
 
 
-== Exporting Existing CA System Certificates ==
+== Exporting Existing CA System Certificates 
 
 On the existing system, export the CA system certificates and copy to clone system with the following command:
 
@@ -67,7 +67,7 @@ $ pki -d /var/lib/pki/pki-tomcat/conf/alias -f /var/lib/pki/pki-tomcat/conf/pass
     --append
 ```
 
-== SELinux Permissions ==
+== SELinux Permissions 
 
 After copying the `ca-certs.p12` to the clone machine, ensure that appropriate SELinux rules are added:
 
@@ -82,7 +82,7 @@ Also, make sure the `ca-certs.p12` file is owned by the `pkiuser`
 $ chown pkiuser:pkiuser ca-certs.p12
 ----
 
-== CA Subsystem Installation ==
+== CA Subsystem Installation 
 
 Prepare a deployment configuration (e.g. `ca-secure-ds-secondary.cfg`) to deploy CA subsystem clone.
 By default the subsystem will be deployed into a Tomcat instance called `pki-tomcat`.
@@ -99,7 +99,7 @@ To start the installation execute the following command:
 $ pkispawn -f ca-secure-ds-secondary.cfg -s CA
 ```
 
-== CA System Certificates ==
+== CA System Certificates 
 
 After installation the existing CA system certificates (including the certificate chain)
 and their keys will be stored in the server NSS database (i.e. `/var/lib/pki/pki-tomcat/conf/alias`),
@@ -135,7 +135,7 @@ The valid certificate IDs for CA are:
 Note that the `pki-server cert-export` command takes a certificate ID instead of a nickname.
 For simplicity the nicknames in this example are configured to be the same as the certificate IDs.
 
-== Admin Certificate ==
+== Admin Certificate 
 
 To use the admin certificate from the primary CA subsystem, prepare a client NSS database (default is `~/.dogtag/nssdb`):
 

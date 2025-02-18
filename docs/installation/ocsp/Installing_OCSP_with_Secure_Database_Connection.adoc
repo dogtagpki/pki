@@ -1,6 +1,6 @@
-= Installing OCSP with Secure Database Connection =
+= Installing OCSP with Secure Database Connection 
 
-== Overview ==
+== Overview 
 
 This page describes the process to install an OCSP subsystem with a secure database connection.
 
@@ -10,7 +10,7 @@ Additional steps:
 
 Ensure that the secure connection has been enabled on the directory server, and export the signing certificate for the directory server into ds_signing.crt. This step is described link:https://github.com/dogtagpki/389-ds-base/wiki/Configuring-SSL-Connection[here].
 
-== OCSP Subsystem Installation ==
+== OCSP Subsystem Installation 
 
 Prepare a file (e.g. ocsp.cfg) that contains the deployment configuration, for example:
 
@@ -64,7 +64,7 @@ It will install OCSP subsystem in a Tomcat instance (default is pki-tomcat) and 
 * server NSS database: /var/lib/pki/pki-tomcat/conf/alias
 * admin NSS database: ~/.dogtag/pki-tomcat/ocsp/alias
 
-== Verifying System Certificates ==
+== Verifying System Certificates 
 
 Verify that the server NSS database contains the following certificates:
 
@@ -82,7 +82,7 @@ ocsp_audit_signing                                           u,u,Pu
 sslserver                                                    u,u,u
 ```
 
-== Verifying Database Configuration ==
+== Verifying Database Configuration 
 
 Verify that the OCSP database is configured with a secure connection:
 
@@ -101,7 +101,7 @@ $ pki-server ocsp-db-config-show
   Minimum connections: 3
 ```
 
-== Verifying Admin Certificate ==
+== Verifying Admin Certificate 
 
 Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
 
@@ -137,7 +137,7 @@ User "ocspadmin"
   State: 1
 ```
 
-== Verifying OCSP Client ==
+== Verifying OCSP Client 
 
 Publish the CRL in CA to the directory server as follows:
 

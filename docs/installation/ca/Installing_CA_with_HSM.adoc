@@ -1,12 +1,12 @@
-= Installing CA with HSM =
+= Installing CA with HSM 
 
-== Overview ==
+== Overview 
 This page describes the process to install a CA subsystem with a self-signed CA signing certificate
 where the system certificates and their keys will be stored in HSM.
 
 Prior to installation, please ensure that the link:../others/Installation_Prerequisites.adoc[Installation Prerequisites] are configured.
 
-== CA Subsystem Installation ==
+== CA Subsystem Installation 
 Prepare a file (e.g. ca.cfg) that contains the deployment configuration, for example:
 
 ```
@@ -60,7 +60,7 @@ It will install CA subsystem in a Tomcat instance (default is pki-tomcat) and cr
 * server NSS database: /var/lib/pki/pki-tomcat/conf/alias
 * admin NSS database: ~/.dogtag/pki-tomcat/ca/alias
 
-== Verifying System Certificates ==
+== Verifying System Certificates 
 Verify that the internal token contains the following certificates:
 
 ```
@@ -88,7 +88,7 @@ HSM:ca_audit_signing                                         u,u,Pu
 HSM:sslserver/pki.example.com                                u,u,u
 ```
 
-== Verifying Admin Certificate ==
+== Verifying Admin Certificate 
 Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
 
 ```

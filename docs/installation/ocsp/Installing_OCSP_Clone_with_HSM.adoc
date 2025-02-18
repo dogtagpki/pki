@@ -1,7 +1,7 @@
 
-= Installing OCSP Clone with HSM =
+= Installing OCSP Clone with HSM 
 
-== Overview ==
+== Overview 
 
 This page describes the process to install an OCSP subsystem as a clone of an existing OCSP subsystem
 where the system certificates and their keys are stored in HSM.
@@ -11,7 +11,7 @@ PKCS #12 file to create a clone.
 
 Prior to installation, please ensure that the link:../others/Installation_Prerequisites.adoc[Installation Prerequisites] are configured.
 
-== OCSP Subsystem Installation ==
+== OCSP Subsystem Installation 
 
 Prepare a file (e.g. ocsp.cfg) that contains the deployment configuration, for example:
 
@@ -71,7 +71,7 @@ It will install OCSP subsystem in a Tomcat instance (default is pki-tomcat) and 
 * server NSS database: /var/lib/pki/pki-tomcat/conf/alias
 * admin NSS database: ~/.dogtag/pki-tomcat/ocsp/alias
 
-== Verifying System Certificates ==
+== Verifying System Certificates 
 
 Verify that the internal token contains the following certificates:
 
@@ -99,7 +99,7 @@ HSM:ocsp_audit_signing                                       u,u,Pu
 HSM:sslserver/replica.example.com                            u,u,u
 ```
 
-== Verifying Admin Certificate ==
+== Verifying Admin Certificate 
 
 Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
 
@@ -135,7 +135,7 @@ User "ocspadmin"
   State: 1
 ```
 
-== Verifying OCSP Client ==
+== Verifying OCSP Client 
 
 Publish the CRL in CA to the directory server as follows:
 

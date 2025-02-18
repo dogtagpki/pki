@@ -1,8 +1,8 @@
 // This page is copied from https://github.com/dogtagpki/pki/wiki/PKI-LDAP-Tree
 //
-= PKI LDAP Tree =
+= PKI LDAP Tree 
 
-== Overview ==
+== Overview 
 
 When all PKI subsystems are created, the LDAP tree will look like the following:
 

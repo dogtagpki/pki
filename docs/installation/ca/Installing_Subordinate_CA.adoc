@@ -1,12 +1,12 @@
-= Installing Subordinate CA =
+= Installing Subordinate CA 
 
-== Overview ==
+== Overview 
 This page describes the process to install a subordinate CA subsystem
 with a signing certificate issued by a root CA.
 
 Prior to installation, please ensure that the link:../others/Installation_Prerequisites.adoc[Installation Prerequisites] are configured.
 
-== Subordinate CA Subsystem Installation ==
+== Subordinate CA Subsystem Installation 
 Prepare a file (e.g. subca.cfg) that contains the deployment configuration.
 
 A sample deployment configuration is available at link:../../../base/server/examples/installation/subca.cfg[/usr/share/pki/server/examples/installation/subca.cfg].
@@ -24,7 +24,7 @@ It will install subordinate CA subsystem in a Tomcat instance (default is pki-to
 * server NSS database: /var/lib/pki/pki-tomcat/conf/alias
 * admin NSS database: ~/.dogtag/pki-tomcat/ca/alias
 
-== Verifying System Certificates ==
+== Verifying System Certificates 
 
 Verify that the server NSS database contains the following certificates:
 
@@ -41,7 +41,7 @@ ca_audit_signing                                             u,u,Pu
 sslserver                                                    u,u,u
 ```
 
-== Verifying Admin Certificate ==
+== Verifying Admin Certificate 
 
 Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
 

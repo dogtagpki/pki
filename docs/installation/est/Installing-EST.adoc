@@ -1,9 +1,9 @@
 // this asciidoc file is converted from Installing_EST.md with needed modifications
 //
 
-= Installing EST =
+= Installing EST 
 
-== Overview ==
+== Overview 
 
 This page describes the process to install an _EST subsystem_.
 
@@ -15,7 +15,7 @@ The *EST subsystem* requires the package `dogtag-pki-est` installed in the serve
 
 
 
-== Prerequisite ==
+== Prerequisite 
 
 On the CA, create a user group for EST RA accounts (*EST RA Agents*), and an EST RA
 account (**est-ra-1**). The EST subsystem will use this account to authenticate to
@@ -74,7 +74,7 @@ xref:../est/Set-Up-Realm-DB.adoc[Set Up Realm DB].
 
 
 
-== EST Subsystem Installation ==
+== EST Subsystem Installation 
 
 There are two options for the installation:
 
@@ -89,7 +89,7 @@ There are two options for the installation:
 
 
 
-== Verifying EST ==
+== Verifying EST 
 Before enrolling certificates EST users must be added in the user
 database.  The user management is not part of EST commands and has to
 be done outside EST. Guide on how To add user into DS realm is

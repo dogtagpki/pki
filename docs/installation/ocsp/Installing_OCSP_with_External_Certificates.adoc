@@ -1,11 +1,11 @@
-= Installing OCSP with External Certificates =
+= Installing OCSP with External Certificates 
 
-== Overview ==
+== Overview 
 This page describes the process to install a OCSP subsystem with external certificates.
 
 Prior to installation, please ensure that the link:../others/Installation_Prerequisites.adoc[Installation Prerequisites] are configured.
 
-== Starting OCSP Subsystem Installation ==
+== Starting OCSP Subsystem Installation 
 
 Prepare a file (e.g. ocsp-external-certs-step1.cfg) that contains the first deployment configuration.
 
@@ -26,7 +26,7 @@ It will install OCSP subsystem in a Tomcat instance (default is pki-tomcat) and 
 
 It will also generate the system keys in the server NSS database and the CSRs in the specified paths.
 
-== Generating OCSP Certificates ==
+== Generating OCSP Certificates 
 
 Submit the CSRs to an external CA to issue the certificates, then store the certificates in files, for example:
 
@@ -40,7 +40,7 @@ The certificates can be specified as single certificates or PKCS #7 certificate 
 
 Store the external CA certificate chain in a file (e.g. ca_signing.crt). The certificate chain can be specified as a single certificate or PKCS #7 certificate chain in PEM format. The certificate chain should include all CA certificates from the root CA to the external CA that issued the OCSP system and admin certificates.
 
-== Finishing OCSP Subsystem Installation ==
+== Finishing OCSP Subsystem Installation 
 
 Prepare another file (e.g. ocsp-external-certs-step2.cfg) that contains the second deployment configuration.
 The file can be created from the first file (i.e. ocsp-external-certs-step1.cfg) with the following changes:
@@ -74,7 +74,7 @@ Finally, execute the following command:
 $ pkispawn -f ocsp-external-certs-step2.cfg -s OCSP
 ```
 
-== Verifying System Certificates ==
+== Verifying System Certificates 
 
 Verify that the server NSS database contains the following certificates:
 
@@ -91,7 +91,7 @@ ocsp_audit_signing                                           u,u,Pu
 sslserver                                                    u,u,u
 ```
 
-== Verifying Admin Certificate ==
+== Verifying Admin Certificate 
 
 Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
 

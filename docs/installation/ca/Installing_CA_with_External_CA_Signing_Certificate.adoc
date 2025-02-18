@@ -1,11 +1,11 @@
-= Installing CA with External CA Signing Certificate =
+= Installing CA with External CA Signing Certificate 
 
-== Overview ==
+== Overview 
 This page describes the process to install a CA subsystem with an external CA signing certificate.
 
 Prior to installation, please ensure that the link:../others/Installation_Prerequisites.adoc[Installation Prerequisites] are configured.
 
-== Starting CA Subsystem Installation ==
+== Starting CA Subsystem Installation 
 Prepare a file (e.g. ca-external-cert-step1.cfg) that contains the first deployment configuration.
 
 A sample deployment configuration is available at link:../../../base/server/examples/installation/ca-external-cert-step1.cfg[/usr/share/pki/server/examples/installation/ca-external-cert-step1.cfg]
@@ -23,7 +23,7 @@ It will install CA subsystem in a Tomcat instance (default is pki-tomcat) and cr
 
 It will also generate the CA signing key in the server NSS database and the CSR in the specified path.
 
-== Generating CA Signing Certificate ==
+== Generating CA Signing Certificate 
 Use the CSR to issue the CA signing certificate:
 
 * for root CA installation, generate a self-signed CA signing certificate
@@ -41,7 +41,7 @@ but it should not include the CA signing certificate itself.
 // 
 // * link:https://github.com/dogtagpki/pki/wiki/Generating-CA-Signing-Certificate[Generating CA Signing Certificate]
 
-== Finishing CA Subsystem Installation ==
+== Finishing CA Subsystem Installation 
 Prepare another file (e.g. ca-external-cert-step2.cfg) that contains the second deployment configuration.
 The file can be created from the first file (i.e. ca-external-cert-step1.cfg) with the following changes:
 
@@ -70,7 +70,7 @@ Finally, execute the following command:
 $ pkispawn -f ca-external-cert-step2.cfg -s CA
 ```
 
-== Verifying System Certificates ==
+== Verifying System Certificates 
 Verify that the server NSS database contains the following certificates:
 
 ```
@@ -87,7 +87,7 @@ ca_audit_signing                                             u,u,Pu
 sslserver                                                    u,u,u
 ```
 
-== Verifying Admin Certificate ==
+== Verifying Admin Certificate 
 
 Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
 
