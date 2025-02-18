@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 import org.apache.catalina.Realm;
 import org.apache.catalina.realm.RealmBase;
@@ -60,6 +61,7 @@ public class ESTEngine {
 
         logger.info("EST configuration directory: " + estConfDir);
 
+        loadLoggingProperties(estConfDir + File.separator + "logging.properties");
         initBackend(estConfDir + File.separator + "backend.conf");
         initRequestAuthorizer(estConfDir + File.separator + "authorizer.conf");
         initRealm(estConfDir + File.separator + "realm.conf");
@@ -85,6 +87,28 @@ public class ESTEngine {
             }
         }
         logger.info("EST engine stopped");
+    }
+
+    public void loadLoggingProperties(String loggingProperties) throws Exception {
+
+        File file = new File(loggingProperties);
+        if (!file.exists()) return;
+
+        logger.info("Loading " + loggingProperties);
+        Properties properties = new Properties();
+        properties.load(new FileReader(file));
+
+        for (String key : properties.stringPropertyNames()) {
+            String value = properties.getProperty(key);
+
+            logger.info("- " + key + ": " + value);
+            if (!key.endsWith(".level")) continue;
+
+            String loggerName = key.substring(0, key.length() - 6);
+            java.util.logging.Level level = java.util.logging.Level.parse(value);
+
+            Logger.getLogger(loggerName).setLevel(level);
+        }
     }
 
     private void initBackend(String filename) throws Throwable {
@@ -136,7 +160,7 @@ public class ESTEngine {
     private void initRealm(String filename) throws Throwable {
         RealmConfig realmConfig = null;
         File realmConfigFile = new File(filename);
-        
+
         if (realmConfigFile.exists()) {
             logger.info("Loading EST realm config from " + realmConfigFile);
             Properties props = new Properties();
