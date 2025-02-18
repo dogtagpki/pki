@@ -52,7 +52,7 @@ import org.apache.http.impl.client.RequestWrapper;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
-import org.dogtagpki.client.DefaultSocketFactory;
+import org.dogtagpki.client.JSSSocketFactory;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient4Engine;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
@@ -83,7 +83,7 @@ public class PKIConnection implements AutoCloseable {
         // create socket factory
         String className = System.getProperty(
                 "org.dogtagpki.client.socketFactory",
-                DefaultSocketFactory.class.getName());
+                JSSSocketFactory.class.getName());
         logger.info("PKIConnection: Socket factory: " + className);
 
         Class<? extends SchemeLayeredSocketFactory> clazz =

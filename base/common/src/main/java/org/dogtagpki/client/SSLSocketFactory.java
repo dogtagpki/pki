@@ -23,13 +23,13 @@ import org.mozilla.jss.ssl.SSLSocketListener;
 import com.netscape.certsrv.client.PKIConnection;
 
 /**
- * This class provides blocking socket factory for PKIConnection.
+ * This class provides blocking socket factory for PKIConnection based on SSLSocket.
  */
-public class DefaultSocketFactory implements SchemeLayeredSocketFactory {
+public class SSLSocketFactory implements SchemeLayeredSocketFactory {
 
     PKIConnection connection;
 
-    public DefaultSocketFactory(PKIConnection connection) {
+    public SSLSocketFactory(PKIConnection connection) {
         this.connection = connection;
     }
 
