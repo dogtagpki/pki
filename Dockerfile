@@ -100,6 +100,9 @@ RUN dnf install -y /tmp/RPMS/* \
     && rm -rf /var/cache/dnf \
     && rm -rf /tmp/RPMS
 
+# Update home directory owner
+RUN chown -R pkiuser.pkiuser /home/pkiuser
+
 ################################################################################
 FROM pki-runner AS pki-server
 
