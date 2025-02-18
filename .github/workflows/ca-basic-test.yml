@@ -315,6 +315,13 @@ jobs:
           # enable CA signed audit log
           docker exec pki pki-server ca-config-set log.instance.SignedAudit.logSigning true
 
+          # configure RESTEasy logging
+          docker exec -i pki tee /var/lib/pki/pki-tomcat/conf/ca/logging.properties << EOF
+          org.jboss.resteasy.level = INFO
+          EOF
+
+          docker exec pki chown pkiuser:pkiuser /var/lib/pki/pki-tomcat/conf/ca/logging.properties
+
           # restart PKI server
           docker exec pki pki-server restart --wait
 
