@@ -81,6 +81,7 @@ jobs:
 
           # use fuse-overlayfs
           # https://github.com/containers/podman/issues/8705#issuecomment-744357805
+          docker exec pki ls -lR /home
           docker exec -u pkiuser pki mkdir -p /home/pkiuser/.config/containers
           docker exec -i -u pkiuser pki tee /home/pkiuser/.config/containers/storage.conf << EOF
           [storage]

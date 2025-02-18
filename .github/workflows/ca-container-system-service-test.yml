@@ -79,6 +79,7 @@ jobs:
       - name: Create shared folders in PKI user's home directory
         run: |
           # create folders with default owner and permissions
+          docker exec pki ls -lR /home
           docker exec -u pkiuser pki mkdir /home/pkiuser/certs
           docker exec -u pkiuser pki mkdir /home/pkiuser/conf
           docker exec -u pkiuser pki mkdir /home/pkiuser/logs
