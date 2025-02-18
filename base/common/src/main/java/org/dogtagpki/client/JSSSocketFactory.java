@@ -32,15 +32,18 @@ import org.mozilla.jss.ssl.javax.JSSSocket;
 import com.netscape.certsrv.client.PKIConnection;
 
 /**
- * This class provides non-blocking socket factory for PKIConnection.
+ * This class provides a ocket factory for PKIConnection based on JSSSocket.
+ *
+ * JSSSocket support both communication models: sync and async. The model is
+ * defined in the initial socket and if not specified it is sync.
  */
-public class NonBlockingSocketFactory implements SchemeLayeredSocketFactory {
+public class JSSSocketFactory implements SchemeLayeredSocketFactory {
 
-    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NonBlockingSocketFactory.class);
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(JSSSocketFactory.class);
 
     PKIConnection connection;
 
-    public NonBlockingSocketFactory(PKIConnection connection) {
+    public JSSSocketFactory(PKIConnection connection) {
         this.connection = connection;
     }
 
@@ -82,7 +85,7 @@ public class NonBlockingSocketFactory implements SchemeLayeredSocketFactory {
             JSSTrustManager trustManager = new JSSTrustManager();
             trustManager.setHostname(hostname);
             trustManager.setCallback(connection.getCallback());
-	    trustManager.setEnableCertRevokeVerify(true);
+            trustManager.setEnableCertRevokeVerify(true);
 
             TrustManager[] tms = new TrustManager[] { trustManager };
 
