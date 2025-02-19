@@ -12,7 +12,7 @@ This step is described link:https://www.dogtagpki.org/wiki/DS_SSL[here].
 
 Prepare a file (e.g. kra.cfg) that contains the deployment configuration, for example:
 
-```
+....
 [DEFAULT]
 pki_server_database_password=Secret.123
 
@@ -43,13 +43,13 @@ pki_transport_nickname=kra_transport
 pki_audit_signing_nickname=kra_audit_signing
 pki_sslserver_nickname=sslserver
 pki_subsystem_nickname=subsystem
-```
+....
 
 Then execute the following command:
 
-```
+....
 $ pkispawn -f kra.cfg -s KRA
-```
+....
 
 It will install KRA subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
 * server NSS database: /var/lib/pki/pki-tomcat/conf/alias
@@ -59,7 +59,7 @@ It will install KRA subsystem in a Tomcat instance (default is pki-tomcat) and c
 
 Verify that the server NSS database contains the following certificates:
 
-```
+....
 $ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
 
 Certificate Nickname                                         Trust Attributes
@@ -72,13 +72,13 @@ kra_storage                                                  u,u,u
 subsystem                                                    u,u,u
 kra_audit_signing                                            u,u,Pu
 sslserver                                                    u,u,u
-```
+....
 
 == Verifying Database Configuration
 
 Verify that the KRA database is configured with a secure connection:
 
-```
+....
 $ pki-server kra-db-config-show
   Hostname: pki.example.com
   Port: 636
@@ -91,33 +91,33 @@ $ pki-server kra-db-config-show
   Multiple suffix: false
   Maximum connections: 15
   Minimum connections: 3
-```
+....
 
 == Verifying Admin Certificate
 
 Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
 
-```
+....
 $ pki -c Secret.123 client-init
-```
+....
 
 Import the CA signing certificate:
 
-```
+....
 $ pki -c Secret.123 client-cert-import ca_signing --ca-cert ca_signing.crt
-```
+....
 
 Import admin key and certificate:
 
-```
+....
 $ pki -c Secret.123 pkcs12-import \
     --pkcs12 ca_admin_cert.p12 \
     --pkcs12-password Secret.123
-```
+....
 
 Verify that the admin certificate can be used to access the KRA subsystem by executing the following command:
 
-```
+....
 $ pki -c Secret.123 -n caadmin kra-user-show kraadmin
 ---------------
 User "kraadmin"
@@ -127,13 +127,13 @@ User "kraadmin"
   Email: kraadmin@example.com
   Type: adminType
   State: 1
-```
+....
 
 == Verifying KRA Connector
 
 Verify that the KRA connector is configured in the CA subsystem:
 
-```
+....
 $ pki -c Secret.123 -n caadmin ca-kraconnector-show
 
 Host: pki.example.com:8443
@@ -144,4 +144,4 @@ URI: /kra/agent/kra/connector
 Transport Cert:
 
 <base-64 certificate>
-```
+....

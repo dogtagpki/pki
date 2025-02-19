@@ -14,7 +14,7 @@ Ensure that the secure connection has been enabled on the directory server, and 
 
 Prepare a file (e.g. ocsp.cfg) that contains the deployment configuration, for example:
 
-```
+....
 [DEFAULT]
 pki_instance_name=pki-tomcat
 pki_https_port=8443
@@ -51,13 +51,13 @@ pki_ocsp_signing_nickname=ocsp_signing
 pki_audit_signing_nickname=ocsp_audit_signing
 pki_sslserver_nickname=sslserver
 pki_subsystem_nickname=subsystem
-```
+....
 
 Then execute the following command:
 
-```
+....
 $ pkispawn -f ocsp.cfg -s OCSP
-```
+....
 
 It will install OCSP subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
 
@@ -68,7 +68,7 @@ It will install OCSP subsystem in a Tomcat instance (default is pki-tomcat) and 
 
 Verify that the server NSS database contains the following certificates:
 
-```
+....
 $ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
 
 Certificate Nickname                                         Trust Attributes
@@ -80,13 +80,13 @@ ocsp_signing                                                 u,u,u
 subsystem                                                    u,u,u
 ocsp_audit_signing                                           u,u,Pu
 sslserver                                                    u,u,u
-```
+....
 
 == Verifying Database Configuration 
 
 Verify that the OCSP database is configured with a secure connection:
 
-```
+....
 $ pki-server ocsp-db-config-show
   Hostname: pki.example.com
   Port: 636
@@ -99,33 +99,33 @@ $ pki-server ocsp-db-config-show
   Multiple suffix: false
   Maximum connections: 15
   Minimum connections: 3
-```
+....
 
 == Verifying Admin Certificate 
 
 Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
 
-```
+....
 $ pki -c Secret.123 client-init
-```
+....
 
 Import the CA signing certificate:
 
-```
+....
 $ pki -c Secret.123 client-cert-import ca_signing --ca-cert ca_signing.crt
-```
+....
 
 Import admin key and certificate:
 
-```
+....
 $ pki -c Secret.123 pkcs12-import \
     --pkcs12 ca_admin_cert.p12 \
     --pkcs12-password Secret.123
-```
+....
 
 Verify that the admin certificate can be used to access the OCSP subsystem by executing the following command:
 
-```
+....
 $ pki -c Secret.123 -n caadmin ocsp-user-show ocspadmin
 ----------------
 User "ocspadmin"
@@ -135,7 +135,7 @@ User "ocspadmin"
   Email: ocspadmin@example.com
   Type: adminType
   State: 1
-```
+....
 
 == Verifying OCSP Client 
 
@@ -148,7 +148,7 @@ Publish the CRL in CA to the directory server as follows:
 
 Verify that the OCSPClient can be used to validate a certificate:
 
-```
+....
 $ OCSPClient \
  -d /var/lib/pki/pki-tomcat/conf/alias \
  -h pki.example.com \
@@ -158,4 +158,4 @@ $ OCSPClient \
  --serial 1
 CertID.serialNumber=1
 CertStatus=Good
-```
+....

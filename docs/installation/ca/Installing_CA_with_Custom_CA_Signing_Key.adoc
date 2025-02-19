@@ -8,7 +8,7 @@ Prior to installation, please ensure that the link:../others/Installation_Prereq
 == Starting CA Subsystem Installation 
 Prepare a file (e.g. ca-step1.cfg) that contains the deployment configuration step 1, for example:
 
-```
+....
 [DEFAULT]
 pki_instance_name=pki-tomcat
 pki_https_port=8443
@@ -43,13 +43,13 @@ pki_subsystem_nickname=subsystem
 
 pki_external=True
 pki_external_step_two=False
-```
+....
 
 Then execute the following command:
 
-```
+....
 $ pkispawn -f ca-step1.cfg -s CA
-```
+....
 
 It will install CA subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
 
@@ -80,39 +80,39 @@ Prepare another file (e.g. ca-step2.cfg) that contains the deployment configurat
 
 Specify step 2 with the following parameter:
 
-```
+....
 pki_external_step_two=True
-```
+....
 
 Specify the custom CA signing CSR with the following parameter:
 
-```
+....
 pki_ca_signing_csr_path=ca_signing.csr
-```
+....
 
 Specify the custom CA signing certificate with the following parameter:
 
-```
+....
 pki_ca_signing_cert_path=ca_signing.crt
-```
+....
 
 If the CA signing certificate was issued by an external CA, specify the external CA certificate chain with the following parameters:
 
-```
+....
 pki_cert_chain_nickname=external
 pki_cert_chain_path=external.crt
-```
+....
 
 Finally, execute the following command:
 
-```
+....
 $ pkispawn -f ca-step2.cfg -s CA
-```
+....
 
 == Verifying System Certificates 
 Verify that the server NSS database contains the following certificates:
 
-```
+....
 $ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
 
 Certificate Nickname                                         Trust Attributes
@@ -124,38 +124,38 @@ ca_ocsp_signing                                              u,u,u
 subsystem                                                    u,u,u
 ca_audit_signing                                             u,u,Pu
 sslserver                                                    u,u,u
-```
+....
 
 == Verifying Admin Certificate 
 Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
 
-```
+....
 $ pki -c Secret.123 client-init
-```
+....
 
 Import the external CA certificate chain:
 
-```
+....
 $ pki -c Secret.123 client-cert-import --ca-cert external.crt
-```
+....
 
 Import the CA signing certificate:
 
-```
+....
 $ pki -c Secret.123 client-cert-import ca_signing --ca-cert ca_signing.crt
-```
+....
 
 Import admin key and certificate:
 
-```
+....
 $ pki -c Secret.123 pkcs12-import \
     --pkcs12 ~/.dogtag/pki-tomcat/ca_admin_cert.p12 \
     --pkcs12-password Secret.123
-```
+....
 
 Verify that the admin certificate can be used to access the CA subsystem by executing the following command:
 
-```
+....
 $ pki -c Secret.123 -n caadmin ca-user-show caadmin
 --------------
 User "caadmin"
@@ -165,4 +165,4 @@ User "caadmin"
   Email: caadmin@example.com
   Type: adminType
   State: 1
-```
+....

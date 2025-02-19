@@ -10,7 +10,7 @@ Prior to installation, please ensure that the link:../others/Installation_Prereq
 
 Prepare a file (e.g. kra-step1.cfg) that contains the deployment configuration step 1, for example:
 
-```
+....
 [DEFAULT]
 pki_instance_name=pki-tomcat
 pki_https_port=8443
@@ -47,13 +47,13 @@ pki_audit_signing_nickname=kra_audit_signing
 
 pki_external=True
 pki_external_step_two=False
-```
+....
 
 Then execute the following command:
 
-```
+....
 $ pkispawn -f kra-step1.cfg -s KRA
-```
+....
 
 It will install KRA subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
 
@@ -101,50 +101,50 @@ Prepare another file (e.g. kra-step2.cfg) that contains the deployment configura
 
 Specify step 2 with the following parameter:
 
-```
+....
 pki_external_step_two=True
-```
+....
 
 Specify the custom CSRs with the following parameters:
 
-```
+....
 pki_storage_csr_path=kra_storage.csr
 pki_transport_csr_path=kra_transport.csr
 pki_subsystem_csr_path=subsystem.csr
 pki_sslserver_csr_path=sslserver.csr
 pki_audit_signing_csr_path=kra_audit_signing.csr
 pki_admin_csr_path=kra_admin.csr
-```
+....
 
 Specify the custom certificates with the following parameters:
 
-```
+....
 pki_storage_cert_path=kra_storage.crt
 pki_transport_cert_path=kra_transport.crt
 pki_subsystem_cert_path=subsystem.crt
 pki_sslserver_cert_path=sslserver.crt
 pki_audit_signing_cert_path=kra_audit_signing.crt
 pki_admin_cert_path=kra_admin.crt
-```
+....
 
 Specify the external CA certificate chain with the following parameters:
 
-```
+....
 pki_cert_chain_nickname=ca_signing
 pki_cert_chain_path=ca_signing.crt
-```
+....
 
 Finally, execute the following command:
 
-```
+....
 $ pkispawn -f kra-step2.cfg -s KRA
-```
+....
 
 == Verifying System Certificates
 
 Verify that the server NSS database contains the following certificates:
 
-```
+....
 $ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
 
 Certificate Nickname                                         Trust Attributes
@@ -156,33 +156,33 @@ kra_transport                                                u,u,u
 subsystem                                                    u,u,u
 kra_audit_signing                                            u,u,Pu
 sslserver                                                    u,u,u
-```
+....
 
 == Verifying Admin Certificate
 
 Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
 
-```
+....
 $ pki -c Secret.123 client-init
-```
+....
 
 Import the external CA certificate chain:
 
-```
+....
 $ pki -c Secret.123 client-cert-import --ca-cert ca_signing.crt
-```
+....
 
 Import the admin key and certificate:
 
-```
+....
 $ pki -c Secret.123 pkcs12-import \
     --pkcs12 ~/.dogtag/pki-tomcat/kra_admin_cert.p12 \
     --pkcs12-password Secret.123
-```
+....
 
 Verify that the admin certificate can be used to access KRA by executing the following command:
 
-```
+....
 $ pki -c Secret.123 -n kraadmin kra-user-show kraadmin
 ---------------
 User "kraadmin"
@@ -192,4 +192,4 @@ User "kraadmin"
   Email: kraadmin@example.com
   Type: adminType
   State: 1
-```
+....

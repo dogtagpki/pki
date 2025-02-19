@@ -15,11 +15,11 @@ Additional useful tips:
 
 On the existing system, export the CA system certificates with the following command:
 
-```
+....
 $ pki-server ca-clone-prepare \
     --pkcs12-file ca-certs.p12 \
     --pkcs12-password Secret.123
-```
+....
 
 The command will export the following certificates (including the certificate chain) and their keys into a PKCS #12 file:
 
@@ -32,17 +32,17 @@ Note that the existing SSL server certificate will not be exported.
 
 If necessary, third-party certificates (e.g. trust anchors) can be added into the same PKCS #12 file with the following command:
 
-```
+....
 $ pki -d /var/lib/pki/pki-tomcat/conf/alias -f /var/lib/pki/pki-tomcat/conf/password.conf \
     pkcs12-cert-import <nickname> \
     --pkcs12-file ca-certs.p12 \
     --pkcs12-password Secret.123 \
     --append
-```
+....
 
 Optionally, the CSRs for the above certificates can be exported as well with the following commands:
 
-```
+....
 $ pki-server cert-export ca_signing \
     --csr-file ca_signing.csr
 
@@ -54,7 +54,7 @@ $ pki-server cert-export ca_audit_signing \
 
 $ pki-server cert-export subsystem \
     --csr-file subsystem.csr
-```
+....
 
 == SELinux Permissions 
 
@@ -85,18 +85,18 @@ See link:Installing_CA.adoc[CA installation] for details.
 
 If the CSRs are available, they can be specified with the following parameters:
 
-```
+....
 pki_ca_signing_csr_path=ca_signing.csr
 pki_ocsp_signing_csr_path=ca_ocsp_signing.csr
 pki_audit_signing_csr_path=ca_audit_signing.csr
 pki_subsystem_csr_path=subsystem.csr
-```
+....
 
 To start the installation execute the following command:
 
-```
+....
 $ pkispawn -f ca-clone.cfg -s CA
-```
+....
 
 == CA System Certificates 
 
@@ -104,7 +104,7 @@ After installation the existing CA system certificates (including the certificat
 and their keys will be stored in the server NSS database (i.e. `/var/lib/pki/pki-tomcat/conf/alias`),
 and a new SSL server certificate will be created for the new instance:
 
-```
+....
 $ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
 
 Certificate Nickname                                         Trust Attributes
@@ -115,13 +115,13 @@ ca_ocsp_signing                                              u,u,u
 subsystem                                                    u,u,u
 ca_audit_signing                                             u,u,Pu
 sslserver                                                    u,u,u
-```
+....
 
 If necessary, the certificates can be exported into PEM files with the following command:
 
-```
+....
 $ pki-server cert-export <cert ID> --cert-file <filename>
-```
+....
 
 The valid certificate IDs for CA are:
 
@@ -138,27 +138,27 @@ For simplicity the nicknames in this example are configured to be the same as th
 
 To use the admin certificate from the primary CA subsystem, prepare a client NSS database (default is `~/.dogtag/nssdb`):
 
-```
+....
 $ pki client-init
-```
+....
 
 Then import the CA signing certificate into the client NSS database:
 
-```
+....
 $ pki client-cert-import ca_signing --ca-cert ca_signing.crt
-```
+....
 
 Finally, import admin certificate and key with the following command:
 
-```
+....
 $ pki pkcs12-import \
     --pkcs12 ca_admin_cert.p12 \
     --pkcs12-password Secret.123
-```
+....
 
 To verify that the admin certificate can be used to access the CA subsystem clone, execute the following command:
 
-```
+....
 $ pki -n caadmin ca-user-show caadmin
 --------------
 User "caadmin"
@@ -168,4 +168,4 @@ User "caadmin"
   Email: caadmin@example.com
   Type: adminType
   State: 1
-```
+....

@@ -9,7 +9,7 @@ Prior to installation, please ensure that the link:../others/Installation_Prereq
 == CA Subsystem Installation 
 Prepare a file (e.g. ca.cfg) that contains the deployment configuration, for example:
 
-```
+....
 [DEFAULT]
 pki_instance_name=pki-tomcat
 pki_https_port=8443
@@ -47,13 +47,13 @@ pki_ocsp_signing_nickname=ca_ocsp_signing
 pki_audit_signing_nickname=ca_audit_signing
 pki_sslserver_nickname=sslserver/pki.example.com
 pki_subsystem_nickname=subsystem
-```
+....
 
 Then execute the following command:
 
-```
+....
 $ pkispawn -f ca.cfg -s CA
-```
+....
 
 It will install CA subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
 
@@ -63,7 +63,7 @@ It will install CA subsystem in a Tomcat instance (default is pki-tomcat) and cr
 == Verifying System Certificates 
 Verify that the internal token contains the following certificates:
 
-```
+....
 $ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
 
 Certificate Nickname                                         Trust Attributes
@@ -71,11 +71,11 @@ Certificate Nickname                                         Trust Attributes
 
 ca_signing                                                   CT,C,C
 ca_audit_signing                                             ,,P
-```
+....
 
 Verify that the HSM contains the following certificates:
 
-```
+....
 $ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -h HSM -f HSM.pwd
 
 Certificate Nickname                                         Trust Attributes
@@ -86,32 +86,32 @@ HSM:ca_ocsp_signing                                          u,u,u
 HSM:subsystem                                                u,u,u
 HSM:ca_audit_signing                                         u,u,Pu
 HSM:sslserver/pki.example.com                                u,u,u
-```
+....
 
 == Verifying Admin Certificate 
 Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
 
-```
+....
 $ pki -c Secret.123 client-init
-```
+....
 
 Import the CA signing certificate:
 
-```
+....
 $ pki -c Secret.123 client-cert-import ca_signing --ca-cert ca_signing.crt
-```
+....
 
 Import admin key and certificate:
 
-```
+....
 $ pki -c Secret.123 pkcs12-import \
     --pkcs12 ~/.dogtag/pki-tomcat/ca_admin_cert.p12 \
     --pkcs12-password Secret.123
-```
+....
 
 Verify that the admin certificate can be used to access the CA subsystem by executing the following command:
 
-```
+....
 $ pki -c Secret.123 -n caadmin ca-user-show caadmin
 --------------
 User "caadmin"
@@ -121,4 +121,4 @@ User "caadmin"
   Email: caadmin@example.com
   Type: adminType
   State: 1
-```
+....

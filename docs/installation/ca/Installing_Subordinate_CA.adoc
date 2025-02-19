@@ -15,9 +15,9 @@ and the root CA signing certificate has been exported into `root-ca_signing.crt`
 
 Then execute the following command:
 
-```
+....
 $ pkispawn -f subca.cfg -s CA
-```
+....
 
 It will install subordinate CA subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
 
@@ -28,7 +28,7 @@ It will install subordinate CA subsystem in a Tomcat instance (default is pki-to
 
 Verify that the server NSS database contains the following certificates:
 
-```
+....
 $ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
 
 Certificate Nickname                                         Trust Attributes
@@ -39,33 +39,33 @@ ca_ocsp_signing                                              u,u,u
 subsystem                                                    u,u,u
 ca_audit_signing                                             u,u,Pu
 sslserver                                                    u,u,u
-```
+....
 
 == Verifying Admin Certificate 
 
 Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
 
-```
+....
 $ pki client-init
-```
+....
 
 Import the root CA signing certificate:
 
-```
+....
 $ pki client-cert-import ca_signing --ca-cert root-ca_signing.crt
-```
+....
 
 Import admin key and certificate:
 
-```
+....
 $ pki pkcs12-import \
     --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
     --pkcs12-password Secret.123
-```
+....
 
 Verify that the admin certificate can be used to access the subordinate CA subsystem by executing the following command:
 
-```
+....
 $ pki -n caadmin ca-user-show caadmin
 --------------
 User "caadmin"
@@ -75,4 +75,4 @@ User "caadmin"
   Email: caadmin@example.com
   Type: adminType
   State: 1
-```
+....

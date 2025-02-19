@@ -12,7 +12,7 @@ This step is described link:https://www.dogtagpki.org/wiki/DS_SSL[here].
 
 Prepare a file (e.g. tps.cfg) that contains the deployment configuration, for example:
 
-```
+....
 [DEFAULT]
 pki_instance_name=pki-tomcat
 pki_https_port=8443
@@ -48,13 +48,13 @@ pki_security_domain_password=Secret.123
 pki_audit_signing_nickname=tps_audit_signing
 pki_sslserver_nickname=sslserver
 pki_subsystem_nickname=subsystem
-```
+....
 
 Then execute the following command:
 
-```
+....
 $ pkispawn -f tps.cfg -s TPS
-```
+....
 
 It will install TPS subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
 
@@ -65,7 +65,7 @@ It will install TPS subsystem in a Tomcat instance (default is pki-tomcat) and c
 
 Verify that the server NSS database contains the following certificates:
 
-```
+....
 $ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
 
 Certificate Nickname                                         Trust Attributes
@@ -76,13 +76,13 @@ ca_signing                                                   CT,C,C
 subsystem                                                    u,u,u
 tps_audit_signing                                            u,u,Pu
 sslserver                                                    u,u,u
-```
+....
 
 == Verifying Database Configuration
 
 Verify that the TPS database is configured with a secure connection:
 
-```
+....
 $ pki-server tps-db-config-show
   Hostname: pki.example.com
   Port: 636
@@ -95,33 +95,33 @@ $ pki-server tps-db-config-show
   Multiple suffix: false
   Maximum connections: 15
   Minimum connections: 3
-```
+....
 
 == Verifying Admin Certificate
 
 Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
 
-```
+....
 $ pki -c Secret.123 client-init
-```
+....
 
 Import the CA signing certificate:
 
-```
+....
 $ pki -c Secret.123 client-cert-import ca_signing --ca-cert ca_signing.crt
-```
+....
 
 Import admin key and certificate:
 
-```
+....
 $ pki -c Secret.123 pkcs12-import \
     --pkcs12 ca_admin_cert.p12 \
     --pkcs12-password Secret.123
-```
+....
 
 Verify that the admin certificate can be used to access the TPS subsystem by executing the following command:
 
-```
+....
 $ pki -c Secret.123 -n caadmin tps-user-show tpsadmin
 ---------------
 User "tpsadmin"
@@ -133,4 +133,4 @@ User "tpsadmin"
   State: 1
   TPS Profiles:
     All Profiles
-```
+....

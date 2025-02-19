@@ -22,7 +22,7 @@ Prior to installation, please ensure that the link:../others/Installation_Prereq
 
 Prepare a file (e.g. tks.cfg) that contains the deployment configuration, for example:
 
-```
+....
 [DEFAULT]
 pki_server_database_password=Secret.123
 
@@ -60,13 +60,13 @@ pki_subsystem_key_type=ecc
 pki_subsystem_key_algorithm=SHA512withEC
 pki_subsystem_key_size=nistp521
 
-```
+....
 
 Then execute the following command:
 
-```
+....
 $ pkispawn -f tks.cfg -s TKS
-```
+....
 
 It will install TKS subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
 
@@ -77,7 +77,7 @@ It will install TKS subsystem in a Tomcat instance (default is pki-tomcat) and c
 
 Verify that the server NSS database contains the following certificates:
 
-```
+....
 $ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
 
 Certificate Nickname                                         Trust Attributes
@@ -87,33 +87,33 @@ ca_signing                                                   CT,C,C
 subsystem                                                    u,u,u
 tks_audit_signing                                            u,u,Pu
 sslserver                                                    u,u,u
-```
+....
 
 == Verifying Admin Certificate
 
 Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
 
-```
+....
 $ pki -c Secret.123 client-init
-```
+....
 
 Import the CA signing certificate:
 
-```
+....
 $ pki -c Secret.123 client-cert-import ca_signing --ca-cert ca_signing.crt
-```
+....
 
 Import admin key and certificate:
 
-```
+....
 $ pki -c Secret.123 pkcs12-import \
     --pkcs12 ca_admin_cert.p12 \
     --pkcs12-password Secret.123
-```
+....
 
 Verify that the admin certificate can be used to access the TKS subsystem by executing the following command:
 
-```
+....
 $ pki -c Secret.123 -n caadmin tks-user-show tksadmin
 --------------
 User "tksadmin"
@@ -123,4 +123,4 @@ User "tksadmin"
   Email: tksadmin@example.com
   Type: adminType
   State: 1
-```
+....

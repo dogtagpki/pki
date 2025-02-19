@@ -21,9 +21,9 @@ In those cases the installation can be done in multiple steps:
 
 To create a basic PKI server, execute the following command:
 
-```
+....
 $ pki-server create
-```
+....
 
 This will create a server in /var/lib/pki/pki-tomcat with configuration files in /var/lib/pki/pki-tomcat/conf.
 
@@ -33,18 +33,18 @@ See also link:https://github.com/dogtagpki/pki/wiki/PKI-Server-CLI[PKI Server CL
 
 To create a custom NSS database for the server execute the following commands:
 
-```
+....
 $ pki-server nss-create --password <server password>
-```
+....
 
 To enable trust policy:
 
-```
+....
 $ modutil \
     -dbdir /var/lib/pki/pki-tomcat/conf/alias \
     -add p11-kit-trust \
     -libfile /usr/share/pki/lib/p11-kit-trust.so
-```
+....
 
 See also link:https://github.com/dogtagpki/pki/wiki/PKI-Server-NSS-CLI[PKI Server NSS CLI].
 
@@ -52,18 +52,18 @@ See also link:https://github.com/dogtagpki/pki/wiki/PKI-Server-NSS-CLI[PKI Serve
 
 To create a custom NSS database for the admin execute the following commands:
 
-```
+....
 $ pki -d ~/.dogtag/pki-tomcat/ca/alias -c <client password> nss-create
-```
+....
 
 To enable trust policy:
 
-```
+....
 $ modutil \
     -dbdir ~/.dogtag/pki-tomcat/ca/alias \
     -add p11-kit-trust \
     -libfile /usr/share/pki/lib/p11-kit-trust.so
-```
+....
 
 See also link:https://github.com/dogtagpki/pki/wiki/PKI-NSS-CLI[PKI NSS CLI].
 
@@ -72,10 +72,10 @@ See also link:https://github.com/dogtagpki/pki/wiki/PKI-NSS-CLI[PKI NSS CLI].
 To install a PKI subsystem in this server, follow the regular link:https://www.dogtagpki.org/wiki/PKI_10_Installation[installation procedure].
 Make sure to use the same NSS database passwords, for example:
 
-```
+....
 [DEFAULT]
 pki_server_database_password=<server password>
 
 [CA]
 pki_client_database_password=<client password>
-```
+....

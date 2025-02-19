@@ -61,10 +61,10 @@ Each certificate file can contain either a single PEM certificate or a PKCS #7 c
 
 Specify the CA certificate chain with the following parameters:
 
-```
+....
 pki_cert_chain_nickname=ca_signing
 pki_cert_chain_path=ca_signing.crt
-```
+....
 
 The CA certificate chain file can contain either a single PEM certificate or a PKCS #7 certificate chain as well.
 
