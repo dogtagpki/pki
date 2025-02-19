@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.dogtagpki.pki</groupId>
         <artifactId>pki-base-parent</artifactId>
-        <version>11.6.0-SNAPSHOT</version>
+        <version>11.7.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>pki-est</artifactId>
