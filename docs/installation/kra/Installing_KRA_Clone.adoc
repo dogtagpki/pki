@@ -10,6 +10,7 @@ Prior to installation, please ensure that the link:../others/Installation_Prereq
 
 On the existing system, export the KRA system certificates with the following command:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ pki-server kra-clone-prepare \
     --pkcs12-file kra-certs.p12 \
@@ -27,6 +28,7 @@ Note that the existing SSL server certificate will not be exported.
 
 If necessary, third-party certificates (e.g. trust anchors) can be added into the same PKCS #12 file with the following command:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ pki -d /var/lib/pki/pki-tomcat/conf/alias -f /var/lib/pki/pki-tomcat/conf/password.conf \
     pkcs12-cert-import <nickname> \
@@ -49,6 +51,7 @@ See link:../ca/Installing_CA.md[Installing CA] for details.
 
 To start the installation execute the following command:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ pkispawn -f kra-clone.cfg -s KRA
 ....
@@ -59,6 +62,7 @@ After installation the existing KRA system certificates (including the certifica
 and their keys will be stored in the server NSS database (i.e. `/var/lib/pki/pki-tomcat/conf/alias`),
 and a new SSL server certificate will be created for the new instance:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
 
@@ -75,6 +79,7 @@ kra_transport                                                u,u,u
 
 If necessary, the certificates can be exported into PEM files with the following command:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ pki-server cert-export <cert ID> --cert-file <filename>
 ....
@@ -94,18 +99,21 @@ For simplicity the nicknames in this example are configured to be the same as th
 
 To use the admin certificate from the CA subsystem, prepare a client NSS database (default is `~/.dogtag/nssdb`):
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ pki client-init
 ....
 
 Then import the CA signing certificate into the client NSS database:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ pki client-cert-import ca_signing --ca-cert ca_signing.crt
 ....
 
 Finally, import admin certificate and key with the following command:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ pki pkcs12-import \
     --pkcs12 ca_admin_cert.p12 \
@@ -114,6 +122,7 @@ $ pki pkcs12-import \
 
 To verify that the admin certificate can be used to access the KRA subsystem clone, execute the following command:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ pki -n caadmin kra-user-show kraadmin
 ---------------

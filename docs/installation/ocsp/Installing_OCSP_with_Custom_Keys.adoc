@@ -11,6 +11,7 @@ Prior to installation, please ensure that the link:../others/Installation_Prereq
 
 Prepare a file (e.g. ocsp-step1.cfg) that contains the deployment configuration step 1, for example:
 
+[literal,subs="+quotes,verbatim"]
 ....
 [DEFAULT]
 pki_instance_name=pki-tomcat
@@ -51,6 +52,7 @@ pki_external_step_two=False
 
 Then execute the following command:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ pkispawn -f ocsp-step1.cfg -s OCSP
 ....
@@ -98,12 +100,14 @@ Prepare another file (e.g. ocsp-step2.cfg) that contains the deployment configur
 
 Specify step 2 with the following parameter:
 
+[literal,subs="+quotes,verbatim"]
 ....
 pki_external_step_two=True
 ....
 
 Specify the custom CSRs with the following parameters:
 
+[literal,subs="+quotes,verbatim"]
 ....
 pki_ocsp_signing_csr_path=ocsp_signing.csr
 pki_subsystem_csr_path=subsystem.csr
@@ -114,6 +118,7 @@ pki_admin_csr_path=ocsp_admin.csr
 
 Specify the custom certificates with the following parameters:
 
+[literal,subs="+quotes,verbatim"]
 ....
 pki_ocsp_signing_cert_path=ocsp_signing.crt
 pki_subsystem_cert_path=subsystem.crt
@@ -124,6 +129,7 @@ pki_admin_cert_path=ocsp_admin.crt
 
 Specify the external CA certificate chain with the following parameters:
 
+[literal,subs="+quotes,verbatim"]
 ....
 pki_cert_chain_nickname=ca_signing
 pki_cert_chain_path=ca_signing.crt
@@ -131,6 +137,7 @@ pki_cert_chain_path=ca_signing.crt
 
 Finally, execute the following command:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ pkispawn -f ocsp-step2.cfg -s OCSP
 ....
@@ -139,6 +146,7 @@ $ pkispawn -f ocsp-step2.cfg -s OCSP
 
 Verify that the server NSS database contains the following certificates:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
 
@@ -156,18 +164,21 @@ sslserver                                                    u,u,u
 
 Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ pki -c Secret.123 client-init
 ....
 
 Import the external CA certificate chain:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ pki -c Secret.123 client-cert-import --ca-cert ca_signing.crt
 ....
 
 Import the admin key and certificate:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ pki -c Secret.123 pkcs12-import \
     --pkcs12 ~/.dogtag/pki-tomcat/ocsp_admin_cert.p12 \
@@ -176,6 +187,7 @@ $ pki -c Secret.123 pkcs12-import \
 
 Verify that the admin certificate can be used to access the OCSP subsystem by executing the following command:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ pki -c Secret.123 -n ocspadmin ocsp-user-show ocspadmin
 ----------------

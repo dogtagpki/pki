@@ -12,6 +12,7 @@ A sample deployment configuration is available at link:../../../base/server/exam
 
 Then execute the following command:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ pkispawn -f ca-external-cert-step1.cfg -s CA
 ....
@@ -45,18 +46,21 @@ but it should not include the CA signing certificate itself.
 Prepare another file (e.g. ca-external-cert-step2.cfg) that contains the second deployment configuration.
 The file can be created from the first file (i.e. ca-external-cert-step1.cfg) with the following changes:
 
+[literal,subs="+quotes,verbatim"]
 ....
 pki_external_step_two=True
 ....
 
 Specify the custom CA signing certificate with the following parameter:
 
+[literal,subs="+quotes,verbatim"]
 ....
 pki_ca_signing_cert_path=ca_signing.crt
 ....
 
 If the CA signing certificate was issued by an external CA, specify the external CA certificate chain with the following parameters:
 
+[literal,subs="+quotes,verbatim"]
 ....
 pki_cert_chain_nickname=root-ca_signing
 pki_cert_chain_path=root-ca_signing.crt
@@ -66,6 +70,7 @@ A sample deployment configuration is available at link:../../../base/server/exam
 
 Finally, execute the following command:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ pkispawn -f ca-external-cert-step2.cfg -s CA
 ....
@@ -73,6 +78,7 @@ $ pkispawn -f ca-external-cert-step2.cfg -s CA
 == Verifying System Certificates 
 Verify that the server NSS database contains the following certificates:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
 
@@ -91,24 +97,28 @@ sslserver                                                    u,u,u
 
 Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ pki -c Secret.123 client-init
 ....
 
 Import the external CA certificate chain:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ pki -c Secret.123 client-cert-import --ca-cert root-ca_signing.crt
 ....
 
 Import the CA signing certificate:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ pki -c Secret.123 client-cert-import ca_signing --ca-cert ca_signing.crt
 ....
 
 Import admin key and certificate:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ pki -c Secret.123 pkcs12-import \
     --pkcs12 ~/.dogtag/pki-tomcat/ca_admin_cert.p12 \
@@ -117,6 +127,7 @@ $ pki -c Secret.123 pkcs12-import \
 
 Verify that the admin certificate can be used to access the CA subsystem by executing the following command:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ pki -c Secret.123 -n caadmin ca-user-show caadmin
 --------------

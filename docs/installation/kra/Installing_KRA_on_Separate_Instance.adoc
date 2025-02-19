@@ -17,6 +17,7 @@ and the admin certificate has been exported into `ca_admin.cert`.
 
 Then execute the following command:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ pkispawn -f kra-separate.cfg -s KRA
 ....
@@ -37,6 +38,7 @@ It is up to the administrator to securely transport the CA root certificate
 
 Verify that the server NSS database contains the following certificates:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
 
@@ -55,18 +57,21 @@ sslserver                                                    u,u,u
 
 Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ pki -c Secret.123 client-init
 ....
 
 Import the CA signing certificate:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ pki -c Secret.123 client-cert-import ca_signing --ca-cert ca_signing.crt
 ....
 
 Import CA admin key and certificate:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ pki -c Secret.123 pkcs12-import \
     --pkcs12 ca_admin_cert.p12 \
@@ -75,6 +80,7 @@ $ pki -c Secret.123 pkcs12-import \
 
 Verify that the CA admin certificate can be used to access the KRA subsystem by executing the following command:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ pki -c Secret.123 -n caadmin kra-user-show kraadmin
 ---------------
@@ -91,6 +97,7 @@ User "kraadmin"
 
 Verify that the KRA connector is configured in the CA subsystem:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ pki -c Secret.123 -n caadmin ca-kraconnector-show
 

@@ -22,6 +22,7 @@ Prior to installation, please ensure that the link:../others/Installation_Prereq
 
 Prepare a file (e.g. ocsp.cfg) that contains the deployment configuration, for example:
 
+[literal,subs="+quotes,verbatim"]
 ....
 [DEFAULT]
 pki_instance_name=pki-tomcat
@@ -75,6 +76,7 @@ pki_subsystem_key_size=nistp521
 ....
 
 Then execute the following command:
+[literal,subs="+quotes,verbatim"]
 ....
 $ pkispawn -f ocsp.cfg -s OCSP
 ....
@@ -88,6 +90,7 @@ It will install OCSP subsystem in a Tomcat instance (default is pki-tomcat) and 
 
 Verify that the server NSS database contains the following certificates:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
 
@@ -105,18 +108,21 @@ sslserver                                                    u,u,u
 
 Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ pki -c Secret.123 client-init
 ....
 
 Import the CA signing certificate:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ pki -c Secret.123 client-cert-import ca_signing --ca-cert ca_signing.crt
 ....
 
 Import admin key and certificate:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ pki -c Secret.123 pkcs12-import \
     --pkcs12 ca_admin_cert.p12 \
@@ -125,6 +131,7 @@ $ pki -c Secret.123 pkcs12-import \
 
 Verify that the admin certificate can be used to access the OCSP subsystem by executing the following command:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ pki -c Secret.123 -n caadmin ocsp-user-show ocspadmin
 --------------

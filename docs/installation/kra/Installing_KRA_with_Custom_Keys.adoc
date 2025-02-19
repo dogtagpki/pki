@@ -10,6 +10,7 @@ Prior to installation, please ensure that the link:../others/Installation_Prereq
 
 Prepare a file (e.g. kra-step1.cfg) that contains the deployment configuration step 1, for example:
 
+[literal,subs="+quotes,verbatim"]
 ....
 [DEFAULT]
 pki_instance_name=pki-tomcat
@@ -51,6 +52,7 @@ pki_external_step_two=False
 
 Then execute the following command:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ pkispawn -f kra-step1.cfg -s KRA
 ....
@@ -101,12 +103,14 @@ Prepare another file (e.g. kra-step2.cfg) that contains the deployment configura
 
 Specify step 2 with the following parameter:
 
+[literal,subs="+quotes,verbatim"]
 ....
 pki_external_step_two=True
 ....
 
 Specify the custom CSRs with the following parameters:
 
+[literal,subs="+quotes,verbatim"]
 ....
 pki_storage_csr_path=kra_storage.csr
 pki_transport_csr_path=kra_transport.csr
@@ -118,6 +122,7 @@ pki_admin_csr_path=kra_admin.csr
 
 Specify the custom certificates with the following parameters:
 
+[literal,subs="+quotes,verbatim"]
 ....
 pki_storage_cert_path=kra_storage.crt
 pki_transport_cert_path=kra_transport.crt
@@ -129,6 +134,7 @@ pki_admin_cert_path=kra_admin.crt
 
 Specify the external CA certificate chain with the following parameters:
 
+[literal,subs="+quotes,verbatim"]
 ....
 pki_cert_chain_nickname=ca_signing
 pki_cert_chain_path=ca_signing.crt
@@ -136,6 +142,7 @@ pki_cert_chain_path=ca_signing.crt
 
 Finally, execute the following command:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ pkispawn -f kra-step2.cfg -s KRA
 ....
@@ -144,6 +151,7 @@ $ pkispawn -f kra-step2.cfg -s KRA
 
 Verify that the server NSS database contains the following certificates:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
 
@@ -162,18 +170,21 @@ sslserver                                                    u,u,u
 
 Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ pki -c Secret.123 client-init
 ....
 
 Import the external CA certificate chain:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ pki -c Secret.123 client-cert-import --ca-cert ca_signing.crt
 ....
 
 Import the admin key and certificate:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ pki -c Secret.123 pkcs12-import \
     --pkcs12 ~/.dogtag/pki-tomcat/kra_admin_cert.p12 \
@@ -182,6 +193,7 @@ $ pki -c Secret.123 pkcs12-import \
 
 Verify that the admin certificate can be used to access KRA by executing the following command:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ pki -c Secret.123 -n kraadmin kra-user-show kraadmin
 ---------------

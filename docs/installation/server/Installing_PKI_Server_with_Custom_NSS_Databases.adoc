@@ -21,6 +21,7 @@ In those cases the installation can be done in multiple steps:
 
 To create a basic PKI server, execute the following command:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ pki-server create
 ....
@@ -33,12 +34,14 @@ See also link:https://github.com/dogtagpki/pki/wiki/PKI-Server-CLI[PKI Server CL
 
 To create a custom NSS database for the server execute the following commands:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ pki-server nss-create --password <server password>
 ....
 
 To enable trust policy:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ modutil \
     -dbdir /var/lib/pki/pki-tomcat/conf/alias \
@@ -52,12 +55,14 @@ See also link:https://github.com/dogtagpki/pki/wiki/PKI-Server-NSS-CLI[PKI Serve
 
 To create a custom NSS database for the admin execute the following commands:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ pki -d ~/.dogtag/pki-tomcat/ca/alias -c <client password> nss-create
 ....
 
 To enable trust policy:
 
+[literal,subs="+quotes,verbatim"]
 ....
 $ modutil \
     -dbdir ~/.dogtag/pki-tomcat/ca/alias \
@@ -72,6 +77,7 @@ See also link:https://github.com/dogtagpki/pki/wiki/PKI-NSS-CLI[PKI NSS CLI].
 To install a PKI subsystem in this server, follow the regular link:https://www.dogtagpki.org/wiki/PKI_10_Installation[installation procedure].
 Make sure to use the same NSS database passwords, for example:
 
+[literal,subs="+quotes,verbatim"]
 ....
 [DEFAULT]
 pki_server_database_password=<server password>
