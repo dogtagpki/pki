@@ -840,6 +840,10 @@ grant codeBase "file:%s" {
             # Create /var/log/pki/<instance>
             self.makedirs(self._logs_dir, exist_ok=exist_ok)
 
+            # Create /var/log/pki/<instance>/backup
+            backup_dir = os.path.join(self._logs_dir, 'backup')
+            self.makedirs(backup_dir, exist_ok=exist_ok)
+
             # Link /var/lib/pki/<instance>/logs to /var/log/pki/<instance>
             self.symlink(self._logs_dir, self.logs_dir, exist_ok=exist_ok)
 
@@ -847,6 +851,10 @@ grant codeBase "file:%s" {
 
         # Create /var/lib/pki/<instance>/logs
         self.makedirs(self.logs_dir, exist_ok=exist_ok)
+
+        # Create /var/lib/pki/<instance>/logs/backup
+        backup_dir = os.path.join(self.logs_dir, 'backup')
+        self.makedirs(backup_dir, exist_ok=exist_ok)
 
     def create_libs(self, force=False):  # pylint: disable=W0613
 
