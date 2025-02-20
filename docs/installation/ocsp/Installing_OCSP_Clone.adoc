@@ -1,6 +1,5 @@
 = Installing OCSP Clone 
 
-== Overview 
 
 This page describes the process to install a OCSP subsystem as a clone of an existing OCSP subsystem.
 

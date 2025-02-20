@@ -1,6 +1,5 @@
 = Installing KRA with Custom Keys
 
-== Overview
 
 This page describes the process to install a KRA subsystem with custom KRA system and admin keys, CSRs, and certificates.
 

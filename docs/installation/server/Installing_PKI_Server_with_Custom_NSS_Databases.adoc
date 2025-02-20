@@ -1,6 +1,5 @@
 = Installing PKI Server with Custom NSS Databases
 
-== Overview
 
 This page describes the process to create a PKI server with custom NSS databases.
 

@@ -1,6 +1,5 @@
 = Installing Subordinate CA 
 
-== Overview 
 This page describes the process to install a subordinate CA subsystem
 with a signing certificate issued by a root CA.
 

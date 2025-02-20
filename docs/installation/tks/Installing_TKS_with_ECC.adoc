@@ -1,6 +1,5 @@
 = Installing TKS with ECC
 
-== Overview
 
 This page describes the process to install a TKS subsystem with ECC.
 

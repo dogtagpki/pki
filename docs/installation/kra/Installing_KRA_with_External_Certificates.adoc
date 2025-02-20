@@ -1,6 +1,5 @@
 = Installing KRA with External Certificates
 
-== Overview
 
 This page describes the process to install a KRA subsystem with external certificates.
 

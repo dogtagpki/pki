@@ -1,7 +1,6 @@
 // This content was copied and adjusted from https://github.com/dogtagpki/pki/wiki/Enabling-SSL-Connection-in-DS
 = Enabling SSL Connection in DS 
 
-== Overview 
 
 This page describes the process to enable SSL connection in DS
 using a self-signed signing certificate and server certificate

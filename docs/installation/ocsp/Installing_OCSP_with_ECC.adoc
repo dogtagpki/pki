@@ -1,6 +1,5 @@
 = Installing OCSP with ECC 
 
-== Overview 
 
 This page describes the process to install a OCSP subsystem with ECC.
 

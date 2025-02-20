@@ -3,7 +3,6 @@
 
 = Installing EST 
 
-== Overview 
 
 This page describes the process to install an _EST subsystem_.
 

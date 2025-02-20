@@ -1,6 +1,5 @@
 = Installing TPS Clone
 
-== Overview
 
 This page describes the process to install a TPS subsystem as a clone of an existing TPS subsystem
 where the system certificates and their keys are stored in internal NSS token.

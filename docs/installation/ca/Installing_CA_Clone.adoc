@@ -1,6 +1,5 @@
 = Installing CA Clone 
 
-== Overview 
 This page describes the process to install a CA subsystem as a clone of an existing CA subsystem.
 
 Prior to installation, please ensure that the link:../others/Installation_Prerequisites.adoc[Installation Prerequisites] are configured.

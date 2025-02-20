@@ -1,7 +1,6 @@
 
 = Installing OCSP Clone with HSM 
 
-== Overview 
 
 This page describes the process to install an OCSP subsystem as a clone of an existing OCSP subsystem
 where the system certificates and their keys are stored in HSM.

@@ -1,7 +1,6 @@
 
 = Installing OCSP with Custom Keys 
 
-== Overview 
 
 This page describes the process to install a OCSP subsystem with custom OCSP system and admin keys, CSRs, and certificates.
 

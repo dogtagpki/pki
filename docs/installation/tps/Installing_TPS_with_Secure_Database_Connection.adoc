@@ -1,6 +1,5 @@
 = Installing TPS with Secure Database Connection
 
-== Overview
 
 This page describes the process to install a TPS subsystem a secure database connection.
 

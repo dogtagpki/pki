@@ -1,6 +1,5 @@
 = Installing KRA with Secure Database Connection
 
-== Overview
 
 This page describes the process to install a KRA subsystem with a secure database connection.
 

@@ -1,6 +1,5 @@
 = Installing CA Clone with HSM 
 
-== Overview 
 
 This page describes the process to install a CA subsystem as a clone of an existing CA subsystem
 where the system certificates and their keys are stored in HSM.

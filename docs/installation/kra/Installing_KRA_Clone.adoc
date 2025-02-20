@@ -1,6 +1,5 @@
 = Installing KRA Clone 
 
-== Overview 
 
 This page describes the process to install a KRA subsystem as a clone of an existing KRA subsystem.
 

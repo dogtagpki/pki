@@ -2,7 +2,6 @@
 //
 = FQDN Configuration 
 
-== Overview 
 
 In order to have a properly functioning PKI system,
 each machine in the system must have a correct fully qualified domain name.

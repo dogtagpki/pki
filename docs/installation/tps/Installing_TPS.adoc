@@ -1,6 +1,5 @@
 = Installing TPS
 
-== Overview
 
 This page describes the process to install a TPS subsystem.
 

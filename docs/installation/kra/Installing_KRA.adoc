@@ -1,6 +1,5 @@
 = Installing KRA 
 
-== Overview 
 
 This page describes the process to install a KRA subsystem.
 

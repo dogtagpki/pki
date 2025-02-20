@@ -1,6 +1,5 @@
 = Installing TKS
 
-== Overview
 
 This page describes the process to install a TKS subsystem.
 

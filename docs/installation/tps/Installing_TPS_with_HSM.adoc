@@ -1,6 +1,5 @@
 = Installing TPS with HSM
 
-== Overview
 
 This page describes the process to install a TPS subsystem
 where the system certificates and their keys will be stored in HSM.

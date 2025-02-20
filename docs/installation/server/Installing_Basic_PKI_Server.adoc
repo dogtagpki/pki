@@ -1,6 +1,5 @@
 = Installing Basic PKI Server
 
-== Overview
 
 This page describes the process to create and configure a basic PKI server without any of the PKI subsystems.
 This would be useful to troubleshoot general server issues (e.g. SSL).

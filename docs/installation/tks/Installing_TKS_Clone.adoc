@@ -1,6 +1,5 @@
 = Installing TKS Clone
 
-== Overview
 
 This page describes the process to install a TKS subsystem as a clone of an existing TKS subsystem.
 

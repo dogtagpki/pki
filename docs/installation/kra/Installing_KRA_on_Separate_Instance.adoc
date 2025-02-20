@@ -1,6 +1,5 @@
 = Installing KRA on Separate Instance 
 
-== Overview 
 
 This page describes the process to install a KRA subsystem on an instance/host separate from the CA.
 

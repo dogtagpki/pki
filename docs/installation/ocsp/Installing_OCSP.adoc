@@ -1,6 +1,5 @@
 = Installing OCSP 
 
-== Overview 
 
 This page describes the process to install an OCSP subsystem.
 

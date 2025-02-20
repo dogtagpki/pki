@@ -1,6 +1,5 @@
 = Installing KRA with HSM
 
-== Overview
 
 This page describes the process to install a KRA subsystem
 where the system certificates and their keys will be stored in HSM.

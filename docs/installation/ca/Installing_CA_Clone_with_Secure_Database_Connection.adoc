@@ -1,6 +1,5 @@
 = Installing CA Clone with Secure Database Connection 
 
-== Overview 
 
 This page describes the process to install a CA subsystem as clone of an existing CA subsystem with a secure database connection.
 

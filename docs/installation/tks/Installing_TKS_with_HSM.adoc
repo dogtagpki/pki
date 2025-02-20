@@ -1,6 +1,5 @@
 = Installing TKS with HSM
 
-== Overview
 
 This page describes the process to install a TKS subsystem
 where the system certificates and their keys will be stored in HSM.
