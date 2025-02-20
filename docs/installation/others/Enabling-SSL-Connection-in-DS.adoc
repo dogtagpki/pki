@@ -2,7 +2,7 @@
 = Enabling SSL Connection in DS 
 
 
-This page describes the process to enable SSL connection in DS
+Follow this process to enable SSL connection in DS
 using a self-signed signing certificate and server certificate
 created using link:PKI-NSS-CLI.adoc[PKI NSS CLI] commands.
 

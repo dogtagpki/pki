@@ -1,6 +1,6 @@
 = Installing Subordinate CA 
 
-This page describes the process to install a subordinate CA subsystem
+Follow this process to install a subordinate CA subsystem
 with a signing certificate issued by a root CA.
 
 Prior to installation, please ensure that the link:../others/Installation_Prerequisites.adoc[Installation Prerequisites] are configured.

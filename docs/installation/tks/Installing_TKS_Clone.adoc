@@ -1,7 +1,7 @@
 = Installing TKS Clone
 
 
-This page describes the process to install a TKS subsystem as a clone of an existing TKS subsystem.
+Follow this process to install a TKS subsystem as a clone of an existing TKS subsystem.
 
 Prior to installation, please ensure that the link:../others/Installation_Prerequisites.adoc[Installation Prerequisites] are configured.
 

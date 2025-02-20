@@ -2,7 +2,6 @@
 //
 = PKI LDAP Tree 
 
-
 When all PKI subsystems are created, the LDAP tree will look like the following:
 
 ----

@@ -4,7 +4,7 @@
 = Installing EST 
 
 
-This page describes the process to install an _EST subsystem_.
+Follow this process to install an _EST subsystem_.
 
 The *EST subsystem* requires the package `dogtag-pki-est` installed in the server which will run the instance:
 

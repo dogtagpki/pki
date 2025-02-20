@@ -2,7 +2,7 @@
 = Exporting DS Certificates 
 
 
-This page describes the process to export the signing certificate and the server certificate from the NSS database of a DS instance.
+Follow this process to export the signing certificate and the server certificate from the NSS database of a DS instance.
 
 By default the certificates are generated automatically during installation,
 but they can also be created after installation.

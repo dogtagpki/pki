@@ -1,6 +1,6 @@
 = Overview 
 
-This page describes the process to install a KRA subsystem with random serial numbers in PKI 11.2 or later.
+Follow this process to install a KRA subsystem with random serial numbers in PKI 11.2 or later.
 
 NOTE: RSNv3 is enabled by default since PKI 11.5.
 

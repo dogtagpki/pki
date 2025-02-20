@@ -1,7 +1,7 @@
 = Installing KRA with Custom Keys
 
 
-This page describes the process to install a KRA subsystem with custom KRA system and admin keys, CSRs, and certificates.
+Follow this process to install a KRA subsystem with custom KRA system and admin keys, CSRs, and certificates.
 
 Prior to installation, please ensure that the link:../others/Installation_Prerequisites.adoc[Installation Prerequisites] are configured.
 

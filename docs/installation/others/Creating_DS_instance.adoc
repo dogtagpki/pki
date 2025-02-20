@@ -4,7 +4,7 @@
 
 *Note: Prior to installing DS instances, make sure the procedure for link:Installing_DS_Packages.adoc[installing DS packages] has been performed on the host system.*
 
-This section describes the process to prepare a local DS instance for PKI server.
+Follow this process to prepare a local DS instance for PKI server.
 
 Normally the DS installation will automatically generate a self-signed signing certificate and a server certificate for SSL connection.
 In this procedure the certificate generation and the SSL connection will be disabled by default,

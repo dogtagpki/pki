@@ -1,6 +1,6 @@
 = Installing CA with ECC 
 
-This page describes the process to install a CA subsystem with ECC self-signed CA signing certificate.
+Follow this process to install a CA subsystem with ECC self-signed CA signing certificate.
 
 Supported ECC curves:
 

@@ -1,7 +1,7 @@
 = Installing KRA with ECC
 
 
-This page describes the process to install a KRA subsystem with ECC.
+Follow this process to install a KRA subsystem with ECC.
 
 Supported ECC curves:
 

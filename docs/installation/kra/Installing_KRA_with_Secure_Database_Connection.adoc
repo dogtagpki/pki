@@ -1,7 +1,7 @@
 = Installing KRA with Secure Database Connection
 
 
-This page describes the process to install a KRA subsystem with a secure database connection.
+Follow this process to install a KRA subsystem with a secure database connection.
 
 Ensure that the secure connection has been enabled on the directory server.
 Export the signing certificate for the directory server into ds_signing.crt.

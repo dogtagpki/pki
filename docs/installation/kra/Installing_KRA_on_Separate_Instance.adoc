@@ -1,7 +1,7 @@
 = Installing KRA on Separate Instance 
 
 
-This page describes the process to install a KRA subsystem on an instance/host separate from the CA.
+Follow this process to install a KRA subsystem on an instance/host separate from the CA.
 
 Prior to installation, please ensure that the link:../others/Installation_Prerequisites.adoc[Installation Prerequisites] are configured.
 

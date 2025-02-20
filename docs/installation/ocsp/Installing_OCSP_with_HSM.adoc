@@ -1,6 +1,6 @@
 = Installing OCSP with HSM 
 
-This page describes the process to install an OCSP subsystem
+Follow this process to install an OCSP subsystem
 where the system certificates and their keys will be stored in HSM.
 
 Prior to installation, please ensure that the link:../others/Installation_Prerequisites.adoc[Installation Prerequisites] are configured.

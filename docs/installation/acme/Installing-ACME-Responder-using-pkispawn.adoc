@@ -1,7 +1,6 @@
 = Installing ACME Responder using pkispawn =
 
-
-This document describes the process to install an ACME responder on a PKI server that already has a CA subsystem using `pkispawn` command.
+Follow this process to install an ACME responder on a PKI server that already has a CA subsystem using `pkispawn` command.
 
 In general `pkispawn` provides a simpler way compared to link:Installing-ACME-Responder-using-PKI-Server-ACME-CLI.adoc[`pki-server acme`] for installing ACME responder.
 If there is a problem during installation, the entire process might need to be restarted.

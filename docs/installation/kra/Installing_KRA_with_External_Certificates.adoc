@@ -1,7 +1,7 @@
 = Installing KRA with External Certificates
 
 
-This page describes the process to install a KRA subsystem with external certificates.
+Follow this process to install a KRA subsystem with external certificates.
 
 Prior to installation, please ensure that the link:../others/Installation_Prerequisites.adoc[Installation Prerequisites] are configured.
 

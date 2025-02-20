@@ -1,7 +1,7 @@
 = Installing CA with Existing Keys in Internal Token 
 
 
-This page describes the process to install a CA subsystem with the system keys, CSRs, and certificates from an existing CA
+Follow this process to install a CA subsystem with the system keys, CSRs, and certificates from an existing CA
 where the keys are stored in internal token.
 
 To avoid conflicts with the existing CA subsystem, the new CA subsystem will use new SSL server and subsystem certificates,

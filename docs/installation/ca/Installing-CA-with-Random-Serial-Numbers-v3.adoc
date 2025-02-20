@@ -1,6 +1,6 @@
 = Overview 
 
-This page describes the process to install a CA subsystem with link:https://github.com/dogtagpki/pki/wiki/Random-Certificate-Serial-Numbers-v3[Random Certificate Serial Numbers v3] in PKI 11.2 or later.
+Follow this process to install a CA subsystem with link:https://github.com/dogtagpki/pki/wiki/Random-Certificate-Serial-Numbers-v3[Random Certificate Serial Numbers v3] in PKI 11.2 or later.
 
 NOTE: RSNv3 is enabled by default since PKI 11.5.
 

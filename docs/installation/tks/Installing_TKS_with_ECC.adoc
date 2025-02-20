@@ -1,7 +1,7 @@
 = Installing TKS with ECC
 
 
-This page describes the process to install a TKS subsystem with ECC.
+Follow this process to install a TKS subsystem with ECC.
 
 Supported ECC curves:
 

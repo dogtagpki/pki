@@ -1,6 +1,6 @@
 = Installing CA with Custom CA Signing Key 
 
-This page describes the process to install a CA subsystem with a custom CA signing key, CSR, and certificate.
+Follow this process to install a CA subsystem with a custom CA signing key, CSR, and certificate.
 
 Prior to installation, please ensure that the link:../others/Installation_Prerequisites.adoc[Installation Prerequisites] are configured.
 

@@ -6,7 +6,7 @@
 In order to have a properly functioning PKI system,
 each machine in the system must have a correct fully qualified domain name.
 
-This page describes the process to configure the fully qualified domain name on each machine.
+Follow this process to configure the fully qualified domain name on each machine.
 
 == Verifying FQDN 
 
