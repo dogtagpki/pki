@@ -10,6 +10,16 @@ PKCS #12 file to create a clone.
 
 Prior to installation, please ensure that the link:../others/Installation_Prerequisites.adoc[Installation Prerequisites] are configured.
 
+== Exporting CA Signing Certificate
+
+If it has not been done, export the CA signing certificate in preparation for the installation:
+
+[literal,subs="+quotes,verbatim"]
+....
+$ pki-server cert-export ca_signing \
+    --csr-file ca_signing.csr
+....
+
 == OCSP Subsystem Installation 
 
 Prepare a file (e.g. ocsp.cfg) that contains the deployment configuration, for example:
