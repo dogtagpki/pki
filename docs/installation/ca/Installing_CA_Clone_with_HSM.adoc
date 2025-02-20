@@ -31,6 +31,8 @@ $ pki-server cert-export subsystem \
 
 == CA Subsystem Installation 
 
+Note: It is assumed that the CA signing certificate has been exported into `ca_signing.crt`
+
 Prepare a file (e.g. ca.cfg) that contains the deployment configuration, for example:
 
 [literal,subs="+quotes,verbatim"]
