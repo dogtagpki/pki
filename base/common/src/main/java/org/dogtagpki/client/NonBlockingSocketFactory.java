@@ -79,18 +79,10 @@ public class NonBlockingSocketFactory implements SchemeLayeredSocketFactory {
             KeyManagerFactory kmf = KeyManagerFactory.getInstance("NssX509", "Mozilla-JSS");
             KeyManager[] kms = kmf.getKeyManagers();
 
-            // Create JSSTrustManager since the default JSSNativeTrustManager
-            // does not support hostname validation and cert approval callback.
-            //
-            // JSSTrustManager currently does not support cert validation with
-            // OCSP and CRL.
-            //
-            // TODO: Fix JSSTrustManager to support OCSP and CRL, then replace
-            // DefaultSocketFactory with this class.
-
             JSSTrustManager trustManager = new JSSTrustManager();
             trustManager.setHostname(hostname);
             trustManager.setCallback(connection.getCallback());
+	    trustManager.setEnableCertRevokeVerify(true);
 
             TrustManager[] tms = new TrustManager[] { trustManager };
 
