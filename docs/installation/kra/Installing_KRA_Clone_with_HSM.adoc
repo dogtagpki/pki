@@ -58,6 +58,12 @@ pki_audit_signing_nickname=kra_audit_signing
 pki_sslserver_nickname=sslserver/replica.example.com
 pki_subsystem_nickname=subsystem
 
+pki_storage_token=HSM
+pki_transport_token=HSM
+pki_audit_signing_token=HSM
+pki_sslserver_token=HSM
+pki_subsystem_token=HSM
+
 pki_clone=True
 pki_clone_replicate_schema=True
 pki_clone_uri=https://pki.example.com:8443
