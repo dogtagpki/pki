@@ -1,4 +1,4 @@
-// This page is copied from https://github.com/dogtagpki/pki/wiki/PKI-LDAP-Tree
+// This content is copied from https://github.com/dogtagpki/pki/wiki/PKI-LDAP-Tree
 //
 = PKI LDAP Tree 
 

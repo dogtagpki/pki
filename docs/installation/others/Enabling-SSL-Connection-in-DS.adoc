@@ -1,12 +1,11 @@
 // This content was copied and adjusted from https://github.com/dogtagpki/pki/wiki/Enabling-SSL-Connection-in-DS
 = Enabling SSL Connection in DS 
 
-
 Follow this process to enable SSL connection in DS
 using a self-signed signing certificate and server certificate
 created using link:PKI-NSS-CLI.adoc[PKI NSS CLI] commands.
 
-This page assumes that a DS instance named `localhost` already exists,
+This section assumes that a DS instance named `localhost` already exists,
 it does not have certificates, and the SSL connection is disabled.
 
 *Note:* In newer DS versions the certificates are created and the SSL connection is enabled by default,

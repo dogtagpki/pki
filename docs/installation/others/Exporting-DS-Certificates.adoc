@@ -7,7 +7,7 @@ Follow this process to export the signing certificate and the server certificate
 By default the certificates are generated automatically during installation,
 but they can also be created after installation.
 
-This page assumes that a DS instance named `localhost` is already created and has the certificates.
+This section assumes that a DS instance named `localhost` is already created and has the certificates.
 
 == Exporting DS Signing Certificate 
 

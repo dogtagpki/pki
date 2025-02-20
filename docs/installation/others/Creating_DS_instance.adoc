@@ -1,4 +1,4 @@
-// This page is copied and modifed from https://github.com/dogtagpki/pki/wiki/Installing-DS-Server
+// This content is copied and modifed from https://github.com/dogtagpki/pki/wiki/Installing-DS-Server
 //
 = Directory Server Instance Creation 
 

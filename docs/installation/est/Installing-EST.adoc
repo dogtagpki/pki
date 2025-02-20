@@ -92,9 +92,9 @@ There are two options for the installation:
 Before enrolling certificates EST users must be added in the user
 database.  The user management is not part of EST commands and has to
 be done outside EST. Guide on how To add user into DS realm is
-available in the page
+available at
 xref:../../admin/est/Managing-DS-Realm.adoc[Managing DS Realm] while
-for _PostgreSQL_ in the page
+for _PostgreSQL_ at
 xref:../../admin/est/Managing-PostgreSQL-Realm.adoc[Managing
 PostgreSQL Realm].
 
