@@ -235,6 +235,10 @@ BuildRequires:    mvn(org.apache.tomcat:tomcat-servlet-api) >= 9.0.62
 BuildRequires:    mvn(org.apache.tomcat:tomcat-jaspic-api) >= 9.0.62
 BuildRequires:    mvn(org.apache.tomcat:tomcat-util-scan) >= 9.0.62
 
+%if 0%{?rhel} && 0%{?rhel} >= 10
+BuildRequires:    tomcat9-lib
+%endif
+
 BuildRequires:    mvn(org.dogtagpki.jss:jss-base) >= 5.6.0
 BuildRequires:    mvn(org.dogtagpki.jss:jss-tomcat) >= 5.6.0
 BuildRequires:    mvn(org.dogtagpki.ldap-sdk:ldapjdk) >= 5.6.0
@@ -650,7 +654,11 @@ Requires:         mvn(org.jboss.resteasy:resteasy-servlet-initializer)
 Provides:         bundled(resteasy-servlet-initializer)
 %endif
 
+%if 0%{?rhel} && 0%{?rhel} >= 10
+Requires:         tomcat9 >= 1:9.0.62
+%else
 Requires:         tomcat >= 1:9.0.62
+%endif
 Requires:         mvn(org.dogtagpki.jss:jss-tomcat) >= 5.6.0
 
 Requires:         systemd
