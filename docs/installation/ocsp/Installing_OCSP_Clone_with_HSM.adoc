@@ -12,6 +12,8 @@ Prior to installation, please ensure that the link:../others/Installation_Prereq
 
 == OCSP Subsystem Installation 
 
+Note: It is assumed that the CA signing certificate has been exported into `ca_signing.crt
+
 Prepare a file (e.g. ocsp.cfg) that contains the deployment configuration, for example:
 
 [literal,subs="+quotes,verbatim"]
