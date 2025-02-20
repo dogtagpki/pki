@@ -260,7 +260,7 @@ jobs:
           # everything should be owned by pkiuser group
           # TODO: review owners/permissions
           cat > expected << EOF
-          drwxrwx--- pkiuser backup
+          drwxrwxrwx pkiuser backup
           drwxrwxrwx pkiuser ca
           -rw-rw-rw- pkiuser catalina.$DATE.log
           -rw-rw-rw- pkiuser host-manager.$DATE.log

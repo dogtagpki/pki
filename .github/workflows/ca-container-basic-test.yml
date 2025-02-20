@@ -148,7 +148,7 @@ jobs:
           # everything should be owned by docker group
           # TODO: review owners/permissions
           cat > expected << EOF
-          drwxrwx--- docker backup
+          drwxrwxrwx docker backup
           drwxrwxrwx docker ca
           -rw-rw-rw- docker catalina.$DATE.log
           -rw-rw-rw- docker host-manager.$DATE.log

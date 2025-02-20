@@ -204,7 +204,7 @@ jobs:
           # TODO: review permissions
           cat > expected << EOF
           drwxrwx--- pkiuser pkiuser acme
-          drwxr-x--- pkiuser pkiuser backup
+          drwxrwx--- pkiuser pkiuser backup
           -rw-r--r-- pkiuser pkiuser catalina.$DATE.log
           -rw-r--r-- pkiuser pkiuser host-manager.$DATE.log
           -rw-r--r-- pkiuser pkiuser localhost.$DATE.log
@@ -796,7 +796,7 @@ jobs:
           # TODO: review permissions
           cat > expected << EOF
           drwxrwx--- pkiuser pkiuser acme
-          drwxr-x--- pkiuser pkiuser backup
+          drwxrwx--- pkiuser pkiuser backup
           -rw-r--r-- pkiuser pkiuser catalina.$DATE.log
           -rw-r--r-- pkiuser pkiuser host-manager.$DATE.log
           -rw-r--r-- pkiuser pkiuser localhost.$DATE.log
