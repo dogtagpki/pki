@@ -48,6 +48,8 @@ pki_hsm_modulename=softhsm
 pki_token_name=HSM
 pki_token_password=Secret.HSM
 
+pki_cert_chain_path=ca_signing.crt
+
 [Tomcat]
 pki_ajp_port=8009
 pki_tomcat_server_port=8005
@@ -116,6 +118,7 @@ Certificate Nickname                                         Trust Attributes
                                                              SSL,S/MIME,JAR/XPI
 
 ca_signing                                                   CT,C,C
+sslserver/replica.example.com                                ,,
 ca_audit_signing                                             ,,P
 ....
 
