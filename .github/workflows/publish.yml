@@ -3,7 +3,7 @@ name: Publish PKI
 on:
   push:
     branches:
-      - master
+      - v11.6
 
 env:
   NAMESPACE: ${{ vars.REGISTRY_NAMESPACE || github.repository_owner }}
@@ -101,25 +101,25 @@ jobs:
 
       - name: Publish pki-dist image
         run: |
-          docker tag pki-dist ${{ vars.REGISTRY }}/$NAMESPACE/pki-dist:latest
-          docker push ${{ vars.REGISTRY }}/$NAMESPACE/pki-dist:latest
+          docker tag pki-dist ${{ vars.REGISTRY }}/$NAMESPACE/pki-dist:11.6
+          docker push ${{ vars.REGISTRY }}/$NAMESPACE/pki-dist:11.6
 
       - name: Publish pki-server image
         run: |
-          docker tag pki-server ${{ vars.REGISTRY }}/$NAMESPACE/pki-server:latest
-          docker push ${{ vars.REGISTRY }}/$NAMESPACE/pki-server:latest
+          docker tag pki-server ${{ vars.REGISTRY }}/$NAMESPACE/pki-server:11.6
+          docker push ${{ vars.REGISTRY }}/$NAMESPACE/pki-server:11.6
 
       - name: Publish pki-ca image
         run: |
-          docker tag pki-ca ${{ vars.REGISTRY }}/$NAMESPACE/pki-ca:latest
-          docker push ${{ vars.REGISTRY }}/$NAMESPACE/pki-ca:latest
+          docker tag pki-ca ${{ vars.REGISTRY }}/$NAMESPACE/pki-ca:11.6
+          docker push ${{ vars.REGISTRY }}/$NAMESPACE/pki-ca:11.6
 
       - name: Publish pki-kra image
         run: |
-          docker tag pki-kra ${{ vars.REGISTRY }}/$NAMESPACE/pki-kra:latest
-          docker push ${{ vars.REGISTRY }}/$NAMESPACE/pki-kra:latest
+          docker tag pki-kra ${{ vars.REGISTRY }}/$NAMESPACE/pki-kra:11.6
+          docker push ${{ vars.REGISTRY }}/$NAMESPACE/pki-kra:11.6
 
       - name: Publish pki-ocsp image
         run: |
-          docker tag pki-ocsp ${{ vars.REGISTRY }}/$NAMESPACE/pki-ocsp:latest
-          docker push ${{ vars.REGISTRY }}/$NAMESPACE/pki-ocsp:latest
+          docker tag pki-ocsp ${{ vars.REGISTRY }}/$NAMESPACE/pki-ocsp:11.6
+          docker push ${{ vars.REGISTRY }}/$NAMESPACE/pki-ocsp:11.6
