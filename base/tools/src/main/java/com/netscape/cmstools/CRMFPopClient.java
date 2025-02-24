@@ -18,7 +18,6 @@
 package com.netscape.cmstools;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -53,13 +52,10 @@ import org.mozilla.jss.asn1.PrintableString;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.PrivateKey;
-import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
-import org.mozilla.jss.pkix.crmf.CertRequest;
-import org.mozilla.jss.pkix.crmf.ProofOfPossession;
 import org.mozilla.jss.pkix.primitive.AVA;
 import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.util.Password;
@@ -516,56 +512,38 @@ public class CRMFPopClient {
                 keyWrapAlgorithm = KeyWrapAlgorithm.fromString(kwAlg);
             }
 
-            if (verbose) System.out.println("Creating certificate request");
-            CertRequest certRequest = CryptoUtil.createCertRequest(
-                    use_shared_secret,
-                    token,
-                    transportCert,
-                    keyPair,
-                    subject,
-                    keyWrapAlgorithm,
-                    client.useOAEP());
+            SignatureAlgorithm signatureAlgorithm;
+            if (algorithm.equals("rsa")) {
+                signatureAlgorithm = SignatureAlgorithm.RSASignatureWithSHA256Digest;
 
-            ProofOfPossession pop = null;
+            } else if (algorithm.equals("ec")) {
+                signatureAlgorithm = SignatureAlgorithm.ECSignatureWithSHA256Digest;
 
-            if (!popOption.equals("POP_NONE")) {
+            } else {
+                throw new Exception("Unknown algorithm: " + algorithm);
+            }
 
-                if (verbose) System.out.println("Creating signer");
+            Boolean withPop = null; // POP_NONE
 
-                SignatureAlgorithm signatureAlgorithm;
-                if (algorithm.equals("rsa")) {
-                    signatureAlgorithm = SignatureAlgorithm.RSASignatureWithSHA256Digest;
+            if (popOption.equals("POP_SUCCESS")) {
+                withPop = true;
 
-                } else if (algorithm.equals("ec")) {
-                    signatureAlgorithm = SignatureAlgorithm.ECSignatureWithSHA256Digest;
-
-                } else {
-                    throw new Exception("Unknown algorithm: " + algorithm);
-                }
-
-                Signature signer = CryptoUtil.createSigner(token, signatureAlgorithm, keyPair);
-
-                if (popOption.equals("POP_SUCCESS")) {
-
-                    ByteArrayOutputStream bo = new ByteArrayOutputStream();
-                    certRequest.encode(bo);
-                    signer.update(bo.toByteArray());
-
-                } else if (popOption.equals("POP_FAIL")) {
-
-                    byte[] data = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
-
-                    signer.update(data);
-                }
-
-                byte[] signature = signer.sign();
-
-                if (verbose) System.out.println("Creating POP");
-                pop = CryptoUtil.createPop(signatureAlgorithm, signature);
+            } else if (popOption.equals("POP_FAIL")) {
+                withPop = false;
             }
 
             if (verbose) System.out.println("Creating CRMF request");
-            byte[] crmfRequest = CryptoUtil.createCRMFRequest(certRequest, pop);
+
+            byte[] crmfRequest = nssdb.createCRMFRequest(
+                    token,
+                    keyPair,
+                    transportCert,
+                    subject,
+                    signatureAlgorithm,
+                    withPop,
+                    keyWrapAlgorithm,
+                    useOAEP,
+                    use_shared_secret);
             String request = Utils.base64encode(crmfRequest, true);
 
             StringWriter sw = new StringWriter();

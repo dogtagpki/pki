@@ -1125,19 +1125,16 @@ public class NSSDatabase {
                 extensions);
     }
 
-    public String createCRMFRequest(
+    public byte[] createCRMFRequest(
             CryptoToken token,
             KeyPair keyPair,
             org.mozilla.jss.crypto.X509Certificate transportCert,
-            String subjectDN,
-            boolean attributeEncoding,
+            Name subject,
             SignatureAlgorithm signatureAlgorithm,
-            boolean withPop,
+            Boolean withPop,
             KeyWrapAlgorithm keyWrapAlgorithm,
             boolean useOAEP,
             boolean useSharedSecret) throws Exception {
-
-        Name subject = CryptoUtil.createName(subjectDN, attributeEncoding);
 
         CertRequest certRequest = CryptoUtil.createCertRequest(
                 useSharedSecret,
@@ -1149,19 +1146,24 @@ public class NSSDatabase {
                 useOAEP);
 
         ProofOfPossession pop = null;
-        if (withPop) {
+        if (withPop != null) { // !POP_NONE
             Signature signer = CryptoUtil.createSigner(token, signatureAlgorithm, keyPair);
 
-            ByteArrayOutputStream bo = new ByteArrayOutputStream();
-            certRequest.encode(bo);
-            signer.update(bo.toByteArray());
-            byte[] signature = signer.sign();
+            if (withPop) { // POP_SUCCESS
+                ByteArrayOutputStream bo = new ByteArrayOutputStream();
+                certRequest.encode(bo);
+                signer.update(bo.toByteArray());
 
+            } else { // POP_FAIL
+                byte[] data = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
+                signer.update(data);
+            }
+
+            byte[] signature = signer.sign();
             pop = CryptoUtil.createPop(signatureAlgorithm, signature);
         }
 
-        byte[] crmfRequest = CryptoUtil.createCRMFRequest(certRequest, pop);
-        return Utils.base64encode(crmfRequest, true);
+        return CryptoUtil.createCRMFRequest(certRequest, pop);
     }
 
     public static int validityUnitFromString(String validityUnit) throws Exception {

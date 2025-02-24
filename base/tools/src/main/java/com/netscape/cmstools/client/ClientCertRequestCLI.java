@@ -41,8 +41,10 @@ import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.pkix.primitive.Name;
 
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CACertClient;
@@ -54,6 +56,7 @@ import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.cmstools.ca.CACertRequestCLI;
 import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 import netscape.ldap.util.DN;
 import netscape.ldap.util.RDN;
@@ -218,7 +221,7 @@ public class ClientCertRequestCLI extends CommandCLI {
             }
         }
 
-        boolean withPop = !cmd.hasOption("without-pop");
+        Boolean withPop = cmd.hasOption("without-pop") ? null : true;
 
         AuthorityID aid = null;
         if (cmd.hasOption("issuer-id")) {
@@ -320,17 +323,19 @@ public class ClientCertRequestCLI extends CommandCLI {
                 throw new Exception("Unknown algorithm: " + algorithm);
             }
 
-            csr = nssdb.createCRMFRequest(
+            Name subject = CryptoUtil.createName(subjectDN, attributeEncoding);
+
+            byte[] crmfRequest = nssdb.createCRMFRequest(
                     token,
                     keyPair,
                     transportCert,
-                    subjectDN,
-                    attributeEncoding,
+                    subject,
                     signatureAlgorithm,
                     withPop,
                     keyWrapAlgorithm,
                     useOAEP,
                     false); // useSharedSecret
+            csr = Utils.base64encode(crmfRequest, true);
 
         } else {
             throw new Exception("Unknown request type: " + requestType);
