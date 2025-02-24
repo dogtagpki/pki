@@ -77,14 +77,7 @@ class HTTPConnectorCLI(pki.cli.CLI):
         HTTPConnectorCLI.print_param(connector, 'scheme', 'Scheme')
         HTTPConnectorCLI.print_param(connector, 'secure', 'Secure')
         HTTPConnectorCLI.print_param(connector, 'SSLEnabled', 'SSL Enabled')
-
         HTTPConnectorCLI.print_param(connector, 'sslImplementationName', 'SSL Implementation')
-
-        HTTPConnectorCLI.print_param(connector, 'sslVersionRangeStream',
-                                     'SSL Version Range Stream')
-        HTTPConnectorCLI.print_param(connector, 'sslVersionRangeDatagram',
-                                     'SSL Version Range Datagram')
-        HTTPConnectorCLI.print_param(connector, 'sslRangeCiphers', 'SSL Range Ciphers')
 
         HTTPConnectorCLI.print_param(connector, 'certdbDir', 'NSS Database Directory')
         HTTPConnectorCLI.print_param(connector, 'passwordClass', 'NSS Password Class')
