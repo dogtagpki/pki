@@ -45,12 +45,12 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.dogtagpki.common.CAInfoClient;
+import org.dogtagpki.nss.NSSDatabase;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.asn1.PrintableString;
 import org.mozilla.jss.crypto.CryptoToken;
-import org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.Signature;
@@ -68,6 +68,7 @@ import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmsutil.crypto.CryptoUtil;
+import com.netscape.cmsutil.password.PlainPasswordFile;
 
 /**
  * A command-line utility used to generate a Certificate Request Message
@@ -414,11 +415,13 @@ public class CRMFPopClient {
 
             CryptoManager manager = CryptoManager.getInstance();
 
+            tokenName = tokenName == null ? CryptoUtil.INTERNAL_TOKEN_NAME : tokenName;
             CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
-            tokenName = token.getName();
+
             manager.setThreadToken(token);
 
             Password password = new Password(tokenPassword.toCharArray());
+
             try {
                 token.login(password);
             } catch (Exception e) {
@@ -426,6 +429,12 @@ public class CRMFPopClient {
             } finally {
                 password.clear();
             }
+
+            PlainPasswordFile passwordStore = new PlainPasswordFile();
+            passwordStore.putPassword(tokenName, tokenPassword);
+
+            NSSDatabase nssdb = new NSSDatabase(databaseDir);
+            nssdb.setPasswordStore(passwordStore);
 
             CRMFPopClient client = new CRMFPopClient();
             client.setVerbose(verbose);
@@ -458,39 +467,23 @@ public class CRMFPopClient {
 
             if (algorithm.equals("rsa")) {
 
-                boolean extract = true;
-
-                Usage[] usages = CryptoUtil.RSA_KEYPAIR_USAGES;
-                Usage[] usagesMask = CryptoUtil.RSA_KEYPAIR_USAGES_MASK;
-
-                keyPair = CryptoUtil.generateRSAKeyPair(
+                keyPair = nssdb.createRSAKeyPair(
                         token,
                         keySize,
+                        true, // key wrap
                         temporary,
-                        null,
-                        extract,
-                        usages,
-                        usagesMask);
+                        null, // sensitive
+                        true); // extractable
 
             } else if (algorithm.equals("ec")) {
 
-                // ECDH_USAGES_MASK: used with SSL server cert that does ECDH ECDSA;
-                // can only be used with POP_NONE
-
-                // ECDHE_USAGES_MASK: used for other certs including SSL server cert
-                // that does ECDHE ECDSA
-
-                Usage[] usages = null;
-                Usage[] usagesMask = sslECDH ? CryptoUtil.ECDH_USAGES_MASK : CryptoUtil.ECDHE_USAGES_MASK;
-
-                keyPair = CryptoUtil.generateECCKeyPair(
+                keyPair = nssdb.createECKeyPair(
                         token,
                         curve,
+                        sslECDH,
                         temporary,
                         sensitive,
-                        extractable,
-                        usages,
-                        usagesMask);
+                        extractable);
 
             } else {
                 throw new Exception("Unknown algorithm: " + algorithm);

@@ -971,18 +971,23 @@ public class NSSDatabase {
     public KeyPair createRSAKeyPair(
             CryptoToken token,
             int keySize,
-            Usage[] usages,
-            Usage[] usagesMask) throws Exception {
+            boolean keyWrap,
+            Boolean temporary,
+            Boolean sensitive,
+            Boolean extractable) throws Exception {
 
         logger.debug("NSSDatabase: Creating RSA key");
         logger.debug("NSSDatabase: - size: " + keySize);
 
+        Usage[] usages = keyWrap ? CryptoUtil.RSA_KEYPAIR_USAGES : null;
+        Usage[] usagesMask = keyWrap ? CryptoUtil.RSA_KEYPAIR_USAGES_MASK : null;
+
         return CryptoUtil.generateRSAKeyPair(
                 token,
                 keySize,
-                null,
-                null,
-                null,
+                temporary,
+                sensitive,
+                extractable,
                 usages,
                 usagesMask);
     }
@@ -1061,6 +1066,12 @@ public class NSSDatabase {
 
         logger.debug("NSSDatabase: Creating EC key");
         logger.debug("NSSDatabase: - curve: " + curveName);
+
+        // ECDH_USAGES_MASK: used with SSL server cert that does ECDH ECDSA;
+        // can only be used with POP_NONE in CRMFPopClient
+
+        // ECDHE_USAGES_MASK: used for other certs including SSL server cert
+        // that does ECDHE ECDSA
 
         Usage[] usages = null;
         Usage[] usagesMask = sslECDH ? CryptoUtil.ECDH_USAGES_MASK : CryptoUtil.ECDHE_USAGES_MASK;
