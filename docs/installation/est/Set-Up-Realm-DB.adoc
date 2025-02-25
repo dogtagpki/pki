@@ -30,7 +30,7 @@ require to modify the authorization script
 
 
 If you have chosen to use *PostgreSQL* for user management, you first
-need to prepare a database (e.g. est) to access the
+need to prepare a database, for example `est`, to access the
 database. Installation instructions can be found
 link:https://www.postgresql.org/download/linux[here].
 

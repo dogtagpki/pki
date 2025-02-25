@@ -23,7 +23,7 @@ The command will export the following certificates (including the certificate ch
 
 Note that the existing SSL server certificate will not be exported.
 
-If necessary, third-party certificates (e.g. trust anchors) can be added into the same PKCS #12 file with the following command:
+If necessary, third-party certificates, for example `trust anchors`, can be added into the same PKCS #12 file with the following command:
 
 [literal,subs="+quotes,verbatim"]
 ....
@@ -36,7 +36,7 @@ $ pki -d /var/lib/pki/pki-tomcat/conf/alias -f /var/lib/pki/pki-tomcat/conf/pass
 
 == TKS Subsystem Installation
 
-Prepare a deployment configuration (e.g. `tks-clone.cfg`) to deploy TKS subsystem clone.
+Prepare a deployment configuration, for example `tks-clone.cfg`, to deploy TKS subsystem clone.
 By default the subsystem will be deployed into a Tomcat instance called `pki-tomcat`.
 
 A sample deployment configuration is available at link:../../../base/server/examples/installation/tks-clone.cfg[/usr/share/pki/server/examples/installation/tks-clone.cfg].

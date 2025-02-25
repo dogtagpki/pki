@@ -6,7 +6,7 @@ where the system certificates and their keys will be stored in HSM.
 Prior to installation, please ensure that the link:../others/Installation_Prerequisites.adoc[Installation Prerequisites] are configured.
 
 == CA Subsystem Installation 
-Prepare a file (e.g. ca.cfg) that contains the deployment configuration, for example:
+Prepare a file, for example `ca.cfg`, that contains the deployment configuration, for example:
 
 [literal,subs="+quotes,verbatim"]
 ....
@@ -92,7 +92,7 @@ HSM:sslserver/pki.example.com                                u,u,u
 ....
 
 == Verifying Admin Certificate 
-Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
+Prepare a client NSS database, for example `~/.dogtag/nssdb`:
 
 [literal,subs="+quotes,verbatim"]
 ....

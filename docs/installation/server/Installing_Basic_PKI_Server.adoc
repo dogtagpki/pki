@@ -2,7 +2,7 @@
 
 
 Follow this process to create and configure a basic PKI server without any of the PKI subsystems.
-This would be useful to troubleshoot general server issues (e.g. SSL).
+This would be useful to troubleshoot general server issues, for example `SSL`.
 
 == Installation
 
