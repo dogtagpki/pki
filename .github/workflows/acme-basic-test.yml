@@ -348,6 +348,18 @@ jobs:
       - name: Verify ACME in PKI container
         run: docker exec pki pki acme-info
 
+      - name: Update ACME configuration
+        run: |
+          # configure RESTEasy logging
+          docker exec -i pki tee /var/lib/pki/pki-tomcat/conf/acme/logging.properties << EOF
+          org.jboss.resteasy.level = INFO
+          EOF
+
+          docker exec pki chown pkiuser:pkiuser /var/lib/pki/pki-tomcat/conf/acme/logging.properties
+
+          # restart PKI server
+          docker exec pki pki-server restart --wait
+
       - name: Set up client container
         run: |
           tests/bin/runner-init.sh \

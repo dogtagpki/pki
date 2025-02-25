@@ -32,8 +32,10 @@ import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.Timer;
+import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServlet;
 
@@ -122,8 +124,8 @@ public class CMSEngine {
 
     private static final String SERVER_XML = "server.xml";
 
-    public String id;
-    public String name;
+    public String id;   // subsystem ID (e.g. ca, kra)
+    public String name; // subsystem name (e.g. CA, KRA)
 
     public String instanceDir; /* path to instance <server-root>/cert-<instance-name> */
     private String instanceId;
@@ -418,8 +420,31 @@ public class CMSEngine {
     }
 
     public void initDebug() throws Exception {
+
         ConfigStore debugConfig = config.getSubStore(Debug.ID, ConfigStore.class);
         debug.init(debugConfig);
+
+        String subsystemConfDir = CMS.getInstanceDir() + File.separator + "conf" + File.separator + id;
+        String loggingProperties = subsystemConfDir + File.separator + "logging.properties";
+
+        File file = new File(loggingProperties);
+        if (!file.exists()) return;
+
+        logger.info("CMSEngine: Loading " + loggingProperties);
+        Properties properties = new Properties();
+        properties.load(new FileReader(file));
+
+        for (String key : properties.stringPropertyNames()) {
+            String value = properties.getProperty(key);
+
+            logger.info("CMSEngine: - " + key + ": " + value);
+            if (!key.endsWith(".level")) continue;
+
+            String loggerName = key.substring(0, key.length() - 6);
+            java.util.logging.Level level = java.util.logging.Level.parse(value);
+
+            Logger.getLogger(loggerName).setLevel(level);
+        }
     }
 
     public void initSubsystemListeners() throws Exception {

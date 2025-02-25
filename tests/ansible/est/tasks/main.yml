@@ -175,6 +175,14 @@
       roles=estclient
     mode: 420      # 0o644
 
+- name: Configure EST logging
+  community.docker.docker_container_copy_into:
+    container: "{{ pki_container }}"
+    container_path: /var/lib/pki/pki-tomcat/conf/est/logging.properties
+    content: |
+      org.jboss.resteasy.level = INFO
+    mode: 420      # 0o644
+
 - name: EST deploy and start
   community.docker.docker_container_exec:
     container: "{{ pki_container }}"
@@ -235,3 +243,10 @@
   failed_when: >
     ('subject=CN = client.example.com' not in enrol_subject_issuer.stdout_lines)  or
     ('issuer=O = EXAMPLE, OU = pki-tomcat, CN = CA Signing Certificate' not in enrol_subject_issuer.stdout_lines)
+
+- name: Check EST debug log
+  community.docker.docker_container_exec:
+    container: "{{ pki_container }}"
+    command: "{{ item }}"
+  loop:
+    - find /var/lib/pki/pki-tomcat/logs/est -name "debug.*" -exec cat {} \;

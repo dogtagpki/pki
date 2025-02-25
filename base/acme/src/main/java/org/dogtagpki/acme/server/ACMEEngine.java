@@ -27,6 +27,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
+import java.util.logging.Logger;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
@@ -192,7 +193,29 @@ public class ACMEEngine {
         return config.getBaseURL();
     }
 
-    public void loadConfig(String filename) throws Exception {
+    public void loadLoggingProperties(String loggingProperties) throws Exception {
+
+        File file = new File(loggingProperties);
+        if (!file.exists()) return;
+
+        logger.info("Loading " + loggingProperties);
+        Properties properties = new Properties();
+        properties.load(new FileReader(file));
+
+        for (String key : properties.stringPropertyNames()) {
+            String value = properties.getProperty(key);
+
+            logger.info("- " + key + ": " + value);
+            if (!key.endsWith(".level")) continue;
+
+            String loggerName = key.substring(0, key.length() - 6);
+            java.util.logging.Level level = java.util.logging.Level.parse(value);
+
+            Logger.getLogger(loggerName).setLevel(level);
+        }
+    }
+
+    public void loadEngineConfig(String filename) throws Exception {
 
         File configFile = new File(filename);
 
@@ -452,7 +475,8 @@ public class ACMEEngine {
         String acmeConfDir = serverConfDir + File.separator + id;
 
         logger.info("ACME configuration directory: " + acmeConfDir);
-        loadConfig(acmeConfDir + File.separator + "engine.conf");
+        loadLoggingProperties(acmeConfDir + File.separator + "logging.properties");
+        loadEngineConfig(acmeConfDir + File.separator + "engine.conf");
 
         Boolean noncePersistent = config.getNoncesPersistent();
         this.noncesPersistent =  noncePersistent != null ? noncePersistent : false;
