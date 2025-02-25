@@ -6,7 +6,7 @@ where the system certificates and their keys will be stored in HSM.
 Prior to installation, please ensure that the link:../others/Installation_Prerequisites.adoc[Installation Prerequisites] are configured.
 
 == CA Subsystem Installation 
-Prepare a file, for example `ca.cfg`, that contains the deployment configuration, for example:
+Prepare a file, for example `ca.cfg`, that contains the deployment configuration:
 
 [literal,subs="+quotes,verbatim"]
 ....

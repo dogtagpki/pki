@@ -8,7 +8,7 @@ Prior to installation, please ensure that the link:../others/Installation_Prereq
 
 == TPS Subsystem Installation
 
-Prepare a file, for example `tps.cfg`, that contains the deployment configuration, for example:
+Prepare a file, for example `tps.cfg`, that contains the deployment configuration:
 
 [literal,subs="+quotes,verbatim"]
 ....

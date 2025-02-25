@@ -11,7 +11,7 @@ Ensure that the secure connection has been enabled on the directory server, and 
 
 == OCSP Subsystem Installation 
 
-Prepare a file, for example `ocsp.cfg`, that contains the deployment configuration, for example:
+Prepare a file, for example `ocsp.cfg`, that contains the deployment configuration:
 
 [literal,subs="+quotes,verbatim"]
 ....

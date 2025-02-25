@@ -3,12 +3,12 @@
 
 Follow this process to create a PKI server with custom NSS databases.
 
-Normally, when installing a PKI subsystem, for example `CA`, some NSS databases will be created by default, for example:
+Normally, when installing a PKI subsystem, for example CA, some NSS databases will be created by default:
 
 * server NSS database: /var/lib/pki/pki-tomcat/conf/alias
 * admin NSS database: ~/.dogtag/pki-tomcat/ca/alias
 
-Under some circumstances the admin may want to use custom NSS databases, for example `with trust policy`.
+Under some circumstances the admin may want to use custom NSS databases, for example with trust policy.
 In those cases the installation can be done in multiple steps:
 
 * create a basic PKI server

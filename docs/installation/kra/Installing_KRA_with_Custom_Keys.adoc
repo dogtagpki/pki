@@ -7,7 +7,7 @@ Prior to installation, please ensure that the link:../others/Installation_Prereq
 
 == Starting KRA Subsystem Installation
 
-Prepare a file, for example `kra-step1.cfg`, that contains the deployment configuration step 1, for example:
+Prepare a file, for example `kra-step1.cfg`, that contains the deployment configuration step 1:
 
 [literal,subs="+quotes,verbatim"]
 ....

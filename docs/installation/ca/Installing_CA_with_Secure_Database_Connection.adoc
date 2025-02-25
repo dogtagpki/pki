@@ -12,7 +12,7 @@ link:../others/Exporting-DS-Certificates.adoc#exporting-ds-signing-certificate[E
 
 == CA Subsystem Installation 
 Prepare a deployment configuration, for example `ca-secure-ds.cfg`, to deploy CA subsystem.
-By default the subsystem will be deployed into a Tomcat instance called `pki-tomcat`.
+By default the subsystem is deployed into a Tomcat instance called `pki-tomcat`.
 
 A sample deployment configuration is available at link:../../../base/server/examples/installation/ca-secure-ds.cfg[/usr/share/pki/server/examples/installation/ca-secure-ds.cfg].
 

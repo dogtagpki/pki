@@ -9,7 +9,7 @@ This step is described link:https://www.dogtagpki.org/wiki/DS_SSL[here].
 
 == TPS Subsystem Installation
 
-Prepare a file, for example `tps.cfg`, that contains the deployment configuration, for example:
+Prepare a file, for example `tps.cfg`, that contains the deployment configuration:
 
 [literal,subs="+quotes,verbatim"]
 ....

@@ -24,7 +24,7 @@ The command will export the following certificates (including the certificate ch
 
 Note that the existing SSL server certificate will not be exported.
 
-If necessary, third-party certificates, for example `trust anchors`, can be added into the same PKCS #12 file with the following command:
+If necessary, third-party certificates, for example trust anchors, can be added into the same PKCS #12 file with the following command:
 
 [literal,subs="+quotes,verbatim"]
 ....
@@ -38,7 +38,7 @@ $ pki -d /var/lib/pki/pki-tomcat/conf/alias -f /var/lib/pki/pki-tomcat/conf/pass
 == OCSP Subsystem Installation 
 
 Prepare a deployment configuration, for example `ocsp-clone.cfg`, to deploy OCSP subsystem clone.
-By default the subsystem will be deployed into a Tomcat instance called `pki-tomcat`.
+By default the subsystem is deployed into a Tomcat instance called `pki-tomcat`.
 
 A sample deployment configuration is available at link:../../../base/server/examples/installation/ocsp-clone.cfg[/usr/share/pki/server/examples/installation/ocsp-clone.cfg].
 It assumes that the primary CA and OCSP subsystems are running at https://primary.example.com:8443,
