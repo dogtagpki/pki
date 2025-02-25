@@ -7,7 +7,7 @@
 Follow this process to prepare a local DS instance for PKI server.
 
 Normally the DS installation will automatically generate a self-signed signing certificate and a server certificate for SSL connection.
-In this procedure the certificate generation and the SSL connection will be disabled by default,
+In this procedure the certificate generation and the SSL connection is disabled by default,
 but it can be enabled after installation if necessary.
 
 == Creating a DS Instance 
@@ -59,7 +59,7 @@ dc: pki
 EOF
 ----
 
-The subtree for each PKI subsystem will be created when the subsystem is installed. See link:../others/PKI-LDAP-Tree.adoc[PKI LDAP Tree].
+The subtree for each PKI subsystem is created when the subsystem is installed. See link:../others/PKI-LDAP-Tree.adoc[PKI LDAP Tree].
 
 == Enabling SSL Connection 
 

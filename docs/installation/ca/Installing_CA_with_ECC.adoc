@@ -32,7 +32,7 @@ $ pkispawn -f ca-ecc.cfg -s CA
 
 == CA System Certificates 
 
-After installation the CA system certificates and keys will be stored
+After installation the CA system certificates and keys are stored
 in the server NSS database (i.e. `/var/lib/pki/pki-tomcat/conf/alias`):
 
 [literal,subs="+quotes,verbatim"]
@@ -69,7 +69,7 @@ For simplicity the nicknames in this example are configured to be the same as th
 
 == Admin Certificate 
 
-After installation the admin certificate and key will be stored
+After installation the admin certificate and key are stored
 in `~/.dogtag/pki-tomcat/ca_admin_cert.p12`.
 The PKCS #12 password is specified in the `pki_client_pkcs12_password` parameter.
 

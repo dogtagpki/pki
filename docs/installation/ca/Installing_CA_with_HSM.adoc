@@ -1,7 +1,7 @@
 = Installing CA with HSM 
 
 Follow this process to install a CA subsystem with a self-signed CA signing certificate
-where the system certificates and their keys will be stored in HSM.
+where the system certificates and their keys are stored in HSM.
 
 Prior to installation, please ensure that the link:../others/Installation_Prerequisites.adoc[Installation Prerequisites] are configured.
 

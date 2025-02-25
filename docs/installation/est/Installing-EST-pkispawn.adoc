@@ -74,7 +74,7 @@ user has the role _estclient_.
 The `est_realm_*` options allow one to customize the realm. Possible types
 are: ds, postgresql and in-memory.
 
-As an example, to install EST with PostgreSQL the command will be:
+As an example, to install EST with PostgreSQL the command is:
 
 ----
 # pkispawn \
@@ -173,7 +173,7 @@ Using the generated PKCS#12 bundle, the command to deploy EST is:
 === Installation on separate instance without certificates 
 
 If the PKCS#12 bundle certificates are not provided to `pkispawn`,
-during the installation, the EST server cert will be issued
+during the installation, the EST server cert is issued
 automatically using the profile configured for EST. The connection
 with the CA uses the credentials (_username/password_) provided in the
 configuration file. In such a case the CA signing certificate is

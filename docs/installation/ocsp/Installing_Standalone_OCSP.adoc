@@ -3,7 +3,7 @@
 
 Follow this process to install a standalone OCSP subsystem.
 In link:Installing_OCSP.adoc[regular OCSP installation] the OCSP certificates are issued automatically by the CA and the OCSP will join the CA's security domain.
-In standalone OCSP installation, the OCSP certificates will be issued manually and the OCSP have its own security domain.
+In standalone OCSP installation, the OCSP certificates are issued manually and the OCSP have its own security domain.
 
 The installation process consists multiple steps:
 

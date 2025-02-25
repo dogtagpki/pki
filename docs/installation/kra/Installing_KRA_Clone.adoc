@@ -58,8 +58,8 @@ $ pkispawn -f kra-clone.cfg -s KRA
 == KRA System Certificates 
 
 After installation the existing KRA system certificates (including the certificate chain)
-and their keys will be stored in the server NSS database (i.e. `/var/lib/pki/pki-tomcat/conf/alias`),
-and a new SSL server certificate will be created for the new instance:
+and their keys are stored in the server NSS database (i.e. `/var/lib/pki/pki-tomcat/conf/alias`),
+and a new SSL server certificate is created for the new instance:
 
 [literal,subs="+quotes,verbatim"]
 ....
