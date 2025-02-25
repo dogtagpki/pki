@@ -110,7 +110,7 @@ $ curl --cacert ./ca_signing.crt  https://<EST_HOSTNAME>:<EST_PORT>/.well-known/
 Replace `$EST_HOSTNAME` and `$EST_PORT` with the hostname and port of
 the *EST subsystem*, respectively.
 
-If successful, the server CA certificate chain will be printed on
+If successful, the server CA certificate chain is printed on
 standard output and the command will exit with status 0 (success).
 
 

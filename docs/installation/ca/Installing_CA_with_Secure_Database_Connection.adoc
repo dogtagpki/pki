@@ -24,9 +24,9 @@ $ pkispawn -f ca-secure-ds.cfg -s CA
 ....
 
 == CA System Certificates 
-After installation the CA system certificates with their keys will be
+After installation the CA system certificates with their keys are
 generated and stored in the server NSS database (i.e. `/var/lib/pki/pki-tomcat/conf/alias`),
-and the DS signing certificate will be imported into the same NSS database:
+and the DS signing certificate is imported into the same NSS database:
 
 [literal,subs="+quotes,verbatim"]
 ....
@@ -81,7 +81,7 @@ $ pki-server ca-db-config-show
 ....
 
 == Admin Certificate 
-After installation the admin certificate and key will be stored
+After installation the admin certificate and key are stored
 in `~/.dogtag/pki-tomcat/ca_admin_cert.p12`.
 The PKCS #12 password is specified in the `pki_client_pkcs12_password` parameter.
 
