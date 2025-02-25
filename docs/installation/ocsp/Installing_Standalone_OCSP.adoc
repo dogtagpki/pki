@@ -13,7 +13,7 @@ The installation process consists multiple steps:
 
 == Generating Certificate Requests 
 
-Prepare a file (e.g. ocsp-standalone-step1.cfg) that contains the first deployment configuration.
+Prepare a file, for example `ocsp-standalone-step1.cfg`, that contains the first deployment configuration.
 
 A sample deployment configuration is available at link:../../../base/server/examples/installation/ocsp-standalone-step1.cfg[/usr/share/pki/server/examples/installation/ocsp-standalone-step1.cfg].
 
@@ -37,7 +37,7 @@ Use the CSRs to obtain OCSP certificates:
 
 == Completing Installation 
 
-Prepare another file (e.g. ocsp-standalone-step2.cfg) that contains the second deployment configuration.
+Prepare another file, for example `ocsp-standalone-step2.cfg`, that contains the second deployment configuration.
 The file can be created from the first file (i.e. ocsp-standalone-step1.cfg) with the following changes:
 
 ----

@@ -13,7 +13,7 @@ The installation process consists multiple steps:
 
 == Generating Certificate Requests 
 
-Prepare a file (e.g. kra-standalone-step1.cfg) that contains the first deployment configuration.
+Prepare a file, for example `kra-standalone-step1.cfg`, that contains the first deployment configuration.
 
 A sample deployment configuration is available at link:../../../base/server/examples/installation/kra-standalone-step1.cfg[/usr/share/pki/server/examples/installation/kra-standalone-step1.cfg].
 
@@ -38,7 +38,7 @@ Use the CSRs to obtain KRA certificates:
 
 == Completing Installation 
 
-Prepare another file (e.g. kra-standalone-step2.cfg) that contains the second deployment configuration.
+Prepare another file, for example `kra-standalone-step2.cfg`, that contains the second deployment configuration.
 The file can be created from the first file (i.e. kra-standalone-step1.cfg) with the following changes:
 
 ----

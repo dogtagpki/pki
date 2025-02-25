@@ -6,7 +6,7 @@ with a signing certificate issued by a root CA.
 Prior to installation, please ensure that the link:../others/Installation_Prerequisites.adoc[Installation Prerequisites] are configured.
 
 == Subordinate CA Subsystem Installation 
-Prepare a file (e.g. subca.cfg) that contains the deployment configuration.
+Prepare a file, for example `subca.cfg`, that contains the deployment configuration.
 
 A sample deployment configuration is available at link:../../../base/server/examples/installation/subca.cfg[/usr/share/pki/server/examples/installation/subca.cfg].
 It assumes that the root CA is already running at https://root.example.com:8443
@@ -44,7 +44,7 @@ sslserver                                                    u,u,u
 
 == Verifying Admin Certificate 
 
-Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
+Prepare a client NSS database, for example `~/.dogtag/nssdb`:
 
 [literal,subs="+quotes,verbatim"]
 ....

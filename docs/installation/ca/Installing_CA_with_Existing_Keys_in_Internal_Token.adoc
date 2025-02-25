@@ -10,7 +10,7 @@ so they will not be included in the installation process.
 Prior to installation, please ensure that the link:../others/Installation_Prerequisites.adoc[Installation Prerequisites] are configured.
 
 == Starting CA Subsystem Installation 
-Prepare a file (e.g. ca-existing-certs-step1.cfg) that contains the first deployment configuration.
+Prepare a file, for example `ca-existing-certs-step1.cfg`, that contains the first deployment configuration.
 
 A sample deployment configuration is available at link:../../../base/server/examples/installation/ca-existing-certs-step1.cfg[/usr/share/pki/server/examples/installation/ca-existing-certs-step1.cfg].
 
@@ -58,7 +58,7 @@ $ echo "-----END CERTIFICATE REQUEST-----" >> ca_audit_signing.csr
 ....
 
 == Finishing CA Subsystem Installation 
-Prepare another file (e.g. ca-existing-certs-step2.cfg) that contains the second deployment configuration.
+Prepare another file, for example `ca-existing-certs-step2.cfg`, that contains the second deployment configuration.
 The file can be created from the first file (i.e. ca-existing-certs-step1.cfg) with the following changes:
 
 [literal,subs="+quotes,verbatim"]
@@ -117,7 +117,7 @@ sslserver                                                    u,u,u
 ....
 
 == Verifying Admin Certificate 
-Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
+Prepare a client NSS database, for example `~/.dogtag/nssdb`:
 
 [literal,subs="+quotes,verbatim"]
 ....

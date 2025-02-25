@@ -7,7 +7,7 @@ Prior to installation, please ensure that the link:../others/Installation_Prereq
 
 == KRA Subsystem Installation 
 
-Prepare a file (e.g. kra-separate.cfg) that contains the deployment configuration.
+Prepare a file, for example `kra-separate.cfg`, that contains the deployment configuration.
 
 A sample deployment configuration is available at link:../../../base/server/examples/installation/kra-separate.cfg[/usr/share/pki/server/examples/installation/kra-separate.cfg].
 It assumes that the CA is running at https://ca.example.com:8443,
@@ -54,7 +54,7 @@ sslserver                                                    u,u,u
 
 == Verifying Admin Certificate 
 
-Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
+Prepare a client NSS database, for example `~/.dogtag/nssdb`:
 
 [literal,subs="+quotes,verbatim"]
 ....
