@@ -13,7 +13,7 @@ Prior to installation, please ensure that the link:../others/Installation_Prereq
 
 Note: It is assumed that the CA signing certificate has been exported into `ca_signing.crt`
 
-Prepare a file, for example `kra.cfg`, that contains the deployment configuration, for example:
+Prepare a file, for example `kra.cfg`, that contains the deployment configuration:
 
 [literal,subs="+quotes,verbatim"]
 ....

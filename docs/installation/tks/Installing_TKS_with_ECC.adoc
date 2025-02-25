@@ -19,7 +19,7 @@ Prior to installation, please ensure that the link:../others/Installation_Prereq
 
 == TKS Subsystem Installation
 
-Prepare a file, for example `tks.cfg`, that contains the deployment configuration, for example:
+Prepare a file, for example `tks.cfg`, that contains the deployment configuration:
 
 [literal,subs="+quotes,verbatim"]
 ....

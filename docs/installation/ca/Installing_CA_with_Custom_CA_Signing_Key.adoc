@@ -5,7 +5,7 @@ Follow this process to install a CA subsystem with a custom CA signing key, CSR,
 Prior to installation, please ensure that the link:../others/Installation_Prerequisites.adoc[Installation Prerequisites] are configured.
 
 == Starting CA Subsystem Installation 
-Prepare a file, for example `ca-step1.cfg`, that contains the deployment configuration step 1, for example:
+Prepare a file, for example `ca-step1.cfg`, that contains the deployment configuration step 1:
 
 [literal,subs="+quotes,verbatim"]
 ....

@@ -57,9 +57,9 @@ The command will export the following certificates (including the certificate ch
 * audit signing certificate
 * subsystem certificate
 
-Note that the existing SSL server certificate will not be exported.
+Note that the existing SSL server certificate is not exported.
 
-If necessary, third-party certificates, for example `trust anchors`, can be added into the same PKCS #12 file with the following command:
+If necessary, third-party certificates, for example trust anchors, can be added into the same PKCS #12 file with the following command:
 
 [literal,subs="+quotes,verbatim"]
 ....
@@ -88,7 +88,7 @@ $ chown pkiuser:pkiuser ca-certs.p12
 == CA Subsystem Installation 
 
 Prepare a deployment configuration, for example `ca-secure-ds-secondary.cfg`, to deploy CA subsystem clone.
-By default the subsystem will be deployed into a Tomcat instance called `pki-tomcat`.
+By default the subsystem is deployed into a Tomcat instance called `pki-tomcat`.
 
 A sample deployment configuration is available at link:../../../base/server/examples/installation/ca-secure-ds-secondary.cfg[/usr/share/pki/server/examples/installation/ca-secure-ds-secondary.cfg].
 It assumes that the existing CA and DS instances are running on primary.example.com, and the new CA and DS clones are being installed on secondary.example.com,
