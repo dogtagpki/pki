@@ -11,7 +11,7 @@ Ensure that the secure connection has been enabled on the directory server, and 
 
 == OCSP Subsystem Installation 
 
-Prepare a file (e.g. ocsp.cfg) that contains the deployment configuration, for example:
+Prepare a file, for example `ocsp.cfg`, that contains the deployment configuration, for example:
 
 [literal,subs="+quotes,verbatim"]
 ....
@@ -106,7 +106,7 @@ $ pki-server ocsp-db-config-show
 
 == Verifying Admin Certificate 
 
-Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
+Prepare a client NSS database, for example `~/.dogtag/nssdb`:
 
 [literal,subs="+quotes,verbatim"]
 ....

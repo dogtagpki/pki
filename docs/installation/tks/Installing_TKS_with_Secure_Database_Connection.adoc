@@ -9,7 +9,7 @@ This step is described link:https://www.dogtagpki.org/wiki/DS_SSL[here].
 
 == TKS Subsystem Installation
 
-Prepare a file (e.g. tks.cfg) that contains the deployment configuration, for example:
+Prepare a file, for example `tks.cfg`, that contains the deployment configuration, for example:
 
 [literal,subs="+quotes,verbatim"]
 ....
@@ -102,7 +102,7 @@ $ pki-server tks-db-config-show
 
 == Verifying Admin Certificate
 
-Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
+Prepare a client NSS database, for example `~/.dogtag/nssdb`:
 
 [literal,subs="+quotes,verbatim"]
 ....

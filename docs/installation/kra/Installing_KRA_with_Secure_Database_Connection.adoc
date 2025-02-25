@@ -9,7 +9,7 @@ This step is described link:https://www.dogtagpki.org/wiki/DS_SSL[here].
 
 == KRA Subsystem Installation
 
-Prepare a file (e.g. kra.cfg) that contains the deployment configuration, for example:
+Prepare a file, for example `kra.cfg`, that contains the deployment configuration, for example:
 
 [literal,subs="+quotes,verbatim"]
 ....
@@ -98,7 +98,7 @@ $ pki-server kra-db-config-show
 
 == Verifying Admin Certificate
 
-Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
+Prepare a client NSS database, for example `~/.dogtag/nssdb`:
 
 [literal,subs="+quotes,verbatim"]
 ....

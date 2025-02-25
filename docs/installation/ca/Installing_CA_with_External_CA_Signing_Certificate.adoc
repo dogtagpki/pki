@@ -5,7 +5,7 @@ Follow this process to install a CA subsystem with an external CA signing certif
 Prior to installation, please ensure that the link:../others/Installation_Prerequisites.adoc[Installation Prerequisites] are configured.
 
 == Starting CA Subsystem Installation 
-Prepare a file (e.g. ca-external-cert-step1.cfg) that contains the first deployment configuration.
+Prepare a file, for example `ca-external-cert-step1.cfg`, that contains the first deployment configuration.
 
 A sample deployment configuration is available at link:../../../base/server/examples/installation/ca-external-cert-step1.cfg[/usr/share/pki/server/examples/installation/ca-external-cert-step1.cfg]
 
@@ -29,10 +29,10 @@ Use the CSR to issue the CA signing certificate:
 * for root CA installation, generate a self-signed CA signing certificate
 * for subordinate CA installation, submit the CSR to an external CA to issue the CA signing certificate
 
-Store the CA signing certificate in a file (e.g. ca_signing.crt).
+Store the CA signing certificate in a file, for example `ca_signing.crt`.
 The CA signing certificate can be specified as a single certificate or a PKCS #7 certificate chain in PEM format.
 
-If the CA signing certificate was issued by an external CA, store the external CA certificate chain in a file (e.g. root-ca_signing.crt).
+If the CA signing certificate was issued by an external CA, store the external CA certificate chain in a file, for example `root-ca_signing.crt`.
 The certificate chain can be specified as a single certificate or a PKCS #7 certificate chain in PEM format.
 The certificate chain should include all CA certificates from the root CA to the external CA that issued the CA signing certificate,
 but it should not include the CA signing certificate itself.
@@ -42,7 +42,7 @@ but it should not include the CA signing certificate itself.
 // * link:https://github.com/dogtagpki/pki/wiki/Generating-CA-Signing-Certificate[Generating CA Signing Certificate]
 
 == Finishing CA Subsystem Installation 
-Prepare another file (e.g. ca-external-cert-step2.cfg) that contains the second deployment configuration.
+Prepare another file, for example `ca-external-cert-step2.cfg`, that contains the second deployment configuration.
 The file can be created from the first file (i.e. ca-external-cert-step1.cfg) with the following changes:
 
 [literal,subs="+quotes,verbatim"]
@@ -94,7 +94,7 @@ sslserver                                                    u,u,u
 
 == Verifying Admin Certificate 
 
-Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
+Prepare a client NSS database, for example `~/.dogtag/nssdb`:
 
 [literal,subs="+quotes,verbatim"]
 ....

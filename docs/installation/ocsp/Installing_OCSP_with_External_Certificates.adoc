@@ -6,7 +6,7 @@ Prior to installation, please ensure that the link:../others/Installation_Prereq
 
 == Starting OCSP Subsystem Installation 
 
-Prepare a file (e.g. ocsp-external-certs-step1.cfg) that contains the first deployment configuration.
+Prepare a file, for example `ocsp-external-certs-step1.cfg`, that contains the first deployment configuration.
 
 A sample deployment configuration is available at link:../../../base/server/examples/installation/ocsp-external-certs-step1.cfg[/usr/share/pki/server/examples/installation/ocsp-external-certs-step1.cfg].
 It assumes that the CA is running at https://ca.example.com:8443,
@@ -38,11 +38,11 @@ Submit the CSRs to an external CA to issue the certificates, then store the cert
 
 The certificates can be specified as single certificates or PKCS #7 certificate chains in PEM format.
 
-Store the external CA certificate chain in a file (e.g. ca_signing.crt). The certificate chain can be specified as a single certificate or PKCS #7 certificate chain in PEM format. The certificate chain should include all CA certificates from the root CA to the external CA that issued the OCSP system and admin certificates.
+Store the external CA certificate chain in a file, for example `ca_signing.crt`. The certificate chain can be specified as a single certificate or PKCS #7 certificate chain in PEM format. The certificate chain should include all CA certificates from the root CA to the external CA that issued the OCSP system and admin certificates.
 
 == Finishing OCSP Subsystem Installation 
 
-Prepare another file (e.g. ocsp-external-certs-step2.cfg) that contains the second deployment configuration.
+Prepare another file, for example `ocsp-external-certs-step2.cfg`, that contains the second deployment configuration.
 The file can be created from the first file (i.e. ocsp-external-certs-step1.cfg) with the following changes:
 
 [literal,subs="+quotes,verbatim"]
@@ -98,7 +98,7 @@ sslserver                                                    u,u,u
 
 == Verifying Admin Certificate 
 
-Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
+Prepare a client NSS database, for example `~/.dogtag/nssdb`:
 
 [literal,subs="+quotes,verbatim"]
 ....

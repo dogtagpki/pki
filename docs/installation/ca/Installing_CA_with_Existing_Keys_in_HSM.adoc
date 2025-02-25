@@ -9,7 +9,7 @@ so they will not be included in the installation process.
 Prior to installation, please ensure that the link:../others/Installation_Prerequisites.adoc[Installation Prerequisites] are configured.
 
 == Starting CA Subsystem Installation 
-Prepare a file (e.g. ca-step1.cfg) that contains the deployment configuration step 1, for example:
+Prepare a file, for example `ca-step1.cfg`, that contains the deployment configuration step 1, for example:
 
 [literal,subs="+quotes,verbatim"]
 ....
@@ -97,7 +97,7 @@ $ echo "-----END CERTIFICATE REQUEST-----" >> ca_audit_signing.csr
 ....
 
 == Finishing CA Subsystem Installation 
-Prepare another file (e.g. ca-step2.cfg) that contains the deployment configuration step 2.
+Prepare another file, for example `ca-step2.cfg`, that contains the deployment configuration step 2.
 The file can be copied from step 1 (i.e. ca-step1.cfg) with additional changes below.
 
 Specify step 2 with the following parameter:
@@ -170,7 +170,7 @@ HSM:sslserver/pki.example.com                                u,u,u
 ....
 
 == Verifying Admin Certificate 
-Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
+Prepare a client NSS database, for example `~/.dogtag/nssdb`:
 
 [literal,subs="+quotes,verbatim"]
 ....
