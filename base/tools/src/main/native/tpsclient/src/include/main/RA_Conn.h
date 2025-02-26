@@ -19,8 +19,8 @@
  * --- END COPYRIGHT BLOCK ---
  */
 
-#ifndef RA_CLIENT_H
-#define RA_CLIENT_H
+#ifndef RA_CONN_H
+#define RA_CONN_H
 
 #ifdef HAVE_CONFIG_H
 #ifndef AUTOTOOLS_CONFIG_H
@@ -37,42 +37,35 @@
 #endif /* AUTOTOOLS_CONFIG_H */
 #endif /* HAVE_CONFIG_H */
 
-#include "prthread.h"
-#include "main/NameValueSet.h"
-#include "RA_Conn.h"
-#include "RA_Token.h"
+#include <stdio.h>
+#include "prio.h"
+#include "main/RA_Token.h"
+#include "main/RA_Msg.h"
+#include "main/Buffer.h"
+#include "apdu/APDU.h"
 
-enum RequestType {
-  OP_CLIENT_ENROLL = 0,
-  OP_CLIENT_FORMAT = 1,
-  OP_CLIENT_RESET_PIN = 2
-};
-
-class RA_Client
+class RA_Conn
 {
   public:
-	  RA_Client();
-	  ~RA_Client();
+	  RA_Conn(char *host, int port, char *uri);
+	  ~RA_Conn();
   public:
-	  int OpHelp(NameValueSet *set);
-	  int OpConnStart(NameValueSet *set, RequestType);
-	  int OpConnResetPin(NameValueSet *set);
-	  int OpConnEnroll(NameValueSet *set);
-	  int OpConnUpdate(NameValueSet *set);
-	  int OpTokenStatus(NameValueSet *set);
-	  int OpTokenSet(NameValueSet *set);
-	  int OpVarList(NameValueSet *set);
-	  int OpVarSet(NameValueSet *set);
-	  int OpVarDebug(NameValueSet *set);
-	  int OpVarGet(NameValueSet *set);
-	  int OpExit(NameValueSet *set);
+          int SendMsg(RA_Msg *msg);
+          RA_Msg *ReadMsg();
+          RA_Msg *ReadMsg(RA_Token *token);
+          int Connect();
+          int Close();
+	  void setEncryption(bool encrypted);
+	  bool isEncrypted();
   public:
-	  void Debug(const char *func_name, const char *fmt, ...);
-	  void Execute();
-	  void InvokeOperation(char *op, NameValueSet *set);
-  public:
-	  RA_Token m_token;
-	  NameValueSet m_vars;
+	  APDU *CreateAPDU(RA_Token *tok, Buffer &data, Buffer &mac);
+  private:
+          char *m_host;
+          int m_port;
+          char *m_uri;
+	  PRFileDesc *m_fd;
+	  int m_read_header;
+	  bool m_encrypted_channel;
 };
 
-#endif /* RA_CLIENT_H */
+#endif /* RA_MSG_H */

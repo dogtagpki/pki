@@ -36,99 +36,8 @@ SET(CMAKE_INSTALL_RPATH "${LIB_INSTALL_DIR}/tps")
 # which point to directories outside the build tree to the install RPATH
 SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-set(TPS_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/include)
-
-set(TPS_PUBLIC_INCLUDE_DIRS
-    ${CMAKE_CURRENT_BINARY_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${TPS_INCLUDE_DIR}
-    CACHE INTERNAL "TPS public include directories"
-)
-
-set(TPS_PRIVATE_INCLUDE_DIRS
-    ${TPS_PUBLIC_INCLUDE_DIRS}
-    ${CMAKE_BINARY_DIR}
-    ${NSPR_INCLUDE_DIRS}
-    ${NSS_INCLUDE_DIRS}
-    ${APR_INCLUDE_DIRS}
-    ${LDAP_INCLUDE_DIRS}
-)
-
-set(tpsclient_SRCS
-    src/main/Buffer.cpp
-    src/main/NameValueSet.cpp
-    src/main/Util.cpp
-    src/main/RA_Msg.cpp
-    src/main/Memory.cpp
-    src/main/AuthParams.cpp
-    src/apdu/APDU.cpp
-    src/apdu/Unblock_Pin_APDU.cpp
-    src/apdu/Create_Object_APDU.cpp
-    src/apdu/Set_Pin_APDU.cpp
-    src/apdu/Set_IssuerInfo_APDU.cpp
-    src/apdu/Get_IssuerInfo_APDU.cpp
-    src/apdu/Create_Pin_APDU.cpp
-    src/apdu/List_Pins_APDU.cpp
-    src/apdu/Initialize_Update_APDU.cpp
-    src/apdu/Get_Version_APDU.cpp
-    src/apdu/Get_Status_APDU.cpp
-    src/apdu/Get_Data_APDU.cpp
-    src/apdu/External_Authenticate_APDU.cpp
-    src/apdu/Generate_Key_APDU.cpp
-    src/apdu/Generate_Key_ECC_APDU.cpp
-    src/apdu/Read_Buffer_APDU.cpp
-    src/apdu/Read_Object_APDU.cpp
-    src/apdu/Write_Object_APDU.cpp
-    src/apdu/Put_Key_APDU.cpp
-    src/apdu/Select_APDU.cpp
-    src/apdu/Delete_File_APDU.cpp
-    src/apdu/Install_Applet_APDU.cpp
-    src/apdu/Format_Muscle_Applet_APDU.cpp
-    src/apdu/Load_File_APDU.cpp
-    src/apdu/Install_Load_APDU.cpp
-    src/apdu/Lifecycle_APDU.cpp
-    src/apdu/List_Objects_APDU.cpp
-    src/apdu/Import_Key_APDU.cpp
-    src/apdu/Import_Key_Enc_APDU.cpp
-    src/apdu/APDU_Response.cpp
-    src/apdu/Get_Lifecycle_APDU.cpp
-    src/msg/RA_Begin_Op_Msg.cpp
-    src/msg/RA_End_Op_Msg.cpp
-    src/msg/RA_Login_Request_Msg.cpp
-    src/msg/RA_Login_Response_Msg.cpp
-    src/msg/RA_SecureId_Request_Msg.cpp
-    src/msg/RA_SecureId_Response_Msg.cpp
-    src/msg/RA_ASQ_Request_Msg.cpp
-    src/msg/RA_ASQ_Response_Msg.cpp
-    src/msg/RA_New_Pin_Request_Msg.cpp
-    src/msg/RA_New_Pin_Response_Msg.cpp
-    src/msg/RA_Token_PDU_Request_Msg.cpp
-    src/msg/RA_Token_PDU_Response_Msg.cpp
-    src/msg/RA_Status_Update_Request_Msg.cpp
-    src/msg/RA_Status_Update_Response_Msg.cpp
-    src/msg/RA_Extended_Login_Request_Msg.cpp
-    src/msg/RA_Extended_Login_Response_Msg.cpp
-    tools/raclient/RA_Client.cpp
-    tools/raclient/RA_Conn.cpp
-    tools/raclient/RA_Token.cpp
-)
-
-set(TPS_EXECUTABLE
-    tpsclient
-    CACHE INTERNAL "tpsclient executable"
-)
-
-set(TPS_LINK_LIBRARIES
-    ${NSPR_LIBRARIES}
-    ${NSS_LIBRARIES}
-    ${APR_LIBRARIES}
-    ${LDAP_LIBRARIES}
-)
-
-include_directories(${TPS_PRIVATE_INCLUDE_DIRS})
-
-add_executable(${TPS_EXECUTABLE} ${tpsclient_SRCS})
-target_link_libraries(${TPS_EXECUTABLE} ${TPS_LINK_LIBRARIES})
+add_subdirectory(src)
+add_subdirectory(tools)
 
 add_custom_target(tpsclient-man ALL
     COMMENT "Creating PKI server manuals")
@@ -137,14 +46,6 @@ add_custom_command(
     TARGET tpsclient-man
     COMMAND ${CMAKE_COMMAND} -E make_directory man/man1
     COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man1/tpsclient.1.md -out man/man1/tpsclient.1
-)
-
-install(
-    TARGETS
-        ${TPS_EXECUTABLE}
-    RUNTIME DESTINATION ${BIN_INSTALL_DIR}
-    LIBRARY DESTINATION ${LIB_INSTALL_DIR}/tps
-    ARCHIVE DESTINATION ${LIB_INSTALL_DIR}/tps
 )
 
 install(
