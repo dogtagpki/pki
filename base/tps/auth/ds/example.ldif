@@ -8,3 +8,25 @@ cn: Test User
 sn: User
 givenName: Test
 userPassword: Secret.123
+
+dn: uid=testuser1,ou=people,dc=example,dc=com
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+uid: testuser1
+cn: Test User 1
+sn: User 1
+givenName: Test
+userPassword: Secret.123
+
+dn: uid=testuser2,ou=people,dc=example,dc=com
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+uid: testuser2
+cn: Test User 2
+sn: User 2
+givenName: Test
+userPassword: Secret.123

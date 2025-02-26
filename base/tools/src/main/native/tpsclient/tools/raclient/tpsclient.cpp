@@ -45,6 +45,8 @@ main (int argc, char *argv[])
   PK11SlotInfo *slot = NULL;
   PRUint32 flags = 0;
 
+  fprintf(stderr, "WARNING: tpsclient has been deprecated. Use pki tps-client instead.\n");
+
   /* Initialize NSPR & NSS */
   PR_Init (PR_SYSTEM_THREAD, PR_PRIORITY_NORMAL, 1);
   PK11_SetPasswordFunc (ownPasswd);

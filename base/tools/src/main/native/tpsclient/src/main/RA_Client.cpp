@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
+#include <jni.h>
 
 #include "prinrval.h"
 #include "prmem.h"
@@ -1631,3 +1632,11 @@ RA_Client::Execute ()
 	}
     }
 }				/* Execute */
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_netscape_cmstools_tps_TPSClientCLI_execute
+(JNIEnv* env, jclass clazz)
+{
+    RA_Client client;
+    client.Execute();
+}

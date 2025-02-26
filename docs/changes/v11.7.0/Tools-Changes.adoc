@@ -1,0 +1,5 @@
+= Tools Changes =
+
+== Deprecate tpsclient ==
+
+`tpsclient` has been deprecated. Use `pki tps-client` instead.

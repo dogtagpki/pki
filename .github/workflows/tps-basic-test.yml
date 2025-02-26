@@ -33,20 +33,18 @@ jobs:
           tests/bin/ds-create.sh \
               --image=${{ env.DS_IMAGE }} \
               --hostname=ds.example.com \
+              --network=example \
+              --network-alias=ds.example.com \
               --password=Secret.123 \
               ds
 
-      - name: Connect DS container to network
-        run: docker network connect example ds --alias ds.example.com
-
       - name: Set up PKI container
         run: |
-          tests/bin/runner-init.sh pki
-        env:
-          HOSTNAME: pki.example.com
-
-      - name: Connect PKI container to network
-        run: docker network connect example pki --alias pki.example.com
+          tests/bin/runner-init.sh \
+              --hostname=pki.example.com \
+              --network=example \
+              --network-alias=pki.example.com \
+              pki
 
       - name: Install CA
         run: |
@@ -304,7 +302,7 @@ jobs:
           # restart TPS subsystem
           docker exec pki pki-server tps-redeploy --wait
 
-      - name: Add token
+      - name: Add token for testuser1
         run: |
           hexdump -v -n "10" -e '1/1 "%02x"' /dev/urandom > cuid
           CUID=$(cat cuid)
@@ -316,11 +314,11 @@ jobs:
 
           docker exec pki pki -n caadmin tps-cert-find --token $CUID
 
-      - name: Format token
+      - name: Format testuser1 token using pki tps-client
         run: |
           CUID=$(cat cuid)
           docker exec pki /usr/share/pki/tps/bin/pki-tps-format \
-              --user=testuser \
+              --user=testuser1 \
               --password=Secret.123 \
               $CUID
 
@@ -331,11 +329,11 @@ jobs:
 
           docker exec pki pki -n caadmin tps-cert-find --token $CUID
 
-      - name: Enroll token
+      - name: Enroll testuser1 token using pki tps-client
         run: |
           CUID=$(cat cuid)
           docker exec pki /usr/share/pki/tps/bin/pki-tps-enroll \
-              --user=testuser \
+              --user=testuser1 \
               --password=Secret.123 \
               $CUID
 
@@ -346,21 +344,67 @@ jobs:
           
           docker exec pki pki -n caadmin tps-cert-find --token $CUID
 
-      - name: KRA key find
+      - name: Find testuser1 key in KRA
         run: |          
           CUID=$(cat cuid | tr [:lower:] [:upper:])
-          USER="testuser"
+          USER="testuser1"
           echo $CUID:$USER > expected
           docker exec pki pki -n caadmin kra-key-find --owner $CUID:$USER | tee output
           sed -n 's/\s*Owner:\s\+\(\S\+\)\s*/\1/p' output > actual
           diff expected actual
 
-      - name: Gather artifacts
-        if: always()
+      - name: Add token for testuser2
         run: |
-          tests/bin/ds-artifacts-save.sh ds
-          tests/bin/pki-artifacts-save.sh pki
-        continue-on-error: true
+          hexdump -v -n "10" -e '1/1 "%02x"' /dev/urandom > cuid
+          CUID=$(cat cuid)
+          docker exec pki pki -n caadmin tps-token-add $CUID | tee output
+
+          echo "UNFORMATTED" > expected
+          sed -n 's/\s*Status:\s\+\(\S\+\)\s*/\1/p' output > actual
+          diff expected actual
+
+          docker exec pki pki -n caadmin tps-cert-find --token $CUID
+
+      - name: Format testuser2 token using tpsclient
+        run: |
+          CUID=$(cat cuid)
+          docker exec pki /usr/share/pki/tps/bin/pki-tps-format \
+              --client=tpsclient \
+              --user=testuser2 \
+              --password=Secret.123 \
+              $CUID
+
+          echo "FORMATTED" > expected
+          docker exec pki pki -n caadmin tps-token-show $CUID | tee output
+          sed -n 's/\s*Status:\s\+\(\S\+\)\s*/\1/p' output > actual
+          diff expected actual
+
+          docker exec pki pki -n caadmin tps-cert-find --token $CUID
+
+      - name: Enroll testuser2 token using tpsclient
+        run: |
+          CUID=$(cat cuid)
+          docker exec pki /usr/share/pki/tps/bin/pki-tps-enroll \
+              --client=tpsclient \
+              --user=testuser2 \
+              --password=Secret.123 \
+              $CUID
+
+          echo "ACTIVE" > expected
+          docker exec pki pki -n caadmin tps-token-show $CUID | tee output
+          sed -n 's/\s*Status:\s\+\(\S\+\)\s*/\1/p' output > actual
+          diff expected actual
+
+          docker exec pki pki -n caadmin tps-cert-find --token $CUID
+
+      - name: Find testuser2 key in KRA
+        run: |
+          CUID=$(cat cuid | tr [:lower:] [:upper:])
+          USER="testuser2"
+          echo $CUID:$USER > expected
+          docker exec pki pki -n caadmin kra-key-find --owner $CUID:$USER | tee output
+          sed -n 's/\s*Owner:\s\+\(\S\+\)\s*/\1/p' output > actual
+          diff expected actual
 
       - name: Remove TPS
         run: docker exec pki pkidestroy -s TPS -v
@@ -484,10 +528,3 @@ jobs:
         if: always()
         run: |
           docker exec pki find /var/lib/pki/pki-tomcat/logs/tps -name "debug.*" -exec cat {} \;
-
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: tps-basic
-          path: /tmp/artifacts

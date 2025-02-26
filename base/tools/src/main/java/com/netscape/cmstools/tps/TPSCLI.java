@@ -58,6 +58,7 @@ public class TPSCLI extends SubsystemCLI {
         addModule(new SelfTestCLI(this));
         addModule(new TokenCLI(this));
         addModule(new UserCLI(this));
+        addModule(new TPSClientCLI(this));
     }
 
     @Override
