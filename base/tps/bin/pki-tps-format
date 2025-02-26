@@ -1,5 +1,6 @@
 #!/bin/bash
 
+TPS_CLIENT="pki tps-client"
 TPS_HOSTNAME=$HOSTNAME
 TPS_PORT=8080
 TPS_PATH=/tps/tps
@@ -26,6 +27,9 @@ while getopts v-: arg ; do
         LONG_OPTARG="${OPTARG#*=}"
 
         case $OPTARG in
+        client=?*)
+            TPS_CLIENT="$LONG_OPTARG"
+            ;;
         hostname=?*)
             TPS_HOSTNAME="$LONG_OPTARG"
             ;;
@@ -41,7 +45,7 @@ while getopts v-: arg ; do
         '')
             break # "--" terminates argument processing
             ;;
-        hostname* | port* | user* | password*)
+        client* | hostname* | port* | user* | password*)
             echo "ERROR: Missing argument for --$OPTARG option" >&2
             exit 1
             ;;
@@ -62,7 +66,7 @@ shift $((OPTIND-1))
 
 CUID=$1
 
-tpsclient << EOF
+$TPS_CLIENT << EOF
 op=var_set name=ra_host value=$TPS_HOSTNAME
 op=var_set name=ra_port value=$TPS_PORT
 op=var_set name=ra_uri value=$TPS_PATH
@@ -78,11 +82,17 @@ op=ra_format uid=$USERNAME pwd=$PASSWORD num_threads=$THREADS extensions=$EXTENS
 op=exit
 EOF
 
-# tpsclient returns 1 on success and 0 on failure,
-# so the return code needs to be inverted
+rc=$?
 
-if [ "$?" == "0" ]; then
-    exit 1
+if [ "$TPS_CLIENT" == "tpsclient" ]; then
+    # tpsclient returns 1 on success and 0 on failure,
+    # so the return code needs to be inverted
+
+    if [ "$rc" == "0" ]; then
+        exit 1
+    fi
+
+    exit 0
 fi
 
-exit 0
+exit $rc
