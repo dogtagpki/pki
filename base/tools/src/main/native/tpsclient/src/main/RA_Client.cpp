@@ -21,18 +21,21 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
-#include "prinrval.h"
 
+#include "prinrval.h"
 #include "prmem.h"
 #include "prsystem.h"
 #include "plstr.h"
 #include "prio.h"
 #include "prprf.h"
 #include "pk11func.h"
+#include "nss.h"
 
 #include "main/NameValueSet.h"
 #include "main/Util.h"
+#include "main/RA_Client.h"
 #include "main/RA_Msg.h"
+#include "main/RA_Token.h"
 #include "authentication/AuthParams.h"
 #include "apdu/APDU_Response.h"
 #include "apdu/Initialize_Update_APDU.h"
@@ -54,10 +57,6 @@
 #include "msg/RA_ASQ_Response_Msg.h"
 #include "msg/RA_Status_Update_Request_Msg.h"
 #include "msg/RA_Status_Update_Response_Msg.h"
-#include "RA_Token.h"
-#include "RA_Client.h"
-
-#include "nss.h"
 
 static PRFileDesc *m_fd_debug = (PRFileDesc *) NULL;
 PRBool old_style = PR_TRUE;
@@ -1632,69 +1631,3 @@ RA_Client::Execute ()
 	}
     }
 }				/* Execute */
-
-char *
-ownPasswd (PK11SlotInfo * slot, PRBool retry, void *arg)
-{
-  return PL_strdup ("password");
-}
-
-/**
- * User certutil -d . -N to create a database.
- * The database should have 'password' as the password.
- */
-int
-main (int argc, char *argv[])
-{
-  char buffer[513];
-  SECStatus rv;
-  PK11SlotInfo *slot = NULL;
-  PRUint32 flags = 0;
-  // char *newpw = NULL;
-
-  /* Initialize NSPR & NSS */
-  PR_Init (PR_SYSTEM_THREAD, PR_PRIORITY_NORMAL, 1);
-  PK11_SetPasswordFunc (ownPasswd);
-  rv = NSS_Initialize (".", "", "", "", flags);
-  if (rv != SECSuccess)
-    {
-      PR_GetErrorText (buffer);
-      fprintf (stderr, "unable to initialize NSS library (%d - '%s')\n",
-	       PR_GetError (), buffer);
-      exit (0);
-    }
-  slot = PK11_GetInternalKeySlot ();
-  if (PK11_NeedUserInit (slot))
-    {
-      rv = PK11_InitPin (slot, (char *) NULL, (char *) "password");
-      if (rv != SECSuccess)
-	{
-	  PR_GetErrorText (buffer);
-	  fprintf (stderr, "unable to set new PIN (%d - '%s')\n",
-		   PR_GetError (), buffer);
-	  exit (0);
-	}
-
-    }
-  if (PK11_NeedLogin (slot))
-    {
-      rv = PK11_Authenticate (slot, PR_TRUE, NULL);
-      if (rv != SECSuccess)
-	{
-	  PR_GetErrorText (buffer);
-	  fprintf (stderr, "unable to authenticate (%d - '%s')\n",
-		   PR_GetError (), buffer);
-	  exit (0);
-	}
-    }
-
-  /* Start RA Client */
-  RA_Client client;
-  client.Execute ();
-
-  /* Shutdown NSS and NSPR */
-  NSS_Shutdown ();
-  PR_Cleanup ();
-
-  return 1;
-}

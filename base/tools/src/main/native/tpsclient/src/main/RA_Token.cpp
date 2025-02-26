@@ -21,7 +21,7 @@
 #include "cryptohi.h"
 #include "plstr.h"
 #include "main/Util.h"
-#include "RA_Token.h"
+#include "main/RA_Token.h"
 #include "apdu/APDU_Response.h"
 #include "apdu/Initialize_Update_APDU.h"
 #include "apdu/Generate_Key_APDU.h"
