@@ -686,7 +686,7 @@ Provides:         bundled(js-bootstrap) = 3.4.1
 Provides:         bundled(js-jquery) = 3.7.1
 Provides:         bundled(js-jquery-i18n-properties) = 1.2.7
 Provides:         bundled(js-patternfly) = 3.59.2
-Provides:         bundled(js-underscore) = 1.9.2
+Provides:         bundled(js-underscore) = 1.13.7
 
 %description -n   %{product_id}-server
 This package provides libraries and utilities needed by %{product_name} services.
