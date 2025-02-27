@@ -681,7 +681,7 @@ Conflicts:        ipa-server < 4.7.1
 Conflicts:        freeipa-server < 4.7.1
 %endif
 
-Provides:         bundled(js-backbone) = 1.4.0
+Provides:         bundled(js-backbone) = 1.6.0
 Provides:         bundled(js-bootstrap) = 3.4.1
 Provides:         bundled(js-jquery) = 3.7.1
 Provides:         bundled(js-jquery-i18n-properties) = 1.2.7
