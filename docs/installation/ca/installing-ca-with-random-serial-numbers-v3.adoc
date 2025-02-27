@@ -1,0 +1,91 @@
+= Overview 
+
+Follow this process to install a CA subsystem with link:https://github.com/dogtagpki/pki/wiki/Random-Certificate-Serial-Numbers-v3[Random Certificate Serial Numbers v3] in PKI 11.2 or later.
+
+NOTE: RSNv3 is enabled by default since PKI 11.5.
+
+= Installation Procedure 
+
+To install CA with random serial numbers v3, follow the normal link:installing-ca.adoc[CA installation] procedure, then specify the parameters below.
+
+To use random certificate serial numbers, add the following parameters in the `[CA]` section:
+
+----
+pki_cert_id_generator=random
+----
+
+The certificate ID length (in bits) can be specified in the `pki_cert_id_length` parameter. The default is `128` bits.
+
+To use random certificate request IDs, add the following parameters in the `[CA]` section:
+
+----
+pki_request_id_generator=random
+----
+
+The certificate request ID length (in bits) can be specified in the `pki_request_id_length` parameter. The default is `128` bits.
+
+= Verification 
+
+After installation the certificates will have random serial numbers, for example:
+
+----
+$ pki ca-cert-find
+---------------
+6 entries found
+---------------
+  Serial Number: 0x5daa529608aea948dcc35a584f6e64b0
+  Subject DN: CN=CA Audit Signing Certificate,OU=pki-tomcat,O=EXAMPLE
+  ...
+
+  Serial Number: 0x65f868071ebf5e2cdc18392239a53081
+  Subject DN: CN=Subsystem Certificate,OU=pki-tomcat,O=EXAMPLE
+  ...
+
+  Serial Number: 0xc51860ead8f26d178075a8cf4f7e4b07
+  Subject DN: CN=CA Signing Certificate,OU=pki-tomcat,O=EXAMPLE
+  ...
+
+  Serial Number: 0xcb7a32c09fce096b6dd52db5feeca2fb
+  Subject DN: CN=pki.example.com,OU=pki-tomcat,O=EXAMPLE
+  ...
+
+  Serial Number: 0xe6f644e5f52dad59bc1f118f73f26155
+  Subject DN: CN=CA OCSP Signing Certificate,OU=pki-tomcat,O=EXAMPLE
+  ...
+
+  Serial Number: 0xf43eb9d05996aec15333108150491971
+  Subject DN: CN=PKI Administrator,E=caadmin@example.com,OU=pki-tomcat,O=EXAMPLE
+  ...
+----------------------------
+Number of entries returned 6
+----------------------------
+----
+
+The certificate requests will also use random IDs, for example:
+
+----
+$ pki -n caadmin ca-cert-request-find
+-----------------
+6 entries matched
+-----------------
+  Request ID: 0x203d34be7c2bd073a0389fc3fd44e0d4
+  ...
+
+  Request ID: 0x6c55b093e1fa99141f7d154e0dc1de78
+  ...
+
+  Request ID: 0x71e6de234411c81d983bf1a844758102
+  ...
+
+  Request ID: 0x7dacb0f978c51bd299b813a990de0bbf
+  ...
+
+  Request ID: 0x8870e866c214abc6985a9636ccb84b03
+  ...
+
+  Request ID: 0xa8e8722bac34a65d6a1b714505c97b00
+  ...
+----------------------------
+Number of entries returned 6
+----------------------------
+----

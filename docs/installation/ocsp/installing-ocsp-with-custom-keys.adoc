@@ -1,0 +1,199 @@
+= Installing OCSP with Custom Keys 
+
+
+Follow this process to install a OCSP subsystem with custom OCSP system and admin keys, CSRs, and certificates.
+
+Prior to installation, please ensure that the link:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
+
+== Starting OCSP Subsystem Installation 
+
+Prepare a file, for example `ocsp-step1.cfg`, that contains the deployment configuration step 1:
+
+[literal,subs="+quotes,verbatim"]
+----
+[DEFAULT]
+pki_instance_name=pki-tomcat
+pki_https_port=8443
+pki_http_port=8080
+pki_server_database_password=Secret.123
+
+[Tomcat]
+pki_ajp_port=8009
+pki_tomcat_server_port=8005
+
+[OCSP]
+pki_admin_email=ocspadmin@example.com
+pki_admin_name=ocspadmin
+pki_admin_nickname=ocspadmin
+pki_admin_password=Secret.123
+pki_admin_uid=ocspadmin
+
+pki_client_pkcs12_password=Secret.123
+
+pki_ds_url=ldap://localhost.localdomain:389
+pki_ds_base_dn=dc=ocsp,dc=pki,dc=example,dc=com
+pki_ds_database=ocsp
+pki_ds_password=Secret.123
+
+pki_security_domain_name=EXAMPLE
+pki_security_domain_user=caadmin
+pki_security_domain_password=Secret.123
+
+pki_ocsp_signing_nickname=ocsp_signing
+pki_subsystem_nickname=subsystem
+pki_sslserver_nickname=sslserver
+pki_audit_signing_nickname=ocsp_audit_signing
+
+pki_external=True
+pki_external_step_two=False
+----
+
+Then execute the following command:
+
+[literal,subs="+quotes,verbatim"]
+....
+$ pkispawn -f ocsp-step1.cfg -s OCSP
+....
+
+It will install OCSP subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
+
+* server NSS database: /var/lib/pki/pki-tomcat/conf/alias
+* admin NSS database: ~/.dogtag/pki-tomcat/ocsp/alias
+
+Since there are no CSR path parameters specified, it will not generate the OCSP system and admin keys.
+
+== Generating OCSP Keys, CSRs, and Certificates 
+
+Generate custom OCSP system keys in the server NSS database and admin key in the admin NSS database, then generate the CSRs and store them in files, for example:
+
+* ocsp_signing.csr
+* subsystem.csr
+* sslserver.csr
+* ocsp_audit_signing.csr
+* ocsp_admin.csr
+
+Submit the CSRs to an external CA to issue the certificates, then store the certificates in files, for example:
+
+* ocsp_signing.crt
+* subsystem.crt
+* sslserver.crt
+* ocsp_audit_signing.crt
+* ocsp_admin.crt
+
+The certificates can be specified as single certificates or PKCS #7 certificate chains in PEM format.
+
+Store the external CA certificate chain in a file, for example `ca_signing.crt`. The certificate chain can be specified as a single certificate or PKCS #7 certificate chain in PEM format. The certificate chain should include all CA certificates from the root CA to the external CA that issued the OCSP system and admin certificates.
+
+See also:
+
+* link:https://github.com/dogtagpki/pki/wiki/Generating-OCSP-Signing-Certificate[Generating OCSP Signing Certificate]
+* link:https://github.com/dogtagpki/pki/wiki/Generating-Subsystem-Certificate[Generating Subsystem Certificate]
+* link:https://github.com/dogtagpki/pki/wiki/Generating-SSL-Server-Certificate[Generating SSL Server Certificate]
+* link:https://github.com/dogtagpki/pki/wiki/Generating-Audit-Signing-Certificate[Generating Audit Signing Certificate]
+* link:https://github.com/dogtagpki/pki/wiki/Generating-Admin-Certificate[Generating Admin Certificate]
+
+== Finishing OCSP Subsystem Installation 
+
+Prepare another file, for example `ocsp-step2.cfg`, that contains the deployment configuration step 2. The file can be copied from step 1 (i.e. ocsp-step1.cfg) with additional changes below.
+
+Specify step 2 with the following parameter:
+
+[literal,subs="+quotes,verbatim"]
+....
+pki_external_step_two=True
+....
+
+Specify the custom CSRs with the following parameters:
+
+[literal,subs="+quotes,verbatim"]
+....
+pki_ocsp_signing_csr_path=ocsp_signing.csr
+pki_subsystem_csr_path=subsystem.csr
+pki_sslserver_csr_path=sslserver.csr
+pki_audit_signing_csr_path=ocsp_audit_signing.csr
+pki_admin_csr_path=ocsp_admin.csr
+....
+
+Specify the custom certificates with the following parameters:
+
+[literal,subs="+quotes,verbatim"]
+....
+pki_ocsp_signing_cert_path=ocsp_signing.crt
+pki_subsystem_cert_path=subsystem.crt
+pki_sslserver_cert_path=sslserver.crt
+pki_audit_signing_cert_path=ocsp_audit_signing.crt
+pki_admin_cert_path=ocsp_admin.crt
+....
+
+Specify the external CA certificate chain with the following parameters:
+
+[literal,subs="+quotes,verbatim"]
+....
+pki_cert_chain_nickname=ca_signing
+pki_cert_chain_path=ca_signing.crt
+....
+
+Finally, execute the following command:
+
+[literal,subs="+quotes,verbatim"]
+....
+$ pkispawn -f ocsp-step2.cfg -s OCSP
+....
+
+== Verifying System Certificates 
+
+Verify that the server NSS database contains the following certificates:
+
+[literal,subs="+quotes,verbatim"]
+....
+$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
+
+Certificate Nickname                                         Trust Attributes
+                                                             SSL,S/MIME,JAR/XPI
+
+ca_signing                                                   CT,C,C
+ocsp_signing                                                 CTu,Cu,Cu
+subsystem                                                    u,u,u
+ocsp_audit_signing                                           u,u,Pu
+sslserver                                                    u,u,u
+....
+
+== Verifying Admin Certificate 
+
+Prepare a client NSS database, for example `~/.dogtag/nssdb`:
+
+[literal,subs="+quotes,verbatim"]
+....
+$ pki -c Secret.123 client-init
+....
+
+Import the external CA certificate chain:
+
+[literal,subs="+quotes,verbatim"]
+....
+$ pki -c Secret.123 client-cert-import --ca-cert ca_signing.crt
+....
+
+Import the admin key and certificate:
+
+[literal,subs="+quotes,verbatim"]
+....
+$ pki -c Secret.123 pkcs12-import \
+    --pkcs12 ~/.dogtag/pki-tomcat/ocsp_admin_cert.p12 \
+    --pkcs12-password Secret.123
+....
+
+Verify that the admin certificate can be used to access the OCSP subsystem by executing the following command:
+
+[literal,subs="+quotes,verbatim"]
+....
+$ pki -c Secret.123 -n ocspadmin ocsp-user-show ocspadmin
+----------------
+User "ocspadmin"
+----------------
+  User ID: ocspadmin
+  Full name: ocspadmin
+  Email: ocspadmin@example.com
+  Type: adminType
+  State: 1
+....

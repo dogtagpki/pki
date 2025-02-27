@@ -1,11 +1,1 @@
-// This was copied partially from https://github.com/dogtagpki/pki/wiki/Installing-DS-Server
-= Installing DS Packages 
-
-Prior to installing DS instances, one needs to install the DS packages.
-To install DS packages:
-
-----
-$ dnf install -y 389-ds-base
-----
-
-After successfully installing the DS packages, follow the instructions to link:Creating_DS_instance.adoc[install DS instances].
+This page has been moved to link:installing-ds-packages.adoc[installing-ds-packages.adoc]
