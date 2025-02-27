@@ -1,3 +1,6 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="installing-tks-clone_{context}"]
 = Installing TKS Clone
 
 

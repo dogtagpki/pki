@@ -1,3 +1,6 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="pki-ldap-tree_{context}"]
 // This content is copied from https://github.com/dogtagpki/pki/wiki/PKI-LDAP-Tree
 //
 = PKI LDAP Tree 

@@ -1,3 +1,6 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="installing-ca-with-hsm_{context}"]
 = Installing CA with HSM 
 
 Follow this process to install a CA subsystem with a self-signed CA signing certificate

@@ -1,3 +1,6 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="installation-prerequisites_{context}"]
 = Installation Prerequisites
 
 This section contains the generic prerequisites required prior to installing a PKI subsystem.  Some installation might need additional or different setups.

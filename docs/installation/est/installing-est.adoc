@@ -1,3 +1,6 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="installing-est_{context}"]
 // this asciidoc file is converted from Installing_EST.md with needed modifications
 //
 

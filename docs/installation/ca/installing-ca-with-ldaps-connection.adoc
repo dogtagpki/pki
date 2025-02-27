@@ -1,3 +1,6 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="installing-ca-with-ldaps-connection_{context}"]
 = Installing CA with LDAPS Connection
 
 Follow this process to install a CA subsystem with a secure database connection.

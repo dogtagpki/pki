@@ -1,3 +1,6 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="installing-kra-with-custom-keys_{context}"]
 = Installing KRA with Custom Keys
 
 

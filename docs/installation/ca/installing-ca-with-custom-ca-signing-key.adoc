@@ -1,3 +1,6 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="installing-ca-with-custom-ca-signing-key_{context}"]
 = Installing CA with Custom CA Signing Key 
 
 Follow this process to install a CA subsystem with a custom CA signing key, CSR, and certificate.

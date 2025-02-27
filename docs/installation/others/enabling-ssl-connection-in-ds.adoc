@@ -1,3 +1,6 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="enabling-ssl-connection-in-ds_{context}"]
 // This content was copied and adjusted from https://github.com/dogtagpki/pki/wiki/Enabling-SSL-Connection-in-DS
 = Enabling SSL Connection in DS 
 

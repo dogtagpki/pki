@@ -1,3 +1,6 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="installing-ds-packages_{context}"]
 // This was copied partially from https://github.com/dogtagpki/pki/wiki/Installing-DS-Server
 = Installing DS Packages 
 

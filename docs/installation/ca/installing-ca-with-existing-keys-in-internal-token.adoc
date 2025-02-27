@@ -1,3 +1,6 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="installing-ca-with-existing-keys-in-internal-token_{context}"]
 = Installing CA with Existing Keys in Internal Token 
 
 

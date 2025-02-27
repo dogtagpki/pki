@@ -1,3 +1,6 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="installing-est-pki-server_{context}"]
 = EST installation using `pki-server` 
 
 After the prerequisite in xref:../est/installing-est.adoc[Installing EST], it is

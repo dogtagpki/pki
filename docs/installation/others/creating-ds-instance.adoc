@@ -1,3 +1,6 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="creating-ds-instance_{context}"]
 // This content is copied and modifed from https://github.com/dogtagpki/pki/wiki/Installing-DS-Server
 //
 = Directory Server Instance Creation 

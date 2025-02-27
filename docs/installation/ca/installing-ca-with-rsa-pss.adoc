@@ -1,3 +1,6 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="installing-ca-with-rsa-pss_{context}"]
 = Installing CA with RSA/PSS
 
 Follow this process to install a CA subsystem with RSA/PSS.

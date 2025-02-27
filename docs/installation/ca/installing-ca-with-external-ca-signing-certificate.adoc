@@ -1,3 +1,6 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="installing-ca-with-external-ca-signing-certificate_{context}"]
 = Installing CA with External CA Signing Certificate 
 
 Follow this process to install a CA subsystem with an external CA signing certificate.

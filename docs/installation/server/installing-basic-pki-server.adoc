@@ -1,3 +1,6 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="installing-basic-pki-server_{context}"]
 = Installing Basic PKI Server
 
 

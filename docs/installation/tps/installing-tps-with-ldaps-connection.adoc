@@ -1,3 +1,6 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="installing-tps-with-ldaps-connection_{context}"]
 = Installing TPS with LDAPS Connection
 
 

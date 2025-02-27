@@ -1,3 +1,6 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="exporting-ds-certificates_{context}"]
 // initial content copied from https://github.com/dogtagpki/pki/wiki/Exporting-DS-Certificates
 = Exporting DS Certificates 
 
