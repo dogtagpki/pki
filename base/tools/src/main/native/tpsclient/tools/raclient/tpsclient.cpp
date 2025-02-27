@@ -22,10 +22,103 @@
 #include <string.h>
 #include <stdarg.h>
 
+#include "plstr.h"
 #include "pk11func.h"
 #include "nss.h"
 
 #include "main/RA_Client.h"
+
+void
+PrintHeader ()
+{
+  printf ("Registration Authority Client\n");
+  printf ("'op=help' for Help\n");
+}
+
+void
+PrintPrompt ()
+{
+  printf ("Command> ");
+}
+
+int
+ReadLine (char *buf, int len)
+{
+  char *cur = buf;
+
+  while (1)
+    {
+      *cur = getchar ();
+      if (*cur == '\r')
+    {
+      continue;
+    }
+      if (*cur == '\n')
+    {
+      *cur = '\0';
+      return 1;
+    }
+      cur++;
+    }
+  return 0;
+}
+
+/**
+ * Execute RA client.
+ */
+void
+Execute (RA_Client* client)
+{
+  char line[1024];
+  int rc;
+  char *op;
+  int done = 0;
+  char *lasts = NULL;
+
+  /* start main loop */
+  PrintHeader ();
+  while (!done)
+    {
+      PrintPrompt ();
+      rc = ReadLine (line, 1024);
+      printf ("%s\n", line);
+      if (rc <= 0)
+    {
+      break;        /* exit if no more line */
+    }
+      if (line[0] == '#')
+    {
+      continue;     /* ignore comment line */
+    }
+      /* format: 'op=cmd <parameters>' */
+      NameValueSet *params = NameValueSet::Parse (line, " ");
+      if (params == NULL)
+    {
+      continue;
+    }
+      op = params->GetValue ("op");
+      if (op == NULL)
+    {
+      /* user did not type op= */
+      op = PL_strtok_r (line, " ", &lasts);
+      if (op == NULL)
+        continue;
+    }
+      if (strcmp (op, "exit") == 0)
+    {
+      done = 1;
+    }
+      else
+    {
+      client->InvokeOperation (op, params);
+    }
+      if (params != NULL)
+    {
+      delete params;
+      params = NULL;
+    }
+    }
+}                              /* Execute */
 
 char *
 ownPasswd (PK11SlotInfo * slot, PRBool retry, void *arg)
@@ -84,8 +177,9 @@ main (int argc, char *argv[])
     }
 
   /* Start RA Client */
-  RA_Client client;
-  client.Execute ();
+  RA_Client* client = new RA_Client();
+  Execute(client);
+  delete client;
 
   /* Shutdown NSS and NSPR */
   NSS_Shutdown ();

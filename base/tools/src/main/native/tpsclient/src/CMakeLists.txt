@@ -41,6 +41,7 @@ set(tps_library_SRCS
     main/RA_Token.cpp
     main/Memory.cpp
     main/AuthParams.cpp
+    main/TPSClientCLI.cpp
     apdu/APDU.cpp
     apdu/Unblock_Pin_APDU.cpp
     apdu/Create_Object_APDU.cpp

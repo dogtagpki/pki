@@ -21,7 +21,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
-#include <jni.h>
 
 #include "prinrval.h"
 #include "prmem.h"
@@ -86,13 +85,6 @@ RA_Client::~RA_Client ()
 }
 
 static void
-PrintHeader ()
-{
-  printf ("Registration Authority Client\n");
-  printf ("'op=help' for Help\n");
-}
-
-static void
 Output (const char *fmt, ...)
 {
   va_list ap;
@@ -101,12 +93,6 @@ Output (const char *fmt, ...)
   vprintf (fmt, ap);
   printf ("\n");
   va_end (ap);
-}
-
-static void
-PrintPrompt ()
-{
-  printf ("Command>");
 }
 
 static void
@@ -129,28 +115,6 @@ OutputError (const char *fmt, ...)
   vprintf (fmt, ap);
   printf ("\n");
   va_end (ap);
-}
-
-static int
-ReadLine (char *buf, int len)
-{
-  char *cur = buf;
-
-  while (1)
-    {
-      *cur = getchar ();
-      if (*cur == '\r')
-	{
-	  continue;
-	}
-      if (*cur == '\n')
-	{
-	  *cur = '\0';
-	  return 1;
-	}
-      cur++;
-    }
-  return 0;
 }
 
 void
@@ -1574,69 +1538,4 @@ RA_Client::InvokeOperation (char *op, NameValueSet * params)
       OutputError ("Operation '%s' Failure (%d msec)", op,
 		   (end - start) / 1000);
     }
-}
-
-/**
- * Execute RA client.
- */
-void
-RA_Client::Execute ()
-{
-  char line[1024];
-  int rc;
-  char *op;
-  int done = 0;
-  char *lasts = NULL;
-
-  /* start main loop */
-  PrintHeader ();
-  while (!done)
-    {
-      PrintPrompt ();
-      rc = ReadLine (line, 1024);
-      printf ("%s\n", line);
-      if (rc <= 0)
-	{
-	  break;		/* exit if no more line */
-	}
-      if (line[0] == '#')
-	{
-	  continue;		/* ignore comment line */
-	}
-      /* format: 'op=cmd <parameters>' */
-      NameValueSet *params = NameValueSet::Parse (line, " ");
-      if (params == NULL)
-	{
-	  continue;
-	}
-      op = params->GetValue ("op");
-      if (op == NULL)
-	{
-	  /* user did not type op= */
-	  op = PL_strtok_r (line, " ", &lasts);
-	  if (op == NULL)
-	    continue;
-	}
-      if (strcmp (op, "exit") == 0)
-	{
-	  done = 1;
-	}
-      else
-	{
-	  InvokeOperation (op, params);
-	}
-      if (params != NULL)
-	{
-	  delete params;
-	  params = NULL;
-	}
-    }
-}				/* Execute */
-
-extern "C" JNIEXPORT void JNICALL
-Java_com_netscape_cmstools_tps_TPSClientCLI_execute
-(JNIEnv* env, jclass clazz)
-{
-    RA_Client client;
-    client.Execute();
 }

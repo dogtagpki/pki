@@ -68,7 +68,6 @@ class RA_Client
 	  int OpExit(NameValueSet *set);
   public:
 	  void Debug(const char *func_name, const char *fmt, ...);
-	  void Execute();
 	  void InvokeOperation(char *op, NameValueSet *set);
   public:
 	  RA_Token m_token;
