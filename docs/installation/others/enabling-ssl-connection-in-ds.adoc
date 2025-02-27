@@ -1,0 +1,154 @@
+// This content was copied and adjusted from https://github.com/dogtagpki/pki/wiki/Enabling-SSL-Connection-in-DS
+= Enabling SSL Connection in DS 
+
+Follow this process to enable SSL connection in DS
+using a self-signed signing certificate and server certificate
+created using link:PKI-NSS-CLI.adoc[PKI NSS CLI] commands.
+
+This section assumes that a DS instance named `localhost` already exists,
+it does not have certificates, and the SSL connection is disabled.
+
+*Note:* In newer DS versions the certificates are created and the SSL connection is enabled by default,
+so it's not necessary to follow this procedure.
+
+== Creating DS Signing Certificate 
+
+First, generate DS signing CSR with the following command:
+
+----
+$ pki \
+    -d /etc/dirsrv/slapd-localhost \
+    -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
+    nss-cert-request \
+    --subject "CN=DS Signing Certificate" \
+    --ext /usr/share/pki/server/certs/ca_signing.conf \
+    --csr ds_signing.csr
+----
+
+Next, issue DS signing certificate:
+
+----
+$ pki \
+    -d /etc/dirsrv/slapd-localhost \
+    -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
+    nss-cert-issue \
+    --csr ds_signing.csr \
+    --ext /usr/share/pki/server/certs/ca_signing.conf \
+    --cert ds_signing.crt
+----
+
+Finally, import DS signing certificate:
+
+----
+$ pki \
+    -d /etc/dirsrv/slapd-localhost \
+    -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
+    nss-cert-import \
+    --cert ds_signing.crt \
+    --trust CT,C,C \
+    Self-Signed-CA
+----
+
+To verify the DS signing certificate:
+
+----
+$ certutil -L -d /etc/dirsrv/slapd-localhost -n Self-Signed-CA
+...
+    Certificate Trust Flags:
+        SSL Flags:
+            Valid CA
+            Trusted CA
+            User
+            Trusted Client CA
+        Email Flags:
+            Valid CA
+            Trusted CA
+            User
+        Object Signing Flags:
+            Valid CA
+            Trusted CA
+            User
+----
+
+== Creating DS Server Certificate 
+
+First, generate DS server CSR with the following command:
+
+----
+$ pki \
+    -d /etc/dirsrv/slapd-localhost \
+    -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
+    nss-cert-request \
+    --subject "CN=$HOSTNAME" \
+    --ext /usr/share/pki/server/certs/sslserver.conf \
+    --csr ds_server.csr
+----
+
+Next, issue DS server certificate:
+
+----
+$ pki \
+    -d /etc/dirsrv/slapd-localhost \
+    -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
+    nss-cert-issue \
+    --issuer Self-Signed-CA \
+    --csr ds_server.csr \
+    --ext /usr/share/pki/server/certs/sslserver.conf \
+    --cert ds_server.crt
+----
+
+Finally, import DS server certificate:
+
+----
+$ pki \
+    -d /etc/dirsrv/slapd-localhost \
+    -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
+    nss-cert-import \
+    --cert ds_server.crt \
+    Server-Cert
+----
+
+To verify the DS server certificate:
+
+----
+$ certutil -L -d /etc/dirsrv/slapd-localhost -n Server-Cert
+...
+    Certificate Trust Flags:
+        SSL Flags:
+            User
+        Email Flags:
+            User
+        Object Signing Flags:
+            User
+----
+
+== Enabling SSL Connection 
+
+To enable SSL connection in the DS instance:
+
+----
+$ dsconf localhost config replace nsslapd-security=on
+----
+
+Finally, restart the DS instance:
+
+----
+$ dsctl localhost restart
+----
+
+To verify the SSL connection:
+
+----
+$ LDAPTLS_REQCERT=never ldapsearch \
+    -H ldaps://$HOSTNAME:636 \
+    -x \
+    -D "cn=Directory Manager" \
+    -w Secret.123 \
+    -b "" \
+    -s base
+----
+
+== See Also 
+
+* link:https://www.port389.org/docs/389ds/howto/howto-ssl.html[Configuring TLS/SSL Enabled 389 Directory Server]
+* link:https://access.redhat.com/documentation/en-us/red_hat_directory_server/11/html/administration_guide/enabling_tls#doc-wrapper[RHDS 11: Enabling TLS]

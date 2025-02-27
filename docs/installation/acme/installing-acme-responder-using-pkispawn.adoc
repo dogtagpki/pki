@@ -1,0 +1,115 @@
+= Installing ACME Responder using pkispawn =
+
+Follow this process to install an ACME responder on a PKI server that already has a CA subsystem using `pkispawn` command.
+
+In general `pkispawn` provides a simpler way compared to link:installing-acme-responder-using-pki-server-acme-cli.adoc[`pki-server acme`] for installing ACME responder.
+If there is a problem during installation, the entire process might need to be restarted.
+
+== Prerequisites ==
+
+This document assumes that the following DS service is available to use as ACME database and ACME realm:
+
+* URL: `ldap://ds.example.com:3389`
+* Bind DN: `cn=Directory Manager`
+* Bind password: `Secret.123`
+
+It also assumes that the following CA service is available to use as ACME issuer:
+
+* URL: `https://pki.example.com:8443`
+* Username: `caadmin`
+* Password: `Secret.123`
+
+== Setting Up ACME Database ==
+
+To import the DS schema for ACME database:
+
+----
+$ ldapmodify \
+    -H ldap://ds.example.com:3389 \
+    -D "cn=Directory Manager" \
+    -w Secret.123 \
+    -f /usr/share/pki/acme/database/ds/schema.ldif
+----
+
+To create the DS indexes for ACME database:
+
+----
+$ ldapadd \
+    -H ldap://ds.example.com:3389 \
+    -D "cn=Directory Manager" \
+    -w Secret.123 \
+    -f /usr/share/pki/acme/database/ds/index.ldif
+----
+
+To create the DS subtrees for ACME database:
+
+----
+$ ldapadd \
+    -H ldap://ds.example.com:3389 \
+    -D "cn=Directory Manager" \
+    -w Secret.123 \
+    -f /usr/share/pki/acme/database/ds/create.ldif
+----
+
+== Setting Up ACME Realm ==
+
+To create the DS subtrees for ACME realm:
+
+----
+$ ldapadd \
+    -H ldap://ds.example.com:3389 \
+    -D "cn=Directory Manager" \
+    -w Secret.123 \
+    -f /usr/share/pki/acme/realm/ds/create.ldif
+----
+
+== Installing ACME Responder ==
+
+To create and deploy ACME responder in PKI server execute the following command:
+
+----
+$ pkispawn \
+    -f /usr/share/pki/server/examples/installation/acme.cfg \
+    -s ACME \
+    -D acme_database_url=ldap://ds.example.com:3389 \
+    -D acme_issuer_url=https://pki.example.com:8443 \
+    -D acme_realm_url=ldap://ds.example.com:3389
+----
+
+The configuration files are available in `/var/lib/pki/pki-tomcat/conf/acme` folder.
+
+See also link:../../admin/acme/Configuring-ACME-Responder.adoc[Configuring ACME Responder].
+
+== Verifying ACME Responder ==
+
+To verify that the ACME responder is running, execute the following command:
+
+----
+$ curl -s -k https://pki.example.com:8443/acme/directory | python -m json.tool
+{
+    "meta": {
+        "caaIdentities": [
+            "example.com"
+        ],
+        "externalAccountRequired": false,
+        "termsOfService": "https://www.example.com/acme/tos.pdf",
+        "website": "https://www.example.com"
+    },
+    "newAccount": "https://pki.example.com:8443/acme/new-account",
+    "newNonce": "https://pki.example.com:8443/acme/new-nonce",
+    "newOrder": "https://pki.example.com:8443/acme/new-order",
+    "revokeCert": "https://pki.example.com:8443/acme/revoke-cert"
+}
+----
+
+== Removing ACME Responder ==
+
+To undeploy and remove the ACME responder execute the following command:
+
+----
+$ pkidestroy -s ACME
+----
+
+== See Also ==
+
+* link:../../manuals/man8/pkispawn.8.md[pkispawn(8)]

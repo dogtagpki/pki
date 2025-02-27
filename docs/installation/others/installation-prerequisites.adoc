@@ -1,0 +1,8 @@
+= Installation Prerequisites
+
+This section contains the generic prerequisites required prior to installing a PKI subsystem.  Some installation might need additional or different setups.
+
+* link:fqdn-configuration.adoc[Setting the FQDN of the host system]
+
+* link:creating-ds-instance.adoc[Creating a directory server instance and adding base entries]
+
