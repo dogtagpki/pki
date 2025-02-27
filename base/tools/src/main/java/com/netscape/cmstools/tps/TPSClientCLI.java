@@ -5,7 +5,12 @@
 //
 package com.netscape.cmstools.tps;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.cmstools.cli.MainCLI;
@@ -33,7 +38,33 @@ public class TPSClientCLI extends CommandCLI {
         formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
-    public native void execute() throws Exception;
+    public Map<String, String> parse(String line) {
+
+        logger.info("Parsing " + line);
+
+        Map<String, String> map = new HashMap<>();
+
+        for (String param : line.split(" ")) {
+
+            String[] parts = param.split("=", 2);
+            String key = parts[0];
+            String value = parts[1];
+            logger.info("- " + key + ": " + value);
+
+            map.put(key, value);
+        }
+
+        return map;
+    }
+
+    public native long createClient() throws Exception;
+    public native void removeClient(long client) throws Exception;
+
+    public native void invokeOperation(
+            long client,
+            String op,
+            Map<String, String> params)
+            throws Exception;
 
     @Override
     public void execute(CommandLine cmd) throws Exception {
@@ -41,6 +72,44 @@ public class TPSClientCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        execute();
+        System.out.println("TPS Client");
+        System.out.println("'op=help' for Help");
+
+        long client = createClient();
+
+        try (Scanner input = new Scanner(System.in)) {
+            while (true) {
+                System.out.print("Command> ");
+                System.out.flush();
+
+                String line = input.nextLine();
+
+                if (line == null) {
+                    break;
+                }
+
+                System.out.println(line);
+
+                if (StringUtils.isBlank(line)) {
+                    continue;
+                }
+
+                if (line.startsWith("#")) {
+                    continue;
+                }
+
+                Map<String, String> params = parse(line);
+                String op = params.get("op");
+
+                if ("exit".equals(op)) {
+                    break;
+                }
+
+                invokeOperation(client, op, params);
+            }
+
+        } finally {
+            removeClient(client);
+        }
     }
 }
