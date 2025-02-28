@@ -70,26 +70,6 @@ jobs:
 
           diff expected actual
 
-      - name: Check DS user
-        run: |
-            cat > expected << EOF
-            dn: uid=pkidbuser,ou=People,dc=ca,dc=pki,dc=example,dc=com
-            nsPagedSizeLimit: 20000
-
-            EOF
-
-            docker exec ds ldapsearch \
-                -H ldap://ds.example.com:3389 \
-                -D "cn=Directory Manager" \
-                -w Secret.123 \
-                -o ldif_wrap=no \
-                -LLL \
-                -b "uid=pkidbuser,ou=People,dc=ca,dc=pki,dc=example,dc=com" \
-                nsPagedSizeLimit \
-                | tee actual
-
-            diff expected actual
-
       - name: Initialize PKI client
         run: |
           docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt

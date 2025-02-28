@@ -159,11 +159,29 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('Setting up admin user')
             deployer.setup_admin_user(subsystem, admin_cert)
 
-        if not config.str2bool(deployer.mdict['pki_share_db']) \
-                and not clone \
-                and config.str2bool(deployer.mdict['pki_ds_setup']):
-            logger.info('Setting up database user')
-            deployer.setup_database_user(subsystem)
+        # For security a subsystem can be configured to use a database user that
+        # only has a limited access to the database (instead of using cn=Directory
+        # Manager that has a full access to the database).
+        #
+        # If the database user DN is specified (pki_share_dbuser_dn), and the
+        # subsystem needs a database setup (pki_ds_setup=True), then the user will
+        # be set up (if needed) and granted access to the database.
+
+        dbuser_dn = deployer.mdict.get('pki_share_dbuser_dn')
+        if dbuser_dn and config.str2bool(deployer.mdict['pki_ds_setup']):
+
+            # If the subsystem doesn't use a shared database (pki_share_db=False)
+            # and it's not a clone (pki_clone=False), that means it's the first
+            # subsystem to be installed, so it will set up the database user.
+
+            if not config.str2bool(deployer.mdict['pki_share_db']) and not clone:
+                logger.info('Setting up database user: %s', dbuser_dn)
+                deployer.setup_database_user(subsystem, dbuser_dn)
+
+            # Database access needs to be granted on each replica.
+
+            logger.info('Granting database access to %s', dbuser_dn)
+            subsystem.grant_database_access(dbuser_dn)
 
         deployer.finalize_subsystem(subsystem)
 

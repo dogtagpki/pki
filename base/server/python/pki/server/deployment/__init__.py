@@ -1755,22 +1755,6 @@ class PKIDeployer:
                 config.str2bool(self.mdict['pki_clone_setup_replication']):
             self.setup_replication(subsystem, master_config)
 
-        # For security a PKI subsystem can be configured to use a database user
-        # that only has a limited access to the database (instead of cn=Directory
-        # Manager that has a full access to the database).
-        #
-        # The default database user is uid=pkidbuser,ou=people,<subsystem base DN>.
-        # However, if the subsystem is configured to share the database with another
-        # subsystem (pki_share_db=True), it can also be configured to use the same
-        # database user (pki_share_dbuser_dn).
-
-        if config.str2bool(self.mdict['pki_share_db']):
-            dbuser = self.mdict['pki_share_dbuser_dn']
-        else:
-            dbuser = 'uid=pkidbuser,ou=people,' + self.mdict['pki_ds_base_dn']
-
-        subsystem.grant_database_access(dbuser)
-
         # Always create search and VLV indexes since they will not be replicated
         subsystem.add_indexes()
 
@@ -4341,11 +4325,33 @@ class PKIDeployer:
         finally:
             shutil.rmtree(tmpdir)
 
-    def setup_database_user(self, subsystem):
+    def setup_database_user(self, subsystem, dbuser_dn):
+        '''
+        Set up database user.
 
+        This will create the database user, link the user to the subsystem cert,
+        unlink other users from the cert, and add the user into several groups as
+        a workaround for an authorization issue.
+        '''
+
+        # find uid attribute
+        dbuser_uid = None
+        for rdn in ldap.dn.str2dn(dbuser_dn):
+            for part in rdn:
+                if 'uid' == part[0]:
+                    dbuser_uid = part[1]
+                    break
+            else:
+                continue  # uid not found -> keep looking
+            break  # uid found -> done
+
+        if not dbuser_uid:
+            raise pki.cli.CLIException('Missing uid attribute: %s' % dbuser_uid)
+
+        # add database user
         subsystem.add_user(
-            'pkidbuser',
-            full_name='pkidbuser',
+            dbuser_uid,
+            full_name=dbuser_uid,
             user_type='agentType',
             state='1',
             attributes={
@@ -4364,15 +4370,15 @@ class PKIDeployer:
         finally:
             nssdb.close()
 
-        logger.info('Adding subsystem cert into pkidbuser')
+        logger.info('Adding subsystem cert into %s', dbuser_uid)
         subsystem.add_user_cert(
-            'pkidbuser',
+            dbuser_uid,
             cert_data=cert_data,
             cert_format='PEM',
             ignore_duplicate=True)
 
-        logger.info('Linking pkidbuser to subsystem cert: %s', subject)
-        subsystem.modify_user('pkidbuser', add_see_also=subject)
+        logger.info('Linking %s to subsystem cert: %s', dbuser_uid, subject)
+        subsystem.modify_user(dbuser_uid, add_see_also=subject)
 
         logger.info('Finding other users linked to subsystem cert')
         users = subsystem.find_users(see_also=subject)
@@ -4380,10 +4386,10 @@ class PKIDeployer:
         for user in users['entries']:
             uid = user['id']
 
-            if uid == 'pkidbuser':
+            if uid == dbuser_uid:
                 continue
 
-            logger.info('Unlinking %s from subsystem cert ', uid)
+            logger.info('Unlinking %s from subsystem cert', uid)
             subsystem.modify_user(uid, del_see_also=subject)
 
         # workaround for https://github.com/dogtagpki/pki/issues/2154
@@ -4404,8 +4410,8 @@ class PKIDeployer:
             groups = []
 
         for group in groups:
-            logger.info('Adding pkidbuser into %s', group)
-            subsystem.add_group_member(group, 'pkidbuser')
+            logger.info('Adding %s into %s', dbuser_uid, group)
+            subsystem.add_group_member(group, dbuser_uid)
 
     def add_subsystem_user(
             self,
