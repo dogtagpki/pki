@@ -251,25 +251,6 @@ jobs:
               --csr admin.csr \
               --profile /usr/share/pki/ca/conf/rsaAdminCert.profile
 
-      # https://github.com/dogtagpki/pki/wiki/Setting-up-CA-Database-User
-      - name: Add database user
-        run: |
-          docker exec pki pki-server ca-user-add \
-              --full-name pkidbuser \
-              --type agentType \
-              --cert /var/lib/pki/pki-tomcat/conf/certs/subsystem.crt \
-              pkidbuser
-
-      - name: Assign roles to database user
-        run: |
-          docker exec pki pki-server ca-user-role-add pkidbuser "Subsystem Group"
-          docker exec pki pki-server ca-user-role-add pkidbuser "Certificate Manager Agents"
-
-      - name: Grant database access to database user
-        run: |
-          docker exec pki pki-server ca-db-access-grant \
-              uid=pkidbuser,ou=people,dc=ca,dc=pki,dc=example,dc=com
-
       # https://github.com/dogtagpki/pki/wiki/Setting-up-Security-Domain
       - name: Create security domain database
         run: |
