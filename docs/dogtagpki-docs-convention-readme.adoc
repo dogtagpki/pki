@@ -26,5 +26,5 @@ See installation/ca/installing-ca.adoc for example.
 *** [literal,subs="+quotes,verbatim"]
 * use a pair of backticks around words that are literal such as file names or commands
 * do not use future tense (e.g. 'will', "will be", etc.).  Use present tense instead.
-* Create PR and request for reviews from members of the dogtag pki engineering team
+* Create PR and request for reviews from members of the dogtag pki team (and doc team if applicable)
 
