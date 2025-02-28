@@ -21,7 +21,7 @@ See installation/ca/installing-ca.adoc for example.
 * Do not use “e.g.”.  Use “for example” instead
 * Quoted blocks (“....” v.s. “----”)
 ** Use “....” for commands or other smaller blocks
-** Use “----” block brackets for pkispawn cfg file samples
+** Use “----” block brackets for code blocks or content of a file such as pkispawn cfg file samples
 ** Add the following line above beginning of each block:
 *** [literal,subs="+quotes,verbatim"]
 * use a pair of backticks around words that are literal such as file names or commands
