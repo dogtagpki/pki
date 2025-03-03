@@ -55,11 +55,24 @@ jar(pki-tools-jar
 add_dependencies(java pki-tools-jar)
 
 if(WITH_JAVA)
+    # install pki-tools.jar in /usr/lib/java/pki
     install(
         FILES
             ${PKI_TOOLS_JAR}
         DESTINATION
-            ${JAVA_JAR_INSTALL_DIR}/pki
+            ${JAVA_LIB_INSTALL_DIR}/pki
+    )
+
+    # create link to pki-tools.jar in /usr/share/java/pki
+    install(
+        CODE "
+            MESSAGE(
+                \"-- Installing: \$ENV{DESTDIR}${JAVA_JAR_INSTALL_DIR}/pki/pki-tools.jar\"
+            )
+            execute_process(
+                COMMAND ln -sf ../../../..${JAVA_LIB_INSTALL_DIR}/pki/pki-tools.jar \$ENV{DESTDIR}${JAVA_JAR_INSTALL_DIR}/pki
+            )
+        "
     )
 endif(WITH_JAVA)
 

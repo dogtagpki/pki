@@ -1349,6 +1349,22 @@ pkgs=base\
 %if %{with maven}
 # install Java binaries
 %mvn_install
+
+# Normally JAR files are installed in /usr/share/java/pki.
+# Since pki-tools.jar uses JNI Maven might install it in
+# /usr/lib/java/pki or /usr/share/java/pki depending on the
+# build environment.
+find %{buildroot} -name "*.jar"
+
+# Create link to ensure pki-tools.jar is available at both locations.
+if [ -e %{buildroot}%{_jnidir}/pki/pki-tools.jar ]; then
+   ln -sf ../../../..%{_jnidir}/pki/pki-tools.jar %{buildroot}%{_javadir}/pki
+else
+   mkdir -p %{buildroot}%{_jnidir}/pki
+   ln -sf ../../../..%{_javadir}/pki/pki-tools.jar %{buildroot}%{_jnidir}/pki
+fi
+
+# with maven
 %endif
 
 # install PKI console, Javadoc, and native binaries
@@ -1760,10 +1776,8 @@ fi
 %{_mandir}/man1/PKCS10Client.1.gz
 %{_mandir}/man1/PKICertImport.1.gz
 %{_mandir}/man1/tpsclient.1.gz
-
-%if %{without maven}
-%{_datadir}/java/pki/pki-tools.jar
-%endif
+%{_javadir}/pki/pki-tools.jar
+%{_jnidir}/pki/pki-tools.jar
 
 # with base
 %endif
