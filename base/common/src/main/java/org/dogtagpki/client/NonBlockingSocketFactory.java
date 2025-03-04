@@ -82,7 +82,11 @@ public class NonBlockingSocketFactory implements SchemeLayeredSocketFactory {
             JSSTrustManager trustManager = new JSSTrustManager();
             trustManager.setHostname(hostname);
             trustManager.setCallback(connection.getCallback());
-	    trustManager.setEnableCertRevokeVerify(true);
+
+            boolean revocationCheck = Boolean.parseBoolean(System.getProperty("revocationCheck", "True"));
+            logger.debug("NonBlockingSocketFactory: revocationCheck: " + revocationCheck);
+            
+            trustManager.setEnableCertRevokeVerify(revocationCheck);
 
             TrustManager[] tms = new TrustManager[] { trustManager };
 
