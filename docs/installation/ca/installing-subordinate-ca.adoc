@@ -1,36 +1,34 @@
 :_mod-docs-content-type: PROCEDURE
 
 [id="installing-subordinate-ca_{context}"]
-= Installing Subordinate CA 
+= Installing a subordinate CA 
 
-Follow this process to install a subordinate CA subsystem
-with a signing certificate issued by a root CA.
+Follow this process to install a subordinate CA subsystem with a signing certificate issued by a root CA.
 
-Prior to installation, please ensure that the link:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
+Prior to installation, ensure that the link:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
 
-== Subordinate CA Subsystem Installation 
+== Subordinate CA subsystem installation 
+
 Prepare a file, for example `subca.cfg`, that contains the deployment configuration.
 
 A sample deployment configuration is available at link:../../../base/server/examples/installation/subca.cfg[/usr/share/pki/server/examples/installation/subca.cfg].
-It assumes that the root CA is already running at https://root.example.com:8443
-and the root CA signing certificate has been exported into `root-ca_signing.crt`.
 
-Then execute the following command:
+It assumes that the root CA is already running at https://root.example.com:8443 and the root CA signing certificate has been exported into `root-ca_signing.crt`.
 
+Execute the following command:
 [literal,subs="+quotes,verbatim"]
 ....
 $ pkispawn -f subca.cfg -s CA
 ....
 
-It will install subordinate CA subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
+By default, the subordinate CA subsystem is installed into a Tomcat instance called `pki-tomcat` and creates the following NSS databases:
 
-* server NSS database: /var/lib/pki/pki-tomcat/conf/alias
-* admin NSS database: ~/.dogtag/pki-tomcat/ca/alias
+* Server NSS database: /var/lib/pki/pki-tomcat/conf/alias
+* Admin NSS database: ~/.dogtag/pki-tomcat/ca/alias
 
-== Verifying System Certificates 
+== Verifying the system certificates 
 
 Verify that the server NSS database contains the following certificates:
-
 [literal,subs="+quotes,verbatim"]
 ....
 $ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
@@ -45,24 +43,21 @@ ca_audit_signing                                             u,u,Pu
 sslserver                                                    u,u,u
 ....
 
-== Verifying Admin Certificate 
+== Verifying the admin certificate 
 
-Prepare a client NSS database, for example `~/.dogtag/nssdb`:
-
+. Prepare a client NSS database, for example `~/.dogtag/nssdb`:
 [literal,subs="+quotes,verbatim"]
 ....
 $ pki client-init
 ....
 
-Import the root CA signing certificate:
-
+. Import the root CA signing certificate:
 [literal,subs="+quotes,verbatim"]
 ....
 $ pki client-cert-import ca_signing --ca-cert root-ca_signing.crt
 ....
 
-Import admin key and certificate:
-
+. Import the admin key and certificate:
 [literal,subs="+quotes,verbatim"]
 ....
 $ pki pkcs12-import \
@@ -70,8 +65,7 @@ $ pki pkcs12-import \
     --pkcs12-password Secret.123
 ....
 
-Verify that the admin certificate can be used to access the subordinate CA subsystem by executing the following command:
-
+. Verify that the admin certificate can be used to access the subordinate CA subsystem by executing the following command:
 [literal,subs="+quotes,verbatim"]
 ....
 $ pki -n caadmin ca-user-show caadmin
