@@ -54,6 +54,7 @@ jobs:
               -f /usr/share/pki/server/examples/installation/ca.cfg \
               -s CA \
               -D pki_ds_url=ldap://rootds.example.com:3389 \
+              -D pki_audit_signing_nickname= \
               -v
 
       - name: Check root CA server status
@@ -100,6 +101,7 @@ jobs:
               -s CA \
               -D pki_cert_chain_path=${SHARED}/root-ca_signing.crt \
               -D pki_ds_url=ldap://subds.example.com:3389 \
+              -D pki_audit_signing_nickname= \
               -v
 
       - name: Check sub CA server status
@@ -135,14 +137,6 @@ jobs:
           docker exec subordinate openssl req -text -noout \
               -in /var/lib/pki/pki-tomcat/conf/certs/ca_ocsp_signing.csr
           docker exec subordinate openssl x509 -text -noout -in ca_ocsp_signing.crt
-
-      - name: Check CA audit signing cert
-        run: |
-          docker exec subordinate pki-server cert-export ca_audit_signing \
-              --cert-file ca_audit_signing.crt
-          docker exec subordinate openssl req -text -noout \
-              -in /var/lib/pki/pki-tomcat/conf/certs/ca_audit_signing.csr
-          docker exec subordinate openssl x509 -text -noout -in ca_audit_signing.crt
 
       - name: Check subsystem cert
         run: |

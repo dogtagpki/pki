@@ -888,21 +888,30 @@ class SubsystemCertFindCLI(pki.cli.CLI):
                          subsystem_name, instance_name)
             sys.exit(1)
 
-        certs = subsystem.get_cert_infos()
-
-        self.print_message('%s entries matched' % len(certs))
+        # get cert tags in subsystem
+        cert_tags = subsystem.get_subsystem_certs()
+        self.print_message('%s entries matched' % len(cert_tags))
 
         first = True
-        for cert in certs:
+        for cert_tag in cert_tags:
+
+            # get cert config
+            cert = subsystem.get_cert_info(cert_tag)
+            logger.info('  nickname: %s', cert['nickname'])
+
+            # if nickname not available, skip
+            if not cert['nickname']:
+                continue
+
             if first:
                 first = False
             else:
                 print()
 
-            if cert['nickname']:
-                cert_info = subsystem.get_nssdb_cert_info(cert['id'])
-                if cert_info:
-                    cert.update(cert_info)
+            # get cert info from NSS database
+            cert_info = subsystem.get_nssdb_cert_info(cert_tag)
+            if cert_info:
+                cert.update(cert_info)
 
             SubsystemCertCLI.print_subsystem_cert(cert, show_all)
 

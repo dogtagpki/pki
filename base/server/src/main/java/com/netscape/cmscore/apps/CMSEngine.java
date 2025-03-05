@@ -1944,11 +1944,19 @@ public class CMSEngine {
                 throw new Exception("Missing " + id + ".cert.list in CS.cfg");
             }
 
+            LoggerConfig loggerConfig = config.getLoggingConfig().getLoggersConfig().getLoggerConfig("SignedAudit");
+            String auditSigningNickname = loggerConfig.getSignedAuditCertNickname();
+
             StringTokenizer tokenizer = new StringTokenizer(certlist, ",");
             while (tokenizer.hasMoreTokens()) {
                 String tag = tokenizer.nextToken();
                 tag = tag.trim();
                 logger.debug("CMSEngine: verifySystemCerts() cert tag=" + tag);
+
+                // if audit signing nickname not configured, skip
+                if ("audit_signing".equals(tag) && StringUtils.isEmpty(auditSigningNickname)) {
+                    continue;
+                }
 
                 if (!checkValidityOnly) {
                     verifySystemCertByTag(tag);

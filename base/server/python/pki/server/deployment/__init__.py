@@ -2615,7 +2615,7 @@ class PKIDeployer:
         if subsystem.name == 'ocsp':
             subsystem.validate_system_cert('signing')
 
-        if self.mdict['pki_audit_signing_nickname']:
+        if self.mdict.get('pki_audit_signing_nickname'):
             subsystem.validate_system_cert('audit_signing')
 
         subsystem.validate_system_cert('sslserver')
@@ -3658,6 +3658,8 @@ class PKIDeployer:
         external = config.str2bool(self.mdict['pki_external']) or \
             config.str2bool(self.mdict['pki_standalone'])
 
+        audit_signing_nickname = self.mdict.get('pki_audit_signing_nickname')
+
         tags = subsystem.get_subsystem_certs()
 
         for tag in tags:
@@ -3677,6 +3679,10 @@ class PKIDeployer:
 
             if tag == 'subsystem' and num_subsystems > 1:
                 logger.info('subsystem cert is already set up')
+                continue
+
+            # if audit signing nickname not configured, skip
+            if tag == 'audit_signing' and not audit_signing_nickname:
                 continue
 
             # For external/standalone KRA/OCSP/TKS/TPS case, all system certs will be provided.
@@ -3706,15 +3712,15 @@ class PKIDeployer:
                 nickname=full_name,
                 trust_attributes='CTu,Cu,Cu')
 
-        if self.mdict['pki_audit_signing_nickname']:
+        if audit_signing_nickname:
 
             logger.info('Setting up %s audit signing cert trust flags', subsystem.type)
 
             token = self.mdict['pki_audit_signing_token']
             if pki.nssdb.internal_token(token):
-                full_name = self.mdict['pki_audit_signing_nickname']
+                full_name = audit_signing_nickname
             else:
-                full_name = token + ':' + self.mdict['pki_audit_signing_nickname']
+                full_name = token + ':' + audit_signing_nickname
 
             nssdb.modify_cert(
                 nickname=full_name,

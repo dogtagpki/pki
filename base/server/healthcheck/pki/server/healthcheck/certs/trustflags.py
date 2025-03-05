@@ -45,11 +45,18 @@ class CASystemCertTrustFlagCheck(CertsPlugin):
             logger.info("No CA configured, skipping CA System Cert Trust Flag check")
             return
 
+        audit_signing_nickname = ca.config.get(
+            'log.instance.SignedAudit.signedAuditCertNickname')
+
         certs = ca.find_system_certs()
 
         # Iterate on CA's all system certificate to check with list of expected trust flags
         for cert in certs:
             cert_id = cert['id']
+
+            # if audit signing nickname not configured, skip
+            if cert_id == 'audit_signing' and not audit_signing_nickname:
+                continue
 
             # Load cert trust from NSSDB
             with nssdb_connection(self.instance) as nssdb:
@@ -109,11 +116,18 @@ class KRASystemCertTrustFlagCheck(CertsPlugin):
             logger.info("No KRA configured, skipping KRA System Cert Trust Flag check")
             return
 
+        audit_signing_nickname = kra.config.get(
+            'log.instance.SignedAudit.signedAuditCertNickname')
+
         certs = kra.find_system_certs()
 
         # Iterate on KRA's all system certificate to check with list of expected trust flags
         for cert in certs:
             cert_id = cert['id']
+
+            # if audit signing nickname not configured, skip
+            if cert_id == 'audit_signing' and not audit_signing_nickname:
+                continue
 
             # Load cert trust from NSSDB
             with nssdb_connection(self.instance) as nssdb:
@@ -172,11 +186,18 @@ class OCSPSystemCertTrustFlagCheck(CertsPlugin):
             logger.info("No OCSP configured, skipping OCSP System Cert Trust Flag check")
             return
 
+        audit_signing_nickname = ocsp.config.get(
+            'log.instance.SignedAudit.signedAuditCertNickname')
+
         certs = ocsp.find_system_certs()
 
         # Iterate on OCSP's all system certificate to check with list of expected trust flags
         for cert in certs:
             cert_id = cert['id']
+
+            # if audit signing nickname not configured, skip
+            if cert_id == 'audit_signing' and not audit_signing_nickname:
+                continue
 
             # Load cert trust from NSSDB
             with nssdb_connection(self.instance) as nssdb:
@@ -234,11 +255,18 @@ class TKSSystemCertTrustFlagCheck(CertsPlugin):
             logger.info("No TKS configured, skipping TKS System Cert Trust Flag check")
             return
 
+        audit_signing_nickname = tks.config.get(
+            'log.instance.SignedAudit.signedAuditCertNickname')
+
         certs = tks.find_system_certs()
 
         # Iterate on TKS's all system certificate to check with list of expected trust flags
         for cert in certs:
             cert_id = cert['id']
+
+            # if audit signing nickname not configured, skip
+            if cert_id == 'audit_signing' and not audit_signing_nickname:
+                continue
 
             # Load cert trust from NSSDB
             with nssdb_connection(self.instance) as nssdb:
@@ -296,11 +324,18 @@ class TPSSystemCertTrustFlagCheck(CertsPlugin):
             logger.info("No TPS configured, skipping TPS System Cert Trust Flag check")
             return
 
+        audit_signing_nickname = tps.config.get(
+            'log.instance.SignedAudit.signedAuditCertNickname')
+
         certs = tps.find_system_certs()
 
         # Iterate on TPS's all system certificate to check with list of expected trust flags
         for cert in certs:
             cert_id = cert['id']
+
+            # if audit signing nickname not configured, skip
+            if cert_id == 'audit_signing' and not audit_signing_nickname:
+                continue
 
             # Load cert trust from NSSDB
             with nssdb_connection(self.instance) as nssdb:

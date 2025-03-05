@@ -167,16 +167,23 @@ class CertFindCLI(pki.cli.CLI):
 
         for subsystem in instance.get_subsystems():
 
-            # Retrieve the subsystem's system certificate
-            certs = subsystem.find_system_certs()
+            # get cert tags in subsystem
+            cert_tags = subsystem.get_subsystem_certs()
 
-            # Iterate on all subsystem's system certificate to prepend subsystem name to the ID
-            for cert in certs:
+            for cert_tag in cert_tags:
 
+                # get cert config
+                cert = subsystem.get_cert_info(cert_tag)
+
+                # if nickname not available, skip
+                if not cert['nickname']:
+                    continue
+
+                # prepend subsystem name to cert tag creating global cert ID
                 if cert['id'] != 'sslserver' and cert['id'] != 'subsystem':
                     cert['id'] = subsystem.name + '_' + cert['id']
 
-                # Append only unique certificates to other subsystem certificate list
+                # if cert already processed, skip
                 if cert['id'] in results:
                     continue
 
@@ -186,6 +193,11 @@ class CertFindCLI(pki.cli.CLI):
                     first = False
                 else:
                     print()
+
+                # get cert info from NSS database
+                cert_info = subsystem.get_nssdb_cert_info(cert_tag)
+                if cert_info:
+                    cert.update(cert_info)
 
                 CertCLI.print_system_cert(cert, show_all)
 
