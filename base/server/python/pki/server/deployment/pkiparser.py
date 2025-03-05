@@ -638,10 +638,6 @@ class PKIConfigParser:
         # get cert token
         token = self.mdict.get(name)
 
-        # if not specified, get default token name
-        if not token:
-            token = self.mdict.get('pki_token_name')
-
         # DO NOT normalise the token name here, to avoid re-interpreting
         # the internal token as the default token.
 
