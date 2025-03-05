@@ -52,6 +52,7 @@ jobs:
               -f /usr/share/pki/server/examples/installation/ca.cfg \
               -s CA \
               -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_audit_signing_nickname= \
               -v
 
       - name: Check PKI server base dir after installation
@@ -263,14 +264,6 @@ jobs:
               -in /var/lib/pki/pki-tomcat/conf/certs/ca_ocsp_signing.csr
           docker exec pki openssl x509 -text -noout -in ca_ocsp_signing.crt
 
-      - name: Check CA audit signing cert
-        run: |
-          docker exec pki pki-server cert-export ca_audit_signing \
-              --cert-file ca_audit_signing.crt
-          docker exec pki openssl req -text -noout \
-              -in /var/lib/pki/pki-tomcat/conf/certs/ca_audit_signing.csr
-          docker exec pki openssl x509 -text -noout -in ca_audit_signing.crt
-
       - name: Check subsystem cert
         run: |
           docker exec pki pki-server cert-export subsystem \
@@ -298,6 +291,17 @@ jobs:
       - name: Run PKI healthcheck
         run: docker exec pki pki-healthcheck --failures-only
 
+      - name: Install CA admin cert
+        run: |
+          docker exec pki pki nss-cert-import \
+              --cert $SHARED/ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
+          docker exec pki pki pkcs12-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password Secret.123
+
       - name: Update CA configuration
         run: |
           docker exec pki dnf install -y xmlstarlet
@@ -312,25 +316,58 @@ jobs:
               -v "false" \
               /etc/pki/pki-tomcat/server.xml
 
-          # enable CA signed audit log
-          docker exec pki pki-server ca-config-set log.instance.SignedAudit.logSigning true
+      - name: Enable audit log signing
+        run: |
+          # https://github.com/dogtagpki/pki/wiki/Enabling-Audit-Log-Signing
 
-          # configure RESTEasy logging
+          # check audit config
+          docker exec pki pki-server ca-config-find | grep audit_signing
+          docker exec pki pki-server ca-audit-config-show
+
+          # configure audit signing cert nickname
+          docker exec pki pki-server ca-config-set ca.audit_signing.nickname ca_audit_signing
+          docker exec pki pki-server ca-config-set ca.cert.audit_signing.nickname ca_audit_signing
+
+          # create audit signing CSR
+          docker exec pki pki-server cert-request \
+              --subject "CN=Audit Signing Certificate" \
+              --ext /usr/share/pki/server/certs/audit_signing.conf \
+              ca_audit_signing
+
+          # issue audit signing cert
+          docker exec pki pki \
+              -n caadmin \
+              ca-cert-issue \
+              --profile caAuditSigningCert \
+              --csr-file /var/lib/pki/pki-tomcat/conf/certs/ca_audit_signing.csr \
+              --output-file /var/lib/pki/pki-tomcat/conf/certs/ca_audit_signing.crt
+
+          # import audit signing cert
+          docker exec pki pki-server cert-import ca_audit_signing
+
+          # check audit signing cert
+          docker exec pki pki-server cert-show ca_audit_signing
+
+          # enable audit log signing
+          docker exec pki pki-server ca-audit-config-mod \
+              --logSigning true \
+              --signingCert ca_audit_signing
+
+          # check audit config again
+          docker exec pki pki-server ca-config-find | grep audit_signing
+          docker exec pki pki-server ca-audit-config-show
+
+      - name: Configure RESTEasy logging
+        run: |
           docker exec -i pki tee /var/lib/pki/pki-tomcat/conf/ca/logging.properties << EOF
           org.jboss.resteasy.level = INFO
           EOF
 
           docker exec pki chown pkiuser:pkiuser /var/lib/pki/pki-tomcat/conf/ca/logging.properties
 
-          # restart PKI server
-          docker exec pki pki-server restart --wait
-
-      - name: Initialize PKI client
+      - name: Restart PKI server
         run: |
-          docker exec pki pki nss-cert-import \
-              --cert $SHARED/ca_signing.crt \
-              --trust CT,C,C \
-              ca_signing
+          docker exec pki pki-server restart --wait
 
       - name: Check pki info with default API
         run: |
@@ -462,10 +499,6 @@ jobs:
 
       - name: Check pki ca-user-show with default API
         run: |
-          docker exec pki pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
-              --pkcs12-password Secret.123
-
           docker exec pki pki -n caadmin ca-user-show caadmin
 
           # check HTTP methods, paths, protocols, status, and authenticated users

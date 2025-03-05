@@ -54,9 +54,8 @@ jobs:
               -f /usr/share/pki/server/examples/installation/ca.cfg \
               -s CA \
               -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_audit_signing_nickname= \
               -v
-
-          docker exec pki pki-server cert-find
 
       - name: Check security domain config in CA
         run: |
@@ -111,6 +110,7 @@ jobs:
               -f /usr/share/pki/server/examples/installation/kra.cfg \
               -s KRA \
               -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_audit_signing_nickname= \
               -v
 
       - name: Check PKI server base dir after installation
@@ -235,6 +235,10 @@ jobs:
 
           diff expected output
 
+      - name: Check PKI server system certs
+        run: |
+          docker exec pki pki-server cert-find
+
       - name: Check PKI server status
         run: |
           docker exec pki pki-server status | tee output
@@ -274,14 +278,6 @@ jobs:
           docker exec pki openssl req -text -noout \
               -in /var/lib/pki/pki-tomcat/conf/certs/kra_transport.csr
           docker exec pki openssl x509 -text -noout -in kra_transport.crt
-
-      - name: Check KRA audit signing cert
-        run: |
-          docker exec pki pki-server cert-export kra_audit_signing \
-              --cert-file kra_audit_signing.crt
-          docker exec pki openssl req -text -noout \
-              -in /var/lib/pki/pki-tomcat/conf/certs/kra_audit_signing.csr
-          docker exec pki openssl x509 -text -noout -in kra_audit_signing.crt
 
       - name: Check subsystem cert
         run: |

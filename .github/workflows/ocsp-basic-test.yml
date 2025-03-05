@@ -54,6 +54,7 @@ jobs:
               -f /usr/share/pki/server/examples/installation/ca.cfg \
               -s CA \
               -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_audit_signing_nickname= \
               -v
 
       - name: Check PKI system certs
@@ -63,7 +64,6 @@ jobs:
           docker exec pki pki-server cert-show ca_ocsp_signing
           docker exec pki pki-server cert-show sslserver
           docker exec pki pki-server cert-show subsystem
-          docker exec pki pki-server cert-show ca_audit_signing
 
       - name: Check CA system certs
         run: |
@@ -72,7 +72,6 @@ jobs:
           docker exec pki pki-server subsystem-cert-show ca ocsp_signing
           docker exec pki pki-server subsystem-cert-show ca sslserver
           docker exec pki pki-server subsystem-cert-show ca subsystem
-          docker exec pki pki-server subsystem-cert-show ca audit_signing
 
       - name: Check security domain config in CA
         run: |
@@ -121,6 +120,7 @@ jobs:
               -f /usr/share/pki/server/examples/installation/ocsp.cfg \
               -s OCSP \
               -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_audit_signing_nickname= \
               -v
 
       - name: Check PKI system certs
@@ -130,9 +130,7 @@ jobs:
           docker exec pki pki-server cert-show ca_ocsp_signing
           docker exec pki pki-server cert-show sslserver
           docker exec pki pki-server cert-show subsystem
-          docker exec pki pki-server cert-show ca_audit_signing
           docker exec pki pki-server cert-show ocsp_signing
-          docker exec pki pki-server cert-show ocsp_audit_signing
 
       - name: Check OCSP system certs
         run: |
@@ -140,7 +138,6 @@ jobs:
           docker exec pki pki-server subsystem-cert-show ocsp signing
           docker exec pki pki-server subsystem-cert-show ocsp sslserver
           docker exec pki pki-server subsystem-cert-show ocsp subsystem
-          docker exec pki pki-server subsystem-cert-show ocsp audit_signing
 
       - name: Check PKI server base dir after installation
         run: |
@@ -295,14 +292,6 @@ jobs:
           docker exec pki openssl req -text -noout \
               -in /var/lib/pki/pki-tomcat/conf/certs/ocsp_signing.csr
           docker exec pki openssl x509 -text -noout -in ocsp_signing.crt
-
-      - name: Check OCSP audit signing cert
-        run: |
-          docker exec pki pki-server cert-export ocsp_audit_signing \
-              --cert-file ocsp_audit_signing.crt
-          docker exec pki openssl req -text -noout \
-              -in /var/lib/pki/pki-tomcat/conf/certs/ocsp_audit_signing.csr
-          docker exec pki openssl x509 -text -noout -in ocsp_audit_signing.crt
 
       - name: Check subsystem cert
         run: |

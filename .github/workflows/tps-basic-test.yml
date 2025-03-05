@@ -52,9 +52,8 @@ jobs:
               -f /usr/share/pki/server/examples/installation/ca.cfg \
               -s CA \
               -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_audit_signing_nickname= \
               -v
-
-          docker exec pki pki-server cert-find
 
       - name: Install KRA
         run: |
@@ -62,9 +61,8 @@ jobs:
               -f /usr/share/pki/server/examples/installation/kra.cfg \
               -s KRA \
               -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_audit_signing_nickname= \
               -v
-
-          docker exec pki pki-server cert-find
 
       - name: Install TKS
         run: |
@@ -72,9 +70,8 @@ jobs:
               -f /usr/share/pki/server/examples/installation/tks.cfg \
               -s TKS \
               -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_audit_signing_nickname= \
               -v
-
-          docker exec pki pki-server cert-find
 
       - name: Install TPS
         run: |
@@ -82,6 +79,7 @@ jobs:
               -f /usr/share/pki/server/examples/installation/tps.cfg \
               -s TPS \
               -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_audit_signing_nickname= \
               -D pki_authdb_url=ldap://ds.example.com:3389 \
               -D pki_enable_server_side_keygen=True \
               -v
@@ -227,17 +225,9 @@ jobs:
           sed -n 's/^ *SD Manager: *\(.*\)$/\1/p' output > actual
           diff expected actual
 
-      - name: Check TPS system certs
+      - name: Check PKI server system certs
         run: |
           docker exec pki pki-server cert-find
-
-      - name: Check TPS audit signing cert
-        run: |
-          docker exec pki pki-server cert-export tps_audit_signing \
-              --cert-file tps_audit_signing.crt
-          docker exec pki openssl req -text -noout \
-              -in /var/lib/pki/pki-tomcat/conf/certs/tps_audit_signing.csr
-          docker exec pki openssl x509 -text -noout -in tps_audit_signing.crt
 
       - name: Check subsystem cert
         run: |

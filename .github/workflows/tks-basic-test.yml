@@ -54,9 +54,8 @@ jobs:
               -f /usr/share/pki/server/examples/installation/ca.cfg \
               -s CA \
               -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_audit_signing_nickname= \
               -v
-
-          docker exec pki pki-server cert-find
 
       - name: Install TKS
         run: |
@@ -64,6 +63,7 @@ jobs:
               -f /usr/share/pki/server/examples/installation/tks.cfg \
               -s TKS \
               -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_audit_signing_nickname= \
               -v
 
       - name: Check PKI server base dir after installation
@@ -198,17 +198,9 @@ jobs:
           sed -n 's/^ *SD Manager: *\(.*\)$/\1/p' output > actual
           diff expected actual
 
-      - name: Check TKS system certs
+      - name: Check PKI server system certs
         run: |
           docker exec pki pki-server cert-find
-
-      - name: Check TKS audit signing cert
-        run: |
-          docker exec pki pki-server cert-export tks_audit_signing \
-              --cert-file tks_audit_signing.crt
-          docker exec pki openssl req -text -noout \
-              -in /var/lib/pki/pki-tomcat/conf/certs/tks_audit_signing.csr
-          docker exec pki openssl x509 -text -noout -in tks_audit_signing.crt
 
       - name: Check subsystem cert
         run: |
