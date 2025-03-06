@@ -545,7 +545,7 @@ public class CAService implements IService {
             String profileId, String rid)
             throws EBaseException {
         logger.debug("issueX509Cert");
-        X509CertImpl certImpl = issueX509Cert(aid, "", certi, false, null);
+        X509CertImpl certImpl = issueX509Cert(aid, rid, certi, false, null);
 
         logger.debug("storeX509Cert " + certImpl.getSerialNumber());
         storeX509Cert(profileId, rid, certImpl);
