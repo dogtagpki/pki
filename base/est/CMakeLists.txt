@@ -56,7 +56,7 @@ add_custom_target(pki-est-links ALL
     COMMENT "Creating links for EST")
 
 add_custom_command(
-    TARGET pki-est-links
+    TARGET pki-est-links POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory webapp/lib
     COMMAND ln -sf ../../../../../lib/slf4j-api.jar webapp/lib/slf4j-api.jar
     COMMAND ln -sf ../../../../../lib/slf4j-jdk14.jar webapp/lib/slf4j-jdk14.jar

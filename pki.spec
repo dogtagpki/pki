@@ -174,7 +174,7 @@ fi;
 ################################################################################
 
 BuildRequires:    make
-BuildRequires:    cmake >= 3.0.2
+BuildRequires:    cmake
 BuildRequires:    gcc-c++
 BuildRequires:    zip
 

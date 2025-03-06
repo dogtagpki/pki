@@ -134,7 +134,7 @@ add_custom_target(tpsclient-man ALL
     COMMENT "Creating PKI server manuals")
 
 add_custom_command(
-    TARGET tpsclient-man
+    TARGET tpsclient-man POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory man/man1
     COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man1/tpsclient.1.md -out man/man1/tpsclient.1
 )

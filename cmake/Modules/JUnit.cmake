@@ -52,7 +52,7 @@ function(add_junit_test target)
 
     if(RUN_TESTS)
         add_custom_command(
-            TARGET ${target}
+            TARGET ${target} POST_BUILD
             COMMAND
                 mkdir -p "${reports_dir}"
             COMMAND

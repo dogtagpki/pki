@@ -123,7 +123,7 @@ add_custom_target(pki-server-lib ALL
     COMMENT "Creating links for PKI server library")
 
 add_custom_command(
-    TARGET pki-server-lib
+    TARGET pki-server-lib POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory lib
     COMMAND ln -sf ../../lib/slf4j-api.jar lib/slf4j-api.jar
     COMMAND ln -sf ../../lib/slf4j-jdk14.jar lib/slf4j-jdk14.jar
@@ -135,7 +135,7 @@ add_custom_target(pki-server-common-lib ALL
     COMMENT "Creating links for PKI server common library")
 
 add_custom_command(
-    TARGET pki-server-common-lib
+    TARGET pki-server-common-lib POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory common/lib
     COMMAND test ! -d ${CMAKE_SOURCE_DIR}/base/server/lib || cp ${CMAKE_SOURCE_DIR}/base/server/lib/* common/lib
     COMMAND ln -sf ../../../lib/commons-codec.jar common/lib/commons-codec.jar
@@ -173,7 +173,7 @@ add_custom_target(pki-server-man ALL
     COMMENT "Creating PKI server manuals")
 
 add_custom_command(
-    TARGET pki-server-man
+    TARGET pki-server-man POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory man/man1
     COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man1/pkidaemon.1.md -out man/man1/pkidaemon.1
     COMMAND ${CMAKE_COMMAND} -E make_directory man/man5

@@ -69,7 +69,7 @@ add_dependencies(java pki-ca-jar)
 add_custom_target(pki-ca-links ALL)
 
 add_custom_command(
-    TARGET pki-ca-links
+    TARGET pki-ca-links POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory webapp/admin
     COMMAND ln -sf ../../../../../../..${DATA_INSTALL_DIR}/server/webapps/pki/admin/console webapp/admin
     COMMAND ${CMAKE_COMMAND} -E make_directory webapp/lib

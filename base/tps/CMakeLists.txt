@@ -62,7 +62,7 @@ add_custom_target(pki-tps-links ALL
     COMMENT "Creating links for TPS")
 
 add_custom_command(
-    TARGET pki-tps-links
+    TARGET pki-tps-links POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory webapp/lib
     COMMAND ln -sf ../../../../../lib/slf4j-api.jar webapp/lib/slf4j-api.jar
     COMMAND ln -sf ../../../../../lib/slf4j-jdk14.jar webapp/lib/slf4j-jdk14.jar

@@ -4,7 +4,7 @@ add_custom_target(pki-server-theme-links ALL
     COMMENT "Creating links for PKI server theme")
 
 add_custom_command(
-    TARGET pki-server-theme-links
+    TARGET pki-server-theme-links POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory links
     COMMAND ln -sf ../../../../../..${DATA_INSTALL_DIR}/common-ui/ca links/
     COMMAND ln -sf ../../../../../..${DATA_INSTALL_DIR}/common-ui/css links/

@@ -60,7 +60,7 @@ add_custom_target(pki-ocsp-links ALL
     COMMENT "Creating links for OCSP")
 
 add_custom_command(
-    TARGET pki-ocsp-links
+    TARGET pki-ocsp-links POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory webapp/admin
     COMMAND ln -sf ../../../../../../..${DATA_INSTALL_DIR}/server/webapps/pki/admin/console webapp/admin
     COMMAND ${CMAKE_COMMAND} -E make_directory webapp/lib
