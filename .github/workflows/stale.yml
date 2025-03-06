@@ -6,6 +6,8 @@ on:
     - cron: '30 1 * * *'
 
 permissions:
+  # The actions permission is required for a cache problem. See https://github.com/actions/stale/issues/1133
+  actions: write
   issues: write
   pull-requests: write
 
