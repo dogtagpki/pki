@@ -643,8 +643,8 @@ jobs:
               > >(tee stdout) 2> >(tee stderr >&2) || true
 
           cat > expected << EOF
-          PKIException: Server Internal Error: Request  was completed with errors.
-          CA has exausted all available serial numbers
+          PKIException: Server Internal Error: Request 10 was completed with errors.
+          CA has exhausted all available serial numbers
           EOF
 
           diff expected stderr
