@@ -114,7 +114,7 @@ add_custom_target(pki-lib ALL
     COMMENT "Creating links for PKI common library")
 
 add_custom_command(
-    TARGET pki-lib
+    TARGET pki-lib POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory lib
     COMMAND test ! -d ${CMAKE_SOURCE_DIR}/base/common/lib || cp ${CMAKE_SOURCE_DIR}/base/common/lib/* lib
     COMMAND ln -sf ../../../..${COMMONS_CLI_JAR} lib/commons-cli.jar
@@ -153,7 +153,7 @@ add_custom_target(pki-man ALL
     COMMENT "Creating PKI manuals")
 
 add_custom_command(
-    TARGET pki-man
+    TARGET pki-man POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory man/man5
     COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man5/pki-logging.5.md -out man/man5/pki-logging.5
     COMMAND ${CMAKE_COMMAND} -E make_directory man/man8

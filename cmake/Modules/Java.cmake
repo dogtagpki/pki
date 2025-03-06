@@ -72,7 +72,7 @@ function(javac target)
     file(MAKE_DIRECTORY ${output_dir})
 
     add_custom_command(
-        TARGET ${target}
+        TARGET ${target} POST_BUILD
         COMMAND ${CMAKE_COMMAND}
             -Doutput=${file_list}
             -Dinput_dir=${source_dir}
@@ -84,8 +84,7 @@ function(javac target)
             -encoding UTF-8
             -cp ${native_classpath}
             -d ${output_dir}
-            -source 17
-            -target 17
+            -release 17
             @${file_list}
         WORKING_DIRECTORY
             ${source_dir}
@@ -175,7 +174,7 @@ function(jar target)
         set(file_list_${i} "${CMAKE_CURRENT_BINARY_DIR}/${target}-${i}.files")
 
         add_custom_command(
-            TARGET ${target}
+            TARGET ${target} POST_BUILD
             COMMAND ${CMAKE_COMMAND}
                 -Doutput=${file_list_${i}}
                 -Dinput_dir=${input_dir_${i}}
@@ -290,7 +289,7 @@ function(javadoc target)
         COMMENT "Generating Javadoc for ${target}")
 
     add_custom_command(
-        TARGET ${target}
+        TARGET ${target} POST_BUILD
         COMMAND ${command}
     )
 
@@ -325,7 +324,7 @@ function(link target)
         COMMENT "Linking ${target} to ${source}")
 
     add_custom_command(
-        TARGET ${target}
+        TARGET ${target} POST_BUILD
         COMMAND ${CMAKE_COMMAND}
             -E create_symlink ${dest} ${source}
     )

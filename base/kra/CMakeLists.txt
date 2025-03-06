@@ -62,7 +62,7 @@ add_custom_target(pki-kra-links ALL
     COMMENT "Creating links for KRA")
 
 add_custom_command(
-    TARGET pki-kra-links
+    TARGET pki-kra-links POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory webapp/admin
     COMMAND ln -sf ../../../../../../..${DATA_INSTALL_DIR}/server/webapps/pki/admin/console webapp/admin
     COMMAND ${CMAKE_COMMAND} -E make_directory webapp/lib

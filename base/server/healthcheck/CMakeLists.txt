@@ -25,7 +25,7 @@ add_custom_target(${target} ALL
 
 # Execute `python setup.py build && python setup.py install`
 add_custom_command(
-    TARGET ${target}
+    TARGET ${target} POST_BUILD
     COMMAND ${CMAKE_COMMAND}
         -E copy_directory
         ${CMAKE_CURRENT_SOURCE_DIR}/${SRC_DIR} ${SRC_DIR}
