@@ -75,7 +75,7 @@ jobs:
           docker exec pki pki -n caadmin ca-user-add \
               est-ra-1 --fullName "EST RA 1" --password Secret.est
           docker exec pki pki -n caadmin ca-group-member-add "EST RA Agents" est-ra-1
-          
+
       - name: Configure CA est profile
         run: |
           docker exec pki pki -n caadmin ca-profile-add \
@@ -89,7 +89,7 @@ jobs:
               --subject "CN=postgresql.example.com" \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               --csr sslserver.csr
-              
+
           docker exec pki pki \
               -n caadmin \
               ca-cert-issue \
@@ -97,7 +97,7 @@ jobs:
               --csr-file sslserver.csr \
               --subject "CN=postgresql.example.com" \
               --output-file sslserver.crt
-          
+
           docker exec pki pki nss-cert-import \
               --cert sslserver.crt \
               postgresql
@@ -315,12 +315,12 @@ jobs:
         run: |
           DIGEST=$(docker exec pki tomcat-digest Secret.123 | sed 's/.*://')
 
-          docker exec postgresql psql -U est -t -A -c "INSERT INTO users VALUES ('est-test-user', 'EST TEST USER', '$DIGEST');"  est 
-          docker exec postgresql psql -U est -t -A -c "INSERT INTO group_members VALUES ('EST Users', 'est-test-user');"  est 
+          docker exec postgresql psql -U est -t -A -c "INSERT INTO users VALUES ('est-test-user', 'EST TEST USER', '$DIGEST');"  est
+          docker exec postgresql psql -U est -t -A -c "INSERT INTO group_members VALUES ('EST Users', 'est-test-user');"  est
 
       - name: Install est client
         run: |
-          docker exec pki dnf copr enable -y @pki/libest 
+          docker exec pki dnf copr enable -y @pki/libest
           docker exec pki dnf install -y libest
 
       - name: Enroll certificate
@@ -356,15 +356,15 @@ jobs:
         run: |
           docker exec pki mkdir new_certs
           docker exec -e EST_OPENSSL_CACERT=cacert.pem pki estclient -e -s pki.example.com -p 8443 \
-              --common-name test-new.example.com -o ./new_certs -c cert.pem -k key-x-x.pem
+              --common-name test.example.com -o ./new_certs -c cert.pem -k key-x-x.pem
 
           docker exec pki openssl base64 -d --in new_certs/cert-0-0.pkcs7 --out new_certs/cert-0-0.pkcs7.der
           docker exec pki openssl pkcs7 -in new_certs/cert-0-0.pkcs7.der -inform DER \
               -print_certs -quiet -out new_certs/cert.pem
           docker exec pki openssl x509 -in new_certs/cert.pem -subject -noout | tee actual
-          echo "subject=CN=test-new.example.com" > expected
+          echo "subject=CN=test.example.com" > expected
           diff expected actual
-          
+
       - name: Re-Enroll new certificate with certificate
         run: |
           docker exec pki mkdir re_certs
@@ -376,7 +376,36 @@ jobs:
           docker exec pki openssl x509 -in re_certs/cert.pem -subject -noout | tee actual
           echo "subject=CN=test.example.com" > expected
           diff expected actual
-          
+
+      - name: Enroll new certificate with certificate but using different subject
+        run: |
+          docker exec pki mkdir new_certs2
+          docker exec -e EST_OPENSSL_CACERT=cacert.pem pki estclient -e -s pki.example.com -p 8443 \
+              --common-name test-new.example.com -o ./new_certs2 -c cert.pem -k key-x-x.pem | tee output || true
+
+          STATUS=$(cat output  | sed -nE 's/.* HTTP response HTTP\/1.1 ([[:digit:]]*).*$/\1/p')
+          [ "$STATUS" == "403" ]
+
+      - name: Disable subject for enroll
+        run: |
+          docker exec pki cat /etc/pki/pki-tomcat/est/authorizer.conf > authorizer.conf
+          echo "enrollMatchTLSSubjSAN=false" >> authorizer.conf
+          docker cp authorizer.conf pki:/etc/pki/pki-tomcat/est/authorizer.conf
+
+          docker exec pki pki-server restart --wait
+
+      - name: Enroll new certificate with certificate but using different subject and check disabled
+        run: |
+          docker exec pki mkdir new_certs3
+          docker exec -e EST_OPENSSL_CACERT=cacert.pem pki estclient -e -s pki.example.com -p 8443 \
+              --common-name test-new.example.com -o ./new_certs3 -c cert.pem -k key-x-x.pem
+
+          docker exec pki openssl base64 -d --in new_certs3/cert-0-0.pkcs7 --out new_certs3/cert-0-0.pkcs7.der
+          docker exec pki openssl pkcs7 -in new_certs3/cert-0-0.pkcs7.der -inform DER -print_certs -quiet -out new_certs3/cert.pem
+          docker exec pki openssl x509 -in new_certs3/cert.pem -subject -noout | tee actual
+          echo "subject=CN=test-new.example.com" > expected
+          diff expected actual
+
       - name: Remove EST
         run: |
           docker exec pki pkidestroy -i pki-tomcat -s EST -v

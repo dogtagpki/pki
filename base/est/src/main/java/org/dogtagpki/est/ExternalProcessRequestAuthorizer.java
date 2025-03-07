@@ -10,21 +10,18 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.concurrent.TimeUnit;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializerProvider;
-
 import org.apache.catalina.realm.GenericPrincipal;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
-
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.base.PKIException;
 
@@ -39,6 +36,7 @@ public class ExternalProcessRequestAuthorizer extends ESTRequestAuthorizer {
 
     static final String CONFIG_EXECUTABLE = "executable";
     static final String CONFIG_TIMEOUT = "timeout";
+    static final String CONFIG_ENROLL_MATCH_SUBJ_SAN = "enrollMatchTLSSubjSAN";
 
     static final long DEFAULT_TIMEOUT = 3;  // seconds
 
@@ -46,6 +44,8 @@ public class ExternalProcessRequestAuthorizer extends ESTRequestAuthorizer {
     static final String OPERATION_SIMPLEREENROLL = "simplereenroll";
 
     String executable;
+    boolean enrollMatchSubjSAN = true;
+
     long timeout = DEFAULT_TIMEOUT;
 
     @Override
@@ -55,6 +55,11 @@ public class ExternalProcessRequestAuthorizer extends ESTRequestAuthorizer {
         executable = config.getParameter(CONFIG_EXECUTABLE);
         if (executable == null) {
             throw new RuntimeException("ExternalProcessRequestAuthorizer: 'executable' property missing");
+        }
+
+        String match = config.getParameter(CONFIG_ENROLL_MATCH_SUBJ_SAN);
+        if (match != null && !match.isBlank()) {
+            enrollMatchSubjSAN = Boolean.parseBoolean(match);
         }
 
         String timeoutConfig = config.getParameter(CONFIG_TIMEOUT);
@@ -70,6 +75,9 @@ public class ExternalProcessRequestAuthorizer extends ESTRequestAuthorizer {
     public Object authorizeSimpleenroll(
         ESTRequestAuthorizationData data, PKCS10 csr)
             throws PKIException {
+        if (enrollMatchSubjSAN && data.clientCertChain != null && data.clientCertChain.length > 0) {
+            ensureCSRMatchesToBeCert(csr, data.clientCertChain[0], false);
+        }
         return check(OPERATION_SIMPLEENROLL, data, csr, null);
     }
 
@@ -77,10 +85,12 @@ public class ExternalProcessRequestAuthorizer extends ESTRequestAuthorizer {
     public Object authorizeSimplereenroll(
         ESTRequestAuthorizationData data, PKCS10 csr, X509Certificate toBeRenewed)
             throws PKIException {
+        ensureCSRMatchesToBeCert(csr, toBeRenewed, true);
         return check(OPERATION_SIMPLEREENROLL, data, csr, toBeRenewed);
     }
 
-    String check(
+
+    private String check(
             String op,
             ESTRequestAuthorizationData authzData,
             PKCS10 csr,
