@@ -68,10 +68,10 @@ class RA_Client
 	  int OpExit(NameValueSet *set);
   public:
 	  void Debug(const char *func_name, const char *fmt, ...);
-	  void InvokeOperation(char *op, NameValueSet *set);
   public:
 	  RA_Token m_token;
 	  NameValueSet m_vars;
+	  PRBool old_style = PR_TRUE;
 };
 
 #endif /* RA_CLIENT_H */

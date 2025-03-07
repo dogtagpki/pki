@@ -59,7 +59,6 @@
 #include "msg/RA_Status_Update_Response_Msg.h"
 
 static PRFileDesc *m_fd_debug = (PRFileDesc *) NULL;
-PRBool old_style = PR_TRUE;
 
 /**
  * Constructs a RA client that talks to RA.
@@ -90,17 +89,6 @@ Output (const char *fmt, ...)
   va_list ap;
   va_start (ap, fmt);
   printf ("Output> ");
-  vprintf (fmt, ap);
-  printf ("\n");
-  va_end (ap);
-}
-
-static void
-OutputSuccess (const char *fmt, ...)
-{
-  va_list ap;
-  va_start (ap, fmt);
-  printf ("Result> Success - ");
   vprintf (fmt, ap);
   printf ("\n");
   va_end (ap);
@@ -538,7 +526,7 @@ extern "C"
 		     targ->client->m_vars.GetValue ("ra_host"),
 		     atoi (targ->client->m_vars.GetValue ("ra_port")));
 	targ->status = 0;
-	if (!old_style)
+	if (!targ->client->old_style)
 	  {
 	    PR_Lock (targ->donelock);
 	    targ->done = PR_TRUE;
@@ -657,7 +645,7 @@ extern "C"
     end = PR_Now ();
     targ->time = (end - start) / 1000;
 
-    if (!old_style)
+    if (!targ->client->old_style)
       {
 	PR_Lock (targ->donelock);
 	targ->done = PR_TRUE;
@@ -682,7 +670,7 @@ extern "C"
 		     atoi (targ->client->m_vars.GetValue ("ra_port")));
 	targ->status = 0;
 
-	if (!old_style)
+	if (!targ->client->old_style)
 	  {
 	    PR_Lock (targ->donelock);
 	    targ->done = PR_TRUE;
@@ -801,7 +789,7 @@ extern "C"
     end = PR_Now ();
     targ->time = (end - start) / 1000;
 
-    if (!old_style)
+    if (!targ->client->old_style)
       {
 	PR_Lock (targ->donelock);
 	targ->done = PR_TRUE;
@@ -981,7 +969,7 @@ extern "C"
 		     atoi (targ->client->m_vars.GetValue ("ra_port")));
 	targ->status = 0;
 
-	if (!old_style)
+	if (!targ->client->old_style)
 	  {
 	    PR_Lock (targ->donelock);
 	    targ->done = PR_TRUE;
@@ -1100,7 +1088,7 @@ extern "C"
     end = PR_Now ();
     targ->time = (end - start) / 1000;
 
-    if (!old_style)
+    if (!targ->client->old_style)
       {
 	PR_Lock (targ->donelock);
 	targ->done = PR_TRUE;
@@ -1460,82 +1448,4 @@ RA_Client::OpVarList (NameValueSet * params)
       Output ("%s: '%s'", name, m_vars.GetValue (name));
     }
   return 1;
-}
-
-/**
- * Invoke operation.
- */
-void
-RA_Client::InvokeOperation (char *op, NameValueSet * params)
-{
-  PRTime start, end;
-  int status = 0;
-
-  start = PR_Now ();
-  Debug ("RA_Client::InvokeOperation", "op='%s'", op);
-  int max_ops = params->GetValueAsInt ((char *) "max_ops");
-  if (max_ops != 0)
-    old_style = PR_FALSE;
-
-  if (strcmp (op, "help") == 0)
-    {
-      status = OpHelp (params);
-    }
-  else if (strcmp (op, "ra_format") == 0)
-    {
-      if (old_style)
-	status = OpConnUpdate (params);
-      else
-	status = OpConnStart (params, OP_CLIENT_FORMAT);
-    }
-  else if (strcmp (op, "ra_reset_pin") == 0)
-    {
-      if (old_style)
-	status = OpConnResetPin (params);
-      else
-	status = OpConnStart (params, OP_CLIENT_RESET_PIN);
-    }
-  else if (strcmp (op, "ra_enroll") == 0)
-    {
-      if (old_style)
-	status = OpConnEnroll (params);
-      else
-	status = OpConnStart (params, OP_CLIENT_ENROLL);
-    }
-  else if (strcmp (op, "token_status") == 0)
-    {
-      status = OpTokenStatus (params);
-    }
-  else if (strcmp (op, "token_set") == 0)
-    {
-      status = OpTokenSet (params);
-    }
-  else if (strcmp (op, "debug") == 0)
-    {
-      status = OpVarDebug (params);
-    }
-  else if (strcmp (op, "var_set") == 0)
-    {
-      status = OpVarSet (params);
-    }
-  else if (strcmp (op, "var_get") == 0)
-    {
-      status = OpVarGet (params);
-    }
-  else if (strcmp (op, "var_list") == 0)
-    {
-      status = OpVarList (params);
-    }
-  end = PR_Now ();
-
-  if (status)
-    {
-      OutputSuccess ("Operation '%s' Success (%d msec)", op,
-		     (end - start) / 1000);
-    }
-  else
-    {
-      OutputError ("Operation '%s' Failure (%d msec)", op,
-		   (end - start) / 1000);
-    }
 }

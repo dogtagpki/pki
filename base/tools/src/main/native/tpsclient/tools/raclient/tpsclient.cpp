@@ -63,6 +63,105 @@ ReadLine (char *buf, int len)
   return 0;
 }
 
+static void
+OutputSuccess (const char *fmt, ...)
+{
+  va_list ap;
+  va_start (ap, fmt);
+  printf ("Result> Success - ");
+  vprintf (fmt, ap);
+  printf ("\n");
+  va_end (ap);
+}
+
+static void
+OutputError (const char *fmt, ...)
+{
+  va_list ap;
+  va_start (ap, fmt);
+  printf ("Result> Error - ");
+  vprintf (fmt, ap);
+  printf ("\n");
+  va_end (ap);
+}
+
+/**
+ * Invoke operation.
+ */
+void
+InvokeOperation (RA_Client* client, char *op, NameValueSet * params)
+{
+  PRTime start, end;
+  int status = 0;
+
+  start = PR_Now ();
+  int max_ops = params->GetValueAsInt ((char *) "max_ops");
+  if (max_ops != 0)
+    client->old_style = PR_FALSE;
+
+  if (strcmp (op, "help") == 0)
+    {
+      status = client->OpHelp (params);
+    }
+  else if (strcmp (op, "ra_format") == 0)
+    {
+      if (client->old_style)
+    status = client->OpConnUpdate (params);
+      else
+    status = client->OpConnStart (params, OP_CLIENT_FORMAT);
+    }
+  else if (strcmp (op, "ra_reset_pin") == 0)
+    {
+      if (client->old_style)
+    status = client->OpConnResetPin (params);
+      else
+    status = client->OpConnStart (params, OP_CLIENT_RESET_PIN);
+    }
+  else if (strcmp (op, "ra_enroll") == 0)
+    {
+      if (client->old_style)
+    status = client->OpConnEnroll (params);
+      else
+    status = client->OpConnStart (params, OP_CLIENT_ENROLL);
+    }
+  else if (strcmp (op, "token_status") == 0)
+    {
+      status = client->OpTokenStatus (params);
+    }
+  else if (strcmp (op, "token_set") == 0)
+    {
+      status = client->OpTokenSet (params);
+    }
+  else if (strcmp (op, "debug") == 0)
+    {
+      status = client->OpVarDebug (params);
+    }
+  else if (strcmp (op, "var_set") == 0)
+    {
+      status = client->OpVarSet (params);
+    }
+  else if (strcmp (op, "var_get") == 0)
+    {
+      status = client->OpVarGet (params);
+    }
+  else if (strcmp (op, "var_list") == 0)
+    {
+      status = client->OpVarList (params);
+    }
+  end = PR_Now ();
+
+  if (status)
+    {
+      OutputSuccess ("Operation '%s' Success (%d msec)", op,
+             (end - start) / 1000);
+    }
+  else
+    {
+      OutputError ("Operation '%s' Failure (%d msec)", op,
+           (end - start) / 1000);
+    }
+}
+
 /**
  * Execute RA client.
  */
@@ -110,7 +209,7 @@ Execute (RA_Client* client)
     }
       else
     {
-      client->InvokeOperation (op, params);
+      InvokeOperation (client, op, params);
     }
       if (params != NULL)
     {
