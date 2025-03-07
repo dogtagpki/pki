@@ -4,8 +4,7 @@
 // initial content copied from https://github.com/dogtagpki/pki/wiki/Exporting-DS-Certificates
 = Exporting DS Certificates 
 
-
-Follow this process to export the signing certificate and the server certificate from the NSS database of a DS instance.
+Follow this process to export the DS bootstrap signing certificate and the server certificate from the NSS database of a DS instance.
 
 By default the certificates are generated automatically during installation,
 but they can also be created after installation.

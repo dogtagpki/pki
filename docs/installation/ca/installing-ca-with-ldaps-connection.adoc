@@ -8,11 +8,13 @@ Follow this process to install a CA subsystem with a secure database connection.
 Prior to installation, please ensure that the link:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
 
 == DS Configuration 
-Once the prerequisites listed above are completed, enable the SSL connection with a self-signed signing certificate as described in
-link:../others/enabling-ssl-connection-in-ds.adoc#enabling-ssl-connection[Enabling SSL Connection].
 
-Then export the signing certificate into `ds_signing.crt` as described in
+If you had followed link:../others/installation-prerequisites.adoc[Installation Prerequisites] and set up a LDAP database with SSL connection, simply
+export the bootstrap signing certificate into `ds_signing.crt` as described in
 link:../others/exporting-ds-certificates.adoc#exporting-ds-signing-certificate[Exporting DS Signing Certificate].
+
+//If you did not set up secure LDAP and wish to enable the SSL connection, follow the instructions described in 
+//link:../others/enabling-ssl-connection-in-ds.adoc#enabling-ssl-connection[Enabling SSL Connection].
 
 == CA Subsystem Installation 
 Prepare a deployment configuration, for example `ca-secure-ds.cfg`, to deploy CA subsystem.
