@@ -60,11 +60,69 @@ public class TPSClientCLI extends CommandCLI {
     public native long createClient() throws Exception;
     public native void removeClient(long client) throws Exception;
 
-    public native void invokeOperation(
+    public native boolean getOldStyle(long client) throws Exception;
+    public native void setOldStyle(long client, boolean value) throws Exception;
+
+    public native void displayHelp(long client) throws Exception;
+    public native void formatToken(long client, Map<String, String> params) throws Exception;
+    public native void resetPIN(long client, Map<String, String> params) throws Exception;
+    public native void enrollToken(long client, Map<String, String> params) throws Exception;
+    public native void displayToken(long client, Map<String, String> params) throws Exception;
+    public native void setupToken(long client, Map<String, String> params) throws Exception;
+
+    public native void setupDebug(long client, Map<String, String> params) throws Exception;
+    public native void setVariable(long client, Map<String, String> params) throws Exception;
+    public native void displayVariable(long client, Map<String, String> params) throws Exception;
+    public native void listVariables(long client) throws Exception;
+
+    public void invokeOperation(
             long client,
             String op,
             Map<String, String> params)
-            throws Exception;
+            throws Exception {
+
+        String value = params.get("max_ops");
+        int maxOps = value == null ? 0 : Integer.parseInt(value);
+
+        if (maxOps != 0) {
+            setOldStyle(client, false);
+        }
+
+        if ("help".equals(op)) {
+            displayHelp(client);
+
+        } else if ("ra_format".equals(op)) {
+            formatToken(client, params);
+
+        } else if ("ra_reset_pin".equals(op)) {
+            resetPIN(client, params);
+
+        } else if ("ra_enroll".equals(op)) {
+            enrollToken(client, params);
+
+        } else if ("token_status".equals(op)) {
+            displayToken(client, params);
+
+        } else if ("token_set".equals(op)) {
+            setupToken(client, params);
+
+        } else if ("debug".equals(op)) {
+            setupDebug(client, params);
+
+        } else if ("var_set".equals(op)) {
+            setVariable(client, params);
+
+        } else if ("var_get".equals(op)) {
+            displayVariable(client, params);
+
+        } else if ("var_list".equals(op)) {
+            listVariables(client);
+
+        } else {
+            logger.error("Unsupported operation: " + op);
+            // continue to the next operation
+        }
+    }
 
     @Override
     public void execute(CommandLine cmd) throws Exception {

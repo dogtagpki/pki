@@ -71,8 +71,12 @@ op=var_set name=ra_host value=$TPS_HOSTNAME
 op=var_set name=ra_port value=$TPS_PORT
 op=var_set name=ra_uri value=$TPS_PATH
 
-op=token_set cuid=$CUID msn=$MSN app_ver=$APP_VERSION key_info=$KEY_INFO major_ver=$MAJOR_VERSION minor_ver=$MINOR_VERSION
-
+op=token_set cuid=$CUID
+op=token_set msn=$MSN
+op=token_set app_ver=$APP_VERSION
+op=token_set key_info=$KEY_INFO
+op=token_set major_ver=$MAJOR_VERSION
+op=token_set minor_ver=$MINOR_VERSION
 op=token_set auth_key=$AUTH_KEY
 op=token_set mac_key=$MAC_KEY
 op=token_set kek_key=$KEK_KEY
