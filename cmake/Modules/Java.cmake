@@ -84,7 +84,7 @@ function(javac target)
             -encoding UTF-8
             -cp ${native_classpath}
             -d ${output_dir}
-            -release 17
+            --release 17
             @${file_list}
         WORKING_DIRECTORY
             ${source_dir}
