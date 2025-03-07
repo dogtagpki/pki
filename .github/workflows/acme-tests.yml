@@ -3,7 +3,7 @@ name: ACME Tests
 on: [push, pull_request]
 
 env:
-  BASE_IMAGE: ${{ vars.BASE_IMAGE || 'registry.fedoraproject.org/fedora:latest' }}
+  BASE_IMAGE: ${{ vars.BASE_IMAGE || 'registry.fedoraproject.org/fedora:41' }}
   COPR_REPO: ${{ vars.COPR_REPO }}
 
 jobs:
