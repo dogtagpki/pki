@@ -140,3 +140,14 @@ $ curl --cacert ./ca_signing.crt --cert cert.pem --key key-x-x.pem \
     --data-binary @testServer.p10 -H "Content-Type: application/pkcs10"
     -o newCert.p7 https://<EST_HOSTNAME>:<EST_PORT>/.well-known/est/simpleenroll
 ----
+
+When mutual TLS authentication is performed the CSR subject and SAN
+has to match with the subject and SAN of the certificate used for the
+authentication in order to get authorized. This check can be disabled
+for the _simpleenroll_ operation. To disable this check add the
+following option to the file
+`/etc/pki/<instance_name>/est/authorizer.conf`:
+
+----
+enrollMatchTLSSubjSAN=false
+----
