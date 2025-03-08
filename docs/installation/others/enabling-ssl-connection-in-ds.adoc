@@ -1,103 +1,72 @@
 :_mod-docs-content-type: PROCEDURE
 
 [id="enabling-ssl-connection-in-ds_{context}"]
-// This content was copied and adjusted from https://github.com/dogtagpki/pki/wiki/Enabling-SSL-Connection-in-DS
+
 = Enabling SSL Connection in DS 
 
-Follow this process to enable SSL connection in DS
-using a self-signed signing certificate and server certificate
-created using link:PKI-NSS-CLI.adoc[PKI NSS CLI] commands.
+Follow this process using `pki` CLI (run `man pki-client`) commands to enable SSL connection in DS.
 
 This section assumes that a DS instance named `localhost` already exists,
-it does not have certificates, and the SSL connection is disabled.
 
-*Note:* In newer DS versions the certificates are created and the SSL connection is enabled by default,
-so it's not necessary to follow this procedure.
+Two conditions are covered by this section:
 
-== Creating DS Signing Certificate 
+* The DS instance does not already have any SSL server certificate, temporary or otherwise, and it is time to create an actual server cert for it.
+* The DS instance has a temporary SSL server certificate, and it is time to replace it.
 
-First, generate DS signing CSR with the following command:
+It is assumed that an actual trusted CA is available for issuing certificates.
 
-----
-$ pki \
-    -d /etc/dirsrv/slapd-localhost \
-    -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
-    nss-cert-request \
-    --subject "CN=DS Signing Certificate" \
-    --ext /usr/share/pki/server/certs/ca_signing.conf \
-    --csr ds_signing.csr
-----
+== Import the CA signing certificate
+Import the CA signing cert into the nssdb of the DS instance.
 
-Next, issue DS signing certificate:
-
-----
-$ pki \
-    -d /etc/dirsrv/slapd-localhost \
-    -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
-    nss-cert-issue \
-    --csr ds_signing.csr \
-    --ext /usr/share/pki/server/certs/ca_signing.conf \
-    --cert ds_signing.crt
-----
-
-Finally, import DS signing certificate:
-
-----
-$ pki \
+[literal,subs="+quotes,verbatim"]
+....
+# pki \
     -d /etc/dirsrv/slapd-localhost \
     -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
     nss-cert-import \
-    --cert ds_signing.crt \
+    --cert ca_signing.crt \
     --trust CT,C,C \
-    Self-Signed-CA
-----
-
-To verify the DS signing certificate:
-
-----
-$ certutil -L -d /etc/dirsrv/slapd-localhost -n Self-Signed-CA
-...
-    Certificate Trust Flags:
-        SSL Flags:
-            Valid CA
-            Trusted CA
-            User
-            Trusted Client CA
-        Email Flags:
-            Valid CA
-            Trusted CA
-            User
-        Object Signing Flags:
-            Valid CA
-            Trusted CA
-            User
-----
+    "CA Signing Cert"
+....
 
 == Creating DS Server Certificate 
 
-First, generate DS server CSR with the following command:
+=== Generate DS server CSR
+
+As a DS administrator:
 
 ----
 $ pki \
     -d /etc/dirsrv/slapd-localhost \
     -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
     nss-cert-request \
-    --subject "CN=$HOSTNAME" \
-    --ext /usr/share/pki/server/certs/sslserver.conf \
+    --subject "CN=server.example.com" \
+    --subjectAltName "critical, DNS:server.example.com" \
     --csr ds_server.csr
 ----
 
-Next, issue DS server certificate:
+=== Submit DS Server Certificate Request:
+
+As a DS admin:
 
 ----
-$ pki \
-    -d /etc/dirsrv/slapd-localhost \
-    -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
-    nss-cert-issue \
-    --issuer Self-Signed-CA \
-    --csr ds_server.csr \
-    --ext /usr/share/pki/server/certs/sslserver.conf \
-    --cert ds_server.crt
+$ pki ca-cert-request-submit --profile caServerCert --csr-file ds_server.csr
+----
+
+=== Approve the Certificate Request:
+
+As a PKI agent:
+
+----
+$ pki -n caadmin ca-cert-request-review <request ID> --action approve
+----
+
+== Retrieve and Import the Certificate
+
+Retrieve the cert as the DS admin user:
+
+----
+$  pki ca-cert-export <certificate ID> --output-file ds_server.crt
 ----
 
 Finally, import DS server certificate:
