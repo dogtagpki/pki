@@ -1,1 +1,0 @@
-This page has been moved to link:installing-basic-pki-server.adoc[installing-basic-pki-server.adoc]

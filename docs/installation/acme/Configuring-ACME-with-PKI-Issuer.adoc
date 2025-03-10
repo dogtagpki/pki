@@ -1,1 +1,0 @@
-This page has been moved to link:../../admin/acme/Configuring-ACME-with-PKI-Issuer.adoc[Configuring-ACME-with-PKI-Issuer.adoc].

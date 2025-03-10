@@ -1,1 +1,0 @@
-This page has been moved to link:installing-tps-with-ldaps-connection.adoc[installing-tps-with-ldaps-connection.adoc]

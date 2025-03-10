@@ -1,1 +1,0 @@
-This page has been moved to link:installing-kra-clone.adoc[installing-kra-clone.adoc]

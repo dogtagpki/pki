@@ -1,1 +1,0 @@
-This page has been moved to link:enabling-ssl-connection-in-ds.adoc[enabling-ssl-connection-in-ds.adoc]

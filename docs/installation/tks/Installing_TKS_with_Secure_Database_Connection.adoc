@@ -1,1 +1,0 @@
-This page has been moved to link:installing-tks-with-ldaps-connection.adoc[installing-tks-with-ldaps-connection.adoc]
