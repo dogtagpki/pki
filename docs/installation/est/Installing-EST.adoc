@@ -143,11 +143,13 @@ $ curl --cacert ./ca_signing.crt --cert cert.pem --key key-x-x.pem \
 
 When mutual TLS authentication is performed the CSR subject and SAN
 has to match with the subject and SAN of the certificate used for the
-authentication in order to get authorized. This check can be disabled
+authentication in order to get authorized. Differently, using the
+basic authentication the CSR subject and SAN will be verified with
+user full name or user id. This check can be disabled
 for the _simpleenroll_ operation. To disable this check add the
 following option to the file
 `/etc/pki/<instance_name>/est/authorizer.conf`:
-
+     
 ----
 enrollMatchTLSSubjSAN=false
 ----
