@@ -10,7 +10,9 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 
+import org.apache.commons.lang3.StringUtils;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
+import org.mozilla.jss.netscape.security.x509.GeneralNameInterface;
 import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
 import org.mozilla.jss.netscape.security.x509.SubjectAlternativeNameExtension;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
@@ -18,6 +20,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.cmscore.usrgrp.User;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -73,6 +76,12 @@ public abstract class ESTRequestAuthorizer {
      *
      * @throws ForbiddenException if fields are not identical.
      */
+    /**
+     * @param csr
+     * @param cert_
+     * @param renew
+     * @throws ForbiddenException
+     */
     protected static void ensureCSRMatchesToBeCert(PKCS10 csr, X509Certificate cert_, boolean renew)
             throws ForbiddenException {
         // use a JSS X509CertImpl for easier access to the inner parts
@@ -84,7 +93,7 @@ public abstract class ESTRequestAuthorizer {
             try {
                 cert = new X509CertImpl(cert_.getEncoded());
             } catch (CertificateException e) {
-                throw new ForbiddenException("Failed to decode certificate to be renewed.");
+                throw new ForbiddenException("Failed to decode user certificate.");
             }
         }
 
@@ -98,7 +107,7 @@ public abstract class ESTRequestAuthorizer {
         //
         if (!csr.getSubjectName().equals(cert.getSubjectName()) &&
                 (!renew && !csr.getSubjectName().toString().equals(cert.getSubjectName().toString()))) {
-            throw new ForbiddenException("CSR subject does not match certificate to be renewed.");
+            throw new ForbiddenException("CSR subject does not match user certificate.");
         }
 
         // Compare SAN
@@ -107,7 +116,7 @@ public abstract class ESTRequestAuthorizer {
             csrSAN = (SubjectAlternativeNameExtension)
                 CryptoUtil.getExtensionFromPKCS10(csr, SubjectAlternativeNameExtension.NAME);
         } catch (IOException | CertificateException e) {
-            throw new BadRequestException("Failed to decode SAN extension in CSR");
+            throw new BadRequestException("Failed to decode SAN extension in CSR.");
         }
 
         // TODO get SAN from t-b-r cert; compare
@@ -120,18 +129,69 @@ public abstract class ESTRequestAuthorizer {
             if (!Arrays.equals(csrSAN.getExtensionValue(), certSAN.getExtensionValue()) &&
                     (!renew && !csrSAN.toString().equals(certSAN.toString()))) {
                 throw new ForbiddenException(
-                    "SAN extensions of certificate to be renewed and CSR are not identical.");
+                    "SAN extensions of user certificate and CSR are not identical.");
             }
         } else if (csrSAN == null && certSAN != null && renew) {
             throw new ForbiddenException(
-                "Certificate to be renewed has SubjectAlternativeName extension, "
+                "User certificate has SubjectAlternativeName extension, "
                 + "but CSR does not."
             );
         } else if (csrSAN != null && certSAN == null) {
             throw new ForbiddenException(
-                "Certificate to be renewed does not have SubjectAlternativeName extension, "
+                "User certificate does not have SubjectAlternativeName extension, "
                 + "but CSR does."
             );
         } // else both null, which is valid
     }
+
+   /** Ensure subject info in CSR matches the user details.
+    *
+    * This function implements that requirement.
+    *
+    * @throws ForbiddenException if fields are not identical.
+    */
+   protected static void ensureCSRMatchesToBeCert(PKCS10 csr, User user)
+           throws ForbiddenException {
+
+
+       String subjectDn = csr.getSubjectName().toString();
+       String subject = null;
+       for (String sub: subjectDn.split(",")) {
+           if (sub.substring(0, 3).equalsIgnoreCase("cn=")) {
+               subject = sub.substring(3);
+               break;
+           }
+           if (sub.substring(0, 4).equalsIgnoreCase("uid=")) {
+               subject = sub.substring(4);
+               break;
+           }
+       }
+
+       if (subject == null || (!StringUtils.equalsIgnoreCase(subject, user.getFullName()) &&
+               !StringUtils.equalsIgnoreCase(subject, user.getUserID()))) {
+           throw new ForbiddenException("CSR subject does not match user identity. subject '" + subject + "' from dn '" + subjectDn + "'");
+       }
+
+       // Compare SAN
+       SubjectAlternativeNameExtension csrSAN = null;
+       try {
+           csrSAN = (SubjectAlternativeNameExtension)
+               CryptoUtil.getExtensionFromPKCS10(csr, SubjectAlternativeNameExtension.NAME);
+       } catch (IOException | CertificateException e) {
+           throw new BadRequestException("Failed to decode SAN extension in CSR.");
+       }
+
+       if (csrSAN != null) {
+           for(GeneralNameInterface gName: csrSAN.getGeneralNames()) {
+               String name = gName.toString().split(":")[1].trim();
+
+               if(!StringUtils.equalsIgnoreCase(name, user.getUserID()) &&
+                       !StringUtils.equalsIgnoreCase(name, user.getFullName())) {
+               throw new ForbiddenException(
+                       "CSR SubjectAlternativeName extension does not match user."
+                       );
+               }
+           }
+       }
+   }
 }
