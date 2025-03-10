@@ -230,7 +230,7 @@
     env:
       EST_OPENSSL_CACERT: cacert.pem
   loop:
-    - estclient -e -s {{ pki_hostname }} -p 8443 --common-name {{ client_hostname }} -o . -u alice -h 4me2Test
+    - estclient -e -s {{ pki_hostname }} -p 8443 --common-name alice -o . -u alice -h 4me2Test
     - openssl base64 -d --in cert-0-0.pkcs7 --out cert-0-0.pkcs7.der
     - openssl pkcs7 -in cert-0-0.pkcs7.der -inform DER -print_certs -out cert.pem
     - openssl x509 -in cert.pem -text -noout
@@ -241,7 +241,7 @@
     command: openssl x509 -in cert.pem -noout -subject -issuer
   register: enrol_subject_issuer
   failed_when: >
-    ('subject=CN = client.example.com' not in enrol_subject_issuer.stdout_lines)  or
+    ('subject=CN = alice' not in enrol_subject_issuer.stdout_lines)  or
     ('issuer=O = EXAMPLE, OU = pki-tomcat, CN = CA Signing Certificate' not in enrol_subject_issuer.stdout_lines)
 
 - name: Check EST debug log

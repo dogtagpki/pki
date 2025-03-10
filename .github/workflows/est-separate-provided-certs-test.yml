@@ -105,11 +105,11 @@ jobs:
               --output-file estUser.crt
 
           docker exec ca pki nss-cert-import --cert estUser.crt "EST subsystem cert"
-          
+
           docker exec ca pki -n caadmin ca-user-cert-add est-ra-1 --input estUser.crt
 
           docker exec ca pki pkcs12-cert-import "EST subsystem cert" --pkcs12-file $SHARED/est_server.p12 --pkcs12-password Secret.123 --append
-          
+
       - name: Configure CA est profile
         run: |
           docker exec ca pki -n caadmin ca-profile-add \
@@ -140,7 +140,7 @@ jobs:
           docker exec -i est ldapadd -x -H ldap://estds.example.com:3389 \
               -D "cn=Directory Manager"  -w Secret.123 \
               -f /usr/share/pki/est/conf/realm/ds/create.ldif
-          
+
       - name: Install EST
         run: |
           docker exec est pkispawn \
@@ -272,11 +272,11 @@ jobs:
           objectClass: organizationalPerson
           objectClass: inetOrgPerson
           uid: est-test-user
-          sn: EST TEST USER
-          cn: EST TEST USER
+          sn: test.example.com
+          cn: test.example.com
           userPassword: Secret.123
           EOF
-          
+
       - name: Add EST user to EST Users group
         run: |
           docker exec -i est ldapmodify -x -H ldap://estds.example.com:3389 \
@@ -289,7 +289,7 @@ jobs:
 
       - name: Install est client
         run: |
-          docker exec est dnf copr enable -y @pki/libest 
+          docker exec est dnf copr enable -y @pki/libest
           docker exec est dnf install -y libest
 
       - name: Enroll certificate

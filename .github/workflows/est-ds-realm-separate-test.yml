@@ -236,8 +236,8 @@ jobs:
           objectClass: organizationalPerson
           objectClass: inetOrgPerson
           uid: est-test-user
-          sn: EST TEST USER
-          cn: EST TEST USER
+          sn: test.example.com
+          cn: test.example.com
           userPassword: Secret.123
           EOF
           
