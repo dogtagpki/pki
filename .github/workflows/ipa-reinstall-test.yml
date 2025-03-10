@@ -1,0 +1,302 @@
+name: IPA reinstall
+
+on: workflow_call
+
+env:
+  DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Retrieve IPA images
+        uses: actions/cache@v4
+        with:
+          key: ipa-images-${{ github.sha }}
+          path: ipa-images.tar
+
+      - name: Load IPA images
+        run: docker load --input ipa-images.tar
+
+      - name: Run IPA container
+        run: |
+          tests/bin/runner-init.sh ipa
+        env:
+          IMAGE: ipa-runner
+          HOSTNAME: ipa.example.com
+
+      - name: Install IPA server
+        run: |
+          docker exec ipa sysctl net.ipv6.conf.lo.disable_ipv6=0
+          docker exec ipa ipa-server-install \
+              -U \
+              --domain example.com \
+              -r EXAMPLE.COM \
+              -p Secret.123 \
+              -a Secret.123 \
+              --no-host-dns \
+              --no-ntp
+
+          echo Secret.123 | docker exec -i ipa kinit admin
+          docker exec ipa ipa ping
+
+      - name: Import CA signing cert
+        run: |
+          docker exec ipa pki-server cert-export \
+              --cert-file ca_signing.crt \
+              ca_signing
+
+          docker exec ipa pki nss-cert-import \
+              --cert ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
+          docker exec ipa pki nss-cert-show ca_signing | tee ca_signing.orig
+
+      - name: Check CA agent cert
+        run: |
+          docker exec ipa ls -l /root
+
+          docker exec ipa pki pkcs12-import \
+              --pkcs12 /root/ca-agent.p12 \
+              --password Secret.123
+
+          docker exec ipa pki nss-cert-show ipa-ca-agent | tee ipa-ca-agent.orig
+
+          # CA agent should be able to access CA users
+          docker exec ipa pki -n ipa-ca-agent ca-user-find
+
+      - name: Check RA agent cert
+        run: |
+          docker exec ipa ls -l /var/lib/ipa
+
+          # import RA agent cert and key into PKCS #12 file
+          docker exec ipa openssl pkcs12 -export \
+              -in /var/lib/ipa/ra-agent.pem \
+              -inkey /var/lib/ipa/ra-agent.key \
+              -out ra-agent.p12 \
+              -passout pass:Secret.123 \
+              -name ipa-ra-agent
+
+          # import PKCS #12 file into NSS database
+          docker exec ipa pki pkcs12-import \
+              --pkcs12 ra-agent.p12 \
+              --password Secret.123
+
+          docker exec ipa pki nss-cert-show ipa-ra-agent | tee ipa-ra-agent.orig
+
+          # RA agent should be able to access cert requests
+          docker exec ipa pki -n ipa-ra-agent ca-cert-request-find
+
+      - name: Install KRA
+        run: |
+          docker exec ipa ipa-kra-install -p Secret.123
+
+      - name: Check KRA users
+        run: |
+          # CA agent should be able to access KRA users
+          docker exec ipa pki -n ipa-ca-agent kra-user-find
+
+      - name: Check IPA CA install log
+        if: always()
+        run: |
+          docker exec ipa cat /var/log/ipaserver-install.log
+
+      - name: Check IPA KRA install log
+        if: always()
+        run: |
+          docker exec ipa cat /var/log/ipaserver-kra-install.log
+
+      - name: Check PKI server systemd journal
+        if: always()
+        run: |
+          docker exec ipa journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check PKI server access log
+        if: always()
+        run: |
+          docker exec ipa find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+
+      - name: Check CA debug log
+        if: always()
+        run: |
+          docker exec ipa find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check KRA debug log
+        if: always()
+        run: |
+          docker exec ipa find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
+
+      - name: Remove IPA server
+        run: |
+          docker exec ipa ipa-server-install --uninstall -U
+
+      - name: Check /etc/pki after removal
+        if: always()
+        run: |
+          docker exec ipa ls -lR /etc/pki
+
+      - name: Check /var/lib/pki after removal
+        if: always()
+        run: |
+          docker exec ipa ls -lR /var/lib/pki
+
+      - name: Check /var/log/pki after removal
+        if: always()
+        run: |
+          docker exec ipa ls -lR /var/log/pki
+
+      - name: Check /root/.dogtag after removal
+        run: |
+          docker exec ipa ls -lR /root/.dogtag
+
+      - name: Install IPA server again
+        run: |
+          docker exec ipa ipa-server-install \
+              -U \
+              --domain example.com \
+              -r EXAMPLE.COM \
+              -p Secret.123 \
+              -a Secret.123 \
+              --no-host-dns \
+              --no-ntp
+
+          echo Secret.123 | docker exec -i ipa kinit admin
+          docker exec ipa ipa ping
+
+      - name: Import CA signing cert again
+        run: |
+          # create new NSS database
+          docker exec ipa pki nss-create --force
+
+          docker exec ipa pki-server cert-export \
+              --cert-file ca_signing.crt \
+              ca_signing
+
+          docker exec ipa pki nss-cert-import \
+              --cert ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
+          docker exec ipa pki nss-cert-show ca_signing | tee ca_signing.new
+
+          # CA signing cert should be different
+          rc=0
+          diff ca_signing.orig ca_signing.new || rc=$?
+
+          [ $rc -ne 0 ]
+
+      - name: Check CA agent cert again
+        run: |
+          docker exec ipa ls -l /root
+
+          docker exec ipa pki pkcs12-import \
+              --pkcs12 /root/ca-agent.p12 \
+              --password Secret.123
+
+          docker exec ipa pki nss-cert-show ipa-ca-agent | tee ipa-ca-agent.new
+
+          # CA agent cert should be different
+          rc=0
+          diff ipa-ca-agent.orig ipa-ca-agent.new || rc=$?
+
+          [ $rc -ne 0 ]
+
+          # CA agent should be able to access CA users
+          docker exec ipa pki -n ipa-ca-agent ca-user-find
+
+      - name: Check RA agent cert again
+        run: |
+          docker exec ipa ls -l /var/lib/ipa
+
+          # import RA agent cert and key into PKCS #12 file
+          docker exec ipa openssl pkcs12 -export \
+              -in /var/lib/ipa/ra-agent.pem \
+              -inkey /var/lib/ipa/ra-agent.key \
+              -out ra-agent.p12 \
+              -passout pass:Secret.123 \
+              -name ipa-ra-agent
+
+          # import PKCS #12 file into NSS database
+          docker exec ipa pki pkcs12-import \
+              --pkcs12 ra-agent.p12 \
+              --password Secret.123
+
+          docker exec ipa pki nss-cert-show ipa-ra-agent | tee ipa-ra-agent.new
+
+          # RA agent cert should be different
+          rc=0
+          diff ipa-ra-agent.orig ipa-ra-agent.new || rc=$?
+
+          [ $rc -ne 0 ]
+
+          # RA agent should be able to access cert requests
+          docker exec ipa pki -n ipa-ra-agent ca-cert-request-find
+
+      - name: Install KRA again
+        run: |
+          docker exec ipa ipa-kra-install -p Secret.123
+
+      - name: Check KRA users again
+        run: |
+          # CA agent should be able to access KRA users
+          docker exec ipa pki -n ipa-ca-agent kra-user-find
+
+      - name: Check IPA CA install log
+        if: always()
+        run: |
+          docker exec ipa cat /var/log/ipaserver-install.log
+
+      - name: Check IPA KRA install log
+        if: always()
+        run: |
+          docker exec ipa cat /var/log/ipaserver-kra-install.log
+
+      - name: Check PKI server systemd journal
+        if: always()
+        run: |
+          docker exec ipa journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check PKI server access log
+        if: always()
+        run: |
+          docker exec ipa find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+
+      - name: Check CA debug log
+        if: always()
+        run: |
+          docker exec ipa find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check KRA debug log
+        if: always()
+        run: |
+          docker exec ipa find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
+
+      - name: Remove IPA server again
+        run: |
+          docker exec ipa ipa-server-install --uninstall -U
+
+      - name: Check /etc/pki after removal
+        if: always()
+        run: |
+          docker exec ipa ls -lR /etc/pki
+
+      - name: Check /var/lib/pki after removal
+        if: always()
+        run: |
+          docker exec ipa ls -lR /var/lib/pki
+
+      - name: Check /var/log/pki after removal
+        if: always()
+        run: |
+          docker exec ipa ls -lR /var/log/pki
+
+      - name: Check /root/.dogtag after removal
+        run: |
+          docker exec ipa ls -lR /root/.dogtag

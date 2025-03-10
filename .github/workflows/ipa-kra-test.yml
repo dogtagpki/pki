@@ -103,12 +103,7 @@ jobs:
         run: |
           docker exec ipa ls -la /root/.dogtag/pki-tomcat
           docker exec ipa cat /root/.dogtag/pki-tomcat/ca_admin.cert
-
-          # Currently IPA creates ca_admin.cert in Base64 format
-          # so it cannot be parsed by OpenSSL.
-          # https://pagure.io/freeipa/issue/9735
-          # TODO: Enable the test after the issue is fixed.
-          # docker exec ipa openssl x509 -text -noout -in /root/.dogtag/pki-tomcat/ca_admin.cert
+          docker exec ipa openssl x509 -text -noout -in /root/.dogtag/pki-tomcat/ca_admin.cert
 
       - name: Check KRA users
         run: |

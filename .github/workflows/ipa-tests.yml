@@ -94,6 +94,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/ipa-acme-test.yml
 
+  ipa-reinstall-test:
+    name: IPA reinstall
+    needs: build
+    uses: ./.github/workflows/ipa-reinstall-test.yml
+
   ipa-renewal-test:
     name: IPA renewal
     needs: build
