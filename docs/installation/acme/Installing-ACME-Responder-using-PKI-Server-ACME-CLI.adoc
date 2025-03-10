@@ -1,1 +1,0 @@
-This page has been moved to link:installing-acme-responder-using-pki-server-acme-cli.adoc[installing-acme-responder-using-pki-server-acme-cli.adoc]
