@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.cms.realm.PKIPrincipal;
 
 /**
  * Request authorizer that invokes an external process to calculate
@@ -77,6 +78,11 @@ public class ExternalProcessRequestAuthorizer extends ESTRequestAuthorizer {
             throws PKIException {
         if (enrollMatchSubjSAN && data.clientCertChain != null && data.clientCertChain.length > 0) {
             ensureCSRMatchesToBeCert(csr, data.clientCertChain[0], false);
+        }
+        if (enrollMatchSubjSAN && data.clientCertChain == null) {
+            if(data.principal instanceof PKIPrincipal principal) {
+                ensureCSRMatchesToBeCert(csr, principal.getUser());
+            }
         }
         return check(OPERATION_SIMPLEENROLL, data, csr, null);
     }
