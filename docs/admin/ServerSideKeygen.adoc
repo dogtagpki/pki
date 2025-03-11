@@ -121,6 +121,9 @@ profile can overwrite to allow stronger or weaker passwords.
 
 NOTE: If cracklibCheck=true is enabled, SELinux may block /usr/sbin/cracklib-check, preventing it from functioning correctly. This can result in unexpected failures during password strength validation. To resolve this issue, apply the necessary SELinux policies using the following commands, which adjust SELinux settings to allow cracklib-check to execute as expected.
 
+Apply the necessary SELinux policies:
+
+[literal]
  # setsebool -P domain_can_mmap_files 1
  # ausearch -c 'cracklib-check' --raw | audit2allow -M my-cracklibcheck
  # semodule -X 300 -i my-cracklibcheck.pp
