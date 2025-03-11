@@ -96,7 +96,6 @@ policyset.userCertSet.11.constraint.params.password.minNumber=2
 policyset.userCertSet.11.constraint.params.password.minSpecialChar=2
 policyset.userCertSet.11.constraint.params.password.seqLength=6
 policyset.userCertSet.11.constraint.params.password.maxRepeatedChar=3
-policyset.userCertSet.11.constraint.params.password.cracklibCheck=false
 policyset.userCertSet.11.default.class_id=noDefaultImpl
 policyset.userCertSet.11.default.name=No Default
 
@@ -110,7 +109,6 @@ This policy  allows to set:
 * `password.minSpecialChar` - the minimum number of punctuation characters;
 * `password.seqLength` - the size of substring sequence which cannot be repeated;
 * `password.maxRepeatedChar` - maximum number of repeating for each character;
-* `password.cracklibCheck` - a boolean to request an additional check with *cracklib* (it has to be installed if not present).
 
  If the constraint does not include specific configuration it will
 read the options from the `CS.cfg`. In the case the name is different,
