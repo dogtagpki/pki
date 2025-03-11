@@ -1,1 +1,0 @@
-Converted/moved to [Installing_KRA_with_External_Certificates.adoc](../kra/Installing_KRA_with_External_Certificates.adoc)

@@ -1,1 +1,0 @@
-Converted/moved to [Installing_TPS.adoc](../tps/Installing_TPS.adoc)

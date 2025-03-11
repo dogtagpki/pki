@@ -1,1 +1,0 @@
-Converted/moved to [Installing_KRA_Clone_with_HSM.adoc](../kra/Installing_KRA_Clone_with_HSM.adoc)

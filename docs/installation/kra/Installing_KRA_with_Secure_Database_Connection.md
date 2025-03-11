@@ -1,1 +1,0 @@
-Converted/moved to [Installing_KRA_with_Secure_Database_Connection.adoc](../kra/Installing_KRA_with_Secure_Database_Connection.adoc)

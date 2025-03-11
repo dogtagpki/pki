@@ -1,1 +1,0 @@
-Converted/moved to [Installing_OCSP_with_Secure_Database_Connection.adoc](../ocsp/Installing_OCSP_with_Secure_Database_Connection.adoc)
