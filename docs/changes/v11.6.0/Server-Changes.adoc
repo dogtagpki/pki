@@ -52,7 +52,6 @@ A new policy constraint is defined to enforce the password quality: *p12ExportPa
 * `password.minSpecialChar` - the minimum number of punctuation characters;
 * `password.seqLength` - the size of substring sequence which cannot be repeated;
 * `password.maxRepeatedChar` - maximum number of repeating for each character;
-* `password.cracklibCheck` - a boolean to request an additional check with *cracklib* (it has to be installed if not present).
 
 
 These parameter can be configured in each profile using the input
