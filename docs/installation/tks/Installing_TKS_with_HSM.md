@@ -1,1 +1,0 @@
-Converted/moved to [Installing_TKS_with_HSM.adoc](../tks/Installing_TKS_with_HSM.adoc)

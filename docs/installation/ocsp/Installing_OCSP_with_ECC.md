@@ -1,1 +1,0 @@
-Converted/moved to [Installing_OCSP_with_ECC.adoc](../ocsp/Installing_OCSP_with_ECC.adoc)

@@ -1,1 +1,0 @@
-Converted/moved to [Installing_KRA_with_Custom_Keys.adoc](../kra/Installing_KRA_with_Custom_Keys.adoc)

@@ -1,1 +1,0 @@
-Converted/moved to [Installing_TPS_with_HSM.adoc](../tps/Installing_TPS_with_HSM.adoc)

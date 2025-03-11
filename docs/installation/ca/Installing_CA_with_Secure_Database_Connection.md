@@ -1,1 +1,0 @@
-Converted/moved to [Installing_CA_with_Secure_Database_Connection.adoc](../ca/Installing_CA_with_Secure_Database_Connection.adoc)

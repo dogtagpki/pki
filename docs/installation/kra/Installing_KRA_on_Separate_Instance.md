@@ -1,1 +1,0 @@
-Converted/moved to [Installing_KRA_on_Separate_Instance.adoc](../kra/Installing_KRA_on_Separate_Instance.adoc)

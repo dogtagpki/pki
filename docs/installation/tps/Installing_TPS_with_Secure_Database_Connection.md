@@ -1,1 +1,0 @@
-Converted/moved to [Installing_TPS_with_Secure_Database_Connection.adoc](../tps/Installing_TPS_with_Secure_Database_Connection.adoc)

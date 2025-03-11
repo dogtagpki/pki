@@ -1,1 +1,0 @@
-Converted/moved to [Installing_Basic_PKI_Server.adoc](../server/Installing_Basic_PKI_Server.adoc)

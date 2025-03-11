@@ -1,1 +1,0 @@
-Converted/moved to [Installing_Subordinate_CA.adoc](../ca/Installing_Subordinate_CA.adoc)
