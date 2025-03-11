@@ -240,8 +240,8 @@ BuildRequires:    mvn(org.apache.tomcat:tomcat-util-scan) >= 9.0.62
 BuildRequires:    tomcat9-lib
 %endif
 
-BuildRequires:    mvn(org.dogtagpki.jss:jss-base) >= 5.6.0
-BuildRequires:    mvn(org.dogtagpki.jss:jss-tomcat) >= 5.6.0
+BuildRequires:    mvn(org.dogtagpki.jss:jss-base) >= 5.7
+BuildRequires:    mvn(org.dogtagpki.jss:jss-tomcat) >= 5.7
 BuildRequires:    mvn(org.dogtagpki.ldap-sdk:ldapjdk) >= 5.6.0
 
 # Python build dependencies
@@ -582,7 +582,7 @@ Provides:         bundled(resteasy-client)
 Provides:         bundled(resteasy-jackson2-provider)
 %endif
 
-Requires:         mvn(org.dogtagpki.jss:jss-base) >= 5.6.0
+Requires:         mvn(org.dogtagpki.jss:jss-base) >= 5.7
 Requires:         mvn(org.dogtagpki.ldap-sdk:ldapjdk) >= 5.6.0
 Requires:         %{product_id}-base = %{version}-%{release}
 
@@ -660,7 +660,7 @@ Requires:         tomcat9 >= 1:9.0.62
 %else
 Requires:         tomcat >= 1:9.0.62
 %endif
-Requires:         mvn(org.dogtagpki.jss:jss-tomcat) >= 5.6.0
+Requires:         mvn(org.dogtagpki.jss:jss-tomcat) >= 5.7
 
 Requires:         systemd
 Requires(post):   systemd-units

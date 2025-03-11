@@ -19,7 +19,7 @@
         <dependency>
             <groupId>org.dogtagpki.jss</groupId>
             <artifactId>jss-tomcat</artifactId>
-            <version>[5.5.0-SNAPSHOT,)</version>
+            <version>[5.7.0-SNAPSHOT,)</version>
         </dependency>
 
         <dependency>
