@@ -3090,7 +3090,7 @@ class PKIDeployer:
             if not request.systemCert.keySize:
                 request.systemCert.keySize = subsystem.config['keys.rsa.keysize.default']
 
-            if tag == 'transport' or tag == 'storage':
+            if tag == 'transport' or tag == 'storage' or tag == 'subsystem':
                 request.systemCert.keyWrap = True
             else:
                 request.systemCert.keyWrap = False
