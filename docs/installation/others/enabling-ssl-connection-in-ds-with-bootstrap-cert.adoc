@@ -1,15 +1,15 @@
 :_mod-docs-content-type: PROCEDURE
 
-[id="enabling-temp-ssl-connection-in-ds_{context}"]
+[id="enabling-ssl-connection-in-ds-with-bootstrap-cert_{context}"]
 
 // This content was copied and adjusted from https://github.com/dogtagpki/pki/wiki/Enabling-SSL-Connection-in-DS
 
-= Enabling Temporary SSL Connection in DS 
+= Enabling SSL Connection in DS Using Bootstrap Certs
 
 *If you already have an active trusted CA, and you wish to issue a server cert for your DS, please follow link:enabling-ssl-connection-in-ds.adoc[this section] instead.*
 
 Follow this process using `pki` CLI (run `man pki-client`) commands to enable SSL connection in DS
-by creating a temporary DS bootstrap self-signed signing certificate and the bootstrap server certificate issued by it.
+by creating a bootstrap DS self-signed signing certificate and the bootstrap server certificate issued by it.
 
 This section assumes that a DS instance named `localhost` already exists,
 it does not have certificates, and the SSL connection is disabled.
@@ -76,6 +76,7 @@ $ certutil -L -d /etc/dirsrv/slapd-localhost -n Self-Signed-CA
             User
 ----
 
+[id="creating-ds-server-certificate_{context}"]
 == Creating DS Server Certificate 
 
 First, generate DS server CSR with the following command:
@@ -129,6 +130,7 @@ $ certutil -L -d /etc/dirsrv/slapd-localhost -n Server-Cert
             User
 ----
 
+[id="enabling-ssl-connection_{context}"]
 == Enabling SSL Connection 
 
 To enable SSL connection in the DS instance:

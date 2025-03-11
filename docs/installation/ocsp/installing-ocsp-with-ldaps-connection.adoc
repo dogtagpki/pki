@@ -8,9 +8,10 @@ Follow this process to install an OCSP subsystem with a secure database connecti
 
 Prior to installation, please ensure that the link:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
 
-Additional steps:
-
-Ensure that the secure connection has been enabled on the directory server, and export the signing certificate for the directory server into ds_signing.crt. This step is described link:https://github.com/dogtagpki/389-ds-base/wiki/Configuring-SSL-Connection[here].
+== DS Configuration
+Once the prerequisites listed above are completed, if you had chosen to use the temporary DS bootstrap certificates during DS instance creation,
+then export the bootstrap self-signed certificate into `ds_signing.crt` as described in
+xref:../others/exporting-ds-certificates.adoc#exporting-ds-signing-certificate[Exporting DS Signing Certificate].
 
 == OCSP Subsystem Installation 
 
@@ -170,3 +171,8 @@ $ OCSPClient \
 CertID.serialNumber=1
 CertStatus=Good
 ....
+
+== Getting Real DS Certificate from the CA 
+
+If desired, follow link:../others/enabling-ssl-connection-in-ds.adoc[this procedure] to get real DS certificate issued by the CA.
+

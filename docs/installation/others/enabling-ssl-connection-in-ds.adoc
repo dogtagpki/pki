@@ -2,6 +2,8 @@
 
 [id="enabling-ssl-connection-in-ds_{context}"]
 
+// This section is intended for all PKI subsystems
+
 = Enabling SSL Connection in DS 
 
 Follow this process using `pki` CLI (run `man pki-client`) commands to enable SSL connection in DS.
@@ -10,23 +12,16 @@ This section assumes that a DS instance named `localhost` already exists,
 
 Two conditions are covered by this section:
 
-* The DS instance does not already have any SSL server certificate, temporary or otherwise, and it is time to create an actual server cert for it.
-* The DS instance has a temporary SSL server certificate, and it is time to replace it.
+* The DS instance does not already have any SSL server certificate, bootstrap or otherwise, and it is time to create an actual server cert for it.
+* The DS instance has a bootstrap SSL server certificate, and you wish to replace it.
 
 It is assumed that an actual trusted CA is available for issuing certificates.
 
-== Import the CA signing certificate
-Import the CA signing cert into the nssdb of the DS instance.
+== Export the CA Signing Certificate
 
 [literal,subs="+quotes,verbatim"]
 ....
-# pki \
-    -d /etc/dirsrv/slapd-localhost \
-    -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
-    nss-cert-import \
-    --cert ca_signing.crt \
-    --trust CT,C,C \
-    "CA Signing Cert"
+pki-server cert-export ca_signing --cert-file ca_signing.crt
 ....
 
 == Creating DS Server Certificate 
@@ -45,6 +40,8 @@ $ pki \
     --csr ds_server.csr
 ----
 
+*Note:* Make sure the certificate subject DN and SAN matche the system hostname.
+
 === Submit DS Server Certificate Request:
 
 As a DS admin:
@@ -61,7 +58,7 @@ As a PKI agent:
 $ pki -n caadmin ca-cert-request-review <request ID> --action approve
 ----
 
-== Retrieve and Import the Certificate
+== Retrieve the Certificate
 
 Retrieve the cert as the DS admin user:
 
@@ -69,7 +66,48 @@ Retrieve the cert as the DS admin user:
 $  pki ca-cert-export <certificate ID> --output-file ds_server.crt
 ----
 
-Finally, import DS server certificate:
+== Stop the DS instance
+
+Stop the DS instance prior to changing the NSS database.
+
+[literal,subs="+quotes,verbatim"]
+....
+$ dsctl localhost stop
+....
+
+== Import the CA signing certificate
+
+As a DS administrator, import the CA signing cert into the nssdb of the DS instance.
+
+[literal,subs="+quotes,verbatim"]
+....
+# pki \
+    -d /etc/dirsrv/slapd-localhost \
+    -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
+    nss-cert-import \
+    --cert ca_signing.crt \
+    --trust CT,C,C \
+    "CA Signing Cert"
+....
+
+== Delete DS Bootstrap Certificates
+
+// We could ask them to do a backup before proceeding, but they
+// could just create new bootstrap certs if messed up
+
+If you already had boostrap DS certificates, delete them:
+
+[literal,subs="+quotes,verbatim"]
+....
+$ certutil -F -d /etc/dirsrv/slapd-localhost \
+    -f /etc/dirsrv/slapd-localhost/pwdfile.txt \
+    -n Server-Cert
+$ certutil -F -d /etc/dirsrv/slapd-localhost \
+    -f /etc/dirsrv/slapd-localhost/pwdfile.txt \
+    -n Self-Signed-CA
+....
+
+== Import DS server certificate:
 
 ----
 $ pki \
@@ -96,16 +134,18 @@ $ certutil -L -d /etc/dirsrv/slapd-localhost -n Server-Cert
 
 == Enabling SSL Connection 
 
+This section only applies if you did not enable SSL in your DS earlier.
+
 To enable SSL connection in the DS instance:
 
 ----
 $ dsconf localhost config replace nsslapd-security=on
 ----
 
-Finally, restart the DS instance:
+Finally, start the DS instance:
 
 ----
-$ dsctl localhost restart
+$ dsctl localhost start
 ----
 
 To verify the SSL connection:
@@ -119,6 +159,19 @@ $ LDAPTLS_REQCERT=never ldapsearch \
     -b "" \
     -s base
 ----
+
+== Delete DS Bootstrap Signing Cert from PKI Instance
+
+If you are replacing the DS bootstrap certs, as a PKI administrator, stop the PKI then delete the DS bootstrap signing cert from the PKI nssdb as follows.
+
+[literal,subs="+quotes,verbatim"]
+....
+$ certutil -F -d /var/lib/pki/pki-tomcat/conf/alias \
+    -f /var/lib/pki/pki-tomcat/conf/alias/pwdfile.txt \
+    -n ds_signing
+....
+
+Start the PKI.
 
 == See Also 
 
