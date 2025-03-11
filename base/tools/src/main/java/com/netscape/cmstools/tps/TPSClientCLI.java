@@ -64,7 +64,63 @@ public class TPSClientCLI extends CommandCLI {
     public native void setOldStyle(long client, boolean value) throws Exception;
 
     public native void displayHelp(long client) throws Exception;
-    public native void formatToken(long client, Map<String, String> params) throws Exception;
+
+    public native void performFormatToken(long client, Map<String, String> params) throws Exception;
+
+    public void oldFormatToken(
+            long client,
+            Map<String, String> params)
+            throws Exception {
+
+        String value = params.get("num_threads");
+        int numThreads = value == null ? 1 : Integer.parseInt(value);
+
+        Thread[] threads = new Thread[numThreads];
+        Exception[] exceptions = new Exception[numThreads];
+
+        // start threads
+        for (int i=0; i<numThreads; i++) {
+
+            int index = i;
+
+            threads[i] = new Thread(new Runnable() {
+                public void run() {
+                    try {
+                        performFormatToken(client, params);
+                    } catch (Exception e) {
+                        exceptions[index] = e;
+                    }
+                }
+            });
+
+            threads[i].start();
+        }
+
+        // wait for threads to complete
+        for (int i=0; i<numThreads; i++) {
+            threads[i].join();
+        }
+
+        // check for exceptions
+        for (int i=0; i<numThreads; i++) {
+            if (exceptions[i] != null) throw exceptions[i];
+        }
+    }
+
+    public native void newFormatToken(long client, Map<String, String> params) throws Exception;
+
+    public void formatToken(
+            long client,
+            Map<String, String> params)
+            throws Exception {
+
+        if (getOldStyle(client)) {
+            oldFormatToken(client, params);
+        } else {
+            newFormatToken(client, params);
+        }
+    }
+
     public native void resetPIN(long client, Map<String, String> params) throws Exception;
     public native void enrollToken(long client, Map<String, String> params) throws Exception;
     public native void displayToken(long client, Map<String, String> params) throws Exception;

@@ -492,25 +492,12 @@ HandleTokenPDURequest (RA_Client * client,
   return 1;
 }
 
-
-typedef struct _ThreadArg
-{
-  PRTime time;			/* processing time */
-  int status;			/* status result */
-  NameValueSet *params;		/* parameters */
-  RA_Client *client;		/* client */
-  RA_Token *token;		/* token */
-
-  PRLock *donelock;		/* lock */
-  int done;			/* are we done? */
-} ThreadArg;
-
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-  static void ThreadConnUpdate (void *arg)
+  void ThreadConnUpdate (void *arg)
   {
     PRTime start, end;
     ThreadArg *targ = (ThreadArg *) arg;
@@ -800,79 +787,6 @@ extern "C"
 #ifdef __cplusplus
 }
 #endif
-
-int
-RA_Client::OpConnUpdate (NameValueSet * params)
-{
-  int num_threads = params->GetValueAsInt ((char *) "num_threads", 1);
-  int i;
-  int status = 0;
-  PRThread **threads;
-  ThreadArg *arg;
-
-  threads = (PRThread **) malloc (sizeof (PRThread *) * num_threads);
-  if (threads == NULL)
-    {
-      return 0;
-    }
-  arg = (ThreadArg *) malloc (sizeof (ThreadArg) * num_threads);
-  if (arg == NULL)
-    {
-      if(threads) {
-          free(threads);
-          threads = NULL;
-      }
-      return 0;
-    }
-
-  /* start threads */
-  for (i = 0; i < num_threads; i++)
-    {
-      arg[i].time = 0;
-      arg[i].status = 0;
-      arg[i].client = this;
-      if (i == 0)
-	{
-	  arg[i].token = &this->m_token;
-	}
-      else
-	{
-	  arg[i].token = this->m_token.Clone ();
-	}
-      arg[i].params = params;
-      threads[i] = PR_CreateThread (PR_USER_THREAD, ThreadConnUpdate, &arg[i], PR_PRIORITY_NORMAL,	/* Priority */
-				    PR_GLOBAL_THREAD,	/* Scope */
-				    PR_JOINABLE_THREAD,	/* State */
-				    0	/* Stack Size */
-	);
-    }
-
-  /* join threads */
-  for (i = 0; i < num_threads; i++)
-    {
-      PR_JoinThread (threads[i]);
-    }
-
-  for (i = 0; i < num_threads; i++)
-    {
-      Output ("Thread (%d) status='%d' time='%d msec'", i,
-	      arg[i].status, arg[i].time);
-    }
-
-  status = arg[0].status;
-
-  if(arg) {
-     free(arg);
-     arg = NULL;
-  }
-
-  if(threads) {
-     free(threads);
-     threads = NULL;
-  }
-
-  return status;
-}
 
 int
 RA_Client::OpConnResetPin (NameValueSet * params)
