@@ -149,11 +149,11 @@ Java_com_netscape_cmstools_tps_TPSClientCLI_formatToken
         status = cclient->OpConnStart(set, OP_CLIENT_FORMAT);
     }
 
+    delete set;
+
     if (status == 0) {
         throwCLIException(env, "Unable to format token");
     }
-
-    delete set;
 }
 
 extern "C" JNIEXPORT void JNICALL
@@ -170,11 +170,11 @@ Java_com_netscape_cmstools_tps_TPSClientCLI_resetPIN
         status = cclient->OpConnStart(set, OP_CLIENT_RESET_PIN);
     }
 
+    delete set;
+
     if (status == 0) {
         throwCLIException(env, "Unable to reset PIN");
     }
-
-    delete set;
 }
 
 extern "C" JNIEXPORT void JNICALL
@@ -191,11 +191,11 @@ Java_com_netscape_cmstools_tps_TPSClientCLI_enrollToken
         status = cclient->OpConnStart(set, OP_CLIENT_ENROLL);
     }
 
+    delete set;
+
     if (status == 0) {
         throwCLIException(env, "Unable to enroll token");
     }
-
-    delete set;
 }
 
 extern "C" JNIEXPORT void JNICALL
@@ -207,11 +207,11 @@ Java_com_netscape_cmstools_tps_TPSClientCLI_displayToken
 
     int status = cclient->OpTokenStatus(set);
 
+    delete set;
+
     if (status == 0) {
         throwCLIException(env, "Unable to display token");
     }
-
-    delete set;
 }
 
 extern "C" JNIEXPORT void JNICALL
@@ -223,11 +223,11 @@ Java_com_netscape_cmstools_tps_TPSClientCLI_setupToken
 
     int status = cclient->OpTokenSet(set);
 
+    delete set;
+
     if (status == 0) {
         throwCLIException(env, "Unable to set up token");
     }
-
-    delete set;
 }
 
 extern "C" JNIEXPORT void JNICALL
@@ -239,11 +239,11 @@ Java_com_netscape_cmstools_tps_TPSClientCLI_setupDebug
 
     int status = cclient->OpVarDebug(set);
 
+    delete set;
+
     if (status == 0) {
         throwCLIException(env, "Unable to set up debug");
     }
-
-    delete set;
 }
 
 extern "C" JNIEXPORT void JNICALL
@@ -255,11 +255,11 @@ Java_com_netscape_cmstools_tps_TPSClientCLI_setVariable
 
     int status = cclient->OpVarSet(set);
 
+    delete set;
+
     if (status == 0) {
         throwCLIException(env, "Unable to set variable");
     }
-
-    delete set;
 }
 
 extern "C" JNIEXPORT void JNICALL
@@ -271,11 +271,11 @@ Java_com_netscape_cmstools_tps_TPSClientCLI_displayVariable
 
     int status = cclient->OpVarGet(set);
 
+    delete set;
+
     if (status == 0) {
         throwCLIException(env, "Unable to display variable");
     }
-
-    delete set;
 }
 
 extern "C" JNIEXPORT void JNICALL
