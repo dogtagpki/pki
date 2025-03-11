@@ -58,7 +58,6 @@ class RA_Client
 	  int OpConnStart(NameValueSet *set, RequestType);
 	  int OpConnResetPin(NameValueSet *set);
 	  int OpConnEnroll(NameValueSet *set);
-	  int OpConnUpdate(NameValueSet *set);
 	  int OpTokenStatus(NameValueSet *set);
 	  int OpTokenSet(NameValueSet *set);
 	  int OpVarList(NameValueSet *set);
@@ -73,5 +72,20 @@ class RA_Client
 	  NameValueSet m_vars;
 	  PRBool old_style = PR_TRUE;
 };
+
+typedef struct _ThreadArg
+{
+  PRTime time;          /* processing time */
+  int status;           /* status result */
+  NameValueSet *params;     /* parameters */
+  RA_Client *client;        /* client */
+  RA_Token *token;      /* token */
+
+  PRLock *donelock;     /* lock */
+  int done;         /* are we done? */
+} ThreadArg;
+
+extern "C" void
+ThreadConnUpdate (void *arg);
 
 #endif /* RA_CLIENT_H */
