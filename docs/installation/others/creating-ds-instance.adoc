@@ -12,9 +12,9 @@
 
 Follow this process to prepare a local DS instance for PKI server.
 
-*Note:* The DS installation automatically generates a temporary bootstrap self-signed signing certificate which issues a temporary bootstrap server certificate for SSL connection. The PKI installation takes advantage of this security offer to complete its installation. The temporary bootstrap server certificate could be replaced by a server certificate issued by an actual CA at a later step after the installation.
+*Note:* The DS installation automatically generates a bootstrap self-signed signing certificate which issues a bootstrap server certificate for SSL connection. The PKI installation takes advantage of this security offer to complete its installation. The bootstrap server certificate could be replaced by a server certificate issued by an actual CA at a later step after the installation.
 
-_If you wish to have the temporary certificate generation and the SSL connection disabled, set `self_sign_cert = False` in the `sed` command below. You can still enable SSL later by following link:enabling-temp-ssl-connection-in-ds.adoc[Enabling SSL Connection in DS]._
+_If you wish to disable bootstrap certificate generation and SSL connection, set `self_sign_cert = False` in the `sed` command below. You can still enable SSL later by following link:enabling-ssl-connection-in-ds-with-bootstrap-cert.adoc[Enabling SSL Connection in DS with Bootstrap Cert]._
 
 == Creating a DS Instance 
 
@@ -69,10 +69,10 @@ The subtree for each PKI subsystem is created when the subsystem is installed. S
 
 == Enabling SSL Connection 
 
-If you set `self_sign_cert = False` earlier, and now decide to create temporary certs so that your PKI can be installed using SSL connection to DS,
-follow link:../others/enabling-temp-ssl-connection-in-ds.adoc[Enabling SSL Connection in DS]
+If you set `self_sign_cert = False` earlier, and now decide to create bootstrap certs so that your PKI can be installed using SSL connection to DS,
+follow link:../others/enabling-ssl-connection-in-ds-with-bootstrap-cert.adoc[Enabling SSL Connection in DS]
 
-*Note:* The temporary bootstrap server certificate could be replaced by a server certificate issued by an actual CA at a later step after the installation.
+*Note:* The bootstrap server certificate could be replaced by a server certificate issued by an actual CA at a later step after the installation.
 
 == Configuring Replication 
 

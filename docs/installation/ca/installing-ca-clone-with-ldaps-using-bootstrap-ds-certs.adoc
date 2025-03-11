@@ -1,21 +1,42 @@
-// This original content was copied to installing-ca-clone-with-temp-ldaps-connection.adoc
 :_mod-docs-content-type: PROCEDURE
 
-[id="installing-ca-clone-with-ldaps-connection_{context}"]
-= Installing CA Clone with LDAPS Connection 
+[id="installing-ca-clone-with-ldaps-using-bootstrap-ds-certs_{context}"]
+= Installing CA Clone with LDAPS Using Bootstrap DS Certs
 
-Follow this process to install a CA subsystem as clone of an existing CA subsystem with a secure database connection.
+Follow this process to install a CA subsystem as clone of an existing CA subsystem that runs with a bootstrap SSL server certificate.
 
 Prior to installation, please ensure that the link:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
 
 == DS Configuration 
 
-Once the prerequisites listed above are completed on the clone system, follow the procedure to xref:../others/enabling-ssl-connection-in-ds.adoc[enable SSL Connection with DS] so that the CA clone's DS is running with SSL enabled wtih a real server certificate issued by the CA.
+Once the prerequisites listed above are completed on the clone system, go on the existing system and export the DS signing certificate into `ds_signing.p12` and copy the certificate into clone system with the following command:
+
+[literal,subs="+quotes,verbatim"]
+....
+$ pki -d /etc/dirsrv/slapd-localhost \
+-C /etc/dirsrv/slapd-localhost/pwdfile.txt \
+pkcs12-export --pkcs12-file ds_signing.p12 \
+--pkcs12-password Secret.123 Self-Signed-CA
+....
+Import the `ds_signing.p12` into the clone DS instance with the following command:
+
+[literal,subs="+quotes,verbatim"]
+....
+$ pki -d /etc/dirsrv/slapd-localhost \
+-C /etc/dirsrv/slapd-localhost/pwdfile.txt \
+pkcs12-import --pkcs12-file ds_signing.p12 \
+--pkcs12-password Secret.123
+....
+In the DS clone, create a boostrap DS server certificate as described in xref:../others/enabling-ssl-connection-in-ds-with-bootstrap-cert.adoc[Creating DS Server Certificate].
+Note that the certificate subject DN should match the clone's hostname ( i.e `--subject "CN=secondary.example.com"` ).
+
+Then enable the SSL connection as described in xref:../others/enabling-ssl-connection-in-ds-with-bootstrap-cert.adoc[Enabling SSL Connection].
+
+After the successful DS restart, export the DS Signing Certificate into 'ds_signing.crt' as described in link:../others/exporting-ds-certificates.adoc[Exporting DS Signing Certificate].
 
 Some useful tips:
 
- - Make sure the firewall on the master allows external access to LDAP from the clone
- - Make sure the firewall on the clone allows external access to LDAP from the master
+ - Make sure the DS firewall allows access from PKI server and other DS instances.
  - Not having a `dc=pki,dc=example,dc=com` entry in LDAP will give the same error as
        not being able to connect to the LDAP server.
 
@@ -69,15 +90,6 @@ $ chown pkiuser:pkiuser ca-certs.p12
 
 Prepare a deployment configuration, for example `ca-secure-ds-secondary.cfg`, to deploy CA subsystem clone.
 By default the subsystem is deployed into a Tomcat instance called `pki-tomcat`.
-
-*Note:* The sample pkispawn config file referenced below expects the DS server certificate's signing certificate to be in a file named ds_signing.crt.  Since we are using the existing CA as the signing cert, copy the CA's signing cert into ds_signing.crt:
-// The ds_signing.crt is the same as ca_signing.crt in this case
-// Will that work?
-
-[literal,subs="+quotes,verbatim"]
-....
-$ cp ca_signing.crt ds_signing.crt
-....
 
 A sample deployment configuration is available at link:../../../base/server/examples/installation/ca-secure-ds-secondary.cfg[/usr/share/pki/server/examples/installation/ca-secure-ds-secondary.cfg].
 It assumes that the existing CA and DS instances are running on primary.example.com, and the new CA and DS clones are being installed on secondary.example.com,

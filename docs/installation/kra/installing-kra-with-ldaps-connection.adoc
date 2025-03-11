@@ -6,9 +6,12 @@
 
 Follow this process to install a KRA subsystem with a secure database connection.
 
-Ensure that the secure connection has been enabled on the directory server.
-Export the signing certificate for the directory server into ds_signing.crt.
-This step is described link:https://www.dogtagpki.org/wiki/DS_SSL[here].
+Prior to installation, please ensure that the link:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
+
+== DS Configuration
+Once the prerequisites listed above are completed, if you had chosen to use the temporary DS bootstrap certificates during DS instance creation,
+then export the bootstrap self-signed certificate into `ds_signing.crt` as described in
+xref:../others/exporting-ds-certificates.adoc#exporting-ds-signing-certificate[Exporting DS Signing Certificate].
 
 == KRA Subsystem Installation
 
@@ -156,3 +159,8 @@ Transport Cert:
 
 <base-64 certificate>
 ....
+
+== Getting Real DS Certificate from the CA 
+
+If desired, follow link:../others/enabling-ssl-connection-in-ds.adoc[this procedure] to get real DS certificate issued by the CA.
+
