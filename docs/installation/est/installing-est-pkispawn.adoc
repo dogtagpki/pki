@@ -39,6 +39,13 @@ To install EST in the same instance of the CA and with the DS realm run the comm
     -f /usr/share/pki/server/examples/installation/est.cfg \
     -s EST \
     -D est_realm_url=ldap://estds.example.com:389 \
+    -v \
+    --precheck
+
+# pkispawn \
+    -f /usr/share/pki/server/examples/installation/est.cfg \
+    -s EST \
+    -D est_realm_url=ldap://estds.example.com:389 \
     -v
 ----
 
@@ -80,6 +87,16 @@ are: ds, postgresql and in-memory.
 As an example, to install EST with PostgreSQL the command is:
 
 ----
+# pkispawn \
+    -f /usr/share/pki/server/examples/installation/est.cfg \
+    -s EST \
+    -D est_realm_url="jdbc:postgresql://postgresql.example.com:5432/est?ssl=true&sslmode=require" \
+    -D est_realm_type=postgresql \
+    -D est_realm_user=est \
+    -D est_realm_password=mysecretpassword \
+    -v \
+    --precheck
+
 # pkispawn \
     -f /usr/share/pki/server/examples/installation/est.cfg \
     -s EST \
@@ -169,6 +186,18 @@ Using the generated PKCS#12 bundle, the command to deploy EST is:
     -D est_ca_user_certificate=est-ra-1 \
     -D pki_server_pkcs12_path=est_server.p12 \
     -D pki_server_pkcs12_password=Secret.123 \
+    -v \
+    --precheck
+
+# pkispawn \
+    -f /usr/share/pki/server/examples/installation/est.cfg \
+    -s EST \
+    -D est_realm_url=ldap://estds.example.com:389 \
+    -D pki_ca_uri=https://ca.example.com:8443 \
+    -D est_ca_user_password= \
+    -D est_ca_user_certificate=est-ra-1 \
+    -D pki_server_pkcs12_path=est_server.p12 \
+    -D pki_server_pkcs12_password=Secret.123 \
     -v
 ----
 
@@ -190,6 +219,16 @@ the command:
 It is possible to install EST with the following command:
 
 ----
+# pkispawn \
+    -f /usr/share/pki/server/examples/installation/est.cfg \
+    -s EST \
+    -D est_realm_url=ldap://estds.example.com:389 \
+    -D pki_ca_uri=https://ca.example.com:8443 \
+    -D pki_cert_chain_path=ca_signing.crt \
+    -D pki_cert_chain_nickname=caSigning \
+    -v \
+    --precheck
+
 # pkispawn \
     -f /usr/share/pki/server/examples/installation/est.cfg \
     -s EST \

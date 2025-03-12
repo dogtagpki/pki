@@ -69,6 +69,7 @@ Then execute the following command:
 
 [literal,subs="+quotes,verbatim"]
 ....
+$ pkispawn -f tks.cfg -s TKS --precheck
 $ pkispawn -f tks.cfg -s TKS
 ....
 

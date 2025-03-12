@@ -77,6 +77,7 @@ Then execute the following command:
 
 [literal,subs="+quotes,verbatim"]
 ....
+$ pkispawn -f ocsp.cfg -s OCSP --precheck
 $ pkispawn -f ocsp.cfg -s OCSP
 ....
 

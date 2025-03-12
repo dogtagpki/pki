@@ -54,6 +54,7 @@ To start the installation execute the following command:
 
 [literal,subs="+quotes,verbatim"]
 ....
+$ pkispawn -f tps-clone.cfg -s TPS --precheck
 $ pkispawn -f tps-clone.cfg -s TPS
 ....
 

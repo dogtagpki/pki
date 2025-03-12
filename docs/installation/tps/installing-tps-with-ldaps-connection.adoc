@@ -57,6 +57,7 @@ Then execute the following command:
 
 [literal,subs="+quotes,verbatim"]
 ....
+$ pkispawn -f tps.cfg -s TPS --precheck
 $ pkispawn -f tps.cfg -s TPS
 ....
 

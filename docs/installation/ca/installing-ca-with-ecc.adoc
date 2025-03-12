@@ -30,6 +30,7 @@ To start the installation execute the following command:
 
 [literal,subs="+quotes,verbatim"]
 ....
+$ pkispawn -f ca-ecc.cfg -s CA --precheck
 $ pkispawn -f ca-ecc.cfg -s CA
 ....
 

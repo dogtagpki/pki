@@ -24,6 +24,7 @@ To start the installation execute the following command:
 
 [literal,subs="+quotes,verbatim"]
 ....
+$ pkispawn -f ca-secure-ds.cfg -s CA --precheck
 $ pkispawn -f ca-secure-ds.cfg -s CA
 ....
 

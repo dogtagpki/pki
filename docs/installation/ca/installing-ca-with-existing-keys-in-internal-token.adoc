@@ -21,6 +21,7 @@ Then execute the following command:
 
 [literal,subs="+quotes,verbatim"]
 ....
+$ pkispawn -f ca-existing-certs-step1.cfg -s CA --precheck
 $ pkispawn -f ca-existing-certs-step1.cfg -s CA
 ....
 
@@ -99,6 +100,7 @@ Finally, execute the following command:
 
 [literal,subs="+quotes,verbatim"]
 ....
+$ pkispawn -f ca-existing-certs-step2.cfg -s CA --precheck
 $ pkispawn -f ca-existing-certs-step2.cfg -s CA
 ....
 

@@ -19,6 +19,7 @@ Then execute the following command:
 
 [literal,subs="+quotes,verbatim"]
 ....
+$ pkispawn -f ocsp-external-certs-step1.cfg -s OCSP --precheck
 $ pkispawn -f ocsp-external-certs-step1.cfg -s OCSP
 ....
 
@@ -78,6 +79,7 @@ Finally, execute the following command:
 
 [literal,subs="+quotes,verbatim"]
 ....
+$ pkispawn -f ocsp-external-certs-step2.cfg -s OCSP --precheck
 $ pkispawn -f ocsp-external-certs-step2.cfg -s OCSP
 ....
 

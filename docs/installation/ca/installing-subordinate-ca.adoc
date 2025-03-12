@@ -19,6 +19,7 @@ Then execute the following command:
 
 [literal,subs="+quotes,verbatim"]
 ....
+$ pkispawn -f subca.cfg -s CA --precheck
 $ pkispawn -f subca.cfg -s CA
 ....
 

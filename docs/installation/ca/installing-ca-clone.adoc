@@ -102,6 +102,7 @@ To start the installation execute the following command:
 
 [literal,subs="+quotes,verbatim"]
 ....
+$ pkispawn -f ca-clone.cfg -s CA --precheck
 $ pkispawn -f ca-clone.cfg -s CA
 ....
 
