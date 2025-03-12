@@ -123,10 +123,12 @@ NOTE: If cracklibCheck=true is enabled, SELinux may block /usr/sbin/cracklib-che
 
 Apply the necessary SELinux policies:
 
-[literal]
- # setsebool -P domain_can_mmap_files 1
- # ausearch -c 'cracklib-check' --raw | audit2allow -M my-cracklibcheck
- # semodule -X 300 -i my-cracklibcheck.pp
+[literal,subs="+quotes,verbatim"]
+....
+# setsebool -P domain_can_mmap_files 1
+# ausearch -c 'cracklib-check' --raw | audit2allow -M my-cracklibcheck
+# semodule -X 300 -i my-cracklibcheck.pp
+....
 
 
 Key type and key size parameters can be configured as exemplified below:
