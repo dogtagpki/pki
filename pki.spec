@@ -72,6 +72,7 @@ ExcludeArch: i686
 
 %if 0%{?fedora} && 0%{?fedora} <= 39 || 0%{?rhel} && 0%{?rhel} <= 9
 
+%define java_runtime java-17-openjdk
 %define java_devel java-17-openjdk-devel
 %define java_headless java-17-openjdk-headless
 %define java_home %{_jvmdir}/jre-17-openjdk
@@ -79,6 +80,7 @@ ExcludeArch: i686
 
 %else
 
+%define java_runtime java-21-openjdk
 %define java_devel java-21-openjdk-devel
 %define java_headless java-21-openjdk-headless
 %define java_home %{_jvmdir}/jre-21-openjdk
@@ -941,6 +943,7 @@ BuildArch:        noarch
 Obsoletes:        pki-console < %{version}-%{release}
 Provides:         pki-console = %{version}-%{release}
 
+Requires:         %{java_runtime}
 Requires:         %{product_id}-java = %{version}-%{release}
 Requires:         %{product_id}-console-theme = %{version}-%{release}
 

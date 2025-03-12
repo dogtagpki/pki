@@ -41,8 +41,6 @@ jar(pki-console-jar
         ${CMAKE_CURRENT_BINARY_DIR}/classes
     INPUT_DIR
         ${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources
-    FILES
-        com/netscape/admin/certsrv/images/*.gif
     DEPENDS
         pki-console-classes
 )

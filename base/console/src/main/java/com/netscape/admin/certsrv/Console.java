@@ -1785,7 +1785,7 @@ public class Console implements CommClient {
         CryptoManager manager = null;
         String default_nssdb_path = FilePreferenceManager.getHomePath();
 	String nssdb_path = cmd.getOptionValue("d", default_nssdb_path);
-	String client_cert_nick = cmd.getOptionValue("n", null);
+	String client_cert_nick = cmd.getOptionValue("n");
 	logger.info("NSS database: " + nssdb_path);
         try {
             CryptoManager.initialize(nssdb_path);
