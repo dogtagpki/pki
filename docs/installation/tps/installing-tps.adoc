@@ -6,12 +6,12 @@
 
 Follow this process to install a TPS subsystem.
 
-Prior to installation, please ensure that the link:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
+Prior to installation, please ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
 
 == TPS Subsystem Installation
 
 Prepare a file, for example `tps.cfg`, that contains the deployment configuration.
-A sample deployment configuration is available at link:../../../base/server/examples/installation/tps.cfg[/usr/share/pki/server/examples/installation/tps.cfg].
+A sample deployment configuration is available at xref:../../../base/server/examples/installation/tps.cfg[/usr/share/pki/server/examples/installation/tps.cfg].
 
 Then execute the following command:
 

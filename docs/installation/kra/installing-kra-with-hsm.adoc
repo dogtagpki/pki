@@ -7,7 +7,7 @@
 Follow this process to install a KRA subsystem
 where the system certificates and their keys are stored in HSM.
 
-Prior to installation, please ensure that the link:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
+Prior to installation, please ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
 
 == KRA Subsystem Installation
 

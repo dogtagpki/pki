@@ -6,12 +6,12 @@
 Follow this process to install a subordinate CA subsystem
 with a signing certificate issued by a root CA.
 
-Prior to installation, please ensure that the link:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
+Prior to installation, please ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
 
 == Subordinate CA Subsystem Installation 
 Prepare a file, for example `subca.cfg`, that contains the deployment configuration.
 
-A sample deployment configuration is available at link:../../../base/server/examples/installation/subca.cfg[/usr/share/pki/server/examples/installation/subca.cfg].
+A sample deployment configuration is available at xref:../../../base/server/examples/installation/subca.cfg[/usr/share/pki/server/examples/installation/subca.cfg].
 It assumes that the root CA is already running at https://root.example.com:8443
 and the root CA signing certificate has been exported into `root-ca_signing.crt`.
 

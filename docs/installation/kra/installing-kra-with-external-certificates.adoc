@@ -6,13 +6,13 @@
 
 Follow this process to install a KRA subsystem with external certificates.
 
-Prior to installation, please ensure that the link:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
+Prior to installation, please ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
 
 == Starting KRA Subsystem Installation
 
 Prepare a file, for example `kra-external-certs-step1.cfg`, that contains the first deployment configuration.
 
-A sample deployment configuration is available at link:../../../base/server/examples/installation/kra-external-certs-step1.cfg[/usr/share/pki/server/examples/installation/kra-external-certs-step1.cfg].
+A sample deployment configuration is available at xref:../../../base/server/examples/installation/kra-external-certs-step1.cfg[/usr/share/pki/server/examples/installation/kra-external-certs-step1.cfg].
 It assumes that the CA is running at https://ca.example.com:8443,
 and the CA signing certificate has been exported into `ca_signing.crt`.
 
@@ -75,7 +75,7 @@ pki_cert_chain_nickname=ca_signing
 pki_cert_chain_path=ca_signing.crt
 ....
 
-A sample deployment configuration is available at link:../../../base/server/examples/installation/kra-external-certs-step2.cfg[/usr/share/pki/server/examples/installation/kra-external-certs-step2.cfg].
+A sample deployment configuration is available at xref:../../../base/server/examples/installation/kra-external-certs-step2.cfg[/usr/share/pki/server/examples/installation/kra-external-certs-step2.cfg].
 
 Finally, execute the following command:
 

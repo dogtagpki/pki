@@ -64,7 +64,7 @@ EOF
 ----
 
 The executable script in this example performs a simple check of the user role and it
-is available link:/base/est/bin/estauthz[here]. It can be replaced if a
+is available xref:/base/est/bin/estauthz[here]. It can be replaced if a
 more sophisticated authorization framework has to be adopted.
 
 

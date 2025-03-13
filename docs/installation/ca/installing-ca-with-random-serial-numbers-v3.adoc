@@ -9,7 +9,7 @@ NOTE: RSNv3 is enabled by default since PKI 11.5.
 
 = Installation Procedure 
 
-To install CA with random serial numbers v3, follow the normal link:installing-ca.adoc[CA installation] procedure, then specify the parameters below.
+To install CA with random serial numbers v3, follow the normal xref:installing-ca.adoc[CA installation] procedure, then specify the parameters below.
 
 To use random certificate serial numbers, add the following parameters in the `[CA]` section:
 

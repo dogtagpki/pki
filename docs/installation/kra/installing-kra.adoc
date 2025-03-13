@@ -6,12 +6,12 @@
 
 Follow this process to install a KRA subsystem.
 
-Prior to installation, please ensure that the link:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
+Prior to installation, please ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
 
 == KRA Subsystem Installation 
 
 Prepare a file, for example `kra.cfg`, that contains the deployment configuration.
-A sample deployment configuration is available at link:../../../base/server/examples/installation/kra.cfg[/usr/share/pki/server/examples/installation/kra.cfg].
+A sample deployment configuration is available at xref:../../../base/server/examples/installation/kra.cfg[/usr/share/pki/server/examples/installation/kra.cfg].
 
 Then execute the following command:
 

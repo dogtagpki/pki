@@ -5,7 +5,7 @@
 
 Follow this process to install a CA subsystem as clone of an existing CA subsystem that runs with a bootstrap SSL server certificate.
 
-Prior to installation, please ensure that the link:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
+Prior to installation, please ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
 
 == DS Configuration 
 
@@ -27,7 +27,7 @@ $ pki -d /etc/dirsrv/slapd-localhost \
 pkcs12-import --pkcs12-file ds_signing.p12 \
 --pkcs12-password Secret.123
 ....
-In the DS clone, create a boostrap DS server certificate as described in xref:../others/enabling-ssl-connection-in-ds-with-bootstrap-cert.adoc[Creating DS Server Certificate].
+In the DS clone, create a boostrap DS server certificate as described in xref:../others/enabling-ssl-connection-in-ds-with-bootstrap-cert.adoc#creating-ds-server-certificate[Creating DS Server Certificate].
 Note that the certificate subject DN should match the clone's hostname ( i.e `--subject "CN=secondary.example.com"` ).
 
 Then enable the SSL connection as described in xref:../others/enabling-ssl-connection-in-ds-with-bootstrap-cert.adoc#enabling-ssl-connection[Enabling SSL Connection].
@@ -96,7 +96,7 @@ $ chown pkiuser:pkiuser ca-certs.p12
 Prepare a deployment configuration, for example `ca-secure-ds-secondary.cfg`, to deploy CA subsystem clone.
 By default the subsystem is deployed into a Tomcat instance called `pki-tomcat`.
 
-A sample deployment configuration is available at link:../../../base/server/examples/installation/ca-secure-ds-secondary.cfg[/usr/share/pki/server/examples/installation/ca-secure-ds-secondary.cfg].
+A sample deployment configuration is available at xref:../../../base/server/examples/installation/ca-secure-ds-secondary.cfg[/usr/share/pki/server/examples/installation/ca-secure-ds-secondary.cfg].
 It assumes that the existing CA and DS instances are running on primary.example.com, and the new CA and DS clones are being installed on secondary.example.com,
 the CA signing certificate has been exported into `ca_signing.crt`,
 and the admin certificate and key have been exported into `ca_admin_cert.p12`.

@@ -5,7 +5,7 @@
 
 Follow this process to install an ACME responder on a PKI server that already has a CA subsystem using `pkispawn` command.
 
-In general `pkispawn` provides a simpler way compared to link:installing-acme-responder-using-pki-server-acme-cli.adoc[`pki-server acme`] for installing ACME responder.
+In general `pkispawn` provides a simpler way compared to xref:installing-acme-responder-using-pki-server-acme-cli.adoc[`pki-server acme`] for installing ACME responder.
 If there is a problem during installation, the entire process might need to be restarted.
 
 == Prerequisites ==
@@ -81,7 +81,7 @@ $ pkispawn \
 
 The configuration files are available in `/var/lib/pki/pki-tomcat/conf/acme` folder.
 
-See also link:../../admin/acme/Configuring-ACME-Responder.adoc[Configuring ACME Responder].
+See also xref:../../admin/acme/Configuring-ACME-Responder.adoc[Configuring ACME Responder].
 
 == Verifying ACME Responder ==
 
@@ -115,4 +115,4 @@ $ pkidestroy -s ACME
 
 == See Also ==
 
-* link:../../manuals/man8/pkispawn.8.md[pkispawn(8)]
+* xref:../../manuals/man8/pkispawn.8.md[pkispawn(8)]
