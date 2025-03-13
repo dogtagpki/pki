@@ -54,6 +54,7 @@ To start the installation execute the following command:
 
 [literal,subs="+quotes,verbatim"]
 ....
+$ pkispawn -f ocsp-clone.cfg -s OCSP --precheck
 $ pkispawn -f ocsp-clone.cfg -s OCSP
 ....
 

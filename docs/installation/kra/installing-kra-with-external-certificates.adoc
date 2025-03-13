@@ -20,6 +20,7 @@ Then execute the following command:
 
 [literal,subs="+quotes,verbatim"]
 ....
+$ pkispawn -f kra-external-certs-step1.cfg -s KRA --precheck
 $ pkispawn -f kra-external-certs-step1.cfg -s KRA
 ....
 
@@ -81,6 +82,7 @@ Finally, execute the following command:
 
 [literal,subs="+quotes,verbatim"]
 ....
+$ pkispawn -f kra-external-certs-step2.cfg -s KRA --precheck
 $ pkispawn -f kra-external-certs-step2.cfg -s KRA
 ....
 

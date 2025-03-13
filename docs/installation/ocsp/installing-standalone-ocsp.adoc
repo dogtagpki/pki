@@ -23,6 +23,7 @@ A sample deployment configuration is available at link:../../../base/server/exam
 Then execute the following command:
 
 ----
+$ pkispawn -f ocsp-standalone-step1.cfg -s OCSP --precheck
 $ pkispawn -f ocsp-standalone-step1.cfg -s OCSP
 ----
 
@@ -74,6 +75,7 @@ A sample deployment configuration is available at link:../../../base/server/exam
 Finally, execute the following command:
 
 ----
+$ pkispawn -f ocsp-standalone-step2.cfg -s OCSP --precheck
 $ pkispawn -f ocsp-standalone-step2.cfg -s OCSP
 ----
 
