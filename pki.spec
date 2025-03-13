@@ -11,7 +11,7 @@ Name:             pki
 # Upstream version number:
 %global           major_version 11
 %global           minor_version 6
-%global           update_version 0
+%global           update_version 1
 
 # Downstream release number:
 # - development/stabilization (unsupported): 0.<n> where n >= 1
@@ -104,8 +104,13 @@ ExcludeArch: i686
 # Use bundled runtime dependencies unless --with runtime_deps is specified.
 %bcond_with runtime_deps
 
+%if 0%{?rhel}
+# Build with CMake on RHEL unless --without maven is specified.
+%bcond_with maven
+%else
 # Build with Maven unless --without maven is specified.
 %bcond_without maven
+%endif
 
 # Execute unit tests unless --without test is specified.
 %bcond_without test
