@@ -186,7 +186,7 @@ public class NSSKeyCreateCLI extends CommandCLI {
 
         } else if ("EC".equalsIgnoreCase(keyType)) {
             if (opFlags != null && !opFlags.isEmpty()) {
-                usages = CryptoUtil.generateUsage(opFlagsMask);
+                usages = CryptoUtil.generateUsage(opFlags);
             }
             if (opFlagsMask != null && !opFlagsMask.isEmpty()) {
                 usagesMask = CryptoUtil.generateUsage(opFlagsMask);
