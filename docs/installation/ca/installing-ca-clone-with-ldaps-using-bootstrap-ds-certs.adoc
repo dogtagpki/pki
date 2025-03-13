@@ -32,7 +32,12 @@ Note that the certificate subject DN should match the clone's hostname ( i.e `--
 
 Then enable the SSL connection as described in xref:../others/enabling-ssl-connection-in-ds-with-bootstrap-cert.adoc[Enabling SSL Connection].
 
-After the successful DS restart, export the DS Signing Certificate into 'ds_signing.crt' as described in link:../others/exporting-ds-certificates.adoc[Exporting DS Signing Certificate].
+After the successful DS restart, export the DS Signing Certificate into 'ds_signing.crt' as follows
+
+[literal,subs="+quotes,verbatim"]
+....
+$ certutil -L -d /etc/dirsrv/slapd-localhost -n Self-Signed-CA -a > ds_signing.crt
+....
 
 Some useful tips:
 

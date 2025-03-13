@@ -9,8 +9,12 @@ Prior to installation, please ensure that the link:../others/installation-prereq
 
 == DS Configuration 
 Once the prerequisites listed above are completed, if you had chosen to use the DS bootstrap certificates during DS instance creation,
-then export the bootstrap self-signed certificate into `ds_signing.crt` as described in
-xref:../others/exporting-ds-certificates.adoc#exporting-ds-signing-certificate[Exporting DS Signing Certificate].
+then export the bootstrap self-signed certificate into `ds_signing.crt` as follows:
+
+[literal,subs="+quotes,verbatim"]
+....
+$ certutil -L -d /etc/dirsrv/slapd-localhost -n Self-Signed-CA -a > ds_signing.crt
+....
 
 == CA Subsystem Installation 
 Prepare a deployment configuration, for example `ca-secure-ds.cfg`, to deploy CA subsystem.
