@@ -5,7 +5,7 @@
 
 Follow this process to install a CA subsystem as a clone of an existing CA subsystem.
 
-Prior to installation, please ensure that the link:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
+Prior to installation, please ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
 
 Additional useful tips:
 
@@ -81,12 +81,12 @@ $ chown pkiuser:pkiuser ca-certs.p12
 Prepare a deployment configuration, for example `ca-clone.cfg`, to deploy CA subsystem clone.
 By default the subsystem is deployed into a Tomcat instance called `pki-tomcat`.
 
-A sample deployment configuration is available at link:../../../base/server/examples/installation/ca-clone.cfg[/usr/share/pki/server/examples/installation/ca-clone.cfg].
+A sample deployment configuration is available at xref:../../../base/server/examples/installation/ca-clone.cfg[/usr/share/pki/server/examples/installation/ca-clone.cfg].
 It assumes that the primary CA subsystem is running at https://primary.example.com:8443,
 the CA signing certificate has been exported into `ca_signing.crt`,
 and the admin certificate and key have been exported into `ca_admin_cert.p12`.
 The PKCS #12 password is specified in the `pki_client_pkcs12_password` parameter.
-See link:installing-ca.adoc[CA installation] for details.
+See xref:installing-ca.adoc[CA installation] for details.
 
 If the CSRs are available, they can be specified with the following parameters:
 

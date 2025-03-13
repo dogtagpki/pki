@@ -6,7 +6,7 @@
 
 Follow this process to install an OCSP subsystem with a secure database connection.
 
-Prior to installation, please ensure that the link:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
+Prior to installation, please ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
 
 == DS Configuration
 Once the prerequisites listed above are completed, if you had chosen to use the temporary DS bootstrap certificates during DS instance creation,
@@ -178,5 +178,5 @@ CertStatus=Good
 
 == Getting Real DS Certificate from the CA 
 
-If desired, follow link:../others/enabling-ssl-connection-in-ds.adoc[this procedure] to get real DS certificate issued by the CA.
+If desired, follow xref:../others/enabling-ssl-connection-in-ds.adoc[this procedure] to get real DS certificate issued by the CA.
 

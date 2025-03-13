@@ -6,7 +6,7 @@
 
 Follow this process to install a CA subsystem as clone of an existing CA subsystem with a secure database connection.
 
-Prior to installation, please ensure that the link:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
+Prior to installation, please ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
 
 == DS Configuration 
 
@@ -79,7 +79,7 @@ By default the subsystem is deployed into a Tomcat instance called `pki-tomcat`.
 $ cp ca_signing.crt ds_signing.crt
 ....
 
-A sample deployment configuration is available at link:../../../base/server/examples/installation/ca-secure-ds-secondary.cfg[/usr/share/pki/server/examples/installation/ca-secure-ds-secondary.cfg].
+A sample deployment configuration is available at xref:../../../base/server/examples/installation/ca-secure-ds-secondary.cfg[/usr/share/pki/server/examples/installation/ca-secure-ds-secondary.cfg].
 It assumes that the existing CA and DS instances are running on primary.example.com, and the new CA and DS clones are being installed on secondary.example.com,
 the CA signing certificate has been exported into `ca_signing.crt`,
 and the admin certificate and key have been exported into `ca_admin_cert.p12`.

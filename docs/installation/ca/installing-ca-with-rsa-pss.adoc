@@ -7,7 +7,7 @@ Follow this process to install a CA subsystem with RSA/PSS.
 
 = Installation Procedure 
 
-To install CA subsystem with RSA/PSS, follow the normal link:installing-ca.adoc[CA installation] procedure, then specify the parameters below.
+To install CA subsystem with RSA/PSS, follow the normal xref:installing-ca.adoc[CA installation] procedure, then specify the parameters below.
 
 ----
 [DEFAULT]

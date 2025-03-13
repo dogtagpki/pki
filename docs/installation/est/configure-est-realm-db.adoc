@@ -8,7 +8,7 @@
 If you have chosen to use an LDAP instance for user management, before
 adding users, please ensure that you have configured the directory
 server and added base entries. Directory server setup instructions can be found 
-in the link:../others/installation-prerequisites.adoc[Installation Prerequisites].
+in the xref:../others/installation-prerequisites.adoc[Installation Prerequisites].
 
 The user DB requires a group node for the people and one for the
 groups.  A simple dif file is available in

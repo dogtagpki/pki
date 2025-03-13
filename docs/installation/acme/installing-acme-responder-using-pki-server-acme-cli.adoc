@@ -6,7 +6,7 @@
 
 This document describes the process to install an ACME responder on a PKI server that already has a CA subsystem using `pki-server acme` commands.
 
-In general `pki-server acme` commands provide a more flexible way compared to link:installing-acme-responder-using-pkispawn.adoc[`pkispawn`] for installing ACME responder.
+In general `pki-server acme` commands provide a more flexible way compared to xref:installing-acme-responder-using-pkispawn.adoc[`pkispawn`] for installing ACME responder.
 If there is a problem during installation, usually only the failing step needs to be fixed, then the installation can be resumed.
 
 == Prerequisites ==
@@ -57,7 +57,7 @@ Enter true/false whether an external account is required.
   External Account Required [false]:
 ----
 
-See also link:../../admin/acme/Configuring-ACME-Metadata.adoc[Configuring ACME Metadata].
+See also xref:../../admin/acme/Configuring-ACME-Metadata.adoc[Configuring ACME Metadata].
 
 == Setting Up ACME Database ==
 
@@ -119,7 +119,7 @@ $ ldapadd \
     -f /usr/share/pki/acme/database/ds/create.ldif
 ----
 
-See also link:../../admin/acme/Configuring-ACME-Database.adoc[Configuring ACME Database].
+See also xref:../../admin/acme/Configuring-ACME-Database.adoc[Configuring ACME Database].
 
 == Setting up ACME Issuer ==
 
@@ -156,7 +156,7 @@ Enter the certificate profile for issuing ACME certificates (e.g. acmeServerCert
   Certificate Profile [acmeServerCert]:
 ----
 
-See also link:../../admin/acme/Configuring-ACME-Issuer.adoc[Configuring ACME Issuer].
+See also xref:../../admin/acme/Configuring-ACME-Issuer.adoc[Configuring ACME Issuer].
 
 == Setting Up ACME Realm ==
 
@@ -201,7 +201,7 @@ $ ldapadd \
     -f /usr/share/pki/acme/realm/ds/create.ldif
 ----
 
-See also link:../../admin/acme/Configuring-ACME-Realm.adoc[Configuring ACME Realm].
+See also xref:../../admin/acme/Configuring-ACME-Realm.adoc[Configuring ACME Realm].
 
 == Deploying ACME Responder ==
 
@@ -263,4 +263,4 @@ $ pki-server acme-remove
 
 == See Also ==
 
-* link:../../manuals/man8/pki-server-acme.8.md[pki-server-acme(8)]
+* xref:../../manuals/man8/pki-server-acme.8.md[pki-server-acme(8)]

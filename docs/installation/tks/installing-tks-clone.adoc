@@ -6,7 +6,7 @@
 
 Follow this process to install a TKS subsystem as a clone of an existing TKS subsystem.
 
-Prior to installation, please ensure that the link:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
+Prior to installation, please ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
 
 == Exporting Existing TKS System Certificates
 
@@ -42,12 +42,12 @@ $ pki -d /var/lib/pki/pki-tomcat/conf/alias -f /var/lib/pki/pki-tomcat/conf/pass
 Prepare a deployment configuration, for example `tks-clone.cfg`, to deploy TKS subsystem clone.
 By default the subsystem is deployed into a Tomcat instance called `pki-tomcat`.
 
-A sample deployment configuration is available at link:../../../base/server/examples/installation/tks-clone.cfg[/usr/share/pki/server/examples/installation/tks-clone.cfg].
+A sample deployment configuration is available at xref:../../../base/server/examples/installation/tks-clone.cfg[/usr/share/pki/server/examples/installation/tks-clone.cfg].
 It assumes that the primary CA and TKS are running at https://primary.example.com:8443,
 the CA signing certificate has been exported into `ca_signing.crt`,
 and the admin certificate and key have been exported into `ca_admin_cert.p12`.
 The PKCS #12 password is specified in the `pki_client_pkcs12_password` parameter.
-See link:../ca/Installing_CA.md[Installing CA] for details.
+See xref:../ca/Installing_CA.md[Installing CA] for details.
 
 To start the installation execute the following command:
 

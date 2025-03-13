@@ -5,7 +5,7 @@
 
 Follow this process to install a CA subsystem with a secure database connection.
 
-Prior to installation, please ensure that the link:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
+Prior to installation, please ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
 
 == DS Configuration 
 Once the prerequisites listed above are completed, if you had chosen to use the DS bootstrap certificates during DS instance creation,
@@ -20,7 +20,7 @@ $ certutil -L -d /etc/dirsrv/slapd-localhost -n Self-Signed-CA -a > ds_signing.c
 Prepare a deployment configuration, for example `ca-secure-ds.cfg`, to deploy CA subsystem.
 By default the subsystem is deployed into a Tomcat instance called `pki-tomcat`.
 
-A sample deployment configuration is available at link:../../../base/server/examples/installation/ca-secure-ds.cfg[/usr/share/pki/server/examples/installation/ca-secure-ds.cfg].
+A sample deployment configuration is available at xref:../../../base/server/examples/installation/ca-secure-ds.cfg[/usr/share/pki/server/examples/installation/ca-secure-ds.cfg].
 
 To start the installation execute the following command:
 
@@ -138,5 +138,5 @@ User "caadmin"
 
 == Getting Real DS Certificate from the CA
 
-If desired, follow link:../others/enabling-ssl-connection-in-ds.adoc[this procedure] to get real DS certificate issued by the CA.
+If desired, follow xref:../others/enabling-ssl-connection-in-ds.adoc[this procedure] to get real DS certificate issued by the CA.
 

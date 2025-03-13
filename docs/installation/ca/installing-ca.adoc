@@ -5,14 +5,14 @@
 
 Follow this process to install a CA subsystem instance with a self-signed CA signing certificate. It is also known as a "root CA".
 
-Prior to installation, please ensure that the link:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
+Prior to installation, please ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
 
 == CA Subsystem Installation 
 
 Prepare a deployment configuration, for example `ca.cfg`, to deploy CA subsystem.
 By default the subsystem is deployed into a Tomcat instance called `pki-tomcat`.
 
-A sample deployment configuration is available at link:../../../base/server/examples/installation/ca.cfg[/usr/share/pki/server/examples/installation/ca.cfg].
+A sample deployment configuration is available at xref:../../../base/server/examples/installation/ca.cfg[/usr/share/pki/server/examples/installation/ca.cfg].
 
 To start the installation execute the following command:
 [literal,subs="+quotes,verbatim"]

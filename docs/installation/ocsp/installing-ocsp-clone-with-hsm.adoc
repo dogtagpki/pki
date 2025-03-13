@@ -10,7 +10,7 @@ where the system certificates and their keys are stored in HSM.
 Since the certificates and the keys are already in HSM, it's not necessary to export them into a
 PKCS #12 file to create a clone.
 
-Prior to installation, please ensure that the link:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
+Prior to installation, please ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
 
 == OCSP Subsystem Installation 
 

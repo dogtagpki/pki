@@ -6,13 +6,13 @@
 
 Follow this process to install a KRA subsystem on an instance/host separate from the CA.
 
-Prior to installation, please ensure that the link:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
+Prior to installation, please ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
 
 == KRA Subsystem Installation 
 
 Prepare a file, for example `kra-separate.cfg`, that contains the deployment configuration.
 
-A sample deployment configuration is available at link:../../../base/server/examples/installation/kra-separate.cfg[/usr/share/pki/server/examples/installation/kra-separate.cfg].
+A sample deployment configuration is available at xref:../../../base/server/examples/installation/kra-separate.cfg[/usr/share/pki/server/examples/installation/kra-separate.cfg].
 It assumes that the CA is running at https://ca.example.com:8443,
 the CA signing certificate has been exported into `ca_signing.crt`,
 and the admin certificate has been exported into `ca_admin.cert`.

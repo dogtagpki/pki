@@ -5,7 +5,7 @@
 
 
 Follow this process to install a standalone KRA subsystem.
-In link:Installing_KRA.md[regular KRA installation] the KRA certificates are issued automatically by the CA and the KRA will join the CA's security domain.
+In xref:Installing_KRA.md[regular KRA installation] the KRA certificates are issued automatically by the CA and the KRA will join the CA's security domain.
 In standalone KRA installation, the KRA certificates are issued manually and the KRA have its own security domain.
 
 The installation process consists multiple steps:
@@ -18,7 +18,7 @@ The installation process consists multiple steps:
 
 Prepare a file, for example `kra-standalone-step1.cfg`, that contains the first deployment configuration.
 
-A sample deployment configuration is available at link:../../../base/server/examples/installation/kra-standalone-step1.cfg[/usr/share/pki/server/examples/installation/kra-standalone-step1.cfg].
+A sample deployment configuration is available at xref:../../../base/server/examples/installation/kra-standalone-step1.cfg[/usr/share/pki/server/examples/installation/kra-standalone-step1.cfg].
 
 Then execute the following command:
 
@@ -71,7 +71,7 @@ pki_cert_chain_path=ca_signing.crt
 
 The CA certificate chain file can contain either a single PEM certificate or a PKCS #7 certificate chain as well.
 
-A sample deployment configuration is available at link:../../../base/server/examples/installation/kra-standalone-step2.cfg[/usr/share/pki/server/examples/installation/kra-standalone-step2.cfg].
+A sample deployment configuration is available at xref:../../../base/server/examples/installation/kra-standalone-step2.cfg[/usr/share/pki/server/examples/installation/kra-standalone-step2.cfg].
 
 Finally, execute the following command:
 

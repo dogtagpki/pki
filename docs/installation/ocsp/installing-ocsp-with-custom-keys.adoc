@@ -6,7 +6,7 @@
 
 Follow this process to install a OCSP subsystem with custom OCSP system and admin keys, CSRs, and certificates.
 
-Prior to installation, please ensure that the link:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
+Prior to installation, please ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
 
 == Starting OCSP Subsystem Installation 
 

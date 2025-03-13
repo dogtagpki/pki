@@ -11,12 +11,12 @@ It assumes that the CA was installed with the default instance name (i.e. `pki-t
 
 There are two ways to install the ACME responder:
 
-* link:installing-acme-responder-using-pkispawn.adoc[Installing ACME Responder using pkispawn]
-* link:installing-acme-responder-using-pki-server-acme-cli.adoc[Installing ACME Responder using pki-server acme CLI]
+* xref:installing-acme-responder-using-pkispawn.adoc[Installing ACME Responder using pkispawn]
+* xref:installing-acme-responder-using-pki-server-acme-cli.adoc[Installing ACME Responder using pki-server acme CLI]
 
 
 == See Also ==
 
-* link:../ca/Installing_CA.md[Installing CA]
-* link:../../admin/acme/Managing_PKI_ACME_Responder.md[Managing ACME Responder]
-* link:../../user/acme/Using_PKI_ACME_Responder.md[Using ACME Responder]
+* xref:../ca/Installing_CA.md[Installing CA]
+* xref:../../admin/acme/Managing_PKI_ACME_Responder.md[Managing ACME Responder]
+* xref:../../user/acme/Using_PKI_ACME_Responder.md[Using ACME Responder]

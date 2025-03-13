@@ -5,12 +5,12 @@
 
 Follow this process to install a CA subsystem with an external CA signing certificate.
 
-Prior to installation, please ensure that the link:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
+Prior to installation, please ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
 
 == Starting CA Subsystem Installation 
 Prepare a file, for example `ca-external-cert-step1.cfg`, that contains the first deployment configuration.
 
-A sample deployment configuration is available at link:../../../base/server/examples/installation/ca-external-cert-step1.cfg[/usr/share/pki/server/examples/installation/ca-external-cert-step1.cfg]
+A sample deployment configuration is available at xref:../../../base/server/examples/installation/ca-external-cert-step1.cfg[/usr/share/pki/server/examples/installation/ca-external-cert-step1.cfg]
 
 Then execute the following command:
 
@@ -68,7 +68,7 @@ pki_cert_chain_nickname=root-ca_signing
 pki_cert_chain_path=root-ca_signing.crt
 ....
 
-A sample deployment configuration is available at link:../../../base/server/examples/installation/ca-external-cert-step2.cfg[/usr/share/pki/server/examples/installation/ca-external-cert-step2.cfg].
+A sample deployment configuration is available at xref:../../../base/server/examples/installation/ca-external-cert-step2.cfg[/usr/share/pki/server/examples/installation/ca-external-cert-step2.cfg].
 
 Finally, execute the following command:
 

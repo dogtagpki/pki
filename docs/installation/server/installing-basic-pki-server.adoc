@@ -42,4 +42,4 @@ To stop the server, press Ctrl-C.
 
 == See Also
 
-- link:../../admin/server/Configuring-HTTPS-Connector.adoc[Configuring HTTPS Connector]
+- xref:../../admin/server/Configuring-HTTPS-Connector.adoc[Configuring HTTPS Connector]
