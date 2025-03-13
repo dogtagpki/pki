@@ -30,7 +30,7 @@ pkcs12-import --pkcs12-file ds_signing.p12 \
 In the DS clone, create a boostrap DS server certificate as described in xref:../others/enabling-ssl-connection-in-ds-with-bootstrap-cert.adoc[Creating DS Server Certificate].
 Note that the certificate subject DN should match the clone's hostname ( i.e `--subject "CN=secondary.example.com"` ).
 
-Then enable the SSL connection as described in xref:../others/enabling-ssl-connection-in-ds-with-bootstrap-cert.adoc[Enabling SSL Connection].
+Then enable the SSL connection as described in xref:../others/enabling-ssl-connection-in-ds-with-bootstrap-cert.adoc#enabling-ssl-connection[Enabling SSL Connection].
 
 After the successful DS restart, export the DS Signing Certificate into 'ds_signing.crt' as follows
 

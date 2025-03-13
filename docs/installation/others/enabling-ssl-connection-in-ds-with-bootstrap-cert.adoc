@@ -130,7 +130,7 @@ $ certutil -L -d /etc/dirsrv/slapd-localhost -n Server-Cert
             User
 ----
 
-[id="enabling-ssl-connection_{context}"]
+[id="enabling-ssl-connection"]
 == Enabling SSL Connection 
 
 To enable SSL connection in the DS instance:
