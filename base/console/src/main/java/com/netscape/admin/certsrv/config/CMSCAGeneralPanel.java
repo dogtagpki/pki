@@ -122,7 +122,10 @@ public class CMSCAGeneralPanel extends CMSBaseTab {
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
         gb.setConstraints(serialPanel, gbc);
-        mCenterPanel.add(serialPanel);
+
+        //Remove the serial panel since we have cmd line methods to support
+        //currently supported serial number methods.
+        //mCenterPanel.add(serialPanel);
 
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = GridBagConstraints.NORTH;
