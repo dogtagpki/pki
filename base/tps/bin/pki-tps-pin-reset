@@ -1,0 +1,106 @@
+#!/bin/bash
+
+TPS_CLIENT="pki tps-client"
+TPS_HOSTNAME=$HOSTNAME
+TPS_PORT=8080
+TPS_PATH=/tps/tps
+
+MSN=01020304
+APP_VERSION=6FBBC105
+KEY_INFO=0101
+MAJOR_VERSION=0
+MINOR_VERSION=0
+
+AUTH_KEY=404142434445464748494a4b4c4d4e4f
+MAC_KEY=404142434445464748494a4b4c4d4e4f
+KEK_KEY=404142434445464748494a4b4c4d4e4f
+
+THREADS=1
+
+VERBOSE=
+
+while getopts v-: arg ; do
+    case $arg in
+    v)
+        export VERBOSE=true
+        ;;
+    -)
+        LONG_OPTARG="${OPTARG#*=}"
+
+        case $OPTARG in
+        client=?*)
+            TPS_CLIENT="$LONG_OPTARG"
+            ;;
+        hostname=?*)
+            TPS_HOSTNAME="$LONG_OPTARG"
+            ;;
+        port=?*)
+            TPS_PORT="$LONG_OPTARG"
+            ;;
+        user=?*)
+            USERNAME="$LONG_OPTARG"
+            ;;
+        password=?*)
+            PASSWORD="$LONG_OPTARG"
+            ;;
+        new-password=?*)
+            NEW_PASSWORD="$LONG_OPTARG"
+            ;;
+        '')
+            break # "--" terminates argument processing
+            ;;
+        client* | hostname* | port* | user* | password* | new-password*)
+            echo "ERROR: Missing argument for --$OPTARG option" >&2
+            exit 1
+            ;;
+        *)
+            echo "ERROR: Illegal option --$OPTARG" >&2
+            exit 1
+            ;;
+        esac
+        ;;
+    \?)
+        exit 1 # getopts already reported the illegal option
+        ;;
+    esac
+done
+
+# remove parsed options and args from $@ list
+shift $((OPTIND-1))
+
+CUID=$1
+
+$TPS_CLIENT << EOF
+op=var_set name=ra_host value=$TPS_HOSTNAME
+op=var_set name=ra_port value=$TPS_PORT
+op=var_set name=ra_uri value=$TPS_PATH
+
+op=token_set cuid=$CUID
+op=token_set msn=$MSN
+op=token_set app_ver=$APP_VERSION
+op=token_set key_info=$KEY_INFO
+op=token_set major_ver=$MAJOR_VERSION
+op=token_set minor_ver=$MINOR_VERSION
+op=token_set auth_key=$AUTH_KEY
+op=token_set mac_key=$MAC_KEY
+op=token_set kek_key=$KEK_KEY
+
+op=ra_reset_pin uid=$USERNAME pwd=$PASSWORD new_pin=$NEW_PASSWORD num_threads=$THREADS
+
+op=exit
+EOF
+
+rc=$?
+
+if [ "$TPS_CLIENT" == "tpsclient" ]; then
+    # tpsclient returns 1 on success and 0 on failure,
+    # so the return code needs to be inverted
+
+    if [ "$rc" == "0" ]; then
+        exit 1
+    fi
+
+    exit 0
+fi
+
+exit $rc

@@ -289,6 +289,11 @@ jobs:
           docker exec pki pki-server tps-config-set \
               channel.scp01.no.le.byte true
 
+          # reset PIN_RESET after PIN reset
+          docker exec pki pki-server tps-config-set \
+              tokendb.defaultPolicy \
+              "RE_ENROLL=YES;RENEW=NO;FORCE_FORMAT=NO;PIN_RESET=NO;RESET_PIN_RESET_TO_NO=YES"
+
           # restart TPS subsystem
           docker exec pki pki-server tps-redeploy --wait
 
@@ -327,7 +332,11 @@ jobs:
         run: |
           hexdump -v -n "10" -e '1/1 "%02x"' /dev/urandom > cuid
           CUID=$(cat cuid)
-          docker exec pki pki -n caadmin tps-token-add $CUID | tee output
+
+          # allow one-time PIN reset
+          docker exec pki pki -n caadmin tps-token-add \
+              --policy "PIN_RESET=YES" \
+              $CUID | tee output
 
           echo "UNFORMATTED" > expected
           sed -n 's/\s*Status:\s\+\(\S\+\)\s*/\1/p' output > actual
@@ -362,8 +371,26 @@ jobs:
           docker exec pki pki -n caadmin tps-token-show $CUID | tee output
           sed -n 's/\s*Status:\s\+\(\S\+\)\s*/\1/p' output > actual
           diff expected actual
-          
+
           docker exec pki pki -n caadmin tps-cert-find --token $CUID
+
+      - name: Reset PIN for testuser1 token using pki tps-client
+        run: |
+          CUID=$(cat cuid)
+          docker exec pki /usr/share/pki/tps/bin/pki-tps-pin-reset \
+              --user=testuser1 \
+              --password=Secret.123 \
+              --new-password=Secret.456 \
+              $CUID
+
+          # TODO: validate new PIN
+
+          # PIN_RESET should become NO
+          echo "RE_ENROLL=YES;RENEW=NO;FORCE_FORMAT=NO;PIN_RESET=NO;RESET_PIN_RESET_TO_NO=YES;RENEW_KEEP_OLD_ENC_CERTS=YES" > expected
+          docker exec pki pki -n caadmin tps-token-show $CUID | tee output
+          sed -n 's/\s*Policy:\s\+\(\S\+\)\s*/\1/p' output > actual
+
+          diff expected actual
 
       - name: Find testuser1 key in KRA
         run: |          
@@ -378,7 +405,11 @@ jobs:
         run: |
           hexdump -v -n "10" -e '1/1 "%02x"' /dev/urandom > cuid
           CUID=$(cat cuid)
-          docker exec pki pki -n caadmin tps-token-add $CUID | tee output
+
+          # allow one-time PIN reset
+          docker exec pki pki -n caadmin tps-token-add \
+              --policy "PIN_RESET=YES" \
+              $CUID | tee output
 
           echo "UNFORMATTED" > expected
           sed -n 's/\s*Status:\s\+\(\S\+\)\s*/\1/p' output > actual
@@ -417,6 +448,24 @@ jobs:
           diff expected actual
 
           docker exec pki pki -n caadmin tps-cert-find --token $CUID
+
+      - name: Reset PIN for testuser2 token using tpsclient
+        run: |
+          CUID=$(cat cuid)
+          docker exec pki /usr/share/pki/tps/bin/pki-tps-pin-reset \
+              --client=tpsclient \
+              --user=testuser2 \
+              --password=Secret.123 \
+              --new-password=Secret.456 \
+              $CUID
+
+          # TODO: validate new PIN
+
+          # PIN_RESET should become NO
+          echo "RE_ENROLL=YES;RENEW=NO;FORCE_FORMAT=NO;PIN_RESET=NO;RESET_PIN_RESET_TO_NO=YES;RENEW_KEEP_OLD_ENC_CERTS=YES" > expected
+          docker exec pki pki -n caadmin tps-token-show $CUID | tee output
+          sed -n 's/\s*Policy:\s\+\(\S\+\)\s*/\1/p' output > actual
+          diff expected actual
 
       - name: Find testuser2 key in KRA
         run: |
