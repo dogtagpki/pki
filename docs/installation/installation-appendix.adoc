@@ -1,0 +1,116 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="sample-config-files-for-pkispawn_{context}"]
+= Sample Config Files for pkispawn
+
+* This is a test *
+
+This seciton contains sample config files for pkispawn for the various installation methods discussed in this document.
+
+//:sourcedir: installation/files/
+:sourcedir: ../../base/server/examples/installation/
+
+[id=ca-clone.cfg]
+== ca-clone.cfg
+
+[source,ini]
+----
+include::{sourcedir}/ca-clone.cfg[ca-clone.cfg]
+----
+
+[id=ca-ecc.cfg]
+== ca-ecc.cfg
+
+[source,ini]
+----
+include::{sourcedir}/ca-ecc.cfg[ca-ecc.cfg]
+----
+
+[id=ca-existing-certs-step1.cfg]
+== ca-existing-certs-step1.cfg
+
+[source,ini]
+----
+include::{sourcedir}/ca-existing-certs-step1.cfg[ca-existing-certs-step1.cfg]
+----
+
+[id=ca-existing-certs-step2.cfg]
+== ca-existing-certs-step2.cfg
+
+[source,ini]
+----
+include::{sourcedir}/ca-existing-certs-step2.cfg[ca-existing-certs-step2.cfg]
+----
+
+[id=ca-external-cert-step1.cfg]
+== ca-external-cert-step1.cfg
+
+[source,ini]
+----
+include::{sourcedir}/ca-external-cert-step1.cfg[ca-external-cert-step1.cfg]
+----
+
+[id=ca-external-cert-step2.cfg]
+== ca-external-cert-step2.cfg
+
+[source,ini]
+----
+include::{sourcedir}/ca-external-cert-step2.cfg[ca-external-cert-step2.cfg]
+----
+
+[id=ca-secure-ds.cfg]
+== ca-secure-ds.cfg
+
+[source,ini]
+----
+include::{sourcedir}/ca-secure-ds.cfg[ca-secure-ds.cfg]
+----
+
+[id=ca.cfg]
+== ca.cfg
+
+[source,ini]
+----
+include::{sourcedir}/ca.cfg[ca.cfg]
+----
+
+[id=kra-clone.cfg]
+== kra-clone.cfg
+
+[source,ini]
+----
+include::{sourcedir}/kra-clone.cfg[kra-clone.cfg]
+----
+
+[id=kra.cfg]
+== kra.cfg
+
+[source,ini]
+----
+include::{sourcedir}/kra.cfg[kra.cfg]
+----
+
+[id=subca.cfg]
+== subca.cfg
+
+[source,ini]
+----
+include::{sourcedir}/subca.cfg[subca.cfg]
+----
+
+[id=tks.cfg]
+== tks.cfg
+
+[source,ini]
+----
+include::{sourcedir}/tks.cfg[tks.cfg]
+----
+
+[id=tps.cfg]
+== tps.cfg
+
+[source,ini]
+----
+include::{sourcedir}/tps.cfg[tps.cfg]
+----
+
