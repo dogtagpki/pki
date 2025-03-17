@@ -50,6 +50,8 @@ class RA_Conn
 	  RA_Conn(char *host, int port, char *uri);
 	  ~RA_Conn();
   public:
+          char* GetHostname();
+          int GetPort();
           int SendMsg(RA_Msg *msg);
           RA_Msg *ReadMsg();
           RA_Msg *ReadMsg(RA_Token *token);

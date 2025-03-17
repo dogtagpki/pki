@@ -230,6 +230,18 @@ GetIPAddress (const char *hostName)
   return rv;
 }
 
+char*
+RA_Conn::GetHostname ()
+{
+  return m_host;
+}
+
+int
+RA_Conn::GetPort ()
+{
+  return m_port;
+}
+
 /**
  * Connects to the RA.
  */

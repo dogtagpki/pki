@@ -64,12 +64,20 @@ public class TPSClientCLI extends CommandCLI {
     public native long createClient() throws Exception;
     public native void removeClient(long client) throws Exception;
 
+    public native long createConnection(long client) throws Exception;
+    public native void connect(long connection) throws Exception;
+    public native void disconnect(long connection) throws Exception;
+    public native void removeConnection(long connection) throws Exception;
+
     public native boolean getOldStyle(long client) throws Exception;
     public native void setOldStyle(long client, boolean value) throws Exception;
 
     public native void displayHelp(long client) throws Exception;
 
-    public native void performFormatToken(long client, Map<String, String> params) throws Exception;
+    public native void performFormatToken(
+            long client,
+            Map<String, String> params,
+            long connection) throws Exception;
 
     public void formatToken(
             long client,
@@ -97,7 +105,15 @@ public class TPSClientCLI extends CommandCLI {
                             int c = counter.getAndDecrement();
                             if (c <= 0) return;
 
-                            performFormatToken(client, params);
+                            long connection = createConnection(client);
+                            try {
+                                connect(connection);
+                                performFormatToken(client, params, connection);
+                                disconnect(connection);
+
+                            } finally {
+                                removeConnection(connection);
+                            }
                         }
 
                     } catch (Exception e) {
@@ -120,7 +136,10 @@ public class TPSClientCLI extends CommandCLI {
         }
     }
 
-    public native void performResetPIN(long client, Map<String, String> params) throws Exception;
+    public native void performResetPIN(
+            long client,
+            Map<String, String> params,
+            long connection) throws Exception;
 
     public void resetPIN(
             long client,
@@ -148,7 +167,15 @@ public class TPSClientCLI extends CommandCLI {
                             int c = counter.getAndDecrement();
                             if (c <= 0) return;
 
-                            performResetPIN(client, params);
+                            long connection = createConnection(client);
+                            try {
+                                connect(connection);
+                                performResetPIN(client, params, connection);
+                                disconnect(connection);
+
+                            } finally {
+                                removeConnection(connection);
+                            }
                         }
 
                     } catch (Exception e) {
@@ -171,7 +198,10 @@ public class TPSClientCLI extends CommandCLI {
         }
     }
 
-    public native void performEnrollToken(long client, Map<String, String> params) throws Exception;
+    public native void performEnrollToken(
+            long client,
+            Map<String, String> params,
+            long connection) throws Exception;
 
     public void enrollToken(
             long client,
@@ -199,7 +229,15 @@ public class TPSClientCLI extends CommandCLI {
                             int c = counter.getAndDecrement();
                             if (c <= 0) return;
 
-                            performEnrollToken(client, params);
+                            long connection = createConnection(client);
+                            try {
+                                connect(connection);
+                                performEnrollToken(client, params, connection);
+                                disconnect(connection);
+
+                            } finally {
+                                removeConnection(connection);
+                            }
                         }
 
                     } catch (Exception e) {

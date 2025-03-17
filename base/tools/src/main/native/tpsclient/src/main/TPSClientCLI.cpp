@@ -110,6 +110,46 @@ Java_com_netscape_cmstools_tps_TPSClientCLI_removeClient
     delete cclient;
 }
 
+extern "C" JNIEXPORT jlong JNICALL
+Java_com_netscape_cmstools_tps_TPSClientCLI_createConnection
+(JNIEnv* env, jobject object, jlong client) {
+    RA_Client* cclient = (RA_Client*) client;
+
+    char* hostname = cclient->m_vars.GetValue("ra_host");
+    int port = atoi(cclient->m_vars.GetValue("ra_port"));
+    char* uri = cclient->m_vars.GetValue("ra_uri");
+
+    return (jlong) new RA_Conn(hostname, port, uri);
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_netscape_cmstools_tps_TPSClientCLI_connect
+(JNIEnv* env, jobject object, jlong connection) {
+    RA_Conn* conn = (RA_Conn*) connection;
+
+    if (!conn->Connect()) {
+        char* hostname = conn->GetHostname();
+        int port = conn->GetPort();
+        char *message = PR_smprintf("Cannot connect to %s:%d", hostname, port);
+        throwCLIException(env, message);
+        PR_smprintf_free(message);
+    }
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_netscape_cmstools_tps_TPSClientCLI_disconnect
+(JNIEnv* env, jobject object, jlong connection) {
+    RA_Conn* conn = (RA_Conn*) connection;
+    conn->Close();
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_netscape_cmstools_tps_TPSClientCLI_removeConnection
+(JNIEnv* env, jobject object, jlong connection) {
+    RA_Conn* conn = (RA_Conn*) connection;
+    delete conn;
+}
+
 extern "C" JNIEXPORT jboolean JNICALL
 Java_com_netscape_cmstools_tps_TPSClientCLI_getOldStyle
 (JNIEnv* env, jobject object, jlong client) {
@@ -138,102 +178,57 @@ Java_com_netscape_cmstools_tps_TPSClientCLI_displayHelp
 
 extern "C" JNIEXPORT void JNICALL
 Java_com_netscape_cmstools_tps_TPSClientCLI_performFormatToken
-(JNIEnv* env, jobject object, jlong client, jobject params) {
+(JNIEnv* env, jobject object, jlong client, jobject params, jlong connection) {
 
     RA_Client* cclient = (RA_Client*) client;
     NameValueSet* set = convertParams(env, params);
     RA_Token* token = cclient->m_token.Clone();
+    RA_Conn* conn = (RA_Conn*) connection;
 
-    char* hostname = cclient->m_vars.GetValue("ra_host");
-    int port = atoi(cclient->m_vars.GetValue("ra_port"));
-    char* uri = cclient->m_vars.GetValue("ra_uri");
-    int status;
-
-    RA_Conn* conn = new RA_Conn(hostname, port, uri);
-    if (!conn->Connect()) {
-        char *message = PR_smprintf("Cannot connect to %s:%d", hostname, port);
-        throwCLIException(env, message);
-        PR_smprintf_free(message);
-        goto done;
-    }
-
-    status = FormatToken(cclient, set, token, conn);
-    conn->Close();
+    int status = FormatToken(cclient, set, token, conn);
 
     if (status == 0) {
         throwCLIException(env, "Unable to format token");
     }
 
-done:
-    delete conn;
     delete token;
     delete set;
 }
 
 extern "C" JNIEXPORT void JNICALL
 Java_com_netscape_cmstools_tps_TPSClientCLI_performResetPIN
-(JNIEnv* env, jobject object, jlong client, jobject params) {
+(JNIEnv* env, jobject object, jlong client, jobject params, jlong connection) {
 
     RA_Client* cclient = (RA_Client*) client;
     NameValueSet* set = convertParams(env, params);
     RA_Token* token = cclient->m_token.Clone();
+    RA_Conn* conn = (RA_Conn*) connection;
 
-    char* hostname = cclient->m_vars.GetValue("ra_host");
-    int port = atoi(cclient->m_vars.GetValue("ra_port"));
-    char* uri = cclient->m_vars.GetValue("ra_uri");
-    int status;
-
-    RA_Conn* conn = new RA_Conn(hostname, port, uri);
-    if (!conn->Connect()) {
-        char *message = PR_smprintf("Cannot connect to %s:%d", hostname, port);
-        throwCLIException(env, message);
-        PR_smprintf_free(message);
-        goto done;
-    }
-
-    status = ResetPIN(cclient, set, token, conn);
-    conn->Close();
+    int status = ResetPIN(cclient, set, token, conn);
 
     if (status == 0) {
         throwCLIException(env, "Unable to reset PIN");
     }
 
-done:
-    delete conn;
     delete token;
     delete set;
 }
 
 extern "C" JNIEXPORT void JNICALL
 Java_com_netscape_cmstools_tps_TPSClientCLI_performEnrollToken
-(JNIEnv* env, jobject object, jlong client, jobject params) {
+(JNIEnv* env, jobject object, jlong client, jobject params, jlong connection) {
 
     RA_Client* cclient = (RA_Client*) client;
     NameValueSet* set = convertParams(env, params);
     RA_Token* token = cclient->m_token.Clone();
+    RA_Conn* conn = (RA_Conn*) connection;
 
-    char* hostname = cclient->m_vars.GetValue("ra_host");
-    int port = atoi(cclient->m_vars.GetValue("ra_port"));
-    char* uri = cclient->m_vars.GetValue("ra_uri");
-    int status;
-
-    RA_Conn* conn = new RA_Conn(hostname, port, uri);
-    if (!conn->Connect()) {
-        char *message = PR_smprintf("Cannot connect to %s:%d", hostname, port);
-        throwCLIException(env, message);
-        PR_smprintf_free(message);
-        goto done;
-    }
-
-    status = EnrollToken(cclient, set, token, conn);
-    conn->Close();
+    int status = EnrollToken(cclient, set, token, conn);
 
     if (status == 0) {
         throwCLIException(env, "Unable to enroll token");
     }
 
-done:
-    delete conn;
     delete token;
     delete set;
 }
