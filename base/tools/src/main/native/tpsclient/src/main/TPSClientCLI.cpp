@@ -214,18 +214,36 @@ Java_com_netscape_cmstools_tps_TPSClientCLI_newResetPIN
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_netscape_cmstools_tps_TPSClientCLI_enrollToken
+Java_com_netscape_cmstools_tps_TPSClientCLI_performEnrollToken
+(JNIEnv* env, jobject object, jlong client, jobject params) {
+
+    RA_Client* cclient = (RA_Client*) client;
+
+    ThreadArg arg;
+    arg.time = 0;
+    arg.status = 0;
+    arg.client = cclient;
+    arg.token = cclient->m_token.Clone();
+    arg.params = convertParams(env, params);
+
+    ThreadConnEnroll(&arg);
+
+    delete arg.params;
+    delete arg.token;
+
+    if (arg.status == 0) {
+        throwCLIException(env, "Unable to enroll token");
+    }
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_netscape_cmstools_tps_TPSClientCLI_newEnrollToken
 (JNIEnv* env, jobject object, jlong client, jobject params) {
 
     RA_Client* cclient = (RA_Client*) client;
     NameValueSet *set = convertParams(env, params);
 
-    int status;
-    if (cclient->old_style) {
-        status = cclient->OpConnEnroll(set);
-    } else {
-        status = cclient->OpConnStart(set, OP_CLIENT_ENROLL);
-    }
+    int status = cclient->OpConnStart(set, OP_CLIENT_ENROLL);
 
     delete set;
 

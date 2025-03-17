@@ -242,6 +242,85 @@ OpConnResetPin (RA_Client* client, NameValueSet * params)
   return status;
 }
 
+int
+OpConnEnroll (RA_Client* client, NameValueSet * params)
+{
+  int num_threads = params->GetValueAsInt ((char *) "num_threads", 1);
+  int i;
+  int status = 0;
+  PRThread **threads;
+  ThreadArg *arg;
+
+  threads = (PRThread **) malloc (sizeof (PRThread *) * num_threads);
+  if (threads == NULL)
+    {
+      return 0;         /* error */
+    }
+  arg = (ThreadArg *) malloc (sizeof (ThreadArg) * num_threads);
+  if (arg == NULL)
+    {
+      if(threads) {
+          free(threads);
+          threads = NULL;
+      }
+      return 0;
+    }
+
+  /* start threads */
+  for (i = 0; i < num_threads; i++)
+    {
+      arg[i].time = 0;
+      arg[i].status = 0;
+      arg[i].client = client;
+      if (i == 0)
+    {
+      arg[i].token = &client->m_token;
+    }
+      else
+    {
+      arg[i].token = client->m_token.Clone ();
+    }
+      arg[i].params = params;
+      threads[i] = PR_CreateThread (PR_USER_THREAD, ThreadConnEnroll, &arg[i], PR_PRIORITY_NORMAL,  /* Priority */
+                    PR_GLOBAL_THREAD,   /* Scope */
+                    PR_JOINABLE_THREAD, /* State */
+                    0   /* Stack Size */
+    );
+    }
+
+  /* join threads */
+  for (i = 0; i < num_threads; i++)
+    {
+      PR_JoinThread (threads[i]);
+    }
+
+  status = 1;
+
+  for (i = 0; i < num_threads; i++)
+    {
+      Output ("Thread (%d) status='%d' time='%d msec'", i,
+          arg[i].status, arg[i].time);
+      if (arg[i].status != 1)
+    {
+      // if any thread fails, this operation
+      // is considered as failure
+      status = arg[i].status;
+    }
+    }
+
+  if(arg) {
+     free(arg);
+     arg = NULL;
+  }
+
+  if(threads) {
+     free(threads);
+     threads = NULL;
+  }
+
+  return status;
+}
+
 /**
  * Invoke operation.
  */
@@ -277,7 +356,7 @@ InvokeOperation (RA_Client* client, char *op, NameValueSet * params)
   else if (strcmp (op, "ra_enroll") == 0)
     {
       if (client->old_style)
-    status = client->OpConnEnroll (params);
+    status = OpConnEnroll (client, params);
       else
     status = client->OpConnStart (params, OP_CLIENT_ENROLL);
     }

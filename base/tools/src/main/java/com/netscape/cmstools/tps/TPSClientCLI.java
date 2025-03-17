@@ -177,7 +177,62 @@ public class TPSClientCLI extends CommandCLI {
         }
     }
 
-    public native void enrollToken(long client, Map<String, String> params) throws Exception;
+    public native void performEnrollToken(long client, Map<String, String> params) throws Exception;
+
+    public void oldEnrollToken(
+            long client,
+            Map<String, String> params)
+            throws Exception {
+
+        String value = params.get("num_threads");
+        int numThreads = value == null ? 1 : Integer.parseInt(value);
+
+        Thread[] threads = new Thread[numThreads];
+        Exception[] exceptions = new Exception[numThreads];
+
+        // start threads
+        for (int i=0; i<numThreads; i++) {
+
+            int index = i;
+
+            threads[i] = new Thread(new Runnable() {
+                public void run() {
+                    try {
+                        performEnrollToken(client, params);
+                    } catch (Exception e) {
+                        exceptions[index] = e;
+                    }
+                }
+            });
+
+            threads[i].start();
+        }
+
+        // wait for threads to complete
+        for (int i=0; i<numThreads; i++) {
+            threads[i].join();
+        }
+
+        // check for exceptions
+        for (int i=0; i<numThreads; i++) {
+            if (exceptions[i] != null) throw exceptions[i];
+        }
+    }
+
+    public native void newEnrollToken(long client, Map<String, String> params) throws Exception;
+
+    public void enrollToken(
+            long client,
+            Map<String, String> params)
+            throws Exception {
+
+        if (getOldStyle(client)) {
+            oldEnrollToken(client, params);
+        } else {
+            newEnrollToken(client, params);
+        }
+    }
+
     public native void displayToken(long client, Map<String, String> params) throws Exception;
     public native void setupToken(long client, Map<String, String> params) throws Exception;
 

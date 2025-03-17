@@ -56,7 +56,6 @@ class RA_Client
   public:
 	  int OpHelp(NameValueSet *set);
 	  int OpConnStart(NameValueSet *set, RequestType);
-	  int OpConnEnroll(NameValueSet *set);
 	  int OpTokenStatus(NameValueSet *set);
 	  int OpTokenSet(NameValueSet *set);
 	  int OpVarList(NameValueSet *set);
@@ -89,5 +88,8 @@ ThreadConnUpdate (void *arg);
 
 extern "C" void
 ThreadConnResetPin (void *arg);
+
+extern "C" void
+ThreadConnEnroll (void *arg);
 
 #endif /* RA_CLIENT_H */
