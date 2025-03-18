@@ -65,7 +65,19 @@ dc: pki
 EOF
 ----
 
-The subtree for each PKI subsystem is created when the subsystem is installed. See xref:../others/pki-ldap-tree.adoc[PKI LDAP Tree].
+The subtree for each PKI subsystem is created when the subsystem is installed.
+When all PKI subsystems are created, the LDAP tree will look like the following:
+
+----
+dc=example,dc=com
++ dc=pki
+  + dc=ca
+  + dc=kra
+  + dc=ocsp
+  + dc=tks
+  + dc=tps
+  + dc=acme
+----
 
 == Enabling SSL Connection 
 
