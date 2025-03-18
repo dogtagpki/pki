@@ -9,7 +9,7 @@ Follow this process to install a TKS subsystem with a secure database connection
 Prior to installation, please ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
 
 == DS Configuration
-Once the prerequisites listed above are completed, if you had chosen to use the temporary DS bootstrap certificates during DS instance creation,
+Once the prerequisites listed above are completed, if you had chosen to use the DS bootstrap certificates during DS instance creation,
 then export the bootstrap self-signed certificate into `ds_signing.crt` as follows:
 
 [literal,subs="+quotes,verbatim"]
