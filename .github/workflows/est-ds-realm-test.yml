@@ -340,6 +340,33 @@ jobs:
           echo "subject=CN=test.example.com" > expected
           diff expected actual
 
+      - name: Re-Enroll new certificate with csr using different subject
+        run: |
+          docker exec pki pki \
+              nss-cert-request \
+              --subject "CN=test2.example.com" \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --csr test2.csr
+
+          docker exec pki openssl req -in test2.csr -outform der -out test2.der
+          docker exec pki openssl base64 -in test2.der -out test2.p10
+          
+          docker exec pki curl --cacert cacert.pem --cert cert.pem --key key-x-x.pem \
+              --data-binary @test2.p10 -H "Content-Type: application/pkcs10" \
+              https://pki.example.com:8443/.well-known/est/simplereenroll | tee output
+
+          # Request should fails with authorization error (status code 403)
+          cat > expected <<EOF
+          <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+          <PKIException>
+              <ClassName>com.netscape.certsrv.base.ForbiddenException</ClassName>
+              <Attributes/>
+              <Code>403</Code>
+              <Message>CSR subject does not match user certificate.</Message>
+          </PKIException>
+          EOF
+          diff output expected
+
       - name: Enroll new certificate with certificate but using different subject
         run: |
           docker exec pki mkdir new_certs2
@@ -381,6 +408,24 @@ jobs:
           docker exec pki openssl x509 -in new_certs4/cert.pem -subject -noout | tee actual
           echo "subject=CN=test-new.example.com" > expected
           diff expected actual
+
+      - name: Re-Enroll new certificate with csr using different subject
+        run: |
+          docker exec pki curl --cacert cacert.pem --cert cert.pem --key key-x-x.pem \
+              --data-binary @test2.p10 -H "Content-Type: application/pkcs10" \
+              https://pki.example.com:8443/.well-known/est/simplereenroll | tee output
+
+          # Request should fails with authorization error (status code 403) because reenroll subject match required
+          cat > expected <<EOF
+          <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+          <PKIException>
+              <ClassName>com.netscape.certsrv.base.ForbiddenException</ClassName>
+              <Attributes/>
+              <Code>403</Code>
+              <Message>CSR subject does not match user certificate.</Message>
+          </PKIException>
+          EOF
+          diff output expected
 
       - name: Remove EST
         run: |
