@@ -105,7 +105,7 @@ public abstract class ESTRequestAuthorizer {
         //
         // In case of new certificate the check is less strict and done after string conversion
         //
-        if (!csr.getSubjectName().equals(cert.getSubjectName()) &&
+        if ((renew && !csr.getSubjectName().equals(cert.getSubjectName())) ||
                 (!renew && !csr.getSubjectName().toString().equals(cert.getSubjectName().toString()))) {
             throw new ForbiddenException("CSR subject does not match user certificate.");
         }
@@ -126,7 +126,7 @@ public abstract class ESTRequestAuthorizer {
         // In case of new certificate the SAN can be missed in the CSR and
         // if present the controls are done on Strings
         if (csrSAN != null && certSAN != null) {
-            if (!Arrays.equals(csrSAN.getExtensionValue(), certSAN.getExtensionValue()) &&
+            if ((renew && !Arrays.equals(csrSAN.getExtensionValue(), certSAN.getExtensionValue())) ||
                     (!renew && !csrSAN.toString().equals(certSAN.toString()))) {
                 throw new ForbiddenException(
                     "SAN extensions of user certificate and CSR are not identical.");
