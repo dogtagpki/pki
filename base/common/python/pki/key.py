@@ -23,10 +23,10 @@
 Module containing the Python client classes for the KeyClient and
 KeyRequestClient REST API on a DRM
 """
-from __future__ import absolute_import
-from __future__ import print_function
+
 import base64
 import json
+import inspect
 import logging
 import os
 import warnings
@@ -460,7 +460,7 @@ class AsymKeyGenerationRequest(pki.ResourceMessage):
             self.add_attribute("realm", realm)
 
 
-class KeyClient(object):
+class KeyClient:
     """
     Class that encapsulates and mirrors the functions in the KeyResource
     and KeyRequestResource Java classes in the DRM REST API.
@@ -484,16 +484,34 @@ class KeyClient(object):
     RSA_ALGORITHM = "RSA"
     DSA_ALGORITHM = "DSA"
 
-    def __init__(self, connection, crypto, transport_cert_nick=None,
-                 info_client=None):
+    def __init__(
+            self,
+            parent,
+            crypto=None,
+            transport_cert_nick=None,
+            info_client=None):
         """ Constructor """
 
-        self.connection = connection
+        if isinstance(parent, pki.client.PKIConnection):
+
+            logger.warning(
+                '%s:%s: The PKIConnection parameter in KeyClient.__init__() has been deprecated. '
+                'Provide PKIClient instead.',
+                inspect.stack()[1].filename, inspect.stack()[1].lineno)
+
+            self.kra_client = None
+            self.pki_client = None
+            self.connection = parent
+
+        else:
+            self.kra_client = parent
+            self.pki_client = self.kra_client.parent
+            self.connection = self.pki_client.connection
 
         self.key_url = '/rest/agent/keys'
         self.key_requests_url = '/rest/agent/keyrequests'
 
-        if connection.subsystem is None:
+        if self.connection.subsystem is None:
             self.key_url = '/kra' + self.key_url
             self.key_requests_url = '/kra' + self.key_requests_url
 
@@ -501,24 +519,32 @@ class KeyClient(object):
                         'Accept': 'application/json'}
 
         self.crypto = crypto
-
-        if transport_cert_nick is not None:
-            self.crypto.initialize()
-            self.transport_cert = crypto.get_cert(transport_cert_nick)
-        else:
-            self.transport_cert = None
+        self.transport_cert_nick = transport_cert_nick
+        self.transport_cert = None
 
         self.info_client = info_client
         self.encrypt_alg_oid = None
         self.wrap_name = None
-        self.set_crypto_algorithms()
+
+        if crypto:
+            self.set_crypto_algorithms()
+
+    def get_transport_cert(self):
+
+        if self.transport_cert:
+            return self.transport_cert
+
+        self.crypto.initialize()
+        self.transport_cert = self.crypto.get_cert(self.transport_cert_nick)
+
+        return self.transport_cert
 
     def set_transport_cert(self, transport_cert_nick):
         """ Set the transport certificate for crypto operations """
         if transport_cert_nick is None:
             raise TypeError(
                 "Transport certificate nickname must be specified.")
-        self.transport_cert = self.crypto.get_cert(transport_cert_nick)
+        self.transport_cert = self.crypto.get_cert(self.transport_cert_nick)
 
     @pki.handle_exceptions()
     def set_crypto_algorithms(self):
@@ -572,12 +598,26 @@ class KeyClient(object):
             See KRAClient.list_keys for the valid values of status.
             Returns a KeyInfoCollection object.
         """
+
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/agent/keys' % api_path
+
+        # in legacy code the PKIConnection object might already have the subsystem name
+        # in newer code the subsystem name needs to be included in the path
+        if not self.connection.subsystem:
+            path = '/kra' + path
+
+        logger.info('Getting KRA keys from %s', path)
+
         query_params = {'clientKeyID': client_key_id, 'status': status,
                         'maxResults': max_results, 'maxTime': max_time,
                         'start': start, 'size': size, 'realm': realm}
-        response = self.connection.get(self.key_url, self.headers,
+        response = self.connection.get(path, self.headers,
                                        params=query_params)
-
         json_response = response.json()
         logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
 
@@ -593,13 +633,28 @@ class KeyClient(object):
             See KRAClient.list_requests for the valid values of request_state
             and request_type.  Returns a KeyRequestInfoCollection object.
         """
+
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/agent/keyrequests' % api_path
+
+        # in legacy code the PKIConnection object might already have the subsystem name
+        # in newer code the subsystem name needs to be included in the path
+        if not self.connection.subsystem:
+            path = '/kra' + path
+
+        logger.info('Getting KRA key requests from %s', path)
+
         query_params = {'requestState': request_state,
                         'requestType': request_type,
                         'clientKeyID': client_key_id, 'start': start,
                         'pageSize': page_size,
                         'maxResults': max_results, 'maxTime': max_time,
                         'realm': realm}
-        response = self.connection.get(self.key_requests_url, self.headers,
+        response = self.connection.get(path, self.headers,
                                        params=query_params)
 
         json_response = response.json()
@@ -840,7 +895,7 @@ class KeyClient(object):
 
         wrapped_session_key = self.crypto.asymmetric_wrap(
             session_key,
-            self.transport_cert)
+            self.get_transport_cert())
 
         encrypted_data = self.crypto.symmetric_wrap(
             private_data,
@@ -1076,7 +1131,7 @@ class KeyClient(object):
             session_key = self.crypto.generate_session_key()
             trans_wrapped_session_key = self.crypto.asymmetric_wrap(
                 session_key,
-                self.transport_cert)
+                self.get_transport_cert())
 
         request = KeyRecoveryRequest(
             key_id=key_id,
