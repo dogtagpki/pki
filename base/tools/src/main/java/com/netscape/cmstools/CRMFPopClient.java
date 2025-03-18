@@ -478,8 +478,8 @@ public class CRMFPopClient {
                         curve,
                         sslECDH,
                         temporary,
-                        sensitive,
-                        extractable);
+                        sensitive == -1 ? null : sensitive == 1,
+                        extractable == -1 ? null : extractable == 1);
 
             } else {
                 throw new Exception("Unknown algorithm: " + algorithm);

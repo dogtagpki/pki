@@ -64,6 +64,16 @@ public class NSSCertRequestCLI extends CommandCLI {
 
         options.addOption(null, "ssl-ecdh", false, "Generate EC key for SSL with ECDH ECDSA.");
 
+        options.addOption(null, "temporary", false, "Generate temporary key");
+
+        option = new Option(null, "sensitive", true, "Generate sensitive key");
+        option.setArgName("boolean");
+        options.addOption(option);
+
+        option = new Option(null, "extractable", true, "Generate extractable key");
+        option.setArgName("boolean");
+        options.addOption(option);
+
         option = new Option(null, "hash", true, "Hash algorithm (default: SHA256)");
         option.setArgName("name");
         options.addOption(option);
@@ -95,6 +105,21 @@ public class NSSCertRequestCLI extends CommandCLI {
         boolean keyWrap = cmd.hasOption("key-wrap");
         String curve = cmd.getOptionValue("curve", "nistp256");
         boolean sslECDH = cmd.hasOption("ssl-ecdh");
+
+        Boolean temporary = cmd.hasOption("temporary");
+
+        String s = cmd.getOptionValue("sensitive");
+        Boolean sensitive = null;
+        if (s != null) {
+            sensitive = Boolean.parseBoolean(s);
+        }
+
+        s = cmd.getOptionValue("extractable");
+        Boolean extractable = null;
+        if (s != null) {
+            extractable = Boolean.parseBoolean(s);
+        }
+
         String hash = cmd.getOptionValue("hash", "SHA256");
         String extConf = cmd.getOptionValue("ext");
         String subjectAltName = cmd.getOptionValue("subjectAltName");
@@ -122,14 +147,20 @@ public class NSSCertRequestCLI extends CommandCLI {
             keyPair = nssdb.createRSAKeyPair(
                     token,
                     Integer.parseInt(keySize),
-                    keyWrap);
+                    keyWrap,
+                    temporary,
+                    sensitive,
+                    extractable);
 
         } else if ("EC".equalsIgnoreCase(keyType)) {
 
             keyPair = nssdb.createECKeyPair(
                     token,
                     curve,
-                    sslECDH);
+                    sslECDH,
+                    temporary,
+                    sensitive,
+                    extractable);
 
         } else {
             throw new Exception("Unsupported key type: " + keyType);

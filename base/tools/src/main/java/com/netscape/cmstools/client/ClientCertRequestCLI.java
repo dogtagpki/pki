@@ -186,28 +186,24 @@ public class ClientCertRequestCLI extends CommandCLI {
 
         String curve = cmd.getOptionValue("curve", "nistp256");
         boolean sslECDH = cmd.hasOption("ssl-ecdh");
-        boolean temporary = !cmd.hasOption("permanent");
+        Boolean temporary = !cmd.hasOption("permanent");
 
         String s = cmd.getOptionValue("sensitive");
-        int sensitive;
-        if (s == null) {
-            sensitive = -1;
-        } else {
+        Boolean sensitive = null;
+        if (s != null) {
             if (!s.equalsIgnoreCase("true") && !s.equalsIgnoreCase("false")) {
                 throw new IllegalArgumentException("Invalid sensitive parameter: " + s);
             }
-            sensitive = Boolean.parseBoolean(s) ? 1 : 0;
+            sensitive = Boolean.parseBoolean(s);
         }
 
         s = cmd.getOptionValue("extractable");
-        int extractable;
-        if (s == null) {
-            extractable = -1;
-        } else {
+        Boolean extractable = null;
+        if (s != null) {
             if (!s.equalsIgnoreCase("true") && !s.equalsIgnoreCase("false")) {
                 throw new IllegalArgumentException("Invalid extractable parameter: " + s);
             }
-            extractable = Boolean.parseBoolean(s) ? 1 : 0;
+            extractable = Boolean.parseBoolean(s);
         }
 
         String transportCertFilename = cmd.getOptionValue("transport");

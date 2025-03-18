@@ -291,8 +291,8 @@ public class PKCS10Client {
                         ecc_curve,
                         ec_ssl_ecdh,
                         ec_temporary,
-                        ec_sensitive,
-                        ec_extractable);
+                        ec_sensitive == -1 ? null : ec_sensitive == 1,
+                        ec_extractable == -1 ? null : ec_extractable == 1);
 
                 if (pair == null) {
                     System.out.println("PKCS10Client: pair null.");

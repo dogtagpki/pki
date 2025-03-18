@@ -1060,9 +1060,9 @@ public class NSSDatabase {
             CryptoToken token,
             String curveName,
             boolean sslECDH,
-            boolean temporary,
-            int sensitive,
-            int extractable) throws Exception {
+            Boolean temporary,
+            Boolean sensitive,
+            Boolean extractable) throws Exception {
 
         logger.debug("NSSDatabase: Creating EC key");
         logger.debug("NSSDatabase: - curve: " + curveName);

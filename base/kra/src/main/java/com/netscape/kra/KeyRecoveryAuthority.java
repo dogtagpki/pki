@@ -65,8 +65,8 @@ import com.netscape.certsrv.logging.event.SecurityDataArchivalProcessedEvent;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalRequestEvent;
 import com.netscape.certsrv.logging.event.SecurityDataRecoveryEvent;
 import com.netscape.certsrv.logging.event.SecurityDataRecoveryProcessedEvent;
-import com.netscape.certsrv.request.Policy;
 import com.netscape.certsrv.request.IService;
+import com.netscape.certsrv.request.Policy;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestListener;
 import com.netscape.certsrv.request.RequestStatus;
@@ -1952,8 +1952,8 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
                         token,
                         keyCurve /* ECC_curve default */,
                         tp /* temporary */,
-                        sp ? 1 : 0 /* sensitive */,
-                        ep ? 1 : 0 /* extractable */,
+                        sp /* sensitive */,
+                        ep /* extractable */,
                         null,
                         CryptoUtil.ECDH_USAGES_MASK);
                 logger.debug("NetkeyKeygenService: after key pair generation" );

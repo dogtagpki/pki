@@ -520,25 +520,6 @@ public class CryptoUtil {
     public static KeyPair generateECCKeyPair(
             CryptoToken token,
             String curveName,
-            boolean temporary,
-            int sensitive,
-            int extractable,
-            Usage[] usages,
-            Usage[] usagesMask) throws Exception {
-
-        return generateECCKeyPair(
-                token,
-                curveName,
-                temporary,
-                sensitive == -1 ? null : sensitive == 1,
-                extractable == -1 ? null : extractable == 1,
-                usages,
-                usagesMask);
-    }
-
-    public static KeyPair generateECCKeyPair(
-            CryptoToken token,
-            String curveName,
             Boolean temporary,
             Boolean sensitive,
             Boolean extractable,
