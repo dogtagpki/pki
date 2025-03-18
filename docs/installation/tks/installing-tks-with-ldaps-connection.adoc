@@ -152,4 +152,4 @@ User "tksadmin"
 
 == Getting Real DS Certificate from the CA 
 
-If desired, follow xref:../others/enabling-ssl-connection-in-ds.adoc[this procedure] to get real DS certificate issued by the CA.
+If desired, follow xref:../others/getting-ds-cert-issued-by-actual-ca.adoc[this procedure] to get real DS certificate issued by the CA.

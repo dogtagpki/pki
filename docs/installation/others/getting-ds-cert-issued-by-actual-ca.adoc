@@ -1,12 +1,12 @@
 :_mod-docs-content-type: PROCEDURE
 
-[id="enabling-ssl-connection-in-ds_{context}"]
+[id="getting-ds-cert-issued-by-actual-ca_{context}"]
 
 // This section is intended for all PKI subsystems
 
-= Enabling SSL Connection in DS 
+= Getting DS Certificate Issued by Actual CA
 
-Follow this process using `pki` CLI (run `man pki-client`) commands to enable SSL connection in DS.
+Follow this process using `pki` CLI (run `man pki-client`) commands to get DS certificate issued by the actual CA.
 
 This section assumes that a DS instance named `localhost` already exists,
 
