@@ -10,7 +10,7 @@ Prior to installation, please ensure that the xref:../others/installation-prereq
 
 == DS Configuration 
 
-Once the prerequisites listed above are completed on the clone system, follow the procedure to xref:../others/enabling-ssl-connection-in-ds.adoc[enable SSL Connection with DS] so that the CA clone's DS is running with SSL enabled wtih a real server certificate issued by the CA.
+Once the prerequisites listed above are completed on the clone system, follow the procedure to xref:../others/getting-ds-cert-issued-by-actual-ca.adoc[enable SSL Connection with DS] so that the CA clone's DS is running with SSL enabled wtih a real server certificate issued by the CA.
 
 Some useful tips:
 
