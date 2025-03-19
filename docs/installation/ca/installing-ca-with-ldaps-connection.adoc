@@ -93,11 +93,6 @@ The PKCS #12 password is specified in the `pki_client_pkcs12_password` parameter
 
 To use the admin certificate, prepare a client NSS database (default is `~/.dogtag/nssdb`):
 
-[literal,subs="+quotes,verbatim"]
-....
-$ pki client-init
-....
-
 Export the CA signing certificate from the server NSS database:
 
 [literal,subs="+quotes,verbatim"]

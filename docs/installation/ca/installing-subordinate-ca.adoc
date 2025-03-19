@@ -49,11 +49,6 @@ sslserver                                                    u,u,u
 
 Prepare a client NSS database, for example `~/.dogtag/nssdb`:
 
-[literal,subs="+quotes,verbatim"]
-....
-$ pki client-init
-....
-
 Import the root CA signing certificate:
 
 [literal,subs="+quotes,verbatim"]

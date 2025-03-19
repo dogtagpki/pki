@@ -152,11 +152,6 @@ For simplicity the nicknames in this example are configured to be the same as th
 
 To use the admin certificate from the primary CA subsystem, prepare a client NSS database (default is `~/.dogtag/nssdb`):
 
-[literal,subs="+quotes,verbatim"]
-....
-$ pki client-init
-....
-
 Then import the CA signing certificate into the client NSS database:
 
 [literal,subs="+quotes,verbatim"]
