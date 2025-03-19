@@ -20,6 +20,8 @@ package org.dogtagpki.util.cert;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
@@ -187,6 +189,16 @@ public class CertUtil {
             logger.error("Unable to parse CRMF request: " + e.getMessage(), e);
             throw new EProfileException("Unable to parse CRMF request: " + e.getMessage(), e);
         }
+    }
+
+    public static String encodeCRMF(byte[] request) throws Exception {
+        StringWriter sw = new StringWriter();
+        try (PrintWriter out = new PrintWriter(sw)) {
+            out.println(Cert.REQUEST_HEADER);
+            out.print(Utils.base64encode(request, true));
+            out.println(Cert.REQUEST_FOOTER);
+        }
+        return sw.toString();
     }
 
     /**

@@ -20,9 +20,7 @@ package com.netscape.cmstools;
 import java.io.BufferedReader;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.io.Reader;
-import java.io.StringWriter;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -45,6 +43,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.dogtagpki.common.CAInfoClient;
 import org.dogtagpki.nss.NSSDatabase;
+import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.OCTET_STRING;
@@ -55,7 +54,6 @@ import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.util.Cert;
-import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.pkix.primitive.AVA;
 import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.util.Password;
@@ -544,20 +542,13 @@ public class CRMFPopClient {
                     keyWrapAlgorithm,
                     useOAEP,
                     use_shared_secret);
-            String request = Utils.base64encode(crmfRequest, true);
 
-            StringWriter sw = new StringWriter();
-            try (PrintWriter out = new PrintWriter(sw)) {
-                out.println(Cert.REQUEST_HEADER);
-                out.print(request);
-                out.println(Cert.REQUEST_FOOTER);
-            }
-            String csr = sw.toString();
+            String csr = CertUtil.encodeCRMF(crmfRequest);
 
             if (hostPort != null) {
                 System.out.println("Submitting CRMF request to " + hostPort);
                 client.submitRequest(
-                        request,
+                        csr,
                         hostPort,
                         username,
                         profileID,

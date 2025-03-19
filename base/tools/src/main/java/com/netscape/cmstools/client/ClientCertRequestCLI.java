@@ -41,7 +41,6 @@ import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.Cert;
-import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.pkix.primitive.Name;
@@ -331,7 +330,8 @@ public class ClientCertRequestCLI extends CommandCLI {
                     keyWrapAlgorithm,
                     useOAEP,
                     false); // useSharedSecret
-            csr = Utils.base64encode(crmfRequest, true);
+
+            csr = CertUtil.encodeCRMF(crmfRequest);
 
         } else {
             throw new Exception("Unknown request type: " + requestType);
