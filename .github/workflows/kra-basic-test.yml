@@ -357,31 +357,19 @@ jobs:
 
           docker exec pki cat testuser.csr
 
-          # submit cert request
-          # https://github.com/dogtagpki/pki/wiki/Submitting-Certificate-Request-with-Key-Archival
-          docker exec pki pki \
-              ca-cert-request-submit \
-              --request-type crmf \
-              --csr-file testuser.csr \
-              --profile caUserCert \
-              --subject UID=testuser | tee output
-
-          REQUEST_ID=$(sed -n "s/^\s*Request ID:\s*\(\S*\)$/\1/p" output)
-          echo "Request ID: $REQUEST_ID"
-
           # issue cert
+          # https://github.com/dogtagpki/pki/wiki/Issuing-Certificates
           docker exec pki pki \
               -u caadmin \
               -w Secret.123 \
-              ca-cert-request-approve \
-              --force \
-              $REQUEST_ID | tee output
-
-          CERT_ID=$(sed -n "s/^\s*Certificate ID:\s*\(\S*\)$/\1/p" output)
-          echo "Cert ID: $CERT_ID"
+              ca-cert-issue \
+              --request-type crmf \
+              --profile caUserCert \
+              --subject UID=testuser \
+              --csr-file testuser.csr \
+              --output-file testuser.crt
 
           # import cert into NSS database
-          docker exec pki pki ca-cert-export --output-file testuser.crt $CERT_ID
           docker exec pki pki nss-cert-import --cert testuser.crt testuser
 
           # the cert should match the key (trust flags must be u,u,u)

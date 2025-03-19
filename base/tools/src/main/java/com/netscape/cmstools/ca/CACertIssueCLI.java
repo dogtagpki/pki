@@ -85,8 +85,12 @@ public class CACertIssueCLI extends CommandCLI {
         option.setArgName("profile");
         options.addOption(option);
 
-        option = new Option(null, "request-type", true, "Request type (default: pkcs10)");
+        option = new Option(null, "request-type", true, "Request type: pkcs10 (default), crmf");
         option.setArgName("type");
+        options.addOption(option);
+
+        option = new Option(null, "request-format", true, "Request type: PEM (default), DER");
+        option.setArgName("format");
         options.addOption(option);
 
         option = new Option(null, "renewal", false, "Submit renewal request");
@@ -251,8 +255,6 @@ public class CACertIssueCLI extends CommandCLI {
     @Override
     public void execute(CommandLine cmd) throws Exception {
 
-        String[] cmdArgs = cmd.getArgs();
-
         String inputFile = cmd.getOptionValue("input-file");
         String profileID = cmd.getOptionValue("profile");
 
@@ -330,13 +332,31 @@ public class CACertIssueCLI extends CommandCLI {
 
         if (csrFilename != null) {
 
-            csr = loadFile(csrFilename);
-            logger.debug("CSR:\n" + csr);
+            byte[] bytes = Files.readAllBytes(Paths.get(csrFilename));
 
-            byte[] bytes = CertUtil.parseCSR(csr);
+            String requestFormat = cmd.getOptionValue("request-format");
+            if (requestFormat == null || "PEM".equalsIgnoreCase(requestFormat)) {
+                bytes = CertUtil.parseCSR(new String(bytes));
+
+            } else if ("DER".equalsIgnoreCase(requestFormat)) {
+                // nothing to do
+
+            } else {
+                throw new Exception("Unsupported request format: " + requestFormat);
+            }
+
             if ("pkcs10".equals(requestType)) {
                 pkcs10 = new PKCS10(bytes);
+                csr = CertUtil.toPEM(pkcs10);
+
+            } else if ("crmf".equals(requestType)) {
+                csr = CertUtil.encodeCRMF(bytes);
+
+            } else {
+                throw new Exception("Unsupported request type: " + requestType);
             }
+
+            logger.debug("CSR:\n" + csr);
 
             for (ProfileInput input : request.getInputs()) {
                 ProfileAttribute csrAttr = input.getAttribute("cert_request");
