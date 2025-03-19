@@ -32,21 +32,19 @@ jobs:
           tests/bin/ds-create.sh \
               --image=${{ env.DS_IMAGE }} \
               --hostname=ds1.example.com \
+              --network=example \
+              --network-alias=ds1.example.com \
               --password=Secret.123 \
               --base-dn="dc=pki1,dc=example,dc=com" \
               ds1
 
-      - name: Connect first DS container to network
-        run: docker network connect example ds1 --alias ds1.example.com
-
       - name: Set up first PKI container
         run: |
-          tests/bin/runner-init.sh pki1
-        env:
-          HOSTNAME: pki1.example.com
-
-      - name: Connect first PKI container to network
-        run: docker network connect example pki1 --alias pki1.example.com
+          tests/bin/runner-init.sh \
+              --hostname=pki1.example.com \
+              --network=example \
+              --network-alias=pki1.example.com \
+              pki1
 
       - name: Install first CA
         run: |
@@ -91,16 +89,34 @@ jobs:
 
       - name: Check cert enrollment with key archival
         run: |
-          # generate key and submit cert request
+          docker exec pki1 pki-server cert-export \
+              --cert-file kra_transport.crt \
+              kra_transport
+
+          # import transport cert
+          docker exec pki1 pki nss-cert-import \
+              --cert kra_transport.crt \
+              kra_transport
+
+          # generate key and cert request
+          # https://github.com/dogtagpki/pki/wiki/Generating-Certificate-Request-with-PKI-NSS
+          docker exec pki1 pki \
+              nss-cert-request \
+              --type crmf \
+              --subject UID=testuser \
+              --transport kra_transport \
+              --csr testuser.csr
+
+          docker exec pki1 cat testuser.csr
+
+          # submit cert request
           # https://github.com/dogtagpki/pki/wiki/Submitting-Certificate-Request-with-Key-Archival
           docker exec pki1 pki \
-              -U http://pki1.example.com:8080 \
-              client-cert-request \
+              ca-cert-request-submit \
+              --request-type crmf \
+              --csr-file testuser.csr \
               --profile caUserCert \
-              --type crmf \
-              --algorithm rsa \
-              --permanent \
-              UID=testuser | tee output
+              --subject UID=testuser | tee output
 
           REQUEST_ID=$(sed -n "s/^\s*Request ID:\s*\(\S*\)\s*$/\1/p" output)
           echo "Request ID: $REQUEST_ID"
@@ -220,21 +236,19 @@ jobs:
           tests/bin/ds-create.sh \
               --image=${{ env.DS_IMAGE }} \
               --hostname=ds2.example.com \
+              --network=example \
+              --network-alias=ds2.example.com \
               --password=Secret.123 \
               --base-dn="dc=pki2,dc=example,dc=com" \
               ds2
 
-      - name: Connect second DS container to network
-        run: docker network connect example ds2 --alias ds2.example.com
-
       - name: Set up second PKI container
         run: |
-          tests/bin/runner-init.sh pki2
-        env:
-          HOSTNAME: pki2.example.com
-
-      - name: Connect second PKI container to network
-        run: docker network connect example pki2 --alias pki2.example.com
+          tests/bin/runner-init.sh \
+              --hostname=pki2.example.com \
+              --network=example \
+              --network-alias=pki2.example.com \
+              pki2
 
       - name: Install second CA
         run: |
@@ -425,19 +439,3 @@ jobs:
         if: always()
         run: |
           docker exec pki2 find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
-
-      - name: Gather artifacts
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh ds1
-          tests/bin/ds-artifacts-save.sh ds2
-          tests/bin/pki-artifacts-save.sh pki1
-          tests/bin/pki-artifacts-save.sh pki2
-        continue-on-error: true
-
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: kra-migration-test
-          path: /tmp/artifacts

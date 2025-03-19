@@ -503,17 +503,26 @@ jobs:
 
       - name: Request cert with key archival
         run: |
-          # generate key and submit cert request
+          # generate key and cert request
+          # https://github.com/dogtagpki/pki/wiki/Generating-Certificate-Request-with-PKI-NSS
+          docker exec client pki \
+              nss-cert-request \
+              --type crmf \
+              --subject UID=testuser \
+              --transport kra_transport \
+              --csr testuser.csr
+
+          docker exec client cat testuser.csr
+
+          # submit cert request
           # https://github.com/dogtagpki/pki/wiki/Submitting-Certificate-Request-with-Key-Archival
           docker exec client pki \
               -U https://ca.example.com:8443 \
-              client-cert-request \
+              ca-cert-request-submit \
+              --request-type crmf \
+              --csr-file testuser.csr \
               --profile caUserCert \
-              --type crmf \
-              --algorithm rsa \
-              --permanent \
-              --transport $SHARED/kra/certs/kra_transport.crt \
-              UID=testuser | tee output
+              --subject UID=testuser | tee output
 
           REQUEST_ID=$(sed -n "s/^\s*Request ID:\s*\(\S*\)$/\1/p" output)
           echo "Request ID: $REQUEST_ID"
@@ -691,34 +700,3 @@ jobs:
         if: always()
         run: |
           docker logs client
-
-      - name: Gather artifacts
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh cads
-
-          mkdir -p /tmp/artifacts/ca
-          cp -r ca/certs /tmp/artifacts/ca
-          cp -r ca/conf /tmp/artifacts/ca
-          cp -r ca/logs /tmp/artifacts/ca
-
-          docker logs ca > /tmp/artifacts/ca/container.out 2> /tmp/artifacts/ca/container.err
-
-          tests/bin/ds-artifacts-save.sh krads
-
-          mkdir -p /tmp/artifacts/kra
-          cp -r kra/certs /tmp/artifacts/kra
-          cp -r kra/conf /tmp/artifacts/kra
-          cp -r kra/logs /tmp/artifacts/kra
-
-          docker logs kra > /tmp/artifacts/kra/container.out 2> /tmp/artifacts/kra/container.err
-
-          mkdir -p /tmp/artifacts/client
-          docker logs client > /tmp/artifacts/client/container.out 2> /tmp/artifacts/client/container.err
-
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: kra-container
-          path: /tmp/artifacts

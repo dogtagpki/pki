@@ -33,20 +33,18 @@ jobs:
           tests/bin/ds-create.sh \
               --image=${{ env.DS_IMAGE }} \
               --hostname=ds.example.com \
+              --network=example \
+              --network-alias=ds.example.com \
               --password=Secret.123 \
               ds
 
-      - name: Connect DS container to network
-        run: docker network connect example ds --alias ds.example.com
-
       - name: Set up PKI container
         run: |
-          tests/bin/runner-init.sh pki
-        env:
-          HOSTNAME: pki.example.com
-
-      - name: Connect PKI container to network
-        run: docker network connect example pki --alias pki.example.com
+          tests/bin/runner-init.sh \
+              --hostname=pki.example.com \
+              --network=example \
+              --network-alias=pki.example.com \
+              pki
 
       - name: Install CA
         run: |
@@ -343,17 +341,30 @@ jobs:
 
       - name: Check cert enrollment with key archival
         run: |
-          # generate key and submit cert request
+          # import transport cert
+          docker exec pki pki nss-cert-import \
+              --cert kra_transport.crt \
+              kra_transport
+
+          # generate key and cert request
+          # https://github.com/dogtagpki/pki/wiki/Generating-Certificate-Request-with-PKI-NSS
+          docker exec pki pki \
+              nss-cert-request \
+              --type crmf \
+              --subject UID=testuser \
+              --transport kra_transport \
+              --csr testuser.csr
+
+          docker exec pki cat testuser.csr
+
+          # submit cert request
           # https://github.com/dogtagpki/pki/wiki/Submitting-Certificate-Request-with-Key-Archival
           docker exec pki pki \
-              -U http://pki.example.com:8080 \
-              client-cert-request \
+              ca-cert-request-submit \
+              --request-type crmf \
+              --csr-file testuser.csr \
               --profile caUserCert \
-              --type crmf \
-              --algorithm rsa \
-              --permanent \
-              --transport kra_transport.crt \
-              UID=testuser | tee output
+              --subject UID=testuser | tee output
 
           REQUEST_ID=$(sed -n "s/^\s*Request ID:\s*\(\S*\)$/\1/p" output)
           echo "Request ID: $REQUEST_ID"
@@ -559,17 +570,3 @@ jobs:
         if: always()
         run: |
           docker exec pki find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
-
-      - name: Gather artifacts
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh ds
-          tests/bin/pki-artifacts-save.sh pki
-        continue-on-error: true
-
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: kra-basic
-          path: /tmp/artifacts
