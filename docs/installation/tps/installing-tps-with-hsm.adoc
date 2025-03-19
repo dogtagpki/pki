@@ -98,12 +98,6 @@ HSM:sslserver                                                u,u,u
 
 == Verifying Admin Certificate
 
-Prepare a client NSS database, for example `~/.dogtag/nssdb`:
-
-[literal,subs="+quotes,verbatim"]
-....
-$ pki -c Secret.123 client-init
-....
 
 Import the CA signing certificate:
 
