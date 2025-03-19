@@ -181,7 +181,7 @@ Import the external CA certificate chain:
 
 [literal,subs="+quotes,verbatim"]
 ....
-$ pki -c Secret.123 client-cert-import --ca-cert ca_signing.crt
+$ pki nss-cert-import --cert ca_signing.crt --trust CT,C,C ca_signing
 ....
 
 Import the admin key and certificate:

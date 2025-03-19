@@ -115,7 +115,7 @@ Import the CA signing certificate:
 
 [literal,subs="+quotes,verbatim"]
 ....
-$ pki -c Secret.123 client-cert-import ca_signing --ca-cert ca_signing.crt
+$ pki nss-cert-import --cert ca_signing.crt --trust CT,C,C ca_signing
 ....
 
 Import admin key and certificate:
