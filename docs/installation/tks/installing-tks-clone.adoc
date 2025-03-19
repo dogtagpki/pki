@@ -102,7 +102,7 @@ Then import the CA signing certificate into the client NSS database:
 $ pki nss-cert-import --cert ca_signing.crt --trust CT,C,C ca_signing
 ....
 
-Finally, import admin certificate and key with the following command:
+Finally, import admin certificate and key into the client NSS database (by default ~/.dogtag/nssdb) with the following command:
 
 [literal,subs="+quotes,verbatim"]
 ....
