@@ -21,6 +21,7 @@ Then execute the following command:
 
 [literal,subs="+quotes,verbatim"]
 ....
+$ pkispawn -f kra-separate.cfg -s KRA --precheck
 $ pkispawn -f kra-separate.cfg -s KRA
 ....
 

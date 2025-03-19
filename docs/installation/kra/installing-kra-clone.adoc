@@ -55,6 +55,7 @@ To start the installation execute the following command:
 
 [literal,subs="+quotes,verbatim"]
 ....
+$ pkispawn -f kra-clone.cfg -s KRA --precheck
 $ pkispawn -f kra-clone.cfg -s KRA
 ....
 
