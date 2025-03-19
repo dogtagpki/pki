@@ -16,10 +16,15 @@ import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.nss.NSSDatabase;
 import org.dogtagpki.nss.NSSExtensionGenerator;
 import org.dogtagpki.util.cert.CertUtil;
+import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.KeyWrapAlgorithm;
+import org.mozilla.jss.crypto.SignatureAlgorithm;
+import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.X509Key;
+import org.mozilla.jss.pkix.primitive.Name;
 
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.cmstools.cli.MainCLI;
@@ -40,9 +45,15 @@ public class NSSCertRequestCLI extends CommandCLI {
 
     @Override
     public void createOptions() {
-        Option option = new Option(null, "subject", true, "Subject name");
+        Option option = new Option(null, "type", true, "Request type: pkcs10 (default), crmf");
+        option.setArgName("type");
+        options.addOption(option);
+
+        option = new Option(null, "subject", true, "Subject name");
         option.setArgName("name");
         options.addOption(option);
+
+        options.addOption(null, "subject-encoding", false, "Enable attribute encoding in subject name");
 
         option = new Option(null, "key-id", true, "Key ID");
         option.setArgName("ID");
@@ -57,6 +68,13 @@ public class NSSCertRequestCLI extends CommandCLI {
         options.addOption(option);
 
         options.addOption(null, "key-wrap", false, "Generate RSA key for wrapping/unwrapping.");
+
+        option = new Option(null, "key-wrap-alg", true, "Key wrapping algorithm (default: " + KeyWrapAlgorithm.AES_KEY_WRAP_PAD + ")");
+        option.setArgName("alg");
+        options.addOption(option);
+
+        option = new Option(null, "key-wrap-oaep", false, "Use OAEP key wrap algorithm.");
+        options.addOption(option);
 
         option = new Option(null, "curve", true, "Elliptic curve name (default: nistp256)");
         option.setArgName("name");
@@ -82,8 +100,16 @@ public class NSSCertRequestCLI extends CommandCLI {
         option.setArgName("path");
         options.addOption(option);
 
+        options.addOption(null, "skid", false, "Include SubjectKeyIdentifier extension");
+
         option = new Option(null, "subjectAltName", true, "Subject alternative name");
         option.setArgName("value");
+        options.addOption(option);
+
+        options.addOption(null, "pop", false, "Include Proof-of-Possession in CRMF request");
+
+        option = new Option(null, "transport", true, "Transport certificate nickname");
+        option.setArgName("nickname");
         options.addOption(option);
 
         option = new Option(null, "csr", true, "Certificate signing request");
@@ -98,11 +124,20 @@ public class NSSCertRequestCLI extends CommandCLI {
     @Override
     public void execute(CommandLine cmd) throws Exception {
 
+        String requestType = cmd.getOptionValue("type", "pkcs10");
+        String requestFormat = cmd.getOptionValue("format");
+
         String subject = cmd.getOptionValue("subject");
+        boolean subjectEncoding = cmd.hasOption("subject-encoding");
+
         String keyID = cmd.getOptionValue("key-id");
         String keyType = cmd.getOptionValue("key-type", "RSA");
         String keySize = cmd.getOptionValue("key-size", "2048");
         boolean keyWrap = cmd.hasOption("key-wrap");
+        String keyWrapAlg = cmd.getOptionValue(
+                "key-wrap-alg",
+                KeyWrapAlgorithm.AES_KEY_WRAP_PAD.toString());
+        boolean keyWrapOAEP = cmd.hasOption("key-wrap-oaep");
         String curve = cmd.getOptionValue("curve", "nistp256");
         boolean sslECDH = cmd.hasOption("ssl-ecdh");
 
@@ -122,7 +157,9 @@ public class NSSCertRequestCLI extends CommandCLI {
 
         String hash = cmd.getOptionValue("hash", "SHA256");
         String extConf = cmd.getOptionValue("ext");
+        boolean skid = cmd.hasOption("skid");
         String subjectAltName = cmd.getOptionValue("subjectAltName");
+        Boolean pop = cmd.hasOption("pop") ? true : null;
 
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
@@ -141,6 +178,7 @@ public class NSSCertRequestCLI extends CommandCLI {
             if (keyID.length() % 2 == 1) keyID = "0" + keyID;
 
             keyPair = nssdb.loadKeyPair(token, Hex.decodeHex(keyID));
+            keyType = keyPair.getPublic().getAlgorithm();
 
         } else if ("RSA".equalsIgnoreCase(keyType)) {
 
@@ -180,24 +218,72 @@ public class NSSCertRequestCLI extends CommandCLI {
         X509Key subjectKey = CryptoUtil.createX509Key(keyPair.getPublic());
         extensions = generator.createExtensions(subjectKey);
 
-        PKCS10 pkcs10 = nssdb.createPKCS10Request(
-                keyPair,
-                subject,
-                false,
-                hash,
-                extensions);
-
-        String format = cmd.getOptionValue("format");
         byte[] bytes;
 
-        if (format == null || "PEM".equalsIgnoreCase(format)) {
-            bytes = CertUtil.toPEM(pkcs10).getBytes();
+        if ("pkcs10".equalsIgnoreCase(requestType)) {
 
-        } else if ("DER".equalsIgnoreCase(format)) {
-            bytes = pkcs10.toByteArray();
+            PKCS10 pkcs10 = nssdb.createPKCS10Request(
+                    keyPair,
+                    subject,
+                    false,
+                    hash,
+                    extensions);
+
+            if (requestFormat == null || "PEM".equalsIgnoreCase(requestFormat)) {
+                bytes = CertUtil.toPEM(pkcs10).getBytes();
+
+            } else if ("DER".equalsIgnoreCase(requestFormat)) {
+                bytes = pkcs10.toByteArray();
+
+            } else {
+                throw new Exception("Unsupported format: " + requestFormat);
+            }
+
+        } else if ("crmf".equalsIgnoreCase(requestType)) {
+
+            String transportCertNickname = cmd.getOptionValue("transport");
+
+            CryptoManager cm = CryptoManager.getInstance();
+            X509Certificate transportCert = cm.findCertByNickname(transportCertNickname);
+
+            Name subjectName = CryptoUtil.createName(subject, subjectEncoding);
+
+            SignatureAlgorithm signatureAlgorithm;
+            if ("RSA".equalsIgnoreCase(keyType)) {
+                signatureAlgorithm = SignatureAlgorithm.RSASignatureWithSHA256Digest;
+
+            } else if ("EC".equalsIgnoreCase(keyType)) {
+                signatureAlgorithm = SignatureAlgorithm.ECSignatureWithSHA256Digest;
+
+            } else {
+                throw new Exception("Unknown algorithm: " + keyType);
+            }
+
+            KeyWrapAlgorithm keyWrapAlgorithm = KeyWrapAlgorithm.fromString(keyWrapAlg);
+
+            bytes = nssdb.createCRMFRequest(
+                    token,
+                    keyPair,
+                    transportCert,
+                    subjectName,
+                    signatureAlgorithm,
+                    pop,
+                    keyWrapAlgorithm,
+                    keyWrapOAEP,
+                    skid);
+
+            if (requestFormat == null || "PEM".equalsIgnoreCase(requestFormat)) {
+                bytes = CertUtil.encodeCRMF(bytes).getBytes();
+
+            } else if ("DER".equalsIgnoreCase(requestFormat)) {
+                // nothing to do
+
+            } else {
+                throw new Exception("Unsupported format: " + requestFormat);
+            }
 
         } else {
-            throw new Exception("Unsupported format: " + format);
+            throw new Exception("Unsupported request type: " + requestType);
         }
 
         String filename = cmd.getOptionValue("csr");
