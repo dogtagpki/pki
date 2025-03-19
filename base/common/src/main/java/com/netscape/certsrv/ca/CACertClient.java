@@ -171,17 +171,20 @@ public class CACertClient extends Client {
     public X509CertImpl submitRequest(
             String certRequestType,
             String certRequest,
+            boolean renewal,
             String profileID,
             String subjectDN,
             String[] dnsNames,
+            String username,
             String requestor,
             String sessionID) throws Exception {
 
         MultivaluedMap<String, String> content = new MultivaluedHashMap<>();
-        content.putSingle("profileId", profileID);
         content.putSingle("cert_request_type", certRequestType);
         content.putSingle("cert_request", certRequest);
+        content.putSingle("renewal", String.valueOf(renewal));
         content.putSingle("xmlOutput", "true");
+        content.putSingle("profileId", profileID);
         content.putSingle("sessionID", sessionID);
 
         if (subjectDN != null) {
@@ -212,6 +215,10 @@ public class CACertClient extends Client {
                 i++;
             }
             content.putSingle("req_san_entries", "" + i);
+        }
+
+        if (username != null) {
+            content.putSingle("uid", username);
         }
 
         if (requestor != null) {

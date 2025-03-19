@@ -58,10 +58,6 @@ public class CACertRequestSubmitCLI extends CommandCLI {
         option.setArgName("DN");
         options.addOption(option);
 
-        option = new Option(null, "username", true, "Username for enrollment");
-        option.setArgName("username");
-        options.addOption(option);
-
         option = new Option(null, "password-file", true, "File containing enrollment password");
         options.addOption(option);
 
@@ -99,6 +95,10 @@ public class CACertRequestSubmitCLI extends CommandCLI {
 
         option = new Option(null, "dns-names", true, "Comma-separated list of DNS names");
         option.setArgName("names");
+        options.addOption(option);
+
+        option = new Option(null, "username", true, "Username for enrollment");
+        option.setArgName("username");
         options.addOption(option);
 
         option = new Option(null, "requestor", true, "Requestor");
@@ -200,7 +200,8 @@ public class CACertRequestSubmitCLI extends CommandCLI {
             }
         }
 
-        request.setRenewal(cmd.hasOption("renewal"));
+        boolean renewal = cmd.hasOption("renewal");
+        request.setRenewal(renewal);
 
         String csrFilename = cmd.getOptionValue("csr-file");
         String csr = null;
@@ -356,9 +357,11 @@ public class CACertRequestSubmitCLI extends CommandCLI {
         X509CertImpl cert = certClient.submitRequest(
                 requestType,
                 csr,
+                renewal,
                 profileID,
                 subjectDN,
                 dnsNames,
+                enrollmentUsername,
                 requestor,
                 sessionID);
         byte[] bytes = cert.getEncoded();

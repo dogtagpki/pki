@@ -207,9 +207,11 @@ public class CACertIssueCLI extends CommandCLI {
             CACertClient certClient,
             String requestType,
             String csr,
+            boolean renewal,
             String profileID,
             String subjectDN,
             String[] dnsNames,
+            String username,
             String requestor,
             String sessionID,
             String outputFormat)
@@ -219,9 +221,11 @@ public class CACertIssueCLI extends CommandCLI {
         X509CertImpl cert = certClient.submitRequest(
                 requestType,
                 csr,
+                renewal,
                 profileID,
                 subjectDN,
                 dnsNames,
+                username,
                 requestor,
                 sessionID);
 
@@ -317,7 +321,8 @@ public class CACertIssueCLI extends CommandCLI {
             }
         }
 
-        request.setRenewal(cmd.hasOption("renewal"));
+        boolean renewal = cmd.hasOption("renewal");
+        request.setRenewal(renewal);
 
         String csrFilename = cmd.getOptionValue("csr-file");
         String csr = null;
@@ -480,9 +485,11 @@ public class CACertIssueCLI extends CommandCLI {
                     certClient,
                     requestType,
                     csr,
+                    renewal,
                     profileID,
                     subjectDN,
                     dnsNames,
+                    enrollmentUsername,
                     requestor,
                     sessionID,
                     outputFormat);
