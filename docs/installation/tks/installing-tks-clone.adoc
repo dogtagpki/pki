@@ -93,7 +93,7 @@ For simplicity the nicknames in this example are configured to be the same as th
 
 == Admin Certificate
 
-To use the admin certificate from the CA subsystem, prepare a client NSS database (default is `~/.dogtag/nssdb`):
+To use the admin certificate, do the following.
 
 Then import the CA signing certificate into the client NSS database:
 
