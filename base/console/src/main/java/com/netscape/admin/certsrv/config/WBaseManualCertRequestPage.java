@@ -130,7 +130,7 @@ public class WBaseManualCertRequestPage extends WizardBasePanel {
 			// Assuming this is the only format we generate.
 			String unwrapped;
 			try {
-			    unwrapped = CertUtil.unwrapPKCS10(mReq, false);
+			    unwrapped = CertUtil.unwrapCSR(mReq, false);
 			} catch (EBaseException e) {
 			    throw new RuntimeException(e);
 			}

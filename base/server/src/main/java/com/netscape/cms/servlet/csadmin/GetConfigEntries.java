@@ -246,6 +246,6 @@ public class GetConfigEntries extends CMSServlet {
             logger.warn("GetConfigEntries: impossible to access the csr file" + csrConfCertsPath, e);
             return null;
         }
-        return CertUtil.unwrapPKCS10(csr, true);
+        return CertUtil.unwrapCSR(csr, true);
     }
 }

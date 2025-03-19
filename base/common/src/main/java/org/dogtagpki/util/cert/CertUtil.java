@@ -78,13 +78,13 @@ public class CertUtil {
     public static final int LINE_COUNT = 76;
 
     /**
-     * Convert PKCS #10 request from PEM to Base64.
+     * Convert PEM request into Base64.
      *
-     * @param request string-formated PKCS #10 request
-     * @return Base64-encoded PKCS #10 request
+     * @param request PEM request
+     * @return Base64-encoded request
      * @exception EBaseException
      */
-    public static String unwrapPKCS10(String request, boolean checkHeader) throws EBaseException {
+    public static String unwrapCSR(String request, boolean checkHeader) throws EBaseException {
 
         // check for "-----BEGIN NEW CERTIFICATE REQUEST-----"
         int headerIndex = request.indexOf(CERT_NEW_REQUEST_HEADER);
@@ -117,11 +117,11 @@ public class CertUtil {
 
         // check for missing header/footer
         if (headerIndex < 0 && checkHeader) {
-            throw new EBaseException("Missing PKCS #10 header");
+            throw new EBaseException("Missing request header");
         }
 
         if (footerIndex < 0 && checkHeader) {
-            throw new EBaseException("Missing PKCS #10 footer");
+            throw new EBaseException("Missing request footer");
         }
 
         // unwrap request
@@ -147,7 +147,7 @@ public class CertUtil {
         }
 
         try {
-            csr = unwrapPKCS10(csr, false);
+            csr = unwrapCSR(csr, false);
         } catch (EBaseException e) {
             throw new RuntimeException(e);
         }

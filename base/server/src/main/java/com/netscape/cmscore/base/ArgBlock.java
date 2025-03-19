@@ -334,7 +334,7 @@ public class ArgBlock {
         }
         logger.trace("GET r={},k={},v={}", mType, name, mArgs.get(name));
 
-        String tempStr = CertUtil.unwrapPKCS10((String) mArgs.get(name), false);
+        String tempStr = CertUtil.unwrapCSR((String) mArgs.get(name), false);
 
         if (tempStr == null) {
             throw new EBaseException(
@@ -368,7 +368,7 @@ public class ArgBlock {
         if (mArgs.get(name) == null) {
             return def;
         }
-        String tempStr = CertUtil.unwrapPKCS10((String) mArgs.get(name), false);
+        String tempStr = CertUtil.unwrapCSR((String) mArgs.get(name), false);
 
         if (tempStr == null) {
             return def;
@@ -398,7 +398,7 @@ public class ArgBlock {
         if (mArgs.get(name) == null) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_ATTRIBUTE_NOT_FOUND", name));
         }
-        String tempStr = CertUtil.unwrapPKCS10((String) mArgs.get(name), checkheader);
+        String tempStr = CertUtil.unwrapCSR((String) mArgs.get(name), checkheader);
 
         if (tempStr == null) {
             throw new EBaseException(
@@ -433,7 +433,7 @@ public class ArgBlock {
         if (mArgs.get(name) == null) {
             return def;
         }
-        String tempStr = CertUtil.unwrapPKCS10((String) mArgs.get(name), checkheader);
+        String tempStr = CertUtil.unwrapCSR((String) mArgs.get(name), checkheader);
 
         if (tempStr == null) {
             return def;

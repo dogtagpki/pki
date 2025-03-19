@@ -229,7 +229,7 @@ class WIGenKeyCertReqPage extends WizardBasePanel implements IWizardPanel {
     private String reformat(String pkcs) {
         String content;
         try {
-            content = CertUtil.unwrapPKCS10(pkcs, false);
+            content = CertUtil.unwrapCSR(pkcs, false);
         } catch (EBaseException e) {
             throw new RuntimeException(e);
         }

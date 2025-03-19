@@ -70,7 +70,7 @@ class Response {
 
     void parseCertificate(String response) {
         try {
-            _cert = CertUtil.unwrapPKCS10(response, false);
+            _cert = CertUtil.unwrapCSR(response, false);
         } catch (EBaseException e) {
             throw new RuntimeException(e);
         }
