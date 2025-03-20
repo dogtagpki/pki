@@ -231,9 +231,11 @@ jobs:
           CERT_ID=$(sed -n "s/^\s*Serial Number:\s*\(\S*\)$/\1/p" output)
 
           # renew cert
+          # NOTE: since OCSP cert is expired certificate validation fails and marked as revoked
           docker exec pki pki \
               -u caadmin \
               -w Secret.123 \
+              --ignore-cert-status REVOKED_CERTIFICATE \
               ca-cert-issue \
               --profile caManualRenewal \
               --serial $CERT_ID \
@@ -256,9 +258,11 @@ jobs:
           CERT_ID=$(sed -n "s/^\s*Serial Number:\s*\(\S*\)$/\1/p" output)
 
           # renew cert
+          # NOTE: since OCSP cert is expired certificate validation fails and marked as revoked
           docker exec pki pki \
               -u caadmin \
               -w Secret.123 \
+              --ignore-cert-status REVOKED_CERTIFICATE \
               ca-cert-issue \
               --profile caManualRenewal \
               --serial $CERT_ID \
@@ -298,9 +302,11 @@ jobs:
           CERT_ID=$(sed -n "s/^\s*Serial Number:\s*\(\S*\)$/\1/p" output)
 
           # renew cert
+          # NOTE: since OCSP cert is expired certificate validation fails and marked as revoked
           docker exec pki pki \
               -u caadmin \
               -w Secret.123 \
+              --ignore-cert-status REVOKED_CERTIFICATE \
               ca-cert-issue \
               --profile caManualRenewal \
               --serial $CERT_ID \
@@ -323,9 +329,11 @@ jobs:
           CERT_ID=$(sed -n "s/^\s*Serial Number:\s*\(\S*\)$/\1/p" output)
 
           # renew cert
+          # NOTE: since OCSP cert is expired certificate validation fails and marked as revoked
           docker exec pki pki \
               -u caadmin \
               -w Secret.123 \
+              --ignore-cert-status REVOKED_CERTIFICATE \
               ca-cert-issue \
               --profile caManualRenewal \
               --serial $CERT_ID \
@@ -348,9 +356,11 @@ jobs:
           CERT_ID=$(sed -n "s/^\s*Serial Number:\s*\(\S*\)$/\1/p" output)
 
           # renew cert
+          # NOTE: since OCSP cert is expired certificate validation fails and marked as revoked
           docker exec pki pki \
               -u caadmin \
               -w Secret.123 \
+              --ignore-cert-status REVOKED_CERTIFICATE \
               ca-cert-issue \
               --profile caManualRenewal \
               --serial $CERT_ID \
