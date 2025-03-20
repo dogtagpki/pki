@@ -180,7 +180,6 @@ jobs:
         run: |
           # run PKI CLI but don't trust the cert
           echo n | docker exec -i client pki \
-              -D org.dogtagpki.client.socketFactory=org.dogtagpki.client.NonBlockingSocketFactory \
               -U https://pki.example.com:8443 \
               info \
               > >(tee stdout) 2> >(tee stderr >&2) || true
@@ -210,7 +209,6 @@ jobs:
         run: |
           # run PKI CLI with wrong hostname
           echo n | docker exec -i client pki \
-              -D org.dogtagpki.client.socketFactory=org.dogtagpki.client.NonBlockingSocketFactory \
               -U https://server.example.com:8443 \
               info \
               > >(tee stdout) 2> >(tee stderr >&2) || true
@@ -241,7 +239,6 @@ jobs:
         run: |
           # run PKI CLI and trust the cert
           echo y | docker exec -i client pki \
-              -D org.dogtagpki.client.socketFactory=org.dogtagpki.client.NonBlockingSocketFactory \
               -U https://pki.example.com:8443 \
               info \
               > >(tee stdout) 2> >(tee stderr >&2) || true
@@ -291,7 +288,6 @@ jobs:
         run: |
           # run PKI CLI with wrong hostname
           docker exec client pki \
-              -D org.dogtagpki.client.socketFactory=org.dogtagpki.client.NonBlockingSocketFactory \
               -U https://server.example.com:8443 \
               info \
               > >(tee stdout) 2> >(tee stderr >&2) || true
@@ -316,7 +312,6 @@ jobs:
         run: |
           # run PKI CLI with correct hostname
           docker exec client pki \
-              -D org.dogtagpki.client.socketFactory=org.dogtagpki.client.NonBlockingSocketFactory \
               -U https://pki.example.com:8443 \
               info \
               > >(tee stdout) 2> >(tee stderr >&2) || true
@@ -338,7 +333,6 @@ jobs:
           sleep 120
 
           docker exec client pki \
-              -D org.dogtagpki.client.socketFactory=org.dogtagpki.client.NonBlockingSocketFactory \
               -U https://pki.example.com:8443 \
               info \
               > >(tee stdout) 2> >(tee stderr >&2) || true

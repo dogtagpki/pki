@@ -48,23 +48,15 @@ jobs:
         run: docker network connect example ca --alias ca.example.com
 
       - name: Install CA in CA container
+        # HTTP connector is needed in CA because if internal OCSP
         run: |
           docker exec ca pkispawn \
               -f /usr/share/pki/server/examples/installation/ca.cfg \
               -s CA \
               -D pki_ds_url=ldap://cads.example.com:3389 \
-              -D pki_http_enable=False \
               -v
 
           docker exec ca pki-server cert-find
-
-      - name: Verify there is no plain HTTP connectors in CA
-        run: |
-          docker exec ca pki-server http-connector-find | tee output
-
-          echo "Secure" > expected
-          sed -n -e "s/^ *Connector ID: *\(.*\)$/\1/p" output > actual
-          diff expected actual
 
       - name: Install banner in CA container
         run: docker exec ca cp /usr/share/pki/server/examples/banner/banner.txt /var/lib/pki/pki-tomcat/conf
@@ -211,11 +203,11 @@ jobs:
           sed -n -e "s/^ *Connector ID: *\(.*\)$/\1/p" output > actual
           diff expected actual
 
-      - name: Verify there is no plain HTTP ports in security domain
+      - name: Verify there is no plain HTTP ports in security domain but CA
         run: |
           docker exec ca pki-server sd-subsystem-find | tee output
 
-          echo -n "" > expected
+          echo "  Port: 8080" > expected
           sed -ne "/^ *Port:/p" output > actual
           diff expected actual
 
@@ -237,7 +229,9 @@ jobs:
           docker exec tps pki pkcs12-import \
               --pkcs12 ${SHARED}/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
-          docker exec tps pki -n caadmin --ignore-banner tps-user-show tpsadmin
+
+          docker exec tps pki -n caadmin --ignore-banner \
+              tps-user-show tpsadmin
 
       - name: Gather artifacts from CA containers
         if: always()
