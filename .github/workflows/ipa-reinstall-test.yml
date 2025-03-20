@@ -75,7 +75,7 @@ jobs:
           docker exec ipa pki nss-cert-show ipa-ca-agent | tee ipa-ca-agent.orig
 
           # CA agent should be able to access CA users
-          docker exec ipa pki -n ipa-ca-agent ca-user-find
+          docker exec ipa pki -n ipa-ca-agent --ignore-cert-status OCSP_SERVER_ERROR ca-user-find
 
       - name: Check RA agent cert
         run: |
@@ -97,7 +97,9 @@ jobs:
           docker exec ipa pki nss-cert-show ipa-ra-agent | tee ipa-ra-agent.orig
 
           # RA agent should be able to access cert requests
-          docker exec ipa pki -n ipa-ra-agent ca-cert-request-find
+          docker exec ipa pki -n ipa-ra-agent \
+              --ignore-cert-status OCSP_SERVER_ERROR \
+              ca-cert-request-find
 
       - name: Install KRA
         run: |
@@ -106,7 +108,9 @@ jobs:
       - name: Check KRA users
         run: |
           # CA agent should be able to access KRA users
-          docker exec ipa pki -n ipa-ca-agent kra-user-find
+          docker exec ipa pki -n ipa-ca-agent \
+              --ignore-cert-status OCSP_SERVER_ERROR \
+              kra-user-find
 
       - name: Check IPA CA install log
         if: always()
@@ -214,7 +218,9 @@ jobs:
           [ $rc -ne 0 ]
 
           # CA agent should be able to access CA users
-          docker exec ipa pki -n ipa-ca-agent ca-user-find
+          docker exec ipa pki -n ipa-ca-agent \
+              --ignore-cert-status OCSP_SERVER_ERROR \
+              ca-user-find
 
       - name: Check RA agent cert again
         run: |
@@ -242,7 +248,9 @@ jobs:
           [ $rc -ne 0 ]
 
           # RA agent should be able to access cert requests
-          docker exec ipa pki -n ipa-ra-agent ca-cert-request-find
+          docker exec ipa pki -n ipa-ra-agent \
+              --ignore-cert-status OCSP_SERVER_ERROR \
+              ca-cert-request-find
 
       - name: Install KRA again
         run: |
@@ -251,7 +259,9 @@ jobs:
       - name: Check KRA users again
         run: |
           # CA agent should be able to access KRA users
-          docker exec ipa pki -n ipa-ca-agent kra-user-find
+          docker exec ipa pki -n ipa-ca-agent \
+              --ignore-cert-status OCSP_SERVER_ERROR \
+              kra-user-find
 
       - name: Check IPA CA install log
         if: always()

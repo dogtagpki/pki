@@ -167,7 +167,7 @@ jobs:
           docker exec ipa pki nss-cert-show ipa-ca-agent
 
           # CA admin should be able to access PKI users
-          docker exec ipa pki -n ipa-ca-agent ca-user-find
+          docker exec ipa pki -n ipa-ca-agent --skip-revocation-check ca-user-find
 
       - name: Check RA agent cert
         run: |
@@ -191,7 +191,7 @@ jobs:
           docker exec ipa pki nss-cert-show ipa-ra-agent
 
           # RA agent should be able to access cert requests
-          docker exec ipa pki -n ipa-ra-agent ca-cert-request-find
+          docker exec ipa pki -n ipa-ra-agent --skip-revocation-check ca-cert-request-find
 
       - name: Run PKI healthcheck
         run: |

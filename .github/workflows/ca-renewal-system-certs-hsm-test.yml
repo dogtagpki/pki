@@ -271,6 +271,7 @@ jobs:
           docker exec pki pki \
               -u caadmin \
               -w Secret.123 \
+              --ignore-cert-status REVOKED_CERTIFICATE \
               ca-cert-issue \
               --profile caManualRenewal \
               --serial $CERT_ID \
@@ -296,6 +297,7 @@ jobs:
           docker exec pki pki \
               -u caadmin \
               -w Secret.123 \
+              --ignore-cert-status REVOKED_CERTIFICATE \
               ca-cert-issue \
               --profile caManualRenewal \
               --serial $CERT_ID \
@@ -338,6 +340,7 @@ jobs:
           docker exec pki pki \
               -u caadmin \
               -w Secret.123 \
+              --ignore-cert-status REVOKED_CERTIFICATE \
               ca-cert-issue \
               --profile caManualRenewal \
               --serial $CERT_ID \
@@ -363,6 +366,7 @@ jobs:
           docker exec pki pki \
               -u caadmin \
               -w Secret.123 \
+              --ignore-cert-status REVOKED_CERTIFICATE \
               ca-cert-issue \
               --profile caManualRenewal \
               --serial $CERT_ID \
@@ -388,6 +392,7 @@ jobs:
           docker exec pki pki \
               -u caadmin \
               -w Secret.123 \
+              --ignore-cert-status REVOKED_CERTIFICATE \
               ca-cert-issue \
               --profile caManualRenewal \
               --serial $CERT_ID \
