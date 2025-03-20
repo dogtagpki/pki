@@ -340,11 +340,12 @@ public class CACertRequestSubmitCLI extends CommandCLI {
         String installToken = cmd.getOptionValue("install-token");
         String sessionID = cmd.getOptionValue("session");
 
-        if (installToken != null) {
+        if (sessionID != null) {
+            logger.warn("The --session option has been deprecated. Use pki ca-cert-issue instead.");
+
+        } else if (installToken != null) {
             logger.warn("The --install-token option has been deprecated. Use pki ca-cert-issue instead.");
             sessionID = new String(Files.readAllBytes(Paths.get(installToken)));
-        } else {
-            logger.warn("The --session option has been deprecated. Use pki ca-cert-issue instead.");
         }
 
         if (sessionID == null) {
