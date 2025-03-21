@@ -1,6 +1,6 @@
 :_mod-docs-content-type: PROCEDURE
 
-[id="installing-ocsp-with-hsm_{context}"]
+[id="installing-ocsp-with-hsm"]
 = Installing OCSP with HSM 
 
 Follow this process to install an OCSP subsystem

@@ -1,6 +1,6 @@
 :_mod-docs-content-type: PROCEDURE
 
-[id="installing-kra-clone_{context}"]
+[id="installing-kra-clone"]
 = Installing KRA Clone 
 
 

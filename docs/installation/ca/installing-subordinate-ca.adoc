@@ -1,6 +1,6 @@
 :_mod-docs-content-type: PROCEDURE
 
-[id="installing-subordinate-ca_{context}"]
+[id="installing-subordinate-ca"]
 = Installing Subordinate CA 
 
 Follow this process to install a subordinate CA subsystem

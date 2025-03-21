@@ -1,6 +1,6 @@
 :_mod-docs-content-type: PROCEDURE
 
-[id="installing-tks-with-hsm_{context}"]
+[id="installing-tks-with-hsm"]
 = Installing TKS with HSM
 
 

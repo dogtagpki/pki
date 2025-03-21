@@ -1,6 +1,6 @@
 :_mod-docs-content-type: PROCEDURE
 
-[id="enabling-ssl-connection-in-ds-with-bootstrap-cert_{context}"]
+[id="enabling-ssl-connection-in-ds-with-bootstrap-cert"]
 
 // This content was copied and adjusted from https://github.com/dogtagpki/pki/wiki/Enabling-SSL-Connection-in-DS
 

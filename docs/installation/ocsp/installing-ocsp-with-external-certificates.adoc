@@ -1,6 +1,6 @@
 :_mod-docs-content-type: PROCEDURE
 
-[id="installing-ocsp-with-external-certificates_{context}"]
+[id="installing-ocsp-with-external-certificates"]
 = Installing OCSP with External Certificates 
 
 Follow this process to install a OCSP subsystem with external certificates.

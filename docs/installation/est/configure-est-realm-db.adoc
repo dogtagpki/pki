@@ -1,6 +1,6 @@
 :_mod-docs-content-type: PROCEDURE
 
-[id="configure-est-realm-db_{context}"]
+[id="configure-est-realm-db"]
 = Configure EST Realm DB 
 
 == Preparing DS DB 

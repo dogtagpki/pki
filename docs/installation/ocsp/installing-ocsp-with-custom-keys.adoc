@@ -1,6 +1,6 @@
 :_mod-docs-content-type: PROCEDURE
 
-[id="installing-ocsp-with-custom-keys_{context}"]
+[id="installing-ocsp-with-custom-keys"]
 = Installing OCSP with Custom Keys 
 
 

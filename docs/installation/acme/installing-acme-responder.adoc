@@ -1,6 +1,6 @@
 :_mod-docs-content-type: PROCEDURE
 
-[id="installing-acme-responder_{context}"]
+[id="installing-acme-responder"]
 = Installing ACME Responder =
 
 

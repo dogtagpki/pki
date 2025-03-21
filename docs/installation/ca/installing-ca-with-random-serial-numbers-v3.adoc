@@ -1,6 +1,6 @@
 :_mod-docs-content-type: PROCEDURE
 
-[id="installing-ca-with-random-serial-numbers-v3_{context}"]
+[id="installing-ca-with-random-serial-numbers-v3"]
 = Overview 
 
 Follow this process to install a CA subsystem with link:https://github.com/dogtagpki/pki/wiki/Random-Certificate-Serial-Numbers-v3[Random Certificate Serial Numbers v3] in PKI 11.2 or later.

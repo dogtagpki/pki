@@ -1,6 +1,6 @@
 :_mod-docs-content-type: PROCEDURE
 
-[id="installing-ocsp-with-ldaps-connection_{context}"]
+[id="installing-ocsp-with-ldaps-connection"]
 = Installing OCSP with LDAPS Connection 
 
 

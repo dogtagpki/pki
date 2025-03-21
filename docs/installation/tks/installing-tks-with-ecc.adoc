@@ -1,6 +1,6 @@
 :_mod-docs-content-type: PROCEDURE
 
-[id="installing-tks-with-ecc_{context}"]
+[id="installing-tks-with-ecc"]
 = Installing TKS with ECC
 
 

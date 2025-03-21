@@ -1,6 +1,6 @@
 :_mod-docs-content-type: PROCEDURE
 
-[id="installing-tps-with-hsm_{context}"]
+[id="installing-tps-with-hsm"]
 = Installing TPS with HSM
 
 

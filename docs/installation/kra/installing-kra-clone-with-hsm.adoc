@@ -1,6 +1,6 @@
 :_mod-docs-content-type: PROCEDURE
 
-[id="installing-kra-clone-with-hsm_{context}"]
+[id="installing-kra-clone-with-hsm"]
 = Installing KRA Clone with HSM 
 
 

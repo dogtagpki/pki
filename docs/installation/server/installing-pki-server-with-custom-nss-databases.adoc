@@ -1,6 +1,6 @@
 :_mod-docs-content-type: PROCEDURE
 
-[id="installing-pki-server-with-custom-nss-databases_{context}"]
+[id="installing-pki-server-with-custom-nss-databases"]
 = Installing PKI Server with Custom NSS Databases
 
 

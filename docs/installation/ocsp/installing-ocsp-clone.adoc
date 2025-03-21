@@ -1,6 +1,6 @@
 :_mod-docs-content-type: PROCEDURE
 
-[id="installing-ocsp-clone_{context}"]
+[id="installing-ocsp-clone"]
 = Installing OCSP Clone 
 
 

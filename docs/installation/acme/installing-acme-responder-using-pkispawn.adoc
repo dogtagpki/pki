@@ -1,6 +1,6 @@
 :_mod-docs-content-type: PROCEDURE
 
-[id="installing-acme-responder-using-pkispawn_{context}"]
+[id="installing-acme-responder-using-pkispawn"]
 = Installing ACME Responder using pkispawn =
 
 Follow this process to install an ACME responder on a PKI server that already has a CA subsystem using `pkispawn` command.

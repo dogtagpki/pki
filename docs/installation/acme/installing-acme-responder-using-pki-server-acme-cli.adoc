@@ -1,6 +1,6 @@
 :_mod-docs-content-type: PROCEDURE
 
-[id="installing-acme-responder-using-pki-server-acme-cli_{context}"]
+[id="installing-acme-responder-using-pki-server-acme-cli"]
 = Installing ACME Responder using PKI Server ACME CLI =
 
 

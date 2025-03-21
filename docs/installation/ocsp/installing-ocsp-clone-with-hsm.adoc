@@ -1,6 +1,6 @@
 :_mod-docs-content-type: PROCEDURE
 
-[id="installing-ocsp-clone-with-hsm_{context}"]
+[id="installing-ocsp-clone-with-hsm"]
 = Installing OCSP Clone with HSM 
 
 

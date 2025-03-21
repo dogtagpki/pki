@@ -16,7 +16,7 @@ See installation/ca/installing-ca.adoc for example.
 * Add header including the “id” line at the very beginning of of the file, using the file name. e.g.
 ** :_mod-docs-content-type: PROCEDURE
 ** <blank line>
-** [id="installing-ca_{context}"]
+** [id="installing-ca"]
 * Do not refer to a section as “page”.  If applies, try using the word "section".
 * Do not use “e.g.”.  Use “for example” instead
 * Quoted blocks (“....” v.s. “----”)

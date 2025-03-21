@@ -1,6 +1,6 @@
 :_mod-docs-content-type: PROCEDURE
 
-[id="installing-standalone-kra_{context}"]
+[id="installing-standalone-kra"]
 = Installing Standalone KRA 
 
 
