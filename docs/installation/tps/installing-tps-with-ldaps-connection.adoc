@@ -1,6 +1,6 @@
 :_mod-docs-content-type: PROCEDURE
 
-[id="installing-tps-with-ldaps-connection_{context}"]
+[id="installing-tps-with-ldaps-connection"]
 = Installing TPS with LDAPS Connection
 
 Follow this process to install a TPS subsystem a secure database connection.

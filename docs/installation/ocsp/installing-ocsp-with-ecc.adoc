@@ -1,6 +1,6 @@
 :_mod-docs-content-type: PROCEDURE
 
-[id="installing-ocsp-with-ecc_{context}"]
+[id="installing-ocsp-with-ecc"]
 = Installing OCSP with ECC 
 
 

@@ -1,6 +1,6 @@
 :_mod-docs-content-type: PROCEDURE
 
-[id="installing-standalone-ocsp_{context}"]
+[id="installing-standalone-ocsp"]
 = Installing Standalone OCSP 
 
 

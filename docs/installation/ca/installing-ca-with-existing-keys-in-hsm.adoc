@@ -1,6 +1,6 @@
 :_mod-docs-content-type: PROCEDURE
 
-[id="installing-ca-with-existing-keys-in-hsm_{context}"]
+[id="installing-ca-with-existing-keys-in-hsm"]
 = Installing CA with Existing Keys in HSM 
 
 Follow this process to install a CA subsystem with the system keys, CSRs, and certificates from an existing CA

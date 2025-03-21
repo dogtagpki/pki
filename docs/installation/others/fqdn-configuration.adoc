@@ -1,6 +1,6 @@
 :_mod-docs-content-type: PROCEDURE
 
-[id="fqdn-configuration_{context}"]
+[id="fqdn-configuration"]
 // this content was copied and modified from https://github.com/dogtagpki/pki/wiki
 //
 = FQDN Configuration 

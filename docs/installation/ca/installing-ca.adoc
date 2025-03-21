@@ -1,6 +1,6 @@
 :_mod-docs-content-type: PROCEDURE
 
-[id="installing-ca_{context}"]
+[id="installing-ca"]
 = Installing CA 
 
 Follow this process to install a CA subsystem instance with a self-signed CA signing certificate. It is also known as a "root CA".

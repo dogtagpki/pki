@@ -1,6 +1,6 @@
 :_mod-docs-content-type: PROCEDURE
 
-[id="installing-ca-clone-with-hsm_{context}"]
+[id="installing-ca-clone-with-hsm"]
 = Installing CA Clone with HSM 
 
 

@@ -1,6 +1,6 @@
 :_mod-docs-content-type: PROCEDURE
 
-[id="installing-kra-with-external-certificates_{context}"]
+[id="installing-kra-with-external-certificates"]
 = Installing KRA with External Certificates
 
 

@@ -1,6 +1,6 @@
 :_mod-docs-content-type: PROCEDURE
 
-[id="installing-kra-with-ldaps-connection_{context}"]
+[id="installing-kra-with-ldaps-connection"]
 = Installing KRA with LDAPS Connection
 
 

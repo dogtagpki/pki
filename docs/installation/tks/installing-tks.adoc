@@ -1,6 +1,6 @@
 :_mod-docs-content-type: PROCEDURE
 
-[id="installing-tks_{context}"]
+[id="installing-tks"]
 = Installing TKS
 
 

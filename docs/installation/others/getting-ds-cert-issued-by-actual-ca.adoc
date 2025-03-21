@@ -1,6 +1,6 @@
 :_mod-docs-content-type: PROCEDURE
 
-[id="getting-ds-cert-issued-by-actual-ca_{context}"]
+[id="getting-ds-cert-issued-by-actual-ca"]
 
 // This section is intended for all PKI subsystems
 

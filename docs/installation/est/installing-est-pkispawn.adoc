@@ -1,6 +1,6 @@
 :_mod-docs-content-type: PROCEDURE
 
-[id="installing-est-pkispawn_{context}"]
+[id="installing-est-pkispawn"]
 = EST installation using `pkispawn` 
 
 After the prerequisite in xref:../est/installing-est.adoc[Installing

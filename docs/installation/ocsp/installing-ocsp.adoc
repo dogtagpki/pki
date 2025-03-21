@@ -1,6 +1,6 @@
 :_mod-docs-content-type: PROCEDURE
 
-[id="installing-ocsp_{context}"]
+[id="installing-ocsp"]
 = Installing OCSP 
 
 

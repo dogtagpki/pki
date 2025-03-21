@@ -1,6 +1,6 @@
 :_mod-docs-content-type: PROCEDURE
 
-[id="installing-tps-clone_{context}"]
+[id="installing-tps-clone"]
 = Installing TPS Clone
 
 

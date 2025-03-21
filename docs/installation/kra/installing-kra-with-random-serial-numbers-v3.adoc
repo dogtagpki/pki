@@ -1,6 +1,6 @@
 :_mod-docs-content-type: PROCEDURE
 
-[id="installing-kra-with-random-serial-numbers-v3_{context}"]
+[id="installing-kra-with-random-serial-numbers-v3"]
 = Overview 
 
 Follow this process to install a KRA subsystem with random serial numbers in PKI 11.2 or later.
