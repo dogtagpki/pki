@@ -112,6 +112,9 @@ class PKIConfigParser:
         (None, 'pki_existing',
          None, None,
          'This parameter can be safely removed.'),
+        (None, 'pki_clone_reindex_data',
+         None, None,
+         'This parameter can be safely removed.'),
     ]
 
     DEPRECATED_CA_PARAMS = [

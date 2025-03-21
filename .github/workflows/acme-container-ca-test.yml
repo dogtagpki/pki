@@ -190,7 +190,6 @@ jobs:
         run: |
           docker exec ca pki-server ca-db-init -v
           docker exec ca pki-server ca-db-index-add -v
-          docker exec ca pki-server ca-db-vlv-add -v
 
       - name: Create admin cert
         run: |

@@ -392,10 +392,6 @@ In this case, it is expected that the top level suffix already exists, and that 
 This option is useful if you want to use other tools to create and manage your replication topology,
 or if the baseDN is already replicated as part of a top-level suffix.
 
-**pki_clone_reindex_data**  
-Defaults to False.
-If set to True, the installer rebuilds the search indexes on the clone.
-
 **pki_clone_replication_master_port**, **pki_clone_replication_clone_port**  
 Ports on which replication occurs.
 These are the ports on the master and clone databases respectively.

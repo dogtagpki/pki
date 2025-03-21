@@ -335,11 +335,6 @@ jobs:
           docker exec secondary pki-server ca-db-index-add -v
           docker exec secondary pki-server ca-db-index-rebuild -v
 
-      - name: Create VLV indexes
-        run: |
-          docker exec secondary pki-server ca-db-vlv-add -v
-          docker exec secondary pki-server ca-db-vlv-reindex -v
-
       - name: Install secondary CA
         run: |
           # get CS.cfg from primary CA before cloning
