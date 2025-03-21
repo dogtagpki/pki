@@ -86,7 +86,7 @@ jobs:
         run: |
           # export CA signing cert
           docker exec pki pki-server cert-export \
-              --cert-file $SHARED/ca_signing.crt \
+              --cert-file ca_signing.crt \
               ca_signing
 
           # export admin cert
@@ -106,13 +106,13 @@ jobs:
              -nocerts
 
       ####################################################################################################
-      # Check Python API
+      # Check PKI server info
 
       - name: Check PKI server info
         run: |
           docker exec pki python /usr/share/pki/tests/bin/pki-info.py \
               -U https://pki.example.com:8443 \
-              --ca-bundle $SHARED/ca_signing.crt \
+              --ca-bundle ca_signing.crt \
               -v
 
           sleep 1
@@ -136,7 +136,7 @@ jobs:
         run: |
           docker exec pki python /usr/share/pki/tests/bin/pki-info.py \
               -U https://pki.example.com:8443 \
-              --ca-bundle $SHARED/ca_signing.crt \
+              --ca-bundle ca_signing.crt \
               --api v1 \
               -v
 
@@ -155,11 +155,14 @@ jobs:
           GET /pki/v1/info HTTP/1.1 200 -
           EOF
 
+      ####################################################################################################
+      # Check KRA users
+
       - name: Check KRA users
         run: |
           docker exec pki python /usr/share/pki/tests/kra/bin/pki-kra-user-find.py \
               -U https://pki.example.com:8443 \
-              --ca-bundle $SHARED/ca_signing.crt \
+              --ca-bundle ca_signing.crt \
               --client-cert admin.crt \
               --client-key admin.key \
               -v
@@ -188,7 +191,7 @@ jobs:
         run: |
           docker exec pki python /usr/share/pki/tests/kra/bin/pki-kra-user-find.py \
               -U https://pki.example.com:8443 \
-              --ca-bundle $SHARED/ca_signing.crt \
+              --ca-bundle ca_signing.crt \
               --client-cert admin.crt \
               --client-key admin.key \
               --api v1 \
@@ -208,6 +211,173 @@ jobs:
           cat > expected << EOF
           GET /kra/v1/account/login HTTP/1.1 200 kraadmin
           GET /kra/v1/admin/users HTTP/1.1 200 kraadmin
+          GET /kra/v1/account/logout HTTP/1.1 204 kraadmin
+          EOF
+
+          diff expected output
+
+      ####################################################################################################
+      # Enroll certs with key archival
+
+      - name: Enroll cert with key archival
+        run: |
+          docker exec pki pki-server cert-export \
+              --cert-file ca_signing.crt \
+              ca_signing
+
+          docker exec pki pki nss-cert-import \
+              --cert ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
+          # get transport cert
+          docker exec pki pki-server cert-export \
+              --cert-file kra_transport.crt \
+              kra_transport
+
+          docker exec pki pki nss-cert-import \
+              --cert kra_transport.crt \
+              kra_transport
+
+          # create request
+          docker exec pki pki nss-cert-request \
+              --type crmf \
+              --format DER \
+              --subject "UID=testuser" \
+              --transport kra_transport \
+              --csr testuser.csr \
+              --debug
+
+          # issue cert
+          docker exec pki pki \
+              -u caadmin \
+              -w Secret.123 \
+              ca-cert-issue \
+              --request-type crmf \
+              --request-format DER \
+              --csr-file testuser.csr \
+              --profile caUserCert \
+              --subject "UID=testuser" \
+              --output-file testuser.crt \
+              --debug
+
+      ####################################################################################################
+      # Check key requests
+
+      - name: Check key requests
+        run: |
+          docker exec pki python /usr/share/pki/tests/kra/bin/pki-kra-key-request-find.py \
+              -U https://pki.example.com:8443 \
+              --ca-bundle ca_signing.crt \
+              --client-cert admin.crt \
+              --client-key admin.key \
+              -v
+
+          sleep 1
+
+          # check HTTP methods, paths, protocols, status, and authenticated users
+          docker exec pki find /var/log/pki/pki-tomcat \
+              -name "localhost_access_log.*" \
+              -exec cat {} \; \
+              | tail -4 \
+              | sed -e 's/^.* .* \(.*\) \[.*\] "\(.*\)" \(.*\) .*$/\2 \3 \1/' \
+              | tee output
+
+          # Python API should use REST API v2 by default
+          cat > expected << EOF
+          GET /pki/v2/info HTTP/1.1 200 -
+          GET /kra/v2/account/login HTTP/1.1 200 kraadmin
+          GET /kra/v2/agent/keyrequests HTTP/1.1 200 kraadmin
+          GET /kra/v2/account/logout HTTP/1.1 204 kraadmin
+          EOF
+
+          diff expected output
+
+      - name: Check key requests with REST API v1
+        run: |
+          docker exec pki python /usr/share/pki/tests/kra/bin/pki-kra-key-request-find.py \
+              -U https://pki.example.com:8443 \
+              --ca-bundle ca_signing.crt \
+              --client-cert admin.crt \
+              --client-key admin.key \
+              --api v1 \
+              -v
+
+          sleep 1
+
+          # check HTTP methods, paths, protocols, status, and authenticated users
+          docker exec pki find /var/log/pki/pki-tomcat \
+              -name "localhost_access_log.*" \
+              -exec cat {} \; \
+              | tail -3 \
+              | sed -e 's/^.* .* \(.*\) \[.*\] "\(.*\)" \(.*\) .*$/\2 \3 \1/' \
+              | tee output
+
+          # Python API should use REST API v1
+          cat > expected << EOF
+          GET /kra/v1/account/login HTTP/1.1 200 kraadmin
+          GET /kra/v1/agent/keyrequests HTTP/1.1 200 kraadmin
+          GET /kra/v1/account/logout HTTP/1.1 204 kraadmin
+          EOF
+
+          diff expected output
+
+      ####################################################################################################
+      # Check archived keys
+
+      - name: Check archived keys
+        run: |
+          docker exec pki python /usr/share/pki/tests/kra/bin/pki-kra-key-find.py \
+              -U https://pki.example.com:8443 \
+              --ca-bundle ca_signing.crt \
+              --client-cert admin.crt \
+              --client-key admin.key \
+              -v
+
+          sleep 1
+
+          # check HTTP methods, paths, protocols, status, and authenticated users
+          docker exec pki find /var/log/pki/pki-tomcat \
+              -name "localhost_access_log.*" \
+              -exec cat {} \; \
+              | tail -4 \
+              | sed -e 's/^.* .* \(.*\) \[.*\] "\(.*\)" \(.*\) .*$/\2 \3 \1/' \
+              | tee output
+
+          # Python API should use REST API v2 by default
+          cat > expected << EOF
+          GET /pki/v2/info HTTP/1.1 200 -
+          GET /kra/v2/account/login HTTP/1.1 200 kraadmin
+          GET /kra/v2/agent/keys HTTP/1.1 200 kraadmin
+          GET /kra/v2/account/logout HTTP/1.1 204 kraadmin
+          EOF
+
+          diff expected output
+
+      - name: Check archived keys with REST API v1
+        run: |
+          docker exec pki python /usr/share/pki/tests/kra/bin/pki-kra-key-find.py \
+              -U https://pki.example.com:8443 \
+              --ca-bundle ca_signing.crt \
+              --client-cert admin.crt \
+              --client-key admin.key \
+              --api v1 \
+              -v
+
+          sleep 1
+
+          # check HTTP methods, paths, protocols, status, and authenticated users
+          docker exec pki find /var/log/pki/pki-tomcat \
+              -name "localhost_access_log.*" \
+              -exec cat {} \; \
+              | tail -3 \
+              | sed -e 's/^.* .* \(.*\) \[.*\] "\(.*\)" \(.*\) .*$/\2 \3 \1/' \
+              | tee output
+
+          # Python API should use REST API v1
+          cat > expected << EOF
+          GET /kra/v1/account/login HTTP/1.1 200 kraadmin
+          GET /kra/v1/agent/keys HTTP/1.1 200 kraadmin
           GET /kra/v1/account/logout HTTP/1.1 204 kraadmin
           EOF
 
