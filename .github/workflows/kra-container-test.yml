@@ -110,8 +110,6 @@ jobs:
           docker exec ca pki-server ca-db-init -v
           docker exec ca pki-server ca-db-index-add -v
           docker exec ca pki-server ca-db-index-rebuild -v
-          docker exec ca pki-server ca-db-vlv-add -v
-          docker exec ca pki-server ca-db-vlv-reindex -v
 
       - name: Import CA signing cert into CA database
         run: |
@@ -429,8 +427,6 @@ jobs:
           docker exec kra pki-server kra-db-init -v
           docker exec kra pki-server kra-db-index-add -v
           docker exec kra pki-server kra-db-index-rebuild  -v
-          docker exec kra pki-server kra-db-vlv-add -v
-          docker exec kra pki-server kra-db-vlv-reindex -v
 
       # https://github.com/dogtagpki/pki/wiki/Setting-up-KRA-Admin-User
       - name: Add KRA admin user

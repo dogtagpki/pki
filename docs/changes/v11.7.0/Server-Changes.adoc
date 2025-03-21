@@ -1,0 +1,11 @@
+= Server Changes =
+
+== Remove pki_clone_reindex_data parameter ==
+
+The `pki_clone_reindex_data` parameter is no longer used by `pkispawn`
+so it has been removed.
+
+== Add pki_ds_setup_vlv parameter ==
+
+A new `pki_ds_setup_vlv` parameter has been added for `pkispawn`
+to add and rebuild VLV indexes.

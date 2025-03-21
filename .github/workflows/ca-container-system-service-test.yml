@@ -262,10 +262,6 @@ jobs:
               pki-server ca-db-index-add -v
           docker exec pki podman exec systemd-pki-ca \
               pki-server ca-db-index-rebuild -v
-          docker exec pki podman exec systemd-pki-ca \
-              pki-server ca-db-vlv-add -v
-          docker exec pki podman exec systemd-pki-ca \
-              pki-server ca-db-vlv-reindex -v
 
       - name: Create admin cert
         run: |

@@ -224,11 +224,6 @@ jobs:
           docker exec secondary pki-server ca-db-index-add -v
           docker exec secondary pki-server ca-db-index-rebuild -v
 
-      - name: Create CA VLV indexes
-        run: |
-          docker exec secondary pki-server ca-db-vlv-add -v
-          docker exec secondary pki-server ca-db-vlv-reindex -v
-
       - name: Install secondary CA
         run: |
           docker exec secondary pkispawn \
@@ -463,11 +458,6 @@ jobs:
         run: |
           docker exec secondary pki-server kra-db-index-add -v
           docker exec secondary pki-server kra-db-index-rebuild -v
-
-      - name: Create KRA VLV indexes
-        run: |
-          docker exec secondary pki-server kra-db-vlv-add -v
-          docker exec secondary pki-server kra-db-vlv-reindex -v
 
       - name: Install KRA in secondary PKI container
         run: |

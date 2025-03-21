@@ -111,8 +111,6 @@ jobs:
           docker exec ca pki-server ca-db-init -v
           docker exec ca pki-server ca-db-index-add -v
           docker exec ca pki-server ca-db-index-rebuild -v
-          docker exec ca pki-server ca-db-vlv-add -v
-          docker exec ca pki-server ca-db-vlv-reindex -v
 
       - name: Import CA signing cert into CA database
         run: |
@@ -409,8 +407,6 @@ jobs:
           docker exec ocsp pki-server ocsp-db-init -v
           docker exec ocsp pki-server ocsp-db-index-add -v
           docker exec ocsp pki-server ocsp-db-index-rebuild  -v
-          docker exec ocsp pki-server ocsp-db-vlv-add -v
-          docker exec ocsp pki-server ocsp-db-vlv-reindex -v
 
       # https://github.com/dogtagpki/pki/wiki/Setting-up-OCSP-Admin-User
       - name: Add OCSP admin user

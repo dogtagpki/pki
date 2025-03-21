@@ -201,14 +201,6 @@ jobs:
         run: |
           docker exec pki pki-server ca-db-index-rebuild -v
 
-      - name: Add CA VLV indexes
-        run: |
-          docker exec pki pki-server ca-db-vlv-add -v
-
-      - name: Rebuild CA VLV indexes
-        run: |
-          docker exec pki pki-server ca-db-vlv-reindex -v
-
       - name: Import CA signing cert into CA database
         run: |
           docker exec pki pki-server ca-cert-import \

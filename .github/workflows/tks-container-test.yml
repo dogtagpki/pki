@@ -111,8 +111,6 @@ jobs:
           docker exec ca pki-server ca-db-init -v
           docker exec ca pki-server ca-db-index-add -v
           docker exec ca pki-server ca-db-index-rebuild -v
-          docker exec ca pki-server ca-db-vlv-add -v
-          docker exec ca pki-server ca-db-vlv-reindex -v
 
       - name: Import CA signing cert into CA database
         run: |
@@ -398,8 +396,6 @@ jobs:
           docker exec tks pki-server tks-db-init -v
           docker exec tks pki-server tks-db-index-add -v
           docker exec tks pki-server tks-db-index-rebuild  -v
-          docker exec tks pki-server tks-db-vlv-add -v
-          docker exec tks pki-server tks-db-vlv-reindex -v
 
       # https://github.com/dogtagpki/pki/wiki/Setting-up-TKS-Admin-User
       - name: Add TKS admin user
