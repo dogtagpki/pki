@@ -24,12 +24,17 @@ jobs:
       - name: Load IPA images
         run: docker load --input ipa-images.tar
 
+      - name: Create network
+        run: docker network create example
+
       - name: Run IPA container
         run: |
-          tests/bin/runner-init.sh ipa
-        env:
-          IMAGE: ipa-runner
-          HOSTNAME: ipa.example.com
+          tests/bin/runner-init.sh \
+              --image=ipa-runner \
+              --hostname=ipa.example.com \
+              --network=example \
+              --network-alias=ipa.example.com \
+              ipa
 
       - name: Install IPA server
         run: |
@@ -248,6 +253,11 @@ jobs:
           docker exec ipa ipa-run-tests -x --verbose \
               test_xmlrpc/test_ca_plugin.py
 
+      - name: Check IPA CA install log
+        if: always()
+        run: |
+          docker exec ipa cat /var/log/ipaserver-install.log
+
       - name: Check HTTPD access logs
         if: always()
         run: |
@@ -278,10 +288,10 @@ jobs:
         run: |
           docker exec ipa cat /var/log/dirsrv/slapd-EXAMPLE-COM/security
 
-      - name: Check IPA CA install log
+      - name: Check CA pkispawn log
         if: always()
         run: |
-          docker exec ipa cat /var/log/ipaserver-install.log
+          docker exec ipa find /var/log/pki -name "pki-ca-spawn.*" -exec cat {} \;
 
       - name: Check PKI server systemd journal
         if: always()
@@ -298,20 +308,10 @@ jobs:
         run: |
           docker exec ipa find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
 
-      - name: Gather artifacts
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh ipa --instance EXAMPLE-COM
-          tests/bin/pki-artifacts-save.sh ipa
-          tests/bin/ipa-artifacts-save.sh ipa
-        continue-on-error: true
-
       - name: Remove IPA server
         run: docker exec ipa ipa-server-install --uninstall -U
 
-      - name: Upload artifacts
+      - name: Check CA pkidestroy log
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ipa-basic-test
-          path: /tmp/artifacts
+        run: |
+          docker exec ipa find /var/log/pki -name "pki-ca-destroy.*" -exec cat {} \;

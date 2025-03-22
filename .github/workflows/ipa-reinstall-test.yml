@@ -24,12 +24,17 @@ jobs:
       - name: Load IPA images
         run: docker load --input ipa-images.tar
 
+      - name: Create network
+        run: docker network create example
+
       - name: Run IPA container
         run: |
-          tests/bin/runner-init.sh ipa
-        env:
-          IMAGE: ipa-runner
-          HOSTNAME: ipa.example.com
+          tests/bin/runner-init.sh \
+              --image=ipa-runner \
+              --hostname=ipa.example.com \
+              --network=example \
+              --network-alias=ipa.example.com \
+              ipa
 
       - name: Install IPA server
         run: |
@@ -258,6 +263,16 @@ jobs:
         run: |
           docker exec ipa cat /var/log/ipaserver-kra-install.log
 
+      - name: Check CA pkispawn log
+        if: always()
+        run: |
+          docker exec ipa find /var/log/pki -name "pki-ca-spawn.*" -exec cat {} \;
+
+      - name: Check KRA pkispawn log
+        if: always()
+        run: |
+          docker exec ipa find /var/log/pki -name "pki-kra-spawn.*" -exec cat {} \;
+
       - name: Check PKI server systemd journal
         if: always()
         run: |
@@ -281,6 +296,16 @@ jobs:
       - name: Remove IPA server again
         run: |
           docker exec ipa ipa-server-install --uninstall -U
+
+      - name: Check CA pkidestroy log
+        if: always()
+        run: |
+          docker exec ipa find /var/log/pki -name "pki-ca-destroy.*" -exec cat {} \;
+
+      - name: Check KRA pkidestroy log
+        if: always()
+        run: |
+          docker exec ipa find /var/log/pki -name "pki-kra-destroy.*" -exec cat {} \;
 
       - name: Check /etc/pki after removal
         if: always()

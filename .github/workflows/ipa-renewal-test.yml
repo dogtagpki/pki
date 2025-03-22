@@ -24,11 +24,16 @@ jobs:
       - name: Load IPA images
         run: docker load --input ipa-images.tar
 
+      - name: Create network
+        run: docker network create example
+
       - name: Run IPA container
         run: |
           tests/bin/runner-init.sh \
               --image=ipa-runner \
               --hostname=ipa.example.com \
+              --network=example \
+              --network-alias=ipa.example.com \
               ipa
 
       - name: Configure short-lived SSL server cert profile
@@ -239,6 +244,11 @@ jobs:
 
           diff /dev/null stderr
 
+      - name: Check IPA CA install log
+        if: always()
+        run: |
+          docker exec ipa cat /var/log/ipaserver-install.log
+
       - name: Check HTTPD access logs
         if: always()
         run: |
@@ -269,10 +279,10 @@ jobs:
         run: |
           docker exec ipa cat /var/log/dirsrv/slapd-EXAMPLE-COM/security
 
-      - name: Check IPA CA install log
+      - name: Check CA pkispawn log
         if: always()
         run: |
-          docker exec ipa cat /var/log/ipaserver-install.log
+          docker exec ipa find /var/log/pki -name "pki-ca-spawn.*" -exec cat {} \;
 
       - name: Check PKI server systemd journal
         if: always()
@@ -291,3 +301,8 @@ jobs:
 
       - name: Remove IPA server
         run: docker exec ipa ipa-server-install --uninstall -U
+
+      - name: Check CA pkidestroy log
+        if: always()
+        run: |
+          docker exec ipa find /var/log/pki -name "pki-ca-destroy.*" -exec cat {} \;

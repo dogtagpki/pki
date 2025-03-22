@@ -29,13 +29,12 @@ jobs:
 
       - name: Run primary container
         run: |
-          tests/bin/runner-init.sh primary
-        env:
-          IMAGE: ipa-runner
-          HOSTNAME: primary.example.com
-
-      - name: Connect primary container to network
-        run: docker network connect example primary --alias primary.example.com
+          tests/bin/runner-init.sh \
+              --image=ipa-runner \
+              --hostname=primary.example.com \
+              --network=example \
+              --network-alias=primary.example.com \
+              primary
 
       - name: Install IPA server in primary container
         run: |
@@ -141,13 +140,12 @@ jobs:
 
       - name: Run secondary container
         run: |
-          tests/bin/runner-init.sh secondary
-        env:
-          IMAGE: ipa-runner
-          HOSTNAME: secondary.example.com
-
-      - name: Connect secondary container to network
-        run: docker network connect example secondary --alias secondary.example.com
+          tests/bin/runner-init.sh \
+              --image=ipa-runner \
+              --hostname=secondary.example.com \
+              --network=example \
+              --network-alias=secondary.example.com \
+              secondary
 
       - name: Install IPA client in secondary container
         run: |
@@ -622,6 +620,16 @@ jobs:
           grep "Number of entries returned" output-primary > actual
           diff expected actual
 
+      - name: Check IPA CA install log in primary container
+        if: always()
+        run: |
+          docker exec primary cat /var/log/ipaserver-install.log
+
+      - name: Check IPA KRA install log in primary container
+        if: always()
+        run: |
+          docker exec primary cat /var/log/ipaserver-kra-install.log
+
       - name: Check HTTPD access logs in primary container
         if: always()
         run: |
@@ -652,6 +660,16 @@ jobs:
         run: |
           docker exec primary cat /var/log/dirsrv/slapd-EXAMPLE-COM/security
 
+      - name: Check CA pkispawn log in primary container
+        if: always()
+        run: |
+          docker exec primary find /var/log/pki -name "pki-ca-spawn.*" -exec cat {} \;
+
+      - name: Check KRA pkispawn log in primary container
+        if: always()
+        run: |
+          docker exec primary find /var/log/pki -name "pki-kra-spawn.*" -exec cat {} \;
+
       - name: Check PKI server systemd journal in primary container
         if: always()
         run: |
@@ -667,18 +685,20 @@ jobs:
         run: |
           docker exec primary find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
 
-      - name: Gather artifacts from primary container
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh primary --instance EXAMPLE-COM
-          tests/bin/pki-artifacts-save.sh primary
-          tests/bin/ipa-artifacts-save.sh primary
-        continue-on-error: true
-
       - name: Remove IPA server from primary container
         run: |
           docker exec secondary ipa server-del primary.example.com
           docker exec primary ipa-server-install --uninstall -U
+
+      - name: Check CA pkidestroy log in primary container
+        if: always()
+        run: |
+          docker exec primary find /var/log/pki -name "pki-ca-destroy.*" -exec cat {} \;
+
+      - name: Check KRA pkidestroy log in primary container
+        if: always()
+        run: |
+          docker exec primary find /var/log/pki -name "pki-kra-destroy.*" -exec cat {} \;
 
       - name: Check IPA config after removing primary server
         run: |
@@ -722,6 +742,16 @@ jobs:
           docker exec secondary pki-server ca-config-show ca.connector.KRA.host | tee actual
           diff expected actual || true
 
+      - name: Check IPA CA install log in secondary container
+        if: always()
+        run: |
+          docker exec secondary cat /var/log/ipareplica-ca-install.log
+
+      - name: Check IPA KRA install log in secondary container
+        if: always()
+        run: |
+          docker exec secondary cat /var/log/ipaserver-kra-install.log
+
       - name: Check HTTPD access logs in secondary container
         if: always()
         run: |
@@ -752,6 +782,16 @@ jobs:
         run: |
           docker exec secondary cat /var/log/dirsrv/slapd-EXAMPLE-COM/security
 
+      - name: Check CA pkispawn log in secondary container
+        if: always()
+        run: |
+          docker exec secondary find /var/log/pki -name "pki-ca-spawn.*" -exec cat {} \;
+
+      - name: Check KRA pkispawn log in secondary container
+        if: always()
+        run: |
+          docker exec secondary find /var/log/pki -name "pki-kra-spawn.*" -exec cat {} \;
+
       - name: Check PKI server systemd journal in secondary container
         if: always()
         run: |
@@ -767,20 +807,15 @@ jobs:
         run: |
           docker exec secondary find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
 
-      - name: Gather artifacts from secondary container
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh secondary --instance EXAMPLE-COM
-          tests/bin/pki-artifacts-save.sh secondary
-          tests/bin/ipa-artifacts-save.sh secondary
-        continue-on-error: true
-
       - name: Remove IPA server from secondary container
         run: docker exec secondary ipa-server-install --uninstall -U --ignore-last-of-role
 
-      - name: Upload artifacts
+      - name: Check CA pkidestroy log in secondary container
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ipa-clone-test
-          path: /tmp/artifacts
+        run: |
+          docker exec secondary find /var/log/pki -name "pki-ca-destroy.*" -exec cat {} \;
+
+      - name: Check KRA pkidestroy log in secondary container
+        if: always()
+        run: |
+          docker exec secondary find /var/log/pki -name "pki-kra-destroy.*" -exec cat {} \;

@@ -29,13 +29,13 @@ jobs:
 
       - name: Run IPA container
         run: |
-          tests/bin/runner-init.sh ipa
-        env:
-          IMAGE: ipa-runner
-          HOSTNAME: ipa.example.com
-
-      - name: Connect IPA container to network
-        run: docker network connect example ipa --alias ipa.example.com --alias ipa-ca.example.com
+          tests/bin/runner-init.sh \
+              --image=ipa-runner \
+              --hostname=ipa.example.com \
+              --network=example \
+              --network-alias=ipa.example.com \
+              --network-alias=ipa-ca.example.com \
+              ipa
 
       - name: Install IPA server in IPA container
         run: |
@@ -153,6 +153,11 @@ jobs:
           docker exec ipa bash -c "pki acme-info | sed -n 's/\s*Status:\s\+\(\S\+\).*/\1/p' > ${SHARED}/actual"
           diff expected actual
 
+      - name: Check IPA CA install log
+        if: always()
+        run: |
+          docker exec ipa cat /var/log/ipaserver-install.log
+
       - name: Check HTTPD access logs
         if: always()
         run: |
@@ -183,6 +188,11 @@ jobs:
         run: |
           docker exec ipa cat /var/log/dirsrv/slapd-EXAMPLE-COM/security
 
+      - name: Check CA pkispawn log
+        if: always()
+        run: |
+          docker exec ipa find /var/log/pki -name "pki-ca-spawn.*" -exec cat {} \;
+
       - name: Check PKI server systemd journal
         if: always()
         run: |
@@ -198,20 +208,10 @@ jobs:
         run: |
           docker exec ipa find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
 
-      - name: Gather artifacts
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh ipa --instance EXAMPLE-COM
-          tests/bin/pki-artifacts-save.sh ipa
-          tests/bin/ipa-artifacts-save.sh ipa
-        continue-on-error: true
-
       - name: Remove IPA server from IPA container
         run: docker exec ipa ipa-server-install --uninstall -U
 
-      - name: Upload artifacts
+      - name: Check CA pkidestroy log
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ipa-acme-test
-          path: /tmp/artifacts
+        run: |
+          docker exec ipa find /var/log/pki -name "pki-ca-destroy.*" -exec cat {} \;
