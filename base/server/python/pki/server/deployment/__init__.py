@@ -2754,6 +2754,7 @@ class PKIDeployer:
             https_port = proxy_secure_port
 
         host_id = '%s %s %s' % (subsystem.type, hostname, https_port)
+        subordinate = config.str2bool(self.mdict['pki_subordinate'])
 
         logger.info(
             'Removing %s from security domain at %s',
@@ -2765,7 +2766,8 @@ class PKIDeployer:
                 sd_url,
                 host_id,
                 hostname,
-                https_port)
+                https_port,
+                subordinate)
 
         except subprocess.CalledProcessError:
             logger.error(
@@ -4436,6 +4438,7 @@ class PKIDeployer:
             '-U', ca_url,
             '--ignore-cert-status', 'UNTRUSTED_ISSUER,UNKNOWN_ISSUER',
             '--ignore-banner',
+            '--skip-revocation-check',
             'ca-cert-signing-export',
             '--pkcs7'
         ]

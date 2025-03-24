@@ -1799,10 +1799,11 @@ class PKISubsystem(object):
             sd_url,
             host_id,
             hostname,
-            secure_port):
+            secure_port,
+            subordinate=False):
 
         nickname = self.config.get('%s.cert.subsystem.nickname' % self.name)
-
+        
         cmd = [
             'pki',
             '-d', self.instance.nssdb_dir,
@@ -1815,6 +1816,9 @@ class PKISubsystem(object):
             '--hostname', hostname,
             '--secure-port', secure_port
         ]
+
+        if subordinate:
+            cmd.insert(1, '--skip-revocation-check')
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
