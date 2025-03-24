@@ -461,7 +461,6 @@ class PKISubsystem(object):
             subprocess.run(
                 cmd,
                 stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
                 check=True,
                 universal_newlines=True)
 
@@ -1297,8 +1296,8 @@ class PKISubsystem(object):
 
         self.run(
             cmd,
-            as_current_user=as_current_user,
-            capture_output=True)
+            stdout=subprocess.PIPE,
+            as_current_user=as_current_user)
 
     def revoke_database_access(
             self,
@@ -1317,8 +1316,8 @@ class PKISubsystem(object):
 
         self.run(
             cmd,
-            as_current_user=as_current_user,
-            capture_output=True)
+            stdout=subprocess.PIPE,
+            as_current_user=as_current_user)
 
     def enable_replication(
             self,
@@ -1860,8 +1859,8 @@ class PKISubsystem(object):
 
         result = self.run(
             cmd,
-            as_current_user=as_current_user,
-            capture_output=True)
+            stdout=subprocess.PIPE,
+            as_current_user=as_current_user)
 
         return json.loads(result.stdout.decode())
 
@@ -1914,8 +1913,8 @@ class PKISubsystem(object):
 
         result = self.run(
             cmd,
-            as_current_user=as_current_user,
-            capture_output=True)
+            stdout=subprocess.PIPE,
+            as_current_user=as_current_user)
 
         return json.loads(result.stdout.decode())
 
@@ -1933,8 +1932,8 @@ class PKISubsystem(object):
 
         result = self.run(
             cmd,
-            as_current_user=as_current_user,
-            capture_output=True)
+            stdout=subprocess.PIPE,
+            as_current_user=as_current_user)
 
         return json.loads(result.stdout.decode())
 
@@ -2013,8 +2012,8 @@ class PKISubsystem(object):
 
             self.run(
                 cmd,
-                as_current_user=as_current_user,
-                capture_output=True)
+                stdout=subprocess.PIPE,
+                as_current_user=as_current_user)
 
         finally:
             shutil.rmtree(tmpdir)
@@ -2054,8 +2053,8 @@ class PKISubsystem(object):
 
         self.run(
             cmd,
-            as_current_user=as_current_user,
-            capture_output=True)
+            stdout=subprocess.PIPE,
+            as_current_user=as_current_user)
 
     def remove_user(self, user_id, as_current_user=False):
 
@@ -2071,8 +2070,8 @@ class PKISubsystem(object):
 
         self.run(
             cmd,
-            as_current_user=as_current_user,
-            capture_output=True)
+            stdout=subprocess.PIPE,
+            as_current_user=as_current_user)
 
     def find_user_certs(
             self,
@@ -2124,8 +2123,8 @@ class PKISubsystem(object):
         self.run(
             cmd,
             input=cert_data,
-            as_current_user=as_current_user,
-            capture_output=True)
+            stdout=subprocess.PIPE,
+            as_current_user=as_current_user)
 
     def remove_user_cert(self, user_id, cert_id):
 
@@ -2202,6 +2201,8 @@ class PKISubsystem(object):
     def run(self,
             args,
             input=None,  # pylint: disable=W0622
+            stdout=None,
+            stderr=None,
             as_current_user=False,
             capture_output=False):
 
@@ -2255,9 +2256,6 @@ class PKISubsystem(object):
         if capture_output:
             stdout = subprocess.PIPE
             stderr = subprocess.PIPE
-        else:
-            stdout = None
-            stderr = None
 
         try:
             return subprocess.run(
@@ -2434,7 +2432,7 @@ class CASubsystem(PKISubsystem):
 
             result = self.run(
                 cmd,
-                capture_output=True)
+                stdout=subprocess.PIPE)
 
         finally:
             shutil.rmtree(tmpdir)
@@ -2571,7 +2569,7 @@ class CASubsystem(PKISubsystem):
         result = self.run(
             cmd,
             input=request_data.encode('utf-8'),
-            capture_output=True)
+            stdout=subprocess.PIPE)
 
         return json.loads(result.stdout.decode('utf-8'))
 
