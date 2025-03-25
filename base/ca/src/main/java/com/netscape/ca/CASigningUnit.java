@@ -19,6 +19,7 @@ package com.netscape.ca;
 
 import java.security.SignatureException;
 
+import com.netscape.certsrv.dbs.certdb.CertId;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NoSuchTokenException;
 import org.mozilla.jss.NotInitializedException;
@@ -102,7 +103,8 @@ public final class CASigningUnit extends SigningUnit {
             try {
                 logger.info("CASigningUnit: Loading cert " + mNickname);
                 mCert = mManager.findCertByNickname(mNickname);
-                logger.debug("CASigningUnit: - serial number: " + mCert.getSerialNumber());
+                CertId certId = new CertId(mCert.getSerialNumber());
+                logger.debug("CASigningUnit: - Serial number: " + certId.toHexString());
 
             } catch (ObjectNotFoundException e) {
                 throw new CAMissingCertException("Certificate not found: " + mNickname + ": " + e.getMessage(), e);
