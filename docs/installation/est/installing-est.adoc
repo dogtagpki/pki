@@ -71,17 +71,14 @@ Note: before enabling the profile verify if the options satisfy the requirement 
 user DB. _LDAP_, _PostreSQL_ and file based DB are supported. The DB
 has to be prepared in advance for authentication to work. Instructions
 to set up the user DB are available in
-xref:../est/set-up-realm-db.adoc[Set Up Realm DB].
-
-
-
+xref:configure-est-realm-db.adoc[Configure EST Realm DB].
 
 == EST Subsystem Installation 
 
 There are two options for the installation:
 
     * Basic installation with `pkispawn`
-      xref:../est/installing-est-pkispawn.adoc[Installing EST pkispawn];
+      xref:installing-est-pkispawn.adoc[Installing EST pkispawn];
 
     * Advanced installation with `pki-server`
       xref:../est/installing-est-pki-server.adoc[Installing EST pki-server],
@@ -94,13 +91,14 @@ There are two options for the installation:
 == Verifying EST 
 Before enrolling certificates EST users must be added in the user
 database.  The user management is not part of EST commands and has to
-be done outside EST. Guide on how To add user into DS realm is
-available at
-xref:../../admin/est/Managing-DS-Realm.adoc[Managing DS Realm] while
-for _PostgreSQL_ at
-xref:../../admin/est/Managing-PostgreSQL-Realm.adoc[Managing
-PostgreSQL Realm].
+be done outside EST. Information on how to add users on each database platform can be found in the Administration Guide.
 
+// Note: Currently admin is not yet imported downstream. The import process
+// will automatically comment out the following lines
+
+* _Directory Server_ : xref:../../admin/est/Managing-DS-Realm.adoc[Managing DS Realm]
+* _PostgreSQL_ : xref:../../admin/est/Managing-PostgreSQL-Realm.adoc[Managing
+PostgreSQL Realm].
 
 Use `curl` to verify that the *EST subsystem* is deployed and is able to communicate with the *CA subsystem*.
 

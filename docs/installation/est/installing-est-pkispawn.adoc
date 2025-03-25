@@ -94,7 +94,8 @@ The `est_realm_custom` is a path to a custom realm configuration for
 tomcat and if provided it will overwrite all other realm related
 configurations.
 
-=== Installation on separate instance with certificates 
+[id="installation-on-separate-instance-with-certificates"]
+=== Installation on Separate Instance with Certificates 
 
 EST can also be installed on a tomcat instance that’s separate from
 the CA.
