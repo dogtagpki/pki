@@ -2035,4 +2035,3 @@ fi
 * Tue Mar 6 2018 Dogtag PKI Team <devel@lists.dogtagpki.org> 10.6.0-0
 - To list changes in <branch> since <tag>:
   $ git log --pretty=oneline --abbrev-commit --no-decorate <tag>..<branch>
-
