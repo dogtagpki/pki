@@ -97,8 +97,7 @@ be done outside EST. Information on how to add users on each database platform c
 // will automatically comment out the following lines
 
 * _Directory Server_ : xref:../../admin/est/Managing-DS-Realm.adoc[Managing DS Realm]
-* _PostgreSQL_ : xref:../../admin/est/Managing-PostgreSQL-Realm.adoc[Managing
-PostgreSQL Realm].
+* _PostgreSQL_ : xref:../../admin/est/Managing-PostgreSQL-Realm.adoc[Managing PostgreSQL Realm].
 
 Use `curl` to verify that the *EST subsystem* is deployed and is able to communicate with the *CA subsystem*.
 
