@@ -5,7 +5,7 @@
 
 
 Follow this process to install a standalone KRA subsystem.
-In xref:Installing_KRA.md[regular KRA installation] the KRA certificates are issued automatically by the CA and the KRA will join the CA's security domain.
+In xref:installing-kra.adoc[regular KRA installation] the KRA certificates are issued automatically by the CA and the KRA will join the CA's security domain.
 In standalone KRA installation, the KRA certificates are issued manually and the KRA have its own security domain.
 
 The installation process consists multiple steps:

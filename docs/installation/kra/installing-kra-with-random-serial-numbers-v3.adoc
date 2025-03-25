@@ -9,7 +9,7 @@ NOTE: RSNv3 is enabled by default since PKI 11.5.
 
 = Installation Procedure 
 
-To install KRA with random serial numbers, follow the normal xref:Installing_KRA.md[KRA installation] procedure, then specify the following parameter:
+To install KRA with random serial numbers, follow the normal xref:installing-kra.adoc[KRA installation] procedure, then specify the following parameter:
 
 To use random key IDs, add the following parameters in the `[KRA]` section:
 
