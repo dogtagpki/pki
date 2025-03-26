@@ -85,7 +85,7 @@ public class JSSSocketFactory implements SchemeLayeredSocketFactory {
             JSSTrustManager trustManager = new JSSTrustManager();
             trustManager.setHostname(hostname);
             trustManager.setCallback(connection.getCallback());
-            trustManager.setEnableCertRevokeVerify(true);
+            trustManager.setEnableCertRevokeVerify(connection.getConfig().isCertRevocationVerify());
 
             TrustManager[] tms = new TrustManager[] { trustManager };
 

@@ -226,6 +226,9 @@ public class MainCLI extends CLI {
         option.setArgName("folder");
         options.addOption(option);
 
+        option = new Option(null, "skip-revocation-check", false, "Do not perform revocation check");
+        options.addOption(option);
+
         option = new Option(null, "reject-cert-status", true, "Comma-separated list of rejected certificate validity statuses");
         option.setArgName("list");
         options.addOption(option);
@@ -477,6 +480,7 @@ public class MainCLI extends CLI {
         config.setMessageFormat(messageFormat);
         logger.debug("Message format: " + messageFormat);
 
+        config.setCertRevocationVerify(!cmd.hasOption("skip-revocation-check"));
         optionsParsed = true;
     }
 
