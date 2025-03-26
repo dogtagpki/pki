@@ -155,7 +155,7 @@ public class CACertClient extends Client {
         agentCertRequestClient.unassignRequest(id, data);
     }
 
-    public CertRequestInfos listRequests(String requestState, String requestType, RequestId start, Integer pageSize,
+    public CertRequestInfos listRequests(String requestState, String requestType, String start, Integer pageSize,
             Integer maxResults, Integer maxTime) throws Exception {
         return agentCertRequestClient.listRequests(requestState, requestType, start, pageSize, maxResults, maxTime);
     }
