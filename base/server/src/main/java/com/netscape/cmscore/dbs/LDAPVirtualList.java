@@ -481,7 +481,7 @@ public class LDAPVirtualList<E extends IDBObj> extends DBVirtualList<E> {
 
             while (result.hasMoreElements()) {
                 LDAPEntry entry = result.next();
-                logger.info("LDAPVirtualList: dn: " + entry.getDN());
+                logger.info("LDAPVirtualList: - " + entry.getDN());
 
                 try {
                     LDAPAttributeSet attrs = entry.getAttributeSet();

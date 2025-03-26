@@ -474,7 +474,7 @@ public class LDAPSession extends DBSSession {
             throws EBaseException {
         try {
             String ldapfilter = dbSubsystem.getRegistry().getFilter(filter);
-            logger.info("LDAPSession.pagedSearch(): Searching {}  for {}", base, ldapfilter);
+            logger.info("LDAPSession.pagedSearch(): Searching {} for {}", base, ldapfilter);
 
             LDAPSearchConstraints cons = new LDAPSearchConstraints();
             if (timeLimit > 0) {

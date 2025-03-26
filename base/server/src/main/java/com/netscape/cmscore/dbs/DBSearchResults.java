@@ -17,6 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.dbs;
 
+import java.util.Enumeration;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPSearchResults;
 
@@ -56,7 +60,15 @@ public class DBSearchResults {
 
         try {
             LDAPEntry entry = mRes.next();
-            return mRegistry.createObject(entry.getAttributeSet());
+            logger.info("DBSearchResults: - " + entry.getDN());
+
+            LDAPAttributeSet attrs = entry.getAttributeSet();
+            for (Enumeration<LDAPAttribute> e = attrs.getAttributes(); e.hasMoreElements(); ) {
+                LDAPAttribute attr = e.nextElement();
+                logger.debug("DBSearchResults:   - " + attr.getName());
+            }
+
+            return mRegistry.createObject(attrs);
 
         } catch (Exception e) {
 

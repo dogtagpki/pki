@@ -98,6 +98,9 @@ public class LDAPPagedSearch<E extends IDBObj>  extends DBPagedSearch<E> {
     @Override
     public List<E> getPage(int size)
             throws EBaseException {
+
+        logger.info("LDAPPagedSearch: Searching {}", base);
+
         try {
             LDAPSearchConstraints cons = new LDAPSearchConstraints();
             LDAPPagedResultsControl pageCtrl = null;
@@ -106,8 +109,10 @@ public class LDAPPagedSearch<E extends IDBObj>  extends DBPagedSearch<E> {
             if (attrs != null) {
                 ldapattrs = registry.getLDAPAttributes(attrs);
             }
+
             String ldapfilter = registry.getFilter(filter);
-            logger.info("LDAPSession.continuousPagedSearch(): Searching {}  for {}", base, ldapfilter);
+            logger.info("LDAPPagedSearch: filter: {}", ldapfilter);
+
             byte[] cookie = null;
             ArrayList<E> entries = new ArrayList<>();
             if (res != null) {
