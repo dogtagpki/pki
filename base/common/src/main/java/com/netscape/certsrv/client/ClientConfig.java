@@ -53,6 +53,8 @@ public class ClientConfig implements JSONSerializer {
 
     String messageFormat;
 
+    boolean certRevocationVerify;
+
     public ClientConfig() {
     }
 
@@ -72,6 +74,9 @@ public class ClientConfig implements JSONSerializer {
         password = config.password;
 
         messageFormat = config.messageFormat;
+
+        certRevocationVerify = config.isCertRevocationVerify();
+
     }
 
     public void setServerURI(URI serverUri) {
@@ -211,6 +216,15 @@ public class ClientConfig implements JSONSerializer {
         this.messageFormat = messageFormat;
     }
 
+
+    public boolean isCertRevocationVerify() {
+        return certRevocationVerify;
+    }
+
+    public void setCertRevocationVerify(boolean certRevocationVerify) {
+        this.certRevocationVerify = certRevocationVerify;
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -224,6 +238,7 @@ public class ClientConfig implements JSONSerializer {
         result = prime * result + ((serverURL == null) ? 0 : serverURL.hashCode());
         result = prime * result + ((tokenName == null) ? 0 : tokenName.hashCode());
         result = prime * result + ((username == null) ? 0 : username.hashCode());
+        result = result + (certRevocationVerify ? 0 : 1);
         return result;
     }
 
@@ -280,6 +295,8 @@ public class ClientConfig implements JSONSerializer {
             if (other.username != null)
                 return false;
         } else if (!username.equals(other.username))
+            return false;
+        if (certRevocationVerify != other.certRevocationVerify)
             return false;
         return true;
     }
