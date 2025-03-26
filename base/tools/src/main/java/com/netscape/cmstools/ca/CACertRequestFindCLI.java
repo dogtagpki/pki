@@ -27,7 +27,6 @@ import org.dogtagpki.cli.CommandCLI;
 import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertRequestInfos;
-import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmstools.cli.MainCLI;
 
 /**
@@ -91,10 +90,9 @@ public class CACertRequestFindCLI extends CommandCLI {
             throw new Exception("Too many arguments specified.");
         }
 
-        String s = cmd.getOptionValue("start");
-        RequestId start = s == null ? null : new RequestId(s);
+        String start = cmd.getOptionValue("start");
 
-        s = cmd.getOptionValue("size");
+        String s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
         s = cmd.getOptionValue("maxResults");

@@ -1521,14 +1521,13 @@ jobs:
 
           docker exec pki openssl x509 -in testuser.crt -serial -noout
 
-      - name: Check requests
+      - name: Find all cert requests
         if: always()
         run: |
           docker exec pki pki-server ca-cert-request-find | tee output
           sed -n "s/^ *Request ID: *\(.*\)$/\1/p" output > list
 
           # there should be 40 requests with sequential request ID
-
           seq 1 40 > expected
           head -n 40 list > actual
           diff expected actual
@@ -1537,20 +1536,136 @@ jobs:
           REQUEST_ID=$(tail -n 1 list)
           [ ${#REQUEST_ID} -gt 2 ]
 
-      - name: Check certs
+      - name: Find cert requests page 1 with REST API v1
+        if: always()
+        run: |
+          docker exec pki pki \
+              -n caadmin \
+              --api v1 \
+              ca-cert-request-find \
+              --start 0 \
+              --size 25 \
+              | tee output
+          sed -n "s/^ *Request ID: *\(.*\)$/\1/p" output > actual
+
+          # in REST API v1 the --start determines the starting request ID so
+          # it should return the first 25 entries starting from request ID 0
+          printf "0x%x\n" {1..25} > expected
+          diff expected actual
+
+      - name: Find cert requests page 2 with REST API v1
+        if: always()
+        run: |
+          docker exec pki pki \
+              -n caadmin \
+              --api v1 \
+              ca-cert-request-find \
+              --start 25 \
+              --size 25 \
+              | tee output
+          sed -n "s/^ *Request ID: *\(.*\)$/\1/p" output > list
+
+          # in REST API v1 the --start is used as the starting request ID so it
+          # should return the remaining 17 entries starting from request ID 25
+          echo "17" > expected
+          cat list | wc -l > actual
+          diff expected actual
+
+          # the first 16 cert requests should have request IDs from 25 to 40
+          printf "0x%x\n" {25..40} > expected
+          head -n 16 list > actual
+          diff expected actual
+
+          # the last cert request should have random request ID (longer than 2 chars)
+          SERIAL_NUMBER=$(tail -n 1 list)
+          [ ${#SERIAL_NUMBER} -gt 2 ]
+
+      - name: Find cert requests page 1 with REST API v2
+        if: always()
+        run: |
+          docker exec pki pki \
+              -n caadmin \
+              --api v2 \
+              ca-cert-request-find \
+              --start 0 \
+              --size 25 \
+              | tee output
+          sed -n "s/^ *Request ID: *\(.*\)$/\1/p" output > actual
+
+          # in REST API v2 the --start is used as the starting index
+          # so it should return the first 25 entries
+          printf "0x%x\n" {1..25} > expected
+          diff expected actual
+
+      - name: Find cert requests page 2 with REST API v2
+        if: always()
+        run: |
+          docker exec pki pki \
+              -n caadmin \
+              --api v2 \
+              ca-cert-request-find \
+              --start 25 \
+              --size 25 \
+              | tee output
+          sed -n "s/^ *Request ID: *\(.*\)$/\1/p" output > list
+
+          # in REST API v2 the --start is used as the starting index
+          # so it should return the remaining 16 entries
+          echo "16" > expected
+          cat list | wc -l > actual
+          diff expected actual
+
+          # the first 15 cert requests should have request IDs from 26 to 40
+          printf "0x%x\n" {26..40} > expected
+          head -n 15 list > actual
+          diff expected actual
+
+          # the last cert request should have random request ID (longer than 2 chars)
+          SERIAL_NUMBER=$(tail -n 1 list)
+          [ ${#SERIAL_NUMBER} -gt 2 ]
+
+      - name: Find all certs
         if: always()
         run: |
           docker exec pki pki-server ca-cert-find | tee output
           sed -n "s/^ *Serial Number: *\(.*\)$/\1/p" output > list
 
           # there should be 39 certs with sequential serial numbers
-
           printf "0x%x\n" {9..47} > expected
           head -n 39 list > actual
           diff expected actual
 
           # there should be one cert with random serial number (longer than 4 chars)
+          SERIAL_NUMBER=$(tail -n 1 list)
+          [ ${#SERIAL_NUMBER} -gt 4 ]
 
+      - name: Find certs page 1
+        if: always()
+        run: |
+          docker exec pki pki ca-cert-find --start 0 --size 25 | tee output
+          sed -n "s/^ *Serial Number: *\(.*\)$/\1/p" output > actual
+
+          # it should return the first 25 certs with serial numbers from 9 to 33
+          printf "0x%x\n" {9..33} > expected
+          diff expected actual
+
+      - name: Find certs page 2
+        if: always()
+        run: |
+          docker exec pki pki ca-cert-find --start 25 --size 25 | tee output
+          sed -n "s/^ *Serial Number: *\(.*\)$/\1/p" output > list
+
+          # it should return the remaining 15 certs
+          echo "15" > expected
+          cat list | wc -l > actual
+          diff expected actual
+
+          # the first 14 certs should have serial numbers from 34 to 47
+          printf "0x%x\n" {34..47} > expected
+          head -n 14 list > actual
+          diff expected actual
+
+          # the last cert should have random serial number (longer than 4 chars)
           SERIAL_NUMBER=$(tail -n 1 list)
           [ ${#SERIAL_NUMBER} -gt 4 ]
 

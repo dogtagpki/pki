@@ -42,11 +42,11 @@ public class CAAgentCertRequestClient extends Client {
         super(client, "ca", "agent/certrequests");
     }
 
-    public CertRequestInfos listRequests(String requestState, String requestType, RequestId start, Integer pageSize,
+    public CertRequestInfos listRequests(String requestState, String requestType, String start, Integer pageSize,
             Integer maxResults, Integer maxTime) throws Exception {
         Map<String, Object> params = new HashMap<>();
         if (requestType != null) params.put("requestType", requestType);
-        if (start != null) params.put("start", start.toHexString());
+        if (start != null) params.put("start", start);
         if (pageSize != null) params.put("pageSize", pageSize);
         if (maxResults != null) params.put("maxResults", maxResults);
         if (maxTime != null) params.put("maxTime", maxTime);
