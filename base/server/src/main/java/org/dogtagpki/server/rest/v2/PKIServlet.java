@@ -57,7 +57,6 @@ public abstract class PKIServlet extends HttpServlet {
     public static final int DEFAULT_MAXTIME = 0;
     public static final int DEFAULT_SIZE = 20;
     public static final int MIN_FILTER_LENGTH = 3;
-    private static final String ERROR_RESPONSE= "PKIServlet - error processing request: {}";
     public static final int DEFAULT_LONG_CACHE_LIFETIME = 1000;
 
     public enum HttpMethod {
@@ -115,11 +114,18 @@ public abstract class PKIServlet extends HttpServlet {
         this.doOperation(HttpMethod.PATCH, req, res);
     }
 
-    private void doOperation(HttpMethod method, HttpServletRequest request, HttpServletResponse response) {
+    private void doOperation(
+            HttpMethod method,
+            HttpServletRequest request,
+            HttpServletResponse response
+            ) throws IOException {
+
         response.setContentType(MediaType.APPLICATION_JSON);
+
         try {
             setSessionContext(request);
             Method actionMethod = getActionMethod(method, request.getPathInfo());
+
             if (actionMethod == null) {
                 String allowMethods = getAllowedMethods(request.getPathInfo());
                 if (allowMethods == null) {
@@ -130,25 +136,25 @@ public abstract class PKIServlet extends HttpServlet {
                 }
                 return;
             }
+
+            logger.info("PKIServlet: Invoking " + getClass().getSimpleName() + "." + actionMethod.getName() + "()");
             actionMethod.invoke(this, request, response);
+
         } catch (InvocationTargetException ite) {
-            try {
-                if (ite.getCause() instanceof PKIException pkie) {
-                    response.setStatus(pkie.getCode());
-                    PrintWriter out = response.getWriter();
-                    out.print(pkie.getData().toJSON());
-                } else {
-                    response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ite.getCause().getMessage());
-                }
-            } catch(Exception ex) {
-                logger.error(ERROR_RESPONSE, ex.getMessage(), ex);
+
+            if (ite.getCause() instanceof PKIException pkie) {
+                response.setStatus(pkie.getCode());
+                PrintWriter out = response.getWriter();
+                out.print(pkie.getData().toJSON());
+
+            } else {
+                logger.error("Unable to process request: {}", ite.getMessage(), ite);
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ite.getCause().getMessage());
             }
+
         } catch (Exception e) {
-            try {
-                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
-            } catch(Exception ex) {
-                logger.error(ERROR_RESPONSE, ex.getMessage(), ex);
-            }
+            logger.error("Unable to process request: {}", e.getMessage(), e);
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 

@@ -70,7 +70,7 @@ public class SessionContextInterceptor implements ContainerRequestFilter {
         Method method = methodInvoker.getMethod();
         Class<?> clazz = methodInvoker.getResourceClass();
 
-        logger.debug("SessionContextInterceptor: " + clazz.getSimpleName() + "." + method.getName() + "()");
+        logger.info("SessionContextInterceptor: Invoking " + clazz.getSimpleName() + "." + method.getName() + "()");
 
         Principal principal = securityContext.getUserPrincipal();
 
