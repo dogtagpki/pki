@@ -70,14 +70,23 @@ public class AgentCertRequestServlet extends CAServlet {
 
     @WebAction(method = HttpMethod.GET, paths = {""})
     public void listRequests(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+        logger.info("AgentCertRequestServlet: Listing cert requests");
+
         PrintWriter out = response.getWriter();
         int maxTime = request.getParameter("maxTime") == null ?
                 DEFAULT_MAXTIME : Integer.parseInt(request.getParameter("maxTime"));
+
         int size = request.getParameter("pageSize") == null ?
                 DEFAULT_SIZE : Integer.parseInt(request.getParameter("pageSize"));
+        logger.info("AgentCertRequestServlet: - size: " + size);
+
         int start = request.getParameter("start") == null ? 0 : Integer.parseInt(request.getParameter("start"));
+        logger.info("AgentCertRequestServlet: - start: " + start);
+
         String requestType = request.getParameter("requestType");
         String requestState = request.getParameter("requestState");
+
         CertRequestInfos requests = null;
         try {
             requests =  listRequests(requestState, requestType, start, size, maxTime);
@@ -231,14 +240,14 @@ public class AgentCertRequestServlet extends CAServlet {
 
     public CertRequestInfos listRequests(String requestState, String requestType,
             int start, int pageSize, int maxTime) throws EBaseException {
-        logger.info("AgentCertRequestServlet: performing requests search");
 
         CAEngine engine = getCAEngine();
         RequestRepository requestRepository = engine.getRequestRepository();
         CertRequestInfos reqInfos = new CertRequestInfos();
 
         String filter = createSearchFilter(requestState, requestType);
-        logger.debug("AgentCertRequestServlet: performing paged search");
+        logger.info("AgentCertRequestServlet: Performing paged search");
+        logger.info("AgentCertRequestServlet: filter: " + filter);
 
         Iterator<RequestRecord> reqs = requestRepository.searchRequest(
                 filter,
@@ -246,12 +255,16 @@ public class AgentCertRequestServlet extends CAServlet {
                 start,
                 pageSize);
 
+        logger.info("AgentCertRequestServlet: results:");
         while(reqs.hasNext()) {
             Request request = reqs.next().toRequest();
-            logger.debug("- {}", request.getRequestId().toHexString());
+            logger.info("AgentCertRequestServlet: - request: {}", request.getRequestId().toHexString());
             reqInfos.addEntry(CertRequestInfoFactory.create(request));
         }
-        reqInfos.setTotal(requestRepository.getTotalRequestsByFilter(filter));
+
+        int total = requestRepository.getTotalRequestsByFilter(filter);
+        logger.info("AgentCertRequestServlet: total: " + total);
+        reqInfos.setTotal(total);
 
         // builder for search links
         return reqInfos;
