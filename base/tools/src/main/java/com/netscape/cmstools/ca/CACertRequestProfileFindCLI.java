@@ -60,8 +60,11 @@ public class CACertRequestProfileFindCLI extends CommandCLI {
         CACertClient certClient = certRequestCLI.getCertClient();
         ProfileDataInfos response = certClient.listEnrollmentTemplates(start, size);
 
-        MainCLI.printMessage(response.getTotal() + " entries matched");
-        if (response.getTotal() == 0) return;
+        Integer total = response.getTotal();
+        if (total != null) {
+            MainCLI.printMessage(total + " entries matched");
+            if (total == 0) return;
+        }
 
         Collection<ProfileDataInfo> infos = response.getEntries();
         boolean first = true;

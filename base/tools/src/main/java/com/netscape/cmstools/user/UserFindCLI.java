@@ -77,8 +77,11 @@ public class UserFindCLI extends CommandCLI {
         UserClient userClient = userCLI.getUserClient();
         UserCollection response = userClient.findUsers(filter, start, size);
 
-        MainCLI.printMessage(response.getTotal() + " entries matched");
-        if (response.getTotal() == 0) return;
+        Integer total = response.getTotal();
+        if (total != null) {
+            MainCLI.printMessage(total + " entries matched");
+            if (total == 0) return;
+        }
 
         Collection<UserData> entries = response.getEntries();
         boolean first = true;

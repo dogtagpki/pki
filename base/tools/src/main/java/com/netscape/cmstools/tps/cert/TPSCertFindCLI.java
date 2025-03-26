@@ -93,8 +93,11 @@ public class TPSCertFindCLI extends CommandCLI {
         TPSCertClient certClient = certCLI.getTPSCertClient();
         TPSCertCollection result = certClient.findCerts(filter, tokenID, start, size);
 
-        MainCLI.printMessage(result.getTotal() + " entries matched");
-        if (result.getTotal() == 0) return;
+        Integer total = result.getTotal();
+        if (total != null) {
+            MainCLI.printMessage(total + " entries matched");
+            if (total == 0) return;
+        }
 
         Collection<TPSCertData> certs = result.getEntries();
         boolean first = true;

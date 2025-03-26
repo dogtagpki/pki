@@ -77,8 +77,11 @@ public class AuthenticatorFindCLI extends CommandCLI {
         AuthenticatorClient authenticatorClient = authenticatorCLI.getAuthenticatorClient();
         AuthenticatorCollection result = authenticatorClient.findAuthenticators(filter, start, size);
 
-        MainCLI.printMessage(result.getTotal() + " entries matched");
-        if (result.getTotal() == 0) return;
+        Integer total = result.getTotal();
+        if (total != null) {
+            MainCLI.printMessage(total + " entries matched");
+            if (total == 0) return;
+        }
 
         Collection<AuthenticatorData> authenticators = result.getEntries();
         boolean first = true;

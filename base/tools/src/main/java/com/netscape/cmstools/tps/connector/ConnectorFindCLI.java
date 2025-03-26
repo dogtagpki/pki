@@ -77,8 +77,11 @@ public class ConnectorFindCLI extends CommandCLI {
         ConnectorClient connectorClient = connectorCLI.getConnectorClient();
         ConnectorCollection result = connectorClient.findConnectors(filter, start, size);
 
-        MainCLI.printMessage(result.getTotal() + " entries matched");
-        if (result.getTotal() == 0) return;
+        Integer total = result.getTotal();
+        if (total != null) {
+            MainCLI.printMessage(total + " entries matched");
+            if (total == 0) return;
+        }
 
         Collection<ConnectorData> connectors = result.getEntries();
         boolean first = true;

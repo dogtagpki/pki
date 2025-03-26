@@ -77,8 +77,11 @@ public class SelfTestFindCLI extends CommandCLI {
         SelfTestClient selfTestClient = selfTestCLI.getSelfTestClient();
         SelfTestCollection result = selfTestClient.findSelfTests(filter, start, size);
 
-        MainCLI.printMessage(result.getTotal() + " entries matched");
-        if (result.getTotal() == 0) return;
+        Integer total = result.getTotal();
+        if (total != null) {
+            MainCLI.printMessage(total + " entries matched");
+            if (total == 0) return;
+        }
 
         Collection<SelfTestData> selfTests = result.getEntries();
         boolean first = true;

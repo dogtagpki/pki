@@ -62,8 +62,11 @@ public class AuditFileFindCLI extends CommandCLI {
         AuditClient auditClient = auditCLI.getAuditClient();
         AuditFileCollection response = auditClient.findAuditFiles();
 
-        MainCLI.printMessage(response.getTotal() + " entries matched");
-        if (response.getTotal() == 0) return;
+        Integer total = response.getTotal();
+        if (total != null) {
+            MainCLI.printMessage(total + " entries matched");
+            if (total == 0) return;
+        }
 
         Collection<AuditFile> entries = response.getEntries();
         boolean first = true;

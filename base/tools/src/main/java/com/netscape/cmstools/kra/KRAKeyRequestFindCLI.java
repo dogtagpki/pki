@@ -117,8 +117,11 @@ public class KRAKeyRequestFindCLI extends CommandCLI {
         KeyRequestInfoCollection keys = keyClient.listRequests(
                 status, type, clientKeyID, start, pageSize, maxResults, maxTime, realm);
 
-        MainCLI.printMessage(keys.getTotal() + " entries matched");
-        if (keys.getTotal() == 0) return;
+        Integer total = keys.getTotal();
+        if (total != null) {
+            MainCLI.printMessage(total + " entries matched");
+            if (total == 0) return;
+        }
 
         Collection<KeyRequestInfo> entries = keys.getEntries();
         boolean first = true;

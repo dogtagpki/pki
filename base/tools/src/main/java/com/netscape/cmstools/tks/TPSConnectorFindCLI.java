@@ -79,8 +79,11 @@ public class TPSConnectorFindCLI extends CommandCLI {
         TPSConnectorClient tpsConnectorClient = tpsConnectorCLI.getTPSConnectorClient();
         TPSConnectorCollection result = tpsConnectorClient.findConnectors(null, null, start, size);
 
-        MainCLI.printMessage(result.getTotal() + " entries matched");
-        if (result.getTotal() == 0) return;
+        Integer total = result.getTotal();
+        if (total != null) {
+            MainCLI.printMessage(total + " entries matched");
+            if (total == 0) return;
+        }
 
         Collection<TPSConnectorData> conns = result.getEntries();
         boolean first = true;

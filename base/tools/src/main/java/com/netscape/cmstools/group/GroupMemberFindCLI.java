@@ -83,8 +83,11 @@ public class GroupMemberFindCLI extends CommandCLI {
         GroupClient groupClient = groupMemberCLI.getGroupClient();
         GroupMemberCollection response = groupClient.findGroupMembers(groupID, filter, start, size);
 
-        MainCLI.printMessage(response.getTotal() + " entries matched");
-        if (response.getTotal() == 0) return;
+        Integer total = response.getTotal();
+        if (total != null) {
+            MainCLI.printMessage(total + " entries matched");
+            if (total == 0) return;
+        }
 
         Collection<GroupMemberData> entries = response.getEntries();
         boolean first = true;
