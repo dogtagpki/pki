@@ -21,3 +21,9 @@ Name will not change.
 Standalone OCSP ResponderID has changed the default value from Subject
 name to Key hash. Running instance usinf DefStore will keep their
 current configuration.
+
+== Add pki_client_verify_cert parameter ==
+
+A new parameter `pki_client_verify_cert` has been added to
+enable/disable the certificate revocation check for the CA acting as
+client. The default value is `False` which disables the check.
