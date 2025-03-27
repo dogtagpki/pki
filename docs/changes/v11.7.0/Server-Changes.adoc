@@ -9,3 +9,9 @@ so it has been removed.
 
 A new `pki_ds_setup_vlv` parameter has been added for `pkispawn`
 to add and rebuild VLV indexes.
+
+== Add pki_client_verify_cert parameter ==
+
+A new parameter `pki_client_verify_cert` has been added to
+enable/disable the certificate revocation check for the CA acting as
+client. The default value is `False` which disables the check.
