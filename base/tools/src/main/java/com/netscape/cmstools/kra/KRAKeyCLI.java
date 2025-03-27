@@ -123,7 +123,7 @@ public class KRAKeyCLI extends CLI {
         return keyClient;
     }
 
-    public static void printKeyInfo(KeyInfo info) {
+    public static void printKeyInfo(KeyInfo info, boolean showPublicKey) {
         System.out.println("  Key ID: "+info.getKeyId().toHexString());
         if (info.getClientKeyID() != null) System.out.println("  Client Key ID: "+info.getClientKeyID());
         if (info.getStatus() != null) System.out.println("  Status: "+info.getStatus());
@@ -131,7 +131,8 @@ public class KRAKeyCLI extends CLI {
         if (info.getSize() != null) System.out.println("  Size: "+info.getSize());
         if (info.getOwnerName() != null) System.out.println("  Owner: "+info.getOwnerName());
         if (info.getRealm() != null) System.out.println("  Realm: " + info.getRealm());
-        if (info.getPublicKey() != null) {
+
+        if (info.getPublicKey() != null && showPublicKey) {
             // Print out the Base64 encoded public key in the form of a blob,
             // where the max line length is 64.
             System.out.println("  Public Key: \n");

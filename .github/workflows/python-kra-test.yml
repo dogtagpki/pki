@@ -332,7 +332,12 @@ jobs:
               --ca-bundle ca_signing.crt \
               --client-cert admin.crt \
               --client-key admin.key \
-              -v
+              -v \
+              | tee output
+
+          KEY_ID=$(sed -n "s/^\s*Key ID:\s*\(\S*\)$/\1/p" output)
+          echo "Key ID: $KEY_ID"
+          echo $KEY_ID > key.id
 
           sleep 1
 
@@ -378,6 +383,77 @@ jobs:
           cat > expected << EOF
           GET /kra/v1/account/login HTTP/1.1 200 kraadmin
           GET /kra/v1/agent/keys HTTP/1.1 200 kraadmin
+          GET /kra/v1/account/logout HTTP/1.1 204 kraadmin
+          EOF
+
+          diff expected output
+
+      ####################################################################################################
+      # Change key status
+
+      - name: Change key status
+        run: |
+          KEY_ID=$(cat key.id)
+          echo "Key ID: $KEY_ID"
+
+          docker exec pki python /usr/share/pki/tests/kra/bin/pki-kra-key-mod.py \
+              -U https://pki.example.com:8443 \
+              --ca-bundle ca_signing.crt \
+              --client-cert admin.crt \
+              --client-key admin.key \
+              --status inactive \
+              $KEY_ID \
+              -v
+
+          sleep 1
+
+          # check HTTP methods, paths, protocols, status, and authenticated users
+          docker exec pki find /var/log/pki/pki-tomcat \
+              -name "localhost_access_log.*" \
+              -exec cat {} \; \
+              | tail -4 \
+              | sed -e 's/^.* .* \(.*\) \[.*\] "\(.*\)" \(.*\) .*$/\2 \3 \1/' \
+              | tee output
+
+          # Python API should use REST API v2 by default
+          cat > expected << EOF
+          GET /pki/v2/info HTTP/1.1 200 -
+          GET /kra/v2/account/login HTTP/1.1 200 kraadmin
+          POST /kra/v2/agent/keys/$KEY_ID?status=inactive HTTP/1.1 204 kraadmin
+          GET /kra/v2/account/logout HTTP/1.1 204 kraadmin
+          EOF
+
+          diff expected output
+
+      - name: Change key status with REST API v1
+        run: |
+          KEY_ID=$(cat key.id)
+          echo "Key ID: $KEY_ID"
+
+          docker exec pki python /usr/share/pki/tests/kra/bin/pki-kra-key-mod.py \
+              -U https://pki.example.com:8443 \
+              --ca-bundle ca_signing.crt \
+              --client-cert admin.crt \
+              --client-key admin.key \
+              --api v1 \
+              --status inactive \
+              $KEY_ID \
+              -v
+
+          sleep 1
+
+          # check HTTP methods, paths, protocols, status, and authenticated users
+          docker exec pki find /var/log/pki/pki-tomcat \
+              -name "localhost_access_log.*" \
+              -exec cat {} \; \
+              | tail -3 \
+              | sed -e 's/^.* .* \(.*\) \[.*\] "\(.*\)" \(.*\) .*$/\2 \3 \1/' \
+              | tee output
+
+          # Python API should use REST API v1
+          cat > expected << EOF
+          GET /kra/v1/account/login HTTP/1.1 200 kraadmin
+          POST /kra/v1/agent/keys/$KEY_ID?status=inactive HTTP/1.1 204 kraadmin
           GET /kra/v1/account/logout HTTP/1.1 204 kraadmin
           EOF
 

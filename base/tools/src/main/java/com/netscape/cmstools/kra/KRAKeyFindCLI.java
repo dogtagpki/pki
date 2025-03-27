@@ -138,7 +138,7 @@ public class KRAKeyFindCLI extends CommandCLI {
                     System.out.println();
                 }
 
-                KRAKeyCLI.printKeyInfo(info);
+                KRAKeyCLI.printKeyInfo(info, false);
             }
 
             MainCLI.printMessage("Number of entries returned " + entries.size());

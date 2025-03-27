@@ -45,7 +45,7 @@ public class KRAKeyModifyCLI extends CommandCLI {
 
     @Override
     public void createOptions() {
-        Option option = new Option(null, "status", true, "Status of the key.\nValid values: active, inactive");
+        Option option = new Option(null, "status", true, "Key status: active, inactive");
         option.setArgName("status");
         options.addOption(option);
     }
@@ -74,6 +74,6 @@ public class KRAKeyModifyCLI extends CommandCLI {
         keyClient.modifyKeyStatus(keyId, status);
 
         KeyInfo keyInfo = keyClient.getKeyInfo(keyId);
-        KRAKeyCLI.printKeyInfo(keyInfo);
+        KRAKeyCLI.printKeyInfo(keyInfo, false);
     }
 }
