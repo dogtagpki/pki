@@ -109,6 +109,7 @@ Then execute the following command:
 
 [literal,subs="+quotes,verbatim"]
 ....
+$ pkispawn -f ca.cfg -s CA --precheck
 $ pkispawn -f ca.cfg -s CA
 ....
 
