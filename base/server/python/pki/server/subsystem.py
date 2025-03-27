@@ -1494,6 +1494,7 @@ class PKISubsystem(object):
                 '-f', self.instance.password_conf,
                 '-U', master_url,
                 '--ignore-banner',
+                '--skip-revocation-check',
                 '%s-range-request' % self.name,
                 range_type,
                 '--install-token', install_token,
@@ -1603,6 +1604,7 @@ class PKISubsystem(object):
                 '-f', self.instance.password_conf,
                 '-U', master_url,
                 '--ignore-banner',
+                '--skip-revocation-check',
                 '%s-config-export' % self.name,
                 '--names', ','.join(names),
                 '--substores', ','.join(substores),
@@ -1764,6 +1766,7 @@ class PKISubsystem(object):
                 '-f', self.instance.password_conf,
                 '-U', sd_url,
                 '--ignore-banner',
+                '--skip-revocation-check',
                 'securitydomain-join',
                 '--install-token', install_token,
                 '--type', self.type,
@@ -1799,11 +1802,10 @@ class PKISubsystem(object):
             sd_url,
             host_id,
             hostname,
-            secure_port,
-            subordinate=False):
+            secure_port):
 
         nickname = self.config.get('%s.cert.subsystem.nickname' % self.name)
-        
+
         cmd = [
             'pki',
             '-d', self.instance.nssdb_dir,
@@ -1811,14 +1813,12 @@ class PKISubsystem(object):
             '-n', nickname,
             '-U', sd_url,
             '--ignore-banner',
+            '--skip-revocation-check',
             'securitydomain-leave',
             '--type', self.type,
             '--hostname', hostname,
             '--secure-port', secure_port
         ]
-
-        if subordinate:
-            cmd.insert(1, '--skip-revocation-check')
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
