@@ -710,9 +710,20 @@ class KeyClient:
         if (key_id is None) or (status is None):
             raise TypeError("Key ID and status must be specified")
 
-        url = self.key_url + '/' + key_id
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/agent/keys/%s' % (api_path, key_id)
+
+        # in legacy code the PKIConnection object might already have the subsystem name
+        # in newer code the subsystem name needs to be included in the path
+        if not self.connection.subsystem:
+            path = '/kra' + path
+
         params = {'status': status}
-        self.connection.post(url, None, headers=self.headers, params=params)
+        self.connection.post(path, None, headers=self.headers, params=params)
 
     @pki.handle_exceptions()
     def approve_request(self, request_id):

@@ -73,6 +73,6 @@ public class KRAKeyShowCLI extends CommandCLI {
             throw new Exception("Missing Key ID or Client Key ID.");
         }
 
-        KRAKeyCLI.printKeyInfo(keyInfo);
+        KRAKeyCLI.printKeyInfo(keyInfo, true);
     }
 }

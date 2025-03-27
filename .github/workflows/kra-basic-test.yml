@@ -378,13 +378,65 @@ jobs:
           sed -n "s/^\s*Trust Flags:\s*\(\S*\)$/\1/p" output > actual
           diff expected actual
 
-      - name: Check archived key
+      - name: Check key requests and keys after enrollment
+        run: |
+          docker exec pki pki \
+              -n caadmin \
+              kra-key-request-find \
+              | tee output
+
+          # normalize output
+          sed -i \
+              -e '/-----/d' \
+              -e '/entries matched/d' \
+              -e '/Number of entries returned/d' \
+              -e '/^ *Request ID:/d' \
+              -e '/^ *Key ID:/d' \
+              -e '/^ *Creation Time:/d' \
+              -e '/^ *Modification Time:/d' \
+              output
+
+          # there should be 1 key request
+          cat > expected << EOF
+            Type: enrollment
+            Status: complete
+          EOF
+
+          diff expected output
+
+          docker exec pki pki \
+              -n caadmin \
+              kra-key-find \
+              | tee output
+
+          # normalize output
+          sed -i \
+              -e '/-----/d' \
+              -e '/key(s) matched/d' \
+              -e '/Number of entries returned/d' \
+              -e '/^ *Request ID:/d' \
+              -e '/^ *Key ID:/d' \
+              -e '/^ *Creation Time:/d' \
+              -e '/^ *Modification Time:/d' \
+              output
+
+          # there should be 1 key
+          cat > expected << EOF
+            Algorithm: 1.2.840.113549.1.1.1
+            Size: 2048
+            Owner: UID=testuser
+          EOF
+
+          diff expected output
+
+      - name: Check archived cert key
         run: |
           # find archived key by owner
           docker exec pki pki \
-              -u kraadmin \
-              -w Secret.123 \
-              kra-key-find --owner UID=testuser | tee output
+              -n caadmin \
+              kra-key-find \
+              --owner UID=testuser \
+              | tee output
 
           KEY_ID=$(sed -n "s/^\s*Key ID:\s*\(\S*\)$/\1/p" output)
           echo "Key ID: $KEY_ID"
@@ -413,14 +465,16 @@ jobs:
           sed -n 's/^metaInfo:\s*payloadWrapAlgorithm:\(.*\)$/\1/p' output > actual
           diff expected actual
 
-      - name: Check key retrieval
+      - name: Check cert key retrieval
         run: |
           KEY_ID=$(cat key.id)
           echo "Key ID: $KEY_ID"
 
+          # export cert into Base64-encoded format
           BASE64_CERT=$(docker exec pki pki nss-cert-export --format DER testuser | base64 --wrap=0)
           echo "Cert: $BASE64_CERT"
 
+          # create retrieval request with key ID, cert, and passphrase
           cat > request.json <<EOF
           {
             "ClassName" : "com.netscape.certsrv.key.KeyRecoveryRequest",
@@ -447,7 +501,7 @@ jobs:
               --input $SHARED/request.json \
               --output-data archived.p12
 
-          # import PKCS #12 file into NSS database
+          # import PKCS #12 file into NSS database with the passphrase
           docker exec pki pki \
               -d nssdb \
               pkcs12-import \
@@ -465,6 +519,138 @@ jobs:
           docker exec pki pki -d nssdb nss-cert-show testuser | tee output
           sed -n "s/^\s*Trust Flags:\s*\(\S*\)$/\1/p" output > actual
           diff expected actual
+
+      - name: Check key requests and keys after retrieval
+        run: |
+          docker exec pki pki \
+              -n caadmin \
+              kra-key-request-find \
+              | tee output
+
+          # normalize output
+          sed -i \
+              -e '/-----/d' \
+              -e '/entries matched/d' \
+              -e '/Number of entries returned/d' \
+              -e '/^ *Request ID:/d' \
+              -e '/^ *Key ID:/d' \
+              -e '/^ *Creation Time:/d' \
+              -e '/^ *Modification Time:/d' \
+              output
+
+          # there should be 2 key requests
+          cat > expected << EOF
+            Type: enrollment
+            Status: complete
+
+            Type: recovery
+            Status: complete
+          EOF
+
+          diff expected output
+
+          docker exec pki pki \
+              -n caadmin \
+              kra-key-find \
+              | tee output
+
+          # normalize output
+          sed -i \
+              -e '/-----/d' \
+              -e '/key(s) matched/d' \
+              -e '/Number of entries returned/d' \
+              -e '/^ *Request ID:/d' \
+              -e '/^ *Key ID:/d' \
+              -e '/^ *Creation Time:/d' \
+              -e '/^ *Modification Time:/d' \
+              output
+
+          # there should be 1 key
+          cat > expected << EOF
+            Algorithm: 1.2.840.113549.1.1.1
+            Size: 2048
+            Owner: UID=testuser
+          EOF
+
+          diff expected output
+
+      # https://github.com/dogtagpki/pki/wiki/Changing-Archived-Key-Status
+      - name: Deactivate cert key
+        run: |
+          KEY_ID=$(cat key.id)
+          echo "KEY_ID: $KEY_ID"
+
+          docker exec pki pki \
+              -n caadmin \
+              kra-key-mod \
+              --status inactive \
+              $KEY_ID \
+              | tee output
+
+          cat > expected << EOF
+            Key ID: $KEY_ID
+            Status: inactive
+            Algorithm: 1.2.840.113549.1.1.1
+            Size: 2048
+            Owner: UID=testuser
+          EOF
+
+          diff expected output
+
+      - name: Check key requests and keys after deactivation
+        run: |
+          docker exec pki pki \
+              -n caadmin \
+              kra-key-request-find \
+              | tee output
+
+          # normalize output
+          sed -i \
+              -e '/-----/d' \
+              -e '/entries matched/d' \
+              -e '/Number of entries returned/d' \
+              -e '/^ *Request ID:/d' \
+              -e '/^ *Key ID:/d' \
+              -e '/^ *Creation Time:/d' \
+              -e '/^ *Modification Time:/d' \
+              output
+
+          # there should be 2 key requests
+          cat > expected << EOF
+            Type: enrollment
+            Status: complete
+
+            Type: recovery
+            Status: complete
+          EOF
+
+          diff expected output
+
+          docker exec pki pki \
+              -n caadmin \
+              kra-key-find \
+              | tee output
+
+          # normalize output
+          sed -i \
+              -e '/-----/d' \
+              -e '/key(s) matched/d' \
+              -e '/Number of entries returned/d' \
+              -e '/^ *Request ID:/d' \
+              -e '/^ *Key ID:/d' \
+              -e '/^ *Creation Time:/d' \
+              -e '/^ *Modification Time:/d' \
+              output
+
+          # there should be 1 key which is inactive
+          cat > expected << EOF
+            Status: inactive
+            Algorithm: 1.2.840.113549.1.1.1
+            Size: 2048
+            Owner: UID=testuser
+          EOF
+
+          diff expected output
 
       - name: Remove KRA
         run: docker exec pki pkidestroy -s KRA -v
@@ -548,6 +734,11 @@ jobs:
         if: always()
         run: |
           docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check PKI server access log
+        if: always()
+        run: |
+          docker exec pki find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
 
       - name: Check CA debug log
         if: always()
