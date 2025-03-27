@@ -937,6 +937,7 @@ class TPSConnector:
                    "-d", instance.nssdb_dir,
                    "-f", password_conf,
                    "--ignore-banner",
+                   "--skip-revocation-check",
                    "tks-tpsconnector-del",
                    "--host", tpshost,
                    "--port", str(tpsport)]
