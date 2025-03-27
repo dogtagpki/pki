@@ -1,10 +1,9 @@
 :_mod-docs-content-type: PROCEDURE
 
 [id="fqdn-configuration"]
-// this content was copied and modified from https://github.com/dogtagpki/pki/wiki
-//
 = FQDN Configuration 
 
+// this content was copied and modified from https://github.com/dogtagpki/pki/wiki
 
 In order to have a properly functioning PKI system,
 each machine in the system must have a correct fully qualified domain name.

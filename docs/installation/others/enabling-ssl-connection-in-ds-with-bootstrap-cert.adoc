@@ -1,10 +1,9 @@
 :_mod-docs-content-type: PROCEDURE
 
 [id="enabling-ssl-connection-in-ds-with-bootstrap-cert"]
+= Enabling SSL Connection in DS Using Bootstrap Certs
 
 // This content was copied and adjusted from https://github.com/dogtagpki/pki/wiki/Enabling-SSL-Connection-in-DS
-
-= Enabling SSL Connection in DS Using Bootstrap Certs
 
 *If you already have an active trusted CA, and you wish to issue a server cert for your DS, please follow xref:getting-ds-cert-issued-by-actual-ca.adoc[this section] instead.*
 

@@ -17,6 +17,7 @@ See installation/ca/installing-ca.adoc for example.
 ** :_mod-docs-content-type: PROCEDURE
 ** <blank line>
 ** [id="installing-ca"]
+** Do not add any comment or blank lines between the id line and the subject header line (the line begins with a '=') that it's supposed to anchor.
 * Do not refer to a section as “page”.  If applies, try using the word "section".
 * Do not use “e.g.”.  Use “for example” instead
 * Quoted blocks (“....” v.s. “----”)

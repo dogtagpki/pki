@@ -1,11 +1,7 @@
 :_mod-docs-content-type: PROCEDURE
 
 [id="installing-est"]
-// this asciidoc file is converted from Installing_EST.md with needed modifications
-//
-
 = Installing EST 
-
 
 Follow this process to install an _EST subsystem_.
 
@@ -14,8 +10,6 @@ The *EST subsystem* requires the package `dogtag-pki-est` installed in the serve
 ----
 # dnf install dogtag-pki-est
 ----
-
-
 
 == Prerequisite 
 

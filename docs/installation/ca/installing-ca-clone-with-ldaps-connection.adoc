@@ -1,8 +1,9 @@
-// This original content was copied to installing-ca-clone-with-temp-ldaps-connection.adoc
 :_mod-docs-content-type: PROCEDURE
 
 [id="installing-ca-clone-with-ldaps-connection"]
 = Installing CA Clone with LDAPS Connection 
+
+// This original content was copied to installing-ca-clone-with-temp-ldaps-connection.adoc
 
 Follow this process to install a CA subsystem as clone of an existing CA subsystem with a secure database connection.
 
