@@ -203,7 +203,5 @@ public class PKCS12ExportCLI extends CommandCLI {
         } finally {
             password.clear();
         }
-
-        MainCLI.printMessage("Export complete");
     }
 }
