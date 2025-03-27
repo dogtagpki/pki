@@ -228,7 +228,7 @@ public class CACertCreateCLI extends CommandCLI {
             logger.info("Request type: " + certRequestType);
 
             String certRequest = requestRecord.getExtDataInString("cert_request");
-            logger.info("Request:\n" + certRequest);
+            logger.debug("Request:\n" + certRequest);
 
             byte[] binCertRequest = CertUtil.parseCSR(certRequest);
 
@@ -331,7 +331,7 @@ public class CACertCreateCLI extends CommandCLI {
                     keyAlgorithm,
                     extensions);
 
-            logger.info("Cert info:\n" + certInfo);
+            logger.debug("Cert info:\n" + certInfo);
 
             profile.populate(requestRecord, certInfo);
             requestRepository.updateRequest(requestRecord);
