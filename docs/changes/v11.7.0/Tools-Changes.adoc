@@ -3,3 +3,14 @@
 == Deprecate tpsclient ==
 
 `tpsclient` has been deprecated. Use `pki tps-client` instead.
+
+== New --skip-revocation-check option in pki ==
+
+`pki` command has been modified to use JSSSocket. This enable by
+default revocation check of server certificates, either with AIA or
+CRL-DP. The new option `--skip-revocation-check` allows to skip the
+check in situation where the OCSP server or the CRLs cannot be
+accessed.
+
+Alternatively, the generated error can be ignored using the option
+`--ignore-cert-status` and the reported status error.
