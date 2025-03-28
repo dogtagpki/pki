@@ -499,6 +499,7 @@ jobs:
               -n caadmin \
               kra-key-retrieve \
               --input $SHARED/request.json \
+              --transport kra_transport \
               --output-data archived.p12
 
           # import PKCS #12 file into NSS database with the passphrase
@@ -648,6 +649,178 @@ jobs:
             Algorithm: 1.2.840.113549.1.1.1
             Size: 2048
             Owner: UID=testuser
+          EOF
+
+          diff expected output
+
+      # https://github.com/dogtagpki/pki/wiki/Archiving-Key-in-KRA
+      - name: Archive secret
+        run: |
+          # generate random secret
+          head -c 1K < /dev/urandom > secret.archived
+
+          docker exec pki pki \
+              -n caadmin \
+              kra-key-archive \
+              --clientKeyID testuser \
+              --transport kra_transport \
+              --input-data $SHARED/secret.archived \
+              -v
+
+          docker exec pki pki -n caadmin kra-key-find | tee output
+
+          # there should be 2 keys
+          echo "2" > expected
+          grep "^ *Key ID:" output | wc -l > actual
+          diff expected actual
+
+          # get key ID
+          docker exec pki pki \
+              -n caadmin \
+              kra-key-find \
+              --clientKeyID testuser | tee output
+
+          sed -n 's/^ *Key ID: *\(.*\)$/\1/p' output > key.id
+
+      - name: Check key requests and keys after secret archival
+        run: |
+          docker exec pki pki \
+              -n caadmin \
+              kra-key-request-find \
+              | tee output
+
+          # normalize output
+          sed -i \
+              -e '/-----/d' \
+              -e '/entries matched/d' \
+              -e '/Number of entries returned/d' \
+              -e '/^ *Request ID:/d' \
+              -e '/^ *Key ID:/d' \
+              -e '/^ *Creation Time:/d' \
+              -e '/^ *Modification Time:/d' \
+              output
+
+          # there should be 3 key requests
+          cat > expected << EOF
+            Type: enrollment
+            Status: complete
+
+            Type: recovery
+            Status: complete
+
+            Type: securityDataEnrollment
+            Status: complete
+          EOF
+
+          diff expected output
+
+          docker exec pki pki \
+              -n caadmin \
+              kra-key-find \
+              | tee output
+
+          # normalize output
+          sed -i \
+              -e '/-----/d' \
+              -e '/key(s) matched/d' \
+              -e '/Number of entries returned/d' \
+              -e '/^ *Request ID:/d' \
+              -e '/^ *Key ID:/d' \
+              -e '/^ *Creation Time:/d' \
+              -e '/^ *Modification Time:/d' \
+              output
+
+          # there should be 2 keys
+          cat > expected << EOF
+            Status: inactive
+            Algorithm: 1.2.840.113549.1.1.1
+            Size: 2048
+            Owner: UID=testuser
+
+            Client Key ID: testuser
+            Status: active
+            Owner: kraadmin
+          EOF
+
+          diff expected output
+
+      # https://github.com/dogtagpki/pki/wiki/Retrieving-Archived-Key
+      - name: Retrieve secret
+        run: |
+          KEY_ID=$(cat key.id)
+          echo "KEY_ID: $KEY_ID"
+
+          docker exec pki pki \
+              -n caadmin \
+              kra-key-retrieve \
+              --keyID $KEY_ID \
+              --transport kra_transport \
+              --output-data $SHARED/secret.retrieved \
+              -v
+
+          diff secret.archived secret.retrieved
+
+      - name: Check key requests and keys after secret retrieval
+        run: |
+          docker exec pki pki \
+              -n caadmin \
+              kra-key-request-find \
+              | tee output
+
+          # normalize output
+          sed -i \
+              -e '/-----/d' \
+              -e '/entries matched/d' \
+              -e '/Number of entries returned/d' \
+              -e '/^ *Request ID:/d' \
+              -e '/^ *Key ID:/d' \
+              -e '/^ *Creation Time:/d' \
+              -e '/^ *Modification Time:/d' \
+              output
+
+          # there should be 4 key requests
+          cat > expected << EOF
+            Type: enrollment
+            Status: complete
+
+            Type: recovery
+            Status: complete
+
+            Type: securityDataEnrollment
+            Status: complete
+
+            Type: securityDataRecovery
+            Status: complete
+          EOF
+
+          diff expected output
+
+          docker exec pki pki \
+              -n caadmin \
+              kra-key-find \
+              | tee output
+
+          # normalize output
+          sed -i \
+              -e '/-----/d' \
+              -e '/key(s) matched/d' \
+              -e '/Number of entries returned/d' \
+              -e '/^ *Request ID:/d' \
+              -e '/^ *Key ID:/d' \
+              -e '/^ *Creation Time:/d' \
+              -e '/^ *Modification Time:/d' \
+              output
+
+          # there should be 2 keys
+          cat > expected << EOF
+            Status: inactive
+            Algorithm: 1.2.840.113549.1.1.1
+            Size: 2048
+            Owner: UID=testuser
+
+            Client Key ID: testuser
+            Status: active
+            Owner: kraadmin
           EOF
 
           diff expected output

@@ -473,9 +473,12 @@ public class KeyRequestProcessor {
             throw new BadRequestException("Invalid key archival request.");
         }
 
+        String algorithmOID = data.getAlgorithmOID();
+        logger.info("KeyRequestProcessor: algorithm OID: " + algorithmOID);
+
         if (data.getWrappedPrivateData() != null) {
             if (data.getTransWrappedSessionKey() == null ||
-                data.getAlgorithmOID() == null ||
+                algorithmOID == null ||
                 data.getSymmetricAlgorithmParams() == null) {
                 throw new BadRequestException(
                         "Invalid key archival request.  " +
@@ -486,9 +489,15 @@ public class KeyRequestProcessor {
                     "Invalid key archival request.  No data to archive");
         }
 
-        if (data.getDataType().equals(KeyRequestResource.SYMMETRIC_KEY_TYPE) && (data.getKeyAlgorithm() == null) ||
-                (!SYMKEY_TYPES.containsKey(data.getKeyAlgorithm()))) {
-            throw new BadRequestException("Invalid key archival request.  Bad algorithm.");
+        String dataType = data.getDataType();
+        logger.info("KeyRequestProcessor: data type: " + dataType);
+
+        String keyAlgorithm = data.getKeyAlgorithm();
+        logger.info("KeyRequestProcessor: key algorithm: " + keyAlgorithm);
+
+        if (dataType.equals(KeyRequestResource.SYMMETRIC_KEY_TYPE) &&
+                (keyAlgorithm == null || !SYMKEY_TYPES.containsKey(keyAlgorithm))) {
+            throw new BadRequestException("Invalid symmetric key algorithm: " + keyAlgorithm);
         }
 
         KeyRequestResponse response;

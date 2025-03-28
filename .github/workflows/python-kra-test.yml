@@ -459,6 +459,146 @@ jobs:
 
           diff expected output
 
+      ####################################################################################################
+      # Archive secret
+
+      - name: Archive secret
+        run: |
+          # generate random secret
+          head -c 1K < /dev/urandom > secret.archived
+
+          docker exec pki python /usr/share/pki/tests/kra/bin/pki-kra-key-archive.py \
+              -U https://pki.example.com:8443 \
+              --ca-bundle ca_signing.crt \
+              --client-cert admin.crt \
+              --client-key admin.key \
+              --client-key-id testuser1 \
+              --transport kra_transport.crt \
+              --input $SHARED/secret.archived \
+              -v
+
+          sleep 1
+
+          # check HTTP methods, paths, protocols, status, and authenticated users
+          docker exec pki find /var/log/pki/pki-tomcat \
+              -name "localhost_access_log.*" \
+              -exec cat {} \; \
+              | tail -4 \
+              | sed -e 's/^.* .* \(.*\) \[.*\] "\(.*\)" \(.*\) .*$/\2 \3 \1/' \
+              | tee output
+
+          # Python API should use REST API v2 by default
+          cat > expected << EOF
+          GET /pki/v2/info HTTP/1.1 200 -
+          GET /kra/v2/account/login HTTP/1.1 200 kraadmin
+          POST /kra/v2/agent/keyrequests HTTP/1.1 201 kraadmin
+          GET /kra/v2/account/logout HTTP/1.1 204 kraadmin
+          EOF
+
+          diff expected output
+
+      - name: Retrieve secret
+        run: |
+          docker exec pki python /usr/share/pki/tests/kra/bin/pki-kra-key-retrieve.py \
+              -U https://pki.example.com:8443 \
+              --ca-bundle ca_signing.crt \
+              --client-cert admin.crt \
+              --client-key admin.key \
+              --client-key-id testuser1 \
+              --transport kra_transport.crt \
+              --output $SHARED/secret.retrieved \
+              -v
+
+          sleep 1
+
+          # check HTTP methods, paths, protocols, status, and authenticated users
+          docker exec pki find /var/log/pki/pki-tomcat \
+              -name "localhost_access_log.*" \
+              -exec cat {} \; \
+              | tail -5 \
+              | sed -e 's/^.* .* \(.*\) \[.*\] "\(.*\)" \(.*\) .*$/\2 \3 \1/' \
+              | tee output
+
+          # Python API should use REST API v2 by default
+          cat > expected << EOF
+          GET /pki/v2/info HTTP/1.1 200 -
+          GET /kra/v2/account/login HTTP/1.1 200 kraadmin
+          GET /kra/v2/agent/keys?clientKeyID=testuser1 HTTP/1.1 200 kraadmin
+          POST /kra/v2/agent/keys/retrieve HTTP/1.1 200 kraadmin
+          GET /kra/v2/account/logout HTTP/1.1 204 kraadmin
+          EOF
+
+          diff expected output
+
+          diff secret.archived secret.retrieved
+
+      - name: Archive secret with REST API v1
+        run: |
+          docker exec pki python /usr/share/pki/tests/kra/bin/pki-kra-key-archive.py \
+              -U https://pki.example.com:8443 \
+              --ca-bundle ca_signing.crt \
+              --client-cert admin.crt \
+              --client-key admin.key \
+              --api v1 \
+              --client-key-id testuser2 \
+              --transport kra_transport.crt \
+              --input $SHARED/secret.archived \
+              -v
+
+          sleep 1
+
+          # check HTTP methods, paths, protocols, status, and authenticated users
+          docker exec pki find /var/log/pki/pki-tomcat \
+              -name "localhost_access_log.*" \
+              -exec cat {} \; \
+              | tail -3 \
+              | sed -e 's/^.* .* \(.*\) \[.*\] "\(.*\)" \(.*\) .*$/\2 \3 \1/' \
+              | tee output
+
+          # Python API should use REST API v1
+          cat > expected << EOF
+          GET /kra/v1/account/login HTTP/1.1 200 kraadmin
+          POST /kra/v1/agent/keyrequests HTTP/1.1 201 kraadmin
+          GET /kra/v1/account/logout HTTP/1.1 204 kraadmin
+          EOF
+
+          diff expected output
+
+      - name: Retrieve secret with REST API v1
+        run: |
+          docker exec pki python /usr/share/pki/tests/kra/bin/pki-kra-key-retrieve.py \
+              -U https://pki.example.com:8443 \
+              --ca-bundle ca_signing.crt \
+              --client-cert admin.crt \
+              --client-key admin.key \
+              --api v1 \
+              --client-key-id testuser2 \
+              --transport kra_transport.crt \
+              --output $SHARED/secret.retrieved \
+              -v
+
+          sleep 1
+
+          # check HTTP methods, paths, protocols, status, and authenticated users
+          docker exec pki find /var/log/pki/pki-tomcat \
+              -name "localhost_access_log.*" \
+              -exec cat {} \; \
+              | tail -4 \
+              | sed -e 's/^.* .* \(.*\) \[.*\] "\(.*\)" \(.*\) .*$/\2 \3 \1/' \
+              | tee output
+
+          # Python API should use REST API v1
+          cat > expected << EOF
+          GET /kra/v1/account/login HTTP/1.1 200 kraadmin
+          GET /kra/v1/agent/keys?clientKeyID=testuser2 HTTP/1.1 200 kraadmin
+          POST /kra/v1/agent/keys/retrieve HTTP/1.1 200 kraadmin
+          GET /kra/v1/account/logout HTTP/1.1 204 kraadmin
+          EOF
+
+          diff expected output
+
+          diff secret.archived secret.retrieved
+
       - name: Check DS server systemd journal
         if: always()
         run: |
