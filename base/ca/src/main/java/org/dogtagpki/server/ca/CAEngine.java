@@ -2887,6 +2887,7 @@ public class CAEngine extends CMSEngine {
         }
         config.setCertNickname(nickname);
 
+        config.setCertRevocationVerify(caConfig.getBoolean("clientRevocationCheck", false));
         return new PKIClient(config);
     }
 

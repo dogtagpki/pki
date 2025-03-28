@@ -237,7 +237,11 @@ jobs:
           docker exec tps pki pkcs12-import \
               --pkcs12 ${SHARED}/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
-          docker exec tps pki -n caadmin --ignore-banner tps-user-show tpsadmin
+
+          #TODO: certificate not accepted with this setup
+          docker exec tps pki -n caadmin --ignore-banner \
+              --ignore-cert-status CERT_BAD_ACCESS_LOCATION \
+              tps-user-show tpsadmin
 
       - name: Gather artifacts from CA containers
         if: always()

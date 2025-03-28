@@ -1314,6 +1314,9 @@ class PKIDeployer:
         if ocsp_uri:
             subsystem.set_config('ca.defaultOcspUri', ocsp_uri)
 
+        if config.str2bool(self.mdict['pki_client_verify_cert']):
+            subsystem.set_config('ca.clientRevocationCheck', 'true')
+
     def configure_kra(self, subsystem):
 
         if config.str2bool(self.mdict['pki_use_oaep_rsa_keywrap']):
@@ -3752,6 +3755,7 @@ class PKIDeployer:
                 '-d', self.instance.nssdb_dir,
                 '-f', self.instance.password_conf,
                 '-U', url,
+                '--skip-revocation-check'
             ]
 
             if credentials:
@@ -4402,6 +4406,7 @@ class PKIDeployer:
                 '-f', self.instance.password_conf,
                 '-U', subsystem_url,
                 '--ignore-banner',
+                '--skip-revocation-check',
                 '%s-user-add' % subsystem_type,
                 uid,
                 '--security-domain', sd_url,
@@ -4436,6 +4441,7 @@ class PKIDeployer:
             '-U', ca_url,
             '--ignore-cert-status', 'UNTRUSTED_ISSUER,UNKNOWN_ISSUER',
             '--ignore-banner',
+            '--skip-revocation-check',
             'ca-cert-signing-export',
             '--pkcs7'
         ]
@@ -4459,6 +4465,7 @@ class PKIDeployer:
             '-f', self.instance.password_conf,
             '-U', ca_url,
             '--ignore-banner',
+            '--skip-revocation-check',
             'ca-cert-subsystem-export'
         ]
 
@@ -4504,6 +4511,7 @@ class PKIDeployer:
                 '-f', self.instance.password_conf,
                 '-U', ca_url,
                 '--ignore-banner',
+                '--skip-revocation-check',
                 'ca-kraconnector-add',
                 '--url', kra_url,
                 '--subsystem-cert', subsystem_cert_file,
@@ -4578,6 +4586,7 @@ class PKIDeployer:
             '-f', self.instance.password_conf,
             '-U', kra_url,
             '--ignore-banner',
+            '--skip-revocation-check',
             'kra-cert-transport-export'
         ]
 
@@ -4617,6 +4626,7 @@ class PKIDeployer:
                 '-f', self.instance.password_conf,
                 '-U', tks_url,
                 '--ignore-banner',
+                '--skip-revocation-check',
                 'tks-cert-transport-import',
                 '--security-domain', sd_url,
                 '--install-token', install_token,
@@ -4664,6 +4674,7 @@ class PKIDeployer:
             '-f', self.instance.password_conf,
             '-n', nickname,
             '--ignore-banner',
+            '--skip-revocation-check',
             'tks-tpsconnector-show',
             '--host', self.mdict['pki_hostname'],
             '--port', https_port
@@ -4698,6 +4709,7 @@ class PKIDeployer:
             '-f', self.instance.password_conf,
             '-n', nickname,
             '--ignore-banner',
+            '--skip-revocation-check',
             'tks-tpsconnector-add',
             '--host', self.mdict['pki_hostname'],
             '--port', https_port,
@@ -4730,6 +4742,7 @@ class PKIDeployer:
             '-f', self.instance.password_conf,
             '-n', nickname,
             '--ignore-banner',
+            '--skip-revocation-check',
             'tks-key-export', tps_connector_id
         ]
 
@@ -4759,6 +4772,7 @@ class PKIDeployer:
             '-f', self.instance.password_conf,
             '-n', nickname,
             '--ignore-banner',
+            '--skip-revocation-check',
             'tks-key-create', tps_connector_id,
             '--output-format', 'json'
         ]
@@ -4789,6 +4803,7 @@ class PKIDeployer:
             '-f', self.instance.password_conf,
             '-n', nickname,
             '--ignore-banner',
+            '--skip-revocation-check',
             'tks-key-replace', tps_connector_id,
             '--output-format', 'json'
         ]
