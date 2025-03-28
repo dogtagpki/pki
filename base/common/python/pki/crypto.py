@@ -119,7 +119,7 @@ class CryptographyCryptoProvider(CryptoProvider):
     Note that all inputs and outputs are unencoded.
     """
 
-    def __init__(self, transport_cert_nick, transport_cert,
+    def __init__(self, transport_cert_nick=None, transport_cert=None,
                  backend=default_backend()):
         """ Initialize python-cryptography
         """
@@ -134,7 +134,8 @@ class CryptographyCryptoProvider(CryptoProvider):
                 transport_pem,
                 backend)
 
-        self.certs[transport_cert_nick] = transport_cert
+        if transport_cert_nick:
+            self.certs[transport_cert_nick] = transport_cert
 
         # default to AES
         self.encrypt_alg = algorithms.AES
