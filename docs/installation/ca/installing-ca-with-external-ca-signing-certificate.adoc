@@ -3,6 +3,8 @@
 [id="installing-ca-with-external-ca-signing-certificate"]
 = Installing CA with External CA Signing Certificate 
 
+An external CA is a CA that is not in the same security domain as that of the PKI subsystem that is being installed.
+
 Follow this process to install a CA subsystem with an external CA signing certificate.
 
 Prior to installation, please ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
