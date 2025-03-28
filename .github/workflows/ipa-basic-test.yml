@@ -34,6 +34,7 @@ jobs:
               --hostname=ipa.example.com \
               --network=example \
               --network-alias=ipa.example.com \
+              --network-alias=ipa-ca.example.com \
               ipa
 
       - name: Install IPA server
@@ -188,7 +189,7 @@ jobs:
           docker exec ipa pki nss-cert-show ipa-ca-agent
 
           # CA admin should be able to access PKI users
-          docker exec ipa pki -n ipa-ca-agent --ignore-cert-status OCSP_SERVER_ERROR ca-user-find
+          docker exec ipa pki -n ipa-ca-agent ca-user-find
 
       - name: Check RA agent cert
         run: |
@@ -212,7 +213,7 @@ jobs:
           docker exec ipa pki nss-cert-show ipa-ra-agent
 
           # RA agent should be able to access cert requests
-          docker exec ipa pki -n ipa-ra-agent --ignore-cert-status OCSP_SERVER_ERROR ca-cert-request-find
+          docker exec ipa pki -n ipa-ra-agent ca-cert-request-find
 
       - name: Check HTTPD certs
         run: |

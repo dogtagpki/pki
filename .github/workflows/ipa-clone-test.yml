@@ -34,6 +34,7 @@ jobs:
               --hostname=primary.example.com \
               --network=example \
               --network-alias=primary.example.com \
+              --network-alias=ipa-ca.example.com \
               primary
 
       - name: Install IPA server in primary container
@@ -598,7 +599,6 @@ jobs:
               --pkcs12 ${SHARED}/ca-agent.p12 \
               --pkcs12-password Secret.123
           docker exec secondary pki -n ipa-ca-agent \
-              --ignore-cert-status OCSP_SERVER_ERROR \
               ca-user-show admin
 
       - name: Check subca replication from primary

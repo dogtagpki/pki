@@ -34,6 +34,7 @@ jobs:
               --hostname=ipa.example.com \
               --network=example \
               --network-alias=ipa.example.com \
+              --network-alias=ipa-ca.example.com \
               ipa
 
       - name: Configure short-lived SSL server cert profile

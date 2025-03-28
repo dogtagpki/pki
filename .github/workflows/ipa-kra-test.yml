@@ -34,6 +34,7 @@ jobs:
               --hostname=ipa.example.com \
               --network=example \
               --network-alias=ipa.example.com \
+              --network-alias=ipa-ca.example.com \
               ipa
 
       - name: Install IPA server
@@ -132,9 +133,7 @@ jobs:
       - name: Check RA agent cert
         run: |
           # RA agent should be able to access key requests
-          docker exec ipa pki -n ipa-ra-agent \
-              --ignore-cert-status OCSP_SERVER_ERROR \
-              kra-key-request-find
+          docker exec ipa pki -n ipa-ra-agent kra-key-request-find
 
       - name: Check webapps
         run: |
@@ -195,7 +194,6 @@ jobs:
           echo "active" > expected
           docker exec ipa pki \
               -n ipa-ra-agent \
-              --ignore-cert-status OCSP_SERVER_ERROR \
               kra-key-find \
               --clientKeyID ipa:/users/admin/testvault | tee output
           sed -n 's/^\s*Status:\s*\(.*\)$/\1/p' output > actual
@@ -226,7 +224,6 @@ jobs:
           echo "active" >> expected
           docker exec ipa pki \
               -n ipa-ra-agent \
-              --ignore-cert-status OCSP_SERVER_ERROR \
               kra-key-find \
               --clientKeyID ipa:/users/admin/testvault | tee output
           sed -n 's/^\s*Status:\s*\(.*\)$/\1/p' output > actual
