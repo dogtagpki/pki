@@ -30,13 +30,19 @@ It will create an NSS database in /var/lib/pki/pki-tomcat/alias and generate CSR
 
 == Issuing Certificates 
 
-Use the CSRs to obtain OCSP certificates:
+Use the CSRs to obtain OCSP certificates by submitting the CSRs to an external CA to issue the KRA system certificates. In the section that follows, it is assumed that the KRA system certificates are stored in the following files:
 
-* link:https://github.com/dogtagpki/pki/wiki/Generating-OCSP-Signing-Certificate[Generating OCSP Signing Certificate]
-* link:https://github.com/dogtagpki/pki/wiki/Generating-Subsystem-Certificate[Generating Subsystem Certificate]
-* link:https://github.com/dogtagpki/pki/wiki/Generating-SSL-Server-Certificate[Generating SSL Server Certificate]
-* link:https://github.com/dogtagpki/pki/wiki/Generating-Audit-Signing-Certificate[Generating Audit Signing Certificate]
-* link:https://github.com/dogtagpki/pki/wiki/Generating-Admin-Certificate[Generating Admin Certificate]
+* ocsp_signing.crt
+* subsystem.crt
+* sslserver.crt
+* ocsp_audit_signing.crt
+* ocsp_admin.crt
+
+// * link:https://github.com/dogtagpki/pki/wiki/Generating-OCSP-Signing-Certificate[Generating OCSP Signing Certificate]
+// * link:https://github.com/dogtagpki/pki/wiki/Generating-Subsystem-Certificate[Generating Subsystem Certificate]
+// * link:https://github.com/dogtagpki/pki/wiki/Generating-SSL-Server-Certificate[Generating SSL Server Certificate]
+// * link:https://github.com/dogtagpki/pki/wiki/Generating-Audit-Signing-Certificate[Generating Audit Signing Certificate]
+// * link:https://github.com/dogtagpki/pki/wiki/Generating-Admin-Certificate[Generating Admin Certificate]
 
 == Completing Installation 
 
