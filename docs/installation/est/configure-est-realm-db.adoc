@@ -5,70 +5,55 @@
 
 == Preparing DS DB 
 
-If you have chosen to use an LDAP instance for user management, before
-adding users, please ensure that you have configured the directory
-server and added base entries. Directory server setup instructions can be found 
-in the xref:../others/installation-prerequisites.adoc[Installation Prerequisites].
+If you have chosen to use an LDAP instance for user management, before adding users, ensure that you have configured the directory server and added base entries. Directory server setup instructions can be found in the xref:../others/installation-prerequisites.adoc[Installation Prerequisites].
 
-The user DB requires a group node for the people and one for the
-groups.  A simple dif file is available in
-`/usr/share/pki/est/conf/realm/ds/create.ldif`.  The base DN in this
-same is `dc=pki,dc=example,dc=com` but it can be modified and the new
-value specified during the following _EST_ installation. The file can
-be imported with the following command:
+The user DB requires a group node for the people and one for the groups. A simple `ldif` file is available in `/usr/share/pki/est/conf/realm/ds/create.ldif`. The base DN in this is `dc=pki,dc=example,dc=com` but it can be modified and the new value specified during the following _EST_ installation. The file can be imported with the following command:
 
-----
+[literal,subs="+quotes,verbatim"]
+....
 ldapadd -x -H ldap://<ds_server_hostname>:<ds_server_port> \
     -D "cn=Directory Manager"  -w Secret.123 \
     -f /usr/share/pki/est/conf/realm/ds/create.ldif
-----
+....
 
-The command creates also the group _EST Users_ and it is used as
-default group for user to access EST. Using a different group will
-require to modify the authorization script
+The command creates also the group _EST Users_ and it is used as default group for users to access EST. Using a different group requires you to modify the authorization script 
 `/usr/share/pki/est/bin/estauthz`.
 
 
 == Preparaing PostgreSQL DB 
 
+If you have chosen to use *PostgreSQL* for user management, you first need to prepare a database, for example `est`, to access the database. Installation instructions can be found link:https://www.postgresql.org/download/linux[here].
 
-If you have chosen to use *PostgreSQL* for user management, you first
-need to prepare a database, for example `est`, to access the
-database. Installation instructions can be found
-link:https://www.postgresql.org/download/linux[here].
+After the installation, verify the database connection with the following command:
 
-After the installation, verify the database connection with the
-following command:
-----
+[literal,subs="+quotes,verbatim"]
+....
 $ psql -U est -d est
-----
+....
     
-To use the _PostreSQL_ DB the user tables should be created with the
-sql file provided in
-`/usr/share/pki/est/conf/realm/postgresql/create.sql` and then filled
+To use the _PostreSQL_ DB, the user tables should be created with the sql file provided in `/usr/share/pki/est/conf/realm/postgresql/create.sql` and then filled
 with the user information. The tables can be created with the command:
-----
-$ psql -U est -t -A -f /usr/share/pki/est/conf/realm/postgresql/create.sql
-----
 
-The command creates also the group _EST Users_ and it is used as
-default group for user to access EST. Using a different group will
-require to modify the authorization script
+[literal,subs="+quotes,verbatim"]
+....
+$ psql -U est -t -A -f /usr/share/pki/est/conf/realm/postgresql/create.sql
+....
+
+The command creates also the group _EST Users_ and it is used as default group for user to access EST. Using a different group requires you to modify the authorization script
 `/usr/share/pki/est/bin/estauthz`.
 
+It is possible to use different schemas but in this case a custom `statements.conf` file (provided in the same folder) has to be provided in order to retrieve the user information from the DB.
 
-It is possible to use different schemas but in this case a custom
-`statements.conf` file (provided in the same folder) has to be
-provided in order to retrieve the user information from the DB.
+Additionally, a Java driver for PostgreSQL needs to be installed in the EST server and linked into library folder of pki:
 
-Additionally, java driver for PostgreSQL need to be installed in the EST server and linked into library folder of pki:
 
-----
+[literal,subs="+quotes,verbatim"]
+....
 # dnf install -y postgresql-jdbc
 # ln -s /usr/share/java/postgresql-jdbc/postgresql.jar /usr/share/pki/server/common/lib
 # ln -s /usr/share/java/ongres-scram/client.jar /usr/share/pki/server/common/lib
 # ln -s /usr/share/java/ongres-scram/common.jar /usr/share/pki/server/common/lib
 # ln -s /usr/share/java/ongres-stringprep/saslprep.jar /usr/share/pki/server/common/lib/
 # ln -s /usr/share/java/ongres-stringprep/stringprep.jar /usr/share/pki/server/common/lib/
-----
+....
 
