@@ -1,39 +1,38 @@
 :_mod-docs-content-type: PROCEDURE
 
 [id="installing-ca-with-existing-keys-in-internal-token"]
-= Installing CA with Existing Keys in Internal Token 
+= Installing CA with existing keys in internal token 
 
+Follow this process to install a CA subsystem with the system keys, CSRs, and certificates from an existing CA where the keys are stored on an internal token.
 
-Follow this process to install a CA subsystem with the system keys, CSRs, and certificates from an existing CA
-where the keys are stored in internal token.
+To avoid conflicts with the existing CA subsystem, the new CA subsystem uses new SSL server and subsystem certificates, so they are not included in the installation process.
 
-To avoid conflicts with the existing CA subsystem, the new CA subsystem will use new SSL server and subsystem certificates,
-so they will not be included in the installation process.
+Prior to installation, ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
 
-Prior to installation, please ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
+== Starting a CA subsystem installation 
 
-== Starting CA Subsystem Installation 
 Prepare a file, for example `ca-existing-certs-step1.cfg`, that contains the first deployment configuration.
 
 A sample deployment configuration is available at xref:../../../base/server/examples/installation/ca-existing-certs-step1.cfg[/usr/share/pki/server/examples/installation/ca-existing-certs-step1.cfg].
 
-Then execute the following command:
-
+Execute the following command:
 [literal,subs="+quotes,verbatim"]
 ....
 $ pkispawn -f ca-existing-certs-step1.cfg -s CA
 ....
 
-It will install CA subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
+It installs a CA subsystem in a Tomcat instance (default is pki-tomcat) and creates the following NSS databases:
 
 * server NSS database: /var/lib/pki/pki-tomcat/conf/alias
+
 * admin NSS database: ~/.dogtag/pki-tomcat/ca/alias
 
-Since there are no CSR path parameters specified, it will not generate CA system and admin keys.
+Since there are no CSR path parameters specified, it does not generate CA system and admin keys.
 
-== Exporting Existing System Keys, CSRs, Certificates 
-Export the system keys and certificates from the existing CA into a PKCS #12 file with the following command:
+== Exporting existing system keys, CSRs, certificates 
 
+. Export the system keys and certificates from the existing CA into a PKCS #12 file with the following command:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ pki -d /var/lib/pki/pki-tomcat/conf/alias -c Secret.123 pkcs12-export \
@@ -43,8 +42,8 @@ $ pki pkcs12-cert-del --pkcs12-file ca-certs.p12 --pkcs12-password Secret.123 ss
 $ pki pkcs12-cert-del --pkcs12-file ca-certs.p12 --pkcs12-password Secret.123 subsystem
 ....
 
-Export the CSRs from the existing CA with the following commands:
-
+. Export the CSRs from the existing CA with the following commands:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ echo "-----BEGIN CERTIFICATE REQUEST-----" > ca_signing.csr
@@ -60,25 +59,27 @@ $ sed -n "/^ca.audit_signing.certreq=/ s/^[^=]*=// p" < /var/lib/pki/pki-tomcat/
 $ echo "-----END CERTIFICATE REQUEST-----" >> ca_audit_signing.csr
 ....
 
-== Finishing CA Subsystem Installation 
-Prepare another file, for example `ca-existing-certs-step2.cfg`, that contains the second deployment configuration.
-The file can be created from the first file (i.e. ca-existing-certs-step1.cfg) with the following changes:
+== Finishing a CA subsystem installation 
 
+. Prepare another file, for example `ca-existing-certs-step2.cfg`, that contains the second deployment configuration.
++
+The file can be created from the first file, that is `ca-existing-certs-step1.cfg`, with the following changes:
++
 [literal,subs="+quotes,verbatim"]
 ....
 pki_external_step_two=True
 ....
 
-Specify the existing keys and certificates in the PKCS #12 file with the following parameters:
-
+. Specify the existing keys and certificates in the PKCS #12 file with the following parameters:
++
 [literal,subs="+quotes,verbatim"]
 ....
 pki_pkcs12_path=ca-certs.p12
 pki_pkcs12_password=Secret.123
 ....
 
-Specify the existing CSRs with the following parameters:
-
+. Specify the existing CSRs with the following parameters:
++
 [literal,subs="+quotes,verbatim"]
 ....
 pki_ca_signing_csr_path=ca_signing.csr
@@ -86,25 +87,25 @@ pki_ocsp_signing_csr_path=ca_ocsp_signing.csr
 pki_audit_signing_csr_path=ca_audit_signing.csr
 ....
 
-Specify the serial number starting range such that new certificates will not conflict with the existing certificates:
-
+. Specify the serial number starting range such that new certificates will not conflict with the existing certificates:
++
 [literal,subs="+quotes,verbatim"]
 ....
 pki_serial_number_range_start=4
 ....
-
++
 A sample deployment configuration is available at xref:../../../base/server/examples/installation/ca-existing-certs-step2.cfg[/usr/share/pki/server/examples/installation/ca-existing-certs-step2.cfg].
 
-Finally, execute the following command:
-
+. Execute the following command:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ pkispawn -f ca-existing-certs-step2.cfg -s CA
 ....
 
-== Verifying System Certificates 
-Verify that the server NSS database contains the following certificates:
+== Verifying system certificates 
 
+Verify that the server NSS database contains the following certificates:
 [literal,subs="+quotes,verbatim"]
 ....
 $ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
@@ -119,17 +120,17 @@ ca_audit_signing                                             u,u,Pu
 sslserver                                                    u,u,u
 ....
 
-== Verifying Admin Certificate 
+== Verifying admin certificate 
 
-Import the CA signing certificate:
-
+. Import the CA signing certificate:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ pki nss-cert-import --cert ca_signing.crt --trust CT,C,C ca_signing
 ....
 
-Import admin certificate and key into the client NSS database (by default ~/.dogtag/nssdb) with the following command:
-
+. Import admin certificate and key into the client NSS database (by default ~/.dogtag/nssdb) with the following command:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ pki -c Secret.123 pkcs12-import \
@@ -137,8 +138,8 @@ $ pki -c Secret.123 pkcs12-import \
     --pkcs12-password Secret.123
 ....
 
-Verify that the admin certificate can be used to access the CA subsystem by executing the following command:
-
+. Verify that the admin certificate can be used to access the CA subsystem by executing the following command:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ pki -c Secret.123 -n caadmin ca-user-show caadmin
