@@ -3,16 +3,15 @@
 [id="installing-est-pkispawn"]
 = EST installation using `pkispawn` 
 
-After the prerequisite in xref:../est/installing-est.adoc[Installing
-EST], it is possible to install *EST*.
+Once the prerequisites in xref:../est/installing-est.adoc[Installing EST] are configured, it is possible to install *EST*.
 
 
 == Installation 
 
-An example `pkispawn` installation configuration is provided in
-`/usr/share/pki/server/examples/installation/est.cfg` with the following content:
+An example `pkispawn` installation configuration is provided in `/usr/share/pki/server/examples/installation/est.cfg` with the following content:
 
-----
+[literal,subs="+quotes,verbatim"]
+....
 [DEFAULT]
 pki_server_database_password=Secret.123
 pki_admin_setup=False
@@ -24,27 +23,26 @@ est_realm_bind_password=Secret.123
 est_ca_user_name=est-ra-1
 est_ca_user_password=Secret.est
 pki_sslserver_nickname=sslserver
-----
+....
 
-The following commands will install an EST subsystem on a PKI server
-instance that already has a CA subsystem in it. By default the PKI
-server instance is called `pki-tomcat` and it will use HTTP port `8080`
-and HTTPS port `8443`. To use a different instance name or port numbers
-please refer to the command's manual page.
 
-To install EST in the same instance of the CA and with the DS realm run the command:
+The following commands install an EST subsystem on a PKI server instance that already has a CA subsystem in it. By default the PKI server instance is called `pki-tomcat` and it  uses HTTP port `8080` and HTTPS port `8443`. To use a different instance name or port numbers refer to the command's manual page.
 
-----
+To install EST in the same instance of the CA and with the DS realm, run the command:
+
+[literal,subs="+quotes,verbatim"]
+....
 # pkispawn \
     -f /usr/share/pki/server/examples/installation/est.cfg \
     -s EST \
     -D est_realm_url=ldap://estds.example.com:389 \
     -v
-----
+....
 
 Note that the `est_realm_url` points to the user DB. The other configurations that could be modified according to the deployment are:
 
-----
+[literal,subs="+quotes,verbatim"]
+....
 est_ca_profile=estServiceCert
 est_ca_user_name=
 est_ca_user_password=
@@ -64,22 +62,18 @@ est_realm_users_dn=ou=people,dc=est,dc=pki,dc=example,dc=com
 est_realm_groups_dn=ou=groups,dc=est,dc=pki,dc=example,dc=com
 est_realm_statements=/usr/share/pki/est/conf/realm/postgresql/statements.conf
 est_authorizer_exec_path=/usr/share/pki/est/bin/estauthz
-----
+....
 
-The `est_ca_*` provides information related to the user and profile
-configured in the CA for the EST subsystem.
+The `est_ca_*` provides information related to the user and profile configured in the CA for the EST subsystem.
 
-The `est_authorizer_exec_path` is the path to the executable
-responsible for verifying the authorization. The default script
-`estauthz` is a simple authorization example that checks only that the
-user has the role _estclient_.
+The `est_authorizer_exec_path` is the path to the executable responsible for verifying the authorization. The default script `estauthz` is a simple authorization example that checks only that the user has the role _estclient_.
 
-The `est_realm_*` options allow one to customize the realm. Possible types
-are: ds, postgresql and in-memory.
+The `est_realm_*` options allow one to customize the realm. Possible types are: ds, postgresql and in-memory.
 
 As an example, to install EST with PostgreSQL the command is:
 
-----
+[literal,subs="+quotes,verbatim"]
+....
 # pkispawn \
     -f /usr/share/pki/server/examples/installation/est.cfg \
     -s EST \
@@ -88,41 +82,27 @@ As an example, to install EST with PostgreSQL the command is:
     -D est_realm_user=est \
     -D est_realm_password=mysecretpassword \
     -v
-----
+....
 
-The `est_realm_custom` is a path to a custom realm configuration for
-tomcat and if provided it will overwrite all other realm related
-configurations.
+The `est_realm_custom` is a path to a custom realm configuration for Tomcat and if provided it will overwrite all other realm related configurations.
 
 [id="installation-on-separate-instance-with-certificates"]
-=== Installation on Separate Instance with Certificates 
+=== Installation on separate instance with certificates 
 
-EST can also be installed on a tomcat instance that’s separate from
-the CA.
+EST can also be installed on a Tomcat instance that is separate from the CA.
 
-In addition to the configuration above, installing EST in a separate instance
-requires some extra steps to configure the certificates.
+In addition to the configuration above, installing EST in a separate instance requires some extra steps to configure the certificates.
 
-Note: the commands below assumes that the CA is running on the same host with
-the default port and the nssdb is located in `~/.dogtag/nssdb`. To
-point to a CA on a different host or with a different port use the options `-h
-<hostname>`, `-p <port_number>` or `-U <CA_uri`. To use a different
-nssdb use the option `-d <nssdb_path>`.
+Note: The commands below assume that the CA is running on the same host with the default port and the nssdb is located in `~/.dogtag/nssdb`. To point to a CA on a different host or with a different port use the options `-h <hostname>`, `-p <port_number>` or `-U <CA_uri`. To use a different nssdb use the option `-d <nssdb_path>`.
 
-The EST server cert (and a subsystem certificate to connect with the
-CA) has to be pre-issued and provided to `pkispawn` with its full
-chain in a *PKCS#12* bundle supplied via the `pki_server_pkcs12_*`
-parameters on the `pkispawn` command line as exemplified below.
+The EST server cert (and a subsystem certificate to connect with the CA) has to be pre-issued and provided to `pkispawn` with its full chain in a *PKCS#12* bundle supplied via the `pki_server_pkcs12_*` parameters on the `pkispawn` command line as shown below.
 
-It is important that the certificate aliases in the PKCS#12 matches with
-the nickname used by EST. For the SSL certificate the nickname configured
-in `est.cfg` is `sslserver` but can be modified.
+It is important that the certificate aliases in the PKCS#12 matches with the nickname used by EST. For the SSL certificate the nickname configured in `est.cfg` is `sslserver` but can be modified.
 
-To create the PKCS12 with the certificate it is possible to
-request a server certificate for EST from the CA (and later the
-RA user certificate) and then export them as exemplified below:
+To create the PKCS12 with the certificate it is possible to request a server certificate for EST from the CA (and later the RA user certificate) and then export them as shown below:
 
-----
+[literal,subs="+quotes,verbatim"]
+....
 # pki nss-cert-request --csr estSSLServer.csr \
     --ext /usr/share/pki/server/certs/sslserver.conf --subject 'CN=est.example.com'
 
@@ -135,13 +115,12 @@ RA user certificate) and then export them as exemplified below:
 # pki nss-cert-import --cert estSSLServer.crt sslserver
 
 # pki pkcs12-cert-import sslserver --pkcs12-file $SHARED/est_server.p12 --pkcs12-password Secret.123
-----
+....
 
-Similarly, to generate a subsystem certificate for EST, associate to
-the EST RA user (est-ra-1) previously configured in the CA, and add in the same
-PKCS12 of the SSL server certificate:
+Similarly, to generate a subsystem certificate for EST, associate to the EST RA user (est-ra-1) previously configured in the CA, and add in the same PKCS12 of the SSL server certificate:
 
-----
+[literal,subs="+quotes,verbatim"]
+....
 # pki nss-cert-request --csr est-ra-1.csr \
     --ext /usr/share/pki/server/certs/admin.conf \
     --subject 'CN=EST Subsystem Certificate,OU=pki-tomcat,O=EXAMPLE'
@@ -156,11 +135,12 @@ PKCS12 of the SSL server certificate:
 # pki -n caadmin ca-user-cert-add est-ra-1 --input est-ra-1.crt
 
 # pki pkcs12-cert-import "est-ra-1" --pkcs12-file $SHARED/est_server.p12 --pkcs12-password Secret.123 --append
-----
+....
 
 Using the generated PKCS#12 bundle, the command to deploy EST is:
 
-----
+[literal,subs="+quotes,verbatim"]
+....
 # pkispawn \
     -f /usr/share/pki/server/examples/installation/est.cfg \
     -s EST \
@@ -171,26 +151,22 @@ Using the generated PKCS#12 bundle, the command to deploy EST is:
     -D pki_server_pkcs12_path=est_server.p12 \
     -D pki_server_pkcs12_password=Secret.123 \
     -v
-----
+....
 
 
 === Installation on separate instance without certificates 
 
-If the PKCS#12 bundle certificates are not provided to `pkispawn`,
-during the installation, the EST server cert is issued
-automatically using the profile configured for EST. The connection
-with the CA uses the credentials (_username/password_) provided in the
-configuration file. In such a case the CA signing certificate is
-needed. Retrieving the certificate can be done in the CA server with
-the command:
+If the PKCS#12 bundle certificates are not provided to `pkispawn`, during the installation, the EST server cert is issued automatically using the profile configured for EST. The connection with the CA uses the credentials (_username/password_) provided in the configuration file. In such a case the CA signing certificate is needed. Retrieving the certificate can be done in the CA server with the command:
 
-----
+[literal,subs="+quotes,verbatim"]
+....
 # pki-server cert-export ca_signing --cert-file ca_signing.crt
-----
+....
 
 It is possible to install EST with the following command:
 
-----
+[literal,subs="+quotes,verbatim"]
+....
 # pkispawn \
     -f /usr/share/pki/server/examples/installation/est.cfg \
     -s EST \
@@ -199,24 +175,19 @@ It is possible to install EST with the following command:
     -D pki_cert_chain_path=ca_signing.crt \
     -D pki_cert_chain_nickname=caSigning \
     -v
-----
+....
 
-After the installation it is possible to update the EST server
-certificates with a new certificate using a different profile if the
-EST released certificates are not meant for the server. Additionally,
-a certificate for TLS authentication could be added in the EST nssdb
-and configured in the file
-`/var/lib/pki/pki-tomcat/conf/est/backend.conf`.
+After the installation it is possible to update the EST server certificates with a new certificate using a different profile if the EST released certificates are not meant for the server. Additionally, a certificate for TLS authentication could be added in the EST nssdb and configured in the file `/var/lib/pki/pki-tomcat/conf/est/backend.conf`.
 
 
 == Removing EST 
 
-To remove the EST subsystem it is possible to use the `pkidestroy`
-command as follow:
+To remove the EST subsystem, it is possible to use the `pkidestroy` command as follows:
 
-----
+[literal,subs="+quotes,verbatim"]
+....
 # pkidestroy -s EST -v
-----
+....
 
-Note: the configuration and log folders are not removed. To remove
-everything add the the options: `--remove-conf` `--remove-logs`.
+Note: the configuration and log folders are not removed. To remove everything add the the options: `--remove-conf` `--remove-logs`.
+
