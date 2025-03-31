@@ -192,7 +192,7 @@ public class CAEngine extends CMSEngine {
 
     protected Hashtable<String, ListenerPlugin> listenerPlugins = new Hashtable<>();
 
-    protected boolean ocspResponderByName = true;
+    protected boolean ocspResponderByName;
     protected CRLPublisher crlPublisher;
     protected CAPublisherProcessor publisherProcessor;
 
@@ -1121,7 +1121,7 @@ public class CAEngine extends CMSEngine {
 
             logger.info("CAEngine: Configuring OCSP responder");
 
-            ocspResponderByName = caConfig.getBoolean("byName", true);
+            ocspResponderByName = caConfig.getBoolean("byName", false);
             logger.info("CAEngine: - by name: " + ocspResponderByName);
 
             initCRLPublisher();
