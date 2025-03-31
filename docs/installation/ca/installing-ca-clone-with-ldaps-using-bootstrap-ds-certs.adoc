@@ -1,7 +1,7 @@
 :_mod-docs-content-type: PROCEDURE
 
 [id="installing-ca-clone-with-ldaps-using-bootstrap-ds-certs"]
-= Installing CA clone with LDAP using bootstrap DS certificates
+= Installing CA clone with LDAPS using bootstrap DS certificates
 
 Follow this process to install a CA subsystem as clone of an existing CA subsystem that runs with a bootstrap SSL server certificate.
 

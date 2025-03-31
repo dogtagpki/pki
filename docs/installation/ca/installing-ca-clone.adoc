@@ -1,7 +1,7 @@
 :_mod-docs-content-type: PROCEDURE
 
 [id="installing-ca-clone"]
-= Installing a CA clone 
+= Installing CA clone 
 
 Follow this process to install a CA subsystem as a clone of an existing CA subsystem.
 
