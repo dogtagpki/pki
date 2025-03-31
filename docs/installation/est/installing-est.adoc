@@ -9,7 +9,6 @@ The *EST subsystem* requires the package `dogtag-pki-est` installed on the serve
 [literal,subs="+quotes,verbatim"]
 ....
 # dnf install dogtag-pki-est
-----
 ....
 
 == Prerequisites 
