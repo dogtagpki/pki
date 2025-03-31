@@ -182,6 +182,20 @@ jobs:
         run: |
           docker exec subordinate pki -n caadmin --ignore-banner ca-cert-request-find
 
+      - name: Check integrate root OCSP validation from SubCA
+        run: |
+          cat > expected << EOF
+          Chain is good!
+          Root Certificate Subject:: "CN=CA Signing Certificate,OU=pki-tomcat,O=EXAMPLE"
+          Certificate 1 Subject: "CN=Subordinate CA Signing Certificate,O=EXAMPLE"
+          EOF
+
+          docker exec subordinate /usr/lib64/nss/unsupported-tools/vfychain -v -d /etc/pki/pki-tomcat/alias -w Secret.123 -u 11 -a -p -p -g leaf -h requireFreshInfo -m ocsp -s failIfNoInfo ca_signing.crt 2>&1 | tee actual
+          diff expected actual
+
+          docker exec subordinate /usr/lib64/nss/unsupported-tools/vfychain -v -d /root/.dogtag/nssdb/ -u 11 -a -p -p -g leaf -h requireFreshInfo -m ocsp -s failIfNoInfo ca_signing.crt 2>&1 | tee actual
+          diff expected actual
+
       - name: Gather artifacts from root containers
         if: always()
         run: |
