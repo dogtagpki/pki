@@ -3,15 +3,14 @@
 [id="installing-ocsp-with-hsm"]
 = Installing OCSP with HSM 
 
-Follow this process to install an OCSP subsystem
-where the system certificates and their keys are stored in HSM.
+Follow this process to install an OCSP subsystem where the system certificates and their keys are stored on a HSM.
 
-Prior to installation, please ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
+Prior to installation, ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
 
-== OCSP Subsystem Installation 
+== Installing OCSP subsystem
 
-Prepare a file, for example `ocsp.cfg`, that contains the deployment configuration:
-
+. Prepare a file, for example `ocsp.cfg`, that contains the deployment configuration:
++
 [literal,subs="+quotes,verbatim"]
 ----
 [DEFAULT]
@@ -55,22 +54,23 @@ pki_sslserver_nickname=sslserver/pki.example.com
 pki_subsystem_nickname=subsystem
 ----
 
-Then execute the following command:
-
+. Execute the following command:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ pkispawn -f ocsp.cfg -s OCSP
 ....
 
-It will install OCSP subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
+It installs a OCSP subsystem in a Tomcat instance (default is pki-tomcat) and creates the following NSS databases:
 
 * server NSS database: /var/lib/pki/pki-tomcat/conf/alias
+
 * admin NSS database: ~/.dogtag/pki-tomcat/ocsp/alias
 
-== Verifying System Certificates 
+== Verifying system certificates 
 
-Verify that the internal token contains the following certificates:
-
+. Verify that the internal token contains the following certificates:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
@@ -82,8 +82,8 @@ ca_signing                                                   CT,C,C
 ocsp_audit_signing                                           ,,P
 ....
 
-Verify that the HSM contains the following certificates:
-
+. Verify that the HSM contains the following certificates:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -h HSM -f HSM.pwd
@@ -97,18 +97,17 @@ HSM:ocsp_audit_signing                                       u,u,Pu
 HSM:sslserver/pki.example.com                                u,u,u
 ....
 
-== Verifying Admin Certificate 
+== Verifying admin certificate 
 
-
-Import the CA signing certificate:
-
+. Import the CA signing certificate:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ pki nss-cert-import --cert ca_signing.crt --trust CT,C,C ca_signing
 ....
 
-Import admin certificate and key into the client NSS database (by default ~/.dogtag/nssdb) with the following command:
-
+. Import admin certificate and key into the client NSS database (by default ~/.dogtag/nssdb) with the following command:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ pki -c Secret.123 pkcs12-import \
@@ -116,8 +115,8 @@ $ pki -c Secret.123 pkcs12-import \
     --pkcs12-password Secret.123
 ....
 
-Verify that the admin certificate can be used to access the OCSP subsystem by executing the following command:
-
+. Verify that the admin certificate can be used to access the OCSP subsystem by executing the following command:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ pki -c Secret.123 -n caadmin ocsp-user-show ocspadmin
@@ -131,17 +130,20 @@ User "ocspadmin"
   State: 1
 ....
 
-== Verifying OCSP Client 
+== Verifying OCSP client 
 
-Publish the CRL in CA to the directory server as follows:
+. Publish the CRL in CA to the directory server as follows:
 
-* Go to CA Agent UI (https://pki.example.com:8443/ca/agent/ca/).
-* Click **Update Directory Server**.
-* Select **Update the certificate revocation list to the directory**.
-* Click **Update Directory**.
+.. Go to CA Agent UI (https://pki.example.com:8443/ca/agent/ca/).
 
-Verify that the OCSPClient can be used to validate a certificate:
+.. Click **Update Directory Server**.
 
+.. Select **Update the certificate revocation list to the directory**.
+
+.. Click **Update Directory**.
+
+. Verify that the OCSPClient can be used to validate a certificate:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ OCSPClient \

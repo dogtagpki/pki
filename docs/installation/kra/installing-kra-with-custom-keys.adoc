@@ -1,17 +1,17 @@
 :_mod-docs-content-type: PROCEDURE
 
 [id="installing-kra-with-custom-keys"]
-= Installing KRA with Custom Keys
+= Installing KRA with custom keys
 
 
 Follow this process to install a KRA subsystem with custom KRA system and admin keys, CSRs, and certificates.
 
-Prior to installation, please ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
+Prior to installation, ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
 
-== Starting KRA Subsystem Installation
+== Starting KRA subsystem installation
 
-Prepare a file, for example `kra-step1.cfg`, that contains the deployment configuration step 1:
-
+. Prepare a file, for example `kra-step1.cfg`, that contains the deployment configuration step 1:
++
 [literal,subs="+quotes,verbatim"]
 ----
 [DEFAULT]
@@ -52,21 +52,22 @@ pki_external=True
 pki_external_step_two=False
 ----
 
-Then execute the following command:
-
+. Execute the following command:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ pkispawn -f kra-step1.cfg -s KRA
 ....
 
-It will install KRA subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
+It installs a KRA subsystem in a Tomcat instance (default is pki-tomcat) and creates the following NSS databases:
 
 * server NSS database: /var/lib/pki/pki-tomcat/conf/alias
+
 * admin NSS database: ~/dogtag/pki-tomcat/kra/alias
 
-Since there are no CSR path parameters specified, it will not generate KRA system and admin keys.
+Since there are no CSR path parameters specified, it does not generate KRA system and admin keys.
 
-== Generating KRA Keys, CSRs, and Certificates
+== Generating KRA keys, CSRs, and certificates
 
 Generate custom KRA system keys in the server NSS database and admin key in the admin NSS database, then generate the CSRs and store them in files, for example:
 
@@ -99,19 +100,19 @@ See also:
 * link:https://github.com/dogtagpki/pki/wiki/Generating-Audit-Signing-Certificate[Generating Audit Signing Certificate]
 * link:https://github.com/dogtagpki/pki/wiki/Generating-Admin-Certificate[Generating Admin Certificate]
 
-== Finishing KRA Subsystem Installation
+== Finishing KRA subsystem installation
 
-Prepare another file, for example `kra-step2.cfg`, that contains the deployment configuration step 2. The file can be copied from step 1 (i.e. kra-step1.cfg) with additional changes below.
+Prepare another file, for example `kra-step2.cfg`, that contains the deployment configuration step 2. The file can be copied from step 1, that is `kra-step1.cfg`, with additional changes below.
 
-Specify step 2 with the following parameter:
-
+. Specify step 2 with the following parameter:
++
 [literal,subs="+quotes,verbatim"]
 ....
 pki_external_step_two=True
 ....
 
-Specify the custom CSRs with the following parameters:
-
+. Specify the custom CSRs with the following parameters:
++
 [literal,subs="+quotes,verbatim"]
 ....
 pki_storage_csr_path=kra_storage.csr
@@ -122,8 +123,8 @@ pki_audit_signing_csr_path=kra_audit_signing.csr
 pki_admin_csr_path=kra_admin.csr
 ....
 
-Specify the custom certificates with the following parameters:
-
+. Specify the custom certificates with the following parameters:
++
 [literal,subs="+quotes,verbatim"]
 ....
 pki_storage_cert_path=kra_storage.crt
@@ -134,22 +135,22 @@ pki_audit_signing_cert_path=kra_audit_signing.crt
 pki_admin_cert_path=kra_admin.crt
 ....
 
-Specify the external CA certificate chain with the following parameters:
-
+. Specify the external CA certificate chain with the following parameters:
++
 [literal,subs="+quotes,verbatim"]
 ....
 pki_cert_chain_nickname=ca_signing
 pki_cert_chain_path=ca_signing.crt
 ....
 
-Finally, execute the following command:
-
+. Execute the following command:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ pkispawn -f kra-step2.cfg -s KRA
 ....
 
-== Verifying System Certificates
+== Verifying system certificates
 
 Verify that the server NSS database contains the following certificates:
 
@@ -168,18 +169,17 @@ kra_audit_signing                                            u,u,Pu
 sslserver                                                    u,u,u
 ....
 
-== Verifying Admin Certificate
+== Verifying admin certificate
 
-
-Import the external CA certificate chain:
-
+. Import the external CA certificate chain:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ pki nss-cert-import --cert ca_signing.crt --trust CT,C,C ca_signing
 ....
 
-Import the admin key and certificate:
-
+. Import the admin key and certificate:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ pki -c Secret.123 pkcs12-import \
@@ -187,8 +187,8 @@ $ pki -c Secret.123 pkcs12-import \
     --pkcs12-password Secret.123
 ....
 
-Verify that the admin certificate can be used to access KRA by executing the following command:
-
+. Verify that the admin certificate can be used to access KRA by executing the following command:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ pki -c Secret.123 -n kraadmin kra-user-show kraadmin

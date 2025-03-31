@@ -1,13 +1,14 @@
 :_mod-docs-content-type: PROCEDURE
 
 [id="creating-ds-instance"]
-= Directory Server Instance Creation 
+= Directory Server instance creation 
 
 // This content is copied and modifed from https://github.com/dogtagpki/pki/wiki/Installing-DS-Server
 
 *Note: Prior to installing DS instances, make sure the following procedures are done:*
 
 * xref:installing-ds-packages.adoc[installing DS packages] - done on the DS host system
+
 * xref:fqdn-configuration.adoc[Setting the FQDN of the host system] - done on the host systems of DS and PKI
 
 Follow this process to prepare a local DS instance for PKI server.
@@ -18,15 +19,17 @@ _If you wish to disable bootstrap certificate generation and SSL connection, set
 
 == Creating a DS Instance 
 
-=== Generate a DS configuration file, for example `ds.inf`: 
+=== Generating a DS configuration file, for example `ds.inf`: 
 
-----
+[literal,subs="+quotes,verbatim"]
+....
 $ dscreate create-template ds.inf
-----
+....
 
 Customize the DS configuration file as follows:
 
-----
+[literal,subs="+quotes,verbatim"]
+....
 $ sed -i \
     -e "s/;instance_name = .*/instance_name = localhost/g" \
     -e "s/;root_password = .*/root_password = Secret.123/g" \
@@ -34,14 +37,17 @@ $ sed -i \
     -e "s/;create_suffix_entry = .*/create_suffix_entry = True/g" \
     -e "s/;self_sign_cert = .*/self_sign_cert = True/g" \
     ds.inf
-----
+....
 
 where
 
 * *instance_name* specifies the name of the DS instance. In this example it's set to `localhost`.
-* *root_password* specifies the password for DS admin (i.e. `cn=Directory Manager`). In this example it's set to `Secret.123`.
-* *suffix* specifies the namespace for the DS instance. In this example it's set to `dc=example,dc=com`.
-* *self_sign_cert* specifies whether to create self-signed certificates for SSL connection. In this example it's set to `True`. The SSL connection is enabled.
+
+* *root_password* specifies the password for DS admin, that is `cn=Directory Manager`. In this example it is set to `Secret.123`.
+
+* *suffix* specifies the namespace for the DS instance. In this example it is set to `dc=example,dc=com`.
+
+* *self_sign_cert* specifies whether to create self-signed certificates for SSL connection. In this example it is set to `True`. The SSL connection is enabled.
 
 For more information see the parameter descriptions in the DS configuration file itself (i.e. `ds.inf`) and in link:https://directory.fedoraproject.org/docs/389ds/design/dsadm-dsconf.html[DS documentation].
 
@@ -49,26 +55,28 @@ For more information see the parameter descriptions in the DS configuration file
 
 Finally, create the instance:
 
-----
+[literal,subs="+quotes,verbatim"]
+....
 $ dscreate from-file ds.inf
-----
+....
 
-== Creating PKI Subtree 
+== Creating PKI subtree 
 
 Initially the DS instance is empty. Use an LDAP client to add a root entry and PKI base entry, for example:
 
-----
+[literal,subs="+quotes,verbatim"]
+....
 $ ldapadd -H ldap://$HOSTNAME -x -D "cn=Directory Manager" -w Secret.123 << EOF
 dn: dc=pki,dc=example,dc=com
 objectClass: domain
 dc: pki
 EOF
-----
+....
 
-The subtree for each PKI subsystem is created when the subsystem is installed.
-When all PKI subsystems are created, the LDAP tree will look like the following:
+The subtree for each PKI subsystem is created when the subsystem is installed. When all PKI subsystems are created, the LDAP tree looks like the following:
 
-----
+[literal,subs="+quotes,verbatim"]
+....
 dc=example,dc=com
 + dc=pki
   + dc=ca
@@ -78,26 +86,27 @@ dc=example,dc=com
   + dc=tps
   + dc=acme
   + dc=est
-----
+....
 
-== Enabling SSL Connection 
+== Enabling SSL connection 
 
 If you set `self_sign_cert = False` earlier, and now decide to create bootstrap certs so that your PKI can be installed using SSL connection to DS,
 follow xref:../others/enabling-ssl-connection-in-ds-with-bootstrap-cert.adoc[Enabling SSL Connection in DS]
 
 *Note:* The bootstrap server certificate could be replaced by a server certificate issued by an actual CA at a later step after the installation.
 
-== Configuring Replication 
+== Configuring replication 
 
 See link:https://github.com/dogtagpki/389-ds-base/wiki/Configuring-DS-Replication[Configuring DS Replication].
 
-== Removing DS Instance 
+== Removing DS instance 
 
 To remove DS instance:
 
-----
+[literal,subs="+quotes,verbatim"]
+....
 $ dsctl localhost remove --do-it
-----
+....
 
 == Log Files 
 

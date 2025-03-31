@@ -3,36 +3,33 @@
 [id="installing-kra"]
 = Installing KRA 
 
-
 Follow this process to install a KRA subsystem.
 
-Prior to installation, please ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
+Prior to installation, ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
 
-== KRA Subsystem Installation 
+== Installing KRA subsystem installation 
 
-Prepare a file, for example `kra.cfg`, that contains the deployment configuration.
-A sample deployment configuration is available at xref:../../../base/server/examples/installation/kra.cfg[/usr/share/pki/server/examples/installation/kra.cfg].
+. Prepare a file, for example `kra.cfg`, that contains the deployment configuration. A sample deployment configuration is available at xref:../../../base/server/examples/installation/kra.cfg[/usr/share/pki/server/examples/installation/kra.cfg].
 
-Then execute the following command:
-
+. Execute the following command:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ pkispawn -f kra.cfg -s KRA
 ....
 
-It will install KRA subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
+It installs a KRA subsystem in a Tomcat instance (default is pki-tomcat) and creates the following NSS databases:
 
 * server NSS database: /var/lib/pki/pki-tomcat/conf/alias
+
 * admin NSS database: ~/.dogtag/pki-tomcat/kra/alias
 
-**Note**: When KRA is installed on a new system without any other subsystems,
-it is necessary to provide the CA's root certificate. Specify the path to
-the CA PKCS#7 PEM file in the `pki_cert_chain_path`. This will allow the server
-to verify the CA's SSL server certificate when contacting the security domain.
-It is up to the administrator to securely transport the CA root certificate
-(public key only!) to the system prior to KRA installation.
+[NOTE]
+====
+When KRA is installed on a new system without any other subsystems, it is necessary to provide the CA's root certificate. Specify the path to the CA PKCS#7 PEM file in the `pki_cert_chain_path`. This allows the server to verify the CA's SSL server certificate when contacting the security domain. It is up to the administrator to securely transport the CA root certificate (public key only!) to the system prior to KRA installation.
+====
 
-== Verifying System Certificates 
+== Verifying system certificates 
 
 Verify that the server NSS database contains the following certificates:
 
@@ -51,18 +48,17 @@ kra_audit_signing                                            u,u,Pu
 sslserver                                                    u,u,u
 ....
 
-== Verifying Admin Certificate 
+== Verifying admin certificate 
 
-
-Import the CA signing certificate:
-
+. Import the CA signing certificate:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ pki nss-cert-import --cert ca_signing.crt --trust CT,C,C ca_signing
 ....
 
-Import admin certificate and key into the client NSS database (by default ~/.dogtag/nssdb) with the following command:
-
+. Import admin certificate and key into the client NSS database (by default ~/.dogtag/nssdb) with the following command:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ pki -c Secret.123 pkcs12-import \
@@ -70,8 +66,8 @@ $ pki -c Secret.123 pkcs12-import \
     --pkcs12-password Secret.123
 ....
 
-Verify that the admin certificate can be used to access the KRA subsystem by executing the following command:
-
+. Verify that the admin certificate can be used to access the KRA subsystem by executing the following command:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ pki -c Secret.123 -n caadmin kra-user-show kraadmin
@@ -85,7 +81,7 @@ User "kraadmin"
   State: 1
 ....
 
-== Verifying KRA Connector 
+== Verifying KRA connector 
 
 Verify that the KRA connector is configured in the CA subsystem:
 

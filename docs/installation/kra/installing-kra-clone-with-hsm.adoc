@@ -1,23 +1,20 @@
 :_mod-docs-content-type: PROCEDURE
 
 [id="installing-kra-clone-with-hsm"]
-= Installing KRA Clone with HSM 
+= Installing KRA clone with HSM 
 
+Follow this process to install a KRA subsystem as a clone of an existing KRA subsystem where the system certificates and their keys are stored on a HSM.
 
-Follow this process to install a KRA subsystem as a clone of an existing KRA subsystem
-where the system certificates and their keys are stored in HSM.
+Since the certificates and the keys are already on the HSM, it is not necessary to export them into a PKCS #12 file to create a clone.
 
-Since the certificates and the keys are already in HSM, it's not necessary to export them into a
-PKCS #12 file to create a clone.
+Prior to installation, ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
 
-Prior to installation, please ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
+== Installing KRA subsystem
 
-== KRA Subsystem Installation 
+Note: It is assumed that the CA signing certificate has been exported into `ca_signing.crt`.
 
-Note: It is assumed that the CA signing certificate has been exported into `ca_signing.crt`
-
-Prepare a file, for example `kra.cfg`, that contains the deployment configuration:
-
+. Prepare a file, for example `kra.cfg`, that contains the deployment configuration:
++
 [literal,subs="+quotes,verbatim"]
 ----
 [DEFAULT]
@@ -74,22 +71,23 @@ pki_clone_replicate_schema=True
 pki_clone_uri=https://pki.example.com:8443
 ----
 
-Then execute the following command:
-
+. Execute the following command:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ pkispawn -f kra.cfg -s KRA
 ....
 
-It will install KRA subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
+It installs a KRA subsystem in a Tomcat instance (default is pki-tomcat) and creates the following NSS databases:
 
 * server NSS database: /var/lib/pki/pki-tomcat/conf/alias
+
 * admin NSS database: ~/.dogtag/pki-tomcat/kra/alias
 
-== Verifying System Certificates 
+== Verifying system certificates 
 
-Verify that the internal token contains the following certificates:
-
+. Verify that the internal token contains the following certificates:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
@@ -102,8 +100,8 @@ sslserver/replica.example.com                                ,,
 kra_audit_signing                                            ,,P
 ....
 
-Verify that the HSM contains the following certificates:
-
+. Verify that the HSM contains the following certificates:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -h HSM -f HSM.pwd
@@ -118,18 +116,17 @@ HSM:kra_audit_signing                                        u,u,Pu
 HSM:sslserver/replica.example.com                            u,u,u
 ....
 
-== Verifying Admin Certificate 
+== Verifying admin certificate 
 
-
-Import the CA signing certificate:
-
+. Import the CA signing certificate:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ pki nss-cert-import --cert ca_signing.crt --trust CT,C,C ca_signing
 ....
 
-Import admin certificate and key into the client NSS database (by default ~/.dogtag/nssdb) with the following command:
-
+. Import admin certificate and key into the client NSS database (by default ~/.dogtag/nssdb) with the following command:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ pki -c Secret.123 pkcs12-import \
@@ -137,8 +134,8 @@ $ pki -c Secret.123 pkcs12-import \
     --pkcs12-password Secret.123
 ....
 
-Verify that the admin certificate can be used to access the KRA subsystem by executing the following command:
-
+. Verify that the admin certificate can be used to access the KRA subsystem by executing the following command:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ pki -c Secret.123 -n caadmin kra-user-show kraadmin
@@ -152,7 +149,7 @@ User "kraadmin"
   State: 1
 ....
 
-== Verifying KRA Connector 
+== Verifying KRA connector 
 
 Verify that the KRA connector is configured in the CA subsystem:
 

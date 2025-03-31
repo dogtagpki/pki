@@ -1,27 +1,27 @@
 :_mod-docs-content-type: PROCEDURE
 
 [id="installing-tps-with-ldaps-connection"]
-= Installing TPS with LDAPS Connection
+= Installing TPS with LDAPS connection
 
 Follow this process to install a TPS subsystem a secure database connection.
 
-Prior to installation, please ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
+Prior to installation, ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
 
-== DS Configuration
-Once the prerequisites listed above are completed, if you had chosen to use the DS bootstrap certificates during DS instance creation,
-then export the bootstrap self-signed certificate into `ds_signing.crt` as follows:
+== DS configuration
+
+Once the prerequisites listed above are completed, if you had chosen to use the DS bootstrap certificates during DS instance creation, then export the bootstrap self-signed certificate into `ds_signing.crt` as follows:
 
 [literal,subs="+quotes,verbatim"]
 ....
 $ certutil -L -d /etc/dirsrv/slapd-localhost -n Self-Signed-CA -a > ds_signing.crt
 ....
 
-== TPS Subsystem Installation
+== Installing TPS subsystem
 
-Prepare a file, for example `tps.cfg`, that contains the deployment configuration:
-
+. Prepare a file, for example `tps.cfg`, that contains the deployment configuration:
++
 [literal,subs="+quotes,verbatim"]
-----
+....
 [DEFAULT]
 pki_instance_name=pki-tomcat
 pki_https_port=8443
@@ -57,21 +57,22 @@ pki_security_domain_password=Secret.123
 pki_audit_signing_nickname=tps_audit_signing
 pki_sslserver_nickname=sslserver
 pki_subsystem_nickname=subsystem
-----
+....
 
-Then execute the following command:
-
+. Execute the following command:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ pkispawn -f tps.cfg -s TPS
 ....
 
-It will install TPS subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
+It installs a TPS subsystem in a Tomcat instance (default is pki-tomcat) and creates the following NSS databases:
 
 * server NSS database: /var/lib/pki/pki-tomcat/conf/alias
+
 * admin NSS database: ~/.dogtag/pki-tomcat/tps/alias
 
-== Verifying System Certificates
+== Verifying system certificates
 
 Verify that the server NSS database contains the following certificates:
 
@@ -89,7 +90,7 @@ tps_audit_signing                                            u,u,Pu
 sslserver                                                    u,u,u
 ....
 
-== Verifying Database Configuration
+== Verifying database configuration
 
 Verify that the TPS database is configured with a secure connection:
 
@@ -109,18 +110,17 @@ $ pki-server tps-db-config-show
   Minimum connections: 3
 ....
 
-== Verifying Admin Certificate
+== Verifying admin certificate
 
-
-Import the CA signing certificate:
-
+. Import the CA signing certificate:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ pki nss-cert-import --cert ca_signing.crt --trust CT,C,C ca_signing
 ....
 
-Import admin certificate and key into the client NSS database (by default ~/.dogtag/nssdb) with the following command:
-
+. Import admin certificate and key into the client NSS database (by default ~/.dogtag/nssdb) with the following command:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ pki -c Secret.123 pkcs12-import \
@@ -128,8 +128,8 @@ $ pki -c Secret.123 pkcs12-import \
     --pkcs12-password Secret.123
 ....
 
-Verify that the admin certificate can be used to access the TPS subsystem by executing the following command:
-
+. Verify that the admin certificate can be used to access the TPS subsystem by executing the following command:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ pki -c Secret.123 -n caadmin tps-user-show tpsadmin
@@ -145,6 +145,6 @@ User "tpsadmin"
     All Profiles
 ....
 
-== Getting Real DS Certificate from the CA
+== Getting real DS certificate from the CA
 
 If desired, follow xref:../others/getting-ds-cert-issued-by-actual-ca.adoc[this procedure] to get real DS certificate issued by the CA.
