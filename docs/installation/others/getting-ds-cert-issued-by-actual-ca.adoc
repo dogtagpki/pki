@@ -1,10 +1,9 @@
 :_mod-docs-content-type: PROCEDURE
 
 [id="getting-ds-cert-issued-by-actual-ca"]
+= Getting DS certificate issued by actual CA
 
 // This section is intended for all PKI subsystems
-
-= Getting DS certificate issued by actual CA
 
 Follow this process using `pki` CLI (run `man pki-client`) commands to get DS certificate issued by the actual CA.
 
