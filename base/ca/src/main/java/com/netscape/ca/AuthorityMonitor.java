@@ -19,10 +19,6 @@ package com.netscape.ca;
 
 import java.math.BigInteger;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.TreeSet;
 
 import org.dogtagpki.server.ca.AuthorityRecord;
 import org.dogtagpki.server.ca.CAEngine;
@@ -52,19 +48,6 @@ public class AuthorityMonitor implements Runnable {
 
     public AsyncLoader loader = new AsyncLoader(10 /* 10s timeout */);
     public boolean foundHostCA;
-
-    public Map<AuthorityID, CertificateAuthority> authorities =
-            Collections.synchronizedSortedMap(new TreeMap<AuthorityID, CertificateAuthority>());
-
-    public Map<AuthorityID, Thread> keyRetrievers =
-            Collections.synchronizedSortedMap(new TreeMap<AuthorityID, Thread>());
-
-    // Track authority updates to avoid race conditions and unnecessary reloads due to replication
-    public TreeMap<AuthorityID, BigInteger> entryUSNs = new TreeMap<>();
-    public TreeMap<AuthorityID, String> nsUniqueIds = new TreeMap<>();
-
-    // Track authority deletions
-    public TreeSet<String> deletedNsUniqueIds = new TreeSet<>();
 
     public AuthorityMonitor() {
     }
@@ -222,6 +205,37 @@ public class AuthorityMonitor implements Runnable {
         logger.debug("AuthorityMonitor: stopping.");
     }
 
+    public void init() throws Exception {
+
+        new Thread(this, "AuthorityMonitor").start();
+
+        CAEngine engine = CAEngine.getInstance();
+
+        try {
+            logger.info("AuthorityMonitor: Waiting for authorities to load");
+            // block until the expected number of authorities
+            // have been loaded (based on numSubordinates of
+            // container entry), or watchdog times it out (in case
+            // numSubordinates is larger than the number of entries
+            // we can see, e.g. replication conflict entries).
+            loader.awaitLoadDone();
+
+        } catch (InterruptedException e) {
+            logger.warn("AuthorityMonitor: Caught InterruptedException "
+                    + "while waiting for initial load of authorities.");
+            logger.warn("AuthorityMonitor: You may have replication conflict entries or "
+                    + "extraneous data under " + engine.getAuthorityBaseDN());
+        }
+
+        if (!foundHostCA) {
+            logger.debug("AuthorityMonitor: No entry for host authority");
+            logger.debug("AuthorityMonitor: Adding entry for host authority");
+
+            CertificateAuthority hostCA = engine.getCA();
+            engine.addAuthority(engine.addHostAuthorityEntry(), hostCA);
+        }
+    }
+
     private synchronized void handleMODDN(DN oldDN, LDAPEntry entry) throws Exception {
 
         CAEngine engine = CAEngine.getInstance();
@@ -234,7 +248,7 @@ public class AuthorityMonitor implements Runnable {
             LDAPAttribute attr = entry.getAttribute("authorityID");
             if (attr != null) {
                 AuthorityID aid = new AuthorityID(attr.getStringValueArray()[0]);
-                removeCA(aid);
+                engine.removeAuthority(aid);
             }
 
         } else if (!wasMonitored && isMonitored) {
@@ -244,18 +258,19 @@ public class AuthorityMonitor implements Runnable {
 
     private synchronized void handleDELETE(LDAPEntry entry) {
 
+        CAEngine engine = CAEngine.getInstance();
+
         LDAPAttribute attr = entry.getAttribute("nsUniqueId");
         String nsUniqueId = null;
 
         if (attr != null)
             nsUniqueId = attr.getStringValueArray()[0];
 
-        if (deletedNsUniqueIds.remove(nsUniqueId)) {
+        if (engine.removeUniqueID(nsUniqueId)) {
             logger.debug("handleDELETE: delete was already effected");
             return;
         }
 
-        CAEngine engine = CAEngine.getInstance();
         AuthorityID aid = null;
         attr = entry.getAttribute("authorityID");
 
@@ -275,7 +290,7 @@ public class AuthorityMonitor implements Runnable {
                     + "for authority '" + aid + "': " + e.getMessage(), e);
             }
 
-            removeCA(aid);
+            engine.removeAuthority(aid);
         }
     }
 
@@ -293,7 +308,7 @@ public class AuthorityMonitor implements Runnable {
         }
 
         String nsUniqueID = record.getNSUniqueID();
-        if (deletedNsUniqueIds.contains(nsUniqueID)) {
+        if (engine.deletedUniqueID(nsUniqueID)) {
             logger.warn("AuthorityMonitor: ignoring entry with nsUniqueId '"
                     + nsUniqueID + "' due to deletion");
             return;
@@ -320,7 +335,7 @@ public class AuthorityMonitor implements Runnable {
             logger.info("AuthorityMonitor: - description: " + description);
             hostCA.setAuthorityDescription(description);
 
-            addCA(authorityID, hostCA);
+            engine.addAuthority(authorityID, hostCA);
 
             return;
         }
@@ -345,7 +360,7 @@ public class AuthorityMonitor implements Runnable {
             // entryUSN attribute being added.
         }
 
-        BigInteger knownEntryUSN = entryUSNs.get(authorityID);
+        BigInteger knownEntryUSN = engine.getEntryUSN(authorityID);
         if (newEntryUSN != null && knownEntryUSN != null) {
             logger.debug("AuthorityMonitor: known entryUSN: " + knownEntryUSN);
             if (newEntryUSN.compareTo(knownEntryUSN) <= 0) {
@@ -357,23 +372,13 @@ public class AuthorityMonitor implements Runnable {
         try {
             CertificateAuthority ca = engine.createCA(record);
 
-            addCA(authorityID, ca);
-            entryUSNs.put(authorityID, newEntryUSN);
-            nsUniqueIds.put(authorityID, nsUniqueID);
+            engine.addAuthority(authorityID, ca);
+            engine.addEntryUSN(authorityID, newEntryUSN);
+            engine.addUniqueID(authorityID, nsUniqueID);
 
         } catch (Exception e) {
             logger.warn("AuthorityMonitor: Error initializing lightweight CA: " + e.getMessage(), e);
         }
-    }
-
-    public void addCA(AuthorityID aid, CertificateAuthority ca) {
-        authorities.put(aid, ca);
-    }
-
-    public void removeCA(AuthorityID aid) {
-        authorities.remove(aid);
-        entryUSNs.remove(aid);
-        nsUniqueIds.remove(aid);
     }
 
     /**

@@ -39,6 +39,9 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -216,6 +219,17 @@ public class CAEngine extends CMSEngine {
     public SerialNumberUpdateTask serialNumberUpdateTask;
 
     protected LdapBoundConnFactory connectionFactory;
+
+    // LWCA
+    public Map<AuthorityID, CertificateAuthority> authorities = new TreeMap<>();
+    public Map<AuthorityID, Thread> keyRetrievers = new TreeMap<>();
+
+    // Track LWCA updates to avoid race conditions and unnecessary reloads due to replication
+    public Map<AuthorityID, BigInteger> entryUSNs = new TreeMap<>();
+    public Map<AuthorityID, String> nsUniqueIds = new TreeMap<>();
+
+    // Track LWCA deletions
+    public Set<String> deletedNsUniqueIds = new TreeSet<>();
 
     protected AuthorityMonitor authorityMonitor;
     protected boolean enableAuthorityMonitor = true;
@@ -826,32 +840,8 @@ public class CAEngine extends CMSEngine {
             return;
         }
 
-        CertificateAuthority hostCA = getCA();
-
         authorityMonitor = new AuthorityMonitor();
-        new Thread(authorityMonitor, "AuthorityMonitor").start();
-
-        try {
-            logger.info("CAEngine: Waiting for authorities to load");
-            // block until the expected number of authorities
-            // have been loaded (based on numSubordinates of
-            // container entry), or watchdog times it out (in case
-            // numSubordinates is larger than the number of entries
-            // we can see, e.g. replication conflict entries).
-            authorityMonitor.loader.awaitLoadDone();
-
-        } catch (InterruptedException e) {
-            logger.warn("CAEngine: Caught InterruptedException "
-                    + "while waiting for initial load of authorities.");
-            logger.warn("CAEngine: You may have replication conflict entries or "
-                    + "extraneous data under " + getAuthorityBaseDN());
-        }
-
-        if (!authorityMonitor.foundHostCA) {
-            logger.debug("CAEngine: No entry for host authority");
-            logger.debug("CAEngine: Adding entry for host authority");
-            authorityMonitor.addCA(addHostAuthorityEntry(), hostCA);
-        }
+        authorityMonitor.init();
     }
 
     public void initCertIssuedListener() throws Exception {
@@ -1329,11 +1319,9 @@ public class CAEngine extends CMSEngine {
     /**
      * Enumerate all authorities (including host authority)
      */
-    public List<CertificateAuthority> getCAs() {
+    public synchronized List<CertificateAuthority> getCAs() {
         List<CertificateAuthority> list = new ArrayList<>();
-        synchronized (authorityMonitor.authorities) {
-            list.addAll(authorityMonitor.authorities.values());
-        }
+        list.addAll(authorities.values());
         return list;
     }
 
@@ -1345,8 +1333,8 @@ public class CAEngine extends CMSEngine {
      *
      * @return the authority, or null if not found
      */
-    public CertificateAuthority getCA(AuthorityID aid) {
-        return aid == null ? getCA() : authorityMonitor.authorities.get(aid);
+    public synchronized CertificateAuthority getCA(AuthorityID aid) {
+        return aid == null ? getCA() : authorities.get(aid);
     }
 
     public CertificateAuthority getCA(X500Name dn) {
@@ -1414,6 +1402,36 @@ public class CAEngine extends CMSEngine {
         }
 
         return request.getExtDataInCert(com.netscape.cmscore.request.Request.REQUEST_ISSUED_CERT);
+    }
+
+    public synchronized void addAuthority(AuthorityID aid, CertificateAuthority ca) {
+        authorities.put(aid, ca);
+    }
+
+    public synchronized void removeAuthority(AuthorityID aid) {
+        authorities.remove(aid);
+        entryUSNs.remove(aid);
+        nsUniqueIds.remove(aid);
+    }
+
+    public synchronized BigInteger getEntryUSN(AuthorityID aid) {
+        return entryUSNs.get(aid);
+    }
+
+    public synchronized void addEntryUSN(AuthorityID aid, BigInteger entryUSN) {
+        entryUSNs.put(aid, entryUSN);
+    }
+
+    public synchronized void addUniqueID(AuthorityID aid, String nsUniqueID) {
+        nsUniqueIds.put(aid, nsUniqueID);
+    }
+
+    public synchronized boolean deletedUniqueID(String nsUniqueID) {
+        return deletedNsUniqueIds.contains(nsUniqueID);
+    }
+
+    public synchronized boolean removeUniqueID(String nsUniqueID) {
+        return deletedNsUniqueIds.remove(nsUniqueID);
     }
 
     /**
@@ -1524,7 +1542,7 @@ public class CAEngine extends CMSEngine {
      * @param parentAID ID of parent CA
      * @param description Optional string description of CA
      */
-    public CertificateAuthority createCA(
+    public synchronized CertificateAuthority createCA(
             AuthorityID parentAID,
             AuthToken authToken,
             String subjectDN,
@@ -1538,7 +1556,7 @@ public class CAEngine extends CMSEngine {
         }
 
         CertificateAuthority ca = createCA(parentCA, authToken, subjectDN, description);
-        authorityMonitor.authorities.put(ca.getAuthorityID(), ca);
+        authorities.put(ca.getAuthorityID(), ca);
 
         return ca;
     }
@@ -1568,7 +1586,7 @@ public class CAEngine extends CMSEngine {
         return ca;
     }
 
-    public void startKeyRetriever(CertificateAuthority ca) throws EBaseException {
+    public synchronized void startKeyRetriever(CertificateAuthority ca) throws EBaseException {
 
         AuthorityID authorityID = ca.getAuthorityID();
 
@@ -1580,7 +1598,7 @@ public class CAEngine extends CMSEngine {
             return;
         }
 
-        if (authorityMonitor.keyRetrievers.containsKey(authorityID)) {
+        if (keyRetrievers.containsKey(authorityID)) {
             logger.info("CertificateAuthority: KeyRetriever already running for authority " + authorityID);
             return;
         }
@@ -1621,11 +1639,11 @@ public class CAEngine extends CMSEngine {
         Thread thread = new Thread(runner, "KeyRetriever-" + authorityID);
         thread.start();
 
-        authorityMonitor.keyRetrievers.put(authorityID, thread);
+        keyRetrievers.put(authorityID, thread);
     }
 
-    public void removeKeyRetriever(AuthorityID aid) {
-        authorityMonitor.keyRetrievers.remove(aid);
+    public synchronized void removeKeyRetriever(AuthorityID aid) {
+        keyRetrievers.remove(aid);
     }
 
     public String getAuthorityBaseDN() {
@@ -1769,12 +1787,12 @@ public class CAEngine extends CMSEngine {
             connectionFactory.returnConn(conn);
         }
 
-        String nsUniqueId = authorityMonitor.nsUniqueIds.get(aid);
+        String nsUniqueId = nsUniqueIds.get(aid);
         if (nsUniqueId != null) {
-            authorityMonitor.deletedNsUniqueIds.add(nsUniqueId);
+            deletedNsUniqueIds.add(nsUniqueId);
         }
 
-        authorityMonitor.removeCA(aid);
+        removeAuthority(aid);
     }
 
     /**
@@ -2233,7 +2251,7 @@ public class CAEngine extends CMSEngine {
     /**
      * Delete lightweight CA.
      */
-    public void deleteAuthority(
+    public synchronized void deleteAuthority(
             HttpServletRequest httpReq,
             CertificateAuthority ca)
             throws EBaseException {
@@ -2257,11 +2275,9 @@ public class CAEngine extends CMSEngine {
         if (hasSubCAs)
             throw new CANotLeafException("CA with sub-CAs cannot be deleted (delete sub-CAs first)");
 
-        synchronized (ca) {
-            revokeAuthority(ca, httpReq);
-            deleteAuthorityEntry(ca.getAuthorityID());
-            deleteAuthorityNSSDB(ca);
-        }
+        revokeAuthority(ca, httpReq);
+        deleteAuthorityEntry(ca.getAuthorityID());
+        deleteAuthorityNSSDB(ca);
     }
 
     public ProfileSubsystem getProfileSubsystem() {
