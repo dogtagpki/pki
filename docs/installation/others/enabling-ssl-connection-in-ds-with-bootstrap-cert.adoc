@@ -1,26 +1,24 @@
 :_mod-docs-content-type: PROCEDURE
 
 [id="enabling-ssl-connection-in-ds-with-bootstrap-cert"]
-= Enabling SSL Connection in DS Using Bootstrap Certs
+= Enabling SSL connection in DS using bootstrap certs
 
 // This content was copied and adjusted from https://github.com/dogtagpki/pki/wiki/Enabling-SSL-Connection-in-DS
 
-*If you already have an active trusted CA, and you wish to issue a server cert for your DS, please follow xref:getting-ds-cert-issued-by-actual-ca.adoc[this section] instead.*
+*If you already have an active trusted CA, and you wish to issue a server cert for your DS, follow xref:getting-ds-cert-issued-by-actual-ca.adoc[this section] instead.*
 
-Follow this process using `pki` CLI (run `man pki-client`) commands to enable SSL connection in DS
-by creating a bootstrap DS self-signed signing certificate and the bootstrap server certificate issued by it.
+Follow this process using `pki` CLI (run `man pki-client`) commands to enable SSL connection in DS by creating a bootstrap DS self-signed signing certificate and the bootstrap server certificate issued by it.
 
-This section assumes that a DS instance named `localhost` already exists,
-it does not have certificates, and the SSL connection is disabled.
+This section assumes that a DS instance named `localhost` already exists, it does not have certificates, and the SSL connection is disabled.
 
-*Note:* In newer DS versions the certificates are created and the SSL connection is enabled by default,
-so in general it is not necessary to follow this procedure.
+*Note:* In newer DS versions the certificates are created and the SSL connection is enabled by default, so in general it is not necessary to follow this procedure.
 
-== Creating DS Signing Certificate 
+== Creating DS signing certificate 
 
-First, generate DS signing CSR with the following command:
-
-----
+. Generate DS signing CSR with the following command:
++
+[literal,subs="+quotes,verbatim"]
+....
 $ pki \
     -d /etc/dirsrv/slapd-localhost \
     -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
@@ -28,11 +26,12 @@ $ pki \
     --subject "CN=DS Signing Certificate" \
     --ext /usr/share/pki/server/certs/ca_signing.conf \
     --csr ds_signing.csr
-----
+....
 
-Next, issue DS signing certificate:
-
-----
+. Issue DS signing certificate:
++
+[literal,subs="+quotes,verbatim"]
+....
 $ pki \
     -d /etc/dirsrv/slapd-localhost \
     -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
@@ -40,11 +39,12 @@ $ pki \
     --csr ds_signing.csr \
     --ext /usr/share/pki/server/certs/ca_signing.conf \
     --cert ds_signing.crt
-----
+....
 
-Finally, import DS signing certificate:
-
-----
+. Import DS signing certificate:
++
+[literal,subs="+quotes,verbatim"]
+....
 $ pki \
     -d /etc/dirsrv/slapd-localhost \
     -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
@@ -52,11 +52,12 @@ $ pki \
     --cert ds_signing.crt \
     --trust CT,C,C \
     Self-Signed-CA
-----
+....
 
-To verify the DS signing certificate:
-
-----
+. Verify the DS signing certificate:
++
+[literal,subs="+quotes,verbatim"]
+....
 $ certutil -L -d /etc/dirsrv/slapd-localhost -n Self-Signed-CA
 ...
     Certificate Trust Flags:
@@ -73,14 +74,15 @@ $ certutil -L -d /etc/dirsrv/slapd-localhost -n Self-Signed-CA
             Valid CA
             Trusted CA
             User
-----
+....
 
 [id="creating-ds-server-certificate"]
 == Creating DS Server Certificate 
 
-First, generate DS server CSR with the following command:
-
-----
+. Generate DS server CSR with the following command:
++
+[literal,subs="+quotes,verbatim"]
+....
 $ pki \
     -d /etc/dirsrv/slapd-localhost \
     -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
@@ -89,11 +91,12 @@ $ pki \
     --subjectAltName "critical, DNS:$HOSTNAME" \
     --ext /usr/share/pki/server/certs/sslserver.conf \
     --csr ds_server.csr
-----
+....
 
-Next, issue DS server certificate:
-
-----
+. Issue DS server certificate:
++
+[literal,subs="+quotes,verbatim"]
+....
 $ pki \
     -d /etc/dirsrv/slapd-localhost \
     -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
@@ -102,22 +105,24 @@ $ pki \
     --csr ds_server.csr \
     --ext /usr/share/pki/server/certs/sslserver.conf \
     --cert ds_server.crt
-----
+....
 
-Finally, import DS server certificate:
-
-----
+. Import DS server certificate:
++
+[literal,subs="+quotes,verbatim"]
+....
 $ pki \
     -d /etc/dirsrv/slapd-localhost \
     -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
     nss-cert-import \
     --cert ds_server.crt \
     Server-Cert
-----
+....
 
-To verify the DS server certificate:
-
-----
+. Verify the DS server certificate:
++
+[literal,subs="+quotes,verbatim"]
+....
 $ certutil -L -d /etc/dirsrv/slapd-localhost -n Server-Cert
 ...
     Certificate Trust Flags:
@@ -127,26 +132,29 @@ $ certutil -L -d /etc/dirsrv/slapd-localhost -n Server-Cert
             User
         Object Signing Flags:
             User
-----
+....
 
 [id="enabling-ssl-connection"]
 == Enabling SSL Connection 
 
-To enable SSL connection in the DS instance:
-
-----
+. To enable SSL connection in the DS instance:
++
+[literal,subs="+quotes,verbatim"]
+....
 $ dsconf localhost config replace nsslapd-security=on
-----
+....
 
-Finally, restart the DS instance:
-
-----
+. Restart the DS instance:
++
+[literal,subs="+quotes,verbatim"]
+....
 $ dsctl localhost restart
-----
+....
 
-To verify the SSL connection:
-
-----
+. Verify the SSL connection:
++
+[literal,subs="+quotes,verbatim"]
+....
 $ LDAPTLS_REQCERT=never ldapsearch \
     -H ldaps://$HOSTNAME:636 \
     -x \
@@ -154,7 +162,7 @@ $ LDAPTLS_REQCERT=never ldapsearch \
     -w Secret.123 \
     -b "" \
     -s base
-----
+....
 
 == See Also 
 

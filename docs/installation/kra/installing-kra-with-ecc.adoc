@@ -3,26 +3,30 @@
 [id="installing-kra-with-ecc"]
 = Installing KRA with ECC
 
-
 Follow this process to install a KRA subsystem with ECC.
 
 Supported ECC curves:
 
-- nistp256 
-- nistp384
-- nistp521
+* nistp256 
+
+* nistp384
+
+* nistp521
 
 Supported ECC key algorithms:
 
-- SHA256withEC 
-- SHA384withEC
-- SHA512withEC
+* SHA256withEC 
 
-Prior to installation, please ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
+* SHA384withEC
 
-== KRA Subsystem Installation
+* SHA512withEC
 
-Prepare a file, for example `kra.cfg`, that contains the deployment configuration:
+Prior to installation, ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
+
+== Installing KRA subsystem
+
+. Prepare a file, for example `kra.cfg`, that contains the deployment configuration:
++
 [literal,subs="+quotes,verbatim"]
 ----
 [DEFAULT]
@@ -83,19 +87,20 @@ pki_subsystem_key_algorithm=SHA512withEC
 pki_subsystem_key_size=nistp521
 ----
 
-Then execute the following command:
-
+. Execute the following command:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ pkispawn -f kra.cfg -s KRA
 ....
 
-It will install KRA subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
+It installs a KRA subsystem in a Tomcat instance (default is pki-tomcat) and creates the following NSS databases:
 
 * server NSS database: /var/lib/pki/pki-tomcat/conf/alias
+
 * admin NSS database: ~/.dogtag/pki-tomcat/kra/alias
 
-== Verifying System Certificates
+== Verifying system certificates
 
 Verify that the server NSS database contains the following certificates:
 
@@ -114,18 +119,17 @@ kra_audit_signing                                            u,u,Pu
 sslserver                                                    u,u,u
 ....
 
-== Verifying Admin Certificate
+== Verifying admin certificate
 
-
-Import the CA signing certificate:
-
+. Import the CA signing certificate:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ pki nss-cert-import --cert ca_signing.crt --trust CT,C,C ca_signing
 ....
 
-Import admin certificate and key into the client NSS database (by default ~/.dogtag/nssdb) with the following command:
-
+. Import admin certificate and key into the client NSS database (by default ~/.dogtag/nssdb) with the following command:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ pki -c Secret.123 pkcs12-import \
@@ -133,8 +137,8 @@ $ pki -c Secret.123 pkcs12-import \
     --pkcs12-password Secret.123
 ....
 
-Verify that the admin certificate can be used to access the KRA subsystem by executing the following command:
-
+. Verify that the admin certificate can be used to access the KRA subsystem by executing the following command:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ pki -c Secret.123 -n caadmin kra-user-show kraadmin

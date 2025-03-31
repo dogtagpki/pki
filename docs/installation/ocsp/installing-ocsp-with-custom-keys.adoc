@@ -1,17 +1,16 @@
 :_mod-docs-content-type: PROCEDURE
 
 [id="installing-ocsp-with-custom-keys"]
-= Installing OCSP with Custom Keys 
+= Installing OCSP with custom keys 
 
+Follow this process to install an OCSP subsystem with custom OCSP system and admin keys, CSRs, and certificates.
 
-Follow this process to install a OCSP subsystem with custom OCSP system and admin keys, CSRs, and certificates.
+Prior to installation, ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
 
-Prior to installation, please ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
+== Starting OCSP subsystem installation 
 
-== Starting OCSP Subsystem Installation 
-
-Prepare a file, for example `ocsp-step1.cfg`, that contains the deployment configuration step 1:
-
+. Prepare a file, for example `ocsp-step1.cfg`, that contains the deployment configuration step 1:
++
 [literal,subs="+quotes,verbatim"]
 ----
 [DEFAULT]
@@ -51,21 +50,22 @@ pki_external=True
 pki_external_step_two=False
 ----
 
-Then execute the following command:
-
+. Execute the following command:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ pkispawn -f ocsp-step1.cfg -s OCSP
 ....
 
-It will install OCSP subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
+It installs a OCSP subsystem in a Tomcat instance (default is pki-tomcat) and creates the following NSS databases:
 
 * server NSS database: /var/lib/pki/pki-tomcat/conf/alias
+
 * admin NSS database: ~/.dogtag/pki-tomcat/ocsp/alias
 
-Since there are no CSR path parameters specified, it will not generate the OCSP system and admin keys.
+Since there are no CSR path parameters specified, it does not generate the OCSP system and admin keys.
 
-== Generating OCSP Keys, CSRs, and Certificates 
+== Generating OCSP keys, CSRs, and certificates 
 
 Generate custom OCSP system keys in the server NSS database and admin key in the admin NSS database, then generate the CSRs and store them in files, for example:
 
@@ -95,19 +95,19 @@ See also:
 * link:https://github.com/dogtagpki/pki/wiki/Generating-Audit-Signing-Certificate[Generating Audit Signing Certificate]
 * link:https://github.com/dogtagpki/pki/wiki/Generating-Admin-Certificate[Generating Admin Certificate]
 
-== Finishing OCSP Subsystem Installation 
+== Finishing OCSP subsystem installation 
 
 Prepare another file, for example `ocsp-step2.cfg`, that contains the deployment configuration step 2. The file can be copied from step 1 (i.e. ocsp-step1.cfg) with additional changes below.
 
-Specify step 2 with the following parameter:
-
+. Specify step 2 with the following parameter:
++
 [literal,subs="+quotes,verbatim"]
 ....
 pki_external_step_two=True
 ....
 
-Specify the custom CSRs with the following parameters:
-
+. Specify the custom CSRs with the following parameters:
++
 [literal,subs="+quotes,verbatim"]
 ....
 pki_ocsp_signing_csr_path=ocsp_signing.csr
@@ -117,8 +117,8 @@ pki_audit_signing_csr_path=ocsp_audit_signing.csr
 pki_admin_csr_path=ocsp_admin.csr
 ....
 
-Specify the custom certificates with the following parameters:
-
+. Specify the custom certificates with the following parameters:
++
 [literal,subs="+quotes,verbatim"]
 ....
 pki_ocsp_signing_cert_path=ocsp_signing.crt
@@ -128,22 +128,22 @@ pki_audit_signing_cert_path=ocsp_audit_signing.crt
 pki_admin_cert_path=ocsp_admin.crt
 ....
 
-Specify the external CA certificate chain with the following parameters:
-
+. Specify the external CA certificate chain with the following parameters:
++
 [literal,subs="+quotes,verbatim"]
 ....
 pki_cert_chain_nickname=ca_signing
 pki_cert_chain_path=ca_signing.crt
 ....
 
-Finally, execute the following command:
-
+. Execute the following command:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ pkispawn -f ocsp-step2.cfg -s OCSP
 ....
 
-== Verifying System Certificates 
+== Verifying system certificates 
 
 Verify that the server NSS database contains the following certificates:
 
@@ -161,18 +161,17 @@ ocsp_audit_signing                                           u,u,Pu
 sslserver                                                    u,u,u
 ....
 
-== Verifying Admin Certificate 
+== Verifying admin certificate 
 
-
-Import the external CA certificate chain:
-
+. Import the external CA certificate chain:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ pki nss-cert-import --cert ca_signing.crt --trust CT,C,C ca_signing
 ....
 
-Import the admin key and certificate:
-
+. Import the admin key and certificate:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ pki -c Secret.123 pkcs12-import \
@@ -180,8 +179,8 @@ $ pki -c Secret.123 pkcs12-import \
     --pkcs12-password Secret.123
 ....
 
-Verify that the admin certificate can be used to access the OCSP subsystem by executing the following command:
-
+. Verify that the admin certificate can be used to access the OCSP subsystem by executing the following command:
++
 [literal,subs="+quotes,verbatim"]
 ....
 $ pki -c Secret.123 -n ocspadmin ocsp-user-show ocspadmin
