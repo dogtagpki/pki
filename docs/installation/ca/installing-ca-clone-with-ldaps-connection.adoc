@@ -1,7 +1,7 @@
 :_mod-docs-content-type: PROCEDURE
 
 [id="installing-ca-clone-with-ldaps-connection"]
-= Installing CA clone with LDAP connection 
+= Installing CA clone with LDAPS connection 
 
 // This original content was copied to installing-ca-clone-with-temp-ldaps-connection.adoc
 
