@@ -1,0 +1,135 @@
+= Getting KRA Transport Certificate =
+
+== Overview ==
+
+This page describes the process to get KRA transport certificate from PKI server and import it into the client's NSS database (default is `~/.dogtag/nssdb`).
+
+For older versions see:
+
+* link:PKI-10.5-Getting-KRA-Transport-Certificate[PKI 10.5 Getting KRA Transport Certificate]
+
+== Getting KRA Transport Certificate from the Server Side ==
+
+A user with direct access to the server can display the KRA transport certificate in the server's NSS database:
+
+----
+$ pki-server cert-show kra_transport
+  Cert ID: transport
+  Nickname: kra_transport
+  Token: Internal Key Storage Token
+  Serial Number: 0x7
+  Subject DN: CN=DRM Transport Certificate,OU=pki-tomcat,O=EXAMPLE
+  Issuer DN: CN=Certificate Authority,O=EXAMPLE
+  Not Valid Before: Wed Apr 14 17:06:49 2021
+  Not Valid After: Tue Apr 04 17:06:49 2023
+  Trust flag: u,u,u
+----
+
+To export KRA transport certificate into a file:
+
+----
+$ pki-server cert-export kra_transport --cert-file kra_transport.crt
+----
+
+The file needs to be transferred to the client.
+
+== Getting KRA Transport Certificate from the Client Side ==
+
+A user without direct access to the server can display KRA transport certificate with the following command:
+
+----
+$ pki kra-cert-transport-show
+  Serial Number: 0x7
+  Subject DN: CN=DRM Transport Certificate,OU=pki-tomcat,O=EXAMPLE
+  Issuer DN: CN=Certificate Authority,O=EXAMPLE
+  Not Valid Before: Mon Dec 07 18:48:30 CST 2020
+  Not Valid After: Sun Nov 27 18:48:30 CST 2022
+----
+
+To export KRA transport certificate:
+
+----
+$ pki kra-cert-transport-export
+-----BEGIN CERTIFICATE-----
+MIIDnzCCAoegAwIBAgIBBzANBgkqhkiG9w0BAQsFADBIMRAwDgYDVQQKDAdFWEFNUExFMRMwEQYD
+VQQLDApwa2ktdG9tY2F0MR8wHQYDVQQDDBZDQSBTaWduaW5nIENlcnRpZmljYXRlMB4XDTIwMTIw
+ODAwNDgzMFoXDTIyMTEyODAwNDgzMFowSzEQMA4GA1UECgwHRVhBTVBMRTETMBEGA1UECwwKcGtp
+LXRvbWNhdDEiMCAGA1UEAwwZRFJNIFRyYW5zcG9ydCBDZXJ0aWZpY2F0ZTCCASIwDQYJKoZIhvcN
+AQEBBQADggEPADCCAQoCggEBAMBWBksAVnVIrbR+G66sjBBKPasJhu2rZaIkhI6QsosaSri46MoG
+A/jrxRQuZn+KGq4QAQKE5JR9KitPGgkE3eM349J5jkVm/EH1YnVkxQ73xPFjuWK9J8zVTMbPO2J3
+cB088GqEUuijmuwuIm4zUyxp6a53NKGiq2yAS6wrFCqfc9ZpWYrxARY+QO3Q1lByL6jnVBuItDeM
+OGg/enAwxY9WpTVSuQiCqQkoP0q/9r8a6e/OUrfvLBWKr7XywdV89qlXL6YSZ1Erv4VGeh33q5AB
+UUAUFwqmcsv9x40LR80/KyIHzUxIP/wlkYB9XZB8YZMJLNaGtoCI0mgAR7JVICcCAwEAAaOBkDCB
+jTAfBgNVHSMEGDAWgBRQLtr9TyZiM8kgAU+qA+RijWCNMjBFBggrBgEFBQcBAQQ5MDcwNQYIKwYB
+BQUHMAGGKWh0dHA6Ly9sb2NhbGhvc3QubG9jYWxkb21haW46ODA4MC9jYS9vY3NwMA4GA1UdDwEB
+/wQEAwIE8DATBgNVHSUEDDAKBggrBgEFBQcDAjANBgkqhkiG9w0BAQsFAAOCAQEAYG3CSgaIgvzL
+Bj8t01HZL0+X5aBuFhgMOJnQ5xMMvbj3AI7jb5ybcAyFVKc6jWNzPqWYFGBGSANEOjIlDo9mVCMF
+jESrkjQ9Blx295ccSg3IGlN/r7V4+fi/AJfWgoIKdzSaAEZ/MXIxjs/LFOydJavnQY41FKZfJePy
+XHdrO0rUzRh+LGSPzczyNK4nWu0sPse1aipi3m8M9002FT6+ywwb6dMf5rtMoGXDrSlC7HPQKB5t
+bmQ16SQPwkcFjMxEamRiEAsErtYBMuJ7ezTskdJie+1OyIOCJ72WXhgGFkPIZsonr6maHv5bN0lU
+mcJJ5Ef11WyzBLUT3rwylH8CRQ==
+-----END CERTIFICATE-----
+----
+
+To download the transport certificate into a file:
+
+----
+$ pki kra-cert-transport-export --output-file kra_transport.crt
+----
+
+To export KRA transport certificate chain:
+
+----
+$ pki kra-cert-transport-export --pkcs7
+-----BEGIN PKCS7-----
+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
+-----END PKCS7-----
+----
+
+== Importing KRA Transport Certificate ==
+
+To import KRA transport certificate into the user's NSS database:
+
+----
+$ pki nss-cert-import kra_transport --cert kra_transport.crt
+----
+
+For older versions use the following command:
+
+----
+$ pki client-cert-import kra_transport --cert kra_transport.crt
+----
+
