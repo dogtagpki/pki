@@ -1,0 +1,47 @@
+= Generating Certificate Request with CRMFPopClient =
+
+To generate a certificate request without submitting it to CA:
+
+----
+$ CRMFPopClient \
+    -d ~/.dogtag/nssdb \
+    -p Secret.123 \
+    -a rsa \
+    -l 1024 \
+    -b kra_transport.crt \
+    -n "uid=testuser,o=example"
+-----BEGIN NEW CERTIFICATE REQUEST-----
+MIIFRDCCBUAwggSmAgEBMIHDgAECpRwwGjEYMBYGCgmSJomT8ixkAQETCHRlc3R1
+c2VypoGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCp54GKKkFMW/Conp1ZawSh
+sYHTeVsU1DOKKt30rmSIi/afdy7+V99E6DSIETv8STFVwNktW8pookFbVt004SZR
+fNgXg2jIO2rf467nVf6I5mhjSF6ZLH8mucSuP7FQfH6r/pMz8sc2x6KB5EEbeFrV
+AZZoDbY30iU5vsiYp2Y6bQIDAQABMIID2TCCA7MGCSsGAQUFBwUBBKCCA6QwggOg
+oRQGCCqGSIb3DQMHBAgBAQEBAQEBAYKCAQEAnpRiOn5bkkRU7doSpuer70pqysSA
+x+R70aFeMr2PyUxR9iw22FK4eTc+0T6AeNSIfX9BYZwoY12SU4n+ttQphXgZNhyu
+tuiZKh36JdDgJcbBhe6BI53R0IT3/wpqMin1iWLEdNFzCBLLRn463sAGRVm9saCV
+3CV1cfO1XTLXn9YcdC/EKqcEWqz98J3t6DNLupDVDuAoHBobDft3bk8eGWP9BnM8
+Q+Vx6Dh8H9EorYmTVxBJkr9CVrHOdveb71R2a58IZQ9eCFB3hu6vk0EOvk0b9XHp
+XgeVtziN6OSsr36unwub7d0MXva5cZy5t37f4uWJgb8uv9jT2ViJmr3wWAOCAoEA
+GcapcqkrfWd5cEjeA2dj1hlGG1ZoORLhugSDJGeEWRM6LFmv0gkodI5Q+QQqqDEu
+1dAV1sQDqOPfbudkq8E7a3vINuihwWKdGh9GE9VcDH3gk0Bu+atm4SoMrEM0Je04
+RFZJSEFGFdj/1DJZHdVr0S3nD84trquSmnN5p947O33taKKdgfmlp93+Y0R9su6H
+K72a+2kB037nUnItLnp6TATinJqt06Xds1Rs6reXWK6EdGqTUdzKCQ7vK+c8NCbh
+q2mpJnkCxIHvClPPsUGKXMlrEsIkolGm8ycNH1xKkSMuzYYxzSmyU/zPGmNUnJ3o
+GlZAXo21RQp4+xD9dR+VpOi4U8BkAOH7KfSO6ZH5ZpGL/XxhoKaZuwj7XlFv6ihM
+FUW7iZkuZFx+v+iDQcPjnmVY/v/6o0GXC7D5HPv1NxpnrLuCLVy58f3E3Fu64XeX
+JSq5Ch9m1/3g9e/xSZP5KHx7DBbgNzk9vfPjqpZ77uScIWMB+Dg1tooSe0anb5wm
+/hIxv+6NI8ruj+47oAL+pqxHUg+pnQqW83shl/JIbIf5RbYvusDdn+3Gk3AqOgW+
+rs9RYFeYb4aRcwdFF+vgV1gDAkIhKWlLy6uKMmQSXdXqIXXVvi0LJalgL4Erl2Py
+LCNoKRNsDJbqxtEds2CXWmjf6qVRZADQNiu9lUDhY5XC38auosR1rZGTZ+QvMi9u
++BZlGnbwxEGdZ0e0Ug9zMnZUrO8JniI2d+zBo/PqzhFJjTa0pDWE7rMzHazriroh
+ysP9JlL+CcAx7VPt6sEFsA7YVDXVrMLUBwUJzKqqT8c4QZPoyItxz0hWKuhfz5IC
+Yr7eVvNNAdjmtqiE04N4vjAgBggrBgEFBQcHFwQU5mnJXy7/pJCuc+ZEzD+eHZZ3
+nFChgZMwDQYJKoZIhvcNAQEEBQADgYEAiN661XjIYn4mDdQlYwaqXpNzt2ySWysk
+57FO9jd/l3Ngh2N1Jzvx7T/5N9OEbpGYrfXnS+8Iy+xSRouL//A7r1Q2iT67PEO4
+2a0YnoHMwF3tR3MEY2cmq97rdW+G7Tv1q/X++jjAZhhByieDm94WlXHVY6kjoXn+
+JovTekCfljA=
+-----END NEW CERTIFICATE REQUEST-----
+----
+
+To generate a certificate request and submit it to CA, see link:../Submitting-Certificate-Request-with-Key-Archival.adoc[Submitting Certificate Request with Key Archival].
+

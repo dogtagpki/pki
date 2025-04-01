@@ -1,0 +1,132 @@
+= Using PKI TPS Configuration CLI =
+
+== Displaying TPS Configuration ==
+
+To display the TPS configuration:
+
+----
+$ pki -n caadmin tps-config-show
+-------------
+Configuration
+-------------
+  Properties:
+    applet._000: #########################################
+    applet._001: # applet information
+    applet._002: # SAF Key:
+    applet._003: # applet.aid.cardmgr_instance=A0000001510000
+    applet._004: # Stock RSA,KeyRecover applet : 1.4.54de790f.ijc
+    applet._005: # Beta RSA/KeyRecovery/GP211/SCP02 applet : 1.5.558cdcff.ijc
+    applet._006: # Use GP211 applet only with SCP02 card
+    applet._007: #########################################
+    applet.aid.cardmgr_instance: A0000000030000
+    applet.aid.netkey_file: 627601FF0000
+    applet.aid.netkey_instance: 627601FF000000
+    applet.aid.netkey_old_file: A000000001
+    applet.aid.netkey_old_instance: A00000000101
+    applet.delete_old: true
+    applet.so_pin: 000000000000
+    channel._000: #########################################
+    channel._001: # channel.encryption:
+    channel._002: #
+    channel._003: #   - enable encryption for all operation commands to token
+    channel._004: #   - default is true
+    channel._005: #  channel.blocksize=224
+    channel._006: #  channel.defKeyVersion=0
+    channel._007: #  channel.defKeyIndex=0
+    channel._008: #
+    channel._009: #  Config the size of memory managed memory in the applet
+    channel._010: #  Default is 5000, try not go get close to the instanceSize
+    channel._011: #  which defaults to 18000:
+    channel._012: #
+    channel._013: #  * channel.instanceSize=18000
+    channel._014: #  * channel.appletMemorySize=5000
+    channel._015: #########################################
+    channel.blocksize: 224
+    channel.defKeyIndex: 0
+    channel.defKeyVersion: 0
+    channel.encryption: true
+    failover.pod.enable: false
+    general.applet_ext: ijc
+    general.pwlength.min: 16
+    general.search.sizelimit.default: 100
+    general.search.sizelimit.max: 2000
+    general.search.timelimit.default: 10
+    general.search.timelimit.max: 10
+    general.verifyProof: 1
+----
+
+To download the TPS configuration into a file:
+
+----
+$ pki -n caadmin tps-config-show --output tps.json
+----------------------------------
+Stored configuration into tps.json
+----------------------------------
+----
+
+The configuration will be stored in JSON format:
+
+----
+{
+  "properties" : {
+    "applet._000" : "#########################################",
+    "applet._001" : "# applet information",
+    "applet._002" : "# SAF Key:",
+    "applet._003" : "# applet.aid.cardmgr_instance=A0000001510000",
+    "applet._004" : "# Stock RSA,KeyRecover applet : 1.4.54de790f.ijc",
+    "applet._005" : "# Beta RSA/KeyRecovery/GP211/SCP02 applet : 1.5.558cdcff.ijc",
+    "applet._006" : "# Use GP211 applet only with SCP02 card",
+    "applet._007" : "#########################################",
+    "applet.aid.cardmgr_instance" : "A0000000030000",
+    "applet.aid.netkey_file" : "627601FF0000",
+    "applet.aid.netkey_instance" : "627601FF000000",
+    "applet.aid.netkey_old_file" : "A000000001",
+    "applet.aid.netkey_old_instance" : "A00000000101",
+    "applet.delete_old" : "true",
+    "applet.so_pin" : "000000000000",
+    "channel._000" : "#########################################",
+    "channel._001" : "# channel.encryption:",
+    "channel._002" : "#",
+    "channel._003" : "#   - enable encryption for all operation commands to token",
+    "channel._004" : "#   - default is true",
+    "channel._005" : "#  channel.blocksize=224",
+    "channel._006" : "#  channel.defKeyVersion=0",
+    "channel._007" : "#  channel.defKeyIndex=0",
+    "channel._008" : "#",
+    "channel._009" : "#  Config the size of memory managed memory in the applet",
+    "channel._010" : "#  Default is 5000, try not go get close to the instanceSize",
+    "channel._011" : "#  which defaults to 18000:",
+    "channel._012" : "#",
+    "channel._013" : "#  * channel.instanceSize=18000",
+    "channel._014" : "#  * channel.appletMemorySize=5000",
+    "channel._015" : "#########################################",
+    "channel.blocksize" : "224",
+    "channel.defKeyIndex" : "0",
+    "channel.defKeyVersion" : "0",
+    "channel.encryption" : "true",
+    "failover.pod.enable" : "false",
+    "general.applet_ext" : "ijc",
+    "general.pwlength.min" : "16",
+    "general.search.sizelimit.default" : "100",
+    "general.search.sizelimit.max" : "2000",
+    "general.search.timelimit.default" : "10",
+    "general.search.timelimit.max" : "10",
+    "general.verifyProof" : "1"
+  },
+  "link" : {
+    "relationship" : "self",
+    "href" : "https://pki.example.com:8443/tps/rest/config"
+  }
+}
+----
+
+== Modifying TPS Configuration ==
+
+To update the TPS configuration, download the existing configuration into a file using the `tps-config-show` command above.
+Edit the file, then execute the following command:
+
+----
+$ pki -n caadmin tps-config-mod --input tps.json
+----
+
+To save the updated configuration into a file, specify the `--output` parameter.
