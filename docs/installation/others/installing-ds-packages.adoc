@@ -1,0 +1,17 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="installing-ds-packages"]
+= Installing DS packages 
+
+// This was copied partially from https://github.com/dogtagpki/pki/wiki/Installing-DS-Server
+
+Prior to installing the Directory Server (DS) instances, one needs to install the DS packages.
+
+To install DS packages:
+
+[literal,subs="+quotes,verbatim"]
+....
+$ dnf install -y 389-ds-base
+....
+
+After successfully installing the DS packages, follow the instructions to xref:creating-ds-instance.adoc[install DS instances].

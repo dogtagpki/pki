@@ -1,1 +1,0 @@
-Converted/moved to [Installing_OCSP_with_External_Certificates.adoc](../ocsp/Installing_OCSP_with_External_Certificates.adoc)

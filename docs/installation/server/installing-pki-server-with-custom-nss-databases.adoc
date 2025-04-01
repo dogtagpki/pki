@@ -1,0 +1,89 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="installing-pki-server-with-custom-nss-databases"]
+= Installing PKI Server with Custom NSS Databases
+
+
+Follow this process to create a PKI server with custom NSS databases.
+
+Normally, when installing a PKI subsystem, for example CA, some NSS databases are created by default:
+
+* server NSS database: /var/lib/pki/pki-tomcat/conf/alias
+* admin NSS database: ~/.dogtag/pki-tomcat/ca/alias
+
+Under some circumstances the admin may want to use custom NSS databases, for example with trust policy.
+In those cases the installation can be done in multiple steps:
+
+* create a basic PKI server
+* optionally, create a custom NSS database for the server
+* optionally, create a custom NSS database for the admin
+* install PKI subsystem with regular installation procedure
+
+== Creating Basic PKI Server
+
+To create a basic PKI server, execute the following command:
+
+[literal,subs="+quotes,verbatim"]
+....
+$ pki-server create
+....
+
+This will create a server in /var/lib/pki/pki-tomcat with configuration files in /var/lib/pki/pki-tomcat/conf.
+
+See also link:https://github.com/dogtagpki/pki/wiki/PKI-Server-CLI[PKI Server CLI].
+
+== Creating Custom NSS Database for PKI Server
+
+To create a custom NSS database for the server execute the following commands:
+
+[literal,subs="+quotes,verbatim"]
+....
+$ pki-server nss-create --password <server password>
+....
+
+To enable trust policy:
+
+[literal,subs="+quotes,verbatim"]
+....
+$ modutil \
+    -dbdir /var/lib/pki/pki-tomcat/conf/alias \
+    -add p11-kit-trust \
+    -libfile /usr/share/pki/lib/p11-kit-trust.so
+....
+
+See also link:https://github.com/dogtagpki/pki/wiki/PKI-Server-NSS-CLI[PKI Server NSS CLI].
+
+== Creating Custom NSS Database for PKI Administrator
+
+To create a custom NSS database for the admin execute the following commands:
+
+[literal,subs="+quotes,verbatim"]
+....
+$ pki -d ~/.dogtag/pki-tomcat/ca/alias -c <client password> nss-create
+....
+
+To enable trust policy:
+
+[literal,subs="+quotes,verbatim"]
+....
+$ modutil \
+    -dbdir ~/.dogtag/pki-tomcat/ca/alias \
+    -add p11-kit-trust \
+    -libfile /usr/share/pki/lib/p11-kit-trust.so
+....
+
+See also link:https://github.com/dogtagpki/pki/wiki/PKI-NSS-CLI[PKI NSS CLI].
+
+== Installling PKI Subsystem
+
+To install a PKI subsystem in this server, follow the regular link:https://www.dogtagpki.org/wiki/PKI_10_Installation[installation procedure].
+Make sure to use the same NSS database passwords, for example:
+
+[literal,subs="+quotes,verbatim"]
+----
+[DEFAULT]
+pki_server_database_password=<server password>
+
+[CA]
+pki_client_database_password=<client password>
+----

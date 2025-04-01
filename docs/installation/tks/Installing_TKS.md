@@ -1,1 +1,0 @@
-Converted/moved to [Installing_TKS.adoc](../tks/Installing_TKS.adoc)

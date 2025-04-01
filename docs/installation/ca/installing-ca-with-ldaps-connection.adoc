@@ -1,0 +1,135 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="installing-ca-with-ldaps-connection"]
+= Installing CA with LDAPS connection
+
+Follow this process to install a CA subsystem with a secure database connection.
+
+Prior to installation, ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
+
+== DS configuration 
+
+Once the prerequisites listed above are completed, if you chose to use the DS bootstrap certificates during DS instance creation, then export the bootstrap self-signed certificate into `ds_signing.crt` as follows:
+
+[literal,subs="+quotes,verbatim"]
+....
+$ certutil -L -d /etc/dirsrv/slapd-localhost -n Self-Signed-CA -a > ds_signing.crt
+....
+
+== CA subsystem installation 
+
+Prepare a deployment configuration, for example `ca-secure-ds.cfg`, to deploy CA subsystem. By default the subsystem is deployed into a Tomcat instance called `pki-tomcat`.
+
+A sample deployment configuration is available at xref:../../../base/server/examples/installation/ca-secure-ds.cfg[/usr/share/pki/server/examples/installation/ca-secure-ds.cfg].
+
+To start the installation, execute the following command:
+
+[literal,subs="+quotes,verbatim"]
+....
+$ pkispawn -f ca-secure-ds.cfg -s CA
+....
+
+== CA system certificates 
+
+After installation the CA system certificates with their keys are generated and stored in the server NSS database, that is `/var/lib/pki/pki-tomcat/conf/alias`, and the DS signing certificate is imported into the same NSS database:
+
+[literal,subs="+quotes,verbatim"]
+....
+$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
+
+Certificate Nickname                                         Trust Attributes
+                                                             SSL,S/MIME,JAR/XPI
+
+ds_signing                                                   CT,C,C
+ca_signing                                                   CTu,Cu,Cu
+ca_ocsp_signing                                              u,u,u
+subsystem                                                    u,u,u
+ca_audit_signing                                             u,u,Pu
+sslserver                                                    u,u,u
+....
+
+If necessary, the CA system certificates can be exported into PEM files with the following command:
+
+[literal,subs="+quotes,verbatim"]
+....
+$ pki-server cert-export <cert ID> --cert-file <filename>
+....
+
+The valid IDs for CA system certificates are:
+
+* `ca_signing`
+* `ca_ocsp_signing`
+* `ca_audit_signing`
+* `subsystem`
+* `sslserver`
+
+Note that the `pki-server cert-export` command takes a certificate ID instead of a nickname. For simplicity the nicknames in this example are configured to be the same as the certificate ID.
+
+== CA database configuration 
+
+The CA database configuration can be displayed with the following command:
+
+[literal,subs="+quotes,verbatim"]
+....
+$ pki-server ca-db-config-show
+  Hostname: pki.example.com
+  Port: 636
+  Secure: true
+  Authentication: BasicAuth
+  Bind DN: cn=Directory Manager
+  Bind Password Prompt: internaldb
+  Database: ca
+  Base DN: dc=ca,dc=pki,dc=example,dc=com
+  Multiple suffix: false
+  Maximum connections: 15
+  Minimum connections: 3
+....
+
+== Admin certificate 
+
+After installation the admin certificate and key are stored in `~/.dogtag/pki-tomcat/ca_admin_cert.p12`. The PKCS #12 password is specified in the `pki_client_pkcs12_password` parameter.
+
+To use the admin certificate, do the following.
+
+. Export the CA signing certificate from the server NSS database:
++
+[literal,subs="+quotes,verbatim"]
+....
+$ pki-server cert-export ca_signing --cert-file ca_signing.crt
+....
+
+. Import the CA signing certificate into the client NSS database:
++
+[literal,subs="+quotes,verbatim"]
+....
+$ pki nss-cert-import --cert ca_signing.crt --trust CT,C,C ca_signing
+....
+
+. Import admin certificate and key into the client NSS database (by default ~/.dogtag/nssdb) with the following command:
++
+[literal,subs="+quotes,verbatim"]
+....
+$ pki pkcs12-import \
+    --pkcs12 ~/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+    --pkcs12-password Secret.123
+....
+
+. To verify that the admin certificate can be used to access the CA subsystem, execute the following command:
++
+[literal,subs="+quotes,verbatim"]
+....
+$ pki -n caadmin ca-user-show caadmin
+--------------
+User "caadmin"
+--------------
+  User ID: caadmin
+  Full name: caadmin
+  Email: caadmin@example.com
+  Type: adminType
+  State: 1
+....
+
+== Getting real DS certificate from the CA
+
+If desired, follow xref:../others/getting-ds-cert-issued-by-actual-ca.adoc[this procedure] to get real DS certificate issued by the CA.
+

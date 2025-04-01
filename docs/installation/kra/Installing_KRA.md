@@ -1,1 +1,0 @@
-Converted/moved to [Installing_KRA.adoc](../kra/Installing_KRA.adoc)
