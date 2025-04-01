@@ -99,7 +99,6 @@ policyset.userCertSet.11.constraint.params.password.minNumber=2
 policyset.userCertSet.11.constraint.params.password.minSpecialChar=2
 policyset.userCertSet.11.constraint.params.password.seqLength=6
 policyset.userCertSet.11.constraint.params.password.maxRepeatedChar=3
-policyset.userCertSet.11.constraint.params.password.cracklibCheck=false
 policyset.userCertSet.11.default.class_id=noDefaultImpl
 policyset.userCertSet.11.default.name=No Default
 
@@ -113,25 +112,13 @@ This policy  allows to set:
 * `password.minSpecialChar` - the minimum number of punctuation characters;
 * `password.seqLength` - the size of substring sequence which cannot be repeated;
 * `password.maxRepeatedChar` - maximum number of repeating for each character;
-* `password.cracklibCheck` - a boolean to request an additional check with *cracklib* (it has to be installed if not present).
 
- If the constraint does not include specific configuration it will
+If the constraint does not include specific configuration it will
 read the options from the `CS.cfg`. In the case the name is different,
 the prefix `password.*` is replaced by `passwordChecker.*`. The
 configuration in `CS.cfg` are used for all the passwords but each
 profile can overwrite to allow stronger or weaker passwords.
 
-
-NOTE: If cracklibCheck=true is enabled, SELinux may block /usr/sbin/cracklib-check, preventing it from functioning correctly. This can result in unexpected failures during password strength validation. To resolve this issue, apply the necessary SELinux policies using the following commands, which adjust SELinux settings to allow cracklib-check to execute as expected.
-
-Apply the necessary SELinux policies:
-
-[literal,subs="+quotes,verbatim"]
-....
-# setsebool -P domain_can_mmap_files 1
-# ausearch -c 'cracklib-check' --raw | audit2allow -M my-cracklibcheck
-# semodule -X 300 -i my-cracklibcheck.pp
-....
 
 
 Key type and key size parameters can be configured as exemplified below:
