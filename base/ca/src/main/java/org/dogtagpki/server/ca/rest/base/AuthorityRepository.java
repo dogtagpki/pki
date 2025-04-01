@@ -55,19 +55,19 @@ import com.netscape.cmscore.logging.Auditor;
  * @author Marco Fargetta {@literal <mfargett@redhat.com>}
  * @author ftweedal
  */
-public class Authority {
-    private static Logger logger = LoggerFactory.getLogger(Authority.class);
+public class AuthorityRepository {
+    private static Logger logger = LoggerFactory.getLogger(AuthorityRepository.class);
 
     private CAEngine engine;
 
-    public Authority(CAEngine engine) {
+    public AuthorityRepository(CAEngine engine) {
         this.engine = engine;
     }
 
     public List<AuthorityData> findCAs(final String id, final String parentID, final String dn, final String issuerDN) throws IOException {
         final X500Name x500dn = dn == null ? null : new X500Name(dn);
         final X500Name x500issuerDN = issuerDN == null ? null : new X500Name(issuerDN);
-        logger.info("Authority: getting authorities:");
+        logger.info("AuthorityRepository: Getting authorities:");
 
         return engine.getCAs().stream().
                 map(this::readAuthorityData).
@@ -78,22 +78,22 @@ public class Authority {
                         if (x500dn != null && !x500dn.equals(new X500Name(auth.getDN()))) return false;
                         if (x500issuerDN != null && !x500issuerDN.equals(new X500Name(auth.getIssuerDN()))) return false;
                     } catch (IOException e) {
-                        logger.error("Authority: error converting DNs for authority {}", auth.getID());
+                        logger.error("AuthorityRepository: Unable to convert DNs for authority {}", auth.getID());
                         return false;
                     }
-                    logger.info("Authority: - ID: {}", auth.getID());
-                    logger.info("Authority:   DN: {}", auth.getDN());
+                    logger.info("AuthorityRepository: - ID: {}", auth.getID());
+                    logger.info("AuthorityRepository:   DN: {}", auth.getDN());
                     if (auth.getParentID() != null) {
-                        logger.info("Authority:   Parent ID: {}", auth.getParentID());
+                        logger.info("AuthorityRepository:   Parent ID: {}", auth.getParentID());
                     }
-                    logger.info("Authority:   Issuer DN: {}", auth.getIssuerDN());
+                    logger.info("AuthorityRepository:   Issuer DN: {}", auth.getIssuerDN());
                     return true;
                 }).
                 collect(Collectors.toList());
     }
 
     public AuthorityData getCA(String authId) {
-        logger.info("Authority: getting authority {}:", authId);
+        logger.info("AuthorityRepository: Getting authority {}:", authId);
 
         AuthorityID aid = null;
         if (!AuthorityResource.HOST_AUTHORITY.equals(authId)) {
@@ -111,11 +111,11 @@ public class Authority {
 
         AuthorityData authority = readAuthorityData(ca);
 
-        logger.info("Authority:   DN: {}", authority.getDN());
+        logger.info("AuthorityRepository:   DN: {}", authority.getDN());
         if (authority.getParentID() != null) {
-            logger.info("Authority:   Parent ID: {}", authority.getParentID());
+            logger.info("AuthorityRepository:   Parent ID: {}", authority.getParentID());
         }
-        logger.info("Authority:   Issuer DN: {}", authority.getIssuerDN());
+        logger.info("AuthorityRepository:   Issuer DN: {}", authority.getIssuerDN());
 
         return authority;
     }
@@ -123,7 +123,7 @@ public class Authority {
 
     public byte[] getBinaryCert(String authId) {
 
-        logger.info("Authority: getting cert for authority {}", authId);
+        logger.info("AuthorityRepository: Getting cert for authority {}", authId);
 
         AuthorityID aid = null;
         if (!AuthorityResource.HOST_AUTHORITY.equals(authId)) {
@@ -158,7 +158,7 @@ public class Authority {
 
     public byte[] getBinaryChain(String authId) {
 
-        logger.info("Authority: getting cert chain for authority {}", authId);
+        logger.info("AuthorityRepository: Getting cert chain for authority {}", authId);
 
         AuthorityID aid = null;
         if (!AuthorityResource.HOST_AUTHORITY.equals(authId)) {
@@ -193,7 +193,7 @@ public class Authority {
     }
 
     public AuthorityData createCA(AuthorityData data) {
-        logger.info("Authority: Creating authority {}", data.getDN());
+        logger.info("AuthorityRepository: Creating authority {}", data.getDN());
 
         CertificateAuthority hostCA = engine.getCA();
         String parentAIDString = data.getParentID();
@@ -246,7 +246,7 @@ public class Authority {
     }
 
     public AuthorityData modifyCA(String authId, AuthorityData data) {
-        logger.info("Authority: modifying authority {}", authId);
+        logger.info("AuthorityRepository: Modifying authority {}", authId);
 
         AuthorityID aid = null;
         try {
@@ -261,7 +261,7 @@ public class Authority {
 
         Map<String, String> auditParams = new LinkedHashMap<>();
         if (Boolean.valueOf(ca.getAuthorityEnabled()).equals(data.getEnabled())) {
-            logger.info("Authority:   enabled: {}", data.getEnabled());
+            logger.info("AuthorityRepository:   enabled: {}", data.getEnabled());
             auditParams.put("enabled", data.getEnabled().toString());
         }
 
@@ -269,7 +269,7 @@ public class Authority {
         String newDesc = data.getDescription();
         if (curDesc != null && !curDesc.equals(newDesc)
                 || curDesc == null && newDesc != null) {
-            logger.info("Authority:   description: {}", data.getDescription());
+            logger.info("AuthorityRepository:   description: {}", data.getDescription());
             auditParams.put("description", data.getDescription());
         }
 
@@ -295,7 +295,7 @@ public class Authority {
     }
 
     public void renewCA(String authId, HttpServletRequest request) {
-        logger.info("Authority: renewing cert for authority {}", authId);
+        logger.info("AuthorityRepository: Renewing cert for authority {}", authId);
 
         AuthorityID aid = null;
         try {
@@ -328,7 +328,7 @@ public class Authority {
 
     public void deleteCA(String authId, HttpServletRequest httpReq) {
 
-        logger.info("Authority: deleting authority {}", authId);
+        logger.info("AuthorityRepository: Deleting authority {}", authId);
 
         AuthorityID aid = null;
         try {

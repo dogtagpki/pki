@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.dogtagpki.server.ca.rest.base.Authority;
+import org.dogtagpki.server.ca.rest.base.AuthorityRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,12 +40,12 @@ public class AuthorityServlet extends CAServlet {
     private static final long serialVersionUID = 1L;
     private static Logger logger = LoggerFactory.getLogger(AuthorityServlet.class);
 
-    private Authority authority;
+    private AuthorityRepository authorityRepository;
 
     @Override
     public void init() throws ServletException {
         super.init();
-        authority = new Authority(engine);
+        authorityRepository = new AuthorityRepository(engine);
     }
 
     @WebAction(method = HttpMethod.GET, paths = {""})
@@ -58,7 +58,7 @@ public class AuthorityServlet extends CAServlet {
         String issuerDN = request.getParameter("issuerDN");
         List<AuthorityData> authorities;
         try {
-            authorities = authority.findCAs(id, parentID, dn, issuerDN);
+            authorities = authorityRepository.findCAs(id, parentID, dn, issuerDN);
         } catch (IOException e) {
             throw new BadRequestException("DNs not valid");
         }
@@ -73,7 +73,7 @@ public class AuthorityServlet extends CAServlet {
         logger.debug("AuthorityServlet.getCA(): session: {}", session.getId());
         String[] pathElement = request.getPathInfo().substring(1).split("/");
         String aid = pathElement[0];
-        AuthorityData ca = authority.getCA(aid);
+        AuthorityData ca = authorityRepository.getCA(aid);
         PrintWriter out = response.getWriter();
         out.println(ca.toJSON());
     }
@@ -90,14 +90,14 @@ public class AuthorityServlet extends CAServlet {
 
         if (accept.contains(MediaType.APPLICATION_X_PEM_FILE)) {
             response.setContentType(MediaType.APPLICATION_X_PEM_FILE);
-            String cert = authority.getPemCert(aid);
+            String cert = authorityRepository.getPemCert(aid);
             PrintWriter out = response.getWriter();
             out.println(cert);
             return;
         }
         if (accept.equals(MediaType.ANYTYPE) || accept.contains(MediaType.APPLICATION_PKIX_CERT)) {
             response.setContentType(MediaType.APPLICATION_PKIX_CERT);
-            byte[] cert = authority.getBinaryCert(aid);
+            byte[] cert = authorityRepository.getBinaryCert(aid);
             OutputStream out = response.getOutputStream();
             out.write(cert);
             return;
@@ -117,14 +117,14 @@ public class AuthorityServlet extends CAServlet {
 
         if (accept.contains(MediaType.APPLICATION_X_PEM_FILE)) {
             response.setContentType(MediaType.APPLICATION_X_PEM_FILE);
-            String cert = authority.getPemChain(aid);
+            String cert = authorityRepository.getPemChain(aid);
             PrintWriter out = response.getWriter();
             out.println(cert);
             return;
         }
         if (accept.equals(MediaType.ANYTYPE) || accept.contains(MediaType.APPLICATION_PKCS7)) {
             response.setContentType(MediaType.APPLICATION_PKCS7);
-            byte[] cert = authority.getBinaryChain(aid);
+            byte[] cert = authorityRepository.getBinaryChain(aid);
             OutputStream out = response.getOutputStream();
             out.write(cert);
             return;
@@ -138,7 +138,7 @@ public class AuthorityServlet extends CAServlet {
         logger.debug("AuthorityServlet.createCA(): session: {}", session.getId());
         String requestData = request.getReader().lines().collect(Collectors.joining());
         AuthorityData reqAuthority = JSONSerializer.fromJSON(requestData, AuthorityData.class);
-        AuthorityData newAuthhority = authority.createCA(reqAuthority);
+        AuthorityData newAuthhority = authorityRepository.createCA(reqAuthority);
         String encodedGroupID = URLEncoder.encode(newAuthhority.getID(), "UTF-8");
         StringBuffer uri = request.getRequestURL();
         uri.append("/" + encodedGroupID);
@@ -156,7 +156,7 @@ public class AuthorityServlet extends CAServlet {
         String aid = pathElement[0];
         String requestData = request.getReader().lines().collect(Collectors.joining());
         AuthorityData reqAuthority = JSONSerializer.fromJSON(requestData, AuthorityData.class);
-        AuthorityData newAuthhority = authority.modifyCA(aid, reqAuthority);
+        AuthorityData newAuthhority = authorityRepository.modifyCA(aid, reqAuthority);
         PrintWriter out = response.getWriter();
         out.println(newAuthhority.toJSON());
     }
@@ -167,7 +167,7 @@ public class AuthorityServlet extends CAServlet {
         logger.debug("AuthorityServlet.deleteCA(): session: {}", session.getId());
         String[] pathElement = request.getPathInfo().substring(1).split("/");
         String aid = pathElement[0];
-        authority.deleteCA(aid, request);
+        authorityRepository.deleteCA(aid, request);
         response.setStatus(HttpServletResponse.SC_NO_CONTENT);
     }
 
@@ -178,7 +178,7 @@ public class AuthorityServlet extends CAServlet {
         String[] pathElement = request.getPathInfo().substring(1).split("/");
         String aid = pathElement[0];
         AuthorityData reqAuthority = new AuthorityData(null, null, null, null, null, null, true, null, null);
-        AuthorityData newAuthhority = authority.modifyCA(aid, reqAuthority);
+        AuthorityData newAuthhority = authorityRepository.modifyCA(aid, reqAuthority);
         PrintWriter out = response.getWriter();
         out.println(newAuthhority.toJSON());
     }
@@ -190,7 +190,7 @@ public class AuthorityServlet extends CAServlet {
         String[] pathElement = request.getPathInfo().substring(1).split("/");
         String aid = pathElement[0];
         AuthorityData reqAuthority = new AuthorityData(null, null, null, null, null, null, false, null, null);
-        AuthorityData newAuthhority = authority.modifyCA(aid, reqAuthority);
+        AuthorityData newAuthhority = authorityRepository.modifyCA(aid, reqAuthority);
         PrintWriter out = response.getWriter();
         out.println(newAuthhority.toJSON());
     }
@@ -201,7 +201,7 @@ public class AuthorityServlet extends CAServlet {
         logger.debug("AuthorityServlet.renewCA(): session: {}", session.getId());
         String[] pathElement = request.getPathInfo().substring(1).split("/");
         String aid = pathElement[0];
-        authority.renewCA(aid, request);
+        authorityRepository.renewCA(aid, request);
         response.setStatus(HttpServletResponse.SC_NO_CONTENT);
     }
 }
