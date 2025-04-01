@@ -1,0 +1,124 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="installing-est"]
+= Installing EST 
+
+Follow this process to install an _EST subsystem_.
+
+The *EST subsystem* requires the package `dogtag-pki-est` installed on the server where the instance is run:
+[literal,subs="+quotes,verbatim"]
+....
+# dnf install dogtag-pki-est
+....
+
+== Prerequisites 
+
+On the CA, create a user group for EST RA accounts (*EST RA Agents*), and an EST RA account (**est-ra-1**). The EST subsystem uses this account to authenticate to
+the CA subsystem and issue certificates on behalf of EST clients.
+
+Note: The commands below assume that the CA is running on the same host with the default port and the nssdb is located in `~/.dogtag/nssdb`. To point to a CA on a different host or with a different port use the options `-h <hostname>`, `-p <port_number>` or `-U <CA_uri`. To use a different nssdb use the option `-d <nssdb_path>`.
+
+[literal,subs="+quotes,verbatim"]
+....
+# pki -n caadmin ca-group-add "EST RA Agents"
+---------------------------
+Added group "EST RA Agents"
+---------------------------
+  Group ID: EST RA Agents
+
+# pki -n caadmin ca-user-add \
+      est-ra-1 --fullName "EST RA 1" --password password4ESTUser
+---------------------
+Added user "est-ra-1"
+---------------------
+  User ID: est-ra-1
+  Full name: EST RA 1
+# pki -n caadmin ca-group-member-add "EST RA Agents" est-ra-1
+-----------------------------
+  Added group member "est-ra-1"
+-----------------------------
+  User: est-ra-1
+....
+
+Add and enable the EST enrollment profile `estServiceCert.cfg`, which is available in `/usr/share/pki/ca/profiles/ca` if the *dogtag-pki-ca* package is installed:
+
+[literal,subs="+quotes,verbatim"]
+....
+# pki -n caadmin ca-profile-add --raw /usr/share/pki/ca/profiles/ca/estServiceCert.cfg
+----------------------------
+Added profile estServiceCert
+----------------------------
+# pki -n caadmin ca-profile-enable estServiceCert
+--------------------------------
+Enabled profile "estServiceCert"
+--------------------------------
+....
+
+Note: Before enabling the profile, verify if the options satisfy the requirement for the deployment.
+
+*EST* subsystem has its own realm authentication with a separate user DB. _LDAP_, _PostreSQL_ and file based DB are supported. The DB has to be prepared in advance for authentication to work. Instructions to set up the user DB are available in xref:configure-est-realm-db.adoc[Configure EST Realm DB].
+
+== Installing EST subsystem
+
+There are two options for the installation:
+
+* Basic installation with `pkispawn`. See xref:installing-est-pkispawn.adoc[Installing EST pkispawn];
+
+* Advanced installation with `pki-server`. See xref:../est/installing-est-pki-server.adoc[Installing EST pki-server]. It requires more manual configuration but provides more control over the installation process since each step can be verified and eventually customized and repeated.
+
+== Verifying EST 
+
+Before enrolling certificates, EST users must be added in the user database. The user management is not part of EST commands and has to be done outside of EST. Information on how to add users on each database platform can be found in the Administration Guide.
+
+// Note: Currently admin is not yet imported downstream. The import process
+// will automatically comment out the following lines
+
+* _Directory Server_ : xref:../../admin/est/Managing-DS-Realm.adoc[Managing DS Realm]
+* _PostgreSQL_ : xref:../../admin/est/Managing-PostgreSQL-Realm.adoc[Managing PostgreSQL Realm].
+
+Use `curl` to verify that the *EST subsystem* is deployed and is able to communicate with the *CA subsystem*.
+
+The following command prints the CA signing certificate obtained from the server:
+
+[literal,subs="+quotes,verbatim"]
+....
+
+$ curl --cacert ./ca_signing.crt  https://<EST_HOSTNAME>:<EST_PORT>/.well-known/est/cacerts | openssl base64 -d | openssl pkcs7 -inform der -print_certs | openssl x509 -text -noout
+....
+
+Replace `$EST_HOSTNAME` and `$EST_PORT` with the hostname and port of the *EST subsystem*, respectively.
+
+If successful, the server CA certificate chain is printed on standard output and the command will exit with status 0 (success).
+
+To test the enrollment using curl, generate a CSR and submit using a user from the EST user DB associated with the realm. The following commands will perform the enrollment and print the final certificate:
+
+[literal,subs="+quotes,verbatim"]
+....
+$ pki nss-cert-request --csr testServer.csr \
+    --ext /usr/share/pki/server/certs/sslserver.conf --subject 'CN=test.example.com'
+$ openssl req -in testServer.csr -outform der | openssl base64 -out testServer.p10
+
+$ curl --cacert ./ca_signing.crt --anyauth -u est-test-user:Secret.123 \
+    --data-binary @testServer.p10 -H "Content-Type: application/pkcs10" \
+    -o newCert.p7 https://<EST_HOSTNAME>:<EST_PORT>/.well-known/est/simpleenroll
+
+$ openssl base64 -d -in newCert.p7 | openssl pkcs7 -inform der -print_certs | openssl x509 -text -noout
+....
+
+Note: The `testServer.p10` file is a base64 encoded pkcs10 DER without header/footer.
+
+In case the enrollment is done using mutual TLS authentication in the `curl` command above, the credentials have to be replaced with the certificate and related key as follows:
+
+[literal,subs="+quotes,verbatim"]
+....
+$ curl --cacert ./ca_signing.crt --cert cert.pem --key key-x-x.pem \
+    --data-binary @testServer.p10 -H "Content-Type: application/pkcs10"
+    -o newCert.p7 https://<EST_HOSTNAME>:<EST_PORT>/.well-known/est/simpleenroll
+....
+
+When mutual TLS authentication is performed, the CSR subject and SAN has to match with the subject and SAN of the certificate used for the authentication in order to get authorized. Differently, using the basic authentication the CSR subject and SAN will be verified with user full name or user id. This check can be disabled for the _simpleenroll_ operation. To disable this check add the following option to the file `/etc/pki/<instance_name>/est/authorizer.conf`:
+     
+[literal,subs="+quotes,verbatim"]
+....
+enrollMatchTLSSubjSAN=false
+....

@@ -1,0 +1,135 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="installing-kra-clone"]
+= Installing KRA clone 
+
+Follow this process to install a KRA subsystem as a clone of an existing KRA subsystem.
+
+Prior to installation, ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
+
+== Exporting existing KRA system certificates 
+
+On the existing system, export the KRA system certificates with the following command:
+
+[literal,subs="+quotes,verbatim"]
+....
+$ pki-server kra-clone-prepare \
+    --pkcs12-file kra-certs.p12 \
+    --pkcs12-password Secret.123
+....
+
+The command exports the following certificates (including the certificate chain) and their keys into a PKCS #12 file:
+
+* KRA storage certificate
+* KRA transport certificate
+* audit signing certificate
+* subsystem certificate
+
+Note that the existing SSL server certificate is not exported.
+
+If necessary, third-party certificates, for example trust anchors, can be added into the same PKCS #12 file with the following command:
+
+[literal,subs="+quotes,verbatim"]
+....
+$ pki -d /var/lib/pki/pki-tomcat/conf/alias -f /var/lib/pki/pki-tomcat/conf/password.conf \
+    pkcs12-cert-import <nickname> \
+    --pkcs12-file kra-certs.p12 \
+    --pkcs12-password Secret.123 \
+    --append
+....
+
+== Installing KRA subsystem
+
+Prepare a deployment configuration, for example `kra-clone.cfg`, to deploy KRA subsystem clone. By default the subsystem is deployed into a Tomcat instance called `pki-tomcat`.
+
+A sample deployment configuration is available at xref:../../../base/server/examples/installation/kra-clone.cfg[/usr/share/pki/server/examples/installation/kra-clone.cfg].
+
+It assumes that the:
+
+* Primary CA and KRA subsystems are running at https://primary.example.com:8443.
+
+* CA signing certificate has been exported into `ca_signing.crt`.
+
+* Admin certificate and key have been exported into `ca_admin_cert.p12`.
+
+* The PKCS #12 password is specified in the `pki_client_pkcs12_password` parameter.
+
+See xref:../ca/installing-ca.adoc[Installing CA] for details.
+
+To start the installation execute the following command:
+
+[literal,subs="+quotes,verbatim"]
+....
+$ pkispawn -f kra-clone.cfg -s KRA
+....
+
+== KRA system certificates 
+
+After installation, the existing KRA system certificates (including the certificate chain) and their keys are stored in the server NSS database (i.e. `/var/lib/pki/pki-tomcat/conf/alias`), and a new SSL server certificate is created for the new instance:
+
+[literal,subs="+quotes,verbatim"]
+....
+$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
+
+Certificate Nickname                                         Trust Attributes
+                                                             SSL,S/MIME,JAR/XPI
+
+ca_signing                                                   CT,C,C
+kra_storage                                                  u,u,u
+sslserver                                                    u,u,u
+subsystem                                                    u,u,u
+kra_audit_signing                                            u,u,Pu
+kra_transport                                                u,u,u
+....
+
+If necessary, the certificates can be exported into PEM files with the following command:
+
+[literal,subs="+quotes,verbatim"]
+....
+$ pki-server cert-export <cert ID> --cert-file <filename>
+....
+
+The valid certificate IDs for KRA are:
+
+* `kra_storage_signing`
+* `kra_transport_signing`
+* `kra_audit_signing`
+* `subsystem`
+* `sslserver`
+
+Note that the `pki-server cert-export` command takes a certificate ID instead of a nickname. For simplicity the nicknames in this example are configured to be the same as the certificate IDs.
+
+== Admin certificate 
+
+To use the admin certificate, do the following.
+
+. Import the CA signing certificate into the client NSS database:
++
+[literal,subs="+quotes,verbatim"]
+....
+$ pki nss-cert-import --cert ca_signing.crt --trust CT,C,C ca_signing
+....
+
+. Import admin certificate and key into the client NSS database (by default ~/.dogtag/nssdb) with the following command:
++
+[literal,subs="+quotes,verbatim"]
+....
+$ pki pkcs12-import \
+    --pkcs12 ca_admin_cert.p12 \
+    --pkcs12-password Secret.123
+....
+
+. To verify that the admin certificate can be used to access the KRA subsystem clone, execute the following command:
++
+[literal,subs="+quotes,verbatim"]
+....
+$ pki -n caadmin kra-user-show kraadmin
+---------------
+User "kraadmin"
+---------------
+  User ID: kraadmin
+  Full name: kraadmin
+  Email: kraadmin@example.com
+  Type: adminType
+  State: 1
+....

@@ -1,1 +1,0 @@
-Converted/moved to [Installing_OCSP_with_Custom_Keys.adoc](../ocsp/Installing_OCSP_with_Custom_Keys.adoc)

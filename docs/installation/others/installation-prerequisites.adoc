@@ -1,0 +1,11 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="installation-prerequisites"]
+= Installation prerequisites
+
+This section contains the generic prerequisites required prior to installing a PKI subsystem.  Some installation might need additional or different setups.
+
+* xref:fqdn-configuration.adoc[Setting the FQDN of the host system]
+
+* xref:creating-ds-instance.adoc[Creating a directory server instance and adding base entries]
+

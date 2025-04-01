@@ -1,0 +1,55 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="fqdn-configuration"]
+= FQDN configuration 
+
+// this content was copied and modified from https://github.com/dogtagpki/pki/wiki
+
+In order to have a properly functioning PKI system, each machine in the system must have a correct fully qualified domain name.
+
+Follow this process to configure the fully qualified domain name on each machine.
+
+== Verifying FQDN 
+
+To verify the current FQDN, execute the following command:
+
+[literal,subs="+quotes,verbatim"]
+....
+# hostname
+pki.example.com
+....
+
+== Configuring FQDN 
+
+If the host name is not what you expect it to be, run `hostnamectl` to set the hostname.  For example,
+
+. Set the hostname of your pki machine as follows:
++
+[literal,subs="+quotes,verbatim"]
+....
+# hostnamectl set-hostname pki.example.com
+....
+
+. Set the hostname of your DS machine as follows:
++
+[literal,subs="+quotes,verbatim"]
+....
+# hostnamectl set-hostname dir.example.com
+....
+
+. Add both the CS and DS machine IP addresses and new hostnames as entries in `/etc/hosts` of both machines: 
++
+[literal,subs="+quotes,verbatim"]
+....
+127.0.0.1 localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1 localhost localhost.localdomain localhost6 localhost6.localdomain6
+10.1.111.111 pki.example.com
+10.2.222.222 dir.example.com
+....
+
+. Verify the FQDN again after the change:
++
+[literal,subs="+quotes,verbatim"]
+....
+# hostname
+....

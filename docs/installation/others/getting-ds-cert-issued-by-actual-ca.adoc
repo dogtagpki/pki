@@ -1,0 +1,187 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="getting-ds-cert-issued-by-actual-ca"]
+= Getting DS certificate issued by actual CA
+
+// This section is intended for all PKI subsystems
+
+Follow this process using `pki` CLI (run `man pki-client`) commands to get DS certificate issued by the actual CA.
+
+This section assumes that a DS instance named `localhost` already exists,
+
+Two conditions are covered by this section:
+
+* The DS instance does not already have any SSL server certificate, bootstrap or otherwise, and it is time to create an actual server cert for it.
+* The DS instance has a bootstrap SSL server certificate, and you wish to replace it.
+
+It is assumed that an actual trusted CA is available for issuing certificates.
+
+== Export the CA signing certificate
+
+[literal,subs="+quotes,verbatim"]
+....
+pki-server cert-export ca_signing --cert-file ca_signing.crt
+....
+
+== Creating DS server certificate 
+
+=== Generate DS server CSR
+
+As a DS administrator:
+
+[literal,subs="+quotes,verbatim"]
+....
+$ pki \
+    -d /etc/dirsrv/slapd-localhost \
+    -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
+    nss-cert-request \
+    --subject "CN=server.example.com" \
+    --subjectAltName "critical, DNS:server.example.com" \
+    --csr ds_server.csr
+....
+
+*Note:* Make sure the certificate subject DN and SAN match the system hostname.
+
+=== Submit DS server certificate request:
+
+As a DS admin:
+
+[literal,subs="+quotes,verbatim"]
+....
+$ pki ca-cert-request-submit --profile caServerCert --csr-file ds_server.csr
+....
+
+=== Approve the certificate request:
+
+As a PKI agent:
+
+[literal,subs="+quotes,verbatim"]
+....
+$ pki -n caadmin ca-cert-request-review <request ID> --action approve
+....
+
+== Retrieve the certificate
+
+Retrieve the cert as the DS admin user:
+
+[literal,subs="+quotes,verbatim"]
+....
+$  pki ca-cert-export <certificate ID> --output-file ds_server.crt
+....
+
+== Stop the DS instance
+
+Stop the DS instance prior to changing the NSS database.
+
+[literal,subs="+quotes,verbatim"]
+....
+$ dsctl localhost stop
+....
+
+== Import the CA signing certificate
+
+As a DS administrator, import the CA signing cert into the nssdb of the DS instance.
+
+[literal,subs="+quotes,verbatim"]
+....
+# pki \
+    -d /etc/dirsrv/slapd-localhost \
+    -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
+    nss-cert-import \
+    --cert ca_signing.crt \
+    --trust CT,C,C \
+    "CA Signing Cert"
+....
+
+== Delete DS bootstrap certificates
+
+// We could ask them to do a backup before proceeding, but they
+// could just create new bootstrap certs if messed up
+
+If you already had boostrap DS certificates, delete them:
+
+[literal,subs="+quotes,verbatim"]
+....
+$ certutil -F -d /etc/dirsrv/slapd-localhost \
+    -f /etc/dirsrv/slapd-localhost/pwdfile.txt \
+    -n Server-Cert
+$ certutil -F -d /etc/dirsrv/slapd-localhost \
+    -f /etc/dirsrv/slapd-localhost/pwdfile.txt \
+    -n Self-Signed-CA
+....
+
+== Import DS server certificate:
+
+[literal,subs="+quotes,verbatim"]
+....
+$ pki \
+    -d /etc/dirsrv/slapd-localhost \
+    -C /etc/dirsrv/slapd-localhost/pwdfile.txt \
+    nss-cert-import \
+    --cert ds_server.crt \
+    Server-Cert
+....
+
+To verify the DS server certificate:
+
+[literal,subs="+quotes,verbatim"]
+....
+$ certutil -L -d /etc/dirsrv/slapd-localhost -n Server-Cert
+...
+    Certificate Trust Flags:
+        SSL Flags:
+            User
+        Email Flags:
+            User
+        Object Signing Flags:
+            User
+....
+
+== Enabling SSL Connection 
+
+This section only applies if you did not enable SSL in your DS earlier.
+
+. To enable SSL connection in the DS instance:
++
+[literal,subs="+quotes,verbatim"]
+....
+$ dsconf localhost config replace nsslapd-security=on
+....
+
+. Start the DS instance:
++
+[literal,subs="+quotes,verbatim"]
+....
+$ dsctl localhost start
+....
+
+. Verify the SSL connection:
++
+[literal,subs="+quotes,verbatim"]
+....
+$ LDAPTLS_REQCERT=never ldapsearch \
+    -H ldaps://$HOSTNAME:636 \
+    -x \
+    -D "cn=Directory Manager" \
+    -w Secret.123 \
+    -b "" \
+    -s base
+....
+
+== Delete DS bootstrap signing certificate from PKI instance
+
+If you are replacing the DS bootstrap certs, as a PKI administrator, stop the PKI then delete the DS bootstrap signing cert from the PKI nssdb as follows.
+
+[literal,subs="+quotes,verbatim"]
+....
+$ certutil -F -d /var/lib/pki/pki-tomcat/conf/alias \
+    -f /var/lib/pki/pki-tomcat/conf/alias/pwdfile.txt \
+    -n ds_signing
+....
+
+Start the PKI.
+
+== See Also 
+
+* link:https://www.port389.org/docs/389ds/howto/howto-ssl.html[Configuring TLS/SSL Enabled 389 Directory Server]
+* link:https://access.redhat.com/documentation/en-us/red_hat_directory_server/11/html/administration_guide/enabling_tls#doc-wrapper[RHDS 11: Enabling TLS]

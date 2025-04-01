@@ -1,1 +1,0 @@
-Converted/moved to [Installing_TPS_Clone.adoc](../tps/Installing_TPS_Clone.adoc)

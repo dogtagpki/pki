@@ -1,0 +1,133 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="installing-ocsp-with-external-certificates"]
+= Installing OCSP with external certificates 
+
+Follow this process to install an OCSP subsystem with external certificates.
+
+Prior to installation, ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
+
+== Starting OCSP subsystem installation 
+
+. Prepare a file, for example `ocsp-external-certs-step1.cfg`, that contains the first deployment configuration.
++
+A sample deployment configuration is available at xref:../../../base/server/examples/installation/ocsp-external-certs-step1.cfg[/usr/share/pki/server/examples/installation/ocsp-external-certs-step1.cfg].
++
+It assumes that the CA is running at https://ca.example.com:8443, and the CA signing certificate has been exported into `ca_signing.crt`.
+
+. Execute the following command:
++
+[literal,subs="+quotes,verbatim"]
+....
+$ pkispawn -f ocsp-external-certs-step1.cfg -s OCSP
+....
+
+It installs a OCSP subsystem in a Tomcat instance (default is pki-tomcat) and creates the following NSS databases:
+
+* server NSS database: /var/lib/pki/pki-tomcat/conf/alias
+
+* admin NSS database: ~/.dogtag/pki-tomcat/ocsp/alias
+
+It also generates the system keys in the server NSS database and the CSRs in the specified paths.
+
+== Generating OCSP certificates 
+
+Submit the CSRs to an external CA to issue the certificates, then store the certificates in files, for example:
+
+* ocsp_signing.crt
+* subsystem.crt
+* sslserver.crt
+* ocsp_audit_signing.crt
+* ocsp_admin.crt
+
+The certificates can be specified as single certificates or PKCS #7 certificate chains in PEM format.
+
+Store the external CA certificate chain in a file, for example `ca_signing.crt`. The certificate chain can be specified as a single certificate or PKCS #7 certificate chain in PEM format. The certificate chain should include all CA certificates from the root CA to the external CA that issued the OCSP system and admin certificates.
+
+== Finishing OCSP subsystem installation 
+
+. Prepare another file, for example `ocsp-external-certs-step2.cfg`, that contains the second deployment configuration. The file can be created from the first file (i.e. ocsp-external-certs-step1.cfg) with the following changes:
++
+[literal,subs="+quotes,verbatim"]
+....
+pki_external_step_two=True
+....
+
+. Specify the custom certificates with the following parameters:
++
+[literal,subs="+quotes,verbatim"]
+....
+pki_ocsp_signing_cert_path=ocsp_signing.crt
+pki_subsystem_cert_path=subsystem.crt
+pki_sslserver_cert_path=sslserver.crt
+pki_audit_signing_cert_path=ocsp_audit_signing.crt
+pki_admin_cert_path=ocsp_admin.crt
+....
+
+. Specify the external CA certificate chain with the following parameters:
++
+[literal,subs="+quotes,verbatim"]
+....
+pki_cert_chain_nickname=ca_signing
+pki_cert_chain_path=ca_signing.crt
+....
++
+A sample deployment configuration is available at xref:../../../base/server/examples/installation/ocsp-external-certs-step2.cfg[/usr/share/pki/server/examples/installation/ocsp-external-certs-step2.cfg].
+
+. Execute the following command:
++
+[literal,subs="+quotes,verbatim"]
+....
+$ pkispawn -f ocsp-external-certs-step2.cfg -s OCSP
+....
+
+== Verifying system certificates 
+
+Verify that the server NSS database contains the following certificates:
+
+[literal,subs="+quotes,verbatim"]
+....
+$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
+
+Certificate Nickname                                         Trust Attributes
+                                                             SSL,S/MIME,JAR/XPI
+
+ca_signing                                                   CT,C,C
+ocsp_signing                                                 CTu,Cu,Cu
+subsystem                                                    u,u,u
+ocsp_audit_signing                                           u,u,Pu
+sslserver                                                    u,u,u
+....
+
+== Verifying admin certificate 
+
+. Import the external CA certificate chain:
++
+[literal,subs="+quotes,verbatim"]
+....
+$ pki nss-cert-import --cert ca_signing.crt --trust CT,C,C ca_signing
+....
+
+. Import the admin key and certificate:
++
+[literal,subs="+quotes,verbatim"]
+....
+$ pki -c Secret.123 pkcs12-import \
+    --pkcs12 ~/.dogtag/pki-tomcat/ocsp_admin_cert.p12 \
+    --pkcs12-password Secret.123
+....
+
+. Verify that the admin certificate can be used to access the OCSP subsystem by executing the following command:
++
+[literal,subs="+quotes,verbatim"]
+....
+$ pki -c Secret.123 -n ocspadmin ocsp-user-show ocspadmin
+----------------
+User "ocspadmin"
+----------------
+  User ID: ocspadmin
+  Full name: ocspadmin
+  Email: ocspadmin@example.com
+  Type: adminType
+  State: 1
+....
