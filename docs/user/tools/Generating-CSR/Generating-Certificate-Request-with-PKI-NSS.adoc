@@ -1,0 +1,87 @@
+= Generating Certificate Request with PKI NSS =
+
+== Overview ==
+
+The `pki nss-cert-request` command can be used to generate a PKCS #10 request. The request extensions can be defined in a file (e.g. link:https://github.com/dogtagpki/pki/blob/master/base/server/certs/sslserver.conf[/usr/share/pki/server/certs/sslserver.conf]).
+
+----
+basicConstraints       = critical, CA:FALSE
+subjectKeyIdentifier   = hash
+authorityKeyIdentifier = keyid:always
+authorityInfoAccess    = OCSP;URI:http://ocsp.example.com, caIssuers;URI:http://cert.example.com
+keyUsage               = critical, digitalSignature, keyEncipherment
+extendedKeyUsage       = serverAuth, clientAuth
+
+certificatePolicies    = 2.23.140.1.2.1, @cps_policy
+cps_policy.id          = 1.3.6.1.4.1.44947.1.1.1
+cps_policy.CPS.1       = http://cps.example.com
+----
+
+See also link:PKI-NSS-Certificate-Extensions.adoc[PKI NSS Certificate Extensions].
+
+== Generating Basic Certificate Request ==
+
+To generate a basic certificate request:
+
+----
+$ pki nss-cert-request \
+    --subject "CN=$HOSTNAME" \
+    --ext /usr/share/pki/server/certs/sslserver.conf \
+    --csr sslserver.csr
+----
+
+By default it will create a new RSA key. The request will be stored in `sslserver.csr`.
+
+**Availability:** Since PKI 10.9.
+
+== Generating Certificate Request with EC Key ==
+
+To generate a certificate request with a new EC key:
+
+----
+$ pki nss-cert-request \
+    --key-type EC \
+    --subject "CN=$HOSTNAME" \
+    --ext /usr/share/pki/server/certs/sslserver.conf \
+    --csr sslserver.csr
+----
+
+The request will be stored in `sslserver.csr`.
+
+**Availability:** Since PKI 10.9.
+
+== Generating Certificate Request with Existing Key ==
+
+To generate a certificate request with an existing key:
+
+----
+$ pki nss-cert-request \
+    --key-id <key ID> \
+    --subject "CN=$HOSTNAME" \
+    --ext /usr/share/pki/server/certs/sslserver.conf \
+    --csr sslserver.csr
+----
+
+The request will be stored in `sslserver.csr`.
+
+**Availability:** Since PKI 10.9.
+
+== Generating Certificate Request with SAN Extension ==
+
+To generate a certificate request without a subject name and with a SAN extension:
+
+----
+$ pki nss-cert-request \
+    --ext /usr/share/pki/server/certs/sslserver.conf \
+    --subjectAltName "critical, DNS:$HOSTNAME, DNS:pki.example.com" \
+    --csr sslserver.csr
+----
+
+The `--subjectAltName` option will override the `subjectAltName` parameter in the extension configuration file.
+
+**Availability:** Since PKI 11.5.
+
+== See Also ==
+
+* link:../PKI-NSS-CLI.adoc[PKI NSS CLI]
+

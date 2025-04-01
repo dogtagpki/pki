@@ -1,0 +1,104 @@
+= Submitting Certificate Request =
+
+== Overview ==
+
+This document describes the process to submit a certificate request to the Certificate Authority.
+It assumes that the certificate request has been previously link:Generating-CSR/Generating-Certificate-Request.adoc[generated].
+
+Note that the link:PKI-Client-CLI.adoc[PKI Client CLI] provides a simplified mechanism to generate and submit a CSR for client certificates. See link:../../design/Cert_Enrollment_Profiles/Certificate-Profilesadoc[Certificate Profiles].
+
+== Simplified Procedure ==
+
+=== New Certificate Request ===
+
+To generate a new key, new CSR, and submit the CSR to the CA, execute the following command:
+ 
+----
+$ pki \
+    client-cert-request \
+    --profile caDualCert \
+    --type crmf \
+    --transport transport.pem \
+     uid=testuser
+----
+
+=== Existing Certificate Request ===
+
+Since PKI 10.3 an existing certificate request can be submitted with the following command: 
+
+----
+$ pki ca-cert-request-submit --profile <profile> --csr-file <CSR file>
+----
+
+For example:
+
+----
+$ pki ca-cert-request-submit --profile caServerCert --csr-file sslserver.csr
+----
+
+== Advanced Procedure ==
+
+=== Getting Request Template ===
+
+Download the request template into a file:
+
+----
+$ pki ca-cert-request-profile-show <profile> --output request.xml
+----
+
+=== Populate Request Template ===
+
+Edit the template and enter the requested information (e.g. CSR, subject DN):
+
+----
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<CertEnrollmentRequest>
+    ...
+    <Input id="i1">
+        <Attribute name="cert_request_type">
+            <Value>pkcs10</Value>
+            ...
+        </Attribute>
+        <Attribute name="cert_request">
+            <Value>
+-----BEGIN NEW CERTIFICATE REQUEST-----
+MIIBfTCB5wIBADAaMRgwFgYKCZImiZPyLGQBARMIdGVzdHVzZXIwgZ8wDQYJKoZI
+hvcNAQEBBQADgY0AMIGJAoGBAPEcxFJBu2lNmIS+MNaZKO43h0dIhKZWZ8wEomQc
+tc9guIUGM5eFU+psj6n0XQCPMIVRe7mrzYHF8mlwAp416P5/97g9U6JOKkTXc5ia
+HVE1JRhykHiQ17Lp7Y6xXxfe6xKAXDoLOPJ4fNdadtbVeIGjudWktjgwh5CQBXsA
+GFP5AgMBAAGgJDAiBggrBgEFBQcHFzEWBBTmaclfLv+kkK5z5kTMP54dlnecUDAN
+BgkqhkiG9w0BAQQFAAOBgQAXrm979HwcG63Z64u+aybYrfOgyWxQ4kTtCA+NKYge
+HC6Z/mlb10J/wggOzrHUbE4IFyjbBo2k1FKe8zYcXIB6Ok5Z0TXueR1zKcb8hE35
+o9dkH2sGJsSqMLN8NRyY5QeqOKmtaX8pm1aPhJ0wkvOYou52YqJdq6LF9KXmBGOH
+hA==
+-----END NEW CERTIFICATE REQUEST-----
+            </Value>
+            ...
+        </Attribute>
+    </Input>
+    <Input id="i2">
+        ...
+        <Attribute name="sn_uid">
+            <Value>testuser</Value>
+            ...
+        </Attribute>
+    </Input>
+    ...
+</CertEnrollmentRequest>
+----
+
+=== Submitting Certificate Request ===
+
+Submit the request with the following command:
+
+----
+$ pki ca-cert-request-submit request.xml
+-----------------------------
+Submitted certificate request
+-----------------------------
+  Request ID: 28
+  Type: enrollment
+  Request Status: pending
+  Operation Result: success
+----
+

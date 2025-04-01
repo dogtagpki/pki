@@ -1,0 +1,189 @@
+= Using PKI Audit CLI =
+
+== Displaying Audit Configuration ==
+
+To display audit configuration:
+
+----
+$ pki -n caadmin tps-audit-show
+-------------------
+Audit configuration
+-------------------
+  Status: Enabled
+  Signed: false
+  Interval (seconds): 5
+  Buffer size (bytes): 512
+  Events:
+    AUDIT_LOG_SHUTDOWN: mandatory
+    AUDIT_LOG_STARTUP: mandatory
+    AUTHZ_FAIL: enabled
+    AUTHZ_SUCCESS: enabled
+    AUTH_FAIL: enabled
+    AUTH_SUCCESS: enabled
+    CIMC_CERT_VERIFICATION: enabled
+    CONFIG_AUTH: enabled
+    CONFIG_ROLE: enabled
+    CONFIG_SIGNED_AUDIT: enabled
+    CONFIG_TOKEN_AUTHENTICATOR: enabled
+    CONFIG_TOKEN_CONNECTOR: enabled
+    CONFIG_TOKEN_GENERAL: enabled
+    CONFIG_TOKEN_MAPPING_RESOLVER: enabled
+    CONFIG_TOKEN_PROFILE: enabled
+    CONFIG_TOKEN_RECORD: enabled
+    LOGGING_SIGNED_AUDIT_SIGNING: mandatory
+    ROLE_ASSUME: enabled
+    SELFTESTS_EXECUTION: enabled
+    TOKEN_APPLET_UPGRADE_FAILURE: enabled
+    TOKEN_APPLET_UPGRADE_SUCCESS: enabled
+    TOKEN_AUTH_FAILURE: enabled
+    TOKEN_AUTH_SUCCESS: enabled
+    TOKEN_CERT_ENROLLMENT: enabled
+    TOKEN_CERT_RENEWAL: enabled
+    TOKEN_CERT_RETRIEVAL: enabled
+    TOKEN_FORMAT_FAILURE: enabled
+    TOKEN_FORMAT_SUCCESS: enabled
+    TOKEN_KEY_CHANGEOVER_FAILURE: enabled
+    TOKEN_KEY_CHANGEOVER_REQUIRED: enabled
+    TOKEN_KEY_CHANGEOVER_SUCCESS: enabled
+    TOKEN_KEY_RECOVERY: enabled
+    TOKEN_OP_REQUEST: enabled
+    TOKEN_PIN_RESET_FAILURE: enabled
+    TOKEN_PIN_RESET_SUCCESS: enabled
+    TOKEN_STATE_CHANGE: enabled
+----
+
+To download audit configuration into a file:
+
+----
+$ pki -n caadmin tps-audit-show --output audit.json
+------------------------------------------
+Stored audit configuration into audit.json
+------------------------------------------
+----
+
+The audit configuration is stored in JSON format:
+
+----
+{
+  "status" : "Enabled",
+  "signed" : false,
+  "interval" : 5,
+  "bufferSize" : 512,
+  "eventConfigs" : {
+    "AUDIT_LOG_SHUTDOWN" : "mandatory",
+    "AUDIT_LOG_STARTUP" : "mandatory",
+    "AUTHZ_FAIL" : "enabled",
+    "AUTHZ_SUCCESS" : "enabled",
+    "AUTH_FAIL" : "enabled",
+    "AUTH_SUCCESS" : "enabled",
+    "CIMC_CERT_VERIFICATION" : "enabled",
+    "CONFIG_AUTH" : "enabled",
+    "CONFIG_ROLE" : "enabled",
+    "CONFIG_SIGNED_AUDIT" : "enabled",
+    "CONFIG_TOKEN_AUTHENTICATOR" : "enabled",
+    "CONFIG_TOKEN_CONNECTOR" : "enabled",
+    "CONFIG_TOKEN_GENERAL" : "enabled",
+    "CONFIG_TOKEN_MAPPING_RESOLVER" : "enabled",
+    "CONFIG_TOKEN_PROFILE" : "enabled",
+    "CONFIG_TOKEN_RECORD" : "enabled",
+    "LOGGING_SIGNED_AUDIT_SIGNING" : "mandatory",
+    "ROLE_ASSUME" : "enabled",
+    "SELFTESTS_EXECUTION" : "enabled",
+    "TOKEN_APPLET_UPGRADE_FAILURE" : "enabled",
+    "TOKEN_APPLET_UPGRADE_SUCCESS" : "enabled",
+    "TOKEN_AUTH_FAILURE" : "enabled",
+    "TOKEN_AUTH_SUCCESS" : "enabled",
+    "TOKEN_CERT_ENROLLMENT" : "enabled",
+    "TOKEN_CERT_RENEWAL" : "enabled",
+    "TOKEN_CERT_RETRIEVAL" : "enabled",
+    "TOKEN_FORMAT_FAILURE" : "enabled",
+    "TOKEN_FORMAT_SUCCESS" : "enabled",
+    "TOKEN_KEY_CHANGEOVER_FAILURE" : "enabled",
+    "TOKEN_KEY_CHANGEOVER_REQUIRED" : "enabled",
+    "TOKEN_KEY_CHANGEOVER_SUCCESS" : "enabled",
+    "TOKEN_KEY_RECOVERY" : "enabled",
+    "TOKEN_OP_REQUEST" : "enabled",
+    "TOKEN_PIN_RESET_FAILURE" : "enabled",
+    "TOKEN_PIN_RESET_SUCCESS" : "enabled",
+    "TOKEN_STATE_CHANGE" : "enabled"
+  },
+  "link" : {
+    "relationship" : "self",
+    "href" : "https://pki.example.com:8443/tps/rest/audit"
+  }
+}
+----
+
+== Modifying Audit Configuration ==
+
+To modify the audit configuration, download the current audit configuration into a file using the `tps-audit-show` command above.
+Edit the file as needed:
+
+----
+{
+  ...
+  "signed" : true,
+  "interval" : 10,
+  "bufferSize" : 1024,
+  "eventConfigs" : {
+    ...
+    "AUTHZ_SUCCESS" : "disabled",
+    ...
+    "AUTH_SUCCESS" : "disabled",
+    ...
+  },
+  ...
+}
+----
+
+Then upload the new configuration with the following command:
+
+----
+$ pki -n caadmin tps-audit-mod --input audit.json
+----------------------------
+Modified audit configuration
+----------------------------
+  Status: Enabled
+  Signed: false
+  Interval (seconds): 10
+  Buffer size (bytes): 512
+  Events:
+    AUDIT_LOG_SHUTDOWN: mandatory
+    AUDIT_LOG_STARTUP: mandatory
+    AUTHZ_FAIL: enabled
+    AUTHZ_SUCCESS: disabled
+    AUTH_FAIL: enabled
+    AUTH_SUCCESS: disabled
+    CIMC_CERT_VERIFICATION: enabled
+    CONFIG_AUTH: enabled
+    CONFIG_ROLE: enabled
+    CONFIG_SIGNED_AUDIT: enabled
+    CONFIG_TOKEN_AUTHENTICATOR: enabled
+    CONFIG_TOKEN_CONNECTOR: enabled
+    CONFIG_TOKEN_GENERAL: enabled
+    CONFIG_TOKEN_MAPPING_RESOLVER: enabled
+    CONFIG_TOKEN_PROFILE: enabled
+    CONFIG_TOKEN_RECORD: enabled
+    LOGGING_SIGNED_AUDIT_SIGNING: mandatory
+    ROLE_ASSUME: enabled
+    SELFTESTS_EXECUTION: enabled
+    TOKEN_APPLET_UPGRADE_FAILURE: enabled
+    TOKEN_APPLET_UPGRADE_SUCCESS: enabled
+    TOKEN_AUTH_FAILURE: enabled
+    TOKEN_AUTH_SUCCESS: enabled
+    TOKEN_CERT_ENROLLMENT: enabled
+    TOKEN_CERT_RENEWAL: enabled
+    TOKEN_CERT_RETRIEVAL: enabled
+    TOKEN_FORMAT_FAILURE: enabled
+    TOKEN_FORMAT_SUCCESS: enabled
+    TOKEN_KEY_CHANGEOVER_FAILURE: enabled
+    TOKEN_KEY_CHANGEOVER_REQUIRED: enabled
+    TOKEN_KEY_CHANGEOVER_SUCCESS: enabled
+    TOKEN_KEY_RECOVERY: enabled
+    TOKEN_OP_REQUEST: enabled
+    TOKEN_PIN_RESET_FAILURE: enabled
+    TOKEN_PIN_RESET_SUCCESS: enabled
+    TOKEN_STATE_CHANGE: enabled
+----
+
+Optionally, the updated configuration can be stored into a file using the `--output` parameter.
