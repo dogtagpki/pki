@@ -23,6 +23,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -822,16 +823,14 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
          --(excluding the tag and length fields)
          */
         PublicKey publicKey = getOCSPSigningUnit().getPublicKey();
-        MessageDigest md = null;
-
+        X509Key key = new X509Key();
         try {
-            md = MessageDigest.getInstance("SHA1");
-        } catch (NoSuchAlgorithmException e) {
+            key.decode(publicKey.getEncoded());
+        } catch (InvalidKeyException e) {
+            logger.error("CA - OCSP signing key not accessible");
             return null;
         }
-        md.update(publicKey.getEncoded());
-        byte digested[] = md.digest();
-
+        byte[] digested = CryptoUtil.generateKeyIdentifier(key.getKey());
         return new KeyHashID(new OCTET_STRING(digested));
     }
 
