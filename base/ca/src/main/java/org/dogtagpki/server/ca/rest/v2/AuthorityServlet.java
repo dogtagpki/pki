@@ -12,7 +12,6 @@ import java.net.URLEncoder;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -40,28 +39,26 @@ public class AuthorityServlet extends CAServlet {
     private static final long serialVersionUID = 1L;
     private static Logger logger = LoggerFactory.getLogger(AuthorityServlet.class);
 
-    private AuthorityRepository authorityRepository;
-
-    @Override
-    public void init() throws ServletException {
-        super.init();
-        authorityRepository = new AuthorityRepository(engine);
-    }
-
     @WebAction(method = HttpMethod.GET, paths = {""})
     public void findCAs(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
         HttpSession session = request.getSession();
-        logger.debug("AuthorityServlet.findCAs(): session: {}", session.getId());
         String id = request.getParameter("id");
         String parentID = request.getParameter("parentID");
         String dn = request.getParameter("dn");
         String issuerDN = request.getParameter("issuerDN");
+
+        logger.info("AuthorityServlet: Finding CAs");
+        logger.debug("AuthorityServlet: - session: {}", session.getId());
+
         List<AuthorityData> authorities;
         try {
+            AuthorityRepository authorityRepository = engine.getAuthorityRepository();
             authorities = authorityRepository.findCAs(id, parentID, dn, issuerDN);
         } catch (IOException e) {
             throw new BadRequestException("DNs not valid");
         }
+
         PrintWriter out = response.getWriter();
         ObjectMapper mapper = new ObjectMapper();
         out.println(mapper.writeValueAsString(authorities));
@@ -69,22 +66,34 @@ public class AuthorityServlet extends CAServlet {
 
     @WebAction(method = HttpMethod.GET, paths = {"{}"})
     public void getCA(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
         HttpSession session = request.getSession();
-        logger.debug("AuthorityServlet.getCA(): session: {}", session.getId());
+
         String[] pathElement = request.getPathInfo().substring(1).split("/");
         String aid = pathElement[0];
+
+        logger.info("AuthorityServlet: Getting CA {}", aid);
+        logger.debug("AuthorityServlet: - session: {}", session.getId());
+
+        AuthorityRepository authorityRepository = engine.getAuthorityRepository();
         AuthorityData ca = authorityRepository.getCA(aid);
+
         PrintWriter out = response.getWriter();
         out.println(ca.toJSON());
     }
 
     @WebAction(method = HttpMethod.GET, paths = {"{}/cert"})
     public void getCert(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
         HttpSession session = request.getSession();
-        logger.debug("AuthorityServlet.getCert(): session: {}", session.getId());
         String[] pathElement = request.getPathInfo().substring(1).split("/");
         String aid = pathElement[0];
         String accept = request.getHeader("Accept");
+        AuthorityRepository authorityRepository = engine.getAuthorityRepository();
+
+        logger.info("AuthorityServlet: Getting cert for CA {}", aid);
+        logger.debug("AuthorityServlet: - session: {}", session.getId());
+
         if (accept == null)
             accept = MediaType.ANYTYPE;
 
@@ -95,6 +104,7 @@ public class AuthorityServlet extends CAServlet {
             out.println(cert);
             return;
         }
+
         if (accept.equals(MediaType.ANYTYPE) || accept.contains(MediaType.APPLICATION_PKIX_CERT)) {
             response.setContentType(MediaType.APPLICATION_PKIX_CERT);
             byte[] cert = authorityRepository.getBinaryCert(aid);
@@ -102,18 +112,25 @@ public class AuthorityServlet extends CAServlet {
             out.write(cert);
             return;
         }
+
         throw new RequestNotAcceptable("Certificate format not supported: " + accept);
     }
 
     @WebAction(method = HttpMethod.GET, paths = {"{}/chain"})
     public void getChain(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
         HttpSession session = request.getSession();
-        logger.debug("AuthorityServlet.getChain(): session: {}", session.getId());
         String[] pathElement = request.getPathInfo().substring(1).split("/");
         String aid = pathElement[0];
         String accept = request.getHeader("Accept");
+
+        logger.info("AuthorityServlet: Getting cert chain for CA {}", aid);
+        logger.debug("AuthorityServlet: - session: {}", session.getId());
+
         if (accept == null)
             accept = MediaType.ANYTYPE;
+
+        AuthorityRepository authorityRepository = engine.getAuthorityRepository();
 
         if (accept.contains(MediaType.APPLICATION_X_PEM_FILE)) {
             response.setContentType(MediaType.APPLICATION_X_PEM_FILE);
@@ -122,6 +139,7 @@ public class AuthorityServlet extends CAServlet {
             out.println(cert);
             return;
         }
+
         if (accept.equals(MediaType.ANYTYPE) || accept.contains(MediaType.APPLICATION_PKCS7)) {
             response.setContentType(MediaType.APPLICATION_PKCS7);
             byte[] cert = authorityRepository.getBinaryChain(aid);
@@ -129,79 +147,119 @@ public class AuthorityServlet extends CAServlet {
             out.write(cert);
             return;
         }
+
         throw new RequestNotAcceptable("Certificate format not supported: " + accept);
     }
 
     @WebAction(method = HttpMethod.POST, paths = {""})
     public void createCA(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
         HttpSession session = request.getSession();
-        logger.debug("AuthorityServlet.createCA(): session: {}", session.getId());
+
+        logger.info("AuthorityServlet: Creating CA");
+        logger.debug("AuthorityServlet: - session: {}", session.getId());
+
         String requestData = request.getReader().lines().collect(Collectors.joining());
         AuthorityData reqAuthority = JSONSerializer.fromJSON(requestData, AuthorityData.class);
+        AuthorityRepository authorityRepository = engine.getAuthorityRepository();
         AuthorityData newAuthhority = authorityRepository.createCA(reqAuthority);
+        logger.debug("AuthorityServlet: - ID: {}", newAuthhority.getID());
+
         String encodedGroupID = URLEncoder.encode(newAuthhority.getID(), "UTF-8");
         StringBuffer uri = request.getRequestURL();
         uri.append("/" + encodedGroupID);
+
         response.setStatus(HttpServletResponse.SC_CREATED);
         response.setHeader("Location", uri.toString());
+
         PrintWriter out = response.getWriter();
         out.println(newAuthhority.toJSON());
     }
 
     @WebAction(method = HttpMethod.PUT, paths = {"{}"})
     public void modifyCA(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
         HttpSession session = request.getSession();
-        logger.debug("AuthorityServlet.modifyCA(): session: {}", session.getId());
         String[] pathElement = request.getPathInfo().substring(1).split("/");
         String aid = pathElement[0];
+
+        logger.info("AuthorityServlet: Modifying CA {}", aid);
+        logger.debug("AuthorityServlet: - session: {}", session.getId());
+
         String requestData = request.getReader().lines().collect(Collectors.joining());
         AuthorityData reqAuthority = JSONSerializer.fromJSON(requestData, AuthorityData.class);
+        AuthorityRepository authorityRepository = engine.getAuthorityRepository();
         AuthorityData newAuthhority = authorityRepository.modifyCA(aid, reqAuthority);
+
         PrintWriter out = response.getWriter();
         out.println(newAuthhority.toJSON());
     }
 
     @WebAction(method = HttpMethod.DELETE, paths = {"{}"})
     public void deleteCA(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
         HttpSession session = request.getSession();
-        logger.debug("AuthorityServlet.deleteCA(): session: {}", session.getId());
         String[] pathElement = request.getPathInfo().substring(1).split("/");
         String aid = pathElement[0];
+
+        logger.info("AuthorityServlet: Deleting CA {}", aid);
+        logger.debug("AuthorityServlet: - session: {}", session.getId());
+
+        AuthorityRepository authorityRepository = engine.getAuthorityRepository();
         authorityRepository.deleteCA(aid, request);
+
         response.setStatus(HttpServletResponse.SC_NO_CONTENT);
     }
 
     @WebAction(method = HttpMethod.POST, paths = {"{}/enable"})
     public void enableCA(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
         HttpSession session = request.getSession();
-        logger.debug("AuthorityServlet.enableCA(): session: {}", session.getId());
         String[] pathElement = request.getPathInfo().substring(1).split("/");
         String aid = pathElement[0];
+
+        logger.info("AuthorityServlet: Enabling CA {}", aid);
+        logger.debug("AuthorityServlet: - session: {}", session.getId());
+
         AuthorityData reqAuthority = new AuthorityData(null, null, null, null, null, null, true, null, null);
+        AuthorityRepository authorityRepository = engine.getAuthorityRepository();
         AuthorityData newAuthhority = authorityRepository.modifyCA(aid, reqAuthority);
+
         PrintWriter out = response.getWriter();
         out.println(newAuthhority.toJSON());
     }
 
     @WebAction(method = HttpMethod.POST, paths = {"{}/disable"})
     public void disableCA(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
         HttpSession session = request.getSession();
-        logger.debug("AuthorityServlet.disableCA(): session: {}", session.getId());
         String[] pathElement = request.getPathInfo().substring(1).split("/");
         String aid = pathElement[0];
+
+        logger.info("AuthorityServlet: Disabling CA {}", aid);
+        logger.debug("AuthorityServlet: - session: {}", session.getId());
+
         AuthorityData reqAuthority = new AuthorityData(null, null, null, null, null, null, false, null, null);
+        AuthorityRepository authorityRepository = engine.getAuthorityRepository();
         AuthorityData newAuthhority = authorityRepository.modifyCA(aid, reqAuthority);
+
         PrintWriter out = response.getWriter();
         out.println(newAuthhority.toJSON());
     }
 
     @WebAction(method = HttpMethod.POST, paths = {"{}/renew"})
     public void renewCA(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
         HttpSession session = request.getSession();
-        logger.debug("AuthorityServlet.renewCA(): session: {}", session.getId());
         String[] pathElement = request.getPathInfo().substring(1).split("/");
         String aid = pathElement[0];
+
+        logger.info("AuthorityServlet: Renewing CA {}", aid);
+        logger.debug("AuthorityServlet: - session: {}", session.getId());
+
+        AuthorityRepository authorityRepository = engine.getAuthorityRepository();
         authorityRepository.renewCA(aid, request);
+
         response.setStatus(HttpServletResponse.SC_NO_CONTENT);
     }
 }

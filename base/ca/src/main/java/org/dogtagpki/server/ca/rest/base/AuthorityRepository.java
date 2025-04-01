@@ -56,6 +56,7 @@ import com.netscape.cmscore.logging.Auditor;
  * @author ftweedal
  */
 public class AuthorityRepository {
+
     private static Logger logger = LoggerFactory.getLogger(AuthorityRepository.class);
 
     private CAEngine engine;

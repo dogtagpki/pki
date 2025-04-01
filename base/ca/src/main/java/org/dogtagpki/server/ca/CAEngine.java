@@ -51,6 +51,7 @@ import org.dogtagpki.legacy.ca.CAPolicy;
 import org.dogtagpki.legacy.ca.CAPolicyConfig;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
+import org.dogtagpki.server.ca.rest.base.AuthorityRepository;
 import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NicknameConflictException;
@@ -175,6 +176,7 @@ public class CAEngine extends CMSEngine {
 
     static CAEngine instance;
 
+    protected AuthorityRepository authorityRepository;
     protected CertificateRepository certificateRepository;
     protected CRLRepository crlRepository;
     protected ReplicaIDRepository replicaIDRepository;
@@ -256,6 +258,10 @@ public class CAEngine extends CMSEngine {
         LDAPConfig ldapConfig = config.getInternalDBConfig();
 
         connectionFactory = createLdapBoundConnFactory("CertificateAuthority", ldapConfig);
+    }
+
+    public AuthorityRepository getAuthorityRepository() {
+        return authorityRepository;
     }
 
     public CertRequestRepository getCertRequestRepository() {
@@ -2275,6 +2281,12 @@ public class CAEngine extends CMSEngine {
         return (ProfileSubsystem) getSubsystem(name);
     }
 
+    public void initAuthorityRepository() throws Exception {
+
+        logger.info("CAEngine: Initializing authority repository");
+        authorityRepository = new AuthorityRepository(this);
+    }
+
     public void initCertificateRepository() throws Exception {
 
         logger.info("CAEngine: Initializing cert repository");
@@ -2310,6 +2322,7 @@ public class CAEngine extends CMSEngine {
 
     @Override
     public void init() throws Exception {
+        initAuthorityRepository();
         initCertificateRepository();
         initCrlDatabase();
         initReplicaIDRepository();
