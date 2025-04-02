@@ -1,0 +1,39 @@
+# Configuring ACME with NSS Issuer
+
+## Overview
+
+This document describes the process to configure ACME responder
+to issue certificates using a local NSS database.
+
+## Configuring ACME Issuer
+
+A sample NSS issuer configuration is available at
+link:../../../base/acme/issuer/nss/issuer.conf[/usr/share/pki/acme/issuer/nss/issuer.conf].
+
+To configure an NSS issuer, copy the sample `issuer.conf` into the `/var/lib/pki/pki-tomcat/conf/acme` folder,
+or execute the following command to customize some of the parameters:
+
+----
+$ pki-server acme-issuer-mod --type nss \
+    -Dnickname=ca_signing
+----
+
+Customize the configuration as needed. The `issuer.conf` should look like the following:
+
+----
+class=org.dogtagpki.acme.issuer.NSSIssuer
+nickname=ca_signing
+----
+
+The *nickname* parameter can be used to specify the nickname of the CA signing certificate.
+The default value is *ca_signing*.
+
+The *extensions* parameter can be used to configure the certificate extensions for the issued certificates.
+The default value is `/usr/share/pki/acme/issuer/nss/sslserver.conf`.
+Sample extension configuration files are available at:
+
+* link:../../../base/acme/issuer/nss/sslserver.conf[/usr/share/pki/acme/issuer/nss/sslserver.conf]
+* link:../../../base/acme/issuer/nss/ca_signing.conf[/usr/share/pki/acme/issuer/nss/ca_signing.conf]
+
+Customize the configuration as needed.
+The format is based on link:https://www.openssl.org/docs/manmaster/man5/x509v3_config.html[OpenSSL x509v3_config].
