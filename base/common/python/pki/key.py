@@ -508,13 +508,6 @@ class KeyClient:
             self.pki_client = self.kra_client.parent
             self.connection = self.pki_client.connection
 
-        self.key_url = '/rest/agent/keys'
-        self.key_requests_url = '/rest/agent/keyrequests'
-
-        if self.connection.subsystem is None:
-            self.key_url = '/kra' + self.key_url
-            self.key_requests_url = '/kra' + self.key_requests_url
-
         self.headers = {'Content-type': 'application/json',
                         'Accept': 'application/json'}
 
@@ -606,8 +599,6 @@ class KeyClient:
 
         path = '/%s/agent/keys' % api_path
 
-        # in legacy code the PKIConnection object might already have the subsystem name
-        # in newer code the subsystem name needs to be included in the path
         if not self.connection.subsystem:
             path = '/kra' + path
 
@@ -641,8 +632,6 @@ class KeyClient:
 
         path = '/%s/agent/keyrequests' % api_path
 
-        # in legacy code the PKIConnection object might already have the subsystem name
-        # in newer code the subsystem name needs to be included in the path
         if not self.connection.subsystem:
             path = '/kra' + path
 
@@ -668,8 +657,17 @@ class KeyClient:
         if request_id is None:
             raise TypeError("Request ID must be specified")
 
-        url = self.key_requests_url + '/' + request_id
-        response = self.connection.get(url, self.headers)
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/agent/keyrequests/%s' % (api_path, request_id)
+
+        if not self.connection.subsystem:
+            path = '/kra' + path
+
+        response = self.connection.get(path, self.headers)
 
         json_response = response.json()
         logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
@@ -682,8 +680,17 @@ class KeyClient:
         if key_id is None:
             raise TypeError("Key ID must be specified")
 
-        url = self.key_url + '/' + key_id
-        response = self.connection.get(url, headers=self.headers)
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/agent/keys/%s' % (api_path, key_id)
+
+        if not self.connection.subsystem:
+            path = '/kra' + path
+
+        response = self.connection.get(path, headers=self.headers)
 
         json_response = response.json()
         logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
@@ -696,8 +703,17 @@ class KeyClient:
         if client_key_id is None:
             raise TypeError("Client Key ID must be specified")
 
-        url = self.key_url + '/active/' + quote(client_key_id)
-        response = self.connection.get(url, headers=self.headers)
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/agent/keys/active/%s' % (api_path, quote(client_key_id))
+
+        if not self.connection.subsystem:
+            path = '/kra' + path
+
+        response = self.connection.get(path, headers=self.headers)
 
         json_response = response.json()
         logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
@@ -717,8 +733,6 @@ class KeyClient:
 
         path = '/%s/agent/keys/%s' % (api_path, key_id)
 
-        # in legacy code the PKIConnection object might already have the subsystem name
-        # in newer code the subsystem name needs to be included in the path
         if not self.connection.subsystem:
             path = '/kra' + path
 
@@ -731,8 +745,17 @@ class KeyClient:
         if request_id is None:
             raise TypeError("Request ID must be specified")
 
-        url = self.key_requests_url + '/' + request_id + '/approve'
-        self.connection.post(url, None, self.headers)
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/agent/keyrequests/%s/approve' % (api_path, request_id)
+
+        if not self.connection.subsystem:
+            path = '/kra' + path
+
+        self.connection.post(path, None, self.headers)
 
     @pki.handle_exceptions()
     def reject_request(self, request_id):
@@ -740,8 +763,17 @@ class KeyClient:
         if request_id is None:
             raise TypeError("Request ID must be specified")
 
-        url = self.key_requests_url + '/' + request_id + '/reject'
-        self.connection.post(url, None, self.headers)
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/agent/keyrequests/%s/reject' % (api_path, request_id)
+
+        if not self.connection.subsystem:
+            path = '/kra' + path
+
+        self.connection.post(path, None, self.headers)
 
     @pki.handle_exceptions()
     def cancel_request(self, request_id):
@@ -749,8 +781,17 @@ class KeyClient:
         if request_id is None:
             raise TypeError("Request ID must be specified")
 
-        url = self.key_requests_url + '/' + request_id + '/cancel'
-        self.connection.post(url, None, self.headers)
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/agent/keyrequests/%s/cancel' % (api_path, request_id)
+
+        if not self.connection.subsystem:
+            path = '/kra' + path
+
+        self.connection.post(path, None, self.headers)
 
     @pki.handle_exceptions()
     def submit_request(self, request):
