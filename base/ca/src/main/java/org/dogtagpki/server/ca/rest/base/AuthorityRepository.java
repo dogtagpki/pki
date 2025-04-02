@@ -50,14 +50,20 @@ import com.netscape.certsrv.ca.CATypeException;
 import com.netscape.certsrv.ca.IssuerUnavailableException;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.logging.Auditor;
 
 import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPControl;
 import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
 
 /**
  * @author Marco Fargetta {@literal <mfargett@redhat.com>}
@@ -153,6 +159,79 @@ public class AuthorityRepository {
         }
 
         return record;
+    }
+
+    public void addAuthorityRecord(AuthorityRecord record) throws Exception {
+
+        AuthorityID authorityID = record.getAuthorityID();
+        String aidStr = authorityID.toString();
+        String dn = "cn=" + aidStr + "," + engine.getAuthorityBaseDN();
+        logger.info("AuthorityRepository: Creating " + dn);
+
+        LDAPAttributeSet attrSet = new LDAPAttributeSet();
+        attrSet.add(new LDAPAttribute("objectclass", "authority"));
+
+        logger.info("AuthorityRepository: - authority ID: " + aidStr);
+        attrSet.add(new LDAPAttribute("cn", aidStr));
+        attrSet.add(new LDAPAttribute("authorityID", aidStr));
+
+        X500Name authorityDN = record.getAuthorityDN();
+        logger.info("AuthorityRepository: - authority DN: " + authorityDN);
+        attrSet.add(new LDAPAttribute("authorityDN", authorityDN.toLdapDNString()));
+
+        AuthorityID parentID = record.getParentID();
+        if (parentID != null) {
+            logger.info("AuthorityRepository: - parent ID: " + parentID);
+            attrSet.add(new LDAPAttribute("authorityParentID", parentID.toString()));
+        }
+
+        X500Name parentDN = record.getParentDN();
+        if (parentDN != null) {
+            logger.info("AuthorityRepository: - parent DN: " + parentDN);
+            attrSet.add(new LDAPAttribute("authorityParentDN", parentDN.toLdapDNString()));
+        }
+
+        String description = record.getDescription();
+        if (description != null) {
+            logger.info("AuthorityRepository: - description: " + description);
+            attrSet.add(new LDAPAttribute("description", description));
+        }
+
+        Boolean enabled = record.getEnabled();
+        if (enabled != null) {
+            logger.info("AuthorityRepository: - enabled: " + description);
+            attrSet.add(new LDAPAttribute("authorityEnabled", enabled ? "TRUE" : "FALSE"));
+        }
+
+        String keyNickname = record.getKeyNickname();
+        if (keyNickname != null) {
+            logger.info("AuthorityRepository: - key nickname: " + keyNickname);
+            attrSet.add(new LDAPAttribute("authorityKeyNickname", keyNickname));
+        }
+
+        Collection<String> keyHosts = record.getKeyHosts();
+        if (!keyHosts.isEmpty()) {
+            logger.info("AuthorityRepository: - key hosts: " + keyHosts);
+            String[] values = keyHosts.toArray(new String[keyHosts.size()]);
+            attrSet.add(new LDAPAttribute("authorityKeyHost", values));
+        }
+
+        LDAPEntry entry = new LDAPEntry(dn, attrSet);
+
+        LdapBoundConnFactory connectionFactory = engine.getConnectionFactory();
+        LDAPConnection conn = connectionFactory.getConn();
+        LDAPControl[] responseControls;
+
+        try {
+            conn.add(entry, engine.getUpdateConstraints());
+            responseControls = conn.getResponseControls();
+
+        } catch (LDAPException e) {
+            throw new DBException("Unable to add authority: " + e.getMessage(), e);
+
+        } finally {
+            connectionFactory.returnConn(conn);
+        }
     }
 
     public List<AuthorityData> findCAs(final String id, final String parentID, final String dn, final String issuerDN) throws IOException {

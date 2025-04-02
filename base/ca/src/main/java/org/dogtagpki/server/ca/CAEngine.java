@@ -162,11 +162,9 @@ import com.netscape.cmsutil.ocsp.Request;
 import com.netscape.cmsutil.ocsp.TBSRequest;
 
 import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPConstraints;
 import netscape.ldap.LDAPControl;
-import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
 import netscape.ldap.LDAPModificationSet;
@@ -1384,7 +1382,7 @@ public class CAEngine extends CMSEngine {
 
         record.addKeyHost(mConfig.getHostname() + ":" + getEESSLPort());
 
-        addAuthorityRecord(record);
+        authorityRepository.addAuthorityRecord(record);
 
         X509CertImpl cert = null;
 
@@ -1586,78 +1584,6 @@ public class CAEngine extends CMSEngine {
         return cons;
     }
 
-    public synchronized void addAuthorityRecord(AuthorityRecord record) throws Exception {
-
-        AuthorityID authorityID = record.getAuthorityID();
-        String aidStr = authorityID.toString();
-        String dn = "cn=" + aidStr + "," + getAuthorityBaseDN();
-        logger.info("CAEngine: Creating " + dn);
-
-        LDAPAttributeSet attrSet = new LDAPAttributeSet();
-        attrSet.add(new LDAPAttribute("objectclass", "authority"));
-
-        logger.info("CAEngine: - authority ID: " + aidStr);
-        attrSet.add(new LDAPAttribute("cn", aidStr));
-        attrSet.add(new LDAPAttribute("authorityID", aidStr));
-
-        X500Name authorityDN = record.getAuthorityDN();
-        logger.info("CAEngine: - authority DN: " + authorityDN);
-        attrSet.add(new LDAPAttribute("authorityDN", authorityDN.toLdapDNString()));
-
-        AuthorityID parentID = record.getParentID();
-        if (parentID != null) {
-            logger.info("CAEngine: - parent ID: " + parentID);
-            attrSet.add(new LDAPAttribute("authorityParentID", parentID.toString()));
-        }
-
-        X500Name parentDN = record.getParentDN();
-        if (parentDN != null) {
-            logger.info("CAEngine: - parent DN: " + parentDN);
-            attrSet.add(new LDAPAttribute("authorityParentDN", parentDN.toLdapDNString()));
-        }
-
-        String description = record.getDescription();
-        if (description != null) {
-            logger.info("CAEngine: - description: " + description);
-            attrSet.add(new LDAPAttribute("description", description));
-        }
-
-        Boolean enabled = record.getEnabled();
-        if (enabled != null) {
-            logger.info("CAEngine: - enabled: " + description);
-            attrSet.add(new LDAPAttribute("authorityEnabled", enabled ? "TRUE" : "FALSE"));
-        }
-
-        String keyNickname = record.getKeyNickname();
-        if (keyNickname != null) {
-            logger.info("CAEngine: - key nickname: " + keyNickname);
-            attrSet.add(new LDAPAttribute("authorityKeyNickname", keyNickname));
-        }
-
-        Collection<String> keyHosts = record.getKeyHosts();
-        if (!keyHosts.isEmpty()) {
-            logger.info("CAEngine: - key hosts: " + keyHosts);
-            String[] values = keyHosts.toArray(new String[keyHosts.size()]);
-            attrSet.add(new LDAPAttribute("authorityKeyHost", values));
-        }
-
-        LDAPEntry entry = new LDAPEntry(dn, attrSet);
-
-        LDAPConnection conn = connectionFactory.getConn();
-        LDAPControl[] responseControls;
-
-        try {
-            conn.add(entry, getUpdateConstraints());
-            responseControls = conn.getResponseControls();
-
-        } catch (LDAPException e) {
-            throw new DBException("Unable to add authority: " + e.getMessage(), e);
-
-        } finally {
-            connectionFactory.returnConn(conn);
-        }
-    }
-
     public synchronized void modifyAuthorityEntry(AuthorityID aid, LDAPModificationSet mods) throws EBaseException {
 
         String dn = "cn=" + aid + "," + getAuthorityBaseDN();
@@ -1725,7 +1651,7 @@ public class CAEngine extends CMSEngine {
 
         record.setKeyNickname(hostCA.getNickname());
 
-        addAuthorityRecord(record);
+        authorityRepository.addAuthorityRecord(record);
 
         hostCA.setAuthorityID(record.getAuthorityID());
         hostCA.setAuthorityDescription(record.getDescription());
