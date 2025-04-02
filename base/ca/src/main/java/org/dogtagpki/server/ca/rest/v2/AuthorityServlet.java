@@ -5,7 +5,6 @@
 //
 package org.dogtagpki.server.ca.rest.v2;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.URLEncoder;
@@ -23,7 +22,6 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.authority.AuthorityData;
-import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.MediaType;
 import com.netscape.certsrv.base.RequestNotAcceptable;
 import com.netscape.certsrv.base.WebAction;
@@ -51,13 +49,8 @@ public class AuthorityServlet extends CAServlet {
         logger.info("AuthorityServlet: Finding CAs");
         logger.debug("AuthorityServlet: - session: {}", session.getId());
 
-        List<AuthorityData> authorities;
-        try {
-            AuthorityRepository authorityRepository = engine.getAuthorityRepository();
-            authorities = authorityRepository.findCAs(id, parentID, dn, issuerDN);
-        } catch (IOException e) {
-            throw new BadRequestException("DNs not valid");
-        }
+        AuthorityRepository authorityRepository = engine.getAuthorityRepository();
+        List<AuthorityData> authorities = authorityRepository.findCAs(id, parentID, dn, issuerDN);
 
         PrintWriter out = response.getWriter();
         ObjectMapper mapper = new ObjectMapper();

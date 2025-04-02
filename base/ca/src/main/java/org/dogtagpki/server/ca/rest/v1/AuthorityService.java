@@ -22,7 +22,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.cert.CertificateEncodingException;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,8 +31,8 @@ import javax.ws.rs.core.Response;
 
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.rest.base.AuthorityRepository;
 import org.mozilla.jss.netscape.security.util.Utils;
-import org.mozilla.jss.netscape.security.x509.X500Name;
 
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authority.AuthorityData;
@@ -82,45 +81,11 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
     @Override
     public Response findCAs(String id, String parentID, String dn, String issuerDN) throws Exception {
 
-        logger.info("AuthorityService: getting authorities:");
-
-        X500Name x500dn = dn == null ? null : new X500Name(dn);
-        X500Name x500issuerDN = issuerDN == null ? null : new X500Name(issuerDN);
-
-        List<AuthorityData> results = new ArrayList<>();
+        logger.info("AuthorityService: Finding CAs");
 
         CAEngine engine = CAEngine.getInstance();
-        for (CertificateAuthority ca : engine.getCAs()) {
-
-            AuthorityData authority = readAuthorityData(ca);
-
-            // search by ID
-            if (id != null && !id.equalsIgnoreCase(authority.getID())) continue;
-
-            // search by parent ID
-            if (parentID != null && !parentID.equalsIgnoreCase(authority.getParentID())) continue;
-
-            // search by DN
-            if (x500dn != null) {
-                X500Name caDN = new X500Name(authority.getDN());
-                if (!x500dn.equals(caDN)) continue;
-            }
-
-            // search by issuer DN
-            if (x500issuerDN != null) {
-                X500Name caIssuerDN = new X500Name(authority.getIssuerDN());
-                if (!x500issuerDN.equals(caIssuerDN)) continue;
-            }
-
-            logger.info("AuthorityService: - ID: " + authority.getID());
-            logger.info("AuthorityService:   DN: " + authority.getDN());
-            if (authority.getParentID() != null) {
-                logger.info("AuthorityService:   Parent ID: " + authority.getParentID());
-            }
-            logger.info("AuthorityService:   Issuer DN: " + authority.getIssuerDN());
-
-            results.add(authority);
-        }
+        AuthorityRepository authorityRepository = engine.getAuthorityRepository();
+        List<AuthorityData> results = authorityRepository.findCAs(id, parentID, dn, issuerDN);
 
         GenericEntity<List<AuthorityData>> entity =
             new GenericEntity<>(results) {};
