@@ -13,7 +13,7 @@ See installation/ca/installing-ca.adoc for example.
 ** all lower cases
 ** bears extension .adoc
 ** no articles (e.g. 'a', 'the')
-* Add header including the “id” line at the very beginning of of the file, using the file name. e.g.
+* Add header including the “id” line at the very beginning of the file, using the file name. e.g.
 ** :_mod-docs-content-type: PROCEDURE
 ** <blank line>
 ** [id="installing-ca"]
