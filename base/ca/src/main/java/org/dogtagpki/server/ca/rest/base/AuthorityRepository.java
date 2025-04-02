@@ -67,6 +67,7 @@ import netscape.ldap.LDAPControl;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModificationSet;
+import netscape.ldap.LDAPSearchResults;
 
 /**
  * @author Marco Fargetta {@literal <mfargett@redhat.com>}
@@ -80,6 +81,29 @@ public class AuthorityRepository {
 
     public AuthorityRepository(CAEngine engine) {
         this.engine = engine;
+    }
+
+    public boolean containerExists() throws EBaseException {
+
+        LdapBoundConnFactory connectionFactory = engine.getConnectionFactory();
+        LDAPConnection conn = null;
+
+        try {
+            conn = connectionFactory.getConn(true);
+            LDAPSearchResults results = conn.search(
+                    engine.getAuthorityBaseDN(),
+                    LDAPConnection.SCOPE_BASE,
+                    null,
+                    null,
+                    false);
+            return results != null;
+
+        } catch (LDAPException e) {
+            return false;
+
+        } finally {
+            connectionFactory.returnConn(conn);
+        }
     }
 
     public LDAPConstraints getUpdateConstraints() {

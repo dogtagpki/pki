@@ -822,7 +822,7 @@ public class CAEngine extends CMSEngine {
 
     public void initAuthorityMonitor() throws Exception {
 
-        if (!(enableAuthorityMonitor && haveAuthorityContainer())) {
+        if (!(enableAuthorityMonitor && authorityRepository.containerExists())) {
             return;
         }
 
@@ -1212,28 +1212,6 @@ public class CAEngine extends CMSEngine {
 
             logger.debug("CAEngine: Checking cert serial number ranges");
             certificateRepository.checkRanges();
-        }
-    }
-
-    public boolean haveAuthorityContainer() throws EBaseException {
-
-        LDAPConnection conn = null;
-
-        try {
-            conn = connectionFactory.getConn(true);
-            LDAPSearchResults results = conn.search(
-                    getAuthorityBaseDN(),
-                    LDAPConnection.SCOPE_BASE,
-                    null,
-                    null,
-                    false);
-            return results != null;
-
-        } catch (LDAPException e) {
-            return false;
-
-        } finally {
-            connectionFactory.returnConn(conn);
         }
     }
 
