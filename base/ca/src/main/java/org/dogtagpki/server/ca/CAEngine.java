@@ -1409,7 +1409,7 @@ public class CAEngine extends CMSEngine {
         initCA(ca);
         checkForNewerCert(ca);
 
-        updateAuthoritySerialNumber(authorityID, cert.getSerialNumber());
+        authorityRepository.updateAuthoritySerialNumber(authorityID, cert.getSerialNumber());
 
         return ca;
     }
@@ -1591,16 +1591,6 @@ public class CAEngine extends CMSEngine {
         hostCA.setAuthorityDescription(record.getDescription());
 
         return record.getAuthorityID();
-    }
-
-    public void updateAuthoritySerialNumber(AuthorityID aid, BigInteger serialNumber) throws Exception {
-
-        LDAPModificationSet mods = new LDAPModificationSet();
-        mods.add(LDAPModification.REPLACE, new LDAPAttribute(
-                "authoritySerial",
-                serialNumber.toString()));
-
-        authorityRepository.modifyAuthorityRecord(aid, mods);
     }
 
     /**
@@ -1950,7 +1940,7 @@ public class CAEngine extends CMSEngine {
         BigInteger authoritySerial = cert.getSerialNumber();
 
         ca.setAuthoritySerial(authoritySerial);
-        updateAuthoritySerialNumber(authorityID, authoritySerial);
+        authorityRepository.updateAuthoritySerialNumber(authorityID, authoritySerial);
 
         // update cert in NSSDB
         checkForNewerCert(ca);

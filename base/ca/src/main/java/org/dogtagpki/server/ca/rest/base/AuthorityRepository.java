@@ -66,6 +66,7 @@ import netscape.ldap.LDAPConstraints;
 import netscape.ldap.LDAPControl;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
 import netscape.ldap.LDAPModificationSet;
 import netscape.ldap.LDAPSearchResults;
 
@@ -288,6 +289,16 @@ public class AuthorityRepository {
         } finally {
             connectionFactory.returnConn(conn);
         }
+    }
+
+    public void updateAuthoritySerialNumber(AuthorityID aid, BigInteger serialNumber) throws Exception {
+
+        LDAPModificationSet mods = new LDAPModificationSet();
+        mods.add(LDAPModification.REPLACE, new LDAPAttribute(
+                "authoritySerial",
+                serialNumber.toString()));
+
+        modifyAuthorityRecord(aid, mods);
     }
 
     public void deleteAuthorityRecord(AuthorityID aid) throws EBaseException {
