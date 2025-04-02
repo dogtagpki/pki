@@ -113,8 +113,8 @@ This policy  allows to set:
 * `password.seqLength` - the size of substring sequence which cannot be repeated;
 * `password.maxRepeatedChar` - maximum number of repeating for each character;
 
-If the constraint does not include specific configuration it will
-read the options from the `CS.cfg`. In the case the name is different,
+If the constraint does not include specific configuration, it
+reads the options from the `CS.cfg`. In the case the name is different,
 the prefix `password.*` is replaced by `passwordChecker.*`. The
 configuration in `CS.cfg` are used for all the passwords but each
 profile can overwrite to allow stronger or weaker passwords.
