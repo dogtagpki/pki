@@ -9,6 +9,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.cert.CertificateEncodingException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +20,7 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 
 import org.dogtagpki.server.authentication.AuthToken;
+import org.dogtagpki.server.ca.AuthorityRecord;
 import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X500Name;
@@ -46,10 +50,14 @@ import com.netscape.certsrv.ca.CATypeException;
 import com.netscape.certsrv.ca.IssuerUnavailableException;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.logging.Auditor;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPEntry;
 
 /**
  * @author Marco Fargetta {@literal <mfargett@redhat.com>}
@@ -63,6 +71,88 @@ public class AuthorityRepository {
 
     public AuthorityRepository(CAEngine engine) {
         this.engine = engine;
+    }
+
+    public AuthorityRecord getAuthorityRecord(LDAPEntry entry) throws Exception {
+
+        logger.info("AuthorityRepository: Loading " + entry.getDN());
+
+        AuthorityRecord record = new AuthorityRecord();
+
+        LDAPAttribute authorityIDAttr = entry.getAttribute("authorityID");
+        if (authorityIDAttr == null) {
+            throw new Exception("Missing authorityID attribute: " + entry.getDN());
+        }
+
+        AuthorityID authorityID = new AuthorityID(authorityIDAttr.getStringValues().nextElement());
+        record.setAuthorityID(authorityID);
+
+        LDAPAttribute authorityDNAttr = entry.getAttribute("authorityDN");
+        if (authorityDNAttr == null) {
+            throw new Exception("Missing authorityDN attribute: " + entry.getDN());
+        }
+
+        X500Name authorityDN = new X500Name(authorityDNAttr.getStringValues().nextElement());
+        record.setAuthorityDN(authorityDN);
+
+        LDAPAttribute parentIDAttr = entry.getAttribute("authorityParentID");
+        if (parentIDAttr != null) {
+            AuthorityID parentID = new AuthorityID(parentIDAttr.getStringValues().nextElement());
+            record.setParentID(parentID);
+        }
+
+        LDAPAttribute parentDNAttr = entry.getAttribute("authorityParentDN");
+        if (parentDNAttr != null) {
+            X500Name parentDN = new X500Name(parentDNAttr.getStringValues().nextElement());
+            record.setParentDN(parentDN);
+        }
+
+        LDAPAttribute descriptionAttr = entry.getAttribute("description");
+        if (descriptionAttr != null) {
+            String description = descriptionAttr.getStringValues().nextElement();
+            record.setDescription(description);
+        }
+
+        LDAPAttribute enabledAttr = entry.getAttribute("authorityEnabled");
+        if (enabledAttr != null) {
+            String enabledString = enabledAttr.getStringValues().nextElement();
+            record.setEnabled(enabledString.equalsIgnoreCase("TRUE"));
+        }
+
+        LDAPAttribute serialAttr = entry.getAttribute("authoritySerial");
+        if (serialAttr != null) {
+            CertId certID = new CertId(new BigInteger(serialAttr.getStringValueArray()[0]));
+            record.setSerialNumber(certID);
+        }
+
+        LDAPAttribute keyNicknameAttr = entry.getAttribute("authorityKeyNickname");
+        if (keyNicknameAttr == null) {
+            throw new Exception("Missing authorityKeyNickname attribute: " + entry.getDN());
+        }
+
+        String keyNickname = keyNicknameAttr.getStringValues().nextElement();
+        record.setKeyNickname(keyNickname);
+
+        Collection<String> keyHosts;
+        LDAPAttribute keyHostAttr = entry.getAttribute("authorityKeyHost");
+        if (keyHostAttr == null) {
+            keyHosts = Collections.emptyList();
+        } else {
+            Enumeration<String> keyHostsEnum = keyHostAttr.getStringValues();
+            keyHosts = Collections.list(keyHostsEnum);
+        }
+        record.setKeyHosts(keyHosts);
+
+        String nsUniqueID = entry.getAttribute("nsUniqueId").getStringValueArray()[0];
+        record.setNSUniqueID(nsUniqueID);
+
+        LDAPAttribute entryUSNAttr = entry.getAttribute("entryUSN");
+        if (entryUSNAttr != null) {
+            BigInteger entryUSN = new BigInteger(entryUSNAttr.getStringValueArray()[0]);
+            record.setEntryUSN(entryUSN);
+        }
+
+        return record;
     }
 
     public List<AuthorityData> findCAs(final String id, final String parentID, final String dn, final String issuerDN) throws IOException {

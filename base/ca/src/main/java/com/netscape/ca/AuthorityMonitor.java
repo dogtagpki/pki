@@ -26,6 +26,7 @@ import java.util.TreeSet;
 
 import org.dogtagpki.server.ca.AuthorityRecord;
 import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.rest.base.AuthorityRepository;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 
 import com.netscape.certsrv.ca.AuthorityID;
@@ -284,9 +285,10 @@ public class AuthorityMonitor implements Runnable {
         logger.info("AuthorityMonitor: Loading authority record " + entry.getDN());
 
         CAEngine engine = CAEngine.getInstance();
+        AuthorityRepository authorityRepository = engine.getAuthorityRepository();
         AuthorityRecord record;
         try {
-            record = engine.getAuthorityRecord(entry);
+            record = authorityRepository.getAuthorityRecord(entry);
         } catch (Exception e) {
             logger.warn("Unable to load authority record: " + e.getMessage(), e);
             return;
