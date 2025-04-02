@@ -154,7 +154,6 @@ import com.netscape.cmscore.request.RequestNotifier;
 import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.util.StatsSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.ldap.LDAPPostReadControl;
 import com.netscape.cmsutil.ocsp.CertID;
 import com.netscape.cmsutil.ocsp.OCSPRequest;
 import com.netscape.cmsutil.ocsp.OCSPResponse;
@@ -163,8 +162,6 @@ import com.netscape.cmsutil.ocsp.TBSRequest;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPConstraints;
-import netscape.ldap.LDAPControl;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
 import netscape.ldap.LDAPModificationSet;
@@ -1576,32 +1573,6 @@ public class CAEngine extends CMSEngine {
         }
     }
 
-    public LDAPConstraints getUpdateConstraints() {
-        String[] attrs = {"entryUSN", "nsUniqueId"};
-        LDAPConstraints cons = new LDAPConstraints();
-        LDAPPostReadControl control = new LDAPPostReadControl(true, attrs);
-        cons.setServerControls(control);
-        return cons;
-    }
-
-    public synchronized void modifyAuthorityEntry(AuthorityID aid, LDAPModificationSet mods) throws EBaseException {
-
-        String dn = "cn=" + aid + "," + getAuthorityBaseDN();
-        LDAPConnection conn = connectionFactory.getConn();
-        LDAPControl[] responseControls;
-
-        try {
-            conn.modify(dn, mods, getUpdateConstraints());
-            responseControls = conn.getResponseControls();
-
-        } catch (LDAPException e) {
-            throw new DBException("Unable to modify authority: " + e.getMessage(), e);
-
-        } finally {
-            connectionFactory.returnConn(conn);
-        }
-    }
-
     public synchronized void deleteAuthorityEntry(AuthorityID aid) throws EBaseException {
 
         String dn = "cn=" + aid + "," + getAuthorityBaseDN();
@@ -1666,7 +1637,7 @@ public class CAEngine extends CMSEngine {
                 "authoritySerial",
                 serialNumber.toString()));
 
-        modifyAuthorityEntry(aid, mods);
+        authorityRepository.modifyAuthorityRecord(aid, mods);
     }
 
     /**
@@ -1728,7 +1699,7 @@ public class CAEngine extends CMSEngine {
         }
 
         if (mods.size() > 0) {
-            modifyAuthorityEntry(ca.getAuthorityID(), mods);
+            authorityRepository.modifyAuthorityRecord(ca.getAuthorityID(), mods);
 
             // update was successful; update CA's state
             ca.setAuthorityEnabled(nextEnabled);
@@ -1746,7 +1717,7 @@ public class CAEngine extends CMSEngine {
         LDAPModificationSet mods = new LDAPModificationSet();
         mods.add(LDAPModification.ADD,
             new LDAPAttribute("authorityKeyHost", host));
-        modifyAuthorityEntry(ca.getAuthorityID(), mods);
+        authorityRepository.modifyAuthorityRecord(ca.getAuthorityID(), mods);
 
         ca.getAuthorityKeyHosts().add(host);
     }

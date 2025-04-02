@@ -57,13 +57,16 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.logging.Auditor;
+import com.netscape.cmsutil.ldap.LDAPPostReadControl;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
 import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPConstraints;
 import netscape.ldap.LDAPControl;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModificationSet;
 
 /**
  * @author Marco Fargetta {@literal <mfargett@redhat.com>}
@@ -77,6 +80,14 @@ public class AuthorityRepository {
 
     public AuthorityRepository(CAEngine engine) {
         this.engine = engine;
+    }
+
+    public LDAPConstraints getUpdateConstraints() {
+        String[] attrs = {"entryUSN", "nsUniqueId"};
+        LDAPConstraints cons = new LDAPConstraints();
+        LDAPPostReadControl control = new LDAPPostReadControl(true, attrs);
+        cons.setServerControls(control);
+        return cons;
     }
 
     public AuthorityRecord getAuthorityRecord(LDAPEntry entry) throws Exception {
@@ -223,11 +234,32 @@ public class AuthorityRepository {
         LDAPControl[] responseControls;
 
         try {
-            conn.add(entry, engine.getUpdateConstraints());
+            conn.add(entry, getUpdateConstraints());
             responseControls = conn.getResponseControls();
 
         } catch (LDAPException e) {
             throw new DBException("Unable to add authority: " + e.getMessage(), e);
+
+        } finally {
+            connectionFactory.returnConn(conn);
+        }
+    }
+
+    public void modifyAuthorityRecord(AuthorityID aid, LDAPModificationSet mods) throws EBaseException {
+
+        String dn = "cn=" + aid + "," + engine.getAuthorityBaseDN();
+        logger.info("AuthorityRepository: Modifying " + dn);
+
+        LdapBoundConnFactory connectionFactory = engine.getConnectionFactory();
+        LDAPConnection conn = connectionFactory.getConn();
+        LDAPControl[] responseControls;
+
+        try {
+            conn.modify(dn, mods, getUpdateConstraints());
+            responseControls = conn.getResponseControls();
+
+        } catch (LDAPException e) {
+            throw new DBException("Unable to modify authority: " + e.getMessage(), e);
 
         } finally {
             connectionFactory.returnConn(conn);
