@@ -266,6 +266,25 @@ public class AuthorityRepository {
         }
     }
 
+    public void deleteAuthorityRecord(AuthorityID aid) throws EBaseException {
+
+        String dn = "cn=" + aid + "," + engine.getAuthorityBaseDN();
+        logger.info("AuthorityRepository: Removing " + dn);
+
+        LdapBoundConnFactory connectionFactory = engine.getConnectionFactory();
+        LDAPConnection conn = connectionFactory.getConn();
+
+        try {
+            conn.delete(dn);
+
+        } catch (LDAPException e) {
+            throw new DBException("Unable to delete authority: " + e.getMessage(), e);
+
+        } finally {
+            connectionFactory.returnConn(conn);
+        }
+    }
+
     public List<AuthorityData> findCAs(final String id, final String parentID, final String dn, final String issuerDN) throws IOException {
         final X500Name x500dn = dn == null ? null : new X500Name(dn);
         final X500Name x500issuerDN = issuerDN == null ? null : new X500Name(issuerDN);

@@ -106,7 +106,6 @@ import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.connector.ConnectorConfig;
 import com.netscape.certsrv.connector.ConnectorsConfig;
-import com.netscape.certsrv.dbs.DBException;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CRLSigningInfoEvent;
@@ -1409,6 +1408,7 @@ public class CAEngine extends CMSEngine {
             logger.error("Unable to generate signing certificate: " + e.getMessage(), e);
 
             // something went wrong; delete just-added entry
+            authorityRepository.deleteAuthorityRecord(authorityID);
             deleteAuthorityEntry(authorityID);
 
             throw e;
@@ -1574,21 +1574,6 @@ public class CAEngine extends CMSEngine {
     }
 
     public synchronized void deleteAuthorityEntry(AuthorityID aid) throws EBaseException {
-
-        String dn = "cn=" + aid + "," + getAuthorityBaseDN();
-        logger.info("CAEngine: Removing " + dn);
-
-        LDAPConnection conn = connectionFactory.getConn();
-
-        try {
-            conn.delete(dn);
-
-        } catch (LDAPException e) {
-            throw new DBException("Unable to delete authority: " + e.getMessage(), e);
-
-        } finally {
-            connectionFactory.returnConn(conn);
-        }
 
         String nsUniqueId = authorityMonitor.nsUniqueIds.get(aid);
         if (nsUniqueId != null) {
@@ -2080,6 +2065,7 @@ public class CAEngine extends CMSEngine {
 
         synchronized (ca) {
             revokeAuthority(ca, httpReq);
+            authorityRepository.deleteAuthorityRecord(ca.getAuthorityID());
             deleteAuthorityEntry(ca.getAuthorityID());
             deleteAuthorityNSSDB(ca);
         }
