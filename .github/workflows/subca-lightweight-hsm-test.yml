@@ -97,36 +97,25 @@ jobs:
               --pkcs12-password Secret.123
           docker exec pki pki -n caadmin ca-user-show caadmin
 
-      - name: Check host CA
-        run: |
-          docker exec pki pki -n caadmin ca-authority-find | tee output
-
-          # there should be 1 authority initially
-          echo "1" > expected
-          sed -n 's/^\s*ID:\s*\(.*\)$/\1/p' output | wc -l > actual
-          diff expected actual
-
-          # it should be a host CA
-          echo "true" > expected
-          sed -n 's/^\s*Host authority:\s*\(.*\)$/\1/p' output > actual
-          diff expected actual
-
-          # store host CA ID
-          sed -n 's/^\s*ID:\s*\(.*\)$/\1/p' output > hostca-id
-
       - name: Check host CA's LDAP entry
         run: |
-          HOSTCA_ID=$(cat hostca-id)
-
           docker exec pki ldapsearch \
               -H ldap://ds.example.com:3389 \
               -x \
               -D "cn=Directory Manager" \
               -w Secret.123 \
-              -b "cn=$HOSTCA_ID,ou=authorities,ou=ca,dc=ca,dc=pki,dc=example,dc=com" \
+              -b "ou=authorities,ou=ca,dc=ca,dc=pki,dc=example,dc=com" \
+              -s one \
               -o ldif_wrap=no \
               -LLL \
-              "(objectClass=*)" | tee output
+              "(objectClass=*)" \
+              "*" \
+              entryUSN \
+              nsUniqueId \
+              | tee output
+
+          HOSTCA_ID=$(sed -n 's/^cn:\s*\(.*\)$/\1/p' output | tee hostca-id)
+          echo "HOSTCA_ID: $HOSTCA_ID"
 
           # check authorityKeyNickname
           echo "HSM:ca_signing" > expected
@@ -179,6 +168,24 @@ jobs:
           sed -n 's/^\s*Key ID:\s*\(.*\)$/\1/p' output | wc -l > actual
           diff expected actual
 
+      - name: Check host CA
+        run: |
+          docker exec pki pki -n caadmin ca-authority-find | tee output
+
+          # there should be 1 authority initially
+          echo "1" > expected
+          sed -n 's/^\s*ID:\s*\(.*\)$/\1/p' output | wc -l > actual
+          diff expected actual
+
+          # it should be a host CA
+          echo "true" > expected
+          sed -n 's/^\s*Host authority:\s*\(.*\)$/\1/p' output > actual
+          diff expected actual
+
+          # check host CA ID
+          sed -n 's/^\s*ID:\s*\(.*\)$/\1/p' output > actual
+          diff hostca-id actual
+
       - name: Create lightweight CA
         run: |
           HOSTCA_ID=$(cat hostca-id)
@@ -212,7 +219,11 @@ jobs:
               -s one \
               -o ldif_wrap=no \
               -LLL \
-              "(objectClass=*)" | tee output
+              "(objectClass=*)" \
+              "*" \
+              entryUSN \
+              nsUniqueId \
+              | tee output
 
           # check authorityKeyNickname
           echo -e "HSM:ca_signing\nHSM:ca_signing $LWCA_ID" | sort > expected
@@ -325,7 +336,11 @@ jobs:
               -s one \
               -o ldif_wrap=no \
               -LLL \
-              "(objectClass=*)" | tee output
+              "(objectClass=*)" \
+              "*" \
+              entryUSN \
+              nsUniqueId \
+              | tee output
 
           # there should be 1 entry now
           echo "$HOSTCA_ID" > expected
