@@ -9,3 +9,9 @@ so it has been removed.
 
 A new `pki_ds_setup_vlv` parameter has been added for `pkispawn`
 to add and rebuild VLV indexes.
+
+== Internal CA OCSP using Key hash ResponderID ==
+
+Internal CA OCSP ResponderID has changed the default value from
+Subject name to Key hash. Running instance using the default Subject
+Name will not change.
