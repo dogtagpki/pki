@@ -9,6 +9,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.cert.CertificateEncodingException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -27,6 +28,7 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.netscape.ca.CASigningUnit;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authority.AuthorityData;
 import com.netscape.certsrv.authority.AuthorityResource;
@@ -114,6 +116,41 @@ public class AuthorityRepository {
         cons.setServerControls(control);
         return cons;
     }
+
+    public Collection<AuthorityRecord> findAuthorityRecords() throws Exception {
+
+        String baseDN = engine.getAuthorityBaseDN();
+        logger.info("AuthorityRepository: Searching " + baseDN);
+
+        List<AuthorityRecord> records = new ArrayList<>();
+
+        LdapBoundConnFactory connectionFactory = engine.getConnectionFactory();
+        LDAPConnection conn = connectionFactory.getConn();
+        String[] attrs = {"*", "entryUSN", "nsUniqueId"};
+
+        try {
+            LDAPSearchResults sr = conn.search(
+                    baseDN,
+                    LDAPConnection.SCOPE_ONE,
+                    "(objectClass=*)",
+                    attrs,
+                    false);  // attrs only
+
+            while (sr.hasMoreElements()) {
+                LDAPEntry entry = sr.next();
+                AuthorityRecord record = getAuthorityRecord(entry);
+                records.add(record);
+            }
+
+        } catch (LDAPException e) {
+            throw new DBException("Unable to search authorities: " + e.getMessage(), e);
+
+        } finally {
+            connectionFactory.returnConn(conn);
+        }
+
+        return records;
+   }
 
     public AuthorityRecord getAuthorityRecord(LDAPEntry entry) throws Exception {
 
@@ -320,12 +357,18 @@ public class AuthorityRepository {
         }
     }
 
-    public List<AuthorityData> findCAs(final String id, final String parentID, final String dn, final String issuerDN) throws IOException {
+    public List<AuthorityData> findCAs(
+            final String id,
+            final String parentID,
+            final String dn,
+            final String issuerDN
+            ) throws Exception {
+
         final X500Name x500dn = dn == null ? null : new X500Name(dn);
         final X500Name x500issuerDN = issuerDN == null ? null : new X500Name(issuerDN);
         logger.info("AuthorityRepository: Getting authorities:");
 
-        return engine.getCAs().stream().
+        return findAuthorityRecords().stream().
                 map(this::readAuthorityData).
                 filter(auth -> {
                     if (id != null && !id.equalsIgnoreCase(auth.getID())) return false;
@@ -649,6 +692,52 @@ public class AuthorityRepository {
             ca.getAuthorityEnabled(),
             ca.getAuthorityDescription(),
             ca.isReady()
+        );
+    }
+
+    private AuthorityData readAuthorityData(AuthorityRecord record) {
+
+        X500Name authorityDN = record.getAuthorityDN();
+        AuthorityID authorityID = record.getAuthorityID();
+        AuthorityID parentID = record.getParentID();
+        X500Name parentDN = record.getParentDN();
+        Boolean enabled = record.getEnabled();
+        String description = record.getDescription();
+
+        // get the host CA
+        CertificateAuthority ca = engine.getCA();
+        if (!authorityDN.toString().equals(ca.getX500Name().toString())) {
+            // if the subject DN doesn't match, get the CA by authority ID
+            ca = engine.getCA(authorityID);
+        }
+
+        boolean isHostAuthority = false;
+        boolean isReady = false;
+
+        CertId certID = record.getSerialNumber();
+        BigInteger serialNumber = certID != null ? certID.toBigInteger() : null;
+
+        if (ca != null) {
+            // if the CA object is available, use the info from it
+            isHostAuthority = ca.isHostAuthority();
+            isReady = ca.isReady();
+
+            CASigningUnit signingUnit = ca.getSigningUnit();
+            if (signingUnit != null) {
+                serialNumber = signingUnit.getCert().getSerialNumber();
+            }
+        }
+
+        return new AuthorityData(
+                isHostAuthority,
+                authorityDN.toString(),
+                authorityID.toString(),
+                parentID != null ? parentID.toString() : null,
+                parentDN != null ? parentDN.toString() : null,
+                serialNumber,
+                enabled,
+                description,
+                isReady
         );
     }
 
