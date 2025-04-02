@@ -88,11 +88,29 @@ jobs:
               --external-cert-file=/ipa.crt \
               --external-cert-file=/root-ca_signing.crt \
               -p Secret.123
+
+      - name: Update PKI server configuration
+        run: |
+          docker exec ipa dnf install -y xmlstarlet
+
+          # disable access log buffer
+          docker exec ipa xmlstarlet edit --inplace \
+              -u "//Valve[@className='org.apache.catalina.valves.AccessLogValve']/@buffered" \
+              -v "false" \
+              -i "//Valve[@className='org.apache.catalina.valves.AccessLogValve' and not(@buffered)]" \
+              -t attr \
+              -n "buffered" \
+              -v "false" \
+              /etc/pki/pki-tomcat/server.xml
+
+          # restart PKI server
+          docker exec ipa pki-server restart --wait
+
+      - name: Check admin user
+        run: |
           echo Secret.123 | docker exec -i ipa kinit admin
           docker exec ipa ipa ping
 
-      - name: Check Sub-CA admin
-        run: |
           docker exec ipa pki nss-cert-import \
               --cert root-ca_signing.crt \
               --trust CT,C,C \

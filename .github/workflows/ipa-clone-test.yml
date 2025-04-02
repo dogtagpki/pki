@@ -48,6 +48,23 @@ jobs:
               --no-host-dns \
               --no-ntp
 
+      - name: Update primary PKI server configuration
+        run: |
+          docker exec primary dnf install -y xmlstarlet
+
+          # disable access log buffer
+          docker exec primary xmlstarlet edit --inplace \
+              -u "//Valve[@className='org.apache.catalina.valves.AccessLogValve']/@buffered" \
+              -v "false" \
+              -i "//Valve[@className='org.apache.catalina.valves.AccessLogValve' and not(@buffered)]" \
+              -t attr \
+              -n "buffered" \
+              -v "false" \
+              /etc/pki/pki-tomcat/server.xml
+
+          # restart PKI server
+          docker exec primary pki-server restart --wait
+
       - name: Check CA database config in primary IPA
         run: |
           docker exec primary pki-server ca-config-find | grep "^internaldb\." | tee output
@@ -93,7 +110,7 @@ jobs:
 
       - name: Check primary IPA server config
         run: |
-          docker exec primary bash -c "echo Secret.123 | kinit admin"
+          echo Secret.123 | docker exec -i primary kinit admin
           docker exec primary klist
 
           docker exec primary ipa config-show | tee output
@@ -159,7 +176,7 @@ jobs:
               -w Secret.123 \
               --no-ntp
 
-          docker exec secondary bash -c "echo Secret.123 | kinit admin"
+          echo Secret.123 | docker exec -i secondary kinit admin
           docker exec secondary klist
 
           docker exec secondary ipa config-show
@@ -176,6 +193,23 @@ jobs:
           docker exec secondary ipa-ca-install -p Secret.123
 
           docker exec secondary ipa config-show
+
+      - name: Update secondary PKI server configuration
+        run: |
+          docker exec secondary dnf install -y xmlstarlet
+
+          # disable access log buffer
+          docker exec secondary xmlstarlet edit --inplace \
+              -u "//Valve[@className='org.apache.catalina.valves.AccessLogValve']/@buffered" \
+              -v "false" \
+              -i "//Valve[@className='org.apache.catalina.valves.AccessLogValve' and not(@buffered)]" \
+              -t attr \
+              -n "buffered" \
+              -v "false" \
+              /etc/pki/pki-tomcat/server.xml
+
+          # restart PKI server
+          docker exec secondary pki-server restart --wait
 
       - name: Check CA database config in secondary IPA
         run: |
