@@ -15,3 +15,9 @@ to add and rebuild VLV indexes.
 Internal CA OCSP ResponderID has changed the default value from
 Subject name to Key hash. Running instance using the default Subject
 Name will not change.
+
+== OCSP subsystem using Key hash ResponderID ==
+
+Standalone OCSP ResponderID has changed the default value from Subject
+name to Key hash. Running instance usinf DefStore will keep their
+current configuration.
