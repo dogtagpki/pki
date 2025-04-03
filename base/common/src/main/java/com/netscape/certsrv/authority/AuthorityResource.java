@@ -32,7 +32,7 @@ public interface AuthorityResource {
 
     @GET
     @Path("{id}")
-    public Response getCA(@PathParam("id") String caIDString);
+    public Response getCA(@PathParam("id") String caIDString) throws Exception;
 
     @GET
     @Path("{id}/cert")
