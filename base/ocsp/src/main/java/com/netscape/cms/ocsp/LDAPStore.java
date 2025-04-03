@@ -95,7 +95,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     private ConfigStore mConfig;
     private String mId = null;
     private String mCRLAttr = null;
-    private boolean mByName = true;
+    private boolean mByName = false;
     private String mCACertAttr = null;
     protected Hashtable<String, Long> mReqCounts = new Hashtable<>();
     private Hashtable<X509CertImpl, X509CRLImpl> mCRLs = new Hashtable<>();
@@ -146,7 +146,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
         mCRLAttr = mConfig.getString(PROP_CRL_ATTR, DEF_CRL_ATTR);
         mCACertAttr = mConfig.getString(PROP_CA_CERT_ATTR,
                     DEF_CA_CERT_ATTR);
-        mByName = mConfig.getBoolean(PROP_BY_NAME, true);
+        mByName = mConfig.getBoolean(PROP_BY_NAME, false);
 
         mValidateConnection = mConfig.getBoolean(PROP_VALIDATE_CONNECTION_WITH_CRL, true);
     }

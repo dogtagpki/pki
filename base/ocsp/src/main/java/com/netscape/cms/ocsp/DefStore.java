@@ -92,7 +92,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     protected Hashtable<String, Long> mReqCounts = new Hashtable<>();
     protected boolean mNotFoundGood = true;
     protected boolean mUseCache = true;
-    protected boolean mByName = true;
+    protected boolean mByName = false;
     protected boolean mIncludeNextUpdate = false;
     protected Hashtable<String, CRLIPContainer> mCacheCRLIssuingPoints = new Hashtable<>();
     private ConfigStore mConfig;
@@ -149,7 +149,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
 
         mUseCache = mConfig.getBoolean(PROP_USE_CACHE, true);
 
-        mByName = mConfig.getBoolean(PROP_BY_NAME, true);
+        mByName = mConfig.getBoolean(PROP_BY_NAME, false);
 
         // To include next update in the OCSP response. If included,
         // PSM (client) will check to see if the revoked information
