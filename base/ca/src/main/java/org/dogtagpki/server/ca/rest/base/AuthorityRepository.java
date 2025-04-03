@@ -9,6 +9,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -25,6 +27,7 @@ import org.dogtagpki.server.ca.AuthorityRecord;
 import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -150,7 +153,40 @@ public class AuthorityRepository {
         }
 
         return records;
-   }
+    }
+
+    public AuthorityRecord getAuthorityRecord(AuthorityID aid) throws Exception {
+
+        String baseDN = engine.getAuthorityBaseDN();
+        String dn = "cn=" + aid + "," + baseDN;
+        logger.info("AuthorityRepository: Retrieving " + dn);
+
+        LdapBoundConnFactory connectionFactory = engine.getConnectionFactory();
+        LDAPConnection conn = connectionFactory.getConn();
+        String[] attrs = {"*", "entryUSN", "nsUniqueId"};
+
+        try {
+            LDAPSearchResults sr = conn.search(
+                    dn,
+                    LDAPConnection.SCOPE_BASE,
+                    "(objectClass=*)",
+                    attrs,
+                    false);  // attrs only
+
+            if (!sr.hasMoreElements()) {
+                return null;
+            }
+
+            LDAPEntry entry = sr.next();
+            return getAuthorityRecord(entry);
+
+        } catch (LDAPException e) {
+            throw new DBException("Unable to retrieve authority: " + e.getMessage(), e);
+
+        } finally {
+            connectionFactory.returnConn(conn);
+        }
+    }
 
     public AuthorityRecord getAuthorityRecord(LDAPEntry entry) throws Exception {
 
@@ -391,24 +427,27 @@ public class AuthorityRepository {
                 collect(Collectors.toList());
     }
 
-    public AuthorityData getCA(String authId) {
+    public AuthorityData getCA(String authId) throws Exception {
         logger.info("AuthorityRepository: Getting authority {}:", authId);
 
         AuthorityID aid = null;
-        if (!AuthorityResource.HOST_AUTHORITY.equals(authId)) {
+        if (AuthorityResource.HOST_AUTHORITY.equals(authId)) {
+            CertificateAuthority ca = engine.getCA();
+            aid = ca.getAuthorityID();
+        } else {
             try {
                 aid = new AuthorityID(authId);
             } catch (IllegalArgumentException e) {
                 throw new BadRequestException("Bad AuthorityID: " + authId);
             }
-
         }
-        CertificateAuthority ca = engine.getCA(aid);
 
-        if (ca == null)
+        AuthorityRecord record = getAuthorityRecord(aid);
+
+        if (record == null)
             throw new ResourceNotFoundException("CA \"" + authId + "\" not found");
 
-        AuthorityData authority = readAuthorityData(ca);
+        AuthorityData authority = readAuthorityData(record);
 
         logger.info("AuthorityRepository:   DN: {}", authority.getDN());
         if (authority.getParentID() != null) {
@@ -699,8 +738,11 @@ public class AuthorityRepository {
 
         X500Name authorityDN = record.getAuthorityDN();
         AuthorityID authorityID = record.getAuthorityID();
+
         AuthorityID parentID = record.getParentID();
         X500Name parentDN = record.getParentDN();
+        String issuerDN = parentDN != null ? parentDN.toString() : null;
+
         Boolean enabled = record.getEnabled();
         String description = record.getDescription();
 
@@ -724,7 +766,15 @@ public class AuthorityRepository {
 
             CASigningUnit signingUnit = ca.getSigningUnit();
             if (signingUnit != null) {
-                serialNumber = signingUnit.getCert().getSerialNumber();
+                X509Certificate cert = signingUnit.getCert();
+                serialNumber = cert.getSerialNumber();
+
+                try {
+                    X509CertImpl certImpl = new X509CertImpl(cert.getEncoded());
+                    issuerDN = certImpl.getIssuerName().toString();
+                } catch (CertificateException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
 
@@ -733,7 +783,7 @@ public class AuthorityRepository {
                 authorityDN.toString(),
                 authorityID.toString(),
                 parentID != null ? parentID.toString() : null,
-                parentDN != null ? parentDN.toString() : null,
+                issuerDN,
                 serialNumber,
                 enabled,
                 description,

@@ -94,34 +94,19 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
     }
 
     @Override
-    public Response getCA(String aidString) {
+    public Response getCA(String aidString) throws Exception {
 
-        logger.info("AuthorityService: getting authority " + aidString + ":");
+        logger.info("AuthorityService: Getting CA {}", aidString);
 
         CAEngine engine = CAEngine.getInstance();
-        CertificateAuthority ca = engine.getCA();
+        AuthorityRepository authorityRepository = engine.getAuthorityRepository();
+        AuthorityData authority = authorityRepository.getCA(aidString);
 
-        if (!AuthorityResource.HOST_AUTHORITY.equals(aidString)) {
-            AuthorityID aid;
-            try {
-                aid = new AuthorityID(aidString);
-            } catch (IllegalArgumentException e) {
-                throw new BadRequestException("Bad AuthorityID: " + aidString);
-            }
-
-            ca = engine.getCA(aid);
-
-            if (ca == null)
-                throw new ResourceNotFoundException("CA \"" + aidString + "\" not found");
-        }
-
-        AuthorityData authority = readAuthorityData(ca);
-
-        logger.info("AuthorityService:   DN: " + authority.getDN());
+        logger.debug("AuthorityService: - DN: {}", authority.getDN());
         if (authority.getParentID() != null) {
-            logger.info("AuthorityService:   Parent ID: " + authority.getParentID());
+            logger.debug("AuthorityService: - parent ID: {}", authority.getParentID());
         }
-        logger.info("AuthorityService:   Issuer DN: " + authority.getIssuerDN());
+        logger.debug("AuthorityService: - issuer DN: {}", authority.getIssuerDN());
 
         return createOKResponse(authority);
     }
