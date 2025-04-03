@@ -20,7 +20,6 @@ package com.netscape.ocsp;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.InvalidKeyException;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.SignatureException;
@@ -246,16 +245,14 @@ public class OCSPAuthority extends Subsystem implements IAuthority, IOCSPService
          --(excluding the tag and length fields)
          */
         PublicKey publicKey = getSigningUnit().getPublicKey();
-        MessageDigest md = null;
-
+        X509Key key = new X509Key();
         try {
-            md = MessageDigest.getInstance("SHA1");
-        } catch (NoSuchAlgorithmException e) {
+            key.decode(publicKey.getEncoded());
+        } catch (InvalidKeyException e) {
+            logger.error("CA - OCSP signing key not accessible");
             return null;
         }
-        md.update(publicKey.getEncoded());
-        byte digested[] = md.digest();
-
+        byte[] digested = CryptoUtil.generateKeyIdentifier(key.getKey());
         return new KeyHashID(new OCTET_STRING(digested));
     }
 
