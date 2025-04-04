@@ -1314,8 +1314,8 @@ class PKIDeployer:
         if ocsp_uri:
             subsystem.set_config('ca.defaultOcspUri', ocsp_uri)
 
-        if config.str2bool(self.mdict['pki_client_verify_cert']):
-            subsystem.set_config('ca.clientRevocationCheck', 'true')
+        if not config.str2bool(self.mdict['pki_kra_connector_verify_cert']):
+            subsystem.set_config('ca.connector.KRA.certRevocationCheck', 'false')
 
     def configure_kra(self, subsystem):
 
