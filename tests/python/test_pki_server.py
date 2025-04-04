@@ -28,7 +28,7 @@ class PKIServerTests(unittest.TestCase):
     def test_tomcat_version(self):
         tomcat = pki.server.Tomcat()
         version = tomcat.get_version()
-        self.assertIn(version.major, [7, 8])
+        self.assertIn(version.major, [7, 8, 9])
 
 
 if __name__ == '__main__':
