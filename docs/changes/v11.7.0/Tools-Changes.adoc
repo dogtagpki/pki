@@ -14,3 +14,9 @@ accessed.
 
 Alternatively, the generated error can be ignored using the option
 `--ignore-cert-status` and the reported status error.
+
+== New pkispawn option pki_kra_connector_verify_cert ==
+
+The CA parameter `pki_kra_connector_verify_cert` set corresponding
+`CS.cfg` paramater `ca.connector.KRA.certRevocationCheck` for KRA
+connector. The default value is `True`.
