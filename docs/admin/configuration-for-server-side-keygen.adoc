@@ -2,8 +2,8 @@
 
 [id="_configuration_for_server_side_keygen"]
 = ServerSide Key Generation for EE
-Christina Fu <cfu@redhat.com>
-:toc:
+//Christina Fu <cfu@redhat.com>
+//:toc:
 :imagesdir: images
 
 == Overview
