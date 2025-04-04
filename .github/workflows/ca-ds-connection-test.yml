@@ -109,6 +109,7 @@ jobs:
           # enrollment should fail
           docker exec pki pki \
               -n caadmin \
+              --ignore-cert-status OCSP_SERVER_ERROR \
               ca-cert-issue \
               --profile caServerCert \
               --csr-file sslserver.csr \
@@ -145,6 +146,7 @@ jobs:
           # enrollment should fail
           docker exec pki pki \
               -n caadmin \
+              --ignore-cert-status OCSP_SERVER_ERROR \
               ca-cert-issue \
               --profile caServerCert \
               --csr-file sslserver.csr \
@@ -163,8 +165,10 @@ jobs:
           sleep 60
 
           # enrollment should work
+          # OCSP is not working because he authorityMonitor is disabled
           docker exec pki pki \
               -n caadmin \
+              --ignore-cert-status OCSP_SERVER_ERROR \
               ca-cert-issue \
               --profile caServerCert \
               --csr-file sslserver.csr \
