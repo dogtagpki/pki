@@ -134,7 +134,11 @@ public class CertRequestServlet extends CAServlet {
         out.println(infos.toJSON());
     }
 
-    private CertRequestInfos enrollCert(HttpServletRequest servletRequest, CertEnrollmentRequest data, String aidString, String adnString) {
+    private CertRequestInfos enrollCert(
+            HttpServletRequest servletRequest,
+            CertEnrollmentRequest data,
+            String aidString,
+            String adnString) throws Exception {
 
         logger.info("CertRequestServlet: Receiving certificate request");
         if (aidString != null && adnString != null)
