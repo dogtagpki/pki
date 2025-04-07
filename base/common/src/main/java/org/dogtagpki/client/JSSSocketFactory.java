@@ -12,14 +12,16 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 
+import javax.net.SocketFactory;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 
-import org.apache.http.conn.scheme.SchemeLayeredSocketFactory;
-import org.apache.http.params.HttpParams;
+import org.apache.http.HttpHost;
+import org.apache.http.conn.socket.LayeredConnectionSocketFactory;
+import org.apache.http.protocol.HttpContext;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.provider.javax.crypto.JSSTrustManager;
 import org.mozilla.jss.ssl.SSLAlertDescription;
@@ -37,7 +39,7 @@ import com.netscape.certsrv.client.PKIConnection;
  * JSSSocket support both communication models: sync and async. The model is
  * defined in the initial socket and if not specified it is sync.
  */
-public class JSSSocketFactory implements SchemeLayeredSocketFactory {
+public class JSSSocketFactory implements LayeredConnectionSocketFactory {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(JSSSocketFactory.class);
 
@@ -48,32 +50,14 @@ public class JSSSocketFactory implements SchemeLayeredSocketFactory {
     }
 
     @Override
-    public Socket createSocket(HttpParams params) throws IOException {
-        return null;
+    public Socket createSocket(HttpContext arg0) throws IOException {
+        return SocketFactory.getDefault().createSocket();
     }
 
     @Override
-    public Socket connectSocket(Socket socket,
-            InetSocketAddress remoteAddress,
-            InetSocketAddress localAddress,
-            HttpParams params)
-            throws IOException,
-            UnknownHostException {
-
-        String hostname = null;
-        int port = 0;
-        if (remoteAddress != null) {
-            hostname = remoteAddress.getHostName();
-            port = remoteAddress.getPort();
-        }
-
-        int localPort = 0;
-        InetAddress localAddr = null;
-
-        if (localAddress != null) {
-            localPort = localAddress.getPort();
-            localAddr = localAddress.getAddress();
-        }
+    public Socket createLayeredSocket(Socket socket, String remoteHost, int port, HttpContext context)
+            throws IOException, UnknownHostException {
+        JSSSocket jssSocket;
 
         SSLSocketFactory socketFactory;
         try {
@@ -83,7 +67,7 @@ public class JSSSocketFactory implements SchemeLayeredSocketFactory {
             KeyManager[] kms = kmf.getKeyManagers();
 
             JSSTrustManager trustManager = new JSSTrustManager();
-            trustManager.setHostname(hostname);
+            trustManager.setHostname(remoteHost);
             trustManager.setCallback(connection.getCallback());
             trustManager.setEnableCertRevokeVerify(connection.getConfig().isCertRevocationVerify());
 
@@ -98,21 +82,18 @@ public class JSSSocketFactory implements SchemeLayeredSocketFactory {
             throw new IOException("Unable to create SSL socket factory: " + e.getMessage(), e);
         }
 
-        JSSSocket jssSocket;
         try {
             if (socket == null) {
                 logger.info("Creating new SSL socket");
                 jssSocket = (JSSSocket) socketFactory.createSocket(
-                        InetAddress.getByName(hostname),
-                        port,
-                        localAddr,
-                        localPort);
+                        InetAddress.getByName(remoteHost),
+                        port);
 
             } else {
                 logger.info("Creating SSL socket with existing socket");
                 jssSocket = (JSSSocket) socketFactory.createSocket(
                         socket,
-                        hostname,
+                        remoteHost,
                         port,
                         true);
             }
@@ -165,20 +146,45 @@ public class JSSSocketFactory implements SchemeLayeredSocketFactory {
         }));
 
         jssSocket.startHandshake();
-
         return jssSocket;
     }
 
-    @Override
-    public boolean isSecure(Socket sock) {
-        // We only use this factory in the case of SSL Connections.
-        return true;
-    }
 
     @Override
-    public Socket createLayeredSocket(Socket socket, String target, int port, HttpParams params)
-            throws IOException, UnknownHostException {
-        // This method implementation is required to get SSL working.
-        return null;
+    public Socket connectSocket(
+            int connTimeout,
+            Socket socket,
+            HttpHost host,
+            InetSocketAddress remoteAddress,
+            InetSocketAddress localAddress,
+            HttpContext context)
+            throws IOException,
+            UnknownHostException {
+
+        String hostname = null;
+        int port = 0;
+
+        if (host != null) {
+            hostname = host.getHostName();
+            port = host.getPort();
+        } else if(remoteAddress != null) {
+            hostname = remoteAddress.getHostName();
+            port = remoteAddress.getPort();
+        }
+
+        if (socket == null) {
+            socket = new Socket();
+        }
+        if (!socket.isConnected()) {
+            if (localAddress != null) {
+                socket.bind(localAddress);
+            }
+            if (remoteAddress != null) {
+                socket.connect(remoteAddress, connTimeout);
+            }
+        }
+
+        return createLayeredSocket(socket, hostname, port, context);
     }
+
 }
