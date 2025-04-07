@@ -91,7 +91,7 @@ public class OCSPServlet extends CMSServlet {
 
     }
 
-    public OCSPResponse validate(OCSPRequest ocspRequest) throws EBaseException {
+    public OCSPResponse validate(OCSPRequest ocspRequest) throws Exception {
         return null;
     }
 

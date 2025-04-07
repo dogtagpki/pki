@@ -29,14 +29,12 @@ import java.security.SignatureException;
 import java.security.cert.CRLException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -106,6 +104,7 @@ import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.connector.ConnectorConfig;
 import com.netscape.certsrv.connector.ConnectorsConfig;
+import com.netscape.certsrv.dbs.DBRecordNotFoundException;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CRLSigningInfoEvent;
@@ -1220,17 +1219,6 @@ public class CAEngine extends CMSEngine {
      */
     public CertificateAuthority getCA() {
         return (CertificateAuthority) getSubsystem(CertificateAuthority.ID);
-    }
-
-    /**
-     * Enumerate all authorities (including host authority)
-     */
-    public List<CertificateAuthority> getCAs() {
-        List<CertificateAuthority> list = new ArrayList<>();
-        synchronized (authorityMonitor.authorities) {
-            list.addAll(authorityMonitor.authorities.values());
-        }
-        return list;
     }
 
     /**
@@ -2458,7 +2446,7 @@ public class CAEngine extends CMSEngine {
     public OCSPResponse validate(
             CertificateAuthority ca,
             OCSPRequest ocspRequest)
-            throws EBaseException {
+            throws Exception {
 
         if (!getEnableOCSP()) {
             logger.debug("CAEngine: OCSP service disabled");
@@ -2497,11 +2485,41 @@ public class CAEngine extends CMSEngine {
          *    Otherwise, we move forward to generate and sign the
          *    aggregate OCSP response.
          */
-        for (CertificateAuthority ocspCA : getCAs()) {
-            Request request = tbsRequest.getRequestAt(0);
-            CertID certID = request.getCertID();
+
+        Request request = tbsRequest.getRequestAt(0);
+        CertID certID = request.getCertID();
+
+        String digestName = certID.getDigestName();
+        byte[] issuerNameHash = certID.getIssuerNameHash().toByteArray();
+
+        // get cert record by cert's serial number
+        BigInteger serialNumber = certID.getSerialNumber();
+        CertRecord certRecord;
+
+        try {
+            certRecord = certificateRepository.readCertificateRecord(serialNumber);
+        } catch (DBRecordNotFoundException e) {
+            // cert not found -> let CA generate the OCSP response
+            return ca.validate(tbsRequest);
+        }
+
+        // get cert's issuer name
+        X509CertImpl cert = certRecord.getCertificate();
+        X500Name issuerName = cert.getIssuerName();
+
+        // find authority records by cert's issuer name
+        // it could potentially match multiple authority records
+        // for better accuracy use cert's issuer public key instead
+        // TODO: modify AuthorityRepository to support searching by public key
+        Collection<AuthorityRecord> authorityRecords = authorityRepository.findAuthorityRecords(
+                null, issuerName, null, null);
+
+        for (AuthorityRecord authorityRecord : authorityRecords) {
+
+            // get CA corresponding to authority record
+            CertificateAuthority ocspCA = getCA(authorityRecord.getAuthorityID());
+
             byte[] nameHash = null;
-            String digestName = certID.getDigestName();
 
             if (digestName != null) {
                 try {
@@ -2512,7 +2530,8 @@ public class CAEngine extends CMSEngine {
                 }
             }
 
-            if (Arrays.equals(nameHash, certID.getIssuerNameHash().toByteArray())) {
+            // validate cert if CA's subject name hash matches cert's issuer name hash
+            if (Arrays.equals(nameHash, issuerNameHash)) {
                 if (ocspCA != ca) {
                     return validate(ocspCA, ocspRequest);
                 }
