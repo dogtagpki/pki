@@ -120,10 +120,47 @@ public class AuthorityRepository {
         return cons;
     }
 
-    public Collection<AuthorityRecord> findAuthorityRecords() throws Exception {
+    public Collection<AuthorityRecord> findAuthorityRecords(
+            AuthorityID id,
+            X500Name dn,
+            AuthorityID parentID,
+            X500Name parentDN) throws Exception {
 
         String baseDN = engine.getAuthorityBaseDN();
         logger.info("AuthorityRepository: Searching " + baseDN);
+
+        List<String> conditions = new ArrayList<>();
+        if (id != null) {
+            conditions.add("(authorityID=" + id + ")");
+        }
+        if (dn != null) {
+            conditions.add("(authorityDN=" + dn.toLdapDNString() + ")");
+        }
+        if (parentID != null) {
+            conditions.add("(authorityParentID=" + parentID + ")");
+        }
+        if (parentDN != null) {
+            conditions.add("(authorityParentDN=" + parentDN.toLdapDNString() + ")");
+        }
+
+        String filter;
+        if (conditions.isEmpty()) {
+            filter = "(objectClass=*)";
+
+        } else if (conditions.size() == 1) {
+            // filter = <condition>
+            filter = conditions.iterator().next().toString();
+
+        } else {
+            // filter = (& <condition> <condition> ... <condition>)
+            StringBuilder sb = new StringBuilder();
+            for (String condition : conditions) {
+                sb.append(condition);
+            }
+            filter = "(&" + sb + ")";
+        }
+
+        logger.info("AuthorityRepository: - filter: " + filter);
 
         List<AuthorityRecord> records = new ArrayList<>();
 
@@ -135,7 +172,7 @@ public class AuthorityRepository {
             LDAPSearchResults sr = conn.search(
                     baseDN,
                     LDAPConnection.SCOPE_ONE,
-                    "(objectClass=*)",
+                    filter,
                     attrs,
                     false);  // attrs only
 
@@ -394,34 +431,31 @@ public class AuthorityRepository {
     }
 
     public List<AuthorityData> findCAs(
-            final String id,
-            final String parentID,
-            final String dn,
-            final String issuerDN
+            String id,
+            String parentID,
+            String dn,
+            String parentDN
             ) throws Exception {
 
-        final X500Name x500dn = dn == null ? null : new X500Name(dn);
-        final X500Name x500issuerDN = issuerDN == null ? null : new X500Name(issuerDN);
         logger.info("AuthorityRepository: Getting authorities:");
 
-        return findAuthorityRecords().stream().
+        AuthorityID authorityID = id == null ? null : new AuthorityID(id);
+        X500Name authorityDN = dn == null ? null : new X500Name(dn);
+
+        AuthorityID authorityParentID = id == null ? null : new AuthorityID(parentID);
+        X500Name authorityParentDN = parentDN == null ? null : new X500Name(parentDN);
+
+        return findAuthorityRecords(
+                    authorityID, authorityDN, authorityParentID, authorityParentDN
+                ).stream().
                 map(this::readAuthorityData).
                 filter(auth -> {
-                    if (id != null && !id.equalsIgnoreCase(auth.getID())) return false;
-                    if (parentID != null && !parentID.equalsIgnoreCase(auth.getParentID())) return false;
-                    try {
-                        if (x500dn != null && !x500dn.equals(new X500Name(auth.getDN()))) return false;
-                        if (x500issuerDN != null && !x500issuerDN.equals(new X500Name(auth.getIssuerDN()))) return false;
-                    } catch (IOException e) {
-                        logger.error("AuthorityRepository: Unable to convert DNs for authority {}", auth.getID());
-                        return false;
-                    }
                     logger.info("AuthorityRepository: - ID: {}", auth.getID());
                     logger.info("AuthorityRepository:   DN: {}", auth.getDN());
                     if (auth.getParentID() != null) {
                         logger.info("AuthorityRepository:   Parent ID: {}", auth.getParentID());
                     }
-                    logger.info("AuthorityRepository:   Issuer DN: {}", auth.getIssuerDN());
+                    logger.info("AuthorityRepository:   Parent DN: {}", auth.getIssuerDN());
                     return true;
                 }).
                 collect(Collectors.toList());
@@ -693,7 +727,7 @@ public class AuthorityRepository {
             auditParams.put("exception", e.toString());
             audit(ILogger.FAILURE, OpDef.OP_DELETE, authId, auditParams);
             throw new ConflictingOperationException(e.toString());
-        } catch (EBaseException e) {
+        } catch (Exception e) {
             String message = "Error modifying authority: " + e.getMessage();
             logger.error(message, e);
             auditParams.put("exception", e.toString());

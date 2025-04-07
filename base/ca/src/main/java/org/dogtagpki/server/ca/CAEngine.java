@@ -1237,7 +1237,7 @@ public class CAEngine extends CMSEngine {
      * Get authority by ID.
      *
      * @param aid The ID of the CA to retrieve, or null
-     *             to retreive the host authority.
+     *             to retrieve the host authority.
      *
      * @return the authority, or null if not found
      */
@@ -1245,14 +1245,17 @@ public class CAEngine extends CMSEngine {
         return aid == null ? getCA() : authorityMonitor.authorities.get(aid);
     }
 
-    public CertificateAuthority getCA(X500Name dn) {
+    public CertificateAuthority getCA(X500Name dn) throws Exception {
 
-        for (CertificateAuthority ca : getCAs()) {
-            if (ca.getX500Name().equals(dn))
-                return ca;
+        Collection<AuthorityRecord> records = authorityRepository.findAuthorityRecords(
+                null, dn, null, null);
+
+        if (records.isEmpty()) {
+            return null;
         }
 
-        return null;
+        AuthorityRecord record = records.iterator().next();
+        return getCA(record.getAuthorityID());
     }
 
     public X509CertImpl generateSigningCert(
@@ -2010,7 +2013,7 @@ public class CAEngine extends CMSEngine {
     public void deleteAuthority(
             HttpServletRequest httpReq,
             CertificateAuthority ca)
-            throws EBaseException {
+            throws Exception {
 
         if (ca.isHostAuthority())
             throw new CATypeException("Cannot delete the host CA");
@@ -2018,17 +2021,10 @@ public class CAEngine extends CMSEngine {
         if (ca.getAuthorityEnabled())
             throw new CAEnabledException("Must disable CA before deletion");
 
-        boolean hasSubCAs = false;
+        Collection<AuthorityRecord> records = authorityRepository.findAuthorityRecords(
+                null, null, ca.getAuthorityID(), null);
 
-        for (CertificateAuthority auth : getCAs()) {
-            AuthorityID parentAID = auth.getAuthorityParentID();
-            if (parentAID != null && parentAID.equals(ca.getAuthorityID())) {
-                hasSubCAs = true;
-                break;
-            }
-        }
-
-        if (hasSubCAs)
+        if (!records.isEmpty())
             throw new CANotLeafException("CA with sub-CAs cannot be deleted (delete sub-CAs first)");
 
         synchronized (ca) {

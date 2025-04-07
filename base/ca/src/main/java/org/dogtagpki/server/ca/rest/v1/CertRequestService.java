@@ -95,7 +95,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
     }
 
     @Override
-    public Response enrollCert(String enrollmentRequest, String aidString, String adnString) {
+    public Response enrollCert(String enrollmentRequest, String aidString, String adnString) throws Exception {
 
         logger.info("CertRequestService: Receiving certificate request");
 

@@ -34,7 +34,7 @@ public interface CertRequestResource {
     public Response enrollCert(
         String enrollmentRequest,
         @QueryParam("issuer-id") String caIDString,
-        @QueryParam("issuer-dn") String caDNString);
+        @QueryParam("issuer-dn") String caDNString) throws Exception;
 
     /**
      * Used to retrieve cert request info for a specific request
