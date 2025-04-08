@@ -9,7 +9,8 @@ jobs:
   # docs/installation/ca/Installing_CA_Clone_with_HSM.md
   test:
     name: Test
-    runs-on: ubuntu-latest
+    # SSH with public key auth doesn't work with the latest Ubuntu
+    runs-on: ubuntu-22.04
     env:
       SHARED: /tmp/workdir/pki
     steps:
@@ -28,48 +29,134 @@ jobs:
       - name: Create network
         run: docker network create example
 
-      - name: Set up primary DS container
+      - name: Set up HSM container
         run: |
-          tests/bin/ds-create.sh \
-              --image=${{ env.DS_IMAGE }} \
-              --hostname=primaryds.example.com \
-              --password=Secret.123 \
-              primaryds
+          tests/bin/runner-init.sh \
+              --hostname=hsm.example.com \
+              --network=example \
+              --network-alias=hsm.example.com \
+              hsm
 
-      - name: Connect primary DS container to network
-        run: docker network connect example primaryds --alias primaryds.example.com
-
-      - name: Set up primary PKI container
+      - name: Set up SoftHSM in HSM container
         run: |
-          tests/bin/runner-init.sh primary
-        env:
-          HOSTNAME: primary.example.com
+          docker exec hsm dnf install -y softhsm
 
-      - name: Connect primary PKI container to network
-        run: docker network connect example primary --alias primary.example.com
-
-      - name: Install dependencies in primary PKI container
-        run: |
-          docker exec primary dnf install -y softhsm
-
-      - name: Create SoftHSM token in primary PKI container
-        run: |
-          # allow PKI user to access SoftHSM files
-          docker exec primary usermod pkiuser -a -G ods
-
-          # create SoftHSM token for PKI server
-          docker exec primary runuser -u pkiuser -- \
-              softhsm2-util \
+          docker exec hsm softhsm2-util \
               --init-token \
               --label HSM \
               --so-pin Secret.HSM \
               --pin Secret.HSM \
               --free
 
-          docker exec primary ls -laR /var/lib/softhsm/tokens
+          docker exec hsm softhsm2-util --show-slots
 
-          docker exec primary runuser -u pkiuser -- \
-              softhsm2-util --show-slots
+      - name: Set up SSH server in HSM container
+        run: |
+          docker exec hsm dnf install -y openssh-server openssh-clients
+
+          # remove default SSH server config to allow public key auth
+          docker exec hsm ls -l /etc/ssh/sshd_config.d
+          docker exec hsm rm -f /etc/ssh/sshd_config.d/40-redhat-crypto-policies.conf
+          docker exec hsm rm -f /etc/ssh/sshd_config.d/50-redhat.conf
+
+          # configure SSH server to allow root access with public key auth
+          docker exec hsm cat /etc/ssh/sshd_config
+          docker exec -i hsm tee /etc/ssh/sshd_config.d/root-login.conf << EOF
+          PermitRootLogin yes
+          PubkeyAuthentication yes
+          AuthenticationMethods publickey
+          EOF
+
+          # start SSH server
+          docker exec hsm systemctl start sshd
+
+          # generate SSH client key
+          docker exec hsm ssh-keygen -f /root/.ssh/id_ed25519 -N ""
+          docker exec hsm cp /root/.ssh/id_ed25519.pub /root/.ssh/authorized_keys
+          docker exec hsm chmod 600 /root/.ssh/authorized_keys
+
+          # retrieve SSH client key
+          docker cp hsm:/root/.ssh/id_ed25519 .
+          docker cp hsm:/root/.ssh/id_ed25519.pub .
+
+          # retrieve SSH server key
+          docker exec hsm ssh-keyscan -H hsm.example.com \
+              | tee known_hosts
+
+      - name: Set up primary DS container
+        run: |
+          tests/bin/ds-create.sh \
+              --image=${{ env.DS_IMAGE }} \
+              --hostname=primaryds.example.com \
+              --network=example \
+              --network-alias=primaryds.example.com \
+              --password=Secret.123 \
+              primaryds
+
+      - name: Set up primary PKI container
+        run: |
+          tests/bin/runner-init.sh \
+              --hostname=primary.example.com \
+              --network=example \
+              --network-alias=primary.example.com \
+              primary
+
+      - name: Set up SSH client in primary PKI container
+        run: |
+          docker exec primary dnf install -y openssh-clients
+
+          # set up SSH client for root
+          docker exec primary mkdir -p /root/.ssh
+          docker exec primary chmod 700 /root/.ssh
+
+          docker cp id_ed25519 primary:/root/.ssh
+          docker exec primary chmod 600 /root/.ssh/id_ed25519
+
+          docker cp id_ed25519.pub primary:/root/.ssh
+
+          docker cp known_hosts primary:/root/.ssh
+
+          # check SSH client for root
+          docker exec primary \
+              ssh \
+              root@hsm.example.com \
+              hostname
+
+          # set up SSH client for pkiuser
+          docker exec primary mkdir -p /home/pkiuser/.ssh
+          docker exec primary chmod 700 /home/pkiuser/.ssh
+          docker exec primary chown pkiuser:pkiuser /home/pkiuser/.ssh
+
+          docker cp id_ed25519 primary:/home/pkiuser/.ssh
+          docker exec primary chmod 600 /home/pkiuser/.ssh/id_ed25519
+          docker exec primary chown pkiuser:pkiuser /home/pkiuser/.ssh/id_ed25519
+
+          docker cp id_ed25519.pub primary:/home/pkiuser/.ssh
+          docker exec primary chown pkiuser:pkiuser /home/pkiuser/.ssh/id_ed25519.pub
+
+          docker cp known_hosts primary:/home/pkiuser/.ssh
+
+          # enable login shell for pkiuser (needed by pkispawn)
+          docker exec primary usermod -s /bin/bash pkiuser
+
+          # check SSH client for pkiuser
+          docker exec primary sudo -i -u pkiuser \
+              ssh \
+              root@hsm.example.com \
+              hostname
+
+      - name: Set up HSM client with p11-kit in primary PKI container
+        run: |
+          docker exec primary dnf install -y p11-kit-server
+
+          # register p11-kit-client module
+          docker exec -i primary tee /usr/share/p11-kit/modules/p11-kit-client.module << EOF
+          module: /usr/lib64/pkcs11/p11-kit-client.so
+          remote: |ssh root@hsm.example.com p11-kit remote /usr/lib64/pkcs11/libsofthsm2.so
+          EOF
+
+          # check registered PKCS #11 modules
+          docker exec primary sudo -i -u pkiuser p11-kit list-modules
 
       - name: Install CA in primary PKI container
         run: |
@@ -78,6 +165,8 @@ jobs:
               -s CA \
               -D pki_ds_url=ldap://primaryds.example.com:3389 \
               -D pki_hsm_enable=True \
+              -D pki_hsm_modulename=p11-kit-client \
+              -D pki_hsm_libfile=/usr/lib64/pkcs11/p11-kit-client.so \
               -D pki_token_name=HSM \
               -D pki_token_password=Secret.HSM \
               -D pki_ca_signing_token=HSM \
@@ -109,61 +198,98 @@ jobs:
           grep "Serial Number:" output | wc -l > actual
           diff expected actual
 
-      - name: Copy keys from primary PKI container
-        run: |
-          docker exec primary ls -laR /var/lib/softhsm/tokens
-          docker cp primary:/var/lib/softhsm/tokens/. tokens
-          ls -laR tokens
-
       - name: Set up secondary DS container
         run: |
           tests/bin/ds-create.sh \
               --image=${{ env.DS_IMAGE }} \
               --hostname=secondaryds.example.com \
+              --network=example \
+              --network-alias=secondaryds.example.com \
               --password=Secret.123 \
               secondaryds
 
-      - name: Connect secondary DS container to network
-        run: docker network connect example secondaryds --alias secondaryds.example.com
-
       - name: Set up secondary PKI container
         run: |
-          tests/bin/runner-init.sh secondary
-        env:
-          HOSTNAME: secondary.example.com
+          tests/bin/runner-init.sh \
+              --hostname=secondary.example.com \
+              --network=example \
+              --network-alias=secondary.example.com \
+              secondary
 
-      - name: Connect secondary PKI container to network
-        run: docker network connect example secondary --alias secondary.example.com
-
-      - name: Install dependencies in secondary PKI container
+      - name: Set up SSH client in secondary PKI container
         run: |
-          docker exec secondary dnf install -y softhsm
+          docker exec secondary dnf install -y openssh-clients
 
-      - name: Copy keys to secondary PKI container
+          # set up SSH client for root
+          docker exec secondary mkdir -p /root/.ssh
+          docker exec secondary chmod 700 /root/.ssh
+
+          docker cp id_ed25519 secondary:/root/.ssh
+          docker exec secondary chmod 600 /root/.ssh/id_ed25519
+
+          docker cp id_ed25519.pub secondary:/root/.ssh
+
+          docker cp known_hosts secondary:/root/.ssh
+
+          # check SSH client for root
+          docker exec secondary \
+              ssh \
+              root@hsm.example.com \
+              hostname
+
+          # set up SSH client for pkiuser
+          docker exec secondary mkdir -p /home/pkiuser/.ssh
+          docker exec secondary chmod 700 /home/pkiuser/.ssh
+          docker exec secondary chown pkiuser:pkiuser /home/pkiuser/.ssh
+
+          docker cp id_ed25519 secondary:/home/pkiuser/.ssh
+          docker exec secondary chmod 600 /home/pkiuser/.ssh/id_ed25519
+          docker exec secondary chown pkiuser:pkiuser /home/pkiuser/.ssh/id_ed25519
+
+          docker cp id_ed25519.pub secondary:/home/pkiuser/.ssh
+          docker exec secondary chown pkiuser:pkiuser /home/pkiuser/.ssh/id_ed25519.pub
+
+          docker cp known_hosts secondary:/home/pkiuser/.ssh
+
+          # enable login shell for pkiuser (needed by pkispawn)
+          docker exec secondary usermod -s /bin/bash pkiuser
+
+          # check SSH client for pkiuser
+          docker exec secondary sudo -i -u pkiuser \
+              ssh \
+              root@hsm.example.com \
+              hostname
+
+      - name: Set up HSM client with p11-kit in secondary PKI container
         run: |
-          # allow PKI user to access SoftHSM files
-          docker exec secondary usermod pkiuser -a -G ods
+          docker exec secondary dnf install -y p11-kit-server
 
-          docker cp tokens/. secondary:/var/lib/softhsm/tokens
-          docker exec secondary chown -R pkiuser:pkiuser /var/lib/softhsm/tokens
-          docker exec secondary ls -laR /var/lib/softhsm/tokens
+          # register p11-kit-client module
+          docker exec -i secondary tee /usr/share/p11-kit/modules/p11-kit-client.module << EOF
+          module: /usr/lib64/pkcs11/p11-kit-client.so
+          remote: |ssh root@hsm.example.com p11-kit remote /usr/lib64/pkcs11/libsofthsm2.so
+          EOF
 
-          docker exec secondary runuser -u pkiuser -- \
-              softhsm2-util --show-slots
+          # check registered PKCS #11 modules
+          docker exec secondary sudo -i -u pkiuser p11-kit list-modules
 
       - name: Install CA in secondary PKI container
         run: |
           # get CS.cfg from primary CA before cloning
           docker cp primary:/var/lib/pki/pki-tomcat/conf/ca/CS.cfg CS.cfg.primary
 
+          # export CA signing cert
           docker exec primary pki-server cert-export ca_signing \
               --cert-file ${SHARED}/ca_signing.crt
+
           docker exec secondary pkispawn \
               -f /usr/share/pki/server/examples/installation/ca-clone.cfg \
               -s CA \
               -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
               -D pki_ds_url=ldap://secondaryds.example.com:3389 \
               -D pki_hsm_enable=True \
+              -D pki_hsm_modulename=p11-kit-client \
+              -D pki_hsm_libfile=/usr/lib64/pkcs11/p11-kit-client.so \
               -D pki_token_name=HSM \
               -D pki_token_password=Secret.HSM \
               -D pki_ca_signing_token=HSM \
@@ -274,36 +400,75 @@ jobs:
           tests/bin/ds-create.sh \
               --image=${{ env.DS_IMAGE }} \
               --hostname=tertiaryds.example.com \
+              --network=example \
+              --network-alias=tertiaryds.example.com \
               --password=Secret.123 \
               tertiaryds
 
-      - name: Connect tertiary DS container to network
-        run: docker network connect example tertiaryds --alias tertiaryds.example.com
-
       - name: Set up tertiary PKI container
         run: |
-          tests/bin/runner-init.sh tertiary
-        env:
-          HOSTNAME: tertiary.example.com
+          tests/bin/runner-init.sh \
+              --hostname=tertiary.example.com \
+              --network=example \
+              --network-alias=tertiary.example.com \
+              tertiary
 
-      - name: Connect tertiary PKI container to network
-        run: docker network connect example tertiary --alias tertiary.example.com
-
-      - name: Install dependencies in tertiary PKI container
+      - name: Set up SSH client in tertiary PKI container
         run: |
-          docker exec tertiary dnf install -y softhsm
+          docker exec tertiary dnf install -y openssh-clients
 
-      - name: Copy keys to tertiary PKI container
+          # set up SSH client for root
+          docker exec tertiary mkdir -p /root/.ssh
+          docker exec tertiary chmod 700 /root/.ssh
+
+          docker cp id_ed25519 tertiary:/root/.ssh
+          docker exec tertiary chmod 600 /root/.ssh/id_ed25519
+
+          docker cp id_ed25519.pub tertiary:/root/.ssh
+
+          docker cp known_hosts tertiary:/root/.ssh
+
+          # check SSH client for root
+          docker exec tertiary \
+              ssh \
+              root@hsm.example.com \
+              hostname
+
+          # set up SSH client for pkiuser
+          docker exec tertiary mkdir -p /home/pkiuser/.ssh
+          docker exec tertiary chmod 700 /home/pkiuser/.ssh
+          docker exec tertiary chown pkiuser:pkiuser /home/pkiuser/.ssh
+
+          docker cp id_ed25519 tertiary:/home/pkiuser/.ssh
+          docker exec tertiary chmod 600 /home/pkiuser/.ssh/id_ed25519
+          docker exec tertiary chown pkiuser:pkiuser /home/pkiuser/.ssh/id_ed25519
+
+          docker cp id_ed25519.pub tertiary:/home/pkiuser/.ssh
+          docker exec tertiary chown pkiuser:pkiuser /home/pkiuser/.ssh/id_ed25519.pub
+
+          docker cp known_hosts tertiary:/home/pkiuser/.ssh
+
+          # enable login shell for pkiuser (needed by pkispawn)
+          docker exec tertiary usermod -s /bin/bash pkiuser
+
+          # check SSH client for pkiuser
+          docker exec tertiary sudo -i -u pkiuser \
+              ssh \
+              root@hsm.example.com \
+              hostname
+
+      - name: Set up HSM client with p11-kit in tertiary PKI container
         run: |
-          # allow PKI user to access SoftHSM files
-          docker exec tertiary usermod pkiuser -a -G ods
+          docker exec tertiary dnf install -y p11-kit-server
 
-          docker cp tokens/. tertiary:/var/lib/softhsm/tokens
-          docker exec tertiary chown -R pkiuser:pkiuser /var/lib/softhsm/tokens
-          docker exec tertiary ls -laR /var/lib/softhsm/tokens
+          # register p11-kit-client module
+          docker exec -i tertiary tee /usr/share/p11-kit/modules/p11-kit-client.module << EOF
+          module: /usr/lib64/pkcs11/p11-kit-client.so
+          remote: |ssh root@hsm.example.com p11-kit remote /usr/lib64/pkcs11/libsofthsm2.so
+          EOF
 
-          docker exec tertiary runuser -u pkiuser -- \
-              softhsm2-util --show-slots
+          # check registered PKCS #11 modules
+          docker exec tertiary sudo -i -u pkiuser p11-kit list-modules
 
       - name: Install CA in tertiary PKI container
         run: |
@@ -329,6 +494,8 @@ jobs:
               -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
               -D pki_ds_url=ldap://tertiaryds.example.com:3389 \
               -D pki_hsm_enable=True \
+              -D pki_hsm_modulename=p11-kit-client \
+              -D pki_hsm_libfile=/usr/lib64/pkcs11/p11-kit-client.so \
               -D pki_token_name=HSM \
               -D pki_token_password=Secret.HSM \
               -D pki_ca_signing_token=HSM \
@@ -438,20 +605,7 @@ jobs:
       - name: Remove CA from primary PKI container
         run: docker exec primary pkidestroy -s CA -v
 
-      - name: Gather artifacts
+      - name: Check SSH systemd journal in HSM container
         if: always()
         run: |
-          tests/bin/ds-artifacts-save.sh primaryds
-          tests/bin/pki-artifacts-save.sh primary
-          tests/bin/ds-artifacts-save.sh secondaryds
-          tests/bin/pki-artifacts-save.sh secondary
-          tests/bin/ds-artifacts-save.sh tertiaryds
-          tests/bin/pki-artifacts-save.sh tertiary
-        continue-on-error: true
-
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ca-clone-hsm
-          path: /tmp/artifacts
+          docker exec hsm journalctl -x --no-pager -u sshd.service
