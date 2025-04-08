@@ -1,0 +1,571 @@
+name: LWCA clone with HSM
+
+on: workflow_call
+
+env:
+  DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
+
+jobs:
+  test:
+    name: Test
+    # SSH with public key auth doesn't work with the latest Ubuntu
+    runs-on: ubuntu-22.04
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Retrieve PKI images
+        uses: actions/cache@v4
+        with:
+          key: pki-images-${{ github.sha }}
+          path: pki-images.tar
+
+      - name: Load PKI images
+        run: docker load --input pki-images.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up HSM container
+        run: |
+          tests/bin/runner-init.sh \
+              --hostname=hsm.example.com \
+              --network=example \
+              --network-alias=hsm.example.com \
+              hsm
+
+      - name: Set up SoftHSM in HSM container
+        run: |
+          docker exec hsm dnf install -y softhsm
+
+          docker exec hsm softhsm2-util \
+              --init-token \
+              --label HSM \
+              --so-pin Secret.HSM \
+              --pin Secret.HSM \
+              --free
+
+          docker exec hsm softhsm2-util --show-slots
+
+      - name: Set up SSH server in HSM container
+        run: |
+          docker exec hsm dnf install -y openssh-server openssh-clients
+
+          # remove default SSH server config to allow public key auth
+          docker exec hsm ls -l /etc/ssh/sshd_config.d
+          docker exec hsm rm -f /etc/ssh/sshd_config.d/40-redhat-crypto-policies.conf
+          docker exec hsm rm -f /etc/ssh/sshd_config.d/50-redhat.conf
+
+          # configure SSH server to allow root access with public key auth
+          docker exec hsm cat /etc/ssh/sshd_config
+          docker exec -i hsm tee /etc/ssh/sshd_config.d/root-login.conf << EOF
+          PermitRootLogin yes
+          PubkeyAuthentication yes
+          AuthenticationMethods publickey
+          EOF
+
+          # start SSH server
+          docker exec hsm systemctl start sshd
+
+          # generate SSH client key
+          docker exec hsm ssh-keygen -f /root/.ssh/id_ed25519 -N ""
+          docker exec hsm cp /root/.ssh/id_ed25519.pub /root/.ssh/authorized_keys
+          docker exec hsm chmod 600 /root/.ssh/authorized_keys
+
+          # retrieve SSH client key
+          docker cp hsm:/root/.ssh/id_ed25519 .
+          docker cp hsm:/root/.ssh/id_ed25519.pub .
+
+          # retrieve SSH server key
+          docker exec hsm ssh-keyscan -H hsm.example.com \
+              | tee known_hosts
+
+      - name: Set up primary DS container
+        run: |
+          tests/bin/ds-create.sh \
+              --image=${{ env.DS_IMAGE }} \
+              --hostname=primaryds.example.com \
+              --network=example \
+              --network-alias=primaryds.example.com \
+              --password=Secret.123 \
+              primaryds
+
+      - name: Set up primary PKI container
+        run: |
+          tests/bin/runner-init.sh \
+              --hostname=primary.example.com \
+              --network=example \
+              --network-alias=primary.example.com \
+              primary
+
+      - name: Set up SSH client in primary PKI container
+        run: |
+          docker exec primary dnf install -y openssh-clients
+
+          # set up SSH client for root
+          docker exec primary mkdir -p /root/.ssh
+          docker exec primary chmod 700 /root/.ssh
+
+          docker cp id_ed25519 primary:/root/.ssh
+          docker exec primary chmod 600 /root/.ssh/id_ed25519
+
+          docker cp id_ed25519.pub primary:/root/.ssh
+
+          docker cp known_hosts primary:/root/.ssh
+
+          # check SSH client for root
+          docker exec primary \
+              ssh \
+              root@hsm.example.com \
+              hostname
+
+          # set up SSH client for pkiuser
+          docker exec primary mkdir -p /home/pkiuser/.ssh
+          docker exec primary chmod 700 /home/pkiuser/.ssh
+          docker exec primary chown pkiuser:pkiuser /home/pkiuser/.ssh
+
+          docker cp id_ed25519 primary:/home/pkiuser/.ssh
+          docker exec primary chmod 600 /home/pkiuser/.ssh/id_ed25519
+          docker exec primary chown pkiuser:pkiuser /home/pkiuser/.ssh/id_ed25519
+
+          docker cp id_ed25519.pub primary:/home/pkiuser/.ssh
+          docker exec primary chown pkiuser:pkiuser /home/pkiuser/.ssh/id_ed25519.pub
+
+          docker cp known_hosts primary:/home/pkiuser/.ssh
+
+          # enable login shell for pkiuser (needed by pkispawn)
+          docker exec primary usermod -s /bin/bash pkiuser
+
+          # check SSH client for pkiuser
+          docker exec primary sudo -i -u pkiuser \
+              ssh \
+              root@hsm.example.com \
+              hostname
+
+      - name: Set up HSM client with p11-kit in primary PKI container
+        run: |
+          docker exec primary dnf install -y p11-kit-server
+
+          # register p11-kit-client module
+          docker exec -i primary tee /usr/share/p11-kit/modules/p11-kit-client.module << EOF
+          module: /usr/lib64/pkcs11/p11-kit-client.so
+          remote: |ssh root@hsm.example.com p11-kit remote /usr/lib64/pkcs11/libsofthsm2.so
+          EOF
+
+          # check registered PKCS #11 modules
+          docker exec primary sudo -i -u pkiuser p11-kit list-modules
+
+      - name: Install CA in primary PKI container
+        run: |
+          docker exec primary pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_url=ldap://primaryds.example.com:3389 \
+              -D pki_hsm_enable=True \
+              -D pki_hsm_modulename=p11-kit-client \
+              -D pki_hsm_libfile=/usr/lib64/pkcs11/p11-kit-client.so \
+              -D pki_token_name=HSM \
+              -D pki_token_password=Secret.HSM \
+              -D pki_ca_signing_token=HSM \
+              -D pki_ocsp_signing_token=HSM \
+              -D pki_audit_signing_token=HSM \
+              -D pki_subsystem_token=HSM \
+              -D pki_sslserver_token=internal \
+              -v
+
+      - name: Install CA admin cert in primary PKI container
+        run: |
+          docker exec primary pki-server cert-export \
+              --cert-file $SHARED/ca_signing.crt \
+              ca_signing
+
+          docker exec primary pki nss-cert-import \
+              --cert $SHARED/ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
+          docker exec primary pki pkcs12-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --password Secret.123
+
+      - name: Check authorities in primary CA
+        run: |
+          docker exec primary pki \
+              -n caadmin \
+              ca-authority-find \
+              | tee output
+
+          # there should be 1 authority initially
+          echo "1" > expected
+          sed -n 's/^\s*ID:\s*\(.*\)$/\1/p' output | wc -l > actual
+
+          diff expected actual
+
+          # it should be a host CA
+          echo "true" > expected
+          sed -n 's/^\s*Host authority:\s*\(.*\)$/\1/p' output > actual
+          diff expected actual
+
+          # store host CA ID
+          sed -n 's/^\s*ID:\s*\(.*\)$/\1/p' output > hostca-id
+
+      - name: Set up secondary DS container
+        run: |
+          tests/bin/ds-create.sh \
+              --image=${{ env.DS_IMAGE }} \
+              --hostname=secondaryds.example.com \
+              --network=example \
+              --network-alias=secondaryds.example.com \
+              --password=Secret.123 \
+              secondaryds
+
+      - name: Set up secondary PKI container
+        run: |
+          tests/bin/runner-init.sh \
+              --hostname=secondary.example.com \
+              --network=example \
+              --network-alias=secondary.example.com \
+              secondary
+
+      - name: Set up SSH client in secondary PKI container
+        run: |
+          docker exec secondary dnf install -y openssh-clients
+
+          # set up SSH client for root
+          docker exec secondary mkdir -p /root/.ssh
+          docker exec secondary chmod 700 /root/.ssh
+
+          docker cp id_ed25519 secondary:/root/.ssh
+          docker exec secondary chmod 600 /root/.ssh/id_ed25519
+
+          docker cp id_ed25519.pub secondary:/root/.ssh
+
+          docker cp known_hosts secondary:/root/.ssh
+
+          # check SSH client for root
+          docker exec secondary \
+              ssh \
+              root@hsm.example.com \
+              hostname
+
+          # set up SSH client for pkiuser
+          docker exec secondary mkdir -p /home/pkiuser/.ssh
+          docker exec secondary chmod 700 /home/pkiuser/.ssh
+          docker exec secondary chown pkiuser:pkiuser /home/pkiuser/.ssh
+
+          docker cp id_ed25519 secondary:/home/pkiuser/.ssh
+          docker exec secondary chmod 600 /home/pkiuser/.ssh/id_ed25519
+          docker exec secondary chown pkiuser:pkiuser /home/pkiuser/.ssh/id_ed25519
+
+          docker cp id_ed25519.pub secondary:/home/pkiuser/.ssh
+          docker exec secondary chown pkiuser:pkiuser /home/pkiuser/.ssh/id_ed25519.pub
+
+          docker cp known_hosts secondary:/home/pkiuser/.ssh
+
+          # enable login shell for pkiuser (needed by pkispawn)
+          docker exec secondary usermod -s /bin/bash pkiuser
+
+          # check SSH client for pkiuser
+          docker exec secondary sudo -i -u pkiuser \
+              ssh \
+              root@hsm.example.com \
+              hostname
+
+      - name: Set up HSM client with p11-kit in secondary PKI container
+        run: |
+          docker exec secondary dnf install -y p11-kit-server
+
+          # register p11-kit-client module
+          docker exec -i secondary tee /usr/share/p11-kit/modules/p11-kit-client.module << EOF
+          module: /usr/lib64/pkcs11/p11-kit-client.so
+          remote: |ssh root@hsm.example.com p11-kit remote /usr/lib64/pkcs11/libsofthsm2.so
+          EOF
+
+          # check registered PKCS #11 modules
+          docker exec secondary sudo -i -u pkiuser p11-kit list-modules
+
+      - name: Install CA in secondary PKI container
+        run: |
+          # export CA signing cert
+          docker exec primary pki-server cert-export \
+              --cert-file ${SHARED}/ca_signing.crt \
+              ca_signing
+
+          docker exec secondary pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca-clone.cfg \
+              -s CA \
+              -D pki_cert_chain_path=$SHARED/ca_signing.crt \
+              -D pki_ds_url=ldap://secondaryds.example.com:3389 \
+              -D pki_hsm_enable=True \
+              -D pki_hsm_modulename=p11-kit-client \
+              -D pki_hsm_libfile=/usr/lib64/pkcs11/p11-kit-client.so \
+              -D pki_token_name=HSM \
+              -D pki_token_password=Secret.HSM \
+              -D pki_ca_signing_token=HSM \
+              -D pki_ocsp_signing_token=HSM \
+              -D pki_audit_signing_token=HSM \
+              -D pki_subsystem_token=HSM \
+              -D pki_sslserver_token=internal \
+              -v
+
+      - name: Install CA admin cert in secondary PKI container
+        run: |
+          docker exec secondary pki nss-cert-import \
+              --cert $SHARED/ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
+          docker exec primary cp \
+              /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              $SHARED/ca_admin_cert.p12
+
+          docker exec secondary pki pkcs12-import \
+              --pkcs12 $SHARED/ca_admin_cert.p12 \
+              --password Secret.123
+
+      - name: Check authorities in secondary CA
+        run: |
+          docker exec secondary pki \
+              -n caadmin \
+              ca-authority-find \
+              | tee output
+
+          # there should be 1 authority initially
+          echo "1" > expected
+          sed -n 's/^\s*ID:\s*\(.*\)$/\1/p' output | wc -l > actual
+
+          diff expected actual
+
+          # it should be a host CA
+          echo "true" > expected
+          sed -n 's/^\s*Host authority:\s*\(.*\)$/\1/p' output > actual
+          diff expected actual
+
+          # check host CA ID
+          sed -n 's/^\s*ID:\s*\(.*\)$/\1/p' output > actual
+          diff hostca-id actual
+
+      - name: Create LWCA in primary CA
+        run: |
+          HOSTCA_ID=$(cat hostca-id)
+
+          docker exec primary pki \
+              -n caadmin \
+              ca-authority-create \
+              --parent $HOSTCA_ID \
+              CN=LWCA \
+              | tee output
+
+          # store LWCA ID
+          sed -n 's/^\s*ID:\s*\(.*\)$/\1/p' output > lwca-id
+          LWCA_ID=$(cat lwca-id)
+
+      - name: Check authorities in primary CA
+        run: |
+          HOSTCA_ID=$(cat hostca-id)
+          LWCA_ID=$(cat lwca-id)
+
+          docker exec primary pki \
+              -n caadmin \
+              ca-authority-find \
+              | tee output
+
+          # there should be 2 authorities
+          echo -e "$HOSTCA_ID\n$LWCA_ID" | sort > expected
+          sed -n 's/^\s*ID:\s*\(.*\)$/\1/p' output | sort > actual
+          diff expected actual
+
+      - name: Check authorities in secondary CA
+        run: |
+          HOSTCA_ID=$(cat hostca-id)
+          LWCA_ID=$(cat lwca-id)
+
+          docker exec secondary pki \
+              -n caadmin \
+              ca-authority-find \
+              | tee output
+
+          # there should be 2 authorities
+          echo -e "$HOSTCA_ID\n$LWCA_ID" | sort > expected
+          sed -n 's/^\s*ID:\s*\(.*\)$/\1/p' output | sort > actual
+          diff expected actual
+
+      - name: Enroll with LWCA in primary CA
+        run: |
+          LWCA_ID=$(cat lwca-id)
+
+          # get LWCA's DN
+          docker exec primary pki \
+              -n caadmin \
+              ca-authority-show \
+              $LWCA_ID \
+              | tee output
+          LWCA_DN=$(sed -n -e 's/^\s*Authority DN:\s*\(.*\)$/\1/p' output)
+
+          # submit enrollment request against LWCA
+          docker exec primary pki \
+              client-cert-request \
+              --issuer-id $LWCA_ID \
+              UID=testuser | tee output
+          REQUEST_ID=$(sed -n -e 's/^\s*Request ID:\s*\(.*\)$/\1/p' output)
+
+          # approve request
+          docker exec primary pki \
+              -n caadmin \
+              ca-cert-request-approve \
+              $REQUEST_ID \
+              --force \
+              | tee output
+          CERT_ID=$(sed -n -e 's/^\s*Certificate ID:\s*\(.*\)$/\1/p' output)
+
+          docker exec primary pki ca-cert-show $CERT_ID | tee output
+
+          # check issuer DN
+          echo "$LWCA_DN" > expected
+          sed -n -e 's/^\s*Issuer DN:\s*\(.*\)$/\1/p' output > actual
+          diff expected actual
+
+      - name: Enroll with LWCA in secondary CA
+        run: |
+          LWCA_ID=$(cat lwca-id)
+
+          # get LWCA's DN
+          docker exec secondary pki \
+              -n caadmin \
+              ca-authority-show \
+              $LWCA_ID \
+              | tee output
+          LWCA_DN=$(sed -n -e 's/^\s*Authority DN:\s*\(.*\)$/\1/p' output)
+
+          # submit enrollment request against LWCA
+          docker exec secondary pki \
+              client-cert-request \
+              --issuer-id $LWCA_ID \
+              UID=testuser | tee output
+          REQUEST_ID=$(sed -n -e 's/^\s*Request ID:\s*\(.*\)$/\1/p' output)
+
+          # approve request
+          docker exec secondary pki \
+              -n caadmin \
+              ca-cert-request-approve \
+              $REQUEST_ID \
+              --force \
+              | tee output
+          CERT_ID=$(sed -n -e 's/^\s*Certificate ID:\s*\(.*\)$/\1/p' output)
+
+          docker exec secondary pki ca-cert-show $CERT_ID | tee output
+
+          # check issuer DN
+          echo "$LWCA_DN" > expected
+          sed -n -e 's/^\s*Issuer DN:\s*\(.*\)$/\1/p' output > actual
+          diff expected actual
+
+      - name: Remove LWCA from secondary CA
+        run: |
+          LWCA_ID=$(cat lwca-id)
+
+          # disable LWCA
+          docker exec secondary pki \
+              -n caadmin \
+              ca-authority-disable \
+              $LWCA_ID
+
+          # remove LWCA
+          docker exec secondary pki \
+              -n caadmin \
+              ca-authority-del \
+              --force \
+              $LWCA_ID
+
+      - name: Check authorities in secondary CA
+        run: |
+          HOSTCA_ID=$(cat hostca-id)
+
+          docker exec secondary pki \
+              -n caadmin \
+              ca-authority-find \
+              | tee output
+
+          # there should be 1 authority
+          echo "$HOSTCA_ID" > expected
+          sed -n 's/^\s*ID:\s*\(.*\)$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check authorities in primary CA
+        run: |
+          HOSTCA_ID=$(cat hostca-id)
+
+          docker exec primary pki \
+              -n caadmin \
+              ca-authority-find \
+              | tee output
+
+          # there should be 1 authority
+          echo "$HOSTCA_ID" > expected
+          sed -n 's/^\s*ID:\s*\(.*\)$/\1/p' output > actual
+          diff expected actual
+
+      - name: Remove secondary CA
+        run: |
+          docker exec secondary pkidestroy -s CA -v
+
+      - name: Remove primary CA
+        run: |
+          docker exec primary pkidestroy -s CA -v
+
+      - name: Check SSH systemd journal in HSM container
+        if: always()
+        run: |
+          docker exec hsm journalctl -x --no-pager -u sshd.service
+
+      - name: Check primary DS server systemd journal
+        if: always()
+        run: |
+          docker exec primaryds journalctl -x --no-pager -u dirsrv@localhost.service
+
+      - name: Check primary DS container logs
+        if: always()
+        run: |
+          docker logs primaryds
+
+      - name: Check primary PKI server systemd journal
+        if: always()
+        run: |
+          docker exec primary journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check primary PKI server access log
+        if: always()
+        run: |
+          docker exec primary find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+
+      - name: Check primary CA debug log
+        if: always()
+        run: |
+          docker exec primary find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check secondary DS server systemd journal
+        if: always()
+        run: |
+          docker exec secondaryds journalctl -x --no-pager -u dirsrv@localhost.service
+
+      - name: Check secondary DS container logs
+        if: always()
+        run: |
+          docker logs secondaryds
+
+      - name: Check secondary PKI server systemd journal
+        if: always()
+        run: |
+          docker exec secondary journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check secondary PKI server access log
+        if: always()
+        run: |
+          docker exec secondary find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+
+      - name: Check secondary CA debug log
+        if: always()
+        run: |
+          docker exec secondary find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
