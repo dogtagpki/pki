@@ -1,4 +1,4 @@
-name: Lightweight CA
+name: Basic LWCA
 
 on: workflow_call
 
@@ -48,39 +48,12 @@ jobs:
       - name: Connect PKI container to network
         run: docker network connect example pki --alias pki.example.com
 
-      - name: Install dependencies
-        run: |
-          docker exec pki dnf install -y softhsm
-
-      - name: Create SoftHSM token
-        run: |
-          # allow PKI user to access SoftHSM files
-          docker exec pki usermod pkiuser -a -G ods
-
-          # create SoftHSM token for PKI server
-          docker exec pki runuser -u pkiuser -- \
-              softhsm2-util \
-              --init-token \
-              --label HSM \
-              --so-pin Secret.HSM \
-              --pin Secret.HSM \
-              --free
-
       - name: Install CA
         run: |
           docker exec pki pkispawn \
               -f /usr/share/pki/server/examples/installation/ca.cfg \
               -s CA \
               -D pki_ds_url=ldap://ds.example.com:3389 \
-              -D pki_hsm_enable=True \
-              -D pki_token_name=HSM \
-              -D pki_token_password=Secret.HSM \
-              -D pki_server_database_password=Secret.123 \
-              -D pki_ca_signing_token=HSM \
-              -D pki_ocsp_signing_token=HSM \
-              -D pki_audit_signing_token=HSM \
-              -D pki_subsystem_token=HSM \
-              -D pki_sslserver_token=internal \
               -v
 
       - name: Check admin user
@@ -118,11 +91,11 @@ jobs:
           echo "HOSTCA_ID: $HOSTCA_ID"
 
           # check authorityKeyNickname
-          echo "HSM:ca_signing" > expected
+          echo "ca_signing" > expected
           sed -n 's/^authorityKeyNickname:\s*\(.*\)$/\1/p' output > actual
           diff expected actual
 
-      - name: Check certs and keys in internal token
+      - name: Check certs and keys in NSS database
         run: |
           docker exec pki pki \
               -d /var/lib/pki/pki-tomcat/conf/alias \
@@ -139,32 +112,8 @@ jobs:
               -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-key-find | tee output
 
-          # there should be 1 key
-          echo "1" > expected
-          sed -n 's/^\s*Key ID:\s*\(.*\)$/\1/p' output | wc -l > actual
-          diff expected actual
-
-      - name: Check certs and keys in HSM
-        run: |
-          docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
-              --token HSM \
-              nss-cert-find | tee output
-
-          # there should be 4 certs now
-          echo "4" > expected
-          sed -n 's/^\s*Nickname:\s*\(.*\)$/\1/p' output | wc -l > actual
-          diff expected actual
-
-          docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
-              --token HSM \
-              nss-key-find | tee output
-
-          # there should be 4 keys now
-          echo "4" > expected
+          # there should be 5 keys
+          echo "5" > expected
           sed -n 's/^\s*Key ID:\s*\(.*\)$/\1/p' output | wc -l > actual
           diff expected actual
 
@@ -186,30 +135,30 @@ jobs:
           sed -n 's/^\s*ID:\s*\(.*\)$/\1/p' output > actual
           diff hostca-id actual
 
-      - name: Create lightweight CA
+      - name: Create lightweight CAs
         run: |
           HOSTCA_ID=$(cat hostca-id)
 
-          # create a LWCA under the host CA
-          docker exec pki pki -n caadmin ca-authority-create \
-              --parent $HOSTCA_ID \
-              CN="Lightweight CA" | tee output
+          # create 20 LWCAs under the host CA
+          for i in {1..20}
+          do
+              docker exec pki pki -n caadmin ca-authority-create \
+                  --parent $HOSTCA_ID \
+                  CN="Lightweight CA $i" | tee output
 
-          # store LWCA ID
-          sed -n 's/^\s*ID:\s*\(.*\)$/\1/p' output > lwca-id
-          LWCA_ID=$(cat lwca-id)
+              # store LWCA ID
+              sed -n 's/^\s*ID:\s*\(.*\)$/\1/p' output >> lwca-id
+          done
 
           docker exec pki pki -n caadmin ca-authority-find | tee output
 
-          # there should be 2 authorities now
-          echo -e "$HOSTCA_ID\n$LWCA_ID" | sort > expected
+          # there should be 21 authorities now
+          echo -e "$HOSTCA_ID\n$(cat lwca-id)" | sort > expected
           sed -n 's/^\s*ID:\s*\(.*\)$/\1/p' output | sort > actual
           diff expected actual
 
-      - name: Check lightweight CA's LDAP entry
+      - name: Check authority LDAP entries
         run: |
-          LWCA_ID=$(cat lwca-id)
-
           docker exec pki ldapsearch \
               -H ldap://ds.example.com:3389 \
               -x \
@@ -225,20 +174,26 @@ jobs:
               nsUniqueId \
               | tee output
 
-          # check authorityKeyNickname
-          echo -e "HSM:ca_signing\nHSM:ca_signing $LWCA_ID" | sort > expected
+          # check authorityKeyNicknames
+          echo "ca_signing" > expected
+          for LWCA_ID in $(cat lwca-id)
+          do
+              echo -e "ca_signing $LWCA_ID" >> expected
+          done
+          sort -o expected expected
+
           sed -n 's/^authorityKeyNickname:\s*\(.*\)$/\1/p' output | sort > actual
           diff expected actual
 
-      - name: Check certs and keys in internal token
+      - name: Check certs and keys in NSS database
         run: |
           docker exec pki pki \
               -d /var/lib/pki/pki-tomcat/conf/alias \
               -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-cert-find | tee output
 
-          # there should still be 5 certs
-          echo "5" > expected
+          # there should be 25 certs now
+          echo "25" > expected
           sed -n 's/^\s*Nickname:\s*\(.*\)$/\1/p' output | wc -l > actual
           diff expected actual
 
@@ -247,38 +202,19 @@ jobs:
               -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-key-find | tee output
 
-          # there should still be 1 key
-          echo "1" > expected
-          sed -n 's/^\s*Key ID:\s*\(.*\)$/\1/p' output | wc -l > actual
-          diff expected actual
-
-      - name: Check certs and keys in HSM
-        run: |
-          docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
-              --token HSM \
-              nss-cert-find | tee output
-
-          # there should be 5 certs now
-          echo "5" > expected
-          sed -n 's/^\s*Nickname:\s*\(.*\)$/\1/p' output | wc -l > actual
-          diff expected actual
-
-          docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
-              --token HSM \
-              nss-key-find | tee output
-
-          # there should be 5 keys now
-          echo "5" > expected
+          # there should be 25 keys now
+          echo "25" > expected
           sed -n 's/^\s*Key ID:\s*\(.*\)$/\1/p' output | wc -l > actual
           diff expected actual
 
       - name: Check enrollment against lightweight CA
         run: |
-          LWCA_ID=$(cat lwca-id)
+          # use the first LWCA
+          LWCA_ID=$(head -1 lwca-id)
+
+          # get LWCA's DN
+          docker exec pki pki -n caadmin ca-authority-show $LWCA_ID | tee output
+          sed -n -e 's/^\s*Authority DN:\s*\(.*\)$/\1/p' output > expected
 
           # submit enrollment request against LWCA
           docker exec pki pki client-cert-request \
@@ -301,20 +237,21 @@ jobs:
           docker exec pki pki ca-cert-show $CERT_ID | tee output
 
           # verify that it's signed by LWCA
-          echo "CN=Lightweight CA" > expected
           sed -n -e 's/^\s*Issuer DN:\s*\(.*\)$/\1/p' output > actual
           diff expected actual
 
-      - name: Remove lightweight CA
+      - name: Remove lightweight CAs
         run: |
           HOSTCA_ID=$(cat hostca-id)
-          LWCA_ID=$(cat lwca-id)
 
-          docker exec pki pki -n caadmin ca-authority-disable $LWCA_ID
+          for LWCA_ID in $(cat lwca-id)
+          do
+              docker exec pki pki -n caadmin ca-authority-disable $LWCA_ID
 
-          docker exec pki pki -n caadmin ca-authority-del \
-              --force \
-              $LWCA_ID | tee output
+              docker exec pki pki -n caadmin ca-authority-del \
+                  --force \
+                  $LWCA_ID
+          done
 
           docker exec pki pki -n caadmin ca-authority-find | tee output
 
@@ -323,7 +260,7 @@ jobs:
           sed -n 's/^\s*ID:\s*\(.*\)$/\1/p' output > actual
           diff expected actual
 
-      - name: Check lightweight CA's LDAP entry
+      - name: Check authority LDAP entries
         run: |
           HOSTCA_ID=$(cat hostca-id)
 
@@ -343,18 +280,17 @@ jobs:
               | tee output
 
           # there should be 1 entry now
-          echo "$HOSTCA_ID" > expected
           sed -n 's/^\s*cn:\s*\(.*\)$/\1/p' output > actual
-          diff expected actual
+          diff hostca-id actual
 
-      - name: Check certs and keys in internal token
+      - name: Check certs and keys in NSS database
         run: |
           docker exec pki pki \
               -d /var/lib/pki/pki-tomcat/conf/alias \
               -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-cert-find | tee output
 
-          # there should be 5 certs
+          # there should be 5 certs now
           echo "5" > expected
           sed -n 's/^\s*Nickname:\s*\(.*\)$/\1/p' output | wc -l > actual
           diff expected actual
@@ -364,32 +300,8 @@ jobs:
               -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-key-find | tee output
 
-          # there should be 1 key
-          echo "1" > expected
-          sed -n 's/^\s*Key ID:\s*\(.*\)$/\1/p' output | wc -l > actual
-          diff expected actual
-
-      - name: Check certs and keys in HSM
-        run: |
-          docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
-              --token HSM \
-              nss-cert-find | tee output
-
-          # there should be 4 certs now
-          echo "4" > expected
-          sed -n 's/^\s*Nickname:\s*\(.*\)$/\1/p' output | wc -l > actual
-          diff expected actual
-
-          docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
-              --token HSM \
-              nss-key-find | tee output
-
-          # there should be 4 keys now
-          echo "4" > expected
+          # there should be 5 keys now
+          echo "5" > expected
           sed -n 's/^\s*Key ID:\s*\(.*\)$/\1/p' output | wc -l > actual
           diff expected actual
 
@@ -408,14 +320,9 @@ jobs:
       - name: Remove CA
         run: docker exec pki pkidestroy -s CA -v
 
-      - name: Remove SoftHSM token
-        run: |
-          docker exec pki ls -laR /var/lib/softhsm/tokens
-          docker exec pki runuser -u pkiuser -- softhsm2-util --delete-token --token HSM
-
       - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ca-lightweight-hsm
+          name: ca-lightweight
           path: /tmp/artifacts

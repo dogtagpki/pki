@@ -38,12 +38,17 @@ jobs:
     needs: build
     uses: ./.github/workflows/subca-clone-hsm-test.yml
 
-  subca-lightweight-test:
-    name: Lightweight SubCA
+  lwca-test:
+    name: Basic LWCA
     needs: build
-    uses: ./.github/workflows/subca-lightweight-test.yml
+    uses: ./.github/workflows/lwca-basic-test.yml
 
-  subca-lightweight-hsm-test:
-    name: Lightweight SubCA with HSM
+  lwca-hsm-test:
+    name: LWCA with HSM
     needs: build
-    uses: ./.github/workflows/subca-lightweight-hsm-test.yml
+    uses: ./.github/workflows/lwca-hsm-test.yml
+
+  lwca-clone-hsm-test:
+    name: LWCA clone with HSM
+    needs: build
+    uses: ./.github/workflows/lwca-clone-hsm-test.yml
