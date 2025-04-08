@@ -98,6 +98,7 @@ class CertDataInfo(object):
         'id': 'serial_number', 'SubjectDN': 'subject_dn', 'Status': 'status',
         'Type': 'type', 'Version': 'version', 'KeyLength': 'key_length',
         'KeyAlgorithmOID': 'key_algorithm_oid',
+        'IssuerDN': 'issuer_dn',
         'NotValidBefore': 'not_valid_before',
         'NotValidAfter': 'not_valid_after', 'IssuedOn': 'issued_on',
         'IssuedBy': 'issued_by'}
@@ -106,6 +107,7 @@ class CertDataInfo(object):
         """ Constructor """
         self.serial_number = None
         self.subject_dn = None
+        self.issuer_dn = None
         self.status = None
         self.type = None
         self.version = None
