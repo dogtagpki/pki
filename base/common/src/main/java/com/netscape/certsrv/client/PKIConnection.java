@@ -25,8 +25,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.URI;
+import java.net.URL;
 
-import javax.ws.rs.Priorities;
 import javax.ws.rs.client.WebTarget;
 
 import org.apache.http.Header;
@@ -37,10 +37,14 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.conn.socket.LayeredConnectionSocketFactory;
 import org.apache.http.entity.BufferedHttpEntity;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -95,7 +99,7 @@ public class PKIConnection implements AutoCloseable {
         httpClientBuilder.setRetryHandler(new DefaultHttpRequestRetryHandler(0, false));
 
 
-        httpClientBuilder.addInterceptorFirst(new HttpRequestInterceptor() {
+        httpClientBuilder.addInterceptorLast(new HttpRequestInterceptor() {
             @Override
             public void process(HttpRequest request, HttpContext context) throws HttpException, IOException {
 
@@ -138,7 +142,7 @@ public class PKIConnection implements AutoCloseable {
             }
         });
 
-        httpClientBuilder.addInterceptorFirst(new HttpResponseInterceptor() {
+        httpClientBuilder.addInterceptorLast(new HttpResponseInterceptor() {
             @Override
             public void process(HttpResponse response, HttpContext context) throws HttpException, IOException {
 
@@ -168,12 +172,22 @@ public class PKIConnection implements AutoCloseable {
 
         httpClientBuilder.setRedirectStrategy(new LaxRedirectStrategy());
 
+        if (config.getUsername() != null && config.getPassword() != null) {
+            URL url = config.getServerURL();
+            CredentialsProvider credsProvider = new BasicCredentialsProvider();
+            logger.info("Set cred for: {} on {}", url.getHost(), url.getPort());
+            credsProvider.setCredentials(
+                    new AuthScope(url.getHost(), url.getPort()),
+                    new UsernamePasswordCredentials(config.getUsername(), config.getPassword()));
+            httpClientBuilder.setDefaultCredentialsProvider(credsProvider);
+        }
+
         httpClient = httpClientBuilder.build();
+
         engine = new ApacheHttpClient4Engine(httpClient);
 
         client = new ResteasyClientBuilder().httpEngine(engine).build();
 
-        client.register(new PKIClientAuthenticator(config), Priorities.AUTHENTICATION);
         client.register(PKIRESTProvider.class);
 
         URI uri = config.getServerURL().toURI();
