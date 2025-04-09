@@ -995,16 +995,26 @@ public class CMSEngine {
 
         for (String subsystemNumber : subsystemsConfig.getSubsystemNames()) {
             SubsystemInfoConfig subsystemInfoConfig = subsystemsConfig.getSubsystemInfoConfig(subsystemNumber);
-            String id = subsystemInfoConfig.getID();
-            logger.info("CMSEngine: Loading " + id + " subsystem");
 
-            String className = subsystemInfoConfig.getClassName();
+            String subsystemID = subsystemInfoConfig.getID();
+            logger.info("CMSEngine: Loading " + subsystemID + " subsystem");
 
-            Subsystem subsystem = (Subsystem) Class.forName(className).getDeclaredConstructor().newInstance();
-            subsystem.setCMSEngine(this);
-            subsystems.put(id, subsystem);
-            subsystemInfos.put(id, subsystemInfoConfig);
+            subsystemInfos.put(subsystemID, subsystemInfoConfig);
+
+            Subsystem subsystem = createSubsystem(subsystemInfoConfig);
+            if (subsystem == null) continue;
+
+            subsystems.put(subsystemID, subsystem);
         }
+    }
+
+    public Subsystem createSubsystem(SubsystemInfoConfig subsystemInfoConfig) throws Exception {
+
+        String className = subsystemInfoConfig.getClassName();
+        Subsystem subsystem = (Subsystem) Class.forName(className).getDeclaredConstructor().newInstance();
+        subsystem.setCMSEngine(this);
+
+        return subsystem;
     }
 
     public void initSubsystem(Subsystem subsystem, ConfigStore subsystemConfig) throws Exception {
