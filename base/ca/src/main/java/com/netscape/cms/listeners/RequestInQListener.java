@@ -20,10 +20,6 @@ package com.netscape.cms.listeners;
 import java.io.IOException;
 import java.util.Hashtable;
 
-import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.CAEngineConfig;
-
-import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.Subsystem;
@@ -32,9 +28,8 @@ import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestListener;
 import com.netscape.cms.notification.MailNotification;
-import com.netscape.cms.profile.input.SubjectNameInput;
-import com.netscape.cms.profile.input.SubmitterInfoInput;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.notification.EmailFormProcessor;
 import com.netscape.cmscore.notification.EmailTemplate;
@@ -76,7 +71,7 @@ public class RequestInQListener extends RequestListener {
     private ConfigStore mConfig;
     private Hashtable<String, Object> mContentParams = new Hashtable<>();
     private String mId = "RequestInQListener";
-    private CertificateAuthority mSubsystem = null;
+    private Subsystem mSubsystem = null;
     private String mHttpHost = null;
     private String mAgentPort = null;
 
@@ -95,9 +90,8 @@ public class RequestInQListener extends RequestListener {
 
         logger.info("RequestInQListener: Initializing RequestInQListener");
 
-        CAEngine engine = CAEngine.getInstance();
-        CAEngineConfig cs = engine.getConfig();
-        mSubsystem = (CertificateAuthority) sub;
+        EngineConfig cs = engine.getConfig();
+        mSubsystem = sub;
         mConfig = mSubsystem.getConfigStore();
 
         ConfigStore nc = mConfig.getSubStore(PROP_NOTIFY_SUBSTORE, ConfigStore.class);
@@ -157,7 +151,6 @@ public class RequestInQListener extends RequestListener {
 
         // regardless of type of request...notify for everything
         // no need for email resolver here...
-        CAEngine engine = CAEngine.getInstance();
         MailNotification mn = engine.getMailNotification();
 
         mn.setFrom(mSenderEmail);
@@ -200,32 +193,25 @@ public class RequestInQListener extends RequestListener {
         }
     }
 
+    protected Object getRequestorEmail(Request r) {
+        return r.getExtDataInString(Request.HTTP_PARAMS, "csrRequestorEmail");
+    }
+
+    protected Object getCertType(Request r) {
+        return r.getExtDataInString(Request.HTTP_PARAMS, Request.CERT_TYPE);
+    }
+
     private void buildContentParams(Request r) {
         mContentParams.clear();
         mContentParams.put(EmailFormProcessor.TOKEN_ID, mConfig.getName());
         Object val = null;
 
-        String profileId = r.getExtDataInString(Request.PROFILE_ID);
-
-        if (profileId == null) {
-            val = r.getExtDataInString(Request.HTTP_PARAMS, "csrRequestorEmail");
-        } else {
-            // use the submitter info if available, otherwise, use the
-            // subject name input email
-            val = r.getExtDataInString(SubmitterInfoInput.EMAIL);
-
-            if ((val == null) || (((String) val).compareTo("") == 0)) {
-                val = r.getExtDataInString(SubjectNameInput.VAL_EMAIL);
-            }
-        }
-        if (val != null)
+        val = getRequestorEmail(r);
+        if (val != null) {
             mContentParams.put(EmailFormProcessor.TOKEN_REQUESTOR_EMAIL, val);
-
-        if (profileId == null) {
-            val = r.getExtDataInString(Request.HTTP_PARAMS, Request.CERT_TYPE);
-        } else {
-            val = profileId;
         }
+
+        val = getCertType(r);
         if (val != null) {
             mContentParams.put(EmailFormProcessor.TOKEN_CERT_TYPE, val);
         }
@@ -236,8 +222,9 @@ public class RequestInQListener extends RequestListener {
         mContentParams.put(EmailFormProcessor.TOKEN_ID, mId);
 
         val = r.getRequestType();
-        if (val != null)
+        if (val != null) {
             mContentParams.put(EmailFormProcessor.TOKEN_REQUEST_TYPE, val);
+        }
 
         mContentParams.put(EmailFormProcessor.TOKEN_HTTP_HOST, mHttpHost);
         mContentParams.put(EmailFormProcessor.TOKEN_HTTP_PORT, mAgentPort);

@@ -117,6 +117,7 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.security.SigningUnitConfig;
 import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.cms.authentication.CAAuthSubsystem;
+import com.netscape.cms.listeners.CARequestInQListener;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.request.RequestScheduler;
 import com.netscape.cms.servlet.admin.KRAConnectorProcessor;
@@ -915,7 +916,7 @@ public class CAEngine extends CMSEngine {
 
         String className = listenerConfig.getString(
                 "certificateIssuedListenerClassName",
-                "com.netscape.cms.listeners.RequestInQListener");
+                CARequestInQListener.class.getName());
 
         requestInQueueListener = (RequestListener) Class.forName(className).getDeclaredConstructor().newInstance();
         requestInQueueListener.setCMSEngine(this);
