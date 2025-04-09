@@ -3,7 +3,7 @@
 [id="creating-ds-instance"]
 = Directory Server instance creation 
 
-// This content is copied and modifed from https://github.com/dogtagpki/pki/wiki/Installing-DS-Serversss
+// This content is copied and modifed from https://github.com/dogtagpki/pki/wiki/Installing-DS-Server
 
 *Note: Prior to installing DS instances, make sure the following procedures are done:*
 
