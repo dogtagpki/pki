@@ -21,6 +21,7 @@ package com.netscape.certsrv.client;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -33,11 +34,17 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
 import javax.ws.rs.core.Response.StatusType;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.util.EntityUtils;
 import org.dogtagpki.common.Info;
 import org.dogtagpki.common.InfoClient;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.util.JSONSerializer;
 
 
 public class PKIClient implements AutoCloseable {
@@ -52,6 +59,7 @@ public class PKIClient implements AutoCloseable {
     public MediaType messageFormat;
     public InfoClient infoClient;
     public Info info;
+    public URI basicURI;
 
     public PKIClient(ClientConfig config) throws Exception {
         this(config, null);
@@ -124,10 +132,45 @@ public class PKIClient implements AutoCloseable {
     /**
      * Unmarshall response object using custom mapping if available.
      */
+    public <T> T unmarshall(HttpEntity entity, Class<T> clazz) throws Exception {
+
+        if (entity == null || entity.getContentType() == null) {
+            return null;
+        }
+
+        String response = EntityUtils.toString(entity);
+        if (clazz.isInstance(response)) {
+            return clazz.cast(response);
+        }
+
+        String contentType = entity.getContentType().getValue().split(";")[0].trim();;
+        try {
+            if (contentType.equals(com.netscape.certsrv.base.MediaType.APPLICATION_XML)) {
+                Method method = clazz.getMethod("fromXML", String.class);
+                return (T) method.invoke(null, response);
+            }
+
+            if (contentType.equals(com.netscape.certsrv.base.MediaType.APPLICATION_JSON)) {
+                T data = JSONSerializer.fromJSON(response, clazz);
+                return data;
+            }
+        } catch (NoSuchMethodException e) {
+            logger.info("PKIClient: " + clazz.getSimpleName() + " has no custom mapping for " + entity.getContentType());
+
+        } catch (Exception e) {
+            logger.error("PKIClient: Unable to unmarshall response: " + e.getMessage(), e);
+            throw e;
+        }
+
+        return null;
+    }
+
+    /**
+     * Unmarshall response object using custom mapping if available.
+     */
     public <T> T unmarshall(Response response, Class<T> clazz) throws Exception {
 
         MediaType responseFormat = response.getMediaType();
-
         try {
             if (MediaType.APPLICATION_XML_TYPE.isCompatible(responseFormat)) {
                 Method method = clazz.getMethod("fromXML", String.class);
@@ -177,6 +220,22 @@ public class PKIClient implements AutoCloseable {
 
     public <T> Entity<T> entity(T object) throws Exception {
         return Entity.entity(object, messageFormat);
+    }
+
+    public <T> T getEntity(CloseableHttpResponse httpResp, Class<T> clazz) throws Exception {
+        try {
+            int status = httpResp.getStatusLine().getStatusCode();
+            if (status < HttpStatus.SC_OK ||
+                    status >= HttpStatus.SC_MULTIPLE_CHOICES
+                    ) {
+                //TODO: handle proper error like in handleErrorResponse()
+                throw new PKIException(status, httpResp.getStatusLine().getReasonPhrase());
+            }
+            return unmarshall(httpResp.getEntity(), clazz);
+
+        } finally {
+            httpResp.close();
+        }
     }
 
     public <T> T getEntity(Response response, Class<T> clazz) throws Exception {
@@ -245,8 +304,9 @@ public class PKIClient implements AutoCloseable {
 
     public <T> T get(String path, Map<String, Object> params, Class<T> responseType) throws Exception {
         WebTarget target = target(path, params);
-        Response response = target.request().get();
-        return getEntity(response, responseType);
+        HttpGet httpGET = new HttpGet(target.getUri());
+        CloseableHttpResponse httpResp = connection.getHttpClient().execute(httpGET);
+        return getEntity(httpResp, responseType);
     }
 
     public <T> T get(String path, Map<String, Object> params, GenericType<T> responseType) throws Exception {

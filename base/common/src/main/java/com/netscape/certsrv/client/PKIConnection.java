@@ -58,6 +58,9 @@ import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 
 import com.netscape.certsrv.base.PKIException;
 
+/**
+ *
+ */
 public class PKIConnection implements AutoCloseable {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PKIConnection.class);
@@ -203,6 +206,10 @@ public class PKIConnection implements AutoCloseable {
 
     public void setCallback(SSLCertificateApprovalCallback callback) {
         this.callback = callback;
+    }
+
+    public CloseableHttpClient getHttpClient() {
+        return httpClient;
     }
 
     public void storeRequest(PrintStream out, HttpRequest request) throws IOException {
