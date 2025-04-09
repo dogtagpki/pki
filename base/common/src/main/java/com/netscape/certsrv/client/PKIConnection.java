@@ -50,7 +50,6 @@ import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.client.LaxRedirectStrategy;
-import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.protocol.HttpContext;
 import org.dogtagpki.client.JSSSocketFactory;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
@@ -207,9 +206,7 @@ public class PKIConnection implements AutoCloseable {
     }
 
     public void storeRequest(PrintStream out, HttpRequest request) throws IOException {
-
         if (request instanceof HttpEntityEnclosingRequest enclose) {
-
             HttpEntity entity = enclose.getEntity();
             if (entity == null) return;
 
@@ -224,21 +221,15 @@ public class PKIConnection implements AutoCloseable {
     }
 
     public void storeResponse(PrintStream out, HttpResponse response) throws IOException {
+        HttpEntity entity = response.getEntity();
+        if (entity == null) return;
 
-        if (response instanceof BasicHttpResponse) {
-            BasicHttpResponse basicResponse = (BasicHttpResponse) response;
-
-            HttpEntity entity = basicResponse.getEntity();
-            if (entity == null) return;
-
-            if (!entity.isRepeatable()) {
-                BufferedHttpEntity bufferedEntity = new BufferedHttpEntity(entity);
-                basicResponse.setEntity(bufferedEntity);
-                entity = bufferedEntity;
-            }
-
-            storeEntity(out, entity);
+        if (!entity.isRepeatable()) {
+            BufferedHttpEntity bufferedEntity = new BufferedHttpEntity(entity);
+            response.setEntity(bufferedEntity);
+            entity = bufferedEntity;
         }
+        storeEntity(out, entity);
     }
 
     public void storeEntity(OutputStream out, HttpEntity entity) throws IOException {
