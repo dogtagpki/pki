@@ -72,6 +72,7 @@ import com.netscape.certsrv.request.RequestListener;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.security.Credential;
 import com.netscape.certsrv.security.IStorageKeyUnit;
+import com.netscape.cms.listeners.RequestInQListener;
 import com.netscape.cms.request.RequestScheduler;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
@@ -1543,7 +1544,7 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
                 // Initialize Request In Queue notification listener
                 String requestInQListenerClassName =
                         nc.getString("certificateIssuedListenerClassName",
-                                "com.netscape.cms.listeners.RequestInQListener");
+                                RequestInQListener.class.getName());
 
                 try {
                     mReqInQListener = (RequestListener) Class.forName(requestInQListenerClassName).getDeclaredConstructor().newInstance();
