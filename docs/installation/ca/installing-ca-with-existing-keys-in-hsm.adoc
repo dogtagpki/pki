@@ -129,13 +129,6 @@ pki_ocsp_signing_csr_path=ca_ocsp_signing.csr
 pki_audit_signing_csr_path=ca_audit_signing.csr
 ....
 
-. Specify the serial number starting range so that new certificates do not conflict with the existing certificates:
-+
-[literal,subs="+quotes,verbatim"]
-....
-pki_serial_number_range_start=6
-....
-
 . Execute the following command:
 +
 [literal,subs="+quotes,verbatim"]
