@@ -3,7 +3,7 @@
 [id="creating-ds-instance"]
 = Directory Server instance creation 
 
-// This content is copied and modifed from https://github.com/dogtagpki/pki/wiki/Installing-DS-Server
+// This content is copied and modifed from https://github.com/dogtagpki/pki/wiki/Installing-DS-Serversss
 
 *Note: Prior to installing DS instances, make sure the following procedures are done:*
 
@@ -71,6 +71,10 @@ dn: dc=pki,dc=example,dc=com
 objectClass: domain
 dc: pki
 EOF
+....
+To confirm you can run:
+....
+$ ldapsearch -H ldap://$HOSTNAME -x -w Secret.123
 ....
 
 The subtree for each PKI subsystem is created when the subsystem is installed. When all PKI subsystems are created, the LDAP tree looks like the following:
