@@ -86,13 +86,6 @@ pki_ca_signing_csr_path=ca_signing.csr
 pki_ocsp_signing_csr_path=ca_ocsp_signing.csr
 pki_audit_signing_csr_path=ca_audit_signing.csr
 ....
-
-. Specify the serial number starting range such that new certificates will not conflict with the existing certificates:
-+
-[literal,subs="+quotes,verbatim"]
-....
-pki_serial_number_range_start=4
-....
 +
 A sample deployment configuration is available at xref:../../../base/server/examples/installation/ca-existing-certs-step2.cfg[/usr/share/pki/server/examples/installation/ca-existing-certs-step2.cfg].
 
