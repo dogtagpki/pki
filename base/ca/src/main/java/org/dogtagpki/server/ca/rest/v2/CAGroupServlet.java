@@ -5,7 +5,7 @@
 //
 package org.dogtagpki.server.ca.rest.v2;
 
-import javax.servlet.annotation.WebServlet;
+import jakarta.servlet.annotation.WebServlet;
 
 import org.dogtagpki.server.rest.v2.GroupServlet;
 

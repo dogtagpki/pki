@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.StringTokenizer;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthToken;
@@ -110,7 +110,7 @@ public class CAProcessor extends Processor {
     public final static String ARG_REQUESTS = "requests";
     public final static String ARG_ERROR_CODE = "errorCode";
     public final static String ARG_ERROR_REASON = "errorReason";
-    public final static String CERT_ATTR = "javax.servlet.request.X509Certificate";
+    public final static String CERT_ATTR = "jakarta.servlet.request.X509Certificate";
 
     public static final String PROP_AUTHZ_MGR = "AuthzMgr";
     public static final String PROP_ACL = "ACLinfo";
@@ -344,7 +344,7 @@ public class CAProcessor extends Processor {
         logger.debug(CMS.getLogMessage("CMSGW_GETTING_SSL_CLIENT_CERT"));
 
         // iws60 support Java Servlet Spec V2.2, attribute
-        // javax.servlet.request.X509Certificate now contains array
+        // jakarta.servlet.request.X509Certificate now contains array
         // of X509Certificates instead of one X509Certificate object
         X509Certificate[] allCerts = (X509Certificate[]) httpReq.getAttribute(CERT_ATTR);
 
