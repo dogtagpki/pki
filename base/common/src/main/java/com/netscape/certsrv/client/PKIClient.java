@@ -25,6 +25,7 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.Map;
 
+import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
@@ -36,6 +37,7 @@ import javax.ws.rs.core.Response.StatusType;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
+import org.apache.http.StatusLine;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.util.EntityUtils;
@@ -44,6 +46,8 @@ import org.dogtagpki.common.InfoClient;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.base.ResourceNotFoundException;
+import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.certsrv.util.JSONSerializer;
 
 
@@ -134,7 +138,7 @@ public class PKIClient implements AutoCloseable {
      */
     public <T> T unmarshall(HttpEntity entity, Class<T> clazz) throws Exception {
 
-        if (entity == null || entity.getContentType() == null) {
+        if (entity == null) {
             return null;
         }
 
@@ -143,14 +147,17 @@ public class PKIClient implements AutoCloseable {
             return clazz.cast(response);
         }
 
-        String contentType = entity.getContentType().getValue().split(";")[0].trim();;
+        String contentType = null;
+        if (entity.getContentType() != null) {
+            contentType = entity.getContentType().getValue().split(";")[0].trim();
+        }
         try {
-            if (contentType.equals(com.netscape.certsrv.base.MediaType.APPLICATION_XML)) {
+            if (com.netscape.certsrv.base.MediaType.APPLICATION_XML.equals(contentType)) {
                 Method method = clazz.getMethod("fromXML", String.class);
                 return (T) method.invoke(null, response);
             }
 
-            if (contentType.equals(com.netscape.certsrv.base.MediaType.APPLICATION_JSON)) {
+            if (com.netscape.certsrv.base.MediaType.APPLICATION_JSON.equals(contentType)) {
                 T data = JSONSerializer.fromJSON(response, clazz);
                 return data;
             }
@@ -195,6 +202,40 @@ public class PKIClient implements AutoCloseable {
         return response.readEntity(clazz);
     }
 
+    public void handleErrorResponse(CloseableHttpResponse httpResp) throws Exception {
+        HttpEntity entity = httpResp.getEntity();
+        String contentType = null;
+        if (entity != null && entity.getContentType() != null) {
+            contentType = entity.getContentType().getValue().split(";")[0].trim();
+        }
+
+        if (entity == null ||
+                (!com.netscape.certsrv.base.MediaType.APPLICATION_XML.equals(contentType) &&
+                        !com.netscape.certsrv.base.MediaType.APPLICATION_JSON.equals(contentType))) {
+
+            StatusLine status = httpResp.getStatusLine();
+            switch (status.getStatusCode()) {
+            case HttpStatus.SC_UNAUTHORIZED:
+                throw new UnauthorizedException(status.getReasonPhrase());
+            case HttpStatus.SC_NOT_FOUND:
+                throw new ResourceNotFoundException(status.getReasonPhrase());
+            default:
+                throw new PKIException(status.getStatusCode(), status.getReasonPhrase());
+            }
+        }
+
+        PKIException.Data data = unmarshall(entity, PKIException.Data.class);
+        String className = data.getClassName();
+
+        Class<? extends PKIException> exceptionClass =
+                Class.forName(className).asSubclass(PKIException.class);
+
+        Constructor<? extends PKIException> constructor =
+                exceptionClass.getConstructor(PKIException.Data.class);
+
+        throw constructor.newInstance(data);
+    }
+
     public void handleErrorResponse(Response response) throws Exception {
 
         MediaType contentType = response.getMediaType();
@@ -225,12 +266,11 @@ public class PKIClient implements AutoCloseable {
     public <T> T getEntity(CloseableHttpResponse httpResp, Class<T> clazz) throws Exception {
         try {
             int status = httpResp.getStatusLine().getStatusCode();
-            if (status < HttpStatus.SC_OK ||
-                    status >= HttpStatus.SC_MULTIPLE_CHOICES
-                    ) {
-                //TODO: handle proper error like in handleErrorResponse()
-                throw new PKIException(status, httpResp.getStatusLine().getReasonPhrase());
+            if (status >= HttpStatus.SC_BAD_REQUEST) {
+                handleErrorResponse(httpResp);
+                return null;
             }
+
             return unmarshall(httpResp.getEntity(), clazz);
 
         } finally {
@@ -305,7 +345,12 @@ public class PKIClient implements AutoCloseable {
     public <T> T get(String path, Map<String, Object> params, Class<T> responseType) throws Exception {
         WebTarget target = target(path, params);
         HttpGet httpGET = new HttpGet(target.getUri());
-        CloseableHttpResponse httpResp = connection.getHttpClient().execute(httpGET);
+        CloseableHttpResponse httpResp = null;
+        try {
+            httpResp = connection.getHttpClient().execute(httpGET);
+        } catch (Exception ex) {
+            throw new ProcessingException(ex);
+        }
         return getEntity(httpResp, responseType);
     }
 
