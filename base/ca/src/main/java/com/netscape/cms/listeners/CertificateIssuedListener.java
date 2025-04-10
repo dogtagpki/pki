@@ -95,7 +95,6 @@ public class CertificateIssuedListener extends RequestListener {
 
     private CAConfig mConfig;
     private DateFormat mDateFormat = null;
-    private CertificateAuthority mSubsystem;
     private String mHttpHost = null;
     private String mHttpPort = null;
     private RequestId mReqId = null;
@@ -110,8 +109,8 @@ public class CertificateIssuedListener extends RequestListener {
         CAEngine engine = CAEngine.getInstance();
         CAEngineConfig cs = engine.getConfig();
 
-        mSubsystem = (CertificateAuthority) sub;
-        mConfig = mSubsystem.getConfigStore();
+        CertificateAuthority ca = engine.getCA();
+        mConfig = ca.getConfigStore();
 
         ConfigStore nc = mConfig.getSubStore(PROP_NOTIFY_SUBSTORE, ConfigStore.class);
         ConfigStore rc = nc.getSubStore(PROP_CERT_ISSUED_SUBSTORE, ConfigStore.class);

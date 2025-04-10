@@ -264,7 +264,7 @@ public class CRSEnrollment extends HttpServlet {
         CAEngineConfig cs = engine.getConfig();
         JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
-        mAuthority = (CertificateAuthority) engine.getSubsystem(crsCA);
+        mAuthority = engine.getCA();
         ca = mAuthority;
 
         if (mAuthority == null) {

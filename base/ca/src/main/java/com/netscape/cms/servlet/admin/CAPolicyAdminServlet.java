@@ -79,7 +79,7 @@ public class CAPolicyAdminServlet extends PolicyAdminServlet {
         CertificateAuthority ca = null;
 
         if (authority != null) {
-            ca = (CertificateAuthority) engine.getSubsystem(authority);
+            ca = engine.getCA();
         }
 
         if (ca == null) {

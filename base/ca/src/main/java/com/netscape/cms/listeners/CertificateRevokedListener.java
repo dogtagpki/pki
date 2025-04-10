@@ -97,7 +97,6 @@ public class CertificateRevokedListener extends RequestListener {
 
     private CAConfig mConfig;
     private DateFormat mDateFormat = null;
-    private CertificateAuthority mSubsystem;
     private String mHttpHost = null;
     private String mHttpPort = null;
     private RequestId mReqId = null;
@@ -107,10 +106,12 @@ public class CertificateRevokedListener extends RequestListener {
 
     @Override
     public void init(Subsystem sub, ConfigStore config) throws EListenersException, EPropertyNotFound, EBaseException {
+
         CAEngine engine = CAEngine.getInstance();
         CAEngineConfig cs = engine.getConfig();
-        mSubsystem = (CertificateAuthority) sub;
-        mConfig = mSubsystem.getConfigStore();
+
+        CertificateAuthority ca = engine.getCA();
+        mConfig = ca.getConfigStore();
 
         ConfigStore nc = mConfig.getSubStore(PROP_NOTIFY_SUBSTORE, ConfigStore.class);
         ConfigStore rc = nc.getSubStore(PROP_CERT_ISSUED_SUBSTORE, ConfigStore.class);

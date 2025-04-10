@@ -105,7 +105,7 @@ public class ProfileReviewServlet extends ProfileServlet {
         mAuthorityId = sc.getInitParameter(PROP_AUTHORITY_ID);
 
         if (mAuthorityId != null)
-            authority = (CertificateAuthority) engine.getSubsystem(mAuthorityId);
+            authority = engine.getCA();
 
         if (authority != null && engine.getEnableNonces()) {
             mRandom = jssSubsystem.getRandomNumberGenerator();

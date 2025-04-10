@@ -71,7 +71,6 @@ public class RequestInQListener extends RequestListener {
     private ConfigStore mConfig;
     private Hashtable<String, Object> mContentParams = new Hashtable<>();
     private String mId = "RequestInQListener";
-    private Subsystem mSubsystem = null;
     private String mHttpHost = null;
     private String mAgentPort = null;
 
@@ -91,8 +90,7 @@ public class RequestInQListener extends RequestListener {
         logger.info("RequestInQListener: Initializing RequestInQListener");
 
         EngineConfig cs = engine.getConfig();
-        mSubsystem = sub;
-        mConfig = mSubsystem.getConfigStore();
+        mConfig = sub.getConfigStore();
 
         ConfigStore nc = mConfig.getSubStore(PROP_NOTIFY_SUBSTORE, ConfigStore.class);
         ConfigStore rq = nc.getSubStore(PROP_REQ_IN_Q_SUBSTORE, ConfigStore.class);

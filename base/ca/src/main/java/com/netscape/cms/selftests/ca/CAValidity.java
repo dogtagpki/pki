@@ -204,7 +204,7 @@ public class CAValidity
     public void runSelfTest(LogEventListener logger) throws Exception {
 
         CAEngine engine = CAEngine.getInstance();
-        CertificateAuthority ca = (CertificateAuthority) engine.getSubsystem(mCaSubId);
+        CertificateAuthority ca = engine.getCA();
         if (ca == null) {
             // log that the CA is not installed
             String logMessage = CMS.getLogMessage(
