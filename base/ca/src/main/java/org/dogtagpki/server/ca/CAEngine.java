@@ -118,6 +118,8 @@ import com.netscape.certsrv.security.SigningUnitConfig;
 import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.cms.authentication.CAAuthSubsystem;
 import com.netscape.cms.listeners.CARequestInQListener;
+import com.netscape.cms.listeners.CertificateIssuedListener;
+import com.netscape.cms.listeners.CertificateRevokedListener;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.request.RequestScheduler;
 import com.netscape.cms.servlet.admin.KRAConnectorProcessor;
@@ -699,7 +701,7 @@ public class CAEngine extends CMSEngine {
 
             listener.setCMSEngine(this);
             // listener.init(id, pluginName, instanceConfig);
-            listener.init(hostCA, instanceConfig);
+            listener.init(instanceConfig);
             // registerRequestListener(id, (IRequestListener) listener);
         }
     }
@@ -870,11 +872,11 @@ public class CAEngine extends CMSEngine {
 
         String className = listenerConfig.getString(
                 "certificateIssuedListenerClassName",
-                "com.netscape.cms.listeners.CertificateIssuedListener");
+                CertificateIssuedListener.class.getName());
 
         certIssuedListener = (RequestListener) Class.forName(className).getDeclaredConstructor().newInstance();
         certIssuedListener.setCMSEngine(this);
-        certIssuedListener.init(hostCA, listenerConfig);
+        certIssuedListener.init(listenerConfig);
     }
 
     public void initCertRevokedListener() throws Exception {
@@ -893,11 +895,11 @@ public class CAEngine extends CMSEngine {
 
         String className = listenerConfig.getString(
                 "certificateIssuedListenerClassName",
-                "com.netscape.cms.listeners.CertificateRevokedListener");
+                CertificateRevokedListener.class.getName());
 
         certRevokedListener = (RequestListener) Class.forName(className).getDeclaredConstructor().newInstance();
         certRevokedListener.setCMSEngine(this);
-        certRevokedListener.init(hostCA, listenerConfig);
+        certRevokedListener.init(listenerConfig);
     }
 
     public void initRequestInQueueListener() throws Exception {

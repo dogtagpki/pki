@@ -38,6 +38,10 @@ public abstract class RequestListener {
         this.engine = engine;
     }
 
+    public void init(ConfigStore config) throws EBaseException {
+        init(null, config);
+    }
+
     /**
      * Initializes request listener for the specific subsystem
      * and configuration store.
