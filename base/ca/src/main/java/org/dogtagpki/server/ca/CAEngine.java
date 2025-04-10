@@ -922,7 +922,7 @@ public class CAEngine extends CMSEngine {
 
         requestInQueueListener = (RequestListener) Class.forName(className).getDeclaredConstructor().newInstance();
         requestInQueueListener.setCMSEngine(this);
-        requestInQueueListener.init(hostCA, listenerConfig);
+        requestInQueueListener.init(listenerConfig);
     }
 
     public void startCertStatusUpdate() throws Exception {

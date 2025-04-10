@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.util.Hashtable;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.listeners.EListenersException;
 import com.netscape.certsrv.notification.ENotificationException;
@@ -68,7 +67,7 @@ public class RequestInQListener extends RequestListener {
     private String mRecipientEmail = null;
     private String mEmailSubject = null;
     private String mFormPath = null;
-    private ConfigStore mConfig;
+    protected ConfigStore mConfig;
     private Hashtable<String, Object> mContentParams = new Hashtable<>();
     private String mId = "RequestInQListener";
     private String mHttpHost = null;
@@ -84,13 +83,14 @@ public class RequestInQListener extends RequestListener {
      * initializes the listener from the configuration
      */
     @Override
-    public void init(Subsystem sub, ConfigStore config)
-            throws EListenersException, EPropertyNotFound, EBaseException {
+    public void init(Subsystem sub, ConfigStore config) throws EBaseException {
 
         logger.info("RequestInQListener: Initializing RequestInQListener");
 
         EngineConfig cs = engine.getConfig();
-        mConfig = sub.getConfigStore();
+        if (sub != null) {
+            mConfig = sub.getConfigStore();
+        }
 
         ConfigStore nc = mConfig.getSubStore(PROP_NOTIFY_SUBSTORE, ConfigStore.class);
         ConfigStore rq = nc.getSubStore(PROP_REQ_IN_Q_SUBSTORE, ConfigStore.class);

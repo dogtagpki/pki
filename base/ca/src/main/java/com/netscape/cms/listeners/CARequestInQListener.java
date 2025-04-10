@@ -17,11 +17,24 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.listeners;
 
+import org.dogtagpki.server.ca.CAEngine;
+
+import com.netscape.ca.CertificateAuthority;
+import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cms.profile.input.SubjectNameInput;
 import com.netscape.cms.profile.input.SubmitterInfoInput;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
 public class CARequestInQListener extends RequestInQListener {
+
+    public void init(ConfigStore config) throws EBaseException {
+        CAEngine engine = CAEngine.getInstance();
+        CertificateAuthority ca = engine.getCA();
+        mConfig = ca.getConfigStore();
+
+        init(null, config);
+    }
 
     protected Object getRequestorEmail(Request r) {
 
