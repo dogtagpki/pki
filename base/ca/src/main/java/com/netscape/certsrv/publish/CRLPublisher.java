@@ -17,10 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.publish;
 
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.Subsystem;
 import com.netscape.cmscore.base.ConfigStore;
 
 /**
@@ -79,18 +79,26 @@ import com.netscape.cmscore.base.ConfigStore;
  */
 public class CRLPublisher {
 
+    CAEngine engine;
+
+    public CAEngine getEngine() {
+        return engine;
+    }
+
+    public void setEngine(CAEngine engine) {
+        this.engine = engine;
+    }
+
     /**
      * Initializes this CRL publisher.
      *
-     * @param owner parent of the publisher. An object of type
-     *            CertificateAuthority.
      * @param config config store for this publisher. If this
      *            publisher requires configuration parameters for
      *            initialization, the parameters should be placed
      *            in CMS.cfg as ca.crlPublisher.<paramType>=<paramValue>
      * @exception EBaseException failed to initialize this publisher
      */
-    public void init(Subsystem owner, ConfigStore config) throws EBaseException {
+    public void init(ConfigStore config) throws EBaseException {
     }
 
     /**

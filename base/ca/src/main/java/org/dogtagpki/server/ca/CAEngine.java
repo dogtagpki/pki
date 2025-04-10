@@ -655,8 +655,6 @@ public class CAEngine extends CMSEngine {
 
         logger.info("CAEngine: Initializing CA listeners");
 
-        CertificateAuthority hostCA = getCA();
-
         CAEngineConfig engineConfig = getConfig();
         CAConfig caConfig = engineConfig.getCAConfig();
 
@@ -710,8 +708,6 @@ public class CAEngine extends CMSEngine {
 
         logger.info("CAEngine: Initializing CRL publisher");
 
-        CertificateAuthority hostCA = getCA();
-
         CAEngineConfig engineConfig = getConfig();
         CAConfig caConfig = engineConfig.getCAConfig();
 
@@ -729,7 +725,8 @@ public class CAEngine extends CMSEngine {
 
         Class<CRLPublisher> publisherClass = (Class<CRLPublisher>) Class.forName(className);
         crlPublisher = publisherClass.getDeclaredConstructor().newInstance();
-        crlPublisher.init(hostCA, crlPublisherConfig);
+        crlPublisher.setEngine(this);
+        crlPublisher.init(crlPublisherConfig);
     }
 
     public void initPublisherProcessor() throws Exception {
@@ -860,8 +857,6 @@ public class CAEngine extends CMSEngine {
 
         logger.info("CAEngine: Initializing certificate issued listener");
 
-        CertificateAuthority hostCA = getCA();
-
         CAEngineConfig engineConfig = getConfig();
         CAConfig caConfig = engineConfig.getCAConfig();
 
@@ -883,8 +878,6 @@ public class CAEngine extends CMSEngine {
 
         logger.info("CAEngine: Initializing cert revoked listener");
 
-        CertificateAuthority hostCA = getCA();
-
         CAEngineConfig engineConfig = getConfig();
         CAConfig caConfig = engineConfig.getCAConfig();
 
@@ -905,8 +898,6 @@ public class CAEngine extends CMSEngine {
     public void initRequestInQueueListener() throws Exception {
 
         logger.info("CAEngine: Initializing request in queue listener");
-
-        CertificateAuthority hostCA = getCA();
 
         CAEngineConfig engineConfig = getConfig();
         CAConfig caConfig = engineConfig.getCAConfig();
