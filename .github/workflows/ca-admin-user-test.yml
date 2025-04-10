@@ -88,7 +88,7 @@ jobs:
           docker exec pki pki -u caadmin -w wrong ca-user-find \
               > >(tee stdout) 2> >(tee stderr >&2) || true
 
-          echo "PKIException: Unauthorized" > expected
+          echo "UnauthorizedException: " > expected
           diff expected stderr
 
       - name: Change CA admin password
@@ -99,7 +99,7 @@ jobs:
           docker exec pki pki -u caadmin -w Secret.123 ca-user-find \
               > >(tee stdout) 2> >(tee stderr >&2) || true
 
-          echo "PKIException: Unauthorized" > expected
+          echo "UnauthorizedException: " > expected
           diff expected stderr
 
           # new password should work
@@ -121,14 +121,14 @@ jobs:
           docker exec pki pki -u caadmin -w secret ca-user-find \
               > >(tee stdout) 2> >(tee stderr >&2) || true
 
-          echo "PKIException: Unauthorized" > expected
+          echo "UnauthorizedException: " > expected
           diff expected stderr
 
           # blank password should not work
           docker exec pki pki -u caadmin -w "" ca-user-find \
               > >(tee stdout) 2> >(tee stderr >&2) || true
 
-          echo "PKIException: Unauthorized" > expected
+          echo "UnauthorizedException: " > expected
           diff expected stderr
 
       - name: Check certs assigned to CA admin user
@@ -165,7 +165,7 @@ jobs:
           docker exec pki pki -n caadmin ca-user-find \
               > >(tee stdout) 2> >(tee stderr >&2) || true
 
-          echo "PKIException: Unauthorized" > expected
+          echo "UnauthorizedException: " > expected
           diff expected stderr
 
       - name: Reassign certs to CA admin user

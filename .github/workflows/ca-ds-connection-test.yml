@@ -117,7 +117,7 @@ jobs:
               > >(tee stdout) 2> >(tee stderr >&2) || true
 
           cat > expected << EOF
-          PKIException: Unauthorized
+          UnauthorizedException: 
           EOF
 
           diff expected stderr
@@ -154,7 +154,7 @@ jobs:
               > >(tee stdout) 2> >(tee stderr >&2) || true
 
           cat > expected << EOF
-          PKIException: Unauthorized
+          UnauthorizedException: 
           EOF
 
           diff expected stderr
