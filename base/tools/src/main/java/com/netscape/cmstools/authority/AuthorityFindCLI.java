@@ -1,6 +1,6 @@
 package com.netscape.cmstools.authority;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -55,7 +55,7 @@ public class AuthorityFindCLI extends CommandCLI {
         mainCLI.init();
 
         AuthorityClient authorityClient = authorityCLI.getAuthorityClient();
-        List<AuthorityData> datas = authorityClient.findCAs(id, parentID, dn, issuerDN);
+        Collection<AuthorityData> datas = authorityClient.findCAs(id, parentID, dn, issuerDN);
 
         MainCLI.printMessage(datas.size() + " entries matched");
         if (datas.size() == 0) return;

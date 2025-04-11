@@ -26,6 +26,8 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.ws.rs.client.WebTarget;
 
@@ -33,6 +35,7 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
@@ -50,12 +53,14 @@ import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.client.LaxRedirectStrategy;
+import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HttpContext;
 import org.dogtagpki.client.JSSSocketFactory;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient4Engine;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 
+import com.netscape.certsrv.base.MediaType;
 import com.netscape.certsrv.base.PKIException;
 
 /**
@@ -171,7 +176,6 @@ public class PKIConnection implements AutoCloseable {
                 }
             }
         });
-
         httpClientBuilder.setRedirectStrategy(new LaxRedirectStrategy());
 
         if (config.getUsername() != null && config.getPassword() != null) {
@@ -183,7 +187,18 @@ public class PKIConnection implements AutoCloseable {
                     new UsernamePasswordCredentials(config.getUsername(), config.getPassword()));
             httpClientBuilder.setDefaultCredentialsProvider(credsProvider);
         }
+        String messageFormat = config.getMessageFormat();
+        if (messageFormat != null) {
+            List<Header> headers = new ArrayList<>();
 
+            if (messageFormat.equals("xml")) {
+                headers.add(new BasicHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML));
+            }
+            if (messageFormat.equals("json")) {
+                headers.add(new BasicHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON));
+            }
+            httpClientBuilder.setDefaultHeaders(headers);
+        }
         httpClient = httpClientBuilder.build();
 
         engine = new ApacheHttpClient4Engine(httpClient);
