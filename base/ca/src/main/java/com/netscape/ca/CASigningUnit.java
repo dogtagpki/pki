@@ -19,7 +19,6 @@ package com.netscape.ca;
 
 import java.security.SignatureException;
 
-import com.netscape.certsrv.dbs.certdb.CertId;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NoSuchTokenException;
 import org.mozilla.jss.NotInitializedException;
@@ -36,6 +35,7 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.ca.CAMissingCertException;
 import com.netscape.certsrv.ca.CAMissingKeyException;
 import com.netscape.certsrv.ca.ECAException;
+import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.security.SigningUnit;
 import com.netscape.certsrv.security.SigningUnitConfig;
 import com.netscape.cmscore.apps.CMS;
@@ -114,7 +114,7 @@ public final class CASigningUnit extends SigningUnit {
             mCertImpl = new X509CertImpl(mCert.getEncoded());
 
             try {
-                logger.info("CASigningUnit: Loading private key");
+                logger.info("CASigningUnit: Loading private key for " + mNickname);
                 mPrivk = mManager.findPrivKeyByCert(mCert);
 
             } catch (ObjectNotFoundException e) {
@@ -171,7 +171,7 @@ public final class CASigningUnit extends SigningUnit {
 
         // XXX use a pool of signers based on alg ?
         // XXX Map algor. name to id. hack: use hardcoded define for now.
-        logger.info("CASigningUnit: Getting algorithm context for " + algname + " " + signAlg);
+        logger.debug("CASigningUnit: Getting algorithm context for " + algname + " " + signAlg);
         Signature signer = mToken.getSignatureContext(signAlg);
 
         signer.initSign(mPrivk);
@@ -186,7 +186,7 @@ public final class CASigningUnit extends SigningUnit {
         }
         */
 
-        logger.info("CASigningUnit: Signing ...");
+        logger.debug("CASigningUnit: Signing ...");
 
         boolean testSignatureFailure = mConfig.getTestSignatureFailure();
         if (testSignatureFailure) {

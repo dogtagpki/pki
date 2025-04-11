@@ -111,7 +111,7 @@ public abstract class SigningUnit {
 
     public void buildCertChain() throws NotInitializedException, CertificateException, TokenException {
 
-        logger.info("SigningUnit: cert chain:");
+        logger.debug("SigningUnit: Building cert chain:");
 
         CryptoManager manager = CryptoManager.getInstance();
         org.mozilla.jss.crypto.X509Certificate[] chain = manager.buildCertificateChain(mCert);
@@ -120,7 +120,7 @@ public abstract class SigningUnit {
 
         for (int i = 0; i < chain.length; i++) {
             certs[i] = new X509CertImpl(chain[i].getEncoded());
-            logger.info("SigningUnit: - " + certs[i].getSubjectDN());
+            logger.debug("SigningUnit: - " + certs[i].getSubjectDN());
         }
 
         certChain = new CertificateChain(certs);
