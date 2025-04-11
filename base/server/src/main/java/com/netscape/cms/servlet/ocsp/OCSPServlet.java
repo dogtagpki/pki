@@ -191,7 +191,7 @@ public class OCSPServlet extends CMSServlet {
 
             } else {
 
-                logger.info("OCSPServlet: Processing GET request");
+                logger.debug("OCSPServlet: Processing GET request");
 
                 if ((pathInfo == null) ||
                         (pathInfo.equals("")) ||
@@ -232,11 +232,11 @@ public class OCSPServlet extends CMSServlet {
 
                 TBSRequest tbsReq = ocspReq.getTBSRequest();
 
-                logger.info("OCSPServlet: Cert status requests:");
+                logger.debug("OCSPServlet: Cert status requests:");
                 for (int i = 0; i < tbsReq.getRequestCount(); i++) {
                     com.netscape.cmsutil.ocsp.Request req = tbsReq.getRequestAt(i);
                     CertId certID = new CertId(req.getCertID().getSerialNumber());
-                    logger.info("OCSPServlet: - " + certID.toHexString());
+                    logger.debug("OCSPServlet: - " + certID.toHexString());
                 }
 
                 logger.debug("OCSPServlet: validating request");

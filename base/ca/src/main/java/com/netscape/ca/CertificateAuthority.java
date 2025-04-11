@@ -857,7 +857,11 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
 
             for (int i = 0; i < tbsReq.getRequestCount(); i++) {
                 Request req = tbsReq.getRequestAt(i);
+                CertID certID = req.getCertID();
+                logger.info("CertificateAuthority: Checking cert 0x{} status", certID.getSerialNumber().toString(16));
+
                 SingleResponse sr = processRequest(req);
+
                 singleResponses.addElement(sr);
             }
 
@@ -913,6 +917,7 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
 
             long signStartTime = new Date().getTime();
 
+            logger.info("CertificateAuthority: Signing OCSP response");
             BasicOCSPResponse basicRes = sign(rd);
 
             long signEndTime = new Date().getTime();
