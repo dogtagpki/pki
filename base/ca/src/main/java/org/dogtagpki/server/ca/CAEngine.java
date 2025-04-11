@@ -1391,27 +1391,6 @@ public class CAEngine extends CMSEngine {
         return record;
     }
 
-    /**
-     * Create a new certificate authority.
-     *
-     * @param subjectDN Subject DN for new CA
-     * @param parentAID ID of parent CA
-     * @param description Optional string description of CA
-     */
-    public CertificateAuthority createCA(
-            AuthorityID parentAID,
-            AuthToken authToken,
-            String subjectDN,
-            String description)
-            throws Exception {
-
-        AuthorityRecord record = createAuthorityRecord(parentAID, authToken, subjectDN, description);
-        CertificateAuthority ca = createCA(record);
-        authorityMonitor.authorities.put(ca.getAuthorityID(), ca);
-
-        return ca;
-    }
-
     public CertificateAuthority createCA(AuthorityRecord record) throws Exception {
 
         CertId certID = record.getSerialNumber();

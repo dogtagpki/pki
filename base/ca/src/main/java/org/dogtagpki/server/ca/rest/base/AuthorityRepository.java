@@ -589,14 +589,14 @@ public class AuthorityRepository {
 
         AuthToken authToken = (AuthToken) SessionContext.getContext().get(SessionContext.AUTH_TOKEN);
         try {
-            CertificateAuthority subCA = engine.createCA(
+            AuthorityRecord record = engine.createAuthorityRecord(
                     parentAID,
                     authToken,
                     data.getDN(),
                     data.getDescription());
             audit(ILogger.SUCCESS, OpDef.OP_ADD,
-                    subCA.getAuthorityID().toString(), auditParams);
-            return readAuthorityData(subCA);
+                    record.getAuthorityID().toString(), auditParams);
+            return readAuthorityData(record);
         } catch (IllegalArgumentException | BadRequestDataException e) {
             throw new BadRequestException(e.toString());
         } catch (CANotFoundException e) {
