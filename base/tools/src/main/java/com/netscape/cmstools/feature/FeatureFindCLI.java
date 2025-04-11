@@ -17,7 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmstools.feature;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CommandCLI;
@@ -47,7 +47,7 @@ public class FeatureFindCLI extends CommandCLI {
         mainCLI.init();
 
         FeatureClient featureClient = featureCLI.getFeatureClient();
-        List<Feature> features = featureClient.listFeatures();
+        Collection<Feature> features = featureClient.listFeatures();
 
         MainCLI.printMessage(features.size() + " entries matched");
         if (features.size() == 0) return;

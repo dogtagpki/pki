@@ -17,9 +17,7 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.system;
 
-import java.util.List;
-
-import javax.ws.rs.core.GenericType;
+import java.util.Collection;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
@@ -33,9 +31,8 @@ public class FeatureClient extends Client {
         super(client, subsystem, "config/features");
     }
 
-    public List<Feature> listFeatures() throws Exception {
-        GenericType<List<Feature>> type = new GenericType<>() {};
-        return get(null, null, type);
+    public Collection<Feature> listFeatures() throws Exception {
+        return getCollection(null, null, Feature.class);
     }
 
     public Feature getFeature(String featureID) throws Exception {

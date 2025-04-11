@@ -20,7 +20,7 @@ package com.netscape.cmstools.ca;
 
 import java.io.ByteArrayInputStream;
 import java.math.BigInteger;
-import java.util.List;
+import java.util.Collection;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -108,7 +108,7 @@ public class CACertStatusCLI extends CommandCLI {
         String issuerDN = certData.getIssuerDN();
 
         // find CA that issued the cert
-        List<AuthorityData> authorities = authorityClient.findCAs(null, null, issuerDN, null);
+        Collection<AuthorityData> authorities = authorityClient.findCAs(null, null, issuerDN, null);
 
         if (authorities.size() == 0) {
             throw new CLIException("Unknown certificate issuer: " + issuerDN, 1);

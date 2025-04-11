@@ -17,12 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.client;
 
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.GenericType;
 
 /**
  * @author Endi S. Dewata
@@ -111,9 +111,12 @@ public class Client {
         return client.get(path, params, responseType);
     }
 
-    public <T> T get(String suffix, Map<String, Object> params, GenericType<T> responseType) throws Exception {
+    public <T> Collection<T> getCollection(String suffix, Map<String, Object> params, Class<T> responseType) throws Exception {
         String path = getTargetPath(suffix);
-        return client.get(path, params, responseType);
+        Collection<?> coll = client.getCollection(path, params, responseType);
+        return coll.stream().
+                filter(responseType::isInstance).
+                map(responseType::cast).toList();
     }
 
     public <T> T post(Class<T> responseType) throws Exception {
