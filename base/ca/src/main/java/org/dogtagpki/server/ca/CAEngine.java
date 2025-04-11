@@ -1649,7 +1649,7 @@ public class CAEngine extends CMSEngine {
 
     public void initCertSigningUnit(CertificateAuthority ca) throws Exception {
 
-        logger.info("CAEngine: Initializing cert signing unit");
+        logger.info("CAEngine: Initializing cert signing unit for authority {}", ca.getAuthorityID());
 
         boolean hostCA = ca.isHostAuthority();
         AuthorityID authorityID = ca.getAuthorityID();
@@ -1664,7 +1664,7 @@ public class CAEngine extends CMSEngine {
         ca.setCertSigningUnit(certSigningUnit);
 
         org.mozilla.jss.crypto.X509Certificate caCert = certSigningUnit.getCert();
-        logger.info("CAEngine: - nickname: " + caCert.getNickname());
+        logger.debug("CAEngine: - nickname: " + caCert.getNickname());
 
         logger.debug("CAEngine: - subject DN: " + ca.getSubjectObj());
         logger.debug("CAEngine: - issuer DN: " + ca.getIssuerObj());
@@ -1684,7 +1684,7 @@ public class CAEngine extends CMSEngine {
 
     public void initCRLSigningUnit(CertificateAuthority ca) throws Exception {
 
-        logger.info("CAEngine: Initializing CRL signing unit");
+        logger.info("CAEngine: Initializing CRL signing unit for authority {}", ca.getAuthorityID());
 
         boolean hostCA = ca.isHostAuthority();
 
@@ -1703,7 +1703,7 @@ public class CAEngine extends CMSEngine {
         ca.setCRLSigningUnit(crlSigningUnit);
 
         org.mozilla.jss.crypto.X509Certificate crlCert = crlSigningUnit.getCert();
-        logger.info("CAEngine: - nickname: " + crlCert.getNickname());
+        logger.debug("CAEngine: - nickname: " + crlCert.getNickname());
 
         X509CertImpl crlCertImpl = crlSigningUnit.getCertImpl();
         String crlSigningSKI = CryptoUtil.getSKIString(crlCertImpl);
@@ -1719,7 +1719,7 @@ public class CAEngine extends CMSEngine {
 
     public void initOCSPSigningUnit(CertificateAuthority ca) throws Exception {
 
-        logger.info("CAEngine: Initializing OCSP signing unit");
+        logger.info("CAEngine: Initializing OCSP signing unit for authority {}", ca.getAuthorityID());
 
         boolean hostCA = ca.isHostAuthority();
         AuthorityID authorityID = ca.getAuthorityID();
@@ -1739,7 +1739,7 @@ public class CAEngine extends CMSEngine {
         ca.setOCSPSigningUnit(ocspSigningUnit);
 
         org.mozilla.jss.crypto.X509Certificate ocspCert = ocspSigningUnit.getCert();
-        logger.info("CAEngine: - nickname: " + ocspCert.getNickname());
+        logger.debug("CAEngine: - nickname: " + ocspCert.getNickname());
 
         X509CertImpl ocspCertImpl = ocspSigningUnit.getCertImpl();
         String ocspSigningSKI = CryptoUtil.getSKIString(ocspCertImpl);
@@ -1784,10 +1784,10 @@ public class CAEngine extends CMSEngine {
 
     public void checkForNewerCert(CertificateAuthority ca) throws EBaseException {
 
-        logger.info("CAEngine: Checking for newer CA cert");
+        logger.info("CAEngine: Checking new CA cert for authority {}", ca.getAuthorityID());
 
         BigInteger authoritySerial = ca.getAuthoritySerial();
-        logger.info("CAEngine: - serial number: " + authoritySerial);
+        logger.debug("CAEngine: - new serial number: {}", authoritySerial == null ? null : "0x" + authoritySerial.toString(16));
 
         if (authoritySerial == null) {
             return;
@@ -1795,6 +1795,8 @@ public class CAEngine extends CMSEngine {
 
         CASigningUnit signingUnit = ca.getSigningUnit();
         X509CertImpl caCertImpl = signingUnit.getCertImpl();
+        logger.debug("CAEngine: - old serial number: 0x{}", caCertImpl.getSerialNumber().toString(16));
+
         if (authoritySerial.equals(caCertImpl.getSerialNumber())) {
             return;
         }
@@ -1805,8 +1807,7 @@ public class CAEngine extends CMSEngine {
         // Note that the new serial number need not be greater,
         // e.g. if random serial numbers are enabled.
         //
-        logger.info("CAEngine: Updating CA cert");
-        logger.info("CAEngine: - serial number: " + authoritySerial);
+        logger.info("CAEngine: Updating CA cert for authority {}", ca.getAuthorityID());
 
         CAEngine engine = CAEngine.getInstance();
         CertificateRepository certificateRepository = engine.getCertificateRepository();
@@ -2469,6 +2470,7 @@ public class CAEngine extends CMSEngine {
 
         Request request = tbsRequest.getRequestAt(0);
         CertID certID = request.getCertID();
+        logger.info("CAEngine: Finding cert 0x{} issuer", certID.getSerialNumber().toString(16));
 
         String digestName = certID.getDigestName();
         byte[] issuerNameHash = certID.getIssuerNameHash().toByteArray();
