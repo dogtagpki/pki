@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.GenericType;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
@@ -49,8 +48,7 @@ public class SecurityDomainClient extends Client {
     }
 
     public Collection<SecurityDomainHost> getHosts() throws Exception {
-        GenericType<Collection<SecurityDomainHost>> responseType = new GenericType<>() {};
-        return get("hosts", null, responseType);
+        return getCollection("hosts", null,  SecurityDomainHost.class);
     }
 
     public SecurityDomainHost getHost(String hostID) throws Exception {

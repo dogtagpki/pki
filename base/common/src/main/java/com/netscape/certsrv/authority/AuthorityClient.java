@@ -17,13 +17,12 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.authority;
 
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -44,18 +43,17 @@ public class AuthorityClient extends Client {
         super(client, subsystem, "authorities");
     }
 
-    public List<AuthorityData> listCAs() throws Exception {
+    public Collection<AuthorityData> listCAs() throws Exception {
         return findCAs(null, null, null, null);
     }
 
-    public List<AuthorityData> findCAs(String id, String parentID, String dn, String issuerDN) throws Exception {
+    public Collection<AuthorityData> findCAs(String id, String parentID, String dn, String issuerDN) throws Exception {
         Map<String, Object> params = new HashMap<>();
         if (id != null) params.put("id", id);
         if (parentID != null) params.put("parentID", parentID);
         if (dn != null) params.put("dn", dn);
         if (issuerDN != null) params.put("issuerDN", issuerDN);
-        GenericType<List<AuthorityData>> type = new GenericType<>() {};
-        return get(null, params, type);
+        return getCollection(null, params, AuthorityData.class);
     }
 
     public AuthorityData getCA(String caIDString) throws Exception {
