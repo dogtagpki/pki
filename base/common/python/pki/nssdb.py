@@ -310,7 +310,6 @@ class NSSDatabase(object):
             text=None,
             runas=False):
 
-        cmd = list(filter(None, cmd))
         logger.debug('Command: %s', ' '.join(cmd))
 
         if runas and self.user is not None:
