@@ -29,7 +29,6 @@ import java.util.Map;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.Response;
 
-import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.rest.base.AuthorityRepository;
 import org.mozilla.jss.netscape.security.util.Utils;
@@ -37,21 +36,15 @@ import org.mozilla.jss.netscape.security.util.Utils;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authority.AuthorityData;
 import com.netscape.certsrv.authority.AuthorityResource;
-import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
-import com.netscape.certsrv.base.ServiceUnavailableException;
-import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CADisabledException;
 import com.netscape.certsrv.ca.CAEnabledException;
-import com.netscape.certsrv.ca.CAMissingCertException;
-import com.netscape.certsrv.ca.CAMissingKeyException;
-import com.netscape.certsrv.ca.CANotFoundException;
 import com.netscape.certsrv.ca.CANotLeafException;
 import com.netscape.certsrv.ca.CATypeException;
 import com.netscape.certsrv.ca.IssuerUnavailableException;
@@ -193,58 +186,10 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
 
     @Override
     public Response createCA(AuthorityData data) {
-
-        logger.info("AuthorityService: Creating authority " + data.getDN());
-
-        String parentAIDString = data.getParentID();
-        AuthorityID parentAID = null;
-        if (AuthorityResource.HOST_AUTHORITY.equals(parentAIDString)) {
-            parentAID = hostCA.getAuthorityID();
-        } else {
-            try {
-                parentAID = new AuthorityID(parentAIDString);
-            } catch (IllegalArgumentException e) {
-                throw new BadRequestException("Bad Authority ID: " + parentAIDString, e);
-            }
-        }
-
-        Map<String, String> auditParams = new LinkedHashMap<>();
-        auditParams.put("dn", data.getDN());
-        if (parentAID != null)
-            auditParams.put("parent", parentAIDString);
-        if (data.getDescription() != null)
-            auditParams.put("description", data.getDescription());
-
-        AuthToken authToken = (AuthToken) SessionContext.getContext().get(SessionContext.AUTH_TOKEN);
-
-        try {
-            CAEngine engine = CAEngine.getInstance();
-            CertificateAuthority subCA = engine.createCA(
-                    parentAID,
-                    authToken,
-                    data.getDN(),
-                    data.getDescription());
-            audit(ILogger.SUCCESS, OpDef.OP_ADD,
-                    subCA.getAuthorityID().toString(), auditParams);
-            return createOKResponse(readAuthorityData(subCA));
-        } catch (IllegalArgumentException | BadRequestDataException e) {
-            throw new BadRequestException(e.toString());
-        } catch (CANotFoundException e) {
-            throw new ResourceNotFoundException(e.toString());
-        } catch (IssuerUnavailableException | CADisabledException e) {
-            auditParams.put("exception", e.toString());
-            audit(ILogger.FAILURE, OpDef.OP_ADD, "<unknown>", auditParams);
-            throw new ConflictingOperationException(e.toString());
-        } catch (CAMissingCertException | CAMissingKeyException e) {
-            logger.error(CMS.getLogMessage("CMSCORE_CA_SIGNING_CERT_NOT_FOUND", e.toString()), e);
-            throw new ServiceUnavailableException(e.toString());
-        } catch (Exception e) {
-            String message = "Error creating CA: " + e.getMessage();
-            logger.error(message, e);
-            auditParams.put("exception", e.toString());
-            audit(ILogger.FAILURE, OpDef.OP_ADD, "<unknown>", auditParams);
-            throw new PKIException(message, e);
-        }
+        CAEngine engine = CAEngine.getInstance();
+        AuthorityRepository authorityRepository = engine.getAuthorityRepository();
+        data = authorityRepository.createCA(data);
+        return createOKResponse(data);
     }
 
     @Override
