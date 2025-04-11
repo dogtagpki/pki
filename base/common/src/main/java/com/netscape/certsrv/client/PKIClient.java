@@ -25,7 +25,6 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.Map;
 
-import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
@@ -45,6 +44,7 @@ import org.dogtagpki.common.Info;
 import org.dogtagpki.common.InfoClient;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 
+import com.netscape.certsrv.base.ClientConnectionException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.base.UnauthorizedException;
@@ -349,7 +349,7 @@ public class PKIClient implements AutoCloseable {
         try {
             httpResp = connection.getHttpClient().execute(httpGET);
         } catch (Exception ex) {
-            throw new ProcessingException(ex);
+            throw new ClientConnectionException(ex);
         }
         return getEntity(httpResp, responseType);
     }

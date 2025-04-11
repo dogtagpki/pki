@@ -58,6 +58,7 @@ import org.mozilla.jss.ssl.SSLSocket;
 import org.mozilla.jss.util.IncorrectPasswordException;
 import org.mozilla.jss.util.Password;
 
+import com.netscape.certsrv.base.ClientConnectionException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ca.CAClient;
 import com.netscape.certsrv.client.ClientConfig;
@@ -703,7 +704,7 @@ public class MainCLI extends CLI {
             // display only the error message
             System.err.println(t.getMessage());
 
-        } else if (t instanceof ProcessingException) {
+        } else if (t instanceof ProcessingException || t instanceof ClientConnectionException) {
             // display the cause of the exception (if available)
             Throwable e = t.getCause();
             if (e == null) e = t;
