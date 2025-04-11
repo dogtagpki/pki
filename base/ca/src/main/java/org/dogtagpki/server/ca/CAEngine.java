@@ -1303,12 +1303,18 @@ public class CAEngine extends CMSEngine {
      * This method DOES NOT add the new CA to CAEngine; it is the
      * caller's responsibility.
      */
-    public CertificateAuthority createCA(
-            CertificateAuthority parentCA,
+    public AuthorityRecord createAuthorityRecord(
+            AuthorityID parentAID,
             AuthToken authToken,
             String subjectDN,
             String description)
             throws Exception {
+
+        CertificateAuthority parentCA = getCA(parentAID);
+
+        if (parentCA == null) {
+            throw new CANotFoundException("Parent CA \"" + parentAID + "\" does not exist");
+        }
 
         parentCA.ensureReady();
 
@@ -1377,26 +1383,12 @@ public class CAEngine extends CMSEngine {
             throw e;
         }
 
-        ca = new CertificateAuthority(
-            subjectX500Name,
-            authorityID,
-            parentCA.getAuthorityID(),
-            cert.getSerialNumber(),
-            keyNickname,
-            record.getKeyHosts(),
-            description,
-            true);
-
-        CAEngineConfig engineConfig = getConfig();
-        CAConfig caConfig = engineConfig.getCAConfig();
-        ca.setCMSEngine(this);
-        ca.init(caConfig);
-        initCA(ca);
-        checkForNewerCert(ca);
+        CertId certID = new CertId(cert.getSerialNumber());
+        record.setSerialNumber(certID);
 
         authorityRepository.updateAuthoritySerialNumber(authorityID, cert.getSerialNumber());
 
-        return ca;
+        return record;
     }
 
     /**
@@ -1413,13 +1405,8 @@ public class CAEngine extends CMSEngine {
             String description)
             throws Exception {
 
-        CertificateAuthority parentCA = getCA(parentAID);
-
-        if (parentCA == null) {
-            throw new CANotFoundException("Parent CA \"" + parentAID + "\" does not exist");
-        }
-
-        CertificateAuthority ca = createCA(parentCA, authToken, subjectDN, description);
+        AuthorityRecord record = createAuthorityRecord(parentAID, authToken, subjectDN, description);
+        CertificateAuthority ca = createCA(record);
         authorityMonitor.authorities.put(ca.getAuthorityID(), ca);
 
         return ca;
