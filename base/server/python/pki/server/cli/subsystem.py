@@ -1157,7 +1157,8 @@ class SubsystemCertExportCLI(pki.cli.CLI):
             else:
                 subsystem_certs = subsystem.find_system_certs()
                 for subsystem_cert in subsystem_certs:
-                    nicknames.append(subsystem_cert['nickname'])
+                    if (subsystem_cert['nickname']):
+                        nicknames.append(subsystem_cert['nickname'])
 
             nssdb = instance.open_nssdb()
             try:
