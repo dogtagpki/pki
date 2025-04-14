@@ -492,7 +492,7 @@ jobs:
               https://ca.example.com:8443
 
       ####################################################################################################
-      # Check Python API against CA that only supports REST API v1
+      # Check PKI server info
 
       - name: Check PKI server info
         run: |
@@ -519,6 +519,42 @@ jobs:
 
           diff expected output
 
+      ####################################################################################################
+      # Check CA cert requests
+
+      - name: Check CA cert requests
+        run: |
+          docker exec client python /usr/share/pki/tests/ca/bin/pki-ca-cert-request-find.py \
+              -U https://ca.example.com:8443 \
+              --ca-bundle $SHARED/certs/ca_signing.crt \
+              --client-cert $SHARED/certs/admin.crt \
+              --client-key $SHARED/certs/admin.key \
+              -v
+
+          sleep 1
+
+          # check HTTP methods, paths, protocols, status, and authenticated users
+          docker exec ca find /var/log/pki/pki-tomcat \
+              -name "localhost_access_log.*" \
+              -exec cat {} \; \
+              | tail -5 \
+              | sed -e 's/^.* .* \(.*\) \[.*\] "\(.*\)" \(.*\) .*$/\2 \3 \1/' \
+              | tee output
+
+          # Python API should use REST API v2 by default
+          cat > expected << EOF
+          GET /pki/v2/info HTTP/1.1 404 -
+          GET /pki/rest/info HTTP/1.1 200 -
+          GET /ca/rest/account/login HTTP/1.1 200 admin
+          GET /ca/rest/agent/certrequests HTTP/1.1 200 admin
+          GET /ca/rest/account/logout HTTP/1.1 204 admin
+          EOF
+
+          diff expected output
+
+      ####################################################################################################
+      # Check CA certs
+
       - name: Check CA certs
         run: |
           docker exec client python /usr/share/pki/tests/ca/bin/pki-ca-cert-find.py \
@@ -542,6 +578,9 @@ jobs:
           GET /pki/rest/info HTTP/1.1 200 -
           POST /ca/rest/certs/search HTTP/1.1 200 -
           EOF
+
+      ####################################################################################################
+      # Check CA users
 
       - name: Check CA users
         run: |
