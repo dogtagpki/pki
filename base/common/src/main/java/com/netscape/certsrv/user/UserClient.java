@@ -20,7 +20,7 @@ package com.netscape.certsrv.user;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.ws.rs.client.Entity;
+import org.apache.http.HttpEntity;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
@@ -52,12 +52,12 @@ public class UserClient extends Client {
     }
 
     public UserData addUser(UserData userData) throws Exception {
-        Entity<UserData> entity = client.entity(userData);
+        HttpEntity entity = client.entity(userData);
         return post(null, null, entity, UserData.class);
     }
 
     public UserData modifyUser(String userID, UserData userData) throws Exception {
-        Entity<UserData> entity = client.entity(userData);
+        HttpEntity entity = client.entity(userData);
         return patch(userID, null, entity, UserData.class);
     }
 
@@ -77,7 +77,7 @@ public class UserClient extends Client {
     }
 
     public UserCertData addUserCert(String userID, UserCertData userCertData) throws Exception {
-        Entity<UserCertData> entity = client.entity(userCertData);
+        HttpEntity entity = client.entity(userCertData);
         return post(userID + "/certs", null, entity, UserCertData.class);
     }
 
@@ -94,7 +94,7 @@ public class UserClient extends Client {
     }
 
     public UserMembershipData addUserMembership(String userID, String groupID) throws Exception {
-        Entity<String> entity = client.entity(groupID);
+        HttpEntity entity = client.entity(groupID);
         return post(userID + "/memberships", null, entity, UserMembershipData.class);
     }
 

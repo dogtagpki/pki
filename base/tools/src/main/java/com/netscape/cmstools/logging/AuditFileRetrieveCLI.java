@@ -18,13 +18,12 @@
 
 package com.netscape.cmstools.logging;
 
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-
-import javax.ws.rs.core.StreamingOutput;
+import java.io.File;
+import java.io.InputStream;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.apache.commons.io.FileUtils;
 import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.logging.AuditClient;
@@ -76,10 +75,8 @@ public class AuditFileRetrieveCLI extends CommandCLI {
         mainCLI.init();
 
         AuditClient auditClient = auditCLI.getAuditClient();
-        StreamingOutput so = auditClient.getAuditFile(filename);
-
-        try (OutputStream out = new FileOutputStream(output)) {
-            so.write(out);
-        }
+        InputStream is = auditClient.getAuditFile(filename);
+        File outputFile = new File(output);
+        FileUtils.copyInputStreamToFile(is, outputFile);
     }
 }

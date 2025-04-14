@@ -21,11 +21,15 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHeaders;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+
+import com.netscape.certsrv.base.ClientConnectionException;
+import com.netscape.certsrv.base.MediaType;
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
@@ -62,18 +66,24 @@ public class AuthorityClient extends Client {
 
     public String getChainPEM(String caIDString) throws Exception {
         WebTarget target = target(caIDString + "/chain", null);
-        MediaType mediaType = MediaType.valueOf("application/x-pem-file");
-        Response response = target.request(mediaType).get();
-        return client.getEntity(response, String.class);
+        HttpGet httpGET = new HttpGet(target.getUri());
+        httpGET.addHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_X_PEM_FILE);
+        CloseableHttpResponse httpResp = null;
+        try {
+            httpResp = client.getConnection().getHttpClient().execute(httpGET);
+        } catch (Exception ex) {
+            throw new ClientConnectionException(ex);
+        }
+        return client.getEntity(httpResp, String.class);
     }
 
     public AuthorityData createCA(AuthorityData data) throws Exception {
-        Entity<AuthorityData> entity = client.entity(data);
+        HttpEntity entity = client.entity(data);
         return post(null, null, entity, AuthorityData.class);
     }
 
     public AuthorityData modifyCA(AuthorityData data) throws Exception {
-        Entity<AuthorityData> entity = client.entity(data);
+        HttpEntity entity = client.entity(data);
         return put(data.getID(), null, entity, AuthorityData.class);
     }
 

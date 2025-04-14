@@ -20,7 +20,7 @@ package com.netscape.certsrv.tps.connector;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.ws.rs.client.Entity;
+import org.apache.http.HttpEntity;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
@@ -47,12 +47,12 @@ public class ConnectorClient extends Client {
     }
 
     public ConnectorData addConnector(ConnectorData connectorData) throws Exception {
-        Entity<ConnectorData> entity = client.entity(connectorData);
+        HttpEntity entity = client.entity(connectorData);
         return post(null, null, entity, ConnectorData.class);
     }
 
     public ConnectorData updateConnector(String connectorID, ConnectorData connectorData) throws Exception {
-        Entity<ConnectorData> entity = client.entity(connectorData);
+        HttpEntity entity = client.entity(connectorData);
         return patch(connectorID, null, entity, ConnectorData.class);
     }
 

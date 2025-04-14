@@ -21,8 +21,9 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
+
+import org.apache.http.HttpEntity;
 
 /**
  * @author Endi S. Dewata
@@ -131,17 +132,17 @@ public class Client {
         return post(suffix, params, null, responseType);
     }
 
-    public <T> T post(String suffix, Map<String, Object> params, Entity<?> entity, Class<T> responseType) throws Exception {
+    public <T> T post(String suffix, Map<String, Object> params, HttpEntity entity, Class<T> responseType) throws Exception {
         String path = getTargetPath(suffix);
         return client.post(path, params, entity, responseType);
     }
 
-    public <T> T put(String suffix, Map<String, Object> params, Entity<?> entity, Class<T> responseType) throws Exception {
+    public <T> T put(String suffix, Map<String, Object> params, HttpEntity entity, Class<T> responseType) throws Exception {
         String path = getTargetPath(suffix);
         return client.put(path, params, entity, responseType);
     }
 
-    public <T> T patch(String suffix, Map<String, Object> params, Entity<?> entity, Class<T> responseType) throws Exception {
+    public <T> T patch(String suffix, Map<String, Object> params, HttpEntity entity, Class<T> responseType) throws Exception {
         String path = getTargetPath(suffix);
         return client.patch(path, params, entity, responseType);
     }

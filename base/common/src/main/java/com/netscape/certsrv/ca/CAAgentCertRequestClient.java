@@ -20,8 +20,7 @@ package com.netscape.certsrv.ca;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.ws.rs.client.Entity;
-
+import org.apache.http.HttpEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,37 +57,37 @@ public class CAAgentCertRequestClient extends Client {
     }
 
     public void approveRequest(RequestId id, CertReviewResponse data) throws Exception {
-        Entity<CertReviewResponse> entity = client.entity(data);
+        HttpEntity entity = client.entity(data);
         post(id.toHexString() + "/approve", null, entity, Void.class);
     }
 
     public void rejectRequest(RequestId id, CertReviewResponse data) throws Exception {
-        Entity<CertReviewResponse> entity = client.entity(data);
+        HttpEntity entity = client.entity(data);
         post(id.toHexString() + "/reject", null, entity, Void.class);
     }
 
     public void cancelRequest(RequestId id, CertReviewResponse data) throws Exception {
-        Entity<CertReviewResponse> entity = client.entity(data);
+        HttpEntity entity = client.entity(data);
         post(id.toHexString() + "/cancel", null, entity, Void.class);
     }
 
     public void updateRequest(RequestId id, CertReviewResponse data) throws Exception {
-        Entity<CertReviewResponse> entity = client.entity(data);
+        HttpEntity entity = client.entity(data);
         post(id.toHexString() + "/update", null, entity, Void.class);
     }
 
     public void validateRequest(RequestId id, CertReviewResponse data) throws Exception {
-        Entity<CertReviewResponse> entity = client.entity(data);
+        HttpEntity entity = client.entity(data);
         post(id.toHexString() + "/validate", null, entity, Void.class);
     }
 
     public void assignRequest(RequestId id, CertReviewResponse data) throws Exception {
-        Entity<CertReviewResponse> entity = client.entity(data);
+        HttpEntity entity = client.entity(data);
         post(id.toHexString() + "/assign", null, entity, Void.class);
     }
 
     public void unassignRequest(RequestId id, CertReviewResponse data) throws Exception {
-        Entity<CertReviewResponse> entity = client.entity(data);
+        HttpEntity entity = client.entity(data);
         post(id.toHexString() + "/unassign", null, entity, Void.class);
     }
 }

@@ -19,13 +19,14 @@ package org.dogtagpki.common;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
-
+import org.apache.http.HttpEntity;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -60,12 +61,12 @@ public class ConfigClient extends Client {
 
         logger.info("Getting configuration properties");
 
-        MultivaluedMap<String, String> content = new MultivaluedHashMap<>();
-        content.putSingle("op", "get");
-        content.putSingle("names", names);
-        content.putSingle("substores", substores);
-        content.putSingle("xmlOutput", "true");
-        content.putSingle("sessionID", sessionID);
+        List<NameValuePair> content = new ArrayList<>();
+        content.add(new BasicNameValuePair("op", "get"));
+        content.add(new BasicNameValuePair("names", names));
+        content.add(new BasicNameValuePair("substores", substores));
+        content.add(new BasicNameValuePair("xmlOutput", "true"));
+        content.add(new BasicNameValuePair("sessionID", sessionID));
 
         String response = client.post(
                 subsystem + "/admin/" + subsystem + "/getConfigEntries",
@@ -133,7 +134,7 @@ public class ConfigClient extends Client {
     }
 
     public ConfigData updateConfig(ConfigData configData) throws Exception {
-        Entity<ConfigData> entity = client.entity(configData);
+        HttpEntity entity = client.entity(configData);
         return patch(null, null, entity, ConfigData.class);
     }
 }

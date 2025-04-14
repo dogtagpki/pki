@@ -17,15 +17,19 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.logging;
 
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHeaders;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+
+import com.netscape.certsrv.base.ClientConnectionException;
+import com.netscape.certsrv.base.MediaType;
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
 
@@ -43,7 +47,7 @@ public class AuditClient extends Client {
     }
 
     public AuditConfig updateAuditConfig(AuditConfig auditConfig) throws Exception {
-        Entity<AuditConfig> entity = client.entity(auditConfig);
+        HttpEntity entity = client.entity(auditConfig);
         return patch(null, null, entity, AuditConfig.class);
     }
 
@@ -57,9 +61,17 @@ public class AuditClient extends Client {
         return get("files", AuditFileCollection.class);
     }
 
-    public StreamingOutput getAuditFile(String filename) throws Exception {
+    public InputStream getAuditFile(String filename) throws Exception {
         WebTarget target = target("files/" + filename, null);
-        Response response = target.request(MediaType.APPLICATION_OCTET_STREAM).get();
-        return client.getEntity(response, StreamingOutput.class);
+        HttpGet httpGET = new HttpGet(target.getUri());
+        httpGET.addHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_OCTET_STREAM);
+        CloseableHttpResponse httpResp = null;
+        try {
+            httpResp = client.getConnection().getHttpClient().execute(httpGET);
+        } catch (Exception ex) {
+            throw new ClientConnectionException(ex);
+        }
+        HttpEntity entity = httpResp.getEntity();
+        return entity.getContent();
     }
 }

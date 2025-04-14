@@ -20,8 +20,7 @@ package com.netscape.certsrv.ca;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.ws.rs.client.Entity;
-
+import org.apache.http.HttpEntity;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,8 +53,7 @@ public class CACertRequestClient extends Client {
         Map<String, Object> params = new HashMap<>();
         if (aid != null) params.put("issuer-id", aid.toString());
         if (adn != null) params.put("issuer-dn", adn.toLdapDNString());
-        String enrollmentRequest = (String) client.marshall(data);
-        Entity<String> entity = client.entity(enrollmentRequest);
+        HttpEntity entity = client.entity(data);
         return post(null, params, entity, CertRequestInfos.class);
     }
 

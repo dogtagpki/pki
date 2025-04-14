@@ -17,8 +17,7 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.ca;
 
-import javax.ws.rs.client.Entity;
-
+import org.apache.http.HttpEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,12 +44,12 @@ public class CAAgentCertClient extends Client {
     }
 
     public CertRequestInfo revokeCert(CertId id, CertRevokeRequest request) throws Exception {
-        Entity<CertRevokeRequest> entity = client.entity(request);
+        HttpEntity entity = client.entity(request);
         return post(id.toHexString() + "/revoke", null, entity, CertRequestInfo.class);
     }
 
     public CertRequestInfo revokeCACert(CertId id, CertRevokeRequest request) throws Exception {
-        Entity<CertRevokeRequest> entity = client.entity(request);
+        HttpEntity entity = client.entity(request);
         return post(id.toHexString() + "/revoke-ca", null, entity, CertRequestInfo.class);
     }
 
