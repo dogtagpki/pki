@@ -98,7 +98,7 @@ jobs:
              -nocerts
 
       ####################################################################################################
-      # Check Python API
+      # Check PKI server info
 
       - name: Check PKI server info
         run: |
@@ -146,6 +146,70 @@ jobs:
           cat > expected << EOF
           GET /pki/v1/info HTTP/1.1 200 -
           EOF
+
+      ####################################################################################################
+      # Check CA cert requests
+
+      - name: Check CA cert requests
+        run: |
+          docker exec pki python /usr/share/pki/tests/ca/bin/pki-ca-cert-request-find.py \
+              -U https://pki.example.com:8443 \
+              --ca-bundle $SHARED/ca_signing.crt \
+              --client-cert admin.crt \
+              --client-key admin.key \
+              -v
+
+          sleep 1
+
+          # check HTTP methods, paths, protocols, status, and authenticated users
+          docker exec pki find /var/log/pki/pki-tomcat \
+              -name "localhost_access_log.*" \
+              -exec cat {} \; \
+              | tail -4 \
+              | sed -e 's/^.* .* \(.*\) \[.*\] "\(.*\)" \(.*\) .*$/\2 \3 \1/' \
+              | tee output
+
+          # Python API should use REST API v2 by default
+          cat > expected << EOF
+          GET /pki/v2/info HTTP/1.1 200 -
+          GET /ca/v2/account/login HTTP/1.1 200 caadmin
+          GET /ca/v2/agent/certrequests HTTP/1.1 200 caadmin
+          GET /ca/v2/account/logout HTTP/1.1 204 caadmin
+          EOF
+
+          diff expected output
+
+      - name: Check CA cert requests with REST API v1
+        run: |
+          docker exec pki python /usr/share/pki/tests/ca/bin/pki-ca-cert-request-find.py \
+              -U https://pki.example.com:8443 \
+              --ca-bundle $SHARED/ca_signing.crt \
+              --client-cert admin.crt \
+              --client-key admin.key \
+              --api v1 \
+              -v
+
+          sleep 1
+
+          # check HTTP methods, paths, protocols, status, and authenticated users
+          docker exec pki find /var/log/pki/pki-tomcat \
+              -name "localhost_access_log.*" \
+              -exec cat {} \; \
+              | tail -3 \
+              | sed -e 's/^.* .* \(.*\) \[.*\] "\(.*\)" \(.*\) .*$/\2 \3 \1/' \
+              | tee output
+
+          # Python API should use REST API v1 as specified
+          cat > expected << EOF
+          GET /ca/v1/account/login HTTP/1.1 200 caadmin
+          GET /ca/v1/agent/certrequests HTTP/1.1 200 caadmin
+          GET /ca/v1/account/logout HTTP/1.1 204 caadmin
+          EOF
+
+          diff expected output
+
+      ####################################################################################################
+      # Check CA certs
 
       - name: Check CA certs
         run: |
@@ -196,6 +260,9 @@ jobs:
           EOF
 
           diff expected output
+
+      ####################################################################################################
+      # Check CA users
 
       - name: Check CA users
         run: |

@@ -837,6 +837,16 @@ class CertClient(object):
         Returns a CertRequestInfoCollection object.
         """
 
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/agent/certrequests' % api_path
+
+        if not self.connection.subsystem:
+            path = '/ca' + path
+
         query_params = {
             'requestStatus': request_status,
             'requestType': request_type,
@@ -845,8 +855,9 @@ class CertClient(object):
             'maxResults': max_results,
             'maxTime': max_time
         }
+
         response = self.connection.get(
-            self.agent_cert_requests_url,
+            path,
             self.headers,
             query_params)
 
