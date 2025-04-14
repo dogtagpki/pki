@@ -20,9 +20,11 @@ package com.netscape.certsrv.tks;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.netscape.certsrv.authentication.EAuthException;
@@ -54,13 +56,13 @@ public class TKSClient extends SubsystemClient {
             String transportCert,
             String sessionID) throws Exception {
 
-        MultivaluedMap<String, String> content = new MultivaluedHashMap<>();
-        content.putSingle("name", transportNickname);
-        content.putSingle("xmlOutput", "true");
-        content.putSingle("sessionID", sessionID);
-        content.putSingle("auth_hostname", secdomainURI.getHost());
-        content.putSingle("auth_port", secdomainURI.getPort() + "");
-        content.putSingle("certificate", transportCert);
+        List<NameValuePair> content = new ArrayList<>();
+        content.add(new BasicNameValuePair("name", transportNickname));
+        content.add(new BasicNameValuePair("xmlOutput", "true"));
+        content.add(new BasicNameValuePair("sessionID", sessionID));
+        content.add(new BasicNameValuePair("auth_hostname", secdomainURI.getHost()));
+        content.add(new BasicNameValuePair("auth_port", secdomainURI.getPort() + ""));
+        content.add(new BasicNameValuePair("certificate", transportCert));
 
         String path = "tks/admin/tks/importTransportCert";
         String response = client.post(path, content, String.class);

@@ -18,13 +18,14 @@
 package com.netscape.cms.authentication;
 
 import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Locale;
 import java.util.Vector;
 
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
-
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthManagerConfig;
 import org.dogtagpki.server.authentication.AuthToken;
@@ -127,9 +128,9 @@ public class TokenAuthentication extends AuthManager {
         String authURL = "https://" + authHost + ":" + authAdminPort + "/" + authPath;
         logger.info("TokenAuthentication: Authenticating session ID against security domain at " + authURL);
 
-        MultivaluedMap<String, String> content = new MultivaluedHashMap<>();
-        content.putSingle(CRED_SESSION_ID, sessionId);
-        content.putSingle("hostname", givenHost);
+        List<NameValuePair> content = new ArrayList<>();
+        content.add(new BasicNameValuePair(CRED_SESSION_ID, sessionId));
+        content.add(new BasicNameValuePair("hostname", givenHost));
         logger.debug("TokenAuthentication: content: " + content);
 
         String c = null;
@@ -192,7 +193,7 @@ public class TokenAuthentication extends AuthManager {
         return authToken;
     }
 
-    private String sendAuthRequest(String authHost, int authPort, String authUrl, MultivaluedMap<String, String> content)
+    private String sendAuthRequest(String authHost, int authPort, String authUrl, List<NameValuePair> content)
             throws Exception {
 
         String serverURL = "https://" + authHost + ":" + authPort;

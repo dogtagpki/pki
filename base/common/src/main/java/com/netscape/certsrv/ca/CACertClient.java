@@ -19,13 +19,14 @@ package com.netscape.certsrv.ca;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
-
+import org.apache.http.HttpEntity;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.slf4j.Logger;
@@ -97,8 +98,7 @@ public class CACertClient extends Client {
         Map<String, Object> params = new HashMap<>();
         if (start != null) params.put("start", start);
         if (size != null) params.put("size", size);
-        String searchRequest = (String) client.marshall(data);
-        Entity<String> entity = client.entity(searchRequest);
+        HttpEntity entity = client.entity(data);
         return post("search", params, entity, CertDataInfos.class);
     }
 
@@ -179,16 +179,16 @@ public class CACertClient extends Client {
             String requestor,
             String sessionID) throws Exception {
 
-        MultivaluedMap<String, String> content = new MultivaluedHashMap<>();
-        content.putSingle("cert_request_type", certRequestType);
-        content.putSingle("cert_request", certRequest);
-        content.putSingle("renewal", String.valueOf(renewal));
-        content.putSingle("xmlOutput", "true");
-        content.putSingle("profileId", profileID);
-        content.putSingle("sessionID", sessionID);
+        List<NameValuePair> content = new ArrayList<>();
+        content.add(new BasicNameValuePair("cert_request_type", certRequestType));
+        content.add(new BasicNameValuePair("cert_request", certRequest));
+        content.add(new BasicNameValuePair("renewal", String.valueOf(renewal)));
+        content.add(new BasicNameValuePair("xmlOutput", "true"));
+        content.add(new BasicNameValuePair("profileId", profileID));
+        content.add(new BasicNameValuePair("sessionID", sessionID));
 
         if (subjectDN != null) {
-            content.putSingle("subject", subjectDN);
+            content.add(new BasicNameValuePair("subject", subjectDN));
         }
 
         if (dnsNames != null) {
@@ -211,18 +211,18 @@ public class CACertClient extends Client {
             //
             int i = 0;
             for (String dnsName : dnsNames) {
-                content.putSingle("req_san_pattern_" + i, dnsName);
+                content.add(new BasicNameValuePair("req_san_pattern_" + i, dnsName));
                 i++;
             }
-            content.putSingle("req_san_entries", "" + i);
+            content.add(new BasicNameValuePair("req_san_entries", "" + i));
         }
 
         if (username != null) {
-            content.putSingle("uid", username);
+            content.add(new BasicNameValuePair("uid", username));
         }
 
         if (requestor != null) {
-            content.putSingle("requestor_name", requestor);
+            content.add(new BasicNameValuePair("requestor_name", requestor));
         }
 
         String response = client.post("ca/ee/ca/profileSubmit", content, String.class);

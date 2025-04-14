@@ -8,13 +8,14 @@ package com.netscape.cmstools.system;
 import java.io.ByteArrayInputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.client.PKIClient;
@@ -108,23 +109,23 @@ public class SecurityDomainJoinCLI extends CommandCLI {
         boolean domainManager = cmd.hasOption("domain-manager");
         boolean clone = cmd.hasOption("clone");
 
-        MultivaluedMap<String, String> content = new MultivaluedHashMap<>();
-        content.putSingle("sessionID", sessionID);
-        content.putSingle("list", type + "List");
-        content.putSingle("type", type);
-        content.putSingle("name", hostID);
-        content.putSingle("host", hostname);
+        List<NameValuePair> content = new ArrayList<>();
+        content.add(new BasicNameValuePair("sessionID", sessionID));
+        content.add(new BasicNameValuePair("list", type + "List"));
+        content.add(new BasicNameValuePair("type", type));
+        content.add(new BasicNameValuePair("name", hostID));
+        content.add(new BasicNameValuePair("host", hostname));
 
         if (unsecurePort != null) {
-            content.putSingle("httpport", unsecurePort);
+            content.add(new BasicNameValuePair("httpport", unsecurePort));
         }
 
-        content.putSingle("sport", securePort);
-        content.putSingle("agentsport", securePort);
-        content.putSingle("adminsport", securePort);
-        content.putSingle("eeclientauthsport", securePort);
-        content.putSingle("dm", domainManager ? "true" : "false");
-        content.putSingle("clone", clone ? "true" : "false");
+        content.add(new BasicNameValuePair("sport", securePort));
+        content.add(new BasicNameValuePair("agentsport", securePort));
+        content.add(new BasicNameValuePair("adminsport", securePort));
+        content.add(new BasicNameValuePair("eeclientauthsport", securePort));
+        content.add(new BasicNameValuePair("dm", domainManager ? "true" : "false"));
+        content.add(new BasicNameValuePair("clone", clone ? "true" : "false"));
 
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();

@@ -20,7 +20,7 @@ package com.netscape.certsrv.group;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.ws.rs.client.Entity;
+import org.apache.http.HttpEntity;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
@@ -52,12 +52,12 @@ public class GroupClient extends Client {
     }
 
     public GroupData addGroup(GroupData groupData) throws Exception {
-        Entity<GroupData> entity = client.entity(groupData);
+        HttpEntity entity = client.entity(groupData);
         return post(null, null, entity, GroupData.class);
     }
 
     public GroupData modifyGroup(String groupID, GroupData groupData) throws Exception {
-        Entity<GroupData> entity = client.entity(groupData);
+        HttpEntity entity = client.entity(groupData);
         return patch(groupID, null, entity, GroupData.class);
     }
 
@@ -84,7 +84,7 @@ public class GroupClient extends Client {
     public GroupMemberData addGroupMember(String groupID, String memberID) throws Exception {
         GroupMemberData data = new GroupMemberData();
         data.setID(memberID);
-        Entity<GroupMemberData> entity = client.entity(data);
+        HttpEntity entity = client.entity(data);
         return post(groupID + "/members", null, entity, GroupMemberData.class);
     }
 

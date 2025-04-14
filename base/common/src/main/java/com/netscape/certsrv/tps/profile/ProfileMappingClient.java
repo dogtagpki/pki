@@ -20,7 +20,7 @@ package com.netscape.certsrv.tps.profile;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.ws.rs.client.Entity;
+import org.apache.http.HttpEntity;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
@@ -47,12 +47,12 @@ public class ProfileMappingClient extends Client {
     }
 
     public ProfileMappingData addProfileMapping(ProfileMappingData profileMappingData) throws Exception {
-        Entity<ProfileMappingData> entity = client.entity(profileMappingData);
+        HttpEntity entity = client.entity(profileMappingData);
         return post(null, null, entity, ProfileMappingData.class);
     }
 
     public ProfileMappingData updateProfileMapping(String profileMappingID, ProfileMappingData profileMappingData) throws Exception {
-        Entity<ProfileMappingData> entity = client.entity(profileMappingData);
+        HttpEntity entity = client.entity(profileMappingData);
         return patch(profileMappingID, null, entity, ProfileMappingData.class);
     }
 

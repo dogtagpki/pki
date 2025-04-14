@@ -20,7 +20,7 @@ package com.netscape.certsrv.profile;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.ws.rs.client.Entity;
+import org.apache.http.HttpEntity;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
@@ -65,24 +65,22 @@ public class ProfileClient extends Client {
     }
 
     public ProfileData createProfile(ProfileData data) throws Exception {
-        String createProfileRequest = (String) client.marshall(data);
-        Entity<String> entity = client.entity(createProfileRequest);
+        HttpEntity entity = client.entity(data);
         return post(null, null, entity, ProfileData.class);
     }
 
     public byte[] createProfileRaw(byte[] properties) throws Exception {
-        Entity<byte[]> entity = client.entity(properties);
+        HttpEntity entity = client.entity(properties);
         return post("raw", null, entity, byte[].class);
     }
 
     public ProfileData modifyProfile(ProfileData data) throws Exception {
-        String modifyProfileRequest = (String) client.marshall(data);
-        Entity<String> entity = client.entity(modifyProfileRequest);
+        HttpEntity entity = client.entity(data);
         return put(data.getId(), null, entity, ProfileData.class);
     }
 
     public byte[] modifyProfileRaw(String profileId, byte[] properties) throws Exception {
-        Entity<byte[]> entity = client.entity(properties);
+        HttpEntity entity = client.entity(properties);
         return put(profileId + "/raw", null, entity, byte[].class);
     }
 

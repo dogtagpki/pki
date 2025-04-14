@@ -20,16 +20,18 @@ package com.netscape.certsrv.client;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.message.BasicNameValuePair;
 import org.dogtagpki.common.Range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,10 +109,10 @@ public class SubsystemClient extends Client {
 
         logger.info("Requesting " + type + " range");
 
-        MultivaluedMap<String, String> content = new MultivaluedHashMap<>();
-        content.putSingle("type", type);
-        content.putSingle("xmlOutput", "true");
-        content.putSingle("sessionID", sessionID);
+        List<NameValuePair> content = new ArrayList<>();
+        content.add(new BasicNameValuePair("type", type));
+        content.add(new BasicNameValuePair("xmlOutput", "true"));
+        content.add(new BasicNameValuePair("sessionID", sessionID));
 
         String response = client.post(
                 name + "/admin/" + name + "/updateNumberRange",
@@ -196,14 +198,14 @@ public class SubsystemClient extends Client {
             String subsystemCert,
             String sessionId) throws Exception {
 
-        MultivaluedMap<String, String> content = new MultivaluedHashMap<>();
-        content.putSingle("uid", uid);
-        content.putSingle("xmlOutput", "true");
-        content.putSingle("sessionID", sessionId);
-        content.putSingle("auth_hostname", secdomainURI.getHost());
-        content.putSingle("auth_port", secdomainURI.getPort() + "");
-        content.putSingle("certificate", subsystemCert);
-        content.putSingle("name", subsystemName);
+        List<NameValuePair> content = new ArrayList<>();
+        content.add(new BasicNameValuePair("uid", uid));
+        content.add(new BasicNameValuePair("xmlOutput", "true"));
+        content.add(new BasicNameValuePair("sessionID", sessionId));
+        content.add(new BasicNameValuePair("auth_hostname", secdomainURI.getHost()));
+        content.add(new BasicNameValuePair("auth_port", secdomainURI.getPort() + ""));
+        content.add(new BasicNameValuePair("certificate", subsystemCert));
+        content.add(new BasicNameValuePair("name", subsystemName));
 
         String path = name + "/admin/" + name + "/registerUser";
         String response = client.post(path, content, String.class);

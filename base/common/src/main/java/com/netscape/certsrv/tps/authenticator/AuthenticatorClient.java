@@ -20,7 +20,7 @@ package com.netscape.certsrv.tps.authenticator;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.ws.rs.client.Entity;
+import org.apache.http.HttpEntity;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
@@ -47,12 +47,12 @@ public class AuthenticatorClient extends Client {
     }
 
     public AuthenticatorData addAuthenticator(AuthenticatorData authenticatorData) throws Exception {
-        Entity<AuthenticatorData> entity = client.entity(authenticatorData);
+        HttpEntity entity = client.entity(authenticatorData);
         return post(null, null, entity, AuthenticatorData.class);
     }
 
     public AuthenticatorData updateAuthenticator(String authenticatorID, AuthenticatorData authenticatorData) throws Exception {
-        Entity<AuthenticatorData> entity = client.entity(authenticatorData);
+        HttpEntity entity = client.entity(authenticatorData);
         return patch(authenticatorID, null, entity, AuthenticatorData.class);
     }
 

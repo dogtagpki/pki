@@ -6,13 +6,14 @@
 package com.netscape.cmstools.system;
 
 import java.io.ByteArrayInputStream;
-
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 import org.dogtagpki.cli.CLIException;
 import org.dogtagpki.cli.CommandCLI;
 
@@ -76,12 +77,12 @@ public class SecurityDomainLeaveCLI extends CommandCLI {
 
         String securePort = cmd.getOptionValue("secure-port", "8443");
 
-        MultivaluedMap<String, String> content = new MultivaluedHashMap<>();
-        content.putSingle("type", type);
-        content.putSingle("name", hostID);
-        content.putSingle("host", hostname);
-        content.putSingle("sport", securePort);
-        content.putSingle("operation", "remove");
+        List<NameValuePair> content = new ArrayList<>();
+        content.add(new BasicNameValuePair("type", type));
+        content.add(new BasicNameValuePair("name", hostID));
+        content.add(new BasicNameValuePair("host", hostname));
+        content.add(new BasicNameValuePair("sport", securePort));
+        content.add(new BasicNameValuePair("operation", "remove"));
 
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();

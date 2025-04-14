@@ -21,7 +21,7 @@ package com.netscape.certsrv.system;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.ws.rs.client.Entity;
+import org.apache.http.HttpEntity;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
@@ -36,7 +36,7 @@ public class KRAConnectorClient extends Client {
     }
 
     public void addConnector(KRAConnectorInfo info) throws Exception {
-        Entity<KRAConnectorInfo> entity = client.entity(info);
+        HttpEntity entity = client.entity(info);
         post("add", null, entity, Void.class);
     }
 

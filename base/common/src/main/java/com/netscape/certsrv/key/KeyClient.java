@@ -25,8 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.client.Entity;
-
+import org.apache.http.HttpEntity;
 import org.dogtagpki.common.Info;
 import org.dogtagpki.common.Version;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
@@ -387,7 +386,7 @@ public class KeyClient extends Client {
 
         logger.info("Submitting key retrieval request to KRA");
 
-        Entity<KeyRecoveryRequest> entity = client.entity(data);
+        HttpEntity entity = client.entity(data);
         return post("retrieve", null, entity, KeyData.class);
     }
 

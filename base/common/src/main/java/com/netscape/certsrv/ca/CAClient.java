@@ -20,10 +20,11 @@ package com.netscape.certsrv.ca;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
-
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,17 +92,17 @@ public class CAClient extends SubsystemClient {
 
     public void addKRAConnector(KRAConnectorInfo info, String sessionID) throws Exception {
 
-        MultivaluedMap<String, String> content = new MultivaluedHashMap<>();
-        content.putSingle("ca.connector.KRA.enable", info.getEnable());
-        content.putSingle("ca.connector.KRA.local", info.getLocal());
-        content.putSingle("ca.connector.KRA.timeout", info.getTimeout());
-        content.putSingle("ca.connector.KRA.uri", info.getUri());
-        content.putSingle("ca.connector.KRA.host", info.getHost());
-        content.putSingle("ca.connector.KRA.port", info.getPort());
-        content.putSingle("ca.connector.KRA.subsystemCert", info.getSubsystemCert());
-        content.putSingle("ca.connector.KRA.transportCert", info.getTransportCert());
-        content.putSingle("ca.connector.KRA.transportCertNickname", info.getTransportCertNickname());
-        content.putSingle("sessionID", sessionID);
+        List<NameValuePair> content = new ArrayList<>();
+        content.add(new BasicNameValuePair("ca.connector.KRA.enable", info.getEnable()));
+        content.add(new BasicNameValuePair("ca.connector.KRA.local", info.getLocal()));
+        content.add(new BasicNameValuePair("ca.connector.KRA.timeout", info.getTimeout()));
+        content.add(new BasicNameValuePair("ca.connector.KRA.uri", info.getUri()));
+        content.add(new BasicNameValuePair("ca.connector.KRA.host", info.getHost()));
+        content.add(new BasicNameValuePair("ca.connector.KRA.port", info.getPort()));
+        content.add(new BasicNameValuePair("ca.connector.KRA.subsystemCert", info.getSubsystemCert()));
+        content.add(new BasicNameValuePair("ca.connector.KRA.transportCert", info.getTransportCert()));
+        content.add(new BasicNameValuePair("ca.connector.KRA.transportCertNickname", info.getTransportCertNickname()));
+        content.add(new BasicNameValuePair("sessionID", sessionID));
         logger.debug("CAClient: content: " + content);
 
         String response = client.post("ca/admin/ca/updateConnector", content, String.class);
@@ -134,12 +135,12 @@ public class CAClient extends SubsystemClient {
 
     public void addOCSPPublisher(URL url, String subsystemCert, String sessionID) throws Exception {
 
-        MultivaluedMap<String, String> content = new MultivaluedHashMap<>();
-        content.putSingle("xmlOutput", "true");
-        content.putSingle("ocsp_host", url.getHost());
-        content.putSingle("ocsp_port", url.getPort() + "");
-        content.putSingle("subsystemCert", subsystemCert);
-        content.putSingle("sessionID", sessionID);
+        List<NameValuePair> content = new ArrayList<>();
+        content.add(new BasicNameValuePair("xmlOutput", "true"));
+        content.add(new BasicNameValuePair("ocsp_host", url.getHost()));
+        content.add(new BasicNameValuePair("ocsp_port", url.getPort() + ""));
+        content.add(new BasicNameValuePair("subsystemCert", subsystemCert));
+        content.add(new BasicNameValuePair("sessionID", sessionID));
         logger.debug("CAClient: content: " + content);
 
         String response = client.post("ca/ee/ca/updateOCSPConfig", content, String.class);

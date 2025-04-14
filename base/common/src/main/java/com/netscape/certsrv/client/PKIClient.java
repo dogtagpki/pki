@@ -25,23 +25,26 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status.Family;
-import javax.ws.rs.core.Response.StatusType;
 
+import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
+import org.apache.http.NameValuePair;
 import org.apache.http.StatusLine;
+import org.apache.http.client.entity.EntityBuilder;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPatch;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.entity.ContentType;
 import org.apache.http.util.EntityUtils;
 import org.dogtagpki.common.Info;
 import org.dogtagpki.common.InfoClient;
@@ -109,18 +112,18 @@ public class PKIClient implements AutoCloseable {
     /**
     * Marshall request object with custom mapping if available.
     */
-   public Object marshall(Object request) throws Exception {
+   public String marshall(Object request) throws Exception {
 
        Class<?> clazz = request.getClass();
-
+       Object result = null;
        try {
            if (MediaType.APPLICATION_XML_TYPE.isCompatible(messageFormat)) {
                Method method = clazz.getMethod("toXML");
-               request = method.invoke(request);
+               result = method.invoke(request);
 
            } else if (MediaType.APPLICATION_JSON_TYPE.isCompatible(messageFormat)) {
                Method method = clazz.getMethod("toJSON");
-               request = method.invoke(request);
+               result = method.invoke(request);
 
            } else {
                throw new Exception("Unsupported request format: " + messageFormat);
@@ -134,7 +137,10 @@ public class PKIClient implements AutoCloseable {
            throw e;
        }
 
-       return request;
+       if (result instanceof String res) {
+           return res;
+       }
+       return null;
    }
 
     /**
@@ -147,8 +153,15 @@ public class PKIClient implements AutoCloseable {
         }
 
         String response = EntityUtils.toString(entity);
+        if (response == null || response.isBlank()) {
+            return null;
+        }
+
         if (clazz.isInstance(response)) {
             return clazz.cast(response);
+        }
+        if (clazz.isInstance(response.getBytes())) {
+            return clazz.cast(response.getBytes());
         }
 
         String contentType = null;
@@ -207,36 +220,6 @@ public class PKIClient implements AutoCloseable {
         return null;
     }
 
-    /**
-     * Unmarshall response object using custom mapping if available.
-     */
-    public <T> T unmarshall(Response response, Class<T> clazz) throws Exception {
-
-        MediaType responseFormat = response.getMediaType();
-        try {
-            if (MediaType.APPLICATION_XML_TYPE.isCompatible(responseFormat)) {
-                Method method = clazz.getMethod("fromXML", String.class);
-                String xml = response.readEntity(String.class);
-                return (T) method.invoke(null, xml);
-
-            } else if (MediaType.APPLICATION_JSON_TYPE.isCompatible(responseFormat)) {
-                // TODO: support custom JSON mapping
-                // Method method = clazz.getMethod("fromJSON", String.class);
-                // String json = response.readEntity(String.class);
-                // return (T) method.invoke(null, json);
-            }
-
-        } catch (NoSuchMethodException e) {
-            logger.info("PKIClient: " + clazz.getSimpleName() + " has no custom mapping for " + responseFormat);
-
-        } catch (Exception e) {
-            logger.error("PKIClient: Unable to unmarshall response: " + e.getMessage(), e);
-            throw e;
-        }
-
-        return response.readEntity(clazz);
-    }
-
     public void handleErrorResponse(CloseableHttpResponse httpResp) throws Exception {
         HttpEntity entity = httpResp.getEntity();
         String contentType = null;
@@ -271,31 +254,26 @@ public class PKIClient implements AutoCloseable {
         throw constructor.newInstance(data);
     }
 
-    public void handleErrorResponse(Response response) throws Exception {
-
-        MediaType contentType = response.getMediaType();
-
-        if (!MediaType.APPLICATION_XML_TYPE.isCompatible(contentType)
-                && !MediaType.APPLICATION_JSON_TYPE.isCompatible(contentType)) {
-
-            StatusType status = response.getStatusInfo();
-            throw new PKIException(status.getStatusCode(), status.getReasonPhrase());
+    public <T> HttpEntity entity(T object) throws Exception {
+        if (object instanceof byte[] raw) {
+            return EntityBuilder.create()
+                    .setBinary(raw)
+                    .build();
         }
 
-        PKIException.Data data = unmarshall(response, PKIException.Data.class);
-        String className = data.getClassName();
+        if (object instanceof String text) {
+            //TODO: This is not a json/xml object but v1 API mapping is not working if set to text
+            //      Can be removed when v1 APIs dropped
+            return EntityBuilder.create()
+                    .setContentType(ContentType.create(messageFormat.toString()))
+                    .setText(text)
+                    .build();
+        }
 
-        Class<? extends PKIException> exceptionClass =
-                Class.forName(className).asSubclass(PKIException.class);
-
-        Constructor<? extends PKIException> constructor =
-                exceptionClass.getConstructor(PKIException.Data.class);
-
-        throw constructor.newInstance(data);
-    }
-
-    public <T> Entity<T> entity(T object) throws Exception {
-        return Entity.entity(object, messageFormat);
+        return EntityBuilder.create()
+                .setText(marshall(object))
+                .setContentType(ContentType.create(messageFormat.toString()))
+                .build();
     }
 
     public <T> T getEntity(CloseableHttpResponse httpResp, Class<T> clazz) throws Exception {
@@ -323,45 +301,6 @@ public class PKIClient implements AutoCloseable {
             return unmarshallCollection(httpResp.getEntity(), clazz);
         } finally {
             httpResp.close();
-        }
-    }
-
-    public <T> T getEntity(Response response, Class<T> clazz) throws Exception {
-        try {
-            Family family = response.getStatusInfo().getFamily();
-
-            if (family.equals(Family.CLIENT_ERROR) || family.equals(Family.SERVER_ERROR)) {
-                handleErrorResponse(response);
-                return null;
-            }
-
-            if (!response.hasEntity()) {
-                return null;
-            }
-
-            return unmarshall(response, clazz);
-        } finally {
-            response.close();
-        }
-    }
-
-    public <T> T getEntity(Response response, GenericType<T> clazz) throws Exception {
-        try {
-            Family family = response.getStatusInfo().getFamily();
-
-            if (family.equals(Family.CLIENT_ERROR) || family.equals(Family.SERVER_ERROR)) {
-                handleErrorResponse(response);
-                return null;
-            }
-
-            if (!response.hasEntity()) {
-                return null;
-            }
-
-            return response.readEntity(clazz);
-
-        } finally {
-            response.close();
         }
     }
 
@@ -421,28 +360,63 @@ public class PKIClient implements AutoCloseable {
         return post(path, params, null, responseType);
     }
 
-    public <T> T post(String path, Map<String, Object> params, Entity<?> entity, Class<T> responseType) throws Exception {
+    public <T> T post(String path, Map<String, Object> params, HttpEntity entity, Class<T> responseType) throws Exception {
         WebTarget target = target(path, params);
-        Response response = target.request().post(entity);
-        return getEntity(response, responseType);
+        HttpPost httpPOST = new HttpPost(target.getUri());
+        if (entity != null) {
+            httpPOST.setEntity(entity);
+        }
+        CloseableHttpResponse httpResp = null;
+        try {
+            httpResp = connection.getHttpClient().execute(httpPOST);
+        } catch (Exception ex) {
+            throw new ClientConnectionException(ex);
+        }
+        return getEntity(httpResp, responseType);
     }
 
-    public <T> T post(String path, MultivaluedMap<String, String> content, Class<T> responseType) throws Exception {
+    public <T> T post(String path, List<NameValuePair> content, Class<T> responseType) throws Exception {
         WebTarget target = connection.target(path);
-        Response response = target.request().post(Entity.form(content));
-        return getEntity(response, responseType);
+        UrlEncodedFormEntity entity = new UrlEncodedFormEntity(content, Consts.UTF_8);
+        HttpPost httpPOST = new HttpPost(target.getUri());
+        httpPOST.setEntity(entity);
+        CloseableHttpResponse httpResp = null;
+        try {
+            httpResp = connection.getHttpClient().execute(httpPOST);
+        } catch (Exception ex) {
+            throw new ClientConnectionException(ex);
+        }
+        return getEntity(httpResp, responseType);
     }
 
-    public <T> T put(String path, Map<String, Object> params, Entity<?> entity, Class<T> responseType) throws Exception {
+    public <T> T put(String path, Map<String, Object> params, HttpEntity entity, Class<T> responseType) throws Exception {
         WebTarget target = target(path, params);
-        Response response = target.request().put(entity);
-        return getEntity(response, responseType);
+        HttpPut httpPUT = new HttpPut(target.getUri());
+        if (entity != null) {
+            httpPUT.setEntity(entity);
+        }
+        CloseableHttpResponse httpResp = null;
+        try {
+            httpResp = connection.getHttpClient().execute(httpPUT);
+        } catch (Exception ex) {
+            throw new ClientConnectionException(ex);
+        }
+        return getEntity(httpResp, responseType);
     }
 
-    public <T> T patch(String path, Map<String, Object> params, Entity<?> entity, Class<T> responseType) throws Exception {
+    public <T> T patch(String path, Map<String, Object> params, HttpEntity entity, Class<T> responseType) throws Exception {
         WebTarget target = target(path, params);
-        Response response = target.request().method("PATCH", entity);
-        return getEntity(response, responseType);
+        HttpPatch httpPATCH = new HttpPatch(target.getUri());
+        if (entity != null) {
+            httpPATCH.setEntity(entity);
+        }
+        CloseableHttpResponse httpResp = null;
+        try {
+            httpResp = connection.getHttpClient().execute(httpPATCH);
+        } catch (Exception ex) {
+            throw new ClientConnectionException(ex);
+        }
+        return getEntity(httpResp, responseType);
     }
 
     public <T> T delete(String path, Class<T> responseType) throws Exception {

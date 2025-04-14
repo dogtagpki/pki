@@ -20,7 +20,7 @@ package com.netscape.certsrv.key;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.ws.rs.client.Entity;
+import org.apache.http.HttpEntity;
 
 import com.netscape.certsrv.base.RESTMessage;
 import com.netscape.certsrv.client.Client;
@@ -170,7 +170,7 @@ public class KeyRequestClient extends Client {
 
         logger.info("Submitting " + request.getClassName() + " to KRA");
 
-        Entity<RESTMessage> entity = client.entity(request);
+        HttpEntity entity = client.entity(request);
         return post(null, null, entity, KeyRequestResponse.class);
     }
 }
