@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -214,6 +215,8 @@ public class CAEngine extends CMSEngine {
     public SerialNumberUpdateTask serialNumberUpdateTask;
 
     protected LdapBoundConnFactory connectionFactory;
+
+    protected Map<AuthorityID, CertificateAuthority> authorities = new TreeMap<>();
 
     protected AuthorityMonitor authorityMonitor;
     protected boolean enableAuthorityMonitor = true;
@@ -1223,8 +1226,54 @@ public class CAEngine extends CMSEngine {
      *
      * @return the authority, or null if not found
      */
-    public CertificateAuthority getCA(AuthorityID aid) {
-        return aid == null ? getCA() : authorityMonitor.authorities.get(aid);
+    public synchronized CertificateAuthority getCA(AuthorityID aid) {
+
+        if (aid == null) {
+            // return host CA
+            return getCA();
+        }
+
+        // find existing CA object
+        CertificateAuthority ca = authorities.get(aid);
+        if (ca != null) {
+            // return existing CA object
+            return ca;
+        }
+
+        // find authority record
+        AuthorityRecord record;
+        try {
+            record = authorityRepository.getAuthorityRecord(aid);
+        } catch (Exception e) {
+            logger.info("Unable to find authority record: " + e.getMessage(), e);
+            throw new PKIException("Unable to find authority record: " + e.getMessage(), e);
+        }
+
+        if (record == null) {
+            // authority record not found
+            return null;
+        }
+
+        // create CA object from authority record
+        try {
+            ca = createCA(record);
+        } catch (Exception e) {
+            logger.info("Unable to create CA: " + e.getMessage(), e);
+            throw new PKIException("Unable to create CA: " + e.getMessage(), e);
+        }
+
+        // store CA object
+        authorities.put(aid, ca);
+
+        return ca;
+    }
+
+    public synchronized void addCA(AuthorityID aid, CertificateAuthority ca) {
+        authorities.put(aid, ca);
+    }
+
+    public synchronized void removeCA(AuthorityID aid) {
+        authorities.remove(aid);
     }
 
     public CertificateAuthority getCA(X500Name dn) throws Exception {

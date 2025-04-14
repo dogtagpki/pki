@@ -54,9 +54,6 @@ public class AuthorityMonitor implements Runnable {
     public AsyncLoader loader = new AsyncLoader(10 /* 10s timeout */);
     public boolean foundHostCA;
 
-    public Map<AuthorityID, CertificateAuthority> authorities =
-            Collections.synchronizedSortedMap(new TreeMap<AuthorityID, CertificateAuthority>());
-
     public Map<AuthorityID, Thread> keyRetrievers =
             Collections.synchronizedSortedMap(new TreeMap<AuthorityID, Thread>());
 
@@ -369,11 +366,15 @@ public class AuthorityMonitor implements Runnable {
     }
 
     public void addCA(AuthorityID aid, CertificateAuthority ca) {
-        authorities.put(aid, ca);
+        CAEngine engine = CAEngine.getInstance();
+        engine.addCA(aid, ca);
     }
 
     public void removeCA(AuthorityID aid) {
-        authorities.remove(aid);
+
+        CAEngine engine = CAEngine.getInstance();
+        engine.removeCA(aid);
+
         entryUSNs.remove(aid);
         nsUniqueIds.remove(aid);
     }
