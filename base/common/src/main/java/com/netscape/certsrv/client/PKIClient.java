@@ -40,6 +40,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.util.EntityUtils;
 import org.dogtagpki.common.Info;
@@ -445,14 +446,20 @@ public class PKIClient implements AutoCloseable {
     }
 
     public <T> T delete(String path, Class<T> responseType) throws Exception {
-        Response response = connection.target(path).request().delete();
-        return getEntity(response, responseType);
+        return delete(path, null, responseType);
     }
 
     public <T> T delete(String path, Map<String, Object> params, Class<T> responseType) throws Exception {
         WebTarget target = target(path, params);
-        Response response = target.request().delete();
-        return getEntity(response, responseType);
+        HttpDelete httpDELETE = new HttpDelete(target.getUri());
+        CloseableHttpResponse httpResp = null;
+        try {
+            httpResp = connection.getHttpClient().execute(httpDELETE);
+        } catch (Exception ex) {
+            throw new ClientConnectionException(ex);
+        }
+        return getEntity(httpResp, responseType);
+
     }
 
     public Info getInfo() throws Exception {
