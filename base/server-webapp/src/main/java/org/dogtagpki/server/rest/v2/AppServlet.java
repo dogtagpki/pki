@@ -15,7 +15,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.MediaType;
 
 import org.dogtagpki.common.AppInfo;
 import org.dogtagpki.server.PKIServlet;
@@ -23,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netscape.certsrv.base.MediaType;
 import com.netscape.cmscore.apps.CMS;
 
 /**
