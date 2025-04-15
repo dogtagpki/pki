@@ -12,13 +12,13 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.ws.rs.BadRequestException;
 
 import org.dogtagpki.server.rest.base.SecurityDomainServletBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.WebAction;
 import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.InstallToken;
@@ -39,7 +39,7 @@ public class SecurityDomainServlet extends PKIServlet {
         String hostname = request.getParameter("hostname");
         String subsystem = request.getParameter("subsystem");
         if (subsystem == null || subsystem.isBlank()) {
-            throw new BadRequestException();
+            throw new BadRequestException("Missing subsystem parameter");
         }
         PrintWriter out = response.getWriter();
         SecurityDomainServletBase sdServlet = new SecurityDomainServletBase(getEngine(), request.getLocale());
