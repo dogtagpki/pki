@@ -22,7 +22,7 @@ import org.dogtagpki.server.rest.v2.PKIServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.certsrv.base.MediaType;
+import com.netscape.certsrv.base.MimeType;
 import com.netscape.certsrv.base.WebAction;
 import com.netscape.certsrv.profile.ProfileData;
 import com.netscape.certsrv.profile.ProfileDataInfos;
@@ -80,7 +80,7 @@ public class ProfileServlet extends CAServlet {
         String[] pathElement = request.getPathInfo().substring(1).split("/");
         String profileId = pathElement[0];
         byte[] rawProfile = profile.retrieveRawProfile(request, profileId);
-        response.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        response.setContentType(MimeType.APPLICATION_OCTET_STREAM);
         OutputStream out = response.getOutputStream();
         out.write(rawProfile);
     }
@@ -115,7 +115,7 @@ public class ProfileServlet extends CAServlet {
         response.setStatus(HttpServletResponse.SC_CREATED);
         response.setHeader("Location", uri.toString());
         byte[] rawProfile = profile.retrieveRawProfile(request, newProfileId);
-        response.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        response.setContentType(MimeType.APPLICATION_OCTET_STREAM);
         OutputStream out = response.getOutputStream();
         out.write(rawProfile);
     }
@@ -153,7 +153,7 @@ public class ProfileServlet extends CAServlet {
         InputStream input = request.getInputStream();
         byte[] data = input.readAllBytes();
         byte[] newRawProfile = profile.modifyProfile(profileId, data);
-        response.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        response.setContentType(MimeType.APPLICATION_OCTET_STREAM);
         OutputStream out = response.getOutputStream();
         out.write(newRawProfile);
     }

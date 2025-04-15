@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.authority.AuthorityData;
-import com.netscape.certsrv.base.MediaType;
+import com.netscape.certsrv.base.MimeType;
 import com.netscape.certsrv.base.RequestNotAcceptable;
 import com.netscape.certsrv.base.WebAction;
 import com.netscape.certsrv.util.JSONSerializer;
@@ -88,18 +88,18 @@ public class AuthorityServlet extends CAServlet {
         logger.debug("AuthorityServlet: - session: {}", session.getId());
 
         if (accept == null)
-            accept = MediaType.ANYTYPE;
+            accept = MimeType.ANYTYPE;
 
-        if (accept.contains(MediaType.APPLICATION_X_PEM_FILE)) {
-            response.setContentType(MediaType.APPLICATION_X_PEM_FILE);
+        if (accept.contains(MimeType.APPLICATION_X_PEM_FILE)) {
+            response.setContentType(MimeType.APPLICATION_X_PEM_FILE);
             String cert = authorityRepository.getPemCert(aid);
             PrintWriter out = response.getWriter();
             out.println(cert);
             return;
         }
 
-        if (accept.equals(MediaType.ANYTYPE) || accept.contains(MediaType.APPLICATION_PKIX_CERT)) {
-            response.setContentType(MediaType.APPLICATION_PKIX_CERT);
+        if (accept.equals(MimeType.ANYTYPE) || accept.contains(MimeType.APPLICATION_PKIX_CERT)) {
+            response.setContentType(MimeType.APPLICATION_PKIX_CERT);
             byte[] cert = authorityRepository.getBinaryCert(aid);
             OutputStream out = response.getOutputStream();
             out.write(cert);
@@ -121,20 +121,20 @@ public class AuthorityServlet extends CAServlet {
         logger.debug("AuthorityServlet: - session: {}", session.getId());
 
         if (accept == null)
-            accept = MediaType.ANYTYPE;
+            accept = MimeType.ANYTYPE;
 
         AuthorityRepository authorityRepository = engine.getAuthorityRepository();
 
-        if (accept.contains(MediaType.APPLICATION_X_PEM_FILE)) {
-            response.setContentType(MediaType.APPLICATION_X_PEM_FILE);
+        if (accept.contains(MimeType.APPLICATION_X_PEM_FILE)) {
+            response.setContentType(MimeType.APPLICATION_X_PEM_FILE);
             String cert = authorityRepository.getPemChain(aid);
             PrintWriter out = response.getWriter();
             out.println(cert);
             return;
         }
 
-        if (accept.equals(MediaType.ANYTYPE) || accept.contains(MediaType.APPLICATION_PKCS7)) {
-            response.setContentType(MediaType.APPLICATION_PKCS7);
+        if (accept.equals(MimeType.ANYTYPE) || accept.contains(MimeType.APPLICATION_PKCS7)) {
+            response.setContentType(MimeType.APPLICATION_PKCS7);
             byte[] cert = authorityRepository.getBinaryChain(aid);
             OutputStream out = response.getOutputStream();
             out.write(cert);

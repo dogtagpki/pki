@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.authentication.ExternalAuthToken;
 import com.netscape.certsrv.base.ForbiddenException;
-import com.netscape.certsrv.base.MediaType;
+import com.netscape.certsrv.base.MimeType;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.base.WebAction;
@@ -120,7 +120,7 @@ public abstract class PKIServlet extends HttpServlet {
             HttpServletResponse response
             ) throws IOException {
 
-        response.setContentType(MediaType.APPLICATION_JSON);
+        response.setContentType(MimeType.APPLICATION_JSON);
 
         try {
             setSessionContext(request);

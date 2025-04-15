@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
 
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
@@ -52,6 +51,7 @@ import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.base.ClientConnectionException;
+import com.netscape.certsrv.base.MimeType;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.base.UnauthorizedException;
@@ -67,10 +67,10 @@ public class PKIClient implements AutoCloseable {
     public ClientConfig config;
     public PKIConnection connection;
     public String apiVersion;
-    public MediaType messageFormat;
     public InfoClient infoClient;
     public Info info;
     public URI basicURI;
+    private String defaultMimeType;
 
     public PKIClient(ClientConfig config) throws Exception {
         this(config, null);
@@ -94,15 +94,15 @@ public class PKIClient implements AutoCloseable {
             throw new Error("Unsupported message format: " + messageFormat);
         }
 
-        this.messageFormat = MediaType.valueOf("application/" + messageFormat);
+        this.defaultMimeType = "application/" + messageFormat;
     }
 
     public String getAPIVersion() {
         return apiVersion;
     }
 
-    public MediaType getMessageFormat() {
-        return messageFormat;
+    public String getDefaultMimeType() {
+        return defaultMimeType;
     }
 
     public String getSubsystem() {
@@ -117,20 +117,20 @@ public class PKIClient implements AutoCloseable {
        Class<?> clazz = request.getClass();
        Object result = null;
        try {
-           if (MediaType.APPLICATION_XML_TYPE.isCompatible(messageFormat)) {
+           if (MimeType.APPLICATION_XML.equals(defaultMimeType)) {
                Method method = clazz.getMethod("toXML");
                result = method.invoke(request);
 
-           } else if (MediaType.APPLICATION_JSON_TYPE.isCompatible(messageFormat)) {
+           } else if (MimeType.APPLICATION_JSON.equals(defaultMimeType)) {
                Method method = clazz.getMethod("toJSON");
                result = method.invoke(request);
 
            } else {
-               throw new Exception("Unsupported request format: " + messageFormat);
+               throw new Exception("Unsupported request format: " + defaultMimeType);
            }
 
        } catch (NoSuchMethodException e) {
-           logger.info("PKIClient: " + clazz.getSimpleName() + " has no custom mapping for " + messageFormat);
+           logger.info("PKIClient: " + clazz.getSimpleName() + " has no custom mapping for " + defaultMimeType);
 
        } catch (Exception e) {
            logger.error("PKIClient: Unable to marshall request: " + e.getMessage(), e);
@@ -169,12 +169,12 @@ public class PKIClient implements AutoCloseable {
             contentType = entity.getContentType().getValue().split(";")[0].trim();
         }
         try {
-            if (com.netscape.certsrv.base.MediaType.APPLICATION_XML.equals(contentType)) {
+            if (MimeType.APPLICATION_XML.equals(contentType)) {
                 Method method = clazz.getMethod("fromXML", String.class);
                 return (T) method.invoke(null, response);
             }
 
-            if (com.netscape.certsrv.base.MediaType.APPLICATION_JSON.equals(contentType)) {
+            if (MimeType.APPLICATION_JSON.equals(contentType)) {
                 return JSONSerializer.fromJSON(response, clazz);
             }
         } catch (NoSuchMethodException e) {
@@ -200,13 +200,13 @@ public class PKIClient implements AutoCloseable {
             contentType = entity.getContentType().getValue().split(";")[0].trim();
         }
         try {
-            if (com.netscape.certsrv.base.MediaType.APPLICATION_XML.equals(contentType)) {
+            if (MimeType.APPLICATION_XML.equals(contentType)) {
                 //TODO: Add the mapping after fix XML generation  on server side
 //                Method method = clazz.getMethod("fromXML", String.class);
 //                return (T) method.invoke(null, response);
             }
 
-            if (com.netscape.certsrv.base.MediaType.APPLICATION_JSON.equals(contentType)) {
+            if (MimeType.APPLICATION_JSON.equals(contentType)) {
                 ObjectMapper mapper = new ObjectMapper();
                 return mapper.readValue(response, mapper.getTypeFactory().constructCollectionType(ArrayList.class, clazz));
             }
@@ -228,8 +228,8 @@ public class PKIClient implements AutoCloseable {
         }
 
         if (entity == null ||
-                (!com.netscape.certsrv.base.MediaType.APPLICATION_XML.equals(contentType) &&
-                        !com.netscape.certsrv.base.MediaType.APPLICATION_JSON.equals(contentType))) {
+                (!MimeType.APPLICATION_XML.equals(contentType) &&
+                        !MimeType.APPLICATION_JSON.equals(contentType))) {
 
             StatusLine status = httpResp.getStatusLine();
             switch (status.getStatusCode()) {
@@ -265,14 +265,14 @@ public class PKIClient implements AutoCloseable {
             //TODO: This is not a json/xml object but v1 API mapping is not working if set to text
             //      Can be removed when v1 APIs dropped
             return EntityBuilder.create()
-                    .setContentType(ContentType.create(messageFormat.toString()))
+                    .setContentType(ContentType.create(defaultMimeType))
                     .setText(text)
                     .build();
         }
 
         return EntityBuilder.create()
                 .setText(marshall(object))
-                .setContentType(ContentType.create(messageFormat.toString()))
+                .setContentType(ContentType.create(defaultMimeType))
                 .build();
     }
 

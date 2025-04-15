@@ -60,7 +60,7 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient4Engine;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 
-import com.netscape.certsrv.base.MediaType;
+import com.netscape.certsrv.base.MimeType;
 import com.netscape.certsrv.base.PKIException;
 
 /**
@@ -192,10 +192,10 @@ public class PKIConnection implements AutoCloseable {
             List<Header> headers = new ArrayList<>();
 
             if (messageFormat.equals("xml")) {
-                headers.add(new BasicHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML));
+                headers.add(new BasicHeader(HttpHeaders.ACCEPT, MimeType.APPLICATION_XML));
             }
             if (messageFormat.equals("json")) {
-                headers.add(new BasicHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON));
+                headers.add(new BasicHeader(HttpHeaders.ACCEPT, MimeType.APPLICATION_JSON));
             }
             httpClientBuilder.setDefaultHeaders(headers);
         }

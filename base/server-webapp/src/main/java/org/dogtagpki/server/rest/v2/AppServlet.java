@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.netscape.certsrv.base.MediaType;
+import com.netscape.certsrv.base.MimeType;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -62,7 +62,7 @@ public class AppServlet extends PKIServlet {
             apps.add(info);
         }
 
-        response.setContentType(MediaType.APPLICATION_JSON);
+        response.setContentType(MimeType.APPLICATION_JSON);
 
         PrintWriter out = response.getWriter();
         ObjectMapper mapper = new ObjectMapper();
