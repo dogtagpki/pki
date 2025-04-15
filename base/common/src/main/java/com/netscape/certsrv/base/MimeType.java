@@ -8,7 +8,7 @@ package com.netscape.certsrv.base;
 /**
  * @author Marco Fargetta {@literal <mfargett@redhat.com>}
  */
-public class MediaType {
+public class MimeType {
 
     public static final String ANYTYPE = "*/*";
 
@@ -27,4 +27,7 @@ public class MediaType {
     public static final String APPLICATION_X_PEM_FILE = "application/x-pem-file";
 
     public static final String APPLICATION_FORM_URLENCODED = "application/x-www-form-urlencoded";
+
+    private MimeType() {
+    }
 }

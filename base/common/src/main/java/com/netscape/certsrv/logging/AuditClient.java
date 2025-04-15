@@ -29,7 +29,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 
 import com.netscape.certsrv.base.ClientConnectionException;
-import com.netscape.certsrv.base.MediaType;
+import com.netscape.certsrv.base.MimeType;
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
 
@@ -64,7 +64,7 @@ public class AuditClient extends Client {
     public InputStream getAuditFile(String filename) throws Exception {
         WebTarget target = target("files/" + filename, null);
         HttpGet httpGET = new HttpGet(target.getUri());
-        httpGET.addHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_OCTET_STREAM);
+        httpGET.addHeader(HttpHeaders.ACCEPT, MimeType.APPLICATION_OCTET_STREAM);
         CloseableHttpResponse httpResp = null;
         try {
             httpResp = client.getConnection().getHttpClient().execute(httpGET);

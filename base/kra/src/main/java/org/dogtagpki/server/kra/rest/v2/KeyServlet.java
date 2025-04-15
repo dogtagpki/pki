@@ -18,7 +18,7 @@ import org.dogtagpki.server.kra.rest.base.KeyProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.certsrv.base.MediaType;
+import com.netscape.certsrv.base.MimeType;
 import com.netscape.certsrv.base.WebAction;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.KeyData;
@@ -109,11 +109,11 @@ public class KeyServlet extends KRAServlet {
         HttpSession session = request.getSession();
         logger.debug("KeyServlet.retrieveKey(): session: {}", session.getId());
         KeyRecoveryRequest data = null;
-        if(request.getContentType() == null || request.getContentType().equals(MediaType.APPLICATION_JSON)) {
+        if(request.getContentType() == null || request.getContentType().equals(MimeType.APPLICATION_JSON)) {
             String requestData = request.getReader().lines().collect(Collectors.joining());
             data = JSONSerializer.fromJSON(requestData, KeyRecoveryRequest.class);
         }
-        if(request.getContentType().equals(MediaType.APPLICATION_FORM_URLENCODED)) {
+        if(request.getContentType().equals(MimeType.APPLICATION_FORM_URLENCODED)) {
             data = new KeyRecoveryRequest(request.getParameterMap());
         }
         if(data == null) {

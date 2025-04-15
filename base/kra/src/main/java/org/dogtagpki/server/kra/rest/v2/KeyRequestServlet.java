@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.BadRequestException;
-import com.netscape.certsrv.base.MediaType;
+import com.netscape.certsrv.base.MimeType;
 import com.netscape.certsrv.base.RESTMessage;
 import com.netscape.certsrv.base.WebAction;
 import com.netscape.certsrv.key.KeyRequestInfo;
@@ -85,11 +85,11 @@ public class KeyRequestServlet extends KRAServlet {
         HttpSession session = request.getSession();
         logger.debug("KeyRequestServlet.submitRequest(): session: {}", session.getId());
         RESTMessage data = null;
-        if(request.getContentType() == null || request.getContentType().equals(MediaType.APPLICATION_JSON)) {
+        if(request.getContentType() == null || request.getContentType().equals(MimeType.APPLICATION_JSON)) {
             String requestData = request.getReader().lines().collect(Collectors.joining());
             data = JSONSerializer.fromJSON(requestData, RESTMessage.class);
         }
-        if(request.getContentType().equals(MediaType.APPLICATION_FORM_URLENCODED)) {
+        if(request.getContentType().equals(MimeType.APPLICATION_FORM_URLENCODED)) {
             data = new RESTMessage(request.getParameterMap());
         }
         if(data == null) {

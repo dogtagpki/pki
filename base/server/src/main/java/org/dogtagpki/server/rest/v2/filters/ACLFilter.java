@@ -34,7 +34,7 @@ import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.EAuthzUnknownRealm;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ForbiddenException;
-import com.netscape.certsrv.base.MediaType;
+import com.netscape.certsrv.base.MimeType;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.AuthzEvent;
@@ -113,7 +113,7 @@ public abstract class ACLFilter extends HttpFilter {
                 chain.doFilter(request, response);
             } catch (ForbiddenException fe) {
                 resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                resp.setContentType(MediaType.APPLICATION_JSON);
+                resp.setContentType(MimeType.APPLICATION_JSON);
                 PrintWriter out = resp.getWriter();
                 out.print(fe.getData().toJSON());
             }

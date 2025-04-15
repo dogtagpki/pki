@@ -31,7 +31,7 @@ import org.dogtagpki.server.authentication.AuthToken;
 
 import com.netscape.certsrv.authentication.ExternalAuthToken;
 import com.netscape.certsrv.base.ForbiddenException;
-import com.netscape.certsrv.base.MediaType;
+import com.netscape.certsrv.base.MimeType;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cmscore.apps.CMS;
@@ -100,7 +100,7 @@ public abstract class AuthMethodFilter extends HttpFilter {
                 chain.doFilter(request, response);
              } catch (ForbiddenException fe) {
                  resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                 resp.setContentType(MediaType.APPLICATION_JSON);
+                 resp.setContentType(MimeType.APPLICATION_JSON);
                  PrintWriter out = resp.getWriter();
                  out.print(fe.getData().toJSON());
             }

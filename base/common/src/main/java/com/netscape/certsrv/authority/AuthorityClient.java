@@ -29,7 +29,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 
 import com.netscape.certsrv.base.ClientConnectionException;
-import com.netscape.certsrv.base.MediaType;
+import com.netscape.certsrv.base.MimeType;
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
@@ -67,7 +67,7 @@ public class AuthorityClient extends Client {
     public String getChainPEM(String caIDString) throws Exception {
         WebTarget target = target(caIDString + "/chain", null);
         HttpGet httpGET = new HttpGet(target.getUri());
-        httpGET.addHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_X_PEM_FILE);
+        httpGET.addHeader(HttpHeaders.ACCEPT, MimeType.APPLICATION_X_PEM_FILE);
         CloseableHttpResponse httpResp = null;
         try {
             httpResp = client.getConnection().getHttpClient().execute(httpGET);

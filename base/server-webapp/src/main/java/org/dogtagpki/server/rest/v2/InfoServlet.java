@@ -15,7 +15,7 @@ import org.dogtagpki.common.Info;
 import org.dogtagpki.server.PKIEngine;
 import org.dogtagpki.server.PKIServlet;
 
-import com.netscape.certsrv.base.MediaType;
+import com.netscape.certsrv.base.MimeType;
 
 /**
  * @author Endi S. Dewata
@@ -31,7 +31,7 @@ public class InfoServlet extends PKIServlet {
         PKIEngine engine = getPKIEngine();
         Info info = engine.getInfo(request);
 
-        response.setContentType(MediaType.APPLICATION_JSON);
+        response.setContentType(MimeType.APPLICATION_JSON);
 
         PrintWriter out = response.getWriter();
         out.println(info.toJSON());
