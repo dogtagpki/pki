@@ -67,6 +67,34 @@ public class AuthorityMonitor implements Runnable {
     public AuthorityMonitor() {
     }
 
+    public void init() throws Exception {
+
+        new Thread(this, "AuthorityMonitor").start();
+
+        CAEngine engine = CAEngine.getInstance();
+        try {
+            logger.info("AuthorityMonitor: Waiting for authorities to load");
+            // block until the expected number of authorities
+            // have been loaded (based on numSubordinates of
+            // container entry), or watchdog times it out (in case
+            // numSubordinates is larger than the number of entries
+            // we can see, e.g. replication conflict entries).
+            loader.awaitLoadDone();
+
+        } catch (InterruptedException e) {
+            logger.warn("AuthorityMonitor: Caught InterruptedException "
+                    + "while waiting for initial load of authorities.");
+            logger.warn("AuthorityMonitor: You may have replication conflict entries or "
+                    + "extraneous data under " + engine.getAuthorityBaseDN());
+        }
+
+        if (!foundHostCA) {
+            logger.debug("AuthorityMonitor: No entry for host authority");
+            logger.debug("AuthorityMonitor: Adding entry for host authority");
+            addCA(engine.addHostAuthorityEntry(), engine.getCA());
+        }
+    }
+
     @Override
     public void run() {
 

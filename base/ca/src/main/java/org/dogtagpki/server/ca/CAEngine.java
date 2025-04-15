@@ -828,32 +828,8 @@ public class CAEngine extends CMSEngine {
             return;
         }
 
-        CertificateAuthority hostCA = getCA();
-
         authorityMonitor = new AuthorityMonitor();
-        new Thread(authorityMonitor, "AuthorityMonitor").start();
-
-        try {
-            logger.info("CAEngine: Waiting for authorities to load");
-            // block until the expected number of authorities
-            // have been loaded (based on numSubordinates of
-            // container entry), or watchdog times it out (in case
-            // numSubordinates is larger than the number of entries
-            // we can see, e.g. replication conflict entries).
-            authorityMonitor.loader.awaitLoadDone();
-
-        } catch (InterruptedException e) {
-            logger.warn("CAEngine: Caught InterruptedException "
-                    + "while waiting for initial load of authorities.");
-            logger.warn("CAEngine: You may have replication conflict entries or "
-                    + "extraneous data under " + getAuthorityBaseDN());
-        }
-
-        if (!authorityMonitor.foundHostCA) {
-            logger.debug("CAEngine: No entry for host authority");
-            logger.debug("CAEngine: Adding entry for host authority");
-            authorityMonitor.addCA(addHostAuthorityEntry(), hostCA);
-        }
+        authorityMonitor.init();
     }
 
     public void initCertIssuedListener() throws Exception {
