@@ -944,23 +944,6 @@ public class CryptoUtil {
         }
     }
 
-    public static X500Name getSubjectName(SEQUENCE crmfMsgs)
-            throws IOException {
-        int nummsgs = crmfMsgs.size();
-        if (nummsgs <= 0) {
-            throw new IOException("invalid certificate requests");
-        }
-        CertReqMsg msg = (CertReqMsg) crmfMsgs.elementAt(0);
-        CertRequest certreq = msg.getCertReq();
-        CertTemplate certTemplate = certreq.getCertTemplate();
-        Name n = certTemplate.getSubject();
-        ByteArrayOutputStream subjectEncStream = new ByteArrayOutputStream();
-        n.encode(subjectEncStream);
-
-        byte[] b = subjectEncStream.toByteArray();
-        return new X500Name(b);
-    }
-
     /**
      * Creates a Certificate template.
      */

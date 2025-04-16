@@ -6,6 +6,7 @@
 package org.dogtagpki.util.cert;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -18,10 +19,12 @@ import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.crypto.InvalidKeyFormatException;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkix.crmf.CertReqMsg;
 import org.mozilla.jss.pkix.crmf.CertRequest;
 import org.mozilla.jss.pkix.crmf.CertTemplate;
+import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,5 +112,24 @@ public class CRMFUtil {
 
         CertReqMsg msg = (CertReqMsg) crmfMsgs.elementAt(0);
         return getX509KeyFromCRMFMsg(msg);
+    }
+
+    public static X500Name getSubjectName(SEQUENCE crmfMsgs) throws IOException {
+
+        int size = crmfMsgs.size();
+        if (size <= 0) {
+            throw new IOException("Missing CRMF requests");
+        }
+
+        CertReqMsg msg = (CertReqMsg) crmfMsgs.elementAt(0);
+        CertRequest certreq = msg.getCertReq();
+        CertTemplate certTemplate = certreq.getCertTemplate();
+
+        Name name = certTemplate.getSubject();
+        ByteArrayOutputStream subjectEncStream = new ByteArrayOutputStream();
+        name.encode(subjectEncStream);
+
+        byte[] bytes = subjectEncStream.toByteArray();
+        return new X500Name(bytes);
     }
 }

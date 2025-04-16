@@ -238,7 +238,7 @@ public class CACertCreateCLI extends CommandCLI {
 
             if (certRequestType.equals("crmf")) {
                 SEQUENCE crmfMsgs = CRMFUtil.parseCRMFMsgs(binCertRequest);
-                subjectName = CryptoUtil.getSubjectName(crmfMsgs);
+                subjectName = CRMFUtil.getSubjectName(crmfMsgs);
                 x509key = CRMFUtil.getX509KeyFromCRMFMsgs(crmfMsgs);
 
             } else if (certRequestType.equals("pkcs10")) {
