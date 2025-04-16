@@ -44,6 +44,7 @@ import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
+import org.dogtagpki.util.cert.CRMFUtil;
 import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ANY;
@@ -697,7 +698,7 @@ public class CMCUserSignedAuth extends AuthManager implements IExtendedPluginInf
                                     } else if (alg.equals("EC")) {
                                         logger.debug(method + "signing key alg=EC");
                                         keyType = PrivateKey.EC;
-                                        X509Key pubKey = CryptoUtil.getX509KeyFromCRMFMsg(crm);
+                                        X509Key pubKey = CRMFUtil.getX509KeyFromCRMFMsg(crm);
                                         logger.debug(method + "got X509Key ");
                                         publicKeyData = (pubKey).getEncoded();
                                         selfsign_pubK = PK11ECPublicKey.fromSPKI(/*keyType,*/ publicKeyData);

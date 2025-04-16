@@ -62,6 +62,7 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
+import org.dogtagpki.util.cert.CRMFUtil;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NicknameConflictException;
 import org.mozilla.jss.NoSuchTokenException;
@@ -920,16 +921,7 @@ public class CryptoUtil {
             throw new IOException("invalid certificate requests");
         }
         CertReqMsg msg = (CertReqMsg) crmfMsgs.elementAt(0);
-        return getX509KeyFromCRMFMsg(msg);
-    }
-
-    public static X509Key getX509KeyFromCRMFMsg(CertReqMsg crmfMsg)
-            throws NoSuchAlgorithmException, InvalidKeyException, InvalidKeyFormatException {
-        CertRequest certreq = crmfMsg.getCertReq();
-        CertTemplate certTemplate = certreq.getCertTemplate();
-        SubjectPublicKeyInfo spkinfo = certTemplate.getPublicKey();
-        PublicKey pkey = spkinfo.toPublicKey();
-        return createX509Key(pkey);
+        return CRMFUtil.getX509KeyFromCRMFMsg(msg);
     }
 
     public static X509Key createX509Key(PublicKey publicKey) throws InvalidKeyException {

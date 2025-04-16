@@ -9,16 +9,25 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 
 import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.asn1.SEQUENCE;
+import org.mozilla.jss.crypto.InvalidKeyFormatException;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkix.crmf.CertReqMsg;
+import org.mozilla.jss.pkix.crmf.CertRequest;
+import org.mozilla.jss.pkix.crmf.CertTemplate;
+import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.profile.EProfileException;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class CRMFUtil {
 
@@ -74,5 +83,14 @@ public class CRMFUtil {
             out.println(Cert.REQUEST_FOOTER);
         }
         return sw.toString();
+    }
+
+    public static X509Key getX509KeyFromCRMFMsg(CertReqMsg crmfMsg)
+            throws NoSuchAlgorithmException, InvalidKeyException, InvalidKeyFormatException {
+        CertRequest certRequest = crmfMsg.getCertReq();
+        CertTemplate certTemplate = certRequest.getCertTemplate();
+        SubjectPublicKeyInfo subjectPublicKeyInfo = certTemplate.getPublicKey();
+        PublicKey publicKey = subjectPublicKeyInfo.toPublicKey();
+        return CryptoUtil.createX509Key(publicKey);
     }
 }
