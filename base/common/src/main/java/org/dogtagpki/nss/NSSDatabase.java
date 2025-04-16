@@ -1161,7 +1161,7 @@ public class NSSDatabase {
             }
 
             byte[] signature = signer.sign();
-            pop = CryptoUtil.createPop(signatureAlgorithm, signature);
+            pop = CRMFUtil.createPop(signatureAlgorithm, signature);
         }
 
         return CryptoUtil.createCRMFRequest(certRequest, pop);

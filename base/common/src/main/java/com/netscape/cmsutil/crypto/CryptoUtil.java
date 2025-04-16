@@ -156,7 +156,6 @@ import org.mozilla.jss.pkix.crmf.CertRequest;
 import org.mozilla.jss.pkix.crmf.EncryptedKey;
 import org.mozilla.jss.pkix.crmf.EncryptedValue;
 import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
-import org.mozilla.jss.pkix.crmf.POPOSigningKey;
 import org.mozilla.jss.pkix.crmf.ProofOfPossession;
 import org.mozilla.jss.pkix.primitive.AVA;
 import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
@@ -1089,15 +1088,6 @@ public class CryptoUtil {
         signer.initSign((org.mozilla.jss.crypto.PrivateKey) keyPair.getPrivate());
 
         return signer;
-    }
-
-    public static ProofOfPossession createPop(
-            SignatureAlgorithm signatureAlgorithm,
-            byte[] signature) throws Exception {
-
-        AlgorithmIdentifier algorithmID = new AlgorithmIdentifier(signatureAlgorithm.toOID(), null);
-        POPOSigningKey popoKey = new POPOSigningKey(null, algorithmID, new BIT_STRING(signature, 0));
-        return ProofOfPossession.createSignature(popoKey);
     }
 
     public static byte[] createCRMFRequest(
