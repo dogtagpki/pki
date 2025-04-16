@@ -15,10 +15,15 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 
 import org.mozilla.jss.asn1.InvalidBERException;
+import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.crypto.InvalidKeyFormatException;
 import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
 import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkix.crmf.CertReqMsg;
@@ -131,5 +136,48 @@ public class CRMFUtil {
 
         byte[] bytes = subjectEncStream.toByteArray();
         return new X500Name(bytes);
+    }
+
+    /**
+     * Get extension from CRMF request (CertTemplate)
+     */
+    public static Extension getExtensionFromCertTemplate(CertTemplate certTemplate, ObjectIdentifier csOID) {
+
+        // ObjectIdentifier csOID = PKIXExtensions.SubjectKey_Id;
+        OBJECT_IDENTIFIER jssOID = new OBJECT_IDENTIFIER(csOID.toString());
+        String method = "CRMFUtil: getSKIExtensionFromCertTemplate: ";
+        Extension extn = null;
+
+        // There seems to be an issue with constructor in Extension
+        // when feeding SubjectKeyIdentifierExtension;
+        // Special-case it
+        OBJECT_IDENTIFIER SKIoid = new OBJECT_IDENTIFIER(PKIXExtensions.SubjectKey_Id.toString());
+
+        if (certTemplate.hasExtensions()) {
+            int numexts = certTemplate.numExtensions();
+            for (int j = 0; j < numexts; j++) {
+                org.mozilla.jss.pkix.cert.Extension jssext = certTemplate.extensionAt(j);
+                OBJECT_IDENTIFIER extnoid = jssext.getExtnId();
+                logger.debug(method + "checking extension in request:" + extnoid);
+                if (extnoid.equals(jssOID)) {
+                    logger.debug(method + "extension found");
+                    try {
+                        if (jssOID.equals(SKIoid)) {
+                            logger.debug(method + "SKIoid == jssOID");
+                            extn = new SubjectKeyIdentifierExtension(false, jssext.getExtnValue().toByteArray());
+                        } else {
+                            logger.debug(method + "SKIoid != jssOID");
+                            extn = new Extension(csOID, false, jssext.getExtnValue().toByteArray());
+                        }
+                    } catch (IOException e) {
+                        logger.warn(method + e, e);
+                    }
+                }
+            }
+        } else {
+            logger.debug(method + "no extension found");
+        }
+
+        return extn;
     }
 }

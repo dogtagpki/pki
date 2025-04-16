@@ -673,7 +673,7 @@ public class CMCUserSignedAuth extends AuthManager implements IExtendedPluginInf
                                 certInfoArray[i] = certInfo;
 
                                 if (selfSigned) {
-                                    selfsign_skiExtn = (SubjectKeyIdentifierExtension) CryptoUtil
+                                    selfsign_skiExtn = (SubjectKeyIdentifierExtension) CRMFUtil
                                             .getExtensionFromCertTemplate(template, PKIXExtensions.SubjectKey_Id);
                                     if (selfsign_skiExtn != null) {
                                         logger.debug(method +

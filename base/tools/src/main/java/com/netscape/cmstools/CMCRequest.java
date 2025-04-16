@@ -42,6 +42,7 @@ import java.util.StringTokenizer;
 
 import javax.crypto.Mac;
 
+import org.dogtagpki.util.cert.CRMFUtil;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.ASN1Util;
@@ -510,7 +511,7 @@ public class CMCRequest {
                         CertRequest certReq = certReqMsg.getCertReq();
                         CertTemplate certTemplate = certReq.getCertTemplate();
                         if (useSharedSecret.equals("true")) {
-                            skiExtn = (SubjectKeyIdentifierExtension) CryptoUtil.getExtensionFromCertTemplate(
+                            skiExtn = (SubjectKeyIdentifierExtension) CRMFUtil.getExtensionFromCertTemplate(
                                     certTemplate,
                                     PKIXExtensions.SubjectKey_Id);
                             if (skiExtn != null) {
