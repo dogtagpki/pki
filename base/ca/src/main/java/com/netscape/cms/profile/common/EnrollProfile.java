@@ -42,6 +42,7 @@ import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
+import org.dogtagpki.util.cert.CRMFUtil;
 import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ASN1Util;
@@ -259,7 +260,7 @@ public abstract class EnrollProfile extends Profile {
         }
 
         if (cert_request_type != null && cert_request_type.startsWith("crmf")) {
-            CertReqMsg[] msgs = CertUtil.parseCRMF(cert_request);
+            CertReqMsg[] msgs = CRMFUtil.parseCRMF(cert_request);
             num_requests = msgs.length;
         }
 

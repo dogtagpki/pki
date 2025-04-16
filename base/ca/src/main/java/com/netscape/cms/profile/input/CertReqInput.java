@@ -21,7 +21,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.util.cert.CertUtil;
+import org.dogtagpki.util.cert.CRMFUtil;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.DerInputStream;
@@ -149,7 +149,7 @@ public class CertReqInput extends EnrollInput {
         } else if (cert_request_type.startsWith(EnrollProfile.REQ_TYPE_CRMF)) {
 
             logger.debug(method + "cert_request_type= REQ_TYPE_CRMF");
-            CertReqMsg[] msgs = CertUtil.parseCRMF(cert_request);
+            CertReqMsg[] msgs = CRMFUtil.parseCRMF(cert_request);
 
             if (msgs == null) {
                 throw new EProfileException(CMS.getUserMessage(
