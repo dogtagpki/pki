@@ -93,4 +93,21 @@ public class CRMFUtil {
         PublicKey publicKey = subjectPublicKeyInfo.toPublicKey();
         return CryptoUtil.createX509Key(publicKey);
     }
+
+    public static X509Key getX509KeyFromCRMFMsgs(SEQUENCE crmfMsgs)
+            throws IOException, NoSuchAlgorithmException,
+            InvalidKeyException, InvalidKeyFormatException {
+
+        if (crmfMsgs == null) {
+            throw new IOException("Missing CRMF requests");
+        }
+
+        int size = crmfMsgs.size();
+        if (size <= 0) {
+            throw new IOException("Missing CRMF requests");
+        }
+
+        CertReqMsg msg = (CertReqMsg) crmfMsgs.elementAt(0);
+        return getX509KeyFromCRMFMsg(msg);
+    }
 }

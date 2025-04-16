@@ -89,7 +89,7 @@ public class CertRequestRepository extends RequestRepository {
         if (requestType.equals("crmf")) {
             SEQUENCE crmfMsgs = CRMFUtil.parseCRMFMsgs(binRequest);
             subjectName = CryptoUtil.getSubjectName(crmfMsgs);
-            x509key = CryptoUtil.getX509KeyFromCRMFMsgs(crmfMsgs);
+            x509key = CRMFUtil.getX509KeyFromCRMFMsgs(crmfMsgs);
             requestExtensions = new CertificateExtensions();
 
         } else if (requestType.equals("pkcs10")) {

@@ -62,7 +62,6 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
-import org.dogtagpki.util.cert.CRMFUtil;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NicknameConflictException;
 import org.mozilla.jss.NoSuchTokenException;
@@ -94,7 +93,6 @@ import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.HMACAlgorithm;
 import org.mozilla.jss.crypto.IVParameterSpec;
 import org.mozilla.jss.crypto.IllegalBlockSizeException;
-import org.mozilla.jss.crypto.InvalidKeyFormatException;
 import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyGenerator;
 import org.mozilla.jss.crypto.KeyPairAlgorithm;
@@ -908,20 +906,6 @@ public class CryptoUtil {
             X509Certificate rootCert = certs[certs.length - 1];
             trustCACert(rootCert);
         }
-    }
-
-    public static X509Key getX509KeyFromCRMFMsgs(SEQUENCE crmfMsgs)
-            throws IOException, NoSuchAlgorithmException,
-            InvalidKeyException, InvalidKeyFormatException {
-        if (crmfMsgs == null) {
-            throw new IOException("invalid certificate requests: crmfMsgs null");
-        }
-        int nummsgs = crmfMsgs.size();
-        if (nummsgs <= 0) {
-            throw new IOException("invalid certificate requests");
-        }
-        CertReqMsg msg = (CertReqMsg) crmfMsgs.elementAt(0);
-        return CRMFUtil.getX509KeyFromCRMFMsg(msg);
     }
 
     public static X509Key createX509Key(PublicKey publicKey) throws InvalidKeyException {
