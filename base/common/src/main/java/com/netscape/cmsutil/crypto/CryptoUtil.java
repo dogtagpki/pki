@@ -62,6 +62,7 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
+import org.dogtagpki.util.cert.CRMFUtil;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NicknameConflictException;
 import org.mozilla.jss.NoSuchTokenException;
@@ -162,7 +163,6 @@ import org.mozilla.jss.pkix.crmf.ProofOfPossession;
 import org.mozilla.jss.pkix.primitive.AVA;
 import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.pkix.primitive.Name;
-import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 import org.mozilla.jss.ssl.SSLCipher;
 import org.mozilla.jss.ssl.SSLSocket;
 import org.mozilla.jss.util.Base64OutputStream;
@@ -1082,16 +1082,6 @@ public class CryptoUtil {
         return pkcs10;
     }
 
-    public static CertTemplate createCertTemplate(Name subject, PublicKey publicKey) throws Exception {
-
-        CertTemplate template = new CertTemplate();
-        template.setVersion(new INTEGER(2));
-        template.setSubject(subject);
-        template.setPublicKey(new SubjectPublicKeyInfo(publicKey));
-
-        return template;
-    }
-
     public static CertRequest createCertRequest(
             boolean use_shared_secret,
             CryptoToken token,
@@ -1101,7 +1091,7 @@ public class CryptoUtil {
             KeyWrapAlgorithm keyWrapAlgorithm,
             boolean useOAEP) throws Exception {
 
-        CertTemplate certTemplate = createCertTemplate(subject, keyPair.getPublic());
+        CertTemplate certTemplate = CRMFUtil.createCertTemplate(subject, keyPair.getPublic());
 
         SEQUENCE seq = new SEQUENCE();
 

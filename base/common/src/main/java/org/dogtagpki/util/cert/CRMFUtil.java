@@ -14,6 +14,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 
+import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.SEQUENCE;
@@ -179,5 +180,15 @@ public class CRMFUtil {
         }
 
         return extn;
+    }
+
+    public static CertTemplate createCertTemplate(Name subject, PublicKey publicKey) throws Exception {
+    
+        CertTemplate template = new CertTemplate();
+        template.setVersion(new INTEGER(2));
+        template.setSubject(subject);
+        template.setPublicKey(new SubjectPublicKeyInfo(publicKey));
+    
+        return template;
     }
 }
