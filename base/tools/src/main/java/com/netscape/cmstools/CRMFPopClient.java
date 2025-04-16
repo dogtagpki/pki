@@ -43,7 +43,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.dogtagpki.common.CAInfoClient;
 import org.dogtagpki.nss.NSSDatabase;
-import org.dogtagpki.util.cert.CertUtil;
+import org.dogtagpki.util.cert.CRMFUtil;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.OCTET_STRING;
@@ -543,7 +543,7 @@ public class CRMFPopClient {
                     useOAEP,
                     use_shared_secret);
 
-            String csr = CertUtil.encodeCRMF(crmfRequest);
+            String csr = CRMFUtil.encodeCRMF(crmfRequest);
 
             if (hostPort != null) {
                 System.out.println("Submitting CRMF request to " + hostPort);

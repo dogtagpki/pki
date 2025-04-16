@@ -17,6 +17,7 @@ import java.util.Vector;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
+import org.dogtagpki.util.cert.CRMFUtil;
 import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.Cert;
@@ -231,7 +232,7 @@ public class CACertRequestSubmitCLI extends CommandCLI {
                 csr = CertUtil.toPEM(pkcs10);
 
             } else if ("crmf".equals(requestType)) {
-                csr = CertUtil.encodeCRMF(bytes);
+                csr = CRMFUtil.encodeCRMF(bytes);
 
             } else {
                 throw new Exception("Unsupported request type: " + requestType);

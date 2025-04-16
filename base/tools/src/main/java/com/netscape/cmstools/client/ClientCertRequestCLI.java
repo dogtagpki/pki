@@ -33,6 +33,7 @@ import org.dogtagpki.ca.CASystemCertClient;
 import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.common.CAInfoClient;
 import org.dogtagpki.nss.NSSDatabase;
+import org.dogtagpki.util.cert.CRMFUtil;
 import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
@@ -331,7 +332,7 @@ public class ClientCertRequestCLI extends CommandCLI {
                     useOAEP,
                     false); // useSharedSecret
 
-            csr = CertUtil.encodeCRMF(crmfRequest);
+            csr = CRMFUtil.encodeCRMF(crmfRequest);
 
         } else {
             throw new Exception("Unknown request type: " + requestType);

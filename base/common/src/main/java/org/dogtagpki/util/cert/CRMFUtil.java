@@ -7,9 +7,13 @@ package org.dogtagpki.util.cert;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.asn1.SEQUENCE;
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.pkix.crmf.CertReqMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,5 +64,15 @@ public class CRMFUtil {
             logger.error("Unable to parse CRMF request: " + e.getMessage(), e);
             throw new EProfileException("Unable to parse CRMF request: " + e.getMessage(), e);
         }
+    }
+
+    public static String encodeCRMF(byte[] request) throws Exception {
+        StringWriter sw = new StringWriter();
+        try (PrintWriter out = new PrintWriter(sw)) {
+            out.println(Cert.REQUEST_HEADER);
+            out.print(Utils.base64encode(request, true));
+            out.println(Cert.REQUEST_FOOTER);
+        }
+        return sw.toString();
     }
 }

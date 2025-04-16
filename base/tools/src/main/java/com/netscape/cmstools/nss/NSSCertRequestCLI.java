@@ -15,6 +15,7 @@ import org.apache.commons.codec.binary.Hex;
 import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.nss.NSSDatabase;
 import org.dogtagpki.nss.NSSExtensionGenerator;
+import org.dogtagpki.util.cert.CRMFUtil;
 import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
@@ -273,7 +274,7 @@ public class NSSCertRequestCLI extends CommandCLI {
                     skid);
 
             if (requestFormat == null || "PEM".equalsIgnoreCase(requestFormat)) {
-                bytes = CertUtil.encodeCRMF(bytes).getBytes();
+                bytes = CRMFUtil.encodeCRMF(bytes).getBytes();
 
             } else if ("DER".equalsIgnoreCase(requestFormat)) {
                 // nothing to do
