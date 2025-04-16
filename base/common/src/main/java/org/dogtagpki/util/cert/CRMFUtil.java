@@ -158,44 +158,38 @@ public class CRMFUtil {
     /**
      * Get extension from CRMF request (CertTemplate)
      */
-    public static Extension getExtensionFromCertTemplate(CertTemplate certTemplate, ObjectIdentifier csOID) {
+    public static Extension getExtensionFromCertTemplate(
+            CertTemplate certTemplate,
+            ObjectIdentifier csOID) throws IOException {
 
-        // ObjectIdentifier csOID = PKIXExtensions.SubjectKey_Id;
+        if (!certTemplate.hasExtensions()) {
+            return null;
+        }
+
         OBJECT_IDENTIFIER jssOID = new OBJECT_IDENTIFIER(csOID.toString());
-        String method = "CRMFUtil: getSKIExtensionFromCertTemplate: ";
-        Extension extn = null;
 
         // There seems to be an issue with constructor in Extension
         // when feeding SubjectKeyIdentifierExtension;
         // Special-case it
-        OBJECT_IDENTIFIER SKIoid = new OBJECT_IDENTIFIER(PKIXExtensions.SubjectKey_Id.toString());
+        OBJECT_IDENTIFIER skiOID = new OBJECT_IDENTIFIER(PKIXExtensions.SubjectKey_Id.toString());
 
-        if (certTemplate.hasExtensions()) {
-            int numexts = certTemplate.numExtensions();
-            for (int j = 0; j < numexts; j++) {
-                org.mozilla.jss.pkix.cert.Extension jssext = certTemplate.extensionAt(j);
-                OBJECT_IDENTIFIER extnoid = jssext.getExtnId();
-                logger.debug(method + "checking extension in request:" + extnoid);
-                if (extnoid.equals(jssOID)) {
-                    logger.debug(method + "extension found");
-                    try {
-                        if (jssOID.equals(SKIoid)) {
-                            logger.debug(method + "SKIoid == jssOID");
-                            extn = new SubjectKeyIdentifierExtension(false, jssext.getExtnValue().toByteArray());
-                        } else {
-                            logger.debug(method + "SKIoid != jssOID");
-                            extn = new Extension(csOID, false, jssext.getExtnValue().toByteArray());
-                        }
-                    } catch (IOException e) {
-                        logger.warn(method + e, e);
-                    }
-                }
+        int size = certTemplate.numExtensions();
+        for (int i = 0; i < size; i++) {
+            org.mozilla.jss.pkix.cert.Extension ext = certTemplate.extensionAt(i);
+
+            OBJECT_IDENTIFIER extOID = ext.getExtnId();
+            if (!extOID.equals(jssOID)) {
+                continue;
             }
-        } else {
-            logger.debug(method + "no extension found");
+
+            if (jssOID.equals(skiOID)) {
+                return new SubjectKeyIdentifierExtension(false, ext.getExtnValue().toByteArray());
+            }
+
+            return new Extension(csOID, false, ext.getExtnValue().toByteArray());
         }
 
-        return extn;
+        return null;
     }
 
     public static CertTemplate createCertTemplate(Name subject, PublicKey publicKey) throws Exception {
