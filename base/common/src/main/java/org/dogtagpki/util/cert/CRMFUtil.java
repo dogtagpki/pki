@@ -11,18 +11,26 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.security.InvalidKeyException;
+import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 
 import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
+import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.asn1.SEQUENCE;
+import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.InvalidKeyFormatException;
+import org.mozilla.jss.crypto.KeyWrapAlgorithm;
+import org.mozilla.jss.crypto.PrivateKey;
+import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
 import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.util.WrappingParams;
 import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
 import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
 import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.X500Name;
@@ -30,6 +38,9 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkix.crmf.CertReqMsg;
 import org.mozilla.jss.pkix.crmf.CertRequest;
 import org.mozilla.jss.pkix.crmf.CertTemplate;
+import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
+import org.mozilla.jss.pkix.primitive.AVA;
+import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 import org.slf4j.Logger;
@@ -183,12 +194,69 @@ public class CRMFUtil {
     }
 
     public static CertTemplate createCertTemplate(Name subject, PublicKey publicKey) throws Exception {
-    
+
         CertTemplate template = new CertTemplate();
         template.setVersion(new INTEGER(2));
         template.setSubject(subject);
         template.setPublicKey(new SubjectPublicKeyInfo(publicKey));
-    
+
         return template;
+    }
+
+    public static CertRequest createCertRequest(
+            boolean useSharedSecret,
+            CryptoToken token,
+            X509Certificate transportCert,
+            KeyPair keyPair,
+            Name subject,
+            KeyWrapAlgorithm keyWrapAlgorithm,
+            boolean useOAEP) throws Exception {
+
+        CertTemplate certTemplate = createCertTemplate(subject, keyPair.getPublic());
+
+        SEQUENCE seq = new SEQUENCE();
+
+        if (transportCert != null) { // add key archive Option
+            byte[] iv = CryptoUtil.getNonceData(keyWrapAlgorithm.getBlockSize());
+            OBJECT_IDENTIFIER kwOID = CryptoUtil.getOID(keyWrapAlgorithm);
+
+            // TODO(alee)
+            //
+            // HACK HACK!
+            // algorithms like AES KeyWrap do not require an IV, but we need to include one
+            // in the AlgorithmIdentifier above, or the creation and parsing of the
+            // PKIArchiveOptions options will fail.  So we include an IV in aid, but null it
+            // later to correctly encrypt the data
+            AlgorithmIdentifier aid = new AlgorithmIdentifier(kwOID, new OCTET_STRING(iv));
+
+            Class<?>[] iv_classes = keyWrapAlgorithm.getParameterClasses();
+            if (iv_classes == null || iv_classes.length == 0)
+                iv = null;
+
+            WrappingParams params = CryptoUtil.getWrappingParams(keyWrapAlgorithm, iv, useOAEP);
+
+            PKIArchiveOptions opts = CryptoUtil.createPKIArchiveOptions(
+                    token,
+                    transportCert.getPublicKey(),
+                    (PrivateKey) keyPair.getPrivate(),
+                    params,
+                    aid);
+
+            seq.addElement(new AVA(new OBJECT_IDENTIFIER("1.3.6.1.5.5.7.5.1.4"), opts));
+        } // key archival option
+
+        // OCTET_STRING ostr = createIDPOPLinkWitness();
+        // seq.addElement(new AVA(OBJECT_IDENTIFIER.id_cmc_idPOPLinkWitness, ostr));
+
+        if (useSharedSecret) { // RFC 5272
+            logger.debug("CRMFUtil: Generating SubjectKeyIdentifier extension");
+            KeyIdentifier subjKeyId = CryptoUtil.createKeyIdentifier(keyPair);
+            OBJECT_IDENTIFIER oid = new OBJECT_IDENTIFIER(PKIXExtensions.SubjectKey_Id.toString());
+            SEQUENCE extns = new SEQUENCE();
+            extns.addElement(new AVA(oid, new OCTET_STRING(subjKeyId.getIdentifier())));
+            certTemplate.setExtensions(extns);
+        }
+
+        return new CertRequest(new INTEGER(1), certTemplate, seq);
     }
 }

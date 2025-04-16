@@ -62,7 +62,6 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
-import org.dogtagpki.util.cert.CRMFUtil;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NicknameConflictException;
 import org.mozilla.jss.NoSuchTokenException;
@@ -154,7 +153,6 @@ import org.mozilla.jss.pkix.cms.EncryptedContentInfo;
 import org.mozilla.jss.pkix.cms.EnvelopedData;
 import org.mozilla.jss.pkix.crmf.CertReqMsg;
 import org.mozilla.jss.pkix.crmf.CertRequest;
-import org.mozilla.jss.pkix.crmf.CertTemplate;
 import org.mozilla.jss.pkix.crmf.EncryptedKey;
 import org.mozilla.jss.pkix.crmf.EncryptedValue;
 import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
@@ -1080,66 +1078,6 @@ public class CryptoUtil {
         pkcs10.encodeAndSign(signer);
 
         return pkcs10;
-    }
-
-    public static CertRequest createCertRequest(
-            boolean use_shared_secret,
-            CryptoToken token,
-            X509Certificate transportCert,
-            KeyPair keyPair,
-            Name subject,
-            KeyWrapAlgorithm keyWrapAlgorithm,
-            boolean useOAEP) throws Exception {
-
-        CertTemplate certTemplate = CRMFUtil.createCertTemplate(subject, keyPair.getPublic());
-
-        SEQUENCE seq = new SEQUENCE();
-
-        if (transportCert != null) { // add key archive Option
-            byte[] iv = getNonceData(keyWrapAlgorithm.getBlockSize());
-            OBJECT_IDENTIFIER kwOID = getOID(keyWrapAlgorithm);
-
-            /* TODO(alee)
-             *
-             * HACK HACK!
-             * algorithms like AES KeyWrap do not require an IV, but we need to include one
-             * in the AlgorithmIdentifier above, or the creation and parsing of the
-             * PKIArchiveOptions options will fail.  So we include an IV in aid, but null it
-             * later to correctly encrypt the data
-             */
-            AlgorithmIdentifier aid = new AlgorithmIdentifier(kwOID, new OCTET_STRING(iv));
-
-            Class<?>[] iv_classes = keyWrapAlgorithm.getParameterClasses();
-            if (iv_classes == null || iv_classes.length == 0)
-                iv = null;
-
-            WrappingParams params = getWrappingParams(keyWrapAlgorithm, iv, useOAEP);
-
-            PKIArchiveOptions opts = createPKIArchiveOptions(
-                    token,
-                    transportCert.getPublicKey(),
-                    (PrivateKey) keyPair.getPrivate(),
-                    params,
-                    aid);
-
-            seq.addElement(new AVA(new OBJECT_IDENTIFIER("1.3.6.1.5.5.7.5.1.4"), opts));
-        } // key archival option
-
-        /*
-        OCTET_STRING ostr = createIDPOPLinkWitness();
-        seq.addElement(new AVA(OBJECT_IDENTIFIER.id_cmc_idPOPLinkWitness, ostr));
-        */
-
-        if (use_shared_secret) { // per rfc 5272
-            System.out.println("CRMFPopClient: use_shared_secret true. Generating SubjectKeyIdentifier extension.");
-            KeyIdentifier subjKeyId = createKeyIdentifier(keyPair);
-            OBJECT_IDENTIFIER oid = new OBJECT_IDENTIFIER(PKIXExtensions.SubjectKey_Id.toString());
-            SEQUENCE extns = new SEQUENCE();
-            extns.addElement(new AVA(oid, new OCTET_STRING(subjKeyId.getIdentifier())));
-            certTemplate.setExtensions(extns);
-        }
-
-        return new CertRequest(new INTEGER(1), certTemplate, seq);
     }
 
     public static Signature createSigner(
