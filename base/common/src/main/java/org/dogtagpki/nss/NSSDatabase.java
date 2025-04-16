@@ -1164,7 +1164,7 @@ public class NSSDatabase {
             pop = CRMFUtil.createPop(signatureAlgorithm, signature);
         }
 
-        return CryptoUtil.createCRMFRequest(certRequest, pop);
+        return CRMFUtil.createCRMFRequest(certRequest, pop);
     }
 
     public static int validityUnitFromString(String validityUnit) throws Exception {

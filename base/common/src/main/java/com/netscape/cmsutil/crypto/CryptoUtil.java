@@ -69,7 +69,6 @@ import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.UserCertConflictException;
 import org.mozilla.jss.SecretDecoderRing.KeyManager;
 import org.mozilla.jss.asn1.ANY;
-import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.ASN1Value;
 import org.mozilla.jss.asn1.BIT_STRING;
 import org.mozilla.jss.asn1.BMPString;
@@ -79,7 +78,6 @@ import org.mozilla.jss.asn1.NULL;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.asn1.PrintableString;
-import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.asn1.TeletexString;
 import org.mozilla.jss.asn1.UTF8String;
@@ -151,12 +149,9 @@ import org.mozilla.jss.pkcs7.RecipientInfo;
 import org.mozilla.jss.pkix.cms.ContentInfo;
 import org.mozilla.jss.pkix.cms.EncryptedContentInfo;
 import org.mozilla.jss.pkix.cms.EnvelopedData;
-import org.mozilla.jss.pkix.crmf.CertReqMsg;
-import org.mozilla.jss.pkix.crmf.CertRequest;
 import org.mozilla.jss.pkix.crmf.EncryptedKey;
 import org.mozilla.jss.pkix.crmf.EncryptedValue;
 import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
-import org.mozilla.jss.pkix.crmf.ProofOfPossession;
 import org.mozilla.jss.pkix.primitive.AVA;
 import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.pkix.primitive.Name;
@@ -1088,19 +1083,6 @@ public class CryptoUtil {
         signer.initSign((org.mozilla.jss.crypto.PrivateKey) keyPair.getPrivate());
 
         return signer;
-    }
-
-    public static byte[] createCRMFRequest(
-            CertRequest certRequest,
-            ProofOfPossession pop) throws Exception {
-
-        CertReqMsg crmfMessage = new CertReqMsg(certRequest, pop, null);
-        //crmfMessage.verify();
-
-        SEQUENCE seq = new SEQUENCE();
-        seq.addElement(crmfMessage);
-
-        return ASN1Util.encode(seq);
     }
 
     public static boolean isEncoded(String elementValue) {

@@ -15,6 +15,7 @@ import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 
+import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.BIT_STRING;
 import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.asn1.InvalidBERException;
@@ -271,5 +272,18 @@ public class CRMFUtil {
         AlgorithmIdentifier algorithmID = new AlgorithmIdentifier(signatureAlgorithm.toOID(), null);
         POPOSigningKey popoKey = new POPOSigningKey(null, algorithmID, new BIT_STRING(signature, 0));
         return ProofOfPossession.createSignature(popoKey);
+    }
+
+    public static byte[] createCRMFRequest(
+            CertRequest certRequest,
+            ProofOfPossession pop) throws Exception {
+
+        CertReqMsg crmfMessage = new CertReqMsg(certRequest, pop, null);
+        // crmfMessage.verify();
+
+        SEQUENCE seq = new SEQUENCE();
+        seq.addElement(crmfMessage);
+
+        return ASN1Util.encode(seq);
     }
 }
