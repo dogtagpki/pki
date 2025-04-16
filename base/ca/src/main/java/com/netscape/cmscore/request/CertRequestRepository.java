@@ -19,6 +19,7 @@ package com.netscape.cmscore.request;
 
 import java.security.SecureRandom;
 
+import org.dogtagpki.util.cert.CRMFUtil;
 import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
@@ -86,7 +87,7 @@ public class CertRequestRepository extends RequestRepository {
         CertificateExtensions requestExtensions;
 
         if (requestType.equals("crmf")) {
-            SEQUENCE crmfMsgs = CryptoUtil.parseCRMFMsgs(binRequest);
+            SEQUENCE crmfMsgs = CRMFUtil.parseCRMFMsgs(binRequest);
             subjectName = CryptoUtil.getSubjectName(crmfMsgs);
             x509key = CryptoUtil.getX509KeyFromCRMFMsgs(crmfMsgs);
             requestExtensions = new CertificateExtensions();

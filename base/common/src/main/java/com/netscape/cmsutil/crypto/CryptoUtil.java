@@ -909,15 +909,6 @@ public class CryptoUtil {
         }
     }
 
-    public static SEQUENCE parseCRMFMsgs(byte[] cert_request)
-            throws IOException, InvalidBERException {
-        if (cert_request == null) {
-            throw new IOException("invalid certificate requests: cert_request null");
-        }
-        ByteArrayInputStream crmfBlobIn = new ByteArrayInputStream(cert_request);
-        return (SEQUENCE) new SEQUENCE.OF_Template(new CertReqMsg.Template()).decode(crmfBlobIn);
-    }
-
     public static X509Key getX509KeyFromCRMFMsgs(SEQUENCE crmfMsgs)
             throws IOException, NoSuchAlgorithmException,
             InvalidKeyException, InvalidKeyFormatException {

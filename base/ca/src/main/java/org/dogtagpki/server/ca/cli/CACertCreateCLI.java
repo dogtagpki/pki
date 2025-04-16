@@ -24,6 +24,7 @@ import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.jss.tomcat.TomcatJSS;
 import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngineConfig;
+import org.dogtagpki.util.cert.CRMFUtil;
 import org.dogtagpki.util.cert.CertUtil;
 import org.dogtagpki.util.logging.PKILogger;
 import org.dogtagpki.util.logging.PKILogger.LogLevel;
@@ -236,7 +237,7 @@ public class CACertCreateCLI extends CommandCLI {
             X509Key x509key;
 
             if (certRequestType.equals("crmf")) {
-                SEQUENCE crmfMsgs = CryptoUtil.parseCRMFMsgs(binCertRequest);
+                SEQUENCE crmfMsgs = CRMFUtil.parseCRMFMsgs(binCertRequest);
                 subjectName = CryptoUtil.getSubjectName(crmfMsgs);
                 x509key = CryptoUtil.getX509KeyFromCRMFMsgs(crmfMsgs);
 
