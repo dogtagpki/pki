@@ -1130,22 +1130,13 @@ public class NSSDatabase {
     public SEQUENCE createCRMFRequest(
             CryptoToken token,
             KeyPair keyPair,
-            org.mozilla.jss.crypto.X509Certificate transportCert,
             Name subject,
+            org.mozilla.jss.crypto.X509Certificate transportCert,
             SignatureAlgorithm signatureAlgorithm,
             Boolean withPop,
             KeyWrapAlgorithm keyWrapAlgorithm,
             boolean useOAEP,
-            boolean useSharedSecret) throws Exception {
-
-        Extensions extensions = new Extensions();
-
-        if (useSharedSecret) { // RFC 5272
-            logger.debug("NSSDatabase: Generating SubjectKeyIdentifier extension");
-            KeyIdentifier subjectKeyID = CryptoUtil.createKeyIdentifier(keyPair);
-            SubjectKeyIdentifierExtension extension = new SubjectKeyIdentifierExtension(subjectKeyID.getIdentifier());
-            extensions.add(extension);
-        }
+            Extensions extensions) throws Exception {
 
         CertRequest certRequest = CRMFUtil.createCertRequest(
                 token,

@@ -276,10 +276,10 @@ public class ClientCertRequestCLI extends CommandCLI {
             throw new Exception("Unknown algorithm: " + algorithm);
         }
 
+        Extensions extensions = new Extensions();
+
         String csr;
         if ("pkcs10".equals(requestType)) {
-
-            Extensions extensions = new Extensions();
 
             PKCS10 pkcs10 = nssdb.createPKCS10Request(
                     keyPair,
@@ -325,13 +325,13 @@ public class ClientCertRequestCLI extends CommandCLI {
             SEQUENCE crmfMsgs = nssdb.createCRMFRequest(
                     token,
                     keyPair,
-                    transportCert,
                     subject,
+                    transportCert,
                     signatureAlgorithm,
                     withPop,
                     keyWrapAlgorithm,
                     useOAEP,
-                    false); // useSharedSecret
+                    extensions);
 
             csr = CRMFUtil.encodeCRMF(crmfMsgs);
 

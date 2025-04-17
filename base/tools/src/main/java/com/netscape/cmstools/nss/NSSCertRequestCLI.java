@@ -214,6 +214,10 @@ public class NSSCertRequestCLI extends CommandCLI {
             generator.init(extConf);
         }
 
+        if (skid && generator.getParameter("subjectKeyIdentifier") == null) {
+            generator.setParameter("subjectKeyIdentifier", "hash");
+        }
+
         if (subjectAltName != null) {
             generator.setParameter("subjectAltName", subjectAltName);
         }
@@ -267,13 +271,13 @@ public class NSSCertRequestCLI extends CommandCLI {
             SEQUENCE crmfMsgs = nssdb.createCRMFRequest(
                     token,
                     keyPair,
-                    transportCert,
                     subjectName,
+                    transportCert,
                     signatureAlgorithm,
                     pop,
                     keyWrapAlgorithm,
                     keyWrapOAEP,
-                    skid);
+                    extensions);
 
             if (requestFormat == null || "PEM".equalsIgnoreCase(requestFormat)) {
                 bytes = CRMFUtil.encodeCRMF(crmfMsgs).getBytes();

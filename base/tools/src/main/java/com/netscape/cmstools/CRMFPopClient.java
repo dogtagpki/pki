@@ -55,6 +55,8 @@ import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.x509.Extensions;
+import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
 import org.mozilla.jss.pkix.primitive.AVA;
 import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.util.Password;
@@ -531,18 +533,27 @@ public class CRMFPopClient {
                 withPop = false;
             }
 
+            Extensions extensions = new Extensions();
+
+            if (use_shared_secret) { // RFC 5272
+                System.out.println("Generating SubjectKeyIdentifier extension");
+                byte[] subjectKeyID = CryptoUtil.createKeyIdentifier(keyPair).getIdentifier();
+                SubjectKeyIdentifierExtension extension = new SubjectKeyIdentifierExtension(subjectKeyID);
+                extensions.add(extension);
+            }
+
             if (verbose) System.out.println("Creating CRMF request");
 
             SEQUENCE crmfMsgs = nssdb.createCRMFRequest(
                     token,
                     keyPair,
-                    transportCert,
                     subject,
+                    transportCert,
                     signatureAlgorithm,
                     withPop,
                     keyWrapAlgorithm,
                     useOAEP,
-                    use_shared_secret);
+                    extensions);
 
             String csr = CRMFUtil.encodeCRMF(crmfMsgs);
 
