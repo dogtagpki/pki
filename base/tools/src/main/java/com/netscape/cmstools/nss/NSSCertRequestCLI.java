@@ -18,6 +18,7 @@ import org.dogtagpki.nss.NSSExtensionGenerator;
 import org.dogtagpki.util.cert.CRMFUtil;
 import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
@@ -263,7 +264,7 @@ public class NSSCertRequestCLI extends CommandCLI {
 
             KeyWrapAlgorithm keyWrapAlgorithm = KeyWrapAlgorithm.fromString(keyWrapAlg);
 
-            bytes = nssdb.createCRMFRequest(
+            SEQUENCE crmfMsgs = nssdb.createCRMFRequest(
                     token,
                     keyPair,
                     transportCert,
@@ -275,11 +276,10 @@ public class NSSCertRequestCLI extends CommandCLI {
                     skid);
 
             if (requestFormat == null || "PEM".equalsIgnoreCase(requestFormat)) {
-                SEQUENCE crmfMsgs = CRMFUtil.parseCRMFMsgs(bytes);
                 bytes = CRMFUtil.encodeCRMF(crmfMsgs).getBytes();
 
             } else if ("DER".equalsIgnoreCase(requestFormat)) {
-                // nothing to do
+                bytes = ASN1Util.encode(crmfMsgs);
 
             } else {
                 throw new Exception("Unsupported format: " + requestFormat);

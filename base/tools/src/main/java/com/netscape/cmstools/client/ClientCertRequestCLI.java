@@ -322,7 +322,7 @@ public class ClientCertRequestCLI extends CommandCLI {
 
             Name subject = CryptoUtil.createName(subjectDN, attributeEncoding);
 
-            byte[] crmfRequest = nssdb.createCRMFRequest(
+            SEQUENCE crmfMsgs = nssdb.createCRMFRequest(
                     token,
                     keyPair,
                     transportCert,
@@ -333,7 +333,6 @@ public class ClientCertRequestCLI extends CommandCLI {
                     useOAEP,
                     false); // useSharedSecret
 
-            SEQUENCE crmfMsgs = CRMFUtil.parseCRMFMsgs(crmfRequest);
             csr = CRMFUtil.encodeCRMF(crmfMsgs);
 
         } else {

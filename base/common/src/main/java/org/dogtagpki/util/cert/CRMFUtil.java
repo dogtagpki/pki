@@ -269,7 +269,7 @@ public class CRMFUtil {
         return ProofOfPossession.createSignature(popoKey);
     }
 
-    public static byte[] createCRMFRequest(
+    public static SEQUENCE createCRMFRequest(
             CertRequest certRequest,
             ProofOfPossession pop) throws Exception {
 
@@ -279,6 +279,6 @@ public class CRMFUtil {
         SEQUENCE seq = new SEQUENCE();
         seq.addElement(crmfMessage);
 
-        return ASN1Util.encode(seq);
+        return seq;
     }
 }

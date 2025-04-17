@@ -533,7 +533,7 @@ public class CRMFPopClient {
 
             if (verbose) System.out.println("Creating CRMF request");
 
-            byte[] crmfRequest = nssdb.createCRMFRequest(
+            SEQUENCE crmfMsgs = nssdb.createCRMFRequest(
                     token,
                     keyPair,
                     transportCert,
@@ -544,7 +544,6 @@ public class CRMFPopClient {
                     useOAEP,
                     use_shared_secret);
 
-            SEQUENCE crmfMsgs = CRMFUtil.parseCRMFMsgs(crmfRequest);
             String csr = CRMFUtil.encodeCRMF(crmfMsgs);
 
             if (hostPort != null) {

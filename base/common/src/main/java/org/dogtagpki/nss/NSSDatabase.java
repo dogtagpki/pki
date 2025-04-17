@@ -57,6 +57,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.cli.CLIException;
 import org.dogtagpki.util.cert.CRMFUtil;
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage;
@@ -1126,7 +1127,7 @@ public class NSSDatabase {
                 extensions);
     }
 
-    public byte[] createCRMFRequest(
+    public SEQUENCE createCRMFRequest(
             CryptoToken token,
             KeyPair keyPair,
             org.mozilla.jss.crypto.X509Certificate transportCert,
