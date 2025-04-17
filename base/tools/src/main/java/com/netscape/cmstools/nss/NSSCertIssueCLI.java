@@ -19,6 +19,8 @@ import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.x509.Extensions;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.cmstools.cli.MainCLI;
@@ -118,6 +120,8 @@ public class NSSCertIssueCLI extends CommandCLI {
         String csrPEM = new String(Files.readAllBytes(Paths.get(csrFile)));
         byte[] csrBytes = CertUtil.parseCSR(csrPEM);
         PKCS10 pkcs10 = new PKCS10(csrBytes);
+        X509Key x509Key = pkcs10.getSubjectPublicKeyInfo();
+        X500Name subjectName = pkcs10.getSubjectName();
 
         NSSExtensionGenerator generator = new NSSExtensionGenerator();
         Extensions extensions = null;
@@ -149,8 +153,9 @@ public class NSSCertIssueCLI extends CommandCLI {
 
         X509Certificate cert = nssdb.createCertificate(
                 tokenName,
+                x509Key,
+                subjectName,
                 issuer,
-                pkcs10,
                 serialNumber,
                 validityLength,
                 validityUnit,

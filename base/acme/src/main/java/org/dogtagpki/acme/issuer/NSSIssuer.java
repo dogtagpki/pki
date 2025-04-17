@@ -25,7 +25,9 @@ import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.Extensions;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmsutil.password.PasswordStore;
@@ -131,9 +133,13 @@ public class NSSIssuer extends ACMEIssuer {
             extensions = extGenerator.createExtensions(issuer, pkcs10);
         }
 
+        X509Key x509Key = pkcs10.getSubjectPublicKeyInfo();
+        X500Name subjectName = pkcs10.getSubjectName();
+
         X509Certificate cert = nssDatabase.createCertificate(
+                x509Key,
+                subjectName,
                 issuer,
-                pkcs10,
                 validityLength,
                 validityUnit,
                 hash,

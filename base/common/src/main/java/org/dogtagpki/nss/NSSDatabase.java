@@ -1096,7 +1096,7 @@ public class NSSDatabase {
             Extensions extensions) throws Exception {
 
         logger.debug("NSSDatabase: Creating PKCS #10 request");
-        logger.debug("NSSDatabase: - subjecct: " + subject);
+        logger.debug("NSSDatabase: - subject: " + subject);
 
         PK11PrivKey privateKey = (PK11PrivKey) keyPair.getPrivate();
         String algorithm = hash + "with" + privateKey.getType();
@@ -1213,16 +1213,18 @@ public class NSSDatabase {
     }
 
     public X509Certificate createCertificate(
+            X509Key x509Key,
+            X500Name subjectName,
             org.mozilla.jss.crypto.X509Certificate issuer,
-            PKCS10 pkcs10,
             int validityLength,
             int validityUnit,
             String hash,
             Extensions extensions) throws Exception {
 
         return createCertificate(
+                x509Key,
+                subjectName,
                 issuer,
-                pkcs10,
                 null, // serial number
                 validityLength,
                 validityUnit,
@@ -1231,8 +1233,9 @@ public class NSSDatabase {
     }
 
     public X509Certificate createCertificate(
+            X509Key x509Key,
+            X500Name subjectName,
             org.mozilla.jss.crypto.X509Certificate issuer,
-            PKCS10 pkcs10,
             String serialNumber,
             int validityLength,
             int validityUnit,
@@ -1241,8 +1244,9 @@ public class NSSDatabase {
 
         return createCertificate(
                 null, // token name
+                x509Key,
+                subjectName,
                 issuer,
-                pkcs10,
                 serialNumber,
                 validityLength,
                 validityUnit,
@@ -1252,15 +1256,15 @@ public class NSSDatabase {
 
     public X509Certificate createCertificate(
             String tokenName,
+            X509Key x509Key,
+            X500Name subjectName,
             org.mozilla.jss.crypto.X509Certificate issuer,
-            PKCS10 pkcs10,
             String serialNumber,
             int validityLength,
             int validityUnit,
             String hash,
             Extensions extensions) throws Exception {
 
-        X500Name subjectName = pkcs10.getSubjectName();
         logger.debug("NSSDatabase: Issuing cert for " + subjectName);
 
         if (tokenName != null) {
@@ -1279,7 +1283,6 @@ public class NSSDatabase {
         CertificateIssuerName certIssuerName = new CertificateIssuerName(issuerName);
         logger.debug("NSSDatabase: - issuer: " + certIssuerName);
 
-        X509Key x509Key = pkcs10.getSubjectPublicKeyInfo();
         logger.debug("NSSDatabase: - public key algorithm: " + x509Key.getAlgorithm());
 
         BigInteger serialNo;
