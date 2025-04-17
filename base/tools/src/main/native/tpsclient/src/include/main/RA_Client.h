@@ -82,8 +82,8 @@ typedef struct _ThreadArg
   int done;         /* are we done? */
 } ThreadArg;
 
-extern "C" void
-ThreadConnUpdate (void *arg);
+extern "C" int
+FormatToken (RA_Client *client, NameValueSet *params, RA_Token *token, RA_Conn *conn);
 
 extern "C" void
 ThreadConnResetPin (void *arg);
