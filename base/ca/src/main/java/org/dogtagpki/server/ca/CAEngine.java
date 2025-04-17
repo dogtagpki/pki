@@ -108,12 +108,10 @@ import com.netscape.certsrv.connector.ConnectorsConfig;
 import com.netscape.certsrv.dbs.DBRecordNotFoundException;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.event.OCSPSigningInfoEvent;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.publish.CRLPublisher;
 import com.netscape.certsrv.request.RequestListener;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.certsrv.security.SigningUnitConfig;
 import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.cms.authentication.CAAuthSubsystem;
 import com.netscape.cms.listeners.CARequestInQListener;
@@ -1649,43 +1647,6 @@ public class CAEngine extends CMSEngine {
         ca.getAuthorityKeyHosts().add(host);
     }
 
-    public void initOCSPSigningUnit(CertificateAuthority ca) throws Exception {
-
-        logger.info("CAEngine: Initializing OCSP signing unit for authority {}", ca.getAuthorityID());
-
-        boolean hostCA = ca.isHostAuthority();
-        AuthorityID authorityID = ca.getAuthorityID();
-
-        CAConfig caConfig = ca.getConfig();
-        SigningUnitConfig ocspSigningConfig = caConfig.getOCSPSigningUnitConfig();
-        CASigningUnit ocspSigningUnit;
-
-        if (hostCA && ocspSigningConfig != null && ocspSigningConfig.size() > 0) {
-            ocspSigningUnit = new CASigningUnit();
-            ocspSigningUnit.init(ocspSigningConfig, null);
-
-        } else {
-            ocspSigningUnit = ca.getSigningUnit();
-        }
-
-        ca.setOCSPSigningUnit(ocspSigningUnit);
-
-        org.mozilla.jss.crypto.X509Certificate ocspCert = ocspSigningUnit.getCert();
-        logger.debug("CAEngine: - nickname: " + ocspCert.getNickname());
-
-        X509CertImpl ocspCertImpl = ocspSigningUnit.getCertImpl();
-        String ocspSigningSKI = CryptoUtil.getSKIString(ocspCertImpl);
-
-        if (hostCA) {
-            // generate OCSP signing info without authority ID
-            auditor.log(OCSPSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, ocspSigningSKI));
-
-        } else {
-            // generate OCSP signing info with authority ID
-            auditor.log(OCSPSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, ocspSigningSKI, authorityID));
-        }
-    }
-
     public void initCA(CertificateAuthority ca) throws Exception {
 
         AuthorityID aid = ca.getAuthorityID();
@@ -1702,7 +1663,7 @@ public class CAEngine extends CMSEngine {
         try {
             ca.initCertSigningUnit();
             ca.initCRLSigningUnit();
-            initOCSPSigningUnit(ca);
+            ca.initOCSPSigningUnit();
 
         } catch (CAMissingCertException | CAMissingKeyException e) {
             logger.warn("CAEngine: CA signing key and cert not (yet) present in NSS database");
@@ -1758,7 +1719,7 @@ public class CAEngine extends CMSEngine {
             logger.info("CAEngine: Reinitializing signing units after new certificate");
             ca.initCertSigningUnit();
             ca.initCRLSigningUnit();
-            initOCSPSigningUnit(ca);
+            ca.initOCSPSigningUnit();
 
         } catch (CAMissingCertException e) {
             logger.warn("CAEngine: CA signing cert not (yet) present in NSS database");
