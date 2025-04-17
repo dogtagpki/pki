@@ -37,16 +37,9 @@
 #endif /* AUTOTOOLS_CONFIG_H */
 #endif /* HAVE_CONFIG_H */
 
-#include "prthread.h"
 #include "main/NameValueSet.h"
 #include "main/RA_Conn.h"
 #include "main/RA_Token.h"
-
-enum RequestType {
-  OP_CLIENT_ENROLL = 0,
-  OP_CLIENT_FORMAT = 1,
-  OP_CLIENT_RESET_PIN = 2
-};
 
 class RA_Client
 {
@@ -70,25 +63,13 @@ class RA_Client
 	  PRBool old_style = PR_TRUE;
 };
 
-typedef struct _ThreadArg
-{
-  PRTime time;          /* processing time */
-  int status;           /* status result */
-  NameValueSet *params;     /* parameters */
-  RA_Client *client;        /* client */
-  RA_Token *token;      /* token */
-
-  PRLock *donelock;     /* lock */
-  int done;         /* are we done? */
-} ThreadArg;
-
 extern "C" int
 FormatToken (RA_Client *client, NameValueSet *params, RA_Token *token, RA_Conn *conn);
 
 extern "C" int
 ResetPIN (RA_Client *client, NameValueSet *params, RA_Token *token, RA_Conn *conn);
 
-extern "C" void
-ThreadConnEnroll (void *arg);
+extern "C" int
+EnrollToken (RA_Client *client, NameValueSet *params, RA_Token *token, RA_Conn *conn);
 
 #endif /* RA_CLIENT_H */

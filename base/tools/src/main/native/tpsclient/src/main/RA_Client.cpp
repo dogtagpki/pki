@@ -94,17 +94,6 @@ Output (const char *fmt, ...)
   va_end (ap);
 }
 
-static void
-OutputError (const char *fmt, ...)
-{
-  va_list ap;
-  va_start (ap, fmt);
-  printf ("Result> Error - ");
-  vprintf (fmt, ap);
-  printf ("\n");
-  va_end (ap);
-}
-
 void
 RA_Client::Debug (const char *func_name, const char *fmt, ...)
 {
@@ -728,118 +717,94 @@ extern "C"
 {
 #endif
 
-  void ThreadConnEnroll (void *arg)
+  int EnrollToken (RA_Client *client, NameValueSet *params, RA_Token *token, RA_Conn *conn)
   {
-    PRTime start, end;
-    ThreadArg *targ = (ThreadArg *) arg;
-
-      start = PR_Now ();
-    RA_Conn conn (targ->client->m_vars.GetValue ("ra_host"),
-		  atoi (targ->client->m_vars.GetValue ("ra_port")),
-		  targ->client->m_vars.GetValue ("ra_uri"));
-
-    if (!conn.Connect ())
-      {
-	OutputError ("Cannot connect to %s:%d",
-		     targ->client->m_vars.GetValue ("ra_host"),
-		     atoi (targ->client->m_vars.GetValue ("ra_port")));
-	targ->status = 0;
-
-	if (!targ->client->old_style)
-	  {
-	    PR_Lock (targ->donelock);
-	    targ->done = PR_TRUE;
-	    PR_Unlock (targ->donelock);
-	  }
-
-	return;
-      }
-
     NameValueSet *exts = NULL;
     char *extensions =
-      targ->params->GetValueAsString ((char *) "extensions", NULL);
+      params->GetValueAsString ((char *) "extensions", NULL);
     if (extensions != NULL)
       {
 	exts = NameValueSet::Parse (extensions, "&");
       }
 
     RA_Begin_Op_Msg beginOp = RA_Begin_Op_Msg (OP_ENROLL, exts);
-    conn.SendMsg (&beginOp);
+    conn->SendMsg (&beginOp);
 
     /* handle secure ID (optional) */
+    int status;
     while (1)
       {
-	RA_Msg *msg = (RA_Msg *) conn.ReadMsg (targ->token);
+	RA_Msg *msg = (RA_Msg *) conn->ReadMsg (token);
 	if (msg == NULL)
 	  break;
 	if (msg->GetType () == MSG_LOGIN_REQUEST)
 	  {
-	    targ->status = HandleLoginRequest (targ->client,
+	    status = HandleLoginRequest (client,
 					       (RA_Login_Request_Msg *) msg,
-					       targ->token, &conn,
-					       &targ->client->m_vars,
-					       targ->params);
+					       token, conn,
+					       &client->m_vars,
+					       params);
 	  }
 	else if (msg->GetType () == MSG_EXTENDED_LOGIN_REQUEST)
 	  {
-	    targ->status = HandleExtendedLoginRequest (targ->client,
+	    status = HandleExtendedLoginRequest (client,
 						       (RA_Extended_Login_Request_Msg
-							*) msg, targ->token,
-						       &conn,
-						       &targ->client->m_vars,
-						       targ->params);
+							*) msg, token,
+						       conn,
+						       &client->m_vars,
+						       params);
 	  }
 	else if (msg->GetType () == MSG_STATUS_UPDATE_REQUEST)
 	  {
-	    targ->status =
-	      HandleStatusUpdateRequest (targ->client,
+	    status =
+	      HandleStatusUpdateRequest (client,
 					 (RA_Status_Update_Request_Msg *) msg,
-					 targ->token, &conn,
-					 &targ->client->m_vars, targ->params);
+					 token, conn,
+					 &client->m_vars, params);
 	  }
 	else if (msg->GetType () == MSG_SECUREID_REQUEST)
 	  {
-	    targ->status = HandleSecureIdRequest (targ->client,
+	    status = HandleSecureIdRequest (client,
 						  (RA_SecureId_Request_Msg *)
-						  msg, targ->token, &conn,
-						  &targ->client->m_vars,
-						  targ->params);
+						  msg, token, conn,
+						  &client->m_vars,
+						  params);
 	  }
 	else if (msg->GetType () == MSG_ASQ_REQUEST)
 	  {
-	    targ->status = HandleASQRequest (targ->client,
+	    status = HandleASQRequest (client,
 					     (RA_ASQ_Request_Msg *) msg,
-					     targ->token, &conn,
-					     &targ->client->m_vars,
-					     targ->params);
+					     token, conn,
+					     &client->m_vars,
+					     params);
 	  }
 	else if (msg->GetType () == MSG_TOKEN_PDU_REQUEST)
 	  {
-	    targ->status = HandleTokenPDURequest (targ->client,
+	    status = HandleTokenPDURequest (client,
 						  (RA_Token_PDU_Request_Msg *)
-						  msg, targ->token, &conn,
-						  &targ->client->m_vars,
-						  targ->params);
-	    targ->status = 1;
+						  msg, token, conn,
+						  &client->m_vars,
+						  params);
+	    status = 1;
 	  }
 	else if (msg->GetType () == MSG_NEW_PIN_REQUEST)
 	  {
-	    targ->status = HandleNewPinRequest (targ->client,
+	    status = HandleNewPinRequest (client,
 						(RA_New_Pin_Request_Msg *)
-						msg, targ->token, &conn,
-						&targ->client->m_vars,
-						targ->params);
+						msg, token, conn,
+						&client->m_vars,
+						params);
 	  }
 	else if (msg->GetType () == MSG_END_OP)
 	  {
 	    RA_End_Op_Msg *endOp = (RA_End_Op_Msg *) msg;
 	    if (endOp->GetResult () == 0)
 	      {
-		targ->status = 1;	/* error */
+		status = 1;	/* error */
 	      }
 	    else
 	      {
-		targ->status = 0;
+		status = 0;
 	      }
 	    if (msg != NULL)
 	      {
@@ -851,7 +816,7 @@ extern "C"
 	else
 	  {
 	    /* error */
-	    targ->status = 0;	/* error */
+	    status = 0;	/* error */
 	  }
 	if (msg != NULL)
 	  {
@@ -860,16 +825,7 @@ extern "C"
 	  }
       }
 
-    conn.Close ();
-    end = PR_Now ();
-    targ->time = (end - start) / 1000;
-
-    if (!targ->client->old_style)
-      {
-	PR_Lock (targ->donelock);
-	targ->done = PR_TRUE;
-	PR_Unlock (targ->donelock);
-      }
+    return status;
   }
 
 #ifdef __cplusplus
