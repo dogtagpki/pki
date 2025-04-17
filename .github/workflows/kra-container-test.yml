@@ -52,6 +52,10 @@ jobs:
               --network=example \
               client
 
+      - name: Install ASN.1 parser
+        run: |
+          docker exec client dnf install -y dumpasn1
+
       - name: Set up CA container
         run: |
           docker run \
@@ -504,11 +508,20 @@ jobs:
           docker exec client pki \
               nss-cert-request \
               --type crmf \
-              --subject UID=testuser \
+              --subject CN=server.example.com \
+              --subjectAltName "critical, DNS:www.example.com" \
               --transport kra_transport \
-              --csr testuser.csr
+              --csr $SHARED/server.csr
 
-          docker exec client cat testuser.csr
+          # check PEM CSR
+          cat server.csr
+
+          # convert CSR into DER
+          sed -e '/^-----/d' server.csr | tr -d '\r\n' | tee server.b64
+          base64 -d server.b64 > server.der
+
+          # display ASN.1 CSR
+          docker exec client dumpasn1 $SHARED/server.der
 
       - name: Issue cert with key archival
         run: |
@@ -519,17 +532,19 @@ jobs:
               -n admin \
               ca-cert-issue \
               --request-type crmf \
-              --profile caUserCert \
-              --subject UID=testuser \
-              --csr-file testuser.csr \
-              --output-file testuser.crt
+              --profile caServerCert \
+              --subject CN=server.example.com \
+              --csr-file $SHARED/server.csr \
+              --output-file server.crt
+
+          docker exec client openssl x509 -text -noout -in server.crt
 
           # import cert into NSS database
-          docker exec client pki nss-cert-import --cert testuser.crt testuser
+          docker exec client pki nss-cert-import --cert server.crt server
 
           # the cert should match the key (trust flags must be u,u,u)
           echo "u,u,u" > expected
-          docker exec client pki nss-cert-show testuser | tee output
+          docker exec client pki nss-cert-show server | tee output
           sed -n "s/^\s*Trust Flags:\s*\(\S*\)$/\1/p" output > actual
           diff expected actual
 
@@ -539,7 +554,7 @@ jobs:
           docker exec client pki \
               -U https://kra.example.com:8443 \
               -n admin \
-              kra-key-find --owner UID=testuser | tee output
+              kra-key-find --owner CN=server.example.com | tee output
 
           KEY_ID=$(sed -n "s/^\s*Key ID:\s*\(\S*\)$/\1/p" output)
           echo "Key ID: $KEY_ID"
@@ -553,7 +568,7 @@ jobs:
           KEY_ID=$(cat key.id)
           echo "Key ID: $KEY_ID"
 
-          BASE64_CERT=$(docker exec client pki nss-cert-export --format DER testuser | base64 --wrap=0)
+          BASE64_CERT=$(docker exec client pki nss-cert-export --format DER server | base64 --wrap=0)
           echo "Cert: $BASE64_CERT"
 
           cat > request.json <<EOF
@@ -595,14 +610,14 @@ jobs:
           docker exec client pki -d nssdb nss-cert-find
 
           # remove archived cert from NSS database
-          docker exec client pki -d nssdb nss-cert-del UID=testuser
+          docker exec client pki -d nssdb nss-cert-del CN=server.example.com
 
           # import original cert into NSS database
-          docker exec client pki -d nssdb nss-cert-import --cert testuser.crt testuser
+          docker exec client pki -d nssdb nss-cert-import --cert server.crt server
 
           # the original cert should match the archived key (trust flags must be u,u,u)
           echo "u,u,u" > expected
-          docker exec client pki -d nssdb nss-cert-show testuser | tee output
+          docker exec client pki -d nssdb nss-cert-show server | tee output
           sed -n "s/^\s*Trust Flags:\s*\(\S*\)$/\1/p" output > actual
           diff expected actual
 
