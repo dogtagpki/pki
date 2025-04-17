@@ -159,22 +159,6 @@ Java_com_netscape_cmstools_tps_TPSClientCLI_performFormatToken
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_netscape_cmstools_tps_TPSClientCLI_newFormatToken
-(JNIEnv* env, jobject object, jlong client, jobject params) {
-
-    RA_Client* cclient = (RA_Client*) client;
-    NameValueSet *set = convertParams(env, params);
-
-    int status = cclient->OpConnStart(set, OP_CLIENT_FORMAT);
-
-    delete set;
-
-    if (status == 0) {
-        throwCLIException(env, "Unable to format token");
-    }
-}
-
-extern "C" JNIEXPORT void JNICALL
 Java_com_netscape_cmstools_tps_TPSClientCLI_performResetPIN
 (JNIEnv* env, jobject object, jlong client, jobject params) {
 
@@ -198,22 +182,6 @@ Java_com_netscape_cmstools_tps_TPSClientCLI_performResetPIN
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_netscape_cmstools_tps_TPSClientCLI_newResetPIN
-(JNIEnv* env, jobject object, jlong client, jobject params) {
-
-    RA_Client* cclient = (RA_Client*) client;
-    NameValueSet *set = convertParams(env, params);
-
-    int status = cclient->OpConnStart(set, OP_CLIENT_RESET_PIN);
-
-    delete set;
-
-    if (status == 0) {
-        throwCLIException(env, "Unable to reset PIN");
-    }
-}
-
-extern "C" JNIEXPORT void JNICALL
 Java_com_netscape_cmstools_tps_TPSClientCLI_performEnrollToken
 (JNIEnv* env, jobject object, jlong client, jobject params) {
 
@@ -232,22 +200,6 @@ Java_com_netscape_cmstools_tps_TPSClientCLI_performEnrollToken
     delete arg.token;
 
     if (arg.status == 0) {
-        throwCLIException(env, "Unable to enroll token");
-    }
-}
-
-extern "C" JNIEXPORT void JNICALL
-Java_com_netscape_cmstools_tps_TPSClientCLI_newEnrollToken
-(JNIEnv* env, jobject object, jlong client, jobject params) {
-
-    RA_Client* cclient = (RA_Client*) client;
-    NameValueSet *set = convertParams(env, params);
-
-    int status = cclient->OpConnStart(set, OP_CLIENT_ENROLL);
-
-    delete set;
-
-    if (status == 0) {
         throwCLIException(env, "Unable to enroll token");
     }
 }

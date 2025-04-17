@@ -55,7 +55,6 @@ class RA_Client
 	  ~RA_Client();
   public:
 	  int OpHelp(NameValueSet *set);
-	  int OpConnStart(NameValueSet *set, RequestType);
 	  int OpTokenStatus(NameValueSet *set);
 	  int OpTokenSet(NameValueSet *set);
 	  int OpVarList(NameValueSet *set);

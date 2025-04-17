@@ -5,9 +5,13 @@
 //
 package com.netscape.cmstools.tps;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.lang3.StringUtils;
@@ -67,84 +71,37 @@ public class TPSClientCLI extends CommandCLI {
 
     public native void performFormatToken(long client, Map<String, String> params) throws Exception;
 
-    public void oldFormatToken(
-            long client,
-            Map<String, String> params)
-            throws Exception {
-
-        String value = params.get("num_threads");
-        int numThreads = value == null ? 1 : Integer.parseInt(value);
-
-        Thread[] threads = new Thread[numThreads];
-        Exception[] exceptions = new Exception[numThreads];
-
-        // start threads
-        for (int i=0; i<numThreads; i++) {
-
-            int index = i;
-
-            threads[i] = new Thread(new Runnable() {
-                public void run() {
-                    try {
-                        performFormatToken(client, params);
-                    } catch (Exception e) {
-                        exceptions[index] = e;
-                    }
-                }
-            });
-
-            threads[i].start();
-        }
-
-        // wait for threads to complete
-        for (int i=0; i<numThreads; i++) {
-            threads[i].join();
-        }
-
-        // check for exceptions
-        for (int i=0; i<numThreads; i++) {
-            if (exceptions[i] != null) throw exceptions[i];
-        }
-    }
-
-    public native void newFormatToken(long client, Map<String, String> params) throws Exception;
-
     public void formatToken(
             long client,
             Map<String, String> params)
             throws Exception {
 
-        if (getOldStyle(client)) {
-            oldFormatToken(client, params);
-        } else {
-            newFormatToken(client, params);
-        }
-    }
-
-    public native void performResetPIN(long client, Map<String, String> params) throws Exception;
-
-    public void oldResetPIN(
-            long client,
-            Map<String, String> params)
-            throws Exception {
-
         String value = params.get("num_threads");
         int numThreads = value == null ? 1 : Integer.parseInt(value);
 
+        value = params.get("max_ops");
+        int maxOps = value == null ? numThreads : Integer.parseInt(value);
+
         Thread[] threads = new Thread[numThreads];
-        Exception[] exceptions = new Exception[numThreads];
+        AtomicInteger counter = new AtomicInteger(maxOps);
+        Collection<Exception>exceptions = Collections.synchronizedCollection(new ArrayList<>());
 
         // start threads
         for (int i=0; i<numThreads; i++) {
 
-            int index = i;
-
             threads[i] = new Thread(new Runnable() {
                 public void run() {
                     try {
-                        performResetPIN(client, params);
+                        // perform operations until the counter reaches 0
+                        while (true) {
+                            int c = counter.getAndDecrement();
+                            if (c <= 0) return;
+
+                            performFormatToken(client, params);
+                        }
+
                     } catch (Exception e) {
-                        exceptions[index] = e;
+                        exceptions.add(e);
                     }
                 }
             });
@@ -158,49 +115,44 @@ public class TPSClientCLI extends CommandCLI {
         }
 
         // check for exceptions
-        for (int i=0; i<numThreads; i++) {
-            if (exceptions[i] != null) throw exceptions[i];
+        if (!exceptions.isEmpty()) {
+            throw exceptions.iterator().next();
         }
     }
 
-    public native void newResetPIN(long client, Map<String, String> params) throws Exception;
+    public native void performResetPIN(long client, Map<String, String> params) throws Exception;
 
     public void resetPIN(
             long client,
             Map<String, String> params)
             throws Exception {
 
-        if (getOldStyle(client)) {
-            oldResetPIN(client, params);
-        } else {
-            newResetPIN(client, params);
-        }
-    }
-
-    public native void performEnrollToken(long client, Map<String, String> params) throws Exception;
-
-    public void oldEnrollToken(
-            long client,
-            Map<String, String> params)
-            throws Exception {
-
         String value = params.get("num_threads");
         int numThreads = value == null ? 1 : Integer.parseInt(value);
 
+        value = params.get("max_ops");
+        int maxOps = value == null ? numThreads : Integer.parseInt(value);
+
         Thread[] threads = new Thread[numThreads];
-        Exception[] exceptions = new Exception[numThreads];
+        AtomicInteger counter = new AtomicInteger(maxOps);
+        Collection<Exception>exceptions = Collections.synchronizedCollection(new ArrayList<>());
 
         // start threads
         for (int i=0; i<numThreads; i++) {
 
-            int index = i;
-
             threads[i] = new Thread(new Runnable() {
                 public void run() {
                     try {
-                        performEnrollToken(client, params);
+                        // perform operations until the counter reaches 0
+                        while (true) {
+                            int c = counter.getAndDecrement();
+                            if (c <= 0) return;
+
+                            performResetPIN(client, params);
+                        }
+
                     } catch (Exception e) {
-                        exceptions[index] = e;
+                        exceptions.add(e);
                     }
                 }
             });
@@ -214,22 +166,59 @@ public class TPSClientCLI extends CommandCLI {
         }
 
         // check for exceptions
-        for (int i=0; i<numThreads; i++) {
-            if (exceptions[i] != null) throw exceptions[i];
+        if (!exceptions.isEmpty()) {
+            throw exceptions.iterator().next();
         }
     }
 
-    public native void newEnrollToken(long client, Map<String, String> params) throws Exception;
+    public native void performEnrollToken(long client, Map<String, String> params) throws Exception;
 
     public void enrollToken(
             long client,
             Map<String, String> params)
             throws Exception {
 
-        if (getOldStyle(client)) {
-            oldEnrollToken(client, params);
-        } else {
-            newEnrollToken(client, params);
+        String value = params.get("num_threads");
+        int numThreads = value == null ? 1 : Integer.parseInt(value);
+
+        value = params.get("max_ops");
+        int maxOps = value == null ? numThreads : Integer.parseInt(value);
+
+        Thread[] threads = new Thread[numThreads];
+        AtomicInteger counter = new AtomicInteger(maxOps);
+        Collection<Exception>exceptions = Collections.synchronizedCollection(new ArrayList<>());
+
+        // start threads
+        for (int i=0; i<numThreads; i++) {
+
+            threads[i] = new Thread(new Runnable() {
+                public void run() {
+                    try {
+                        // perform operations until the counter reaches 0
+                        while (true) {
+                            int c = counter.getAndDecrement();
+                            if (c <= 0) return;
+
+                            performEnrollToken(client, params);
+                        }
+
+                    } catch (Exception e) {
+                        exceptions.add(e);
+                    }
+                }
+            });
+
+            threads[i].start();
+        }
+
+        // wait for threads to complete
+        for (int i=0; i<numThreads; i++) {
+            threads[i].join();
+        }
+
+        // check for exceptions
+        if (!exceptions.isEmpty()) {
+            throw exceptions.iterator().next();
         }
     }
 
