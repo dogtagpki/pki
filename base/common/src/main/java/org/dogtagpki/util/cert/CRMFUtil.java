@@ -36,6 +36,7 @@ import org.mozilla.jss.netscape.security.util.WrappingParams;
 import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.x509.SubjectAlternativeNameExtension;
 import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509Key;
@@ -192,6 +193,29 @@ public class CRMFUtil {
         }
 
         return null;
+    }
+
+    public static SubjectAlternativeNameExtension getSANExtension(SEQUENCE crmfMsgs) throws IOException {
+
+        int size = crmfMsgs.size();
+        if (size <= 0) {
+            throw new IOException("Missing CRMF requests");
+        }
+
+        CertReqMsg msg = (CertReqMsg) crmfMsgs.elementAt(0);
+        CertRequest certreq = msg.getCertReq();
+        CertTemplate certTemplate = certreq.getCertTemplate();
+
+        Extension csrExt = getExtensionFromCertTemplate(
+                certTemplate,
+                PKIXExtensions.SubjectAlternativeName_Id);
+        if (csrExt == null) {
+            return null;
+        }
+
+        return new SubjectAlternativeNameExtension(
+                csrExt.isCritical(),
+                csrExt.getExtensionValue());
     }
 
     public static CertTemplate createCertTemplate(Name subject, PublicKey publicKey) throws Exception {
