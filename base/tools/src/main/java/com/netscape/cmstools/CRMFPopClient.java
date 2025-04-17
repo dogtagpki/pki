@@ -48,6 +48,7 @@ import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.asn1.PrintableString;
+import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.PrivateKey;
@@ -543,7 +544,8 @@ public class CRMFPopClient {
                     useOAEP,
                     use_shared_secret);
 
-            String csr = CRMFUtil.encodeCRMF(crmfRequest);
+            SEQUENCE crmfMsgs = CRMFUtil.parseCRMFMsgs(crmfRequest);
+            String csr = CRMFUtil.encodeCRMF(crmfMsgs);
 
             if (hostPort != null) {
                 System.out.println("Submitting CRMF request to " + hostPort);

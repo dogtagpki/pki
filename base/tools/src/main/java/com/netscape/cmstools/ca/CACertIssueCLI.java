@@ -21,6 +21,7 @@ import org.dogtagpki.cli.CLIException;
 import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.util.cert.CRMFUtil;
 import org.dogtagpki.util.cert.CertUtil;
+import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
@@ -329,7 +330,9 @@ public class CACertIssueCLI extends CommandCLI {
 
         String csrFilename = cmd.getOptionValue("csr-file");
         String csr = null;
+
         PKCS10 pkcs10 = null;
+        SEQUENCE crmfMsgs = null;
 
         if (csrFilename != null) {
 
@@ -351,7 +354,8 @@ public class CACertIssueCLI extends CommandCLI {
                 csr = CertUtil.toPEM(pkcs10);
 
             } else if ("crmf".equals(requestType)) {
-                csr = CRMFUtil.encodeCRMF(bytes);
+                crmfMsgs = CRMFUtil.parseCRMFMsgs(bytes);
+                csr = CRMFUtil.encodeCRMF(crmfMsgs);
 
             } else {
                 throw new Exception("Unsupported request type: " + requestType);

@@ -100,7 +100,8 @@ public class CRMFUtil {
         }
     }
 
-    public static String encodeCRMF(byte[] request) throws Exception {
+    public static String encodeCRMF(SEQUENCE crmfMsgs) throws Exception {
+        byte[] request = ASN1Util.encode(crmfMsgs);
         StringWriter sw = new StringWriter();
         try (PrintWriter out = new PrintWriter(sw)) {
             out.println(Cert.REQUEST_HEADER);

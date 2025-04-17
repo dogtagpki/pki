@@ -36,6 +36,7 @@ import org.dogtagpki.nss.NSSDatabase;
 import org.dogtagpki.util.cert.CRMFUtil;
 import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
@@ -332,7 +333,8 @@ public class ClientCertRequestCLI extends CommandCLI {
                     useOAEP,
                     false); // useSharedSecret
 
-            csr = CRMFUtil.encodeCRMF(crmfRequest);
+            SEQUENCE crmfMsgs = CRMFUtil.parseCRMFMsgs(crmfRequest);
+            csr = CRMFUtil.encodeCRMF(crmfMsgs);
 
         } else {
             throw new Exception("Unknown request type: " + requestType);
