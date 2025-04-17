@@ -108,7 +108,6 @@ import com.netscape.certsrv.connector.ConnectorsConfig;
 import com.netscape.certsrv.dbs.DBRecordNotFoundException;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.event.CRLSigningInfoEvent;
 import com.netscape.certsrv.logging.event.OCSPSigningInfoEvent;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.publish.CRLPublisher;
@@ -1650,41 +1649,6 @@ public class CAEngine extends CMSEngine {
         ca.getAuthorityKeyHosts().add(host);
     }
 
-    public void initCRLSigningUnit(CertificateAuthority ca) throws Exception {
-
-        logger.info("CAEngine: Initializing CRL signing unit for authority {}", ca.getAuthorityID());
-
-        boolean hostCA = ca.isHostAuthority();
-
-        CAConfig caConfig = ca.getConfig();
-        SigningUnitConfig crlSigningConfig = caConfig.getCRLSigningUnitConfig();
-        CASigningUnit crlSigningUnit;
-
-        if (hostCA && crlSigningConfig != null && crlSigningConfig.size() > 0) {
-            crlSigningUnit = new CASigningUnit();
-            crlSigningUnit.init(crlSigningConfig, null);
-
-        } else {
-            crlSigningUnit = ca.getSigningUnit();
-        }
-
-        ca.setCRLSigningUnit(crlSigningUnit);
-
-        org.mozilla.jss.crypto.X509Certificate crlCert = crlSigningUnit.getCert();
-        logger.debug("CAEngine: - nickname: " + crlCert.getNickname());
-
-        X509CertImpl crlCertImpl = crlSigningUnit.getCertImpl();
-        String crlSigningSKI = CryptoUtil.getSKIString(crlCertImpl);
-
-        if (hostCA) {
-            // generate CRL signing info without authority ID
-            auditor.log(CRLSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, crlSigningSKI));
-
-        } else {
-            // don't generate CRL signing info since LWCA doesn't support CRL
-        }
-    }
-
     public void initOCSPSigningUnit(CertificateAuthority ca) throws Exception {
 
         logger.info("CAEngine: Initializing OCSP signing unit for authority {}", ca.getAuthorityID());
@@ -1737,7 +1701,7 @@ public class CAEngine extends CMSEngine {
 
         try {
             ca.initCertSigningUnit();
-            initCRLSigningUnit(ca);
+            ca.initCRLSigningUnit();
             initOCSPSigningUnit(ca);
 
         } catch (CAMissingCertException | CAMissingKeyException e) {
@@ -1793,7 +1757,7 @@ public class CAEngine extends CMSEngine {
 
             logger.info("CAEngine: Reinitializing signing units after new certificate");
             ca.initCertSigningUnit();
-            initCRLSigningUnit(ca);
+            ca.initCRLSigningUnit();
             initOCSPSigningUnit(ca);
 
         } catch (CAMissingCertException e) {

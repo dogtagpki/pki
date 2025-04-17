@@ -82,6 +82,7 @@ import com.netscape.certsrv.ca.CAMissingKeyException;
 import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.dbs.DBRecordNotFoundException;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.CRLSigningInfoEvent;
 import com.netscape.certsrv.logging.event.CertSigningInfoEvent;
 import com.netscape.certsrv.ocsp.IOCSPService;
 import com.netscape.certsrv.security.SigningUnitConfig;
@@ -558,6 +559,41 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
         } else {
             // generate cert signing info with authority ID
             auditor.log(CertSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, certSigningSKI, authorityID));
+        }
+    }
+
+    public void initCRLSigningUnit() throws Exception {
+
+        logger.info("CertificateAuthority: Initializing CRL signing unit for authority {}", authorityID);
+
+        SigningUnitConfig crlSigningConfig = mConfig.getCRLSigningUnitConfig();
+        CASigningUnit crlSigningUnit;
+
+        if (hostCA && crlSigningConfig != null && crlSigningConfig.size() > 0) {
+            crlSigningUnit = new CASigningUnit();
+            crlSigningUnit.init(crlSigningConfig, null);
+
+        } else {
+            crlSigningUnit = getSigningUnit();
+        }
+
+        setCRLSigningUnit(crlSigningUnit);
+
+        X509Certificate crlCert = crlSigningUnit.getCert();
+        logger.debug("CertificateAuthority: - nickname: " + crlCert.getNickname());
+
+        X509CertImpl crlCertImpl = crlSigningUnit.getCertImpl();
+        String crlSigningSKI = CryptoUtil.getSKIString(crlCertImpl);
+
+        CAEngine engine = CAEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
+
+        if (hostCA) {
+            // generate CRL signing info without authority ID
+            auditor.log(CRLSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, crlSigningSKI));
+
+        } else {
+            // don't generate CRL signing info since LWCA doesn't support CRL
         }
     }
 

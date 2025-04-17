@@ -156,7 +156,7 @@ public class KeyRetrieverRunner implements Runnable {
             //
             logger.info("CertificateAuthority: reinitializing signing units in KeyRetrieverRunner");
             ca.initCertSigningUnit();
-            engine.initCRLSigningUnit(ca);
+            ca.initCRLSigningUnit();
             engine.initOCSPSigningUnit(ca);
             initSigUnitSucceeded = true;
 
