@@ -81,10 +81,14 @@ import com.netscape.certsrv.ca.CADisabledException;
 import com.netscape.certsrv.ca.CAMissingKeyException;
 import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.dbs.DBRecordNotFoundException;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.CertSigningInfoEvent;
 import com.netscape.certsrv.ocsp.IOCSPService;
+import com.netscape.certsrv.security.SigningUnitConfig;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.util.StatsSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
@@ -522,6 +526,39 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
      */
     public void setBasicConstraintMaxLen(int num) {
         mConfig.putString("Policy.rule.BasicConstraintsExt.maxPathLen", "" + num);
+    }
+
+    public void initCertSigningUnit() throws Exception {
+
+        logger.info("CertificateAuthority: Initializing cert signing unit for authority {}", authorityID);
+
+        SigningUnitConfig caSigningCfg = mConfig.getSigningUnitConfig();
+
+        CASigningUnit certSigningUnit = new CASigningUnit();
+        certSigningUnit.init(caSigningCfg, mNickname);
+
+        setCertSigningUnit(certSigningUnit);
+
+        X509Certificate caCert = certSigningUnit.getCert();
+        logger.debug("CertificateAuthority: - nickname: " + caCert.getNickname());
+
+        logger.debug("CertificateAuthority: - subject: " + mSubjectObj);
+        logger.debug("CertificateAuthority: - issuer: " + mIssuerObj);
+
+        X509CertImpl caCertImpl = certSigningUnit.getCertImpl();
+        String certSigningSKI = CryptoUtil.getSKIString(caCertImpl);
+
+        CAEngine engine = CAEngine.getInstance();
+        Auditor auditor = engine.getAuditor();
+
+        if (hostCA) {
+            // generate cert info without authority ID
+            auditor.log(CertSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, certSigningSKI));
+
+        } else {
+            // generate cert signing info with authority ID
+            auditor.log(CertSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, certSigningSKI, authorityID));
+        }
     }
 
     public X509CRLImpl sign(X509CRLImpl crl, String algname) throws Exception {

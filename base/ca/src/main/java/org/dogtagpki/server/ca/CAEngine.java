@@ -109,7 +109,6 @@ import com.netscape.certsrv.dbs.DBRecordNotFoundException;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CRLSigningInfoEvent;
-import com.netscape.certsrv.logging.event.CertSigningInfoEvent;
 import com.netscape.certsrv.logging.event.OCSPSigningInfoEvent;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.publish.CRLPublisher;
@@ -1651,41 +1650,6 @@ public class CAEngine extends CMSEngine {
         ca.getAuthorityKeyHosts().add(host);
     }
 
-    public void initCertSigningUnit(CertificateAuthority ca) throws Exception {
-
-        logger.info("CAEngine: Initializing cert signing unit for authority {}", ca.getAuthorityID());
-
-        boolean hostCA = ca.isHostAuthority();
-        AuthorityID authorityID = ca.getAuthorityID();
-        String nickname = ca.getNickname();
-
-        CAConfig caConfig = ca.getConfig();
-        SigningUnitConfig caSigningCfg = caConfig.getSigningUnitConfig();
-
-        CASigningUnit certSigningUnit = new CASigningUnit();
-        certSigningUnit.init(caSigningCfg, nickname);
-
-        ca.setCertSigningUnit(certSigningUnit);
-
-        org.mozilla.jss.crypto.X509Certificate caCert = certSigningUnit.getCert();
-        logger.debug("CAEngine: - nickname: " + caCert.getNickname());
-
-        logger.debug("CAEngine: - subject DN: " + ca.getSubjectObj());
-        logger.debug("CAEngine: - issuer DN: " + ca.getIssuerObj());
-
-        X509CertImpl caCertImpl = certSigningUnit.getCertImpl();
-        String certSigningSKI = CryptoUtil.getSKIString(caCertImpl);
-
-        if (hostCA) {
-            // generate cert info without authority ID
-            auditor.log(CertSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, certSigningSKI));
-
-        } else {
-            // generate cert signing info with authority ID
-            auditor.log(CertSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, certSigningSKI, authorityID));
-        }
-    }
-
     public void initCRLSigningUnit(CertificateAuthority ca) throws Exception {
 
         logger.info("CAEngine: Initializing CRL signing unit for authority {}", ca.getAuthorityID());
@@ -1772,7 +1736,7 @@ public class CAEngine extends CMSEngine {
         ca.setCertRepository(certificateRepository);
 
         try {
-            initCertSigningUnit(ca);
+            ca.initCertSigningUnit();
             initCRLSigningUnit(ca);
             initOCSPSigningUnit(ca);
 
@@ -1828,7 +1792,7 @@ public class CAEngine extends CMSEngine {
             manager.getInternalKeyStorageToken().getCryptoStore().deleteCert(oldCert);
 
             logger.info("CAEngine: Reinitializing signing units after new certificate");
-            initCertSigningUnit(ca);
+            ca.initCertSigningUnit();
             initCRLSigningUnit(ca);
             initOCSPSigningUnit(ca);
 
