@@ -17,6 +17,7 @@ import java.security.PublicKey;
 
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.BIT_STRING;
+import org.mozilla.jss.asn1.BOOLEAN;
 import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
@@ -33,7 +34,7 @@ import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.util.WrappingParams;
 import org.mozilla.jss.netscape.security.x509.Extension;
-import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
+import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
 import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.X500Name;
@@ -204,13 +205,13 @@ public class CRMFUtil {
     }
 
     public static CertRequest createCertRequest(
-            boolean useSharedSecret,
             CryptoToken token,
-            X509Certificate transportCert,
             KeyPair keyPair,
             Name subject,
+            X509Certificate transportCert,
             KeyWrapAlgorithm keyWrapAlgorithm,
-            boolean useOAEP) throws Exception {
+            boolean useOAEP,
+            Extensions extensions) throws Exception {
 
         CertTemplate certTemplate = createCertTemplate(subject, keyPair.getPublic());
 
@@ -248,13 +249,18 @@ public class CRMFUtil {
         // OCTET_STRING ostr = createIDPOPLinkWitness();
         // seq.addElement(new AVA(OBJECT_IDENTIFIER.id_cmc_idPOPLinkWitness, ostr));
 
-        if (useSharedSecret) { // RFC 5272
-            logger.debug("CRMFUtil: Generating SubjectKeyIdentifier extension");
-            KeyIdentifier subjKeyId = CryptoUtil.createKeyIdentifier(keyPair);
-            OBJECT_IDENTIFIER oid = new OBJECT_IDENTIFIER(PKIXExtensions.SubjectKey_Id.toString());
-            SEQUENCE extns = new SEQUENCE();
-            extns.addElement(new AVA(oid, new OCTET_STRING(subjKeyId.getIdentifier())));
-            certTemplate.setExtensions(extns);
+        if (!extensions.isEmpty()) {
+            SEQUENCE exts = new SEQUENCE();
+
+            for (Extension extension : extensions) {
+                SEQUENCE ext = new SEQUENCE();
+                ext.addElement(new OBJECT_IDENTIFIER(extension.getExtensionId().toString()));
+                ext.addElement(new BOOLEAN(extension.isCritical()));
+                ext.addElement(new OCTET_STRING(extension.getExtensionValue()));
+                exts.addElement(ext);
+            }
+
+            certTemplate.setExtensions(exts);
         }
 
         return new CertRequest(new INTEGER(1), certTemplate, seq);

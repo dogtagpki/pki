@@ -1138,14 +1138,23 @@ public class NSSDatabase {
             boolean useOAEP,
             boolean useSharedSecret) throws Exception {
 
+        Extensions extensions = new Extensions();
+
+        if (useSharedSecret) { // RFC 5272
+            logger.debug("NSSDatabase: Generating SubjectKeyIdentifier extension");
+            KeyIdentifier subjectKeyID = CryptoUtil.createKeyIdentifier(keyPair);
+            SubjectKeyIdentifierExtension extension = new SubjectKeyIdentifierExtension(subjectKeyID.getIdentifier());
+            extensions.add(extension);
+        }
+
         CertRequest certRequest = CRMFUtil.createCertRequest(
-                useSharedSecret,
                 token,
-                transportCert,
                 keyPair,
                 subject,
+                transportCert,
                 keyWrapAlgorithm,
-                useOAEP);
+                useOAEP,
+                extensions);
 
         ProofOfPossession pop = null;
         if (withPop != null) { // !POP_NONE
