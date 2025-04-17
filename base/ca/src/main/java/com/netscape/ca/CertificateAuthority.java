@@ -40,6 +40,7 @@ import java.util.Vector;
 
 import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.CAEngineConfig;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.asn1.ASN1Util;
@@ -88,6 +89,7 @@ import com.netscape.certsrv.logging.event.OCSPSigningInfoEvent;
 import com.netscape.certsrv.ocsp.IOCSPService;
 import com.netscape.certsrv.security.SigningUnitConfig;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.logging.Auditor;
@@ -213,6 +215,8 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
     /* cache responder ID for performance */
     private ResponderID mResponderIDByName = null;
     private ResponderID mResponderIDByHash = null;
+
+    private Thread keyRetrieverThread;
 
     /**
      * Internal constants
@@ -632,6 +636,64 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
             // generate OCSP signing info with authority ID
             auditor.log(OCSPSigningInfoEvent.createSuccessEvent(ILogger.SYSTEM_UID, ocspSigningSKI, authorityID));
         }
+    }
+
+    public synchronized void startKeyRetriever() throws EBaseException {
+
+        if (authorityID == null) {
+            // Only the host authority should ever see a
+            // null authorityID, e.g. during two-step
+            // installation of externally-signed CA.
+            logger.info("CertificateAuthority: Do not start KeyRetriever for host CA");
+            return;
+        }
+
+        if (keyRetrieverThread != null) {
+            logger.info("CertificateAuthority: KeyRetriever already running for authority " + authorityID);
+            return;
+        }
+
+        logger.info("CertificateAuthority: Starting KeyRetriever for authority " + authorityID);
+
+        CAEngine engine = CAEngine.getInstance();
+        CAEngineConfig engineConfig = engine.getConfig();
+
+        String className = engineConfig.getString("features.authority.keyRetrieverClass", null);
+        if (className == null) {
+            logger.info("CertificateAuthority: Key retriever not configured");
+            return;
+        }
+
+        ConfigStore keyRetrieverConfig = engineConfig.getSubStore("features.authority.keyRetrieverConfig", ConfigStore.class);
+
+        KeyRetriever keyRetriever;
+        try {
+            Class<? extends KeyRetriever> clazz = Class.forName(className).asSubclass(KeyRetriever.class);
+
+            // If there is an accessible constructor that takes
+            // a ConfigStore, invoke that; otherwise invoke
+            // the nullary constructor.
+
+            try {
+                keyRetriever = clazz.getDeclaredConstructor(ConfigStore.class).newInstance(keyRetrieverConfig);
+
+            } catch (NoSuchMethodException | SecurityException | IllegalAccessException e) {
+                keyRetriever = clazz.getDeclaredConstructor().newInstance();
+            }
+
+        } catch (Exception e) {
+            logger.error("Unable to create key retriever: " + e.getMessage(), e);
+            throw new EBaseException(e);
+        }
+
+        KeyRetrieverRunner runner = new KeyRetrieverRunner(keyRetriever, this);
+
+        keyRetrieverThread = new Thread(runner, "KeyRetriever-" + authorityID);
+        keyRetrieverThread.start();
+    }
+
+    public synchronized void removeKeyRetriever() {
+        keyRetrieverThread = null;
     }
 
     public X509CRLImpl sign(X509CRLImpl crl, String algname) throws Exception {

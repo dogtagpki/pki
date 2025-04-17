@@ -83,8 +83,6 @@ import com.netscape.ca.CRLExtensionsConfig;
 import com.netscape.ca.CRLIssuingPoint;
 import com.netscape.ca.CRLIssuingPointConfig;
 import com.netscape.ca.CertificateAuthority;
-import com.netscape.ca.KeyRetriever;
-import com.netscape.ca.KeyRetrieverRunner;
 import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.EBaseException;
@@ -1437,66 +1435,6 @@ public class CAEngine extends CMSEngine {
         return ca;
     }
 
-    public void startKeyRetriever(CertificateAuthority ca) throws EBaseException {
-
-        AuthorityID authorityID = ca.getAuthorityID();
-
-        if (authorityID == null) {
-            // Only the host authority should ever see a
-            // null authorityID, e.g. during two-step
-            // installation of externally-signed CA.
-            logger.info("CertificateAuthority: Do not start KeyRetriever for host CA");
-            return;
-        }
-
-        if (authorityMonitor.keyRetrievers.containsKey(authorityID)) {
-            logger.info("CertificateAuthority: KeyRetriever already running for authority " + authorityID);
-            return;
-        }
-
-        logger.info("CertificateAuthority: Starting KeyRetriever for authority " + authorityID);
-
-        CAEngineConfig engineConfig = getConfig();
-
-        String className = engineConfig.getString("features.authority.keyRetrieverClass", null);
-        if (className == null) {
-            logger.info("CertificateAuthority: Key retriever not configured");
-            return;
-        }
-
-        ConfigStore keyRetrieverConfig = engineConfig.getSubStore("features.authority.keyRetrieverConfig", ConfigStore.class);
-
-        KeyRetriever keyRetriever;
-        try {
-            Class<? extends KeyRetriever> clazz = Class.forName(className).asSubclass(KeyRetriever.class);
-
-            // If there is an accessible constructor that takes
-            // a ConfigStore, invoke that; otherwise invoke
-            // the nullary constructor.
-
-            try {
-                keyRetriever = clazz.getDeclaredConstructor(ConfigStore.class).newInstance(keyRetrieverConfig);
-
-            } catch (NoSuchMethodException | SecurityException | IllegalAccessException e) {
-                keyRetriever = clazz.getDeclaredConstructor().newInstance();
-            }
-
-        } catch (Exception e) {
-            logger.error("Unable to create key retriever: " + e.getMessage(), e);
-            throw new EBaseException(e);
-        }
-
-        KeyRetrieverRunner runner = new KeyRetrieverRunner(keyRetriever, ca);
-        Thread thread = new Thread(runner, "KeyRetriever-" + authorityID);
-        thread.start();
-
-        authorityMonitor.keyRetrievers.put(authorityID, thread);
-    }
-
-    public void removeKeyRetriever(AuthorityID aid) {
-        authorityMonitor.keyRetrievers.remove(aid);
-    }
-
     public String getAuthorityBaseDN() {
         return "ou=authorities,ou=" + id + "," + dbSubsystem.getBaseDN();
     }
@@ -1668,7 +1606,7 @@ public class CAEngine extends CMSEngine {
         } catch (CAMissingCertException | CAMissingKeyException e) {
             logger.warn("CAEngine: CA signing key and cert not (yet) present in NSS database");
             ca.setSigningUnitException(e);
-            startKeyRetriever(ca);
+            ca.startKeyRetriever();
 
         } catch (Exception e) {
             throw new EBaseException(e);
