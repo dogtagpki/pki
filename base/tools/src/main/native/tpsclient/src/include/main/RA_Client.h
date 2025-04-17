@@ -85,8 +85,8 @@ typedef struct _ThreadArg
 extern "C" int
 FormatToken (RA_Client *client, NameValueSet *params, RA_Token *token, RA_Conn *conn);
 
-extern "C" void
-ThreadConnResetPin (void *arg);
+extern "C" int
+ResetPIN (RA_Client *client, NameValueSet *params, RA_Token *token, RA_Conn *conn);
 
 extern "C" void
 ThreadConnEnroll (void *arg);

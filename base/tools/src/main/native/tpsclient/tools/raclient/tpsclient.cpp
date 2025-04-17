@@ -130,6 +130,40 @@ done:
     }
 }
 
+void ThreadConnResetPin (void *arg)
+{
+  ThreadArg *targ = (ThreadArg *) arg;
+  PRTime start = PR_Now ();
+
+  char *hostname = targ->client->m_vars.GetValue ("ra_host");
+  int port = atoi (targ->client->m_vars.GetValue ("ra_port"));
+  char *uri = targ->client->m_vars.GetValue ("ra_uri");
+
+  RA_Conn *conn = new RA_Conn(hostname, port, uri);
+  if (!conn->Connect ())
+    {
+  OutputError ("Cannot connect to %s:%d", hostname, port);
+  targ->status = 0;
+  goto done;
+    }
+
+  targ->status = ResetPIN (targ->client, targ->params, targ->token, conn);
+  conn->Close ();
+
+done:
+  delete conn;
+
+  PRTime end = PR_Now ();
+  targ->time = (end - start) / 1000;
+
+  if (!targ->client->old_style)
+    {
+  PR_Lock (targ->donelock);
+  targ->done = PR_TRUE;
+  PR_Unlock (targ->donelock);
+    }
+}
+
 int
 OpConnUpdate (RA_Client* client, NameValueSet * params)
 {

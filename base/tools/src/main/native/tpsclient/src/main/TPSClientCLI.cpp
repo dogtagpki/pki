@@ -175,22 +175,33 @@ Java_com_netscape_cmstools_tps_TPSClientCLI_performResetPIN
 (JNIEnv* env, jobject object, jlong client, jobject params) {
 
     RA_Client* cclient = (RA_Client*) client;
+    NameValueSet* set = convertParams(env, params);
+    RA_Token* token = cclient->m_token.Clone();
 
-    ThreadArg arg;
-    arg.time = 0;
-    arg.status = 0;
-    arg.client = cclient;
-    arg.token = cclient->m_token.Clone();
-    arg.params = convertParams(env, params);
+    char* hostname = cclient->m_vars.GetValue("ra_host");
+    int port = atoi(cclient->m_vars.GetValue("ra_port"));
+    char* uri = cclient->m_vars.GetValue("ra_uri");
+    int status;
 
-    ThreadConnResetPin(&arg);
+    RA_Conn* conn = new RA_Conn(hostname, port, uri);
+    if (!conn->Connect()) {
+        char *message = PR_smprintf("Cannot connect to %s:%d", hostname, port);
+        throwCLIException(env, message);
+        PR_smprintf_free(message);
+        goto done;
+    }
 
-    delete arg.params;
-    delete arg.token;
+    status = ResetPIN(cclient, set, token, conn);
+    conn->Close();
 
-    if (arg.status == 0) {
+    if (status == 0) {
         throwCLIException(env, "Unable to reset PIN");
     }
+
+done:
+    delete conn;
+    delete token;
+    delete set;
 }
 
 extern "C" JNIEXPORT void JNICALL
