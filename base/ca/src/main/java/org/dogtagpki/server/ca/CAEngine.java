@@ -53,16 +53,11 @@ import org.dogtagpki.server.authentication.AuthenticationConfig;
 import org.dogtagpki.server.ca.rest.base.AuthorityRepository;
 import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.NicknameConflictException;
-import org.mozilla.jss.NotInitializedException;
-import org.mozilla.jss.UserCertConflictException;
 import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
-import org.mozilla.jss.crypto.NoSuchItemOnTokenException;
 import org.mozilla.jss.crypto.PrivateKey;
-import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.mozilla.jss.netscape.security.x509.CertificateVersion;
@@ -91,8 +86,6 @@ import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CAEnabledException;
-import com.netscape.certsrv.ca.CAMissingCertException;
-import com.netscape.certsrv.ca.CAMissingKeyException;
 import com.netscape.certsrv.ca.CANotFoundException;
 import com.netscape.certsrv.ca.CANotLeafException;
 import com.netscape.certsrv.ca.CATypeException;
@@ -1098,7 +1091,7 @@ public class CAEngine extends CMSEngine {
             hostCA.initSigningUnits();
 
             // try to update the cert once we have the cert and key
-            checkForNewerCert(hostCA);
+            hostCA.checkForNewerCert();
 
             initCRLIssuingPoints();
             initIssuanceProtectionCert();
@@ -1431,7 +1424,7 @@ public class CAEngine extends CMSEngine {
         ca.setCMSEngine(this);
         ca.init(caConfig);
         ca.initSigningUnits();
-        checkForNewerCert(ca);
+        ca.checkForNewerCert();
 
         return ca;
     }
@@ -1586,81 +1579,6 @@ public class CAEngine extends CMSEngine {
         ca.getAuthorityKeyHosts().add(host);
     }
 
-    public void checkForNewerCert(CertificateAuthority ca) throws EBaseException {
-
-        logger.info("CAEngine: Checking new CA cert for authority {}", ca.getAuthorityID());
-
-        BigInteger authoritySerial = ca.getAuthoritySerial();
-        logger.debug("CAEngine: - new serial number: {}", authoritySerial == null ? null : "0x" + authoritySerial.toString(16));
-
-        if (authoritySerial == null) {
-            return;
-        }
-
-        CASigningUnit signingUnit = ca.getSigningUnit();
-        X509CertImpl caCertImpl = signingUnit.getCertImpl();
-        logger.debug("CAEngine: - old serial number: 0x{}", caCertImpl.getSerialNumber().toString(16));
-
-        if (authoritySerial.equals(caCertImpl.getSerialNumber())) {
-            return;
-        }
-
-        // The authoritySerial recorded in LDAP differs from the
-        // certificate in NSSDB.  Import the newer cert.
-        //
-        // Note that the new serial number need not be greater,
-        // e.g. if random serial numbers are enabled.
-        //
-        logger.info("CAEngine: Updating CA cert for authority {}", ca.getAuthorityID());
-
-        CAEngine engine = CAEngine.getInstance();
-        CertificateRepository certificateRepository = engine.getCertificateRepository();
-
-        try {
-            org.mozilla.jss.crypto.X509Certificate oldCert = signingUnit.getCert();
-            CryptoManager manager = CryptoManager.getInstance();
-
-            // add new cert
-            X509CertImpl newCert = certificateRepository.getX509Certificate(authoritySerial);
-            manager.importUserCACertPackage(newCert.getEncoded(), ca.getNickname());
-
-            // delete old cert
-            manager.getInternalKeyStorageToken().getCryptoStore().deleteCert(oldCert);
-
-            logger.info("CAEngine: Reinitializing signing units after new certificate");
-            ca.initCertSigningUnit();
-            ca.initCRLSigningUnit();
-            ca.initOCSPSigningUnit();
-
-        } catch (CAMissingCertException e) {
-            logger.warn("CAEngine: CA signing cert not (yet) present in NSS database");
-            ca.setSigningUnitException(e);
-
-        } catch (CAMissingKeyException e) {
-            logger.warn("CAEngine: CA signing key not (yet) present in NSS database");
-            ca.setSigningUnitException(e);
-
-        } catch (CertificateException e) {
-            throw new ECAException("Failed to update certificate", e);
-
-        } catch (NotInitializedException e) {
-            throw new ECAException("CryptoManager not initialized", e);
-
-        } catch (NicknameConflictException e) {
-            throw new ECAException("Failed to update certificate; nickname conflict", e);
-
-        } catch (UserCertConflictException e) {
-            throw new ECAException("Failed to update certificate; user cert conflict", e);
-
-        } catch (TokenException | NoSuchItemOnTokenException e) {
-            // really shouldn't happen
-            throw new ECAException("Failed to update certificate", e);
-
-        } catch (Exception e) {
-            throw new EBaseException(e);
-        }
-    }
-
     /**
      * Renew certificate of this CA.
      */
@@ -1720,7 +1638,7 @@ public class CAEngine extends CMSEngine {
         authorityRepository.updateAuthoritySerialNumber(authorityID, authoritySerial);
 
         // update cert in NSSDB
-        checkForNewerCert(ca);
+        ca.checkForNewerCert();
     }
 
     /** Revoke the authority's certificate
