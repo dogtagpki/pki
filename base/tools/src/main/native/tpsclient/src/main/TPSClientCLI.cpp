@@ -111,6 +111,21 @@ Java_com_netscape_cmstools_tps_TPSClientCLI_removeClient
 }
 
 extern "C" JNIEXPORT jlong JNICALL
+Java_com_netscape_cmstools_tps_TPSClientCLI_createToken
+(JNIEnv* env, jobject object, jlong client) {
+    RA_Client* cclient = (RA_Client*) client;
+
+    return (jlong) cclient->m_token.Clone();
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_netscape_cmstools_tps_TPSClientCLI_removeToken
+(JNIEnv* env, jobject object, jlong token) {
+    RA_Token* ctoken = (RA_Token*) token;
+    delete ctoken;
+}
+
+extern "C" JNIEXPORT jlong JNICALL
 Java_com_netscape_cmstools_tps_TPSClientCLI_createConnection
 (JNIEnv* env, jobject object, jlong client) {
     RA_Client* cclient = (RA_Client*) client;
@@ -178,58 +193,55 @@ Java_com_netscape_cmstools_tps_TPSClientCLI_displayHelp
 
 extern "C" JNIEXPORT void JNICALL
 Java_com_netscape_cmstools_tps_TPSClientCLI_performFormatToken
-(JNIEnv* env, jobject object, jlong client, jobject params, jlong connection) {
+(JNIEnv* env, jobject object, jlong client, jobject params, jlong token, jlong connection) {
 
     RA_Client* cclient = (RA_Client*) client;
     NameValueSet* set = convertParams(env, params);
-    RA_Token* token = cclient->m_token.Clone();
+    RA_Token* ctoken = (RA_Token*) token;
     RA_Conn* conn = (RA_Conn*) connection;
 
-    int status = FormatToken(cclient, set, token, conn);
+    int status = FormatToken(cclient, set, ctoken, conn);
 
     if (status == 0) {
         throwCLIException(env, "Unable to format token");
     }
 
-    delete token;
     delete set;
 }
 
 extern "C" JNIEXPORT void JNICALL
 Java_com_netscape_cmstools_tps_TPSClientCLI_performResetPIN
-(JNIEnv* env, jobject object, jlong client, jobject params, jlong connection) {
+(JNIEnv* env, jobject object, jlong client, jobject params, jlong token, jlong connection) {
 
     RA_Client* cclient = (RA_Client*) client;
     NameValueSet* set = convertParams(env, params);
-    RA_Token* token = cclient->m_token.Clone();
+    RA_Token* ctoken = (RA_Token*) token;
     RA_Conn* conn = (RA_Conn*) connection;
 
-    int status = ResetPIN(cclient, set, token, conn);
+    int status = ResetPIN(cclient, set, ctoken, conn);
 
     if (status == 0) {
         throwCLIException(env, "Unable to reset PIN");
     }
 
-    delete token;
     delete set;
 }
 
 extern "C" JNIEXPORT void JNICALL
 Java_com_netscape_cmstools_tps_TPSClientCLI_performEnrollToken
-(JNIEnv* env, jobject object, jlong client, jobject params, jlong connection) {
+(JNIEnv* env, jobject object, jlong client, jobject params, jlong token, jlong connection) {
 
     RA_Client* cclient = (RA_Client*) client;
     NameValueSet* set = convertParams(env, params);
-    RA_Token* token = cclient->m_token.Clone();
+    RA_Token* ctoken = (RA_Token*) token;
     RA_Conn* conn = (RA_Conn*) connection;
 
-    int status = EnrollToken(cclient, set, token, conn);
+    int status = EnrollToken(cclient, set, ctoken, conn);
 
     if (status == 0) {
         throwCLIException(env, "Unable to enroll token");
     }
 
-    delete token;
     delete set;
 }
 

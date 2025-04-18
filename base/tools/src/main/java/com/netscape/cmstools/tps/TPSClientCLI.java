@@ -64,6 +64,9 @@ public class TPSClientCLI extends CommandCLI {
     public native long createClient() throws Exception;
     public native void removeClient(long client) throws Exception;
 
+    public native long createToken(long client) throws Exception;
+    public native void removeToken(long token) throws Exception;
+
     public native long createConnection(long client) throws Exception;
     public native void connect(long connection) throws Exception;
     public native void disconnect(long connection) throws Exception;
@@ -77,6 +80,7 @@ public class TPSClientCLI extends CommandCLI {
     public native void performFormatToken(
             long client,
             Map<String, String> params,
+            long token,
             long connection) throws Exception;
 
     public void formatToken(
@@ -105,14 +109,16 @@ public class TPSClientCLI extends CommandCLI {
                             int c = counter.getAndDecrement();
                             if (c <= 0) return;
 
+                            long token = createToken(client);
                             long connection = createConnection(client);
                             try {
                                 connect(connection);
-                                performFormatToken(client, params, connection);
+                                performFormatToken(client, params, token, connection);
                                 disconnect(connection);
 
                             } finally {
                                 removeConnection(connection);
+                                removeToken(token);
                             }
                         }
 
@@ -139,6 +145,7 @@ public class TPSClientCLI extends CommandCLI {
     public native void performResetPIN(
             long client,
             Map<String, String> params,
+            long token,
             long connection) throws Exception;
 
     public void resetPIN(
@@ -167,14 +174,16 @@ public class TPSClientCLI extends CommandCLI {
                             int c = counter.getAndDecrement();
                             if (c <= 0) return;
 
+                            long token = createToken(client);
                             long connection = createConnection(client);
                             try {
                                 connect(connection);
-                                performResetPIN(client, params, connection);
+                                performResetPIN(client, params, token, connection);
                                 disconnect(connection);
 
                             } finally {
                                 removeConnection(connection);
+                                removeToken(token);
                             }
                         }
 
@@ -201,6 +210,7 @@ public class TPSClientCLI extends CommandCLI {
     public native void performEnrollToken(
             long client,
             Map<String, String> params,
+            long token,
             long connection) throws Exception;
 
     public void enrollToken(
@@ -229,14 +239,16 @@ public class TPSClientCLI extends CommandCLI {
                             int c = counter.getAndDecrement();
                             if (c <= 0) return;
 
+                            long token = createToken(client);
                             long connection = createConnection(client);
                             try {
                                 connect(connection);
-                                performEnrollToken(client, params, connection);
+                                performEnrollToken(client, params, token, connection);
                                 disconnect(connection);
 
                             } finally {
                                 removeConnection(connection);
+                                removeToken(token);
                             }
                         }
 
