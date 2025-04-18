@@ -979,9 +979,6 @@ public class CAEngine extends CMSEngine {
         CAEngineConfig engineConfig = getConfig();
         CAConfig caConfig = engineConfig.getCAConfig();
 
-        CertificateAuthority hostCA = getCA();
-        hostCA.init(caConfig);
-
         logger.info("CAEngine: Loading CA configuration");
 
         int certVersion = caConfig.getInteger(CertificateAuthority.PROP_X509CERT_VERSION, CertificateVersion.V3);
@@ -1002,8 +999,6 @@ public class CAEngine extends CMSEngine {
         enablePastCATime_caCert = caConfig.getBoolean(CertificateAuthority.PROP_ENABLE_PAST_CATIME_CACERT, false);
         logger.info("CAEngine: - enable past CA time for CA certs: " + enablePastCATime_caCert);
 
-        enableOCSP = caConfig.getBoolean(CertificateAuthority.PROP_ENABLE_OCSP, true);
-
         String fastSigning = caConfig.getString(CertificateAuthority.PROP_FAST_SIGNING, "");
         logger.info("CAEngine: - fast signing: " + fastSigning);
 
@@ -1021,6 +1016,17 @@ public class CAEngine extends CMSEngine {
 
         maxNonces = caConfig.getInteger("maxNumberOfNonces", 100);
         logger.info("CAEngine: - max nonces: " + maxNonces);
+
+        logger.info("CAEngine: Configuring OCSP responder");
+
+        enableOCSP = caConfig.getBoolean(CertificateAuthority.PROP_ENABLE_OCSP, true);
+
+        ocspResponderByName = caConfig.getBoolean("byName", false);
+        logger.info("CAEngine: - by name: " + ocspResponderByName);
+
+        logger.info("CAEngine: Initializing host CA");
+        CertificateAuthority hostCA = getCA();
+        hostCA.init(caConfig);
 
         logger.info("CAEngine: Initializing CA policy");
         CAPolicyConfig caPolicyConfig = caConfig.getPolicyConfig();
@@ -1085,16 +1091,11 @@ public class CAEngine extends CMSEngine {
 
             initListeners();
 
-            logger.info("CAEngine: Configuring OCSP responder");
-
-            ocspResponderByName = caConfig.getBoolean("byName", false);
-            logger.info("CAEngine: - by name: " + ocspResponderByName);
-
             initCRLPublisher();
             initPublisherProcessor();
 
-            // initialize host CA
-            initCA(hostCA);
+            // initialize host CA signing units
+            hostCA.initSigningUnits();
 
             // try to update the cert once we have the cert and key
             checkForNewerCert(hostCA);
@@ -1429,7 +1430,7 @@ public class CAEngine extends CMSEngine {
         CAConfig caConfig = engineConfig.getCAConfig();
         ca.setCMSEngine(this);
         ca.init(caConfig);
-        initCA(ca);
+        ca.initSigningUnits();
         checkForNewerCert(ca);
 
         return ca;
@@ -1583,34 +1584,6 @@ public class CAEngine extends CMSEngine {
         authorityRepository.modifyAuthorityRecord(ca.getAuthorityID(), mods);
 
         ca.getAuthorityKeyHosts().add(host);
-    }
-
-    public void initCA(CertificateAuthority ca) throws Exception {
-
-        AuthorityID aid = ca.getAuthorityID();
-        logger.info("CAEngine: Initializing " + (aid == null ? "host CA" : "authority " + aid));
-
-        CAEngineConfig caEngineConfig = getConfig();
-        CAConfig caConfig = caEngineConfig.getCAConfig();
-        ca.setConfig(caConfig);
-        ca.setFastSigning(fastSigning);
-        ca.setOCSPResponderByName(ocspResponderByName);
-
-        ca.setCertRepository(certificateRepository);
-
-        try {
-            ca.initCertSigningUnit();
-            ca.initCRLSigningUnit();
-            ca.initOCSPSigningUnit();
-
-        } catch (CAMissingCertException | CAMissingKeyException e) {
-            logger.warn("CAEngine: CA signing key and cert not (yet) present in NSS database");
-            ca.setSigningUnitException(e);
-            ca.startKeyRetriever();
-
-        } catch (Exception e) {
-            throw new EBaseException(e);
-        }
     }
 
     public void checkForNewerCert(CertificateAuthority ca) throws EBaseException {

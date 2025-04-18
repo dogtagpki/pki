@@ -79,6 +79,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CADisabledException;
+import com.netscape.certsrv.ca.CAMissingCertException;
 import com.netscape.certsrv.ca.CAMissingKeyException;
 import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.dbs.DBRecordNotFoundException;
@@ -337,21 +338,6 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
     }
 
     /**
-     * Starts up this subsystem.
-     */
-    @Override
-    public void startup() throws EBaseException {
-    }
-
-    /**
-     * Shutdowns this subsystem.
-     * <P>
-     */
-    @Override
-    public void shutdown() {
-    }
-
-    /**
      * Retrieves the configuration store of this subsystem.
      * <P>
      */
@@ -525,6 +511,19 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
         mOCSPSigningUnit = ocspSigningUnit;
     }
 
+    public void init(ConfigStore config) throws Exception {
+        super.init(config);
+
+        CAEngine engine = CAEngine.getInstance();
+        CAEngineConfig caEngineConfig = engine.getConfig();
+        CAConfig caConfig = caEngineConfig.getCAConfig();
+
+        setConfig(caConfig);
+        setCertRepository(engine.getCertificateRepository());
+        setFastSigning(engine.getFastSigning());
+        setOCSPResponderByName(engine.getOCSPResponderByName());
+    }
+
     /**
      * Sets the maximium path length in the basic constraint extension.
      *
@@ -696,6 +695,32 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
 
     public synchronized void removeKeyRetriever() {
         keyRetrieverRunner = null;
+    }
+
+    public void initSigningUnits() throws Exception {
+
+        logger.info("CertificateAuthority: Initializing " + (authorityID == null ? "host CA" : "authority " + authorityID));
+
+        try {
+            initCertSigningUnit();
+            initCRLSigningUnit();
+            initOCSPSigningUnit();
+
+        } catch (CAMissingCertException | CAMissingKeyException e) {
+            logger.warn("CertificateAuthority: CA signing key and cert not (yet) present in NSS database");
+            signingUnitException = e;
+            startKeyRetriever();
+
+        } catch (Exception e) {
+            throw new EBaseException(e);
+        }
+    }
+
+    /**
+     * Starts up this subsystem.
+     */
+    @Override
+    public void startup() throws EBaseException {
     }
 
     public X509CRLImpl sign(X509CRLImpl crl, String algname) throws Exception {
@@ -1416,5 +1441,13 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
             logger.error("deleteAuthority: TokenExcepetion while deleting cert: " + e.getMessage(), e);
             throw new ECAException("TokenException while deleting cert: " + e);
         }
+    }
+
+    /**
+     * Shutdowns this subsystem.
+     * <P>
+     */
+    @Override
+    public void shutdown() {
     }
 }
