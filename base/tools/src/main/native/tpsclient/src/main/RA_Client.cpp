@@ -486,16 +486,14 @@ extern "C"
 {
 #endif
 
-  int FormatToken (RA_Client *client, NameValueSet *params, RA_Token *token, RA_Conn *conn)
+  int FormatToken (
+    RA_Client *client,
+    NameValueSet *params,
+    NameValueSet *exts,
+    RA_Token *token,
+    RA_Conn *conn)
   {
     int status;
-    NameValueSet *exts = NULL;
-    char *extensions =
-      params->GetValueAsString ((char *) "extensions", NULL);
-    if (extensions != NULL)
-      {
-	exts = NameValueSet::Parse (extensions, "&");
-      }
 
     RA_Begin_Op_Msg beginOp = RA_Begin_Op_Msg (OP_FORMAT, exts);
     conn->SendMsg (&beginOp);
@@ -597,16 +595,14 @@ extern "C"
     return status;
   }
 
-  int ResetPIN (RA_Client *client, NameValueSet *params, RA_Token *token, RA_Conn *conn)
+  int ResetPIN (
+    RA_Client *client,
+    NameValueSet *params,
+    NameValueSet *exts,
+    RA_Token *token,
+    RA_Conn *conn)
   {
     int status;
-    NameValueSet *exts = NULL;
-    char *extensions =
-      params->GetValueAsString ((char *) "extensions", NULL);
-    if (extensions != NULL)
-      {
-	exts = NameValueSet::Parse (extensions, "&");
-      }
 
     RA_Begin_Op_Msg beginOp = RA_Begin_Op_Msg (OP_RESET_PIN, exts);
     conn->SendMsg (&beginOp);
@@ -717,15 +713,13 @@ extern "C"
 {
 #endif
 
-  int EnrollToken (RA_Client *client, NameValueSet *params, RA_Token *token, RA_Conn *conn)
+  int EnrollToken (
+    RA_Client *client,
+    NameValueSet *params,
+    NameValueSet *exts,
+    RA_Token *token,
+    RA_Conn *conn)
   {
-    NameValueSet *exts = NULL;
-    char *extensions =
-      params->GetValueAsString ((char *) "extensions", NULL);
-    if (extensions != NULL)
-      {
-	exts = NameValueSet::Parse (extensions, "&");
-      }
 
     RA_Begin_Op_Msg beginOp = RA_Begin_Op_Msg (OP_ENROLL, exts);
     conn->SendMsg (&beginOp);

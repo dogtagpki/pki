@@ -147,6 +147,7 @@ public class TPSMessage {
     public static Map<String, String> decodeToMap(String message) {
 
         Map<String, String> msgMap = new LinkedHashMap<>();
+        if (message == null) return msgMap;
 
         for (String nvp : message.split("&")) {
             String[] s = nvp.split("=");
@@ -169,6 +170,7 @@ public class TPSMessage {
 
         for (String nvp : message.split("&")) {
             String[] s = nvp.split("=");
+            if (s.length < 2) continue;
 
             String key = s[0];
             String value = s[1];

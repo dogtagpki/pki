@@ -64,12 +64,12 @@ class RA_Client
 };
 
 extern "C" int
-FormatToken (RA_Client *client, NameValueSet *params, RA_Token *token, RA_Conn *conn);
+FormatToken (RA_Client *client, NameValueSet *params, NameValueSet *exts, RA_Token *token, RA_Conn *conn);
 
 extern "C" int
-ResetPIN (RA_Client *client, NameValueSet *params, RA_Token *token, RA_Conn *conn);
+ResetPIN (RA_Client *client, NameValueSet *params, NameValueSet *exts, RA_Token *token, RA_Conn *conn);
 
 extern "C" int
-EnrollToken (RA_Client *client, NameValueSet *params, RA_Token *token, RA_Conn *conn);
+EnrollToken (RA_Client *client, NameValueSet *params, NameValueSet *exts, RA_Token *token, RA_Conn *conn);
 
 #endif /* RA_CLIENT_H */

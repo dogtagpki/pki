@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.cli.CommandCLI;
+import org.dogtagpki.tps.msg.TPSMessage;
 
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -80,6 +81,7 @@ public class TPSClientCLI extends CommandCLI {
     public native void performFormatToken(
             long client,
             Map<String, String> params,
+            Map<String, String> exts,
             long token,
             long connection) throws Exception;
 
@@ -93,6 +95,9 @@ public class TPSClientCLI extends CommandCLI {
 
         value = params.get("max_ops");
         int maxOps = value == null ? numThreads : Integer.parseInt(value);
+
+        value = params.get("extensions");
+        Map<String, String> exts = TPSMessage.decodeToMap(value);
 
         Thread[] threads = new Thread[numThreads];
         AtomicInteger counter = new AtomicInteger(maxOps);
@@ -113,7 +118,7 @@ public class TPSClientCLI extends CommandCLI {
                             long connection = createConnection(client);
                             try {
                                 connect(connection);
-                                performFormatToken(client, params, token, connection);
+                                performFormatToken(client, params, exts, token, connection);
                                 disconnect(connection);
 
                             } finally {
@@ -145,6 +150,7 @@ public class TPSClientCLI extends CommandCLI {
     public native void performResetPIN(
             long client,
             Map<String, String> params,
+            Map<String, String> exts,
             long token,
             long connection) throws Exception;
 
@@ -158,6 +164,9 @@ public class TPSClientCLI extends CommandCLI {
 
         value = params.get("max_ops");
         int maxOps = value == null ? numThreads : Integer.parseInt(value);
+
+        value = params.get("extensions");
+        Map<String, String> exts = TPSMessage.decodeToMap(value);
 
         Thread[] threads = new Thread[numThreads];
         AtomicInteger counter = new AtomicInteger(maxOps);
@@ -178,7 +187,7 @@ public class TPSClientCLI extends CommandCLI {
                             long connection = createConnection(client);
                             try {
                                 connect(connection);
-                                performResetPIN(client, params, token, connection);
+                                performResetPIN(client, params, exts, token, connection);
                                 disconnect(connection);
 
                             } finally {
@@ -210,6 +219,7 @@ public class TPSClientCLI extends CommandCLI {
     public native void performEnrollToken(
             long client,
             Map<String, String> params,
+            Map<String, String> exts,
             long token,
             long connection) throws Exception;
 
@@ -223,6 +233,9 @@ public class TPSClientCLI extends CommandCLI {
 
         value = params.get("max_ops");
         int maxOps = value == null ? numThreads : Integer.parseInt(value);
+
+        value = params.get("extensions");
+        Map<String, String> exts = TPSMessage.decodeToMap(value);
 
         Thread[] threads = new Thread[numThreads];
         AtomicInteger counter = new AtomicInteger(maxOps);
@@ -243,7 +256,7 @@ public class TPSClientCLI extends CommandCLI {
                             long connection = createConnection(client);
                             try {
                                 connect(connection);
-                                performEnrollToken(client, params, token, connection);
+                                performEnrollToken(client, params, exts, token, connection);
                                 disconnect(connection);
 
                             } finally {

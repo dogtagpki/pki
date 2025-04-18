@@ -118,6 +118,9 @@ OutputError (const char *fmt, ...)
 void ThreadConnUpdate (void *arg)
 {
   ThreadArg *targ = (ThreadArg *) arg;
+  char *extensions;
+  NameValueSet *exts = NULL;
+
   PRTime start = PR_Now ();
 
   char *hostname = targ->client->m_vars.GetValue ("ra_host");
@@ -132,7 +135,13 @@ void ThreadConnUpdate (void *arg)
   goto done;
     }
 
-  targ->status = FormatToken (targ->client, targ->params, targ->token, conn);
+  extensions = targ->params->GetValueAsString ((char *) "extensions", NULL);
+  if (extensions != NULL)
+    {
+  exts = NameValueSet::Parse (extensions, "&");
+    }
+
+  targ->status = FormatToken (targ->client, targ->params, exts, targ->token, conn);
   conn->Close ();
 
 done:
@@ -152,6 +161,9 @@ done:
 void ThreadConnResetPin (void *arg)
 {
   ThreadArg *targ = (ThreadArg *) arg;
+  char *extensions;
+  NameValueSet *exts = NULL;
+
   PRTime start = PR_Now ();
 
   char *hostname = targ->client->m_vars.GetValue ("ra_host");
@@ -166,7 +178,13 @@ void ThreadConnResetPin (void *arg)
   goto done;
     }
 
-  targ->status = ResetPIN (targ->client, targ->params, targ->token, conn);
+  extensions = targ->params->GetValueAsString ((char *) "extensions", NULL);
+  if (extensions != NULL)
+    {
+  exts = NameValueSet::Parse (extensions, "&");
+    }
+
+  targ->status = ResetPIN (targ->client, targ->params, exts, targ->token, conn);
   conn->Close ();
 
 done:
@@ -186,6 +204,9 @@ done:
 void ThreadConnEnroll (void *arg)
 {
   ThreadArg *targ = (ThreadArg *) arg;
+  char *extensions;
+  NameValueSet *exts = NULL;
+
   PRTime start = PR_Now ();
 
   char *hostname = targ->client->m_vars.GetValue ("ra_host");
@@ -200,7 +221,13 @@ void ThreadConnEnroll (void *arg)
   goto done;
     }
 
-  targ->status = EnrollToken (targ->client, targ->params, targ->token, conn);
+  extensions = targ->params->GetValueAsString ((char *) "extensions", NULL);
+  if (extensions != NULL)
+    {
+  exts = NameValueSet::Parse (extensions, "&");
+    }
+
+  targ->status = EnrollToken (targ->client, targ->params, exts, targ->token, conn);
   conn->Close ();
 
 done:
