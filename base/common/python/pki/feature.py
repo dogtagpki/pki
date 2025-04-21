@@ -18,9 +18,7 @@
 # Author:
 #     Ade Lee <alee@redhat.com>
 
-from __future__ import absolute_import
-from __future__ import print_function
-
+import inspect
 import json
 import logging
 
@@ -112,15 +110,24 @@ class FeatureClient(object):
     subordinate CA (authority) resources.
     """
 
-    def __init__(self, connection):
+    def __init__(self, parent):
         """ Constructor """
 
-        self.connection = connection
+        if isinstance(parent, pki.client.PKIConnection):
 
-        self.feature_url = '/rest/config/features'
+            logger.warning(
+                '%s:%s: The PKIConnection parameter in FeatureClient.__init__() '
+                'has been deprecated. Provide SubsystemClient instead.',
+                inspect.stack()[1].filename, inspect.stack()[1].lineno)
 
-        if connection.subsystem is None:
-            self.feature_url = '/ca' + self.feature_url
+            self.subsystem_client = None
+            self.pki_client = None
+            self.connection = parent
+
+        else:
+            self.subsystem_client = parent
+            self.pki_client = self.subsystem_client.parent
+            self.connection = self.pki_client.connection
 
         self.headers = {'Content-type': 'application/json',
                         'Accept': 'application/json'}
@@ -131,8 +138,17 @@ class FeatureClient(object):
         if feature_id is None:
             raise ValueError("Feature ID must be specified")
 
-        url = self.feature_url + '/' + str(feature_id)
-        response = self.connection.get(url, self.headers)
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/config/features/%s' % (api_path, feature_id)
+
+        if not self.connection.subsystem:
+            path = '/ca' + path
+
+        response = self.connection.get(path, self.headers)
 
         json_response = response.json()
         logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
@@ -143,8 +159,19 @@ class FeatureClient(object):
     def list_features(self):
         """ Return a FeatureCollection object of all available features
         """
+
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/config/features' % api_path
+
+        if not self.connection.subsystem:
+            path = '/ca' + path
+
         response = self.connection.get(
-            path=self.feature_url,
+            path=path,
             headers=self.headers)
 
         json_response = response.json()
