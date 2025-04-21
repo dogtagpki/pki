@@ -385,21 +385,6 @@ HandleExtendedLoginRequest (RA_Client * client,
 }
 
 int
-HandleLoginRequest (RA_Client * client,
-		    RA_Login_Request_Msg * req,
-		    RA_Token * token, RA_Conn * conn,
-		    NameValueSet * vars, NameValueSet * params)
-{
-  client->Debug ("RA_Client::HandleLoginRequest",
-		 "RA_Client::HandleLoginRequest");
-  RA_Login_Response_Msg resp =
-    RA_Login_Response_Msg (params->GetValue ("uid"),
-			   params->GetValue ("pwd"));
-  conn->SendMsg (&resp);
-  return 1;
-}
-
-int
 HandleNewPinRequest (RA_Client * client,
 		     RA_New_Pin_Request_Msg * req,
 		     RA_Token * token, RA_Conn * conn,

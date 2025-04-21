@@ -273,23 +273,19 @@ Java_com_netscape_cmstools_tps_TPSClientCLI_handleLoginRequest
     jlong connection,
     jlong message) {
 
-    RA_Client* cclient = (RA_Client*) client;
     NameValueSet* set = convertParams(env, params);
-    RA_Token* ctoken = (RA_Token*) token;
     RA_Conn* conn = (RA_Conn*) connection;
-    RA_Login_Request_Msg* msg = (RA_Login_Request_Msg*) message;
 
-    int status = HandleLoginRequest(
-        cclient,
-        msg,
-        ctoken,
-        conn,
-        &cclient->m_vars,
-        set);
+    RA_Login_Response_Msg* resp = new RA_Login_Response_Msg(
+        set->GetValue("uid"),
+        set->GetValue("pwd"));
+    int status = conn->SendMsg(resp);
 
     if (status == 0) {
         throwCLIException(env, "Unable to handle login request");
     }
+
+    delete resp;
 }
 
 extern "C" JNIEXPORT void JNICALL

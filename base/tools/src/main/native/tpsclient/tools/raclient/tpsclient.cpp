@@ -115,6 +115,20 @@ OutputError (const char *fmt, ...)
   va_end (ap);
 }
 
+int
+HandleLoginRequest (RA_Client * client,
+            RA_Login_Request_Msg * req,
+            RA_Token * token, RA_Conn * conn,
+            NameValueSet * vars, NameValueSet * params)
+{
+  client->Debug ("HandleLoginRequest", "HandleLoginRequest");
+  RA_Login_Response_Msg resp =
+    RA_Login_Response_Msg (params->GetValue ("uid"),
+               params->GetValue ("pwd"));
+  conn->SendMsg (&resp);
+  return 1;
+}
+
 int FormatToken (
   RA_Client *client,
   NameValueSet *params,
