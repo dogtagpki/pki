@@ -251,7 +251,7 @@ public class TPSMessage {
         return result;
     }
 
-    protected int opTypeToInt(OpType op) {
+    public static int opTypeToInt(OpType op) {
         int result = 0;
 
         switch (op) {
@@ -282,7 +282,7 @@ public class TPSMessage {
         return result;
     }
 
-    protected MsgType intToMsgType(int i) {
+    public static MsgType intToMsgType(int i) {
 
         MsgType result = MsgType.MSG_UNDEFINED;
 

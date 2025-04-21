@@ -338,7 +338,7 @@ RA_Client::OpTokenSet (NameValueSet * params)
   return 1;
 }
 
-static int
+int
 HandleStatusUpdateRequest (RA_Client * client,
 			   RA_Status_Update_Request_Msg * req,
 			   RA_Token * token, RA_Conn * conn,
@@ -352,7 +352,7 @@ HandleStatusUpdateRequest (RA_Client * client,
   return 1;
 }
 
-static int
+int
 HandleExtendedLoginRequest (RA_Client * client,
 			    RA_Extended_Login_Request_Msg * req,
 			    RA_Token * token, RA_Conn * conn,
@@ -384,7 +384,7 @@ HandleExtendedLoginRequest (RA_Client * client,
   return 1;
 }
 
-static int
+int
 HandleLoginRequest (RA_Client * client,
 		    RA_Login_Request_Msg * req,
 		    RA_Token * token, RA_Conn * conn,
@@ -399,7 +399,7 @@ HandleLoginRequest (RA_Client * client,
   return 1;
 }
 
-static int
+int
 HandleNewPinRequest (RA_Client * client,
 		     RA_New_Pin_Request_Msg * req,
 		     RA_Token * token, RA_Conn * conn,
@@ -417,7 +417,7 @@ HandleNewPinRequest (RA_Client * client,
   return 1;
 }
 
-static int
+int
 HandleASQRequest (RA_Client * client,
 		  RA_ASQ_Request_Msg * req,
 		  RA_Token * token, RA_Conn * conn,
@@ -433,7 +433,7 @@ HandleASQRequest (RA_Client * client,
   return 1;
 }
 
-static int
+int
 HandleSecureIdRequest (RA_Client * client,
 		       RA_SecureId_Request_Msg * req,
 		       RA_Token * token, RA_Conn * conn,
@@ -451,7 +451,7 @@ HandleSecureIdRequest (RA_Client * client,
   return 1;
 }
 
-static int
+int
 HandleTokenPDURequest (RA_Client * client,
 		       RA_Token_PDU_Request_Msg * req,
 		       RA_Token * token, RA_Conn * conn,
@@ -485,115 +485,6 @@ HandleTokenPDURequest (RA_Client * client,
 extern "C"
 {
 #endif
-
-  int FormatToken (
-    RA_Client *client,
-    NameValueSet *params,
-    NameValueSet *exts,
-    RA_Token *token,
-    RA_Conn *conn)
-  {
-    int status;
-
-    RA_Begin_Op_Msg beginOp = RA_Begin_Op_Msg (OP_FORMAT, exts);
-    conn->SendMsg (&beginOp);
-
-    /* handle secure ID (optional) */
-    while (1)
-      {
-	RA_Msg *msg = (RA_Msg *) conn->ReadMsg (token);
-	if (msg == NULL)
-	  break;
-	if (msg->GetType () == MSG_LOGIN_REQUEST)
-	  {
-	    status =
-	      HandleLoginRequest (client, (RA_Login_Request_Msg *) msg,
-				  token, conn, &client->m_vars,
-				  params);
-	  }
-	else if (msg->GetType () == MSG_EXTENDED_LOGIN_REQUEST)
-	  {
-	    status =
-	      HandleExtendedLoginRequest (client,
-					  (RA_Extended_Login_Request_Msg *)
-					  msg, token, conn,
-					  &client->m_vars,
-					  params);
-	  }
-	else if (msg->GetType () == MSG_STATUS_UPDATE_REQUEST)
-	  {
-	    status =
-	      HandleStatusUpdateRequest (client,
-					 (RA_Status_Update_Request_Msg *) msg,
-					 token, conn,
-					 &client->m_vars, params);
-	  }
-	else if (msg->GetType () == MSG_SECUREID_REQUEST)
-	  {
-	    status =
-	      HandleSecureIdRequest (client,
-				     (RA_SecureId_Request_Msg *) msg,
-				     token, conn,
-				     &client->m_vars, params);
-	  }
-	else if (msg->GetType () == MSG_ASQ_REQUEST)
-	  {
-	    status =
-	      HandleASQRequest (client, (RA_ASQ_Request_Msg *) msg,
-				token, conn, &client->m_vars,
-				params);
-	  }
-	else if (msg->GetType () == MSG_TOKEN_PDU_REQUEST)
-	  {
-	    status =
-	      HandleTokenPDURequest (client,
-				     (RA_Token_PDU_Request_Msg *) msg,
-				     token, conn,
-				     &client->m_vars, params);
-	  }
-	else if (msg->GetType () == MSG_NEW_PIN_REQUEST)
-	  {
-	    status =
-	      HandleNewPinRequest (client,
-				   (RA_New_Pin_Request_Msg *) msg,
-				   token, conn, &client->m_vars,
-				   params);
-	  }
-	else if (msg->GetType () == MSG_END_OP)
-	  {
-	    RA_End_Op_Msg *endOp = (RA_End_Op_Msg *) msg;
-	    if (endOp->GetResult () == 0)
-	      {
-		status = 1;	/* error */
-	      }
-	    else
-	      {
-		status = 0;
-	      }
-	    if (msg != NULL)
-	      {
-		delete msg;
-		msg = NULL;
-	      }
-	    break;
-	  }
-	else
-	  {
-	    /* error */
-	    status = 0;
-	  }
-	if (msg != NULL)
-	  {
-	    delete msg;
-	    msg = NULL;
-	  }
-
-	if (status == 0)
-	  break;
-      }
-
-    return status;
-  }
 
   int ResetPIN (
     RA_Client *client,

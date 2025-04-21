@@ -37,6 +37,22 @@
 #endif /* AUTOTOOLS_CONFIG_H */
 #endif /* HAVE_CONFIG_H */
 
+#include "msg/RA_Begin_Op_Msg.h"
+#include "msg/RA_Login_Request_Msg.h"
+#include "msg/RA_Login_Response_Msg.h"
+#include "msg/RA_Extended_Login_Request_Msg.h"
+#include "msg/RA_Extended_Login_Response_Msg.h"
+#include "msg/RA_Status_Update_Request_Msg.h"
+#include "msg/RA_Status_Update_Response_Msg.h"
+#include "msg/RA_SecureId_Request_Msg.h"
+#include "msg/RA_SecureId_Response_Msg.h"
+#include "msg/RA_ASQ_Request_Msg.h"
+#include "msg/RA_ASQ_Response_Msg.h"
+#include "msg/RA_Token_PDU_Request_Msg.h"
+#include "msg/RA_Token_PDU_Response_Msg.h"
+#include "msg/RA_New_Pin_Request_Msg.h"
+#include "msg/RA_New_Pin_Response_Msg.h"
+#include "msg/RA_End_Op_Msg.h"
 #include "main/NameValueSet.h"
 #include "main/RA_Conn.h"
 #include "main/RA_Token.h"
@@ -63,8 +79,47 @@ class RA_Client
 	  PRBool old_style = PR_TRUE;
 };
 
-extern "C" int
-FormatToken (RA_Client *client, NameValueSet *params, NameValueSet *exts, RA_Token *token, RA_Conn *conn);
+int
+HandleLoginRequest (RA_Client * client,
+            RA_Login_Request_Msg * req,
+            RA_Token * token, RA_Conn * conn,
+            NameValueSet * vars, NameValueSet * params);
+
+int
+HandleExtendedLoginRequest (RA_Client * client,
+                RA_Extended_Login_Request_Msg * req,
+                RA_Token * token, RA_Conn * conn,
+                NameValueSet * vars, NameValueSet * params);
+
+int
+HandleStatusUpdateRequest (RA_Client * client,
+               RA_Status_Update_Request_Msg * req,
+               RA_Token * token, RA_Conn * conn,
+               NameValueSet * vars, NameValueSet * params);
+
+int
+HandleSecureIdRequest (RA_Client * client,
+               RA_SecureId_Request_Msg * req,
+               RA_Token * token, RA_Conn * conn,
+               NameValueSet * vars, NameValueSet * params);
+
+int
+HandleASQRequest (RA_Client * client,
+          RA_ASQ_Request_Msg * req,
+          RA_Token * token, RA_Conn * conn,
+          NameValueSet * vars, NameValueSet * params);
+
+int
+HandleTokenPDURequest (RA_Client * client,
+               RA_Token_PDU_Request_Msg * req,
+               RA_Token * token, RA_Conn * conn,
+               NameValueSet * vars, NameValueSet * params);
+
+int
+HandleNewPinRequest (RA_Client * client,
+             RA_New_Pin_Request_Msg * req,
+             RA_Token * token, RA_Conn * conn,
+             NameValueSet * vars, NameValueSet * params);
 
 extern "C" int
 ResetPIN (RA_Client *client, NameValueSet *params, NameValueSet *exts, RA_Token *token, RA_Conn *conn);

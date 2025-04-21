@@ -15,8 +15,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.lang3.StringUtils;
+import org.dogtagpki.cli.CLIException;
 import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.tps.msg.TPSMessage;
+import org.dogtagpki.tps.msg.TPSMessage.MsgType;
+import org.dogtagpki.tps.msg.TPSMessage.OpType;
 
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -78,12 +81,109 @@ public class TPSClientCLI extends CommandCLI {
 
     public native void displayHelp(long client) throws Exception;
 
-    public native void performFormatToken(
+    public native long createBeginOpMsg(OpType opType, Map<String, String> exts);
+    public native void sendMsg(long connection, long message);
+    public native long readMsg(long connection, long token);
+    public native int getMsgType(long message);
+    public native void removeMsg(long message);
+
+    public native void handleLoginRequest(
+            long client,
+            Map<String, String> params,
+            long token,
+            long connection,
+            long message) throws Exception;
+    public native void handleExtendedLoginRequest(
+            long client,
+            Map<String, String> params,
+            long token,
+            long connection,
+            long message) throws Exception;
+    public native void handleStatusUpdateRequest(
+            long client,
+            Map<String, String> params,
+            long token,
+            long connection,
+            long message) throws Exception;
+    public native void handleSecureIdRequest(
+            long client,
+            Map<String, String> params,
+            long token,
+            long connection,
+            long message) throws Exception;
+    public native void handleASQRequest(
+            long client,
+            Map<String, String> params,
+            long token,
+            long connection,
+            long message) throws Exception;
+    public native void handleTokenPDURequest(
+            long client,
+            Map<String, String> params,
+            long token,
+            long connection,
+            long message) throws Exception;
+    public native void handleNewPinRequest(
+            long client,
+            Map<String, String> params,
+            long token,
+            long connection,
+            long message) throws Exception;
+    public native void handleEndOp(long message) throws Exception;
+
+    public void performOperation(
             long client,
             Map<String, String> params,
             Map<String, String> exts,
             long token,
-            long connection) throws Exception;
+            long connection,
+            OpType opType) throws Exception {
+
+        long beginOp = createBeginOpMsg(opType, exts);
+        sendMsg(connection, beginOp);
+        removeMsg(beginOp);
+
+        boolean done = false;
+        while (!done) {
+            long message = readMsg(connection, token);
+            if (message == 0) break;
+
+            int type = getMsgType(message);
+            MsgType msgType = TPSMessage.intToMsgType(type);
+
+            switch (msgType) {
+            case MSG_LOGIN_REQUEST:
+                handleLoginRequest(client, params, token, connection, message);
+                break;
+            case MSG_EXTENDED_LOGIN_REQUEST:
+                handleExtendedLoginRequest(client, params, token, connection, message);
+                break;
+            case MSG_STATUS_UPDATE_REQUEST:
+                handleStatusUpdateRequest(client, params, token, connection, message);
+                break;
+            case MSG_SECUREID_REQUEST:
+                handleSecureIdRequest(client, params, token, connection, message);
+                break;
+            case MSG_ASQ_REQUEST:
+                handleASQRequest(client, params, token, connection, message);
+                break;
+            case MSG_TOKEN_PDU_REQUEST:
+                handleTokenPDURequest(client, params, token, connection, message);
+                break;
+            case MSG_NEW_PIN_REQUEST:
+                handleNewPinRequest(client, params, token, connection, message);
+                break;
+            case MSG_END_OP:
+                handleEndOp(message);
+                done = false;
+                break;
+            default:
+                throw new CLIException("Invalid message type: " + msgType);
+            }
+
+            removeMsg(message);
+        }
+    }
 
     public void formatToken(
             long client,
@@ -118,7 +218,7 @@ public class TPSClientCLI extends CommandCLI {
                             long connection = createConnection(client);
                             try {
                                 connect(connection);
-                                performFormatToken(client, params, exts, token, connection);
+                                performOperation(client, params, exts, token, connection, OpType.OP_FORMAT);
                                 disconnect(connection);
 
                             } finally {
