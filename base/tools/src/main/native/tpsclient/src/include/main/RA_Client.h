@@ -79,10 +79,4 @@ class RA_Client
 	  PRBool old_style = PR_TRUE;
 };
 
-int
-HandleNewPinRequest (RA_Client * client,
-             RA_New_Pin_Request_Msg * req,
-             RA_Token * token, RA_Conn * conn,
-             NameValueSet * vars, NameValueSet * params);
-
 #endif /* RA_CLIENT_H */

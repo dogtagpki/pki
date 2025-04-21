@@ -339,24 +339,6 @@ RA_Client::OpTokenSet (NameValueSet * params)
 }
 
 int
-HandleNewPinRequest (RA_Client * client,
-		     RA_New_Pin_Request_Msg * req,
-		     RA_Token * token, RA_Conn * conn,
-		     NameValueSet * vars, NameValueSet * params)
-{
-  client->Debug ("RA_Client::HandleNewPinRequest",
-		 "RA_Client::HandleNewPinRequest");
-  int min_len = req->GetMinLen ();
-  int max_len = req->GetMaxLen ();
-  Output ("Min Len: '%d' Max Len: '%d'", min_len, max_len);
-  RA_New_Pin_Response_Msg resp =
-    RA_New_Pin_Response_Msg (params->GetValue ("new_pin"));
-  conn->SendMsg (&resp);
-
-  return 1;
-}
-
-int
 RA_Client::OpVarSet (NameValueSet * params)
 {
   m_vars.Add (params->GetValue ("name"), params->GetValue ("value"));

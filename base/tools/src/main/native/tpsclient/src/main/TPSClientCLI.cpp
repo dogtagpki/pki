@@ -439,23 +439,17 @@ Java_com_netscape_cmstools_tps_TPSClientCLI_handleNewPinRequest
     jlong connection,
     jlong message) {
 
-    RA_Client* cclient = (RA_Client*) client;
     NameValueSet* set = convertParams(env, params);
-    RA_Token* ctoken = (RA_Token*) token;
     RA_Conn* conn = (RA_Conn*) connection;
-    RA_New_Pin_Request_Msg* msg = (RA_New_Pin_Request_Msg*) message;
 
-    int status = HandleNewPinRequest(
-        cclient,
-        msg,
-        ctoken,
-        conn,
-        &cclient->m_vars,
-        set);
+    RA_New_Pin_Response_Msg* resp = new RA_New_Pin_Response_Msg(set->GetValue("new_pin"));
+    int status = conn->SendMsg(resp);
 
     if (status == 0) {
         throwCLIException(env, "Unable to handle new PIN request");
     }
+
+    delete resp;
 }
 
 extern "C" JNIEXPORT void JNICALL
