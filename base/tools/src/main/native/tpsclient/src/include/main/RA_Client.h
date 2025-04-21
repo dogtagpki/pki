@@ -80,12 +80,6 @@ class RA_Client
 };
 
 int
-HandleExtendedLoginRequest (RA_Client * client,
-                RA_Extended_Login_Request_Msg * req,
-                RA_Token * token, RA_Conn * conn,
-                NameValueSet * vars, NameValueSet * params);
-
-int
 HandleStatusUpdateRequest (RA_Client * client,
                RA_Status_Update_Request_Msg * req,
                RA_Token * token, RA_Conn * conn,

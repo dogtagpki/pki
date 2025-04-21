@@ -298,22 +298,34 @@ Java_com_netscape_cmstools_tps_TPSClientCLI_handleExtendedLoginRequest
     jlong message) {
 
     RA_Client* cclient = (RA_Client*) client;
+    NameValueSet* vars = &cclient->m_vars;
     NameValueSet* set = convertParams(env, params);
-    RA_Token* ctoken = (RA_Token*) token;
     RA_Conn* conn = (RA_Conn*) connection;
-    RA_Extended_Login_Request_Msg* msg = (RA_Extended_Login_Request_Msg*) message;
 
-    int status = HandleExtendedLoginRequest(
-        cclient,
-        msg,
-        ctoken,
-        conn,
-        &cclient->m_vars,
-        set);
+    AuthParams *auths = new AuthParams();
+    auths->SetUID(set->GetValue("uid"));
+    auths->SetPassword(set->GetValue("pwd"));
+
+    if (vars->GetValueAsBool("test_enable", 0) == 1) {
+        if (vars->GetValueAsBool("test_el_resp_exclude_uid", 0) == 1) {
+            auths->Remove("UID");
+        }
+        if (vars->GetValueAsBool("test_el_resp_exclude_pwd", 0) == 1) {
+            auths->Remove("PASSWORD");
+        }
+        if (vars->GetValueAsBool("test_el_resp_include_invalid_param", 0) == 1) {
+            auths->Add("XXX", "YYY");
+        }
+    }
+
+    RA_Extended_Login_Response_Msg* resp = new RA_Extended_Login_Response_Msg(auths);
+    int status = conn->SendMsg(resp);
 
     if (status == 0) {
         throwCLIException(env, "Unable to handle extended login request");
     }
+
+    delete resp;
 }
 
 extern "C" JNIEXPORT void JNICALL

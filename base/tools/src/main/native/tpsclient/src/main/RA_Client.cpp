@@ -353,38 +353,6 @@ HandleStatusUpdateRequest (RA_Client * client,
 }
 
 int
-HandleExtendedLoginRequest (RA_Client * client,
-			    RA_Extended_Login_Request_Msg * req,
-			    RA_Token * token, RA_Conn * conn,
-			    NameValueSet * vars, NameValueSet * params)
-{
-  client->Debug ("RA_Client::HandleExtendLoginRequest",
-		 "RA_Client::HandleExtendedLoginRequest");
-  AuthParams *auths = new AuthParams;
-  auths->SetUID (params->GetValue ("uid"));
-  auths->SetPassword (params->GetValue ("pwd"));
-  if (vars->GetValueAsBool ("test_enable", 0) == 1)
-    {
-      if (vars->GetValueAsBool ("test_el_resp_exclude_uid", 0) == 1)
-	{
-	  auths->Remove ("UID");
-	}
-      if (vars->GetValueAsBool ("test_el_resp_exclude_pwd", 0) == 1)
-	{
-	  auths->Remove ("PASSWORD");
-	}
-      if (vars->GetValueAsBool ("test_el_resp_include_invalid_param", 0) == 1)
-	{
-	  auths->Add ("XXX", "YYY");
-	}
-    }
-  RA_Extended_Login_Response_Msg resp =
-    RA_Extended_Login_Response_Msg (auths);
-  conn->SendMsg (&resp);
-  return 1;
-}
-
-int
 HandleNewPinRequest (RA_Client * client,
 		     RA_New_Pin_Request_Msg * req,
 		     RA_Token * token, RA_Conn * conn,
