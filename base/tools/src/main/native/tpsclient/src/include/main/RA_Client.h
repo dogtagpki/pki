@@ -122,9 +122,6 @@ HandleNewPinRequest (RA_Client * client,
              NameValueSet * vars, NameValueSet * params);
 
 extern "C" int
-ResetPIN (RA_Client *client, NameValueSet *params, NameValueSet *exts, RA_Token *token, RA_Conn *conn);
-
-extern "C" int
 EnrollToken (RA_Client *client, NameValueSet *params, NameValueSet *exts, RA_Token *token, RA_Conn *conn);
 
 #endif /* RA_CLIENT_H */

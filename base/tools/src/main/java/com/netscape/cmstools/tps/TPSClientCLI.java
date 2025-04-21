@@ -247,13 +247,6 @@ public class TPSClientCLI extends CommandCLI {
         }
     }
 
-    public native void performResetPIN(
-            long client,
-            Map<String, String> params,
-            Map<String, String> exts,
-            long token,
-            long connection) throws Exception;
-
     public void resetPIN(
             long client,
             Map<String, String> params)
@@ -287,7 +280,7 @@ public class TPSClientCLI extends CommandCLI {
                             long connection = createConnection(client);
                             try {
                                 connect(connection);
-                                performResetPIN(client, params, exts, token, connection);
+                                performOperation(client, params, exts, token, connection, OpType.OP_RESET_PIN);
                                 disconnect(connection);
 
                             } finally {
