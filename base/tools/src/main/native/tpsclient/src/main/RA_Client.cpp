@@ -373,24 +373,6 @@ HandleASQRequest (RA_Client * client,
 }
 
 int
-HandleSecureIdRequest (RA_Client * client,
-		       RA_SecureId_Request_Msg * req,
-		       RA_Token * token, RA_Conn * conn,
-		       NameValueSet * vars, NameValueSet * params)
-{
-  client->Debug ("RA_Client::HandleSecureIdRequest",
-		 "RA_Client::HandleSecureIdRequest");
-  int pin_required = req->IsPinRequired ();
-  int next_value = req->IsNextValue ();
-  Output ("Pin Required: '%d' Next Value: '%d'", pin_required, next_value);
-  RA_SecureId_Response_Msg resp =
-    RA_SecureId_Response_Msg (params->GetValue ("secureid_value"),
-			      params->GetValue ("secureid_pin"));
-  conn->SendMsg (&resp);
-  return 1;
-}
-
-int
 HandleTokenPDURequest (RA_Client * client,
 		       RA_Token_PDU_Request_Msg * req,
 		       RA_Token * token, RA_Conn * conn,

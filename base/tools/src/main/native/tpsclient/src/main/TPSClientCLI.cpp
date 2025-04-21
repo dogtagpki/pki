@@ -359,23 +359,20 @@ Java_com_netscape_cmstools_tps_TPSClientCLI_handleSecureIdRequest
     jlong connection,
     jlong message) {
 
-    RA_Client* cclient = (RA_Client*) client;
     NameValueSet* set = convertParams(env, params);
-    RA_Token* ctoken = (RA_Token*) token;
     RA_Conn* conn = (RA_Conn*) connection;
     RA_SecureId_Request_Msg* msg = (RA_SecureId_Request_Msg*) message;
 
-    int status = HandleSecureIdRequest(
-        cclient,
-        msg,
-        ctoken,
-        conn,
-        &cclient->m_vars,
-        set);
+    RA_SecureId_Response_Msg* resp = new RA_SecureId_Response_Msg(
+        set->GetValue("secureid_value"),
+        set->GetValue("secureid_pin"));
+    int status = conn->SendMsg(resp);
 
     if (status == 0) {
         throwCLIException(env, "Unable to handle secure ID request");
     }
+
+    delete resp;
 }
 
 extern "C" JNIEXPORT void JNICALL
