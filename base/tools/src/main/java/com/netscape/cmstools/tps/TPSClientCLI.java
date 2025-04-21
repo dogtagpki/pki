@@ -309,13 +309,6 @@ public class TPSClientCLI extends CommandCLI {
         }
     }
 
-    public native void performEnrollToken(
-            long client,
-            Map<String, String> params,
-            Map<String, String> exts,
-            long token,
-            long connection) throws Exception;
-
     public void enrollToken(
             long client,
             Map<String, String> params)
@@ -349,7 +342,7 @@ public class TPSClientCLI extends CommandCLI {
                             long connection = createConnection(client);
                             try {
                                 connect(connection);
-                                performEnrollToken(client, params, exts, token, connection);
+                                performOperation(client, params, exts, token, connection, OpType.OP_ENROLL);
                                 disconnect(connection);
 
                             } finally {

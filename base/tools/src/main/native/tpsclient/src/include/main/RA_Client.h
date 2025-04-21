@@ -121,7 +121,4 @@ HandleNewPinRequest (RA_Client * client,
              RA_Token * token, RA_Conn * conn,
              NameValueSet * vars, NameValueSet * params);
 
-extern "C" int
-EnrollToken (RA_Client *client, NameValueSet *params, NameValueSet *exts, RA_Token *token, RA_Conn *conn);
-
 #endif /* RA_CLIENT_H */

@@ -333,6 +333,115 @@ int ResetPIN (
   return status;
 }
 
+int EnrollToken (
+  RA_Client *client,
+  NameValueSet *params,
+  NameValueSet *exts,
+  RA_Token *token,
+  RA_Conn *conn)
+{
+
+  RA_Begin_Op_Msg beginOp = RA_Begin_Op_Msg (OP_ENROLL, exts);
+  conn->SendMsg (&beginOp);
+
+  /* handle secure ID (optional) */
+  int status;
+  while (1)
+    {
+  RA_Msg *msg = (RA_Msg *) conn->ReadMsg (token);
+  if (msg == NULL)
+    break;
+  if (msg->GetType () == MSG_LOGIN_REQUEST)
+    {
+      status = HandleLoginRequest (client,
+                         (RA_Login_Request_Msg *) msg,
+                         token, conn,
+                         &client->m_vars,
+                         params);
+    }
+  else if (msg->GetType () == MSG_EXTENDED_LOGIN_REQUEST)
+    {
+      status = HandleExtendedLoginRequest (client,
+                             (RA_Extended_Login_Request_Msg
+                          *) msg, token,
+                             conn,
+                             &client->m_vars,
+                             params);
+    }
+  else if (msg->GetType () == MSG_STATUS_UPDATE_REQUEST)
+    {
+      status =
+        HandleStatusUpdateRequest (client,
+                   (RA_Status_Update_Request_Msg *) msg,
+                   token, conn,
+                   &client->m_vars, params);
+    }
+  else if (msg->GetType () == MSG_SECUREID_REQUEST)
+    {
+      status = HandleSecureIdRequest (client,
+                        (RA_SecureId_Request_Msg *)
+                        msg, token, conn,
+                        &client->m_vars,
+                        params);
+    }
+  else if (msg->GetType () == MSG_ASQ_REQUEST)
+    {
+      status = HandleASQRequest (client,
+                       (RA_ASQ_Request_Msg *) msg,
+                       token, conn,
+                       &client->m_vars,
+                       params);
+    }
+  else if (msg->GetType () == MSG_TOKEN_PDU_REQUEST)
+    {
+      status = HandleTokenPDURequest (client,
+                        (RA_Token_PDU_Request_Msg *)
+                        msg, token, conn,
+                        &client->m_vars,
+                        params);
+      status = 1;
+    }
+  else if (msg->GetType () == MSG_NEW_PIN_REQUEST)
+    {
+      status = HandleNewPinRequest (client,
+                      (RA_New_Pin_Request_Msg *)
+                      msg, token, conn,
+                      &client->m_vars,
+                      params);
+    }
+  else if (msg->GetType () == MSG_END_OP)
+    {
+      RA_End_Op_Msg *endOp = (RA_End_Op_Msg *) msg;
+      if (endOp->GetResult () == 0)
+        {
+      status = 1; /* error */
+        }
+      else
+        {
+      status = 0;
+        }
+      if (msg != NULL)
+        {
+      delete msg;
+      msg = NULL;
+        }
+      break;
+    }
+  else
+    {
+      /* error */
+      status = 0; /* error */
+    }
+  if (msg != NULL)
+    {
+      delete msg;
+      msg = NULL;
+    }
+    }
+
+  return status;
+}
+
 void ThreadConnUpdate (void *arg)
 {
   ThreadArg *targ = (ThreadArg *) arg;
