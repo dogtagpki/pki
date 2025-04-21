@@ -80,12 +80,6 @@ class RA_Client
 };
 
 int
-HandleASQRequest (RA_Client * client,
-          RA_ASQ_Request_Msg * req,
-          RA_Token * token, RA_Conn * conn,
-          NameValueSet * vars, NameValueSet * params);
-
-int
 HandleTokenPDURequest (RA_Client * client,
                RA_Token_PDU_Request_Msg * req,
                RA_Token * token, RA_Conn * conn,

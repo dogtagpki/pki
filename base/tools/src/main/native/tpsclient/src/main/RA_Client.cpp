@@ -357,22 +357,6 @@ HandleNewPinRequest (RA_Client * client,
 }
 
 int
-HandleASQRequest (RA_Client * client,
-		  RA_ASQ_Request_Msg * req,
-		  RA_Token * token, RA_Conn * conn,
-		  NameValueSet * vars, NameValueSet * params)
-{
-  client->Debug ("RA_Client::HandleASQRequest",
-		 "RA_Client::HandleASQRequest");
-  Output ("ASQ Question: '%s'", req->GetQuestion ());
-  RA_ASQ_Response_Msg resp =
-    RA_ASQ_Response_Msg (params->GetValue ("answer"));
-  conn->SendMsg (&resp);
-
-  return 1;
-}
-
-int
 HandleTokenPDURequest (RA_Client * client,
 		       RA_Token_PDU_Request_Msg * req,
 		       RA_Token * token, RA_Conn * conn,

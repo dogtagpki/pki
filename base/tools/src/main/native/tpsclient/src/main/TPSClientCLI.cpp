@@ -384,23 +384,17 @@ Java_com_netscape_cmstools_tps_TPSClientCLI_handleASQRequest
     jlong connection,
     jlong message) {
 
-    RA_Client* cclient = (RA_Client*) client;
     NameValueSet* set = convertParams(env, params);
-    RA_Token* ctoken = (RA_Token*) token;
     RA_Conn* conn = (RA_Conn*) connection;
-    RA_ASQ_Request_Msg* msg = (RA_ASQ_Request_Msg*) message;
 
-    int status = HandleASQRequest(
-        cclient,
-        msg,
-        ctoken,
-        conn,
-        &cclient->m_vars,
-        set);
+    RA_ASQ_Response_Msg* resp = new RA_ASQ_Response_Msg(set->GetValue("answer"));
+    int status = conn->SendMsg(resp);
 
     if (status == 0) {
         throwCLIException(env, "Unable to handle ASQ request");
     }
+
+    delete resp;
 }
 
 extern "C" JNIEXPORT void JNICALL
