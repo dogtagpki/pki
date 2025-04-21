@@ -339,20 +339,6 @@ RA_Client::OpTokenSet (NameValueSet * params)
 }
 
 int
-HandleStatusUpdateRequest (RA_Client * client,
-			   RA_Status_Update_Request_Msg * req,
-			   RA_Token * token, RA_Conn * conn,
-			   NameValueSet * vars, NameValueSet * params)
-{
-  client->Debug ("RA_Client::HandleStatusUpdateRequest",
-		 "RA_Client::HandleStatusUpdateRequest");
-  RA_Status_Update_Response_Msg resp =
-    RA_Status_Update_Response_Msg (req->GetStatus ());
-  conn->SendMsg (&resp);
-  return 1;
-}
-
-int
 HandleNewPinRequest (RA_Client * client,
 		     RA_New_Pin_Request_Msg * req,
 		     RA_Token * token, RA_Conn * conn,
