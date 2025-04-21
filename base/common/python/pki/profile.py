@@ -17,9 +17,7 @@
 #
 # @author: Abhishek Koneru <akoneru@redhat.com>
 
-from __future__ import absolute_import
-from __future__ import print_function
-
+import inspect
 import json
 import logging
 import os
@@ -981,19 +979,30 @@ class ProfileClient(object):
     This class consists of methods for accessing the ProfileResource.
     """
 
-    def __init__(self, connection):
+    def __init__(self, parent):
 
-        self.connection = connection
+        if isinstance(parent, pki.client.PKIConnection):
 
-        self.profiles_url = '/rest/profiles'
+            logger.warning(
+                '%s:%s: The PKIConnection parameter in ProfileClient.__init__() '
+                'has been deprecated. Provide SubsystemClient instead.',
+                inspect.stack()[1].filename, inspect.stack()[1].lineno)
 
-        if connection.subsystem is None:
-            self.profiles_url = '/ca' + self.profiles_url
+            self.ca_client = None
+            self.pki_client = None
+            self.connection = parent
+
+            self.account_client = account.AccountClient(self.connection, subsystem='ca')
+
+        else:
+            self.ca_client = parent
+            self.pki_client = self.ca_client.parent
+            self.connection = self.pki_client.connection
+
+            self.account_client = account.AccountClient(parent)
 
         self.headers = {'Content-type': 'application/json',
                         'Accept': 'application/json'}
-
-        self.account_client = account.AccountClient(connection, subsystem='ca')
 
     def _get(self, url, query_params=None, payload=None):
         self.account_client.login()
@@ -1026,11 +1035,22 @@ class ProfileClient(object):
         The start and size arguments provide pagination support.
         Returns a ProfileDataInfoCollection object.
         """
+
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/profiles' % api_path
+
+        if not self.connection.subsystem:
+            path = '/ca' + path
+
         query_params = {
             'start': start,
             'size': size
         }
-        response = self._get(self.profiles_url, query_params)
+        response = self._get(path, query_params)
 
         json_response = response.json()
         logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
@@ -1045,8 +1065,18 @@ class ProfileClient(object):
         """
         if profile_id is None:
             raise ValueError("Profile ID must be specified.")
-        url = self.profiles_url + '/' + str(profile_id)
-        response = self._get(url)
+
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/profiles/%s' % (api_path, profile_id)
+
+        if not self.connection.subsystem:
+            path = '/ca' + path
+
+        response = self._get(path)
 
         json_response = response.json()
         logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
@@ -1063,9 +1093,18 @@ class ProfileClient(object):
             raise ValueError("A valid action(enable/disable) must be "
                              "specified.")
 
-        url = self.profiles_url + '/' + str(profile_id)
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/profiles/%s' % (api_path, profile_id)
+
+        if not self.connection.subsystem:
+            path = '/ca' + path
+
         params = {'action': action}
-        self._post(url, query_params=params)
+        self._post(path, query_params=params)
 
     @pki.handle_exceptions()
     def enable_profile(self, profile_id):
@@ -1086,10 +1125,20 @@ class ProfileClient(object):
         if profile_data is None:
             raise ValueError("No ProfileData specified")
 
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/profiles' % api_path
+
+        if not self.connection.subsystem:
+            path = '/ca' + path
+
         profile_object = json.dumps(profile_data, cls=encoder.CustomTypeEncoder,
                                     sort_keys=True)
 
-        response = self._post(self.profiles_url, profile_object)
+        response = self._post(path, profile_object)
 
         json_response = response.json()
         logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
@@ -1101,10 +1150,21 @@ class ProfileClient(object):
             raise ValueError("No ProfileData specified")
         if profile_data.profile_id is None:
             raise ValueError("Profile Id is not specified.")
+
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/profiles/%s' % (api_path, profile_data.profile_id)
+
+        if not self.connection.subsystem:
+            path = '/ca' + path
+
         profile_object = json.dumps(profile_data, cls=encoder.CustomTypeEncoder,
                                     sort_keys=True)
-        url = self.profiles_url + '/' + str(profile_data.profile_id)
-        response = self._put(url, profile_object)
+
+        response = self._put(path, profile_object)
 
         json_response = response.json()
         logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
@@ -1151,8 +1211,17 @@ class ProfileClient(object):
         if profile_id is None:
             raise ValueError("Profile Id must be specified.")
 
-        url = self.profiles_url + '/' + str(profile_id)
-        r = self._delete(url)
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/profiles/%s' % (api_path, profile_id)
+
+        if not self.connection.subsystem:
+            path = '/ca' + path
+
+        r = self._delete(path)
         return r
 
     encoder.NOTYPES['Profile'] = Profile
