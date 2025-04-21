@@ -149,14 +149,12 @@ class DogtagKRAConnectivityCheck(MetaPlugin):
                         yield Result(self, constants.ERROR,
                                      msg="Unable to read serial number from retrieved cert",
                                      cert_info=transport_cert,
-                                     serverURI=connection.serverURI,
-                                     rest_path=system_cert_client.cert_url)
+                                     serverURI=connection.serverURI)
                 else:
                     logger.info("Request was made but the transport cert cannot be retrieved")
                     yield Result(self, constants.ERROR,
                                  msg="KRA server is up. But, unable to retrieve transport cert",
-                                 serverURI=connection.serverURI,
-                                 rest_path=system_cert_client.cert_url)
+                                 serverURI=connection.serverURI)
 
             else:
                 yield Result(self, constants.CRITICAL,

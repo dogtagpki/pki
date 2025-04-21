@@ -21,8 +21,8 @@
 """
 Module containing the Python client classes for the SystemCert REST API
 """
-from __future__ import absolute_import
 
+import inspect
 import json
 import logging
 
@@ -40,18 +40,34 @@ class SystemCertClient(object):
     system certificate resources.
     """
 
-    def __init__(self, connection, subsystem=None):
+    def __init__(self, parent, subsystem=None):
         """ Constructor """
         # super(PKIResource, self).__init__(connection)
 
-        self.connection = connection
+        if isinstance(parent, pki.client.PKIConnection):
 
-        self.cert_url = '/rest/config/cert'
+            logger.warning(
+                '%s:%s: The PKIConnection parameter in SystemCertClient.__init__() '
+                'has been deprecated. Provide SubsystemClient instead.',
+                inspect.stack()[1].filename, inspect.stack()[1].lineno)
 
-        if subsystem:
-            self.cert_url = '/' + subsystem + self.cert_url
-        elif connection.subsystem is None:
-            self.cert_url = '/ca' + self.cert_url
+            self.subsystem_client = None
+            self.pki_client = None
+            self.connection = parent
+
+            if subsystem:
+                self.subsystem_name = subsystem
+            elif self.connection.subsystem:
+                self.subsystem_name = self.connection.subsystem
+            else:
+                self.subsystem_name = 'kra'
+
+        else:
+            self.subsystem_client = parent
+            self.pki_client = self.subsystem_client.parent
+            self.connection = self.pki_client.connection
+
+            self.subsystem_name = self.subsystem_client.name
 
         self.headers = {'Content-type': 'application/json',
                         'Accept': 'application/json'}
@@ -63,8 +79,18 @@ class SystemCertClient(object):
 
         :return: pki.cert.CertData -- transport certificate data
         """
-        url = self.cert_url + '/transport'
-        response = self.connection.get(url, self.headers)
+
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/config/cert/transport' % api_path
+
+        if not self.connection.subsystem:
+            path = '/' + self.subsystem_name + path
+
+        response = self.connection.get(path, self.headers)
 
         json_response = response.json()
         logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
