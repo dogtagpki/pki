@@ -608,8 +608,8 @@ class CertClient(object):
         if isinstance(parent, pki.client.PKIConnection):
 
             logger.warning(
-                '%s:%s: The PKIConnection parameter in CertClient.__init__() has been deprecated. '
-                'Provide PKIClient instead.',
+                '%s:%s: The PKIConnection parameter in CertClient.__init__() '
+                'has been deprecated. Provide SubsystemClient instead.',
                 inspect.stack()[1].filename, inspect.stack()[1].lineno)
 
             self.ca_client = None
@@ -620,17 +620,6 @@ class CertClient(object):
             self.ca_client = parent
             self.pki_client = self.ca_client.parent
             self.connection = self.pki_client.connection
-
-        self.cert_url = '/rest/certs'
-        self.agent_cert_url = '/rest/agent/certs'
-        self.cert_requests_url = '/rest/certrequests'
-        self.agent_cert_requests_url = '/rest/agent/certrequests'
-
-        if not self.connection.subsystem:
-            self.cert_url = '/ca' + self.cert_url
-            self.agent_cert_url = '/ca' + self.agent_cert_url
-            self.cert_requests_url = '/ca' + self.cert_requests_url
-            self.agent_cert_requests_url = '/ca' + self.agent_cert_requests_url
 
         self.headers = {'Content-type': 'application/json',
                         'Accept': 'application/json'}
@@ -643,8 +632,17 @@ class CertClient(object):
         if cert_serial_number is None:
             raise ValueError("Certificate ID must be specified")
 
-        url = self.cert_url + '/' + str(cert_serial_number)
-        response = self.connection.get(url, self.headers)
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/certs/%s' % (api_path, cert_serial_number)
+
+        if not self.connection.subsystem:
+            path = '/ca' + path
+
+        response = self.connection.get(path, self.headers)
 
         json_response = response.json()
         logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
@@ -666,8 +664,6 @@ class CertClient(object):
 
         path = '/%s/certs/search' % api_path
 
-        # in legacy code the PKIConnection object might already have the subsystem name
-        # in newer code the subsystem name needs to be included in the path
         if not self.connection.subsystem:
             path = '/ca' + path
 
@@ -696,8 +692,17 @@ class CertClient(object):
         if cert_serial_number is None:
             raise ValueError("Certificate ID must be specified")
 
-        url = self.agent_cert_url + '/' + str(cert_serial_number)
-        response = self.connection.get(url, self.headers)
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/agent/certs/%s' % (api_path, cert_serial_number)
+
+        if not self.connection.subsystem:
+            path = '/ca' + path
+
+        response = self.connection.get(path, self.headers)
 
         json_response = response.json()
         logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
@@ -752,8 +757,18 @@ class CertClient(object):
             This method requires an agent's authentication cert in the
             connection object.
         """
-        url = self.agent_cert_url + '/' + str(cert_serial_number) + '/revoke'
-        return self._submit_revoke_request(url, cert_serial_number,
+
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/agent/certs/%s/revoke' % (api_path, cert_serial_number)
+
+        if not self.connection.subsystem:
+            path = '/ca' + path
+
+        return self._submit_revoke_request(path, cert_serial_number,
                                            revocation_reason, invalidity_date,
                                            comments, nonce, authority)
 
@@ -766,9 +781,18 @@ class CertClient(object):
             This method requires an agent's authentication cert in the
             connection object.
         """
-        url = self.agent_cert_url + '/' + str(cert_serial_number) + \
-            '/revoke-ca'
-        return self._submit_revoke_request(url, cert_serial_number,
+
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/agent/certs/%s/revoke-ca' % (api_path, cert_serial_number)
+
+        if not self.connection.subsystem:
+            path = '/ca' + path
+
+        return self._submit_revoke_request(path, cert_serial_number,
                                            revocation_reason, invalidity_date,
                                            comments, nonce, authority)
 
@@ -794,14 +818,22 @@ class CertClient(object):
         if cert_serial_number is None:
             raise ValueError("Certificate ID must be specified")
 
-        url = self.agent_cert_url + '/' + str(cert_serial_number) + '/unrevoke'
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/agent/certs/%s/unrevoke' % (api_path, cert_serial_number)
+
+        if not self.connection.subsystem:
+            path = '/ca' + path
 
         params = {}
         if authority is not None:
             params['issuer-id'] = authority
 
         response = self.connection.post(
-            url,
+            path,
             None,
             headers=self.headers,
             params=params)
@@ -820,8 +852,18 @@ class CertClient(object):
 
         if request_id is None:
             raise ValueError("Request ID must be specified")
-        url = self.cert_requests_url + '/' + str(request_id)
-        response = self.connection.get(url, headers=self.headers)
+
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/certrequests/%s' % (api_path, request_id)
+
+        if not self.connection.subsystem:
+            path = '/ca' + path
+
+        response = self.connection.get(path, headers=self.headers)
 
         json_response = response.json()
         logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
@@ -876,8 +918,17 @@ class CertClient(object):
         if request_id is None:
             raise ValueError("Request Id must be specified.")
 
-        url = self.agent_cert_requests_url + '/' + str(request_id)
-        response = self.connection.get(url, headers=self.headers)
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/agent/certrequests/%s' % (api_path, request_id)
+
+        if not self.connection.subsystem:
+            path = '/ca' + path
+
+        response = self.connection.get(path, headers=self.headers)
 
         json_response = response.json()
         logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
@@ -896,12 +947,21 @@ class CertClient(object):
         if cert_review_response is None:
             cert_review_response = self.review_request(request_id)
 
-        url = self.agent_cert_requests_url + '/' + request_id + '/' + action
         review_response = json.dumps(cert_review_response,
                                      cls=encoder.CustomTypeEncoder,
                                      sort_keys=True)
-        # print review_response
-        r = self.connection.post(url, review_response, headers=self.headers)
+
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/agent/certrequests/%s/%s' % (api_path, request_id, action)
+
+        if not self.connection.subsystem:
+            path = '/ca' + path
+
+        r = self.connection.post(path, review_response, headers=self.headers)
         return r
 
     def approve_request(self, request_id, cert_review_response=None):
@@ -979,12 +1039,21 @@ class CertClient(object):
         Returns a ProfileDataInfoCollection object.
         """
 
-        url = self.cert_requests_url + '/profiles'
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/certrequests/profiles' % api_path
+
+        if not self.connection.subsystem:
+            path = '/ca' + path
+
         query_params = {
             'start': start,
             'size': size
         }
-        response = self.connection.get(url, self.headers, query_params)
+        response = self.connection.get(path, self.headers, query_params)
 
         json_response = response.json()
         logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
@@ -1005,8 +1074,18 @@ class CertClient(object):
             raise ValueError("Profile ID must be specified.")
         if profile_id in self.enrollment_templates:
             return copy.deepcopy(self.enrollment_templates[profile_id])
-        url = self.cert_requests_url + '/profiles/' + str(profile_id)
-        response = self.connection.get(url, self.headers)
+
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/certrequests/profiles/%s' % (api_path, profile_id)
+
+        if not self.connection.subsystem:
+            path = '/ca' + path
+
+        response = self.connection.get(path, self.headers)
 
         json_response = response.json()
         logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
@@ -1052,9 +1131,18 @@ class CertClient(object):
         if authority is not None:
             params['issuer-id'] = authority
 
-        # print request_object
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/certrequests' % api_path
+
+        if not self.connection.subsystem:
+            path = '/ca' + path
+
         response = self.connection.post(
-            self.cert_requests_url,
+            path,
             request_object,
             self.headers,
             params)

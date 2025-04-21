@@ -69,14 +69,12 @@ class DogtagCACertsConnectivityCheck(MetaPlugin):
                         yield Result(self, constants.ERROR,
                                      msg="Unable to read serial number from retrieved cert",
                                      cert_info=cert_info,
-                                     serverURI=server_url,
-                                     cert_url=cert_client.cert_url)
+                                     serverURI=server_url)
                 else:
                     logger.info("Request was made but none of the certs were retrieved")
                     yield Result(self, constants.ERROR,
                                  msg="PKI server is up. But, unable to retrieve any certs",
-                                 serverURI=server_url,
-                                 rest_path=cert_client.cert_url)
+                                 serverURI=server_url)
 
             else:
                 yield Result(self, constants.CRITICAL,
