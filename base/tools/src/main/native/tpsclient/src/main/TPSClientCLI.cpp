@@ -407,22 +407,27 @@ Java_com_netscape_cmstools_tps_TPSClientCLI_handleTokenPDURequest
     jlong message) {
 
     RA_Client* cclient = (RA_Client*) client;
+    NameValueSet* vars = &cclient->m_vars;
     NameValueSet* set = convertParams(env, params);
     RA_Token* ctoken = (RA_Token*) token;
     RA_Conn* conn = (RA_Conn*) connection;
     RA_Token_PDU_Request_Msg* msg = (RA_Token_PDU_Request_Msg*) message;
 
-    int status = HandleTokenPDURequest(
-        cclient,
-        msg,
-        ctoken,
-        conn,
-        &cclient->m_vars,
-        set);
+    APDU* apdu = msg->GetAPDU();
+    APDU_Response* apdu_resp = ctoken->Process(apdu, vars, set);
+
+    if (apdu_resp == NULL) {
+        return;
+    }
+
+    RA_Token_PDU_Response_Msg* resp = new RA_Token_PDU_Response_Msg(apdu_resp);
+    int status = conn->SendMsg(resp);
 
     if (status == 0) {
         throwCLIException(env, "Unable to handle token PDU request");
     }
+
+    delete resp;
 }
 
 extern "C" JNIEXPORT void JNICALL

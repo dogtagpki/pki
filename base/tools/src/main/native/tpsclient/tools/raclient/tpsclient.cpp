@@ -206,6 +206,36 @@ HandleASQRequest (RA_Client * client,
   return 1;
 }
 
+int
+HandleTokenPDURequest (RA_Client * client,
+               RA_Token_PDU_Request_Msg * req,
+               RA_Token * token, RA_Conn * conn,
+               NameValueSet * vars, NameValueSet * params)
+{
+  client->Debug ("RA_Client::HandleTokenPDURequest",
+         "RA_Client::HandleTokenPDURequest");
+  APDU *apdu = req->GetAPDU ();
+  APDU_Response *apdu_resp = token->Process (apdu, vars, params);
+  if (apdu_resp == NULL)
+    {
+      return 0;
+    }
+  RA_Token_PDU_Response_Msg *resp = new RA_Token_PDU_Response_Msg (apdu_resp);
+  conn->SendMsg (resp);
+
+  if (resp != NULL)
+    {
+      delete resp;
+      resp = NULL;
+    }
+  // if( apdu_resp != NULL ) {
+  //     delete apdu_resp;
+  //     apdu_resp = NULL;
+  // }
+
+  return 1;
+}
+
 int FormatToken (
   RA_Client *client,
   NameValueSet *params,

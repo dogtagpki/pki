@@ -80,12 +80,6 @@ class RA_Client
 };
 
 int
-HandleTokenPDURequest (RA_Client * client,
-               RA_Token_PDU_Request_Msg * req,
-               RA_Token * token, RA_Conn * conn,
-               NameValueSet * vars, NameValueSet * params);
-
-int
 HandleNewPinRequest (RA_Client * client,
              RA_New_Pin_Request_Msg * req,
              RA_Token * token, RA_Conn * conn,
