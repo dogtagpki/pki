@@ -185,9 +185,10 @@ public class TPSClientCLI extends CommandCLI {
         }
     }
 
-    public void formatToken(
+    public void performOperations(
             long client,
-            Map<String, String> params)
+            Map<String, String> params,
+            OpType opType)
             throws Exception {
 
         String value = params.get("num_threads");
@@ -218,131 +219,7 @@ public class TPSClientCLI extends CommandCLI {
                             long connection = createConnection(client);
                             try {
                                 connect(connection);
-                                performOperation(client, params, exts, token, connection, OpType.OP_FORMAT);
-                                disconnect(connection);
-
-                            } finally {
-                                removeConnection(connection);
-                                removeToken(token);
-                            }
-                        }
-
-                    } catch (Exception e) {
-                        exceptions.add(e);
-                    }
-                }
-            });
-
-            threads[i].start();
-        }
-
-        // wait for threads to complete
-        for (int i=0; i<numThreads; i++) {
-            threads[i].join();
-        }
-
-        // check for exceptions
-        if (!exceptions.isEmpty()) {
-            throw exceptions.iterator().next();
-        }
-    }
-
-    public void resetPIN(
-            long client,
-            Map<String, String> params)
-            throws Exception {
-
-        String value = params.get("num_threads");
-        int numThreads = value == null ? 1 : Integer.parseInt(value);
-
-        value = params.get("max_ops");
-        int maxOps = value == null ? numThreads : Integer.parseInt(value);
-
-        value = params.get("extensions");
-        Map<String, String> exts = TPSMessage.decodeToMap(value);
-
-        Thread[] threads = new Thread[numThreads];
-        AtomicInteger counter = new AtomicInteger(maxOps);
-        Collection<Exception>exceptions = Collections.synchronizedCollection(new ArrayList<>());
-
-        // start threads
-        for (int i=0; i<numThreads; i++) {
-
-            threads[i] = new Thread(new Runnable() {
-                public void run() {
-                    try {
-                        // perform operations until the counter reaches 0
-                        while (true) {
-                            int c = counter.getAndDecrement();
-                            if (c <= 0) return;
-
-                            long token = createToken(client);
-                            long connection = createConnection(client);
-                            try {
-                                connect(connection);
-                                performOperation(client, params, exts, token, connection, OpType.OP_RESET_PIN);
-                                disconnect(connection);
-
-                            } finally {
-                                removeConnection(connection);
-                                removeToken(token);
-                            }
-                        }
-
-                    } catch (Exception e) {
-                        exceptions.add(e);
-                    }
-                }
-            });
-
-            threads[i].start();
-        }
-
-        // wait for threads to complete
-        for (int i=0; i<numThreads; i++) {
-            threads[i].join();
-        }
-
-        // check for exceptions
-        if (!exceptions.isEmpty()) {
-            throw exceptions.iterator().next();
-        }
-    }
-
-    public void enrollToken(
-            long client,
-            Map<String, String> params)
-            throws Exception {
-
-        String value = params.get("num_threads");
-        int numThreads = value == null ? 1 : Integer.parseInt(value);
-
-        value = params.get("max_ops");
-        int maxOps = value == null ? numThreads : Integer.parseInt(value);
-
-        value = params.get("extensions");
-        Map<String, String> exts = TPSMessage.decodeToMap(value);
-
-        Thread[] threads = new Thread[numThreads];
-        AtomicInteger counter = new AtomicInteger(maxOps);
-        Collection<Exception>exceptions = Collections.synchronizedCollection(new ArrayList<>());
-
-        // start threads
-        for (int i=0; i<numThreads; i++) {
-
-            threads[i] = new Thread(new Runnable() {
-                public void run() {
-                    try {
-                        // perform operations until the counter reaches 0
-                        while (true) {
-                            int c = counter.getAndDecrement();
-                            if (c <= 0) return;
-
-                            long token = createToken(client);
-                            long connection = createConnection(client);
-                            try {
-                                connect(connection);
-                                performOperation(client, params, exts, token, connection, OpType.OP_ENROLL);
+                                performOperation(client, params, exts, token, connection, opType);
                                 disconnect(connection);
 
                             } finally {
@@ -396,13 +273,13 @@ public class TPSClientCLI extends CommandCLI {
             displayHelp(client);
 
         } else if ("ra_format".equals(op)) {
-            formatToken(client, params);
+            performOperations(client, params, OpType.OP_FORMAT);
 
         } else if ("ra_reset_pin".equals(op)) {
-            resetPIN(client, params);
+            performOperations(client, params, OpType.OP_RESET_PIN);
 
         } else if ("ra_enroll".equals(op)) {
-            enrollToken(client, params);
+            performOperations(client, params, OpType.OP_ENROLL);
 
         } else if ("token_status".equals(op)) {
             displayToken(client, params);
