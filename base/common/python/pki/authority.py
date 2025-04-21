@@ -18,9 +18,7 @@
 # Author:
 #     Ade Lee <alee@redhat.com>
 
-from __future__ import absolute_import
-from __future__ import print_function
-
+import inspect
 import json
 import logging
 from six import iteritems
@@ -125,15 +123,24 @@ class AuthorityClient(object):
     subordinate CA (authority) resources.
     """
 
-    def __init__(self, connection):
+    def __init__(self, parent):
         """ Constructor """
 
-        self.connection = connection
+        if isinstance(parent, pki.client.PKIConnection):
 
-        self.ca_url = '/rest/authorities'
+            logger.warning(
+                '%s:%s: The PKIConnection parameter in AuthorityClient.__init__() '
+                'has been deprecated. Provide SubsystemClient instead.',
+                inspect.stack()[1].filename, inspect.stack()[1].lineno)
 
-        if connection.subsystem is None:
-            self.ca_url = '/ca' + self.ca_url
+            self.ca_client = None
+            self.pki_client = None
+            self.connection = parent
+
+        else:
+            self.ca_client = parent
+            self.pki_client = self.ca_client.parent
+            self.connection = self.pki_client.connection
 
     @pki.handle_exceptions()
     def get_ca(self, aid):
@@ -141,10 +148,19 @@ class AuthorityClient(object):
         if aid is None:
             raise ValueError("Subordinate aid must be specified")
 
-        url = self.ca_url + '/' + str(aid)
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/authorities/%s' % (api_path, aid)
+
+        if not self.connection.subsystem:
+            path = '/ca' + path
+
         headers = {'Content-type': 'application/json',
                    'Accept': 'application/json'}
-        response = self.connection.get(url, headers=headers)
+        response = self.connection.get(path, headers=headers)
 
         json_response = response.json()
         logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
@@ -163,7 +179,15 @@ class AuthorityClient(object):
         if aid is None:
             raise ValueError("CA ID must be specified")
 
-        url = '{}/{}/cert'.format(self.ca_url, str(aid))
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/authorities/%s/cert' % (api_path, aid)
+
+        if not self.connection.subsystem:
+            path = '/ca' + path
 
         headers = {'Content-type': 'application/json'}
 
@@ -175,7 +199,7 @@ class AuthorityClient(object):
             raise ValueError(
                 "Invalid format passed in - PEM or DER expected.")
 
-        r = self.connection.get(url, headers=headers)
+        r = self.connection.get(path, headers=headers)
         return r.text
 
     @pki.handle_exceptions()
@@ -189,7 +213,15 @@ class AuthorityClient(object):
         if aid is None:
             raise ValueError("CA ID must be specified")
 
-        url = '{}/{}/chain'.format(self.ca_url, str(aid))
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/authorities/%s/chain' % (api_path, aid)
+
+        if not self.connection.subsystem:
+            path = '/ca' + path
 
         headers = {'Content-type': 'application/json'}
         if output_format == "PEM":
@@ -197,7 +229,7 @@ class AuthorityClient(object):
         elif output_format == "PKCS7":
             headers['Accept'] = "application/pkcs7-mime"
 
-        r = self.connection.get(url, headers=headers)
+        r = self.connection.get(path, headers=headers)
         return r.text
 
     @pki.handle_exceptions()
@@ -207,12 +239,23 @@ class AuthorityClient(object):
         Right now, this is going to list all the defined authorities.  We will
         add search criteria when this is defined on the Java interface.
         """
+
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/authorities' % api_path
+
+        if not self.connection.subsystem:
+            path = '/ca' + path
+
         query_params = {"maxResults": max_results, "maxTime": max_time,
                         "start": start, "size": size}
         headers = {'Content-type': 'application/json',
                    'Accept': 'application/json'}
         response = self.connection.get(
-            path=self.ca_url,
+            path=path,
             headers=headers,
             params=query_params)
 
@@ -241,6 +284,16 @@ class AuthorityClient(object):
             raise ValueError('parent_aid must be defined.  '
                              'Top level CAs are not yet supported')
 
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/authorities' % api_path
+
+        if not self.connection.subsystem:
+            path = '/ca' + path
+
         create_request = json.dumps(ca_data, cls=encoder.CustomTypeEncoder,
                                     sort_keys=True)
 
@@ -248,7 +301,7 @@ class AuthorityClient(object):
                    'Accept': 'application/json'}
 
         response = self.connection.post(
-            self.ca_url,
+            path,
             create_request,
             headers=headers)
 
@@ -267,12 +320,20 @@ class AuthorityClient(object):
         if aid is None:
             raise ValueError("CA ID must be specified")
 
-        url = '{}/{}/enable'.format(self.ca_url, str(aid))
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/authorities/%s/enable' % (api_path, aid)
+
+        if not self.connection.subsystem:
+            path = '/ca' + path
 
         headers = {'Content-type': 'application/json',
                    'Accept': 'application/json'}
 
-        self.connection.post(url, None, headers=headers)
+        self.connection.post(path, None, headers=headers)
 
     @pki.handle_exceptions()
     def disable_ca(self, aid):
@@ -283,11 +344,20 @@ class AuthorityClient(object):
         if aid is None:
             raise ValueError("CA ID must be specified")
 
-        url = '{}/{}/disable'.format(self.ca_url, str(aid))
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/authorities/%s/disable' % (api_path, aid)
+
+        if not self.connection.subsystem:
+            path = '/ca' + path
+
         headers = {'Content-type': 'application/json',
                    'Accept': 'application/json'}
 
-        self.connection.post(url, None, headers=headers)
+        self.connection.post(path, None, headers=headers)
 
     @pki.handle_exceptions()
     def delete_ca(self, aid):
@@ -298,11 +368,20 @@ class AuthorityClient(object):
         if aid is None:
             raise ValueError("CA ID must be specified")
 
-        url = '{}/{}'.format(self.ca_url, str(aid))
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/authorities/%s' % (api_path, aid)
+
+        if not self.connection.subsystem:
+            path = '/ca' + path
+
         headers = {'Content-type': 'application/json',
                    'Accept': 'application/json'}
 
-        self.connection.delete(url, headers=headers)
+        self.connection.delete(path, headers=headers)
 
 
 encoder.NOTYPES['AuthorityData'] = AuthorityData
