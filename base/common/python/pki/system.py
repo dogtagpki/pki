@@ -396,20 +396,32 @@ class SystemConfigClient(object):
     the PKIConnection object used when constructing this object.
     """
 
-    def __init__(self, connection, subsystem=None):
+    def __init__(self, parent, subsystem=None):
 
-        self.connection = connection
+        if isinstance(parent, pki.client.PKIConnection):
 
-        self.create_request_id_url = '/rest/installer/createRequestID'
-        self.create_cert_id_url = '/rest/installer/createCertID'
+            logger.warning(
+                '%s:%s: The PKIConnection parameter in SystemConfigClient.__init__() '
+                'has been deprecated. Provide SubsystemClient instead.',
+                inspect.stack()[1].filename, inspect.stack()[1].lineno)
 
-        if connection.subsystem is None:
+            self.subsystem_client = None
+            self.pki_client = None
+            self.connection = parent
 
-            if subsystem is None:
+            if subsystem:
+                self.subsystem_name = subsystem
+            elif self.connection.subsystem:
+                self.subsystem_name = self.connection.subsystem
+            else:
                 raise Exception('Missing subsystem for SystemConfigClient')
 
-            self.create_request_id_url = '/' + subsystem + self.create_request_id_url
-            self.create_cert_id_url = '/' + subsystem + self.create_cert_id_url
+        else:
+            self.subsystem_client = parent
+            self.pki_client = self.subsystem_client.parent
+            self.connection = self.pki_client.connection
+
+            self.subsystem_name = self.subsystem_client.name
 
     def createRequestID(self, request):
         """
@@ -419,12 +431,23 @@ class SystemConfigClient(object):
         :type request: CertificateSetupRequest
         :return: SystemCertData
         """
+
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/installer/createRequestID' % api_path
+
+        if not self.connection.subsystem:
+            path = '/' + self.subsystem_name + path
+
         data = json.dumps(request, cls=pki.encoder.CustomTypeEncoder)
         headers = {'Content-type': 'application/json',
                    'Accept': 'application/json'}
 
         response = self.connection.post(
-            self.create_request_id_url,
+            path,
             data,
             headers)
 
@@ -441,12 +464,23 @@ class SystemConfigClient(object):
         :type request: CertificateSetupRequest
         :return: SystemCertData
         """
+
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/installer/createCertID' % api_path
+
+        if not self.connection.subsystem:
+            path = '/' + self.subsystem_name + path
+
         data = json.dumps(request, cls=pki.encoder.CustomTypeEncoder)
         headers = {'Content-type': 'application/json',
                    'Accept': 'application/json'}
 
         response = self.connection.post(
-            self.create_cert_id_url,
+            path,
             data,
             headers)
 
