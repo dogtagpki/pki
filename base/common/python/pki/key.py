@@ -496,7 +496,7 @@ class KeyClient:
 
             logger.warning(
                 '%s:%s: The PKIConnection parameter in KeyClient.__init__() has been deprecated. '
-                'Provide PKIClient instead.',
+                'Provide SubsystemClient instead.',
                 inspect.stack()[1].filename, inspect.stack()[1].lineno)
 
             self.kra_client = None

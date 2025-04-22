@@ -6,12 +6,13 @@
 
 import logging
 
+import pki.subsystem
+
 logger = logging.getLogger(__name__)
 
 
-class CAClient:
+class CAClient(pki.subsystem.SubsystemClient):
 
     def __init__(self, parent):
 
-        self.name = 'ca'
-        self.parent = parent
+        super().__init__(parent, 'ca')

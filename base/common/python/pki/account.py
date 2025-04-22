@@ -54,7 +54,7 @@ class AccountClient:
 
             logger.warning(
                 '%s:%s: The PKIConnection parameter in AccountClient.__init__() '
-                'has been deprecated. Provide PKIClient instead.',
+                'has been deprecated. Provide SubsystemClient instead.',
                 inspect.stack()[1].filename, inspect.stack()[1].lineno)
 
             self.subsystem_client = None

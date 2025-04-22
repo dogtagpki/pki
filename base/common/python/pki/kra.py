@@ -31,12 +31,13 @@ import logging
 import pki.client
 import pki.info
 import pki.key
+import pki.subsystem
 import pki.systemcert
 
 logger = logging.getLogger(__name__)
 
 
-class KRAClient(object):
+class KRAClient(pki.subsystem.SubsystemClient):
     """
     Client class that models interactions with a KRA using the Key and
     KeyRequest REST APIs.
@@ -57,8 +58,7 @@ class KRAClient(object):
                         been initialized beforehand.
         """
 
-        self.name = 'kra'
-        self.parent = parent
+        super().__init__(parent, 'kra')
 
         if isinstance(parent, pki.client.PKIConnection):
 
