@@ -298,6 +298,7 @@ class CertSearchRequest(object):
                      'revoked_on_from': 'revokedOnFrom',
                      'revoked_on_to': 'revokedOnTo',
                      'revocation_reason': 'revocationReason',
+                     'issuer_dn': 'issuerDN',
                      'issued_by': 'issuedBy', 'issued_on_from': 'issuedOnFrom',
                      'issued_on_to': 'issuedOnTo',
                      'valid_not_before_from': 'validNotBeforeFrom',
@@ -335,6 +336,9 @@ class CertSearchRequest(object):
                 setattr(self, 'subjectInUse', True)
 
             if param == 'status':
+                setattr(self, CertSearchRequest.search_params[param], value)
+
+            if param == 'issuer_dn':
                 setattr(self, CertSearchRequest.search_params[param], value)
 
             if param == 'revoked_by':
