@@ -241,18 +241,23 @@ class SecurityDomainClient(object):
     a PKIConnection object used to construct this client.
     """
 
-    def __init__(self, connection):
+    def __init__(self, parent):
 
-        self.connection = connection
+        if isinstance(parent, pki.client.PKIConnection):
 
-        self.domain_info_url = '/rest/securityDomain/domainInfo'
-        self.domain_xml_url = '/admin/ca/getDomainXML'
-        self.install_token_url = '/rest/securityDomain/installToken'
+            logger.warning(
+                '%s:%s: The PKIConnection parameter in SecurityDomainClient.__init__() '
+                'has been deprecated. Provide SubsystemClient instead.',
+                inspect.stack()[1].filename, inspect.stack()[1].lineno)
 
-        if connection.subsystem is None:
-            self.domain_info_url = '/ca' + self.domain_info_url
-            self.domain_xml_url = '/ca' + self.domain_xml_url
-            self.install_token_url = '/ca' + self.install_token_url
+            self.subsystem_client = None
+            self.pki_client = None
+            self.connection = parent
+
+        else:
+            self.subsystem_client = parent
+            self.pki_client = self.subsystem_client.parent
+            self.connection = self.pki_client.connection
 
     def get_security_domain_info(self):
         logger.warning(
@@ -269,10 +274,21 @@ class SecurityDomainClient(object):
 
         :returns: pki.system.DomainInfo
         """
+
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/securityDomain/domainInfo' % api_path
+
+        if not self.connection.subsystem:
+            path = '/ca' + path
+
         headers = {
             'Accept': 'application/json'
         }
-        response = self.connection.get(self.domain_info_url, headers=headers)
+        response = self.connection.get(path, headers=headers)
 
         json_response = response.json()
         logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
@@ -289,7 +305,13 @@ class SecurityDomainClient(object):
 
         :returns: pki.system.DomainInfo
         """
-        response = self.connection.get(self.domain_xml_url)
+
+        path = '/admin/ca/getDomainXML'
+
+        if not self.connection.subsystem:
+            path = '/ca' + path
+
+        response = self.connection.get(path)
         root = ETree.fromstring(response.text)
         domaininfo = ETree.fromstring(root.find("DomainInfo").text)
         info = DomainInfo()
@@ -300,11 +322,22 @@ class SecurityDomainClient(object):
         '''
         :returns: pki.system.InstallToken
         '''
+
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = '/%s/securityDomain/installToken' % api_path
+
+        if not self.connection.subsystem:
+            path = '/ca' + path
+
         params = {
             'hostname': hostname,
             'subsystem': subsystem
         }
-        response = self.connection.get(self.install_token_url, params=params)
+        response = self.connection.get(path, params=params)
 
         json_response = response.json()
         logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
