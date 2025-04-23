@@ -21,9 +21,8 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import javax.ws.rs.client.WebTarget;
-
 import org.apache.http.HttpEntity;
+import org.apache.http.client.utils.URIBuilder;
 
 /**
  * @author Endi S. Dewata
@@ -94,7 +93,7 @@ public class Client {
         return sb.toString();
     }
 
-    public WebTarget target(String suffix, Map<String, Object> params) {
+    public URIBuilder target(String suffix, Map<String, Object> params) {
         String path = getTargetPath(suffix);
         return client.target(path, params);
     }

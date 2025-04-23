@@ -21,12 +21,11 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.ws.rs.client.WebTarget;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.utils.URIBuilder;
 
 import com.netscape.certsrv.base.ClientConnectionException;
 import com.netscape.certsrv.base.MimeType;
@@ -62,8 +61,8 @@ public class AuditClient extends Client {
     }
 
     public InputStream getAuditFile(String filename) throws Exception {
-        WebTarget target = target("files/" + filename, null);
-        HttpGet httpGET = new HttpGet(target.getUri());
+        URIBuilder target = target("files/" + filename, null);
+        HttpGet httpGET = new HttpGet(target.build());
         httpGET.addHeader(HttpHeaders.ACCEPT, MimeType.APPLICATION_OCTET_STREAM);
         CloseableHttpResponse httpResp = null;
         try {

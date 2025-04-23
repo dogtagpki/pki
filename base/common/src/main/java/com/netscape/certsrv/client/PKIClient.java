@@ -28,8 +28,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.client.WebTarget;
-
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
@@ -43,6 +41,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.ContentType;
 import org.apache.http.util.EntityUtils;
 import org.dogtagpki.common.Info;
@@ -312,16 +311,32 @@ public class PKIClient implements AutoCloseable {
         return connection;
     }
 
-    public WebTarget target(String path, Map<String, Object> params) {
-        WebTarget target = connection.target(path);
+    public URIBuilder target(String path, Map<String, Object> params) {
+        URIBuilder uriBuilder = new URIBuilder(connection.getTarget());
+        if (path != null) {
+            String fullPath;
+            String uriPath = uriBuilder.getPath();
+            if (uriPath == null || uriPath.isBlank()) {
+                fullPath = path;
+            } else {
+                if (uriPath.endsWith("/") && path.startsWith("/")) {
+                    fullPath = uriPath + path.substring(1);
+                } else if (uriPath.endsWith("/") || path.startsWith("/")) {
+                    fullPath = uriPath + path;
+                } else {
+                    fullPath = uriPath + "/" + path;
+                }
+            }
+            uriBuilder.setPath(fullPath);
+        }
         if (params != null) {
             for (String name : params.keySet()) {
                 Object value = params.get(name);
                 if (value == null) continue;
-                target = target.queryParam(name, value);
+                uriBuilder.addParameter(name, value.toString());
             }
         }
-        return target;
+        return uriBuilder;
     }
 
     public <T> T get(String path, Class<T> responseType) throws Exception {
@@ -329,8 +344,8 @@ public class PKIClient implements AutoCloseable {
     }
 
     public <T> T get(String path, Map<String, Object> params, Class<T> responseType) throws Exception {
-        WebTarget target = target(path, params);
-        HttpGet httpGET = new HttpGet(target.getUri());
+        URIBuilder target = target(path, params);
+        HttpGet httpGET = new HttpGet(target.build());
         CloseableHttpResponse httpResp = null;
         try {
             httpResp = connection.getHttpClient().execute(httpGET);
@@ -341,8 +356,8 @@ public class PKIClient implements AutoCloseable {
     }
 
     public <T> Collection<T> getCollection(String path, Map<String, Object> params, Class<T> responseType) throws Exception {
-        WebTarget target = target(path, params);
-        HttpGet httpGET = new HttpGet(target.getUri());
+        URIBuilder target = target(path, params);
+        HttpGet httpGET = new HttpGet(target.build());
         CloseableHttpResponse httpResp = null;
         try {
             httpResp = connection.getHttpClient().execute(httpGET);
@@ -361,8 +376,8 @@ public class PKIClient implements AutoCloseable {
     }
 
     public <T> T post(String path, Map<String, Object> params, HttpEntity entity, Class<T> responseType) throws Exception {
-        WebTarget target = target(path, params);
-        HttpPost httpPOST = new HttpPost(target.getUri());
+        URIBuilder target = target(path, params);
+        HttpPost httpPOST = new HttpPost(target.build());
         if (entity != null) {
             httpPOST.setEntity(entity);
         }
@@ -376,9 +391,9 @@ public class PKIClient implements AutoCloseable {
     }
 
     public <T> T post(String path, List<NameValuePair> content, Class<T> responseType) throws Exception {
-        WebTarget target = connection.target(path);
+        URIBuilder target = target(path, null);
         UrlEncodedFormEntity entity = new UrlEncodedFormEntity(content, Consts.UTF_8);
-        HttpPost httpPOST = new HttpPost(target.getUri());
+        HttpPost httpPOST = new HttpPost(target.build());
         httpPOST.setEntity(entity);
         CloseableHttpResponse httpResp = null;
         try {
@@ -390,8 +405,8 @@ public class PKIClient implements AutoCloseable {
     }
 
     public <T> T put(String path, Map<String, Object> params, HttpEntity entity, Class<T> responseType) throws Exception {
-        WebTarget target = target(path, params);
-        HttpPut httpPUT = new HttpPut(target.getUri());
+        URIBuilder target = target(path, params);
+        HttpPut httpPUT = new HttpPut(target.build());
         if (entity != null) {
             httpPUT.setEntity(entity);
         }
@@ -405,8 +420,8 @@ public class PKIClient implements AutoCloseable {
     }
 
     public <T> T patch(String path, Map<String, Object> params, HttpEntity entity, Class<T> responseType) throws Exception {
-        WebTarget target = target(path, params);
-        HttpPatch httpPATCH = new HttpPatch(target.getUri());
+        URIBuilder target = target(path, params);
+        HttpPatch httpPATCH = new HttpPatch(target.build());
         if (entity != null) {
             httpPATCH.setEntity(entity);
         }
@@ -424,8 +439,8 @@ public class PKIClient implements AutoCloseable {
     }
 
     public <T> T delete(String path, Map<String, Object> params, Class<T> responseType) throws Exception {
-        WebTarget target = target(path, params);
-        HttpDelete httpDELETE = new HttpDelete(target.getUri());
+        URIBuilder target = target(path, params);
+        HttpDelete httpDELETE = new HttpDelete(target.build());
         CloseableHttpResponse httpResp = null;
         try {
             httpResp = connection.getHttpClient().execute(httpDELETE);

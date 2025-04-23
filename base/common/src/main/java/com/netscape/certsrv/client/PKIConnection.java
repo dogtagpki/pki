@@ -29,8 +29,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.ws.rs.client.WebTarget;
-
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -56,8 +54,6 @@ import org.apache.http.impl.client.LaxRedirectStrategy;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HttpContext;
 import org.dogtagpki.client.JSSSocketFactory;
-import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
-import org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient4Engine;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 
 import com.netscape.certsrv.base.MimeType;
@@ -76,9 +72,7 @@ public class PKIConnection implements AutoCloseable {
     SSLCertificateApprovalCallback callback;
     LayeredConnectionSocketFactory socketFactory;
 
-    ApacheHttpClient4Engine engine;
-    javax.ws.rs.client.Client client;
-    WebTarget target;
+    URI target;
 
     int requestCounter;
     int responseCounter;
@@ -201,14 +195,7 @@ public class PKIConnection implements AutoCloseable {
         }
         httpClient = httpClientBuilder.build();
 
-        engine = new ApacheHttpClient4Engine(httpClient);
-
-        client = new ResteasyClientBuilder().httpEngine(engine).build();
-
-        client.register(PKIRESTProvider.class);
-
-        URI uri = config.getServerURL().toURI();
-        target = client.target(uri);
+        target = config.getServerURL().toURI();
     }
 
     public ClientConfig getConfig() {
@@ -266,8 +253,8 @@ public class PKIConnection implements AutoCloseable {
         }
     }
 
-    public WebTarget target(String path) {
-        return target.path(path);
+    public URI getTarget() {
+        return target;
     }
 
     public File getOutput() {
@@ -280,8 +267,6 @@ public class PKIConnection implements AutoCloseable {
 
     @Override
     public void close() {
-        client.close();
-        engine.close();
         try {
             httpClient.close();
         } catch (IOException e) {
