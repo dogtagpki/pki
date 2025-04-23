@@ -33,26 +33,25 @@ jobs:
           tests/bin/ds-create.sh \
               --image=${{ env.DS_IMAGE }} \
               --hostname=primaryds.example.com \
+              --network=example \
+              --network-alias=primaryds.example.com \
               --password=Secret.123 \
               primaryds
 
-      - name: Connect primary DS container to network
-        run: docker network connect example primaryds --alias primaryds.example.com
-
       - name: Set up primary PKI container
         run: |
-          tests/bin/runner-init.sh primary
-        env:
-          HOSTNAME: primary.example.com
-
-      - name: Connect primary PKI container to network
-        run: docker network connect example primary --alias primary.example.com
+          tests/bin/runner-init.sh \
+              --hostname=primary.example.com \
+              --network=example \
+              --network-alias=primary.example.com \
+              primary
 
       - name: Install primary CA in primary PKI container
         run: |
           docker exec primary pkispawn \
               -f /usr/share/pki/server/examples/installation/ca.cfg \
               -s CA \
+              -D pki_audit_signing_nickname= \
               -D pki_ds_url=ldap://primaryds.example.com:3389 \
               -v
 
@@ -63,6 +62,7 @@ jobs:
           docker exec primary pkispawn \
               -f /usr/share/pki/server/examples/installation/kra.cfg \
               -s KRA \
+              -D pki_audit_signing_nickname= \
               -D pki_ds_url=ldap://primaryds.example.com:3389 \
               -v
 
@@ -73,31 +73,34 @@ jobs:
           tests/bin/ds-create.sh \
               --image=${{ env.DS_IMAGE }} \
               --hostname=secondaryds.example.com \
+              --network=example \
+              --network-alias=secondaryds.example.com \
               --password=Secret.123 \
               secondaryds
 
-      - name: Connect secondary DS container to network
-        run: docker network connect example secondaryds --alias secondaryds.example.com
-
       - name: Set up secondary PKI container
         run: |
-          tests/bin/runner-init.sh secondary
-        env:
-          HOSTNAME: secondary.example.com
-
-      - name: Connect secondary PKI container to network
-        run: docker network connect example secondary --alias secondary.example.com
+          tests/bin/runner-init.sh \
+              --hostname=secondary.example.com \
+              --network=example \
+              --network-alias=secondary.example.com \
+              secondary
 
       - name: Install CA in secondary PKI container
         run: |
           docker exec primary pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
-          docker exec primary pki-server ca-clone-prepare --pkcs12-file ${SHARED}/ca-certs.p12 --pkcs12-password Secret.123
+
+          docker exec primary pki-server ca-clone-prepare \
+              --pkcs12-file $SHARED/ca-certs.p12 \
+              --pkcs12-password Secret.123
+
           docker exec secondary pkispawn \
               -f /usr/share/pki/server/examples/installation/ca-clone.cfg \
               -s CA \
               -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
               -D pki_clone_pkcs12_path=${SHARED}/ca-certs.p12 \
               -D pki_clone_pkcs12_password=Secret.123 \
+              -D pki_audit_signing_nickname= \
               -D pki_ds_url=ldap://secondaryds.example.com:3389 \
               -v
 
@@ -105,13 +108,17 @@ jobs:
 
       - name: Install KRA in secondary PKI container
         run: |
-          docker exec primary pki-server kra-clone-prepare --pkcs12-file ${SHARED}/kra-certs.p12 --pkcs12-password Secret.123
+          docker exec primary pki-server kra-clone-prepare \
+              --pkcs12-file $SHARED/kra-certs.p12 \
+              --pkcs12-password Secret.123
+
           docker exec secondary pkispawn \
               -f /usr/share/pki/server/examples/installation/kra-clone.cfg \
               -s KRA \
               -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
               -D pki_clone_pkcs12_path=${SHARED}/kra-certs.p12 \
               -D pki_clone_pkcs12_password=Secret.123 \
+              -D pki_audit_signing_nickname= \
               -D pki_ds_url=ldap://secondaryds.example.com:3389 \
               -v
 
@@ -136,31 +143,34 @@ jobs:
           tests/bin/ds-create.sh \
               --image=${{ env.DS_IMAGE }} \
               --hostname=tertiaryds.example.com \
+              --network=example \
+              --network-alias=tertiaryds.example.com \
               --password=Secret.123 \
               tertiaryds
 
-      - name: Connect tertiary DS container to network
-        run: docker network connect example tertiaryds --alias tertiaryds.example.com
-
       - name: Set up tertiary PKI container
         run: |
-          tests/bin/runner-init.sh tertiary
-        env:
-          HOSTNAME: tertiary.example.com
-
-      - name: Connect tertiary PKI container to network
-        run: docker network connect example tertiary --alias tertiary.example.com
+          tests/bin/runner-init.sh \
+              --hostname=tertiary.example.com \
+              --network=example \
+              --network-alias=tertiary.example.com \
+              tertiary
 
       - name: Install CA in tertiary PKI container
         run: |
           docker exec secondary pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
-          docker exec secondary pki-server ca-clone-prepare --pkcs12-file ${SHARED}/ca-certs.p12 --pkcs12-password Secret.123
+
+          docker exec secondary pki-server ca-clone-prepare \
+              --pkcs12-file $SHARED/ca-certs.p12 \
+              --pkcs12-password Secret.123
+
           docker exec tertiary pkispawn \
               -f /usr/share/pki/server/examples/installation/ca-clone-of-clone.cfg \
               -s CA \
               -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
               -D pki_clone_pkcs12_path=${SHARED}/ca-certs.p12 \
               -D pki_clone_pkcs12_password=Secret.123 \
+              -D pki_audit_signing_nickname= \
               -D pki_ds_url=ldap://tertiaryds.example.com:3389 \
               -v
 
@@ -168,13 +178,17 @@ jobs:
 
       - name: Install KRA in tertiary PKI container
         run: |
-          docker exec secondary pki-server kra-clone-prepare --pkcs12-file ${SHARED}/kra-certs.p12 --pkcs12-password Secret.123
+          docker exec secondary pki-server kra-clone-prepare \
+              --pkcs12-file $SHARED/kra-certs.p12 \
+              --pkcs12-password Secret.123
+
           docker exec tertiary pkispawn \
               -f /usr/share/pki/server/examples/installation/kra-clone-of-clone.cfg \
               -s KRA \
               -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
               -D pki_clone_pkcs12_path=${SHARED}/kra-certs.p12 \
               -D pki_clone_pkcs12_password=Secret.123 \
+              -D pki_audit_signing_nickname= \
               -D pki_ds_url=ldap://tertiaryds.example.com:3389 \
               -v
 

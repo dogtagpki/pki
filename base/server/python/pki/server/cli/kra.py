@@ -171,8 +171,19 @@ class KRAClonePrepareCLI(pki.cli.CLI):
                 'transport', pkcs12_file, pkcs12_password_file, no_key=no_key, append=True)
             subsystem.export_system_cert(
                 'storage', pkcs12_file, pkcs12_password_file, no_key=no_key, append=True)
-            subsystem.export_system_cert(
-                'audit_signing', pkcs12_file, pkcs12_password_file, no_key=no_key, append=True)
+
+            # audit signing cert is optional
+            cert = subsystem.get_subsystem_cert('audit_signing')
+
+            # export audit signing cert if available (i.e. has nickname)
+            if cert['nickname']:
+                subsystem.export_system_cert(
+                    'audit_signing',
+                    pkcs12_file,
+                    pkcs12_password_file,
+                    no_key=no_key,
+                    append=True)
+
             instance.export_external_certs(
                 pkcs12_file, pkcs12_password_file, append=True)
 

@@ -479,7 +479,11 @@ class PKISubsystem(object):
             append=False):
 
         cert = self.get_subsystem_cert(cert_tag)
+
         nickname = cert['nickname']
+        if not nickname:
+            raise pki.cli.CLIException('Missing nickname for %s certificate' % cert_tag)
+
         token = pki.nssdb.normalize_token(cert['token'])
 
         if token:
