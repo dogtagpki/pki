@@ -395,6 +395,17 @@ public class CryptoUtil {
         return cm.getTokenByName(name);
     }
 
+    /**
+     * Retrieves handle to a key store token.
+     */
+    public static Enumeration<CryptoToken> getExternalTokens()
+            throws NotInitializedException, NoSuchTokenException {
+
+        CryptoManager cm = CryptoManager.getInstance();
+
+        return cm.getExternalTokens();
+    }
+
     public static KeyPair generateRSAKeyPair(
             CryptoToken token,
             int keySize) throws Exception {

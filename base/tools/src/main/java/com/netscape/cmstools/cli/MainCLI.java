@@ -31,6 +31,7 @@ import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -56,6 +57,7 @@ import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.mozilla.jss.ssl.SSLSocket;
 import org.mozilla.jss.util.IncorrectPasswordException;
+import org.mozilla.jss.util.NullPasswordCallback;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.base.ClientConnectionException;
@@ -566,7 +568,6 @@ public class MainCLI extends CLI {
 
                 CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
                 Password password = new Password(passwords.get(tokenName).toCharArray());
-
                 try {
                     token.login(password);
 
@@ -576,6 +577,14 @@ public class MainCLI extends CLI {
 
                 } finally {
                     password.clear();
+                }
+            }
+            manager.setPasswordCallback(new NullPasswordCallback());
+            Enumeration<CryptoToken> externalTokens = CryptoUtil.getExternalTokens();
+            while (externalTokens!=null && externalTokens.hasMoreElements()) {
+                CryptoToken extToken = externalTokens.nextElement();
+                if (!extToken.isLoggedIn()) {
+                    logger.info("Password for token '{}' has not been provided, it will be skipped.", extToken.getName());
                 }
             }
         }
