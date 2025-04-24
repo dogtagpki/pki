@@ -146,8 +146,8 @@ jobs:
         run: |
           docker exec pki dnf install -y postgresql-jdbc
           docker exec pki ln -s /usr/share/java/postgresql-jdbc/postgresql.jar /usr/share/pki/server/common/lib
-          docker exec pki ln -s /usr/share/java/ongres-scram/client.jar /usr/share/pki/server/common/lib
-          docker exec pki ln -s /usr/share/java/ongres-scram/common.jar /usr/share/pki/server/common/lib
+          docker exec pki ln -s /usr/share/java/ongres-scram/scram-client.jar /usr/share/pki/server/common/lib
+          docker exec pki ln -s /usr/share/java/ongres-scram/scram-common.jar /usr/share/pki/server/common/lib
           docker exec pki ln -s /usr/share/java/ongres-stringprep/saslprep.jar /usr/share/pki/server/common/lib/
           docker exec pki ln -s /usr/share/java/ongres-stringprep/stringprep.jar /usr/share/pki/server/common/lib/
           docker exec pki pki-server restart --wait
