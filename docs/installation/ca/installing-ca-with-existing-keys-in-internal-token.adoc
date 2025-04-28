@@ -57,7 +57,7 @@ $ echo "-----END CERTIFICATE REQUEST-----" >> ca_ocsp_signing.csr
 $ echo "-----BEGIN CERTIFICATE REQUEST-----" > ca_audit_signing.csr
 $ sed -n "/^ca.audit_signing.certreq=/ s/^[^=]*=// p" < /var/lib/pki/pki-tomcat/conf/ca/CS.cfg >> ca_audit_signing.csr
 $ echo "-----END CERTIFICATE REQUEST-----" >> ca_audit_signing.csr
-----
+....
 
 == Finishing a CA subsystem installation 
 
