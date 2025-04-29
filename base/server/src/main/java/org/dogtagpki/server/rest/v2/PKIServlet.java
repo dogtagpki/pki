@@ -253,8 +253,8 @@ public abstract class PKIServlet extends HttpServlet {
         else if (principal instanceof GenericPrincipal pr)
             authToken = new ExternalAuthToken(pr);
 
-        // If missing auth token, reject request.
-        if (authToken == null) {
+        // If missing auth token but AuthSubsystem enabled reject request.
+        if (authToken == null && getEngine().getAuthSubsystem() != null) {
             logger.warn("PKIServlet.setSessionContex: No authorization token present.");
             throw new ForbiddenException("No authorization token present.");
         }
@@ -266,8 +266,8 @@ public abstract class PKIServlet extends HttpServlet {
 
         Locale locale = request.getLocale();
         context.put(SessionContext.LOCALE, locale);
-
-        context.put(SessionContext.AUTH_TOKEN, authToken);
+        if(authToken != null)
+            context.put(SessionContext.AUTH_TOKEN, authToken);
         context.put(SessionContext.USER_ID, principal.getName());
         if (principal instanceof PKIPrincipal pr)
             context.put(SessionContext.USER, pr.getUser());

@@ -15,6 +15,7 @@ import com.netscape.cms.realm.RealmCommon;
 import com.netscape.cms.realm.RealmConfig;
 import com.netscape.cms.tomcat.ProxyRealm;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 
 /**
@@ -22,13 +23,11 @@ import com.netscape.cmscore.apps.CMS;
  *
  * @author Fraser Tweedale
  */
-public class ESTEngine {
+public class ESTEngine extends CMSEngine{
 
     private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ESTEngine.class);
 
     private static ESTEngine INSTANCE;
-
-    private String id;
 
     private Realm realm;
 
@@ -40,6 +39,7 @@ public class ESTEngine {
     }
 
     public ESTEngine() {
+        super("EST");
         INSTANCE = this;
     }
 
@@ -209,9 +209,4 @@ public class ESTEngine {
             ((LifecycleBase) realm).start();
         }
     }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
 }
