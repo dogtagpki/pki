@@ -6,15 +6,13 @@ import java.security.cert.X509Certificate;
 import java.util.Optional;
 import java.util.Properties;
 
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ServiceUnavailableException;
-
-import org.mozilla.jss.netscape.security.pkcs.PKCS7;
+import org.apache.http.HttpStatus;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
-import org.mozilla.jss.netscape.security.x509.CertificateChain;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.CertificateChain;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.authority.AuthorityClient;
 import com.netscape.certsrv.authority.AuthorityResource;
@@ -243,8 +241,8 @@ public class DogtagRABackend extends ESTBackend {
             return Cert.mapCert(certPem);
         } catch (PKIException e) {
             if (
-                e.getCode() == Response.Status.UNAUTHORIZED.getStatusCode()
-                || e.getCode() == Response.Status.FORBIDDEN.getStatusCode()
+                e.getCode() == HttpStatus.SC_UNAUTHORIZED
+                || e.getCode() == HttpStatus.SC_FORBIDDEN
             ) {
                 // 401 or 403 indicates misconfiguration of the EST backend or
                 // the CA subsystem.  Throw a PKIException (500).

@@ -5,6 +5,7 @@
 //
 package org.dogtagpki.est;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
@@ -20,6 +21,8 @@ public class ESTWebListener implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent event) {
+
+        ServletContext servletContext = event.getServletContext();
         String path = event.getServletContext().getContextPath();
         String id;
 
@@ -29,7 +32,7 @@ public class ESTWebListener implements ServletContextListener {
             id = path.substring(1);
         }
         ESTEngine engine = createEngine();
-        engine.setId(id);
+        servletContext.setAttribute("engine", engine);
 
         try {
             engine.start(event.getServletContext().getContextPath());
