@@ -1,4 +1,9 @@
 name: CA clone
+# This test will create a primary CA instance, clone it into a secondary
+# CA instance, then clone the secondary CA into a tertiary CA instance.
+# Each instance will have its own DS instance.
+#
+# docs/installation/ca/installing-ca-clone.adoc
 
 on: workflow_call
 
@@ -6,7 +11,6 @@ env:
   DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
 
 jobs:
-  # docs/installation/ca/Installing_CA.md
   test:
     name: Test
     runs-on: ubuntu-latest
@@ -54,6 +58,59 @@ jobs:
               -D pki_audit_signing_nickname= \
               -D pki_ds_url=ldap://primaryds.example.com:3389 \
               -v
+
+      - name: Check schema in primary DS
+        if: always()
+        run: |
+          docker exec primaryds ldapsearch \
+              -H ldap://primaryds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b cn=schema \
+              -o ldif_wrap=no \
+              -LLL \
+              objectClasses attributeTypes \
+              | grep "\-oid" \
+              | sort \
+              | tee primaryds.schema
+
+      - name: Check initial replica range config in primary CA
+        if: always()
+        run: |
+          tests/ca/bin/ca-replica-range-config.sh primary | tee output
+
+          # primary range should be 1-100 initially
+          cat > expected << EOF
+          dbs.beginReplicaNumber=1
+          dbs.endReplicaNumber=100
+          dbs.replicaCloneTransferNumber=5
+          dbs.replicaIncrement=100
+          dbs.replicaLowWaterMark=20
+          EOF
+
+          diff expected output
+
+      - name: Check initial CA replica range objects
+        if: always()
+        run: |
+          tests/ca/bin/ca-replica-range-objects.sh primaryds | tee output
+
+          # there should be no range allocations
+          diff /dev/null output
+
+      - name: Check initial CA replica next range
+        if: always()
+        run: |
+          tests/ca/bin/ca-replica-next-range.sh primaryds | tee output
+
+          # next range should start from 1000
+          # see ou=replica in base/ca/database/ds/create.ldif
+          cat > expected << EOF
+          nextRange: 1000
+          EOF
+
+          diff expected output
 
       - name: Check primary CA server status
         run: |
@@ -137,20 +194,9 @@ jobs:
         run: |
           docker exec secondary pki-server cert-find
 
-      - name: Check schema in primary DS and secondary DS
+      - name: Check schema in secondary DS
         if: always()
         run: |
-          docker exec primaryds ldapsearch \
-              -H ldap://primaryds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -x \
-              -b cn=schema \
-              -o ldif_wrap=no \
-              -LLL \
-              objectClasses attributeTypes \
-              | grep "\-oid" | sort | tee primaryds.schema
-
           docker exec secondaryds ldapsearch \
               -H ldap://secondaryds.example.com:3389 \
               -D "cn=Directory Manager" \
@@ -201,9 +247,16 @@ jobs:
               -b "cn=replica,cn=dc\3Dca\2Cdc\3Dpki\2Cdc\3Dexample\2Cdc\3Dcom,cn=mapping tree,cn=config" \
               -s base \
               -o ldif_wrap=no \
-              -LLL
+              -LLL \
+              | tee output
 
-      - name: Check replica object on secondary DS
+          # primary DS should have replica ID 96
+          echo "96" > expected
+          sed -n 's/^nsDS5ReplicaId:\s*\(\S\+\)\s*$/\1/p' output > actual
+
+          diff expected actual
+
+      - name: Check CA replica object on secondary DS
         if: always()
         run: |
           docker exec secondaryds ldapsearch \
@@ -214,9 +267,16 @@ jobs:
               -b "cn=replica,cn=dc\3Dca\2Cdc\3Dpki\2Cdc\3Dexample\2Cdc\3Dcom,cn=mapping tree,cn=config" \
               -s base \
               -o ldif_wrap=no \
-              -LLL
+              -LLL \
+              | tee output
 
-      - name: Check replication agreement on primary DS
+          # secondary DS should have replica ID 97
+          echo "97" > expected
+          sed -n 's/^nsDS5ReplicaId:\s*\(\S\+\)\s*$/\1/p' output > actual
+
+          diff expected actual
+
+      - name: Check CA replication agreement on primary DS
         if: always()
         run: |
           docker exec primaryds ldapsearch \
@@ -229,7 +289,7 @@ jobs:
               -o ldif_wrap=no \
               -LLL
 
-      - name: Check replication agreement on secondary DS
+      - name: Check CA replication agreement on secondary DS
         if: always()
         run: |
           docker exec secondaryds ldapsearch \
@@ -317,6 +377,61 @@ jobs:
 
           diff expected actual
 
+      - name: Check replica range config in primary CA after cloning
+        if: always()
+        run: |
+          tests/ca/bin/ca-replica-range-config.sh primary | tee output
+
+          # 5 numbers were transfered to secondary range
+          # so now primary range should be 1-95
+          cat > expected << EOF
+          dbs.beginReplicaNumber=1
+          dbs.endReplicaNumber=95
+          dbs.replicaCloneTransferNumber=5
+          dbs.replicaIncrement=100
+          dbs.replicaLowWaterMark=20
+          EOF
+
+          diff expected output
+
+      - name: Check replica range config in secondary CA
+        if: always()
+        run: |
+          tests/ca/bin/ca-replica-range-config.sh secondary | tee output
+
+          # secondary range should be 96-100 initially
+          # first two numbers were assigned to primary DS and secondary DS
+          # so now secondary range should be 98-100
+          cat > expected << EOF
+          dbs.beginReplicaNumber=98
+          dbs.endReplicaNumber=100
+          dbs.replicaCloneTransferNumber=5
+          dbs.replicaIncrement=100
+          dbs.replicaLowWaterMark=20
+          EOF
+
+          diff expected output
+
+      - name: Check CA replica range objects
+        if: always()
+        run: |
+          tests/ca/bin/ca-replica-range-objects.sh primaryds | tee output
+
+          # there should be no range allocations
+          diff /dev/null output
+
+      - name: Check CA replica next range
+        if: always()
+        run: |
+          tests/ca/bin/ca-replica-next-range.sh primaryds | tee output
+
+          # next range should start from 1000
+          cat > expected << EOF
+          nextRange: 1000
+          EOF
+
+          diff expected output
+
       - name: Verify users and SD hosts in secondary PKI container
         run: |
           docker exec primary cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${SHARED}/ca_admin_cert.p12
@@ -388,6 +503,68 @@ jobs:
 
           docker exec tertiary pki-server cert-find
 
+      - name: Check schema in tertiary DS
+        if: always()
+        run: |
+          docker exec tertiaryds ldapsearch \
+              -H ldap://tertiaryds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b cn=schema \
+              -o ldif_wrap=no \
+              -LLL \
+              objectClasses attributeTypes \
+              | grep "\-oid" | sort | tee tertiaryds.schema
+
+          diff secondaryds.schema tertiaryds.schema
+
+      - name: Check replication manager on tertiary DS
+        if: always()
+        run: |
+          docker exec tertiaryds ldapsearch \
+              -H ldap://tertiaryds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "cn=Replication Manager cloneAgreement1-tertiary.example.com-pki-tomcat,ou=csusers,cn=config" \
+              -s base \
+              -o ldif_wrap=no \
+              -LLL
+
+      - name: Check CA replica object on tertiary DS
+        if: always()
+        run: |
+          docker exec tertiaryds ldapsearch \
+              -H ldap://tertiaryds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "cn=replica,cn=dc\3Dca\2Cdc\3Dpki\2Cdc\3Dexample\2Cdc\3Dcom,cn=mapping tree,cn=config" \
+              -s base \
+              -o ldif_wrap=no \
+              -LLL \
+              | tee output
+
+          # tertiary DS should have replica ID 1095
+          echo "1095" > expected
+          sed -n 's/^nsDS5ReplicaId:\s*\(\S\+\)\s*$/\1/p' output > actual
+
+          diff expected actual
+
+      - name: Check CA replication agreement on tertiary DS
+        if: always()
+        run: |
+          docker exec tertiaryds ldapsearch \
+              -H ldap://tertiaryds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "cn=cloneAgreement1-tertiary.example.com-pki-tomcat,cn=replica,cn=dc\3Dca\2Cdc\3Dpki\2Cdc\3Dexample\2Cdc\3Dcom,cn=mapping tree,cn=config" \
+              -s base \
+              -o ldif_wrap=no \
+              -LLL
+
       - name: Check CS.cfg in secondary CA after cloning
         run: |
           # get CS.cfg from secondary CA after cloning
@@ -453,6 +630,73 @@ jobs:
               | sort > actual
 
           diff expected actual
+
+      - name: Check replica range config in secondary CA after cloning
+        if: always()
+        run: |
+          tests/ca/bin/ca-replica-range-config.sh secondary | tee output
+
+          # secondary range should remain 98-100
+          # next secondary range should be 1000-1099 initially
+          # 5 numbers were transferred to tertiary range
+          # so now next secondary range should be 1000-1094
+          cat > expected << EOF
+          dbs.beginReplicaNumber=98
+          dbs.endReplicaNumber=100
+          dbs.nextBeginReplicaNumber=1000
+          dbs.nextEndReplicaNumber=1094
+          dbs.replicaCloneTransferNumber=5
+          dbs.replicaIncrement=100
+          dbs.replicaLowWaterMark=20
+          EOF
+
+          diff expected output
+
+      - name: Check replica range config in tertiary CA
+        if: always()
+        run: |
+          tests/ca/bin/ca-replica-range-config.sh tertiary | tee output
+
+          # tertiary range should be 1095-1099 initially
+          # first number is assigned to tertiary DS
+          # so now tertiary range should be 1096-1099
+          cat > expected << EOF
+          dbs.beginReplicaNumber=1096
+          dbs.endReplicaNumber=1099
+          dbs.replicaCloneTransferNumber=5
+          dbs.replicaIncrement=100
+          dbs.replicaLowWaterMark=20
+          EOF
+
+          diff expected output
+
+      - name: Check CA replica range objects
+        if: always()
+        run: |
+          tests/ca/bin/ca-replica-range-objects.sh primaryds | tee output
+
+          # range 1000-1099 should be allocated to secondary CA
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 1000
+          endRange: 1099
+          host: secondary.example.com
+
+          EOF
+
+          diff expected output
+
+      - name: Check CA replica next range
+        if: always()
+        run: |
+          tests/ca/bin/ca-replica-next-range.sh primaryds | tee output
+
+          # next range should start from 1100
+          cat > expected << EOF
+          nextRange: 1100
+          EOF
+
+          diff expected output
 
       - name: Verify users and SD hosts in tertiary PKI container
         run: |
