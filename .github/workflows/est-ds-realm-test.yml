@@ -357,14 +357,18 @@ jobs:
 
           # Request should fails with authorization error (status code 403)
           cat > expected <<EOF
-          <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-          <PKIException>
-              <ClassName>com.netscape.certsrv.base.ForbiddenException</ClassName>
-              <Attributes/>
-              <Code>403</Code>
-              <Message>CSR subject does not match user certificate.</Message>
-          </PKIException>
+          {
+            "Attributes" : {
+              "Attribute" : [ ]
+            },
+            "ClassName" : "com.netscape.certsrv.base.ForbiddenException",
+            "Code" : 403,
+            "Message" : "CSR subject does not match user certificate."
+          }
           EOF
+          #Server output does not include new line at the end
+          truncate -s -1 expected
+
           diff output expected
 
       - name: Enroll new certificate with certificate but using different subject
@@ -417,14 +421,18 @@ jobs:
 
           # Request should fails with authorization error (status code 403) because reenroll subject match required
           cat > expected <<EOF
-          <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-          <PKIException>
-              <ClassName>com.netscape.certsrv.base.ForbiddenException</ClassName>
-              <Attributes/>
-              <Code>403</Code>
-              <Message>CSR subject does not match user certificate.</Message>
-          </PKIException>
+          {
+            "Attributes" : {
+              "Attribute" : [ ]
+            },
+            "ClassName" : "com.netscape.certsrv.base.ForbiddenException",
+            "Code" : 403,
+            "Message" : "CSR subject does not match user certificate."
+          }
           EOF
+          #Server output does not include new line at the end
+          truncate -s -1 expected
+
           diff output expected
 
       - name: Remove EST
