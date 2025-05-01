@@ -1,0 +1,513 @@
+name: KRA clone failover
+# This test will install a CA, install a primary KRA then enroll a cert,
+# install a secondary KRA then enroll a cert, shut down the primary KRA
+# then enroll a cert, and finally remove the primary KRA then enroll a cert.
+
+on: workflow_call
+
+env:
+  DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Retrieve PKI images
+        uses: actions/cache@v4
+        with:
+          key: pki-images-${{ github.sha }}
+          path: pki-images.tar
+
+      - name: Load PKI images
+        run: docker load --input pki-images.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up CA DS container
+        run: |
+          tests/bin/ds-create.sh \
+              --image=${{ env.DS_IMAGE }} \
+              --hostname=cads.example.com \
+              --network=example \
+              --network-alias=cads.example.com \
+              --password=Secret.123 \
+              cads
+
+      - name: Set up CA container
+        run: |
+          tests/bin/runner-init.sh \
+              --hostname=ca.example.com \
+              --network=example \
+              --network-alias=ca.example.com \
+              ca
+
+      - name: Install CA
+        run: |
+          docker exec ca pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_audit_signing_nickname= \
+              -D pki_ds_url=ldap://cads.example.com:3389 \
+              -v
+
+      - name: Update CA server configuration
+        run: |
+          docker exec ca dnf install -y xmlstarlet
+
+          # disable access log buffer
+          docker exec ca xmlstarlet edit --inplace \
+              -u "//Valve[@className='org.apache.catalina.valves.AccessLogValve']/@buffered" \
+              -v "false" \
+              -i "//Valve[@className='org.apache.catalina.valves.AccessLogValve' and not(@buffered)]" \
+              -t attr \
+              -n "buffered" \
+              -v "false" \
+              /etc/pki/pki-tomcat/server.xml
+
+          # restart CA server
+          docker exec ca pki-server restart --wait
+
+      - name: Set up client container
+        run: |
+          tests/bin/runner-init.sh \
+              --hostname=client.example.com \
+              --network=example \
+              client
+
+      - name: Import certs for client
+        run: |
+          # export CA signing cert
+          docker exec ca pki-server cert-export \
+              --cert-file $SHARED/ca_signing.crt \
+              ca_signing
+
+          # import CA signing cert
+          docker exec client pki nss-cert-import \
+              --cert $SHARED/ca_signing.crt \
+              --trust CT,C,C
+
+          # export admin cert and key
+          docker exec ca cp \
+              /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              $SHARED/ca_admin_cert.p12
+
+          # import admin cert and key
+          docker exec client pki pkcs12-import \
+              --pkcs12 $SHARED/ca_admin_cert.p12 \
+              --password Secret.123
+
+      - name: Check admin access to CA
+        run: |
+          docker exec client pki \
+              -U https://ca.example.com:8443 \
+              -n caadmin \
+              ca-user-show \
+              caadmin
+
+      - name: Set up primary KRA DS container
+        run: |
+          tests/bin/ds-create.sh \
+              --image=${{ env.DS_IMAGE }} \
+              --hostname=primarykrads.example.com \
+              --network=example \
+              --network-alias=primarykrads.example.com \
+              --password=Secret.123 \
+              primarykrads
+
+      - name: Set up primary KRA container
+        run: |
+          tests/bin/runner-init.sh \
+              --hostname=primarykra.example.com \
+              --network=example \
+              --network-alias=primarykra.example.com \
+              primarykra
+
+      - name: Install primary KRA
+        run: |
+          docker exec ca cp \
+              /root/.dogtag/pki-tomcat/ca_admin.cert \
+              $SHARED/ca_admin.cert
+
+          docker exec primarykra pkispawn \
+              -f /usr/share/pki/server/examples/installation/kra.cfg \
+              -s KRA \
+              -D pki_security_domain_uri=https://ca.example.com:8443 \
+              -D pki_issuing_ca_uri=https://ca.example.com:8443 \
+              -D pki_cert_chain_nickname=ca_signing \
+              -D pki_cert_chain_path=$SHARED/ca_signing.crt \
+              -D pki_audit_signing_nickname= \
+              -D pki_admin_cert_file=$SHARED/ca_admin.cert \
+              -D pki_ds_url=ldap://primarykrads.example.com:3389 \
+              -v
+
+      - name: Update primary KRA server configuration
+        run: |
+          docker exec primarykra dnf install -y xmlstarlet
+
+          # disable access log buffer
+          docker exec primarykra xmlstarlet edit --inplace \
+              -u "//Valve[@className='org.apache.catalina.valves.AccessLogValve']/@buffered" \
+              -v "false" \
+              -i "//Valve[@className='org.apache.catalina.valves.AccessLogValve' and not(@buffered)]" \
+              -t attr \
+              -n "buffered" \
+              -v "false" \
+              /etc/pki/pki-tomcat/server.xml
+
+          # restart primary KRA server
+          docker exec primarykra pki-server restart --wait
+
+      - name: Check KRA connector in CA
+        run: |
+          docker exec ca pki-server ca-config-find \
+              | grep ^ca.connector.KRA. \
+              | sort \
+              | tee output
+
+          # exclude transport cert
+          sed -e '/^ca.connector.KRA.transportCert=/d' output > actual
+
+          cat > expected << EOF
+          ca.connector.KRA.enable=true
+          ca.connector.KRA.host=primarykra.example.com
+          ca.connector.KRA.local=false
+          ca.connector.KRA.nickName=subsystem
+          ca.connector.KRA.port=8443
+          ca.connector.KRA.timeout=30
+          ca.connector.KRA.uri=/kra/agent/kra/connector
+          EOF
+
+          diff expected actual
+
+      - name: Import certs for client
+        run: |
+          # export transport cert
+          docker exec client pki \
+              -U https://ca.example.com:8443 \
+              ca-cert-transport-export \
+              --output-file kra_transport.crt
+
+          # import transport cert
+          docker exec client pki nss-cert-import \
+              --cert kra_transport.crt \
+              kra_transport
+
+      - name: Check admin access to primary KRA
+        run: |
+          docker exec client pki \
+              -U https://primarykra.example.com:8443 \
+              -n caadmin \
+              kra-user-show \
+              kraadmin
+
+      - name: Check cert enrollment with primary KRA
+        run: |
+          # generate key and cert request
+          docker exec client pki \
+              nss-cert-request \
+              --type crmf \
+              --subject UID=testuser1 \
+              --transport kra_transport \
+              --csr testuser1.csr
+
+          # issue cert
+          docker exec client pki \
+              -U https://ca.example.com:8443 \
+              -u caadmin \
+              -w Secret.123 \
+              ca-cert-issue \
+              --request-type crmf \
+              --profile caUserCert \
+              --subject UID=testuser1 \
+              --csr-file testuser1.csr \
+              --output-file testuser1.crt
+
+          docker exec client openssl x509 \
+              -text \
+              -noout \
+              -in testuser1.crt
+
+      - name: Check access logs in primary KRA
+        run: |
+          # check HTTP methods, paths, protocols, status, and authenticated users
+          docker exec primarykra find /var/log/pki/pki-tomcat \
+              -name "localhost_access_log.*" \
+              -exec cat {} \; \
+              | tail -5 \
+              | sed -e 's/^.* .* \(.*\) \[.*\] "\(.*\)" \(.*\) .*$/\2 \3 \1/' \
+              | tee output
+
+      - name: Set up secondary KRA DS container
+        run: |
+          tests/bin/ds-create.sh \
+              --image=${{ env.DS_IMAGE }} \
+              --hostname=secondarykrads.example.com \
+              --network=example \
+              --network-alias=secondarykrads.example.com \
+              --password=Secret.123 \
+              secondarykrads
+
+      - name: Set up secondary KRA container
+        run: |
+          tests/bin/runner-init.sh \
+              --hostname=secondarykra.example.com \
+              --network=example \
+              --network-alias=secondarykra.example.com \
+              secondarykra
+
+      - name: Install secondary KRA
+        run: |
+          docker exec primarykra pki-server kra-clone-prepare \
+              --pkcs12-file $SHARED/kra-certs.p12 \
+              --pkcs12-password Secret.123
+
+          docker exec secondarykra pkispawn \
+              -f /usr/share/pki/server/examples/installation/kra.cfg \
+              -s KRA \
+              -D pki_security_domain_uri=https://ca.example.com:8443 \
+              -D pki_issuing_ca_uri=https://ca.example.com:8443 \
+              -D pki_cert_chain_nickname=ca_signing \
+              -D pki_cert_chain_path=$SHARED/ca_signing.crt \
+              -D pki_clone_pkcs12_path=$SHARED/kra-certs.p12 \
+              -D pki_clone_pkcs12_password=Secret.123 \
+              -D pki_clone_uri=https://primarykra.example.com:8443 \
+              -D pki_audit_signing_nickname= \
+              -D pki_admin_cert_file=$SHARED/ca_admin.cert \
+              -D pki_ds_url=ldap://secondarykrads.example.com:3389 \
+              -v
+
+          docker exec ca pki-server restart --wait
+
+      - name: Update secondary KRA server configuration
+        run: |
+          docker exec secondarykra dnf install -y xmlstarlet
+
+          # disable access log buffer
+          docker exec secondarykra xmlstarlet edit --inplace \
+              -u "//Valve[@className='org.apache.catalina.valves.AccessLogValve']/@buffered" \
+              -v "false" \
+              -i "//Valve[@className='org.apache.catalina.valves.AccessLogValve' and not(@buffered)]" \
+              -t attr \
+              -n "buffered" \
+              -v "false" \
+              /etc/pki/pki-tomcat/server.xml
+
+          # restart secondary KRA server
+          docker exec secondarykra pki-server restart --wait
+
+      - name: Check KRA connector in CA
+        run: |
+          docker exec ca pki-server ca-config-find \
+              | grep ^ca.connector.KRA. \
+              | sort \
+              | tee output
+
+          # exclude transport cert
+          sed -e '/^ca.connector.KRA.transportCert=/d' output > actual
+
+          # KRA connector should have multiple KRAs
+          cat > expected << EOF
+          ca.connector.KRA.enable=true
+          ca.connector.KRA.host=primarykra.example.com:8443 secondarykra.example.com:8443
+          ca.connector.KRA.local=false
+          ca.connector.KRA.nickName=subsystem
+          ca.connector.KRA.port=8443
+          ca.connector.KRA.timeout=30
+          ca.connector.KRA.uri=/kra/agent/kra/connector
+          EOF
+
+          diff expected actual
+
+      - name: Check admin access to secondary KRA
+        run: |
+          docker exec client pki \
+              -U https://secondarykra.example.com:8443 \
+              -n caadmin \
+              kra-user-show \
+              kraadmin
+
+      - name: Check cert enrollment with multiple KRAs
+        run: |
+          # this test is currently failing due to this bug:
+          # https://bugzilla.redhat.com/show_bug.cgi?id=2363834
+          # TODO: update the test once the bug is fixed
+
+          # generate key and cert request
+          docker exec client pki \
+              nss-cert-request \
+              --type crmf \
+              --subject UID=testuser2 \
+              --transport kra_transport \
+              --csr testuser2.csr
+
+          # issue cert
+          docker exec client pki \
+              -U https://ca.example.com:8443 \
+              -u caadmin \
+              -w Secret.123 \
+              ca-cert-issue \
+              --request-type crmf \
+              --profile caUserCert \
+              --subject UID=testuser2 \
+              --csr-file testuser2.csr \
+              --output-file testuser2.crt \
+              || true
+
+          # docker exec client openssl x509 \
+          #     -text \
+          #     -noout \
+          #     -in testuser2.crt
+
+      - name: Check access logs in primary KRA
+        run: |
+          # check HTTP methods, paths, protocols, status, and authenticated users
+          docker exec primarykra find /var/log/pki/pki-tomcat \
+              -name "localhost_access_log.*" \
+              -exec cat {} \; \
+              | tail -5 \
+              | sed -e 's/^.* .* \(.*\) \[.*\] "\(.*\)" \(.*\) .*$/\2 \3 \1/' \
+              | tee output
+
+      - name: Shut down primary KRA
+        run: |
+          docker exec primarykra pki-server stop --wait
+
+      - name: Check cert enrollment with KRA failover
+        run: |
+          # this test is currently failing due to this bug:
+          # https://bugzilla.redhat.com/show_bug.cgi?id=2363834
+          # TODO: update the test once the bug is fixed
+
+          # generate key and cert request
+          docker exec client pki \
+              nss-cert-request \
+              --type crmf \
+              --subject UID=testuser3 \
+              --transport kra_transport \
+              --csr testuser3.csr
+
+          # issue cert
+          docker exec client pki \
+              -U https://ca.example.com:8443 \
+              -u caadmin \
+              -w Secret.123 \
+              ca-cert-issue \
+              --request-type crmf \
+              --profile caUserCert \
+              --subject UID=testuser3 \
+              --csr-file testuser3.csr \
+              --output-file testuser3.crt \
+              || true
+
+          # docker exec client openssl x509 \
+          #     -text \
+          #     -noout \
+          #     -in testuser3.crt
+
+      - name: Check access logs in secondary KRA
+        run: |
+          # check HTTP methods, paths, protocols, status, and authenticated users
+          docker exec secondarykra find /var/log/pki/pki-tomcat \
+              -name "localhost_access_log.*" \
+              -exec cat {} \; \
+              | tail -5 \
+              | sed -e 's/^.* .* \(.*\) \[.*\] "\(.*\)" \(.*\) .*$/\2 \3 \1/' \
+              | tee output
+
+      - name: Remove primary KRA
+        run: docker exec primarykra pkidestroy -s KRA -v
+
+      - name: Check cert enrollment with secondary KRA
+        run: |
+          # generate key and cert request
+          docker exec client pki \
+              nss-cert-request \
+              --type crmf \
+              --subject UID=testuser4 \
+              --transport kra_transport \
+              --csr testuser4.csr
+
+          # issue cert
+          docker exec client pki \
+              -U https://ca.example.com:8443 \
+              -u caadmin \
+              -w Secret.123 \
+              ca-cert-issue \
+              --request-type crmf \
+              --profile caUserCert \
+              --subject UID=testuser4 \
+              --csr-file testuser4.csr \
+              --output-file testuser4.crt
+
+          docker exec client openssl x509 \
+              -text \
+              -noout \
+              -in testuser4.crt
+
+      - name: Check access logs in secondary KRA
+        run: |
+          # check HTTP methods, paths, protocols, status, and authenticated users
+          docker exec secondarykra find /var/log/pki/pki-tomcat \
+              -name "localhost_access_log.*" \
+              -exec cat {} \; \
+              | tail -5 \
+              | sed -e 's/^.* .* \(.*\) \[.*\] "\(.*\)" \(.*\) .*$/\2 \3 \1/' \
+              | tee output
+
+      - name: Remove secondary KRA
+        run: docker exec secondarykra pkidestroy -s KRA -v
+
+      - name: Remove CA
+        run: docker exec ca pkidestroy -s CA -v
+
+      - name: Check CA systemd journal
+        if: always()
+        run: |
+          docker exec ca journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check CA access log
+        if: always()
+        run: |
+          docker exec ca find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+
+      - name: Check CA debug log
+        if: always()
+        run: |
+          docker exec ca find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check primary KRA systemd journal
+        if: always()
+        run: |
+          docker exec primarykra journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check primary KRA access log
+        if: always()
+        run: |
+          docker exec primarykra find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+
+      - name: Check primary KRA debug log
+        if: always()
+        run: |
+          docker exec primarykra find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
+
+      - name: Check secondary KRA systemd journal
+        if: always()
+        run: |
+          docker exec secondarykra journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check secondary KRA access log
+        if: always()
+        run: |
+          docker exec secondarykra find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+
+      - name: Check secondary KRA debug log
+        if: always()
+        run: |
+          docker exec secondarykra find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;

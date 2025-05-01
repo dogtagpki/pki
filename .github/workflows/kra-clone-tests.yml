@@ -27,3 +27,8 @@ jobs:
     name: KRA clone with replicated DS
     needs: build
     uses: ./.github/workflows/kra-clone-replicated-ds-test.yml
+
+  kra-clone-failover-test:
+    name: KRA clone failover
+    needs: build
+    uses: ./.github/workflows/kra-clone-failover-test.yml
