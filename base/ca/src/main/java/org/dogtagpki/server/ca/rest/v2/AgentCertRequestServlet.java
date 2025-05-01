@@ -103,7 +103,9 @@ public class AgentCertRequestServlet extends CAServlet {
         try {
             id = new RequestId(request.getPathInfo().substring(1));
         } catch(NumberFormatException e) {
-            throw new BadRequestException("Id not valid: " + request.getPathInfo().substring(1));
+            String message = "Invalid request ID: " + request.getPathInfo().substring(1);
+            logger.error(message, e);
+            throw new BadRequestException(message);
         }
         try {
             CertReviewResponse req = getRequestData(request, id);
@@ -131,7 +133,9 @@ public class AgentCertRequestServlet extends CAServlet {
         try {
             id = new RequestId(pathElement[0]);
         } catch(NumberFormatException e) {
-            throw new BadRequestException("Id not valid: " + pathElement[0]);
+            String message = "Invalid request ID: " + pathElement[0];
+            logger.error(message, e);
+            throw new BadRequestException(message);
         }
         String operation = pathElement[1];
 
@@ -299,6 +303,7 @@ public class AgentCertRequestServlet extends CAServlet {
         RequestRepository requestRepository = engine.getRequestRepository();
         Request ireq = requestRepository.readRequest(id);
         if (ireq == null) {
+            logger.error("Request not found: " + id);
             throw new RequestNotFoundException(id);
         }
 
