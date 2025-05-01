@@ -107,8 +107,11 @@ public class CertRequestService extends PKIService implements CertRequestResourc
             throw new BadRequestException(message);
         }
 
-        if (aidString != null && adnString != null)
-            throw new BadRequestException("Cannot provide both issuer-id and issuer-dn");
+        if (aidString != null && adnString != null) {
+            String message = "Cannot provide both issuer ID and issuer DN";
+            logger.error(message);
+            throw new BadRequestException(message);
+        }
 
         CAEngine engine = CAEngine.getInstance();
         CertificateAuthority ca = engine.getCA();
@@ -118,13 +121,18 @@ public class CertRequestService extends PKIService implements CertRequestResourc
             try {
                 aid = new AuthorityID(aidString);
             } catch (IllegalArgumentException e) {
-                throw new BadRequestException("invalid AuthorityID: " + aidString, e);
+                String message = "Invalid authority ID: " + aidString;
+                logger.error(message);
+                throw new BadRequestException(message, e);
             }
 
             ca = engine.getCA(aid);
 
-            if (ca == null)
-                throw new ResourceNotFoundException("CA not found: " + aidString);
+            if (ca == null) {
+                String message = "CA not found: " + aidString;
+                logger.error(message);
+                throw new ResourceNotFoundException(message);
+            }
         }
 
         if (adnString != null) {
@@ -132,19 +140,27 @@ public class CertRequestService extends PKIService implements CertRequestResourc
             try {
                 adn = new X500Name(adnString);
             } catch (IOException e) {
-                throw new BadRequestException("invalid DN: " + adnString, e);
+                String message = "Invalid DN: " + adnString;
+                logger.error(message);
+                throw new BadRequestException(message, e);
             }
 
             ca = engine.getCA(adn);
 
-            if (ca == null)
-                throw new ResourceNotFoundException("CA not found: " + adnString);
+            if (ca == null) {
+                String message = "CA not found: " + adnString;
+                logger.error(message);
+                throw new ResourceNotFoundException(message);
+            }
 
             aid = ca.getAuthorityID();
         }
 
-        if (!ca.getAuthorityEnabled())
-            throw new ConflictingOperationException("CA not enabled: " + aid.toString());
+        if (!ca.getAuthorityEnabled()) {
+            String message = "CA not enabled: " + aid;
+            logger.error(message);
+            throw new ConflictingOperationException(message);
+        }
 
         data.setRemoteHost(servletRequest.getRemoteHost());
         data.setRemoteAddr(servletRequest.getRemoteAddr());
