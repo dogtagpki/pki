@@ -110,7 +110,5 @@ public class PKCS12CertRemoveCLI extends CommandCLI {
         } finally {
             password.clear();
         }
-
-        MainCLI.printMessage("Deleted certificate \"" + nickname + "\"");
     }
 }
