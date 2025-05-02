@@ -111,7 +111,5 @@ public class PKCS12KeyRemoveCLI extends CommandCLI {
         } finally {
             password.clear();
         }
-
-        MainCLI.printMessage("Deleted key \"" + keyID.toHexString() + "\"");
     }
 }
