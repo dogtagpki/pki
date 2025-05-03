@@ -184,7 +184,5 @@ public class PKCS12CertImportCLI extends CommandCLI {
         } finally {
             password.clear();
         }
-
-        MainCLI.printMessage("Imported certificate \"" + nickname + "\"");
     }
 }
