@@ -38,10 +38,13 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
+import org.apache.http.ProtocolException;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.conn.socket.LayeredConnectionSocketFactory;
 import org.apache.http.entity.BufferedHttpEntity;
@@ -170,7 +173,21 @@ public class PKIConnection implements AutoCloseable {
                 }
             }
         });
-        httpClientBuilder.setRedirectStrategy(new LaxRedirectStrategy());
+
+        // Default redirect strategy will convert POST method to GET if  the status code is 302
+        // making the CLI failings in same cases. Therefore the policy is modified to keep the
+        // same HTTP method used in the original request.
+        // See https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/302
+        httpClientBuilder.setRedirectStrategy(new LaxRedirectStrategy() {
+            @Override
+            public HttpUriRequest getRedirect(
+                    final HttpRequest request,
+                    final HttpResponse response,
+                    final HttpContext context) throws ProtocolException {
+                final URI uri = getLocationURI(request, response, context);
+                return RequestBuilder.copy(request).setUri(uri).build();
+            }
+        });
 
         if (config.getUsername() != null && config.getPassword() != null) {
             URL url = config.getServerURL();
