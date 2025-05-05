@@ -238,13 +238,18 @@ class PKIServerCLI(pki.cli.CLI):
             print()
             print('  KRA Subsystem:')
 
-            domain_manager = kra.config.get('securitydomain.select') == 'new'
-            print('    SD Manager:          %s' % domain_manager)
-            print('    SD Name:             %s' % kra.config['securitydomain.name'])
-            url = 'https://%s:%s' % (
-                kra.config['securitydomain.host'],
-                kra.config['securitydomain.httpsadminport'])
-            print('    SD Registration URL: %s' % url)
+            sd_type = kra.config.get('securitydomain.select')
+            if sd_type:
+                domain_manager = sd_type == 'new'
+                print('    SD Manager:          %s' % domain_manager)
+
+                sd_name = kra.config['securitydomain.name']
+                print('    SD Name:             %s' % sd_name)
+
+                url = 'https://%s:%s' % (
+                    kra.config['securitydomain.host'],
+                    kra.config['securitydomain.httpsadminport'])
+                print('    SD Registration URL: %s' % url)
 
             enabled = kra.is_enabled()
             print('    Enabled:             %s' % enabled)
