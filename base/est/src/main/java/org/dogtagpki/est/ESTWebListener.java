@@ -32,6 +32,7 @@ public class ESTWebListener implements ServletContextListener {
             id = path.substring(1);
         }
         ESTEngine engine = createEngine();
+	engine.setID(id);
         servletContext.setAttribute("engine", engine);
 
         try {
