@@ -265,13 +265,18 @@ class PKIServerCLI(pki.cli.CLI):
             print()
             print('  OCSP Subsystem:')
 
-            domain_manager = ocsp.config.get('securitydomain.select') == 'new'
-            print('    SD Manager:          %s' % domain_manager)
-            print('    SD Name:             %s' % ocsp.config['securitydomain.name'])
-            url = 'https://%s:%s' % (
-                ocsp.config['securitydomain.host'],
-                ocsp.config['securitydomain.httpsadminport'])
-            print('    SD Registration URL: %s' % url)
+            sd_type = ocsp.config.get('securitydomain.select')
+            if sd_type:
+                domain_manager = sd_type == 'new'
+                print('    SD Manager:          %s' % domain_manager)
+
+                sd_name = ocsp.config['securitydomain.name']
+                print('    SD Name:             %s' % sd_name)
+
+                url = 'https://%s:%s' % (
+                    ocsp.config['securitydomain.host'],
+                    ocsp.config['securitydomain.httpsadminport'])
+                print('    SD Registration URL: %s' % url)
 
             enabled = ocsp.is_enabled()
             print('    Enabled:             %s' % enabled)
