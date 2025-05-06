@@ -454,9 +454,6 @@ if (RESTEASY_VERSION)
     set(RESTEASY_JAXRS_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/resteasy-jaxrs-${RESTEASY_VERSION}.jar")
     set(RESTEASY_JAXRS_LINK "resteasy-jaxrs-${RESTEASY_VERSION}.jar")
 
-    set(RESTEASY_CLIENT_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/resteasy-client-${RESTEASY_VERSION}.jar")
-    set(RESTEASY_CLIENT_LINK "resteasy-client-${RESTEASY_VERSION}.jar")
-
     set(RESTEASY_JACKSON_PROVIDER_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/resteasy-jackson2-provider-${RESTEASY_VERSION}.jar")
     set(RESTEASY_JACKSON_PROVIDER_LINK "resteasy-jackson2-provider-${RESTEASY_VERSION}.jar")
 
@@ -474,15 +471,6 @@ else()
             /usr/share/java
     )
     set(RESTEASY_JAXRS_LINK "../../../..${RESTEASY_JAXRS_JAR}")
-
-    find_file(RESTEASY_CLIENT_JAR
-        NAMES
-            resteasy-client.jar
-        PATHS
-            /usr/share/java/resteasy
-            /usr/share/java
-    )
-    set(RESTEASY_CLIENT_LINK "../../../..${RESTEASY_CLIENT_JAR}")
 
     find_file(RESTEASY_JACKSON_PROVIDER_JAR
         NAMES

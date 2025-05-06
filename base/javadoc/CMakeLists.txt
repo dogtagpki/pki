@@ -82,7 +82,7 @@ javadoc(pki-javadoc
         ${JACKSON_DATABIND_JAR}
         ${JACKSON_MODULE_JAXB_ANNOTATIONS_JAR}
         ${JAKARTA_ANNOTATION_API_JAR}
-        ${RESTEASY_JAXRS_JAR} ${RESTEASY_CLIENT_JAR}
+        ${RESTEASY_JAXRS_JAR}
         ${JSS_JAR}
         ${JSS_TOMCAT_JAR}
         ${JSS_TOMCAT_9_0_JAR}
