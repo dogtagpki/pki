@@ -228,7 +228,6 @@ BuildRequires:    mvn(org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.0_spec)
 BuildRequires:    mvn(org.jboss.logging:jboss-logging)
 
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-jaxrs)
-BuildRequires:    mvn(org.jboss.resteasy:resteasy-client)
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-jackson2-provider)
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-servlet-initializer)
 %endif
@@ -562,7 +561,6 @@ Requires:         mvn(org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.0_spec)
 Requires:         mvn(org.jboss.logging:jboss-logging)
 
 Requires:         mvn(org.jboss.resteasy:resteasy-jaxrs)
-Requires:         mvn(org.jboss.resteasy:resteasy-client)
 Requires:         mvn(org.jboss.resteasy:resteasy-jackson2-provider)
 %else
 Provides:         bundled(jakarta-activation)
@@ -580,7 +578,6 @@ Provides:         bundled(jboss-jaxrs-2.0-api)
 Provides:         bundled(jboss-logging)
 
 Provides:         bundled(resteasy-jaxrs)
-Provides:         bundled(resteasy-client)
 Provides:         bundled(resteasy-jackson2-provider)
 %endif
 
@@ -1106,8 +1103,6 @@ then
 
     cp /usr/share/java/resteasy/resteasy-jaxrs.jar \
         resteasy-jaxrs-$RESTEASY_VERSION.jar
-    cp /usr/share/java/resteasy/resteasy-client.jar \
-        resteasy-client-$RESTEASY_VERSION.jar
     cp /usr/share/java/resteasy/resteasy-jackson2-provider.jar \
         resteasy-jackson2-provider-$RESTEASY_VERSION.jar
 

@@ -5,7 +5,6 @@ javac(pki-est-classes
         src/main/java/*.java
     CLASSPATH
         ${SERVLET_JAR}
-        ${JAXRS_API_JAR}
         ${SLF4J_API_JAR}
         ${COMMONS_CODEC_JAR}
         ${COMMONS_IO_JAR}
@@ -64,7 +63,6 @@ add_custom_command(
     COMMAND ln -sf ../../../../../lib/slf4j-jdk14.jar webapp/lib/slf4j-jdk14.jar
     COMMAND ln -sf ../../../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-server.jar webapp/lib/pki-server.jar
     COMMAND ln -sf ../../../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-est.jar webapp/lib/pki-est.jar
-    COMMAND ln -sf ../../../../../server/common/lib/resteasy-servlet-initializer.jar webapp/lib/resteasy-servlet-initializer.jar
 )
 
 if(WITH_JAVA)
