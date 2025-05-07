@@ -44,7 +44,7 @@ $ pki pkcs12-cert-del --pkcs12-file ca-certs.p12 --pkcs12-password Secret.123 su
 
 . Export the CSRs from the existing CA with the following commands:
 +
-[literal]
+[literal,subs="+quotes,verbatim"]
 ....
 $ pki-server cert-export ca_signing \
     --csr-file ca_signing.csr
