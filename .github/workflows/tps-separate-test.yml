@@ -32,20 +32,18 @@ jobs:
           tests/bin/ds-create.sh \
               --image=${{ env.DS_IMAGE }} \
               --hostname=cads.example.com \
+              --network=example \
+              --network-alias=cads.example.com \
               --password=Secret.123 \
               cads
 
-      - name: Connect CA DS container to network
-        run: docker network connect example cads --alias cads.example.com
-
       - name: Set up CA container
         run: |
-          tests/bin/runner-init.sh ca
-        env:
-          HOSTNAME: ca.example.com
-
-      - name: Connect CA container to network
-        run: docker network connect example ca --alias ca.example.com
+          tests/bin/runner-init.sh \
+              --hostname=ca.example.com \
+              --network=example \
+              --network-alias=ca.example.com \
+              ca
 
       - name: Install CA in CA container
         # HTTP connector is needed in CA because if internal OCSP
@@ -66,20 +64,18 @@ jobs:
           tests/bin/ds-create.sh \
               --image=${{ env.DS_IMAGE }} \
               --hostname=krads.example.com \
+              --network=example \
+              --network-alias=krads.example.com \
               --password=Secret.123 \
               krads
 
-      - name: Connect KRA DS container to network
-        run: docker network connect example krads --alias krads.example.com
-
       - name: Set up KRA container
         run: |
-          tests/bin/runner-init.sh kra
-        env:
-          HOSTNAME: kra.example.com
-
-      - name: Connect KRA container to network
-        run: docker network connect example kra --alias kra.example.com
+          tests/bin/runner-init.sh \
+              --hostname=kra.example.com \
+              --network=example \
+              --network-alias=kra.example.com \
+              kra
 
       - name: Install KRA in KRA container
         run: |
@@ -114,20 +110,18 @@ jobs:
           tests/bin/ds-create.sh \
               --image=${{ env.DS_IMAGE }} \
               --hostname=tksds.example.com \
+              --network=example \
+              --network-alias=tksds.example.com \
               --password=Secret.123 \
               tksds
 
-      - name: Connect TKS DS container to network
-        run: docker network connect example tksds --alias tksds.example.com
-
       - name: Set up TKS container
         run: |
-          tests/bin/runner-init.sh tks
-        env:
-          HOSTNAME: tks.example.com
-
-      - name: Connect TKS container to network
-        run: docker network connect example tks --alias tks.example.com
+          tests/bin/runner-init.sh \
+              --hostname=tks.example.com \
+              --network=example \
+              --network-alias=tks.example.com \
+              tks
 
       - name: Install TKS in TKS container
         run: |
@@ -160,20 +154,18 @@ jobs:
           tests/bin/ds-create.sh \
               --image=${{ env.DS_IMAGE }} \
               --hostname=tpsds.example.com \
+              --network=example \
+              --network-alias=tpsds.example.com \
               --password=Secret.123 \
               tpsds
 
-      - name: Connect TPS DS container to network
-        run: docker network connect example tpsds --alias tpsds.example.com
-
       - name: Set up TPS container
         run: |
-          tests/bin/runner-init.sh tps
-        env:
-          HOSTNAME: tps.example.com
-
-      - name: Connect TPS container to network
-        run: docker network connect example tps --alias tps.example.com
+          tests/bin/runner-init.sh \
+              --hostname=tps.example.com \
+              --network=example \
+              --network-alias=tps.example.com \
+              tps
 
       - name: Install TPS in TPS container
         run: |
@@ -233,18 +225,35 @@ jobs:
           docker exec tps pki -n caadmin --ignore-banner \
               tps-user-show tpsadmin
 
-      - name: Gather artifacts from CA containers
-        if: always()
+      - name: Check TPS users
         run: |
-          tests/bin/ds-artifacts-save.sh cads
-          tests/bin/pki-artifacts-save.sh ca
-          tests/bin/ds-artifacts-save.sh krads
-          tests/bin/pki-artifacts-save.sh kra
-          tests/bin/ds-artifacts-save.sh tksds
-          tests/bin/pki-artifacts-save.sh tks
-          tests/bin/ds-artifacts-save.sh tpsds
-          tests/bin/pki-artifacts-save.sh tps
-        continue-on-error: true
+          docker exec tps pki-server tps-user-find
+
+      - name: Check connectors in TPS
+        run: |
+          docker exec tps pki-server tps-connector-find | tee output
+
+          cat > expected << EOF
+            Connector ID: ca1
+            Type: CA
+            Enabled: true
+            URL: https://ca.example.com:8443
+            Nickname: subsystem
+
+            Connector ID: kra1
+            Type: KRA
+            Enabled: true
+            URL: https://kra.example.com:8443
+            Nickname: subsystem
+
+            Connector ID: tks1
+            Type: TKS
+            Enabled: true
+            URL: https://tks.example.com:8443
+            Nickname: subsystem
+          EOF
+
+          diff expected output
 
       - name: Remove TPS
         run: docker exec tps pkidestroy -s TPS -v
@@ -273,6 +282,11 @@ jobs:
         run: |
           docker exec ca journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
 
+      - name: Check CA access log
+        if: always()
+        run: |
+          docker exec ca find /var/lib/pki/pki-tomcat/logs -name "localhost_access_log.*" -exec cat {} \;
+
       - name: Check CA debug log
         if: always()
         run: |
@@ -292,6 +306,11 @@ jobs:
         if: always()
         run: |
           docker exec kra journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check KRA access log
+        if: always()
+        run: |
+          docker exec kra find /var/lib/pki/pki-tomcat/logs -name "localhost_access_log.*" -exec cat {} \;
 
       - name: Check KRA debug log
         if: always()
@@ -313,6 +332,11 @@ jobs:
         run: |
           docker exec tks journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
 
+      - name: Check TKS access log
+        if: always()
+        run: |
+          docker exec tks find /var/lib/pki/pki-tomcat/logs -name "localhost_access_log.*" -exec cat {} \;
+
       - name: Check TKS debug log
         if: always()
         run: |
@@ -333,14 +357,12 @@ jobs:
         run: |
           docker exec tps journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
 
+      - name: Check TPS access log
+        if: always()
+        run: |
+          docker exec tps find /var/lib/pki/pki-tomcat/logs -name "localhost_access_log.*" -exec cat {} \;
+
       - name: Check TPS debug log
         if: always()
         run: |
           docker exec tps find /var/lib/pki/pki-tomcat/logs/tps -name "debug.*" -exec cat {} \;
-
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: tps-separate
-          path: /tmp/artifacts

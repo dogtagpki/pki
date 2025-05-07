@@ -2780,6 +2780,59 @@ class TPSSubsystem(PKISubsystem):
     def __init__(self, instance):
         super().__init__(instance, 'tps')
 
+    def get_connector_ids(self):
+
+        connector_ids = self.config.get('target.Subsystem_Connections.list', '').split(',')
+
+        # if first ID is not empty, return all IDs
+        if len(connector_ids) > 0 and connector_ids[0]:
+            return sorted(connector_ids)
+
+        # otherwise, return empty list
+        return []
+
+    def get_connectors(self):
+
+        connectors = []
+
+        for connector_id in self.get_connector_ids():
+            connector = self.get_connector(connector_id)
+            connectors.append(connector)
+
+        return connectors
+
+    def get_connector(self, connector_id):
+
+        connector = {}
+
+        connector['id'] = connector_id
+
+        # determine connector type based on URI params
+        if self.config.get('tps.connector.%s.uri.enrollment' % connector_id):
+            connector['type'] = 'CA'
+
+        elif self.config.get('tps.connector.%s.uri.GenerateKeyPair' % connector_id):
+            connector['type'] = 'KRA'
+
+        elif self.config.get('tps.connector.%s.uri.computeRandomData' % connector_id):
+            connector['type'] = 'TKS'
+
+        else:
+            connector['type'] = None
+
+        connector['enabled'] = self.config.get('tps.connector.%s.enable' % connector_id)
+
+        host = self.config.get('tps.connector.%s.host' % connector_id)
+        port = self.config.get('tps.connector.%s.port' % connector_id)
+        connector['url'] = 'https://{}:{}'.format(host, port)
+
+        connector['minConns'] = self.config.get('tps.connector.%s.minHttpConns' % connector_id)
+        connector['maxConns'] = self.config.get('tps.connector.%s.maxHttpConns' % connector_id)
+        connector['nickname'] = self.config.get('tps.connector.%s.nickName' % connector_id)
+        connector['timeout'] = self.config.get('tps.connector.%s.timeout' % connector_id)
+
+        return connector
+
 
 class ACMESubsystem(PKISubsystem):
 

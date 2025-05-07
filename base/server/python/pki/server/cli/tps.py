@@ -19,12 +19,14 @@
 #
 
 import argparse
+import inspect
 import io
 import logging
 import os
 import shutil
 import sys
 import tempfile
+import textwrap
 
 import pki.cli
 import pki.server.cli.audit
@@ -48,6 +50,7 @@ class TPSCLI(pki.cli.CLI):
         self.add_module(pki.server.cli.subsystem.SubsystemRedeployCLI(self))
         self.add_module(pki.server.cli.audit.AuditCLI(self))
         self.add_module(TPSCloneCLI())
+        self.add_module(TPSConnectorCLI())
         self.add_module(pki.server.cli.config.SubsystemConfigCLI(self))
         self.add_module(pki.server.cli.db.SubsystemDBCLI(self))
         self.add_module(pki.server.cli.group.GroupCLI(self))
@@ -183,3 +186,130 @@ class TPSClonePrepareCLI(pki.cli.CLI):
 
         finally:
             shutil.rmtree(tmpdir)
+
+
+class TPSConnectorCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super().__init__('connector', 'TPS connector management commands')
+
+        self.add_module(TPSConnectorFindCLI())
+
+    @staticmethod
+    def print_connector(connector, show_all=False):
+
+        connector_id = connector.get('id')
+        print('  Connector ID: {}'.format(connector_id))
+
+        connector_type = connector.get('type')
+        print('  Type: {}'.format(connector_type))
+
+        enabled = connector.get('enabled')
+        print('  Enabled: {}'.format(enabled))
+
+        url = connector.get('url')
+        print('  URL: {}'.format(url))
+
+        nickname = connector.get('nickname')
+        print('  Nickname: {}'.format(nickname))
+
+        if not show_all:
+            return
+
+        minConns = connector.get('minConns')
+        if minConns:
+            print('  Min connections: {}'.format(minConns))
+
+        maxConns = connector.get('maxConns')
+        if maxConns:
+            print('  Max connections: {}'.format(maxConns))
+
+        timeout = connector.get('timeout')
+        if timeout:
+            print('  Timeout: {}'.format(timeout))
+
+
+class TPSConnectorFindCLI(pki.cli.CLI):
+    '''
+    Find TPS connectors
+    '''
+
+    help = '''\
+        Usage: pki-server tps-connector-find [OPTIONS]
+
+          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+              --show-all                     Show all attributes.
+          -v, --verbose                      Run in verbose mode.
+              --debug                        Run in debug mode.
+              --help                         Show help message.
+    '''  # noqa: E501
+
+    def __init__(self):
+        super().__init__('find', inspect.cleandoc(self.__class__.__doc__))
+
+    def create_parser(self, subparsers=None):
+
+        self.parser = argparse.ArgumentParser(
+            self.get_full_name(),
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '--show-all',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
+    def print_help(self):
+        print(textwrap.dedent(self.__class__.help))
+
+    def execute(self, argv, args=None):
+
+        if not args:
+            args = self.parser.parse_args(args=argv)
+
+        if args.help:
+            self.print_help()
+            return
+
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
+
+        instance = pki.server.PKIServerFactory.create(instance_name)
+        if not instance.exists():
+            logger.error('Invalid instance: %s', instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        subsystem = instance.get_subsystem('tps')
+
+        if not subsystem:
+            logger.error('No TPS subsystem in instance %s', instance_name)
+            sys.exit(1)
+
+        first = True
+
+        for connector in subsystem.get_connectors():
+
+            if first:
+                first = False
+            else:
+                print()
+
+            TPSConnectorCLI.print_connector(connector, args.show_all)
