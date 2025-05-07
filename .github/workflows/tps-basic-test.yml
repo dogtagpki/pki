@@ -266,6 +266,32 @@ jobs:
               --pkcs12-password Secret.123
           docker exec pki pki -n caadmin tps-user-show tpsadmin
 
+      - name: Check connectors in TPS
+        run: |
+          docker exec pki pki-server tps-connector-find | tee output
+
+          cat > expected << EOF
+            Connector ID: ca1
+            Type: CA
+            Enabled: true
+            URL: https://pki.example.com:8443
+            Nickname: subsystem
+
+            Connector ID: kra1
+            Type: KRA
+            Enabled: true
+            URL: https://pki.example.com:8443
+            Nickname: subsystem
+
+            Connector ID: tks1
+            Type: TKS
+            Enabled: true
+            URL: https://pki.example.com:8443
+            Nickname: subsystem
+          EOF
+
+          diff expected output
+
       - name: Set up TPS authentication and misc cfg settings
         run: |
           # import sample TPS users
