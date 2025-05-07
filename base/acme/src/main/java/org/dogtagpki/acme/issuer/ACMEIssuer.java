@@ -8,13 +8,12 @@ package org.dogtagpki.acme.issuer;
 import java.math.BigInteger;
 import java.security.cert.X509Certificate;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.NotImplementedException;
 import org.dogtagpki.acme.ACMEError;
+import org.dogtagpki.acme.ACMEException;
 import org.dogtagpki.acme.ACMERevocation;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 
@@ -105,14 +104,11 @@ public class ACMEIssuer {
      */
     public void revokeCertificate(ACMERevocation revocation) throws Exception {
 
-        ResponseBuilder builder = Response.status(Response.Status.NOT_IMPLEMENTED);
-        builder.type("application/problem+json");
 
         ACMEError error = new ACMEError();
         error.setType("urn:ietf:params:acme:error:unsupported");
         error.setDetail("Certificate revocation not supported");
-        builder.entity(error);
 
-        throw new WebApplicationException(builder.build());
+        throw new ACMEException(HttpServletResponse.SC_NOT_IMPLEMENTED, error);
     }
 }

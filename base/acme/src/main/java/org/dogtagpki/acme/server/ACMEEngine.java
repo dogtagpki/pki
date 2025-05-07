@@ -29,9 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.NotImplementedException;
@@ -40,6 +38,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.acme.ACMEAccount;
 import org.dogtagpki.acme.ACMEAuthorization;
 import org.dogtagpki.acme.ACMEError;
+import org.dogtagpki.acme.ACMEException;
 import org.dogtagpki.acme.ACMEIdentifier;
 import org.dogtagpki.acme.ACMEMetadata;
 import org.dogtagpki.acme.ACMENonce;
@@ -66,17 +65,16 @@ import com.netscape.cms.realm.RealmCommon;
 import com.netscape.cms.realm.RealmConfig;
 import com.netscape.cms.tomcat.ProxyRealm;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * @author Endi S. Dewata
  */
-public class ACMEEngine {
+public class ACMEEngine extends CMSEngine {
 
     public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ACMEEngine.class);
 
     public static ACMEEngine INSTANCE;
-
-    private String id;
 
     private ACMEEngineConfig config;
     private ACMEPolicy policy;
@@ -108,15 +106,8 @@ public class ACMEEngine {
     }
 
     public ACMEEngine() {
+        super("ACME");
         INSTANCE = this;
-    }
-
-    public String getID() {
-        return id;
-    }
-
-    public void setID(String id) {
-        this.id = id;
     }
 
     /**
@@ -493,10 +484,14 @@ public class ACMEEngine {
         logger.info("ACME engine started");
     }
 
-    public void shutdownDatabase() throws Exception {
+    public void shutdownDatabase() {
         if (database == null) return;
 
-        database.close();
+        try {
+            database.close();
+        } catch (Exception e) {
+            logger.error("Error closing the database", e);
+        }
         database = null;
     }
 
@@ -650,16 +645,13 @@ public class ACMEEngine {
             publicKey = keyFactory.generatePublic(keySpec);
 
         } else {
-            ResponseBuilder builder = Response.status(Response.Status.BAD_REQUEST);
-            builder.type("application/problem+json");
 
             ACMEError error = new ACMEError();
             error.setType("urn:ietf:params:acme:error:badSignatureAlgorithm");
             error.setDetail("Signature of type " + alg + " not supported\n" +
                     "Try again with RS256.");
-            builder.entity(error);
 
-            throw new WebApplicationException(builder.build());
+            throw new ACMEException(HttpServletResponse.SC_BAD_REQUEST, error);
         }
 
         validateJWS(jws, signer, publicKey);
@@ -723,15 +715,12 @@ public class ACMEEngine {
 
             logger.info("Invalid account: " + accountID);
 
-            ResponseBuilder builder = Response.status(Response.Status.UNAUTHORIZED);
-            builder.type("application/problem+json");
-
             ACMEError error = new ACMEError();
             error.setType("urn:ietf:params:acme:error:unauthorized");
             error.setDetail("Invalid account: " + accountID);
-            builder.entity(error);
 
-            throw new WebApplicationException(builder.build());
+            throw new ACMEException(HttpServletResponse.SC_UNAUTHORIZED, error);
+
         }
     }
 
@@ -739,29 +728,22 @@ public class ACMEEngine {
 
         logger.info("Account does not exist: " + accountID);
 
-        ResponseBuilder builder = Response.status(Response.Status.BAD_REQUEST);
-        builder.type("application/problem+json");
-
         ACMEError error = new ACMEError();
         error.setType("urn:ietf:params:acme:error:accountDoesNotExist");
         error.setDetail("Account does not exist on the server: " + accountID + "\n" +
                 "Remove the account from the client, for example:\n" +
                 "$ rm -rf /etc/letsencrypt/accounts/<ACME server>");
-        builder.entity(error);
 
-        return new WebApplicationException(builder.build());
+        throw new ACMEException(HttpServletResponse.SC_BAD_REQUEST, error);
     }
 
     public Exception createMalformedException(String desc) {
-        ResponseBuilder builder = Response.status(Response.Status.BAD_REQUEST);
-        builder.type("application/problem+json");
 
         ACMEError error = new ACMEError();
         error.setType("urn:ietf:params:acme:error:malformed");
         error.setDetail("Malformed request: " + desc);
-        builder.entity(error);
 
-        return new WebApplicationException(builder.build());
+        throw new ACMEException(HttpServletResponse.SC_BAD_REQUEST, error);
     }
 
     public void updateAccount(ACMEAccount account) throws Exception {

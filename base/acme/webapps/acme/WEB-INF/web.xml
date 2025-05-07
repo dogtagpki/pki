@@ -11,7 +11,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
     <security-constraint>
         <display-name>Allow somebody with credentials to log in</display-name>
         <web-resource-collection>
-            <url-pattern>/v1/login</url-pattern>
+            <url-pattern>/login</url-pattern>
             <http-method>POST</http-method>
         </web-resource-collection>
         <auth-constraint>
@@ -25,7 +25,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
     <security-constraint>
         <display-name>Allow anybody to get login information</display-name>
         <web-resource-collection>
-            <url-pattern>/v1/login</url-pattern>
+            <url-pattern>/login</url-pattern>
             <http-method-omission>POST</http-method-omission>
         </web-resource-collection>
         <user-data-constraint>
@@ -37,7 +37,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
         <display-name>Allow anybody to log out</display-name>
         <web-resource-collection>
             <web-resource-name>Logout Service</web-resource-name>
-            <url-pattern>/v1/logout</url-pattern>
+            <url-pattern>/logout</url-pattern>
         </web-resource-collection>
         <user-data-constraint>
             <transport-guarantee>CONFIDENTIAL</transport-guarantee>
@@ -47,7 +47,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
     <security-constraint>
         <display-name>Allow administrators to enable ACME services</display-name>
         <web-resource-collection>
-            <url-pattern>/v1/enable</url-pattern>
+            <url-pattern>/enable</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>Administrators</role-name>
@@ -61,7 +61,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
     <security-constraint>
         <display-name>Allow administrators to disable ACME services</display-name>
         <web-resource-collection>
-            <url-pattern>/v1/disable</url-pattern>
+            <url-pattern>/disable</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>Administrators</role-name>

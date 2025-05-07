@@ -5,6 +5,7 @@
 //
 package org.dogtagpki.acme.server;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
@@ -23,7 +24,8 @@ public class ACMEWebListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent event) {
 
-        String path = event.getServletContext().getContextPath();
+        ServletContext servletContext = event.getServletContext();
+        String path = servletContext.getContextPath();
         String id;
 
         if ("".equals(path)) {
@@ -34,7 +36,7 @@ public class ACMEWebListener implements ServletContextListener {
 
         ACMEEngine engine = createEngine();
         engine.setID(id);
-
+        servletContext.setAttribute("engine", engine);
         try {
             engine.start();
 
