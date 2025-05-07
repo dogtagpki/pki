@@ -60,7 +60,7 @@ public abstract class PKIServlet extends HttpServlet {
     public static final int DEFAULT_LONG_CACHE_LIFETIME = 1000;
 
     public enum HttpMethod {
-        GET, POST, PATCH, PUT, DELETE
+        GET, POST, PATCH, PUT, DELETE, HEAD
     }
 
     protected Map<String, Method> webActions;
@@ -105,6 +105,11 @@ public abstract class PKIServlet extends HttpServlet {
     }
 
     @Override
+    protected void doHead(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        doOperation(HttpMethod.HEAD, request, response);
+    }
+
+    @Override
     protected void service(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         String method = req.getMethod();
         if (!method.equals("PATCH")) {
@@ -144,8 +149,9 @@ public abstract class PKIServlet extends HttpServlet {
 
             if (ite.getCause() instanceof PKIException pkie) {
                 response.setStatus(pkie.getCode());
+                response.setContentType(pkie.getSerializedFormat());
                 PrintWriter out = response.getWriter();
-                out.print(pkie.getData().toJSON());
+                out.print(pkie.getSerializedError());
 
             } else {
                 logger.error("Unable to process request: {}", ite.getMessage(), ite);

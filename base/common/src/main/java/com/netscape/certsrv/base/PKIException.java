@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.base;
 
+import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 
@@ -78,6 +79,14 @@ public class PKIException extends RuntimeException {
 
     public void setCode(int code) {
         this.code = code;
+    }
+
+    public String getSerializedFormat() {
+        return MimeType.APPLICATION_JSON;
+    }
+
+    public String getSerializedError() throws IOException {
+        return getData().toJSON();
     }
 
     public Data getData() {

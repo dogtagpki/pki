@@ -28,6 +28,8 @@ public class MimeType {
 
     public static final String APPLICATION_X_PEM_FILE = "application/x-pem-file";
 
+    public static final String APPLICATION_PEM_CERTIFICATE_CHAIN = "application/pem-certificate-chain";
+
     public static final String APPLICATION_FORM_URLENCODED = "application/x-www-form-urlencoded";
 
     private MimeType() {

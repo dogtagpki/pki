@@ -8,13 +8,12 @@ package org.dogtagpki.acme.server;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
 /**
  * @author Endi S. Dewata
  */
-@ApplicationPath("/v1")
+//@ApplicationPath("/v1")
 public class ACMEApplication extends Application {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ACMEApplication.class);
@@ -26,25 +25,25 @@ public class ACMEApplication extends Application {
 
         logger.info("Initializing ACMEApplication");
 
-        classes.add(ACMELoginService.class);
-        classes.add(ACMELogoutService.class);
-        classes.add(ACMEEnableService.class);
-        classes.add(ACMEDisableService.class);
+//        classes.add(ACMELoginService.class);
+//        classes.add(ACMELogoutService.class);
+//        classes.add(ACMEEnableService.class);
+//        classes.add(ACMEDisableService.class);
 
-        classes.add(ACMEDirectoryService.class);
-        classes.add(ACMENewNonceService.class);
-        classes.add(ACMENewAccountService.class);
-        classes.add(ACMENewOrderService.class);
-        classes.add(ACMEAuthorizationService.class);
-        classes.add(ACMEChallengeService.class);
-        classes.add(ACMEFinalizeOrderService.class);
-        classes.add(ACMEOrderService.class);
-        classes.add(ACMECertificateService.class);
-        classes.add(ACMEAccountService.class);
-        classes.add(ACMEAccountOrdersService.class);
-        classes.add(ACMERevokeCertificateService.class);
+//        classes.add(ACMEDirectoryService.class);
+//        classes.add(ACMENewNonceService.class);
+//        classes.add(ACMENewAccountService.class);
+//        classes.add(ACMENewOrderService.class);
+//        classes.add(ACMEAuthorizationService.class);
+//        classes.add(ACMEChallengeService.class);
+//        classes.add(ACMEFinalizeOrderService.class);
+//        classes.add(ACMEOrderService.class);
+//        classes.add(ACMECertificateService.class);
+//        classes.add(ACMEAccountService.class);
+//        classes.add(ACMEAccountOrdersService.class);
+//        classes.add(ACMERevokeCertificateService.class);
 
-        singletons.add(new ACMERequestFilter());
+//        singletons.add(new ACMERequestFilter());
     }
 
     @Override
