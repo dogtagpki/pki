@@ -10,7 +10,7 @@ link:https://github.com/dogtagpki/pki/wiki/PKI-Server-Create-CLI[here]).
 
 Create the _EST subsystem_ inside the pki server instance:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 # pki-server est-create
 ....
@@ -26,7 +26,7 @@ Configure the issuance backend. The class `org.dogtagpki.est.DogtagRABackend` is
 
 * The enrollment _profile_.
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 # cat >/var/lib/pki/pki-tomcat/conf/est/backend.conf <<EOF
 class=org.dogtagpki.est.DogtagRABackend
@@ -49,7 +49,7 @@ An example on how to get the certificate and configure EST with TLS mutual confi
 Configure request authorization. The class `org.dogtagpki.est.ExternalProcessRequestAuthorizer` allows to delegate the authorization to an external process configured with the
 parameter *executable*:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 # cat >/var/lib/pki/pki-tomcat/conf/est/authorizer.conf <<EOF
 class=org.dogtagpki.est.ExternalProcessRequestAuthorizer
@@ -62,14 +62,14 @@ more sophisticated authorization framework has to be adopted.
 
 Deploy the EST application:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 # pki-server est-deploy
 ....
 
 Configure the authentication. The authentication allows one to use realms from _Tomcat_ or developed for dogtag. As an example we use an in memory realm:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 # cat >/var/lib/pki/pki-tomcat/conf/est/realm.conf <<EOF
 class=com.netscape.cms.realm.PKIInMemoryRealm
@@ -81,7 +81,7 @@ EOF
 
 Finally, restart the server:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 # pki-server restart --wait
 ....

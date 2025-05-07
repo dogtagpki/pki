@@ -26,7 +26,7 @@ A sample deployment configuration is available at xref:../../../base/server/exam
 
 . Execute the following command:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pkispawn -f kra-standalone-step1.cfg -s KRA
 ....
@@ -55,14 +55,14 @@ Use the CSRs to obtain KRA certificates by submitting the CSRs to an external CA
 
 . Prepare another file, for example `kra-standalone-step2.cfg`, that contains the second deployment configuration. The file can be created from the first file, that is `kra-standalone-step1.cfg`, with the following changes:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 pki_external_step_two=True
 ....
 
 . Specify the certificate files with the following parameters:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 pki_storage_cert_path=kra_storage.crt
 pki_transport_cert_path=kra_transport.crt
@@ -76,7 +76,7 @@ Each certificate file can contain either a single PEM certificate or a PKCS #7 c
 
 . Specify the CA certificate chain with the following parameters:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 pki_cert_chain_nickname=ca_signing
 pki_cert_chain_path=ca_signing.crt
@@ -88,7 +88,7 @@ A sample deployment configuration is available at xref:../../../base/server/exam
 
 . Execute the following command:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pkispawn -f kra-standalone-step2.cfg -s KRA
 ....
@@ -97,14 +97,14 @@ $ pkispawn -f kra-standalone-step2.cfg -s KRA
 
 . Import the CA signing certificate:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki nss-cert-import --cert ca_signing.crt -trust CT,C,C ca_signing
 ....
 
 . Import admin certificate and key into the client NSS database (by default ~/.dogtag/nssdb) with the following command:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki pkcs12-import \
     --pkcs12 kra_admin_cert.p12 \
@@ -113,7 +113,7 @@ $ pki pkcs12-import \
 
 . Verify that the admin certificate can be used to access the KRA subsystem by executing the following command:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki -n kraadmin kra-user-show kraadmin
 ---------------

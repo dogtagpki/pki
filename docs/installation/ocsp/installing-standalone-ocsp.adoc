@@ -23,7 +23,7 @@ A sample deployment configuration is available at xref:../../../base/server/exam
 
 . Execute the following command:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pkispawn -f ocsp-standalone-step1.cfg -s OCSP
 ....
@@ -50,14 +50,14 @@ Use the CSRs to obtain OCSP certificates by submitting the CSRs to an external C
 
 . Prepare another file, for example `ocsp-standalone-step2.cfg`, that contains the second deployment configuration. The file can be created from the first file, that is `ocsp-standalone-step1.cfg`, with the following changes:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 pki_external_step_two=True
 ....
 
 . Specify the certificate files with the following parameters:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 pki_ocsp_signing_cert_path=ocsp_signing.crt
 pki_subsystem_cert_path=subsystem.crt
@@ -70,7 +70,7 @@ Each certificate file can contain either a single PEM certificate or a PKCS #7 c
 
 . Specify the CA certificate chain with the following parameters:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 pki_cert_chain_nickname=ca_signing
 pki_cert_chain_path=ca_signing.crt
@@ -82,7 +82,7 @@ A sample deployment configuration is available at xref:../../../base/server/exam
 
 . Execute the following command:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pkispawn -f ocsp-standalone-step2.cfg -s OCSP
 ....
@@ -91,14 +91,14 @@ $ pkispawn -f ocsp-standalone-step2.cfg -s OCSP
 
 . Import the CA signing certificate:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki nss-cert-import --cert ca_signing.crt -trust CT,C,C ca_signing
 ....
 
 . Import admin certificate and key into the client NSS database (by default ~/.dogtag/nssdb) with the following command:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki pkcs12-import \
     --pkcs12 ocsp_admin_cert.p12 \
@@ -107,7 +107,7 @@ $ pki pkcs12-import \
 
 . Verify that the admin certificate can be used to access the OCSP subsystem by executing the following command:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki -n ocspadmin ocsp-user-show ocspadmin
 ----------------
