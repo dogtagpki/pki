@@ -832,9 +832,15 @@ class PKIDeployer:
                 force=True)
 
             # Merge temporary CS.cfg into /var/lib/pki/<instance>/conf/<subsystem>/CS.cfg
-            # to preserve params in existing CS.cfg
+            # without overwriting existing params
 
-            pki.util.load_properties(tmp_cs_cfg, subsystem.config)
+            tmp_config = {}
+            pki.util.load_properties(tmp_cs_cfg, tmp_config)
+
+            for key, value in tmp_config.items():
+                if key not in subsystem.config:
+                    subsystem.config[key] = value
+
             self.instance.store_properties(subsystem.cs_conf, subsystem.config)
 
         finally:

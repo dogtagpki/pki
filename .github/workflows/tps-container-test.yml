@@ -558,6 +558,37 @@ jobs:
               tks-user-show \
               admin
 
+      - name: Import KRA transport cert into TKS
+        run: |
+          docker cp kra/certs/kra_transport.crt tks:.
+
+          # import KRA transport cert
+          docker exec tks pki-server cert-import \
+              --input kra_transport.crt \
+              --nickname kra_transport
+
+          # configure TKS to use KRA transport cert
+          docker exec tks pki-server tks-config-set \
+              tks.drm_transport_cert_nickname \
+              kra_transport
+
+      - name: Restart TKS
+        run: |
+          docker restart tks
+          sleep 10
+
+          docker network reload --all
+
+          # wait for TKS to restart
+          docker exec client curl \
+              --retry 180 \
+              --retry-delay 0 \
+              --retry-connrefused \
+              -s \
+              -k \
+              -o /dev/null \
+              https://tks.example.com:8443
+
       - name: Create TPS subsystem cert
         run: |
           docker exec client pki nss-cert-request \

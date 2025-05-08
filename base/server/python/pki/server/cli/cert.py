@@ -777,7 +777,7 @@ class CertImportCLI(pki.cli.CLI):
     '''
 
     help = '''\
-        Usage: pki-server cert-import [OPTIONS] <Cert ID>
+        Usage: pki-server cert-import [OPTIONS] [Cert ID]
 
           -i, --instance <instance ID>    Instance ID (default: pki-tomcat)
               --token <name>              Token to store the certificate
@@ -820,7 +820,7 @@ class CertImportCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('cert_id')
+        self.parser.add_argument('cert_id', nargs='?')
 
     def print_help(self):
         print(textwrap.dedent(self.__class__.help))
