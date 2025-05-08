@@ -6,7 +6,6 @@ javac(pki-acme-classes
     CLASSPATH
         ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR}
         ${JAXB_API_JAR}
-        ${JAXRS_API_JAR}
         ${SLF4J_API_JAR}
         ${COMMONS_CODEC_JAR} ${COMMONS_IO_JAR} ${COMMONS_LANG3_JAR}
         ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
@@ -62,7 +61,6 @@ add_custom_command(
     COMMAND ln -sf ../../../../../lib/slf4j-jdk14.jar webapp/lib/slf4j-jdk14.jar
     COMMAND ln -sf ../../../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-server.jar webapp/lib/pki-server.jar
     COMMAND ln -sf ../../../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-acme.jar webapp/lib/pki-acme.jar
-    COMMAND ln -sf ../../../../../server/common/lib/resteasy-servlet-initializer.jar webapp/lib/resteasy-servlet-initializer.jar
 )
 
 if(WITH_JAVA)

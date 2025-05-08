@@ -152,7 +152,6 @@ public abstract class PKIServlet extends HttpServlet {
                 response.setContentType(pkie.getSerializedFormat());
                 PrintWriter out = response.getWriter();
                 out.print(pkie.getSerializedError());
-
             } else {
                 logger.error("Unable to process request: {}", ite.getMessage(), ite);
                 response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ite.getCause().getMessage());
