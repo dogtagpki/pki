@@ -1424,71 +1424,7 @@ class PKIDeployer:
                 url=urllib.parse.urlparse(self.mdict['pki_kra_uri']),
                 nickname=fullname)
 
-        if keygen:
-            # TODO: see if there are other profiles need to be configured
-            subsystem.set_config(
-                'op.enroll.delegateIEtoken.keyGen.encryption.serverKeygen.enable',
-                'true')
-            subsystem.set_config(
-                'op.enroll.delegateISEtoken.keyGen.encryption.serverKeygen.enable',
-                'true')
-            subsystem.set_config(
-                'op.enroll.externalRegAddToToken.keyGen.encryption.serverKeygen.enable',
-                'true')
-            subsystem.set_config(
-                'op.enroll.soKey.keyGen.encryption.serverKeygen.enable',
-                'true')
-            subsystem.set_config(
-                'op.enroll.soKeyTemporary.keyGen.encryption.serverKeygen.enable',
-                'true')
-            subsystem.set_config(
-                'op.enroll.userKey.keyGen.encryption.serverKeygen.enable',
-                'true')
-            subsystem.set_config(
-                'op.enroll.userKeyTemporary.keyGen.encryption.serverKeygen.enable',
-                'true')
-
-        else:
-            # TODO: see if there are other profiles need to be configured
-            subsystem.set_config(
-                'op.enroll.delegateIEtoken.keyGen.encryption.serverKeygen.enable',
-                'false')
-
-            subsystem.set_config(
-                'op.enroll.delegateISEtoken.keyGen.encryption.serverKeygen.enable',
-                'false')
-
-            subsystem.set_config(
-                'op.enroll.externalRegAddToToken.keyGen.encryption.serverKeygen.enable',
-                'false')
-
-            subsystem.set_config(
-                'op.enroll.soKey.keyGen.encryption.serverKeygen.enable',
-                'false')
-            subsystem.set_config(
-                'op.enroll.soKey.keyGen.encryption.recovery.destroyed.scheme',
-                'GenerateNewKey')
-
-            subsystem.set_config(
-                'op.enroll.soKeyTemporary.keyGen.encryption.serverKeygen.enable',
-                'false')
-            subsystem.set_config(
-                'op.enroll.soKeyTemporary.keyGen.encryption.recovery.onHold.scheme',
-                'GenerateNewKey')
-
-            subsystem.set_config(
-                'op.enroll.userKey.keyGen.encryption.serverKeygen.enable',
-                'false')
-            subsystem.set_config(
-                'op.enroll.userKey.keyGen.encryption.recovery.destroyed.scheme',
-                'GenerateNewKey')
-
-            subsystem.set_config(
-                'op.enroll.userKeyTemporary.keyGen.encryption.serverKeygen.enable',
-                'false')
-            subsystem.set_config(
-                'op.enroll.userKeyTemporary.keyGen.encryption.recovery.onHold.scheme',
-                'GenerateNewKey')
+        subsystem.update_profiles(keygen)
 
     def configure_internal_database(self, subsystem):
 

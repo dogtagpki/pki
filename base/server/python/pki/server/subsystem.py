@@ -2987,6 +2987,57 @@ class TPSSubsystem(PKISubsystem):
 
         self.set_config('target.Subsystem_Connections.list', ','.join(cons))
 
+    def update_profiles(self, keygen):
+
+        if keygen:
+            enable = 'true'
+            scheme = 'RecoverLast'
+        else:
+            enable = 'false'
+            scheme = 'GenerateNewKey'
+
+        # TODO: see if there are other profiles to configure
+
+        self.set_config(
+            'op.enroll.delegateIEtoken.keyGen.encryption.serverKeygen.enable',
+            enable)
+
+        self.set_config(
+            'op.enroll.delegateISEtoken.keyGen.encryption.serverKeygen.enable',
+            enable)
+
+        self.set_config(
+            'op.enroll.externalRegAddToToken.keyGen.encryption.serverKeygen.enable',
+            enable)
+
+        self.set_config(
+            'op.enroll.soKey.keyGen.encryption.serverKeygen.enable',
+            enable)
+        self.set_config(
+            'op.enroll.soKey.keyGen.encryption.recovery.destroyed.scheme',
+            scheme)
+
+        self.set_config(
+            'op.enroll.soKeyTemporary.keyGen.encryption.serverKeygen.enable',
+            enable)
+        self.set_config(
+            'op.enroll.soKeyTemporary.keyGen.encryption.recovery.onHold.scheme',
+            scheme)
+
+        self.set_config(
+            'op.enroll.userKey.keyGen.encryption.serverKeygen.enable',
+            enable)
+        self.set_config(
+            'op.enroll.userKey.keyGen.encryption.recovery.destroyed.scheme',
+            scheme)
+
+        self.set_config(
+            'op.enroll.userKeyTemporary.keyGen.encryption.serverKeygen.enable',
+            enable)
+        self.set_config(
+            'op.enroll.userKeyTemporary.keyGen.encryption.recovery.onHold.scheme',
+            scheme)
+
 
 class ACMESubsystem(PKISubsystem):
 
