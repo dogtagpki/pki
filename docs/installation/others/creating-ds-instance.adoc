@@ -21,14 +21,14 @@ _If you wish to disable bootstrap certificate generation and SSL connection, set
 
 === Generating a DS configuration file, for example `ds.inf`: 
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ dscreate create-template ds.inf
 ....
 
 Customize the DS configuration file as follows:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ sed -i \
     -e "s/;instance_name = .*/instance_name = localhost/g" \
@@ -55,7 +55,7 @@ For more information see the parameter descriptions in the DS configuration file
 
 Finally, create the instance:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ dscreate from-file ds.inf
 ....
@@ -64,7 +64,7 @@ $ dscreate from-file ds.inf
 
 Initially the DS instance is empty. Use an LDAP client to add a root entry and PKI base entry, for example:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ ldapadd -H ldap://$HOSTNAME -x -D "cn=Directory Manager" -w Secret.123 << EOF
 dn: dc=pki,dc=example,dc=com
@@ -75,7 +75,7 @@ EOF
 
 The subtree for each PKI subsystem is created when the subsystem is installed. When all PKI subsystems are created, the LDAP tree looks like the following:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 dc=example,dc=com
 + dc=pki
@@ -103,7 +103,7 @@ See link:https://github.com/dogtagpki/389-ds-base/wiki/Configuring-DS-Replicatio
 
 To remove DS instance:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ dsctl localhost remove --do-it
 ....
