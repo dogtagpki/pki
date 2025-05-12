@@ -38,6 +38,7 @@ class CLI(object):
 
         self.modules = collections.OrderedDict()
         self.parser = None
+        self.extra_commands = None
 
     def get_full_name(self):
         if self.parent:
@@ -67,14 +68,20 @@ class CLI(object):
     def print_help(self):
 
         print('Commands:')
+        commands = {}
+
+        if self.extra_commands:
+            commands = self.extra_commands.copy()
 
         for module in itervalues(self.modules):
 
             if module.deprecated:
                 continue
 
-            full_name = module.get_full_name()
-            print(' {:32}{:30}'.format(full_name, module.description))
+            commands[module.get_full_name()] = module.description
+
+        for command, description in commands.items():
+            print(' {:32}{:30}'.format(command, description))
 
         first = True
 

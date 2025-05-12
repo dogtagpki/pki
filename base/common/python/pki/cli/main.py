@@ -35,6 +35,23 @@ logger = logging.getLogger(__name__)
 
 PYTHON_COMMANDS = ['password-generate', 'pkcs12-import']
 
+JAVA_COMMANDS = {
+    'help': 'Show help messages',
+    'client': 'Client management commands',
+    'nss': 'NSS management commands',
+    'info': 'Display server info',
+    'securitydomain': 'Security domain commands',
+    'acme': 'ACME management commands',
+    'ca': 'CA management commands',
+    'kra': 'KRA management commands',
+    'ocsp': 'OCSP management commands',
+    'tks': 'TKS management commands',
+    'tps': 'TPS management commands',
+    'pkcs7': 'PKCS #7 utilities',
+    'pkcs11': 'PKCS #11 utilities',
+    'pkcs12': 'PKCS #12 utilities'
+}
+
 
 class PKICLI(pki.cli.CLI):
 
@@ -71,6 +88,8 @@ class PKICLI(pki.cli.CLI):
 
         self.add_module(pki.cli.password.PasswordCLI())
         self.add_module(pki.cli.pkcs12.PKCS12CLI())
+
+        self.extra_commands = JAVA_COMMANDS.copy()
 
     def create_parser(self, subparsers=None):
 
