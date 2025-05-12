@@ -225,6 +225,21 @@ jobs:
           docker exec tps pki -n caadmin --ignore-banner \
               tps-user-show tpsadmin
 
+      - name: Check TPS subsystem user in CA
+        run: |
+          docker exec ca pki-server ca-user-show TPS-tps.example.com-8443
+          docker exec ca pki-server ca-user-role-find TPS-tps.example.com-8443
+
+      - name: Check TPS subsystem user in KRA
+        run: |
+          docker exec kra pki-server kra-user-show TPS-tps.example.com-8443
+          docker exec kra pki-server kra-user-role-find TPS-tps.example.com-8443
+
+      - name: Check TPS subsystem user in TKS
+        run: |
+          docker exec tks pki-server tks-user-show TPS-tps.example.com-8443
+          docker exec tks pki-server tks-user-role-find TPS-tps.example.com-8443
+
       - name: Check TPS users
         run: |
           docker exec tps pki-server tps-user-find
