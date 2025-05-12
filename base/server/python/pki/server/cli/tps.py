@@ -27,6 +27,7 @@ import shutil
 import sys
 import tempfile
 import textwrap
+import urllib.parse
 
 import pki.cli
 import pki.server.cli.audit
@@ -194,6 +195,7 @@ class TPSConnectorCLI(pki.cli.CLI):
         super().__init__('connector', 'TPS connector management commands')
 
         self.add_module(TPSConnectorFindCLI())
+        self.add_module(TPSConnectorAddCLI())
 
     @staticmethod
     def print_connector(connector, show_all=False):
@@ -313,3 +315,93 @@ class TPSConnectorFindCLI(pki.cli.CLI):
                 print()
 
             TPSConnectorCLI.print_connector(connector, args.show_all)
+
+
+class TPSConnectorAddCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super().__init__('add', 'Add TPS connector')
+
+    def create_parser(self, subparsers=None):
+
+        self.parser = argparse.ArgumentParser(
+            self.get_full_name(),
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--type')
+        self.parser.add_argument('--url')
+        self.parser.add_argument('--nickname')
+        self.parser.add_argument(
+            '--keygen',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('connector_id')
+
+    def print_help(self):
+        print('Usage: pki-server tps-connector-add [OPTIONS] <connector ID>')
+        print()
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat)')
+        print('      --type <type>                  Connector type: CA, KRA, TKS')
+        print('      --url <URL>                    Subsystem URL')
+        print('      --nickname <nickname>          Certificate nickname')
+        print('      --keygen                       Enable server-side key generation')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
+        print('      --help                         Show help message.')
+        print()
+
+    def execute(self, argv, args=None):
+
+        if not args:
+            args = self.parser.parse_args(args=argv)
+
+        if args.help:
+            self.print_help()
+            return
+
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
+        connector_id = args.connector_id
+        connector_type = args.type
+        url = urllib.parse.urlparse(args.url)
+        nickname = args.nickname
+        keygen = args.keygen
+
+        instance = pki.server.PKIServerFactory.create(instance_name)
+        if not instance.exists():
+            logger.error('Invalid instance: %s', instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        subsystem = instance.get_subsystem('tps')
+
+        if not subsystem:
+            logger.error('No TPS subsystem in instance %s', instance_name)
+            sys.exit(1)
+
+        subsystem.add_connector(
+            connector_id=connector_id,
+            connector_type=connector_type,
+            url=url,
+            nickname=nickname,
+            keygen=keygen)
+
+        subsystem.save()

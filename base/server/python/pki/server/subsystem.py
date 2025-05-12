@@ -2818,7 +2818,8 @@ class TPSSubsystem(PKISubsystem):
             connector['type'] = 'TKS'
 
         else:
-            connector['type'] = None
+            # connector doesn't exist
+            return None
 
         connector['enabled'] = self.config.get('tps.connector.%s.enable' % connector_id)
 
@@ -2832,6 +2833,96 @@ class TPSSubsystem(PKISubsystem):
         connector['timeout'] = self.config.get('tps.connector.%s.timeout' % connector_id)
 
         return connector
+
+    def add_connector(
+            self,
+            connector_id,
+            connector_type,
+            url,
+            nickname,
+            minConns=1,
+            maxConns=15,
+            timeout=30,
+            keygen=False):
+
+        self.set_config('tps.connector.%s.enable' % connector_id, 'true')
+        self.set_config('tps.connector.%s.host' % connector_id, url.hostname)
+        self.set_config('tps.connector.%s.port' % connector_id, str(url.port))
+        self.set_config('tps.connector.%s.nickName' % connector_id, nickname)
+
+        self.set_config('tps.connector.%s.minHttpConns' % connector_id, minConns)
+        self.set_config('tps.connector.%s.maxHttpConns' % connector_id, maxConns)
+        self.set_config('tps.connector.%s.timeout' % connector_id, timeout)
+
+        if connector_type == 'CA':
+
+            self.set_config(
+                'tps.connector.%s.uri.enrollment' % connector_id,
+                '/ca/ee/ca/profileSubmitSSLClient')
+            self.set_config(
+                'tps.connector.%s.uri.getcert' % connector_id,
+                '/ca/ee/ca/displayBySerial')
+            self.set_config(
+                'tps.connector.%s.uri.renewal' % connector_id,
+                '/ca/ee/ca/profileSubmitSSLClient')
+            self.set_config(
+                'tps.connector.%s.uri.revoke' % connector_id,
+                '/ca/ee/subsystem/ca/doRevoke')
+            self.set_config(
+                'tps.connector.%s.uri.unrevoke' % connector_id,
+                '/ca/ee/subsystem/ca/doUnrevoke')
+
+        elif connector_type == 'KRA':
+
+            self.set_config(
+                'tps.connector.%s.uri.GenerateKeyPair' % connector_id,
+                '/kra/agent/kra/GenerateKeyPair')
+            self.set_config(
+                'tps.connector.%s.uri.TokenKeyRecovery' % connector_id,
+                '/kra/agent/kra/TokenKeyRecovery')
+
+        elif connector_type == 'TKS':
+
+            self.set_config('tps.connector.%s.generateHostChallenge' % connector_id, 'true')
+            self.set_config('tps.connector.%s.serverKeygen' % connector_id, str(keygen).lower())
+            self.set_config('tps.connector.%s.keySet' % connector_id, 'defKeySet')
+            self.set_config('tps.connector.%s.tksSharedSymKeyName' % connector_id, 'sharedSecret')
+
+            self.set_config(
+                'tps.connector.%s.uri.computeRandomData' % connector_id,
+                '/tks/agent/tks/computeRandomData')
+            self.set_config(
+                'tps.connector.%s.uri.computeSessionKey' % connector_id,
+                '/tks/agent/tks/computeSessionKey')
+            self.set_config(
+                'tps.connector.%s.uri.createKeySetData' % connector_id,
+                '/tks/agent/tks/createKeySetData')
+            self.set_config(
+                'tps.connector.%s.uri.encryptData' % connector_id,
+                '/tks/agent/tks/encryptData')
+
+        else:
+            raise Exception('Invalid connector type: {}'.format(connector_type))
+
+        self.set_config('config.Subsystem_Connections.%s.state' % connector_id, 'Enabled')
+
+        timestamp = round(time.time() * 1000 * 1000)
+        self.set_config('config.Subsystem_Connections.%s.timestamp' % connector_id, timestamp)
+
+        cons = self.config.get('target.Subsystem_Connections.list', '').split(',')
+
+        if len(cons) == 1 and not cons[0]:
+            # drop default blank value
+            cons = [connector_id]
+
+        elif connector_id not in cons:
+            # add new connector
+            cons.append(connector_id)
+
+        else:
+            raise Exception('Connector already exists: {}'.format(connector_id))
+
+        self.set_config('target.Subsystem_Connections.list', ','.join(cons))
 
 
 class ACMESubsystem(PKISubsystem):
