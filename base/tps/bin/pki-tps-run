@@ -137,6 +137,7 @@ OPTIONS+=(-D pki_ca_uri=)
 OPTIONS+=(-D pki_kra_uri=)
 OPTIONS+=(-D pki_tks_uri=)
 OPTIONS+=(-D pki_authdb_url=$PKI_AUTHDB_URL)
+OPTIONS+=(-D pki_authdb_basedn=$PKI_AUTHDB_BASEDN)
 OPTIONS+=(-D pki_enable_server_side_keygen=True)
 
 OPTIONS+=(-D pki_systemd_service_create=False)
