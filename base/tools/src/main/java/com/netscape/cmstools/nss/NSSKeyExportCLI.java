@@ -44,6 +44,10 @@ public class NSSKeyExportCLI extends CommandCLI {
         option.setArgName("path");
         options.addOption(option);
 
+        option = new Option(null, "session-key-size", true, "Session key size (default: 128)");
+        option.setArgName("size");
+        options.addOption(option);
+
         option = new Option(null, "wrapper", true, "Nickname of the wrapper certificate");
         option.setArgName("nickname");
         options.addOption(option);
@@ -64,6 +68,7 @@ public class NSSKeyExportCLI extends CommandCLI {
 
         String nickname = cmdArgs[0];
         String outputFile = cmd.getOptionValue("output");
+        String sessionKeySize = cmd.getOptionValue("session-key-size", "128");
         String wrapperNickname = cmd.getOptionValue("wrapper");
 
         if (wrapperNickname == null) {
@@ -76,7 +81,7 @@ public class NSSKeyExportCLI extends CommandCLI {
         X509Certificate cert = cm.findCertByNickname(wrapperNickname);
         X509CertImpl certImpl = new X509CertImpl(cert.getEncoded());
 
-	SymmetricKey tempKey = CryptoUtil.createAESSessionKeyOnInternal(128);
+	SymmetricKey tempKey = CryptoUtil.createAESSessionKeyOnInternal(Integer.parseInt(sessionKeySize));
 
         boolean useOAEPKeyWrap = cmd.hasOption("useOAEPKeyWrap");
 
