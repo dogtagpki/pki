@@ -60,11 +60,13 @@ import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
+import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.netscape.security.extensions.AccessDescription;
 import org.mozilla.jss.netscape.security.extensions.AuthInfoAccessExtension;
 import org.mozilla.jss.netscape.security.extensions.ExtendedKeyUsageExtension;
@@ -1086,6 +1088,23 @@ public class NSSDatabase {
                 extractable,
                 usages,
                 usagesMask);
+    }
+
+    public SymmetricKey createSymmetricKey(
+            CryptoToken token,
+            KeyGenAlgorithm algorithm,
+            int keySize,
+            SymmetricKey.Usage[] usages,
+            boolean temporary,
+            Boolean sensitive) throws Exception {
+
+        return CryptoUtil.generateKey(
+                token,
+                algorithm,
+                keySize,
+                usages,
+                temporary,
+                sensitive);
     }
 
     public PKCS10 createPKCS10Request(

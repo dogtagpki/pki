@@ -1413,27 +1413,36 @@ public class CryptoUtil {
                 && ((flag & PK11Cert.TRUSTED_CLIENT_CA) > 0);
     }
 
-    public static SymmetricKey generateKey(CryptoToken token, KeyGenAlgorithm alg, int keySize,
-            SymmetricKey.Usage[] usages, boolean temporary) throws Exception {
-        KeyGenerator kg = token.getKeyGenerator(alg);
-        if (usages != null)
-            kg.setKeyUsages(usages);
-        kg.temporaryKeys(temporary);
-        if (alg == KeyGenAlgorithm.AES || alg == KeyGenAlgorithm.RC4
-                || alg == KeyGenAlgorithm.RC2) {
-            kg.initialize(keySize);
-        }
+    public static SymmetricKey generateKey(
+            CryptoToken token,
+            KeyGenAlgorithm alg,
+            int keySize,
+            SymmetricKey.Usage[] usages,
+            boolean temporary) throws Exception {
 
-        return kg.generate();
+        return generateKey(token, alg, keySize, usages, temporary, null);
     }
 
-    public static SymmetricKey generateKey(CryptoToken token, KeyGenAlgorithm alg, int keySize,
-            SymmetricKey.Usage[] usages, boolean temporary, boolean sensitive) throws Exception {
+    public static SymmetricKey generateKey(
+            CryptoToken token,
+            KeyGenAlgorithm alg,
+            int keySize,
+            SymmetricKey.Usage[] usages,
+            boolean temporary,
+            Boolean sensitive) throws Exception {
+
         KeyGenerator kg = token.getKeyGenerator(alg);
-        if (usages != null)
+
+        if (usages != null) {
             kg.setKeyUsages(usages);
-        kg.sensitiveKeys(sensitive);
+        }
+
+        if (sensitive != null) {
+            kg.sensitiveKeys(sensitive);
+        }
+
         kg.temporaryKeys(temporary);
+
         if (alg == KeyGenAlgorithm.AES || alg == KeyGenAlgorithm.RC4
                 || alg == KeyGenAlgorithm.RC2) {
             kg.initialize(keySize);
@@ -2961,6 +2970,12 @@ public class CryptoUtil {
     public static KeyPairGeneratorSpi.Usage[] generateUsage(String usage) {
         return Arrays.stream(usage.toUpperCase().split(",")).map(String::trim)
                 .map(KeyPairGeneratorSpi.Usage::valueOf).toArray(KeyPairGeneratorSpi.Usage[]::new);
+
+    }
+
+    public static SymmetricKey.Usage[] generateSymmetricKeyUsage(String usage) {
+        return Arrays.stream(usage.toUpperCase().split(",")).map(String::trim)
+                .map(SymmetricKey.Usage::valueOf).toArray(SymmetricKey.Usage[]::new);
 
     }
 }

@@ -29,8 +29,7 @@ import org.dogtagpki.util.logging.PKILogger;
 import org.dogtagpki.util.logging.PKILogger.LogLevel;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyGenAlgorithm;
-import org.mozilla.jss.crypto.KeyGenerator;
-import org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage;
+import org.mozilla.jss.crypto.KeyPairGeneratorSpi;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.pkcs11.PK11PrivKey;
@@ -152,16 +151,18 @@ public class NSSKeyCreateCLI extends CommandCLI {
 
         logger.info("Creating " + keyType + " in token " + tokenName);
 
-        Usage[] usages = null;
-        Usage[] usagesMask = null;
-
         if ("RSA".equalsIgnoreCase(keyType)) {
+
             if (keySize == null) keySize = "2048";
+
+            KeyPairGeneratorSpi.Usage[] usages = null;
             if (opFlags != null && !opFlags.isEmpty()) {
                 usages = CryptoUtil.generateUsage(opFlags);
             } else {
                 usages = keyWrap ? CryptoUtil.RSA_KEYPAIR_USAGES : null;
             }
+
+            KeyPairGeneratorSpi.Usage[] usagesMask = null;
             if (opFlagsMask != null && !opFlagsMask.isEmpty()) {
                 usagesMask = CryptoUtil.generateUsage(opFlagsMask);
             } else {
@@ -185,9 +186,13 @@ public class NSSKeyCreateCLI extends CommandCLI {
             keyInfo.setAlgorithm(privateKey.getAlgorithm());
 
         } else if ("EC".equalsIgnoreCase(keyType)) {
+
+            KeyPairGeneratorSpi.Usage[] usages = null;
             if (opFlags != null && !opFlags.isEmpty()) {
                 usages = CryptoUtil.generateUsage(opFlags);
             }
+
+            KeyPairGeneratorSpi.Usage[] usagesMask = null;
             if (opFlagsMask != null && !opFlagsMask.isEmpty()) {
                 usagesMask = CryptoUtil.generateUsage(opFlagsMask);
             } else {
@@ -218,15 +223,19 @@ public class NSSKeyCreateCLI extends CommandCLI {
                 throw new CLIException("Missing key nickname");
             }
 
-            KeyGenerator kg = token.getKeyGenerator(KeyGenAlgorithm.AES);
-            kg.initialize(Integer.parseInt(keySize));
-            kg.temporaryKeys(temporary);
-
-            if (sensitive != null) {
-                kg.sensitiveKeys(sensitive);
+            SymmetricKey.Usage[] usages = null;
+            if (opFlags != null && !opFlags.isEmpty()) {
+                usages = CryptoUtil.generateSymmetricKeyUsage(opFlags);
             }
 
-            SymmetricKey symmetricKey = kg.generate();
+            SymmetricKey symmetricKey = nssdb.createSymmetricKey(
+                    token,
+                    KeyGenAlgorithm.AES,
+                    Integer.parseInt(keySize),
+                    usages,
+                    temporary,
+                    sensitive);
+
             symmetricKey.setNickName(nickname);
 
             keyInfo.setNickname(nickname);
