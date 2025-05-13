@@ -7,14 +7,18 @@ package com.netscape.cmstools.nss;
 
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.dogtagpki.cli.CLIException;
 import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
@@ -52,6 +56,10 @@ public class NSSKeyExportCLI extends CommandCLI {
         option.setArgName("nickname");
         options.addOption(option);
 
+        option = new Option(null, "wrapper-cert", true, "Wrapper certificate file");
+        option.setArgName("path");
+        options.addOption(option);
+
         option = new Option(null,"useOAEPKeyWrap", false, "Use OAEP Key Wrap to wrap exported key");
         options.addOption(option);
     }
@@ -70,16 +78,28 @@ public class NSSKeyExportCLI extends CommandCLI {
         String outputFile = cmd.getOptionValue("output");
         String sessionKeySize = cmd.getOptionValue("session-key-size", "128");
         String wrapperNickname = cmd.getOptionValue("wrapper");
+        String wrapperCert = cmd.getOptionValue("wrapper-cert");
 
-        if (wrapperNickname == null) {
-            printHelp();
-            throw new Exception("Missing wrapper certificate nickname");
+        if (wrapperNickname == null && wrapperCert == null) {
+            throw new CLIException("Missing wrapper certificate nickname or file");
         }
+
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
         CryptoManager cm = CryptoManager.getInstance();
-        X509Certificate cert = cm.findCertByNickname(wrapperNickname);
-        X509CertImpl certImpl = new X509CertImpl(cert.getEncoded());
+
+        byte[] bytes;
+        if (wrapperNickname != null) {
+            // get cert from NSS database
+            X509Certificate cert = cm.findCertByNickname(wrapperNickname);
+            bytes = cert.getEncoded();
+        } else {
+            // get cert from file
+            bytes = Files.readAllBytes(Paths.get(wrapperCert));
+            bytes = Cert.parseCertificate(new String(bytes));
+        }
+
+        X509CertImpl certImpl = new X509CertImpl(bytes);
 
 	SymmetricKey tempKey = CryptoUtil.createAESSessionKeyOnInternal(Integer.parseInt(sessionKeySize));
 
