@@ -19,12 +19,15 @@
 #
 
 import argparse
+import inspect
 import io
 import logging
 import os
 import shutil
 import sys
 import tempfile
+import textwrap
+import urllib.parse
 
 import pki.cli
 import pki.server.cli.audit
@@ -48,6 +51,7 @@ class TKSCLI(pki.cli.CLI):
         self.add_module(pki.server.cli.subsystem.SubsystemRedeployCLI(self))
         self.add_module(pki.server.cli.audit.AuditCLI(self))
         self.add_module(TKSCloneCLI())
+        self.add_module(TKSConnectorCLI())
         self.add_module(pki.server.cli.config.SubsystemConfigCLI(self))
         self.add_module(pki.server.cli.db.SubsystemDBCLI(self))
         self.add_module(pki.server.cli.group.GroupCLI(self))
@@ -184,3 +188,193 @@ class TKSClonePrepareCLI(pki.cli.CLI):
 
         finally:
             shutil.rmtree(tmpdir)
+
+
+class TKSConnectorCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super().__init__('connector', 'TKS connector management commands')
+
+        self.add_module(TKSConnectorFindCLI())
+        self.add_module(TKSConnectorAddCLI())
+
+    @staticmethod
+    def print_connector(connector):
+
+        connector_id = connector.get('id')
+        print('  Connector ID: {}'.format(connector_id))
+
+        url = connector.get('url')
+        print('  URL: {}'.format(url))
+
+        nickname = connector.get('nickname')
+        print('  Nickname: {}'.format(nickname))
+
+        uid = connector.get('uid')
+        print('  User ID: {}'.format(uid))
+
+
+class TKSConnectorFindCLI(pki.cli.CLI):
+    '''
+    Find TKS connectors
+    '''
+
+    help = '''\
+        Usage: pki-server tks-connector-find [OPTIONS]
+
+          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -v, --verbose                      Run in verbose mode.
+              --debug                        Run in debug mode.
+              --help                         Show help message.
+    '''  # noqa: E501
+
+    def __init__(self):
+        super().__init__('find', inspect.cleandoc(self.__class__.__doc__))
+
+    def create_parser(self, subparsers=None):
+
+        self.parser = argparse.ArgumentParser(
+            self.get_full_name(),
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
+    def print_help(self):
+        print(textwrap.dedent(self.__class__.help))
+
+    def execute(self, argv, args=None):
+
+        if not args:
+            args = self.parser.parse_args(args=argv)
+
+        if args.help:
+            self.print_help()
+            return
+
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
+
+        instance = pki.server.PKIServerFactory.create(instance_name)
+        if not instance.exists():
+            logger.error('Invalid instance: %s', instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        subsystem = instance.get_subsystem('tks')
+
+        if not subsystem:
+            logger.error('No TKS subsystem in instance %s', instance_name)
+            sys.exit(1)
+
+        first = True
+
+        for connector in subsystem.get_connectors():
+
+            if first:
+                first = False
+            else:
+                print()
+
+            TKSConnectorCLI.print_connector(connector)
+
+
+class TKSConnectorAddCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super().__init__('add', 'Add TKS connector')
+
+    def create_parser(self, subparsers=None):
+
+        self.parser = argparse.ArgumentParser(
+            self.get_full_name(),
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--url')
+        self.parser.add_argument('--nickname')
+        self.parser.add_argument('--uid')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('connector_id')
+
+    def print_help(self):
+        print('Usage: pki-server tks-connector-add [OPTIONS] <connector ID>')
+        print()
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat)')
+        print('      --url <URL>                    Subsystem URL')
+        print('      --nickname <nickname>          Certificate nickname')
+        print('      --uid <user ID>                User ID')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
+        print('      --help                         Show help message.')
+        print()
+
+    def execute(self, argv, args=None):
+
+        if not args:
+            args = self.parser.parse_args(args=argv)
+
+        if args.help:
+            self.print_help()
+            return
+
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
+        connector_id = args.connector_id
+        url = urllib.parse.urlparse(args.url)
+        nickname = args.nickname
+        uid = args.uid
+
+        instance = pki.server.PKIServerFactory.create(instance_name)
+        if not instance.exists():
+            logger.error('Invalid instance: %s', instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        subsystem = instance.get_subsystem('tks')
+
+        if not subsystem:
+            logger.error('No TKS subsystem in instance %s', instance_name)
+            sys.exit(1)
+
+        subsystem.add_connector(
+            connector_id=connector_id,
+            url=url,
+            nickname=nickname,
+            uid=uid)
+
+        subsystem.save()

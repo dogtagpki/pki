@@ -572,6 +572,24 @@ jobs:
               tks.drm_transport_cert_nickname \
               kra_transport
 
+      - name: Create shared secret in TKS
+        run: |
+          docker exec tks pki \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              nss-key-create \
+              --key-type AES \
+              --op-flags WRAP,UNWRAP,ENCRYPT,ENCRYPT \
+              "TPS-tps.example.com-8443 sharedSecret"
+
+      - name: Add TPS connector in TKS
+        run: |
+          docker exec tks pki-server tks-connector-add \
+             --url https://tps.example.com:8443 \
+             --nickname "TPS-tps.example.com-8443 sharedSecret" \
+             --uid TPS-tps.example.com-8443 \
+             0
+
       - name: Restart TKS
         run: |
           docker restart tks
@@ -588,6 +606,20 @@ jobs:
               -k \
               -o /dev/null \
               https://tks.example.com:8443
+
+      - name: Check TPS connector in TKS after restart
+        run: |
+          docker exec tks pki-server tks-config-find | grep ^tps. | sort | tee output
+
+          cat > expected << EOF
+          tps.0.host=tps.example.com
+          tps.0.nickname=TPS-tps.example.com-8443 sharedSecret
+          tps.0.port=8443
+          tps.0.userid=TPS-tps.example.com-8443
+          tps.list=0
+          EOF
+
+          diff expected output
 
       - name: Create TPS subsystem cert
         run: |
@@ -878,6 +910,34 @@ jobs:
              --keygen \
              tks1
 
+      - name: Import shared secret into TPS
+        run: |
+          # export shared secret from TKS
+          docker exec tks pki \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              nss-key-export \
+              --wrapper-cert tps_subsystem.crt \
+              --output shared-secret.json \
+              "TPS-tps.example.com-8443 sharedSecret"
+
+          docker cp tks:shared-secret.json .
+          docker cp shared-secret.json tps:.
+
+          # import shared secret into TPS
+          docker exec tps pki \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              nss-key-import \
+              --input shared-secret.json \
+              --wrapper subsystem \
+              "TPS-tps.example.com-8443 sharedSecret"
+
+          # configure shared secret in TPS
+          docker exec tps pki-server tps-config-set \
+              conn.tks1.tksSharedSymKeyName \
+              "TPS-tps.example.com-8443 sharedSecret"
+
       - name: Restart TPS
         run: |
           docker restart tps
@@ -981,9 +1041,22 @@ jobs:
 
           diff expected output
 
+      - name: Check shared secret in TPS after restart
+        run: |
+          docker exec tps pki \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              nss-key-find
+
+          docker exec tps pki-server tps-config-find | grep ^conn. | tee output
+
+          cat > expected << EOF
+          conn.tks1.tksSharedSymKeyName=TPS-tps.example.com-8443 sharedSecret
+          EOF
+
+          diff expected output
+
       # TODO:
-      # - set up TPS connector in TKS
-      # - set up shared secret
       # - test token format and enroll operations
 
       - name: Check CA DS server systemd journal

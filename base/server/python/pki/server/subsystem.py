@@ -2774,6 +2774,69 @@ class TKSSubsystem(PKISubsystem):
     def __init__(self, instance):
         super().__init__(instance, 'tks')
 
+    def get_connector_ids(self):
+
+        connector_ids = self.config.get('tps.list', '').split(',')
+
+        # if first ID is not empty, return all IDs
+        if len(connector_ids) > 0 and connector_ids[0]:
+            return sorted(connector_ids)
+
+        # otherwise, return empty list
+        return []
+
+    def get_connectors(self):
+
+        connectors = []
+
+        for connector_id in self.get_connector_ids():
+            connector = self.get_connector(connector_id)
+            connectors.append(connector)
+
+        return connectors
+
+    def get_connector(self, connector_id):
+
+        connector = {}
+
+        connector['id'] = connector_id
+
+        host = self.config.get('tps.%s.host' % connector_id)
+        port = self.config.get('tps.%s.port' % connector_id)
+        connector['url'] = 'https://{}:{}'.format(host, port)
+
+        connector['nickname'] = self.config.get('tps.%s.nickname' % connector_id)
+        connector['uid'] = self.config.get('tps.%s.userid' % connector_id)
+
+        return connector
+
+    def add_connector(
+            self,
+            connector_id,
+            url,
+            nickname,
+            uid):
+
+        self.set_config('tps.%s.host' % connector_id, url.hostname)
+        self.set_config('tps.%s.port' % connector_id, str(url.port))
+        self.set_config('tps.%s.nickname' % connector_id, nickname)
+        self.set_config('tps.%s.userid' % connector_id, uid)
+
+        cons = self.config.get('tps.list', '').split(',')
+
+        if len(cons) == 1 and not cons[0]:
+            # drop default blank value
+            cons = [connector_id]
+
+        elif connector_id not in cons:
+            # add new connector
+            cons.append(connector_id)
+
+        else:
+            raise Exception('Connector already exists: {}'.format(connector_id))
+
+        self.set_config('tps.list', ','.join(cons))
+
 
 class TPSSubsystem(PKISubsystem):
 
