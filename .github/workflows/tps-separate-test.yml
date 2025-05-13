@@ -270,6 +270,19 @@ jobs:
 
           diff expected output
 
+      - name: Check TPS connector in TKS
+        run: |
+          docker exec tks pki-server tks-connector-find | tee output
+
+          cat > expected << EOF
+            Connector ID: 0
+            URL: https://tps.example.com:8443
+            Nickname: TPS-tps.example.com-8443 sharedSecret
+            User ID: TPS-tps.example.com-8443
+          EOF
+
+          diff expected output
+
       - name: Remove TPS
         run: docker exec tps pkidestroy -s TPS -v
 
