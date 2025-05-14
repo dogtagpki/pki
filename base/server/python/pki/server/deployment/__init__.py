@@ -5720,22 +5720,6 @@ class PKIDeployer:
             pki.util.set_property(props, 'statements', statements)
         subsystem.update_realm_config(props)
 
-    def deploy_est_webapp(self, subsystem):
-        '''
-        See also pki-server est-deploy.
-        '''
-
-        logger.info('Deploying EST webapp')
-        if len(self.instance.get_subsystems()) == 1:
-            # if this is the first subsystem, deploy the subsystem without waiting
-            subsystem.enable()
-        else:
-            # otherwise, deploy the subsystem and wait until it starts
-            subsystem.enable(
-                wait=True,
-                max_wait=self.startup_timeout,
-                timeout=self.request_timeout)
-
     def create_est_sslserver_csr(self, nssdb):
         subject_dn = self.mdict.get('pki_sslserver_subject_dn')
 
@@ -5815,16 +5799,6 @@ class PKIDeployer:
         logger.info('Importing SSL server cert as %s', nickname)
         nssdb.add_cert(nickname=nickname, cert_data=cert_pem)
         return system_cert
-
-    def spawn_est(self):
-        subsystem = self.create_est_subsystem()
-        self.instance.add_subsystem(subsystem)
-
-        self.configure_est_backend(subsystem)
-        self.configure_est_authorizer(subsystem)
-        self.configure_est_realm(subsystem)
-
-        self.deploy_est_webapp(subsystem)
 
     def spawn(self):
         print('Installing ' + self.subsystem_type + ' into ' + self.instance.base_dir + '.')
