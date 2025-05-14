@@ -140,7 +140,7 @@ class InfoClient(object):
         for api_path in api_paths:
             try:
                 path = '/pki/%s/info' % api_path
-                logger.info('Getting PKI server info from %s', path)
+                logger.debug('Getting PKI server info from %s', path)
 
                 response = self.connection.get(path, headers)
                 # REST API path available -> done

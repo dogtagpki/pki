@@ -421,7 +421,7 @@ class PKIClient:
 
     def connect(self):
 
-        logger.info('Connecting to %s', urllib.parse.urlunparse(self.url))
+        logger.debug('Connecting to %s', urllib.parse.urlunparse(self.url))
 
         self.info = self.info_client.get_info()
 
