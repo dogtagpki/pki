@@ -57,6 +57,9 @@ public class CertRequestRepository extends RequestRepository {
         request.setExtData("requestor_name", "");
         request.setExtData("requestor_email", "");
         request.setExtData("requestor_phone", "");
+        request.setExtData("ra_client_uid", "");
+        request.setExtData("ra_client_name", "");
+        request.setExtData("ra_client_certificate", "");
         request.setExtData("profileRemoteHost", "");
         request.setExtData("profileRemoteAddr", "");
         request.setExtData("requestnotes", "");
