@@ -344,6 +344,22 @@ class SecurityDomainClient(object):
 
         return InstallToken.from_json(json_response)
 
+    def remove_host(self, hostname, subsystem, port):
+        """
+        Delete a host from the security domain.
+        """
+        if self.pki_client:
+            api_path = self.pki_client.get_api_path()
+        else:
+            api_path = 'rest'
+
+        path = f'/{api_path}/securityDomain/hosts/{subsystem}%20{hostname}%20{port}'
+
+        if not self.connection.subsystem:
+            path = '/ca' + path
+
+        self.connection.delete(path)
+
 
 class CertificateSetupRequest(object):
     def __init__(self):
