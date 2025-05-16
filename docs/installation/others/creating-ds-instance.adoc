@@ -31,11 +31,11 @@ Customize the DS configuration file as follows:
 [literal,subs="+quotes,verbatim"]
 ....
 $ sed -i \
-    -e "s/;instance_name = .*/instance_name = localhost/g" \
-    -e "s/;root_password = .*/root_password = Secret.123/g" \
-    -e "s/;suffix = .*/suffix = dc=example,dc=com/g" \
-    -e "s/;create_suffix_entry = .*/create_suffix_entry = True/g" \
-    -e "s/;self_sign_cert = .*/self_sign_cert = True/g" \
+    -e "s/^;instance_name = .*/instance_name = localhost/" \
+    -e "s/^;root_password = .*/root_password = Secret.123/" \
+    -e "s/^;suffix = .*/suffix = dc=example,dc=com/" \
+    -e "s/^;create_suffix_entry = .*/create_suffix_entry = True/" \
+    -e "s/^;self_sign_cert = .*/self_sign_cert = True/" \
     ds.inf
 ....
 
