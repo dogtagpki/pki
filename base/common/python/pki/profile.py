@@ -1152,21 +1152,39 @@ class ProfileClient(object):
             logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
             return Profile.from_json(json_response)
 
-    def _send_profile_modify(self, profile_data):
+    def _send_profile_modify(self, profile_data, profile_id=None, raw=False):
+        """
+        Internal method.
+
+        If `raw` is False (the default), `profile_data` must be a `Profile`
+        object and `profile_id` is ignored.
+
+        When `raw` is True, `profile_data` must be a string containing the
+        profile configuration, and `profile_id` must be specified.
+        """
         if profile_data is None:
             raise ValueError("No ProfileData specified")
-        if profile_data.profile_id is None:
+        if raw and profile_id is None:
             raise ValueError("Profile Id is not specified.")
+        elif not raw:
+            if profile_data.profile_id is None:
+                raise ValueError("Profile Id is not specified.")
+            profile_id = profile_data.profile_id
 
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
             api_path = 'rest'
 
-        path = '/%s/profiles/%s' % (api_path, profile_data.profile_id)
+        path = '/%s/profiles/%s' % (api_path, profile_id)
 
         if not self.connection.subsystem:
             path = '/ca' + path
+
+        if raw:
+            response = self._put(path + '/raw', profile_data)
+            logger.debug('Response:\n%s', response.text)
+            return response.text
 
         profile_object = json.dumps(profile_data, cls=encoder.CustomTypeEncoder,
                                     sort_keys=True)
@@ -1187,11 +1205,13 @@ class ProfileClient(object):
         return self._send_profile_create(profile_data, raw=raw)
 
     @pki.handle_exceptions()
-    def modify_profile(self, profile_data):
+    def modify_profile(self, profile_data, profile_id=None, raw=False):
         """
-        Modify an existing profile with the given Profile object.
+        Modify an existing profile with the given Profile object.  In raw
+        mode, the `profile_id` argument must be given.
         """
-        return self._send_profile_modify(profile_data)
+        return self._send_profile_modify(profile_data, profile_id=profile_id,
+                                         raw=raw)
 
     def create_profile_from_file(self, path_to_file):
         """
