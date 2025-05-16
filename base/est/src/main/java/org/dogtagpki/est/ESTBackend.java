@@ -1,6 +1,5 @@
 package org.dogtagpki.est;
 
-import java.security.cert.X509Certificate;
 import java.util.Optional;
 
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
@@ -38,7 +37,7 @@ public abstract class ESTBackend {
      *
      * @param authzData data returned by the ESTRequestAuthorizer.  May be null.
      */
-    public abstract X509CertImpl simpleenroll(Optional<String> label, PKCS10 csr, Object authzData)
+    public abstract X509CertImpl simpleenroll(Optional<String> label, PKCS10 csr, ESTRequestAuthorizationData authzData, Object authzResult)
         throws PKIException;
 
     /**
@@ -46,7 +45,7 @@ public abstract class ESTBackend {
      *
      * @param authzData data returned by the ESTRequestAuthorizer.  May be null.
      */
-    public abstract X509CertImpl simplereenroll(Optional<String> label, PKCS10 csr, Object authzData)
+    public abstract X509CertImpl simplereenroll(Optional<String> label, PKCS10 csr, ESTRequestAuthorizationData authzData, Object authzResult)
         throws PKIException;
 
 }
