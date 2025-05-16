@@ -9,7 +9,7 @@ Follow this process to install a CA subsystem with RSA/PSS.
 
 To install CA subsystem with RSA/PSS, follow the normal xref:installing-ca.adoc[CA installation] procedure, then specify the parameters below.
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 [DEFAULT]
 pki_use_pss_rsa_signing_algorithm=True
@@ -37,7 +37,7 @@ pki_ocsp_signing_signing_algorithm=SHA512withRSA/PSS
 
 To verify that the CA signing certificate was created with RSA/PSS, execute the following command:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 
 $ pki-server cert-export ca_signing --cert-file ca_signing.crt
