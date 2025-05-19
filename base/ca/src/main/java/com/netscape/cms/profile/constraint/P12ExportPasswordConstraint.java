@@ -162,7 +162,7 @@ public class P12ExportPasswordConstraint extends EnrollConstraint {
         if (!getConfig(CONFIG_PASSWORD_MAX_REPEATED_CHAR).isEmpty()) {
             pCheck.setMaxRepeatedChar(Integer.parseInt(getConfig(CONFIG_PASSWORD_MAX_REPEATED_CHAR)));
         }
-        if (!getConfig(CONFIG_PASSWORD_MAX_REPEATED_CHAR).isEmpty()) {
+        if (!getConfig(CONFIG_PASSWORD_CRACKLIB_CHECK).isEmpty()) {
             pCheck.setCracklibCheck(getConfigBoolean(CONFIG_PASSWORD_CRACKLIB_CHECK));
         }
 
