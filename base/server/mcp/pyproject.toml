@@ -1,0 +1,10 @@
+[project]
+name = "pki-server"
+version = "11.7.0"
+readme = "../../README.md"
+description = "PKI Server"
+requires-python = ">=3.13"
+dependencies = [
+    "mcp>=1.9.0",
+    "mcp-server>=0.1.4",
+]
