@@ -109,7 +109,7 @@ public class ESTServlet extends org.dogtagpki.server.rest.v2.PKIServlet {
 
         Object authzResult = getRequestAuthorizer().authorizeSimpleenroll(authzData, csr);
 
-        X509Certificate cert = getBackend().simpleenroll(label, csr, authzResult);
+        X509Certificate cert = getBackend().simpleenroll(label, csr, authzData, authzResult);
         return certResponse(cert);
     }
 
@@ -129,7 +129,7 @@ public class ESTServlet extends org.dogtagpki.server.rest.v2.PKIServlet {
 
         Object authzResult = getRequestAuthorizer().authorizeSimplereenroll(authzData, csr, toBeRenewed);
 
-        X509Certificate cert = getBackend().simplereenroll(label, csr, authzResult);
+        X509Certificate cert = getBackend().simplereenroll(label, csr, authzData,  authzResult);
         return certResponse(cert);
     }
 
