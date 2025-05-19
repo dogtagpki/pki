@@ -33,6 +33,7 @@ import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cms.realm.PKIPrincipal;
 
 /**
  * EST backend that acts as RA for a Dogtag CA subsystem
@@ -128,22 +129,22 @@ public class DogtagRABackend extends ESTBackend {
     }
 
     @Override
-    public X509CertImpl simpleenroll(Optional<String> label, PKCS10 csr, Object authzData)
+    public X509CertImpl simpleenroll(Optional<String> label, PKCS10 csr, ESTRequestAuthorizationData authzData, Object authzResult)
             throws PKIException {
-        return issueCertificate(label, csr);
+        return issueCertificate(label, csr, authzData);
     }
 
     @Override
-    public X509CertImpl simplereenroll(Optional<String> label, PKCS10 csr, Object authzData)
+    public X509CertImpl simplereenroll(Optional<String> label, PKCS10 csr, ESTRequestAuthorizationData authzData, Object authzResult)
             throws PKIException {
         /* At the moment, simplereenroll does the same thing as simpleenroll.
          * These are separate methods in case some backends need different or
          * additional behaviour for re-enroll (e.g. revoking previous certificates).
          */
-        return simpleenroll(label, csr, authzData);
+        return simpleenroll(label, csr, authzData, authzResult);
     }
 
-    private X509CertImpl issueCertificate(Optional<String> label, PKCS10 pkcs10)
+    private X509CertImpl issueCertificate(Optional<String> label, PKCS10 pkcs10, ESTRequestAuthorizationData authzData)
             throws PKIException {
         logger.info("Issuing certificate");
 
@@ -191,14 +192,32 @@ public class DogtagRABackend extends ESTBackend {
             CertEnrollmentRequest certEnrollmentRequest = certClient.getEnrollmentTemplate(profile);
 
             for (ProfileInput input : certEnrollmentRequest.getInputs()) {
-                ProfileAttribute typeAttr = input.getAttribute("cert_request_type");
-                if (typeAttr != null) {
-                    typeAttr.setValue("pkcs10");
-                }
+                logger.debug("Check input: {}", input.getClassId());
+                if (input.getClassId().equals("certReqInputImpl")) {
+                    ProfileAttribute typeAttr = input.getAttribute("cert_request_type");
+                    if (typeAttr != null) {
+                        typeAttr.setValue("pkcs10");
+                    }
 
-                ProfileAttribute csrAttr = input.getAttribute("cert_request");
-                if (csrAttr != null) {
-                    csrAttr.setValue(Utils.base64encodeSingleLine(pkcs10.toByteArray()));
+                    ProfileAttribute csrAttr = input.getAttribute("cert_request");
+                    if (csrAttr != null) {
+                        csrAttr.setValue(Utils.base64encodeSingleLine(pkcs10.toByteArray()));
+                    }
+                } else if (input.getClassId().equals("raClientAuthInfoInputImpl")) {
+                    ProfileAttribute uidAttr = input.getAttribute("ra_client_uid");
+                    if (uidAttr != null && authzData.principal != null) {
+                        uidAttr.setValue(authzData.principal.getName());
+                    }
+
+                    ProfileAttribute nameAttr = input.getAttribute("ra_client_name");
+                    if (nameAttr != null && authzData.principal instanceof PKIPrincipal pkiPrincipal) {
+                        nameAttr.setValue(pkiPrincipal.getUser().getFullName());
+                    }
+
+                    ProfileAttribute certAttr = input.getAttribute("ra_client_certificate");
+                    if (certAttr != null && authzData.clientCertChain != null) {
+                        certAttr.setValue(Utils.base64encodeSingleLine(authzData.clientCertChain[0].getEncoded()));
+                    }
                 }
             }
 
