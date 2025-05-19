@@ -1,0 +1,124 @@
+name: MCP Server
+
+on: workflow_call
+
+env:
+  DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone PKI repository
+        uses: actions/checkout@v4
+
+      - name: Retrieve PKI images
+        uses: actions/cache@v4
+        with:
+          key: pki-images-${{ github.sha }}
+          path: pki-images.tar
+
+      - name: Load PKI images
+        run: docker load --input pki-images.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-create.sh \
+              --image=${{ env.DS_IMAGE }} \
+              --hostname=ds.example.com \
+              --network=example \
+              --network-alias=ds.example.com \
+              --password=Secret.123 \
+              ds
+
+      - name: Set up PKI container
+        run: |
+          tests/bin/runner-init.sh \
+              --hostname=pki.example.com \
+              --network=example \
+              --network-alias=pki.example.com \
+              pki
+
+          docker exec pki dnf install -y git pip
+          docker exec pki pip install uv
+
+      - name: Install CA
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_audit_signing_nickname= \
+              -v
+
+      - name: Install MCP server
+        run: |
+          docker cp base/server/mcp pki:/usr/share/pki/server
+
+      - name: Install LLM
+        run: |
+          curl -fsSL https://ollama.com/install.sh | docker exec -i pki sh
+          docker exec pki ollama run llama3.2
+
+      - name: Install MCP CLI
+        run: |
+          docker exec -w /opt pki git clone https://github.com/chrishayuk/mcp-cli.git
+
+      - name: Configure MCP CLI
+        run: |
+          docker exec -i -w /opt/mcp-cli pki tee server_config.json << EOF
+          {
+            "mcpServers": {
+              "pki-server": {
+                "command": "uv",
+                "args": [
+                  "--directory",
+                  "/usr/share/pki/server/mcp",
+                  "run",
+                  "main.py"
+                ]
+              }
+            }
+          }
+          EOF
+
+      - name: Check MCP servers
+        run: |
+          docker exec -w /opt/mcp-cli pki uv run mcp-cli servers list {}
+
+      - name: Check MCP resources
+        run: |
+          docker exec -w /opt/mcp-cli pki uv run mcp-cli resources list {}
+
+      - name: Check MCP prompts
+        run: |
+          docker exec -w /opt/mcp-cli pki uv run mcp-cli prompts list {}
+
+      - name: Check MCP tools
+        run: |
+          docker exec -w /opt/mcp-cli pki uv run mcp-cli tools list {}
+
+      - name: Find CA users
+        run: |
+          docker exec -w /opt/mcp-cli pki uv run mcp-cli cmd \
+              --provider=ollama \
+              --model=llama3.2 \
+              --server pki-server \
+              --prompt "show me all users in CA subsystem" \
+              | tee output
+
+          # get usernames
+          sed -n 's/^\*\s\+\(\S\+\)\s\+.*$/\1/p' output > actual
+
+          cat > expected << EOF
+          CA-pki.example.com-8443
+          caadmin
+          EOF
+
+          diff expected actual
