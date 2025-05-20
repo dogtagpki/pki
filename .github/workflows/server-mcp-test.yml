@@ -113,8 +113,8 @@ jobs:
               --prompt "show me all users in CA subsystem" \
               | tee output
 
-          # get usernames
-          sed -n 's/^\*\s\+\(\S\+\)\s\+.*$/\1/p' output > actual
+          # get usernames from bulleted or numbered list
+          sed -n 's/^[\*0-9]\+\.\?\s\+\(\S\+\)\s\+.*$/\1/p' output > actual
 
           cat > expected << EOF
           CA-pki.example.com-8443
