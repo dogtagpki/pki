@@ -166,25 +166,16 @@ jobs:
 
       - name: Check KRA connector in CA
         run: |
-          docker exec ca pki-server ca-config-find \
-              | grep ^ca.connector.KRA. \
-              | sort \
-              | tee output
-
-          # exclude transport cert
-          sed -e '/^ca.connector.KRA.transportCert=/d' output > actual
+          docker exec ca pki-server ca-connector-find | tee output
 
           cat > expected << EOF
-          ca.connector.KRA.enable=true
-          ca.connector.KRA.host=primarykra.example.com
-          ca.connector.KRA.local=false
-          ca.connector.KRA.nickName=subsystem
-          ca.connector.KRA.port=8443
-          ca.connector.KRA.timeout=30
-          ca.connector.KRA.uri=/kra/agent/kra/connector
+            Connector ID: KRA
+            Enabled: true
+            URL: https://primarykra.example.com:8443
+            Nickname: subsystem
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Import certs for client
         run: |
@@ -304,26 +295,17 @@ jobs:
 
       - name: Check KRA connector in CA
         run: |
-          docker exec ca pki-server ca-config-find \
-              | grep ^ca.connector.KRA. \
-              | sort \
-              | tee output
-
-          # exclude transport cert
-          sed -e '/^ca.connector.KRA.transportCert=/d' output > actual
+          docker exec ca pki-server ca-connector-find | tee output
 
           # KRA connector should have multiple KRAs
           cat > expected << EOF
-          ca.connector.KRA.enable=true
-          ca.connector.KRA.host=primarykra.example.com:8443 secondarykra.example.com:8443
-          ca.connector.KRA.local=false
-          ca.connector.KRA.nickName=subsystem
-          ca.connector.KRA.port=8443
-          ca.connector.KRA.timeout=30
-          ca.connector.KRA.uri=/kra/agent/kra/connector
+            Connector ID: KRA
+            Enabled: true
+            URL: https://primarykra.example.com:8443 https://secondarykra.example.com:8443
+            Nickname: subsystem
           EOF
 
-          diff expected actual
+          diff expected output
 
       - name: Check admin access to secondary KRA
         run: |

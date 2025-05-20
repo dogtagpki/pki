@@ -137,15 +137,17 @@ jobs:
 
       - name: Check KRA connector config
         run: |
-          # KRA connector should be enabled
-          echo "true" > expected
-          docker exec primary pki-server ca-config-show ca.connector.KRA.enable | tee actual
-          diff expected actual
+          docker exec primary pki-server ca-connector-find | tee output
 
-          # KRA connector points to primary KRA
-          echo "primary.example.com" > expected
-          docker exec primary pki-server ca-config-show ca.connector.KRA.host | tee actual
-          diff expected actual
+          # KRA connector should be enabled and point to primary KRA
+          cat > expected << EOF
+            Connector ID: KRA
+            Enabled: true
+            URL: https://primary.example.com:8443
+            Nickname: subsystem
+          EOF
+
+          diff expected output
 
       - name: Check primary IPA server config after KRA installation
         run: |
@@ -439,27 +441,33 @@ jobs:
               -o ldif_wrap=no \
               -LLL
 
-      - name: Check KRA connector config
+      - name: Check KRA connector config in primary CA
         run: |
-          # KRA connector should be enabled in primary CA
-          echo "true" > expected
-          docker exec primary pki-server ca-config-show ca.connector.KRA.enable | tee actual
-          diff expected actual
+          docker exec primary pki-server ca-connector-find | tee output
 
-           # KRA connector should be enabled in secondary CA
-          echo "true" > expected
-          docker exec secondary pki-server ca-config-show ca.connector.KRA.enable | tee actual
-          diff expected actual
+          # KRA connector should be enabled and point to primary KRA
+          cat > expected << EOF
+            Connector ID: KRA
+            Enabled: true
+            URL: https://primary.example.com:8443
+            Nickname: subsystem
+          EOF
 
-          # KRA connector points to primary KRA in primary CA
-          echo "primary.example.com" > expected
-          docker exec primary pki-server ca-config-show ca.connector.KRA.host | tee actual
-          diff expected actual
+          diff expected output
 
-          # KRA connector points to both KRAs in secondary CA
-          echo "primary.example.com:8443 secondary.example.com:8443" > expected
-          docker exec secondary pki-server ca-config-show ca.connector.KRA.host | tee actual
-          diff expected actual
+      - name: Check KRA connector config in secondary CA
+        run: |
+          docker exec secondary pki-server ca-connector-find | tee output
+
+          # KRA connector should be enabled and point to both KRAs
+          cat > expected << EOF
+            Connector ID: KRA
+            Enabled: true
+            URL: https://primary.example.com:8443 https://secondary.example.com:8443
+            Nickname: subsystem
+          EOF
+
+          diff expected output
 
           # KRA connectors should be consistent
           # https://pagure.io/freeipa/issue/9432
@@ -771,12 +779,19 @@ jobs:
 
       - name: Check KRA connector after removing primary server
         run: |
-          # KRA connector should only point to secondary KRA,
-          # but currently primary KRA is still listed
+          docker exec secondary pki-server ca-connector-find | tee output
+
+          # KRA connector should point to secondary KRA
+          cat > expected << EOF
+            Connector ID: KRA
+            Enabled: true
+            URL: https://secondary.example.com:8443
+            Nickname: subsystem
+          EOF
+
+          # currently it points to primary KRA
           # https://pagure.io/freeipa/issue/9432
-          echo "secondary.example.com" > expected
-          docker exec secondary pki-server ca-config-show ca.connector.KRA.host | tee actual
-          diff expected actual || true
+          diff expected output || true
 
       - name: Check IPA CA install log in secondary container
         if: always()

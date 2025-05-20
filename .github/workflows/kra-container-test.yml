@@ -472,17 +472,12 @@ jobs:
 
       - name: Configure KRA connector in CA
         run: |
-          docker exec ca pki-server ca-config-set ca.connector.KRA.enable true
-          docker exec ca pki-server ca-config-set ca.connector.KRA.host kra.example.com
-          docker exec ca pki-server ca-config-set ca.connector.KRA.local false
-          docker exec ca pki-server ca-config-set ca.connector.KRA.nickName subsystem
-          docker exec ca pki-server ca-config-set ca.connector.KRA.port 8443
-          docker exec ca pki-server ca-config-set ca.connector.KRA.timeout 30
-          docker exec ca pki-server ca-config-set ca.connector.KRA.uri /kra/agent/kra/connector
-
-          TRANSPORT_CERT=$(openssl x509 -outform der -in kra/certs/kra_transport.crt | base64 --wrap=0)
-          echo "Transport cert: $TRANSPORT_CERT"
-          docker exec ca pki-server ca-config-set ca.connector.KRA.transportCert $TRANSPORT_CERT
+          docker cp kra/certs/kra_transport.crt ca:.
+          docker exec ca pki-server ca-connector-add \
+             --url https://kra.example.com:8443 \
+             --nickname subsystem \
+             --transport-cert kra_transport.crt \
+             KRA
 
       - name: Restart CA
         run: |
