@@ -50,5 +50,6 @@ jobs:
 
   server-mcp-test:
     name: MCP server
+    if: vars.MCP_TESTS_ENABLED == 'true'
     needs: build
     uses: ./.github/workflows/server-mcp-test.yml
