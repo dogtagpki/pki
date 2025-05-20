@@ -241,7 +241,11 @@ public class DogtagRABackend extends ESTBackend {
 
             String error = info.getErrorMessage();
             if (error != null) {
-                throw new PKIException("Unable to generate certificate: " + error);
+                if (info.getRequestStatus().equals(RequestStatus.REJECTED)) {
+                    throw new BadRequestException("Certificate request rejected: " + error);
+                } else {
+                    throw new PKIException("Unable to generate certificate: " + error);
+                }
             }
 
             CertId id = null;
