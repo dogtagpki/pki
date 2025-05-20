@@ -74,7 +74,7 @@ jobs:
       - name: Install KRA in IPA container
         run: |
           docker exec ipa ipa-kra-install -p Secret.123
-          docker exec ipa pki-server ca-config-find | grep ca.connector.KRA
+          docker exec ipa pki-server ca-connector-find
 
       - name: Verify CA admin in IPA container
         run: |

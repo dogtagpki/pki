@@ -343,9 +343,8 @@ jobs:
               "Enterprise KRA Administrators"
 
           # KRA connector should not be configured
-          echo -n > expected
-          docker exec ca pki-server ca-config-find | grep ^ca.connector.KRA. | tee actual
-          diff expected actual
+          docker exec ca pki-server ca-connector-find | tee output
+          diff /dev/null output
 
           # get KRA connector info via REST API
           docker exec client pki \

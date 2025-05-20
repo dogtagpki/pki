@@ -107,7 +107,7 @@ jobs:
       - name: Install KRA
         run: |
           docker exec ipa ipa-kra-install -p Secret.123
-          docker exec ipa pki-server ca-config-find | grep ca.connector.KRA
+          docker exec ipa pki-server ca-connector-find
 
       - name: Check PKI certs and keys
         run: |

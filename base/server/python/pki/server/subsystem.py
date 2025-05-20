@@ -2708,6 +2708,103 @@ class CASubsystem(PKISubsystem):
             param = 'ca.crl.%s.%s' % (ip_id, key)
             pki.util.set_property(self.config, param, value)
 
+    def get_connector_ids(self):
+
+        connector_ids = []
+        for key in self.config.keys():
+
+            match = re.search(r'ca\.connector\.([^\.]+)\.', key)
+            if not match:
+                continue
+
+            connector_id = match.group(1)
+            if connector_id not in connector_ids:
+                connector_ids.append(connector_id)
+
+        return sorted(connector_ids)
+
+    def get_connectors(self):
+
+        connectors = []
+
+        for connector_id in self.get_connector_ids():
+            connector = self.get_connector(connector_id)
+            connectors.append(connector)
+
+        return connectors
+
+    def get_connector(self, connector_id):
+
+        connector = {}
+
+        connector['id'] = connector_id
+
+        connector['enabled'] = self.config.get('ca.connector.%s.enable' % connector_id)
+        connector['local'] = self.config.get('ca.connector.%s.local' % connector_id)
+
+        hosts = self.config.get('ca.connector.%s.host' % connector_id).split(' ')
+
+        if len(hosts) == 1:
+            # if there's only one host, add the port number
+            port = self.config.get('ca.connector.%s.port' % connector_id)
+            connector['urls'] = ['https://%s:%s' % (hosts[0], port)]
+        else:
+            # if there are multiple hosts, each host already has the port number
+            urls = []
+            for host_port in hosts:
+                urls.append('https://%s' % host_port)
+            connector['urls'] = urls
+
+        connector['path'] = self.config.get('ca.connector.%s.uri' % connector_id)
+        connector['nickname'] = self.config.get('ca.connector.%s.nickName' % connector_id)
+
+        connector['minConns'] = self.config.get('ca.connector.%s.minHttpConns' % connector_id)
+        connector['maxConns'] = self.config.get('ca.connector.%s.maxHttpConns' % connector_id)
+        connector['timeout'] = self.config.get('ca.connector.%s.timeout' % connector_id)
+
+        connector['transportCert'] = \
+            self.config.get('ca.connector.%s.transportCert' % connector_id)
+
+        client_ciphers = self.config.get('ca.connector.%s.clientCiphers' % connector_id)
+        if client_ciphers:
+            connector['clientCiphers'] = client_ciphers.split(',')
+
+        connector['certRevocationCheck'] = \
+            self.config.get('ca.connector.%s.certRevocationCheck' % connector_id)
+
+        return connector
+
+    def add_connector(
+            self,
+            connector_id,
+            urls,
+            nickname,
+            transport_cert,
+            timeout=30):
+
+        self.set_config('ca.connector.%s.enable' % connector_id, 'true')
+        self.set_config('ca.connector.%s.local' % connector_id, 'false')
+
+        if len(urls) == 1:
+            # if there's only one URL, store <hostname> and <port> in separate params
+            url = urls[0]
+            self.set_config('ca.connector.%s.host' % connector_id, url.hostname)
+            self.set_config('ca.connector.%s.port' % connector_id, str(url.port))
+        else:
+            # if there are multiple URLs, store <hostname>:<port> in hosts param
+            hosts = []
+            for url in urls:
+                hosts.append('%s:%s' % (url.hostname, url.port))
+            self.set_config('ca.connector.%s.host' % connector_id, ' '.join(hosts))
+
+        self.set_config('ca.connector.%s.nickName' % connector_id, nickname)
+
+        b64_cert = pki.nssdb.convert_cert(transport_cert, 'PEM', 'BASE64')
+        self.set_config('ca.connector.%s.transportCert' % connector_id, b64_cert)
+
+        self.set_config('ca.connector.%s.uri' % connector_id, '/kra/agent/kra/connector')
+        self.set_config('ca.connector.%s.timeout' % connector_id, timeout)
+
 
 class KRASubsystem(PKISubsystem):
 

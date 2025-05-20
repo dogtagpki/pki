@@ -27,6 +27,7 @@ import shutil
 import sys
 import tempfile
 import textwrap
+import urllib
 
 import pki.cli
 import pki.server
@@ -55,6 +56,7 @@ class CACLI(pki.cli.CLI):
         self.add_module(CACertCLI())
         self.add_module(CACRLCLI())
         self.add_module(CACloneCLI())
+        self.add_module(CAConnectorCLI())
         self.add_module(pki.server.cli.config.SubsystemConfigCLI(self))
         self.add_module(pki.server.cli.db.SubsystemDBCLI(self))
         self.add_module(pki.server.cli.group.GroupCLI(self))
@@ -1387,6 +1389,241 @@ class CAClonePrepareCLI(pki.cli.CLI):
 
         finally:
             shutil.rmtree(tmpdir)
+
+
+class CAConnectorCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super().__init__('connector', 'CA connector management commands')
+
+        self.add_module(CAConnectorFindCLI())
+        self.add_module(CAConnectorAddCLI())
+
+    @staticmethod
+    def print_connector(connector, show_all=False):
+
+        connector_id = connector.get('id')
+        print('  Connector ID: {}'.format(connector_id))
+
+        enabled = connector.get('enabled')
+        print('  Enabled: {}'.format(enabled))
+
+        urls = connector.get('urls')
+        print('  URL: {}'.format(' '.join(urls)))
+
+        nickname = connector.get('nickname')
+        print('  Nickname: {}'.format(nickname))
+
+        if not show_all:
+            return
+
+        local = connector.get('local')
+        print('  Local: {}'.format(local))
+
+        path = connector.get('path')
+        print('  Path: {}'.format(path))
+
+        minConns = connector.get('minConns')
+        if minConns:
+            print('  Min Connections: {}'.format(minConns))
+
+        maxConns = connector.get('maxConns')
+        if maxConns:
+            print('  Max Cconnections: {}'.format(maxConns))
+
+        timeout = connector.get('timeout')
+        if timeout:
+            print('  Timeout: {}'.format(timeout))
+
+        transportCert = connector.get('transportCert')
+        if transportCert:
+            print('  Transport Cert: {}'.format(transportCert))
+
+        clientCiphers = connector.get('clientCiphers')
+        if clientCiphers:
+            print('  Client Ciphers: {}'.format(' '.join(clientCiphers)))
+
+        certRevocationCheck = connector.get('certRevocationCheck')
+        if certRevocationCheck:
+            print('  Cert Revocation Rheck: {}'.format(certRevocationCheck))
+
+
+class CAConnectorFindCLI(pki.cli.CLI):
+    '''
+    Find CA connectors
+    '''
+
+    help = '''\
+        Usage: pki-server ca-connector-find [OPTIONS]
+
+          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+              --show-all                     Show all attributes.
+          -v, --verbose                      Run in verbose mode.
+              --debug                        Run in debug mode.
+              --help                         Show help message.
+    '''  # noqa: E501
+
+    def __init__(self):
+        super().__init__('find', inspect.cleandoc(self.__class__.__doc__))
+
+    def create_parser(self, subparsers=None):
+
+        self.parser = argparse.ArgumentParser(
+            self.get_full_name(),
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '--show-all',
+            action='store_true')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
+    def print_help(self):
+        print(textwrap.dedent(self.__class__.help))
+
+    def execute(self, argv, args=None):
+
+        if not args:
+            args = self.parser.parse_args(args=argv)
+
+        if args.help:
+            self.print_help()
+            return
+
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
+
+        instance = pki.server.PKIServerFactory.create(instance_name)
+        if not instance.exists():
+            logger.error('Invalid instance: %s', instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        subsystem = instance.get_subsystem('ca')
+
+        if not subsystem:
+            logger.error('No CA subsystem in instance %s', instance_name)
+            sys.exit(1)
+
+        first = True
+
+        for connector in subsystem.get_connectors():
+
+            if first:
+                first = False
+            else:
+                print()
+
+            CAConnectorCLI.print_connector(connector, args.show_all)
+
+
+class CAConnectorAddCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super().__init__('add', 'Add CA connector')
+
+    def create_parser(self, subparsers=None):
+
+        self.parser = argparse.ArgumentParser(
+            self.get_full_name(),
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '--url',
+            action='append')
+        self.parser.add_argument('--nickname')
+        self.parser.add_argument('--transport-cert')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument('connector_id')
+
+    def print_help(self):
+        print('Usage: pki-server ca-connector-add [OPTIONS] <connector ID>')
+        print()
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat)')
+        print('      --url <URL>                    Subsystem URL')
+        print('      --nickname <nickname>          Certificate nickname')
+        print('      --transport-cert <path>        Transport certificate')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
+        print('      --help                         Show help message.')
+        print()
+
+    def execute(self, argv, args=None):
+
+        if not args:
+            args = self.parser.parse_args(args=argv)
+
+        if args.help:
+            self.print_help()
+            return
+
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
+        connector_id = args.connector_id
+
+        urls = []
+        for url in args.url:
+            urls.append(urllib.parse.urlparse(url))
+
+        nickname = args.nickname
+
+        with open(args.transport_cert, 'r', encoding='utf-8') as f:
+            transport_cert = f.read()
+
+        instance = pki.server.PKIServerFactory.create(instance_name)
+        if not instance.exists():
+            logger.error('Invalid instance: %s', instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        subsystem = instance.get_subsystem('ca')
+
+        if not subsystem:
+            logger.error('No CA subsystem in instance %s', instance_name)
+            sys.exit(1)
+
+        subsystem.add_connector(
+            connector_id=connector_id,
+            urls=urls,
+            nickname=nickname,
+            transport_cert=transport_cert)
+
+        subsystem.save()
 
 
 class CAProfileCLI(pki.cli.CLI):
