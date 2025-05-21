@@ -694,8 +694,6 @@ jobs:
               -v $PWD/tps/logs:/logs \
               -e PKI_DS_URL=ldap://tpsds.example.com:3389 \
               -e PKI_DS_PASSWORD=Secret.123 \
-              -e PKI_AUTHDB_URL=ldap://tpsds.example.com:3389 \
-              -e PKI_AUTHDB_BASEDN=ou=people,dc=example,dc=com \
               --detach \
               pki-tps
 
@@ -938,6 +936,20 @@ jobs:
 
       - name: Set up user auth database for TPS
         run: |
+          # configure connection to auth database
+          docker exec tps pki-server tps-config-set \
+              auths.instance.ldap1.ldap.ldapconn.secureConn \
+              false
+          docker exec tps pki-server tps-config-set \
+              auths.instance.ldap1.ldap.ldapconn.host \
+              tpsds.example.com
+          docker exec tps pki-server tps-config-set \
+              auths.instance.ldap1.ldap.ldapconn.port \
+              3389
+          docker exec tps pki-server tps-config-set \
+              auths.instance.ldap1.ldap.basedn \
+              ou=people,dc=example,dc=com
+
           # import base entry
           docker exec tps ldapadd \
               -H ldap://tpsds.example.com:3389 \

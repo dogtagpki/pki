@@ -136,8 +136,21 @@ OPTIONS+=(-D pki_security_manager=False)
 OPTIONS+=(-D pki_ca_uri=)
 OPTIONS+=(-D pki_kra_uri=)
 OPTIONS+=(-D pki_tks_uri=)
-OPTIONS+=(-D pki_authdb_url=$PKI_AUTHDB_URL)
-OPTIONS+=(-D pki_authdb_basedn=$PKI_AUTHDB_BASEDN)
+
+if [ "$PKI_AUTHDB_URL" = "" ]
+then
+    OPTIONS+=(-D pki_authdb_url=)
+else
+    OPTIONS+=(-D pki_authdb_url=$PKI_AUTHDB_URL)
+fi
+
+if [ "$PKI_AUTHDB_BASEDN" = "" ]
+then
+    OPTIONS+=(-D pki_authdb_basedn=)
+else
+    OPTIONS+=(-D pki_authdb_basedn=$PKI_AUTHDB_BASEDN)
+fi
+
 OPTIONS+=(-D pki_enable_server_side_keygen=True)
 
 OPTIONS+=(-D pki_systemd_service_create=False)
@@ -151,6 +164,7 @@ echo "##########################################################################
 echo "INFO: Configuring TPS server"
 
 pki-server tps-config-set internaldb.minConns 0
+pki-server tps-config-set auths.instance.ldap1.ldap.minConns 0
 
 echo "################################################################################"
 echo "INFO: Updating owners and permissions"
