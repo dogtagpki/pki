@@ -489,8 +489,8 @@ def main(argv):
                     deployer.set_property('pki_authdb_basedn', basedn)
 
                     try:
-                        deployer.authdb_init()
-                        if deployer.authdb_base_dn_exists():
+                        authdb_url = deployer.get_authdb_url()
+                        if deployer.authdb_base_dn_exists(authdb_url):
                             break
                         else:
                             parser.print_text('ERROR: base DN does not exist')

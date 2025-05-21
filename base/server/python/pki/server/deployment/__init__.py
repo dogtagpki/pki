@@ -141,8 +141,6 @@ class PKIDeployer:
         self.startup_timeout = None
         self.request_timeout = None
 
-        self.authdb_url = None
-
         self.force = False
         self.remove_conf = False
         self.remove_logs = False
@@ -193,9 +191,6 @@ class PKIDeployer:
 
         self.ds_init()
 
-        if self.subsystem_type == 'TPS':
-            self.authdb_init()
-
     def ds_init(self):
 
         ds_url = self.mdict.get('pki_ds_url')
@@ -224,7 +219,7 @@ class PKIDeployer:
                             self.mdict['pki_ds_secure_connection_ca_pem_file'])
             ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_DEMAND)
 
-    def authdb_init(self):
+    def get_authdb_url(self):
 
         url = self.mdict.get('pki_authdb_url')
 
@@ -240,11 +235,11 @@ class PKIDeployer:
 
             url = scheme + '://' + hostname + ':' + port
 
-        self.authdb_url = urllib.parse.urlparse(url)
+        return urllib.parse.urlparse(url)
 
-    def authdb_base_dn_exists(self):
+    def authdb_base_dn_exists(self, authdb_url):
         try:
-            connection = ldap.initialize(self.authdb_url.geturl())
+            connection = ldap.initialize(authdb_url.geturl())
             results = connection.search_s(
                 self.mdict['pki_authdb_basedn'],
                 ldap.SCOPE_BASE)
@@ -1164,18 +1159,22 @@ class PKIDeployer:
 
         # configure TPS
         if subsystem.type == 'TPS':
+
+            authdb_url = self.get_authdb_url()
+            authdb_basedn = self.mdict.get('pki_authdb_basedn')
+
             subsystem.set_config(
                 'auths.instance.ldap1.ldap.basedn',
-                self.mdict['pki_authdb_basedn'])
+                authdb_basedn)
             subsystem.set_config(
                 'auths.instance.ldap1.ldap.ldapconn.host',
-                self.authdb_url.hostname)
+                authdb_url.hostname)
             subsystem.set_config(
                 'auths.instance.ldap1.ldap.ldapconn.port',
-                str(self.authdb_url.port))
+                str(authdb_url.port))
             subsystem.set_config(
                 'auths.instance.ldap1.ldap.ldapconn.secureConn',
-                str(self.authdb_url.scheme == 'ldaps').lower())
+                str(authdb_url.scheme == 'ldaps').lower())
             subsystem.set_config(
                 'auths.instance.ldap1.ldap.ldapauth.clientCertNickname',
                 self.mdict['pki_subsystem_nickname'])
