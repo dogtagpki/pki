@@ -587,8 +587,6 @@ class ConfigurationFile:
             # Verify existence of a nickname for this
             # directory server CA certificate
             self.confirm_data_exists("pki_ds_secure_connection_ca_nickname")
-            # Set trustargs for this directory server CA certificate
-            self.mdict['pki_ds_secure_connection_ca_trustargs'] = "CT,CT,CT"
 
     def verify_command_matches_configuration_file(self):
         # Silently verify that the command-line parameters match the values

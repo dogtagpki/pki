@@ -745,13 +745,12 @@ class PKIDeployer:
 
     def import_ds_ca_cert(self):
 
-        if self.ds_url.scheme != 'ldaps':
+        cert_file = self.mdict['pki_ds_secure_connection_ca_pem_file']
+        if not cert_file or not os.path.exists(cert_file):
             return
 
         nickname = self.mdict['pki_ds_secure_connection_ca_nickname']
         token = self.mdict['pki_self_signed_token']
-        cert_file = self.mdict['pki_ds_secure_connection_ca_pem_file']
-        trust_attributes = self.mdict['pki_ds_secure_connection_ca_trustargs']
 
         nssdb = self.instance.open_nssdb()
 
@@ -771,7 +770,7 @@ class PKIDeployer:
                 nickname,
                 token=token,
                 cert_chain_file=cert_file,
-                trust_attributes=trust_attributes)
+                trust_attributes='CT,CT,CT')
 
         finally:
             nssdb.close()
