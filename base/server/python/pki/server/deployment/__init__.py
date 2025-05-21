@@ -5711,7 +5711,7 @@ class PKIDeployer:
             url=url,
             request_type='pkcs10',
             request_data=request_data,
-            profile=self.mdict['est_ca_profile'],
+            profile='caServerCert',
             credentials=credentials)
 
     def create_est_sslserver(self, nssdb):
