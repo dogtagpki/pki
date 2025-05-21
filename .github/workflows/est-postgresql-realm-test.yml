@@ -409,6 +409,34 @@ jobs:
         run: |
           docker exec pki mkdir new_certs3
           docker exec -e EST_OPENSSL_CACERT=cacert.pem pki estclient -e -s pki.example.com -p 8443 \
+              --common-name test-new.example.com -o new_certs3 -u est-test-user -h Secret.123 | tee output || true
+
+          # Request should fails with bad request error (status code 400, BAD REQUEST)
+          STATUS=$(cat output  | sed -nE 's/.* HTTP response from EST server was (.*)$/\1/p')
+          [ "$STATUS" == "BAD REQUEST" ]
+
+      - name: Enroll new certificate with certificate but using different subject and check disabled
+        run: |
+          docker exec pki mkdir new_certs4
+          docker exec -e EST_OPENSSL_CACERT=cacert.pem pki estclient -e -s pki.example.com -p 8443 \
+              --common-name test-new.example.com -o ./new_certs4 -c cert.pem -k key-x-x.pem  | tee output || true
+
+          # Request should fails with bad request error (status code 404)
+          STATUS=$(cat output  | sed -nE 's/.* HTTP response from EST server was (.*)$/\1/p')
+          [ "$STATUS" == "BAD REQUEST" ]
+
+      - name: Modify CA Subject Name policy
+        run: |
+          # The profile constraint for subject name is modified replacing the raClientAuthSubjectNameConstraintImpl,
+          # which verify the subject against the client identity, with subjectNameConstraintImpl to skip the check 
+          docker exec pki sed -i 's/policyset.serverCertSet.list=1,2,3,4,6,7,8,10,20,22/policyset.serverCertSet.list=1,2,3,4,6,7,8,10,21,22/g' \
+              /etc/pki/pki-tomcat/ca/profiles/ca/estServiceCert.cfg
+
+          docker exec pki pki-server restart --wait
+
+      - name: Enroll certificate with user/password but using different subject, check disabled and no CA Subject contraint
+        run: |
+          docker exec -e EST_OPENSSL_CACERT=cacert.pem pki estclient -e -s pki.example.com -p 8443 \
               --common-name test-new.example.com -o new_certs3 -u est-test-user -h Secret.123
 
           docker exec pki openssl base64 -d --in new_certs3/cert-0-0.pkcs7 --out new_certs3/cert-0-0.pkcs7.der
@@ -417,9 +445,8 @@ jobs:
           echo "subject=CN=test-new.example.com" > expected
           diff expected actual
 
-      - name: Enroll new certificate with certificate but using different subject and check disabled
+      - name: Enroll new certificate with certificate but using different subject and check disabled and no CA Subject contraint
         run: |
-          docker exec pki mkdir new_certs4
           docker exec -e EST_OPENSSL_CACERT=cacert.pem pki estclient -e -s pki.example.com -p 8443 \
               --common-name test-new.example.com -o ./new_certs4 -c cert.pem -k key-x-x.pem
 
