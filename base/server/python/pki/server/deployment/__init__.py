@@ -1162,21 +1162,22 @@ class PKIDeployer:
             authdb_url = self.get_authdb_url()
             authdb_basedn = self.mdict.get('pki_authdb_basedn')
 
-            subsystem.set_config(
-                'auths.instance.ldap1.ldap.basedn',
-                authdb_basedn)
-            subsystem.set_config(
-                'auths.instance.ldap1.ldap.ldapconn.host',
-                authdb_url.hostname)
-            subsystem.set_config(
-                'auths.instance.ldap1.ldap.ldapconn.port',
-                str(authdb_url.port))
-            subsystem.set_config(
-                'auths.instance.ldap1.ldap.ldapconn.secureConn',
-                str(authdb_url.scheme == 'ldaps').lower())
-            subsystem.set_config(
-                'auths.instance.ldap1.ldap.ldapauth.clientCertNickname',
-                self.mdict['pki_subsystem_nickname'])
+            if authdb_basedn:
+                subsystem.set_config(
+                    'auths.instance.ldap1.ldap.basedn',
+                    authdb_basedn)
+                subsystem.set_config(
+                    'auths.instance.ldap1.ldap.ldapconn.host',
+                    authdb_url.hostname)
+                subsystem.set_config(
+                    'auths.instance.ldap1.ldap.ldapconn.port',
+                    str(authdb_url.port))
+                subsystem.set_config(
+                    'auths.instance.ldap1.ldap.ldapconn.secureConn',
+                    str(authdb_url.scheme == 'ldaps').lower())
+                subsystem.set_config(
+                    'auths.instance.ldap1.ldap.ldapauth.clientCertNickname',
+                    self.mdict['pki_subsystem_nickname'])
 
     def configure_ca(self, subsystem):
 
