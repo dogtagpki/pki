@@ -144,7 +144,7 @@ jobs:
             Connector ID: KRA
             Enabled: true
             URL: https://primary.example.com:8443
-            Nickname: subsystem
+            Nickname: subsystemCert cert-pki-ca
           EOF
 
           diff expected output
@@ -450,7 +450,7 @@ jobs:
             Connector ID: KRA
             Enabled: true
             URL: https://primary.example.com:8443
-            Nickname: subsystem
+            Nickname: subsystemCert cert-pki-ca
           EOF
 
           diff expected output
@@ -464,7 +464,7 @@ jobs:
             Connector ID: KRA
             Enabled: true
             URL: https://primary.example.com:8443 https://secondary.example.com:8443
-            Nickname: subsystem
+            Nickname: subsystemCert cert-pki-ca
           EOF
 
           diff expected output
@@ -786,10 +786,10 @@ jobs:
             Connector ID: KRA
             Enabled: true
             URL: https://secondary.example.com:8443
-            Nickname: subsystem
+            Nickname: subsystemCert cert-pki-ca
           EOF
 
-          # currently it points to primary KRA
+          # currently it still points to both KRAs
           # https://pagure.io/freeipa/issue/9432
           diff expected output || true
 
