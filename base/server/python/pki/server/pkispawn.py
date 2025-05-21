@@ -54,21 +54,21 @@ def interrupt_handler(event, frame):
 def verify_ds_configuration():
     try:
         deployer.ds_init()
-        deployer.ds_connect()
-        deployer.ds_bind()
-        deployer.ds_search()
+        ds_connection = deployer.ds_connect(deployer.ds_url)
+        deployer.ds_bind(ds_connection)
+        deployer.ds_search(ds_connection)
     finally:
-        deployer.ds_close()
+        deployer.ds_close(ds_connection)
 
 
 def base_dn_exists():
     try:
-        deployer.ds_connect()
-        deployer.ds_bind()
-        deployer.ds_search()
+        ds_connection = deployer.ds_connect(deployer.ds_url)
+        deployer.ds_bind(ds_connection)
+        deployer.ds_search(ds_connection)
 
         try:
-            results = deployer.ds_search(deployer.mdict['pki_ds_base_dn'])
+            results = deployer.ds_search(ds_connection, deployer.mdict['pki_ds_base_dn'])
 
             if results is None or len(results) == 0:
                 return False
@@ -77,7 +77,7 @@ def base_dn_exists():
             return False
 
     finally:
-        deployer.ds_close()
+        deployer.ds_close(ds_connection)
 
     return True
 

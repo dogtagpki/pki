@@ -130,7 +130,6 @@ class PKIDeployer:
             self.dns_domainname = self.hostname
 
         self.ds_url = None
-        self.ds_connection = None
         self.sd_connection = None
 
         self.domain_info = None
@@ -212,12 +211,6 @@ class PKIDeployer:
             ds_url = ds_protocol + '://' + ds_hostname + ':' + ds_port
 
         self.ds_url = urllib.parse.urlparse(ds_url)
-
-        if self.ds_url.scheme == 'ldaps':
-            # ldap.set_option(ldap.OPT_DEBUG_LEVEL, 255)
-            ldap.set_option(ldap.OPT_X_TLS_CACERTFILE,
-                            self.mdict['pki_ds_secure_connection_ca_pem_file'])
-            ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_DEMAND)
 
     def get_authdb_url(self):
 
@@ -2458,28 +2451,34 @@ class PKIDeployer:
         record.acls = acls
         self.manifest_db.append(record)
 
-    def ds_connect(self):
-        if not self.ds_url:
-            logger.debug('ds_connect() called without corresponding call to ds_init()')
-            self.ds_init()
+    def ds_connect(self, ds_url):
 
-        ds_url = self.ds_url.geturl()
-        logger.info('Connecting to LDAP server at %s', ds_url)
+        url = ds_url.geturl()
+        logger.info('Connecting to LDAP server at %s', url)
 
-        self.ds_connection = ldap.initialize(ds_url)
+        ds_connection = ldap.initialize(url)
 
-    def ds_bind(self):
-        self.ds_connection.simple_bind_s(
+        if ds_url.scheme == 'ldaps':
+            # ds_connection.set_option(ldap.OPT_DEBUG_LEVEL, 255)
+            ds_connection.set_option(
+                ldap.OPT_X_TLS_CACERTFILE,
+                self.mdict['pki_ds_secure_connection_ca_pem_file'])
+            ds_connection.set_option(
+                ldap.OPT_X_TLS_REQUIRE_CERT,
+                ldap.OPT_X_TLS_DEMAND)
+
+        return ds_connection
+
+    def ds_bind(self, ds_connection):
+        ds_connection.simple_bind_s(
             self.mdict['pki_ds_bind_dn'],
             self.mdict['pki_ds_password'])
 
-    def ds_search(self, key=None):
-        if key is None:
-            key = ''
-        return self.ds_connection.search_s(key, ldap.SCOPE_BASE)
+    def ds_search(self, ds_connection, base_dn=''):
+        return ds_connection.search_s(base_dn, ldap.SCOPE_BASE)
 
-    def ds_close(self):
-        self.ds_connection.unbind_s()
+    def ds_close(self, ds_connection):
+        ds_connection.unbind_s()
 
     def sd_connect(self):
 
