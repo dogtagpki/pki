@@ -437,12 +437,10 @@ class PKIInstance(pki.server.PKIServer):
     @staticmethod
     def load_external_certs_conf(conf_file):
 
-        logger.info('Loading external certs from %s', conf_file)
-
         if not os.path.exists(conf_file):
-            logger.info('File does not exist: %s', conf_file)
             return []
 
+        logger.info('Loading external certs from %s', conf_file)
         lines = open(conf_file, encoding='utf-8').read().splitlines()
 
         tmp_certs = {}
