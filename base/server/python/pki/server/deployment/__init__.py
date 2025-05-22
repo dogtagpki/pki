@@ -129,7 +129,6 @@ class PKIDeployer:
         if not len(self.dns_domainname):
             self.dns_domainname = self.hostname
 
-        self.ds_url = None
         self.sd_connection = None
 
         self.domain_info = None
@@ -187,30 +186,6 @@ class PKIDeployer:
         self.kra_connector = util.KRAConnector(self)
         self.systemd = util.Systemd(self)
         self.tps_connector = util.TPSConnector(self)
-
-        self.ds_init()
-
-    def ds_init(self):
-
-        ds_url = self.mdict.get('pki_ds_url')
-
-        if ds_url is None:
-
-            ds_hostname = self.mdict.get('pki_ds_hostname')
-
-            if not ds_hostname:
-                return
-
-            if config.str2bool(self.mdict['pki_ds_secure_connection']):
-                ds_protocol = 'ldaps'
-                ds_port = self.mdict['pki_ds_ldaps_port']
-            else:
-                ds_protocol = 'ldap'
-                ds_port = self.mdict['pki_ds_ldap_port']
-
-            ds_url = ds_protocol + '://' + ds_hostname + ':' + ds_port
-
-        self.ds_url = urllib.parse.urlparse(ds_url)
 
     def get_authdb_url(self):
 
@@ -1420,17 +1395,22 @@ class PKIDeployer:
 
     def configure_internal_database(self, subsystem):
 
-        if self.ds_url.scheme == 'ldaps':
+        ds_url = self.get_ds_url()
+
+        if not ds_url:
+            return
+
+        if ds_url.scheme == 'ldaps':
             subsystem.set_config('internaldb.ldapconn.secureConn', 'true')
 
-        elif self.ds_url.scheme == 'ldap':
+        elif ds_url.scheme == 'ldap':
             subsystem.set_config('internaldb.ldapconn.secureConn', 'false')
 
         else:
-            raise Exception('Unsupported protocol: %s' % self.ds_url.scheme)
+            raise Exception('Unsupported protocol: %s' % ds_url.scheme)
 
-        subsystem.set_config('internaldb.ldapconn.host', self.ds_url.hostname)
-        subsystem.set_config('internaldb.ldapconn.port', self.ds_url.port)
+        subsystem.set_config('internaldb.ldapconn.host', ds_url.hostname)
+        subsystem.set_config('internaldb.ldapconn.port', ds_url.port)
 
         subsystem.set_config('internaldb.ldapauth.bindDN', self.mdict['pki_ds_bind_dn'])
         subsystem.set_config('internaldb.basedn', self.mdict['pki_ds_base_dn'])
@@ -2451,6 +2431,28 @@ class PKIDeployer:
         record.acls = acls
         self.manifest_db.append(record)
 
+    def get_ds_url(self):
+
+        ds_url = self.mdict.get('pki_ds_url')
+
+        if ds_url is None:
+
+            ds_hostname = self.mdict.get('pki_ds_hostname')
+
+            if not ds_hostname:
+                return None
+
+            if config.str2bool(self.mdict['pki_ds_secure_connection']):
+                ds_protocol = 'ldaps'
+                ds_port = self.mdict['pki_ds_ldaps_port']
+            else:
+                ds_protocol = 'ldap'
+                ds_port = self.mdict['pki_ds_ldap_port']
+
+            ds_url = ds_protocol + '://' + ds_hostname + ':' + ds_port
+
+        return urllib.parse.urlparse(ds_url)
+
     def ds_connect(self, ds_url):
 
         url = ds_url.geturl()
@@ -2459,11 +2461,11 @@ class PKIDeployer:
         ds_connection = ldap.initialize(url)
 
         if ds_url.scheme == 'ldaps':
-            # ds_connection.set_option(ldap.OPT_DEBUG_LEVEL, 255)
-            ds_connection.set_option(
+            # ldap.set_option(ldap.OPT_DEBUG_LEVEL, 255)
+            ldap.set_option(
                 ldap.OPT_X_TLS_CACERTFILE,
                 self.mdict['pki_ds_secure_connection_ca_pem_file'])
-            ds_connection.set_option(
+            ldap.set_option(
                 ldap.OPT_X_TLS_REQUIRE_CERT,
                 ldap.OPT_X_TLS_DEMAND)
 

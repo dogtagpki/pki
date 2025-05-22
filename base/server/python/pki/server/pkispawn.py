@@ -53,8 +53,8 @@ def interrupt_handler(event, frame):
 
 def verify_ds_configuration():
     try:
-        deployer.ds_init()
-        ds_connection = deployer.ds_connect(deployer.ds_url)
+        ds_url = deployer.get_ds_url()
+        ds_connection = deployer.ds_connect(ds_url)
         deployer.ds_bind(ds_connection)
         deployer.ds_search(ds_connection)
     finally:
@@ -63,7 +63,8 @@ def verify_ds_configuration():
 
 def base_dn_exists():
     try:
-        ds_connection = deployer.ds_connect(deployer.ds_url)
+        ds_url = deployer.get_ds_url()
+        ds_connection = deployer.ds_connect(ds_url)
         deployer.ds_bind(ds_connection)
         deployer.ds_search(ds_connection)
 
@@ -344,7 +345,6 @@ def main(argv):
 
                     # Force deployer to re-initialize the DS connection string
                     # next time, as we're in interactive mode here.
-                    deployer.ds_url = None
                     continue
 
                 parser.read_text('Base DN',
@@ -755,8 +755,8 @@ def check_ds():
                 print('ERROR:  Base DN already exists.')
                 sys.exit(1)
 
-    except ldap.LDAPError:
-        logger.error('Unable to access LDAP server: %s', deployer.ds_url.geturl())
+    except ldap.LDAPError as e:
+        logger.error(str(e))
         raise
 
 
