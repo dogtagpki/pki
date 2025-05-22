@@ -13,7 +13,7 @@ Prior to installation, ensure that the xref:../others/installation-prerequisites
 
 . Execute the following command:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pkispawn -f tks.cfg -s TKS
 ....
@@ -33,7 +33,7 @@ When TKS is installed on a new system without any other subsystems, it is necess
 
 Verify that the server NSS database contains the following certificates:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
 
@@ -50,14 +50,14 @@ sslserver                                                    u,u,u
 
 . Import the CA signing certificate:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki nss-cert-import --cert ca_signing.crt --trust CT,C,C ca_signing
 ....
 
 . Import admin certificate and key into the client NSS database (by default ~/.dogtag/nssdb) with the following command:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki -c Secret.123 pkcs12-import \
     --pkcs12 ca_admin_cert.p12 \
@@ -66,7 +66,7 @@ $ pki -c Secret.123 pkcs12-import \
 
 . Verify that the admin certificate can be used to access the TKS subsystem by executing the following command:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki -c Secret.123 -n caadmin tks-user-show tksadmin
 ---------------

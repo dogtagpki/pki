@@ -6,7 +6,7 @@
 Follow this process to install an _EST subsystem_.
 
 The *EST subsystem* requires the package `dogtag-pki-est` installed on the server where the instance is run:
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 # dnf install dogtag-pki-est
 ....
@@ -18,7 +18,7 @@ the CA subsystem and issue certificates on behalf of EST clients.
 
 Note: The commands below assume that the CA is running on the same host with the default port and the nssdb is located in `~/.dogtag/nssdb`. To point to a CA on a different host or with a different port use the options `-h <hostname>`, `-p <port_number>` or `-U <CA_uri`. To use a different nssdb use the option `-d <nssdb_path>`.
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 # pki -n caadmin ca-group-add "EST RA Agents"
 ---------------------------
@@ -42,7 +42,7 @@ Added user "est-ra-1"
 
 Add and enable the EST enrollment profile `estServiceCert.cfg`, which is available in `/usr/share/pki/ca/profiles/ca` if the *dogtag-pki-ca* package is installed:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 # pki -n caadmin ca-profile-add --raw /usr/share/pki/ca/profiles/ca/estServiceCert.cfg
 ----------------------------
@@ -80,7 +80,7 @@ Use `curl` to verify that the *EST subsystem* is deployed and is able to communi
 
 The following command prints the CA signing certificate obtained from the server:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 
 $ curl --cacert ./ca_signing.crt  https://<EST_HOSTNAME>:<EST_PORT>/.well-known/est/cacerts | openssl base64 -d | openssl pkcs7 -inform der -print_certs | openssl x509 -text -noout
@@ -92,7 +92,7 @@ If successful, the server CA certificate chain is printed on standard output and
 
 To test the enrollment using curl, generate a CSR and submit using a user from the EST user DB associated with the realm. The following commands will perform the enrollment and print the final certificate:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki nss-cert-request --csr testServer.csr \
     --ext /usr/share/pki/server/certs/sslserver.conf --subject 'CN=test.example.com'
@@ -109,7 +109,7 @@ Note: The `testServer.p10` file is a base64 encoded pkcs10 DER without header/fo
 
 In case the enrollment is done using mutual TLS authentication in the `curl` command above, the credentials have to be replaced with the certificate and related key as follows:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ curl --cacert ./ca_signing.crt --cert cert.pem --key key-x-x.pem \
     --data-binary @testServer.p10 -H "Content-Type: application/pkcs10"
@@ -118,7 +118,7 @@ $ curl --cacert ./ca_signing.crt --cert cert.pem --key key-x-x.pem \
 
 When mutual TLS authentication is performed, the CSR subject and SAN has to match with the subject and SAN of the certificate used for the authentication in order to get authorized. Differently, using the basic authentication the CSR subject and SAN will be verified with user full name or user id. This check can be disabled for the _simpleenroll_ operation. To disable this check add the following option to the file `/etc/pki/<instance_name>/est/authorizer.conf`:
      
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 enrollMatchTLSSubjSAN=false
 ....

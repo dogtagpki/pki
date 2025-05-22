@@ -11,7 +11,7 @@ Prior to installation, ensure that the xref:../others/installation-prerequisites
 
 Once the prerequisites listed above are configured, if you chose to use the DS bootstrap certificates during DS instance creation, then export the bootstrap self-signed certificate into `ds_signing.crt` as follows:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ certutil -L -d /etc/dirsrv/slapd-localhost -n Self-Signed-CA -a > ds_signing.crt
 ....
@@ -20,7 +20,7 @@ $ certutil -L -d /etc/dirsrv/slapd-localhost -n Self-Signed-CA -a > ds_signing.c
 
 . Prepare a file, for example `kra.cfg`, that contains the deployment configuration:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ----
 [DEFAULT]
 pki_server_database_password=Secret.123
@@ -56,7 +56,7 @@ pki_subsystem_nickname=subsystem
 
 . Execute the following command:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pkispawn -f kra.cfg -s KRA
 ....
@@ -71,7 +71,7 @@ It installs a KRA subsystem in a Tomcat instance (default is pki-tomcat) and cre
 
 Verify that the server NSS database contains the following certificates:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
 
@@ -91,7 +91,7 @@ sslserver                                                    u,u,u
 
 Verify that the KRA database is configured with a secure connection:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki-server kra-db-config-show
   Hostname: pki.example.com
@@ -111,14 +111,14 @@ $ pki-server kra-db-config-show
 
 . Import the CA signing certificate:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki nss-cert-import --cert ca_signing.crt --trust CT,C,C ca_signing
 ....
 
 . Import admin certificate and key into the client NSS database (by default ~/.dogtag/nssdb) with the following command:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki -c Secret.123 pkcs12-import \
     --pkcs12 ca_admin_cert.p12 \
@@ -127,7 +127,7 @@ $ pki -c Secret.123 pkcs12-import \
 
 . Verify that the admin certificate can be used to access the KRA subsystem by executing the following command:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki -c Secret.123 -n caadmin kra-user-show kraadmin
 ---------------
@@ -144,7 +144,7 @@ User "kraadmin"
 
 Verify that the KRA connector is configured in the CA subsystem:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki -c Secret.123 -n caadmin ca-kraconnector-show
 
