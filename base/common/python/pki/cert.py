@@ -219,9 +219,12 @@ class CertRequestInfo(object):
             else:
                 setattr(cert_request_info, k, v)
 
-        cert_request_info.request_id = \
-            str(cert_request_info.request_url)[(str(
-                cert_request_info.request_url).rfind("/") + 1):]
+        if cert_request_info.request_url:
+            cert_request_info.request_id = \
+                str(cert_request_info.request_url)[(str(
+                    cert_request_info.request_url).rfind("/") + 1):]
+        else:
+            cert_request_info.request_id = attr_list.get('requestID')
 
         return cert_request_info
 
