@@ -113,6 +113,14 @@ public class CAClient extends SubsystemClient {
             throw new IOException("Unable to update connector: No response");
         }
 
+        // JSON response:
+        // {
+        //   "Response" : {
+        //     "Status" : "1",
+        //     "Error" : "KRA connector already exists"
+        //   }
+        // }
+
         ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
         JSONObject jsonObj = new JSONObject(bis);
         JsonNode responseNode = jsonObj.getJsonNode().get("Response");
@@ -127,7 +135,7 @@ public class CAClient extends SubsystemClient {
             throw new EAuthException("Unable to update connector: Authentication failure");
 
         } else {
-            String error = jsonObj.getJsonNode().get("Error").asText();
+            String error = responseNode.get("Error").asText();
             logger.error("CAClient: Unable to update connector: " + error);
             throw new IOException("Unable to update connector: " + error);
         }
