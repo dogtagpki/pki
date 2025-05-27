@@ -1395,26 +1395,33 @@ class PKIDeployer:
 
     def configure_internal_database(self, subsystem):
 
+        logger.info('Configuring %s database', subsystem.type)
+
         ds_url = self.get_ds_url()
+        if ds_url:
+            if ds_url.scheme == 'ldaps':
+                subsystem.set_config('internaldb.ldapconn.secureConn', 'true')
 
-        if not ds_url:
-            return
+            elif ds_url.scheme == 'ldap':
+                subsystem.set_config('internaldb.ldapconn.secureConn', 'false')
 
-        if ds_url.scheme == 'ldaps':
-            subsystem.set_config('internaldb.ldapconn.secureConn', 'true')
+            else:
+                raise Exception('Unsupported protocol: %s' % ds_url.scheme)
 
-        elif ds_url.scheme == 'ldap':
-            subsystem.set_config('internaldb.ldapconn.secureConn', 'false')
+            subsystem.set_config('internaldb.ldapconn.host', ds_url.hostname)
+            subsystem.set_config('internaldb.ldapconn.port', ds_url.port)
 
-        else:
-            raise Exception('Unsupported protocol: %s' % ds_url.scheme)
+        bind_dn = self.mdict.get('pki_ds_bind_dn')
+        if bind_dn:
+            subsystem.set_config('internaldb.ldapauth.bindDN', bind_dn)
 
-        subsystem.set_config('internaldb.ldapconn.host', ds_url.hostname)
-        subsystem.set_config('internaldb.ldapconn.port', ds_url.port)
+        base_dn = self.mdict.get('pki_ds_base_dn')
+        if base_dn:
+            subsystem.set_config('internaldb.basedn', base_dn)
 
-        subsystem.set_config('internaldb.ldapauth.bindDN', self.mdict['pki_ds_bind_dn'])
-        subsystem.set_config('internaldb.basedn', self.mdict['pki_ds_base_dn'])
-        subsystem.set_config('internaldb.database', self.mdict['pki_ds_database'])
+        database_name = self.mdict.get('pki_ds_database')
+        if database_name:
+            subsystem.set_config('internaldb.database', database_name)
 
     def configure_subsystem(self, subsystem):
 
@@ -2436,6 +2443,7 @@ class PKIDeployer:
         ds_url = self.mdict.get('pki_ds_url')
 
         if ds_url is None:
+            # if pki_ds_url is not specified, use legacy params
 
             ds_hostname = self.mdict.get('pki_ds_hostname')
 
@@ -2451,6 +2459,11 @@ class PKIDeployer:
 
             ds_url = ds_protocol + '://' + ds_hostname + ':' + ds_port
 
+        elif ds_url == '':
+            # if pki_ds_url is blank, return None
+            return None
+
+        # return URL object
         return urllib.parse.urlparse(ds_url)
 
     def ds_connect(self, ds_url):
