@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.Locale;
 
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
 import org.mozilla.jss.netscape.security.x509.X500Name;
@@ -20,9 +21,16 @@ import org.slf4j.LoggerFactory;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
+import com.netscape.certsrv.usrgrp.Certificates;
+import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.cms.profile.input.RAClientAuthInfoInput;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
+import com.netscape.cmscore.usrgrp.ExactMatchCertUserLocator;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
+import com.netscape.cmscore.usrgrp.User;
+
+import netscape.ldap.LDAPException;
 
 /**
  * Subject name constraints for clients authenticated by an RA.
@@ -89,7 +97,7 @@ public class RAClientAuthSubjectNameContraint extends EnrollConstraint {
             snClient = cert.getSubjectObj();
             logger.debug("RAClientSubjectNameContraint: Client cert subject {}", snClient);
 
-            if (snClient.toString().equals(sn.toString()))
+            if (isAgentCert(cert) || snClient.toString().equals(sn.toString()))
                 return;
 
         } else if ((name != null && !name.isBlank()) ||
@@ -122,5 +130,27 @@ public class RAClientAuthSubjectNameContraint extends EnrollConstraint {
         return CMS.getUserMessage(locale,
                 "CMS_PROFILE_CONSTRAINT_SUBJECT_NAME_TEXT",
                 getConfig(CONFIG_PATTERN));
+    }
+
+    private boolean isAgentCert(X509CertImpl cert) {
+        ExactMatchCertUserLocator mcu = new ExactMatchCertUserLocator();
+        CAEngine engine = CAEngine.getInstance();
+        mcu.setCMSEngine(engine);
+        X509CertImpl[] certList = new X509CertImpl[1];
+        certList[0] = cert;
+        Certificates ci = new Certificates(certList);
+        User user;
+        try {
+            user = mcu.locateUser(ci);
+        } catch (EUsrGrpException | LDAPException e) {
+            logger.debug("RAClientAuthSubjectNameConstraint: isAgentCert", e);
+            return false;
+        }
+        UGSubsystem uggroup = engine.getUGSubsystem();
+        if (uggroup.isMemberOf(user, "Certificate Manager Agents")) {
+            logger.debug("RAClientAuthSubjectNameConstraint: authorise agent {}", user.getUserID());
+            return true;
+        }
+        return false;
     }
 }
