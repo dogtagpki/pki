@@ -381,7 +381,7 @@ jobs:
           STATUS=$(cat output  | sed -nE 's/.* HTTP response HTTP\/1.1 ([[:digit:]]*).*$/\1/p')
           [ "$STATUS" == "403" ]
 
-      - name: Disable subject for enroll
+      - name: Disable EST subject check for enroll
         run: |
           docker exec pki cat /etc/pki/pki-tomcat/est/authorizer.conf > authorizer.conf
           echo "enrollMatchTLSSubjSAN=false" >> authorizer.conf
@@ -389,7 +389,7 @@ jobs:
 
           docker exec pki pki-server restart --wait
 
-      - name: Enroll certificate with user/password but using different subject and check disabled
+      - name: Enroll certificate with user/password but using different subject and EST check disabled
         run: |
           docker exec pki mkdir new_certs3
           docker exec -e EST_OPENSSL_CACERT=cacert.pem pki estclient -e -s pki.example.com -p 8443 \
@@ -399,7 +399,7 @@ jobs:
           STATUS=$(cat output  | sed -nE 's/.* HTTP response from EST server was (.*)$/\1/p')
           [ "$STATUS" == "BAD REQUEST" ]
 
-      - name: Enroll new certificate with certificate but using different subject and check disabled
+      - name: Enroll new certificate with certificate but using different subject and EST check disabled
         run: |
           docker exec pki mkdir new_certs4
           docker exec -e EST_OPENSSL_CACERT=cacert.pem pki estclient -e -s pki.example.com -p 8443 \
@@ -408,6 +408,36 @@ jobs:
           # Request should fails with bad request error (status code 404)
           STATUS=$(cat output  | sed -nE 's/.* HTTP response from EST server was (.*)$/\1/p')
           [ "$STATUS" == "BAD REQUEST" ]
+
+      - name: Create CA agent user with est-test-user cert
+        run: |
+          docker exec pki pki -n caadmin ca-user-add estagent -fullName "EST Agent" --password Secret.123
+          docker exec pki pki -n caadmin ca-user-membership-add estagent "Certificate Manager Agents"
+          docker exec pki pki -n caadmin ca-user-cert-add estagent --serial $(docker exec pki PrettyPrintCert cert.pem | sed -n 's/\s*Serial Number:\s*0x\(.*\)/0x\1/p')
+
+      - name: Enroll certificate with user/password but using different subject and EST check disabled
+        run: |
+          docker exec -e EST_OPENSSL_CACERT=cacert.pem pki estclient -e -s pki.example.com -p 8443 \
+              --common-name test-new.example.com -o new_certs3 -u est-test-user -h Secret.123 | tee output || true
+
+          # Request should fails with bad request error (status code 400, BAD REQUEST)
+          STATUS=$(cat output  | sed -nE 's/.* HTTP response from EST server was (.*)$/\1/p')
+          [ "$STATUS" == "BAD REQUEST" ]
+
+      - name: Enroll new certificate with certificate but using different subject and EST check disabled and agent client
+        run: |
+          docker exec -e EST_OPENSSL_CACERT=cacert.pem pki estclient -e -s pki.example.com -p 8443 \
+              --common-name test-new.example.com -o ./new_certs4 -c cert.pem -k key-x-x.pem
+
+          docker exec pki openssl base64 -d --in new_certs4/cert-0-0.pkcs7 --out new_certs4/cert-0-0.pkcs7.der
+          docker exec pki openssl pkcs7 -in new_certs4/cert-0-0.pkcs7.der -inform DER -print_certs -quiet -out new_certs4/cert.pem
+          docker exec pki openssl x509 -in new_certs4/cert.pem -subject -noout | tee actual
+          echo "subject=CN=test-new.example.com" > expected
+          diff expected actual
+
+      - name: Remove agent
+        run: |
+          docker exec pki pki -n caadmin ca-user-del estagent
 
       - name: Modify CA Subject Name policy
         run: |
@@ -431,12 +461,13 @@ jobs:
 
       - name: Enroll new certificate with certificate but using different subject and check disabled and no CA Subject contraint
         run: |
+          docker exec pki mkdir new_certs5
           docker exec -e EST_OPENSSL_CACERT=cacert.pem pki estclient -e -s pki.example.com -p 8443 \
-              --common-name test-new.example.com -o ./new_certs4 -c cert.pem -k key-x-x.pem
+              --common-name test-new.example.com -o ./new_certs5 -c cert.pem -k key-x-x.pem
 
-          docker exec pki openssl base64 -d --in new_certs4/cert-0-0.pkcs7 --out new_certs4/cert-0-0.pkcs7.der
-          docker exec pki openssl pkcs7 -in new_certs4/cert-0-0.pkcs7.der -inform DER -print_certs -quiet -out new_certs4/cert.pem
-          docker exec pki openssl x509 -in new_certs4/cert.pem -subject -noout | tee actual
+          docker exec pki openssl base64 -d --in new_certs5/cert-0-0.pkcs7 --out new_certs5/cert-0-0.pkcs7.der
+          docker exec pki openssl pkcs7 -in new_certs5/cert-0-0.pkcs7.der -inform DER -print_certs -quiet -out new_certs5/cert.pem
+          docker exec pki openssl x509 -in new_certs5/cert.pem -subject -noout | tee actual
           echo "subject=CN=test-new.example.com" > expected
           diff expected actual
 

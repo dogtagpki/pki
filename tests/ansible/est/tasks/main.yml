@@ -230,7 +230,7 @@
     env:
       EST_OPENSSL_CACERT: cacert.pem
   loop:
-# PkiInMemoryRealm has the full name hardcoded and it is "Adminitrsator"
+# PkiInMemoryRealm has the full name hardcoded and it is "Administrator"
     - estclient -e -s {{ pki_hostname }} -p 8443 --common-name Administrator -o . -u alice -h 4me2Test
     - openssl base64 -d --in cert-0-0.pkcs7 --out cert-0-0.pkcs7.der
     - openssl pkcs7 -in cert-0-0.pkcs7.der -inform DER -print_certs -out cert.pem
