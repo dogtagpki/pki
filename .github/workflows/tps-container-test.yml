@@ -387,14 +387,14 @@ jobs:
         run: |
           cp ca/conf/certs/subsystem.crt kra/conf/certs/ca_subsystem.crt
           docker exec kra pki-server kra-user-add \
-              --full-name CA-ca.example.com-8443 \
+              --full-name CA \
               --type agentType \
               --cert /conf/certs/ca_subsystem.crt \
-              CA-ca.example.com-8443
+              CA
 
       - name: Assign roles to CA subsystem user
         run: |
-          docker exec kra pki-server kra-user-role-add CA-ca.example.com-8443 "Trusted Managers"
+          docker exec kra pki-server kra-user-role-add CA "Trusted Managers"
 
       - name: Configure KRA connector in CA
         run: |
@@ -564,14 +564,14 @@ jobs:
               nss-key-create \
               --key-type AES \
               --op-flags WRAP,UNWRAP,ENCRYPT,ENCRYPT \
-              "TPS-tps.example.com-8443 sharedSecret"
+              "TPS sharedSecret"
 
       - name: Add TPS connector in TKS
         run: |
           docker exec tks pki-server tks-connector-add \
              --url https://tps.example.com:8443 \
-             --nickname "TPS-tps.example.com-8443 sharedSecret" \
-             --uid TPS-tps.example.com-8443 \
+             --nickname "TPS sharedSecret" \
+             --uid TPS \
              0
 
       - name: Create TPS subsystem cert
@@ -796,17 +796,17 @@ jobs:
           docker cp tps/certs/subsystem.crt ca:tps_subsystem.crt
 
           docker exec ca pki-server ca-user-add \
-              --full-name "TPS-tps.example.com-8443" \
+              --full-name TPS \
               --type agentType \
               --cert tps_subsystem.crt \
-              TPS-tps.example.com-8443
+              TPS
 
           docker exec ca pki-server ca-user-role-add \
-              TPS-tps.example.com-8443 \
+              TPS \
               "Certificate Manager Agents"
 
           docker exec ca pki-server ca-user-role-add \
-              TPS-tps.example.com-8443 \
+              TPS \
               "Subsystem Group"
 
       - name: Add CA connector in TPS
@@ -822,13 +822,13 @@ jobs:
           docker cp tps/certs/subsystem.crt kra:tps_subsystem.crt
 
           docker exec kra pki-server kra-user-add \
-              --full-name "TPS-tps.example.com-8443" \
+              --full-name TPS \
               --type agentType \
               --cert tps_subsystem.crt \
-              TPS-tps.example.com-8443
+              TPS
 
           docker exec kra pki-server kra-user-role-add \
-              TPS-tps.example.com-8443 \
+              TPS \
               "Data Recovery Manager Agents"
 
       - name: Add KRA connector in TPS
@@ -844,13 +844,13 @@ jobs:
           docker cp tps/certs/subsystem.crt tks:tps_subsystem.crt
 
           docker exec tks pki-server tks-user-add \
-              --full-name "TPS-tps.example.com-8443" \
+              --full-name TPS \
               --type agentType \
               --cert tps_subsystem.crt \
-              TPS-tps.example.com-8443
+              TPS
 
           docker exec tks pki-server tks-user-role-add \
-              TPS-tps.example.com-8443 \
+              TPS \
               "Token Key Service Manager Agents"
 
       - name: Add TKS connector in TPS
@@ -871,7 +871,7 @@ jobs:
               nss-key-export \
               --wrapper-cert tps_subsystem.crt \
               --output shared-secret.json \
-              "TPS-tps.example.com-8443 sharedSecret"
+              "TPS sharedSecret"
 
           docker cp tks:shared-secret.json .
           docker cp shared-secret.json tps:.
@@ -883,12 +883,12 @@ jobs:
               nss-key-import \
               --input shared-secret.json \
               --wrapper subsystem \
-              "TPS-tps.example.com-8443 sharedSecret"
+              "TPS sharedSecret"
 
           # configure shared secret in TPS
           docker exec tps pki-server tps-config-set \
               conn.tks1.tksSharedSymKeyName \
-              "TPS-tps.example.com-8443 sharedSecret"
+              "TPS sharedSecret"
 
       - name: Set up user auth database for TPS
         run: |
@@ -1013,9 +1013,9 @@ jobs:
 
           cat > expected << EOF
           tps.0.host=tps.example.com
-          tps.0.nickname=TPS-tps.example.com-8443 sharedSecret
+          tps.0.nickname=TPS sharedSecret
           tps.0.port=8443
-          tps.0.userid=TPS-tps.example.com-8443
+          tps.0.userid=TPS
           tps.list=0
           EOF
 
@@ -1048,8 +1048,8 @@ jobs:
 
       - name: Check TPS subsystem user in CA after restart
         run: |
-          docker exec ca pki-server ca-user-show TPS-tps.example.com-8443
-          docker exec ca pki-server ca-user-role-find TPS-tps.example.com-8443
+          docker exec ca pki-server ca-user-show TPS
+          docker exec ca pki-server ca-user-role-find TPS
 
       - name: Check CA connector in TPS after restart
         run: |
@@ -1074,8 +1074,8 @@ jobs:
 
       - name: Check TPS subsystem user in KRA after restart
         run: |
-          docker exec kra pki-server kra-user-show TPS-tps.example.com-8443
-          docker exec kra pki-server kra-user-role-find TPS-tps.example.com-8443
+          docker exec kra pki-server kra-user-show TPS
+          docker exec kra pki-server kra-user-role-find TPS
 
       - name: Check KRA connector in TPS after restart
         run: |
@@ -1097,8 +1097,8 @@ jobs:
 
       - name: Check TPS subsystem user in TKS after restart
         run: |
-          docker exec tks pki-server tks-user-show TPS-tps.example.com-8443
-          docker exec tks pki-server tks-user-role-find TPS-tps.example.com-8443
+          docker exec tks pki-server tks-user-show TPS
+          docker exec tks pki-server tks-user-role-find TPS
 
       - name: Check TKS connector in TPS after restart
         run: |
@@ -1134,7 +1134,7 @@ jobs:
           docker exec tps pki-server tps-config-find | grep ^conn. | tee output
 
           cat > expected << EOF
-          conn.tks1.tksSharedSymKeyName=TPS-tps.example.com-8443 sharedSecret
+          conn.tks1.tksSharedSymKeyName=TPS sharedSecret
           EOF
 
           diff expected output
