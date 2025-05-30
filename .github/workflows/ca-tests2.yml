@@ -23,15 +23,25 @@ jobs:
     needs: build
     uses: ./.github/workflows/ca-profile-caServerCert-test.yml
 
-  ca-renewal-system-certs-test:
-    name: CA system certs renewal
+  ca-renewal-manual-test:
+    name: CA manual renewal
     needs: build
-    uses: ./.github/workflows/ca-renewal-system-certs-test.yml
+    uses: ./.github/workflows/ca-renewal-manual-test.yml
 
-  ca-renewal-system-certs-hsm-test:
-    name: CA system certs renewal with HSM
+  ca-renewal-manual-hsm-test:
+    name: CA manual renewal with HSM
     needs: build
-    uses: ./.github/workflows/ca-renewal-system-certs-hsm-test.yml
+    uses: ./.github/workflows/ca-renewal-manual-hsm-test.yml
+
+  ca-renewal-automated-test:
+    name: CA automated renewal
+    needs: build
+    uses: ./.github/workflows/ca-renewal-automated-test.yml
+
+  ca-renewal-automated-ldaps-test:
+    name: CA automated renewal with LDAPS
+    needs: build
+    uses: ./.github/workflows/ca-renewal-automated-ldaps-test.yml
 
   ca-cert-revocation-test:
     name: CA cert revocation

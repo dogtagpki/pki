@@ -243,6 +243,30 @@ jobs:
           docker exec ipa pki -d /etc/dirsrv/slapd-EXAMPLE-COM nss-cert-show "EXAMPLE.COM IPA CA"
           docker exec ipa pki -d /etc/dirsrv/slapd-EXAMPLE-COM nss-cert-show "Server-Cert"
 
+      - name: Check CA database config after renewal
+        run: |
+          docker exec ipa pki-server ca-config-find | grep "^internaldb\." | tee output
+
+          cat > expected << EOF
+          internaldb._000=##
+          internaldb._001=## Internal Database
+          internaldb._002=##
+          internaldb.basedn=o=ipaca
+          internaldb.database=ipaca
+          internaldb.ldapauth.authtype=SslClientAuth
+          internaldb.ldapauth.bindDN=cn=Directory Manager
+          internaldb.ldapauth.bindPWPrompt=internaldb
+          internaldb.ldapauth.clientCertNickname=subsystemCert cert-pki-ca
+          internaldb.ldapconn.host=ipa.example.com
+          internaldb.ldapconn.port=636
+          internaldb.ldapconn.secureConn=true
+          internaldb.maxConns=15
+          internaldb.minConns=3
+          internaldb.multipleSuffix.enable=false
+          EOF
+
+          diff expected output
+
       - name: Check PKI system certs after renewal
         run: |
           docker exec ipa pki-server cert-find
