@@ -36,9 +36,10 @@ class Keyring:
     type `user`
     """
 
-    def __init__(self, keyring='@u', key_type='user'):
+    def __init__(self, keyring='@u', key_type='user', owner=None):
         self.keyring = keyring
         self.key_type = key_type
+        self.user = owner
 
     def put_password(self, key_name, password):
         """
@@ -51,8 +52,11 @@ class Keyring:
         :return: Key ID, Error (if any)
         :rtype: (bytearray, bytearray)
         """
+        cmd = []
+        if self.user:
+            cmd = ['runuser', '-u', self.user, '--']
 
-        cmd = [
+        cmd = cmd + [
             'keyctl',
             'padd',
             self.key_type,
@@ -78,7 +82,11 @@ class Keyring:
         :rtype: int
         """
 
-        cmd = [
+        cmd = []
+        if self.user:
+            cmd = ['runuser', '-u', self.user, '--']
+
+        cmd = cmd + [
             'keyctl',
             'search',
             self.keyring,
@@ -91,8 +99,7 @@ class Keyring:
 
         if result.returncode == 0:
             return result.stdout.decode().strip()
-        else:
-            return None
+        return None
 
     def get_password(self, key_name, output_format='raw'):
         """
@@ -115,7 +122,11 @@ class Keyring:
 
         key_id = self.get_key_id(key_name)
 
-        cmd = [
+        cmd = []
+        if self.user:
+            cmd = ['runuser', '-u', self.user, '--']
+
+        cmd = cmd + [
             'keyctl',
             mode,
             key_id
@@ -132,7 +143,11 @@ class Keyring:
         :rtype: int
         """
 
-        cmd = [
+        cmd = []
+        if self.user:
+            cmd = ['runuser', '-u', self.user, '--']
+
+        cmd = cmd + [
             'keyctl',
             'clear',
             self.keyring
