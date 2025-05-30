@@ -1,0 +1,245 @@
+Offline System Certificate Renewal
+==================================
+
+## Overview
+
+PKI server provides a mechanism to recover from expired system certificates.
+This mechanism can also be used to renew the certificates before they expire.
+
+There are 2 ways to renew the certificates:
+
+* link:#Automated-Renewal-Process[Automated Renewal Process]
+* link:#Manual-Renewal-Process[Manual Renewal Process]
+
+## Automated Renewal Process
+
+The automated renewal process provides a simple way to renew the system certificates
+but it has some requirements that must be met in order to use this process.
+
+### Requirements
+
+* The PKI server must have a CA subsystem.
+* The CA signing certificate must be valid (i.e. not expired).
+* The CA agent user must be available.
+* All subsystems must use the same DS server and the same database user.
+* If the subsystem uses LDAPS connection to DS, the DS certificate must be valid (i.e. not expired).
+* If the subsystem uses client certificate authentication to DS, it must use the subsystem certificate.
+
+NOTE: The passwords of the CA agent and database user will be reset. If needed, they can be changed back afterwards.
+
+### Renewal Process
+
+To renew the system certificates using LDAP/LDAPS connection, specify the connection URL and the CA agent UID:
+
+```
+$ pki-server cert-fix \
+    --ldap-url <URL> \
+    --agent-uid <UID>
+```
+
+To renew the system certificates using LDAPI socket, specify the socket path and the CA agent UID:
+
+```
+$ pki-server cert-fix \
+    --ldapi-socket <path> \
+    --agent-uid <UID>
+```
+
+## Manual Renewal Process
+
+The manual renewal process provides a more flexible way to renew the system certificates
+since each step can be adjusted as needed.
+
+### Initialization
+
+It is recommended to run the following steps to ensure that `CS.cfg` and NSS database are synchronized and that the server can operate without any issues.
+
+Disable self tests using the following command:
+
+```
+$ pki-server selftest-disable
+```
+
+Synchronize NSS database and `CS.cfg` for all system certificates that are to be renewed.
+
+```
+$ pki-server cert-update <cert ID>
+```
+
+Stop PKI server.
+
+```
+$ pki-server stop
+```
+
+### Configuring DS Connection
+
+If the subsystem uses LDAPS connection and the DS certificate is no longer valid,
+switch to plain LDAP connection temporarily by configuring the following parameters in `CS.cfg`:
+
+```
+internaldb.ldapconn.secureConn=false
+internaldb.ldapconn.port=<plain LDAP port>
+```
+
+If the subsystem uses a client certificate (e.g. subsystem certificate) for DS authentication
+and the certificate is no longer valid, switch to basic authentication temporarily
+by configuring the following parameter in `CS.cfg`:
+
+```
+internaldb.ldapauth.authtypeBasicAuth
+```
+
+The certificate should be be mapped to a user in DS (i.e. the database user).
+Specify the user's DN in the following parameter:
+
+```
+internaldb.ldapauth.bindDN=<database user DN>
+```
+
+### Updating Database User Password
+
+If necessary reset the database user password with the following command:
+
+```
+$ ldapmodify \
+    -H <URL> \
+    -D 'cn=Directory Manager' \
+    -w <DM password> \
+dn: <database user DN>
+changetype: modify
+replace: userPassword
+userPassword: <database user password>
+```
+
+Make sure the user's password is stored in `password.conf`:
+
+```
+$ pki-server password-set internaldb --password <database user password>
+```
+
+### Updating CA Agent Password
+
+If CA agent password or certificate is no longer valid, reset the agent's password with the following command:
+
+```
+$ ldapmodify \
+    -H <URL> \
+    -D 'cn=Directory Manager' \
+    -w <DM password> \
+dn: <CA agent DN>
+changetype: modify
+replace: userPassword
+userPassword: <CA agent password>
+```
+
+### Creating Temporary SSL Server Certificate
+
+Create a temporary SSL server certificate.
+The certificate will be created in `/var/lib/pki/<instance>/conf/certs/sslserver.crt`.
+
+```
+$ pki-server cert-create sslserver --temp
+```
+
+Delete the existing SSL server certificate from the NSS database.
+
+```
+$ pki-server cert-del sslserver
+```
+
+Import the new SSL server certificate into the NSS database.
+
+```
+$ pki-server cert-import sslserver
+```
+
+Start PKI server.
+
+```
+$ pki-server start
+```
+
+### Renewing System Certificates
+
+Use the agent certificate or username/password to renew the system certificates.
+For **`sslserver`** cert provide the `serial number` from the **original SSL server cert** to avoid placing request for unintended cert.
+
+```
+$ pki-server cert-create \
+    --renew \
+    -n <agent cert nickname> \
+    -d <agent NSS database> \
+    -c <agent NSS database password> \
+    <cert ID> \
+    --serial <serial number>
+```
+
+**OR**
+
+```
+$ pki-server cert-create \
+    --renew \
+    -u <agent username> \
+    -w <agent password> \
+    <cert ID> \
+    --serial <serial number>
+```
+
+### Updating System Certificates
+
+Stop PKI server before installing the new certificates.
+
+```
+$ pki-server stop
+```
+
+Delete the existing certificates from NSS database.
+
+```
+$ pki-server cert-del <cert ID>
+```
+
+Import the renewed permanent certificates into NSS database and update corresponding `CS.cfg` files.
+
+```
+$ pki-server cert-import <cert ID>
+```
+
+**Note:** Make sure the audit signing certificates have `u,u,Pu` trust flags by running the following command:
+
+```
+$ certutil -L -d /var/lib/pki/<instance>/alias
+
+Certificate Nickname                                         Trust Attributes
+                                                             SSL,S/MIME,JAR/XPI
+ca_signing                                                   CTu,Cu,Cu
+kra_transport                                                u,u,u
+kra_storage                                                  u,u,u
+kra_audit_signing                                            u,u,Pu
+subsystem                                                    u,u,u
+sslserver                                                    u,u,u
+ca_ocsp_signing                                              u,u,u
+ca_audit_signing                                             u,u,Pu
+```
+
+Enable the self test using the following command:
+
+```
+$ pki-server selftest-enable
+```
+
+Restore the `CS.cfg` values that you modified earlier in link:#Configuring-DS-Connection[Configuring DS Connection] section.
+
+Start PKI server with the new system certificates.
+
+```
+$ pki-server start
+```
+
+## See Also
+
+* link:https://github.com/dogtagpki/pki/wiki/Renewing-System-Certificates[Renewing System Certificates]
+* link:https://github.com/dogtagpki/pki/wiki/Renewing-Admin-Certificate[Renewing Admin Certificate]
+* link:https://github.com/dogtagpki/freeipa/wiki/Renewing-System-Certificates[FreeIPA: Renewing System Certificates]
+* link:https://www.freeipa.org/page/Certmonger[certmonger]

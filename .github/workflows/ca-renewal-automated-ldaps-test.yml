@@ -1,0 +1,420 @@
+name: CA renewal using pki-server cert-fix with LDAPS
+# docs/admin/offline-system-certificate-renewal.adoc
+
+on: workflow_call
+
+env:
+  DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Retrieve PKI images
+        uses: actions/cache@v4
+        with:
+          key: pki-images-${{ github.sha }}
+          path: pki-images.tar
+
+      - name: Load PKI images
+        run: docker load --input pki-images.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-create.sh \
+              --image=${{ env.DS_IMAGE }} \
+              --hostname=ds.example.com \
+              --network=example \
+              --network-alias=ds.example.com \
+              --password=Secret.123 \
+              ds
+
+      - name: Set up PKI container
+        run: |
+          tests/bin/runner-init.sh \
+              --hostname=pki.example.com \
+              --network=example \
+              --network-alias=pki.example.com \
+              pki
+
+      - name: Create DS signing cert
+        run: |
+          docker exec pki pki \
+              nss-cert-request \
+              --subject "CN=DS Signing Certificate" \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --csr ds_signing.csr
+
+          docker exec pki pki \
+              nss-cert-issue \
+              --csr ds_signing.csr \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --cert ds_signing.crt
+
+          docker exec pki pki nss-cert-import \
+              --cert ds_signing.crt \
+              --trust CT,C,C \
+              Self-Signed-CA
+
+      - name: Create DS server cert
+        run: |
+          docker exec pki pki \
+              nss-cert-request \
+              --subject "CN=ds.example.com" \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --csr ds_server.csr
+
+          docker exec pki pki \
+              nss-cert-issue \
+              --issuer Self-Signed-CA \
+              --csr ds_server.csr \
+              --ext /usr/share/pki/server/certs/sslserver.conf \
+              --cert ds_server.crt
+
+          docker exec pki pki nss-cert-import \
+              --cert ds_server.crt \
+              Server-Cert
+
+      - name: Import certs into DS container
+        run: |
+          docker exec pki pk12util \
+              -d /root/.dogtag/nssdb \
+              -o $SHARED/ds_server.p12 \
+              -W Secret.123 \
+              -n Server-Cert
+
+          sudo chmod go+r ds_server.p12
+
+          tests/bin/ds-certs-import.sh \
+              --image=${{ env.DS_IMAGE }} \
+              --input=ds_server.p12 \
+              --password=Secret.123 \
+              --debug \
+              ds
+
+          tests/bin/ds-stop.sh \
+              --image=${{ env.DS_IMAGE }} \
+              ds
+
+          tests/bin/ds-start.sh \
+              --image=${{ env.DS_IMAGE }} \
+              ds
+
+      - name: Configure short-lived SSL server cert profile
+        run: |
+          # set cert validity to 3 minute
+          VALIDITY_DEFAULT="2.default.params"
+          docker exec pki sed -i \
+              -e "s/^$VALIDITY_DEFAULT.range=.*$/$VALIDITY_DEFAULT.range=3/" \
+              -e "/^$VALIDITY_DEFAULT.range=.*$/a $VALIDITY_DEFAULT.rangeUnit=minute" \
+              /usr/share/pki/ca/conf/rsaServerCert.profile
+
+          # check updated profile
+          docker exec pki cat /usr/share/pki/ca/conf/rsaServerCert.profile
+
+      - name: Configure short-lived subsystem cert profile
+        run: |
+          # set cert validity to 3 minute
+          VALIDITY_DEFAULT="2.default.params"
+          docker exec pki sed -i \
+              -e "s/^$VALIDITY_DEFAULT.range=.*$/$VALIDITY_DEFAULT.range=3/" \
+              -e "/^$VALIDITY_DEFAULT.range=.*$/a $VALIDITY_DEFAULT.rangeUnit=minute" \
+              /usr/share/pki/ca/conf/rsaSubsystemCert.profile
+
+          # check updated profile
+          docker exec pki cat /usr/share/pki/ca/conf/rsaSubsystemCert.profile
+
+      - name: Configure short-lived audit signing cert profile
+        run: |
+          # set cert validity to 3 minute
+          VALIDITY_DEFAULT="2.default.params"
+          docker exec pki sed -i \
+              -e "s/^$VALIDITY_DEFAULT.range=.*$/$VALIDITY_DEFAULT.range=3/" \
+              -e "/^$VALIDITY_DEFAULT.range=.*$/a $VALIDITY_DEFAULT.rangeUnit=minute" \
+              /usr/share/pki/ca/conf/caAuditSigningCert.profile
+
+          # check updated profile
+          docker exec pki cat /usr/share/pki/ca/conf/caAuditSigningCert.profile
+
+      - name: Configure short-lived OCSP signing cert profile
+        run: |
+          # set cert validity to 3 minute
+          VALIDITY_DEFAULT="2.default.params"
+          docker exec pki sed -i \
+              -e "s/^$VALIDITY_DEFAULT.range=.*$/$VALIDITY_DEFAULT.range=3/" \
+              -e "/^$VALIDITY_DEFAULT.range=.*$/a $VALIDITY_DEFAULT.rangeUnit=minute" \
+              /usr/share/pki/ca/conf/caOCSPCert.profile
+
+          # check updated profile
+          docker exec pki cat /usr/share/pki/ca/conf/caOCSPCert.profile
+
+      - name: Install CA
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_url=ldaps://ds.example.com:3636 \
+              -D pki_ds_secure_connection_ca_nickname=ds_signing \
+              -D pki_ds_secure_connection_ca_pem_file=ds_signing.crt \
+              -v
+
+          docker exec pki pki-server cert-find
+
+      - name: Check CA database config
+        run: |
+          docker exec pki pki-server ca-config-find | grep "^internaldb\." | tee output
+
+          cat > expected << EOF
+          internaldb._000=##
+          internaldb._001=## Internal Database
+          internaldb._002=##
+          internaldb.basedn=dc=ca,dc=pki,dc=example,dc=com
+          internaldb.database=ca
+          internaldb.ldapauth.authtype=BasicAuth
+          internaldb.ldapauth.bindDN=cn=Directory Manager
+          internaldb.ldapauth.bindPWPrompt=internaldb
+          internaldb.ldapauth.clientCertNickname=
+          internaldb.ldapconn.host=ds.example.com
+          internaldb.ldapconn.port=3636
+          internaldb.ldapconn.secureConn=true
+          internaldb.maxConns=15
+          internaldb.minConns=3
+          internaldb.multipleSuffix.enable=false
+          EOF
+
+          diff expected output
+
+      - name: Check system cert keys
+        run: |
+          # get keys in internal token
+          echo "Secret.123" > password.txt
+          docker exec pki certutil \
+              -K -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f $SHARED/password.txt | tee keys.orig
+
+      - name: Check system certs
+        run: |
+          docker exec pki pki-server cert-show ca_signing
+          docker exec pki pki-server cert-show ca_ocsp_signing
+          docker exec pki pki-server cert-show ca_audit_signing
+          docker exec pki pki-server cert-show subsystem
+          docker exec pki pki-server cert-show sslserver
+
+      - name: Run PKI healthcheck
+        run: |
+          # pki-healthcheck should generate warnings
+          docker exec pki pki-healthcheck --failures-only \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          cat > expected << EOF
+          Expiring in a day: ocsp_signing
+          Expiring in a day: sslserver
+          Expiring in a day: subsystem
+          Expiring in a day: audit_signing
+          EOF
+
+          diff expected stderr
+
+      - name: Check CA admin
+        run: |
+          docker exec pki pki-server cert-export \
+              --cert-file ca_signing.crt \
+              ca_signing
+
+          docker exec pki pki nss-cert-import \
+              --cert ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
+          docker exec pki pki pkcs12-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --password Secret.123
+
+          docker exec pki pki nss-cert-show caadmin
+
+          # check CA admin cert
+          docker exec pki pki -n caadmin ca-user-show caadmin
+
+          # check CA admin password
+          docker exec pki pki -u caadmin -w Secret.123 ca-user-show caadmin
+
+      - name: Check CA subsystem user
+        run: |
+          docker exec pki pki-server ca-user-show CA-pki.example.com-8443
+          docker exec pki pki-server ca-user-cert-find CA-pki.example.com-8443
+
+      - name: Restart PKI server with expired certs
+        run: |
+          # wait for SSL server cert to expire
+          sleep 180
+
+          docker exec pki pki-server restart --wait \
+              > >(tee stdout) 2> >(tee stderr >&2)
+
+      - name: Run PKI healthcheck
+        run: |
+          # pki-healthcheck should fail
+          docker exec pki pki-healthcheck --failures-only \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          cat > expected << EOF
+          Expired Cert: ocsp_signing
+          Expired Cert: sslserver
+          Expired Cert: subsystem
+          Expired Cert: audit_signing
+          Internal server error 404 Client Error:  for url: https://pki.example.com:8443/ca/admin/ca/getStatus
+          EOF
+
+          diff expected stderr
+
+      - name: Check PKI client
+        run: |
+          # client should be able to access the server
+          # by ignoring the expired SSL server cert
+          docker exec pki pki \
+              --ignore-cert-status EXPIRED_CERTIFICATE \
+              info
+
+      - name: Check CA admin
+        run: |
+          # CA admin should be able to access the server
+          # by ignoring the expired SSL server cert
+          # but the CA subsystem will not be available
+          docker exec pki pki \
+              --ignore-cert-status EXPIRED_CERTIFICATE \
+              -n caadmin \
+              ca-user-show \
+              caadmin \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          cat > expected << EOF
+          ResourceNotFoundException: 
+          EOF
+
+          diff expected stderr
+
+      - name: Renew system certs using pki-server cert-fix
+        run: |
+          docker exec pki pki-server cert-fix \
+              --ldap-url ldaps://ds.example.com:3636 \
+              --dm-password Secret.123 \
+              --agent-uid caadmin \
+              -v
+
+      - name: Check CA database config after renewal
+        run: |
+          docker exec pki pki-server ca-config-find | grep "^internaldb\." | tee output
+
+          cat > expected << EOF
+          internaldb._000=##
+          internaldb._001=## Internal Database
+          internaldb._002=##
+          internaldb.basedn=dc=ca,dc=pki,dc=example,dc=com
+          internaldb.database=ca
+          internaldb.ldapauth.authtype=BasicAuth
+          internaldb.ldapauth.bindDN=cn=Directory Manager
+          internaldb.ldapauth.bindPWPrompt=internaldb
+          internaldb.ldapauth.clientCertNickname=
+          internaldb.ldapconn.host=ds.example.com
+          internaldb.ldapconn.port=3636
+          internaldb.ldapconn.secureConn=true
+          internaldb.maxConns=15
+          internaldb.minConns=3
+          internaldb.multipleSuffix.enable=false
+          EOF
+
+          diff expected output
+
+      - name: Check system certs after renewal
+        run: |
+          docker exec pki pki-server cert-show ca_signing
+          docker exec pki pki-server cert-show ca_ocsp_signing
+          docker exec pki pki-server cert-show ca_audit_signing
+          docker exec pki pki-server cert-show subsystem
+          docker exec pki pki-server cert-show sslserver
+
+      - name: Check cert keys after renewal
+        run: |
+          # get keys
+          docker exec pki certutil \
+              -K -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f $SHARED/password.txt | tee keys.after
+
+          # the keys should not change
+          diff keys.orig keys.after
+
+      - name: Run PKI healthcheck
+        run: |
+          # pki-healthcheck should not fail
+          docker exec pki pki-healthcheck --failures-only
+
+      - name: Check CA admin
+        run: |
+          # client should not fail
+          docker exec pki pki -n caadmin ca-user-show caadmin
+
+      - name: Update CA subsystem user cert
+        run: |
+          # this is required by pkidestroy since it uses the subsystem cert
+          # for removing the subsystem from the security domain
+
+          docker exec pki pki-server cert-export \
+              --cert-file subsystem.crt \
+              subsystem
+
+          # get cert ID
+          docker exec pki pki-server ca-user-cert-find CA-pki.example.com-8443 | tee output
+          CERT_ID=$(sed -n "s/^\s*Cert ID:\s*\(.*\)$/\1/p" output)
+          echo "CERT_ID: $CERT_ID"
+
+          # remove current cert
+          docker exec pki pki-server ca-user-cert-del CA-pki.example.com-8443 "$CERT_ID"
+
+          # install new cert
+          docker exec pki pki-server ca-user-cert-add CA-pki.example.com-8443 --cert subsystem.crt
+
+          docker exec pki pki-server ca-user-cert-find CA-pki.example.com-8443
+
+      - name: Remove CA
+        run: |
+          # pkidestroy should not fail
+          docker exec pki pkidestroy -s CA -v
+
+      - name: Check DS server systemd journal
+        if: always()
+        run: |
+          docker exec ds journalctl -x --no-pager -u dirsrv@localhost.service
+
+      - name: Check DS container logs
+        if: always()
+        run: |
+          docker logs ds
+
+      - name: Check PKI server systemd journal
+        if: always()
+        run: |
+          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check PKI server access log
+        if: always()
+        run: |
+          docker exec pki find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+
+      - name: Check CA debug log
+        if: always()
+        run: |
+          docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check CA selftests log
+        if: always()
+        run: |
+          docker exec pki cat /var/lib/pki/pki-tomcat/logs/ca/selftests.log

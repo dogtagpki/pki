@@ -31,6 +31,7 @@ import subprocess
 import sys
 from tempfile import NamedTemporaryFile
 import textwrap
+import urllib.parse
 
 from six.moves.urllib.parse import quote  # pylint: disable=F0401,E0611
 
@@ -1180,11 +1181,22 @@ class CertRemoveCLI(pki.cli.CLI):
 
 class CertFixCLI(pki.cli.CLI):
 
-    PKIDBUSER_LDIF_TEMPLATE = (
+    LDAP_ENV = {
+        'LDAPTLS_REQCERT': 'never'
+    }
+
+    UPDATE_CERT_TEMPLATE = (
         "dn: {dn}\n"
         "changetype: modify\n"
         "add: userCertificate\n"
         "userCertificate:< file://{der_file}\n"
+    )
+
+    UPDATE_PASSWORD_TEMPLATE = (
+        "dn: {dn}\n"
+        "changetype: modify\n"
+        "replace: userPassword\n"
+        "userPassword: {password}\n"
     )
 
     def __init__(self):
@@ -1213,6 +1225,7 @@ class CertFixCLI(pki.cli.CLI):
             '--port',
             type=int,
             default=8443)
+        self.parser.add_argument('--db-user-dn')
         self.parser.add_argument('--dm-password')
         self.parser.add_argument(
             '-v',
@@ -1227,6 +1240,8 @@ class CertFixCLI(pki.cli.CLI):
 
     def print_help(self):
         print('Usage: pki-server cert-fix [OPTIONS]')
+        print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat)')
+        print('  -p, --port <port number>        HTTPS port number (default: 8443)')
         # CertID:  subsystem, sslserver, kra_storage, kra_transport, ca_ocsp_signing,
         # ca_audit_signing, kra_audit_signing
         # ca.cert.list=signing,ocsp_signing,sslserver,subsystem,audit_signing
@@ -1236,9 +1251,8 @@ class CertFixCLI(pki.cli.CLI):
         print('      --agent-uid <String>        UID of Dogtag agent user')
         print('      --ldapi-socket <Path>       Path to DS LDAPI socket')
         print('      --ldap-url <URL>            LDAP URL (mutually exclusive to --ldapi-socket)')
-        print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('      --db-user-dn <DN>           Database user DN)')
         print('      --dm-password <password>    Directory Manager password')
-        print('  -p, --port <port number>        Secure port number (default: 8443).')
         print('  -v, --verbose                   Run in verbose mode.')
         print('      --debug                     Run in debug mode.')
         print('      --help                      Show help message.')
@@ -1289,6 +1303,7 @@ class CertFixCLI(pki.cli.CLI):
             sys.exit(1)
 
         if args.ldapi_socket:
+            # IPA uses LDAPI
             use_ldapi = True
             ldap_url = 'ldapi://{}'.format(quote(args.ldapi_socket, safe=''))
 
@@ -1310,8 +1325,10 @@ class CertFixCLI(pki.cli.CLI):
             logger.error('Must specify --agent-uid')
             sys.exit(1)
 
-        if agent_uid == "pkidbuser":
-            logger.error('\'pkidbuser\' cannot be used.')
+        if args.ldapi_socket and agent_uid == "pkidbuser":
+            # pkidbuser is a special user in IPA
+            # it's not an agent so it cannot be used to renew certs
+            logger.error('\'%s\' cannot be used.', agent_uid)
             sys.exit(1)
 
         instance.load()
@@ -1341,8 +1358,34 @@ class CertFixCLI(pki.cli.CLI):
 
         # Get the CA subsystem and find out Base DN.
         ca_subsystem = instance.get_subsystem('ca')
-        basedn = ca_subsystem.get_db_config()['internaldb.basedn']
-        dbuser_dn = 'uid=pkidbuser,ou=people,{}'.format(basedn)
+        basedn = ca_subsystem.config['internaldb.basedn']
+
+        if args.db_user_dn:
+            # use the specified database user DN
+            dbuser_dn = args.db_user_dn
+        else:
+            if args.ldapi_socket:
+                # IPA runs pkispawn with the following params:
+                #   pki_share_dbuser_dn=uid=pkidbuser,ou=people,o=ipaca
+                #   pki_ds_bind_dn=cn=Directory Manager
+                # so in CS.cfg the database connection is configured as follows:
+                #   internaldb.ldapauth.authtype=SslClientAuth
+                #   internaldb.ldapauth.bindDN=cn=Directory Manager
+                #   internaldb.ldapauth.clientCertNickname=subsystemCert cert-pki-ca
+                #
+                # Since it's using the subsystem cert for client auth, the bind DN
+                # is actually not used (and misleading). In DS the subsystem cert is
+                # mapped to uid=pkidbuser,ou=people,o=ipaca, so for IPA this user
+                # must be used for connecting to the database.
+                #
+                # TODO: modify IPA to call pki-server cert-fix with
+                # --db-user-dn "uid=pkidbuser,ou=people,o=ipaca" param
+                # so that this special case can be removed.
+                dbuser_dn = 'uid=pkidbuser,ou=people,{}'.format(basedn)
+            else:
+                # use existing bind DN
+                dbuser_dn = ca_subsystem.config['internaldb.ldapauth.bindDN']
+
         agent_dn = 'uid={},ou=people,{}'.format(agent_uid, basedn)
 
         if use_ldapi:
@@ -1393,9 +1436,8 @@ class CertFixCLI(pki.cli.CLI):
             # Generate new password for agent account
             agent_pass = gen_random_password()
 
-            with write_temp_file(agent_pass.encode('utf8')) as agent_pass_file, \
-                    write_temp_file(dm_pass.encode('utf8')) as dm_pass_file, \
-                    ldap_password_authn(
+            with write_temp_file(dm_pass.encode('utf8')) as dm_pass_file, \
+                    update_database_connection(
                         instance, target_subsys, dbuser_dn,
                         ldap_url, use_ldapi, dm_pass_file), \
                     suppress_selftest(target_subsys):
@@ -1404,15 +1446,17 @@ class CertFixCLI(pki.cli.CLI):
                 cmd = ['ldapsearch'] + \
                     ldap_conn_args(ldap_url, use_ldapi, dm_pass_file) + \
                     ['-s', 'base', '-b', basedn, '1.1']
+
                 try:
-                    subprocess.check_output(cmd)
+                    logger.debug('Command: %s', ' '.join(cmd))
+                    subprocess.run(cmd, env=CertFixCLI.LDAP_ENV, check=True)
                 except subprocess.CalledProcessError:
                     logger.error("Failed to connect/authenticate to LDAP at '%s'", ldap_url)
                     sys.exit(1)
 
                 # Reset agent password
                 logger.info('Resetting password for %s', agent_dn)
-                ldappasswd(ldap_url, use_ldapi, dm_pass_file, agent_dn, agent_pass_file)
+                update_password(ldap_url, use_ldapi, dm_pass_file, agent_dn, agent_pass)
 
                 # 4. Bring up the server using a temp SSL cert if the sslcert is expired
                 if 'sslserver' in fix_certs:
@@ -1459,29 +1503,35 @@ class CertFixCLI(pki.cli.CLI):
                     logger.info('Importing new %s cert into NSS database', cert_id)
                     instance.cert_import(cert_id)
 
-                # If subsystem cert was renewed and server was using
-                # TLS auth, add the cert to pkidbuser entry
-                if dbuser_dn and 'subsystem' in fix_certs:
+                # If the database user is a regular user (not Directory Manager),
+                # and if the subsystem cert was renewed and the server is using TLS auth,
+                # assign the new subsystem cert to the database user
+                if dbuser_dn != 'cn=Directory Manager' and 'subsystem' in fix_certs:
                     logger.info('Importing new subsystem cert into %s', dbuser_dn)
                     with NamedTemporaryFile(mode='w+b') as der_file:
                         # convert subsystem cert to DER
-                        subprocess.check_call([
+                        cmd = [
                             'openssl', 'x509',
                             '-inform', 'PEM', '-outform', 'DER',
                             '-in', instance.cert_file('subsystem'),
                             '-out', der_file.name,
-                        ])
+                        ]
 
-                        with write_temp_file(
-                            self.PKIDBUSER_LDIF_TEMPLATE
-                                .format(dn=dbuser_dn, der_file=der_file.name)
-                                .encode('utf-8')
-                        ) as ldif_file:
-                            # ldapmodify
+                        logger.debug('Command: %s', ' '.join(cmd))
+                        subprocess.run(cmd, env=CertFixCLI.LDAP_ENV, check=True)
+
+                        input_ldif = CertFixCLI.UPDATE_CERT_TEMPLATE \
+                            .format(dn=dbuser_dn, der_file=der_file.name)
+
+                        # assign subsystem cert to database user
+                        with write_temp_file(input_ldif.encode('utf-8')) as ldif_file:
+
                             cmd = ['ldapmodify'] + \
                                 ldap_conn_args(ldap_url, use_ldapi, dm_pass_file) + \
                                 ['-f', ldif_file]
-                            subprocess.check_call(cmd)
+
+                            logger.debug('Command: %s', ' '.join(cmd))
+                            subprocess.run(cmd, env=CertFixCLI.LDAP_ENV, check=True)
 
             # 10. Bring up the server
             logger.info('Starting PKI server with renewed certs')
@@ -1532,9 +1582,9 @@ def start_stop(instance):
 
 
 @contextmanager
-def ldap_password_authn(
-        instance, subsystems, bind_dn, ldap_url, use_ldapi, dm_pass_file):
-    """LDAP password authentication context.
+def update_database_connection(
+        instance, subsystems, dbuser_dn, ldap_url, use_ldapi, dm_pass_file):
+    """Update database connection
 
     This context manager switches the server to password
     authentication, runs the block, then restores the original
@@ -1542,14 +1592,14 @@ def ldap_password_authn(
 
     Specifically:
 
-    - if we are already using BasicAuth, force port 389 and no TLS/STARTTLS
-      but leave everything else alone.
+    - If using LDAPI, switch to plain LDAP connection.
+      Otherwise, use the specified LDAP URL.
 
-    - if using TLS client cert auth, switch to BasicAuth, using pkidbuser
-      account, and using a randomly generated password.  The DM credential
-      is required to set that password.
+    - If using client cert auth, switch to basic auth, use the specified
+      database user DN, and use a randomly generated password.
+      The DM credential is required to set that password.
 
-    This context manager yields the pkidbuser DN, so that the new
+    This context manager yields the database user DN, so that the new
     subsystem certificate (if it was one of the renewal targets) can
     be added to the entry.  It is only yielded if the server was
     already using TLS client cert authn, otherwise the yielded value
@@ -1568,8 +1618,8 @@ def ldap_password_authn(
     else:
         generated_password = False
 
-    # We don't perform ldappasswd unless we need to (and only once).
-    ldappasswd_performed = False
+    # We don't update password unless we need to (and only once).
+    password_updated = False
 
     for subsystem in subsystems:
 
@@ -1582,25 +1632,31 @@ def ldap_password_authn(
         cfg = subsystem.get_db_config()
         orig[subsystem] = cfg.copy()  # copy because dict is mutable
 
+        if use_ldapi:
+            # IPA uses LDAPI but PKI does not support LDAPI
+            # so use plain LDAP over port 389 instead
+            secure = 'false'
+            port = '389'
+        else:
+            # use the specified LDAP URL
+            url = urllib.parse.urlparse(ldap_url)
+            secure = 'true' if url.scheme == 'ldaps' else 'false'
+            port = str(url.port)
+
+        cfg['internaldb.ldapconn.secureConn'] = secure
+        cfg['internaldb.ldapconn.port'] = port
+
         authtype = cfg['internaldb.ldapauth.authtype']
         if authtype == 'SslClientAuth':
             # switch to BasicAuth
             cfg['internaldb.ldapauth.authtype'] = 'BasicAuth'
-            cfg['internaldb.ldapconn.port'] = '389'
-            cfg['internaldb.ldapconn.secureConn'] = 'false'
-            cfg['internaldb.ldapauth.bindDN'] = bind_dn
+            cfg['internaldb.ldapauth.bindDN'] = dbuser_dn
 
-            # _now_ we can perform ldappasswd
-            if not ldappasswd_performed:
-                logger.info('Setting pkidbuser password via ldappasswd')
-                with write_temp_file(password.encode('utf8')) as pwdfile:
-                    ldappasswd(ldap_url, use_ldapi, dm_pass_file, bind_dn, pwdfile)
-                ldappasswd_performed = True
-
-        elif authtype == 'BasicAuth':
-            # force port 389, no TLS / STARTTLS.  Leave other settings alone.
-            cfg['internaldb.ldapconn.port'] = '389'
-            cfg['internaldb.ldapconn.secureConn'] = 'false'
+            # _now_ we can update password
+            if not password_updated:
+                logger.info('Resetting password for %s', dbuser_dn)
+                update_password(ldap_url, use_ldapi, dm_pass_file, dbuser_dn, password)
+                password_updated = True
 
         subsystem.set_db_config(cfg)
         subsystem.save()
@@ -1635,23 +1691,28 @@ def ldap_conn_args(ldap_url, use_ldapi, dm_pass_file):
     else:
         if ldap_url:
             args.extend(['-H', ldap_url])
-            if not ldap_url.startswith('ldaps'):
-                args.append('-ZZ')  # require STARTTLS
         args.extend(['-D', 'cn=Directory Manager', '-y', dm_pass_file])
     return args
 
 
-def ldappasswd(ldap_url, use_ldapi, dm_pass_file, user_dn, pass_file):
+def update_password(ldap_url, use_ldapi, dm_pass_file, user_dn, user_password):
     """
-    Run ldappasswd as Directory Manager.
+    Update user password as Directory Manager.
 
     Raise CalledProcessError on error.
 
     """
-    cmd = ['ldappasswd'] + \
-        ldap_conn_args(ldap_url, use_ldapi, dm_pass_file) + \
-        ['-T', pass_file, user_dn]
-    subprocess.check_call(cmd)
+    input_ldif = CertFixCLI.UPDATE_PASSWORD_TEMPLATE \
+        .format(dn=user_dn, password=user_password)
+
+    with write_temp_file(input_ldif.encode('utf-8')) as ldif_file:
+
+        cmd = ['ldapmodify'] + \
+            ldap_conn_args(ldap_url, use_ldapi, dm_pass_file) + \
+            ['-f', ldif_file]
+
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.run(cmd, env=CertFixCLI.LDAP_ENV, check=True)
 
 
 def gen_random_password():

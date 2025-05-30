@@ -1,4 +1,4 @@
-name: CA system certs renewal with HSM
+name: CA manual renewal HSM
 # https://github.com/dogtagpki/pki/wiki/Renewing-System-Certificates
 # https://github.com/dogtagpki/pki/wiki/Renewing-Admin-Certificate
 
@@ -34,20 +34,18 @@ jobs:
           tests/bin/ds-create.sh \
               --image=${{ env.DS_IMAGE }} \
               --hostname=ds.example.com \
+              --network=example \
+              --network-alias=ds.example.com \
               --password=Secret.123 \
               ds
 
-      - name: Connect DS container to network
-        run: docker network connect example ds --alias ds.example.com
-
       - name: Set up PKI container
         run: |
-          tests/bin/runner-init.sh pki
-        env:
-          HOSTNAME: pki.example.com
-
-      - name: Connect PKI container to network
-        run: docker network connect example pki --alias pki.example.com
+          tests/bin/runner-init.sh \
+              --hostname=pki.example.com \
+              --network=example \
+              --network-alias=pki.example.com \
+              pki
 
       - name: Install dependencies
         run: |
@@ -78,6 +76,7 @@ jobs:
               -e "/^$VALIDITY_DEFAULT.range=.*$/a $VALIDITY_DEFAULT.rangeUnit=minute" \
               /usr/share/pki/ca/conf/rsaServerCert.profile
 
+          # check updated profile
           docker exec pki cat /usr/share/pki/ca/conf/rsaServerCert.profile
 
       - name: Configure short-lived subsystem cert profile
@@ -89,6 +88,7 @@ jobs:
               -e "/^$VALIDITY_DEFAULT.range=.*$/a $VALIDITY_DEFAULT.rangeUnit=minute" \
               /usr/share/pki/ca/conf/rsaSubsystemCert.profile
 
+          # check updated profile
           docker exec pki cat /usr/share/pki/ca/conf/rsaSubsystemCert.profile
 
       - name: Configure short-lived audit signing cert profile
@@ -100,6 +100,7 @@ jobs:
               -e "/^$VALIDITY_DEFAULT.range=.*$/a $VALIDITY_DEFAULT.rangeUnit=minute" \
               /usr/share/pki/ca/conf/caAuditSigningCert.profile
 
+          # check updated profile
           docker exec pki cat /usr/share/pki/ca/conf/caAuditSigningCert.profile
 
       - name: Configure short-lived OCSP signing cert profile
@@ -123,6 +124,7 @@ jobs:
               -e "/^$VALIDITY_DEFAULT.range=.*$/a $VALIDITY_DEFAULT.rangeUnit=minute" \
               /usr/share/pki/ca/conf/rsaAdminCert.profile
 
+          # check updated profile
           docker exec pki cat /usr/share/pki/ca/conf/rsaAdminCert.profile
 
       - name: Install CA
@@ -142,16 +144,18 @@ jobs:
               -D pki_sslserver_token=internal \
               -v
 
-      - name: Check system certs
+      - name: Check system cert keys
         run: |
           docker exec pki pki-server cert-find
 
+          # get keys in internal token
           echo "Secret.123" > password.internal
           docker exec pki certutil \
               -K \
               -d /var/lib/pki/pki-tomcat/conf/alias \
               -f $SHARED/password.internal | tee keys.internal.orig
 
+          # get keys in HSM
           echo "Secret.HSM" > password.HSM
           docker exec pki certutil \
               -K \
@@ -260,7 +264,7 @@ jobs:
           # client should work
           docker exec pki pki info
 
-      - name: Renew SSL server cert
+      - name: Renew SSL server cert using pki ca-cert-issue
         # https://github.com/dogtagpki/pki/wiki/Renewing-SSL-Server-Certificate
         run: |
           # get current serial number
@@ -287,7 +291,7 @@ jobs:
 
           docker exec pki pki-server cert-show sslserver
 
-      - name: Renew subsystem cert
+      - name: Renew subsystem cert using pki ca-cert-issue
         # https://github.com/dogtagpki/pki/wiki/Renewing-Subsystem-Certificate
         run: |
           # get current serial number
@@ -331,7 +335,7 @@ jobs:
 
           docker exec pki pki-server ca-user-cert-find CA-pki.example.com-8443
 
-      - name: Renew audit signing cert
+      - name: Renew audit signing cert using pki ca-cert-issue
         # https://github.com/dogtagpki/pki/wiki/Renewing-Audit-Signing-Certificate
         run: |
           # get current serial number
@@ -358,7 +362,7 @@ jobs:
 
           docker exec pki pki-server cert-show ca_audit_signing
 
-      - name: Renew OCSP signing cert
+      - name: Renew OCSP signing cert using pki ca-cert-issue
         # https://github.com/dogtagpki/pki/wiki/Renewing-OCSP-Signing-Certificate
         run: |
           # get current serial number
@@ -385,7 +389,7 @@ jobs:
 
           docker exec pki pki-server cert-show ca_ocsp_signing
 
-      - name: Renew admin cert
+      - name: Renew admin cert using pki ca-cert-issue
         # https://github.com/dogtagpki/pki/wiki/Renewing-Admin-Certificate
         run: |
           # get current serial number
@@ -440,17 +444,21 @@ jobs:
         run: |
           docker exec pki pki-server cert-find
 
-          # the keys should not change
+          # get keys in internal token
           docker exec pki certutil \
               -K -d /var/lib/pki/pki-tomcat/conf/alias \
               -f $SHARED/password.internal | tee keys.internal.after
-          diff keys.internal.orig keys.internal.after
 
           # the keys should not change
+          diff keys.internal.orig keys.internal.after
+
+          # get keys in HSM
           docker exec pki certutil \
               -K -d /var/lib/pki/pki-tomcat/conf/alias \
               -f $SHARED/password.HSM \
               -h HSM | tee keys.HSM.after
+
+          # the keys should not change
           diff keys.HSM.orig keys.HSM.after
 
       - name: Run PKI healthcheck
@@ -468,10 +476,25 @@ jobs:
           # pkidestroy should not fail
           docker exec pki pkidestroy -s CA -v
 
+      - name: Check DS server systemd journal
+        if: always()
+        run: |
+          docker exec ds journalctl -x --no-pager -u dirsrv@localhost.service
+
+      - name: Check DS container logs
+        if: always()
+        run: |
+          docker logs ds
+
       - name: Check PKI server systemd journal
         if: always()
         run: |
           docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check PKI server access log
+        if: always()
+        run: |
+          docker exec pki find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
 
       - name: Check CA debug log
         if: always()
