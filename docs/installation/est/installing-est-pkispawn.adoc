@@ -10,7 +10,7 @@ Once the prerequisites in xref:../est/installing-est.adoc[Installing EST] are co
 
 An example `pkispawn` installation configuration is provided in `/usr/share/pki/server/examples/installation/est.cfg` with the following content:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 [DEFAULT]
 pki_server_database_password=Secret.123
@@ -30,7 +30,7 @@ The following commands install an EST subsystem on a PKI server instance that al
 
 To install EST in the same instance of the CA and with the DS realm, run the command:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 # pkispawn \
     -f /usr/share/pki/server/examples/installation/est.cfg \
@@ -41,7 +41,7 @@ To install EST in the same instance of the CA and with the DS realm, run the com
 
 Note that the `est_realm_url` points to the user DB. The other configurations that could be modified according to the deployment are:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 est_ca_profile=estServiceCert
 est_ca_user_name=
@@ -72,7 +72,7 @@ The `est_realm_*` options allow one to customize the realm. Possible types are: 
 
 As an example, to install EST with PostgreSQL the command is:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 # pkispawn \
     -f /usr/share/pki/server/examples/installation/est.cfg \
@@ -101,7 +101,7 @@ It is important that the certificate aliases in the PKCS#12 matches with the nic
 
 To create the PKCS12 with the certificate it is possible to request a server certificate for EST from the CA (and later the RA user certificate) and then export them as shown below:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 # pki nss-cert-request --csr estSSLServer.csr \
     --ext /usr/share/pki/server/certs/sslserver.conf --subject 'CN=est.example.com'
@@ -119,7 +119,7 @@ To create the PKCS12 with the certificate it is possible to request a server cer
 
 Similarly, to generate a subsystem certificate for EST, associate to the EST RA user (est-ra-1) previously configured in the CA, and add in the same PKCS12 of the SSL server certificate:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 # pki nss-cert-request --csr est-ra-1.csr \
     --ext /usr/share/pki/server/certs/admin.conf \
@@ -139,7 +139,7 @@ Similarly, to generate a subsystem certificate for EST, associate to the EST RA 
 
 Using the generated PKCS#12 bundle, the command to deploy EST is:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 # pkispawn \
     -f /usr/share/pki/server/examples/installation/est.cfg \
@@ -158,14 +158,14 @@ Using the generated PKCS#12 bundle, the command to deploy EST is:
 
 If the PKCS#12 bundle certificates are not provided to `pkispawn`, during the installation, the EST server cert is issued automatically using the profile configured for EST. The connection with the CA uses the credentials (_username/password_) provided in the configuration file. In such a case the CA signing certificate is needed. Retrieving the certificate can be done in the CA server with the command:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 # pki-server cert-export ca_signing --cert-file ca_signing.crt
 ....
 
 It is possible to install EST with the following command:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 # pkispawn \
     -f /usr/share/pki/server/examples/installation/est.cfg \
@@ -184,7 +184,7 @@ After the installation it is possible to update the EST server certificates with
 
 To remove the EST subsystem, it is possible to use the `pkidestroy` command as follows:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 # pkidestroy -s EST -v
 ....
