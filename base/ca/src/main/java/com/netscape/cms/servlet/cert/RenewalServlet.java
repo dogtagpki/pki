@@ -245,8 +245,11 @@ public class RenewalServlet extends CAServlet {
                 notBefore = new Date(0);
                 notAfter = new Date(0);
             }
-            new_certInfo.set(X509CertInfo.VALIDITY,
-                    new CertificateValidity(notBefore, notAfter));
+
+            logger.info("RenewalServlet: - not before: " + notBefore);
+            logger.info("RenewalServlet: - not after: " + notAfter);
+
+            new_certInfo.set(X509CertInfo.VALIDITY, new CertificateValidity(notBefore, notAfter));
             req.setExtData(Request.CERT_INFO, new X509CertInfo[] { new_certInfo }
                     );
         } catch (CertificateException e) {
