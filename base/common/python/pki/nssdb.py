@@ -338,7 +338,7 @@ class NSSDatabase(object):
             universal_newlines=text)
 
         if capture_output:
-            logger.debug('stdout: %s', stdout)
+            logger.debug('stdout:\n%s', result.stdout.decode('utf-8'))
 
         return result
 
@@ -2056,7 +2056,7 @@ class NSSDatabase(object):
             if stderr:
                 # certutil returned an error
                 # raise exception unless its not cert not found
-                logger.debug('NSSDatabase: stderr:\n%s', stderr)
+                logger.debug('stderr:\n%s', stderr)
                 if re.search('^certutil: Could not find cert: ', stderr, re.MULTILINE):
                     logger.debug('Cert not found: %s', nickname)
                     return None
