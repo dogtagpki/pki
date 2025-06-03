@@ -636,25 +636,24 @@ public class CAService implements IService {
             // set default validity if not set.
             // validity would normally be set by policies or by
             // agent or by authentication module.
-            CertificateValidity validity = (CertificateValidity)
-                    certi.get(X509CertInfo.VALIDITY);
+            CertificateValidity validity = (CertificateValidity) certi.get(X509CertInfo.VALIDITY);
             Date begin = null, end = null;
 
             if (validity != null) {
-                begin = (Date)
-                        validity.get(CertificateValidity.NOT_BEFORE);
-                end = (Date)
-                        validity.get(CertificateValidity.NOT_AFTER);
+                logger.info("CAService: Using provided cert validity");
+                begin = (Date) validity.get(CertificateValidity.NOT_BEFORE);
+                end = (Date) validity.get(CertificateValidity.NOT_AFTER);
             }
-            if (validity == null ||
-                    (begin.getTime() == 0 && end.getTime() == 0)) {
-                logger.debug("setting default validity");
 
+            if (validity == null || begin.getTime() == 0 && end.getTime() == 0) {
+                logger.info("CAService: Using default cert validity");
                 begin = new Date();
                 end = new Date(begin.getTime() + engine.getDefaultCertValidity());
-                certi.set(CertificateValidity.NAME,
-                        new CertificateValidity(begin, end));
+                certi.set(CertificateValidity.NAME, new CertificateValidity(begin, end));
             }
+
+            logger.info("CAService: - not before: " + begin);
+            logger.info("CAService: - not after: " + end);
 
             /*
              * For non-CA certs, check if validity exceeds CA time.
