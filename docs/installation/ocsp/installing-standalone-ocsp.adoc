@@ -93,7 +93,7 @@ $ pkispawn -f ocsp-standalone-step2.cfg -s OCSP
 +
 [literal,subs="+quotes,verbatim"]
 ....
-$ pki nss-cert-import --cert ca_signing.crt -trust CT,C,C ca_signing
+$ pki nss-cert-import --cert ca_signing.crt --trust CT,C,C ca_signing
 ....
 
 . Import admin certificate and key into the client NSS database (by default ~/.dogtag/nssdb) with the following command:
