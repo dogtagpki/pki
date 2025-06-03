@@ -211,16 +211,16 @@ public class RenewalValidityConstraints extends RenewalPolicy implements IExtend
                 return PolicyResult.REJECTED;
             }
 
+            logger.info("RenewalValidityConstraints: Checking cert validity");
             // Else check if the renewal interval is okay and then
             // set the validity.
             for (int i = 0; i < certInfo.length; i++) {
-                X509CertInfo oldCertInfo = (X509CertInfo)
-                        currentCerts[i].get(X509CertImpl.NAME +
-                                "." + X509CertImpl.INFO);
-                CertificateValidity oldValidity = (CertificateValidity)
-                        oldCertInfo.get(X509CertInfo.VALIDITY);
-                Date notAfter = (Date)
-                        oldValidity.get(CertificateValidity.NOT_AFTER);
+                X509CertInfo oldCertInfo = (X509CertInfo) currentCerts[i].get(X509CertImpl.NAME + "." + X509CertImpl.INFO);
+                logger.info("RenewalValidityConstraints: - " + oldCertInfo.getSubjectObj());
+
+                CertificateValidity oldValidity = (CertificateValidity) oldCertInfo.get(X509CertInfo.VALIDITY);
+                Date notAfter = (Date) oldValidity.get(CertificateValidity.NOT_AFTER);
+                logger.info("RenewalValidityConstraints:   - not after: " + notAfter);
 
                 // Is the Certificate still valid?
                 Date now = new Date();
@@ -247,8 +247,7 @@ public class RenewalValidityConstraints extends RenewalPolicy implements IExtend
 
                 // Else compute new  validity.
                 Date renewedNotBef = notAfter;
-                Date renewedNotAfter = new Date(notAfter.getTime() +
-                        mMaxValidity);
+                Date renewedNotAfter = new Date(notAfter.getTime() + mMaxValidity);
 
                 // If the new notAfter is within renewal interval days from
                 // today or already expired, set the notBefore to today.
@@ -259,6 +258,10 @@ public class RenewalValidityConstraints extends RenewalPolicy implements IExtend
                     renewedNotAfter = new Date(now.getTime() +
                                 mMaxValidity);
                 }
+
+                logger.info("RenewalValidityConstraints:   - new not before: " + renewedNotBef);
+                logger.info("RenewalValidityConstraints:   - new not after: " + renewedNotAfter);
+
                 CertificateValidity newValidity =
                         new CertificateValidity(renewedNotBef, renewedNotAfter);
 

@@ -144,28 +144,26 @@ public class RenewalConstraints extends RenewalPolicy implements IExtendedPlugin
             }
 
             if (mAllowExpiredCerts) {
-                logger.debug("checking validity of each cert");
-                // check if each cert to be renewed is expired for more than 		    // allowed days.
+                logger.info("RenewalConstraints: Checking cert validity");
+                // check if each cert to be renewed is expired for more than allowed days
                 for (int i = 0; i < oldCerts.length; i++) {
-                    X509CertInfo oldCertInfo = (X509CertInfo)
-                            oldCerts[i].get(X509CertImpl.NAME + "." +
-                                    X509CertImpl.INFO);
-                    CertificateValidity oldValidity = (CertificateValidity)
-                            oldCertInfo.get(X509CertInfo.VALIDITY);
-                    Date notAfter = (Date)
-                            oldValidity.get(CertificateValidity.NOT_AFTER);
+                    X509CertInfo oldCertInfo = (X509CertInfo) oldCerts[i].get(X509CertImpl.NAME + "." + X509CertImpl.INFO);
+                    logger.info("RenewalConstraints: - " + oldCertInfo.getSubjectObj());
+
+                    CertificateValidity oldValidity = (CertificateValidity) oldCertInfo.get(X509CertInfo.VALIDITY);
+                    Date notAfter = (Date) oldValidity.get(CertificateValidity.NOT_AFTER);
+                    logger.info("RenewalConstraints:   - not after: " + notAfter);
 
                     // Is the Certificate eligible for renewal ?
 
                     Date now = new Date();
 
-                    Date renewedNotAfter = new Date(notAfter.getTime() +
-                            mRenewalNotAfter);
+                    Date renewedNotAfter = new Date(notAfter.getTime() + mRenewalNotAfter);
 
                     logger.debug("RenewalConstraints: cert " + i + " renewedNotAfter " + renewedNotAfter + " now=" + now);
 
                     if (renewedNotAfter.before(now)) {
-                        logger.debug("One or more certificates is expired for more than "
+                        logger.info("RenewalConstraints: Certificate has expired for more than "
                                         + (mRenewalNotAfter / DAYS_TO_MS_FACTOR) + " days");
                         String params[] = { getInstanceName(), Long.toString(mRenewalNotAfter / DAYS_TO_MS_FACTOR) };
 

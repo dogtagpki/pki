@@ -72,7 +72,9 @@ public abstract class PolicyDefault implements IConfigTemplate {
      *
      * @return configuration store of this default policy
      */
-    public abstract PolicyDefaultConfig getConfigStore();
+    public PolicyDefaultConfig getConfigStore() {
+        return mConfig;
+    }
 
     /**
      * Populates the request with this policy default.

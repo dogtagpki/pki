@@ -1250,15 +1250,18 @@ public abstract class Profile {
      */
     public void populate(Request request)
             throws EProfileException {
-        String method = "Profile: populate: ";
+
+        logger.info("Profile: Applying default policies for " + mId);
+
         String setId = getPolicySetId(request);
         Vector<ProfilePolicy> policies = getPolicies(setId);
-        logger.debug(method + "policy setid =" + setId);
+        logger.info("Profile: - " + setId);
 
         for (int i = 0; i < policies.size(); i++) {
             ProfilePolicy policy = policies.elementAt(i);
-
-            policy.getDefault().populate(request);
+            PolicyDefault policyDefault = policy.getDefault();
+            logger.info("Profile:   - " + policyDefault.getName(null));
+            policyDefault.populate(request);
         }
     }
 

@@ -196,7 +196,7 @@ public class UserSubjectNameDefault extends EnrollDefault {
         // to the certinfo
         CertificateSubjectName reqSbj = request.getExtDataInCertSubjectName(
                     Request.REQUEST_SUBJECT_NAME);
-        logger.info("UserSubjectNameDefault: Subject: {}", reqSbj);
+        logger.info("UserSubjectNameDefault: - subject: {}", reqSbj);
 
         if (reqSbj == null) {
             // failed to retrieve subject name

@@ -25,7 +25,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.cms.profile.common.PolicyDefaultConfig;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.request.Request;
 
@@ -61,11 +60,6 @@ public class NoDefault extends PolicyDefault {
     @Override
     public String getConfig(String name) {
         return null;
-    }
-
-    @Override
-    public PolicyDefaultConfig getConfigStore() {
-        return mConfig;
     }
 
     /**

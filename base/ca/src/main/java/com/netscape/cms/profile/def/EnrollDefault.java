@@ -68,7 +68,6 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.security.SigningUnitConfig;
 import com.netscape.cms.profile.common.EnrollProfile;
-import com.netscape.cms.profile.common.PolicyDefaultConfig;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
@@ -160,11 +159,6 @@ public abstract class EnrollDefault extends PolicyDefault {
      */
     @Override
     public abstract String getText(Locale locale);
-
-    @Override
-    public PolicyDefaultConfig getConfigStore() {
-        return mConfig;
-    }
 
     @Override
     public String getName(Locale locale) {
@@ -859,7 +853,7 @@ public abstract class EnrollDefault extends PolicyDefault {
         CAEngine engine = CAEngine.getInstance();
 
         if (engine == null) { // running outside of server
-            logger.info("Getting signing cert from CA config");
+            logger.debug("EnrollDefault: Getting signing cert from CA config");
 
             CAConfig caConfig = engineConfig.getCAConfig();
             SigningUnitConfig signingUnitConfig = caConfig.getSigningUnitConfig();
@@ -871,7 +865,7 @@ public abstract class EnrollDefault extends PolicyDefault {
                 return new X509CertImpl(cert.getEncoded());
 
             } catch (ObjectNotFoundException e) {
-                logger.info("Signing cert does not exist: " + fullName);
+                logger.warn("Signing cert does not exist: " + fullName);
                 return null;
             }
         }
@@ -879,7 +873,7 @@ public abstract class EnrollDefault extends PolicyDefault {
         // running inside server
 
         if (authorityID == null) {
-            logger.info("Getting signing cert from host CA");
+            logger.debug("EnrollDefault: Getting signing cert from host CA");
 
             CertificateAuthority ca = engine.getCA();
             if (ca == null) {
@@ -895,7 +889,7 @@ public abstract class EnrollDefault extends PolicyDefault {
             return signingUnit.getCertImpl();
         }
 
-        logger.info("Getting signing cert from CA " + authorityID);
+        logger.debug("EnrollDefault: Getting signing cert from CA " + authorityID);
         CertificateAuthority ca = engine.getCA(new AuthorityID(authorityID));
         if (ca == null) {
             throw new EProfileException("Unable to find CA " + authorityID);

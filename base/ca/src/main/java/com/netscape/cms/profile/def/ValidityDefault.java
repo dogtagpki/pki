@@ -257,6 +257,7 @@ public class ValidityDefault extends EnrollDefault {
     public void populate(Request request, X509CertInfo info)
             throws EProfileException {
 
+        logger.debug("ValidityDefault: Calculating default cert validity");
         CAEngine engine = CAEngine.getInstance();
 
         // always + 60 seconds
@@ -274,7 +275,7 @@ public class ValidityDefault extends EnrollDefault {
         long startTime = Long.parseLong(startTimeStr);
 
         Date notBefore = new Date(new Date().getTime() + (1000 * startTime));
-        logger.debug("ValidityDefault: not before: " + notBefore);
+        logger.info("ValidityDefault: - not before: " + notBefore);
 
         String rangeStr = getConfig(CONFIG_RANGE, "7305");
         logger.debug("ValidityDefault: range: " + rangeStr);
@@ -307,7 +308,7 @@ public class ValidityDefault extends EnrollDefault {
         date.add(rangeUnit, range);
 
         Date notAfter = date.getTime();
-        logger.debug("ValidityDefault: not after: " + notAfter);
+        logger.info("ValidityDefault: - not after: " + notAfter);
 
         // check and fix notAfter if needed
         // installAdjustValidity is set during installation if needed
@@ -321,7 +322,7 @@ public class ValidityDefault extends EnrollDefault {
                 Date caNotAfter = caCert.getNotAfter();
                 if (notAfter.after(caNotAfter)) {
                     notAfter = caNotAfter;
-                    logger.debug("ValidityDefault: populate: resetting notAfter to caNotAfter");
+                    logger.info("ValidityDefault: populate: resetting notAfter to caNotAfter");
                 }
             } catch (Exception e) {
                 throw new EProfileException(
@@ -329,8 +330,7 @@ public class ValidityDefault extends EnrollDefault {
             }
         }
 
-        CertificateValidity validity =
-                new CertificateValidity(notBefore, notAfter);
+        CertificateValidity validity = new CertificateValidity(notBefore, notAfter);
 
         try {
             info.set(X509CertInfo.VALIDITY, validity);
