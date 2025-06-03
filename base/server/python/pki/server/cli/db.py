@@ -104,13 +104,12 @@ class DBSchemaUpgradeCLI(pki.cli.CLI):
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
-            logger.error('Invalid instance: %s', instance_name)
-            sys.exit(1)
+            raise pki.cli.CLIException('Invalid instance: %s' % instance_name)
+
         instance.load()
 
         if not instance.get_subsystems():
-            logger.error('No subsystem in instance %s', instance_name)
-            sys.exit(1)
+            raise pki.cli.CLIException('No subsystem in instance %s' % instance_name)
 
         if not bind_password:
             bind_password = getpass.getpass(prompt='Enter password: ')

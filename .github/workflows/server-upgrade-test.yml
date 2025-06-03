@@ -27,14 +27,23 @@ jobs:
       - name: Create network
         run: docker network create example
 
-      - name: Set up server container
+      - name: Set up DS container
         run: |
-          tests/bin/runner-init.sh pki
-        env:
-          HOSTNAME: pki.example.com
+          tests/bin/ds-create.sh \
+              --image=${{ env.DS_IMAGE }} \
+              --hostname=ds.example.com \
+              --network=example \
+              --network-alias=ds.example.com \
+              --password=Secret.123 \
+              ds
 
-      - name: Connect server container to network
-        run: docker network connect example pki --alias pki.example.com
+      - name: Set up PKI container
+        run: |
+          tests/bin/runner-init.sh \
+              --hostname=pki.example.com \
+              --network=example \
+              --network-alias=pki.example.com \
+              pki
 
       - name: Add upgrade script
         run: |
@@ -72,19 +81,58 @@ jobs:
               $UPGRADE_DIR/$INDEX-BasicUpgradeScript.py
           docker exec pki ls $UPGRADE_DIR
 
-      - name: Run upgrade without any servers
+      - name: Run pki-server upgrade without any servers
         run: |
-          docker exec pki pki-server upgrade -v | tee output
+          docker exec pki pki-server upgrade \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
 
-          # verify that the upgrade script was not executed
-          grep "BasicUpgradeScript" output | tee actual
-          [ ! -s actual ]
+          # upgrade should fail
+          cat > expected << EOF
+          ERROR: Invalid instance: pki-tomcat
+          EOF
 
-      - name: Create PKI server
+          diff expected stderr
+
+      - name: Run pki-server db-schema-upgrade without any servers
         run: |
-          docker exec pki pki-server create -v
+          docker exec pki pki-server db-schema-upgrade \
+              -w Secret.123 \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
 
-      - name: Run upgrade with one server
+          # upgrade should fail
+          cat > expected << EOF
+          ERROR: Invalid instance: pki-tomcat
+          EOF
+
+          diff expected stderr
+
+      - name: Install CA
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_audit_signing_nickname= \
+              -v
+
+      - name: Check CA admin cert
+        run: |
+          docker exec pki pki-server cert-export \
+              --cert-file ca_signing.crt \
+              ca_signing
+
+          docker exec pki pki nss-cert-import \
+              --cert ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
+          docker exec pki pki pkcs12-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password Secret.123
+
+          docker exec pki pki -n caadmin ca-user-show caadmin
+
+      - name: Run pki-server upgrade with one server
         run: |
           docker exec pki pki-server upgrade -v | tee output
 
@@ -92,20 +140,19 @@ jobs:
           grep "BasicUpgradeScript:" output | tee actual
           [ -s actual ]
 
-      - name: Remove PKI server
+      - name: Run pki-server db-schema-upgrade with one server
         run: |
-          docker exec pki pki-server remove -v
+          docker exec pki pki-server db-schema-upgrade \
+              -w Secret.123
 
-      - name: Gather artifacts
-        if: always()
+      - name: Restart PKI server after upgrade
         run: |
-          tests/bin/pki-artifacts-save.sh pki
-        continue-on-error: true
+          docker exec pki pki-server restart --wait
 
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: server-upgrade-test
-          path: |
-            /tmp/artifacts/pki
+      - name: Check CA admin cert after upgrade
+        run: |
+          docker exec pki pki -n caadmin ca-user-show caadmin
+
+      - name: Remove CA
+        run: |
+          docker exec pki pkidestroy -s CA -v
