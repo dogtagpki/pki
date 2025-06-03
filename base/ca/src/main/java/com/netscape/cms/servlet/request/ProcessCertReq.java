@@ -554,34 +554,30 @@ public class ProcessCertReq extends CMSServlet {
 
                             // only override these values if agent specified them
                             if (notValidBefore > 0) {
-                                Date notBefore = (Date) certValidity.get(
-                                        CertificateValidity.NOT_BEFORE);
+                                Date notBefore = (Date) certValidity.get(CertificateValidity.NOT_BEFORE);
 
-                                if (notBefore.getTime() == 0 ||
-                                        notBefore.getTime() != notValidBefore) {
+                                if (notBefore.getTime() == 0 || notBefore.getTime() != notValidBefore) {
                                     Date validFrom = new Date(notValidBefore);
-
                                     notBefore = (notValidBefore == 0) ? currentTime : validFrom;
-                                    certValidity.set(CertificateValidity.NOT_BEFORE,
-                                            notBefore);
+                                    certValidity.set(CertificateValidity.NOT_BEFORE, notBefore);
                                     validityChanged = true;
                                 }
                             }
                             if (notValidAfter > 0) {
                                 Date validTo = new Date(notValidAfter);
-                                Date notAfter = (Date)
-                                        certValidity.get(CertificateValidity.NOT_AFTER);
+                                Date notAfter = (Date) certValidity.get(CertificateValidity.NOT_AFTER);
 
-                                if (notAfter.getTime() == 0 ||
-                                        notAfter.getTime() != notValidAfter) {
+                                if (notAfter.getTime() == 0 || notAfter.getTime() != notValidAfter) {
                                     notAfter = currentTime;
                                     notAfter = (notValidAfter == 0) ? currentTime : validTo;
-                                    certValidity.set(CertificateValidity.NOT_AFTER,
-                                            notAfter);
+                                    certValidity.set(CertificateValidity.NOT_AFTER, notAfter);
                                     validityChanged = true;
                                 }
                             }
                             if (validityChanged) {
+
+                                logger.info("ProcessCertReq: - not before: " + certValidity.get(CertificateValidity.NOT_BEFORE));
+                                logger.info("ProcessCertReq: - not after: " + certValidity.get(CertificateValidity.NOT_AFTER));
                                 // this set() trigger this rebuild of internal
                                 // raw der encoding cache of X509CertInfo.
                                 // Otherwise, the above change wont have effect.
