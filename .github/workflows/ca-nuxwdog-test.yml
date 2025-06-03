@@ -99,9 +99,6 @@ jobs:
           # remove password.conf temporarily
           docker exec pki mv /var/lib/pki/pki-tomcat/conf/password.conf /tmp
 
-          # install setfacl tool needed for Nuxwdog
-          docker exec pki dnf install -y acl
-
           docker exec pki pki-server nuxwdog-enable
 
       - name: Start CA with Nuxwdog
