@@ -136,7 +136,7 @@ class UpgradeCLI(pki.cli.CLI):
             instance = pki.server.PKIServerFactory.create(instance_name)
 
             if not instance.exists():
-                raise Exception('Invalid instance: %s' % instance_name)
+                raise pki.cli.CLIException('Invalid instance: %s' % instance_name)
 
             instance.load()
             instances = [instance]

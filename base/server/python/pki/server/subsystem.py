@@ -1171,18 +1171,17 @@ class PKISubsystem(object):
         port = self.config['internaldb.ldapconn.port']
         secure = self.config['internaldb.ldapconn.secureConn']
 
+        scheme = 'ldaps' if secure == 'true' else 'ldap'
+        url = '%s://%s:%s' % (scheme, host, port)
+
         cmd = [
             'ldapmodify',
-            '-c',
+            '-H', url,
             '-D', bind_dn,
             '-w', bind_password,
-            '-h', host,
-            '-p', port,
-            '-f', filename
+            '-f', filename,
+            '-c'
         ]
-
-        if secure.lower() == 'true':
-            cmd.append('-Z')
 
         logger.debug('Command: %s', ' '.join(cmd))
         subprocess.check_call(cmd)
