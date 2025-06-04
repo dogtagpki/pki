@@ -70,14 +70,9 @@ parser.add_argument('--help', action='store_true')
 
 args = parser.parse_args(args=sys.argv[1:])
 
-if args.clear:
-    keyring.clear_keyring()
-    sys.exit()
-
 if args.help:
     print_help()
     sys.exit()
-
 
 if args.verbose:
     logging.getLogger().setLevel(logging.INFO)
@@ -96,7 +91,11 @@ instance_name = os.getenv('NAME', 'pki-tomcat')
 instance = pki.server.instance.PKIInstance(instance_name)
 instance.load()
 
-keyring = Keyring(owner = instance.user)
+keyring = Keyring(owner=instance.user)
+
+if args.clear:
+    keyring.clear_keyring()
+    sys.exit()
 
 subsystems = instance.get_subsystems()
 
