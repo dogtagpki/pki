@@ -13,6 +13,16 @@ jobs:
     needs: build
     uses: ./.github/workflows/server-basic-test.yml
 
+  server-port-test:
+    name: Server port
+    needs: build
+    uses: ./.github/workflows/server-port-test.yml
+
+  server-user-test:
+    name: Server user
+    needs: build
+    uses: ./.github/workflows/server-user-test.yml
+
   server-https-pem-test:
     name: HTTPS connector with PEM files
     needs: build

@@ -92,13 +92,3 @@ jobs:
     name: CA admin user
     needs: build
     uses: ./.github/workflows/ca-admin-user-test.yml
-
-  ca-custom-user-test:
-    name: CA with custom user
-    needs: build
-    uses: ./.github/workflows/ca-custom-user-test.yml
-
-  ca-custom-ports-test:
-    name: CA with custom ports
-    needs: build
-    uses: ./.github/workflows/ca-custom-ports-test.yml
