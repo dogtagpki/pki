@@ -23,6 +23,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/ca-profile-caServerCert-test.yml
 
+  ca-profile-custom-test:
+    name: CA with custom profile
+    needs: build
+    uses: ./.github/workflows/ca-profile-custom-test.yml
+
   ca-renewal-manual-test:
     name: CA manual renewal
     needs: build
@@ -47,11 +52,6 @@ jobs:
     name: CA cert revocation
     needs: build
     uses: ./.github/workflows/ca-cert-revocation-test.yml
-
-  ca-secure-ds-test:
-    name: CA with secure DS
-    needs: build
-    uses: ./.github/workflows/ca-secure-ds-test.yml
 
   ca-crl-test:
     name: CA CRL database

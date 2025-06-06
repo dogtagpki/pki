@@ -1,0 +1,337 @@
+name: CA with custom profile
+# The test will perform the following:
+# - create a custom profile with wide chars in the name and description
+# - enroll a cert with wide chars in the subject DN
+# - create a user with wide chars in the full name
+# - authenticate as the user using the cert
+
+on: workflow_call
+
+env:
+  DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install xmlstarlet
+
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Retrieve PKI images
+        uses: actions/cache@v4
+        with:
+          key: pki-images-${{ github.sha }}
+          path: pki-images.tar
+
+      - name: Load PKI images
+        run: docker load --input pki-images.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-create.sh \
+              --image=${{ env.DS_IMAGE }} \
+              --hostname=ds.example.com \
+              --network=example \
+              --network-alias=ds.example.com \
+              --password=Secret.123 \
+              ds
+
+      - name: Set up PKI container
+        run: |
+          tests/bin/runner-init.sh \
+              --hostname=pki.example.com \
+              --network=example \
+              --network-alias=pki.example.com \
+              pki
+
+      - name: Install CA
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
+              -v
+
+      - name: Install CA admin cert
+        run: |
+          docker exec pki pki-server cert-export \
+              --cert-file ca_signing.crt \
+              ca_signing
+
+          docker exec pki pki nss-cert-import \
+              --cert ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
+          docker exec pki pki pkcs12-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --password Secret.123
+
+      - name: Retrieve caUserCert profile
+        run: |
+          # export caUserCert profile
+          docker exec pki pki \
+              -n caadmin \
+              ca-profile-show \
+              --output $SHARED/profile.xml \
+              caUserCert
+
+          cat profile.xml
+
+      - name: Create custom profile
+        run: |
+          # allow updates
+          sudo chmod go+w profile.xml
+
+          # update profile ID
+          xmlstarlet edit --inplace \
+              -u "/Profile/@id" \
+              -v "custom" \
+              profile.xml
+
+          # update profile name
+          xmlstarlet edit --inplace \
+              -u "/Profile/name" \
+              -v "五輪真弓" \
+              profile.xml
+
+          # update profile description
+          xmlstarlet edit --inplace \
+              -u "/Profile/description" \
+              -v "Certificate profile for 五輪真弓" \
+              profile.xml
+
+          cat profile.xml
+
+      - name: Add custom profile
+        run: |
+          # add custom profile
+          docker exec pki pki \
+              -n caadmin \
+              ca-profile-add \
+              $SHARED/profile.xml
+
+          # enable custom profile
+          docker exec pki pki \
+              -n caadmin \
+              ca-profile-enable \
+              custom
+
+      - name: Check custom profile info
+        run: |
+          docker exec pki pki \
+              -n caadmin \
+              ca-profile-show \
+              custom \
+              | tee output
+
+          sed -n \
+              -e "/^\s*Name:/p" \
+              -e "/^\s*Description:/p" \
+              output > actual
+
+          cat > expected << EOF
+            Name: 五輪真弓
+            Description: Certificate profile for 五輪真弓
+          EOF
+
+          diff expected actual
+
+      - name: Check custom profile config
+        run: |
+          docker exec pki pki \
+              -n caadmin \
+              ca-profile-show \
+              --raw \
+              custom \
+              | tee output
+
+          sed -n \
+              -e "/^name=/p" \
+              -e "/^desc=/p" \
+              output > actual
+
+          cat > expected << EOF
+          desc=Certificate profile for 五輪真弓
+          name=五輪真弓
+          EOF
+
+      - name: Check custom profile config file
+        run: |
+          docker exec pki cat /var/lib/pki/pki-tomcat/ca/profiles/ca/custom.cfg \
+              | tee output
+
+          sed -n \
+              -e "/^name=/p" \
+              -e "/^desc=/p" \
+              output > actual
+
+          cat > expected << EOF
+          desc=Certificate profile for 五輪真弓
+          name=五輪真弓
+          EOF
+
+          diff expected actual
+
+      - name: Create user cert using custom profile
+        run: |
+          # create cert request
+          docker exec pki pki nss-cert-request \
+              --subject "UID=testuser,CN=五輪真弓" \
+              --ext /usr/share/pki/tools/examples/certs/testuser.conf \
+              --csr testuser.csr
+
+          # submit cert request
+          docker exec pki pki ca-cert-request-submit \
+              --profile custom \
+              --csr-file testuser.csr \
+              | tee output
+
+          REQUEST_ID=$(sed -n "s/^\s*Request ID:\s*\(\S*\)$/\1/p" output)
+
+          # approve cert request
+          docker exec pki pki \
+              -n caadmin \
+              ca-cert-request-approve \
+              --force \
+              $REQUEST_ID \
+              | tee output
+
+          CERT_ID=$(sed -n "s/^\s*Certificate ID:\s*\(\S*\)$/\1/p" output)
+          echo $CERT_ID > cert.id
+
+      - name: Check user cert
+        run: |
+          CERT_ID=$(cat cert.id)
+
+          docker exec pki pki ca-cert-show $CERT_ID | tee output
+
+          sed -n \
+              -e "/^\s*Subject DN:/p" \
+              output > actual
+
+          cat > expected << EOF
+            Subject DN: UID=testuser,CN=五輪真弓
+          EOF
+
+          diff expected actual
+
+      - name: Create user using user cert
+        run: |
+          CERT_ID=$(cat cert.id)
+
+          # export cert
+          docker exec pki pki ca-cert-export \
+              --output-file testuser.crt \
+              $CERT_ID
+
+          docker exec pki pki \
+              -n caadmin \
+              ca-user-add \
+              --full-name "五輪真弓" \
+              --type adminType \
+              --cert-file testuser.crt \
+              testuser
+
+          docker exec pki pki \
+              -n caadmin \
+              ca-user-membership-add \
+              testuser \
+              "Administrators"
+
+      - name: Check user using pki ca-user-show
+        run: |
+          docker exec pki pki \
+              -n caadmin \
+              ca-user-show \
+              testuser \
+              | tee output
+
+          cat > expected << EOF
+          ---------------
+          User "testuser"
+          ---------------
+            User ID: testuser
+            Full name: 五輪真弓
+            Type: adminType
+          EOF
+
+          diff expected output
+
+      - name: Check user using pki-server ca-user-show
+        run: |
+          docker exec pki pki-server ca-user-show \
+              testuser \
+              | tee output
+
+          cat > expected << EOF
+            User ID: testuser
+            Full Name: 五輪真弓
+            Type: adminType
+          EOF
+
+          diff expected output
+
+      - name: Check authentication using user cert
+        run: |
+          # import cert
+          docker exec pki pki nss-cert-import \
+              --cert testuser.crt \
+              testuser
+
+          # authenticate as test user
+          docker exec pki pki \
+              -n testuser \
+              ca-user-show \
+              testuser \
+              | tee output
+
+          cat > expected << EOF
+          ---------------
+          User "testuser"
+          ---------------
+            User ID: testuser
+            Full name: 五輪真弓
+            Type: adminType
+          EOF
+
+          diff expected output
+
+      - name: Remove CA
+        run: docker exec pki pkidestroy -s CA -v
+
+      - name: Check DS server systemd journal
+        if: always()
+        run: |
+          docker exec ds journalctl -x --no-pager -u dirsrv@localhost.service
+
+      - name: Check DS container logs
+        if: always()
+        run: |
+          docker logs ds
+
+      - name: Check PKI server systemd journal
+        if: always()
+        run: |
+          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check PKI server access log
+        if: always()
+        run: |
+          docker exec pki find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+
+      - name: Check CA debug log
+        if: always()
+        run: |
+          docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;

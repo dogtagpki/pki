@@ -26,6 +26,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -164,7 +165,7 @@ public class SimpleProperties extends Hashtable<String, String> {
      */
     public synchronized void load(InputStream inStream) throws IOException {
 
-        BufferedReader in = new BufferedReader(new InputStreamReader(inStream, "8859_1"));
+        BufferedReader in = new BufferedReader(new InputStreamReader(inStream, StandardCharsets.UTF_8));
 
         while (true) {
             // Get next line
@@ -318,7 +319,7 @@ public class SimpleProperties extends Hashtable<String, String> {
             throws IOException {
         BufferedWriter awriter;
 
-        awriter = new BufferedWriter(new OutputStreamWriter(out, "8859_1"));
+        awriter = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
         if (header != null)
             writeln(awriter, "#" + header);
         writeln(awriter, "#" + new Date().toString());

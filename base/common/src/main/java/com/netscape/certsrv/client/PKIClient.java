@@ -22,6 +22,7 @@ import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -151,7 +152,7 @@ public class PKIClient implements AutoCloseable {
             return null;
         }
 
-        String response = EntityUtils.toString(entity);
+        String response = EntityUtils.toString(entity, StandardCharsets.UTF_8);
         if (response == null || response.isBlank()) {
             return null;
         }
@@ -269,9 +270,11 @@ public class PKIClient implements AutoCloseable {
                     .build();
         }
 
+        byte[] bytes = marshall(object).getBytes(StandardCharsets.UTF_8);
+
         return EntityBuilder.create()
-                .setText(marshall(object))
                 .setContentType(ContentType.create(defaultMimeType))
+                .setBinary(bytes)
                 .build();
     }
 

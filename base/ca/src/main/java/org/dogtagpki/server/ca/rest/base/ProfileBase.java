@@ -265,8 +265,15 @@ public class ProfileBase {
         try {
             // load data and read profileId and classId
             properties.load(new ByteArrayInputStream(data));
+
             profileId = properties.remove("profileId");
+            logger.info("ProfileBase: - profileId: " + profileId);
+
             classId = properties.remove("classId");
+            logger.info("ProfileBase: - classId: " + classId);
+
+            logger.info("ProfileBase: - name: " + properties.get("name"));
+            logger.info("ProfileBase: - description: " + properties.get("desc"));
 
         } catch (IOException e) {
             String message = "Unable to create profile: " + e.getMessage();

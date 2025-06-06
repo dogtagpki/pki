@@ -87,8 +87,8 @@ public class ProfileCLI extends CLI {
 
         for (ProfileInput input: data.getInputs()) {
             System.out.println();
-            System.out.println("  Name: " + input.getName());
-            System.out.println("  Class: " + input.getClassId());
+            System.out.println("  Input Name: " + input.getName());
+            System.out.println("  Input Class: " + input.getClassId());
             for (ProfileAttribute attr : input.getAttributes()) {
                 System.out.println();
                 System.out.println("    Attribute Name: " + attr.getName());
@@ -101,8 +101,8 @@ public class ProfileCLI extends CLI {
 
         for (ProfileOutput output: data.getOutputs()) {
             System.out.println();
-            System.out.println("  Name: " + output.getName());
-            System.out.println("  Class: " + output.getClassId());
+            System.out.println("  Output Name: " + output.getName());
+            System.out.println("  Output Class: " + output.getClassId());
             for (ProfileAttribute attr: output.getAttrs()) {
                 System.out.println();
                 System.out.println("    Attribute Name: " + attr.getName());
