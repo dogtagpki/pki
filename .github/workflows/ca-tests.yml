@@ -68,6 +68,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/ca-ds-connection-test.yml
 
+  ca-secure-ds-test:
+    name: CA with secure DS
+    needs: build
+    uses: ./.github/workflows/ca-secure-ds-test.yml
+
   ca-rsnv1-test:
     name: CA with RSNv1
     needs: build

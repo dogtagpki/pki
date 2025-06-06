@@ -27,6 +27,7 @@ import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Map;
@@ -309,7 +310,7 @@ public class ConfigStore implements Cloneable {
      * @param out outputstream where the properties are saved
      */
     public synchronized void store(OutputStream out) throws Exception {
-        try (PrintWriter pw = new PrintWriter(out)) {
+        try (PrintWriter pw = new PrintWriter(out, true, StandardCharsets.UTF_8)) {
             Map<String, String> map = getProperties();
             for (String name : map.keySet()) {
                 String value = map.get(name);

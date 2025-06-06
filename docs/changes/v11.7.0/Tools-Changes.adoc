@@ -21,3 +21,8 @@ and the reported status error.
 The CA parameter `pki_kra_connector_verify_cert` set corresponding
 `CS.cfg` paramater `ca.connector.KRA.certRevocationCheck` for KRA
 connector. The default value is `True`.
+
+== Deprecate pki <subsystem>-user-add --fullName ==
+
+The `--fullName` option for `pki <subsystem>-user-add` command has been deprecated.
+Use `--full-name` instead.

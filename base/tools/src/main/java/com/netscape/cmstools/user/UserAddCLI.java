@@ -57,8 +57,12 @@ public class UserAddCLI extends CommandCLI {
 
     @Override
     public void createOptions() {
-        Option option = new Option(null, "fullName", true, "Full name");
-        option.setArgName("fullName");
+        Option option = new Option(null, "fullName", true, "DEPRECATED: Full name");
+        option.setArgName("full name");
+        options.addOption(option);
+
+        option = new Option(null, "full-name", true, "Full name");
+        option.setArgName("full name");
         options.addOption(option);
 
         option = new Option(null, "email", true, "Email");
@@ -73,7 +77,7 @@ public class UserAddCLI extends CommandCLI {
         option.setArgName("phone");
         options.addOption(option);
 
-        option = new Option(null, "type", true, "Type");
+        option = new Option(null, "type", true, "Type: userType, agentType, adminType, subsystemType");
         option.setArgName("type");
         options.addOption(option);
 
@@ -112,7 +116,14 @@ public class UserAddCLI extends CommandCLI {
         }
 
         String userID = cmdArgs[0];
-        String fullName = cmd.getOptionValue("fullName");
+        String fullName = cmd.getOptionValue("full-name");
+
+        if (fullName == null) {
+            fullName = cmd.getOptionValue("fullName");
+            if (fullName != null) {
+                logger.warn("The --fullName option has been deprecated. Use --full-name instead.");
+            }
+        }
 
         if (fullName == null) {
             throw new Exception("Missing full name");

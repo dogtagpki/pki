@@ -527,11 +527,11 @@ class UserShowCLI(pki.cli.CLI):
 
         print('  User ID: {}'.format(user['id']))
 
-        full_name = user.get('fullName')
+        full_name = user.get('FullName')
         if full_name:
             print('  Full Name: {}'.format(full_name))
 
-        email = user.get('email')
+        email = user.get('Email')
         if email:
             print('  Email: {}'.format(email))
 

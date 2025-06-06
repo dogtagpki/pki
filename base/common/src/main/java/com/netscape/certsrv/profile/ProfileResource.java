@@ -42,7 +42,7 @@ public interface ProfileResource {
     @POST
     @Path("raw")
     @ACLMapping("profiles.create")
-    public Response createProfileRaw(byte[] data);
+    public Response createProfileRaw(byte[] data) throws Exception;
 
     @POST
     @Path("{id}")

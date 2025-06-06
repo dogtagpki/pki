@@ -559,7 +559,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
     }
 
     @Override
-    public Response createProfileRaw(byte[] data) {
+    public Response createProfileRaw(byte[] data) throws Exception {
 
         if (data == null) {
             String message = "Unable to create profile: Missing profile data";
@@ -583,8 +583,15 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         try {
             // load data and read profileId and classId
             properties.load(new ByteArrayInputStream(data));
+
             profileId = properties.remove("profileId");
+            logger.info("ProfileService: - profileId: " + profileId);
+
             classId = properties.remove("classId");
+            logger.info("ProfileService: - classId: " + classId);
+
+            logger.info("ProfileService: - name: " + properties.get("name"));
+            logger.info("ProfileService: - description: " + properties.get("desc"));
 
         } catch (IOException e) {
             String message = "Unable to create profile: " + e.getMessage();
