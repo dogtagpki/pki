@@ -11,7 +11,7 @@ Prior to installation, ensure that the xref:../others/installation-prerequisites
 
 On the existing system, export the TKS system certificates with the following command:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki-server tks-clone-prepare \
     --pkcs12-file tks-certs.p12 \
@@ -28,7 +28,7 @@ Note that the existing SSL server certificate is not exported.
 
 If necessary, third-party certificates, for example trust anchors, can be added into the same PKCS #12 file with the following command:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki -d /var/lib/pki/pki-tomcat/conf/alias -f /var/lib/pki/pki-tomcat/conf/password.conf \
     pkcs12-cert-import <nickname> \
@@ -57,7 +57,7 @@ See xref:../ca/installing-ca.adoc[Installing CA] for details.
 
 To start the installation execute the following command:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pkispawn -f tks-clone.cfg -s TKS
 ....
@@ -66,7 +66,7 @@ $ pkispawn -f tks-clone.cfg -s TKS
 
 After installation the existing TKS system certificates (including the certificate chain) and their keys are stored in the server NSS database (i.e. `/var/lib/pki/pki-tomcat/conf/alias`), and a new SSL server certificate is created for the new instance:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
 
@@ -81,7 +81,7 @@ sslserver                                                    u,u,u
 
 If necessary, the certificates can be exported into PEM files with the following command:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki-server cert-export <cert ID> --cert-file <filename>
 ....
@@ -100,14 +100,14 @@ To use the admin certificate, do the following.
 
 . Import the CA signing certificate into the client NSS database:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki nss-cert-import --cert ca_signing.crt --trust CT,C,C ca_signing
 ....
 
 . Import admin certificate and key into the client NSS database (by default ~/.dogtag/nssdb) with the following command:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki pkcs12-import \
     --pkcs12 ca_admin_cert.p12 \
@@ -116,7 +116,7 @@ $ pki pkcs12-import \
 
 . To verify that the admin certificate can be used to access the TKS subsystem clone, execute the following command:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki -n caadmin tks-user-show tksadmin
 ---------------

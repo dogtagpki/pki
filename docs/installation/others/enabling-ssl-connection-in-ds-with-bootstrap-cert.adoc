@@ -17,7 +17,7 @@ This section assumes that a DS instance named `localhost` already exists, it doe
 
 . Generate DS signing CSR with the following command:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki \
     -d /etc/dirsrv/slapd-localhost \
@@ -30,7 +30,7 @@ $ pki \
 
 . Issue DS signing certificate:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki \
     -d /etc/dirsrv/slapd-localhost \
@@ -43,7 +43,7 @@ $ pki \
 
 . Import DS signing certificate:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki \
     -d /etc/dirsrv/slapd-localhost \
@@ -56,7 +56,7 @@ $ pki \
 
 . Verify the DS signing certificate:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ certutil -L -d /etc/dirsrv/slapd-localhost -n Self-Signed-CA
 ...
@@ -81,7 +81,7 @@ $ certutil -L -d /etc/dirsrv/slapd-localhost -n Self-Signed-CA
 
 . Generate DS server CSR with the following command:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki \
     -d /etc/dirsrv/slapd-localhost \
@@ -95,7 +95,7 @@ $ pki \
 
 . Issue DS server certificate:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki \
     -d /etc/dirsrv/slapd-localhost \
@@ -109,7 +109,7 @@ $ pki \
 
 . Import DS server certificate:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki \
     -d /etc/dirsrv/slapd-localhost \
@@ -121,7 +121,7 @@ $ pki \
 
 . Verify the DS server certificate:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ certutil -L -d /etc/dirsrv/slapd-localhost -n Server-Cert
 ...
@@ -139,21 +139,21 @@ $ certutil -L -d /etc/dirsrv/slapd-localhost -n Server-Cert
 
 . To enable SSL connection in the DS instance:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ dsconf localhost config replace nsslapd-security=on
 ....
 
 . Restart the DS instance:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ dsctl localhost restart
 ....
 
 . Verify the SSL connection:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ LDAPTLS_REQCERT=never ldapsearch \
     -H ldaps://$HOSTNAME:636 \

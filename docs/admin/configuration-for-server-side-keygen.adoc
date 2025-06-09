@@ -126,7 +126,7 @@ NOTE: If cracklibCheck=true is enabled, SELinux may block /usr/sbin/cracklib-che
 
 Apply the necessary SELinux policies:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 # setsebool -P domain_can_mmap_files 1
 # ausearch -c 'cracklib-check' --raw | audit2allow -M my-cracklibcheck
