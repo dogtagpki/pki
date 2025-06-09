@@ -15,7 +15,7 @@ Follow this process to prepare a local DS instance for PKI server.
 
 *Note:* The DS installation automatically generates a bootstrap self-signed signing certificate which issues a bootstrap server certificate for SSL connection. The PKI installation takes advantage of this security offer to complete its installation. The bootstrap server certificate could be replaced by a server certificate issued by an actual CA at a later step after the installation.
 
-_If you wish to disable bootstrap certificate generation and SSL connection, set `self_sign_cert = False` in the `sed` command below. You can still enable SSL later by following xref:enabling-ssl-connection-in-ds-with-bootstrap-cert.adoc[Enabling SSL Connection in DS with Bootstrap Cert]._
+_If you wish to disable bootstrap certificate generation and SSL connection, set `self_sign_cert = False` after the `dscreate create-template` command below. You can still enable SSL later by following xref:enabling-ssl-connection-in-ds-with-bootstrap-cert.adoc[Enabling SSL Connection in DS with Bootstrap Cert]._
 
 == Creating a DS Instance 
 
@@ -26,28 +26,17 @@ _If you wish to disable bootstrap certificate generation and SSL connection, set
 $ dscreate create-template ds.inf
 ....
 
-Customize the DS configuration file as follows:
+Make sure to customize the resulting content of ds.inf to have the appropriate values. Specifically check (or set if needed) the following values:
 
-[literal,subs="+quotes,verbatim"]
-....
-$ sed -i \
-    -e "s/^;instance_name = .*/instance_name = localhost/" \
-    -e "s/^;root_password = .*/root_password = Secret.123/" \
-    -e "s/^;suffix = .*/suffix = dc=example,dc=com/" \
-    -e "s/^;create_suffix_entry = .*/create_suffix_entry = True/" \
-    -e "s/^;self_sign_cert = .*/self_sign_cert = True/" \
-    ds.inf
-....
+* *instance_name* specifies the name of the DS instance. In our example that follows, we are setting it to `localhost`.
 
-where
+* *root_password* specifies the password for DS admin, that is `cn=Directory Manager`. In our example that follows, we are setting it to `Secret.123`.
 
-* *instance_name* specifies the name of the DS instance. In this example it's set to `localhost`.
+* *suffix* specifies the namespace for the DS instance. In our example that follows, we are setting it to `dc=example,dc=com`.
 
-* *root_password* specifies the password for DS admin, that is `cn=Directory Manager`. In this example it is set to `Secret.123`.
+* *create_suffix_entry* specifies whether to create a generic root node entry for the suffix in the database.  In our example that follows, we are setting it to `True`.
 
-* *suffix* specifies the namespace for the DS instance. In this example it is set to `dc=example,dc=com`.
-
-* *self_sign_cert* specifies whether to create self-signed certificates for SSL connection. In this example it is set to `True`. The SSL connection is enabled.
+* *self_sign_cert* specifies whether to create self-signed certificates for SSL connection. In our example that follows, we are setting it to `True`. The SSL connection is enabled.
 
 For more information see the parameter descriptions in the DS configuration file itself (i.e. `ds.inf`) and in link:https://directory.fedoraproject.org/docs/389ds/design/dsadm-dsconf.html[DS documentation].
 
