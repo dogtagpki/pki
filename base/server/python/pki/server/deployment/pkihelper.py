@@ -26,7 +26,6 @@ import getpass
 import logging
 import sys
 import os
-import re
 import requests
 import subprocess
 from grp import getgrgid
@@ -766,24 +765,6 @@ class KRAConnector:
             logger.error(log.PKIHELPER_UNDEFINED_SUBSYSTEM_NICKNAME)
             raise Exception(log.PKIHELPER_UNDEFINED_SUBSYSTEM_NICKNAME)
 
-        # retrieve name of token based upon type (hardware/software)
-        if ':' in subsystemnick:
-            token_name = subsystemnick.split(':')[0]
-        else:
-            token_name = pki.nssdb.INTERNAL_TOKEN_NAME
-
-        token_pwd = self.password.get_password(
-            instance.password_conf,
-            token_name)
-
-        if token_pwd is None or token_pwd == '':
-            logger.warning(log.PKIHELPER_KRACONNECTOR_UPDATE_FAILURE)
-            logger.error(
-                log.PKIHELPER_UNDEFINED_TOKEN_PASSWD_1,
-                token_name)
-            raise Exception(
-                log.PKIHELPER_UNDEFINED_TOKEN_PASSWD_1 % token_name)
-
         # Note: this is a hack to resolve Trac Ticket 1113
         # We need to remove the KRA connector data from all relevant clones,
         # but we have no way of easily identifying which instances are
@@ -826,10 +807,31 @@ class KRAConnector:
             # noinspection PyBroadException
             # pylint: disable=W0703
             try:
-                result = self.execute_using_pki(
-                    instance, ca_url, subsystemnick,
-                    token_pwd, krahost, kraport)
+                cmd = [
+                    'pki',
+                    '-d', instance.nssdb_dir,
+                    '-f', instance.password_conf,
+                    '-U', ca_url,
+                    '-n', subsystemnick,
+                    '--ignore-banner',
+                    'ca-kraconnector-del',
+                    '--host', krahost,
+                    '--port', str(kraport)
+                ]
+
+                logger.debug('Command: %s', ' '.join(cmd))
+
+                # don't use capture_output and text params to support Python 3.6
+                # https://stackoverflow.com/questions/53209127/subprocess-unexpected-keyword-argument-capture-output/53209196
+                # https://stackoverflow.com/questions/52663518/python-subprocess-popen-doesnt-take-text-argument
+
+                result = subprocess.run(
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    check=True)
+
                 logger.debug('Output:\n%s', result.stdout.strip())
+
             except subprocess.CalledProcessError as e:
                 # ignore exceptions
                 logger.warning('Unable to remove KRA connector: %s', e.stderr.strip())
@@ -856,31 +858,6 @@ class KRAConnector:
             logger.info('Trying older interface.')
             info = sd.get_old_domain_info()
         return list(info.subsystems['CA'].hosts.values())
-
-    def execute_using_pki(
-            self, instance, ca_url, subsystemnick,
-            token_pwd, krahost, kraport):
-        command = ["/usr/bin/pki",
-                   "-U", ca_url,
-                   "-n", subsystemnick,
-                   "-P", "https",
-                   "-d", instance.nssdb_dir,
-                   "-c", token_pwd,
-                   "--ignore-banner",
-                   "ca-kraconnector-del",
-                   "--host", krahost,
-                   "--port", str(kraport)]
-
-        # don't use capture_output and text params to support Python 3.6
-        # https://stackoverflow.com/questions/53209127/subprocess-unexpected-keyword-argument-capture-output/53209196
-        # https://stackoverflow.com/questions/52663518/python-subprocess-popen-doesnt-take-text-argument
-
-        return subprocess.run(
-            command,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            check=True,
-            universal_newlines=True)
 
 
 class TPSConnector:
@@ -911,6 +888,8 @@ class TPSConnector:
             logger.error(log.PKIHELPER_UNDEFINED_TKS_HOST_PORT)
             raise Exception(log.PKIHELPER_UNDEFINED_TKS_HOST_PORT)
 
+        tks_url = 'https://%s:%s' % (tkshost, tksport)
+
         # retrieve subsystem nickname
         subsystemnick = cs_cfg.get('tps.cert.subsystem.nickname')
         if subsystemnick is None:
@@ -918,43 +897,32 @@ class TPSConnector:
             logger.error(log.PKIHELPER_UNDEFINED_SUBSYSTEM_NICKNAME)
             raise Exception(log.PKIHELPER_UNDEFINED_SUBSYSTEM_NICKNAME)
 
-        self.execute_using_pki(
-            instance, tkshost, tksport, subsystemnick,
-            tpshost, tpsport)
+        try:
+            cmd = [
+                'pki',
+                '-U', tks_url,
+                '-n', subsystemnick,
+                '-d', instance.nssdb_dir,
+                '-f', instance.password_conf,
+                '--ignore-banner',
+                '--skip-revocation-check',
+                'tks-tpsconnector-del',
+                '--host', tpshost,
+                '--port', str(tpsport)
+            ]
 
-    def execute_using_pki(
-            self, instance, tkshost, tksport, subsystemnick,
-            tpshost, tpsport, critical_failure=False):
+            logger.debug('Command: %s', ' '.join(cmd))
 
-        tks_url = 'https://%s:%s' % (tkshost, tksport)
-        password_conf = os.path.join(
-            instance.conf_dir,
-            'password.conf')
+            result = subprocess.run(
+                cmd,
+                stdout=subprocess.PIPE,
+                check=True)
 
-        command = ["pki",
-                   "-U", tks_url,
-                   "-n", subsystemnick,
-                   "-d", instance.nssdb_dir,
-                   "-f", password_conf,
-                   "--ignore-banner",
-                   "--skip-revocation-check",
-                   "tks-tpsconnector-del",
-                   "--host", tpshost,
-                   "--port", str(tpsport)]
+            logger.debug('Output:\n%s', result.stdout.strip())
 
-        output = subprocess.check_output(command,
-                                         stderr=subprocess.STDOUT,
-                                         shell=False)
-        output = output.decode('utf-8')
-        error = re.findall("ClientResponseFailure:(.*?)", output)
-        if error:
-            logger.warning(
-                log.PKIHELPER_TPSCONNECTOR_UPDATE_FAILURE_2,
-                str(tpshost),
-                str(tpsport))
-            logger.error(log.PKI_SUBPROCESS_ERROR_1, output)
-            if critical_failure:
-                raise Exception(log.PKI_SUBPROCESS_ERROR_1 % output)
+        except subprocess.CalledProcessError as e:
+            # ignore exceptions
+            logger.warning('Unable to remove TPS connector: %s', e.stderr.strip())
 
 
 class Systemd(object):

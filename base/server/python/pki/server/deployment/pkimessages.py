@@ -289,8 +289,6 @@ PKIHELPER_TOMCAT_INSTANCE_SUBSYSTEMS_2 = \
     "instance '%s' contains '%d' Tomcat PKI subsystems"
 PKIHELPER_TOUCH_1 = "touch %s"
 PKIHELPER_TPSCONNECTOR_UPDATE_FAILURE = "Failed to update TPS connector on TKS"
-PKIHELPER_TPSCONNECTOR_UPDATE_FAILURE_2 = \
-    "Failed to update TPS connector for %s:%s"
 PKIHELPER_UID_2 = "UID of '%s' is %s"
 PKIHELPER_UNDEFINED_CA_HOST_PORT = "CA Host or Port is undefined"
 PKIHELPER_UNDEFINED_CLIENT_DATABASE_PASSWORD_2 = \
