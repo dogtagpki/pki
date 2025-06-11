@@ -46,17 +46,14 @@ $ pki pkcs12-cert-del --pkcs12-file ca-certs.p12 --pkcs12-password Secret.123 su
 +
 [literal,subs="+quotes,verbatim"]
 ....
-$ echo "-----BEGIN CERTIFICATE REQUEST-----" > ca_signing.csr
-$ sed -n "/^ca.signing.certreq=/ s/^[^=]*=// p" < /var/lib/pki/pki-tomcat/conf/ca/CS.cfg >> ca_signing.csr
-$ echo "-----END CERTIFICATE REQUEST-----" >> ca_signing.csr
+$ pki-server cert-export ca_signing \
+    --csr-file ca_signing.csr
 
-$ echo "-----BEGIN CERTIFICATE REQUEST-----" > ca_ocsp_signing.csr
-$ sed -n "/^ca.ocsp_signing.certreq=/ s/^[^=]*=// p" < /var/lib/pki/pki-tomcat/conf/ca/CS.cfg >> ca_ocsp_signing.csr
-$ echo "-----END CERTIFICATE REQUEST-----" >> ca_ocsp_signing.csr
+$ pki-server cert-export ca_ocsp_signing \
+    --csr-file ca_ocsp_signing.csr
 
-$ echo "-----BEGIN CERTIFICATE REQUEST-----" > ca_audit_signing.csr
-$ sed -n "/^ca.audit_signing.certreq=/ s/^[^=]*=// p" < /var/lib/pki/pki-tomcat/conf/ca/CS.cfg >> ca_audit_signing.csr
-$ echo "-----END CERTIFICATE REQUEST-----" >> ca_audit_signing.csr
+$ pki-server cert-export ca_audit_signing \
+    --csr-file ca_audit_signing.csr
 ....
 
 == Finishing a CA subsystem installation 
