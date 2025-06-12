@@ -63,6 +63,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/pki-pkcs12-test.yml
 
+  pki-server-basic-test:
+    name: Basic PKI Server CLI
+    needs: build
+    uses: ./.github/workflows/pki-server-basic-test.yml
+
   rpminspect-test:
     name: rpminspect
     needs: build

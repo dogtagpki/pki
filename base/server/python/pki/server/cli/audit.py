@@ -443,7 +443,9 @@ class AuditEventShowCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('event_name')
+        self.parser.add_argument(
+            'event_name',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server %s-audit-event-show [OPTIONS] <event name>'
@@ -472,6 +474,9 @@ class AuditEventShowCLI(pki.cli.CLI):
 
         instance_name = args.instance
         event_name = args.event_name
+
+        if event_name is None:
+            raise pki.cli.CLIException('Missing event name')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -518,7 +523,9 @@ class AuditEventEnableCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('event_name')
+        self.parser.add_argument(
+            'event_name',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server %s-audit-event-enable [OPTIONS] <event_name>'
@@ -547,6 +554,9 @@ class AuditEventEnableCLI(pki.cli.CLI):
 
         instance_name = args.instance
         event_name = args.event_name
+
+        if event_name is None:
+            raise pki.cli.CLIException('Missing event name')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -609,7 +619,9 @@ class AuditEventUpdateCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('event_name')
+        self.parser.add_argument(
+            'event_name',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server %s-audit-event-update <event_name> '
@@ -640,6 +652,9 @@ class AuditEventUpdateCLI(pki.cli.CLI):
         instance_name = args.instance
         event_filter = args.event_filter
         event_name = args.event_name
+
+        if event_name is None:
+            raise pki.cli.CLIException('Missing event name')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -688,7 +703,9 @@ class AuditEventDisableCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('event_name')
+        self.parser.add_argument(
+            'event_name',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server %s-audit-event-disable [OPTIONS] <event_name>'
@@ -717,6 +734,9 @@ class AuditEventDisableCLI(pki.cli.CLI):
 
         instance_name = args.instance
         event_name = args.event_name
+
+        if event_name is None:
+            raise pki.cli.CLIException('Missing event name')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():

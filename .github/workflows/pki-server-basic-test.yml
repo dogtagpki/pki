@@ -1,0 +1,202 @@
+name: Basic PKI Server CLI
+# https://github.com/dogtagpki/pki/wiki/PKI-Server-CLI
+
+on: workflow_call
+
+env:
+  DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Retrieve PKI images
+        uses: actions/cache@v4
+        with:
+          key: pki-images-${{ github.sha }}
+          path: pki-images.tar
+
+      - name: Load PKI images
+        run: docker load --input pki-images.tar
+
+      - name: Set up runner container
+        run: |
+          tests/bin/runner-init.sh \
+              --hostname=pki.example.com \
+              pki
+
+      - name: Check pki-server CLI help message
+        run: |
+          docker exec pki pki-server
+          docker exec pki pki-server --help
+
+      - name: Check pki-server CLI version
+        run: |
+          docker exec pki pki-server --version
+
+      - name: Check pki-server CLI with wrong option
+        run: |
+          docker exec pki pki-server --wrong \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          sed -n \
+              -e '/^pki-server:/p' \
+              stderr > actual
+
+          cat > expected << EOF
+          pki-server: error: unrecognized arguments: --wrong
+          EOF
+
+          diff expected actual
+
+      - name: Check pki-server CLI with wrong sub-command
+        run: |
+          docker exec pki pki-server wrong \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          cat > expected << EOF
+          ERROR: Invalid module "wrong".
+          EOF
+
+          diff expected stderr
+
+      - name: Check pki-server instance help messages
+        run: |
+          docker exec pki pki-server instance-find --help
+          docker exec pki pki-server instance-show --help
+
+      - name: Check pki-server password help messages
+        run: |
+          docker exec pki pki-server password-find --help
+          docker exec pki pki-server password-set --help
+          docker exec pki pki-server password-unset --help
+
+      - name: Check pki-server cert help messages
+        run: |
+          docker exec pki pki-server cert-find --help
+          docker exec pki pki-server cert-show --help
+          docker exec pki pki-server cert-validate --help
+          docker exec pki pki-server cert-update --help
+          docker exec pki pki-server cert-request --help
+          docker exec pki pki-server cert-create --help
+          docker exec pki pki-server cert-import --help
+          docker exec pki pki-server cert-export --help
+          docker exec pki pki-server cert-del --help
+          docker exec pki pki-server cert-fix --help
+
+      - name: Check pki-server http-connector help messages
+        run: |
+          docker exec pki pki-server http-connector-find --help
+          docker exec pki pki-server http-connector-show --help
+          docker exec pki pki-server http-connector-add --help
+          docker exec pki pki-server http-connector-mod --help
+          docker exec pki pki-server http-connector-del --help
+
+      - name: Check pki-server http-connector-host help messages
+        run: |
+          docker exec pki pki-server http-connector-host-find --help
+          docker exec pki pki-server http-connector-host-show --help
+          docker exec pki pki-server http-connector-host-add --help
+          docker exec pki pki-server http-connector-host-mod --help
+          docker exec pki pki-server http-connector-host-del --help
+
+      - name: Check pki-server http-connector-cert help messages
+        run: |
+          docker exec pki pki-server http-connector-cert-find --help
+          docker exec pki pki-server http-connector-cert-add --help
+          docker exec pki pki-server http-connector-cert-del --help
+
+      - name: Check pki-server webapp help messages
+        run: |
+          docker exec pki pki-server webapp-find --help
+          docker exec pki pki-server webapp-show --help
+          docker exec pki pki-server webapp-deploy --help
+          docker exec pki pki-server webapp-undeploy --help
+
+      - name: Check pki-server subsystem help messages
+        run: |
+          docker exec pki pki-server subsystem-find --help
+          docker exec pki pki-server subsystem-show --help
+          docker exec pki pki-server subsystem-enable --help
+          docker exec pki pki-server subsystem-disable --help
+
+      - name: Check pki-server sd help messages
+        run: |
+          docker exec pki pki-server sd-create --help
+
+      - name: Check pki-server sd-subsystem help messages
+        run: |
+          docker exec pki pki-server sd-subsystem-find --help
+          docker exec pki pki-server sd-subsystem-add --help
+          docker exec pki pki-server sd-subsystem-del --help
+
+      - name: Check pki-server ca-config help messages
+        run: |
+          docker exec pki pki-server ca-config-find --help
+          docker exec pki pki-server ca-config-show --help
+          docker exec pki pki-server ca-config-set --help
+          docker exec pki pki-server ca-config-unset --help
+
+      - name: Check pki-server ca-user help messages
+        run: |
+          docker exec pki pki-server ca-user-find --help
+          docker exec pki pki-server ca-user-show --help
+          docker exec pki pki-server ca-user-add --help
+          docker exec pki pki-server ca-user-mod --help
+          docker exec pki pki-server ca-user-del --help
+
+      - name: Check pki-server ca-user-cert help messages
+        run: |
+          docker exec pki pki-server ca-user-cert-find --help
+          docker exec pki pki-server ca-user-cert-add --help
+          docker exec pki pki-server ca-user-cert-del --help
+
+      - name: Check pki-server ca-user-role help messages
+        run: |
+          docker exec pki pki-server ca-user-role-find --help
+          docker exec pki pki-server ca-user-role-add --help
+          docker exec pki pki-server ca-user-role-del --help
+
+      - name: Check pki-server ca-group help messages
+        run: |
+          docker exec pki pki-server ca-group-find --help
+
+      - name: Check pki-server ca-group-member help messages
+        run: |
+          docker exec pki pki-server ca-group-member-find --help
+          docker exec pki pki-server ca-group-member-add --help
+          docker exec pki pki-server ca-group-member-del --help
+
+      - name: Check pki-server ca-id-generator help messages
+        run: |
+          docker exec pki pki-server ca-id-generator-show --help
+          docker exec pki pki-server ca-id-generator-update --help
+
+      - name: Check pki-server ca-db-access help messages
+        run: |
+          docker exec pki pki-server ca-db-access-grant --help
+          docker exec pki pki-server ca-db-access-revoke --help
+
+      - name: Check pki-server ca-audit-config help messages
+        run: |
+          docker exec pki pki-server ca-audit-config-show --help
+          docker exec pki pki-server ca-audit-config-mod --help
+
+      - name: Check pki-server ca-audit-event help messages
+        run: |
+          docker exec pki pki-server ca-audit-event-find --help
+          docker exec pki pki-server ca-audit-event-show --help
+          docker exec pki pki-server ca-audit-event-enable --help
+          docker exec pki pki-server ca-audit-event-disable --help
+          docker exec pki pki-server ca-audit-event-update --help
+
+      - name: Check pki-server ca-audit-file help messages
+        run: |
+          docker exec pki pki-server ca-audit-file-find --help
+          docker exec pki pki-server ca-audit-file-verify --help

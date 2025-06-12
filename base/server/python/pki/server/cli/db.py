@@ -1112,7 +1112,9 @@ class SubsystemDBAccessGrantCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('dn')
+        self.parser.add_argument(
+            'dn',
+            nargs='?')
 
     def print_help(self):
         print(textwrap.dedent(self.__class__.help).format(
@@ -1137,6 +1139,9 @@ class SubsystemDBAccessGrantCLI(pki.cli.CLI):
         subsystem_name = self.parent.parent.parent.name
         as_current_user = args.as_current_user
         dn = args.dn
+
+        if dn is None:
+            raise pki.cli.CLIException('Missing DN')
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
@@ -1201,7 +1206,9 @@ class SubsystemDBAccessRevokeCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('dn')
+        self.parser.add_argument(
+            'dn',
+            nargs='?')
 
     def print_help(self):
         print(textwrap.dedent(self.__class__.help).format(
@@ -1226,6 +1233,9 @@ class SubsystemDBAccessRevokeCLI(pki.cli.CLI):
         subsystem_name = self.parent.parent.parent.name
         as_current_user = args.as_current_user
         dn = args.dn
+
+        if dn is None:
+            raise pki.cli.CLIException('Missing DN')
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
@@ -1645,7 +1655,9 @@ class SubsystemDBReplicationAgreementAddCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('name')
+        self.parser.add_argument(
+            'name',
+            nargs='?')
 
     def print_help(self):
         print(textwrap.dedent(self.__class__.help).format(
@@ -1677,6 +1689,9 @@ class SubsystemDBReplicationAgreementAddCLI(pki.cli.CLI):
         replication_security = args.replication_security
         suffix = args.suffix
         name = args.name
+
+        if name is None:
+            raise pki.cli.CLIException('Missing replication agreement name')
 
         instance = pki.server.instance.PKIInstance(instance_name)
 
@@ -1767,7 +1782,9 @@ class SubsystemDBReplicationAgreementInitCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('name')
+        self.parser.add_argument(
+            'name',
+            nargs='?')
 
     def print_help(self):
         print(textwrap.dedent(self.__class__.help).format(
@@ -1795,6 +1812,9 @@ class SubsystemDBReplicationAgreementInitCLI(pki.cli.CLI):
         bind_password = args.bind_password
         suffix = args.suffix
         name = args.name
+
+        if name is None:
+            raise pki.cli.CLIException('Missing replication agreement name')
 
         instance = pki.server.instance.PKIInstance(instance_name)
 

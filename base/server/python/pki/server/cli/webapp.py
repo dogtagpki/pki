@@ -157,7 +157,9 @@ class WebappShowCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('webapp_id')
+        self.parser.add_argument(
+            'webapp_id',
+            nargs='?')
 
     def print_help(self):
         print(textwrap.dedent(self.__class__.help))
@@ -179,6 +181,9 @@ class WebappShowCLI(pki.cli.CLI):
 
         instance_name = args.instance
         webapp_id = args.webapp_id
+
+        if webapp_id is None:
+            raise pki.cli.CLIException('Missing web application ID')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -231,7 +236,9 @@ class WebappDeployCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('webapp_id')
+        self.parser.add_argument(
+            'webapp_id',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server webapp-deploy [OPTIONS] <webapp ID>')
@@ -269,6 +276,9 @@ class WebappDeployCLI(pki.cli.CLI):
         max_wait = args.max_wait
         timeout = args.timeout
         webapp_id = args.webapp_id
+
+        if webapp_id is None:
+            raise pki.cli.CLIException('Missing web application ID')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -318,7 +328,9 @@ class WebappUndeployCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('webapp_id')
+        self.parser.add_argument(
+            'webapp_id',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server webapp-undeploy [OPTIONS] [<webapp ID>]')
@@ -352,6 +364,9 @@ class WebappUndeployCLI(pki.cli.CLI):
         max_wait = args.max_wait
         timeout = args.timeout
         webapp_id = args.webapp_id
+
+        if webapp_id is None:
+            raise pki.cli.CLIException('Missing web application ID')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 

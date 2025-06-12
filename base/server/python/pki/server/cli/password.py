@@ -138,7 +138,9 @@ class PasswordAddCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('name')
+        self.parser.add_argument(
+            'name',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server password-add [OPTIONS] <password ID>')
@@ -172,6 +174,9 @@ class PasswordAddCLI(pki.cli.CLI):
         instance_name = args.instance
         password = args.password
         name = args.name
+
+        if name is None:
+            raise pki.cli.CLIException('Missing password ID')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -211,7 +216,9 @@ class PasswordRemoveCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('name')
+        self.parser.add_argument(
+            'name',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server password-del [OPTIONS] <password ID>')
@@ -243,6 +250,9 @@ class PasswordRemoveCLI(pki.cli.CLI):
 
         instance_name = args.instance
         name = args.name
+
+        if name is None:
+            raise pki.cli.CLIException('Missing password ID')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -281,7 +291,9 @@ class PasswordSetCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('name')
+        self.parser.add_argument(
+            'name',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server password-set [OPTIONS] <password ID>')
@@ -313,6 +325,9 @@ class PasswordSetCLI(pki.cli.CLI):
         password = args.password
         password_file = args.password_file
         name = args.name
+
+        if name is None:
+            raise pki.cli.CLIException('Missing password ID')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -359,7 +374,9 @@ class PasswordUnsetCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('name')
+        self.parser.add_argument(
+            'name',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server password-unset [OPTIONS] <password ID>')
@@ -387,6 +404,9 @@ class PasswordUnsetCLI(pki.cli.CLI):
 
         instance_name = args.instance
         name = args.name
+
+        if name is None:
+            raise pki.cli.CLIException('Missing password ID')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
