@@ -17,8 +17,6 @@ Some useful tips:
 
 * Ensure the firewall on the master allows external access to LDAP from the clone.
 * Ensure the firewall on the clone allows external access to LDAP from the master.
-* Not having a `dc=pki,dc=example,dc=com` entry in LDAP gives the same error as not being able to connect to the LDAP server.
-
 
 == Exporting existing CA system certificates 
 
@@ -103,7 +101,7 @@ $ pkispawn -f ca-secure-ds-secondary.cfg -s CA
 
 == CA system certificates 
 
-After installation the existing CA system certificates (including the certificate chain) and their keys are stored in the server NSS database (i.e. `/var/lib/pki/pki-tomcat/conf/alias`), and a new SSL server certificate is created for the new instance:
+After installation the existing CA system certificates (including the certificate chain) and their keys are stored in the server NSS database (i.e. `/var/lib/pki/pki-tomcat/conf/alias`), and a new SSL server certificate is created for the new instance. Note that if the ds_signing is the same cert as ca_signing, it does not show in the following `certutil` listing:
 [literal,subs="+quotes,verbatim"]
 ....
 $ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
@@ -147,7 +145,7 @@ To use the admin certificate, do the following.
 $ pki nss-cert-import --cert ca_signing.crt --trust CT,C,C ca_signing
 ....
 
-. Import the admin certificate and key into the client NSS database (by default ~/.dogtag/nssdb) with the following command:
+. Import the admin certificate and key from the master CA into the client NSS database (by default ~/.dogtag/nssdb) with the following command:
 +
 [literal,subs="+quotes,verbatim"]
 ....
