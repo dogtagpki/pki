@@ -80,7 +80,7 @@ class SubsystemFindCLI(pki.cli.CLI):
             '--help',
             action='store_true')
 
-    def usage(self):
+    def print_help(self):
         print('Usage: pki-server subsystem-find [OPTIONS]')
         print()
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
@@ -150,9 +150,11 @@ class SubsystemShowCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('subsystem_id')
+        self.parser.add_argument(
+            'subsystem_id',
+            nargs='?')
 
-    def usage(self):
+    def print_help(self):
         print('Usage: pki-server subsystem-show [OPTIONS] <subsystem ID>')
         print()
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
@@ -178,6 +180,9 @@ class SubsystemShowCLI(pki.cli.CLI):
 
         instance_name = args.instance
         subsystem_name = args.subsystem_id
+
+        if subsystem_name is None:
+            raise pki.cli.CLIException('Missing subsystem ID')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -611,7 +616,7 @@ class SubsystemEnableCLI(pki.cli.CLI):
             'subsystem_id',
             nargs='?')
 
-    def usage(self):
+    def print_help(self):
         print('Usage: pki-server subsystem-enable [OPTIONS] [<subsystem ID>]')
         print()
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
@@ -661,7 +666,7 @@ class SubsystemEnableCLI(pki.cli.CLI):
 
         if not args.subsystem_id:
             logger.error('Missing subsystem ID')
-            self.usage()
+            self.print_help()
             sys.exit(1)
 
         subsystem_name = args.subsystem_id
@@ -716,7 +721,7 @@ class SubsystemDisableCLI(pki.cli.CLI):
             'subsystem_id',
             nargs='?')
 
-    def usage(self):
+    def print_help(self):
         print('Usage: pki-server subsystem-disable [OPTIONS] [<subsystem ID>]')
         print()
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
@@ -763,7 +768,7 @@ class SubsystemDisableCLI(pki.cli.CLI):
 
         if not args.subsystem_id:
             logger.error('Missing subsystem ID')
-            self.usage()
+            self.print_help()
             sys.exit(1)
 
         subsystem_name = args.subsystem_id
@@ -839,7 +844,9 @@ class SubsystemCertFindCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('subsystem_id')
+        self.parser.add_argument(
+            'subsystem_id',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server subsystem-cert-find [OPTIONS] <subsystem ID>')
@@ -873,6 +880,9 @@ class SubsystemCertFindCLI(pki.cli.CLI):
         instance_name = args.instance
         show_all = args.show_all
         subsystem_name = args.subsystem_id
+
+        if subsystem_name is None:
+            raise pki.cli.CLIException('Missing subsystem ID')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -934,10 +944,14 @@ class SubsystemCertShowCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('subsystem_id')
-        self.parser.add_argument('cert_id')
+        self.parser.add_argument(
+            'subsystem_id',
+            nargs='?')
+        self.parser.add_argument(
+            'cert_id',
+            nargs='?')
 
-    def usage(self):
+    def print_help(self):
         print('Usage: pki-server subsystem-cert-show [OPTIONS] <subsystem ID> <cert ID>')
         print()
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
@@ -971,6 +985,12 @@ class SubsystemCertShowCLI(pki.cli.CLI):
 
         subsystem_name = args.subsystem_id
         cert_tag = args.cert_id
+
+        if subsystem_name is None:
+            raise pki.cli.CLIException('Missing subsystem ID')
+
+        if cert_tag is None:
+            raise pki.cli.CLIException('Missing certificate ID')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -1031,7 +1051,9 @@ class SubsystemCertExportCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('subsystem_id')
+        self.parser.add_argument(
+            'subsystem_id',
+            nargs='?')
         self.parser.add_argument(
             'cert_id',
             nargs='?')
@@ -1086,6 +1108,9 @@ class SubsystemCertExportCLI(pki.cli.CLI):
 
         subsystem_name = args.subsystem_id
         cert_tag = args.cert_id
+
+        if subsystem_name is None:
+            raise pki.cli.CLIException('Missing subsystem ID')
 
         if not (cert_file or csr_file or pkcs12_file):
             logger.error('Missing output file')
@@ -1191,10 +1216,14 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('subsystem_id')
-        self.parser.add_argument('cert_id')
+        self.parser.add_argument(
+            'subsystem_id',
+            nargs='?')
+        self.parser.add_argument(
+            'cert_id',
+            nargs='?')
 
-    def usage(self):
+    def print_help(self):
         print('Usage: pki-server subsystem-cert-update [OPTIONS] <subsystem ID> <cert ID>')
         print()
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
@@ -1225,6 +1254,12 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
         subsystem_name = args.subsystem_id
         cert_tag = args.cert_id
 
+        if subsystem_name is None:
+            raise pki.cli.CLIException('Missing subsystem ID')
+
+        if cert_tag is None:
+            raise pki.cli.CLIException('Missing certificate ID')
+
         instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.exists():
@@ -1249,7 +1284,7 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
         if cert_file:
             if not os.path.isfile(cert_file):
                 logger.error('%s certificate does not exist.', cert_file)
-                self.usage()
+                self.print_help()
                 sys.exit(1)
 
             data = nssdb.get_cert(
@@ -1338,12 +1373,14 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('subsystem_id')
+        self.parser.add_argument(
+            'subsystem_id',
+            nargs='?')
         self.parser.add_argument(
             'cert_id',
             nargs='?')
 
-    def usage(self):
+    def print_help(self):
         print('Usage: pki-server subsystem-cert-validate [OPTIONS] <subsystem ID> [cert ID]')
         print()
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
@@ -1374,6 +1411,9 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
         instance_name = args.instance
         subsystem_name = args.subsystem_id
         cert_tag = args.cert_id
+
+        if subsystem_name is None:
+            raise pki.cli.CLIException('Missing subsystem ID')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 

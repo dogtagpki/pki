@@ -97,7 +97,9 @@ class UserAddCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('user_id')
+        self.parser.add_argument(
+            'user_id',
+            nargs='?')
 
     def print_help(self):
         print(textwrap.dedent(self.__class__.help).format(
@@ -136,6 +138,9 @@ class UserAddCLI(pki.cli.CLI):
 
         ignore_duplicate = args.ignore_duplicate
         user_id = args.user_id
+
+        if user_id is None:
+            raise pki.cli.CLIException('Missing user ID')
 
         if not full_name:
             logger.error('Missing full name')
@@ -310,7 +315,9 @@ class UserModifyCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('user_id')
+        self.parser.add_argument(
+            'user_id',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server %s-user-mod [OPTIONS] <user ID>' % self.parent.parent.name)
@@ -347,6 +354,9 @@ class UserModifyCLI(pki.cli.CLI):
         add_see_also = args.add_see_also
         del_see_also = args.del_see_also
         user_id = args.user_id
+
+        if user_id is None:
+            raise pki.cli.CLIException('Missing user ID')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -411,7 +421,9 @@ class UserRemoveCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('user_id')
+        self.parser.add_argument(
+            'user_id',
+            nargs='?')
 
     def print_help(self):
         print(textwrap.dedent(self.__class__.help).format(
@@ -435,6 +447,9 @@ class UserRemoveCLI(pki.cli.CLI):
         instance_name = args.instance
         subsystem_name = self.parent.parent.name
         user_id = args.user_id
+
+        if user_id is None:
+            raise pki.cli.CLIException('Missing user ID')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -479,7 +494,9 @@ class UserShowCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('user_id')
+        self.parser.add_argument(
+            'user_id',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server %s-user-show [OPTIONS] <user ID>' % self.parent.parent.name)
@@ -508,6 +525,9 @@ class UserShowCLI(pki.cli.CLI):
         instance_name = args.instance
         subsystem_name = self.parent.parent.name
         user_id = args.user_id
+
+        if user_id is None:
+            raise pki.cli.CLIException('Missing user ID')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -585,7 +605,9 @@ class UserCertFindCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('user_id')
+        self.parser.add_argument(
+            'user_id',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server %s-user-cert-find [OPTIONS] <user ID>'
@@ -615,6 +637,9 @@ class UserCertFindCLI(pki.cli.CLI):
         instance_name = args.instance
         subsystem_name = self.parent.parent.parent.name
         user_id = args.user_id
+
+        if user_id is None:
+            raise pki.cli.CLIException('Missing user ID')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -666,7 +691,9 @@ class UserCertAddCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('user_id')
+        self.parser.add_argument(
+            'user_id',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server %s-user-cert-add [OPTIONS] <user ID>'
@@ -702,6 +729,9 @@ class UserCertAddCLI(pki.cli.CLI):
         cert_format = args.format
         ignore_duplicate = args.ignore_duplicate
         user_id = args.user_id
+
+        if user_id is None:
+            raise pki.cli.CLIException('Missing user ID')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -765,8 +795,12 @@ class UserCertRemoveCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('user_id')
-        self.parser.add_argument('cert_id')
+        self.parser.add_argument(
+            'user_id',
+            nargs='?')
+        self.parser.add_argument(
+            'cert_id',
+            nargs='?')
 
     def print_help(self):
         print(textwrap.dedent(self.__class__.help).format(
@@ -791,6 +825,12 @@ class UserCertRemoveCLI(pki.cli.CLI):
         subsystem_name = self.parent.parent.parent.name
         user_id = args.user_id
         cert_id = args.cert_id
+
+        if user_id is None:
+            raise pki.cli.CLIException('Missing user ID')
+
+        if cert_id is None:
+            raise pki.cli.CLIException('Missing certificate ID')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -863,7 +903,9 @@ class UserRoleFindCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('user_id')
+        self.parser.add_argument(
+            'user_id',
+            nargs='?')
 
     def print_help(self):
         print(textwrap.dedent(self.__class__.help).format(
@@ -888,6 +930,9 @@ class UserRoleFindCLI(pki.cli.CLI):
         subsystem_name = self.parent.parent.parent.name
         output_format = args.output_format
         user_id = args.user_id
+
+        if user_id is None:
+            raise pki.cli.CLIException('Missing user ID')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -947,8 +992,12 @@ class UserRoleAddCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('user_id')
-        self.parser.add_argument('role_id')
+        self.parser.add_argument(
+            'user_id',
+            nargs='?')
+        self.parser.add_argument(
+            'role_id',
+            nargs='?')
 
     def print_help(self):
         print(textwrap.dedent(self.__class__.help).format(
@@ -974,6 +1023,12 @@ class UserRoleAddCLI(pki.cli.CLI):
 
         user_id = args.user_id
         role_id = args.role_id
+
+        if user_id is None:
+            raise pki.cli.CLIException('Missing user ID')
+
+        if role_id is None:
+            raise pki.cli.CLIException('Missing role ID')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -1033,8 +1088,12 @@ class UserRoleRemoveCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('user_id')
-        self.parser.add_argument('role_id')
+        self.parser.add_argument(
+            'user_id',
+            nargs='?')
+        self.parser.add_argument(
+            'role_id',
+            nargs='?')
 
     def print_help(self):
         print(textwrap.dedent(self.__class__.help).format(
@@ -1060,6 +1119,12 @@ class UserRoleRemoveCLI(pki.cli.CLI):
 
         user_id = args.user_id
         role_id = args.role_id
+
+        if user_id is None:
+            raise pki.cli.CLIException('Missing user ID')
+
+        if role_id is None:
+            raise pki.cli.CLIException('Missing role ID')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():

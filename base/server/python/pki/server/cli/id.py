@@ -136,7 +136,9 @@ class IdGeneratorUpdateCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('object_name')
+        self.parser.add_argument(
+            'object_name',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server %s-id-generator-update [OPTIONS] <object>' %
@@ -171,6 +173,9 @@ class IdGeneratorUpdateCLI(pki.cli.CLI):
         generator_object = args.object_name
         generator = args.type
         range_object = args.range
+
+        if generator_object is None:
+            raise pki.cli.CLIException('Missing ID generator name')
 
         if not generator:
             logger.error('No <generator type> specified')

@@ -204,7 +204,9 @@ class SDSubsystemAddCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('subsystem_id')
+        self.parser.add_argument(
+            'subsystem_id',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server sd-subsystem-add [OPTIONS] <subsystem ID>')
@@ -244,6 +246,9 @@ class SDSubsystemAddCLI(pki.cli.CLI):
         domain_manager = args.domain_manager
         clone = args.clone
         subsystem_id = args.subsystem_id
+
+        if subsystem_id is None:
+            raise pki.cli.CLIException('Missing subsystem ID')
 
         if not subsystem_type:
             logger.error('Missing subsystem type')
@@ -301,7 +306,9 @@ class SDSubsystemRemoveCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('subsystem_id')
+        self.parser.add_argument(
+            'subsystem_id',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server sd-subsystem-del [OPTIONS] <subsystem ID>')
@@ -329,6 +336,9 @@ class SDSubsystemRemoveCLI(pki.cli.CLI):
 
         instance_name = args.instance
         subsystem_id = args.subsystem_id
+
+        if subsystem_id is None:
+            raise pki.cli.CLIException('Missing subsystem ID')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():

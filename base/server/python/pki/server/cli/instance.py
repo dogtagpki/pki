@@ -270,7 +270,9 @@ class InstanceShowCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('instance_id')
+        self.parser.add_argument(
+            'instance_id',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server instance-show [OPTIONS] <instance ID>')
@@ -296,6 +298,9 @@ class InstanceShowCLI(pki.cli.CLI):
             logging.getLogger().setLevel(logging.INFO)
 
         instance_name = args.instance_id
+
+        if instance_name is None:
+            raise pki.cli.CLIException('Missing instance ID')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -328,7 +333,9 @@ class InstanceStartCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('instance_id')
+        self.parser.add_argument(
+            'instance_id',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server instance-start [OPTIONS] <instance ID>')
@@ -354,6 +361,9 @@ class InstanceStartCLI(pki.cli.CLI):
             logging.getLogger().setLevel(logging.INFO)
 
         instance_name = args.instance_id
+
+        if instance_name is None:
+            raise pki.cli.CLIException('Missing instance ID')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -391,7 +401,9 @@ class InstanceStopCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('instance_id')
+        self.parser.add_argument(
+            'instance_id',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server instance-stop [OPTIONS] <instance ID>')
@@ -417,6 +429,9 @@ class InstanceStopCLI(pki.cli.CLI):
             logging.getLogger().setLevel(logging.INFO)
 
         instance_name = args.instance_id
+
+        if instance_name is None:
+            raise pki.cli.CLIException('Missing instance ID')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -455,7 +470,9 @@ class InstanceMigrateCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('instance_id')
+        self.parser.add_argument(
+            'instance_id',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server instance-migrate [OPTIONS] <instance ID>')
@@ -487,6 +504,9 @@ class InstanceMigrateCLI(pki.cli.CLI):
             tomcat_version = pki.server.Tomcat.get_version()
 
         instance_name = args.instance_id
+
+        if instance_name is None:
+            raise pki.cli.CLIException('Missing instance ID')
 
         logger.info('Migrating to Tomcat %s', tomcat_version)
 
@@ -527,7 +547,9 @@ class InstanceNuxwdogEnableCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('instance_id')
+        self.parser.add_argument(
+            'instance_id',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server instance-nuxwdog-enable [OPTIONS] <instance ID>')
@@ -553,6 +575,9 @@ class InstanceNuxwdogEnableCLI(pki.cli.CLI):
             logging.getLogger().setLevel(logging.INFO)
 
         instance_name = args.instance_id
+
+        if instance_name is None:
+            raise pki.cli.CLIException('Missing instance ID')
 
         module = self.get_top_module().find_module('nuxwdog-enable')
         module = pki.server.cli.nuxwdog.NuxwdogEnableCLI()
@@ -590,7 +615,9 @@ class InstanceNuxwdogDisableCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('instance_id')
+        self.parser.add_argument(
+            'instance_id',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server instance-nuxwdog-disable [OPTIONS] <instance ID>')
@@ -616,6 +643,9 @@ class InstanceNuxwdogDisableCLI(pki.cli.CLI):
             logging.getLogger().setLevel(logging.INFO)
 
         instance_name = args.instance_id
+
+        if instance_name is None:
+            raise pki.cli.CLIException('Missing instance ID')
 
         module = self.get_top_module().find_module('nuxwdog-disable')
 

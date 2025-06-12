@@ -130,7 +130,9 @@ class HTTPConnectorAddCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('name')
+        self.parser.add_argument(
+            'name',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server http-connector-add [OPTIONS] <connector ID>')
@@ -176,6 +178,9 @@ class HTTPConnectorAddCLI(pki.cli.CLI):
         certVerification = args.certVerification
         trustManager = args.trustManager
         name = args.name
+
+        if name is None:
+            raise pki.cli.CLIException('Missing connector name')
 
         if port is None:
             raise Exception('Missing port number')
@@ -239,7 +244,9 @@ class HTTPConnectorDeleteCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('name')
+        self.parser.add_argument(
+            'name',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server http-connector-del [OPTIONS] <connector ID>')
@@ -267,6 +274,9 @@ class HTTPConnectorDeleteCLI(pki.cli.CLI):
 
         instance_name = args.instance
         name = args.name
+
+        if name is None:
+            raise pki.cli.CLIException('Missing connector name')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -380,7 +390,9 @@ class HTTPConnectorShowCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('name')
+        self.parser.add_argument(
+            'name',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server http-connector-show [OPTIONS] <connector ID>')
@@ -408,6 +420,9 @@ class HTTPConnectorShowCLI(pki.cli.CLI):
 
         instance_name = args.instance
         name = args.name
+
+        if name is None:
+            raise pki.cli.CLIException('Missing connector name')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -465,7 +480,9 @@ class HTTPConnectorModCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('name')
+        self.parser.add_argument(
+            'name',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server http-connector-mod [OPTIONS] <connector ID>')
@@ -517,6 +534,9 @@ class HTTPConnectorModCLI(pki.cli.CLI):
         sslEnabled = args.sslEnabled
         sslImpl = args.sslImpl
         name = args.name
+
+        if name is None:
+            raise pki.cli.CLIException('Missing connector name')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -643,8 +663,12 @@ class SSLHostAddCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('connector_name')
-        self.parser.add_argument('hostname')
+        self.parser.add_argument(
+            'connector_name',
+            nargs='?')
+        self.parser.add_argument(
+            'hostname',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server http-connector-host-add [OPTIONS] <connector ID> <hostname>')
@@ -679,6 +703,12 @@ class SSLHostAddCLI(pki.cli.CLI):
         trustManager = args.trustManager
         connector_name = args.connector_name
         hostname = args.hostname
+
+        if connector_name is None:
+            raise pki.cli.CLIException('Missing connector name')
+
+        if hostname is None:
+            raise pki.cli.CLIException('Missing hostname')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -734,8 +764,12 @@ class SSLHostDeleteCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('connector_name')
-        self.parser.add_argument('hostname')
+        self.parser.add_argument(
+            'connector_name',
+            nargs='?')
+        self.parser.add_argument(
+            'hostname',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server http-connector-host-del [OPTIONS] <connector ID> <hostname>')
@@ -764,6 +798,12 @@ class SSLHostDeleteCLI(pki.cli.CLI):
         instance_name = args.instance
         connector_name = args.connector_name
         hostname = args.hostname
+
+        if connector_name is None:
+            raise pki.cli.CLIException('Missing connector name')
+
+        if hostname is None:
+            raise pki.cli.CLIException('Missing hostname')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -808,7 +848,9 @@ class SSLHostFindCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('connector_name')
+        self.parser.add_argument(
+            'connector_name',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server http-connector-sslhost-find [OPTIONS] <connector ID>')
@@ -836,6 +878,9 @@ class SSLHostFindCLI(pki.cli.CLI):
 
         instance_name = args.instance
         connector_name = args.connector_name
+
+        if connector_name is None:
+            raise pki.cli.CLIException('Missing connector name')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -908,8 +953,12 @@ class SSLHostModifyCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('connector_name')
-        self.parser.add_argument('hostname')
+        self.parser.add_argument(
+            'connector_name',
+            nargs='?')
+        self.parser.add_argument(
+            'hostname',
+            nargs='?')
 
     def print_help(self):
         print(textwrap.dedent(self.__class__.help))
@@ -935,6 +984,12 @@ class SSLHostModifyCLI(pki.cli.CLI):
         trustManager = args.trustManager
         connector_name = args.connector_name
         hostname = args.hostname
+
+        if connector_name is None:
+            raise pki.cli.CLIException('Missing connector name')
+
+        if hostname is None:
+            raise pki.cli.CLIException('Missing hostname')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -1002,8 +1057,12 @@ class SSLHostShowCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('connector_name')
-        self.parser.add_argument('hostname')
+        self.parser.add_argument(
+            'connector_name',
+            nargs='?')
+        self.parser.add_argument(
+            'hostname',
+            nargs='?')
 
     def print_help(self):
         print(textwrap.dedent(self.__class__.help))
@@ -1026,6 +1085,12 @@ class SSLHostShowCLI(pki.cli.CLI):
         instance_name = args.instance
         connector_name = args.connector_name
         hostname = args.hostname
+
+        if connector_name is None:
+            raise pki.cli.CLIException('Missing connector name')
+
+        if hostname is None:
+            raise pki.cli.CLIException('Missing hostname')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
