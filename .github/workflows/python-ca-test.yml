@@ -148,6 +148,111 @@ jobs:
           EOF
 
       ####################################################################################################
+      # Check CA cert request templates
+
+      - name: Find CA cert request templates
+        run: |
+          docker exec pki python /usr/share/pki/tests/ca/bin/pki-ca-cert-request-template-find.py \
+              -U https://pki.example.com:8443 \
+              --ca-bundle $SHARED/ca_signing.crt \
+              -v
+
+          sleep 1
+
+          # check HTTP methods, paths, protocols, status, and authenticated users
+          docker exec pki find /var/log/pki/pki-tomcat \
+              -name "localhost_access_log.*" \
+              -exec cat {} \; \
+              | tail -2 \
+              | sed -e 's/^.* .* \(.*\) \[.*\] "\(.*\)" \(.*\) .*$/\2 \3 \1/' \
+              | tee output
+
+          # Python API should use REST API v2 by default
+          cat > expected << EOF
+          GET /pki/v2/info HTTP/1.1 200 -
+          GET /ca/v2/certrequests/profiles HTTP/1.1 200 -
+          EOF
+
+          diff expected output
+
+      - name: Show CA cert request template
+        run: |
+          docker exec pki python /usr/share/pki/tests/ca/bin/pki-ca-cert-request-template-show.py \
+              -U https://pki.example.com:8443 \
+              --ca-bundle $SHARED/ca_signing.crt \
+              -v \
+              caServerCert
+
+          sleep 1
+
+          # check HTTP methods, paths, protocols, status, and authenticated users
+          docker exec pki find /var/log/pki/pki-tomcat \
+              -name "localhost_access_log.*" \
+              -exec cat {} \; \
+              | tail -2 \
+              | sed -e 's/^.* .* \(.*\) \[.*\] "\(.*\)" \(.*\) .*$/\2 \3 \1/' \
+              | tee output
+
+          # Python API should use REST API v2 by default
+          cat > expected << EOF
+          GET /pki/v2/info HTTP/1.1 200 -
+          GET /ca/v2/certrequests/profiles/caServerCert HTTP/1.1 200 -
+          EOF
+
+          diff expected output
+
+      - name: Find CA cert request templates with REST API v1
+        run: |
+          docker exec pki python /usr/share/pki/tests/ca/bin/pki-ca-cert-request-template-find.py \
+              -U https://pki.example.com:8443 \
+              --ca-bundle $SHARED/ca_signing.crt \
+              --api v1 \
+              -v
+
+          sleep 1
+
+          # check HTTP methods, paths, protocols, status, and authenticated users
+          docker exec pki find /var/log/pki/pki-tomcat \
+              -name "localhost_access_log.*" \
+              -exec cat {} \; \
+              | tail -1 \
+              | sed -e 's/^.* .* \(.*\) \[.*\] "\(.*\)" \(.*\) .*$/\2 \3 \1/' \
+              | tee output
+
+          # Python API should use REST API v1 as specified
+          cat > expected << EOF
+          GET /ca/v1/certrequests/profiles HTTP/1.1 200 -
+          EOF
+
+          diff expected output
+
+      - name: Show CA cert request template with REST API v1
+        run: |
+          docker exec pki python /usr/share/pki/tests/ca/bin/pki-ca-cert-request-template-show.py \
+              -U https://pki.example.com:8443 \
+              --ca-bundle $SHARED/ca_signing.crt \
+              --api v1 \
+              -v \
+              caServerCert
+
+          sleep 1
+
+          # check HTTP methods, paths, protocols, status, and authenticated users
+          docker exec pki find /var/log/pki/pki-tomcat \
+              -name "localhost_access_log.*" \
+              -exec cat {} \; \
+              | tail -1 \
+              | sed -e 's/^.* .* \(.*\) \[.*\] "\(.*\)" \(.*\) .*$/\2 \3 \1/' \
+              | tee output
+
+          # Python API should use REST API v1 as specified
+          cat > expected << EOF
+          GET /ca/v1/certrequests/profiles/caServerCert HTTP/1.1 200 -
+          EOF
+
+          diff expected output
+
+      ####################################################################################################
       # Check CA cert requests
 
       - name: Check CA cert requests
