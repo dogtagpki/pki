@@ -437,7 +437,9 @@ class CACertRemoveCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('serial_number')
+        self.parser.add_argument(
+            'serial_number',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server ca-cert-remove [OPTIONS] <serial number>')
@@ -465,6 +467,9 @@ class CACertRemoveCLI(pki.cli.CLI):
 
         instance_name = args.instance
         serial_number = args.serial_number
+
+        if serial_number is None:
+            raise pki.cli.CLIException('Missing serial number')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -721,7 +726,9 @@ class CACertRequestShowCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('request_id')
+        self.parser.add_argument(
+            'request_id',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server ca-cert-request-show [OPTIONS] <request ID>')
@@ -751,6 +758,9 @@ class CACertRequestShowCLI(pki.cli.CLI):
         instance_name = args.instance
         output_file = args.output_file
         request_id = args.request_id
+
+        if request_id is None:
+            raise pki.cli.CLIException('Missing request ID')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -1122,7 +1132,9 @@ class CACRLIPShowCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('id')
+        self.parser.add_argument(
+            'id',
+            nargs='?')
 
     def print_help(self):
         print(textwrap.dedent(self.__class__.help))
@@ -1144,6 +1156,9 @@ class CACRLIPShowCLI(pki.cli.CLI):
 
         instance_name = args.instance
         ip_id = args.id
+
+        if ip_id is None:
+            raise pki.cli.CLIException('Missing CRL issuing point ID')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -1209,7 +1224,9 @@ class CACRLIPModifyCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('id')
+        self.parser.add_argument(
+            'id',
+            nargs='?')
 
     def print_help(self):
         print(textwrap.dedent(self.__class__.help))
@@ -1231,6 +1248,9 @@ class CACRLIPModifyCLI(pki.cli.CLI):
 
         instance_name = args.instance
         ip_id = args.id
+
+        if ip_id is None:
+            raise pki.cli.CLIException('Missing CRL issuing point ID')
 
         config = {}
         for param in args.D:
@@ -1563,7 +1583,9 @@ class CAConnectorAddCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('connector_id')
+        self.parser.add_argument(
+            'connector_id',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server ca-connector-add [OPTIONS] <connector ID>')
@@ -1594,6 +1616,9 @@ class CAConnectorAddCLI(pki.cli.CLI):
 
         instance_name = args.instance
         connector_id = args.connector_id
+
+        if connector_id is None:
+            raise pki.cli.CLIException('Missing connector ID')
 
         urls = []
         for url in args.url:
@@ -1848,7 +1873,9 @@ class CAProfileModifyCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('profile_id')
+        self.parser.add_argument(
+            'profile_id',
+            nargs='?')
 
     def print_help(self):
         print(textwrap.dedent(self.__class__.help))
@@ -1876,6 +1903,9 @@ class CAProfileModifyCLI(pki.cli.CLI):
         profile_enabled = args.enabled
 
         profile_id = args.profile_id
+
+        if profile_id is None:
+            raise pki.cli.CLIException('Missing profile ID')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():

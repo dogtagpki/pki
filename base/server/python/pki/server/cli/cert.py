@@ -232,7 +232,9 @@ class CertShowCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('cert_id')
+        self.parser.add_argument(
+            'cert_id',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server cert-show [OPTIONS] <cert ID>')
@@ -264,6 +266,9 @@ class CertShowCLI(pki.cli.CLI):
         show_all = args.show_all
         pretty_print = args.pretty_print
         cert_id = args.cert_id
+
+        if cert_id is None:
+            raise pki.cli.CLIException('Missing certificate ID')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -341,7 +346,9 @@ class CertValidateCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('cert_id')
+        self.parser.add_argument(
+            'cert_id',
+            nargs='?')
 
     def print_help(self):
         print(textwrap.dedent(self.__class__.help))
@@ -363,6 +370,9 @@ class CertValidateCLI(pki.cli.CLI):
 
         instance_name = args.instance
         cert_id = args.cert_id
+
+        if cert_id is None:
+            raise pki.cli.CLIException('Missing certificate ID')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -411,7 +421,9 @@ class CertUpdateCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('cert_id')
+        self.parser.add_argument(
+            'cert_id',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server cert-update [OPTIONS] <cert ID>')
@@ -439,6 +451,9 @@ class CertUpdateCLI(pki.cli.CLI):
 
         instance_name = args.instance
         cert_id = args.cert_id
+
+        if cert_id is None:
+            raise pki.cli.CLIException('Missing certificate ID')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -556,7 +571,9 @@ class CertRequestCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('cert_id')
+        self.parser.add_argument(
+            'cert_id',
+            nargs='?')
 
     def print_help(self):
         print(textwrap.dedent(self.__class__.help))
@@ -581,6 +598,9 @@ class CertRequestCLI(pki.cli.CLI):
         subject_dn = args.subject
         ext_conf = args.ext
         cert_id = args.cert_id
+
+        if cert_id is None:
+            raise pki.cli.CLIException('Missing certificate ID')
 
         if subject_dn is None:
             raise Exception('Missing subject DN')
@@ -684,7 +704,9 @@ class CertCreateCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('cert_id')
+        self.parser.add_argument(
+            'cert_id',
+            nargs='?')
 
     def print_help(self):
         print(textwrap.dedent(self.__class__.help))
@@ -728,6 +750,9 @@ class CertCreateCLI(pki.cli.CLI):
         agent_password = args.w
         agent_password_file = args.W
         cert_id = args.cert_id
+
+        if cert_id is None:
+            raise pki.cli.CLIException('Missing certificate ID')
 
         if client_cert and agent_username:
             logger.error('-n cannot be used with -u')
@@ -821,7 +846,9 @@ class CertImportCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('cert_id', nargs='?')
+        self.parser.add_argument(
+            'cert_id',
+            nargs='?')
 
     def print_help(self):
         print(textwrap.dedent(self.__class__.help))
@@ -910,7 +937,9 @@ class CertExportCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('cert_id')
+        self.parser.add_argument(
+            'cert_id',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server cert-export [OPTIONS] <Cert ID>')
@@ -978,6 +1007,9 @@ class CertExportCLI(pki.cli.CLI):
         include_key = not args.no_key
         include_chain = not args.no_chain
         cert_id = args.cert_id
+
+        if cert_id is None:
+            raise pki.cli.CLIException('Missing certificate ID')
 
         if not (cert_file or csr_file or pkcs12_file):
             logger.error('missing output file')
@@ -1132,7 +1164,9 @@ class CertRemoveCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('cert_id')
+        self.parser.add_argument(
+            'cert_id',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server cert-del [OPTIONS] <Cert ID>')
@@ -1165,6 +1199,9 @@ class CertRemoveCLI(pki.cli.CLI):
         instance_name = args.instance
         remove_key = args.remove_key
         cert_id = args.cert_id
+
+        if cert_id is None:
+            raise pki.cli.CLIException('Missing certificate ID')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 

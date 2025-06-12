@@ -140,7 +140,9 @@ class GroupMemberFindCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('group_id')
+        self.parser.add_argument(
+            'group_id',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server %s-group-member-find [OPTIONS] <group ID>'
@@ -170,6 +172,9 @@ class GroupMemberFindCLI(pki.cli.CLI):
         instance_name = args.instance
         subsystem_name = self.parent.parent.parent.name
         group_id = args.group_id
+
+        if group_id is None:
+            raise pki.cli.CLIException('Missing group ID')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -226,8 +231,12 @@ class GroupMemberAddCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('group_id')
-        self.parser.add_argument('member_id')
+        self.parser.add_argument(
+            'group_id',
+            nargs='?')
+        self.parser.add_argument(
+            'member_id',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server %s-group-member-add [OPTIONS] <group ID> <member ID>'
@@ -258,6 +267,12 @@ class GroupMemberAddCLI(pki.cli.CLI):
         subsystem_name = self.parent.parent.parent.name
         group_id = args.group_id
         member_id = args.member_id
+
+        if group_id is None:
+            raise pki.cli.CLIException('Missing group ID')
+
+        if member_id is None:
+            raise pki.cli.CLIException('Missing group member ID')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -305,8 +320,12 @@ class GroupMemberRemoveCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('group_id')
-        self.parser.add_argument('member_id')
+        self.parser.add_argument(
+            'group_id',
+            nargs='?')
+        self.parser.add_argument(
+            'member_id',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server %s-group-member-del [OPTIONS] <group ID> <member ID>'
@@ -337,6 +356,12 @@ class GroupMemberRemoveCLI(pki.cli.CLI):
         subsystem_name = self.parent.parent.parent.name
         group_id = args.group_id
         member_id = args.member_id
+
+        if group_id is None:
+            raise pki.cli.CLIException('Missing group ID')
+
+        if member_id is None:
+            raise pki.cli.CLIException('Missing group member ID')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():

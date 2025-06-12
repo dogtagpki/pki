@@ -323,7 +323,9 @@ class TKSConnectorAddCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('connector_id')
+        self.parser.add_argument(
+            'connector_id',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server tks-connector-add [OPTIONS] <connector ID>')
@@ -357,6 +359,9 @@ class TKSConnectorAddCLI(pki.cli.CLI):
         url = urllib.parse.urlparse(args.url)
         nickname = args.nickname
         uid = args.uid
+
+        if connector_id is None:
+            raise pki.cli.CLIException('Missing connector ID')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():

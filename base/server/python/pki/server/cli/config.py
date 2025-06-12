@@ -138,7 +138,9 @@ class SubsystemConfigShowCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('name')
+        self.parser.add_argument(
+            'name',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server %s-config-show [OPTIONS] <name>' % self.parent.parent.name)
@@ -166,6 +168,9 @@ class SubsystemConfigShowCLI(pki.cli.CLI):
 
         instance_name = args.instance
         name = args.name
+
+        if name is None:
+            raise pki.cli.CLIException('Missing parameter name')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -218,8 +223,12 @@ class SubsystemConfigSetCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('name')
-        self.parser.add_argument('value')
+        self.parser.add_argument(
+            'name',
+            nargs='?')
+        self.parser.add_argument(
+            'value',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server %s-config-set [OPTIONS] <name> <value>'
@@ -249,6 +258,12 @@ class SubsystemConfigSetCLI(pki.cli.CLI):
         instance_name = args.instance
         name = args.name
         value = args.value
+
+        if name is None:
+            raise pki.cli.CLIException('Missing parameter name')
+
+        if value is None:
+            raise pki.cli.CLIException('Missing parameter value')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
@@ -294,7 +309,9 @@ class SubsystemConfigUnsetCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
-        self.parser.add_argument('name')
+        self.parser.add_argument(
+            'name',
+            nargs='?')
 
     def print_help(self):
         print('Usage: pki-server %s-config-unset [OPTIONS] <name>'
@@ -323,6 +340,9 @@ class SubsystemConfigUnsetCLI(pki.cli.CLI):
 
         instance_name = args.instance
         name = args.name
+
+        if name is None:
+            raise pki.cli.CLIException('Missing parameter name')
 
         instance = pki.server.PKIServerFactory.create(instance_name)
         if not instance.exists():
