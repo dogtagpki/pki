@@ -3,7 +3,7 @@
 [id="installing-ca-clone-with-ldaps-using-bootstrap-ds-certs"]
 = Installing CA clone with LDAPS using bootstrap DS certificates
 
-Follow this process to install a CA subsystem as clone of an existing CA subsystem that runs with a bootstrap SSL server certificate.
+Follow this process to install a CA subsystem as a clone of an existing CA subsystem that runs with a bootstrap SSL server certificate.  It is assumed that the DS clone was created with self_sign_cert = False.
 
 Prior to installation, please ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
 
@@ -29,7 +29,7 @@ pkcs12-import --pkcs12-file ds_signing.p12 \
 --pkcs12-password Secret.123
 ....
 
-. On the DS clone, create a boostrap DS server certificate as described in xref:../others/enabling-ssl-connection-in-ds-with-bootstrap-cert.adoc#creating-ds-server-certificate[Creating DS Server Certificate].
+. On the DS clone, create a bootstrap DS server certificate as described in xref:../others/enabling-ssl-connection-in-ds-with-bootstrap-cert.adoc#creating-ds-server-certificate[Creating DS Server Certificate].
 +
 Note that the certificate subject DN should match the clone's hostname, that is, `--subject "CN=secondary.example.com"`.
 
@@ -45,8 +45,6 @@ $ certutil -L -d /etc/dirsrv/slapd-localhost -n Self-Signed-CA -a > ds_signing.c
 Some useful tips:
 
 * Ensure the DS firewall allows access from PKI server and other DS instances.
-* Not having a `dc=pki,dc=example,dc=com` entry in LDAP gives the same error as not being able to connect to the LDAP server.
-
 
 == Exporting existing CA system certificates 
 

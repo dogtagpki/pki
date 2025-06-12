@@ -57,7 +57,7 @@ As a PKI agent:
 
 [literal,subs="+quotes,verbatim"]
 ....
-$ pki -n caadmin ca-cert-request-review <request ID> --action approve
+$ pki -n caadmin ca-cert-request-approve <request ID>
 ....
 
 == Retrieve the certificate
@@ -105,7 +105,7 @@ If you already had boostrap DS certificates, delete them:
 $ certutil -F -d /etc/dirsrv/slapd-localhost \
     -f /etc/dirsrv/slapd-localhost/pwdfile.txt \
     -n Server-Cert
-$ certutil -F -d /etc/dirsrv/slapd-localhost \
+$ certutil -D -d /etc/dirsrv/slapd-localhost \
     -f /etc/dirsrv/slapd-localhost/pwdfile.txt \
     -n Self-Signed-CA
 ....
