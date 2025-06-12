@@ -5,6 +5,8 @@
 
 Follow this process to install a CA subsystem with the system keys, CSRs, and certificates from an existing CA where the keys are stored on an internal token.
 
+This method of installation could be useful for situations such as restoring an independent instance from a backup where the original server might not be available anymore.
+
 To avoid conflicts with the existing CA subsystem, the new CA subsystem uses new SSL server and subsystem certificates, so they are not included in the installation process.
 
 Prior to installation, ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
@@ -42,18 +44,11 @@ $ pki pkcs12-cert-del --pkcs12-file ca-certs.p12 --pkcs12-password Secret.123 ss
 $ pki pkcs12-cert-del --pkcs12-file ca-certs.p12 --pkcs12-password Secret.123 subsystem
 ....
 
-. Export the CSRs from the existing CA with the following commands:
+. Copy the CSRs from the existing CA to the pkispawn directory on the host where the new CA will be created, for example:
 +
 [literal,subs="+quotes,verbatim"]
 ....
-$ pki-server cert-export ca_signing \
-    --csr-file ca_signing.csr
-
-$ pki-server cert-export ca_ocsp_signing \
-    --csr-file ca_ocsp_signing.csr
-
-$ pki-server cert-export ca_audit_signing \
-    --csr-file ca_audit_signing.csr
+cp /etc/pki/pki-tomcat/certs/* /root 
 ....
 
 == Finishing a CA subsystem installation 
