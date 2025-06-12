@@ -511,10 +511,66 @@ jobs:
               | sed -e 's/^.* .* \(.*\) \[.*\] "\(.*\)" \(.*\) .*$/\2 \3 \1/' \
               | tee output
 
-          # Python API should fall back to REST API v1
+          # Python API should use REST API v2 by default, then fall back to v1
           cat > expected << EOF
           GET /pki/v2/info HTTP/1.1 404 -
           GET /pki/rest/info HTTP/1.1 200 -
+          EOF
+
+          diff expected output
+
+      ####################################################################################################
+      # Check CA cert request templates
+
+      - name: Find CA cert request templates
+        run: |
+          docker exec client python /usr/share/pki/tests/ca/bin/pki-ca-cert-request-template-find.py \
+              -U https://ca.example.com:8443 \
+              --ca-bundle $SHARED/certs/ca_signing.crt \
+              -v
+
+          sleep 1
+
+          # check HTTP methods, paths, protocols, status, and authenticated users
+          docker exec ca find /var/log/pki/pki-tomcat \
+              -name "localhost_access_log.*" \
+              -exec cat {} \; \
+              | tail -3 \
+              | sed -e 's/^.* .* \(.*\) \[.*\] "\(.*\)" \(.*\) .*$/\2 \3 \1/' \
+              | tee output
+
+          # Python API should use REST API v2 by default, then fall back to v1
+          cat > expected << EOF
+          GET /pki/v2/info HTTP/1.1 404 -
+          GET /pki/rest/info HTTP/1.1 200 -
+          GET /ca/rest/certrequests/profiles HTTP/1.1 200 -
+          EOF
+
+          diff expected output
+
+      - name: Show CA cert request template
+        run: |
+          docker exec client python /usr/share/pki/tests/ca/bin/pki-ca-cert-request-template-show.py \
+              -U https://ca.example.com:8443 \
+              --ca-bundle $SHARED/certs/ca_signing.crt \
+              -v \
+              caServerCert
+
+          sleep 1
+
+          # check HTTP methods, paths, protocols, status, and authenticated users
+          docker exec ca find /var/log/pki/pki-tomcat \
+              -name "localhost_access_log.*" \
+              -exec cat {} \; \
+              | tail -3 \
+              | sed -e 's/^.* .* \(.*\) \[.*\] "\(.*\)" \(.*\) .*$/\2 \3 \1/' \
+              | tee output
+
+          # Python API should use REST API v2 by default, then fall back to v1
+          cat > expected << EOF
+          GET /pki/v2/info HTTP/1.1 404 -
+          GET /pki/rest/info HTTP/1.1 200 -
+          GET /ca/rest/certrequests/profiles/caServerCert HTTP/1.1 200 -
           EOF
 
           diff expected output
@@ -541,7 +597,7 @@ jobs:
               | sed -e 's/^.* .* \(.*\) \[.*\] "\(.*\)" \(.*\) .*$/\2 \3 \1/' \
               | tee output
 
-          # Python API should use REST API v2 by default
+          # Python API should use REST API v2 by default, then fall back to v1
           cat > expected << EOF
           GET /pki/v2/info HTTP/1.1 404 -
           GET /pki/rest/info HTTP/1.1 200 -
@@ -572,7 +628,7 @@ jobs:
               | sed -e 's/^.* .* \(.*\) \[.*\] "\(.*\)" \(.*\) .*$/\2 \3 \1/' \
               | tee output
 
-          # Python API should fall back to REST API v1
+          # Python API should use REST API v2 by default, then fall back to v1
           cat > expected << EOF
           GET /pki/v2/info HTTP/1.1 404 -
           GET /pki/rest/info HTTP/1.1 200 -
@@ -601,7 +657,7 @@ jobs:
               | sed -e 's/^.* .* \(.*\) \[.*\] "\(.*\)" \(.*\) .*$/\2 \3 \1/' \
               | tee output
 
-          # Python API should fall back to REST API v1
+          # Python API should use REST API v2 by default, then fall back to v1
           cat > expected << EOF
           GET /pki/v2/info HTTP/1.1 404 -
           GET /pki/rest/info HTTP/1.1 200 -
