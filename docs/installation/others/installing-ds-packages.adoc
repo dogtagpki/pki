@@ -9,7 +9,7 @@ Prior to installing the Directory Server (DS) instances, one needs to install th
 
 To install DS packages:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ dnf install -y 389-ds-base
 ....

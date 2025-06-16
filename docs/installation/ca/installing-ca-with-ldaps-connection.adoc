@@ -11,7 +11,7 @@ Prior to installation, ensure that the xref:../others/installation-prerequisites
 
 Once the prerequisites listed above are completed, if you chose to use the DS bootstrap certificates during DS instance creation, then export the bootstrap self-signed certificate into `ds_signing.crt` as follows:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ certutil -L -d /etc/dirsrv/slapd-localhost -n Self-Signed-CA -a > ds_signing.crt
 ....
@@ -24,7 +24,7 @@ A sample deployment configuration is available at xref:../../../base/server/exam
 
 To start the installation, execute the following command:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pkispawn -f ca-secure-ds.cfg -s CA
 ....
@@ -33,7 +33,7 @@ $ pkispawn -f ca-secure-ds.cfg -s CA
 
 After installation the CA system certificates with their keys are generated and stored in the server NSS database, that is `/var/lib/pki/pki-tomcat/conf/alias`, and the DS signing certificate is imported into the same NSS database:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
 
@@ -50,7 +50,7 @@ sslserver                                                    u,u,u
 
 If necessary, the CA system certificates can be exported into PEM files with the following command:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki-server cert-export <cert ID> --cert-file <filename>
 ....
@@ -69,7 +69,7 @@ Note that the `pki-server cert-export` command takes a certificate ID instead of
 
 The CA database configuration can be displayed with the following command:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki-server ca-db-config-show
   Hostname: pki.example.com
@@ -93,21 +93,21 @@ To use the admin certificate, do the following.
 
 . Export the CA signing certificate from the server NSS database:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki-server cert-export ca_signing --cert-file ca_signing.crt
 ....
 
 . Import the CA signing certificate into the client NSS database:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki nss-cert-import --cert ca_signing.crt --trust CT,C,C ca_signing
 ....
 
 . Import admin certificate and key into the client NSS database (by default ~/.dogtag/nssdb) with the following command:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki pkcs12-import \
     --pkcs12 ~/.dogtag/pki-tomcat/ca_admin_cert.p12 \
@@ -116,7 +116,7 @@ $ pki pkcs12-import \
 
 . To verify that the admin certificate can be used to access the CA subsystem, execute the following command:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki -n caadmin ca-user-show caadmin
 --------------

@@ -11,7 +11,7 @@ This would be useful to troubleshoot general server issues, for example SSL.
 
 To install PKI server packages:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ dnf install pki-server
 ....
@@ -20,7 +20,7 @@ $ dnf install pki-server
 
 To create a PKI server:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki-server create
 ....
@@ -33,7 +33,7 @@ See also link:https://github.com/dogtagpki/pki/wiki/PKI-Server-CLI[PKI Server CL
 
 To start PKI server:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki-server run
 ....

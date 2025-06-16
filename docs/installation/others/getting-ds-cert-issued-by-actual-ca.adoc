@@ -18,7 +18,7 @@ It is assumed that an actual trusted CA is available for issuing certificates.
 
 == Export the CA signing certificate
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 pki-server cert-export ca_signing --cert-file ca_signing.crt
 ....
@@ -29,7 +29,7 @@ pki-server cert-export ca_signing --cert-file ca_signing.crt
 
 As a DS administrator:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki \
     -d /etc/dirsrv/slapd-localhost \
@@ -46,7 +46,7 @@ $ pki \
 
 As a DS admin:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki ca-cert-request-submit --profile caServerCert --csr-file ds_server.csr
 ....
@@ -55,7 +55,7 @@ $ pki ca-cert-request-submit --profile caServerCert --csr-file ds_server.csr
 
 As a PKI agent:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki -n caadmin ca-cert-request-approve <request ID>
 ....
@@ -64,7 +64,7 @@ $ pki -n caadmin ca-cert-request-approve <request ID>
 
 Retrieve the cert as the DS admin user:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $  pki ca-cert-export <certificate ID> --output-file ds_server.crt
 ....
@@ -73,7 +73,7 @@ $  pki ca-cert-export <certificate ID> --output-file ds_server.crt
 
 Stop the DS instance prior to changing the NSS database.
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ dsctl localhost stop
 ....
@@ -82,7 +82,7 @@ $ dsctl localhost stop
 
 As a DS administrator, import the CA signing cert into the nssdb of the DS instance.
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 # pki \
     -d /etc/dirsrv/slapd-localhost \
@@ -100,7 +100,7 @@ As a DS administrator, import the CA signing cert into the nssdb of the DS insta
 
 If you already had boostrap DS certificates, delete them:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ certutil -F -d /etc/dirsrv/slapd-localhost \
     -f /etc/dirsrv/slapd-localhost/pwdfile.txt \
@@ -112,7 +112,7 @@ $ certutil -D -d /etc/dirsrv/slapd-localhost \
 
 == Import DS server certificate:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki \
     -d /etc/dirsrv/slapd-localhost \
@@ -124,7 +124,7 @@ $ pki \
 
 To verify the DS server certificate:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ certutil -L -d /etc/dirsrv/slapd-localhost -n Server-Cert
 ...
@@ -143,21 +143,21 @@ This section only applies if you did not enable SSL in your DS earlier.
 
 . To enable SSL connection in the DS instance:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ dsconf localhost config replace nsslapd-security=on
 ....
 
 . Start the DS instance:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ dsctl localhost start
 ....
 
 . Verify the SSL connection:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ LDAPTLS_REQCERT=never ldapsearch \
     -H ldaps://$HOSTNAME:636 \
@@ -172,7 +172,7 @@ $ LDAPTLS_REQCERT=never ldapsearch \
 
 If you are replacing the DS bootstrap certs, as a PKI administrator, stop the PKI then delete the DS bootstrap signing cert from the PKI nssdb as follows.
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ certutil -F -d /var/lib/pki/pki-tomcat/conf/alias \
     -f /var/lib/pki/pki-tomcat/conf/alias/pwdfile.txt \
