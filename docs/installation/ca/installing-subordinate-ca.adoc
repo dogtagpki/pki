@@ -17,7 +17,7 @@ It assumes that the root CA is already running at https://root.example.com:8443 
 
 . Execute the following command:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pkispawn -f subca.cfg -s CA
 ....
@@ -32,7 +32,7 @@ It installs a CA subsystem in a Tomcat instance (default is pki-tomcat) and crea
 
 Verify that the server NSS database contains the following certificates:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
 
@@ -51,14 +51,14 @@ sslserver                                                    u,u,u
 
 . Import the root CA signing certificate:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki nss-cert-import --cert ca_signing.crt --trust CT,C,C ca_signing
 ....
 
 . Import admin certificate and key into the client NSS database (by default ~/.dogtag/nssdb) with the following command:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki pkcs12-import \
     --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
@@ -67,7 +67,7 @@ $ pki pkcs12-import \
 
 . Verify that the admin certificate can be used to access the subordinate CA subsystem by executing the following command:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki -n caadmin ca-user-show caadmin
 --------------

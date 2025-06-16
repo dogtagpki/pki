@@ -9,7 +9,7 @@ If you have chosen to use an LDAP instance for user management, before adding us
 
 The user DB requires a group node for the people and one for the groups. A simple `ldif` file is available in `/usr/share/pki/est/conf/realm/ds/create.ldif`. The base DN in this is `dc=pki,dc=example,dc=com` but it can be modified and the new value specified during the following _EST_ installation. The file can be imported with the following command:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 ldapadd -x -H ldap://<ds_server_hostname>:<ds_server_port> \
     -D "cn=Directory Manager"  -w Secret.123 \
@@ -26,7 +26,7 @@ If you have chosen to use *PostgreSQL* for user management, you first need to pr
 
 After the installation, verify the database connection with the following command:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ psql -U est -d est
 ....
@@ -34,7 +34,7 @@ $ psql -U est -d est
 To use the _PostreSQL_ DB, the user tables should be created with the sql file provided in `/usr/share/pki/est/conf/realm/postgresql/create.sql` and then filled
 with the user information. The tables can be created with the command:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ psql -U est -t -A -f /usr/share/pki/est/conf/realm/postgresql/create.sql
 ....
@@ -47,7 +47,7 @@ It is possible to use different schemas but in this case a custom `statements.co
 Additionally, a Java driver for PostgreSQL needs to be installed in the EST server and linked into library folder of pki:
 
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 # dnf install -y postgresql-jdbc
 # ln -s /usr/share/java/postgresql-jdbc/postgresql.jar /usr/share/pki/server/common/lib
