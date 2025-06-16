@@ -26,7 +26,7 @@ See installation/ca/installing-ca.adoc for example.
 ** Use “....” for commands or other smaller blocks
 ** Use “----” block brackets for code blocks or content of a file such as pkispawn cfg file samples
 ** Add the following line above beginning of each block:
-*** [literal,subs="+quotes,verbatim"]
+*** [literal]
 * use a pair of backticks around words that are literal such as file names or commands
 * do not use future tense (e.g. 'will', "will be", etc.).  Use present tense instead.
 * Create PR and request for reviews from members of the dogtag pki team (and doc team if applicable)

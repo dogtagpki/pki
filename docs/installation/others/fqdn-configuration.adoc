@@ -13,7 +13,7 @@ Follow this process to configure the fully qualified domain name on each machine
 
 To verify the current FQDN, execute the following command:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 # hostname
 pki.example.com
@@ -25,21 +25,21 @@ If the host name is not what you expect it to be, run `hostnamectl` to set the h
 
 . Set the hostname of your pki machine as follows:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 # hostnamectl set-hostname pki.example.com
 ....
 
 . Set the hostname of your DS machine as follows:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 # hostnamectl set-hostname dir.example.com
 ....
 
 . Add both the CS and DS machine IP addresses and new hostnames as entries in `/etc/hosts` of both machines: 
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 127.0.0.1 localhost localhost.localdomain localhost4 localhost4.localdomain4
 ::1 localhost localhost.localdomain localhost6 localhost6.localdomain6
@@ -49,7 +49,7 @@ If the host name is not what you expect it to be, run `hostnamectl` to set the h
 
 . Verify the FQDN again after the change:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 # hostname
 ....

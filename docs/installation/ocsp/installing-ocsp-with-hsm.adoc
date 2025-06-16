@@ -11,7 +11,7 @@ Prior to installation, ensure that the xref:../others/installation-prerequisites
 
 . Prepare a file, for example `ocsp.cfg`, that contains the deployment configuration:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ----
 [DEFAULT]
 pki_instance_name=pki-tomcat
@@ -56,7 +56,7 @@ pki_subsystem_nickname=subsystem
 
 . Execute the following command:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pkispawn -f ocsp.cfg -s OCSP
 ....
@@ -71,7 +71,7 @@ It installs a OCSP subsystem in a Tomcat instance (default is pki-tomcat) and cr
 
 . Verify that the internal token contains the following certificates:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
 
@@ -84,7 +84,7 @@ ocsp_audit_signing                                           ,,P
 
 . Verify that the HSM contains the following certificates:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -h HSM -f HSM.pwd
 
@@ -101,14 +101,14 @@ HSM:sslserver/pki.example.com                                u,u,u
 
 . Import the CA signing certificate:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki nss-cert-import --cert ca_signing.crt --trust CT,C,C ca_signing
 ....
 
 . Import admin certificate and key into the client NSS database (by default ~/.dogtag/nssdb) with the following command:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki -c Secret.123 pkcs12-import \
     --pkcs12 ca_admin_cert.p12 \
@@ -117,7 +117,7 @@ $ pki -c Secret.123 pkcs12-import \
 
 . Verify that the admin certificate can be used to access the OCSP subsystem by executing the following command:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki -c Secret.123 -n caadmin ocsp-user-show ocspadmin
 ----------------
@@ -144,7 +144,7 @@ User "ocspadmin"
 
 . Verify that the OCSPClient can be used to validate a certificate:
 +
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ OCSPClient \
  -d /var/lib/pki/pki-tomcat/conf/alias \

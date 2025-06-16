@@ -13,7 +13,7 @@ To install CA with random serial numbers v3, follow the normal xref:installing-c
 
 To use random certificate serial numbers, add the following parameters in the `[CA]` section:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 pki_cert_id_generator=random
 ....
@@ -22,7 +22,7 @@ The certificate ID length (in bits) can be specified in the `pki_cert_id_length`
 
 To use random certificate request IDs, add the following parameters in the `[CA]` section:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 pki_request_id_generator=random
 ....
@@ -33,7 +33,7 @@ The certificate request ID length (in bits) can be specified in the `pki_request
 
 After installation the certificates have random serial numbers, for example:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki ca-cert-find
 ---------------
@@ -69,7 +69,7 @@ Number of entries returned 6
 
 The certificate requests will also use random IDs, for example:
 
-[literal,subs="+quotes,verbatim"]
+[literal]
 ....
 $ pki -n caadmin ca-cert-request-find
 -----------------
