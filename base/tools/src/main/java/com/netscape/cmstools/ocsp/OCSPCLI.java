@@ -40,6 +40,7 @@ public class OCSPCLI extends SubsystemCLI {
     public OCSPCLI(MainCLI mainCLI) {
         super("ocsp", "OCSP management commands", mainCLI);
 
+        addModule(new OCSPCertCLI(this));
         addModule(new AuditCLI(this));
         addModule(new ConfigCLI(this));
         addModule(new GroupCLI(this));
