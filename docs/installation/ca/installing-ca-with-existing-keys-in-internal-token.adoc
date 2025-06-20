@@ -44,7 +44,7 @@ $ pki pkcs12-cert-del --pkcs12-file ca-certs.p12 --pkcs12-password Secret.123 ss
 $ pki pkcs12-cert-del --pkcs12-file ca-certs.p12 --pkcs12-password Secret.123 subsystem
 ....
 
-. Copy the CSRs from the existing CA to the pkispawn directory on the host where the new CA will be created, for example:
+. Copy the CSRs from the existing CA to the pkispawn directory on the host where the new CA is being created, for example:
 +
 [literal]
 ....

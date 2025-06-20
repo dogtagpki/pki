@@ -80,13 +80,13 @@ A sample deployment configuration is available at xref:../../../base/server/exam
 
 It assumes that the:
 
-* The clone CA subsystem is running on a different machine than the primary. Note: In a test environment, if creating the clone on the same machine, the `pki_instance_name` and the port values (for PKI and DS) must be different.
+* The CA subsystem clone is running on a different machine than the primary CA subsystem. Note: In a test environment, if creating the clone on the same machine, the `pki_instance_name` and the port values (for PKI and DS) must be different.
 * CA signing certificate has been exported into `ca_signing.crt`
 * admin certificate and key have been exported into `ca_admin_cert.p12`
 * PKCS #12 password is specified in the `pki_client_pkcs12_password` parameter.
-* The CA is not using an HSM (which is a different installation case covered in section *Installing CA clone with HSM*).
+* The CA is not using an HSM (which is a different installation case covered in section xref:installing-ca-clone-with-hsm[Installing CA clone with HSM]).
 
-See xref:installing-ca.adoc[CA installation] for details.
+See xref:installing-ca.adoc[Installing CA] for details.
 
 If the CSRs are available, they can be specified with the following parameters:
 [literal]
