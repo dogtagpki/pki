@@ -3,7 +3,7 @@
 [id="installing-ca-clone-with-ldaps-using-bootstrap-ds-certs"]
 = Installing CA clone with LDAPS using bootstrap DS certificates
 
-Follow this process to install a CA subsystem as a clone of an existing CA subsystem that runs with a bootstrap SSL server certificate.  It is assumed that the DS clone was created with self_sign_cert = False.
+Follow this process to install a CA subsystem as a clone of an existing CA subsystem that runs with a bootstrap SSL server certificate.  It is assumed that the DS clone was created with `self_sign_cert = False`.
 
 Prior to installation, please ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
 
