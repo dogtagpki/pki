@@ -310,7 +310,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
 
         CertID cid = req.getCertID();
         INTEGER serialNo = cid.getSerialNumber();
-        logger.info("DefStore: Processing request for cert 0x" + serialNo.toString(16));
+        logger.info("DefStore: Processing OCSP request for cert 0x" + serialNo.toString(16));
 
         // cache result to speed up the performance
         X509CertImpl theCert = null;
@@ -324,7 +324,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         logger.info("DefStore: CRL issuing point container: " + matched);
 
         if (matched == null) {
-            logger.info("DefStore: Searching for objectclass=" + CRLIssuingPointRecord.class.getName());
+            logger.info("DefStore: Searching for issuing point records");
             Enumeration<CRLIssuingPointRecord> recs = searchCRLIssuingPointRecord(
                     "objectclass=" + CRLIssuingPointRecord.class.getName(),
                     100);
@@ -354,30 +354,29 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                     theCert = cert;
                     continue;
                 }
-                logger.info("DefStore: Found issuer");
 
+                logger.info("DefStore: Found issuer: " + cert.getSubjectName());
                 theCert = cert;
                 theRec = rec;
                 incReqCount(theRec.getId());
 
                 byte[] crldata = rec.getCRL();
-                logger.info("DefStore: CRL: " + crldata);
 
                 if (crldata == null) {
                     throw new Exception("Missing CRL data");
                 }
 
                 if (rec.getCRLCache() == null) {
-                    logger.debug("DefStore: start building x509 crl impl");
+                    logger.info("DefStore: CRL cache not available -> parsing CRL data");
                     try {
                         theCRL = new X509CRLImpl(crldata);
                     } catch (Exception e) {
                         logger.error(CMS.getLogMessage("OCSP_DECODE_CRL", e.toString()), e);
                         throw e;
                     }
-                    logger.debug("DefStore: done building x509 crl impl");
+                    logger.info("DefStore: CRL number: " + theCRL.getCRLNumber());
                 } else {
-                    logger.debug("DefStore: using crl cache");
+                    logger.info("DefStore: CRL cache available");
                 }
 
                 logger.info("DefStore: Adding CRL issuing point container for {}", new String(Hex.encodeHex(digest)));
@@ -395,15 +394,14 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         logger.debug("DefStore: Issuer cert: " + theCert);
 
         if (theCert == null) {
-            logger.warn("Missing issuer certificate");
+            logger.warn("DefStore: Missing issuer certificate");
             // Unknown cert so respond with unknown state
             return new SingleResponse(cid, new UnknownInfo(), new GeneralizedTime(new Date()), null);
         }
 
         logger.info("DefStore: Issuer DN: " + theCert.getSubjectX500Principal());
 
-        // check the serial number
-        logger.info("Checked Status of certificate 0x" + serialNo.toString(16));
+        logger.info("DefStore: Checking status of cert 0x" + serialNo.toString(16));
 
         GeneralizedTime thisUpdate;
 
@@ -415,7 +413,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
             thisUpdate = new GeneralizedTime(d);
         }
 
-        logger.debug("DefStore: this update: " + thisUpdate.toDate());
+        logger.info("DefStore: This update: " + thisUpdate.toDate());
 
         // this is an optional field
         GeneralizedTime nextUpdate;
@@ -432,7 +430,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
             nextUpdate = new GeneralizedTime(d);
         }
 
-        logger.debug("DefStore: next update: " + (nextUpdate == null ? null : nextUpdate.toDate()));
+        logger.info("DefStore: Next update: " + (nextUpdate == null ? null : nextUpdate.toDate()));
 
         CertStatus certStatus;
 
@@ -441,6 +439,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
             certStatus = new UnknownInfo();
 
             if (theRec == null) {
+                logger.info("DefStore: CRL not found -> Unknown");
                 return new SingleResponse(cid, certStatus, thisUpdate, nextUpdate);
             }
 
@@ -451,34 +450,41 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                 RevokedCertificate rc = cache.get(new BigInteger(serialNo.toString()));
                 if (rc == null) {
                     if (isNotFoundGood()) {
+                        logger.info("DefStore: Cert not found in CRL cache -> Good");
                         certStatus = new GoodInfo();
                     } else {
+                        logger.info("DefStore: Cert not found in CRL cached -> Unknown");
                         certStatus = new UnknownInfo();
                     }
                 } else {
-
+                    logger.info("DefStore: Cert found in CRL cache -> Revoked");
                     certStatus = new RevokedInfo(
                             new GeneralizedTime(
                                     rc.getRevocationDate()));
                 }
+            } else {
+                logger.info("DefStore: CRL cache not found -> Unknown");
             }
 
             return new SingleResponse(cid, certStatus, thisUpdate,
                     nextUpdate);
         }
 
-        logger.debug("DefStore: evaluating x509 crl impl");
+        logger.info("DefStore: Getting CRL entry for cert 0x" + serialNo.toString(16));
         X509CRLEntry crlentry = theCRL.getRevokedCertificate(new BigInteger(serialNo.toString()));
 
         if (crlentry == null) {
             // good or unknown
             if (isNotFoundGood()) {
+                logger.info("DefStore: CRL entry not found -> Good");
                 certStatus = new GoodInfo();
             } else {
+                logger.info("DefStore: CRL entry not found -> Unknown");
                 certStatus = new UnknownInfo();
             }
 
         } else {
+            logger.info("DefStore: CRL entry found -> Revoked");
             certStatus = new RevokedInfo(new GeneralizedTime(
                             crlentry.getRevocationDate()));
         }
