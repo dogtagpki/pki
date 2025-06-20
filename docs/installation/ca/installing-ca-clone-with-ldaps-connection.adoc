@@ -101,7 +101,7 @@ $ pkispawn -f ca-secure-ds-secondary.cfg -s CA
 
 == CA system certificates 
 
-After installation the existing CA system certificates (including the certificate chain) and their keys are stored in the server NSS database (i.e. `/var/lib/pki/pki-tomcat/conf/alias`), and a new SSL server certificate is created for the new instance. Note that if the ds_signing is the same cert as ca_signing, it does not show in the following `certutil` listing:
+After installation the existing CA system certificates (including the certificate chain) and their keys are stored in the server NSS database (i.e. `/var/lib/pki/pki-tomcat/conf/alias`), and a new SSL server certificate is created for the new instance. Note that if the ds_signing certificate is the same certificate as ca_signing, it does not show in the following `certutil` listing:
 [literal]
 ....
 $ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias

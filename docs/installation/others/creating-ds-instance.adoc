@@ -62,7 +62,7 @@ $ dscreate from-file ds.inf
 
 == Creating PKI subtree 
 
-Note: The `dc=pki,dc=example,dc=com` subtree is not mandatory, but it's highly recommended in order to avoid conflicts with other applications sharing the same DS instance.
+Note: The `dc=pki,dc=example,dc=com` subtree is not mandatory, but it is highly recommended in order to avoid conflicts with other applications sharing the same DS instance.
 
 Initially the DS instance is empty. Use an LDAP client to add a root entry and PKI base entry, for example:
 
