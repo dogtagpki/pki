@@ -6,9 +6,6 @@ env:
   DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
 
 jobs:
-  # https://github.com/dogtagpki/pki/wiki/Installing-Standalone-OCSP
-  # https://github.com/dogtagpki/pki/wiki/Publishing-CA-Certificate-to-LDAP-Server
-  # https://github.com/dogtagpki/pki/wiki/Publishing-CRL-to-LDAP-Server
   test:
     name: Test
     runs-on: ubuntu-latest
@@ -40,20 +37,18 @@ jobs:
           tests/bin/ds-create.sh \
               --image=${{ env.DS_IMAGE }} \
               --hostname=cads.example.com \
+              --network=example \
+              --network-alias=cads.example.com \
               --password=Secret.123 \
               cads
 
-      - name: Connect CA DS container to network
-        run: docker network connect example cads --alias cads.example.com
-
       - name: Set up CA container
         run: |
-          tests/bin/runner-init.sh ca
-        env:
-          HOSTNAME: ca.example.com
-
-      - name: Connect CA container to network
-        run: docker network connect example ca --alias ca.example.com
+          tests/bin/runner-init.sh \
+              --hostname=ca.example.com \
+              --network=example \
+              --network-alias=ca.example.com \
+              ca
 
       - name: Install CA in CA container
         run: |
@@ -65,7 +60,9 @@ jobs:
 
       - name: Install CA admin cert in CA container
         run: |
-          docker exec ca pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
+          docker exec ca pki-server cert-export \
+              --cert-file $SHARED/ca_signing.crt \
+              ca_signing
 
           docker exec ca pki nss-cert-import \
               --cert $SHARED/ca_signing.crt \
@@ -81,21 +78,20 @@ jobs:
           tests/bin/ds-create.sh \
               --image=${{ env.DS_IMAGE }} \
               --hostname=ocspds.example.com \
+              --network=example \
+              --network-alias=ocspds.example.com \
               --password=Secret.123 \
               ocspds
 
-      - name: Connect OCSP DS container to network
-        run: docker network connect example ocspds --alias ocspds.example.com
-
       - name: Set up OCSP container
         run: |
-          tests/bin/runner-init.sh ocsp
-        env:
-          HOSTNAME: ocsp.example.com
+          tests/bin/runner-init.sh \
+              --hostname=ocsp.example.com \
+              --network=example \
+              --network-alias=ocsp.example.com \
+              ocsp
 
-      - name: Connect OCSP container to network
-        run: docker network connect example ocsp --alias ocsp.example.com
-
+      # https://github.com/dogtagpki/pki/wiki/Installing-Standalone-OCSP
       - name: Install OCSP in OCSP container (step 1)
         run: |
           docker exec ocsp pkispawn \
@@ -165,6 +161,7 @@ jobs:
               --output-file ${SHARED}/ocsp_admin.crt
           docker exec ca openssl x509 -text -noout -in ${SHARED}/ocsp_admin.crt
 
+      # https://github.com/dogtagpki/pki/wiki/Installing-Standalone-OCSP
       - name: Install OCSP in OCSP container (step 2)
         run: |
           docker exec ocsp pkispawn \
@@ -222,7 +219,8 @@ jobs:
               -x \
               -b "dc=crl,dc=pki,dc=example,dc=com"
 
-      - name: Configure CA cert and CRL publishing in CA
+      # https://github.com/dogtagpki/pki/wiki/Publishing-CA-Certificate-to-LDAP-Server
+      - name: Configure CA cert publishing in CA
         run: |
           # configure LDAP connection
           docker exec ca pki-server ca-config-set ca.publish.ldappublish.enable true
@@ -251,6 +249,9 @@ jobs:
           docker exec ca pki-server ca-config-set ca.publish.rule.instance.LdapCaCertRule.publisher LdapCaCertPublisher
           docker exec ca pki-server ca-config-set ca.publish.rule.instance.LdapCaCertRule.type cacert
 
+      # https://github.com/dogtagpki/pki/wiki/Publishing-CRL-to-LDAP-Server
+      - name: Configure CA cert publishing in CA
+        run: |
           # configure LDAP-based CRL publisher
           docker exec ca pki-server ca-config-set ca.publish.publisher.instance.LdapCrlPublisher.crlAttr "certificateRevocationList;binary"
           docker exec ca pki-server ca-config-set ca.publish.publisher.instance.LdapCrlPublisher.crlObjectClass pkiCA
@@ -281,6 +282,7 @@ jobs:
           # restart CA subsystem
           docker exec ca pki-server ca-redeploy --wait
 
+      # https://github.com/dogtagpki/pki/wiki/Configuring-OCSP-Revocation-Info-Store
       - name: Configure revocation info store in OCSP
         run: |
           # configure LDAP store
@@ -574,15 +576,6 @@ jobs:
           echo good > expected
           diff expected actual
 
-      - name: Gather artifacts
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh cads
-          tests/bin/pki-artifacts-save.sh ca
-          tests/bin/ds-artifacts-save.sh ocspds
-          tests/bin/pki-artifacts-save.sh ocsp
-        continue-on-error: true
-
       - name: Remove OCSP from OCSP container
         run: docker exec ocsp pkidestroy -s OCSP -v
 
@@ -604,6 +597,11 @@ jobs:
         run: |
           docker exec ca journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
 
+      - name: Check CA access log
+        if: always()
+        run: |
+          docker exec ca find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+
       - name: Check CA debug log
         if: always()
         run: |
@@ -624,14 +622,12 @@ jobs:
         run: |
           docker exec ocsp journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
 
+      - name: Check OCSP access log
+        if: always()
+        run: |
+          docker exec ocsp find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+
       - name: Check OCSP debug log
         if: always()
         run: |
           docker exec ocsp find /var/lib/pki/pki-tomcat/logs/ocsp -name "debug.*" -exec cat {} \;
-
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ocsp-crl-ldap
-          path: /tmp/artifacts

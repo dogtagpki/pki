@@ -1,4 +1,29 @@
 name: OCSP clone
+# This test will perform the following operations:
+# - install primary DS, CA, OCSP
+# - set up CRL database in primary DS
+# - configure primary CA and OCSP to use CRL database
+# - install secondary DS, CA, OCSP
+# - replicate CRL database to secondary DS
+# - configure secondary CA and OCSP to use CRL database
+# - install tertiary DS, CA, OCSP
+# - replicate CRL database to tertiary DS
+# - configure tertiary CA and OCSP to use CRL database
+# - enroll cert in primary CA
+# - check initial cert status in all OCSPs
+# - revoke cert in primary CA
+# - check revoked cert in all OCSPs
+# - unrevoke cert in primary CA
+# - check unrevoked cert in all OCSPs
+#
+# Currently in order to generate CRL properly the revocation and
+# unrevocation must be done in the CRL generation master (i.e.
+# primary CA).
+#
+# TODO:
+# - Allow revocation and unrevocation to be done in other CAs
+# - Add CLI to simplify CA cert and CRL publishing configuration in CA
+# - Add CLI to simplify revocation info store configuration in OCSP
 
 on: workflow_call
 
@@ -6,7 +31,6 @@ env:
   DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
 
 jobs:
-  # docs/installation/ocsp/Installing_OCSP_Clone.md
   test:
     name: Test
     runs-on: ubuntu-latest
@@ -46,6 +70,8 @@ jobs:
               --network-alias=primary.example.com \
               primary
 
+          docker exec primary dnf install -y xmlstarlet
+
       - name: Install CA in primary PKI container
         run: |
           docker exec primary pkispawn \
@@ -54,8 +80,6 @@ jobs:
               -D pki_audit_signing_nickname= \
               -D pki_ds_url=ldap://primaryds.example.com:3389 \
               -v
-
-          docker exec primary pki-server cert-find
 
       - name: Install OCSP in primary PKI container
         run: |
@@ -66,7 +90,164 @@ jobs:
               -D pki_ds_url=ldap://primaryds.example.com:3389 \
               -v
 
-          docker exec primary pki-server cert-find
+      # https://github.com/dogtagpki/pki/wiki/Setting-up-CRL-Database
+      - name: Set up CRL database in primary DS
+        run: |
+          # create DS backend
+          docker exec primaryds dsconf \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              ldap://primaryds.example.com:3389 \
+              backend create \
+              --suffix=dc=crl,dc=pki,dc=example,dc=com \
+              --be-name=crl
+
+          # add base entry
+          docker exec -i primaryds ldapadd \
+              -H ldap://primaryds.example.com:3389 \
+              -x \
+              -D "cn=Directory Manager" \
+              -w Secret.123 << EOF
+          dn: dc=crl,dc=pki,dc=example,dc=com
+          objectClass: domain
+          dc: crl
+          aci: (targetattr!="userPassword || aci")
+           (version 3.0; acl "Enable anonymous access"; allow (read, search, compare) userdn="ldap:///anyone";)
+          EOF
+
+          # verify anonymous access
+          docker exec -i primaryds ldapsearch \
+              -H ldap://primaryds.example.com:3389 \
+              -x \
+              -b "dc=crl,dc=pki,dc=example,dc=com" \
+              -LLL
+
+      - name: Remove default OCSP publishing in primary CA
+        run: |
+          # remove default OCSP publisher
+          docker exec primary pki-server ca-config-unset ca.publish.publisher.instance.OCSPPublisher-primary-example-com-8443.enableClientAuth
+          docker exec primary pki-server ca-config-unset ca.publish.publisher.instance.OCSPPublisher-primary-example-com-8443.host
+          docker exec primary pki-server ca-config-unset ca.publish.publisher.instance.OCSPPublisher-primary-example-com-8443.nickName
+          docker exec primary pki-server ca-config-unset ca.publish.publisher.instance.OCSPPublisher-primary-example-com-8443.path
+          docker exec primary pki-server ca-config-unset ca.publish.publisher.instance.OCSPPublisher-primary-example-com-8443.pluginName
+          docker exec primary pki-server ca-config-unset ca.publish.publisher.instance.OCSPPublisher-primary-example-com-8443.port
+
+          # remove default OCSP publishing rule
+          docker exec primary pki-server ca-config-unset ca.publish.rule.instance.ocsprule-primary-example-com-8443.enable
+          docker exec primary pki-server ca-config-unset ca.publish.rule.instance.ocsprule-primary-example-com-8443.mapper
+          docker exec primary pki-server ca-config-unset ca.publish.rule.instance.ocsprule-primary-example-com-8443.pluginName
+          docker exec primary pki-server ca-config-unset ca.publish.rule.instance.ocsprule-primary-example-com-8443.publisher
+          docker exec primary pki-server ca-config-unset ca.publish.rule.instance.ocsprule-primary-example-com-8443.type
+
+      # https://github.com/dogtagpki/pki/wiki/Publishing-CA-Certificate-to-LDAP-Server
+      - name: Configure CA cert publishing in primary CA
+        run: |
+          # configure LDAP connection
+          docker exec primary pki-server ca-config-set ca.publish.ldappublish.enable true
+          docker exec primary pki-server ca-config-set ca.publish.ldappublish.ldap.ldapauth.authtype BasicAuth
+          docker exec primary pki-server ca-config-set ca.publish.ldappublish.ldap.ldapauth.bindDN "cn=Directory Manager"
+          docker exec primary pki-server ca-config-set ca.publish.ldappublish.ldap.ldapauth.bindPWPrompt internaldb
+          docker exec primary pki-server ca-config-set ca.publish.ldappublish.ldap.ldapconn.host primaryds.example.com
+          docker exec primary pki-server ca-config-set ca.publish.ldappublish.ldap.ldapconn.port 3389
+          docker exec primary pki-server ca-config-set ca.publish.ldappublish.ldap.ldapconn.secureConn false
+
+          # configure LDAP-based CA cert publisher
+          docker exec primary pki-server ca-config-set ca.publish.publisher.instance.LdapCaCertPublisher.caCertAttr "cACertificate;binary"
+          docker exec primary pki-server ca-config-set ca.publish.publisher.instance.LdapCaCertPublisher.caObjectClass pkiCA
+          docker exec primary pki-server ca-config-set ca.publish.publisher.instance.LdapCaCertPublisher.pluginName LdapCaCertPublisher
+
+          # configure CA cert mapper
+          docker exec primary pki-server ca-config-set ca.publish.mapper.instance.LdapCaCertMap.createCAEntry true
+          docker exec primary pki-server ca-config-set ca.publish.mapper.instance.LdapCaCertMap.dnPattern "cn=\$subj.cn,dc=crl,dc=pki,dc=example,dc=com"
+          docker exec primary pki-server ca-config-set ca.publish.mapper.instance.LdapCaCertMap.pluginName LdapCaSimpleMap
+
+          # configure CA cert publishing rule
+          docker exec primary pki-server ca-config-set ca.publish.rule.instance.LdapCaCertRule.enable true
+          docker exec primary pki-server ca-config-set ca.publish.rule.instance.LdapCaCertRule.mapper LdapCaCertMap
+          docker exec primary pki-server ca-config-set ca.publish.rule.instance.LdapCaCertRule.pluginName Rule
+          docker exec primary pki-server ca-config-set ca.publish.rule.instance.LdapCaCertRule.predicate ""
+          docker exec primary pki-server ca-config-set ca.publish.rule.instance.LdapCaCertRule.publisher LdapCaCertPublisher
+          docker exec primary pki-server ca-config-set ca.publish.rule.instance.LdapCaCertRule.type cacert
+
+      # https://github.com/dogtagpki/pki/wiki/Publishing-CRL-to-LDAP-Server
+      - name: Configure CRL publishing in primary CA
+        run: |
+          # configure LDAP-based CRL publisher
+          docker exec primary pki-server ca-config-set ca.publish.publisher.instance.LdapCrlPublisher.crlAttr "certificateRevocationList;binary"
+          docker exec primary pki-server ca-config-set ca.publish.publisher.instance.LdapCrlPublisher.crlObjectClass pkiCA
+          docker exec primary pki-server ca-config-set ca.publish.publisher.instance.LdapCrlPublisher.pluginName LdapCrlPublisher
+
+          # configure CRL mapper
+          docker exec primary pki-server ca-config-set ca.publish.mapper.instance.LdapCrlMap.createCAEntry true
+          docker exec primary pki-server ca-config-set ca.publish.mapper.instance.LdapCrlMap.dnPattern "cn=\$subj.cn,dc=crl,dc=pki,dc=example,dc=com"
+          docker exec primary pki-server ca-config-set ca.publish.mapper.instance.LdapCrlMap.pluginName LdapCaSimpleMap
+
+          # configure CRL publishing rule
+          docker exec primary pki-server ca-config-set ca.publish.rule.instance.LdapCrlRule.enable true
+          docker exec primary pki-server ca-config-set ca.publish.rule.instance.LdapCrlRule.mapper LdapCrlMap
+          docker exec primary pki-server ca-config-set ca.publish.rule.instance.LdapCrlRule.pluginName Rule
+          docker exec primary pki-server ca-config-set ca.publish.rule.instance.LdapCrlRule.predicate ""
+          docker exec primary pki-server ca-config-set ca.publish.rule.instance.LdapCrlRule.publisher LdapCrlPublisher
+          docker exec primary pki-server ca-config-set ca.publish.rule.instance.LdapCrlRule.type crl
+
+          # enable publishing
+          docker exec primary pki-server ca-config-set ca.publish.enable true
+
+          # set buffer size to 0 so that revocation will take effect immediately
+          docker exec primary pki-server ca-config-set auths.revocationChecking.bufferSize 0
+
+          # update CRL immediately after each cert revocation
+          docker exec primary pki-server ca-crl-ip-mod -D alwaysUpdate=true MasterCRL
+
+      # https://github.com/dogtagpki/pki/wiki/Configuring-OCSP-Revocation-Info-Store
+      - name: Configure revocation info store in primary OCSP
+        run: |
+          # configure LDAP store
+          docker exec primary pki-server ocsp-config-set ocsp.store.ldapStore.numConns 1
+          docker exec primary pki-server ocsp-config-set ocsp.store.ldapStore.host0 primaryds.example.com
+          docker exec primary pki-server ocsp-config-set ocsp.store.ldapStore.port0 3389
+          docker exec primary pki-server ocsp-config-set ocsp.store.ldapStore.baseDN0 "dc=crl,dc=pki,dc=example,dc=com"
+          docker exec primary pki-server ocsp-config-set ocsp.store.ldapStore.byName true
+          docker exec primary pki-server ocsp-config-set ocsp.store.ldapStore.caCertAttr "cACertificate;binary"
+          docker exec primary pki-server ocsp-config-set ocsp.store.ldapStore.crlAttr "certificateRevocationList;binary"
+          docker exec primary pki-server ocsp-config-set ocsp.store.ldapStore.includeNextUpdate false
+          docker exec primary pki-server ocsp-config-set ocsp.store.ldapStore.notFoundAsGood true
+          docker exec primary pki-server ocsp-config-set ocsp.store.ldapStore.refreshInSec0 10
+
+          # enable LDAP store
+          docker exec primary pki-server ocsp-config-set ocsp.storeId ldapStore
+
+      - name: Configure primary PKI server
+        run: |
+          # disable access log buffer
+          docker exec primary xmlstarlet edit --inplace \
+              -u "//Valve[@className='org.apache.catalina.valves.AccessLogValve']/@buffered" \
+              -v "false" \
+              -i "//Valve[@className='org.apache.catalina.valves.AccessLogValve' and not(@buffered)]" \
+              -t attr \
+              -n "buffered" \
+              -v "false" \
+              /etc/pki/pki-tomcat/server.xml
+
+          docker exec primary pki-server restart --wait
+
+      - name: Export system certs
+        run: |
+          docker exec primary pki-server cert-export \
+              --cert-file $SHARED/ca_signing.crt \
+              ca_signing
+
+          docker exec primary pki-server ca-clone-prepare \
+              --pkcs12-file $SHARED/ca-certs.p12 \
+              --pkcs12-password Secret.123
+
+          docker exec primary pki-server ocsp-clone-prepare \
+              --pkcs12-file $SHARED/ocsp-certs.p12 \
+              --pkcs12-password Secret.123
+
+          docker exec primary cp \
+              /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              $SHARED
 
       - name: Set up secondary DS container
         run: |
@@ -86,14 +267,10 @@ jobs:
               --network-alias=secondary.example.com \
               secondary
 
+          docker exec secondary dnf install -y xmlstarlet
+
       - name: Install CA in secondary PKI container
         run: |
-          docker exec primary pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
-
-          docker exec primary pki-server ca-clone-prepare \
-              --pkcs12-file $SHARED/ca-certs.p12 \
-              --pkcs12-password Secret.123
-
           docker exec secondary pkispawn \
               -f /usr/share/pki/server/examples/installation/ca-clone.cfg \
               -s CA \
@@ -104,14 +281,9 @@ jobs:
               -D pki_ds_url=ldap://secondaryds.example.com:3389 \
               -v
 
-          docker exec secondary pki-server cert-find
-
+      # docs/installation/ocsp/installing-ocsp-clone.adoc
       - name: Install OCSP in secondary PKI container
         run: |
-          docker exec primary pki-server ocsp-clone-prepare \
-              --pkcs12-file $SHARED/ocsp-certs.p12 \
-              --pkcs12-password Secret.123
-
           docker exec secondary pkispawn \
               -f /usr/share/pki/server/examples/installation/ocsp-clone.cfg \
               -s OCSP \
@@ -122,21 +294,227 @@ jobs:
               -D pki_ds_url=ldap://secondaryds.example.com:3389 \
               -v
 
-          docker exec secondary pki-server cert-find
-
-      - name: Verify OCSP admin in secondary PKI container
+      # https://github.com/dogtagpki/pki/wiki/Setting-up-CRL-Database
+      - name: Set up CRL database in secondary DS
         run: |
-          docker exec primary cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${SHARED}/ca_admin_cert.p12
+          # create DS backend
+          docker exec secondaryds dsconf \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              ldap://secondaryds.example.com:3389 \
+              backend create \
+              --suffix=dc=crl,dc=pki,dc=example,dc=com \
+              --be-name=crl
 
-          docker exec secondary pki nss-cert-import \
-              --cert $SHARED/ca_signing.crt \
-              --trust CT,C,C \
-              ca_signing
+          # add base entry
+          docker exec -i secondaryds ldapadd \
+              -H ldap://secondaryds.example.com:3389 \
+              -x \
+              -D "cn=Directory Manager" \
+              -w Secret.123 << EOF
+          dn: dc=crl,dc=pki,dc=example,dc=com
+          objectClass: domain
+          dc: crl
+          aci: (targetattr!="userPassword || aci")
+           (version 3.0; acl "Enable anonymous access"; allow (read, search, compare) userdn="ldap:///anyone";)
+          EOF
 
-          docker exec secondary pki pkcs12-import \
-              --pkcs12 ${SHARED}/ca_admin_cert.p12 \
-              --pkcs12-password Secret.123
-          docker exec secondary pki -n caadmin ocsp-user-show ocspadmin
+          # verify anonymous access
+          docker exec -i secondaryds ldapsearch \
+              -H ldap://secondaryds.example.com:3389 \
+              -x \
+              -b "dc=crl,dc=pki,dc=example,dc=com" \
+              -LLL
+
+          # enable replication in primary DS
+          docker exec primaryds dsconf \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              ldap://primaryds.example.com:3389 \
+              replication enable \
+              --suffix=dc=crl,dc=pki,dc=example,dc=com \
+              --role=supplier \
+              --replica-id=1 \
+              --bind-dn="cn=Replication Manager,cn=config" \
+              --bind-passwd=Secret.123
+
+          # enable replication in secondary DS
+          docker exec secondaryds dsconf \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              ldap://secondaryds.example.com:3389 \
+              replication enable \
+              --suffix=dc=crl,dc=pki,dc=example,dc=com \
+              --role=supplier \
+              --replica-id=2 \
+              --bind-dn="cn=Replication Manager,cn=config" \
+              --bind-passwd=Secret.123
+
+          # create replication agreement in primary DS
+          docker exec primaryds dsconf \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              ldap://primaryds.example.com:3389 \
+              repl-agmt create \
+              --suffix=dc=crl,dc=pki,dc=example,dc=com \
+              --host=secondaryds.example.com \
+              --port=3389 \
+              --conn-protocol=LDAP \
+              --bind-dn="cn=Replication Manager,cn=config" \
+              --bind-passwd=Secret.123 \
+              --bind-method=SIMPLE \
+              primaryds-to-secondaryds
+
+          # create replication agreement in secondary DS
+          docker exec secondaryds dsconf \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              ldap://secondaryds.example.com:3389 \
+              repl-agmt create \
+              --suffix=dc=crl,dc=pki,dc=example,dc=com \
+              --host=primaryds.example.com \
+              --port=3389 \
+              --conn-protocol=LDAP \
+              --bind-dn="cn=Replication Manager,cn=config" \
+              --bind-passwd=Secret.123 \
+              --bind-method=SIMPLE \
+              secondaryds-to-primaryds
+
+          # start replication initialization
+          docker exec primaryds dsconf \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              ldap://primaryds.example.com:3389 \
+              repl-agmt init \
+              --suffix=dc=crl,dc=pki,dc=example,dc=com \
+              primaryds-to-secondaryds
+
+          # wait for initialization to complete
+          while true; do
+              sleep 1
+
+              docker exec primaryds dsconf \
+                  -D "cn=Directory Manager" \
+                  -w Secret.123 \
+                  ldap://primaryds.example.com:3389 \
+                  repl-agmt init-status \
+                  --suffix=dc=crl,dc=pki,dc=example,dc=com \
+                  primaryds-to-secondaryds \
+                  | tee output
+
+              MSG=$(cat output)
+              if [ "$MSG" = "Agreement successfully initialized." ]; then
+                  break
+              fi
+          done
+
+      # https://github.com/dogtagpki/pki/wiki/Publishing-CA-Certificate-to-LDAP-Server
+      - name: Configure CA cert publishing in secondary CA
+        run: |
+          # there's no default OCSP publishing to remove
+
+          # configure LDAP connection
+          docker exec secondary pki-server ca-config-set ca.publish.ldappublish.enable true
+          docker exec secondary pki-server ca-config-set ca.publish.ldappublish.ldap.ldapauth.authtype BasicAuth
+          docker exec secondary pki-server ca-config-set ca.publish.ldappublish.ldap.ldapauth.bindDN "cn=Directory Manager"
+          docker exec secondary pki-server ca-config-set ca.publish.ldappublish.ldap.ldapauth.bindPWPrompt internaldb
+          docker exec secondary pki-server ca-config-set ca.publish.ldappublish.ldap.ldapconn.host secondaryds.example.com
+          docker exec secondary pki-server ca-config-set ca.publish.ldappublish.ldap.ldapconn.port 3389
+          docker exec secondary pki-server ca-config-set ca.publish.ldappublish.ldap.ldapconn.secureConn false
+
+          # configure LDAP-based CA cert publisher
+          docker exec secondary pki-server ca-config-set ca.publish.publisher.instance.LdapCaCertPublisher.caCertAttr "cACertificate;binary"
+          docker exec secondary pki-server ca-config-set ca.publish.publisher.instance.LdapCaCertPublisher.caObjectClass pkiCA
+          docker exec secondary pki-server ca-config-set ca.publish.publisher.instance.LdapCaCertPublisher.pluginName LdapCaCertPublisher
+
+          # configure CA cert mapper
+          docker exec secondary pki-server ca-config-set ca.publish.mapper.instance.LdapCaCertMap.createCAEntry true
+          docker exec secondary pki-server ca-config-set ca.publish.mapper.instance.LdapCaCertMap.dnPattern "cn=\$subj.cn,dc=crl,dc=pki,dc=example,dc=com"
+          docker exec secondary pki-server ca-config-set ca.publish.mapper.instance.LdapCaCertMap.pluginName LdapCaSimpleMap
+
+          # configure CA cert publishing rule
+          docker exec secondary pki-server ca-config-set ca.publish.rule.instance.LdapCaCertRule.enable true
+          docker exec secondary pki-server ca-config-set ca.publish.rule.instance.LdapCaCertRule.mapper LdapCaCertMap
+          docker exec secondary pki-server ca-config-set ca.publish.rule.instance.LdapCaCertRule.pluginName Rule
+          docker exec secondary pki-server ca-config-set ca.publish.rule.instance.LdapCaCertRule.predicate ""
+          docker exec secondary pki-server ca-config-set ca.publish.rule.instance.LdapCaCertRule.publisher LdapCaCertPublisher
+          docker exec secondary pki-server ca-config-set ca.publish.rule.instance.LdapCaCertRule.type cacert
+
+      # https://github.com/dogtagpki/pki/wiki/Publishing-CRL-to-LDAP-Server
+      - name: Configure CA cert publishing in secondary CA
+        run: |
+          # configure LDAP-based CRL publisher
+          docker exec secondary pki-server ca-config-set ca.publish.publisher.instance.LdapCrlPublisher.crlAttr "certificateRevocationList;binary"
+          docker exec secondary pki-server ca-config-set ca.publish.publisher.instance.LdapCrlPublisher.crlObjectClass pkiCA
+          docker exec secondary pki-server ca-config-set ca.publish.publisher.instance.LdapCrlPublisher.pluginName LdapCrlPublisher
+
+          # configure CRL mapper
+          docker exec secondary pki-server ca-config-set ca.publish.mapper.instance.LdapCrlMap.createCAEntry true
+          docker exec secondary pki-server ca-config-set ca.publish.mapper.instance.LdapCrlMap.dnPattern "cn=\$subj.cn,dc=crl,dc=pki,dc=example,dc=com"
+          docker exec secondary pki-server ca-config-set ca.publish.mapper.instance.LdapCrlMap.pluginName LdapCaSimpleMap
+
+          # configure CRL publishing rule
+          docker exec secondary pki-server ca-config-set ca.publish.rule.instance.LdapCrlRule.enable true
+          docker exec secondary pki-server ca-config-set ca.publish.rule.instance.LdapCrlRule.mapper LdapCrlMap
+          docker exec secondary pki-server ca-config-set ca.publish.rule.instance.LdapCrlRule.pluginName Rule
+          docker exec secondary pki-server ca-config-set ca.publish.rule.instance.LdapCrlRule.predicate ""
+          docker exec secondary pki-server ca-config-set ca.publish.rule.instance.LdapCrlRule.publisher LdapCrlPublisher
+          docker exec secondary pki-server ca-config-set ca.publish.rule.instance.LdapCrlRule.type crl
+
+          # enable publishing
+          docker exec secondary pki-server ca-config-set ca.publish.enable true
+
+          # set buffer size to 0 so that revocation will take effect immediately
+          docker exec secondary pki-server ca-config-set auths.revocationChecking.bufferSize 0
+
+          # update CRL immediately after each cert revocation
+          docker exec secondary pki-server ca-crl-ip-mod -D alwaysUpdate=true MasterCRL
+
+      # https://github.com/dogtagpki/pki/wiki/Configuring-OCSP-Revocation-Info-Store
+      - name: Configure revocation info store in secondary OCSP
+        run: |
+          # configure LDAP store
+          docker exec secondary pki-server ocsp-config-set ocsp.store.ldapStore.numConns 1
+          docker exec secondary pki-server ocsp-config-set ocsp.store.ldapStore.host0 secondaryds.example.com
+          docker exec secondary pki-server ocsp-config-set ocsp.store.ldapStore.port0 3389
+          docker exec secondary pki-server ocsp-config-set ocsp.store.ldapStore.baseDN0 "dc=crl,dc=pki,dc=example,dc=com"
+          docker exec secondary pki-server ocsp-config-set ocsp.store.ldapStore.byName true
+          docker exec secondary pki-server ocsp-config-set ocsp.store.ldapStore.caCertAttr "cACertificate;binary"
+          docker exec secondary pki-server ocsp-config-set ocsp.store.ldapStore.crlAttr "certificateRevocationList;binary"
+          docker exec secondary pki-server ocsp-config-set ocsp.store.ldapStore.includeNextUpdate false
+          docker exec secondary pki-server ocsp-config-set ocsp.store.ldapStore.notFoundAsGood true
+          docker exec secondary pki-server ocsp-config-set ocsp.store.ldapStore.refreshInSec0 10
+
+          # enable LDAP store
+          docker exec secondary pki-server ocsp-config-set ocsp.storeId ldapStore
+
+      - name: Configure secondary PKI server
+        run: |
+          # disable access log buffer
+          docker exec secondary xmlstarlet edit --inplace \
+              -u "//Valve[@className='org.apache.catalina.valves.AccessLogValve']/@buffered" \
+              -v "false" \
+              -i "//Valve[@className='org.apache.catalina.valves.AccessLogValve' and not(@buffered)]" \
+              -t attr \
+              -n "buffered" \
+              -v "false" \
+              /etc/pki/pki-tomcat/server.xml
+
+          docker exec secondary pki-server restart --wait
+
+      - name: Check CA CS.cfg
+        run: |
+          docker cp primary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.primary.CA
+          docker cp secondary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.secondary.CA
+
+          diff CS.cfg.primary.CA CS.cfg.secondary.CA || true
+
+      - name: Check OCSP CS.cfg
+        run: |
+          docker cp primary:/etc/pki/pki-tomcat/ocsp/CS.cfg CS.cfg.primary.OCSP
+          docker cp secondary:/etc/pki/pki-tomcat/ocsp/CS.cfg CS.cfg.secondary.OCSP
+
+          diff CS.cfg.primary.OCSP CS.cfg.secondary.OCSP || true
 
       - name: Set up tertiary DS container
         run: |
@@ -156,14 +534,10 @@ jobs:
               --network-alias=tertiary.example.com \
               tertiary
 
+          docker exec tertiary dnf install -y xmlstarlet
+
       - name: Install CA in tertiary PKI container
         run: |
-          docker exec secondary pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
-
-          docker exec secondary pki-server ca-clone-prepare \
-              --pkcs12-file $SHARED/ca-certs.p12 \
-              --pkcs12-password Secret.123
-
           docker exec tertiary pkispawn \
               -f /usr/share/pki/server/examples/installation/ca-clone-of-clone.cfg \
               -s CA \
@@ -174,14 +548,9 @@ jobs:
               -D pki_ds_url=ldap://tertiaryds.example.com:3389 \
               -v
 
-          docker exec tertiary pki-server cert-find
-
+      # docs/installation/ocsp/installing-ocsp-clone.adoc
       - name: Install OCSP in tertiary PKI container
         run: |
-          docker exec secondary pki-server ocsp-clone-prepare \
-              --pkcs12-file $SHARED/ocsp-certs.p12 \
-              --pkcs12-password Secret.123
-
           docker exec tertiary pkispawn \
               -f /usr/share/pki/server/examples/installation/ocsp-clone-of-clone.cfg \
               -s OCSP \
@@ -192,7 +561,213 @@ jobs:
               -D pki_ds_url=ldap://tertiaryds.example.com:3389 \
               -v
 
-          docker exec tertiary pki-server cert-find
+      # https://github.com/dogtagpki/pki/wiki/Setting-up-CRL-Database
+      - name: Set up CRL database in tertiary DS
+        run: |
+          # create DS backend
+          docker exec tertiaryds dsconf \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              ldap://tertiaryds.example.com:3389 \
+              backend create \
+              --suffix=dc=crl,dc=pki,dc=example,dc=com \
+              --be-name=crl
+
+          # add base entry
+          docker exec -i tertiaryds ldapadd \
+              -H ldap://tertiaryds.example.com:3389 \
+              -x \
+              -D "cn=Directory Manager" \
+              -w Secret.123 << EOF
+          dn: dc=crl,dc=pki,dc=example,dc=com
+          objectClass: domain
+          dc: crl
+          aci: (targetattr!="userPassword || aci")
+           (version 3.0; acl "Enable anonymous access"; allow (read, search, compare) userdn="ldap:///anyone";)
+          EOF
+
+          # verify anonymous access
+          docker exec -i tertiaryds ldapsearch \
+              -H ldap://tertiaryds.example.com:3389 \
+              -x \
+              -b "dc=crl,dc=pki,dc=example,dc=com" \
+              -LLL
+
+          # enable replication in tertiary DS
+          docker exec tertiaryds dsconf \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              ldap://tertiaryds.example.com:3389 \
+              replication enable \
+              --suffix=dc=crl,dc=pki,dc=example,dc=com \
+              --role=supplier \
+              --replica-id=3 \
+              --bind-dn="cn=Replication Manager,cn=config" \
+              --bind-passwd=Secret.123
+
+          # create replication agreement in secondary DS
+          docker exec secondaryds dsconf \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              ldap://secondaryds.example.com:3389 \
+              repl-agmt create \
+              --suffix=dc=crl,dc=pki,dc=example,dc=com \
+              --host=tertiaryds.example.com \
+              --port=3389 \
+              --conn-protocol=LDAP \
+              --bind-dn="cn=Replication Manager,cn=config" \
+              --bind-passwd=Secret.123 \
+              --bind-method=SIMPLE \
+              secondaryds-to-tertiaryds
+
+          # create replication agreement in tertiary DS
+          docker exec tertiaryds dsconf \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              ldap://tertiaryds.example.com:3389 \
+              repl-agmt create \
+              --suffix=dc=crl,dc=pki,dc=example,dc=com \
+              --host=secondaryds.example.com \
+              --port=3389 \
+              --conn-protocol=LDAP \
+              --bind-dn="cn=Replication Manager,cn=config" \
+              --bind-passwd=Secret.123 \
+              --bind-method=SIMPLE \
+              tertiaryds-to-secondaryds
+
+          # start replication initialization
+          docker exec secondaryds dsconf \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              ldap://secondaryds.example.com:3389 \
+              repl-agmt init \
+              --suffix=dc=crl,dc=pki,dc=example,dc=com \
+              secondaryds-to-tertiaryds
+
+          # wait for initialization to complete
+          while true; do
+              sleep 1
+
+              docker exec secondaryds dsconf \
+                  -D "cn=Directory Manager" \
+                  -w Secret.123 \
+                  ldap://secondaryds.example.com:3389 \
+                  repl-agmt init-status \
+                  --suffix=dc=crl,dc=pki,dc=example,dc=com \
+                  secondaryds-to-tertiaryds \
+                  | tee output
+
+              MSG=$(cat output)
+              if [ "$MSG" = "Agreement successfully initialized." ]; then
+                  break
+              fi
+          done
+
+      # https://github.com/dogtagpki/pki/wiki/Publishing-CA-Certificate-to-LDAP-Server
+      - name: Configure CA cert publishing in tertiary CA
+        run: |
+          # there's no default OCSP publishing to remove
+
+          # configure LDAP connection
+          docker exec tertiary pki-server ca-config-set ca.publish.ldappublish.enable true
+          docker exec tertiary pki-server ca-config-set ca.publish.ldappublish.ldap.ldapauth.authtype BasicAuth
+          docker exec tertiary pki-server ca-config-set ca.publish.ldappublish.ldap.ldapauth.bindDN "cn=Directory Manager"
+          docker exec tertiary pki-server ca-config-set ca.publish.ldappublish.ldap.ldapauth.bindPWPrompt internaldb
+          docker exec tertiary pki-server ca-config-set ca.publish.ldappublish.ldap.ldapconn.host tertiaryds.example.com
+          docker exec tertiary pki-server ca-config-set ca.publish.ldappublish.ldap.ldapconn.port 3389
+          docker exec tertiary pki-server ca-config-set ca.publish.ldappublish.ldap.ldapconn.secureConn false
+
+          # configure LDAP-based CA cert publisher
+          docker exec tertiary pki-server ca-config-set ca.publish.publisher.instance.LdapCaCertPublisher.caCertAttr "cACertificate;binary"
+          docker exec tertiary pki-server ca-config-set ca.publish.publisher.instance.LdapCaCertPublisher.caObjectClass pkiCA
+          docker exec tertiary pki-server ca-config-set ca.publish.publisher.instance.LdapCaCertPublisher.pluginName LdapCaCertPublisher
+
+          # configure CA cert mapper
+          docker exec tertiary pki-server ca-config-set ca.publish.mapper.instance.LdapCaCertMap.createCAEntry true
+          docker exec tertiary pki-server ca-config-set ca.publish.mapper.instance.LdapCaCertMap.dnPattern "cn=\$subj.cn,dc=crl,dc=pki,dc=example,dc=com"
+          docker exec tertiary pki-server ca-config-set ca.publish.mapper.instance.LdapCaCertMap.pluginName LdapCaSimpleMap
+
+          # configure CA cert publishing rule
+          docker exec tertiary pki-server ca-config-set ca.publish.rule.instance.LdapCaCertRule.enable true
+          docker exec tertiary pki-server ca-config-set ca.publish.rule.instance.LdapCaCertRule.mapper LdapCaCertMap
+          docker exec tertiary pki-server ca-config-set ca.publish.rule.instance.LdapCaCertRule.pluginName Rule
+          docker exec tertiary pki-server ca-config-set ca.publish.rule.instance.LdapCaCertRule.predicate ""
+          docker exec tertiary pki-server ca-config-set ca.publish.rule.instance.LdapCaCertRule.publisher LdapCaCertPublisher
+          docker exec tertiary pki-server ca-config-set ca.publish.rule.instance.LdapCaCertRule.type cacert
+
+      # https://github.com/dogtagpki/pki/wiki/Publishing-CRL-to-LDAP-Server
+      - name: Configure CA cert publishing in tertiary CA
+        run: |
+          # configure LDAP-based CRL publisher
+          docker exec tertiary pki-server ca-config-set ca.publish.publisher.instance.LdapCrlPublisher.crlAttr "certificateRevocationList;binary"
+          docker exec tertiary pki-server ca-config-set ca.publish.publisher.instance.LdapCrlPublisher.crlObjectClass pkiCA
+          docker exec tertiary pki-server ca-config-set ca.publish.publisher.instance.LdapCrlPublisher.pluginName LdapCrlPublisher
+
+          # configure CRL mapper
+          docker exec tertiary pki-server ca-config-set ca.publish.mapper.instance.LdapCrlMap.createCAEntry true
+          docker exec tertiary pki-server ca-config-set ca.publish.mapper.instance.LdapCrlMap.dnPattern "cn=\$subj.cn,dc=crl,dc=pki,dc=example,dc=com"
+          docker exec tertiary pki-server ca-config-set ca.publish.mapper.instance.LdapCrlMap.pluginName LdapCaSimpleMap
+
+          # configure CRL publishing rule
+          docker exec tertiary pki-server ca-config-set ca.publish.rule.instance.LdapCrlRule.enable true
+          docker exec tertiary pki-server ca-config-set ca.publish.rule.instance.LdapCrlRule.mapper LdapCrlMap
+          docker exec tertiary pki-server ca-config-set ca.publish.rule.instance.LdapCrlRule.pluginName Rule
+          docker exec tertiary pki-server ca-config-set ca.publish.rule.instance.LdapCrlRule.predicate ""
+          docker exec tertiary pki-server ca-config-set ca.publish.rule.instance.LdapCrlRule.publisher LdapCrlPublisher
+          docker exec tertiary pki-server ca-config-set ca.publish.rule.instance.LdapCrlRule.type crl
+
+          # enable publishing
+          docker exec tertiary pki-server ca-config-set ca.publish.enable true
+
+          # set buffer size to 0 so that revocation will take effect immediately
+          docker exec tertiary pki-server ca-config-set auths.revocationChecking.bufferSize 0
+
+          # update CRL immediately after each cert revocation
+          docker exec tertiary pki-server ca-crl-ip-mod -D alwaysUpdate=true MasterCRL
+
+      # https://github.com/dogtagpki/pki/wiki/Configuring-OCSP-Revocation-Info-Store
+      - name: Configure revocation info store in tertiary OCSP
+        run: |
+          # configure LDAP store
+          docker exec tertiary pki-server ocsp-config-set ocsp.store.ldapStore.numConns 1
+          docker exec tertiary pki-server ocsp-config-set ocsp.store.ldapStore.host0 tertiaryds.example.com
+          docker exec tertiary pki-server ocsp-config-set ocsp.store.ldapStore.port0 3389
+          docker exec tertiary pki-server ocsp-config-set ocsp.store.ldapStore.baseDN0 "dc=crl,dc=pki,dc=example,dc=com"
+          docker exec tertiary pki-server ocsp-config-set ocsp.store.ldapStore.byName true
+          docker exec tertiary pki-server ocsp-config-set ocsp.store.ldapStore.caCertAttr "cACertificate;binary"
+          docker exec tertiary pki-server ocsp-config-set ocsp.store.ldapStore.crlAttr "certificateRevocationList;binary"
+          docker exec tertiary pki-server ocsp-config-set ocsp.store.ldapStore.includeNextUpdate false
+          docker exec tertiary pki-server ocsp-config-set ocsp.store.ldapStore.notFoundAsGood true
+          docker exec tertiary pki-server ocsp-config-set ocsp.store.ldapStore.refreshInSec0 10
+
+          # enable LDAP store
+          docker exec tertiary pki-server ocsp-config-set ocsp.storeId ldapStore
+
+      - name: Configure tertiary PKI server
+        run: |
+          # disable access log buffer
+          docker exec tertiary xmlstarlet edit --inplace \
+              -u "//Valve[@className='org.apache.catalina.valves.AccessLogValve']/@buffered" \
+              -v "false" \
+              -i "//Valve[@className='org.apache.catalina.valves.AccessLogValve' and not(@buffered)]" \
+              -t attr \
+              -n "buffered" \
+              -v "false" \
+              /etc/pki/pki-tomcat/server.xml
+
+          docker exec tertiary pki-server restart --wait
+
+      - name: Check CA CS.cfg
+        run: |
+          docker cp tertiary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.tertiary.CA
+
+          diff CS.cfg.secondary.CA CS.cfg.tertiary.CA || true
+
+      - name: Check OCSP CS.cfg
+        run: |
+          docker cp tertiary:/etc/pki/pki-tomcat/ocsp/CS.cfg CS.cfg.tertiary.OCSP
+
+          diff CS.cfg.secondary.OCSP CS.cfg.tertiary.OCSP || true
 
       - name: Run PKI healthcheck in primary container
         run: docker exec primary pki-healthcheck --failures-only
@@ -203,28 +778,496 @@ jobs:
       - name: Run PKI healthcheck in tertiary container
         run: docker exec tertiary pki-healthcheck --failures-only
 
-      - name: Verify OCSP admin in tertiary PKI container
+      - name: Set up client container
         run: |
-          docker exec tertiary pki nss-cert-import \
+          tests/bin/runner-init.sh \
+              --hostname=client.example.com \
+              --network=example \
+              client
+
+      - name: Install admin cert
+        run: |
+          docker exec client pki nss-cert-import \
               --cert $SHARED/ca_signing.crt \
               --trust CT,C,C \
               ca_signing
 
-          docker exec tertiary pki pkcs12-import \
-              --pkcs12 ${SHARED}/ca_admin_cert.p12 \
-              --pkcs12-password Secret.123
-          docker exec tertiary pki -n caadmin ocsp-user-show ocspadmin
+          docker exec client pki pkcs12-import \
+              --pkcs12 $SHARED/ca_admin_cert.p12 \
+              --password Secret.123
 
-      - name: Gather artifacts
-        if: always()
+      - name: Check CA admin
         run: |
-          tests/bin/ds-artifacts-save.sh primaryds
-          tests/bin/pki-artifacts-save.sh primary
-          tests/bin/ds-artifacts-save.sh secondaryds
-          tests/bin/pki-artifacts-save.sh secondary
-          tests/bin/ds-artifacts-save.sh tertiaryds
-          tests/bin/pki-artifacts-save.sh tertiary
-        continue-on-error: true
+          docker exec client pki \
+              -U https://primary.example.com:8443 \
+              -n caadmin \
+              ca-user-show \
+              caadmin
+
+          docker exec client pki \
+              -U https://secondary.example.com:8443 \
+              -n caadmin \
+              ca-user-show \
+              caadmin
+
+          docker exec client pki \
+              -U https://tertiary.example.com:8443 \
+              -n caadmin \
+              ca-user-show \
+              caadmin
+
+      - name: Check OCSP admin
+        run: |
+          docker exec client pki \
+              -U https://primary.example.com:8443 \
+              -n caadmin \
+              ocsp-user-show \
+              ocspadmin
+
+          docker exec client pki \
+              -U https://secondary.example.com:8443 \
+              -n caadmin \
+              ocsp-user-show \
+              ocspadmin
+
+          docker exec client pki \
+              -U https://tertiary.example.com:8443 \
+              -n caadmin \
+              ocsp-user-show \
+              ocspadmin
+
+      - name: Enroll cert in primary CA
+        run: |
+          docker exec client pki nss-cert-request \
+              --subject "UID=testuser" \
+              --ext /usr/share/pki/tools/examples/certs/testuser.conf \
+              --csr testuser.csr
+
+          docker exec client pki \
+              -U https://primary.example.com:8443 \
+              ca-cert-request-submit \
+              --profile caUserCert \
+              --csr-file testuser.csr \
+              | tee output
+
+          REQUEST_ID=$(sed -n "s/^\s*Request ID:\s*\(\S*\)$/\1/p" output)
+
+          docker exec client pki \
+              -U https://primary.example.com:8443 \
+              -n caadmin \
+              ca-cert-request-approve \
+              --force \
+              $REQUEST_ID \
+              | tee output
+
+          CERT_ID=$(sed -n "s/^\s*Certificate ID:\s*\(\S*\)$/\1/p" output)
+          echo "$CERT_ID" > cert.id
+
+          # wait for CRL update
+          sleep 10
+
+      - name: Check CRL in primary DS
+        run: |
+          docker exec primary ldapsearch \
+              -H ldap://primaryds.example.com:3389 \
+              -x \
+              -b "dc=crl,dc=pki,dc=example,dc=com" \
+              -LLL \
+              -o ldif_wrap=no \
+              -t \
+              "(objectClass=pkiCA)" \
+              | tee output
+
+          # there should be no CRL attributes
+          sed -n "/^certificateRevocationList;binary:/p" output > actual
+
+          diff /dev/null actual
+
+      - name: Check CRL in secondary DS
+        run: |
+          docker exec secondary ldapsearch \
+              -H ldap://secondaryds.example.com:3389 \
+              -x \
+              -b "dc=crl,dc=pki,dc=example,dc=com" \
+              -LLL \
+              -o ldif_wrap=no \
+              -t \
+              "(objectClass=pkiCA)" \
+              | tee output
+
+          # there should be no CRL attributes
+          sed -n "/^certificateRevocationList;binary:/p" output > actual
+
+          diff /dev/null actual
+
+      - name: Check CRL in tertiary DS
+        run: |
+          docker exec tertiary ldapsearch \
+              -H ldap://tertiaryds.example.com:3389 \
+              -x \
+              -b "dc=crl,dc=pki,dc=example,dc=com" \
+              -LLL \
+              -o ldif_wrap=no \
+              "(objectClass=pkiCA)" \
+              -t \
+              | tee output
+
+          # there should be no CRL attributes
+          sed -n "/^certificateRevocationList;binary:/p" output > actual
+
+          diff /dev/null actual
+
+      - name: Check initial cert status in primary OCSP
+        run: |
+          CERT_ID=$(cat cert.id)
+
+          docker exec client pki \
+              -U http://primary.example.com:8080 \
+              ocsp-cert-verify \
+              --ca-cert ca_signing \
+              $CERT_ID \
+              | tee output
+
+          sed -n "/^\s*Status:/p" output > actual
+
+          # cert status should be unknown
+          cat > expected << EOF
+            Status: Unknown
+          EOF
+
+          diff expected actual
+
+      - name: Check initial cert status in secondary OCSP
+        run: |
+          CERT_ID=$(cat cert.id)
+
+          docker exec client pki \
+              -U http://secondary.example.com:8080 \
+              ocsp-cert-verify \
+              --ca-cert ca_signing \
+              $CERT_ID \
+              | tee output
+
+          sed -n "/^\s*Status:/p" output > actual
+
+          # cert status should be unknown
+          cat > expected << EOF
+            Status: Unknown
+          EOF
+
+          diff expected actual
+
+      - name: Check initial cert status in tertiary OCSP
+        run: |
+          CERT_ID=$(cat cert.id)
+
+          docker exec client pki \
+              -U http://tertiary.example.com:8080 \
+              ocsp-cert-verify \
+              --ca-cert ca_signing \
+              $CERT_ID \
+              | tee output
+
+          sed -n "/^\s*Status:/p" output > actual
+
+          # cert status should be unknown
+          cat > expected << EOF
+            Status: Unknown
+          EOF
+
+          diff expected actual
+
+      - name: Revoke cert in primary CA
+        run: |
+          CERT_ID=$(cat cert.id)
+
+          docker exec client pki \
+              -U https://primary.example.com:8443 \
+              -n caadmin \
+              ca-cert-hold \
+              --force \
+              $CERT_ID
+
+          # wait for CRL update
+          sleep 10
+
+      - name: Check CRL in primary DS
+        run: |
+          docker exec primary ldapsearch \
+              -H ldap://primaryds.example.com:3389 \
+              -x \
+              -b "dc=crl,dc=pki,dc=example,dc=com" \
+              -LLL \
+              -o ldif_wrap=no \
+              -t \
+              "(objectClass=pkiCA)" \
+              | tee output
+
+          FILENAME=$(sed -n 's/certificateRevocationList;binary:< file:\/\/\(.*\)$/\1/p' output)
+          echo "FILENAME: $FILENAME"
+
+          docker exec primary openssl crl \
+              -in "$FILENAME" \
+              -inform DER \
+              -text \
+              -noout \
+              | tee output
+
+          # TODO: validate CRL
+
+      - name: Check CRL in secondary DS
+        run: |
+          docker exec secondary ldapsearch \
+              -H ldap://secondaryds.example.com:3389 \
+              -x \
+              -b "dc=crl,dc=pki,dc=example,dc=com" \
+              -LLL \
+              -o ldif_wrap=no \
+              -t \
+              "(objectClass=pkiCA)" \
+              | tee output
+
+          FILENAME=$(sed -n 's/certificateRevocationList;binary:< file:\/\/\(.*\)$/\1/p' output)
+          echo "FILENAME: $FILENAME"
+
+          docker exec secondary openssl crl \
+              -in "$FILENAME" \
+              -inform DER \
+              -text \
+              -noout \
+              | tee output
+
+          # TODO: validate CRL
+
+      - name: Check CRL in tertiary DS
+        run: |
+          docker exec tertiary ldapsearch \
+              -H ldap://tertiaryds.example.com:3389 \
+              -x \
+              -b "dc=crl,dc=pki,dc=example,dc=com" \
+              -LLL \
+              -o ldif_wrap=no \
+              -t \
+              "(objectClass=pkiCA)" \
+              | tee output
+
+          FILENAME=$(sed -n 's/certificateRevocationList;binary:< file:\/\/\(.*\)$/\1/p' output)
+          echo "FILENAME: $FILENAME"
+
+          docker exec tertiary openssl crl \
+              -in "$FILENAME" \
+              -inform DER \
+              -text \
+              -noout \
+              | tee output
+
+          # TODO: validate CRL
+
+      - name: Check revoked cert in primary OCSP
+        run: |
+          CERT_ID=$(cat cert.id)
+
+          docker exec client pki \
+              -U http://primary.example.com:8080 \
+              ocsp-cert-verify \
+              --ca-cert ca_signing \
+              $CERT_ID \
+              | tee output
+
+          sed -n "/^\s*Status:/p" output > actual
+
+          # cert status should be revoked
+          cat > expected << EOF
+            Status: Revoked
+          EOF
+
+          diff expected actual
+
+      - name: Check revoked cert in secondary OCSP
+        run: |
+          CERT_ID=$(cat cert.id)
+
+          docker exec client pki \
+              -U http://secondary.example.com:8080 \
+              ocsp-cert-verify \
+              --ca-cert ca_signing \
+              $CERT_ID \
+              | tee output
+
+          sed -n "/^\s*Status:/p" output > actual
+
+          # cert status should be revoked
+          cat > expected << EOF
+            Status: Revoked
+          EOF
+
+          diff expected actual
+
+      - name: Check revoked cert in tertiary OCSP
+        run: |
+          CERT_ID=$(cat cert.id)
+
+          docker exec client pki \
+              -U http://tertiary.example.com:8080 \
+              ocsp-cert-verify \
+              --ca-cert ca_signing \
+              $CERT_ID \
+              | tee output
+
+          sed -n "/^\s*Status:/p" output > actual
+
+          # cert status should be revoked
+          cat > expected << EOF
+            Status: Revoked
+          EOF
+
+          diff expected actual
+
+      - name: Unrevoke cert in primary CA
+        run: |
+          CERT_ID=$(cat cert.id)
+
+          docker exec client pki \
+              -U https://primary.example.com:8443 \
+              -n caadmin \
+              ca-cert-release-hold \
+              --force \
+              $CERT_ID
+
+          # wait for CRL update
+          sleep 10
+
+      - name: Check CRL in primary DS
+        run: |
+          docker exec primary ldapsearch \
+              -H ldap://primaryds.example.com:3389 \
+              -x \
+              -b "dc=crl,dc=pki,dc=example,dc=com" \
+              -LLL \
+              -o ldif_wrap=no \
+              -t \
+              "(objectClass=pkiCA)" \
+              | tee output
+
+          FILENAME=$(sed -n 's/certificateRevocationList;binary:< file:\/\/\(.*\)$/\1/p' output)
+          echo "FILENAME: $FILENAME"
+
+          docker exec primary openssl crl \
+              -in "$FILENAME" \
+              -inform DER \
+              -text \
+              -noout \
+              | tee output
+
+          # TODO: validate CRL
+
+      - name: Check CRL in secondary DS
+        run: |
+          docker exec secondary ldapsearch \
+              -H ldap://secondaryds.example.com:3389 \
+              -x \
+              -b "dc=crl,dc=pki,dc=example,dc=com" \
+              -LLL \
+              -o ldif_wrap=no \
+              -t \
+              "(objectClass=pkiCA)" \
+              | tee output
+
+          FILENAME=$(sed -n 's/certificateRevocationList;binary:< file:\/\/\(.*\)$/\1/p' output)
+          echo "FILENAME: $FILENAME"
+
+          docker exec secondary openssl crl \
+              -in "$FILENAME" \
+              -inform DER \
+              -text \
+              -noout \
+              | tee output
+
+          # TODO: validate CRL
+
+      - name: Check CRL in tertiary DS
+        run: |
+          docker exec tertiary ldapsearch \
+              -H ldap://tertiaryds.example.com:3389 \
+              -x \
+              -b "dc=crl,dc=pki,dc=example,dc=com" \
+              -LLL \
+              -o ldif_wrap=no \
+              -t \
+              "(objectClass=pkiCA)" \
+              | tee output
+
+          FILENAME=$(sed -n 's/certificateRevocationList;binary:< file:\/\/\(.*\)$/\1/p' output)
+          echo "FILENAME: $FILENAME"
+
+          docker exec tertiary openssl crl \
+              -in "$FILENAME" \
+              -inform DER \
+              -text \
+              -noout \
+              | tee output
+
+          # TODO: validate CRL
+
+      - name: Check good cert in primary OCSP
+        run: |
+          CERT_ID=$(cat cert.id)
+
+          docker exec client pki \
+              -U http://primary.example.com:8080 \
+              ocsp-cert-verify \
+              --ca-cert ca_signing \
+              $CERT_ID \
+              | tee output
+
+          sed -n "/^\s*Status:/p" output > actual
+
+          # cert status should be good
+          cat > expected << EOF
+            Status: Good
+          EOF
+
+          diff expected actual
+
+      - name: Check good cert in secondary OCSP
+        run: |
+          CERT_ID=$(cat cert.id)
+
+          docker exec client pki \
+              -U http://secondary.example.com:8080 \
+              ocsp-cert-verify \
+              --ca-cert ca_signing \
+              $CERT_ID \
+              | tee output
+
+          sed -n "/^\s*Status:/p" output > actual
+
+          # cert status should be good
+          cat > expected << EOF
+            Status: Good
+          EOF
+
+          diff expected actual
+
+      - name: Check good cert in tertiary OCSP
+        run: |
+          CERT_ID=$(cat cert.id)
+
+          docker exec client pki \
+              -U http://tertiary.example.com:8080 \
+              ocsp-cert-verify \
+              --ca-cert ca_signing \
+              $CERT_ID \
+              | tee output
+
+          sed -n "/^\s*Status:/p" output > actual
+
+          # cert status should be good
+          cat > expected << EOF
+            Status: Good
+          EOF
+
+          diff expected actual
 
       - name: Remove OCSP from tertiary PKI container
         run: docker exec tertiary pkidestroy -s OCSP -v
@@ -259,6 +1302,11 @@ jobs:
         run: |
           docker exec primary journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
 
+      - name: Check primary PKI server access log
+        if: always()
+        run: |
+          docker exec primary find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+
       - name: Check primary CA debug log
         if: always()
         run: |
@@ -267,7 +1315,7 @@ jobs:
       - name: Check primary OCSP debug log
         if: always()
         run: |
-          docker exec secondary find /var/lib/pki/pki-tomcat/logs/ocsp -name "debug.*" -exec cat {} \;
+          docker exec primary find /var/lib/pki/pki-tomcat/logs/ocsp -name "debug.*" -exec cat {} \;
 
       - name: Check secondary DS server systemd journal
         if: always()
@@ -283,6 +1331,11 @@ jobs:
         if: always()
         run: |
           docker exec secondary journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check secondary PKI server access log
+        if: always()
+        run: |
+          docker exec secondary find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
 
       - name: Check secondary CA debug log
         if: always()
@@ -309,6 +1362,11 @@ jobs:
         run: |
           docker exec tertiary journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
 
+      - name: Check tertiary PKI server access log
+        if: always()
+        run: |
+          docker exec tertiary find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+
       - name: Check tertiary CA debug log
         if: always()
         run: |
@@ -318,10 +1376,3 @@ jobs:
         if: always()
         run: |
           docker exec tertiary find /var/lib/pki/pki-tomcat/logs/ocsp -name "debug.*" -exec cat {} \;
-
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ocsp-clone
-          path: /tmp/artifacts
