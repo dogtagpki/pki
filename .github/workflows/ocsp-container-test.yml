@@ -528,14 +528,11 @@ jobs:
               --password Secret.123 \
               admin
 
-          # https://github.com/dogtagpki/pki/wiki/UpdateCRL-Service
-          docker exec client curl \
-              --cert-type P12 \
-              --cert admin.p12:Secret.123 \
-              -sk \
-              -d "xml=true" \
-              https://ca.example.com:8443/ca/agent/ca/updateCRL \
-              | xmllint --format -
+          # force CRL update
+          docker exec client pki \
+              -U https://ca.example.com:8443 \
+              -n admin \
+              ca-crl-update
 
           # wait for CRL update
           sleep 10
@@ -571,14 +568,11 @@ jobs:
           sed -n "s/^\s*Status:\s*\(\S*\)$/\1/p" output > actual
           diff expected actual
 
-          # https://github.com/dogtagpki/pki/wiki/UpdateCRL-Service
-          docker exec client curl \
-              --cert-type P12 \
-              --cert admin.p12:Secret.123 \
-              -sk \
-              -d "xml=true" \
-              https://ca.example.com:8443/ca/agent/ca/updateCRL \
-              | xmllint --format -
+          # force CRL update
+          docker exec client pki \
+              -U https://ca.example.com:8443 \
+              -n admin \
+              ca-crl-update
 
           # wait for CRL update
           sleep 10
@@ -614,14 +608,11 @@ jobs:
           sed -n "s/^\s*Status:\s*\(\S*\)$/\1/p" output > actual
           diff expected actual
 
-          # https://github.com/dogtagpki/pki/wiki/UpdateCRL-Service
-          docker exec client curl \
-              --cert-type P12 \
-              --cert admin.p12:Secret.123 \
-              -sk \
-              -d "xml=true" \
-              https://ca.example.com:8443/ca/agent/ca/updateCRL \
-              | xmllint --format -
+          # force CRL update
+          docker exec client pki \
+              -U https://ca.example.com:8443 \
+              -n admin \
+              ca-crl-update
 
           # wait for CRL update
           sleep 10

@@ -370,14 +370,8 @@ jobs:
           docker exec ca pki nss-cert-show caagent | tee output
           CERT_ID=$(sed -n "s/^\s*Serial Number:\s*\(\S*\)$/\1/p" output)
 
-          # https://github.com/dogtagpki/pki/wiki/UpdateCRL-Service
-          docker exec ca curl \
-              --cert-type P12 \
-              --cert /root/.dogtag/pki-tomcat/ca_admin_cert.p12:Secret.123 \
-              -sk \
-              -d "xml=true" \
-              https://ca.example.com:8443/ca/agent/ca/updateCRL \
-              | xmllint --format -
+          # force CRL update
+          docker exec ca pki -n caadmin ca-crl-update
 
           # wait for CRL update and cache refresh
           sleep 10
