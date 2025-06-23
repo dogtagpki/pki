@@ -45,8 +45,6 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
-// Use JSONObject instead
-@Deprecated(since = "11.0.0", forRemoval = true)
 public class XMLObject {
     private Document mDoc = null;
 

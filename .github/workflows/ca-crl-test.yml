@@ -341,14 +341,8 @@ jobs:
 
       - name: Force CRL update after user 2 cert expiration
         run: |
-          # https://github.com/dogtagpki/pki/wiki/UpdateCRL-Service
-          docker exec pki curl \
-              --cert-type P12 \
-              --cert /root/.dogtag/pki-tomcat/ca_admin_cert.p12:Secret.123 \
-              -sk \
-              -d "xml=true" \
-              https://pki.example.com:8443/ca/agent/ca/updateCRL \
-              | xmllint --format -
+          # force CRL update
+          docker exec pki pki -n caadmin ca-crl-update
 
           # wait for CRL update
           sleep 10

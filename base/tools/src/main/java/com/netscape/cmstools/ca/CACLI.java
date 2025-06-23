@@ -48,6 +48,7 @@ public class CACLI extends SubsystemCLI {
         addModule(new AuthorityCLI(this));
         addModule(new AuditCLI(this));
         addModule(new CACertCLI(this));
+        addModule(new CACRLCLI(this));
         addModule(new ConfigCLI(this));
         addModule(new FeatureCLI(this));
         addModule(new GroupCLI(this));
