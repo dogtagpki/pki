@@ -23,14 +23,12 @@ import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
 import com.netscape.cmsutil.ocsp.CertID;
 import com.netscape.cmsutil.ocsp.CertStatus;
-import com.netscape.cmsutil.ocsp.GoodInfo;
 import com.netscape.cmsutil.ocsp.OCSPProcessor;
 import com.netscape.cmsutil.ocsp.OCSPRequest;
 import com.netscape.cmsutil.ocsp.OCSPResponse;
 import com.netscape.cmsutil.ocsp.ResponseData;
 import com.netscape.cmsutil.ocsp.RevokedInfo;
 import com.netscape.cmsutil.ocsp.SingleResponse;
-import com.netscape.cmsutil.ocsp.UnknownInfo;
 
 /**
  * @author Endi S. Dewata
@@ -64,6 +62,29 @@ public class OCSPCertVerifyCLI extends CommandCLI {
         option = new Option(null, "request", true, "Path to DER-encoded OCSP request");
         option.setArgName("path");
         options.addOption(option);
+    }
+
+    public void printSingleResponse(SingleResponse sr) {
+        CertID certID = sr.getCertID();
+        INTEGER serialNumber = certID.getSerialNumber();
+        System.out.println("  Serial Number: " + new CertId(serialNumber).toHexString());
+
+        CertStatus status = sr.getCertStatus();
+        System.out.println("  Status: " + status.getLabel());
+
+        if (status instanceof RevokedInfo info) {
+            System.out.println("  Revoked On: " + info.getRevocationTime().toDate());
+        }
+
+        GeneralizedTime thisUpdate = sr.getThisUpdate();
+        if (thisUpdate != null) {
+            System.out.println("  This Update: " + thisUpdate.toDate());
+        }
+
+        GeneralizedTime nextUpdate = sr.getNextUpdate();
+        if (nextUpdate != null) {
+            System.out.println("  Next Update: " + nextUpdate.toDate());
+        }
     }
 
     @Override
@@ -126,38 +147,8 @@ public class OCSPCertVerifyCLI extends CommandCLI {
         int count = rd.getResponseCount();
 
         for (int i = 0; i < count; i++) {
-            SingleResponse sr = rd.getResponseAt(i);
-
-            if (i > 0) {
-                System.out.println();
-            }
-
-            CertID certID = sr.getCertID();
-            INTEGER serialNumber = certID.getSerialNumber();
-            System.out.println("  Serial Number: " + new CertId(serialNumber).toHexString());
-
-            CertStatus status = sr.getCertStatus();
-            if (status instanceof GoodInfo) {
-                System.out.println("  Status: Good");
-
-            } else if (status instanceof UnknownInfo) {
-                System.out.println("  Status: Unknown");
-
-            } else if (status instanceof RevokedInfo) {
-                System.out.println("  Status: Revoked");
-                RevokedInfo info = (RevokedInfo) status;
-                System.out.println("  Revoked On: " + info.getRevocationTime().toDate());
-            }
-
-            GeneralizedTime thisUpdate = sr.getThisUpdate();
-            if (thisUpdate != null) {
-                System.out.println("  This Update: " + thisUpdate.toDate());
-            }
-
-            GeneralizedTime nextUpdate = sr.getNextUpdate();
-            if (nextUpdate != null) {
-                System.out.println("  Next Update: " + nextUpdate.toDate());
-            }
+            if (i > 0) System.out.println();
+            printSingleResponse(rd.getResponseAt(i));
         }
     }
 }

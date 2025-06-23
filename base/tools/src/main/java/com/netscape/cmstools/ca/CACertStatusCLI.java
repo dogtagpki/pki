@@ -26,6 +26,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CLIException;
 import org.dogtagpki.cli.CommandCLI;
+import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
@@ -41,15 +42,14 @@ import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
+import com.netscape.cmsutil.ocsp.CertID;
 import com.netscape.cmsutil.ocsp.CertStatus;
-import com.netscape.cmsutil.ocsp.GoodInfo;
 import com.netscape.cmsutil.ocsp.OCSPProcessor;
 import com.netscape.cmsutil.ocsp.OCSPRequest;
 import com.netscape.cmsutil.ocsp.OCSPResponse;
 import com.netscape.cmsutil.ocsp.ResponseData;
 import com.netscape.cmsutil.ocsp.RevokedInfo;
 import com.netscape.cmsutil.ocsp.SingleResponse;
-import com.netscape.cmsutil.ocsp.UnknownInfo;
 
 /**
  * @author Endi S. Dewata
@@ -75,6 +75,22 @@ public class CACertStatusCLI extends CommandCLI {
         Option option = new Option(null, "ocsp", true, "OCSP URL");
         option.setArgName("URL");
         options.addOption(option);
+    }
+
+    public void printSingleResponse(SingleResponse sr, String subjectDN, String issuerDN) {
+        CertID certID = sr.getCertID();
+        INTEGER serialNumber = certID.getSerialNumber();
+
+        System.out.println("  Serial Number: " + new CertId(serialNumber).toHexString());
+        System.out.println("  Subject DN: " + subjectDN);
+        System.out.println("  Issuer DN: " + issuerDN);
+
+        CertStatus status = sr.getCertStatus();
+        System.out.println("  Status: " + status.getLabel());
+
+        if (status instanceof RevokedInfo info) {
+            System.out.println("  Revoked On: " + info.getRevocationTime().toDate());
+        }
     }
 
     @Override
@@ -138,22 +154,7 @@ public class CACertStatusCLI extends CommandCLI {
 
         ResponseData rd = basic.getResponseData();
         SingleResponse sr = rd.getResponseAt(0);
-        CertStatus status = sr.getCertStatus();
 
-        System.out.println("  Serial Number: " + certID.toHexString());
-        System.out.println("  Subject DN: " + subjectDN);
-        System.out.println("  Issuer DN: " + issuerDN);
-
-        if (status instanceof GoodInfo) {
-            System.out.println("  Status: Good");
-
-        } else if (status instanceof UnknownInfo) {
-            System.out.println("  Status: Unknown");
-
-        } else if (status instanceof RevokedInfo) {
-            System.out.println("  Status: Revoked");
-            RevokedInfo info = (RevokedInfo) status;
-            System.out.println("  Revoked On: " + info.getRevocationTime().toDate());
-        }
+        printSingleResponse(sr, subjectDN, issuerDN);
     }
 }

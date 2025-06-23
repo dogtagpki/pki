@@ -34,13 +34,12 @@ import org.mozilla.jss.asn1.Tag;
  * <pre>
  * UnknownInfo ::= NULL -- this can be replaced with an enumeration
  * </pre>
- *
- * @version $Revision$ $Date$
  */
-public class UnknownInfo implements CertStatus {
+public class UnknownInfo extends CertStatus {
     private static final Tag TAG = SEQUENCE.TAG;
 
     public UnknownInfo() {
+        super("Unknown");
     }
 
     @Override

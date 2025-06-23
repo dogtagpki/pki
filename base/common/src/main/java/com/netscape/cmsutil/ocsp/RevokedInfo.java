@@ -38,15 +38,14 @@ import org.mozilla.jss.asn1.Tag;
  *  revocationTime              GeneralizedTime,
  *  revocationReason    [0]     EXPLICIT CRLReason OPTIONAL }
  * </pre>
- *
- * @version $Revision$ $Date$
  */
-public class RevokedInfo implements CertStatus {
+public class RevokedInfo extends CertStatus {
     private static final Tag TAG = SEQUENCE.TAG;
 
     private GeneralizedTime mRevokedAt;
 
     public RevokedInfo(GeneralizedTime revokedAt) {
+        super("Revoked");
         mRevokedAt = revokedAt;
     }
 
@@ -115,5 +114,9 @@ public class RevokedInfo implements CertStatus {
             return new RevokedInfo(revokedAt);
 
         }
+    }
+
+    public String toString() {
+        return label + " (" + mRevokedAt.toDate() + ")";
     }
 }

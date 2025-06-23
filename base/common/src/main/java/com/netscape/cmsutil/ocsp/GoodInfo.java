@@ -37,13 +37,12 @@ import org.mozilla.jss.asn1.Tag;
  *  revoked             [1]     IMPLICIT RevokedInfo,
  *  unknown             [2]     IMPLICIT UnknownInfo }
  * </pre>
- *
- * @version $Revision$ $Date$
  */
-public class GoodInfo implements CertStatus {
+public class GoodInfo extends CertStatus {
     private static final Tag TAG = SEQUENCE.TAG;
 
     public GoodInfo() {
+        super("Good");
     }
 
     @Override
