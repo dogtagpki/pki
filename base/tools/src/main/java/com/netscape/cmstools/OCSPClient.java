@@ -36,15 +36,12 @@ import org.mozilla.jss.CryptoManager;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
 import com.netscape.cmsutil.ocsp.CertStatus;
-import com.netscape.cmsutil.ocsp.GoodInfo;
 import com.netscape.cmsutil.ocsp.OCSPProcessor;
 import com.netscape.cmsutil.ocsp.OCSPRequest;
 import com.netscape.cmsutil.ocsp.OCSPResponse;
 import com.netscape.cmsutil.ocsp.ResponseBytes;
 import com.netscape.cmsutil.ocsp.ResponseData;
-import com.netscape.cmsutil.ocsp.RevokedInfo;
 import com.netscape.cmsutil.ocsp.SingleResponse;
-import com.netscape.cmsutil.ocsp.UnknownInfo;
 
 /**
  * This class implements an OCSP command line interface.
@@ -120,6 +117,15 @@ public class OCSPClient {
         System.out.println("  -v, --verbose        Run in verbose mode.");
         System.out.println("      --debug          Run in debug mode.");
         System.out.println("      --help           Show help message.");
+    }
+
+    public void printSingleResponse(SingleResponse sr) {
+        BigInteger serialNumber = sr.getCertID().getSerialNumber();
+        CertId certID = new CertId(serialNumber);
+        System.out.println("CertID.serialNumber=" + certID.toHexString());
+
+        CertStatus status = sr.getCertStatus();
+        System.out.println("CertStatus=" + status.getLabel());
     }
 
     public void execute(String args[]) throws Exception {
@@ -203,20 +209,7 @@ public class OCSPClient {
                         throw new Exception("No OCSP Response data.");
                     }
 
-                    BigInteger serialNumber = sr.getCertID().getSerialNumber();
-                    CertId certID = new CertId(serialNumber);
-                    System.out.println("CertID.serialNumber=" + certID.toHexString());
-
-                    CertStatus status = sr.getCertStatus();
-                    if (status instanceof GoodInfo) {
-                        System.out.println("CertStatus=Good");
-
-                    } else if (status instanceof UnknownInfo) {
-                        System.out.println("CertStatus=Unknown");
-
-                    } else if (status instanceof RevokedInfo) {
-                        System.out.println("CertStatus=Revoked");
-                    }
+                    printSingleResponse(sr);
                 }
             }
 

@@ -28,8 +28,20 @@ import org.mozilla.jss.asn1.ASN1Value;
  *  revoked             [1]     IMPLICIT RevokedInfo,
  *  unknown             [2]     IMPLICIT UnknownInfo }
  * </pre>
- *
- * @version $Revision$ $Date$
  */
-public interface CertStatus extends ASN1Value {
+public abstract class CertStatus implements ASN1Value {
+
+    public String label;
+
+    public CertStatus(String label) {
+        this.label = label;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public String toString() {
+        return label;
+    }
 }
