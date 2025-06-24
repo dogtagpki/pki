@@ -571,16 +571,21 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
 
     private void setupSigningFailure(String logMessageCode, Exception e)
             throws EBaseException {
+
+        String message = logMessageCode;
         try {
-            System.err.println(CMS.getLogMessage(logMessageCode));
+            message = CMS.getLogMessage(logMessageCode);
+            System.err.println(message);
         } catch (Exception e2) {
             // don't allow an exception while printing to the console
             // prevent us from running the rest of this function.
             e2.printStackTrace();
         }
-        e.printStackTrace();
+        logger.error(message + ": " + e.getMessage(), e);
+
         shutdownCMS();
-        throw new EBaseException(e.toString());
+
+        throw new EBaseException(message + ": " + e.getMessage(), e);
     }
 
     /**
