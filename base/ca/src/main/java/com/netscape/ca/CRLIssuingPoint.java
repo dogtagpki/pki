@@ -80,20 +80,19 @@ import com.netscape.cmscore.util.StatsSubsystem;
  * point contains information about CRL issuing and publishing parameters
  * as well as state information which includes last issued CRL, next CRL
  * serial number, time of the next update etc.
+ *
  * If autoUpdateInterval is set to non-zero value then worker thread
  * is created that will perform CRL update at scheduled intervals. Update
  * can also be triggered by invoking updateCRL method directly. Another
  * parameter minUpdateInterval can be used to prevent CRL
  * from being updated too often
- * <P>
  *
  * @author awnuk
  * @author lhsiao
  * @author galperin
- * @version $Revision$, $Date$
  */
 
-public class CRLIssuingPoint implements Runnable {
+public class CRLIssuingPoint {
 
     public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CRLIssuingPoint.class);
 
@@ -151,7 +150,7 @@ public class CRLIssuingPoint implements Runnable {
     /**
      * Enable CRL issuing point.
      */
-    private boolean mEnable = true;
+    boolean mEnable = true;
 
     /**
      * Description of the issuing point
@@ -175,7 +174,7 @@ public class CRLIssuingPoint implements Runnable {
     /**
      * Enable CRL cache.
      */
-    private boolean mEnableCRLCache = true;
+    boolean mEnableCRLCache = true;
     private boolean mCRLCacheIsCleared = true;
     private boolean mEnableCacheRecovery = false;
     private String mFirstUnsaved = null;
@@ -184,18 +183,18 @@ public class CRLIssuingPoint implements Runnable {
     /**
      * Last CRL cache update
      */
-    private long mLastCacheUpdate = 0;
+    long mLastCacheUpdate;
 
     /**
      * Time interval in milliseconds between consequential CRL cache
      * updates performed automatically.
      */
-    private long mCacheUpdateInterval;
+    long mCacheUpdateInterval;
 
     /**
      * Enable CRL updates.
      */
-    private boolean mEnableCRLUpdates = true;
+    boolean mEnableCRLUpdates = true;
 
     /**
      * CRL update schema.
@@ -206,23 +205,23 @@ public class CRLIssuingPoint implements Runnable {
     /**
      * Enable CRL daily updates at listed times.
      */
-    private boolean mEnableDailyUpdates = false;
-    private Vector<Vector<Integer>> mDailyUpdates = null;
+    boolean mEnableDailyUpdates;
+    Vector<Vector<Integer>> mDailyUpdates;
     private int mCurrentDay = 0;
     private int mLastDay = 0;
-    private int mTimeListSize = 0;
+    int mTimeListSize;
     private boolean mExtendedTimeList = false;
 
     /**
      * Enable CRL auto update with interval
      */
-    private boolean mEnableUpdateFreq = false;
+    boolean mEnableUpdateFreq;
 
     /**
      * Time interval in milliseconds between consequential CRL Enable CRL daily update at updates
      * performed automatically.
      */
-    private long mAutoUpdateInterval;
+    long mAutoUpdateInterval;
 
     /**
      * Minimum time interval in milliseconds between consequential
@@ -243,14 +242,14 @@ public class CRLIssuingPoint implements Runnable {
     /**
      * time to wait at the next loop if exception happens during CRL generation
      */
-    private long mUnexpectedExceptionWaitTime;
+    long mUnexpectedExceptionWaitTime;
 
     /**
      * Max number allowed to loop if exception happens during CRL generation.
      * When mUnexpectedExceptionLoopMax is reached, a slow down procedure
      * will be executed
      */
-    private int mUnexpectedExceptionLoopMax;
+    int mUnexpectedExceptionLoopMax;
 
      /**
       * next update as this update extension
@@ -304,18 +303,17 @@ public class CRLIssuingPoint implements Runnable {
     /**
      * Worker thread doing auto-update
      */
-    private Thread mUpdateThread = null;
+    Thread mUpdateThread;
 
     /**
      * for going one more round when auto-interval is set to 0 (turned off)
      */
-    private boolean mDoLastAutoUpdate = false;
+    boolean mDoLastAutoUpdate;
 
     /**
      * whether issuing point has been initialized.
      */
-    private CRLIssuingPointStatus mInitialized =
-        CRLIssuingPointStatus.NotInitialized;
+    CRLIssuingPointStatus mInitialized = CRLIssuingPointStatus.NotInitialized;
 
     /**
      * number of entries in the CRL
@@ -340,8 +338,8 @@ public class CRLIssuingPoint implements Runnable {
 
     private int mUpdatingCRL = CRL_UPDATE_DONE;
 
-    private boolean mDoManualUpdate = false;
-    private String mSignatureAlgorithmForManualUpdate = null;
+    boolean mDoManualUpdate;
+    String mSignatureAlgorithmForManualUpdate;
 
     private boolean mPublishOnStart = false;
     private long[] mSplits = new long[10];
@@ -920,7 +918,7 @@ public class CRLIssuingPoint implements Runnable {
      * Do not call it from init(), because it will block CMS on start.
      * @throws EBaseException
      */
-    private void initCRL() throws EBaseException {
+    void initCRL() throws EBaseException {
         CRLIssuingPointRecord crlRecord = null;
 
         mLastCacheUpdate = System.currentTimeMillis() + mCacheUpdateInterval;
@@ -1616,7 +1614,9 @@ public class CRLIssuingPoint implements Runnable {
 
             logger.info(CMS.getLogMessage("CMSCORE_CA_ISSUING_START_CRL", mId));
 
-            mUpdateThread = new Thread(this, "CRLIssuingPoint-" + mId);
+            CRLAutoUpdateTask task = new CRLAutoUpdateTask(this);
+
+            mUpdateThread = new Thread(task, "CRLIssuingPoint-" + mId);
             mUpdateThread.setDaemon(true);
             mUpdateThread.start();
         }
@@ -1691,7 +1691,7 @@ public class CRLIssuingPoint implements Runnable {
      *            otherwise returns the next update time for CRL.
      * @return delay to the next update time or the next update time itself
      */
-    private long findNextUpdate(boolean fromLastUpdate, boolean delta) {
+    long findNextUpdate(boolean fromLastUpdate, boolean delta) {
         long now = System.currentTimeMillis();
 
         //If we have already created a future thisUpdate value, make "now" this time in the future.
@@ -1921,164 +1921,10 @@ public class CRLIssuingPoint implements Runnable {
         return (fromLastUpdate) ? next - now : next;
     }
 
-    public void handleUnexpectedFailure(int loopCounter, long timeOfUnexpectedFailure) {
-
-        logger.info("CRLIssuingPoint: Handling unexpected failure");
-        logger.info("CRLIssuingPoint: - loop counter: " + loopCounter);
-
-        if (loopCounter <= mUnexpectedExceptionLoopMax) {
-            logger.info("CRLIssuingPoint: Max loop not reached, no wait time");
-            return;
-        }
-
-        logger.info("CRLIssuingPoint: Max loop reached, slowdown procedure ensues");
-
-        long now = System.currentTimeMillis();
-        logger.info("CRLIssuingPoint: - now: " + now);
-        logger.info("CRLIssuingPoint: - time of unexpected failure: " + timeOfUnexpectedFailure);
-
-        long timeLapse = now - timeOfUnexpectedFailure;
-        logger.info("CRLIssuingPoint: - time lapse: " + timeLapse);
-
-        long waitTime = mUnexpectedExceptionWaitTime - timeLapse;
-        logger.info("CRLIssuingPoint: Wait time after last failure:" + waitTime);
-
-        if (waitTime <= 0) {
-            logger.info("CRLIssuingPoint: No wait after failure");
-            return;
-        }
-
-        logger.info("CRLIssuingPoint: Waiting for " + waitTime + " ms");
-
-        try {
-            wait(waitTime);
-
-        } catch (InterruptedException e) {
-            logger.error("CRLIssuingPoint: " + e.getMessage(), e);
-        }
-
-        // timeOfUnexpectedFailure will be reset again if it still fails
-    }
-
-    /**
-     * Implements Runnable interface. Defines auto-update
-     * logic used by worker thread.
-     * <P>
-     */
-    @Override
-    public void run() {
-        /*
-         * mechnism to slow down the infinite loop when depending
-         * components are not available: e.g. Directory server, HSM
-         */
-        boolean unexpectedFailure = false;
-        long timeOfUnexpectedFailure = 0;
-        int loopCounter = 0;
-
-        try {
-            while (mEnable && ((mEnableCRLCache && mCacheUpdateInterval > 0) ||
-                    (mInitialized == CRLIssuingPointStatus.NotInitialized) ||
-                    mDoLastAutoUpdate || (mEnableCRLUpdates &&
-                    ((mEnableDailyUpdates && mDailyUpdates != null &&
-                            mTimeListSize > 0) ||
-                            (mEnableUpdateFreq && mAutoUpdateInterval > 0) ||
-                    mDoManualUpdate)))) {
-
-                synchronized (this) {
-                    long delay = 0;
-                    long delay2 = 0;
-                    boolean doCacheUpdate = false;
-                    boolean scheduledUpdates = mEnableCRLUpdates &&
-                            ((mEnableDailyUpdates && mDailyUpdates != null &&
-                            mTimeListSize > 0) ||
-                            (mEnableUpdateFreq && mAutoUpdateInterval > 0));
-
-                    if (mInitialized == CRLIssuingPointStatus.NotInitialized) {
-                        initCRL();
-                    }
-
-                    if ((mEnableCRLUpdates && mDoManualUpdate) || mDoLastAutoUpdate) {
-                        delay = 0;
-                    } else if (scheduledUpdates) {
-                        delay = findNextUpdate(true, false);
-                    }
-
-                    if (mEnableCRLCache && mCacheUpdateInterval > 0) {
-                        delay2 = mLastCacheUpdate + mCacheUpdateInterval -
-                                System.currentTimeMillis();
-                        if (delay2 < delay ||
-                                (!(scheduledUpdates || mDoLastAutoUpdate ||
-                                (mEnableCRLUpdates && mDoManualUpdate)))) {
-                            delay = delay2;
-                            if (delay <= 0) {
-                                doCacheUpdate = true;
-                                mLastCacheUpdate = System.currentTimeMillis();
-                            }
-                        }
-                    }
-
-                    if (delay > 0) {
-                        try {
-                            wait(delay);
-                        } catch (InterruptedException e) {
-                        }
-                    } else {
-                        /*
-                         * handle last failure so we don't get into
-                         * non-delayed loop
-                         */
-                        if (unexpectedFailure) {
-                            // it gets mUnexpectedExceptionLoopMax tries
-                            loopCounter++;
-                            handleUnexpectedFailure(loopCounter, timeOfUnexpectedFailure);
-                        }
-
-                        logger.debug("CRLIssuingPoint: Before CRL generation");
-                        try {
-                            if (doCacheUpdate) {
-                                logger.info("CRLIssuingPoint: Updating CRL cache");
-                                updateCRLCacheRepository();
-                            } else if (mAutoUpdateInterval > 0 || mDoLastAutoUpdate || mDoManualUpdate) {
-                                logger.info("CRLIssuingPoint: Updating CRL");
-                                updateCRL();
-                            }
-                            // reset if no exception
-                            if (unexpectedFailure) {
-                                logger.debug("CRLIssuingPoint: reset unexpectedFailure values if no exception");
-                                unexpectedFailure = false;
-                                timeOfUnexpectedFailure = 0;
-                                loopCounter = 0;
-                            }
-                        } catch (Exception e) {
-                            logger.warn("CRLIssuingPoint: Unable to update " + (doCacheUpdate ? "CRL cache" : "CRL") + ": " + e.getMessage(), e);
-                            unexpectedFailure = true;
-                            timeOfUnexpectedFailure = System.currentTimeMillis();
-                        }
-                        // put this here to prevent continuous loop if internal
-                        // db is down.
-                        if (mDoLastAutoUpdate)
-                            logger.debug("CRLIssuingPoint: mDoLastAutoUpdate set to false");
-                            mDoLastAutoUpdate = false;
-                        if (mDoManualUpdate) {
-                            logger.debug("CRLIssuingPoint: mDoManualUpdate set to false");
-                            mDoManualUpdate = false;
-                            mSignatureAlgorithmForManualUpdate = null;
-                        }
-                    }
-
-                }
-            }
-        } catch (EBaseException e1) {
-            e1.printStackTrace();
-        }
-        logger.debug("CRLIssuingPoint: out of the while loop");
-        mUpdateThread = null;
-    }
-
     /**
      * Updates CRL and publishes it.
      */
-    private void updateCRL() throws EBaseException {
+    void updateCRL() throws EBaseException {
         if (mDoManualUpdate && mSignatureAlgorithmForManualUpdate != null) {
             logger.info("CRLIssuingPoint: Updating CRL now with " + mSignatureAlgorithmForManualUpdate);
             updateCRLNow(mSignatureAlgorithmForManualUpdate);
