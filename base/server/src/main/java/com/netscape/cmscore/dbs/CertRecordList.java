@@ -92,11 +92,11 @@ public class CertRecordList {
      * @exception EBaseException failed to process cert records
      */
     public void processCertRecords(int startidx, int endidx,
-            ElementProcessor ep) throws EBaseException {
+            ElementProcessor<CertRecord> ep) throws EBaseException {
         int i = 0;
         while (i < mVlist.getSize()) {
-            Object element = mVlist.getElementAt(i);
-            if (element != null && (!(element instanceof String))) {
+            CertRecord element = mVlist.getElementAt(i);
+            if (element != null) {
                 ep.process(element);
             }
             i++;

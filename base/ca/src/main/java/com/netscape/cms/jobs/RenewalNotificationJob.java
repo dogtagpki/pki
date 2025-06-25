@@ -401,7 +401,7 @@ public class RenewalNotificationJob
                 DBSearchResults en = mCertDB.findCertRecs(filter);
 
                 while (en.hasMoreElements()) {
-                    Object element = en.nextElement();
+                    CertRecord element = (CertRecord) en.nextElement();
 
                     try {
                         cp.process(element);
@@ -533,7 +533,7 @@ public class RenewalNotificationJob
     }
 }
 
-class CertRecProcessor extends ElementProcessor {
+class CertRecProcessor extends ElementProcessor<CertRecord> {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertRecProcessor.class);
 
@@ -557,10 +557,7 @@ class CertRecProcessor extends ElementProcessor {
     }
 
     @Override
-    public void process(Object o) throws EBaseException {
-
-        // Get each certRecord
-        CertRecord cr = (CertRecord) o;
+    public void process(CertRecord cr) throws EBaseException {
 
         String ridString = null;
         boolean numFailCounted = false;

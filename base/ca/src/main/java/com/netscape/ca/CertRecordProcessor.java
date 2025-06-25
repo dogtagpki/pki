@@ -37,7 +37,7 @@ import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.ElementProcessor;
 import com.netscape.cmscore.dbs.RevocationInfo;
 
-public class CertRecordProcessor extends ElementProcessor {
+public class CertRecordProcessor extends ElementProcessor<CertRecord> {
 
     public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertRecordProcessor.class);
 
@@ -206,9 +206,7 @@ public class CertRecordProcessor extends ElementProcessor {
     }
 
     @Override
-    public void process(Object o) {
-        CertRecord certRecord = (CertRecord) o;
-
+    public void process(CertRecord certRecord) {
         BigInteger serialNumber = certRecord.getSerialNumber();
         CertId certID = new CertId(serialNumber);
 

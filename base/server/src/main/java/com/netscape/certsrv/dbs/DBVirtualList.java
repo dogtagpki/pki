@@ -143,7 +143,7 @@ public class DBVirtualList<E extends IDBObj> {
      * @param ep object to call
      * @exception EBaseException failed to process elements
      */
-    public void processElements(int startidx, int endidx, ElementProcessor ep)
+    public void processElements(int startidx, int endidx, ElementProcessor<E> ep)
             throws EBaseException {
     }
 

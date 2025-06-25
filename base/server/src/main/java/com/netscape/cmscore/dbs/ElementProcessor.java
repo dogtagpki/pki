@@ -22,7 +22,7 @@ import com.netscape.certsrv.base.EBaseException;
 /**
  * Processor handles object read from the session.
  */
-public class ElementProcessor {
+public class ElementProcessor<E> {
 
     /**
      * Handles object
@@ -30,6 +30,6 @@ public class ElementProcessor {
      * @param o object to be processed
      * @exception EBaseException failed to process object
      */
-    public void process(Object o) throws EBaseException {
+    public void process(E o) throws EBaseException {
     }
 }

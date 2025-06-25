@@ -778,7 +778,7 @@ public class LDAPVirtualList<E extends IDBObj> extends DBVirtualList<E> {
      * more memory-efficient.
      */
     @Override
-    public void processElements(int startidx, int endidx, ElementProcessor ep)
+    public void processElements(int startidx, int endidx, ElementProcessor<E> ep)
             throws EBaseException {
 
         /* mSize may not be init at this time! Bad !
@@ -791,7 +791,7 @@ public class LDAPVirtualList<E extends IDBObj> extends DBVirtualList<E> {
         // short-cut the existing code ... :(
         if (mJumpTo != null) {
             for (int i = startidx; i <= endidx; i++) {
-                Object element = getJumpToElementAt(i);
+                E element = getJumpToElementAt(i);
 
                 if (element != null)
                     ep.process(element);
@@ -807,7 +807,7 @@ public class LDAPVirtualList<E extends IDBObj> extends DBVirtualList<E> {
         getPage(startidx);
 
         for (int i = startidx; i <= endidx; i++) {
-            Object element = getElementAt(i);
+            E element = getElementAt(i);
 
             if (element != null)
                 ep.process(element);
