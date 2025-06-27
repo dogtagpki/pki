@@ -878,6 +878,7 @@ class CACRLCLI(pki.cli.CLI):
 
         self.add_module(CACRLShowCLI())
         self.add_module(CACRLIPCLI())
+        self.add_module(CACRLRecordCLI())
 
     @staticmethod
     def print_crl_config(config):
@@ -1273,6 +1274,93 @@ class CACRLIPModifyCLI(pki.cli.CLI):
 
         subsystem.update_crl_issuing_point_config(ip_id, config)
         subsystem.save()
+
+
+class CACRLRecordCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super().__init__('record', 'CRL record management commands')
+
+        self.add_module(CACRLRecordShowCLI())
+
+
+class CACRLRecordShowCLI(pki.cli.CLI):
+    '''
+    Show CRL record
+    '''
+
+    help = '''\
+        Usage: pki-server ca-crl-record-show [OPTIONS] <CRL Record ID>
+
+          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -v, --verbose                      Run in verbose mode.
+              --debug                        Run in debug mode.
+              --help                         Show help message.
+    '''  # noqa: E501
+
+    def __init__(self):
+        super().__init__('show', inspect.cleandoc(self.__class__.__doc__))
+
+    def create_parser(self, subparsers=None):
+
+        self.parser = argparse.ArgumentParser(
+            self.get_full_name(),
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument(
+            'id',
+            nargs='?')
+
+    def print_help(self):
+        print(textwrap.dedent(self.__class__.help))
+
+    def execute(self, argv, args=None):
+
+        if not args:
+            args = self.parser.parse_args(args=argv)
+
+        if args.help:
+            self.print_help()
+            return
+
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
+        crl_record_id = args.id
+
+        if crl_record_id is None:
+            raise pki.cli.CLIException('Missing CRL record ID')
+
+        instance = pki.server.PKIServerFactory.create(instance_name)
+        if not instance.exists():
+            logger.error('Invalid instance: %s', instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        subsystem = instance.get_subsystem('ca')
+        if not subsystem:
+            logger.error('No CA subsystem in instance %s', instance_name)
+            sys.exit(1)
+
+        subsystem.show_crl_record(crl_record_id)
 
 
 class CACloneCLI(pki.cli.CLI):

@@ -32,6 +32,7 @@ public class CACLI extends CLI {
         super("ca", "CA subsystem management commands", parent);
 
         addModule(new CACertCLI(this));
+        addModule(new CACRLCLI(this));
         addModule(new CADBCLI(this));
         addModule(new SubsystemGroupCLI(this));
         addModule(new CAProfileCLI(this));

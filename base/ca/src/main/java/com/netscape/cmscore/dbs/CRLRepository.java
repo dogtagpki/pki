@@ -32,10 +32,8 @@ import com.netscape.cmscore.apps.DatabaseConfig;
 /**
  * A class represents a CRL repository. It stores all the
  * CRL issuing points.
- * <P>
  *
  * @author thomask
- * @version $Revision$, $Date$
  */
 public class CRLRepository extends Repository {
 
@@ -91,7 +89,7 @@ public class CRLRepository extends Repository {
 
         mLowWaterMarkNo = dbConfig.getBigInteger(DatabaseConfig.REQUEST_LOW_WATER_MARK, null);
         logger.debug("CRLRepository: - low water mark serial: " + mNextMaxSerialNo);
-        
+
         mIncrementNo = dbConfig.getBigInteger(DatabaseConfig.REQUEST_INCREMENT, null);
         logger.debug("CRLRepository: - increment serial: " + mIncrementNo);
 

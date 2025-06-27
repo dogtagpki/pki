@@ -2707,6 +2707,23 @@ class CASubsystem(PKISubsystem):
             param = 'ca.crl.%s.%s' % (ip_id, key)
             pki.util.set_property(self.config, param, value)
 
+    def show_crl_record(
+            self,
+            crl_record_id,
+            as_current_user=False):
+
+        cmd = [self.name + '-crl-record-show']
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        cmd.append(crl_record_id)
+
+        self.run(cmd, as_current_user=as_current_user)
+
     def get_connector_ids(self):
 
         connector_ids = []
