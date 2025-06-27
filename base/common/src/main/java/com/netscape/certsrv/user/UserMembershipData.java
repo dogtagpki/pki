@@ -18,7 +18,7 @@
 
 package com.netscape.certsrv.user;
 
-import javax.ws.rs.FormParam;
+import jakarta.ws.rs.FormParam;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;

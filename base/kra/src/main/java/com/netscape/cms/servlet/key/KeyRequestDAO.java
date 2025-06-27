@@ -28,9 +28,9 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.Path;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.core.UriBuilder;
+import jakarta.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.server.authentication.AuthToken;

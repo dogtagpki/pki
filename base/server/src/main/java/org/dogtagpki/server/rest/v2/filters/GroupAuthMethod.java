@@ -5,7 +5,7 @@
 //
 package org.dogtagpki.server.rest.v2.filters;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 
 public class GroupAuthMethod extends AuthMethodFilter {
     private static final long serialVersionUID = 1L;
