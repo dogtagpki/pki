@@ -38,20 +38,18 @@ jobs:
           tests/bin/ds-create.sh \
               --image=${{ env.DS_IMAGE }} \
               --hostname=ds.example.com \
+              --network=example \
+              --network-alias=ds.example.com \
               --password=Secret.123 \
               ds
 
-      - name: Connect DS container to network
-        run: docker network connect example ds --alias ds.example.com
-
       - name: Set up PKI container
         run: |
-          tests/bin/runner-init.sh pki
-        env:
-          HOSTNAME: pki.example.com
-
-      - name: Connect PKI container to network
-        run: docker network connect example pki --alias pki.example.com
+          tests/bin/runner-init.sh \
+              --hostname=pki.example.com \
+              --network=example \
+              --network-alias=pki.example.com \
+              pki
 
       - name: Install CA
         run: |
@@ -73,13 +71,19 @@ jobs:
           # check updated profile
           docker exec pki cat /var/lib/pki/pki-tomcat/conf/ca/profiles/ca/caUserCert.cfg
 
-      - name: Configure CRL
+      - name: Check CRL issuing points
+        run: |
+          docker exec pki pki-server ca-crl-ip-find
+
+      - name: Update CRL configuration
         run: |
           # update cert status every minute
           docker exec pki pki-server ca-config-set ca.certStatusUpdateInterval 60
 
           # update CRL immediately after each cert revocation
           docker exec pki pki-server ca-crl-ip-mod -D alwaysUpdate=true MasterCRL
+
+          docker exec pki pki-server ca-crl-ip-show MasterCRL
 
       - name: Restart CA subsystem
         run: |
@@ -103,41 +107,24 @@ jobs:
 
       - name: Check initial CRL
         run: |
-          docker exec pki ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -x \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b "cn=MasterCRL,ou=crlIssuingPoints,ou=ca,dc=ca,dc=pki,dc=example,dc=com" \
-              -o ldif_wrap=no \
-              -t \
-              "(objectClass=crlIssuingPointRecord)" | tee output
-
-          # there should be one CRL attribute
-          grep "certificateRevocationList:" output | wc -l > actual
-          echo "1" > expected
-          diff expected actual
-
-          FILENAME=$(sed -n 's/certificateRevocationList:< file:\/\/\(.*\)$/\1/p' output)
-          echo "FILENAME: $FILENAME"
-
-          # check the CRL
-          docker exec pki openssl crl \
-              -in "$FILENAME" \
-              -inform DER \
-              -text \
-              -noout | tee output
-
-          # CRL number should be 1
-          echo "X509v3 CRL Number: " > expected
-          echo "1" >> expected
-          sed -En 'N; s/^ *(X509v3 CRL Number: .*)\n *(.*)$/\1\n\2/p; D' output | tee actual
-          diff expected actual
-
           # there should be no revoked certs
-          grep "Serial Number:" output | wc -l > actual
-          echo "0" > expected
+          docker exec pki pki-server ca-crl-record-show MasterCRL | tee output
+
+          sed -n \
+              -e '/^\s*CRL Number:/p' \
+              -e '/^\s*CRL Size:/p' \
+              output > actual
+
+          cat > expected << EOF
+            CRL Number: 0x1
+            CRL Size: 0
+          EOF
+
           diff expected actual
+
+          docker exec pki pki-server ca-crl-record-cert-find MasterCRL | tee output
+
+          diff /dev/null output
 
       - name: Enroll user 1 cert
         run: |
@@ -172,40 +159,34 @@ jobs:
 
       - name: Check CRL after user 1 cert revocation
         run: |
-          docker exec pki ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -x \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b "cn=MasterCRL,ou=crlIssuingPoints,ou=ca,dc=ca,dc=pki,dc=example,dc=com" \
-              -o ldif_wrap=no \
-              -t \
-              "(objectClass=crlIssuingPointRecord)" | tee output
-
-          # there should be one CRL attribute
-          grep "certificateRevocationList:" output | wc -l > actual
-          echo "1" > expected
-          diff expected actual
-
-          FILENAME=$(sed -n 's/certificateRevocationList:< file:\/\/\(.*\)$/\1/p' output)
-          echo "FILENAME: $FILENAME"
-
-          # check the CRL
-          docker exec pki openssl crl \
-              -in "$FILENAME" \
-              -inform DER \
-              -text \
-              -noout | tee output
-
-          # CRL number should be 2
-          echo "X509v3 CRL Number: " > expected
-          echo "2" >> expected
-          sed -En 'N; s/^ *(X509v3 CRL Number: .*)\n *(.*)$/\1\n\2/p; D' output | tee actual
-          diff expected actual
-
           # there should be one revoked cert
-          grep "Serial Number:" output | wc -l > actual
-          echo "1" > expected
+          docker exec pki pki-server ca-crl-record-show MasterCRL | tee output
+
+          sed -n \
+              -e '/^\s*CRL Number:/p' \
+              -e '/^\s*CRL Size:/p' \
+              output > actual
+
+          cat > expected << EOF
+            CRL Number: 0x2
+            CRL Size: 1
+          EOF
+
+          diff expected actual
+
+          docker exec pki pki-server ca-crl-record-cert-find MasterCRL | tee output
+
+          sed -n \
+              -e '/^\s*Serial Number:/p' \
+              -e '/^\s*Reason:/p' \
+              output > actual
+
+          CERT_ID=$(cat cert.id)
+          cat > expected << EOF
+            Serial Number: $CERT_ID
+            Reason: CERTIFICATE_HOLD
+          EOF
+
           diff expected actual
 
       - name: Unrevoke user 1 cert
@@ -222,41 +203,24 @@ jobs:
 
       - name: Check CRL after user 1 cert unrevocation
         run: |
-          docker exec pki ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -x \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b "cn=MasterCRL,ou=crlIssuingPoints,ou=ca,dc=ca,dc=pki,dc=example,dc=com" \
-              -o ldif_wrap=no \
-              -t \
-              "(objectClass=crlIssuingPointRecord)" | tee output
-
-          # there should be one CRL attribute
-          grep "certificateRevocationList:" output | wc -l > actual
-          echo "1" > expected
-          diff expected actual
-
-          FILENAME=$(sed -n 's/certificateRevocationList:< file:\/\/\(.*\)$/\1/p' output)
-          echo "FILENAME: $FILENAME"
-
-          # check the CRL
-          docker exec pki openssl crl \
-              -in "$FILENAME" \
-              -inform DER \
-              -text \
-              -noout | tee output
-
-          # CRL number should be 3
-          echo "X509v3 CRL Number: " > expected
-          echo "3" >> expected
-          sed -En 'N; s/^ *(X509v3 CRL Number: .*)\n *(.*)$/\1\n\2/p; D' output | tee actual
-          diff expected actual
-
           # there should be no revoked certs
-          grep "Serial Number:" output | wc -l > actual
-          echo "0" > expected
+          docker exec pki pki-server ca-crl-record-show MasterCRL | tee output
+
+          sed -n \
+              -e '/^\s*CRL Number:/p' \
+              -e '/^\s*CRL Size:/p' \
+              output > actual
+
+          cat > expected << EOF
+            CRL Number: 0x3
+            CRL Size: 0
+          EOF
+
           diff expected actual
+
+          docker exec pki pki-server ca-crl-record-cert-find MasterCRL | tee output
+
+          diff /dev/null output
 
       - name: Enroll user 2 cert
         run: |
@@ -291,40 +255,34 @@ jobs:
 
       - name: Check CRL after user 2 cert revocation
         run: |
-          docker exec pki ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -x \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b "cn=MasterCRL,ou=crlIssuingPoints,ou=ca,dc=ca,dc=pki,dc=example,dc=com" \
-              -o ldif_wrap=no \
-              -t \
-              "(objectClass=crlIssuingPointRecord)" | tee output
-
-          # there should be one CRL attribute
-          grep "certificateRevocationList:" output | wc -l > actual
-          echo "1" > expected
-          diff expected actual
-
-          FILENAME=$(sed -n 's/certificateRevocationList:< file:\/\/\(.*\)$/\1/p' output)
-          echo "FILENAME: $FILENAME"
-
-          # check the CRL
-          docker exec pki openssl crl \
-              -in "$FILENAME" \
-              -inform DER \
-              -text \
-              -noout | tee output
-
-          # CRL number should be 4
-          echo "X509v3 CRL Number: " > expected
-          echo "4" >> expected
-          sed -En 'N; s/^ *(X509v3 CRL Number: .*)\n *(.*)$/\1\n\2/p; D' output | tee actual
-          diff expected actual
-
           # there should be one revoked cert
-          grep "Serial Number:" output | wc -l > actual
-          echo "1" > expected
+          docker exec pki pki-server ca-crl-record-show MasterCRL | tee output
+
+          sed -n \
+              -e '/^\s*CRL Number:/p' \
+              -e '/^\s*CRL Size:/p' \
+              output > actual
+
+          cat > expected << EOF
+            CRL Number: 0x4
+            CRL Size: 1
+          EOF
+
+          diff expected actual
+
+          docker exec pki pki-server ca-crl-record-cert-find MasterCRL | tee output
+
+          sed -n \
+              -e '/^\s*Serial Number:/p' \
+              -e '/^\s*Reason:/p' \
+              output > actual
+
+          CERT_ID=$(cat cert.id)
+          cat > expected << EOF
+            Serial Number: $CERT_ID
+            Reason: CERTIFICATE_HOLD
+          EOF
+
           diff expected actual
 
       - name: Wait for user 2 cert expiration
@@ -349,41 +307,24 @@ jobs:
 
       - name: Check CRL after user 2 cert expiration
         run: |
-          docker exec pki ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -x \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b "cn=MasterCRL,ou=crlIssuingPoints,ou=ca,dc=ca,dc=pki,dc=example,dc=com" \
-              -o ldif_wrap=no \
-              -t \
-              "(objectClass=crlIssuingPointRecord)" | tee output
-
-          # there should be one CRL attribute
-          grep "certificateRevocationList:" output | wc -l > actual
-          echo "1" > expected
-          diff expected actual
-
-          FILENAME=$(sed -n 's/certificateRevocationList:< file:\/\/\(.*\)$/\1/p' output)
-          echo "FILENAME: $FILENAME"
-
-          # check the CRL
-          docker exec pki openssl crl \
-              -in "$FILENAME" \
-              -inform DER \
-              -text \
-              -noout | tee output
-
-          # CRL number should be 5
-          echo "X509v3 CRL Number: " > expected
-          echo "5" >> expected
-          sed -En 'N; s/^ *(X509v3 CRL Number: .*)\n *(.*)$/\1\n\2/p; D' output | tee actual
-          diff expected actual
-
           # there should be no revoked certs
-          grep "Serial Number:" output | wc -l > actual
-          echo "0" > expected
+          docker exec pki pki-server ca-crl-record-show MasterCRL | tee output
+
+          sed -n \
+              -e '/^\s*CRL Number:/p' \
+              -e '/^\s*CRL Size:/p' \
+              output > actual
+
+          cat > expected << EOF
+            CRL Number: 0x5
+            CRL Size: 0
+          EOF
+
           diff expected actual
+
+          docker exec pki pki-server ca-crl-record-cert-find MasterCRL | tee output
+
+          diff /dev/null output
 
       - name: Remove CA
         run: docker exec pki pkidestroy -s CA -v
@@ -397,17 +338,3 @@ jobs:
         if: always()
         run: |
           docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
-
-      - name: Gather artifacts
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh ds
-          tests/bin/pki-artifacts-save.sh pki
-        continue-on-error: true
-
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ca-crl
-          path: /tmp/artifacts
