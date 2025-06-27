@@ -3,7 +3,8 @@
 #
 # This script recursively searches all AsciiDoc (.adoc) files in a given directory,
 # finds all unique external links of the form link:https://...,
-# and prints each unique link along with the full file paths and line numbers where it appears.
+# and prints each unique link along with the file names and line numbers where it appears.
+# Optionally, results can be written to an output file.
 
 import os
 import re
@@ -22,8 +23,7 @@ def find_unique_external_links(directory):
                             for match in link_pattern.findall(line):
                                 if match not in link_locations:
                                     link_locations[match] = []
-                                # Append the full file path
-                                link_locations[match].append(f"{file_path} (line {line_num})")
+                                link_locations[match].append(f"{file} (line {line_num})")
                 except Exception as e:
                     print(f"Error reading {file_path}: {e}")
 
@@ -35,11 +35,21 @@ if __name__ == "__main__":
         print("No directory provided. Exiting.")
         exit(1)
 
+    output_file = input("Enter output file name (leave blank to print to terminal): ").strip()
     link_locations = find_unique_external_links(target_dir)
 
-    print("Unique external links found and their locations:")
+    output_lines = ["Unique external links found and their locations:"]
     for link in sorted(link_locations):
-        print(f"{link}")
+        output_lines.append(f"{link}")
         for location in link_locations[link]:
-            print(f"  - {location}")
+            output_lines.append(f"  - {location}")
+
+    if output_file:
+        with open(output_file, 'w', encoding='utf-8') as out:
+            for line in output_lines:
+                out.write(line + "\n")
+        print(f"Results written to {output_file}.")
+    else:
+        for line in output_lines:
+            print(line)
 
