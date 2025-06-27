@@ -16,5 +16,6 @@ public class CACRLRecordCLI extends CLI {
         super("record", "CRL record management commands", parent);
 
         addModule(new CACRLRecordShowCLI(this));
+        addModule(new CACRLRecordCertCLI(this));
     }
 }

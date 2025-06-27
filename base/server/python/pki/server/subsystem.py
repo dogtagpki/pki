@@ -2724,6 +2724,23 @@ class CASubsystem(PKISubsystem):
 
         self.run(cmd, as_current_user=as_current_user)
 
+    def find_crl_record_certs(
+            self,
+            crl_record_id,
+            as_current_user=False):
+
+        cmd = [self.name + '-crl-record-cert-find']
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        cmd.append(crl_record_id)
+
+        self.run(cmd, as_current_user=as_current_user)
+
     def get_connector_ids(self):
 
         connector_ids = []
