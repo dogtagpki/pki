@@ -34,9 +34,9 @@ jobs:
 
   - job: copr_build
     trigger: pull_request
-    branch: master
+    branch: v11.7
     additional_repos:
-      - "copr://@pki/master"
+      - "copr://@pki/11.7"
     targets:
       - fedora-all
       - centos-stream-9-x86_64
@@ -47,9 +47,9 @@ jobs:
 
   - job: copr_build
     trigger: commit
-    branch: master
+    branch: v11.7
     additional_repos:
-      - "copr://@pki/master"
+      - "copr://@pki/11.7"
     targets:
       - fedora-all
       - centos-stream-9-x86_64

@@ -3,8 +3,8 @@ name: ACME Tests
 on: [push, pull_request]
 
 env:
-  BASE_IMAGE: ${{ vars.BASE_IMAGE || 'registry.fedoraproject.org/fedora:latest' }}
-  COPR_REPO: ${{ vars.COPR_REPO || '@pki/master' }}
+  BASE_IMAGE: ${{ vars.BASE_IMAGE || 'registry.fedoraproject.org/fedora:42' }}
+  COPR_REPO: ${{ vars.COPR_REPO || '@pki/11.7' }}
 
 jobs:
   build:
@@ -175,5 +175,5 @@ jobs:
 
       - name: Publish pki-acme image
         run: |
-          docker tag pki-acme ${{ vars.REGISTRY }}/$NAMESPACE/pki-acme:latest
-          docker push ${{ vars.REGISTRY }}/$NAMESPACE/pki-acme:latest
+          docker tag pki-acme ${{ vars.REGISTRY }}/$NAMESPACE/pki-acme:11.7
+          docker push ${{ vars.REGISTRY }}/$NAMESPACE/pki-acme:11.7

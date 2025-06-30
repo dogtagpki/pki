@@ -37,7 +37,7 @@ During development PKI may require dependencies that are only available in [COPR
 
 The COPR repository names follow the following formats:
 
-- `@pki/master`
+- `@pki/11.7`
 - `@pki/<major>`
 - `@pki/<major>.<minor>`
 
