@@ -1,6 +1,6 @@
 [project]
 name = "pki-server"
-version = "11.7.0"
+version = "11.8.0"
 readme = "../../README.md"
 description = "PKI Server"
 requires-python = ">=3.13"
