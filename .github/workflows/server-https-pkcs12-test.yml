@@ -13,6 +13,11 @@ jobs:
     env:
       SHARED: /tmp/workdir/pki
     steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install xmlstarlet
+
       - name: Clone repository
         uses: actions/checkout@v4
 
@@ -258,6 +263,11 @@ jobs:
 
       - name: Check PKI CLI with newly trusted server cert
         run: |
+          VERSION=$(
+              xmlstarlet sel -t -v '/_:project/_:version' pom.xml \
+              | sed 's/^\(.*\)-SNAPSHOT/\1/'
+          )
+
           # run PKI CLI and trust the cert
           echo y | docker exec -i client pki \
               -U https://pki.example.com:8443 \
@@ -268,7 +278,7 @@ jobs:
           cat > expected << EOF
             Server URL: https://pki.example.com:8443
             Server Name: Dogtag Certificate System
-            Server Version: 11.7.0
+            Server Version: $VERSION
           EOF
 
           diff expected stdout
@@ -307,6 +317,11 @@ jobs:
 
       - name: Check PKI CLI with trusted server cert with wrong hostname
         run: |
+          VERSION=$(
+              xmlstarlet sel -t -v '/_:project/_:version' pom.xml \
+              | sed 's/^\(.*\)-SNAPSHOT/\1/'
+          )
+
           # run PKI CLI with wrong hostname
           docker exec client pki \
               -U https://server.example.com:8443 \
@@ -317,7 +332,7 @@ jobs:
           cat > expected << EOF
             Server URL: https://server.example.com:8443
             Server Name: Dogtag Certificate System
-            Server Version: 11.7.0
+            Server Version: $VERSION
           EOF
 
           diff expected stdout
@@ -331,6 +346,11 @@ jobs:
 
       - name: Check PKI CLI with already trusted server cert
         run: |
+          VERSION=$(
+              xmlstarlet sel -t -v '/_:project/_:version' pom.xml \
+              | sed 's/^\(.*\)-SNAPSHOT/\1/'
+          )
+
           # run PKI CLI with correct hostname
           docker exec client pki \
               -U https://pki.example.com:8443 \
@@ -341,7 +361,7 @@ jobs:
           cat > expected << EOF
             Server URL: https://pki.example.com:8443
             Server Name: Dogtag Certificate System
-            Server Version: 11.7.0
+            Server Version: $VERSION
           EOF
 
           diff expected stdout
