@@ -76,7 +76,7 @@ jobs:
         run: |
           docker exec pki pki-server stop --wait -v
 
-      # https://github.com/dogtagpki/pki/blob/master/docs/admin/Nuxwdog.md
+      # docs/admin/Nuxwdog.md
       - name: Enable Nuxwdog
         run: |
           # add internal password into keyring
@@ -129,7 +129,7 @@ jobs:
         run: |
           docker exec pki systemctl stop pki-tomcatd-nuxwdog@pki-tomcat.service
 
-      # https://github.com/dogtagpki/pki/blob/master/docs/admin/Nuxwdog.md
+      # docs/admin/Nuxwdog.md
       - name: Disable Nuxwdog
         run: |
           docker exec pki pki-server nuxwdog-disable

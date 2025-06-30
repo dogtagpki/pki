@@ -1,6 +1,6 @@
 name: Sub-CA clone
 # docs/installation/ca/Installing_CA_with_External_CA_Signing_Certificate.md
-# https://github.com/dogtagpki/pki/blob/master/docs/installation/ca/Installing_CA_Clone.md
+# docs/installation/ca/Installing_CA_Clone.md
 
 on: workflow_call
 

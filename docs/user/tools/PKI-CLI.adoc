@@ -73,7 +73,7 @@ $ pki -v <command>
 == Commands ==
 
 * link:PKI-Client-CLI[PKI Client CLI]
-* link:https://github.com/dogtagpki/pki/blob/master/docs/user/tools/Using-PKI-CA-Certificate-CLI.adoc[PKI Certificate CLI]
+* link:Using-PKI-CA-Certificate-CLI.adoc[PKI CA Certificate CLI]
 * link:PKI-User-CLI[PKI User CLI]
 * link:PKI-Group-CLI[PKI Group CLI]
 * link:PKI-Security-Domain-CLI[PKI Security Domain CLI]

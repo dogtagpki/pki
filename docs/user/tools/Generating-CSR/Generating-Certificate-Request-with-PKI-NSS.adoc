@@ -2,7 +2,7 @@
 
 == Overview ==
 
-The `pki nss-cert-request` command can be used to generate a PKCS #10 request. The request extensions can be defined in a file (e.g. link:https://github.com/dogtagpki/pki/blob/master/base/server/certs/sslserver.conf[/usr/share/pki/server/certs/sslserver.conf]).
+The `pki nss-cert-request` command can be used to generate a PKCS #10 request. The request extensions can be defined in a file (e.g. link:../../../../base/server/certs/sslserver.conf[/usr/share/pki/server/certs/sslserver.conf]).
 
 ----
 basicConstraints       = critical, CA:FALSE

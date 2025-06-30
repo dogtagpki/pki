@@ -48,7 +48,7 @@ jobs:
       - name: Connect primary PKI container to network
         run: docker network connect example primary --alias primary.example.com
 
-      # https://github.com/dogtagpki/pki/blob/master/docs/installation/ca/Installing_CA.md
+      # docs/installation/ca/Installing_CA.md
       - name: Install primary CA
         run: |
           docker exec primary pkispawn \
