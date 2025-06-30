@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 env:
   BASE_IMAGE: ${{ vars.BASE_IMAGE || 'registry.fedoraproject.org/fedora:latest' }}
-  COPR_REPO: ${{ vars.COPR_REPO || '@pki/master' }}
+  COPR_REPO: ${{ vars.COPR_REPO || '@pki/11.8' }}
 
 jobs:
   build:
@@ -175,5 +175,5 @@ jobs:
 
       - name: Publish pki-acme image
         run: |
-          docker tag pki-acme ${{ vars.REGISTRY }}/$NAMESPACE/pki-acme:latest
-          docker push ${{ vars.REGISTRY }}/$NAMESPACE/pki-acme:latest
+          docker tag pki-acme ${{ vars.REGISTRY }}/$NAMESPACE/pki-acme:11.8
+          docker push ${{ vars.REGISTRY }}/$NAMESPACE/pki-acme:11.8
