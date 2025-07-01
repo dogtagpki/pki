@@ -18,8 +18,8 @@
 
 package org.dogtagpki.server.kra.rest.v1;
 
-import javax.servlet.http.HttpSession;
-import javax.ws.rs.core.Response;
+import jakarta.servlet.http.HttpSession;
+import jakarta.ws.rs.core.Response;
 
 import org.dogtagpki.common.KRAInfo;
 import org.dogtagpki.common.KRAInfoResource;

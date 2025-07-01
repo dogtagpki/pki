@@ -5,8 +5,8 @@
 //
 package org.dogtagpki.server.ca.rest.v2;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
 
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.rest.v2.PKIServlet;

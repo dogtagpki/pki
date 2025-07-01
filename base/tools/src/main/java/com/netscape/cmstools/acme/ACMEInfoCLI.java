@@ -5,7 +5,7 @@
 //
 package com.netscape.cmstools.acme;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.acme.ACMEClient;

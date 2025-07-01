@@ -5,7 +5,7 @@
 //
 package org.dogtagpki.server.ocsp.rest.v2;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 
 import org.dogtagpki.server.ocsp.OCSPEngine;
 import org.dogtagpki.server.rest.v2.PKIServlet;

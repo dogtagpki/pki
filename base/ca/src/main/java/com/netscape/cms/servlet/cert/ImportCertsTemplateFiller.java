@@ -28,7 +28,7 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Locale;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.netscape.security.pkcs.ContentInfo;

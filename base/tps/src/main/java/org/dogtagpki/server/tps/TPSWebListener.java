@@ -5,7 +5,7 @@
 //
 package org.dogtagpki.server.tps;
 
-import javax.servlet.annotation.WebListener;
+import jakarta.servlet.annotation.WebListener;
 
 import com.netscape.cmscore.apps.CMSWebListener;
 

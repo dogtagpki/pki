@@ -20,7 +20,7 @@ package org.dogtagpki.ca;
 import java.io.ByteArrayInputStream;
 import java.security.cert.X509Certificate;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;

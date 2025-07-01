@@ -751,7 +751,7 @@ if [ "$BUILD_TARGET" = "dist" ] ; then
         fi
         if [[ " ${PKGS_TO_BUILD[*]} " =~ " server " ]]; then
             echo "    $WORK_DIR/dist/pki-tomcat.jar"
-            echo "    $WORK_DIR/dist/pki-tomcat-9.0.jar"
+            echo "    $WORK_DIR/dist/pki-tomcat-10.1.jar"
             echo "    $WORK_DIR/dist/pki-server.jar"
             echo "    $WORK_DIR/dist/pki-server-webapp.jar"
         fi
