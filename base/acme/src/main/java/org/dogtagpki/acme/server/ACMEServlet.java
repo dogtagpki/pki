@@ -7,10 +7,10 @@ package org.dogtagpki.acme.server;
 
 import java.net.URISyntaxException;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.http.client.utils.URIBuilder;
 import org.dogtagpki.server.rest.v2.PKIServlet;

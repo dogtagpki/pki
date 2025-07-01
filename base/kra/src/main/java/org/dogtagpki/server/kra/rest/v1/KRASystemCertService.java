@@ -18,7 +18,7 @@
 
 package org.dogtagpki.server.kra.rest.v1;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 import org.dogtagpki.kra.KRASystemCertResource;
 import org.dogtagpki.server.kra.KRAEngine;

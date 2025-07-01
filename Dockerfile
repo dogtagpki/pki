@@ -11,7 +11,7 @@ ARG COMPONENT="dogtag-pki"
 ARG LICENSE="GPLv2 and LGPLv2"
 ARG ARCH="x86_64"
 ARG VERSION="0"
-ARG BASE_IMAGE="registry.fedoraproject.org/fedora:43"
+ARG BASE_IMAGE="registry.fedoraproject.org/fedora:latest"
 ARG COPR_REPO=""
 ARG BUILD_OPTS=""
 

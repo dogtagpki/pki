@@ -18,7 +18,7 @@ javac(pki-server-classes
         ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_JAR}
         ${JSS_JAR}
         ${JSS_TOMCAT_JAR}
-        ${JSS_TOMCAT_9_0_JAR}
+        ${JSS_TOMCAT_10_1_JAR}
         ${LDAPJDK_JAR}
         ${JAKARTA_ANNOTATION_API_JAR}
         ${JAXRS_API_JAR}
@@ -29,7 +29,7 @@ javac(pki-server-classes
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
     DEPENDS
-        pki-common-jar pki-tools-jar pki-tomcat-jar pki-tomcat-9.0-jar
+        pki-common-jar pki-tools-jar pki-tomcat-jar pki-tomcat-10.1-jar
 )
 
 add_dependencies(java pki-server-classes)
@@ -158,11 +158,12 @@ add_custom_command(
     COMMAND ln -sf ../../../lib/jboss-logging.jar common/lib/jboss-logging.jar
     COMMAND ln -sf ../../../lib/jss.jar common/lib/jss.jar
     COMMAND ln -sf ../../../../../..${JSS_TOMCAT_JAR} common/lib/jss-tomcat.jar
-    COMMAND ln -sf ../../../../../..${JSS_TOMCAT_9_0_JAR} common/lib/jss-tomcat-9.0.jar
+    COMMAND ln -sf ../../../../../..${JSS_TOMCAT_10_1_JAR} common/lib/jss-tomcat-10.1.jar
     COMMAND ln -sf ../../../lib/ldapjdk.jar common/lib/ldapjdk.jar
     COMMAND ln -sf ../../../lib/pki-common.jar common/lib/pki-common.jar
     COMMAND ln -sf ../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-tomcat.jar common/lib/pki-tomcat.jar
-    COMMAND ln -sf ../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-tomcat-9.0.jar common/lib/pki-tomcat-9.0.jar
+    COMMAND ln -sf ../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-tomcat-10.1.jar common/lib/pki-tomcat-10.1.jar
+    COMMAND ln -sf ../../../lib/resteasy-client.jar common/lib/resteasy-client.jar
     COMMAND ln -sf ../../../lib/resteasy-jackson2-provider.jar common/lib/resteasy-jackson2-provider.jar
     COMMAND ln -sf ../../../lib/resteasy-jaxrs.jar common/lib/resteasy-jaxrs.jar
     COMMAND ln -sf ${RESTEASY_SERVLET_INITIALIZER_LINK} common/lib/resteasy-servlet-initializer.jar

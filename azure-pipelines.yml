@@ -13,7 +13,7 @@ jobs:
         import os
         import re
 
-        value = os.getenv('BASE_IMAGE', 'registry.fedoraproject.org/fedora:43')
+        value = os.getenv('BASE_IMAGE', 'registry.fedoraproject.org/fedora:latest')
         print('BASE_IMAGE: {value}'.format(value=value))
         print('##vso[task.setvariable variable=BASE_IMAGE]{value}'.format(value=value))
 

@@ -398,12 +398,8 @@ jobs:
           # TODO: review owners/permissions
           cat > expected << EOF
           drwxrwxrwx docker backup
-          -rw-rw-rw- docker catalina.$DATE.log
-          -rw-rw-rw- docker host-manager.$DATE.log
           drwxrwxrwx docker kra
-          -rw-rw-rw- docker localhost.$DATE.log
           -rw-rw-rw- docker localhost_access_log.$DATE.txt
-          -rw-rw-rw- docker manager.$DATE.log
           drwxrwxrwx docker pki
           EOF
 

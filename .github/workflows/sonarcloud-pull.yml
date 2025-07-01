@@ -6,7 +6,7 @@ on:
       - completed
 
 env:
-  BASE_IMAGE: ${{ vars.BASE_IMAGE || 'registry.fedoraproject.org/fedora:43' }}
+  BASE_IMAGE: ${{ vars.BASE_IMAGE || 'registry.fedoraproject.org/fedora:latest' }}
   COPR_REPO: ${{ vars.COPR_REPO || '@pki/11.8' }}
   NAMESPACE: ${{ vars.REGISTRY_NAMESPACE || 'dogtagpki' }}
 

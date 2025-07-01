@@ -8,7 +8,7 @@ package org.dogtagpki.server.rest.v2.filters;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 
 public class AccountACL extends ACLFilter {
     private static final long serialVersionUID = 1L;
