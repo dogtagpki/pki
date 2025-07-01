@@ -181,7 +181,7 @@ BuildRequires:    gcc-c++
 BuildRequires:    zip
 
 BuildRequires:    nspr-devel
-BuildRequires:    nss-devel >= 3.36.1
+BuildRequires:    nss-devel >= 3.101
 
 BuildRequires:    openldap-devel
 BuildRequires:    pkgconfig
@@ -484,7 +484,7 @@ BuildArch:        noarch
 Obsoletes:        pki-base < %{version}-%{release}
 Provides:         pki-base = %{version}-%{release}
 
-Requires:         nss >= 3.36.1
+Requires:         nss >= 3.101
 
 Requires:         python3-pki = %{version}-%{release}
 Requires(post):   python3-pki = %{version}-%{release}
@@ -601,7 +601,7 @@ Obsoletes:        pki-tools < %{version}-%{release}
 Provides:         pki-tools = %{version}-%{release}
 
 Requires:         openldap-clients
-Requires:         nss-tools >= 3.36.1
+Requires:         nss-tools >= 3.101
 Requires:         %{product_id}-java = %{version}-%{release}
 Requires:         p11-kit-trust
 Requires:         file
@@ -888,7 +888,7 @@ Requires(postun): systemd-units
 # additional runtime requirements needed to run native 'tpsclient'
 # REMINDER:  Revisit these once 'tpsclient' is rewritten as a Java app
 
-Requires:         nss-tools >= 3.36.1
+Requires:         nss-tools >= 3.101
 Requires:         openldap-clients
 
 %description -n   %{product_id}-tps
