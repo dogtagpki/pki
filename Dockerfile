@@ -58,7 +58,7 @@ FROM pki-builder-deps AS pki-builder
 ARG BUILD_OPTS
 
 # Import JSS packages
-COPY --from=quay.io/dogtagpki/jss-dist:latest /root/RPMS /tmp/RPMS/
+COPY --from=quay.io/dogtagpki/jss-dist:5.8 /root/RPMS /tmp/RPMS/
 
 # Import LDAP SDK packages
 COPY --from=quay.io/dogtagpki/ldapjdk-dist:latest /root/RPMS /tmp/RPMS/
@@ -86,7 +86,7 @@ COPY --from=pki-builder /root/pki/build/RPMS /root/RPMS/
 FROM pki-deps AS pki-runner
 
 # Import JSS packages
-COPY --from=quay.io/dogtagpki/jss-dist:latest /root/RPMS /tmp/RPMS/
+COPY --from=quay.io/dogtagpki/jss-dist:5.8 /root/RPMS /tmp/RPMS/
 
 # Import LDAP SDK packages
 COPY --from=quay.io/dogtagpki/ldapjdk-dist:latest /root/RPMS /tmp/RPMS/
