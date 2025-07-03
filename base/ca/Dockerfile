@@ -5,7 +5,7 @@
 #
 # https://docs.fedoraproject.org/en-US/containers/guidelines/guidelines/
 
-FROM registry.fedoraproject.org/fedora:latest
+FROM registry.fedoraproject.org/fedora:43
 
 ARG NAME="pki-ca"
 ARG SUMMARY="Dogtag PKI Certificate Authority"
