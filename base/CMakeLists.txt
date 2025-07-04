@@ -1,10 +1,10 @@
 project(base)
-
 find_file(SERVLET_JAR
     NAMES
         servlet.jar
         servlet-api-3.1.jar
         tomcat9-servlet-api.jar
+        tomcat-servlet-api.jar
     PATHS
         /usr/share/java
 )
@@ -17,7 +17,6 @@ if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
         OUTPUT_VARIABLE JAXRS_API_VERSION
     )
 endif (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
-
 if (JAXRS_API_VERSION)
     # use imported JARs
 
@@ -560,6 +559,14 @@ find_file(JSS_TOMCAT_9_0_JAR
     PATHS
         /usr/share/java/jss
         /usr/share/java
+)
+
+find_file(JSS_TOMCAT_10_1_JAR
+    NAMES
+       jss-tomcat-10.1.jar
+    PATHS
+       /usr/share/java/jss
+       /usr/share/java
 )
 
 find_file(FONTAWESOME_WEBFONT
