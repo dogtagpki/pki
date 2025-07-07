@@ -2,6 +2,11 @@
 Name:             pki
 ################################################################################
 
+Summary:          %{product_name} Package
+URL:              https://www.dogtagpki.org
+# The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
+License:          GPL-2.0-only AND LGPL-2.0-only
+
 # Don't use macros in these params since they need to be parsed by build.sh
 %global           vendor_id dogtag
 %global           product_name Dogtag PKI
@@ -10,29 +15,32 @@ Name:             pki
 
 # Upstream version number:
 %global           major_version 11
-%global           minor_version 8
+%global           minor_version 9
 %global           update_version 0
-
-# Downstream release number:
-# - development/stabilization (unsupported): 0.<n> where n >= 1
-# - GA/update (supported): <n> where n >= 1
-%global           release_number 0.1
 
 # Development phase:
 # - development (unsupported): alpha<n> where n >= 1
-# - stabilization (unsupported): beta<n> where n >= 1
+# - stabilization (supported): beta<n> where n >= 1
 # - GA/update (supported): <none>
-%global           phase beta1
+%global           phase alpha1
 
 %undefine         timestamp
 %undefine         commit_id
 
-Summary:          %{product_name} Package
-URL:              https://www.dogtagpki.org
-# The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
-License:          GPL-2.0-only AND LGPL-2.0-only
-Version:          %{major_version}.%{minor_version}.%{update_version}
-Release:          %{release_number}%{?phase:.}%{?phase}%{?timestamp:.}%{?timestamp}%{?commit_id:.}%{?commit_id}%{?dist}
+# Full version number:
+# - development/stabilization: <major>.<minor>.<update>-<phase>
+# - GA/update:                 <major>.<minor>.<update>
+%global         full_version %{major_version}.%{minor_version}.%{update_version}%{?phase:-}%{?phase}
+
+# RPM version number:
+# - development:   <major>.<minor>.<update>~<phase>^<timestamp>.<commit_id>
+# - stabilization: <major>.<minor>.<update>~<phase>
+# - GA/update:     <major>.<minor>.<update>
+#
+# https://docs.fedoraproject.org/en-US/packaging-guidelines/Versioning
+
+Version:          %{major_version}.%{minor_version}.%{update_version}%{?phase:~}%{?phase}%{?timestamp:^}%{?timestamp}%{?commit_id:.}%{?commit_id}
+Release:          %autorelease
 
 # To create a tarball from a version tag:
 # $ git archive \
@@ -40,7 +48,7 @@ Release:          %{release_number}%{?phase:.}%{?phase}%{?timestamp:.}%{?timesta
 #     --prefix pki-<version>/ \
 #     -o pki-<version>.tar.gz \
 #     <version tag>
-Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?phase:-}%{?phase}/pki-%{version}%{?phase:-}%{?phase}.tar.gz
+Source: https://github.com/dogtagpki/pki/archive/v%{full_version}/pki-%{full_version}.tar.gz
 
 # To create a patch for all changes since a version tag:
 # $ git format-patch \
@@ -1037,7 +1045,7 @@ This package provides test suite for %{product_name}.
 %prep
 ################################################################################
 
-%autosetup -n pki-%{version}%{?phase:-}%{?phase} -p 1
+%autosetup -n pki-%{full_version} -p 1
 
 %if %{without runtime_deps}
 

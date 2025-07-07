@@ -87,8 +87,8 @@ usage() {
     echo "    --install-dir=<path>   Installation directory"
     echo "    --source-tag=<tag>     Generate RPM sources from a source tag."
     echo "    --spec=<file>          Use the specified RPM spec (default: $SPEC_TEMPLATE)."
-    echo "    --with-timestamp       Append timestamp to release number."
-    echo "    --with-commit-id       Append commit ID to release number."
+    echo "    --with-timestamp       Append timestamp to RPM version number."
+    echo "    --with-commit-id       Append commit ID to RPM version number."
     echo "    --dist=<name>          Distribution name (e.g. fc28)."
     echo "    --without-java         Do not build Java binaries."
     echo "    --with-console         Build console package."
@@ -165,7 +165,7 @@ generate_rpm_sources() {
 
 generate_patch() {
 
-    PATCH="pki-$VERSION-$RELEASE.patch"
+    PATCH="pki-$FULL_VERSION.patch"
 
     if [ "$VERBOSE" = true ] ; then
         echo "Generating $PATCH for all changes since $SOURCE_TAG tag"
@@ -179,6 +179,8 @@ generate_patch() {
 }
 
 generate_rpm_spec() {
+
+    SPEC_FILE="$WORK_DIR/SPECS/$NAME.spec"
 
     if [ "$VERBOSE" = true ] ; then
         echo "Creating $SPEC_FILE"
@@ -537,23 +539,9 @@ if [ "$DEBUG" = true ] ; then
     echo "VERSION: $VERSION"
 fi
 
-regex=$'%global *release_number *([^\n]+)'
-if [[ $spec =~ $regex ]] ; then
-    RELEASE_NUMBER="${BASH_REMATCH[1]}"
-    RELEASE=$RELEASE_NUMBER
-else
-    echo "ERROR: Missing release_number macro in $SPEC_TEMPLATE"
-    exit 1
-fi
-
-if [ "$DEBUG" = true ] ; then
-    echo "RELEASE_NUMBER: $RELEASE_NUMBER"
-fi
-
 regex=$'%global *phase *([^\n]+)'
 if [[ $spec =~ $regex ]] ; then
     PHASE="${BASH_REMATCH[1]}"
-    RELEASE=$RELEASE.$PHASE
 fi
 
 if [ "$DEBUG" = true ] ; then
@@ -561,8 +549,7 @@ if [ "$DEBUG" = true ] ; then
 fi
 
 if [ "$WITH_TIMESTAMP" = true ] ; then
-    TIMESTAMP=$(date -u +"%Y%m%d%H%M%S%Z")
-    RELEASE=$RELEASE.$TIMESTAMP
+    TIMESTAMP=$(date -u +"%Y%m%d%H%M%S")
 fi
 
 if [ "$DEBUG" = true ] ; then
@@ -571,21 +558,16 @@ fi
 
 if [ "$WITH_COMMIT_ID" = true ]; then
     COMMIT_ID=$(git -C "$SRC_DIR" rev-parse --short=8 HEAD)
-    RELEASE=$RELEASE.$COMMIT_ID
 fi
 
 if [ "$DEBUG" = true ] ; then
     echo "COMMIT_ID: $COMMIT_ID"
 fi
 
-if [ "$DEBUG" = true ] ; then
-    echo "RELEASE: $RELEASE"
-fi
-
-FULL_VERSION=$VERSION
-
-if [ "$PHASE" != "" ]; then
-    FULL_VERSION=$FULL_VERSION-$PHASE
+if [ "$PHASE" = "" ]; then
+    FULL_VERSION="$VERSION"
+else
+    FULL_VERSION="$VERSION-$PHASE"
 fi
 
 if [ "$DEBUG" = true ] ; then
@@ -661,7 +643,10 @@ if [ "$BUILD_TARGET" = "dist" ] ; then
     OPTIONS+=(-DPRODUCT_NAME="$PRODUCT_NAME")
     OPTIONS+=(-DTHEME=$THEME)
     OPTIONS+=(-DVERSION=$VERSION)
-    OPTIONS+=(-DRELEASE=$RELEASE)
+
+    if [ "$PHASE" != "" ] ; then
+        OPTIONS+=(-DPHASE=$PHASE)
+    fi
 
     OPTIONS+=(-DVAR_INSTALL_DIR:PATH=/var)
     OPTIONS+=(-DP11_KIT_TRUST=$P11_KIT_TRUST)
@@ -838,7 +823,7 @@ fi
 # Prepare RPM build
 ################################################################################
 
-echo "Building $NAME-$VERSION-$RELEASE"
+echo "Building $NAME-$FULL_VERSION"
 
 rm -rf BUILD
 rm -rf BUILDROOT
@@ -857,8 +842,6 @@ mkdir SRPMS
 ################################################################################
 # Generate RPM sources
 ################################################################################
-
-SPEC_FILE="$WORK_DIR/SPECS/$NAME.spec"
 
 generate_rpm_sources
 
