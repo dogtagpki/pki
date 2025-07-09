@@ -9,12 +9,17 @@ import java.io.File;
 import java.io.FileReader;
 import java.math.BigInteger;
 import java.net.URL;
+import java.security.AlgorithmParameters;
 import java.security.KeyFactory;
 import java.security.MessageDigest;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Signature;
 import java.security.cert.X509Certificate;
+import java.security.spec.ECGenParameterSpec;
+import java.security.spec.ECParameterSpec;
+import java.security.spec.ECPoint;
+import java.security.spec.ECPublicKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.Collection;
 import java.util.Date;
@@ -66,6 +71,10 @@ import com.netscape.cms.realm.RealmConfig;
 import com.netscape.cms.tomcat.ProxyRealm;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import java.util.Arrays;
+import org.mozilla.jss.asn1.ASN1Util;
+import org.mozilla.jss.asn1.INTEGER;
+import org.mozilla.jss.asn1.SEQUENCE;
 
 /**
  * @author Endi S. Dewata
@@ -627,7 +636,7 @@ public class ACMEEngine extends CMSEngine {
 
         Signature signer;
         PublicKey publicKey;
-
+        byte[] jwsSignature;
         if ("RS256".equals(alg)) {
 
             signer = Signature.getInstance("SHA256withRSA", "Mozilla-JSS");
@@ -643,9 +652,53 @@ public class ACMEEngine extends CMSEngine {
 
             RSAPublicKeySpec keySpec = new RSAPublicKeySpec(modulus, publicExponent);
             publicKey = keyFactory.generatePublic(keySpec);
+            jwsSignature = Base64.decodeBase64(jws.getSignature());
+        } else if ("ES256".equals(alg)){
+            signer = Signature.getInstance("SHA256withECDSA", "Mozilla-JSS");
 
+            String kty = jwk.getKty();
+            KeyFactory keyFactory = KeyFactory.getInstance(kty, "Mozilla-JSS");
+            AlgorithmParameters algoParameters = AlgorithmParameters.getInstance(kty);
+
+            String crv = jwk.getCrv();
+            ECGenParameterSpec ecGenParameterSpec;
+            if ("P-256".equals(crv)) {
+                ecGenParameterSpec = new ECGenParameterSpec("secp256r1");
+            } else {
+                ACMEError error = new ACMEError();
+                error.setType("urn:ietf:params:acme:error:badSignatureAlgorithm");
+                error.setDetail("EC curve of type " + crv + " not supported\n" +
+                                "Try again with P-256.");
+                throw new ACMEException(HttpServletResponse.SC_BAD_REQUEST, error);
+            }
+            algoParameters.init(ecGenParameterSpec);
+            ECParameterSpec ecParameterSpec = algoParameters.getParameterSpec(ECParameterSpec.class);
+
+            String x = jwk.getX();
+            BigInteger biX = new BigInteger(1, Base64.decodeBase64(x));
+
+            String y = jwk.getY();
+            BigInteger biY = new BigInteger(1, Base64.decodeBase64(y));
+
+            ECPoint ecPoint = new ECPoint(biX, biY);
+            ECPublicKeySpec ecKeySpec = new ECPublicKeySpec(ecPoint, ecParameterSpec);
+            publicKey = keyFactory.generatePublic(ecKeySpec);
+            logger.debug("PublicKey: {}", Base64.encodeBase64String(publicKey.getEncoded()));
+            byte[] rawSign = Base64.decodeBase64(jws.getSignature());
+
+            // JWS signature is the combination of the pair (R, S) but JSS is
+            // expecting the pair in a ASN1 Sequence so the format has to be converted
+            // See https://www.rfc-editor.org/rfc/rfc7518.html#page-9 for JWS format
+            // JSS check signature using NSS and it is expecting the structure
+            // at https://github.com/nss-dev/nss/blob/09d1123bf42daeb7538dbf7416a4530f1b1a2f23/lib/cryptohi/dsautil.c#L16
+            SEQUENCE seq = new SEQUENCE();
+            INTEGER i1 = new INTEGER(Arrays.copyOfRange(rawSign, 0, 32));
+            INTEGER i2 = new INTEGER(Arrays.copyOfRange(rawSign, 32, 64));
+
+            seq.addElement(i1);
+            seq.addElement(i2);
+            jwsSignature = ASN1Util.encode(seq);
         } else {
-
             ACMEError error = new ACMEError();
             error.setType("urn:ietf:params:acme:error:badSignatureAlgorithm");
             error.setDetail("Signature of type " + alg + " not supported\n" +
@@ -654,22 +707,18 @@ public class ACMEEngine extends CMSEngine {
             throw new ACMEException(HttpServletResponse.SC_BAD_REQUEST, error);
         }
 
-        validateJWS(jws, signer, publicKey);
-    }
-
-    public void validateJWS(JWS jws, Signature signer, PublicKey publicKey) throws Exception {
-
         logger.info("Validating JWS");
 
         // https://tools.ietf.org/html/rfc7515
 
         String message = jws.getProtectedHeader() + "." + jws.getPayload();
-        byte[] signature = Base64.decodeBase64(jws.getSignature());
 
+        logger.debug("Message: {}", message);
+        logger.debug("Signature: {}", jwsSignature);
         signer.initVerify(publicKey);
         signer.update(message.getBytes());
 
-        if (!signer.verify(signature)) {
+        if (!signer.verify(jwsSignature)) {
             throw new Exception("Invalid JWS");
         }
     }
