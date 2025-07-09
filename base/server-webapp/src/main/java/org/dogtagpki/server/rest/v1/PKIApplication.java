@@ -21,8 +21,8 @@ package org.dogtagpki.server.rest.v1;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
+import jakarta.ws.rs.ApplicationPath;
+import jakarta.ws.rs.core.Application;
 
 import org.dogtagpki.server.rest.v1.MessageFormatInterceptor;
 import org.dogtagpki.server.rest.v1.PKIExceptionMapper;
@@ -30,11 +30,13 @@ import org.dogtagpki.server.rest.v1.PKIExceptionMapper;
 @ApplicationPath("/v1")
 public class PKIApplication extends Application {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PKIApplication.class);
+
     private Set<Object> singletons = new LinkedHashSet<>();
     private Set<Class<?>> classes = new LinkedHashSet<>();
 
     public PKIApplication() {
-
+    
         // services
         classes.add(AppService.class);
         classes.add(InfoService.class);
@@ -45,6 +47,7 @@ public class PKIApplication extends Application {
 
         // interceptors
         singletons.add(new MessageFormatInterceptor());
+
     }
 
     @Override

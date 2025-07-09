@@ -28,12 +28,12 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthToken;
@@ -121,7 +121,7 @@ public class AdminServlet extends HttpServlet {
     public final static String PROP_ID = "ID";
 
     public static final String CERT_ATTR =
-            "javax.servlet.request.X509Certificate";
+            "jakarta.servlet.request.X509Certificate";
 
     private final static String CERTUSERDB = AuthSubsystem.CERTUSERDB_AUTHMGR_ID;
     private final static String PASSWDUSERDB = AuthSubsystem.PASSWDUSERDB_AUTHMGR_ID;

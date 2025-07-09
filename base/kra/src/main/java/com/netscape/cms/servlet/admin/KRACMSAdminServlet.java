@@ -18,8 +18,8 @@ package com.netscape.cms.servlet.admin;
 // --- END COPYRIGHT BLOCK ---
 
 
-import javax.servlet.annotation.WebInitParam;
-import javax.servlet.annotation.WebServlet;
+import jakarta.servlet.annotation.WebInitParam;
+import jakarta.servlet.annotation.WebServlet;
 
 import org.dogtagpki.server.kra.KRAEngine;
 

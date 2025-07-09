@@ -8,9 +8,9 @@ package org.dogtagpki.acme.server;
 import java.net.URI;
 import java.util.stream.Collectors;
 
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.acme.ACMEAccount;
 import org.dogtagpki.acme.ACMEHeader;

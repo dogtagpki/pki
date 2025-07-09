@@ -20,7 +20,7 @@ package com.netscape.cms.servlet.cert;
 import java.util.Enumeration;
 import java.util.Locale;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.profile.EProfileException;

@@ -25,7 +25,7 @@ import java.io.PrintWriter;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 
 import org.mozilla.jss.netscape.security.util.Utils;
 

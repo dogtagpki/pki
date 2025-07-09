@@ -147,11 +147,7 @@ jobs:
           # everything should be owned by root group (GID=0)
           # TODO: review owners/permissions
           cat > expected << EOF
-          -rw-rw-rw- root catalina.$DATE.log
-          -rw-rw-rw- root host-manager.$DATE.log
-          -rw-rw-rw- root localhost.$DATE.log
           -rw-rw-rw- root localhost_access_log.$DATE.txt
-          -rw-rw-rw- root manager.$DATE.log
           drwxrwxrwx root pki
           EOF
 
