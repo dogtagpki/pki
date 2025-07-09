@@ -26,10 +26,10 @@ import java.io.OutputStreamWriter;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthToken;

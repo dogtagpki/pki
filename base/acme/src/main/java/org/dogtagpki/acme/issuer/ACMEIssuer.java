@@ -8,7 +8,7 @@ package org.dogtagpki.acme.issuer;
 import java.math.BigInteger;
 import java.security.cert.X509Certificate;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.NotImplementedException;

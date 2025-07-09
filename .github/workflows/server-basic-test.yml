@@ -154,11 +154,7 @@ jobs:
           # TODO: review permissions
           cat > expected << EOF
           drwxr-x--- pkiuser pkiuser backup
-          -rw-r--r-- pkiuser pkiuser catalina.$DATE.log
-          -rw-r--r-- pkiuser pkiuser host-manager.$DATE.log
-          -rw-r--r-- pkiuser pkiuser localhost.$DATE.log
           -rw-r--r-- pkiuser pkiuser localhost_access_log.$DATE.txt
-          -rw-r--r-- pkiuser pkiuser manager.$DATE.log
           EOF
 
           diff expected output
@@ -273,11 +269,7 @@ jobs:
           # TODO: review permissions
           cat > expected << EOF
           drwxr-x--- pkiuser pkiuser backup
-          -rw-r--r-- pkiuser pkiuser catalina.$DATE.log
-          -rw-r--r-- pkiuser pkiuser host-manager.$DATE.log
-          -rw-r--r-- pkiuser pkiuser localhost.$DATE.log
           -rw-r--r-- pkiuser pkiuser localhost_access_log.$DATE.txt
-          -rw-r--r-- pkiuser pkiuser manager.$DATE.log
           EOF
 
           diff expected output
@@ -362,10 +354,7 @@ jobs:
           cat > expected << EOF
           drwxr-x--- tomcat tomcat backup
           -rw-r--r-- tomcat tomcat catalina.$DATE.log
-          -rw-r--r-- tomcat tomcat host-manager.$DATE.log
-          -rw-r--r-- tomcat tomcat localhost.$DATE.log
           -rw-r--r-- tomcat tomcat localhost_access_log.$DATE.txt
-          -rw-r--r-- tomcat tomcat manager.$DATE.log
           EOF
 
           diff expected output
@@ -445,10 +434,7 @@ jobs:
           cat > expected << EOF
           drwxr-x--- tomcat tomcat backup
           -rw-r--r-- tomcat tomcat catalina.$DATE.log
-          -rw-r--r-- tomcat tomcat host-manager.$DATE.log
-          -rw-r--r-- tomcat tomcat localhost.$DATE.log
           -rw-r--r-- tomcat tomcat localhost_access_log.$DATE.txt
-          -rw-r--r-- tomcat tomcat manager.$DATE.log
           EOF
 
           diff expected output

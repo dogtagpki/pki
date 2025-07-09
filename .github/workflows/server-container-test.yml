@@ -114,11 +114,7 @@ jobs:
           # everything should be owned by docker group
           # TODO: review owners/permissions
           cat > expected << EOF
-          -rw-rw-rw- docker catalina.$DATE.log
-          -rw-rw-rw- docker host-manager.$DATE.log
-          -rw-rw-rw- docker localhost.$DATE.log
           -rw-rw-rw- docker localhost_access_log.$DATE.txt
-          -rw-rw-rw- docker manager.$DATE.log
           drwxrwxrwx docker pki
           EOF
 

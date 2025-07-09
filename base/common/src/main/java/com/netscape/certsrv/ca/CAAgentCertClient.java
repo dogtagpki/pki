@@ -18,6 +18,7 @@
 package com.netscape.certsrv.ca;
 
 import org.apache.http.HttpEntity;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
