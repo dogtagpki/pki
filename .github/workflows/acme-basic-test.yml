@@ -8,6 +8,7 @@ env:
 jobs:
   # docs/installation/acme/Installing_PKI_ACME_Responder.md
   # docs/user/acme/Using_PKI_ACME_Responder_with_Certbot.md
+  # Testing with Caddy web proxy ACME integration which use ES256
   test:
     name: Test
     runs-on: ubuntu-latest
@@ -347,18 +348,6 @@ jobs:
 
       - name: Verify ACME in PKI container
         run: docker exec pki pki acme-info
-
-      - name: Update ACME configuration
-        run: |
-          # configure RESTEasy logging
-          docker exec -i pki tee /var/lib/pki/pki-tomcat/conf/acme/logging.properties << EOF
-          org.jboss.resteasy.level = INFO
-          EOF
-
-          docker exec pki chown pkiuser:pkiuser /var/lib/pki/pki-tomcat/conf/acme/logging.properties
-
-          # restart PKI server
-          docker exec pki pki-server restart --wait
 
       - name: Set up client container
         run: |
@@ -706,6 +695,73 @@ jobs:
           sed -n 's/^acmeStatus: *\(.*\)$/\1/p' output > actual
           diff expected actual
 
+
+      - name: Install caddy in client container
+        run: docker exec client dnf install -y caddy
+
+      - name: Configure ACME support in caddy
+        run: |
+          cat > Caddyfile << EOF
+          {
+            acme_ca https://pki.example.com:8443/acme/directory
+            acme_ca_root /etc/caddy/ca_signing.crt
+            key_type rsa2048
+          }
+          
+          client.example.com {
+            root * /usr/share/caddy
+            file_server
+          }
+          import Caddyfile.d/*.caddyfile
+          EOF
+
+          docker cp Caddyfile client:/etc/caddy
+          docker exec pki pki-server cert-export \
+              --cert-file $SHARED/ca_signing.crt \
+              ca_signing
+          docker exec client cp $SHARED/ca_signing.crt /etc/caddy/ca_signing.crt
+          
+      - name: Start caddy
+        run: |
+          docker exec client systemctl start caddy
+          # Wait caddy to start and get the certificate
+          sleep 40
+
+      - name: Check https is working
+        run: |
+          docker exec client curl -k /etc/caddy/ca_signing.crt https://client.example.com
+
+
+      - name: Check ACME accounts after caddy started
+        run: |
+          docker exec ds ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=accounts,dc=acme,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          # there should be a new account for a total of 2
+          echo "2" > expected
+          grep "^dn:" output | wc -l > actual
+          diff expected actual
+
+          # the second account, created by caddy, is using ES256
+          echo '"crv":"P-256","kty":"EC"' > expected
+          sed -n 's/^acmeAccountKey: {\("crv":"P-256","kty":"EC"\).*}/\1/p' output > actual
+          diff expected actual
+
+      - name: Check CA certs after caddy started
+        run: |
+          docker exec pki pki ca-cert-find | tee output
+
+          # there should be 9 certs
+          echo "9" > expected
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+          
       - name: Remove ACME from PKI container
         run: docker exec pki pkidestroy -s ACME -v
 
