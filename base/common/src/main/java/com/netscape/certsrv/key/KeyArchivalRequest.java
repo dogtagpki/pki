@@ -23,7 +23,7 @@ package com.netscape.certsrv.key;
 
 import java.io.StringReader;
 
-import javax.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.MultivaluedMap;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 

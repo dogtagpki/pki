@@ -28,10 +28,10 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.ws.rs.Path;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriBuilder;
 
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.kra.KRAEngine;

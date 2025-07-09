@@ -3,8 +3,8 @@ package org.dogtagpki.server.kra.rest.v1;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
+import jakarta.ws.rs.ApplicationPath;
+import jakarta.ws.rs.core.Application;
 
 import org.dogtagpki.server.rest.v1.ACLInterceptor;
 import org.dogtagpki.server.rest.v1.AccountService;

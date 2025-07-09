@@ -23,7 +23,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MediaType;
 
 import org.dogtagpki.server.tps.TPSConfig;
 import org.dogtagpki.server.tps.TPSEngine;

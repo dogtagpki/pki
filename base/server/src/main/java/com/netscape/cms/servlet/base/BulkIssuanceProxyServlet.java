@@ -2,8 +2,8 @@
 
 package com.netscape.cms.servlet.base;
 
-import javax.servlet.annotation.WebInitParam;
-import javax.servlet.annotation.WebServlet;
+import jakarta.servlet.annotation.WebInitParam;
+import jakarta.servlet.annotation.WebServlet;
 
 @WebServlet(
         name = "caProxyBulkIssuance",

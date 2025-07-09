@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.ca.AuthorityRecord;
