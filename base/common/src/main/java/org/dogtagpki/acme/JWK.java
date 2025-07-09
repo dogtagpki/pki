@@ -18,8 +18,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class JWK {
 
     private String e;
+    private String crv;
     private String kty;
     private String n;
+    private String x;
+    private String y;
 
     public String getE() {
         return e;
@@ -27,6 +30,14 @@ public class JWK {
 
     public void setE(String e) {
         this.e = e;
+    }
+
+    public String getCrv() {
+        return crv;
+    }
+
+    public void setCrv(String crv) {
+            this.crv = crv;
     }
 
     public String getKty() {
@@ -45,6 +56,21 @@ public class JWK {
         this.n = n;
     }
 
+    public String getX() {
+        return x;
+    }
+
+    public void setX(String x) {
+            this.x = x;
+    }
+
+    public String getY() {
+        return y;
+    }
+
+    public void setY(String y) {
+        this.y = y;
+    }
     /*
      * JSON Web Key (JWK) Thumbprint
      * https://tools.ietf.org/html/rfc7638
