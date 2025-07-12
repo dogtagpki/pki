@@ -16,13 +16,13 @@ Name:             pki
 # Downstream release number:
 # - development/stabilization (unsupported): 0.<n> where n >= 1
 # - GA/update (supported): <n> where n >= 1
-%global           release_number 0.1
+%global           release_number 0.2
 
 # Development phase:
 # - development (unsupported): alpha<n> where n >= 1
 # - stabilization (unsupported): beta<n> where n >= 1
 # - GA/update (supported): <none>
-%global           phase beta1
+%global           phase beta2
 
 %undefine         timestamp
 %undefine         commit_id
@@ -242,10 +242,10 @@ BuildRequires:    mvn(org.jboss.resteasy:resteasy-servlet-initializer)
 
 %endif
 
-BuildRequires:    mvn(org.apache.tomcat:tomcat-catalina) >= 10.1.33
-BuildRequires:    mvn(org.apache.tomcat:tomcat-servlet-api) >= 10.1.33
-BuildRequires:    mvn(org.apache.tomcat:tomcat-jaspic-api) >= 10.1.33
-BuildRequires:    mvn(org.apache.tomcat:tomcat-util-scan) >= 10.0.33
+BuildRequires:    mvn(org.apache.tomcat:tomcat-catalina) >= 10.1.36
+BuildRequires:    mvn(org.apache.tomcat:tomcat-servlet-api) >= 10.1.36
+BuildRequires:    mvn(org.apache.tomcat:tomcat-jaspic-api) >= 10.1.36
+BuildRequires:    mvn(org.apache.tomcat:tomcat-util-scan) >= 10.0.36
 
 %if 0%{?rhel} && 0%{?rhel} >= 10
 BuildRequires:    tomcat9-lib
@@ -666,7 +666,7 @@ Requires:         mvn(org.jboss.resteasy:resteasy-servlet-initializer)
 Provides:         bundled(resteasy-servlet-initializer)
 %endif
 
-Requires:         tomcat >= 1:10.1.33
+Requires:         tomcat >= 1:10.1.36
 
 Requires:         mvn(org.dogtagpki.jss:jss-tomcat) >= 5.8
 
@@ -1030,7 +1030,6 @@ BuildArch:        noarch
 Obsoletes:        pki-tests < %{version}-%{release}
 Provides:         pki-tests = %{version}-%{release}
 
-Requires:         python3-pylint
 Requires:         python3-flake8
 
 %description -n   %{product_id}-tests
