@@ -139,7 +139,7 @@ jobs:
           lrwxrwxrwx pkiuser pkiuser lib -> /usr/share/pki/server/lib
           lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-tomcat
           drwxrwx--- pkiuser pkiuser temp
-          drwxr-xr-x pkiuser pkiuser webapps
+          drwxrwx--- pkiuser pkiuser webapps
           drwxrwx--- pkiuser pkiuser work
           EOF
 
@@ -188,8 +188,8 @@ jobs:
           cat > expected << EOF
           drwxrwx--- pkiuser pkiuser backup
           drwxrwx--- pkiuser pkiuser est
-          -rw-r--r-- pkiuser pkiuser localhost_access_log.$DATE.txt
-          drwxr-xr-x pkiuser pkiuser pki
+          -rw-r----- pkiuser pkiuser localhost_access_log.$DATE.txt
+          drwxr-x--- pkiuser pkiuser pki
           EOF
 
           diff expected output
@@ -333,8 +333,8 @@ jobs:
           cat > expected << EOF
           drwxrwx--- pkiuser pkiuser backup
           drwxrwx--- pkiuser pkiuser est
-          -rw-r--r-- pkiuser pkiuser localhost_access_log.$DATE.txt
-          drwxr-xr-x pkiuser pkiuser pki
+          -rw-r----- pkiuser pkiuser localhost_access_log.$DATE.txt
+          drwxr-x--- pkiuser pkiuser pki
           EOF
 
           diff expected output

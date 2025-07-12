@@ -106,7 +106,7 @@ jobs:
           drwxrwx--- pkiuser pkiuser temp
           drwxrwx--- pkiuser pkiuser tks
           drwxrwx--- pkiuser pkiuser tps
-          drwxr-xr-x pkiuser pkiuser webapps
+          drwxrwx--- pkiuser pkiuser webapps
           drwxrwx--- pkiuser pkiuser work
           EOF
 
@@ -164,8 +164,8 @@ jobs:
           drwxrwx--- pkiuser pkiuser backup
           drwxrwx--- pkiuser pkiuser ca
           drwxrwx--- pkiuser pkiuser kra
-          -rw-r--r-- pkiuser pkiuser localhost_access_log.$DATE.txt
-          drwxr-xr-x pkiuser pkiuser pki
+          -rw-r----- pkiuser pkiuser localhost_access_log.$DATE.txt
+          drwxr-x--- pkiuser pkiuser pki
           drwxrwx--- pkiuser pkiuser tks
           drwxrwx--- pkiuser pkiuser tps
           EOF
@@ -574,8 +574,8 @@ jobs:
           drwxrwx--- pkiuser pkiuser backup
           drwxrwx--- pkiuser pkiuser ca
           drwxrwx--- pkiuser pkiuser kra
-          -rw-r--r-- pkiuser pkiuser localhost_access_log.$DATE.txt
-          drwxr-xr-x pkiuser pkiuser pki
+          -rw-r----- pkiuser pkiuser localhost_access_log.$DATE.txt
+          drwxr-x--- pkiuser pkiuser pki
           drwxrwx--- pkiuser pkiuser tks
           drwxrwx--- pkiuser pkiuser tps
           EOF

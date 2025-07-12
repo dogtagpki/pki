@@ -141,6 +141,7 @@ add_custom_command(
     COMMAND ln -sf ../../../..${P11_KIT_TRUST} lib/p11-kit-trust.so
     COMMAND ln -sf ../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-common.jar lib/pki-common.jar
     COMMAND ln -sf ../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-tools.jar lib/pki-tools.jar
+    COMMAND ln -sf ${RESTEASY_CLIENT_LINK} lib/resteasy-client.jar
     COMMAND ln -sf ${RESTEASY_JACKSON_PROVIDER_LINK} lib/resteasy-jackson2-provider.jar
     COMMAND ln -sf ${RESTEASY_JAXRS_LINK} lib/resteasy-jaxrs.jar
     COMMAND ln -sf ../../../..${SERVLET_JAR} lib/servlet.jar

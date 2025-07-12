@@ -453,6 +453,9 @@ if (RESTEASY_VERSION)
     set(RESTEASY_JAXRS_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/resteasy-jaxrs-${RESTEASY_VERSION}.jar")
     set(RESTEASY_JAXRS_LINK "resteasy-jaxrs-${RESTEASY_VERSION}.jar")
 
+    set(RESTEASY_CLIENT_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/resteasy-client-${RESTEASY_VERSION}.jar")
+    set(RESTEASY_CLIENT_LINK "resteasy-client-${RESTEASY_VERSION}.jar")
+
     set(RESTEASY_JACKSON_PROVIDER_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/resteasy-jackson2-provider-${RESTEASY_VERSION}.jar")
     set(RESTEASY_JACKSON_PROVIDER_LINK "resteasy-jackson2-provider-${RESTEASY_VERSION}.jar")
 
