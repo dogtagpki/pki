@@ -84,21 +84,9 @@ class Tomcat(object):
     @classmethod
     def get_version(cls):
         # run "tomcat version"
-        output = subprocess.check_output([Tomcat.EXECUTABLE, 'version'])
-        output = output.decode('utf-8')
 
-        # find "Server version: Apache Tomcat/<version>"
-        match = re.search(
-            r'^Server version: *.*/(.+)$',
-            output,
-            re.MULTILINE  # pylint: disable=no-member
-        )
-
-        if not match:
-            raise Exception('Unable to determine Tomcat version')
-
-        # return version
-        return pki.util.Version(match.group(1))
+        # return version , tempoerary workaround, hard code the version.
+        return pki.util.Version("10.1.0")
 
 
 @functools.total_ordering
@@ -368,7 +356,7 @@ class PKIServer(object):
             content = f.read()
 
         # add Tomcat's default policy
-        filename = '/usr/share/tomcat/conf/catalina.policy'
+        filename = '/usr/share/tomcat/user-instance/conf/catalina.policy'
         logger.info('Appending %s', filename)
         with open(filename, 'r', encoding='utf-8') as f:
             content += f.read()

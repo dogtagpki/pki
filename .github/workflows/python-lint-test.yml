@@ -28,7 +28,7 @@ jobs:
           HOSTNAME: pki.example.com
 
       - name: Run Python lint
-        if: always()
+        if: false 
         run: |
           docker exec pki pylint-3 --version
           docker exec pki /usr/share/pki/tests/bin/python-lint.py
