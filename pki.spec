@@ -200,12 +200,14 @@ BuildRequires:    javapackages-tools
 BuildRequires:    xmlstarlet
 %endif
 
-BuildRequires:     tomcat-jakartaee-migration
-BuildRequires:     pki-resteasy-core                 >= 3.0.26-33
-BuildRequires:     pki-resteasy-client               >= 3.0.26-33
-BuildRequires:     pki-resteasy-servlet-initializer  >= 3.0.26-33
-BuildRequires:     pki-resteasy-jackson2-provider    >= 3.0.26-33
-BuildRequires:     pki-resteasy                      >= 3.0.26-33
+BuildRequires:    tomcat-lib
+BuildRequires:    tomcat-jakartaee-migration
+
+BuildRequires:    pki-resteasy-core                 >= 3.0.26-33
+BuildRequires:    pki-resteasy-client               >= 3.0.26-33
+BuildRequires:    pki-resteasy-servlet-initializer  >= 3.0.26-33
+BuildRequires:    pki-resteasy-jackson2-provider    >= 3.0.26-33
+BuildRequires:    pki-resteasy                      >= 3.0.26-33
 
 
 BuildRequires:    mvn(commons-cli:commons-cli)
@@ -246,10 +248,6 @@ BuildRequires:    mvn(org.apache.tomcat:tomcat-catalina) >= 10.1.33
 BuildRequires:    mvn(org.apache.tomcat:tomcat-servlet-api) >= 10.1.33
 BuildRequires:    mvn(org.apache.tomcat:tomcat-jaspic-api) >= 10.1.33
 BuildRequires:    mvn(org.apache.tomcat:tomcat-util-scan) >= 10.0.33
-
-%if 0%{?rhel} && 0%{?rhel} >= 10
-BuildRequires:    tomcat9-lib
-%endif
 
 BuildRequires:    mvn(org.dogtagpki.jss:jss-base) >= 5.8
 BuildRequires:    mvn(org.dogtagpki.jss:jss-tomcat) >= 5.8
@@ -1438,6 +1436,7 @@ xmlstarlet edit --inplace \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.module']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.jaxrs']" \
     -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
+    -d "//_:dependency[_:groupId='pki-local']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
     %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-java.xml
