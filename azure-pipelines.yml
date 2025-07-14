@@ -18,8 +18,12 @@ jobs:
         print('##vso[task.setvariable variable=BASE_IMAGE]{value}'.format(value=value))
 
         value = os.getenv('REGISTRY_NAMESPACE', 'dogtagpki')
-        print('NAMESPACE: {value}'.format(value=value))
+        print('REGISTRY_NAMESPACE: {value}'.format(value=value))
         print('##vso[task.setvariable variable=NAMESPACE]{value}'.format(value=value))
+
+        value = os.getenv('COPR_REPO', '@pki/11.8')
+        print('COPR_REPO: {value}'.format(value=value))
+        print('##vso[task.setvariable variable=COPR_REPO]{value}'.format(value=value))
 
   - script: |
       # replace registry namespace
@@ -29,8 +33,9 @@ jobs:
   - script: |
       docker build \
           --build-arg BASE_IMAGE=$BASE_IMAGE \
+          --build-arg COPR_REPO=$COPR_REPO \
           --target pki-base \
-          --tag pki-base:latest \
+          --tag pki-base \
           .
 
       docker run \
@@ -38,7 +43,7 @@ jobs:
           -v $BUILD_SOURCESDIRECTORY:/root/src \
           --privileged \
           --detach \
-          pki-base:latest
+          pki-base
 
       while :
       do
@@ -54,7 +59,7 @@ jobs:
       docker exec runner dnf install -y dnf-plugins-core rpm-build
       if [ -n "$COPR_REPO" ]; then docker exec runner dnf copr enable -y $COPR_REPO; fi
 
-      docker create --name=jss-dist quay.io/$NAMESPACE/jss-dist:latest
+      docker create --name=jss-dist quay.io/$NAMESPACE/jss-dist:5.8
       docker cp jss-dist:/root/RPMS/. /tmp/RPMS
       docker rm -f jss-dist
 
@@ -123,6 +128,42 @@ jobs:
           -e '/^\/usr\/lib\/sysusers\.d\/dogtag-pki\.conf/d' \
           file_list
     displayName: Get list of files from RPM packages
+
+  - script: |
+      docker exec runner javax2jakarta -profile=EE \
+          /usr/share/java/jakarta-annotations/jakarta.annotation-api.jar \
+          /usr/share/java/jakarta-annotations/jakarta.annotation-api.jar
+
+      docker exec runner javax2jakarta -profile=EE \
+          /usr/share/java/jboss-jaxrs-2.0-api.jar \
+          /usr/share/java/jboss-jaxrs-2.0-api.jar
+
+      docker exec runner javax2jakarta -profile=EE \
+          /usr/share/java/jackson-annotations.jar \
+          /usr/share/java/jackson-annotations.jar
+      docker exec runner javax2jakarta -profile=EE \
+          /usr/share/java/jackson-core.jar \
+          /usr/share/java/jackson-core.jar
+      docker exec runner javax2jakarta -profile=EE \
+          /usr/share/java/jackson-databind.jar \
+          /usr/share/java/jackson-databind.jar
+      docker exec runner javax2jakarta -profile=EE \
+          /usr/share/java/jackson-modules/jackson-module-jaxb-annotations.jar \
+          /usr/share/java/jackson-modules/jackson-module-jaxb-annotations.jar
+
+      docker exec runner javax2jakarta -profile=EE \
+          /usr/share/java/resteasy/resteasy-servlet-initializer.jar \
+          /usr/share/java/resteasy/resteasy-servlet-initializer.jar
+      docker exec runner javax2jakarta -profile=EE \
+          /usr/share/java/resteasy/resteasy-jaxrs.jar \
+          /usr/share/java/resteasy/resteasy-jaxrs.jar
+      docker exec runner javax2jakarta -profile=EE \
+          /usr/share/java/resteasy/resteasy-jackson2-provider.jar \
+          /usr/share/java/resteasy/resteasy-jackson2-provider.jar
+      docker exec runner javax2jakarta -profile=EE \
+          /usr/share/java/resteasy/resteasy-client.jar \
+          /usr/share/java/resteasy/resteasy-client.jar
+    displayName: Migrate JAR files
 
   - script: |
       # get Python <major>.<minor> version
