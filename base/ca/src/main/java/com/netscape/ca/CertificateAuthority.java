@@ -219,7 +219,7 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
     private ResponderID mResponderIDByName = null;
     private ResponderID mResponderIDByHash = null;
 
-    private KeyRetrieverRunner keyRetrieverRunner;
+    private Thread keyRetrieverThread;
 
     /**
      * Internal constants
@@ -649,7 +649,7 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
             return;
         }
 
-        if (keyRetrieverRunner != null) {
+        if (keyRetrieverThread != null) {
             logger.info("CertificateAuthority: KeyRetriever already running for authority " + authorityID);
             return;
         }
@@ -687,16 +687,14 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
             throw new EBaseException(e);
         }
 
-        // Use a synchronous KeyRetriever to ensure that the LWCA has
-        // the signing key before it can be used.
-        // https://github.com/dogtagpki/pki/issues/4677
+        KeyRetrieverRunner runner = new KeyRetrieverRunner(keyRetriever, this);
 
-        keyRetrieverRunner = new KeyRetrieverRunner(keyRetriever, this);
-        keyRetrieverRunner.run();
+        keyRetrieverThread = new Thread(runner, "KeyRetriever-" + authorityID);
+        keyRetrieverThread.start();
     }
 
     public synchronized void removeKeyRetriever() {
-        keyRetrieverRunner = null;
+        keyRetrieverThread = null;
     }
 
     public void initSigningUnits() throws Exception {
