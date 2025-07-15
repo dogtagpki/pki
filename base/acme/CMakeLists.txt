@@ -17,8 +17,7 @@ javac(pki-acme-classes
         ${LDAPJDK_JAR}
         ${PKI_COMMON_JAR}
         ${PKI_TOMCAT_JAR}
-<!--    ${PKI_TOMCAT_9_0_JAR} -->
-        ${PKI_TOMCAT_10_1_JAR}
+        ${PKI_TOMCAT_IMPL_JAR}
         ${PKI_SERVER_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
