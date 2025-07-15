@@ -728,6 +728,12 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
             return;
         }
 
+        if (mSigningUnit == null) {
+            // Signing units not initialised.  This can happen when LWCA
+            // key replication has not completed.  Ignore it and return.
+            return;
+        }
+
         X509CertImpl caCertImpl = mSigningUnit.getCertImpl();
         logger.debug("CertificateAuthority: - old serial number: 0x{}", caCertImpl.getSerialNumber().toString(16));
 
@@ -896,9 +902,10 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
     /**
      * Retrieves the CA certificate chain.
      *
-     * @return the CA certificate chain
+     * @return the CA certificate chain or null if the signing unit is not initialised
      */
     public CertificateChain getCACertChain() {
+        if (mSigningUnit == null) return null;
         return mSigningUnit.getCertChain();
     }
 
@@ -946,9 +953,10 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
     /**
      * Retrieves the CA certificate.
      *
-     * @return the CA certificate
+     * @return the CA certificate or null if the signing unit is not initialised
      */
     public org.mozilla.jss.crypto.X509Certificate getCaX509Cert() {
+        if (mSigningUnit == null) return null;
         return mSigningUnit.getCert();
     }
 
