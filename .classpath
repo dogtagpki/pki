@@ -52,9 +52,9 @@
 	<classpathentry kind="var" path="M2_REPO/org/jboss/resteasy/resteasy-jaxrs/3.0.26.Final/resteasy-jaxrs-3.0.26.Final.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/jboss/resteasy/resteasy-client/3.0.26.Final/resteasy-client-3.0.26.Final.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/jboss/resteasy/resteasy-jackson2-provider/3.0.26.Final/resteasy-jackson2-provider-3.0.26.Final.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/dogtagpki/jss/jss-base/5.8.0-SNAPSHOT/jss-base-5.8.0-SNAPSHOT.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/dogtagpki/jss/jss-tomcat/5.8.0-SNAPSHOT/jss-tomcat-5.8.0-SNAPSHOT.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/dogtagpki/jss/jss-tomcat-9.0/5.8.0-SNAPSHOT/jss-tomcat-9.0-5.8.0-SNAPSHOT.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/dogtagpki/jss/jss-base/5.9.0-SNAPSHOT/jss-base-5.9.0-SNAPSHOT.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/dogtagpki/jss/jss-tomcat/5.9.0-SNAPSHOT/jss-tomcat-5.9.0-SNAPSHOT.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/dogtagpki/jss/jss-tomcat-9.0/5.9.0-SNAPSHOT/jss-tomcat-9.0-5.9.0-SNAPSHOT.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/dogtagpki/ldap-sdk/ldapjdk/5.6.0-SNAPSHOT/ldapjdk-5.6.0-SNAPSHOT.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/opentest4j/opentest4j/1.2.0/opentest4j-1.2.0.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/junit/jupiter/junit-jupiter/5.9.0/junit-jupiter-5.9.0.jar"/>
