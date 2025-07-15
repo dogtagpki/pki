@@ -493,6 +493,10 @@ public class AuthorityRepository {
     }
 
 
+    /** Get CA certificate as DER byte array
+     *
+     * @return byte[], null if signing unit not initialised
+     */
     public byte[] getBinaryCert(String authId) {
 
         logger.info("AuthorityRepository: Getting cert for authority {}", authId);
@@ -523,11 +527,20 @@ public class AuthorityRepository {
         }
     }
 
+    /** Get CA certificate as PEM string
+     *
+     * @return String, null if signing unit not initialised
+     */
     public String getPemCert(String authId) {
         byte[] der = getBinaryCert(authId);
+        if (der == null) return null;
         return toPem("CERTIFICATE", der);
     }
 
+    /** Get CA certificate chain as DER byte array
+     *
+     * @return byte[], null if signing unit not initialised
+     */
     public byte[] getBinaryChain(String authId) {
 
         logger.info("AuthorityRepository: Getting cert chain for authority {}", authId);
@@ -559,8 +572,13 @@ public class AuthorityRepository {
         return out.toByteArray();
     }
 
+    /** Get CA certificate chain as PEM string
+     *
+     * @return String, null if signing unit not initialised
+     */
     public String getPemChain(String authId) {
         byte[] der = getBinaryChain(authId);
+        if (der == null) return null;
         return toPem("PKCS7", der);
     }
 
