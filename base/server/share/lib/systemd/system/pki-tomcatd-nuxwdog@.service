@@ -13,12 +13,18 @@ EnvironmentFile=-/etc/sysconfig/%i
 EnvironmentFile=/usr/share/pki/etc/pki.conf
 EnvironmentFile=/etc/pki/pki.conf
 
+Environment="CATALINA_HOME=/usr/share/tomcat"
+Environment="CATALINA_BASE=/var/lib/tomcat"
+Environment="CATALINA_TMPDIR=/tmp"
+
+
 ExecStartPre=+/usr/bin/pki-server-nuxwdog
 ExecStartPre=/usr/sbin/pki-server upgrade %i
 ExecStartPre=/usr/sbin/pki-server migrate %i
 ExecStartPre=/usr/bin/pkidaemon start %i
-ExecStart=/usr/libexec/tomcat/server start
-ExecStop=/usr/libexec/tomcat/server stop
+
+ExecStart=/bin/sh /usr/libexec/tomcat/tomcat-run.sh
+
 ExecStopPost=+/usr/bin/pki-server-nuxwdog --clear
 
 KeyringMode=shared

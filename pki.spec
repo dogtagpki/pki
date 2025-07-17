@@ -16,13 +16,13 @@ Name:             pki
 # Downstream release number:
 # - development/stabilization (unsupported): 0.<n> where n >= 1
 # - GA/update (supported): <n> where n >= 1
-%global           release_number 0.1
+%global           release_number 0.2
 
 # Development phase:
 # - development (unsupported): alpha<n> where n >= 1
 # - stabilization (unsupported): beta<n> where n >= 1
 # - GA/update (supported): <none>
-%global           phase beta1
+%global           phase beta2
 
 %undefine         timestamp
 %undefine         commit_id
@@ -150,6 +150,8 @@ ExcludeArch: i686
 %define pki_groupname pkiuser
 %define pki_gid 17
 
+%define tomcat_groupname tomcat
+
 # Create a home directory for PKI user at /home/pkiuser
 # to store rootless Podman container.
 %define pki_homedir /home/%{pki_username}
@@ -244,10 +246,10 @@ BuildRequires:    mvn(org.jboss.resteasy:resteasy-servlet-initializer)
 
 %endif
 
-BuildRequires:    mvn(org.apache.tomcat:tomcat-catalina) >= 10.1.33
-BuildRequires:    mvn(org.apache.tomcat:tomcat-servlet-api) >= 10.1.33
-BuildRequires:    mvn(org.apache.tomcat:tomcat-jaspic-api) >= 10.1.33
-BuildRequires:    mvn(org.apache.tomcat:tomcat-util-scan) >= 10.0.33
+BuildRequires:    mvn(org.apache.tomcat:tomcat-catalina) >= 10.1.36
+BuildRequires:    mvn(org.apache.tomcat:tomcat-servlet-api) >= 10.1.36
+BuildRequires:    mvn(org.apache.tomcat:tomcat-jaspic-api) >= 10.1.36
+BuildRequires:    mvn(org.apache.tomcat:tomcat-util-scan) >= 10.0.36
 
 BuildRequires:    mvn(org.dogtagpki.jss:jss-base) >= 5.8
 BuildRequires:    mvn(org.dogtagpki.jss:jss-tomcat) >= 5.8
@@ -664,7 +666,9 @@ Requires:         mvn(org.jboss.resteasy:resteasy-servlet-initializer)
 Provides:         bundled(resteasy-servlet-initializer)
 %endif
 
-Requires:         tomcat >= 1:10.1.33
+Requires:         tomcat >= 1:10.1.36
+Requires:         tomcat-user-instance >= 1:10.1.36
+Requires:         tomcat-jakartaee-migration
 
 Requires:         mvn(org.dogtagpki.jss:jss-tomcat) >= 5.8
 
@@ -1028,7 +1032,6 @@ BuildArch:        noarch
 Obsoletes:        pki-tests < %{version}-%{release}
 Provides:         pki-tests = %{version}-%{release}
 
-Requires:         python3-pylint
 Requires:         python3-flake8
 
 %description -n   %{product_id}-tests
@@ -1252,9 +1255,13 @@ fi
 %if 0%{?fedora}
 # Create a sysusers.d config file
 
+# Add pkiuser to the tomcat group for now to get things working
+# while we investigate the issue.
+
 cat > %{product_id}.sysusers.conf <<EOF
 g %{pki_username} %{pki_gid}
 u %{pki_groupname} %{pki_uid} 'Certificate System' %{pki_homedir} -
+m %{pki_username} %{tomcat_groupname}
 EOF
 
 %endif
@@ -1584,10 +1591,8 @@ xmlstarlet edit --inplace \
 %if %{with server}
 
 %if 0%{?fedora}
-
 install -m0644 -D %{product_id}.sysusers.conf %{buildroot}%{_sysusersdir}/%{product_id}.conf
 %pre -n %{product_id}-server
-
 %else
 
 %pre -n %{product_id}-server
@@ -1599,7 +1604,9 @@ getent group %{pki_groupname} >/dev/null || groupadd -f -g %{pki_gid} -r %{pki_g
 if ! getent passwd %{pki_username} >/dev/null ; then
     useradd -r -u %{pki_uid} -g %{pki_groupname} -d %{pki_homedir} -s /sbin/nologin -c "Certificate System" %{pki_username}
 fi
-
+# Add pkiuser to the tomcat group for now to get things working
+# while we investigate the issue.
+usermod -a -G %{tomcat_groupname} %{pki_username}
 %endif
 
 # create PKI home directory if it doesn't exist
