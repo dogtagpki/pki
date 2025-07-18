@@ -474,6 +474,15 @@ else()
     )
     set(RESTEASY_JAXRS_LINK "../../../..${RESTEASY_JAXRS_JAR}")
 
+    find_file(RESTEASY_CLIENT_JAR
+        NAMES
+            resteasy-client.jar
+        PATHS
+            /usr/share/java/resteasy
+            /usr/share/java
+    )
+    set(RESTEASY_CLIENT_LINK "../../../..${RESTEASY_CLIENT_JAR}")
+
     find_file(RESTEASY_JACKSON_PROVIDER_JAR
         NAMES
             resteasy-jackson2-provider.jar
