@@ -17,8 +17,8 @@ package com.netscape.cms.servlet.base;
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-import javax.servlet.annotation.WebInitParam;
-import javax.servlet.annotation.WebServlet;
+import jakarta.servlet.annotation.WebInitParam;
+import jakarta.servlet.annotation.WebServlet;
 
 @WebServlet(
         name = "ocspheader",

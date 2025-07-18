@@ -26,8 +26,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.core.GenericEntity;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.GenericEntity;
+import jakarta.ws.rs.core.Response;
 
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.rest.base.AuthorityRepository;

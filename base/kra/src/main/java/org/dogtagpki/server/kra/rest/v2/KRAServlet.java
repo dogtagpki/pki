@@ -5,8 +5,8 @@
 //
 package org.dogtagpki.server.kra.rest.v2;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
 
 import org.dogtagpki.server.kra.KRAEngine;
 import org.dogtagpki.server.kra.KRAEngineConfig;

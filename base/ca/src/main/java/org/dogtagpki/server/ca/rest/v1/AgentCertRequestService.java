@@ -18,7 +18,7 @@
 
 package org.dogtagpki.server.ca.rest.v1;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.BadRequestException;

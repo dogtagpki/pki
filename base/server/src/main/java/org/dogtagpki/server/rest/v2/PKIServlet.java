@@ -22,11 +22,11 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.catalina.realm.GenericPrincipal;
 import org.dogtagpki.server.authentication.AuthToken;

@@ -22,9 +22,9 @@ import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.util.Date;
 
-import javax.ws.rs.Path;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.core.UriBuilder;
+import jakarta.ws.rs.core.UriInfo;
 
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
