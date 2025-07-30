@@ -19,25 +19,25 @@
         <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-catalina</artifactId>
-            <version>10.1.43</version>
+            <version>10.1.36</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-servlet-api</artifactId>
-            <version>10.1.43</version>
+            <version>10.1.36</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-jaspic-api</artifactId>
-            <version>10.1.43</version>
+            <version>10.1.36</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-util-scan</artifactId>
-            <version>10.1.43</version>
+            <version>10.1.36</version>
         </dependency>
 
         <dependency>
