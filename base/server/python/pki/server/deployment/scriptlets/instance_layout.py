@@ -67,9 +67,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         instance.with_maven_deps = deployer.with_maven_deps
         instance.create_libs(force=True)
 
-        # Create /var/lib/pki/<instance>/webapps
-        instance.makedirs(instance.webapps_dir, exist_ok=True)
-
         # Create /var/lib/pki/<instance>/temp
         instance.makedirs(instance.temp_dir, exist_ok=True)
 

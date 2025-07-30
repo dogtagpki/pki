@@ -220,7 +220,7 @@ jobs:
           lrwxrwxrwx pkiuser pkiuser lib -> /usr/share/pki/server/lib
           lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-tomcat
           drwxrwx--- pkiuser pkiuser temp
-          drwxrwx--- pkiuser pkiuser webapps
+          drwxr-xr-x pkiuser pkiuser webapps
           drwxrwx--- pkiuser pkiuser work
           EOF
 
@@ -271,8 +271,8 @@ jobs:
           drwxrwx--- pkiuser pkiuser backup
           drwxrwx--- pkiuser pkiuser ca
           drwxrwx--- pkiuser pkiuser est
-          -rw-r----- pkiuser pkiuser localhost_access_log.$DATE.txt
-          drwxr-x--- pkiuser pkiuser pki
+          -rw-r--r-- pkiuser pkiuser localhost_access_log.$DATE.txt
+          drwxr-xr-x pkiuser pkiuser pki
           EOF
 
           diff expected output
@@ -309,7 +309,7 @@ jobs:
 
       - name: Add EST user
         run: |
-          DIGEST=$(docker exec pki /usr/share/tomcat/bin/digest.sh Secret.123 | sed 's/.*://')
+          DIGEST=$(docker exec pki tomcat-digest Secret.123 | sed 's/.*://')
 
           docker exec postgresql psql -U est -t -A -c "INSERT INTO users VALUES ('est-test-user', 'test.example.com', '$DIGEST');"  est
           docker exec postgresql psql -U est -t -A -c "INSERT INTO group_members VALUES ('EST Users', 'est-test-user');"  est
@@ -553,8 +553,8 @@ jobs:
           drwxrwx--- pkiuser pkiuser backup
           drwxrwx--- pkiuser pkiuser ca
           drwxrwx--- pkiuser pkiuser est
-          -rw-r----- pkiuser pkiuser localhost_access_log.$DATE.txt
-          drwxr-x--- pkiuser pkiuser pki
+          -rw-r--r-- pkiuser pkiuser localhost_access_log.$DATE.txt
+          drwxr-xr-x pkiuser pkiuser pki
           EOF
 
           diff expected output

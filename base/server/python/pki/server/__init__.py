@@ -76,15 +76,14 @@ class Tomcat(object):
     CONF_DIR = '/etc/tomcat'
     LIB_DIR = '/usr/share/java/tomcat'
     SHARE_DIR = '/usr/share/tomcat'
-    EXECUTABLE = '/usr/share/tomcat/bin/catalina.sh'
+    EXECUTABLE = '/usr/sbin/tomcat'
     UNIT_FILE = '/lib/systemd/system/tomcat@.service'
     SERVER_XML = CONF_DIR + '/server.xml'
     TOMCAT_CONF = CONF_DIR + '/tomcat.conf'
 
     @classmethod
     def get_version(cls):
-        # run "catalina.sh version"
-
+        # run "tomcat version"
         output = subprocess.check_output([Tomcat.EXECUTABLE, 'version'])
         output = output.decode('utf-8')
 
@@ -369,7 +368,7 @@ class PKIServer(object):
             content = f.read()
 
         # add Tomcat's default policy
-        filename = '/usr/share/tomcat/user-instance/conf/catalina.policy'
+        filename = '/usr/share/tomcat/conf/catalina.policy'
         logger.info('Appending %s', filename)
         with open(filename, 'r', encoding='utf-8') as f:
             content += f.read()

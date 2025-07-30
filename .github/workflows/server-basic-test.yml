@@ -154,7 +154,7 @@ jobs:
           # TODO: review permissions
           cat > expected << EOF
           drwxr-x--- pkiuser pkiuser backup
-          -rw-r----- pkiuser pkiuser localhost_access_log.$DATE.txt
+          -rw-r--r-- pkiuser pkiuser localhost_access_log.$DATE.txt
           EOF
 
           diff expected output
@@ -269,7 +269,7 @@ jobs:
           # TODO: review permissions
           cat > expected << EOF
           drwxr-x--- pkiuser pkiuser backup
-          -rw-r----- pkiuser pkiuser localhost_access_log.$DATE.txt
+          -rw-r--r-- pkiuser pkiuser localhost_access_log.$DATE.txt
           EOF
 
           diff expected output
