@@ -243,6 +243,11 @@ class PKICLI(pki.cli.CLI):
                 java_fips_cmd
             ])
 
+        # Deal with warnings that alter CI test results.
+        cmd.extend([
+            '--enable-native-access=ALL-UNNAMED'
+        ])
+
         for name in self.properties:
             option = '-D' + name + '=' + self.properties[name]
             cmd.append(option)

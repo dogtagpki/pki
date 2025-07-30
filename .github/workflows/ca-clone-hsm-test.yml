@@ -62,7 +62,7 @@ jobs:
           # configure SSH server to allow root access with public key auth
           docker exec hsm cat /etc/ssh/sshd_config
           docker exec -i hsm tee /etc/ssh/sshd_config.d/root-login.conf << EOF
-          PermitRootLogin yes
+          PermitRootLogin without-password 
           PubkeyAuthentication yes
           AuthenticationMethods publickey
           EOF
@@ -83,6 +83,7 @@ jobs:
           docker exec hsm ssh-keyscan -H hsm.example.com \
               | tee known_hosts
 
+          docker exec hsm ls -R -la /root/.ssh
       - name: Set up primary DS container
         run: |
           tests/bin/ds-create.sh \
@@ -118,10 +119,11 @@ jobs:
 
           # check SSH client for root
           docker exec primary \
-              ssh \
+              ssh -vvvv \
               root@hsm.example.com \
               hostname
 
+          docker exec hsm journalctl -t sshd
           # set up SSH client for pkiuser
           docker exec primary mkdir -p /home/pkiuser/.ssh
           docker exec primary chmod 700 /home/pkiuser/.ssh
@@ -141,7 +143,7 @@ jobs:
 
           # check SSH client for pkiuser
           docker exec primary sudo -i -u pkiuser \
-              ssh \
+              ssh -vvvv \
               root@hsm.example.com \
               hostname
 
