@@ -22,7 +22,7 @@ Name:             pki
 # - development (unsupported): alpha<n> where n >= 1
 # - stabilization (unsupported): beta<n> where n >= 1
 # - GA/update (supported): <none>
-%global           phase beta1
+%global           phase beta2
 
 %undefine         timestamp
 %undefine         commit_id
