@@ -1,0 +1,295 @@
+name: KRA with server-side key generation
+
+# This test will perform the following operations:
+# - install CA
+# - install KRA
+# - use default password policy in caServerKeygen_UserCert
+# - submit request with good password
+# - submit request with short password
+# - submit request with numeric password
+# - disable password policy in caServerKeygen_UserCert
+# - submit request with minimal password
+
+# TODO: verify that the key is generated in KRA
+
+on: workflow_call
+
+env:
+  DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Retrieve PKI images
+        uses: actions/cache@v4
+        with:
+          key: pki-images-${{ github.sha }}
+          path: pki-images.tar
+
+      - name: Load PKI images
+        run: docker load --input pki-images.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-create.sh \
+              --image=${{ env.DS_IMAGE }} \
+              --hostname=ds.example.com \
+              --network=example \
+              --network-alias=ds.example.com \
+              --password=Secret.123 \
+              ds
+
+      - name: Set up PKI container
+        run: |
+          tests/bin/runner-init.sh \
+              --hostname=pki.example.com \
+              --network=example \
+              --network-alias=pki.example.com \
+              pki
+
+      - name: Install CA
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
+              -v
+
+      - name: Install KRA
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/kra.cfg \
+              -s KRA \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
+              -v
+
+      - name: Check KRA connector in CA
+        run: |
+          docker exec pki pki-server cert-export \
+              --cert-file $SHARED/kra_transport.crt \
+              kra_transport
+
+          TRANSPORT_CERT=$(openssl x509 \
+              -in kra_transport.crt \
+              -outform der \
+              | base64 --wrap=0)
+
+          docker exec pki pki-server ca-config-find | grep ^ca\.connector.KRA\. | tee output
+
+          # KRA connector should be configured
+          cat > expected << EOF
+          ca.connector.KRA.enable=true
+          ca.connector.KRA.host=pki.example.com
+          ca.connector.KRA.local=false
+          ca.connector.KRA.nickName=subsystem
+          ca.connector.KRA.port=8443
+          ca.connector.KRA.timeout=30
+          ca.connector.KRA.transportCert=$TRANSPORT_CERT
+          ca.connector.KRA.uri=/kra/agent/kra/connector
+          EOF
+
+          diff expected output
+
+      - name: Install admin cert
+        run: |
+          docker exec pki pki-server cert-export \
+              --cert-file ca_signing.crt \
+              ca_signing
+
+          docker exec pki pki nss-cert-import \
+              --cert ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
+          docker exec pki pki pkcs12-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password Secret.123
+
+      - name: Create request template for caServerKeygen_UserCert
+        run: |
+          # get request template
+          docker exec pki curl \
+              -s \
+              -o - \
+              --cacert ca_signing.crt \
+              https://pki.example.com:8443/ca/rest/certrequests/profiles/caServerKeygen_UserCert \
+              | tee caServerKeygen_UserCert.json
+
+          # configure request template
+          cat caServerKeygen_UserCert.json \
+              | jq '.Input[0].Attribute[1].Value|="RSA" | .Input[0].Attribute[2].Value|="2048" | .Input[1].Attribute[0].Value|="test1"' \
+              | tee template.json
+
+      - name: Submit request with good password
+        run: |
+          # create request with good password
+          cat template.json \
+              | jq '.Input[0].Attribute[0].Value|="k342r09cmIJmklOLIJ,lwerkln234lik-[df"' \
+              | tee request.json
+
+          # submit request
+          docker exec pki curl \
+              -s \
+              -o - \
+              --cacert ca_signing.crt \
+              --json @$SHARED/request.json \
+              https://pki.example.com:8443/ca/rest/certrequests \
+              | tee response.json
+
+          # request should be pending
+          jq -r '.entries[0].requestStatus' response.json > actual
+          echo "pending" > expected
+
+          diff expected actual
+
+          # approve request
+          REQUEST_ID=$(jq -r '.entries[0].requestID' response.json)
+          docker exec pki pki \
+              -n caadmin \
+              ca-cert-request-approve \
+              --force \
+              $REQUEST_ID \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          # approval is currently failing:
+          # https://github.com/dogtagpki/pki/issues/5037
+          cat > expected << EOF
+          PKIException: Server Internal Error: KRA Transport Certificate needs to be imported into the CA nssdb for Server-Side Keygen Enrollment
+          EOF
+
+          diff expected stderr
+
+      - name: Submit request with short password
+        run: |
+          # create request with short password
+          cat template.json \
+              | jq '.Input[0].Attribute[0].Value|="k342r0"' \
+              | tee request.json
+
+          # submit request
+          docker exec pki curl \
+              -s \
+              -o - \
+              --cacert ca_signing.crt \
+              --json @$SHARED/request.json \
+              https://pki.example.com:8443/ca/rest/certrequests \
+              | tee response.json
+
+          # request should be rejected
+          jq -r '.entries[0].requestStatus, .entries[0].errorMessage' response.json > actual
+
+          cat > expected <<EOF
+          rejected
+          The password must be at least 20 characters
+          EOF
+
+          diff expected actual
+
+      - name: Submit request with numeric password
+        run: |
+          # create request with numeric password
+          cat template.json \
+              | jq '.Input[0].Attribute[0].Value|="1234567890246801357938"' \
+              | tee request.json
+
+          # submit request
+          docker exec pki curl \
+              -s \
+              -o - \
+              --cacert ca_signing.crt \
+              --json @$SHARED/request.json \
+              https://pki.example.com:8443/ca/rest/certrequests \
+              | tee response.json
+
+          # request should be rejected
+          jq -r '.entries[0].requestStatus, .entries[0].errorMessage' response.json > actual
+
+          cat > expected <<EOF
+          rejected
+          The password requires at least 2 upper case letter(s)
+          EOF
+
+          diff expected actual
+
+      - name: Disable password policy
+        run: |
+          docker exec pki sed -i \
+              's/^policyset.userCertSet.list=1,10,2,3,4,5,6,7,8,9,11/policyset.userCertSet.list=1,10,2,3,4,5,6,7,8,9/' \
+              /etc/pki/pki-tomcat/ca/profiles/ca/caServerKeygen_UserCert.cfg
+
+          docker exec pki pki-server ca redeploy --wait
+
+      - name: Submit request with minimal password
+        run: |
+          # create request with minimal password
+          cat template.json \
+              | jq '.Input[0].Attribute[0].Value|="1"' \
+              | tee request.json
+
+          # submit request
+          docker exec pki curl \
+              -s \
+              -o - \
+              --cacert ca_signing.crt \
+              --json @$SHARED/request.json \
+              https://pki.example.com:8443/ca/rest/certrequests \
+              | tee response.json
+
+          # request should be pending
+          jq -r '.entries[0].requestStatus' response.json > actual
+          echo "pending" > expected
+
+          diff expected actual
+
+          # approve request
+          REQUEST_ID=$(jq -r '.entries[0].requestID' response.json)
+          docker exec pki pki \
+              -n caadmin \
+              ca-cert-request-approve \
+              --force \
+              $REQUEST_ID \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          # approval is currently failing:
+          # https://github.com/dogtagpki/pki/issues/5037
+          cat > expected << EOF
+          PKIException: Server Internal Error: KRA Transport Certificate needs to be imported into the CA nssdb for Server-Side Keygen Enrollment
+          EOF
+
+          diff expected stderr
+
+      - name: Remove KRA
+        run: docker exec pki pkidestroy -s KRA -v
+
+      - name: Remove CA
+        run: docker exec pki pkidestroy -s CA -v
+
+      - name: Check PKI server systemd journal
+        if: always()
+        run: |
+          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check PKI server access log
+        if: always()
+        run: |
+          docker exec pki find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+
+      - name: Check CA debug log
+        if: always()
+        run: |
+          docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check KRA debug log
+        if: always()
+        run: |
+          docker exec pki find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
