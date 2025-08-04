@@ -78,6 +78,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/kra-hsm-test.yml
 
+  kra-sskg-test:
+    name: KRA with server-side key generation
+    needs: build
+    uses: ./.github/workflows/kra-sskg-test.yml
+
   kra-migration-test:
     name: KRA migration
     needs: build
