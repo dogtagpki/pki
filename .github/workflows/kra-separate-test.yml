@@ -299,6 +299,31 @@ jobs:
 
       - name: Verify KRA connector in sub CA
         run: |
+          docker exec kra pki-server cert-export \
+              --cert-file $SHARED/kra_transport.crt \
+              kra_transport
+
+          TRANSPORT_CERT=$(openssl x509 \
+              -in kra_transport.crt \
+              -outform der \
+              | base64 --wrap=0)
+
+          docker exec subca pki-server ca-config-find | grep ^ca\.connector.KRA\. | tee output
+
+          # KRA connector should be configured
+          cat > expected << EOF
+          ca.connector.KRA.enable=true
+          ca.connector.KRA.host=kra.example.com
+          ca.connector.KRA.local=false
+          ca.connector.KRA.nickName=subsystem
+          ca.connector.KRA.port=8443
+          ca.connector.KRA.timeout=30
+          ca.connector.KRA.transportCert=$TRANSPORT_CERT
+          ca.connector.KRA.uri=/kra/agent/kra/connector
+          EOF
+
+          diff expected output
+
           docker exec subca pki -n caadmin --ignore-banner ca-kraconnector-show | tee output
           sed -n 's/\s*Host:\s\+\(\S\+\):.*/\1/p' output > actual
           echo kra.example.com > expected

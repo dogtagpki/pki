@@ -137,6 +137,31 @@ jobs:
 
       - name: Check KRA connector config
         run: |
+          docker exec primary pki-server cert-export \
+              --cert-file $SHARED/kra_transport.crt \
+              kra_transport
+
+          TRANSPORT_CERT=$(openssl x509 \
+              -in kra_transport.crt \
+              -outform der \
+              | base64 --wrap=0)
+
+          docker exec primary pki-server ca-config-find | grep ^ca\.connector.KRA\. | tee output
+
+          # KRA connector should be enabled and point to primary KRA
+          cat > expected << EOF
+          ca.connector.KRA.enable=true
+          ca.connector.KRA.host=primary.example.com
+          ca.connector.KRA.local=false
+          ca.connector.KRA.nickName=subsystemCert cert-pki-ca
+          ca.connector.KRA.port=8443
+          ca.connector.KRA.timeout=30
+          ca.connector.KRA.transportCert=$TRANSPORT_CERT
+          ca.connector.KRA.uri=/kra/agent/kra/connector
+          EOF
+
+          diff expected output
+
           docker exec primary pki-server ca-connector-find | tee output
 
           # KRA connector should be enabled and point to primary KRA
@@ -443,6 +468,27 @@ jobs:
 
       - name: Check KRA connector config in primary CA
         run: |
+          TRANSPORT_CERT=$(openssl x509 \
+              -in kra_transport.crt \
+              -outform der \
+              | base64 --wrap=0)
+
+          docker exec primary pki-server ca-config-find | grep ^ca\.connector.KRA\. | tee output
+
+          # KRA connector should be enabled and point to primary KRA
+          cat > expected << EOF
+          ca.connector.KRA.enable=true
+          ca.connector.KRA.host=primary.example.com
+          ca.connector.KRA.local=false
+          ca.connector.KRA.nickName=subsystemCert cert-pki-ca
+          ca.connector.KRA.port=8443
+          ca.connector.KRA.timeout=30
+          ca.connector.KRA.transportCert=$TRANSPORT_CERT
+          ca.connector.KRA.uri=/kra/agent/kra/connector
+          EOF
+
+          diff expected output
+
           docker exec primary pki-server ca-connector-find | tee output
 
           # KRA connector should be enabled and point to primary KRA
@@ -457,6 +503,27 @@ jobs:
 
       - name: Check KRA connector config in secondary CA
         run: |
+          TRANSPORT_CERT=$(openssl x509 \
+              -in kra_transport.crt \
+              -outform der \
+              | base64 --wrap=0)
+
+          docker exec secondary pki-server ca-config-find | grep ^ca\.connector.KRA\. | tee output
+
+          # KRA connector should be enabled and point to both KRAs
+          cat > expected << EOF
+          ca.connector.KRA.enable=true
+          ca.connector.KRA.host=primary.example.com:8443 secondary.example.com:8443
+          ca.connector.KRA.local=false
+          ca.connector.KRA.nickName=subsystemCert cert-pki-ca
+          ca.connector.KRA.port=8443
+          ca.connector.KRA.timeout=30
+          ca.connector.KRA.transportCert=$TRANSPORT_CERT
+          ca.connector.KRA.uri=/kra/agent/kra/connector
+          EOF
+
+          diff expected output
+
           docker exec secondary pki-server ca-connector-find | tee output
 
           # KRA connector should be enabled and point to both KRAs
@@ -779,6 +846,29 @@ jobs:
 
       - name: Check KRA connector after removing primary server
         run: |
+          TRANSPORT_CERT=$(openssl x509 \
+              -in kra_transport.crt \
+              -outform der \
+              | base64 --wrap=0)
+
+          docker exec secondary pki-server ca-config-find | grep ^ca\.connector.KRA\. | tee output
+
+          # KRA connector should point to secondary KRA
+          cat > expected << EOF
+          ca.connector.KRA.enable=true
+          ca.connector.KRA.host=secondary.example.com
+          ca.connector.KRA.local=false
+          ca.connector.KRA.nickName=subsystemCert cert-pki-ca
+          ca.connector.KRA.port=8443
+          ca.connector.KRA.timeout=30
+          ca.connector.KRA.transportCert=$TRANSPORT_CERT
+          ca.connector.KRA.uri=/kra/agent/kra/connector
+          EOF
+
+          # currently it still points to both KRAs
+          # https://pagure.io/freeipa/issue/9432
+          diff expected output || true
+
           docker exec secondary pki-server ca-connector-find | tee output
 
           # KRA connector should point to secondary KRA
