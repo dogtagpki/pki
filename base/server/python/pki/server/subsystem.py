@@ -915,10 +915,12 @@ class PKISubsystem(object):
                 % (self.name, self.name)
 
             cmd = [
-                'jar',
-                'xf',
+                'unzip',
+                '-j',
                 server_jar,
-                'audit-events.properties'
+                'audit-events.properties',
+                '-d',
+                '.'
             ]
 
             logger.debug('Command: %s', ' '.join(cmd))

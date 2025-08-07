@@ -645,9 +645,11 @@ Requires:         policycoreutils
 Requires:         procps-ng
 Requires:         openldap-clients
 Requires:         openssl
+Requires:         unzip
+
 Requires:         %{product_id}-tools = %{version}-%{release}
 
-Requires:         %{java_devel}
+Requires:         %{java_headless}
 
 Requires:         keyutils
 
