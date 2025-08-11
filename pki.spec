@@ -71,21 +71,21 @@ ExcludeArch: i686
 
 # maven-local is a subpackage of javapackages-tools
 
-%if 0%{?fedora} && 0%{?fedora} <= 39 || 0%{?rhel} && 0%{?rhel} <= 9
-
-%define java_runtime java-17-openjdk
-%define java_devel java-17-openjdk-devel
-%define java_headless java-17-openjdk-headless
-%define java_home %{_jvmdir}/jre-17-openjdk
-%define maven_local maven-local-openjdk17
-
-%else
+%if 0%{?fedora} && 0%{?fedora} >= 43
 
 %define java_runtime java-25-openjdk
 %define java_devel java-25-openjdk-devel
 %define java_headless java-25-openjdk-headless
 %define java_home %{_jvmdir}/jre-25-openjdk
-%define maven_local maven-local
+%define maven_local maven-local-openjdk25
+
+%else
+
+%define java_runtime java-21-openjdk
+%define java_devel java-21-openjdk-devel
+%define java_headless java-21-openjdk-headless
+%define java_home %{_jvmdir}/jre-21-openjdk
+%define maven_local maven-local-openjdk21
 
 %endif
 
@@ -244,10 +244,10 @@ BuildRequires:    mvn(org.jboss.resteasy:resteasy-servlet-initializer)
 
 %endif
 
-BuildRequires:    mvn(org.apache.tomcat:tomcat-catalina) >= 10.1.43
-BuildRequires:    mvn(org.apache.tomcat:tomcat-servlet-api) >= 10.1.43
-BuildRequires:    mvn(org.apache.tomcat:tomcat-jaspic-api) >= 10.1.43
-BuildRequires:    mvn(org.apache.tomcat:tomcat-util-scan) >= 10.0.43
+BuildRequires:    mvn(org.apache.tomcat:tomcat-catalina) >= 10.1.36
+BuildRequires:    mvn(org.apache.tomcat:tomcat-servlet-api) >= 10.1.36
+BuildRequires:    mvn(org.apache.tomcat:tomcat-jaspic-api) >= 10.1.36
+BuildRequires:    mvn(org.apache.tomcat:tomcat-util-scan) >= 10.0.36
 
 BuildRequires:    mvn(org.dogtagpki.jss:jss-base) >= 5.8
 BuildRequires:    mvn(org.dogtagpki.jss:jss-tomcat) >= 5.8
@@ -664,7 +664,7 @@ Requires:         mvn(org.jboss.resteasy:resteasy-servlet-initializer)
 Provides:         bundled(resteasy-servlet-initializer)
 %endif
 
-Requires:         tomcat >= 1:10.1.43
+Requires:         tomcat >= 1:10.1.36
 
 Requires:         mvn(org.dogtagpki.jss:jss-tomcat) >= 5.8
 
@@ -1028,7 +1028,11 @@ BuildArch:        noarch
 Obsoletes:        pki-tests < %{version}-%{release}
 Provides:         pki-tests = %{version}-%{release}
 
+
+%if 0%{?fedora} && 0%{?fedora} < 43
 Requires:         python3-pylint
+%endif
+
 Requires:         python3-flake8
 
 %description -n   %{product_id}-tests
