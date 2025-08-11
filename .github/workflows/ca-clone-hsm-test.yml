@@ -52,7 +52,7 @@ jobs:
 
       - name: Set up SSH server in HSM container
         run: |
-          docker exec hsm dnf install -y openssh-server openssh-clients
+          docker exec hsm dnf install -y openssh-server  openssh-clients
 
           # remove default SSH server config to allow public key auth
           docker exec hsm ls -l /etc/ssh/sshd_config.d

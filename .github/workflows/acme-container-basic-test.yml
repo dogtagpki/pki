@@ -77,8 +77,8 @@ jobs:
 
           # wait for ACME to start
           docker exec client curl \
-              --retry 60 \
-              --retry-delay 0 \
+              --retry 180 \
+              --retry-delay 1 \
               --retry-connrefused \
               -s \
               -k \
@@ -237,8 +237,8 @@ jobs:
 
           # wait for ACME to restart
           docker exec client curl \
-              --retry 60 \
-              --retry-delay 0 \
+              --retry 180 \
+              --retry-delay 1 \
               --retry-connrefused \
               -s \
               -k \

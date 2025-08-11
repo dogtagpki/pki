@@ -233,8 +233,8 @@ jobs:
       - name: Check HTTP connection to pki-tomcat server
         run: |
           docker exec pki curl \
-              --retry 60 \
-              --retry-delay 0 \
+              --retry 180 \
+              --retry-delay 1 \
               --retry-connrefused \
               -s \
               -k \
@@ -397,8 +397,8 @@ jobs:
       - name: Check HTTP connection to tomcat@pki server
         run: |
           docker exec pki curl \
-              --retry 60 \
-              --retry-delay 0 \
+              --retry 180 \
+              --retry-delay 1 \
               --retry-connrefused \
               -s \
               -k \
