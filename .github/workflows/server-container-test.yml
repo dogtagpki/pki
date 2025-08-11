@@ -64,8 +64,8 @@ jobs:
 
           # wait for server to start
           docker exec client curl \
-              --retry 60 \
-              --retry-delay 0 \
+              --retry 180 \
+              --retry-delay 1 \
               --retry-connrefused \
               -s \
               -k \
@@ -153,8 +153,8 @@ jobs:
 
           # wait for server to restart
           docker exec client curl \
-              --retry 60 \
-              --retry-delay 0 \
+              --retry 180 \
+              --retry-delay 1 \
               --retry-connrefused \
               -s \
               -k \

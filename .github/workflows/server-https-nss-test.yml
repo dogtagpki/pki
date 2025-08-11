@@ -173,8 +173,8 @@ jobs:
       - name: Wait for PKI server to start
         run: |
           docker exec client curl \
-              --retry 60 \
-              --retry-delay 0 \
+              --retry 180 \
+              --retry-delay 1 \
               --retry-connrefused \
               -s \
               -k \

@@ -40,7 +40,7 @@ License:          GPL-2.0-only AND LGPL-2.0-only
 # https://docs.fedoraproject.org/en-US/packaging-guidelines/Versioning
 
 Version:          %{major_version}.%{minor_version}.%{update_version}%{?phase:~}%{?phase}%{?timestamp:^}%{?timestamp}%{?commit_id:.}%{?commit_id}
-Release:          %autorelease
+Release:          %autorelease 
 
 
 # To create a tarball from a version tag:
@@ -79,21 +79,21 @@ ExcludeArch: i686
 
 # maven-local is a subpackage of javapackages-tools
 
-%if 0%{?fedora} && 0%{?fedora} <= 39 || 0%{?rhel} && 0%{?rhel} <= 9
-
-%define java_runtime java-17-openjdk
-%define java_devel java-17-openjdk-devel
-%define java_headless java-17-openjdk-headless
-%define java_home %{_jvmdir}/jre-17-openjdk
-%define maven_local maven-local-openjdk17
-
-%else
+%if 0%{?fedora} && 0%{?fedora} >= 43
 
 %define java_runtime java-25-openjdk
 %define java_devel java-25-openjdk-devel
 %define java_headless java-25-openjdk-headless
 %define java_home %{_jvmdir}/jre-25-openjdk
-%define maven_local maven-local
+%define maven_local maven-local-openjdk25
+
+%else
+
+%define java_runtime java-21-openjdk
+%define java_devel java-21-openjdk-devel
+%define java_headless java-21-openjdk-headless
+%define java_home %{_jvmdir}/jre-21-openjdk
+%define maven_local maven-local-openjdk21
 
 %endif
 
@@ -208,13 +208,15 @@ BuildRequires:    javapackages-tools
 BuildRequires:    xmlstarlet
 %endif
 
+BuildRequires:     tomcat-lib >= 1:10.1.36
 BuildRequires:     tomcat-jakartaee-migration
-BuildRequires:     pki-resteasy-core                 >= 3.0.26-33
-BuildRequires:     pki-resteasy-client               >= 3.0.26-33
-BuildRequires:     pki-resteasy-servlet-initializer  >= 3.0.26-33
-BuildRequires:     pki-resteasy-jackson2-provider    >= 3.0.26-33
-BuildRequires:     pki-resteasy                      >= 3.0.26-33
+BuildRequires:     pki-resteasy-core                 >= 3.0.26
+BuildRequires:     pki-resteasy-client               >= 3.0.26
+BuildRequires:     pki-resteasy-servlet-initializer  >= 3.0.26
+BuildRequires:     pki-resteasy-jackson2-provider    >= 3.0.26
+BuildRequires:     pki-resteasy                      >= 3.0.26
 
+BuildRequires:     dogtag-jss >= 5.9
 
 BuildRequires:    mvn(commons-cli:commons-cli)
 BuildRequires:    mvn(commons-codec:commons-codec)
@@ -250,14 +252,10 @@ BuildRequires:    mvn(org.jboss.resteasy:resteasy-servlet-initializer)
 
 %endif
 
-BuildRequires:    mvn(org.apache.tomcat:tomcat-catalina) >= 10.1.33
-BuildRequires:    mvn(org.apache.tomcat:tomcat-servlet-api) >= 10.1.33
-BuildRequires:    mvn(org.apache.tomcat:tomcat-jaspic-api) >= 10.1.33
-BuildRequires:    mvn(org.apache.tomcat:tomcat-util-scan) >= 10.0.33
-
-%if 0%{?rhel} && 0%{?rhel} >= 10
-BuildRequires:    tomcat9-lib
-%endif
+BuildRequires:    mvn(org.apache.tomcat:tomcat-catalina) >= 10.1.36
+BuildRequires:    mvn(org.apache.tomcat:tomcat-servlet-api) >= 10.1.36
+BuildRequires:    mvn(org.apache.tomcat:tomcat-jaspic-api) >= 10.1.36
+BuildRequires:    mvn(org.apache.tomcat:tomcat-util-scan) >= 10.0.36
 
 BuildRequires:    mvn(org.dogtagpki.jss:jss-base) >= 5.9
 BuildRequires:    mvn(org.dogtagpki.jss:jss-tomcat) >= 5.9
@@ -601,7 +599,7 @@ Provides:         bundled(resteasy-client)
 Provides:         bundled(resteasy-jackson2-provider)
 %endif
 
-Requires:         mvn(org.dogtagpki.jss:jss-base) >= 5.9
+Requires:         mvn(org.dogtagpki.jss:jss-base) >= 5.9.0-2
 Requires:         mvn(org.dogtagpki.ldap-sdk:ldapjdk) >= 5.6.0
 Requires:         %{product_id}-base = %{version}-%{release}
 
@@ -676,9 +674,9 @@ Requires:         mvn(org.jboss.resteasy:resteasy-servlet-initializer)
 Provides:         bundled(resteasy-servlet-initializer)
 %endif
 
-Requires:         tomcat >= 1:10.1.33
+Requires:         tomcat >= 1:10.1.36
 
-Requires:         mvn(org.dogtagpki.jss:jss-tomcat) >= 5.8
+Requires:         mvn(org.dogtagpki.jss:jss-tomcat) >= 5.9.0-2
 
 Requires:         systemd
 Requires(post):   systemd-units
@@ -1040,7 +1038,11 @@ BuildArch:        noarch
 Obsoletes:        pki-tests < %{version}-%{release}
 Provides:         pki-tests = %{version}-%{release}
 
+
+%if 0%{?fedora} && 0%{?fedora} < 43
 Requires:         python3-pylint
+%endif
+
 Requires:         python3-flake8
 
 %description -n   %{product_id}-tests
@@ -1144,6 +1146,12 @@ then
     /usr/bin/javax2jakarta -logLevel=ALL -profile=EE   jakarta.annotation-api-$JAKARTA_ANNOTATION_API_VERSION.jar jakarta.annotation-api-$JAKARTA_ANNOTATION_API_VERSION.jar  
     /usr/bin/javax2jakarta -logLevel=ALL -profile=EE   jakarta.xml.bind-api-$JAXB_API_VERSION.jar jakarta.xml.bind-api-$JAXB_API_VERSION.jar 
 
+     # Now migrate the required rest easy jars, in case we are using an existing resteasy version.
+
+    /usr/bin/javax2jakarta -logLevel=ALL -profile=EE resteasy-client-$RESTEASY_VERSION.jar  resteasy-client-$RESTEASY_VERSION.jar
+    /usr/bin/javax2jakarta -logLevel=ALL -profile=EE resteasy-jackson2-provider-$RESTEASY_VERSION.jar resteasy-jackson2-provider-$RESTEASY_VERSION.jar
+    /usr/bin/javax2jakarta -logLevel=ALL -profile=EE resteasy-jaxrs-$RESTEASY_VERSION.jar  resteasy-jaxrs-$RESTEASY_VERSION.jar
+
     # Add local artifact so we can compile against the migrated jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar
     # We could have used the maven install plugin but it's not available with standard rpms.
 
@@ -1167,6 +1175,10 @@ then
 
     cp /usr/share/java/resteasy/resteasy-servlet-initializer.jar \
         resteasy-servlet-initializer-$RESTEASY_VERSION.jar
+
+    # Migrate the resteasy servlet initializer, in case we are using an existing resteasy version.
+    /usr/bin/javax2jakarta -logLevel=ALL -profile=EE resteasy-servlet-initializer-$RESTEASY_VERSION.jar resteasy-servlet-initializer-$RESTEASY_VERSION.jar
+
 
     ls -l
     popd
@@ -1275,6 +1287,7 @@ EOF
 %build
 ################################################################################
 
+rpm -qa | grep jss
 # Set build flags for CMake
 # (see /usr/lib/rpm/macros.d/macros.cmake)
 %set_build_flags
@@ -1284,7 +1297,10 @@ export JAVA_HOME=%{java_home}
 %if %{with maven}
 # build Java binaries and run unit tests with Maven
 
-%mvn_build %{!?with_test:-f} -j
+
+xmvn --debug --batch-mode --offline verify org.fedoraproject.xmvn:xmvn-mojo:install org.fedoraproject.xmvn:xmvn-mojo:builddep
+
+#%mvn_build %{!?with_test:-f} -j
 
 # create links to Maven-built JAR files for CMake
 mkdir -p %{_vpath_builddir}/dist
@@ -1448,6 +1464,7 @@ xmlstarlet edit --inplace \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.module']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.jaxrs']" \
     -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
+    -d "//_:dependency[_:groupId='pki-local']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
     %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-java.xml
