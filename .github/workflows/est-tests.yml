@@ -57,7 +57,7 @@ jobs:
     needs: build
     uses: ./.github/workflows/est-ds-realm-separate-test.yml
 
-  est-separate-provided-certs-test:
-    name: EST on separate instance with provided certificates
+  est-standalone-test:
+    name: EST on standalone instance with provided certificates
     needs: build
-    uses: ./.github/workflows/est-separate-provided-certs-test.yml
+    uses: ./.github/workflows/est-standalone-test.yml
