@@ -43,7 +43,7 @@ jobs:
           tests/bin/runner-init.sh \
           --hostname=pki.example.com \
           --network=example \
-          --network-alias=ca.example.com \
+          --network-alias=pki.example.com \
           pki
 
       - name: Install CA
@@ -68,20 +68,6 @@ jobs:
               --password Secret.123
 
           docker exec pki pki info
-
-      - name: Add CA EST user
-        run: |
-          docker exec pki pki -n caadmin ca-group-add "EST RA Agents"
-          docker exec pki pki -n caadmin ca-user-add \
-              est-ra-1 --fullName "EST RA 1" --password Secret.est
-          docker exec pki pki -n caadmin ca-group-member-add "EST RA Agents" est-ra-1
-
-      - name: Configure CA est profile
-        run: |
-          docker exec pki pki -n caadmin ca-profile-add \
-              --raw /usr/share/pki/ca/profiles/ca/estServiceCert.cfg
-          docker exec pki pki -n caadmin ca-profile-enable estServiceCert
-          docker exec pki pki-server restart --wait
 
       - name: Create postgresql certificates
         run: |
