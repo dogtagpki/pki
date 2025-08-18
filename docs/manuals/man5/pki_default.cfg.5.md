@@ -343,7 +343,7 @@ To manually enable this behavior, obtain superuser privileges, and execute '**sy
 to manually disable this behavior, execute '**systemctl disable pki-tomcatd.target**'.
 
 **pki_security_manager**  
-Enables the Java security manager policies provided by the JDK to be used with the instance.  Defaults to True.
+Enables the Java security manager policies provided by the JDK to be used with the instance.  Defaults to False.
 
 ### SECURITY DOMAIN PARAMETERS
 
