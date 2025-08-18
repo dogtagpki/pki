@@ -106,22 +106,21 @@
     - pki client-cert-import ca_signing --ca-cert ca_signing.crt
     - pki pkcs12-import --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 --pkcs12-password Secret.123
 
-- name: Create EST group and user
+- name: Create EST user
   community.docker.docker_container_exec:
     container: "{{ pki_container }}"
     command: "{{ item }}"
   loop:
-    - pki -n caadmin ca-group-add "EST RA Agents"
-    - pki -n caadmin ca-user-add est-ra-1 --fullName "EST RA 1" --password est4ever
-    - pki -n caadmin ca-group-member-add "EST RA Agents" est-ra-1
+    - pki -n caadmin ca-user-add est-ra-1 --full-name "EST RA 1" --type agentType --password est4ever
+    - pki -n caadmin ca-group-member-add "Certificate Manager Agents" est-ra-1
 
-- name: Enable EST profile
+- name: Update EST profile to accept user/password authentication
   community.docker.docker_container_exec:
     container: "{{ pki_container }}"
     command: "{{ item }}"
   loop:
-    - pki -n caadmin ca-profile-add --raw /usr/share/pki/ca/profiles/ca/estServiceCert.cfg
-    - pki -n caadmin ca-profile-enable estServiceCert
+    - sed -i 's/^auth.instance_id=AgentCertAuth/auth.instance_id=SessionAuthentication/' /etc/pki/pki-tomcat/ca/profiles/ca/estServiceCert.cfg
+    - echo 'authz.acl=group="Certificate Manager Agents"' >> /etc/pki/pki-tomcat/ca/profiles/ca/estServiceCert.cfg
 
 - name: Create EST subsystem
   community.docker.docker_container_exec:
