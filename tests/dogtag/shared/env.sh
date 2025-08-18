@@ -540,7 +540,7 @@ SKIP_CONFIG=False
 SKIP_INSTALL=False
 ENABLE_ACCESS_LOG=True
 ENABLE_JAVA_DEBUG=False
-SECURITY_MANAGER=True
+SECURITY_MANAGER=False
 IMPORT_ADMIN_CERT_NONCA=True
 #USER and GROUP names can not be changed to something else due to bug https://fedorahosted.org/pki/ticket/1025
 USER="pkiuser"
