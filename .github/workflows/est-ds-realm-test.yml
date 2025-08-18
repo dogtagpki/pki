@@ -43,7 +43,7 @@ jobs:
           tests/bin/runner-init.sh \
           --hostname=pki.example.com \
           --network=example \
-          --network-alias=ca.example.com \
+          --network-alias=pki.example.com \
           pki
 
       - name: Install CA
@@ -68,20 +68,6 @@ jobs:
               --password Secret.123
 
           docker exec pki pki info
-
-      - name: Add CA EST user
-        run: |
-          docker exec pki pki -n caadmin ca-group-add "EST RA Agents"
-          docker exec pki pki -n caadmin ca-user-add \
-              est-ra-1 --fullName "EST RA 1" --password Secret.est
-          docker exec pki pki -n caadmin ca-group-member-add "EST RA Agents" est-ra-1
-
-      - name: Configure CA est profile
-        run: |
-          docker exec pki pki -n caadmin ca-profile-add \
-              --raw /usr/share/pki/ca/profiles/ca/estServiceCert.cfg
-          docker exec pki pki -n caadmin ca-profile-enable estServiceCert
-          docker exec pki pki-server restart --wait
 
       - name: Set up EST user DB
         run: |
@@ -448,7 +434,7 @@ jobs:
 
           docker exec pki pki-server restart --wait
 
-      - name: Enroll certificate with user/password but using different subject, check disabled and no CA Subject contraint
+      - name: Enroll certificate with user/password but using different subject, check disabled and no CA Subject constraint
         run: |
           docker exec -e EST_OPENSSL_CACERT=cacert.pem pki estclient -e -s pki.example.com -p 8443 \
               --common-name test-new.example.com -o new_certs3 -u est-test-user -h Secret.123
@@ -459,7 +445,7 @@ jobs:
           echo "subject=CN=test-new.example.com" > expected
           diff expected actual
 
-      - name: Enroll new certificate with certificate but using different subject and check disabled and no CA Subject contraint
+      - name: Enroll new certificate with certificate but using different subject and check disabled and no CA Subject constraint
         run: |
           docker exec pki mkdir new_certs5
           docker exec -e EST_OPENSSL_CACERT=cacert.pem pki estclient -e -s pki.example.com -p 8443 \
