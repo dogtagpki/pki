@@ -329,7 +329,7 @@ class ConfigurationFile:
             #
             # ADD checks for valid types of Stand-alone PKI subsystems here
             #
-            if self.subsystem != "KRA" and self.subsystem != "OCSP":
+            if self.subsystem not in ["KRA", "OCSP", "EST"]:
                 logger.error(
                     log.PKI_STANDALONE_UNSUPPORTED_1,
                     self.subsystem)
@@ -481,13 +481,16 @@ class ConfigurationFile:
                 # The pki_ca_signing_cert_path is optional.
 
                 # Stand-alone PKI Admin Certificate (Step 2)
-                self.confirm_data_exists("pki_admin_cert_path")
-                self.confirm_file_exists("pki_admin_cert_path")
+                if config.str2bool(self.mdict['pki_admin_setup']):
+                    self.confirm_data_exists("pki_admin_cert_path")
+                    self.confirm_file_exists("pki_admin_cert_path")
                 # Stand-alone PKI Audit Signing Certificate (Step 2)
-                self.confirm_data_exists(
-                    "pki_audit_signing_cert_path")
-                self.confirm_file_exists(
-                    "pki_audit_signing_cert_path")
+                # EST does not support audit at the moment
+                if self.subsystem != "EST":
+                    self.confirm_data_exists(
+                        "pki_audit_signing_cert_path")
+                    self.confirm_file_exists(
+                        "pki_audit_signing_cert_path")
                 # Stand-alone PKI SSL Server Certificate (Step 2)
                 self.confirm_data_exists("pki_sslserver_cert_path")
                 self.confirm_file_exists("pki_sslserver_cert_path")

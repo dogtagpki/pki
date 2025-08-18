@@ -2157,7 +2157,7 @@ class PKIDeployer:
             if subsystem.name == 'ocsp':
                 self.generate_ocsp_signing_request(nssdb, subsystem)
 
-            if subsystem.name in ['kra', 'ocsp', 'tks', 'tps']:
+            if subsystem.name in ['kra', 'ocsp', 'tks', 'tps', 'est']:
                 self.generate_sslserver_request(nssdb, subsystem)
                 self.generate_subsystem_request(nssdb, subsystem)
                 self.generate_audit_signing_request(nssdb, subsystem)
@@ -2170,7 +2170,7 @@ class PKIDeployer:
             password_file=self.mdict['pki_client_password_conf'])
 
         try:
-            if subsystem.name in ['kra', 'ocsp', 'tks', 'tps']:
+            if subsystem.name in ['kra', 'ocsp', 'tks', 'tps', 'est']:
                 self.generate_admin_request(nssdb, subsystem)
         finally:
             nssdb.close()
@@ -3645,18 +3645,15 @@ class PKIDeployer:
             if tag == 'audit_signing' and not audit_signing_nickname:
                 continue
 
-            # For external/standalone KRA/OCSP/TKS/TPS case, all system certs will be provided.
+            # For external/standalone KRA/OCSP/TKS/TPS/EST case, all system certs will be provided.
             # No system certs will be generated including the SSL server cert.
 
-            if subsystem.type in ['KRA', 'OCSP', 'TKS', 'TPS'] and external:
+            if subsystem.type in ['KRA', 'OCSP', 'TKS', 'TPS', 'EST'] and external:
                 continue
 
             request = self.create_cert_setup_request(subsystem, tag, system_cert)
 
             self.setup_system_cert(nssdb, subsystem, tag, system_cert, request)
-
-        if subsystem.type == 'EST':
-            self.system_certs['sslserver'] = self.create_est_sslserver(nssdb)
 
         if subsystem.type == 'CA':
 
@@ -4180,7 +4177,8 @@ class PKIDeployer:
                     'Enterprise RA Administrators',
                     'Enterprise TKS Administrators',
                     'Enterprise OCSP Administrators',
-                    'Enterprise TPS Administrators'
+                    'Enterprise TPS Administrators',
+                    'Enterprise EST Administrators'
                 ])
 
             elif subsystem.type == 'KRA':
@@ -5111,6 +5109,30 @@ class PKIDeployer:
             logger.info('Setting up shared secret')
             self.setup_shared_secret(subsystem)
 
+    def finalize_est(self, subsystem):
+        ca_type = subsystem.config.get('preop.ca.type')
+
+        standalone = self.configuration_file.standalone
+        sd_setup = config.str2bool(self.mdict['pki_security_domain_setup'])
+        if standalone or not sd_setup:
+            return
+
+        if ca_type:
+            subsystem.set_config('cloning.ca.type', ca_type)
+
+        est_uid = 'EST-%s-%s' % (self.mdict['pki_hostname'], self.mdict['pki_https_port'])
+        full_name = self.mdict['pki_subsystem_name']
+        subsystem_cert = subsystem.get_subsystem_cert('subsystem').get('data')
+        if self.mdict['pki_ca_uri']:
+            logger.info('Registering EST user %s in CA', est_uid)
+            self.add_subsystem_user(
+                'ca',
+                self.mdict['pki_ca_uri'],
+                est_uid,
+                full_name,
+                cert=subsystem_cert,
+                session=self.install_token.token)
+
     def finalize_subsystem(self, subsystem):
 
         if subsystem.type == 'CA':
@@ -5127,6 +5149,9 @@ class PKIDeployer:
 
         if subsystem.type == 'TPS':
             self.finalize_tps(subsystem)
+
+        if subsystem.type == 'EST':
+            self.finalize_est(subsystem)
 
         # save EC type for sslserver cert (if present)
         ec_type = subsystem.config.get('preop.cert.sslserver.ec.type', 'ECDHE')
@@ -5597,17 +5622,22 @@ class PKIDeployer:
         profile = self.mdict.get('est_ca_profile')
         pki.util.set_property(props, 'profile', profile)
 
-        username = self.mdict.get('est_ca_user_name')
-        pki.util.set_property(props, 'username', username)
+        if not config.str2bool(self.mdict['pki_security_domain_setup']):
+            username = self.mdict.get('est_ca_user_name')
+            pki.util.set_property(props, 'username', username)
 
-        password = self.mdict.get('est_ca_user_password')
-        pki.util.set_property(props, 'password', password)
+            password = self.mdict.get('est_ca_user_password')
+            pki.util.set_property(props, 'password', password)
 
-        password_file = self.mdict.get('est_ca_user_password_file')
-        pki.util.set_property(props, 'passwordFile', password_file)
+            password_file = self.mdict.get('est_ca_user_password_file')
+            pki.util.set_property(props, 'passwordFile', password_file)
 
-        nickname = self.mdict.get('est_ca_user_certificate')
-        pki.util.set_property(props, 'nickname', nickname)
+            nickname = self.mdict.get('est_ca_user_certificate')
+            pki.util.set_property(props, 'nickname', nickname)
+        else:
+            nickname = self.mdict.get('pki_subsystem_nickname')
+            pki.util.set_property(props, 'nickname', nickname)
+
         subsystem.update_backend_config(props)
 
     def configure_est_authorizer(self, subsystem):
@@ -5678,88 +5708,7 @@ class PKIDeployer:
             pki.util.set_property(props, 'statements', statements)
         subsystem.update_realm_config(props)
 
-    def create_est_sslserver_csr(self, nssdb):
-        subject_dn = self.mdict.get('pki_sslserver_subject_dn')
-
-        csr_file = self.instance.csr_file('sslserver')
-        (key_type, key_size, curve, hash_alg) = self.get_key_params('sslserver')
-
-        key_usage_ext = {
-            'digitalSignature': True,
-            'nonRepudiation': True,
-            'keyEncipherment': True,
-            'dataEncipherment': True,
-            'critical': True
-        }
-
-        extended_key_usage_ext = {
-            'serverAuth': True
-        }
-
-        nssdb.create_request(
-            subject_dn=subject_dn,
-            request_file=csr_file,
-            key_type=key_type,
-            key_size=key_size,
-            curve=curve,
-            hash_alg=hash_alg,
-            key_usage_ext=key_usage_ext,
-            extended_key_usage_ext=extended_key_usage_ext,
-            use_jss=True)
-
-        with open(csr_file, 'r', encoding='utf-8') as f:
-            csr_pem = f.read()
-
-        return csr_pem
-
-    def create_est_sslserver_cert(self, request_data):
-        url = self.mdict['pki_ca_uri']
-        credentials = {}
-
-        if self.mdict['est_ca_user_certificate']:
-            credentials['nickname'] = self.mdict['est_ca_user_certificate']
-
-        if self.mdict['est_ca_user_name']:
-            credentials['username'] = self.mdict['est_ca_user_name']
-
-        if self.mdict['est_ca_user_password']:
-            credentials['password'] = self.mdict['est_ca_user_password']
-
-        if self.mdict['est_ca_user_password_file']:
-            credentials['passwordFile'] = self.mdict['est_ca_user_password_file']
-
-        # TODO: do not hardcode request type
-        return self.issue_cert(
-            url=url,
-            request_type='pkcs10',
-            request_data=request_data,
-            profile='caServerCert',
-            credentials=credentials)
-
-    def create_est_sslserver(self, nssdb):
-        system_cert = {
-            'nickname': self.mdict['pki_sslserver_nickname'],
-            'token': pki.nssdb.normalize_token(self.mdict['pki_sslserver_token'])
-        }
-        nickname = system_cert['nickname']
-        if system_cert['token']:
-            nickname = system_cert['token'] + ':' + nickname
-        logger.info('Checking existing SSL server cert: %s', nickname)
-        cert_pem = nssdb.get_cert(nickname)
-        if cert_pem:
-            # SSL server cert already exists
-            return system_cert
-        logger.info('Creating SSL server cert request')
-        csr_pem = self.create_est_sslserver_csr(nssdb)
-        logger.info('Issuing SSL server cert')
-        cert_pem = self.create_est_sslserver_cert(csr_pem)
-
-        logger.info('Importing SSL server cert as %s', nickname)
-        nssdb.add_cert(nickname=nickname, cert_data=cert_pem)
-        return system_cert
-
     def create_selinux_contexts(self):
-
         if not selinux.is_selinux_enabled() or not seobject:
             logger.info('SELinux disabled')
             return
