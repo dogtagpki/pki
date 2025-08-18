@@ -3548,11 +3548,6 @@ class ESTSubsystem(PKISubsystem):
             exist_ok=False,
             force=True)
 
-    def get_subsystem_cert(self, tag):
-
-        logger.debug('ESTSubsystem.get_subsystem_cert(%s)', tag)
-        return None
-
     def validate_system_cert(self, tag):
         """
         EST subsystem does not keep certificate information in its configuration file so

@@ -120,7 +120,7 @@ public class SDCreateCLI extends CommandCLI {
             LDAPEntry entry = new LDAPEntry(sdDN, attrs);
             conn.add(entry);
 
-            String clist[] = { "CAList", "OCSPList", "KRAList", "RAList", "TKSList", "TPSList" };
+            String clist[] = { "CAList", "OCSPList", "KRAList", "RAList", "TKSList", "TPSList", "ESTList"};
             for (int i = 0; i < clist.length; i++) {
 
                 String dn = "cn=" + LDAPUtil.escapeRDNValue(clist[i]) + "," + sdDN;
