@@ -74,8 +74,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if config.str2bool(deployer.mdict['pki_registry_enable']):
             subsystem.create_registry(exist_ok=True)
 
-        if deployer.subsystem_type != "EST":
-            deployer.create_cs_cfg(subsystem)
+        deployer.create_cs_cfg(subsystem)
 
         if deployer.subsystem_type == "CA":
 
