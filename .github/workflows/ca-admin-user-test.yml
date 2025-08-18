@@ -191,6 +191,7 @@ jobs:
           echo "Administrators" > expected
           echo "Certificate Manager Agents" >> expected
           echo "Enterprise CA Administrators" >> expected
+          echo "Enterprise EST Administrators" >> expected
           echo "Enterprise KRA Administrators" >> expected
           echo "Enterprise OCSP Administrators" >> expected
           echo "Enterprise RA Administrators" >> expected
