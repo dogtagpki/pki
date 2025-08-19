@@ -489,44 +489,16 @@ class PKISubsystem(object):
         if token:
             nickname = token + ':' + nickname
 
-        tmpdir = tempfile.mkdtemp()
-
+        nssdb = self.instance.open_nssdb()
         try:
-            # add the certificate, key, and chain
-            cmd = [
-                'pki',
-                '-d', self.instance.nssdb_dir,
-                '-f', self.instance.password_conf
-            ]
-
-            cmd.extend([
-                'pkcs12-cert-import',
-                '--pkcs12-file', pkcs12_file,
-                '--pkcs12-password-file', pkcs12_password_file,
-            ])
-
-            if no_key:
-                cmd.extend(['--no-key'])
-
-            if append:
-                cmd.extend(['--append'])
-
-            if logger.isEnabledFor(logging.DEBUG):
-                cmd.append('--debug')
-
-            elif logger.isEnabledFor(logging.INFO):
-                cmd.append('-v')
-
-            cmd.extend([
-                nickname
-            ])
-
-            logger.debug('Command: %s', ' '.join(cmd))
-
-            subprocess.check_call(cmd)
-
+            nssdb.export_pkcs12(
+                pkcs12_file=pkcs12_file,
+                pkcs12_password_file=pkcs12_password_file,
+                nicknames=[nickname],
+                include_key=not no_key,
+                append=append)
         finally:
-            shutil.rmtree(tmpdir)
+            nssdb.close()
 
     def export_cert_chain(
             self,
