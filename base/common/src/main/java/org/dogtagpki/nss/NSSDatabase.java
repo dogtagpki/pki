@@ -332,15 +332,15 @@ public class NSSDatabase {
         return addCertificate(cert, trustFlags);
     }
 
-    public void addCertificate(
+    public org.mozilla.jss.crypto.X509Certificate addCertificate(
             String nickname,
             X509CertImpl certImpl,
             String trustFlags) throws Exception {
 
-        addCertificate(null, nickname, certImpl, trustFlags);
+        return addCertificate(null, nickname, certImpl, trustFlags);
     }
 
-    public void addCertificate(
+    public org.mozilla.jss.crypto.X509Certificate addCertificate(
             String tokenName,
             String nickname,
             X509CertImpl certImpl,
@@ -360,6 +360,8 @@ public class NSSDatabase {
             PK11Cert pk11Cert = (PK11Cert) cert;
             pk11Cert.setTrustFlags(trustFlags);
         }
+
+        return cert;
     }
 
     public void addPEMCertificate(
