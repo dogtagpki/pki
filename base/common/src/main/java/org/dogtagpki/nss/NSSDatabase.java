@@ -63,6 +63,7 @@ import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
+import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
@@ -305,6 +306,17 @@ public class NSSDatabase {
 
         if (rc != 0) {
             throw new Exception("Command failed: rc=" + rc);
+        }
+    }
+
+    public org.mozilla.jss.crypto.X509Certificate getCertificate(String nickname) throws Exception {
+
+        CryptoManager manager = CryptoManager.getInstance();
+
+        try {
+            return manager.findCertByNickname(nickname);
+        } catch (ObjectNotFoundException e) {
+            return null;
         }
     }
 
