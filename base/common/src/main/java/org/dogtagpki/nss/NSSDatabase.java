@@ -1407,6 +1407,19 @@ public class NSSDatabase {
         return CryptoUtil.signCert(privateKey, info, signingAlgorithm);
     }
 
+    public void deleteCertificate(
+            String tokenName,
+            org.mozilla.jss.crypto.X509Certificate cert) throws Exception {
+
+        tokenName = tokenName == null ? CryptoUtil.INTERNAL_TOKEN_NAME : tokenName;
+        logger.debug("Deleting cert " + cert.getSubjectX500Principal() + " from " + tokenName + " token");
+
+        CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
+        CryptoStore store = token.getCryptoStore();
+
+        store.deleteCert(cert);
+    }
+
     public void delete() throws Exception {
         FileUtils.deleteDirectory(path.toFile());
     }
