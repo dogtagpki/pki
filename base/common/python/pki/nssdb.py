@@ -338,7 +338,7 @@ class NSSDatabase(object):
             universal_newlines=text)
 
         if capture_output:
-            logger.debug('stdout:\n%s', result.stdout.decode('utf-8'))
+            logger.debug('stdout:\n%s', result.stdout)
 
         return result
 
@@ -720,7 +720,8 @@ class NSSDatabase(object):
             cert_format='pem',
             token=None,
             trust_attributes=None,
-            use_jss=True):
+            use_jss=True,
+            runas=True):
 
         logger.debug('NSSDatabase.add_cert(%s)', nickname)
 
@@ -731,7 +732,8 @@ class NSSDatabase(object):
                 cert_data=cert_data,
                 cert_format=cert_format,
                 token=token,
-                trust_attributes=trust_attributes)
+                trust_attributes=trust_attributes,
+                runas=runas)
             return
 
         if cert_data and not cert_file:
@@ -767,7 +769,7 @@ class NSSDatabase(object):
                 '-t', ''
             ])
 
-            result = self.run(cmd, runas=True)
+            result = self.run(cmd, runas=runas)
 
             if result.returncode:
                 logger.warning('certutil returned non-zero exit code (bug #1393668)')
@@ -806,7 +808,8 @@ class NSSDatabase(object):
             cert_data=None,
             cert_format='pem',
             token=None,
-            trust_attributes=None):
+            trust_attributes=None,
+            runas=True):
         '''
         Import certificate using pki nss-cert-import command.
         In the future this will replace add_cert().
@@ -849,7 +852,7 @@ class NSSDatabase(object):
 
         cmd.append(nickname)
 
-        self.run(cmd, input=cert_data, text=True, check=True, runas=True)
+        self.run(cmd, input=cert_data, text=True, check=True, runas=runas)
 
     def add_ca_cert(
             self,
