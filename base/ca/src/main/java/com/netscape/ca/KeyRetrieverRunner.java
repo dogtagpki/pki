@@ -131,6 +131,18 @@ public class KeyRetrieverRunner implements Runnable {
             return false;
         }
 
+        /* While we were retrieving the key and cert, the
+         * CA instance in the CAEngine might
+         * have been replaced, so look it up afresh.
+         */
+        ca = engine.getCA(aid);
+        if (ca == null) {
+            /* We got the key, but the authority has been
+             * deleted.  Do not retry.
+             */
+            logger.debug("Authority was deleted; returning.");
+            return true;
+        }
         logger.info("KeyRetrieverRunner: Initializing CA " + aid);
         boolean initSigUnitSucceeded = false;
         try {
