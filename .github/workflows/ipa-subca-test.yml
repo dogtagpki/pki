@@ -149,6 +149,16 @@ jobs:
           sed -n 's/^\s*ID:\s*\(.*\)$/\1/p' output | wc -l > actual
           diff expected actual
 
+      - name: Generate certificate in the CAs
+        run: |
+          for i in {1..20}
+          do
+              docker exec ipa ipa caacl-add-ca hosts_services_caIPAserviceCert --cas=lwca$i
+              docker exec ipa mkdir /tmp/lwca$i
+              docker exec ipa ipa-getcert request -w -k /tmp/lwca$i/test$i.key -f /tmp/lwca$i/test$i.pem -X lwca$i
+              docker exec ipa openssl x509 -in /tmp/lwca$i/test$i.pem -noout -subject -issuer
+          done
+
       - name: Remove lightweight CAs
         run: |
           for i in {1..20}
