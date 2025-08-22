@@ -26,7 +26,7 @@ $ ldapadd -H ldap://$HOSTNAME -x -D "cn=Directory Manager" -w Secret.123 \
 
 **Note:** By default the `index.ldif` will use `userroot` as the DS backend.
 
-If necessary, the database can be reindexed by importing
+With LMDB backend the DS indexes need to be rebuilt by importing
 link:../../../base/acme/database/ds/indextask.ldif[/usr/share/pki/acme/database/ds/indextask.ldif] with the following command:
 
 ----
