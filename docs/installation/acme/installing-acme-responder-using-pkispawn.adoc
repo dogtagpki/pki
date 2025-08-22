@@ -44,6 +44,26 @@ $ ldapadd \
     -f /usr/share/pki/acme/database/ds/index.ldif
 ----
 
+With LMDB backend the DS indexes for ACME database need to be rebuilt:
+
+----
+$ ldapadd \
+    -H ldap://ds.example.com:3389 \
+    -D "cn=Directory Manager" \
+    -w Secret.123 \
+    -f /usr/share/pki/acme/database/ds/indextask.ldif
+----
+
+The progress of the reindex task can be monitored with the following command:
+
+----
+$ ldapsearch \
+    -H ldap://ds.example.com:3389 \
+    -D "cn=Directory Manager" \
+    -w Secret.123 \
+    -b "cn=acme,cn=index,cn=tasks,cn=config"
+----
+
 To create the DS subtrees for ACME database:
 
 ----
