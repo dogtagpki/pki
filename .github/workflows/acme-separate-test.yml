@@ -128,7 +128,7 @@ jobs:
               --network-alias=acme.example.com \
               acme
 
-      - name: Set up ACME database
+      - name: Initialize ACME database
         run: |
           # import ACME schema
           docker exec acme ldapmodify \
@@ -153,7 +153,7 @@ jobs:
               -w Secret.123 \
               -f /usr/share/pki/acme/database/ds/create.ldif
 
-      - name: Set up ACME realm
+      - name: Initialize ACME realm
         run: |
           docker exec acme ldapadd \
               -H ldap://acmeds.example.com:3389 \
@@ -163,7 +163,7 @@ jobs:
 
       - name: Install ACME
         run: |
-          # TODO: update pkispawn to set up ACME database and realm
+          # TODO: update pkispawn to initialize ACME database and realm
           docker exec acme pkispawn \
               -f /usr/share/pki/server/examples/installation/acme.cfg \
               -s ACME \

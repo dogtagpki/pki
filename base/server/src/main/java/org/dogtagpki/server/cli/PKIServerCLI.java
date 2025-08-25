@@ -42,6 +42,7 @@ public class PKIServerCLI extends CLI {
         addModule("ocsp", "org.dogtagpki.server.ocsp.cli.OCSPCLI");
         addModule("tks", "org.dogtagpki.server.tks.cli.TKSCLI");
         addModule("tps", "org.dogtagpki.server.tps.cli.TPSCLI");
+        addModule("acme", "org.dogtagpki.server.acme.cli.ACMECLI");
 
         createOptions();
     }

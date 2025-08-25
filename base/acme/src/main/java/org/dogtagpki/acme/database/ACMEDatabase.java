@@ -31,10 +31,19 @@ public abstract class ACMEDatabase {
         this.config = config;
     }
 
+    /**
+     * Initialize ACMEDatabase object
+     */
     public void init() throws Exception {
     }
 
     public void close() throws Exception {
+    }
+
+    /**
+     * Initialize ACME database
+     */
+    public void initDatabase() throws Exception {
     }
 
     public Boolean getEnabled() throws Exception {

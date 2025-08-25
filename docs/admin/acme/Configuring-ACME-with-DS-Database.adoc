@@ -6,51 +6,6 @@ This document describes the process to configure ACME responder to use a DS data
 It assumes that the DS database has been installed as described in
 link:../others/Creating_DS_instance.adoc[Creating DS instance].
 
-## Initializing DS Database
-
-First, add the ACME DS schema by importing
-link:../../../base/acme/database/ds/schema.ldif[/usr/share/pki/acme/database/ds/schema.ldif] with the following command:
-
-----
-$ ldapmodify -H ldap://$HOSTNAME -x -D "cn=Directory Manager" -w Secret.123 \
-    -f /usr/share/pki/acme/database/ds/schema.ldif
-----
-
-Next, create the ACME DS indexes by importing
-link:../../../base/acme/database/ds/index.ldif[/usr/share/pki/acme/database/ds/index.ldif] with the following command:
-
-----
-$ ldapadd -H ldap://$HOSTNAME -x -D "cn=Directory Manager" -w Secret.123 \
-    -f /usr/share/pki/acme/database/ds/index.ldif
-----
-
-**Note:** By default the `index.ldif` will use `userroot` as the DS backend.
-
-With LMDB backend the DS indexes need to be rebuilt by importing
-link:../../../base/acme/database/ds/indextask.ldif[/usr/share/pki/acme/database/ds/indextask.ldif] with the following command:
-
-----
-$ ldapadd -H ldap://$HOSTNAME -x -D "cn=Directory Manager" -w Secret.123 \
-    -f /usr/share/pki/acme/database/ds/indextask.ldif
-----
-
-The progress of the reindex task can be monitored with the following command:
-
-----
-$ ldapsearch -H ldap://$HOSTNAME -x -D "cn=Directory Manager" -w Secret.123 \
-    -b "cn=acme,cn=index,cn=tasks,cn=config"
-----
-
-Once the indexes are ready, create the ACME subtree by importing
-link:../../../base/acme/database/ds/create.ldif[/usr/share/pki/acme/database/ds/create.ldif] with the following command:
-
-----
-$ ldapadd -H ldap://$HOSTNAME -x -D "cn=Directory Manager" -w Secret.123 \
-    -f /usr/share/pki/acme/database/ds/create.ldif
-----
-
-**Note:** By default the `create.ldif` will create the subtree under `dc=pki,dc=example,dc=com` which is mapped to `userroot` DS backend.
-
 ## Configuring ACME Database
 
 A sample database configuration is available at
@@ -89,3 +44,56 @@ It can be enabled with the following parameter:
 ----
 monitor.enabled=true
 ----
+
+## Initializing ACME Database
+
+Once the ACME database is configured, it can be initialized with the following command:
+
+----
+$ pki-server acme-database-init
+----
+
+Alternatively, the ACME database can be initialized manually with LDAP tools.
+
+First, add the ACME DS schema by importing
+link:../../../base/acme/database/ds/schema.ldif[/usr/share/pki/acme/database/ds/schema.ldif] with the following command:
+
+----
+$ ldapmodify -H ldap://$HOSTNAME -x -D "cn=Directory Manager" -w Secret.123 \
+    -f /usr/share/pki/acme/database/ds/schema.ldif
+----
+
+Next, create the ACME DS indexes by importing
+link:../../../base/acme/database/ds/index.ldif[/usr/share/pki/acme/database/ds/index.ldif] with the following command:
+
+----
+$ ldapadd -H ldap://$HOSTNAME -x -D "cn=Directory Manager" -w Secret.123 \
+    -f /usr/share/pki/acme/database/ds/index.ldif
+----
+
+**Note:** By default the `index.ldif` will use `userroot` as the DS backend.
+
+With LMDB backend the DS indexes need to be rebuilt by importing
+link:../../../base/acme/database/ds/indextask.ldif[/usr/share/pki/acme/database/ds/indextask.ldif] with the following command:
+
+----
+$ ldapadd -H ldap://$HOSTNAME -x -D "cn=Directory Manager" -w Secret.123 \
+    -f /usr/share/pki/acme/database/ds/indextask.ldif
+----
+
+The progress of the reindex task can be monitored with the following command:
+
+----
+$ ldapsearch -H ldap://$HOSTNAME -x -D "cn=Directory Manager" -w Secret.123 \
+    -b "cn=acme,cn=index,cn=tasks,cn=config"
+----
+
+Once the indexes are ready, create the ACME database subtree by importing
+link:../../../base/acme/database/ds/create.ldif[/usr/share/pki/acme/database/ds/create.ldif] with the following command:
+
+----
+$ ldapadd -H ldap://$HOSTNAME -x -D "cn=Directory Manager" -w Secret.123 \
+    -f /usr/share/pki/acme/database/ds/create.ldif
+----
+
+**Note:** By default the `create.ldif` will create the subtree under `dc=pki,dc=example,dc=com` which is mapped to `userroot` DS backend.

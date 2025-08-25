@@ -98,44 +98,6 @@ jobs:
           grep "Serial Number:" output | wc -l > actual
           diff expected actual
 
-      - name: Set up ACME database
-        run: |
-          # import ACME schema
-          docker exec pki ldapmodify \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -f /usr/share/pki/acme/database/ds/schema.ldif
-
-          # create ACME indexes
-          docker exec pki ldapadd \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -f /usr/share/pki/acme/database/ds/index.ldif
-
-          # BDB indexes does not need to be rebuilt
-          # docker exec pki ldapadd \
-          #     -H ldap://ds.example.com:3389 \
-          #     -D "cn=Directory Manager" \
-          #     -w Secret.123 \
-          #     -f /usr/share/pki/acme/database/ds/indextask.ldif
-
-          # create ACME subtree
-          docker exec pki ldapadd \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -f /usr/share/pki/acme/database/ds/create.ldif
-
-      - name: Set up ACME realm
-        run: |
-          docker exec pki ldapadd \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -f /usr/share/pki/acme/realm/ds/create.ldif
-
       - name: Install ACME in PKI container
         run: |
           docker exec pki pkispawn \
@@ -281,6 +243,21 @@ jobs:
         if: always()
         run: |
           docker exec pki ls -l /var/log/pki/pki-tomcat/acme
+
+      - name: Initialize ACME database
+        run: |
+          # this command will rebuild the indexes which is
+          # not required for BDB backend but should not cause
+          # any problem
+          docker exec pki pki-server acme-database-init -v
+
+      - name: Initialize ACME realm
+        run: |
+          docker exec pki ldapadd \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -f /usr/share/pki/acme/realm/ds/create.ldif
 
       - name: Check initial ACME accounts
         run: |

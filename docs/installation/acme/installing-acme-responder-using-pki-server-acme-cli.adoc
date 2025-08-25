@@ -89,6 +89,14 @@ Enter the base DN for the ACME subtree.
   Base DN [dc=acme,dc=pki,dc=example,dc=com]:
 ----
 
+Once the ACME database is configured, it can be initialized with the following command:
+
+----
+$ pki-server acme-database-init
+----
+
+Alternatively, the ACME database can be initialized manually with LDAP tools.
+
 To import the DS schema for ACME database:
 
 ----

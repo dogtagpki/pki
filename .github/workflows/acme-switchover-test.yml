@@ -56,32 +56,6 @@ jobs:
               -D pki_ds_url=ldap://ds.example.com:3389 \
               -v
 
-      - name: Set up ACME database
-        run: |
-          docker exec pki ldapmodify \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -f /usr/share/pki/acme/database/ds/schema.ldif
-          docker exec pki ldapadd \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -f /usr/share/pki/acme/database/ds/index.ldif
-          docker exec pki ldapadd \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -f /usr/share/pki/acme/database/ds/create.ldif
-
-      - name: Set up ACME realm
-        run: |
-          docker exec pki ldapadd \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -f /usr/share/pki/acme/realm/ds/create.ldif
-
       - name: Install ACME in PKI container
         run: |
           docker exec pki pki-server acme-create
@@ -99,6 +73,18 @@ jobs:
               -D bindPassword=Secret.123
           docker exec pki bash -c "echo baseURL=http://server1.example.com:8080/acme >> /var/lib/pki/pki-tomcat/conf/acme/engine.conf"
           docker exec pki pki-server acme-deploy --wait
+
+      - name: Initialize ACME database
+        run: |
+          docker exec pki pki-server acme-database-init -v
+
+      - name: Initialize ACME realm
+        run: |
+          docker exec pki ldapadd \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -f /usr/share/pki/acme/realm/ds/create.ldif
 
       - name: Set up client container
         run: |

@@ -47,6 +47,11 @@ import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
 import netscape.ldap.LDAPModificationSet;
 import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.util.LDIF;
+import netscape.ldap.util.LDIFAttributeContent;
+import netscape.ldap.util.LDIFContent;
+import netscape.ldap.util.LDIFModifyContent;
+import netscape.ldap.util.LDIFRecord;
 
 /**
  * LDAP database plugin for ACME service.
@@ -257,6 +262,195 @@ public class LDAPDatabase extends ACMEDatabase {
             monitor.setDatabase(this);
 
             new Thread(monitor, "LDAPConfigMonitor").start();
+        }
+    }
+
+    public void importLDIFRecord(LDAPConnection connection, LDIFRecord record) throws Exception {
+
+        String dn = record.getDN();
+        LDIFContent content = record.getContent();
+
+        int type = content.getType();
+
+        if (type == LDIFContent.ATTRIBUTE_CONTENT) {
+
+            logger.info("Adding " + dn);
+
+            LDIFAttributeContent c = (LDIFAttributeContent) content;
+            LDAPAttributeSet attrs = new LDAPAttributeSet();
+
+            for (LDAPAttribute attr : c.getAttributes()) {
+                attrs.add(attr);
+            }
+
+            LDAPEntry entry = new LDAPEntry(dn, attrs);
+
+            try {
+                connection.add(entry);
+
+            } catch (LDAPException e) {
+                String message = "Unable to add " + dn + ": " + e;
+                logger.error(message);
+                throw new Exception(message, e);
+            }
+
+        } else if (type == LDIFContent.MODIFICATION_CONTENT) {
+
+            logger.info("Modifying " + dn);
+
+            LDIFModifyContent c = (LDIFModifyContent) content;
+            LDAPModification[] mods = c.getModifications();
+
+            for (LDAPModification mod : mods) {
+                int operation = mod.getOp();
+                LDAPAttribute attr = mod.getAttribute();
+                String name = attr.getName();
+                String[] values = attr.getStringValueArray();
+
+                switch (operation) {
+                case LDAPModification.ADD:
+                    for (String value : values) {
+                        logger.info("Adding " + name + ": " + value);
+                    }
+                    break;
+                case LDAPModification.REPLACE:
+                    for (String value : values) {
+                        logger.info("Replacing " + name + ": " + value);
+                    }
+                    break;
+                case LDAPModification.DELETE:
+                    if (values == null) {
+                        logger.info("Deleting " + name);
+                    } else {
+                        for (String value : values) {
+                            logger.info("Deleting " + name + ": " + value);
+                        }
+                    }
+                    break;
+                }
+            }
+
+            try {
+                connection.modify(dn, mods);
+
+            } catch (LDAPException e) {
+                String message = "Unable to modify " + dn + ": " + e;
+                logger.error(message);
+                throw new Exception(message, e);
+            }
+        }
+    }
+
+    public void importSchema(LDAPConnection connection) throws Exception {
+
+        logger.info("Importing ACME schema");
+
+        String filename = "/usr/share/pki/acme/database/ds/schema.ldif";
+        LDIF ldif = new LDIF(filename);
+
+        while (true) {
+            LDIFRecord record = ldif.nextRecord();
+            if (record == null) break;
+
+            importLDIFRecord(connection, record);
+        }
+    }
+
+    public void createIndexes(LDAPConnection connection) throws Exception {
+
+        logger.info("Creating ACME indexes");
+
+        String filename = "/usr/share/pki/acme/database/ds/index.ldif";
+        LDIF ldif = new LDIF(filename);
+
+        while (true) {
+            LDIFRecord record = ldif.nextRecord();
+            if (record == null) break;
+
+            importLDIFRecord(connection, record);
+        }
+    }
+
+    public void waitForTask(LDAPConnection connection, String dn) throws Exception {
+
+        String returnCode = null;
+        int count = 0;
+        int maxCount = 0; // TODO: make it configurable
+
+        while (maxCount <= 0 || count < maxCount) {
+
+            Thread.sleep(1000);
+
+            count++;
+            logger.info("Waiting for task " + dn + " (" + count + "s)");
+
+            try {
+                LDAPEntry task = connection.read(dn);
+                LDAPAttribute attr = task.getAttribute("nsTaskExitCode");
+                if (attr == null) continue;
+
+                returnCode = attr.getStringValues().nextElement();
+                break;
+
+            } catch (Exception e) {
+                logger.warn("Unable to read task " + dn + ": " + e);
+            }
+        }
+
+        if (returnCode == null || !"0".equals(returnCode)) {
+            String message = "Task " + dn + " failed: nsTaskExitCode=" + returnCode;
+            logger.error(message);
+            throw new Exception(message);
+        }
+
+        logger.info("Task " + dn + " complete");
+    }
+
+    public void rebuildIndexes(LDAPConnection connection) throws Exception {
+
+        logger.info("Rebuilding ACME indexes");
+
+        String filename = "/usr/share/pki/acme/database/ds/indextask.ldif";
+        LDIF ldif = new LDIF(filename);
+
+        LDIFRecord record = ldif.nextRecord();
+        if (record == null) return;
+
+        importLDIFRecord(connection, record);
+
+        String dn = record.getDN();
+        waitForTask(connection, dn);
+    }
+
+    public void createSubtree(LDAPConnection connection) throws Exception {
+
+        logger.info("Creating ACME database subtree");
+
+        String filename = "/usr/share/pki/acme/database/ds/create.ldif";
+        LDIF ldif = new LDIF(filename);
+
+        while (true) {
+            LDIFRecord record = ldif.nextRecord();
+            if (record == null) break;
+
+            importLDIFRecord(connection, record);
+        }
+    }
+
+    @Override
+    public void initDatabase() throws Exception {
+
+        LDAPConnection connection = null;
+        try {
+            connection = connFactory.getConn();
+
+            importSchema(connection);
+            createIndexes(connection);
+            rebuildIndexes(connection);
+            createSubtree(connection);
+
+        } finally {
+            if (connection != null) connection.disconnect();
         }
     }
 

@@ -3308,6 +3308,24 @@ class ACMESubsystem(PKISubsystem):
 
         pass
 
+    def init_database(
+            self,
+            skip_config=False,
+            skip_schema=False,
+            skip_base=False,
+            skip_containers=False,
+            as_current_user=False):
+
+        cmd = [self.name + '-database-init']
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        self.run(cmd)
+
 
 class ESTSubsystem(PKISubsystem):
 
