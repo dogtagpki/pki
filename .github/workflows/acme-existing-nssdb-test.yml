@@ -143,32 +143,6 @@ jobs:
               --input /var/lib/pki/pki-tomcat/conf/certs/sslserver.crt \
               sslserver
 
-      - name: Set up ACME database
-        run: |
-          docker exec acme ldapmodify \
-              -H ldap://acmeds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -f /usr/share/pki/acme/database/ds/schema.ldif
-          docker exec acme ldapadd \
-              -H ldap://acmeds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -f /usr/share/pki/acme/database/ds/index.ldif
-          docker exec acme ldapadd \
-              -H ldap://acmeds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -f /usr/share/pki/acme/database/ds/create.ldif
-
-      - name: Set up ACME realm
-        run: |
-          docker exec acme ldapadd \
-              -H ldap://acmeds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -f /usr/share/pki/acme/realm/ds/create.ldif
-
       - name: Install ACME
         run: |
           docker exec acme pkispawn \
@@ -322,6 +296,18 @@ jobs:
               -d /etc/pki/pki-tomcat/alias \
               -f /etc/pki/pki-tomcat/password.conf \
               nss-cert-find
+
+      - name: Initialize ACME database
+        run: |
+          docker exec acme pki-server acme-database-init -v
+
+      - name: Initialize ACME realm
+        run: |
+          docker exec acme ldapadd \
+              -H ldap://acmeds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -f /usr/share/pki/acme/realm/ds/create.ldif
 
       - name: Check initial ACME accounts
         run: |

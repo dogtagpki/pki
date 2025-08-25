@@ -7,11 +7,14 @@
 #
 
 import argparse
+import inspect
 import logging
 import os
+import textwrap
 
 import pki.cli
 import pki.server
+import pki.server.cli.db
 import pki.server.cli.subsystem
 
 logger = logging.getLogger(__name__)
@@ -569,8 +572,84 @@ class ACMEDatabaseCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('database', 'ACME database management commands')
 
+        self.add_module(ACMEDatabaseInitCLI())
         self.add_module(ACMEDatabaseShowCLI())
         self.add_module(ACMEDatabaseModifyCLI())
+
+
+class ACMEDatabaseInitCLI(pki.cli.CLI):
+    '''
+    Initialize ACME database
+    '''
+
+    help = '''\
+        Usage: pki-server acme-database-init [OPTIONS]
+
+          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -v, --verbose                      Run in verbose mode.
+              --debug                        Run in debug mode.
+              --help                         Show help message.
+    '''
+
+    def __init__(self):
+        super().__init__(
+            'init',
+            inspect.cleandoc(self.__class__.__doc__).format())
+
+    def create_parser(self, subparsers=None):
+
+        self.parser = argparse.ArgumentParser(
+            self.get_full_name(),
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
+    def print_help(self):
+        print(textwrap.dedent(self.__class__.help).format())
+
+    def execute(self, argv, args=None):
+
+        if not args:
+            args = self.parser.parse_args(args=argv)
+
+        if args.help:
+            self.print_help()
+            return
+
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
+        subsystem_name = self.parent.parent.name
+
+        instance = pki.server.PKIServerFactory.create(instance_name)
+        if not instance.exists():
+            raise Exception('Invalid instance: %s' % instance_name)
+
+        instance.load()
+
+        subsystem = instance.get_subsystem(subsystem_name)
+
+        if not subsystem:
+            raise Exception('No %s subsystem in instance %s' %
+                            (subsystem_name.upper(), instance_name))
+
+        subsystem.init_database()
 
 
 class ACMEDatabaseShowCLI(pki.cli.CLI):

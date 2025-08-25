@@ -22,7 +22,32 @@ It also assumes that the following CA service is available to use as ACME issuer
 * Username: `caadmin`
 * Password: `Secret.123`
 
-== Setting Up ACME Database ==
+== Installing ACME Responder ==
+
+To create and deploy ACME responder in PKI server execute the following command:
+
+----
+$ pkispawn \
+    -f /usr/share/pki/server/examples/installation/acme.cfg \
+    -s ACME \
+    -D acme_database_url=ldap://ds.example.com:3389 \
+    -D acme_issuer_url=https://pki.example.com:8443 \
+    -D acme_realm_url=ldap://ds.example.com:3389
+----
+
+The configuration files are available in `/var/lib/pki/pki-tomcat/conf/acme` folder.
+
+See also xref:../../admin/acme/Configuring-ACME-Responder.adoc[Configuring ACME Responder].
+
+== Initializing ACME Database ==
+
+The ACME database can be initialized with the following command:
+
+----
+$ pki-server acme-database-init
+----
+
+Alternatively, the ACME database can be initialized manually with LDAP tools.
 
 To import the DS schema for ACME database:
 
@@ -74,7 +99,7 @@ $ ldapadd \
     -f /usr/share/pki/acme/database/ds/create.ldif
 ----
 
-== Setting Up ACME Realm ==
+== Initializing ACME Realm ==
 
 To create the DS subtrees for ACME realm:
 
@@ -85,23 +110,6 @@ $ ldapadd \
     -w Secret.123 \
     -f /usr/share/pki/acme/realm/ds/create.ldif
 ----
-
-== Installing ACME Responder ==
-
-To create and deploy ACME responder in PKI server execute the following command:
-
-----
-$ pkispawn \
-    -f /usr/share/pki/server/examples/installation/acme.cfg \
-    -s ACME \
-    -D acme_database_url=ldap://ds.example.com:3389 \
-    -D acme_issuer_url=https://pki.example.com:8443 \
-    -D acme_realm_url=ldap://ds.example.com:3389
-----
-
-The configuration files are available in `/var/lib/pki/pki-tomcat/conf/acme` folder.
-
-See also xref:../../admin/acme/Configuring-ACME-Responder.adoc[Configuring ACME Responder].
 
 == Verifying ACME Responder ==
 
