@@ -1808,6 +1808,22 @@ class PKISubsystem(object):
         logger.debug('Command: %s', ' '.join(cmd))
         subprocess.check_call(cmd)
 
+    def add_group(self, group_id=None, description=None, as_current_user=False):
+
+        cmd = [self.name + '-group-add']
+
+        if description is not None:
+            cmd.extend(['--description', description])
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        cmd.append(group_id)
+        self.run(cmd, as_current_user=as_current_user)
+
     def find_groups(self, member_id=None, as_current_user=False):
 
         cmd = [self.name + '-group-find']

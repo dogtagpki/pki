@@ -20,8 +20,92 @@ class GroupCLI(pki.cli.CLI):
             'group', '%s group management commands' % parent.name.upper())
 
         self.parent = parent
+        self.add_module(GroupAddCLI(self))
         self.add_module(GroupFindCLI(self))
         self.add_module(GroupMemberCLI(self))
+
+
+class GroupAddCLI(pki.cli.CLI):
+
+    def __init__(self, parent):
+        super().__init__(
+            'add',
+            'Add group to %s' % parent.parent.name.upper())
+
+        self.parent = parent
+
+    def create_parser(self, subparsers=None):
+
+        self.parser = argparse.ArgumentParser(
+            self.get_full_name(),
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument('--description')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument(
+            'group_id',
+            nargs='?')
+
+    def print_help(self):
+        print('Usage: pki-server %s-group-add [OPTIONS] <group ID>' % self.parent.parent.name)
+        print()
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('      --description <description>    Group decsription.')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
+        print('      --help                         Show help message.')
+        print()
+
+    def execute(self, argv, args=None):
+
+        if not args:
+            args = self.parser.parse_args(args=argv)
+
+        if args.help:
+            self.print_help()
+            return
+
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
+        subsystem_name = self.parent.parent.name
+        description = args.description
+        group_id = args.group_id
+
+        if group_id is None:
+            raise pki.cli.CLIException('Missing group ID')
+
+        instance = pki.server.PKIServerFactory.create(instance_name)
+        if not instance.exists():
+            logger.error('Invalid instance: %s', instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        subsystem = instance.get_subsystem(subsystem_name)
+
+        if not subsystem:
+            logger.error('No %s subsystem in instance %s',
+                         subsystem_name.upper(), instance_name)
+            sys.exit(1)
+
+        subsystem.add_group(group_id, description)
 
 
 class GroupFindCLI(pki.cli.CLI):
