@@ -31,12 +31,47 @@ jobs:
 
       - name: Set up server container
         run: |
-          tests/bin/runner-init.sh pki
-        env:
-          HOSTNAME: pki.example.com
+          tests/bin/runner-init.sh \
+              --hostname=pki.example.com \
+              --network=example \
+              --network-alias=pki.example.com \
+              pki
 
-      - name: Connect server container to network
-        run: docker network connect example pki --alias pki.example.com
+      - name: Check Tomcat lib dir
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /usr/share/java/tomcat \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+      - name: Check PKI lib dir
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /usr/share/pki/lib \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+      - name: Check PKI server common lib dir
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /usr/share/pki/server/common/lib \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+      - name: Check PKI server lib dir
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /usr/share/pki/server/lib \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
 
       - name: Check pki-server CLI help message
         run: |
