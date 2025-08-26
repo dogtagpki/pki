@@ -101,6 +101,14 @@ $ ldapadd \
 
 == Initializing ACME Realm ==
 
+The ACME realm can be initialized with the following command:
+
+----
+$ pki-server acme-realm-init
+----
+
+Alternatively, the ACME realm can be initialized manually with LDAP tools.
+
 To create the DS subtrees for ACME realm:
 
 ----

@@ -2207,8 +2207,7 @@ class PKISubsystem(object):
         java_opts = self.instance.config['JAVA_OPTS']
 
         classpath = [
-            pki.server.Tomcat.SHARE_DIR + '/bin/tomcat-juli.jar',
-            '/usr/share/java/tomcat-servlet-api.jar',
+            pki.server.Tomcat.LIB_DIR + '/*',
             pki.server.PKIServer.SHARE_DIR + '/' +
             self.name + '/webapps/' + self.name + '/WEB-INF/lib/*',
             self.instance.common_lib_dir + '/*',
@@ -3317,6 +3316,18 @@ class ACMESubsystem(PKISubsystem):
             as_current_user=False):
 
         cmd = [self.name + '-database-init']
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        self.run(cmd)
+
+    def init_realm(self):
+
+        cmd = [self.name + '-realm-init']
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')

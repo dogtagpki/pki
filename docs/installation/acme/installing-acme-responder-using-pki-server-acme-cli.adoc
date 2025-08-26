@@ -219,6 +219,14 @@ Enter the base DN for the ACME groups subtree.
   Groups DN [ou=groups,dc=acme,dc=pki,dc=example,dc=com]:
 ----
 
+Once the ACME realm is configured, it can be initialized with the following command:
+
+----
+$ pki-server acme-realm-init
+----
+
+Alternatively, the ACME realm can be initialized manually with LDAP tools.
+
 To create DS subtrees for ACME realm:
 
 ----

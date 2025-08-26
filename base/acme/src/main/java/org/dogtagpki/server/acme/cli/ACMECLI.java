@@ -16,5 +16,6 @@ public class ACMECLI extends CLI {
         super("acme", "ACME subsystem management commands", parent);
 
         addModule(new ACMEDatabaseCLI(this));
+        addModule(new ACMERealmCLI(this));
     }
 }

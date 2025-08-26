@@ -80,11 +80,7 @@ jobs:
 
       - name: Initialize ACME realm
         run: |
-          docker exec pki ldapadd \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -f /usr/share/pki/acme/realm/ds/create.ldif
+          docker exec pki pki-server acme-realm-init -v
 
       - name: Set up client container
         run: |

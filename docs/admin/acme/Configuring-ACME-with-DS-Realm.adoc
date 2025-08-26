@@ -6,17 +6,7 @@ This document describes the process to configure ACME responder to use a DS data
 It assumes that the DS database has been installed as described in
 link:../others/Creating_DS_instance.adoc[Creating DS instance].
 
-## Initializing DS Realm
-
-Prepare subtrees for ACME users and groups in DS.
-A sample LDIF file is available at link:../../../base/acme/realm/ds/create.ldif[/usr/share/pki/acme/realm/ds/create.ldif].
-This example uses `dc=acme,dc=pki,dc=example,dc=com` as the base DN.
-Import the file with the following command:
-
-----
-$ ldapadd -H ldap://$HOSTNAME -x -D "cn=Directory Manager" -w Secret.123 \
-    -f /usr/share/pki/acme/realm/ds/create.ldif
-----
+## Configuring ACME Realm
 
 A sample realm configuration is available at
 link:../../../base/acme/realm/ds/realm.conf[/usr/share/pki/acme/realm/ds/realm.conf].
@@ -48,6 +38,24 @@ class=org.dogtagpki.acme.realm.DSRealm
 configFile=conf/ca/CS.cfg
 usersDN=ou=people,dc=ca,dc=pki,dc=example,dc=com
 groupsDN=ou=groups,dc=ca,dc=pki,dc=example,dc=com
+----
+
+## Initializing DS Realm
+
+Once the ACME realm is configured, it can be initialized with the following command:
+
+----
+$ pki-server acme-realm-init
+----
+
+Alternatively, the ACME realm can be initialized manually with LDAP tools.
+
+Create the DS subtrees for ACME realm by importing
+link:../../../base/acme/realm/ds/create.ldif[/usr/share/pki/acme/realm/ds/create.ldif] with the following command:
+
+----
+$ ldapadd -H ldap://$HOSTNAME -x -D "cn=Directory Manager" -w Secret.123 \
+    -f /usr/share/pki/acme/realm/ds/create.ldif
 ----
 
 ## See Also
