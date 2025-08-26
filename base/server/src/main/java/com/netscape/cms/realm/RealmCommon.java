@@ -8,6 +8,7 @@ package com.netscape.cms.realm;
 import java.security.Principal;
 import java.security.cert.X509Certificate;
 
+import org.apache.catalina.LifecycleException;
 import org.apache.catalina.realm.RealmBase;
 
 /**
@@ -23,6 +24,20 @@ public abstract class RealmCommon extends RealmBase {
 
     public void setConfig(RealmConfig config) {
         this.config = config;
+    }
+
+    /**
+     * Initialize RealmCommon object
+     */
+    @Override
+    public void initInternal() throws LifecycleException {
+        super.initInternal();
+    }
+
+    /**
+     * Initialize realm
+     */
+    public void initRealm() throws Exception {
     }
 
     @Override
@@ -45,4 +60,8 @@ public abstract class RealmCommon extends RealmBase {
         return null;
     }
 
+    @Override
+    public void stopInternal() throws LifecycleException {
+        super.stopInternal();
+    }
 }

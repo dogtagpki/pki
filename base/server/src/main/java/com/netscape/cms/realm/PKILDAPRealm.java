@@ -32,10 +32,16 @@ import com.netscape.cmsutil.password.PasswordStore;
 import com.netscape.cmsutil.password.PlainPasswordFile;
 
 import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
 import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.util.LDIFAttributeContent;
+import netscape.ldap.util.LDIFContent;
+import netscape.ldap.util.LDIFModifyContent;
+import netscape.ldap.util.LDIFRecord;
 
 /**
  * @author Endi S. Dewata
@@ -44,16 +50,16 @@ public class PKILDAPRealm extends RealmCommon {
 
     public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PKILDAPRealm.class);
 
-    String usersDN;
-    String groupsDN;
+    protected String usersDN;
+    protected String groupsDN;
 
-    PKISocketConfig socketConfig;
-    LDAPConnectionConfig connConfig;
-    LDAPAuthenticationConfig authConfig;
-    LdapBoundConnFactory connFactory;
+    protected PKISocketConfig socketConfig;
+    protected LDAPConnectionConfig connConfig;
+    protected LDAPAuthenticationConfig authConfig;
+    protected LdapBoundConnFactory connFactory;
 
     @Override
-    public void initInternal () throws LifecycleException {
+    public void initInternal() throws LifecycleException {
 
         logger.info("Initializing LDAP realm");
 
@@ -171,6 +177,82 @@ public class PKILDAPRealm extends RealmCommon {
 
         } catch (Exception e) {
             throw new LifecycleException("Unable to create LDAP connection:" + e.getMessage(), e);
+        }
+    }
+
+    public void importLDIFRecord(LDAPConnection connection, LDIFRecord record) throws Exception {
+
+        String dn = record.getDN();
+        LDIFContent content = record.getContent();
+
+        int type = content.getType();
+
+        if (type == LDIFContent.ATTRIBUTE_CONTENT) {
+
+            logger.info("Adding " + dn);
+
+            LDIFAttributeContent c = (LDIFAttributeContent) content;
+            LDAPAttributeSet attrs = new LDAPAttributeSet();
+
+            for (LDAPAttribute attr : c.getAttributes()) {
+                attrs.add(attr);
+            }
+
+            LDAPEntry entry = new LDAPEntry(dn, attrs);
+
+            try {
+                connection.add(entry);
+
+            } catch (LDAPException e) {
+                String message = "Unable to add " + dn + ": " + e;
+                logger.error(message);
+                throw new Exception(message, e);
+            }
+
+        } else if (type == LDIFContent.MODIFICATION_CONTENT) {
+
+            logger.info("Modifying " + dn);
+
+            LDIFModifyContent c = (LDIFModifyContent) content;
+            LDAPModification[] mods = c.getModifications();
+
+            for (LDAPModification mod : mods) {
+                int operation = mod.getOp();
+                LDAPAttribute attr = mod.getAttribute();
+                String name = attr.getName();
+                String[] values = attr.getStringValueArray();
+
+                switch (operation) {
+                case LDAPModification.ADD:
+                    for (String value : values) {
+                        logger.info("Adding " + name + ": " + value);
+                    }
+                    break;
+                case LDAPModification.REPLACE:
+                    for (String value : values) {
+                        logger.info("Replacing " + name + ": " + value);
+                    }
+                    break;
+                case LDAPModification.DELETE:
+                    if (values == null) {
+                        logger.info("Deleting " + name);
+                    } else {
+                        for (String value : values) {
+                            logger.info("Deleting " + name + ": " + value);
+                        }
+                    }
+                    break;
+                }
+            }
+
+            try {
+                connection.modify(dn, mods);
+
+            } catch (LDAPException e) {
+                String message = "Unable to modify " + dn + ": " + e;
+                logger.error(message);
+                throw new Exception(message, e);
+            }
         }
     }
 

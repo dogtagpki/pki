@@ -306,11 +306,7 @@ jobs:
 
       - name: Initialize ACME realm
         run: |
-          docker exec acme ldapadd \
-              -H ldap://acmeds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -f /usr/share/pki/acme/realm/ds/create.ldif
+          docker exec acme pki-server acme-realm-init -v
 
       - name: Check initial ACME accounts
         run: |

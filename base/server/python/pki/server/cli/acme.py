@@ -1316,8 +1316,84 @@ class ACMERealmCLI(pki.cli.CLI):
     def __init__(self):
         super().__init__('realm', 'ACME realm management commands')
 
+        self.add_module(ACMERealmInitCLI())
         self.add_module(ACMERealmShowCLI())
         self.add_module(ACMERealmModifyCLI())
+
+
+class ACMERealmInitCLI(pki.cli.CLI):
+    '''
+    Initialize ACME realm
+    '''
+
+    help = '''\
+        Usage: pki-server acme-realm-init [OPTIONS]
+
+          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -v, --verbose                      Run in verbose mode.
+              --debug                        Run in debug mode.
+              --help                         Show help message.
+    '''
+
+    def __init__(self):
+        super().__init__(
+            'init',
+            inspect.cleandoc(self.__class__.__doc__).format())
+
+    def create_parser(self, subparsers=None):
+
+        self.parser = argparse.ArgumentParser(
+            self.get_full_name(),
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+
+    def print_help(self):
+        print(textwrap.dedent(self.__class__.help).format())
+
+    def execute(self, argv, args=None):
+
+        if not args:
+            args = self.parser.parse_args(args=argv)
+
+        if args.help:
+            self.print_help()
+            return
+
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
+        subsystem_name = self.parent.parent.name
+
+        instance = pki.server.PKIServerFactory.create(instance_name)
+        if not instance.exists():
+            raise Exception('Invalid instance: %s' % instance_name)
+
+        instance.load()
+
+        subsystem = instance.get_subsystem(subsystem_name)
+
+        if not subsystem:
+            raise Exception('No %s subsystem in instance %s' %
+                            (subsystem_name.upper(), instance_name))
+
+        subsystem.init_realm()
 
 
 class ACMERealmShowCLI(pki.cli.CLI):
