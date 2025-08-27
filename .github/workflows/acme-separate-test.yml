@@ -128,39 +128,6 @@ jobs:
               --network-alias=acme.example.com \
               acme
 
-      - name: Initialize ACME database
-        run: |
-          # import ACME schema
-          docker exec acme ldapmodify \
-              -H ldap://acmeds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -f /usr/share/pki/acme/database/ds/schema.ldif
-
-          # create ACME indexes
-          docker exec acme ldapadd \
-              -H ldap://acmeds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -f /usr/share/pki/acme/database/ds/index.ldif
-
-          # rebuild ACME indexes later
-
-          # create ACME subtree
-          docker exec acme ldapadd \
-              -H ldap://acmeds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -f /usr/share/pki/acme/database/ds/create.ldif
-
-      - name: Initialize ACME realm
-        run: |
-          docker exec acme ldapadd \
-              -H ldap://acmeds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -f /usr/share/pki/acme/realm/ds/create.ldif
-
       - name: Install ACME
         run: |
           # TODO: update pkispawn to initialize ACME database and realm
@@ -319,6 +286,16 @@ jobs:
               -f /etc/pki/pki-tomcat/password.conf \
               nss-cert-find
 
+      - name: Initialize ACME database
+        run: |
+          # rebuild ACME indexes later
+          docker exec acme pki-server acme-database-init -v \
+              --skip-reindex
+
+      - name: Initialize ACME realm
+        run: |
+          docker exec acme pki-server acme-realm-init -v
+
       - name: Check initial ACME accounts
         run: |
           docker exec acmeds ldapsearch \
@@ -452,35 +429,7 @@ jobs:
       - name: Rebuild ACME indexes
         run: |
           # LMDB indexes must be rebuilt
-          docker exec acme ldapadd \
-              -H ldap://acmeds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -f /usr/share/pki/acme/database/ds/indextask.ldif
-
-          # wait for rebuild to complete
-          while true; do
-              sleep 1
-
-              docker exec acme ldapsearch \
-                  -H ldap://acmeds.example.com:3389 \
-                  -D "cn=Directory Manager" \
-                  -w Secret.123 \
-                  -b "cn=acme,cn=index,cn=tasks,cn=config" \
-                  -LLL \
-                  nsTaskExitCode \
-                  | tee output
-
-              sed -n -e 's/nsTaskExitCode:\s*\(.*\)/\1/p' output > nsTaskExitCode
-              cat nsTaskExitCode
-
-              if [ -s nsTaskExitCode ]; then
-                  break
-              fi
-          done
-
-          echo "0" > expected
-          diff expected nsTaskExitCode
+          docker exec acme pki-server acme-database-index-rebuild -v
 
       - name: Register ACME account again
         run: |

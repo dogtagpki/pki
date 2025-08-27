@@ -16,5 +16,7 @@ public class ACMEDatabaseCLI extends CLI {
         super("database", "ACME database management commands", parent);
 
         addModule(new ACMEDatabaseInitCLI(this));
+
+        addModule(new ACMEDatabaseIndexCLI(this));
     }
 }
