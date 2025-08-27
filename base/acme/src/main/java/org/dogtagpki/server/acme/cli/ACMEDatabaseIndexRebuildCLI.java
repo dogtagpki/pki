@@ -14,6 +14,7 @@ import org.dogtagpki.acme.database.ACMEDatabase;
 import org.dogtagpki.acme.database.ACMEDatabaseConfig;
 import org.dogtagpki.acme.database.LDAPDatabase;
 import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CLIException;
 import org.dogtagpki.server.cli.SubsystemCLI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,22 +24,20 @@ import com.netscape.cmscore.apps.CMS;
 /**
  * @author Endi S. Dewata
  */
-public class ACMEDatabaseInitCLI extends SubsystemCLI {
+public class ACMEDatabaseIndexRebuildCLI extends SubsystemCLI {
 
-    public static Logger logger = LoggerFactory.getLogger(ACMEDatabaseInitCLI.class);
+    public static Logger logger = LoggerFactory.getLogger(ACMEDatabaseIndexRebuildCLI.class);
 
-    public ACMEDatabaseInitCLI(CLI parent) {
-        super("init", "Initialize " + parent.getParent().getName().toUpperCase() + " database", parent);
+    public ACMEDatabaseIndexRebuildCLI(CLI parent) {
+        super("rebuild", "Rebuild " + parent.getParent().getParent().getName().toUpperCase() + " database indexes", parent);
     }
 
-    public ACMEDatabaseInitCLI(String name, String description, CLI parent) {
+    public ACMEDatabaseIndexRebuildCLI(String name, String description, CLI parent) {
         super(name, description, parent);
     }
 
     @Override
     public void createOptions() {
-        options.addOption(null, "skip-reindex", false, "Skip database reindex.");
-
         options.addOption("v", "verbose", false, "Run in verbose mode.");
         options.addOption(null, "debug", false, "Run in debug mode.");
         options.addOption(null, "help", false, "Show help message.");
@@ -80,20 +79,11 @@ public class ACMEDatabaseInitCLI extends SubsystemCLI {
             database.init();
 
             if (database instanceof LDAPDatabase ldapDatabase) {
-                // perform LDAP-specific database initialization
-
-                ldapDatabase.importSchema();
-                ldapDatabase.createIndexes();
-
-                if (!cmd.hasOption("skip-reindex")) {
-                    ldapDatabase.rebuildIndexes();
-                }
-
-                ldapDatabase.createSubtree();
+                // perform LDAP-specific reindex
+                ldapDatabase.rebuildIndexes();
 
             } else {
-                // perform generic database initialization
-                database.initDatabase();
+                throw new CLIException("Operation not supported by " + className);
             }
 
         } finally {

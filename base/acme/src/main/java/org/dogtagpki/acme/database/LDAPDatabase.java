@@ -437,6 +437,54 @@ public class LDAPDatabase extends ACMEDatabase {
         }
     }
 
+    public void importSchema() throws Exception {
+
+        LDAPConnection connection = null;
+        try {
+            connection = connFactory.getConn();
+            importSchema(connection);
+
+        } finally {
+            if (connection != null) connection.disconnect();
+        }
+    }
+
+    public void createIndexes() throws Exception {
+
+        LDAPConnection connection = null;
+        try {
+            connection = connFactory.getConn();
+            createIndexes(connection);
+
+        } finally {
+            if (connection != null) connection.disconnect();
+        }
+    }
+
+    public void rebuildIndexes() throws Exception {
+
+        LDAPConnection connection = null;
+        try {
+            connection = connFactory.getConn();
+            rebuildIndexes(connection);
+
+        } finally {
+            if (connection != null) connection.disconnect();
+        }
+    }
+
+    public void createSubtree() throws Exception {
+
+        LDAPConnection connection = null;
+        try {
+            connection = connFactory.getConn();
+            createSubtree(connection);
+
+        } finally {
+            if (connection != null) connection.disconnect();
+        }
+    }
+
     @Override
     public void initDatabase() throws Exception {
 
