@@ -166,16 +166,19 @@ jobs:
         if: always()
         run: |
           docker exec pki cat /etc/pki/pki-tomcat/acme/database.conf
+          docker exec pki pki-server acme-database-show
 
       - name: Check ACME issuer config
         if: always()
         run: |
           docker exec pki cat /etc/pki/pki-tomcat/acme/issuer.conf
+          docker exec pki pki-server acme-issuer-show
 
       - name: Check ACME realm config
         if: always()
         run: |
           docker exec pki cat /etc/pki/pki-tomcat/acme/realm.conf
+          docker exec pki pki-server acme-realm-show
 
       - name: Run PKI healthcheck in PKI container
         run: docker exec pki pki-healthcheck --failures-only

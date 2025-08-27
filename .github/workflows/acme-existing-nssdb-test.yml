@@ -273,16 +273,19 @@ jobs:
         if: always()
         run: |
           docker exec acme cat /etc/pki/pki-tomcat/acme/database.conf
+          docker exec acme pki-server acme-database-show
 
       - name: Check ACME issuer config
         if: always()
         run: |
           docker exec acme cat /etc/pki/pki-tomcat/acme/issuer.conf
+          docker exec acme pki-server acme-issuer-show
 
       - name: Check ACME realm config
         if: always()
         run: |
           docker exec acme cat /etc/pki/pki-tomcat/acme/realm.conf
+          docker exec acme pki-server acme-realm-show
 
       - name: Check ACME logs dir
         if: always()
