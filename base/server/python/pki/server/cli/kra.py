@@ -27,6 +27,7 @@ import sys
 import tempfile
 
 import pki.cli
+import pki.server.cli.acl
 import pki.server.cli.audit
 import pki.server.cli.config
 import pki.server.cli.db
@@ -54,6 +55,7 @@ class KRACLI(pki.cli.CLI):
         self.add_module(pki.server.cli.group.GroupCLI(self))
         self.add_module(pki.server.cli.range.RangeCLI(self))
         self.add_module(pki.server.cli.user.UserCLI(self))
+        self.add_module(pki.server.cli.acl.SubsystemACLCLI(self))
 
 
 class KRACloneCLI(pki.cli.CLI):

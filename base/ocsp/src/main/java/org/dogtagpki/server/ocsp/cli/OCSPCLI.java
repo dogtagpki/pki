@@ -20,6 +20,7 @@ package org.dogtagpki.server.ocsp.cli;
 
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.server.cli.SDCLI;
+import org.dogtagpki.server.cli.SubsystemACLCLI;
 import org.dogtagpki.server.cli.SubsystemDBCLI;
 import org.dogtagpki.server.cli.SubsystemGroupCLI;
 import org.dogtagpki.server.cli.SubsystemUserCLI;
@@ -36,6 +37,7 @@ public class OCSPCLI extends CLI {
         addModule(new SubsystemDBCLI(this));
         addModule(new SubsystemGroupCLI(this));
         addModule(new SubsystemUserCLI(this));
+        addModule(new SubsystemACLCLI(this));
         addModule(new SDCLI(this));
     }
 }

@@ -1408,6 +1408,46 @@ class PKISubsystem(object):
         finally:
             shutil.rmtree(tmpdir)
 
+    def find_acl(self, as_current_user=False):
+
+        cmd = [self.name + '-acl-find']
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        self.run(cmd, as_current_user=as_current_user)
+
+    def add_acl(self, acl, as_current_user=False):
+
+        cmd = [self.name + '-acl-add']
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        cmd.append(acl)
+
+        self.run(cmd, as_current_user=as_current_user)
+
+    def delete_acl(self, acl, as_current_user=False):
+
+        cmd = [self.name + '-acl-del']
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        cmd.append(acl)
+
+        self.run(cmd, as_current_user=as_current_user)
+
     def find_vlv(self, as_current_user=False):
 
         cmd = [self.name + '-db-vlv-find']
