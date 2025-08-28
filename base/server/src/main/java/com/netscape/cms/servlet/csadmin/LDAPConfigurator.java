@@ -308,6 +308,44 @@ public class LDAPConfigurator {
             }
         }
     }
+    
+    public void deleteAttribute(String dn, String attribute, String value) throws Exception {
+        try {
+            logger.info("Deleting attribute {} from {} with value: {}",attribute, dn, value);
+            LDAPAttribute attr = new LDAPAttribute(attribute, value);
+            LDAPModification mod = new LDAPModification(LDAPModification.DELETE, attr);
+            connection.modify(dn, mod);
+        } catch (LDAPException e) {
+
+            if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
+                logger.info("Entry not found: " + dn);
+
+            } else {
+                String message = "Unable to delete " + dn + ": " + e;
+                logger.error(message);
+                throw new Exception(message, e);
+            }
+        }
+    }
+
+    public void addAttribute(String dn, String attribute, String value) throws Exception {
+        try {
+            logger.info("Adding attribute {} in {} with value: {}",attribute, dn, value);
+            LDAPAttribute attr = new LDAPAttribute(attribute, value);
+            LDAPModification mod = new LDAPModification(LDAPModification.ADD, attr);
+            connection.modify(dn, mod);
+        } catch (LDAPException e) {
+
+            if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
+                logger.info("Entry not found: " + dn);
+
+            } else {
+                String message = "Unable to delete " + dn + ": " + e;
+                logger.error(message);
+                throw new Exception(message, e);
+            }
+        }
+    }
 
     public void waitForTask(String dn) throws Exception {
 

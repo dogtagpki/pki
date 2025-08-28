@@ -19,6 +19,7 @@
 package org.dogtagpki.server.tks.cli;
 
 import org.dogtagpki.cli.CLI;
+import org.dogtagpki.server.cli.SubsystemACLCLI;
 import org.dogtagpki.server.cli.SubsystemDBCLI;
 import org.dogtagpki.server.cli.SubsystemGroupCLI;
 import org.dogtagpki.server.cli.SubsystemUserCLI;
@@ -34,5 +35,6 @@ public class TKSCLI extends CLI {
         addModule(new SubsystemDBCLI(this));
         addModule(new SubsystemGroupCLI(this));
         addModule(new SubsystemUserCLI(this));
+        addModule(new SubsystemACLCLI(this));
     }
 }

@@ -20,6 +20,7 @@ package org.dogtagpki.server.kra.cli;
 
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.server.cli.SDCLI;
+import org.dogtagpki.server.cli.SubsystemACLCLI;
 import org.dogtagpki.server.cli.SubsystemGroupCLI;
 import org.dogtagpki.server.cli.SubsystemUserCLI;
 
@@ -33,6 +34,7 @@ public class KRACLI extends CLI {
 
         addModule(new KRADBCLI(this));
         addModule(new SubsystemGroupCLI(this));
+        addModule(new SubsystemACLCLI(this));
         addModule(new KRARangeCLI(this));
         addModule(new KRAIdCLI(this));
         addModule(new SubsystemUserCLI(this));

@@ -31,6 +31,7 @@ import urllib
 
 import pki.cli
 import pki.server
+import pki.server.cli.acl
 import pki.server.cli.audit
 import pki.server.cli.config
 import pki.server.cli.db
@@ -64,6 +65,7 @@ class CACLI(pki.cli.CLI):
         self.add_module(pki.server.cli.range.RangeCLI(self))
         self.add_module(pki.server.cli.id.IdCLI(self))
         self.add_module(pki.server.cli.user.UserCLI(self))
+        self.add_module(pki.server.cli.acl.SubsystemACLCLI(self))
 
 
 class CACertCLI(pki.cli.CLI):
