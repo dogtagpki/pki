@@ -1684,6 +1684,20 @@ class PKISubsystem(object):
 
         self.run(cmd, as_current_user=as_current_user)
 
+    def add_security_domain_type(self, subsystem_type=None, as_current_user=False):
+
+        cmd = [self.name + '-sd-type-add']
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        cmd.append(subsystem_type)
+
+        self.run(cmd, as_current_user=as_current_user)
+
     def display_security_domain_subsystems(self, as_current_user=False):
         '''
         Display security domain subsystems on standard output.
