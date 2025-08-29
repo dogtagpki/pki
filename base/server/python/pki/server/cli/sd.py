@@ -20,6 +20,7 @@ class SDCLI(pki.cli.CLI):
         super().__init__('sd', 'Security domain management commands')
 
         self.add_module(SDCreateCLI())
+        self.add_module(SDTypeCLI())
         self.add_module(SDSubsystemCLI())
 
 
@@ -90,6 +91,86 @@ class SDCreateCLI(pki.cli.CLI):
             sys.exit(1)
 
         subsystem.create_security_domain(name=name)
+
+
+class SDTypeCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super().__init__('type', 'Security domain subsystem type management commands')
+
+        self.add_module(SDTypeAddCLI())
+
+
+class SDTypeAddCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super().__init__('add', 'Add subsystem type to security domain')
+
+    def create_parser(self, subparsers=None):
+
+        self.parser = argparse.ArgumentParser(
+            self.get_full_name(),
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument(
+            'subsystem_type',
+            nargs='?')
+
+    def print_help(self):
+        print('Usage: pki-server sd-type-add [OPTIONS] <subsystem_type>')
+        print()
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
+        print('      --help                         Show help message.')
+        print()
+
+    def execute(self, argv, args=None):
+
+        if not args:
+            args = self.parser.parse_args(args=argv)
+
+        if args.help:
+            self.print_help()
+            return
+
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        elif args.verbose:
+            logging.getLogger().setLevel(logging.INFO)
+
+        instance_name = args.instance
+        subsystem_type = args.subsystem_type
+        if subsystem_type is None:
+            raise pki.cli.CLIException('Missing type to add')
+
+        instance = pki.server.PKIServerFactory.create(instance_name)
+        if not instance.exists():
+            logger.error('Invalid instance: %s', instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        subsystem = instance.get_subsystem('ca')
+        if not subsystem:
+            logger.error('No CA subsystem in instance %s', instance_name)
+            sys.exit(1)
+
+        subsystem.add_security_domain_type(subsystem_type=subsystem_type)
 
 
 class SDSubsystemCLI(pki.cli.CLI):
