@@ -414,7 +414,7 @@ class PKISubsystem(object):
         nickname = self.config.get('%s.%s.nickname' % (self.name, tag))
         token = self.config.get('%s.%s.tokenname' % (self.name, tag))
 
-        nssdb = self.instance.open_nssdb()
+        nssdb = self.instance.open_nssdb(token=token)
         try:
             return nssdb.get_cert_info(nickname, token=token)
         finally:
