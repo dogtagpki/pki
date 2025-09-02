@@ -219,8 +219,6 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
     private ResponderID mResponderIDByName = null;
     private ResponderID mResponderIDByHash = null;
 
-    private Thread keyRetrieverThread;
-
     /**
      * Internal constants
      */
@@ -649,12 +647,7 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
             return;
         }
 
-        if (keyRetrieverThread != null) {
-            logger.info("CertificateAuthority: KeyRetriever already running for authority " + authorityID);
-            return;
-        }
-
-        logger.info("CertificateAuthority: Starting KeyRetriever for authority " + authorityID);
+        logger.info("CertificateAuthority: Initialising KeyRetriever for authority " + authorityID);
 
         CAEngine engine = CAEngine.getInstance();
         CAEngineConfig engineConfig = engine.getConfig();
@@ -688,13 +681,7 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
         }
 
         KeyRetrieverRunner runner = new KeyRetrieverRunner(keyRetriever, this);
-
-        keyRetrieverThread = new Thread(runner, "KeyRetriever-" + authorityID);
-        keyRetrieverThread.start();
-    }
-
-    public synchronized void removeKeyRetriever() {
-        keyRetrieverThread = null;
+        engine.getKeyRetrieverWorker().requestKeyRetrieval(runner);
     }
 
     public void initSigningUnits() throws Exception {
