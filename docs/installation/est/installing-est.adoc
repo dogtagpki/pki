@@ -13,48 +13,47 @@ The *EST subsystem* requires the package `dogtag-pki-est` installed on the serve
 
 == Prerequisites 
 
-On the CA, create a user group for EST RA accounts (*EST RA Agents*), and an EST RA account (**est-ra-1**). The EST subsystem uses this account to authenticate to
-the CA subsystem and issue certificates on behalf of EST clients.
+If the EST has to be installed in standalone mode, not joining any security
+domain, an agent user has to be created for the EST subsystem in the CA.  On the
+CA, create a user EST RA account (**est-ra-1**) and add to group of the agents
+(**Certificate Manager Agents**). The EST subsystem uses this account to
+authenticate to the CA subsystem and issue certificates on behalf of EST
+clients.
 
 Note: The commands below assume that the CA is running on the same host with the default port and the nssdb is located in `~/.dogtag/nssdb`. To point to a CA on a different host or with a different port use the options `-h <hostname>`, `-p <port_number>` or `-U <CA_uri`. To use a different nssdb use the option `-d <nssdb_path>`.
 
 [literal]
 ....
-# pki -n caadmin ca-group-add "EST RA Agents"
----------------------------
-Added group "EST RA Agents"
----------------------------
-  Group ID: EST RA Agents
-
-# pki -n caadmin ca-user-add \
-      est-ra-1 --fullName "EST RA 1" --password password4ESTUser
+# pki -n caadmin ca-user-add est-ra-1 --full-name "EST RA 1" \
+      --type agentType --password password4ESTUser
 ---------------------
 Added user "est-ra-1"
 ---------------------
   User ID: est-ra-1
   Full name: EST RA 1
-# pki -n caadmin ca-group-member-add "EST RA Agents" est-ra-1
+# pki -n caadmin ca-group-member-add "Certificate Manager Agents" est-ra-1
 -----------------------------
   Added group member "est-ra-1"
 -----------------------------
   User: est-ra-1
 ....
 
-Add and enable the EST enrollment profile `estServiceCert.cfg`, which is available in `/usr/share/pki/ca/profiles/ca` if the *dogtag-pki-ca* package is installed:
+The EST profile `estServiceCert.cfg`, which is available in
+`/usr/share/pki/ca/profiles/ca` if the *dogtag-pki-ca* package is installed,
+should already be enabled in the CA.  However, if the est user will authenticate
+with username/password the profile ACL has to be updated:
 
-[literal]
-....
-# pki -n caadmin ca-profile-add --raw /usr/share/pki/ca/profiles/ca/estServiceCert.cfg
-----------------------------
-Added profile estServiceCert
-----------------------------
-# pki -n caadmin ca-profile-enable estServiceCert
---------------------------------
-Enabled profile "estServiceCert"
---------------------------------
-....
+- set `auth.instance_id=SessionAuthentication`
+- add `authz.acl=group="Certificate Manager Agents"`
 
-Note: Before enabling the profile, verify if the options satisfy the requirement for the deployment.
+Then restart the CA.
+
+WARNING: if the CA has been updated from a version < 11.9 and the profiles were
+stored in DS or the EST profile was already enabled before the update then it is
+possible that an older version of the EST profile is configured and it could need to be
+manually updated.
+
+
 
 *EST* subsystem has its own realm authentication with a separate user DB. _LDAP_, _PostreSQL_ and file based DB are supported. The DB has to be prepared in advance for authentication to work. Instructions to set up the user DB are available in xref:configure-est-realm-db.adoc[Configure EST Realm DB].
 
@@ -116,9 +115,31 @@ $ curl --cacert ./ca_signing.crt --cert cert.pem --key key-x-x.pem \
     -o newCert.p7 https://<EST_HOSTNAME>:<EST_PORT>/.well-known/est/simpleenroll
 ....
 
-When mutual TLS authentication is performed, the CSR subject and SAN has to match with the subject and SAN of the certificate used for the authentication in order to get authorized. Differently, using the basic authentication the CSR subject and SAN will be verified with user full name or user id. This check can be disabled for the _simpleenroll_ operation. To disable this check add the following option to the file `/etc/pki/<instance_name>/est/authorizer.conf`:
+
+== Authorisation and policies for EST certificates 
+
+
+EST installation will deploy the script `/usr/share/pki/est/bin/estauthz` which
+is executed to verify the user authorisation. The script can be replaced
+modifying the **executable** field in the
+`/etc/pki/<instance_name>/est/authorizer.conf` configuration file.
+
+
+After the user is authorised, if mutual TLS authentication is performed, the CSR subject and SAN has to match with the subject and SAN of the certificate used for the authentication in order to get authorized. Differently, using the basic authentication the CSR subject and SAN will be verified with user full name or user id. This check can be disabled for the _simpleenroll_ operation. To disable this check add the following option to the file `/etc/pki/<instance_name>/est/authorizer.conf`:
      
 [literal]
 ....
 enrollMatchTLSSubjSAN=false
 ....
+
+A policy for the certificate subject is also implement in the default CA profile
+created for EST. The profile has the input **raClientAuthInfoInputImpl** and
+constraint **raClientAuthSubjectNameConstraintImpl**. The input allow to
+transfer information related to the client performint the EST request to the CA
+and the contraint allows to use these information to enforce the subject.  With
+this constraint the certificate subject has to match the name or the certificate
+of the EST client. However, if the client certificate is assocated with a CA
+agent user then there is no control on the subject certificate.
+
+It is possible to remove the CA policy on EST certificate replacing the subject
+contraint with other policies.
