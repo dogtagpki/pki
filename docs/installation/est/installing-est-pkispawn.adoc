@@ -20,9 +20,12 @@ pki_admin_setup=False
 est_realm_type=ds
 est_realm_url=ldap://localhost.localdomain:389
 est_realm_bind_password=Secret.123
-est_ca_user_name=est-ra-1
-est_ca_user_password=Secret.est
 pki_sslserver_nickname=sslserver
+pki_subsystem_nickname=subsystem
+
+pki_security_domain_name=EXAMPLE
+pki_security_domain_user=caadmin
+pki_security_domain_password=Secret.123
 ....
 
 
@@ -36,6 +39,21 @@ To install EST in the same instance of the CA and with the DS realm, run the com
     -f /usr/share/pki/server/examples/installation/est.cfg \
     -s EST \
     -D est_realm_url=ldap://estds.example.com:389 \
+    -v
+....
+
+
+If the CA is in a separate instance or server, the security domain information and CA certificate have to be provided  so the command will become:
+[literal]
+....
+# pkispawn \
+    -f /usr/share/pki/server/examples/installation/est.cfg \
+    -s EST \
+    -D est_realm_url=ldap://estds.example.com:389 \
+    -D pki_ca_uri=https://ca.example.com:8443 \
+    -D pki_security_domain_hostname=ca.example.com \
+    -D pki_cert_chain_path=ca_signing.crt \
+    -D pki_cert_chain_nickname=caSigning \
     -v
 ....
 
@@ -93,91 +111,77 @@ EST can also be installed on a Tomcat instance that is separate from the CA.
 
 In addition to the configuration above, installing EST in a separate instance requires some extra steps to configure the certificates.
 
-Note: The commands below assume that the CA is running on the same host with the default port and the nssdb is located in `~/.dogtag/nssdb`. To point to a CA on a different host or with a different port use the options `-h <hostname>`, `-p <port_number>` or `-U <CA_uri`. To use a different nssdb use the option `-d <nssdb_path>`.
 
-The EST server cert (and a subsystem certificate to connect with the CA) has to be pre-issued and provided to `pkispawn` with its full chain in a *PKCS#12* bundle supplied via the `pki_server_pkcs12_*` parameters on the `pkispawn` command line as shown below.
+[id="installation-on-standalone-instance"]
+=== Installation on standalone instance
 
-It is important that the certificate aliases in the PKCS#12 matches with the nickname used by EST. For the SSL certificate the nickname configured in `est.cfg` is `sslserver` but can be modified.
+If the EST subsystem is not required to join the existing security domain, or
+no security domain is configured for the CA, it is possible to perform
+a 2-step standalone installation.
 
-To create the PKCS12 with the certificate it is possible to request a server certificate for EST from the CA (and later the RA user certificate) and then export them as shown below:
-
-[literal]
-....
-# pki nss-cert-request --csr estSSLServer.csr \
-    --ext /usr/share/pki/server/certs/sslserver.conf --subject 'CN=est.example.com'
-
-# pki -n caadmin \
-    ca-cert-issue \
-    --csr-file estSSLServer.csr \
-    --profile caServerCert \
-    --output-file estSSLServer.crt
-
-# pki nss-cert-import --cert estSSLServer.crt sslserver
-
-# pki pkcs12-cert-import sslserver --pkcs12-file $SHARED/est_server.p12 --pkcs12-password Secret.123
-....
-
-Similarly, to generate a subsystem certificate for EST, associate to the EST RA user (est-ra-1) previously configured in the CA, and add in the same PKCS12 of the SSL server certificate:
+An example `pkispawn` installation configuration is provided in
+`/usr/share/pki/server/examples/installation/est-standalone.cfg` with
+the following content:
 
 [literal]
 ....
-# pki nss-cert-request --csr est-ra-1.csr \
-    --ext /usr/share/pki/server/certs/admin.conf \
-    --subject 'CN=EST Subsystem Certificate,OU=pki-tomcat,O=EXAMPLE'
+[DEFAULT]
+pki_server_database_password=Secret.123
+pki_admin_setup=False
 
-# pki -n caadmin -cert-issue \
-    --csr-file est-ra-1.csr \
-    --profile caSubsystemCert \
-    --output-file est-ra-1.crt
+[EST]
+est_realm_type=ds
+est_realm_url=ldap://localhost.localdomain:389
+est_realm_bind_password=Secret.123
+pki_sslserver_nickname=sslserver
+pki_subsystem_nickname=subsystem
 
-# pki nss-cert-import --cert est-ra-1.crt "est-ra-1"
-
-# pki -n caadmin ca-user-cert-add est-ra-1 --input est-ra-1.crt
-
-# pki pkcs12-cert-import "est-ra-1" --pkcs12-file $SHARED/est_server.p12 --pkcs12-password Secret.123 --append
+pki_security_domain_setup=False
+pki_standalone=True
 ....
 
-Using the generated PKCS#12 bundle, the command to deploy EST is:
+The installation is done in the first step will create the CSRs for
+the certificate needed to the EST instance and it is done with the following command:
 
 [literal]
 ....
 # pkispawn \
-    -f /usr/share/pki/server/examples/installation/est.cfg \
+    -f /usr/share/pki/server/examples/installation/est-standalone.cfg \
     -s EST \
-    -D est_realm_url=ldap://estds.example.com:389 \
+    -D est_realm_url=ldap://estds.example.com:3389 \
     -D pki_ca_uri=https://ca.example.com:8443 \
-    -D est_ca_user_password= \
-    -D est_ca_user_certificate=est-ra-1 \
-    -D pki_server_pkcs12_path=est_server.p12 \
-    -D pki_server_pkcs12_password=Secret.123 \
-    -v
-....
-
-
-=== Installation on separate instance without certificates 
-
-If the PKCS#12 bundle certificates are not provided to `pkispawn`, during the installation, the EST server cert is issued automatically using the profile configured for EST. The connection with the CA uses the credentials (_username/password_) provided in the configuration file. In such a case the CA signing certificate is needed. Retrieving the certificate can be done in the CA server with the command:
-
-[literal]
-....
-# pki-server cert-export ca_signing --cert-file ca_signing.crt
-....
-
-It is possible to install EST with the following command:
-
-[literal]
-....
-# pkispawn \
-    -f /usr/share/pki/server/examples/installation/est.cfg \
-    -s EST \
-    -D est_realm_url=ldap://estds.example.com:389 \
-    -D pki_ca_uri=https://ca.example.com:8443 \
+    -D pki_cert_chain_nickname=ca_signing \
+    -D pki_subsystem_csr_path=subsystem.csr \
+    -D pki_sslserver_csr_path=sslserver.csr \
     -D pki_cert_chain_path=ca_signing.crt \
-    -D pki_cert_chain_nickname=caSigning \
+    -D pki_external_step_two=False \
     -v
 ....
 
-After the installation it is possible to update the EST server certificates with a new certificate using a different profile if the EST released certificates are not meant for the server. Additionally, a certificate for TLS authentication could be added in the EST nssdb and configured in the file `/var/lib/pki/pki-tomcat/conf/est/backend.conf`.
+It is possible to use the CSRs to generate the certificate and then go ahead with step 2 command:
+
+[literal]
+....
+# pkispawn \
+    -f /usr/share/pki/server/examples/installation/est-standalone.cfg \
+    -s EST \
+    -D est_realm_url=ldap://estds.example.com:3389 \
+    -D pki_ca_uri=https://ca.example.com:8443 \
+    -D pki_cert_chain_nickname=ca_signing \
+    -D pki_subsystem_csr_path=subsystem.csr \
+    -D pki_subsystem_cert_path=subsystem.crt \ 
+    -D pki_sslserver_csr_path=sslserver.csr \
+    -D pki_sslserver_cert_path=sslserver.crt \
+    -D pki_cert_chain_path=ca_signing.crt \
+    -D pki_external_step_two=False \
+    -D pki_external_step_two=True \
+    -v
+....
+
+The subsystem cert has to be associate with an agent user in
+the CA. Information on how to crete the user are available in the
+prerequisite section in xref:../est/installing-est.adoc[Installing
+EST].
 
 
 == Removing EST 
