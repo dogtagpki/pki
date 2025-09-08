@@ -1,0 +1,18 @@
+= Tools Changes =
+
+== Update subsystem ACL ==
+
+The following commands have been added to find, add and delete ACL:
+
+- `pki-server <subsystem>-acl-find`;
+- `pki-server <subsystem>-acl-add`;
+- `pki-server <subsystem>-acl-del`.
+
+== Add command to create group ==
+
+The `pki-server <subsystem>-group-add` command has been added to create group.
+
+== Add command for new SD type ==
+
+The `pki-server sd-type-add` command has been added to allow the introduction
+of new security domain types.
