@@ -7,9 +7,9 @@ package org.dogtagpki.acme.server;
 
 import java.io.PrintWriter;
 
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.acme.ACMENonce;
 import org.dogtagpki.acme.issuer.ACMEIssuer;

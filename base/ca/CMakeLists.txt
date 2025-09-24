@@ -23,7 +23,7 @@ javac(pki-ca-classes
         ${LDAPJDK_JAR}
         ${SERVLET_JAR}
         ${JSS_TOMCAT_JAR}
-        ${JSS_TOMCAT_9_0_JAR}
+        ${JSS_TOMCAT_10_1_JAR}
         ${JAXRS_API_JAR}
         ${RESTEASY_JAXRS_JAR}
         ${PKI_COMMON_JAR}

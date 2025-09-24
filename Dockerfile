@@ -58,7 +58,7 @@ FROM pki-builder-deps AS pki-builder
 ARG BUILD_OPTS
 
 # Import JSS packages
-COPY --from=quay.io/dogtagpki/jss-dist:latest /root/RPMS /tmp/RPMS/
+##COPY --from=quay.io/dogtagpki/jss-dist:latest /root/RPMS /tmp/RPMS/
 
 # Import LDAP SDK packages
 COPY --from=quay.io/dogtagpki/ldapjdk-dist:latest /root/RPMS /tmp/RPMS/
@@ -68,6 +68,8 @@ RUN dnf install -y /tmp/RPMS/* \
     && dnf clean all \
     && rm -rf /var/cache/dnf \
     && rm -rf /tmp/RPMS
+
+RUN dnf install -y dogtag-jss-5.9.0-alpha1-2 dogtag-jss-tomcat-5.9.0-alpha1-2
 
 # Import PKI sources
 COPY . /root/pki/
@@ -86,13 +88,14 @@ COPY --from=pki-builder /root/pki/build/RPMS /root/RPMS/
 FROM pki-deps AS pki-runner
 
 # Import JSS packages
-COPY --from=quay.io/dogtagpki/jss-dist:latest /root/RPMS /tmp/RPMS/
+##COPY --from=quay.io/dogtagpki/jss-dist:latest /root/RPMS /tmp/RPMS/
 
 # Import LDAP SDK packages
 COPY --from=quay.io/dogtagpki/ldapjdk-dist:latest /root/RPMS /tmp/RPMS/
 
 # Import PKI packages
 COPY --from=pki-dist /root/RPMS /tmp/RPMS/
+
 
 # Install runtime packages
 RUN dnf install -y /tmp/RPMS/* \

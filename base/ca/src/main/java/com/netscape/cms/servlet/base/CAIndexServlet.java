@@ -20,8 +20,8 @@ package com.netscape.cms.servlet.base;
 
 import java.io.IOException;
 
-import javax.servlet.annotation.WebInitParam;
-import javax.servlet.annotation.WebServlet;
+import jakarta.servlet.annotation.WebInitParam;
+import jakarta.servlet.annotation.WebServlet;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cms.servlet.common.CMSGateway;

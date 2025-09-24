@@ -37,7 +37,7 @@ import java.util.StringTokenizer;
 import java.util.Timer;
 import java.util.logging.Logger;
 
-import javax.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServlet;
 
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.jss.tomcat.TomcatJSS;

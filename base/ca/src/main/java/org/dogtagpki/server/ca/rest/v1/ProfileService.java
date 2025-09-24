@@ -31,10 +31,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
 
-import javax.ws.rs.PathParam;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriBuilder;
+import jakarta.ws.rs.core.UriInfo;
 
 import org.apache.catalina.realm.GenericPrincipal;
 import org.apache.commons.lang3.StringUtils;

@@ -11,8 +11,8 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.ForbiddenException;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.ForbiddenException;
+import jakarta.ws.rs.core.Response;
 
 import org.dogtagpki.job.JobCollection;
 import org.dogtagpki.job.JobInfo;

@@ -173,7 +173,7 @@ jobs:
           # wait for CA to start
           docker exec client curl \
               --retry 180 \
-              --retry-delay 0 \
+              --retry-delay 1 \
               --retry-connrefused \
               -s \
               -k \
@@ -256,11 +256,7 @@ jobs:
           cat > expected << EOF
           drwxrwxrwx docker backup
           drwxrwxrwx docker ca
-          -rw-rw-rw- docker catalina.$DATE.log
-          -rw-rw-rw- docker host-manager.$DATE.log
-          -rw-rw-rw- docker localhost.$DATE.log
           -rw-rw-rw- docker localhost_access_log.$DATE.txt
-          -rw-rw-rw- docker manager.$DATE.log
           drwxrwxrwx docker pki
           EOF
 
@@ -408,7 +404,7 @@ jobs:
           # wait for CA to restart
           docker exec client curl \
               --retry 180 \
-              --retry-delay 0 \
+              --retry-delay 1 \
               --retry-connrefused \
               -s \
               -k \

@@ -126,7 +126,7 @@ jobs:
           # wait for CA to start
           docker exec pki curl \
               --retry 180 \
-              --retry-delay 0 \
+              --retry-delay 1 \
               --retry-connrefused \
               -s \
               -k \
@@ -229,11 +229,7 @@ jobs:
           cat > expected << EOF
           drwxrwxrwx pkiuser backup
           drwxrwxrwx pkiuser ca
-          -rw-rw-rw- pkiuser catalina.$DATE.log
-          -rw-rw-rw- pkiuser host-manager.$DATE.log
-          -rw-rw-rw- pkiuser localhost.$DATE.log
           -rw-rw-rw- pkiuser localhost_access_log.$DATE.txt
-          -rw-rw-rw- pkiuser manager.$DATE.log
           drwxrwxrwx pkiuser pki
           EOF
 

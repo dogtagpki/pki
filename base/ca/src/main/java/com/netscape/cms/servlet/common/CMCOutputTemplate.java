@@ -29,7 +29,7 @@ import java.security.cert.CertificateExpiredException;
 import java.util.Date;
 import java.util.Hashtable;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.ca.CAEngine;
