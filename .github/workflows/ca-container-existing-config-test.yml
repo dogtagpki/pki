@@ -260,7 +260,7 @@ jobs:
 
           DATE=$(date +'%Y-%m-%d')
 
-          # everything should be owned by docker group
+          # everything should be owned by root group
           # TODO: review owners/permissions
           cat > expected << EOF
           drwxrwxrwx root backup

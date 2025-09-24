@@ -83,23 +83,23 @@ jobs:
                   -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
               | tee output
 
-          # everything should be owned by docker group
+          # everything should be owned by runner group
           # TODO: review owners/permissions
           cat > expected << EOF
-          drwxrwxrwx docker Catalina
-          drwxrwxrwx docker alias
-          drwxrwxrwx docker ca
-          -rw-rw-rw- docker catalina.policy
-          lrwxrwxrwx docker catalina.properties -> /usr/share/pki/server/conf/catalina.properties
-          drwxrwxrwx docker certs
-          lrwxrwxrwx docker context.xml -> /etc/tomcat/context.xml
-          -rw-rw-rw- docker jss.conf
-          lrwxrwxrwx docker logging.properties -> /usr/share/pki/server/conf/logging.properties
-          -rw-rw-rw- docker password.conf
-          -rw-rw-rw- docker server.xml
-          -rw-rw-rw- docker serverCertNick.conf
-          -rw-rw-rw- docker tomcat.conf
-          lrwxrwxrwx docker web.xml -> /etc/tomcat/web.xml
+          drwxrwxrwx runner Catalina
+          drwxrwxrwx runner alias
+          drwxrwxrwx runner ca
+          -rw-rw-rw- runner catalina.policy
+          lrwxrwxrwx runner catalina.properties -> /usr/share/pki/server/conf/catalina.properties
+          drwxrwxrwx runner certs
+          lrwxrwxrwx runner context.xml -> /etc/tomcat/context.xml
+          -rw-rw-rw- runner jss.conf
+          lrwxrwxrwx runner logging.properties -> /usr/share/pki/server/conf/logging.properties
+          -rw-rw-rw- runner password.conf
+          -rw-rw-rw- runner server.xml
+          -rw-rw-rw- runner serverCertNick.conf
+          -rw-rw-rw- runner tomcat.conf
+          lrwxrwxrwx runner web.xml -> /etc/tomcat/web.xml
           EOF
 
           diff expected output
@@ -114,22 +114,22 @@ jobs:
                   -e '/^\S* *\S* *\S* *CS.cfg.bak /d' \
               | tee output
 
-          # everything should be owned by docker group
+          # everything should be owned by runner group
           # TODO: review owners/permissions
           cat > expected << EOF
-          -rw-rw-rw- docker CS.cfg
-          -rw-rw-rw- docker adminCert.profile
-          drwxrwxrwx docker archives
-          -rw-rw-rw- docker caAuditSigningCert.profile
-          -rw-rw-rw- docker caCert.profile
-          -rw-rw-rw- docker caOCSPCert.profile
-          drwxrwxrwx docker emails
-          -rw-rw-rw- docker flatfile.txt
-          drwxrwxrwx docker profiles
-          -rw-rw-rw- docker proxy.conf
-          -rw-rw-rw- docker registry.cfg
-          -rw-rw-rw- docker serverCert.profile
-          -rw-rw-rw- docker subsystemCert.profile
+          -rw-rw-rw- runner CS.cfg
+          -rw-rw-rw- runner adminCert.profile
+          drwxrwxrwx runner archives
+          -rw-rw-rw- runner caAuditSigningCert.profile
+          -rw-rw-rw- runner caCert.profile
+          -rw-rw-rw- runner caOCSPCert.profile
+          drwxrwxrwx runner emails
+          -rw-rw-rw- runner flatfile.txt
+          drwxrwxrwx runner profiles
+          -rw-rw-rw- runner proxy.conf
+          -rw-rw-rw- runner registry.cfg
+          -rw-rw-rw- runner serverCert.profile
+          -rw-rw-rw- runner subsystemCert.profile
           EOF
 
           diff expected output
@@ -145,17 +145,17 @@ jobs:
 
           DATE=$(date +'%Y-%m-%d')
 
-          # everything should be owned by docker group
+          # everything should be owned by runner group
           # TODO: review owners/permissions
           cat > expected << EOF
-          drwxrwxrwx docker backup
-          drwxrwxrwx docker ca
-          -rw-rw-rw- docker catalina.$DATE.log
-          -rw-rw-rw- docker host-manager.$DATE.log
-          -rw-rw-rw- docker localhost.$DATE.log
-          -rw-rw-rw- docker localhost_access_log.$DATE.txt
-          -rw-rw-rw- docker manager.$DATE.log
-          drwxrwxrwx docker pki
+          drwxrwxrwx runner backup
+          drwxrwxrwx runner ca
+          -rw-rw-rw- runner catalina.$DATE.log
+          -rw-rw-rw- runner host-manager.$DATE.log
+          -rw-rw-rw- runner localhost.$DATE.log
+          -rw-rw-rw- runner localhost_access_log.$DATE.txt
+          -rw-rw-rw- runner manager.$DATE.log
+          drwxrwxrwx runner pki
           EOF
 
           diff expected output
