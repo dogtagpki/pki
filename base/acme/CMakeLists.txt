@@ -8,6 +8,7 @@ javac(pki-acme-classes
         ${JAXB_API_JAR}
         ${SLF4J_API_JAR}
         ${COMMONS_CODEC_JAR} ${COMMONS_IO_JAR} ${COMMONS_LANG3_JAR}
+	${COMMONS_CLI_JAR}
         ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
         ${JACKSON_ANNOTATIONS_JAR}
         ${JACKSON_CORE_JAR}
