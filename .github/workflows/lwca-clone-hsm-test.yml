@@ -146,7 +146,7 @@ jobs:
 
       - name: Set up HSM client with p11-kit in primary PKI container
         run: |
-          docker exec primary dnf install -y p11-kit-server
+          docker exec primary dnf install -y p11-kit-server p11-kit-client
 
           # register p11-kit-client module
           docker exec -i primary tee /usr/share/p11-kit/modules/p11-kit-client.module << EOF
@@ -275,7 +275,7 @@ jobs:
 
       - name: Set up HSM client with p11-kit in secondary PKI container
         run: |
-          docker exec secondary dnf install -y p11-kit-server
+          docker exec secondary dnf install -y p11-kit-server p11-kit-client
 
           # register p11-kit-client module
           docker exec -i secondary tee /usr/share/p11-kit/modules/p11-kit-client.module << EOF
