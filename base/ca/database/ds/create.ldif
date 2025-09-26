@@ -81,6 +81,12 @@ objectClass: groupOfUniqueNames
 cn: Enterprise TKS Administrators 
 description: People who are the administrators for the security domain for TKS
 
+dn: cn=Enterprise EST Administrators,ou=groups,{rootSuffix}
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: Enterprise EST Administrators
+description: People who are the administrators for the security domain for EST
+
 dn: cn=Enterprise RA Administrators,ou=groups,{rootSuffix}
 objectClass: top
 objectClass: groupOfUniqueNames
