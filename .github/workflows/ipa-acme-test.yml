@@ -66,6 +66,11 @@ jobs:
           # restart PKI server
           docker exec ipa pki-server restart --wait
 
+      - name: Check DS server
+        run: |
+          docker exec ipa dsctl --list
+          docker exec ipa dsconf slapd-EXAMPLE-COM backend suffix list
+
       - name: Check admin user
         run: |
           echo Secret.123 | docker exec -i ipa kinit admin
@@ -75,6 +80,11 @@ jobs:
         run: |
           docker exec ipa ipa-kra-install -p Secret.123
           docker exec ipa pki-server ca-connector-find
+
+      - name: Check DS server
+        run: |
+          docker exec ipa dsctl --list
+          docker exec ipa dsconf slapd-EXAMPLE-COM backend suffix list
 
       - name: Verify CA admin in IPA container
         run: |
@@ -97,6 +107,11 @@ jobs:
           echo "Available" > expected
           docker exec ipa bash -c "pki acme-info | sed -n 's/\s*Status:\s\+\(\S\+\).*/\1/p' > ${SHARED}/actual"
           diff expected actual
+
+      - name: Check DS server
+        run: |
+          docker exec ipa dsctl --list
+          docker exec ipa dsconf slapd-EXAMPLE-COM backend suffix list
 
       - name: Specify main CA as Authority ID for ACME in IPA container
         run: |

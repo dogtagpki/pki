@@ -68,6 +68,11 @@ jobs:
           # restart PKI server
           docker exec ipa pki-server restart --wait
 
+      - name: Check DS server
+        run: |
+          docker exec ipa dsctl --list
+          docker exec ipa dsconf slapd-EXAMPLE-COM backend suffix list
+
       - name: Check admin user
         run: |
           echo Secret.123 | docker exec -i ipa kinit admin
