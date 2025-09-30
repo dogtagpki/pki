@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
@@ -47,11 +48,13 @@ import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
 import netscape.ldap.LDAPModificationSet;
 import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.util.DN;
 import netscape.ldap.util.LDIF;
 import netscape.ldap.util.LDIFAttributeContent;
 import netscape.ldap.util.LDIFContent;
 import netscape.ldap.util.LDIFModifyContent;
 import netscape.ldap.util.LDIFRecord;
+import netscape.ldap.util.RDN;
 
 /**
  * LDAP database plugin for ACME service.
@@ -356,9 +359,11 @@ public class LDAPDatabase extends ACMEDatabase {
         }
     }
 
-    public void createIndexes(LDAPConnection connection) throws Exception {
+    public void createIndexes(LDAPConnection connection, Map<String, String> params) throws Exception {
 
         logger.info("Creating ACME indexes");
+
+        String backend = params.getOrDefault("backend", "userroot");
 
         String filename = "/usr/share/pki/acme/database/ds/index.ldif";
         LDIF ldif = new LDIF(filename);
@@ -367,6 +372,22 @@ public class LDAPDatabase extends ACMEDatabase {
             LDIFRecord record = ldif.nextRecord();
             if (record == null) break;
 
+            // parse cn=<name>,cn=index,cn=<backend>,cn=ldbm database,cn=plugins,cn=config
+            DN dn = new DN(record.getDN());
+            List<RDN> rdns = dn.getRDNs();
+
+            // replace cn=<backend> with the provided value
+            dn = new DN();
+            for (int i=0; i<rdns.size(); i++) {
+                RDN rdn = rdns.get(i);
+                if (i == 2) {
+                    rdn = new RDN("cn=" + backend);
+                }
+                dn.addRDNToBack(rdn);
+            }
+
+            // import record with the updated DN
+            record = new LDIFRecord(dn.toString(), record.getContent());
             importLDIFRecord(connection, record);
         }
     }
@@ -406,9 +427,11 @@ public class LDAPDatabase extends ACMEDatabase {
         logger.info("Task " + dn + " complete");
     }
 
-    public void rebuildIndexes(LDAPConnection connection) throws Exception {
+    public void rebuildIndexes(LDAPConnection connection, Map<String, String> params) throws Exception {
 
         logger.info("Rebuilding ACME indexes");
+
+        String backend = params.getOrDefault("backend", "userroot");
 
         String filename = "/usr/share/pki/acme/database/ds/indextask.ldif";
         LDIF ldif = new LDIF(filename);
@@ -416,10 +439,27 @@ public class LDAPDatabase extends ACMEDatabase {
         LDIFRecord record = ldif.nextRecord();
         if (record == null) return;
 
+        DN dn = new DN(record.getDN());
+
+        LDIFAttributeContent content = (LDIFAttributeContent) record.getContent();
+        for (LDAPAttribute attribute: content.getAttributes()) {
+            String name = attribute.getName();
+            String value = attribute.getStringValueArray()[0];
+
+            if (!"nsinstance".equalsIgnoreCase(name)) {
+                continue;
+            }
+
+            // replace nsinstance with the provided value
+            attribute.removeValue(value);
+            attribute.addValue(backend);
+        }
+
+        // import record with the updated attribute
+        record = new LDIFRecord(dn.toString(), record.getContent());
         importLDIFRecord(connection, record);
 
-        String dn = record.getDN();
-        waitForTask(connection, dn);
+        waitForTask(connection, record.getDN());
     }
 
     public void createSubtree(LDAPConnection connection) throws Exception {
@@ -449,24 +489,24 @@ public class LDAPDatabase extends ACMEDatabase {
         }
     }
 
-    public void createIndexes() throws Exception {
+    public void createIndexes(Map<String, String> params) throws Exception {
 
         LDAPConnection connection = null;
         try {
             connection = connFactory.getConn();
-            createIndexes(connection);
+            createIndexes(connection, params);
 
         } finally {
             if (connection != null) connection.disconnect();
         }
     }
 
-    public void rebuildIndexes() throws Exception {
+    public void rebuildIndexes(Map<String, String> params) throws Exception {
 
         LDAPConnection connection = null;
         try {
             connection = connFactory.getConn();
-            rebuildIndexes(connection);
+            rebuildIndexes(connection, params);
 
         } finally {
             if (connection != null) connection.disconnect();
@@ -486,15 +526,15 @@ public class LDAPDatabase extends ACMEDatabase {
     }
 
     @Override
-    public void initDatabase() throws Exception {
+    public void initDatabase(Map<String, String> params) throws Exception {
 
         LDAPConnection connection = null;
         try {
             connection = connFactory.getConn();
 
             importSchema(connection);
-            createIndexes(connection);
-            rebuildIndexes(connection);
+            createIndexes(connection, params);
+            rebuildIndexes(connection, params);
             createSubtree(connection);
 
         } finally {

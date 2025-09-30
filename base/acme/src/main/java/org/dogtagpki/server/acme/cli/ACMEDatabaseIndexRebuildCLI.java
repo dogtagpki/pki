@@ -7,6 +7,8 @@ package org.dogtagpki.server.acme.cli;
 
 import java.io.File;
 import java.io.FileReader;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
@@ -38,6 +40,8 @@ public class ACMEDatabaseIndexRebuildCLI extends SubsystemCLI {
 
     @Override
     public void createOptions() {
+        options.addOption(null, "ds-backend", true, "DS backend (default: userroot)");
+
         options.addOption("v", "verbose", false, "Run in verbose mode.");
         options.addOption(null, "debug", false, "Run in debug mode.");
         options.addOption(null, "help", false, "Show help message.");
@@ -75,12 +79,15 @@ public class ACMEDatabaseIndexRebuildCLI extends SubsystemCLI {
         ACMEDatabase database = databaseClass.getDeclaredConstructor().newInstance();
         database.setConfig(databaseConfig);
 
+        Map<String, String> params = new HashMap<>();
+        params.put("backend", cmd.getOptionValue("ds-backend", "userroot"));
+
         try {
             database.init();
 
             if (database instanceof LDAPDatabase ldapDatabase) {
                 // perform LDAP-specific reindex
-                ldapDatabase.rebuildIndexes();
+                ldapDatabase.rebuildIndexes(params);
 
             } else {
                 throw new CLIException("Operation not supported by " + className);
