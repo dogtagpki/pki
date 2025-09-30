@@ -1641,6 +1641,12 @@ public class CMSEngine {
         shutdownLogSubsystem();
         shutdownDatabase();
         shutdownPluginRegistry();
+
+        Collection<Thread> threads = Thread.getAllStackTraces().keySet();
+        logger.info("CMSEngine: Threads:");
+        for (Thread thread : threads) {
+            logger.info("CMSEngine: - " + thread.getName());
+        }
     }
 
     /**
