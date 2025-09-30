@@ -226,13 +226,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         if config.str2bool(deployer.mdict['pki_systemd_service_create']):
 
-            # Optionally, programmatically 'enable' the configured PKI instance
-            # to be started upon system boot (default is True)
-            if not config.str2bool(deployer.mdict['pki_enable_on_system_boot']):
-                instance.disable()
-            else:
-                instance.enable()
-
             if (len(instance.get_subsystems()) == 1 or
                     config.str2bool(deployer.mdict['pki_hsm_enable'])):
                 logger.info('Starting PKI server')

@@ -224,17 +224,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.write_systemd_overrides()
             deployer.systemd.daemon_reload()
 
-            # Link /etc/systemd/system/pki-tomcatd.target.wants/pki-tomcatd@<instance>.service
-            # to /lib/systemd/system/pki-tomcatd@.service
+            # Optionally, programmatically 'enable' the configured PKI instance
+            # to be started upon system boot (default is True)
 
-            systemd_service_link = os.path.join(
-                pki.server.instance.PKIInstance.TARGET_WANTS,
-                instance.service_name + '.service')
-
-            instance.symlink(
-                pki.server.instance.PKIInstance.UNIT_FILE,
-                systemd_service_link,
-                exist_ok=True)
+            if config.str2bool(deployer.mdict['pki_enable_on_system_boot']):
+                '''
+                this command creates /etc/systemd/system/pki-tomcatd.target.want/pki-tomcatd@<instance>.service
+                or /etc/systemd/system/pki-tomcatd-nuxwdog.target.wants/pki-tomcatd-nuxwdog@<instance>.service
+                '''  # noqa: E501
+                instance.enable()
 
     def destroy(self, deployer):
 
@@ -255,11 +253,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 timeout=deployer.request_timeout)
             return
 
-        logger.info('Removing %s instance', instance.name)
-
-        logger.info('Removing %s', deployer.systemd.systemd_link)
-        pki.util.unlink(link=deployer.systemd.systemd_link,
-                        force=deployer.force)
+        logger.info('Disabling PKI server')
+        '''
+        this command removes /etc/systemd/system/pki-tomcatd.target.want/pki-tomcatd@<instance>.service
+        or /etc/systemd/system/pki-tomcatd-nuxwdog.target.wants/pki-tomcatd-nuxwdog@<instance>.service
+        '''  # noqa: E501
+        instance.disable()
 
         if os.path.exists(deployer.systemd.base_override_dir):
             logger.info('Removing %s', deployer.systemd.base_override_dir)
@@ -272,6 +271,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             force=deployer.force)
 
         deployer.systemd.daemon_reload()
+
+        logger.info('Removing %s instance', instance.name)
 
         if config.str2bool(deployer.mdict['pki_registry_enable']):
             instance.remove_registry(force=deployer.force)
@@ -309,6 +310,3 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # Remove /var/lib/pki/<instance> if empty
             logger.info('Removing %s', instance.base_dir)
             pki.util.rmtree(path=instance.base_dir, force=deployer.force)
-
-        logger.info('Disabling PKI server')
-        instance.disable()
