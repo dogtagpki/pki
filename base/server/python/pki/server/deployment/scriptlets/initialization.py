@@ -178,51 +178,17 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         instance.load()
 
-        subsystem = instance.get_subsystem(deployer.subsystem_type.lower())
+        # verify that this type of "subsystem" currently EXISTS
+        # for this "instance"
+        deployer.verify_subsystem_exists()
 
-        try:
-            # verify that this type of "subsystem" currently EXISTS
-            # for this "instance"
-            deployer.verify_subsystem_exists()
-            # verify that the command-line parameters match the values
-            # that are present in the corresponding configuration file
-            deployer.configuration_file.verify_command_matches_configuration_file()
-            # establish 'uid' and 'gid'
-            deployer.identity.set_uid(instance.user)
-            deployer.identity.set_gid(instance.group)
-            # get ports to remove selinux context
-            deployer.configuration_file.populate_non_default_ports()
+        # verify that the command-line parameters match the values
+        # that are present in the corresponding configuration file
+        deployer.configuration_file.verify_command_matches_configuration_file()
 
-            if not config.str2bool(deployer.mdict['pki_standalone']) \
-                    and not config.str2bool(deployer.mdict['pki_external']):
+        # establish 'uid' and 'gid'
+        deployer.identity.set_uid(instance.user)
+        deployer.identity.set_gid(instance.group)
 
-                # remove kra connector from CA if this is a KRA
-                deployer.kra_connector.deregister(instance, subsystem)
-
-                # remove tps connector from TKS if this is a TPS
-                deployer.tps_connector.deregister(instance, subsystem)
-
-                # de-register instance from its Security Domain
-                #
-                #     NOTE:  Since the security domain of an instance must be up
-                #            and running in order to be de-registered, this step
-                #            must be done PRIOR to instance shutdown because this
-                #            instance's security domain may be a part of a
-                #            tightly-coupled shared instance.
-                #
-
-                deployer.leave_security_domain(subsystem)
-
-        except Exception as e:  # pylint: disable=broad-except
-            logger.error(str(e))
-            # If it is a normal destroy, pass any exception
-            if not deployer.force:
-                raise
-
-        finally:
-            # ALWAYS Stop this Tomcat PKI Process
-            logger.info('Stopping PKI server')
-            instance.stop(
-                wait=True,
-                max_wait=deployer.startup_timeout,
-                timeout=deployer.request_timeout)
+        # get ports to remove selinux context
+        deployer.configuration_file.populate_non_default_ports()

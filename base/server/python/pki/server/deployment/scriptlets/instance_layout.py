@@ -240,6 +240,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         instance = self.instance
 
+        logger.info('Stopping PKI server')
+        instance.stop(
+            wait=True,
+            max_wait=deployer.startup_timeout,
+            timeout=deployer.request_timeout)
+
         # if this is not the last subsystem, skip
         if instance.get_subsystems():
             return

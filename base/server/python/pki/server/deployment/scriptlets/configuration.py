@@ -225,4 +225,37 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 subsystem.wait_for_startup(deployer.startup_timeout, deployer.request_timeout)
 
     def destroy(self, deployer):
-        pass
+
+        instance = self.instance
+
+        subsystem_name = deployer.subsystem_type.lower()
+        subsystem = instance.get_subsystem(subsystem_name)
+
+        if config.str2bool(deployer.mdict['pki_standalone']) \
+                or config.str2bool(deployer.mdict['pki_external']):
+            return
+
+        try:
+            # remove KRA connector from CA if this is a KRA
+            deployer.kra_connector.deregister(instance, subsystem)
+
+            # remove TPS connector from TKS if this is a TPS
+            deployer.tps_connector.deregister(instance, subsystem)
+
+            # deregister instance from Security Domain
+            #
+            # NOTE: Since the security domain of an instance must
+            # be up and running in order to be deregistered, this
+            # step must be done PRIOR to instance shutdown because
+            # this instance's security domain may be a part of a
+            # tightly-coupled shared instance.
+            deployer.leave_security_domain(subsystem)
+
+        except Exception as e:  # pylint: disable=broad-except
+            # the above code is failing in IPA so the exception
+            # needs to be ignored to avoid breaking IPA reinstall
+            # test
+            #
+            # TODO: fix the issue in IPA so that the above code
+            # can run successfully, then drop the try-except clause
+            logger.error(str(e))
