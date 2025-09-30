@@ -134,7 +134,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         nssdb = subsystem.instance.open_nssdb()
 
         try:
-            system_certs = deployer.setup_system_certs(nssdb, subsystem)
+            deployer.setup_system_certs(nssdb, subsystem)
             subsystem.save()
 
             deployer.validate_system_certs(subsystem)
@@ -145,7 +145,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if config.str2bool(deployer.mdict['pki_security_domain_setup']) and \
                 subsystem.type == 'CA':
             logger.info('Setting up subsystem user')
-            deployer.setup_subsystem_user(subsystem, system_certs['subsystem'])
+            deployer.setup_subsystem_user(subsystem)
 
         if config.str2bool(deployer.mdict['pki_security_domain_setup']):
             deployer.setup_security_domain_manager(subsystem)
@@ -199,9 +199,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 deployer.remove_temp_sslserver_cert()
 
             # Store perm SSL server cert nickname and token
-            if 'sslserver' in system_certs:
-                nickname = system_certs['sslserver']['nickname']
-                token = pki.nssdb.normalize_token(system_certs['sslserver']['token'])
+            if 'sslserver' in deployer.system_certs:
+                sslserver_cert = deployer.system_certs['sslserver']
+                nickname = sslserver_cert['nickname']
+                token = pki.nssdb.normalize_token(sslserver_cert['token'])
                 if not token:
                     token = deployer.mdict.get('pki_sslserver_token')
                 instance.set_sslserver_cert_nickname(nickname, token)

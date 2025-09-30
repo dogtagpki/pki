@@ -143,6 +143,8 @@ class PKIDeployer:
         self.remove_conf = False
         self.remove_logs = False
 
+        self.system_certs = {}
+
     def set_property(self, key, value, section=None):
 
         if not section:
@@ -3489,7 +3491,6 @@ class PKIDeployer:
     def setup_system_certs(self, nssdb, subsystem):
 
         logger.debug('PKIDeployer.setup_system_certs()')
-        system_certs = {}
 
         clone = self.configuration_file.clone
         num_subsystems = len(self.instance.get_subsystems())
@@ -3506,7 +3507,7 @@ class PKIDeployer:
             logger.info('Setting up %s cert', tag)
 
             system_cert = subsystem.get_subsystem_cert(tag)
-            system_certs[tag] = system_cert
+            self.system_certs[tag] = system_cert
 
             if tag != 'sslserver' and clone:
                 logger.info('%s cert is already set up', tag)
@@ -3535,7 +3536,7 @@ class PKIDeployer:
             self.setup_system_cert(nssdb, subsystem, tag, system_cert, request)
 
         if subsystem.type == 'EST':
-            system_certs['sslserver'] = self.create_est_sslserver(nssdb)
+            self.system_certs['sslserver'] = self.create_est_sslserver(nssdb)
 
         if subsystem.type == 'CA':
 
@@ -3578,8 +3579,6 @@ class PKIDeployer:
         os.chmod(
             self.instance.nssdb_dir,
             pki.server.DEFAULT_DIR_MODE)
-
-        return system_certs
 
     def issue_cert(
             self,
@@ -4087,7 +4086,7 @@ class PKIDeployer:
             cert_format='PEM',
             ignore_duplicate=True)
 
-    def setup_subsystem_user(self, subsystem, cert):
+    def setup_subsystem_user(self, subsystem):
 
         server_config = self.instance.get_server_config()
         https_port = server_config.get_https_port()
@@ -4101,8 +4100,9 @@ class PKIDeployer:
             state='1',
             ignore_duplicate=True)
 
+        subsystem_cert = self.system_certs['subsystem']
         cert_data = pki.nssdb.convert_cert(
-            cert['data'],
+            subsystem_cert['data'],
             'base64',
             'pem')
 
