@@ -1175,6 +1175,7 @@ class PKISubsystem(object):
     # pylint: disable=W0613
     def init_database(
             self,
+            ds_backend=None,
             skip_config=False,
             skip_schema=False,
             skip_base=False,
@@ -1216,7 +1217,8 @@ class PKISubsystem(object):
 
         self.run(cmd)
 
-    def rebuild_indexes(self):
+    # pylint: disable=W0613
+    def rebuild_indexes(self, ds_backend=None):
 
         cmd = [self.name + '-db-index-rebuild']
 
@@ -3365,6 +3367,7 @@ class ACMESubsystem(PKISubsystem):
 
     def init_database(
             self,
+            ds_backend=None,
             skip_config=False,
             skip_schema=False,
             skip_base=False,
@@ -3373,6 +3376,9 @@ class ACMESubsystem(PKISubsystem):
             as_current_user=False):
 
         cmd = [self.name + '-database-init']
+
+        if ds_backend:
+            cmd.extend(['--ds-backend', ds_backend])
 
         if skip_reindex:
             cmd.append('--skip-reindex')
@@ -3385,9 +3391,12 @@ class ACMESubsystem(PKISubsystem):
 
         self.run(cmd)
 
-    def rebuild_indexes(self):
+    def rebuild_indexes(self, ds_backend=None):
 
         cmd = [self.name + '-database-index-rebuild']
+
+        if ds_backend:
+            cmd.extend(['--ds-backend', ds_backend])
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')

@@ -107,6 +107,15 @@ jobs:
               --network-alias=acmeds.example.com \
               acmeds
 
+          # create DS backend
+          docker exec acmeds dsconf \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              ldap://acmeds.example.com:3389 \
+              backend create \
+              --suffix=dc=acme,dc=pki,dc=example,dc=com \
+              --be-name=acme
+
           docker exec acmeds dsconf \
               localhost \
               backend \
@@ -130,7 +139,6 @@ jobs:
 
       - name: Install ACME
         run: |
-          # TODO: update pkispawn to initialize ACME database and realm
           docker exec acme pkispawn \
               -f /usr/share/pki/server/examples/installation/acme.cfg \
               -s ACME \
@@ -289,8 +297,10 @@ jobs:
       - name: Initialize ACME database
         run: |
           # rebuild ACME indexes later
-          docker exec acme pki-server acme-database-init -v \
-              --skip-reindex
+          docker exec acme pki-server acme-database-init \
+              --ds-backend acme \
+              --skip-reindex \
+              -v
 
       - name: Initialize ACME realm
         run: |
@@ -429,7 +439,9 @@ jobs:
       - name: Rebuild ACME indexes
         run: |
           # LMDB indexes must be rebuilt
-          docker exec acme pki-server acme-database-index-rebuild -v
+          docker exec acme pki-server acme-database-index-rebuild \
+              --ds-backend acme \
+              -v
 
       - name: Register ACME account again
         run: |

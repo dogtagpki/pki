@@ -280,7 +280,7 @@ jobs:
               -f /etc/pki/pki-tomcat/password.conf \
               nss-cert-find
 
-      - name: Set up ACME DS replication
+      - name: Set up ACME database and realm replication
         run: |
           # enable replication in primary ACME DS
           docker exec primaryacmeds dsconf \

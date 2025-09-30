@@ -588,6 +588,7 @@ class ACMEDatabaseInitCLI(pki.cli.CLI):
         Usage: pki-server acme-database-init [OPTIONS]
 
           -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+              --ds-backend                   DS backend (default: userroot)
               --skip-reindex                 Skip database reindex.
           -v, --verbose                      Run in verbose mode.
               --debug                        Run in debug mode.
@@ -608,6 +609,9 @@ class ACMEDatabaseInitCLI(pki.cli.CLI):
             '-i',
             '--instance',
             default='pki-tomcat')
+        self.parser.add_argument(
+            '--ds-backend',
+            default='userroot')
         self.parser.add_argument(
             '--skip-reindex',
             action='store_true')
@@ -656,6 +660,7 @@ class ACMEDatabaseInitCLI(pki.cli.CLI):
                             (subsystem_name.upper(), instance_name))
 
         subsystem.init_database(
+            ds_backend=args.ds_backend,
             skip_reindex=args.skip_reindex)
 
 
@@ -1005,6 +1010,7 @@ class ACMEDatabaseIndexRebuildCLI(pki.cli.CLI):
         Usage: pki-server acme-database-index-rebuild [OPTIONS]
 
           -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+              --ds-backend                   DS backend (default: userroot)
           -v, --verbose                      Run in verbose mode.
               --debug                        Run in debug mode.
               --help                         Show help message.
@@ -1024,6 +1030,9 @@ class ACMEDatabaseIndexRebuildCLI(pki.cli.CLI):
             '-i',
             '--instance',
             default='pki-tomcat')
+        self.parser.add_argument(
+            '--ds-backend',
+            default='userroot')
         self.parser.add_argument(
             '-v',
             '--verbose',
@@ -1068,7 +1077,7 @@ class ACMEDatabaseIndexRebuildCLI(pki.cli.CLI):
             raise Exception('No %s subsystem in instance %s' %
                             (subsystem_name.upper(), instance_name))
 
-        subsystem.rebuild_indexes()
+        subsystem.rebuild_indexes(ds_backend=args.ds_backend)
 
 
 class ACMEIssuerCLI(pki.cli.CLI):

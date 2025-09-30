@@ -7,6 +7,7 @@ package org.dogtagpki.acme.database;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.Map;
 
 import org.apache.commons.lang3.NotImplementedException;
 import org.dogtagpki.acme.ACMEAccount;
@@ -43,7 +44,7 @@ public abstract class ACMEDatabase {
     /**
      * Initialize ACME database
      */
-    public void initDatabase() throws Exception {
+    public void initDatabase(Map<String, String> params) throws Exception {
     }
 
     public Boolean getEnabled() throws Exception {

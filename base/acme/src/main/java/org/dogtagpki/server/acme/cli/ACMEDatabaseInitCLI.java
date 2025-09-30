@@ -7,6 +7,8 @@ package org.dogtagpki.server.acme.cli;
 
 import java.io.File;
 import java.io.FileReader;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
@@ -37,6 +39,7 @@ public class ACMEDatabaseInitCLI extends SubsystemCLI {
 
     @Override
     public void createOptions() {
+        options.addOption(null, "ds-backend", true, "DS backend (default: userroot)");
         options.addOption(null, "skip-reindex", false, "Skip database reindex.");
 
         options.addOption("v", "verbose", false, "Run in verbose mode.");
@@ -76,6 +79,9 @@ public class ACMEDatabaseInitCLI extends SubsystemCLI {
         ACMEDatabase database = databaseClass.getDeclaredConstructor().newInstance();
         database.setConfig(databaseConfig);
 
+        Map<String, String> params = new HashMap<>();
+        params.put("backend", cmd.getOptionValue("ds-backend", "userroot"));
+
         try {
             database.init();
 
@@ -83,17 +89,18 @@ public class ACMEDatabaseInitCLI extends SubsystemCLI {
                 // perform LDAP-specific database initialization
 
                 ldapDatabase.importSchema();
-                ldapDatabase.createIndexes();
+
+                ldapDatabase.createIndexes(params);
 
                 if (!cmd.hasOption("skip-reindex")) {
-                    ldapDatabase.rebuildIndexes();
+                    ldapDatabase.rebuildIndexes(params);
                 }
 
                 ldapDatabase.createSubtree();
 
             } else {
                 // perform generic database initialization
-                database.initDatabase();
+                database.initDatabase(params);
             }
 
         } finally {
