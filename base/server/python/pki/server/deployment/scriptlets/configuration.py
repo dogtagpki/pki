@@ -224,6 +224,26 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 logger.info('Waiting for %s subsystem', subsystem.type)
                 subsystem.wait_for_startup(deployer.startup_timeout, deployer.request_timeout)
 
+        if config.str2bool(deployer.mdict['pki_systemd_service_create']):
+
+            # Optionally, programmatically 'enable' the configured PKI instance
+            # to be started upon system boot (default is True)
+            if not config.str2bool(deployer.mdict['pki_enable_on_system_boot']):
+                instance.disable()
+            else:
+                instance.enable()
+
+            if (len(instance.get_subsystems()) == 1 or
+                    config.str2bool(deployer.mdict['pki_hsm_enable'])):
+                logger.info('Starting PKI server')
+                instance.start(
+                    wait=True,
+                    max_wait=deployer.startup_timeout,
+                    timeout=deployer.request_timeout)
+
+                logger.info('Waiting for %s subsystem', subsystem.type)
+                subsystem.wait_for_startup(deployer.startup_timeout, deployer.request_timeout)
+
     def destroy(self, deployer):
 
         instance = self.instance

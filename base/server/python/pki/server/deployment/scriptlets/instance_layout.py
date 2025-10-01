@@ -248,6 +248,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # if this is not the last subsystem, skip
         if instance.get_subsystems():
+            logger.info('Starting PKI server')
+            instance.start(
+                wait=True,
+                max_wait=deployer.startup_timeout,
+                timeout=deployer.request_timeout)
             return
 
         logger.info('Removing %s instance', instance.name)
@@ -304,3 +309,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # Remove /var/lib/pki/<instance> if empty
             logger.info('Removing %s', instance.base_dir)
             pki.util.rmtree(path=instance.base_dir, force=deployer.force)
+
+        logger.info('Disabling PKI server')
+        instance.disable()
