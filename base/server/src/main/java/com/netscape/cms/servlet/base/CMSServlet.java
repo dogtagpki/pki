@@ -35,13 +35,13 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.dogtagpki.server.authentication.AuthManager;
@@ -192,7 +192,7 @@ public abstract class CMSServlet extends HttpServlet {
     protected final static String AUTHMGR_PARAM = "authenticator";
 
     public static final String CERT_ATTR =
-            "javax.servlet.request.X509Certificate";
+            "jakarta.servlet.request.X509Certificate";
 
     // members.
 
@@ -842,7 +842,7 @@ public abstract class CMSServlet extends HttpServlet {
         logger.info(CMS.getLogMessage("CMSGW_GETTING_SSL_CLIENT_CERT"));
 
         // iws60 support Java Servlet Spec V2.2, attribute
-        // javax.servlet.request.X509Certificate now contains array
+        // jakarta.servlet.request.X509Certificate now contains array
         // of X509Certificates instead of one X509Certificate object
         X509Certificate[] allCerts = (X509Certificate[]) httpReq.getAttribute(CERT_ATTR);
 

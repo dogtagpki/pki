@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.ws.rs.core.UriInfo;
+import jakarta.ws.rs.core.UriInfo;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ConflictingOperationException;

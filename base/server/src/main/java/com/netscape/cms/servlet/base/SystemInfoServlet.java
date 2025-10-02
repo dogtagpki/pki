@@ -20,12 +20,12 @@ package com.netscape.cms.servlet.base;
 import java.io.IOException;
 import java.util.Date;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import com.netscape.cmscore.apps.CMSEngine;
 
@@ -75,7 +75,7 @@ public class SystemInfoServlet extends HttpServlet {
      * <li>op = thread - display details about each thread.
      * </UL>
      *
-     * @see javax.servlet.http.HttpServlet#service(HttpServletRequest, HttpServletResponse)
+     * @see jakarta.servlet.http.HttpServlet#service(HttpServletRequest, HttpServletResponse)
      */
     @Override
     public void service(HttpServletRequest request,

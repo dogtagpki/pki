@@ -11,9 +11,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.stream.Collectors;
 
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.http.client.utils.URIBuilder;
 import org.dogtagpki.acme.ACMEAccount;
