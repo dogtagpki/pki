@@ -273,40 +273,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         deployer.systemd.daemon_reload()
 
         logger.info('Removing %s instance', instance.name)
-
-        if config.str2bool(deployer.mdict['pki_registry_enable']):
-            instance.remove_registry(force=deployer.force)
-
-        logger.info('Removing %s', instance.service_conf)
-        pki.util.remove(instance.service_conf, force=deployer.force)
-
-        logger.info('Removing %s', instance.work_dir)
-        pki.util.rmtree(instance.work_dir, force=deployer.force)
-
-        logger.info('Removing %s', instance.webapps_dir)
-        pki.util.rmtree(instance.webapps_dir, force=deployer.force)
-
-        logger.info('Removing %s', instance.temp_dir)
-        pki.util.rmtree(instance.temp_dir, force=deployer.force)
-
-        if deployer.remove_logs:
-            # Remove /var/log/pki/<instance> and /var/lib/pki/<instance>/logs
-            instance.remove_logs_dir(force=deployer.force)
-
-        instance.remove_libs(force=deployer.force)
-
-        if deployer.remove_conf:
-            # Remove /etc/pki/<instance> and /var/lib/pki/<instance>/conf
-            instance.remove_conf_dir(force=deployer.force)
-
-        logger.info('Removing %s', instance.bin_dir)
-        pki.util.unlink(instance.bin_dir, force=deployer.force)
-
-        logger.info('Removing %s', instance.nssdb_link)
-        pki.util.unlink(instance.nssdb_link, deployer.force)
-
-        if os.path.isdir(instance.base_dir) and not os.listdir(instance.base_dir):
-
-            # Remove /var/lib/pki/<instance> if empty
-            logger.info('Removing %s', instance.base_dir)
-            pki.util.rmtree(path=instance.base_dir, force=deployer.force)
+        instance.remove(
+            remove_conf=deployer.remove_conf,
+            remove_logs=deployer.remove_logs,
+            force=deployer.force)

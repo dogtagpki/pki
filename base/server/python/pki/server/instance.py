@@ -400,8 +400,9 @@ class PKIInstance(pki.server.PKIServer):
 
     def remove(self, remove_conf=False, remove_logs=False, force=False):
 
-        logger.info('Removing %s', self.unit_file)
-        pki.util.unlink(self.unit_file, force=force)
+        if os.path.exists(self.unit_file):
+            logger.info('Removing %s', self.unit_file)
+            pki.util.unlink(self.unit_file, force=force)
 
         self.remove_registry(force=force)
 
