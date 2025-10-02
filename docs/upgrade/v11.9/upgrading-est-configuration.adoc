@@ -1,0 +1,175 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="manual-est-configuration-upgrade"]
+= Manual configuration upgrade for EST
+
+The default **CA** and **EST** configuration in PKI 11.9 has changed
+to allow a simpler installation and a better security.
+
+By default new **CA** and **EST** instances will be created with the new
+configuration.
+
+If a **CA** instance has been deployed but no **EST** instance has
+been deployed, the **CA** instance will be updated automatically when
+the server is restarted (unless the **DS** is not running when the
+server is restarted).
+
+However, if both **CA** and **EST** instances have already been deployed, some
+changes must be done manually to avoid problems.
+
+
+[id="manual-est-configuration-upgrade-CA"]
+== CA configuration upgrade
+
+Before deploying a new **EST** instance or redeploying an existing
+one, the **CA** instance must be updated.
+
+The update steps for the **CA** are the following:
+
+- update and enable the EST profile;
+- update internal profiles;
+- create **EST** administrator group and update ACLs;
+- add a new security domain type for **EST** subsystem.
+
+
+[id="manual-est-configuration-upgrade-CA-update-est-profile"]
+=== Update EST profile
+
+After upgrading to **PKI** _11.9_, verify the _estServiceCert_ profile
+is updated and enabled in the **CA** instance. The updated version of
+_estServiceCert_ profile is available in
+`/usr/share/pki/ca/profiles/ca/estServiceCert.cfg`. If the profile is
+not enabled in the **CA**then it has to be added with the command:
+
+[literal]
+....
+# pki -n caadmin ca-profile-add --raw /usr/share/pki/ca/profiles/ca/estServiceCert.cfg
+....
+
+If the profile is already in use and it has not been updated then it
+has to be edited to include the new options, as defined in the new
+profile file, with the command:
+
+[literal]
+....
+# pki -n caadmin ca-profile-disable estServiceCert
+# pki -n caadmin ca-profile-edit estServiceCert
+# pki -n caadmin ca-profile-enable estServiceCert
+....
+
+The options to modify or add are: the `auth.instance_id`, a new input
+with value `raClientAuthInfoInputImpl` and a new constraint with
+`raClientAuthSubjectNameConstraintImpl`.
+
+
+[id="manual-est-configuration-upgrade-CA-updater-internal-profiles"]
+=== Update internal profiles
+
+The following profiles have to include the ACLs for the _Enterprise EST Administrators_ group:
+
+* `caECInternalAuthSubsystemCert`;
+* `caInternalAuthServerCert`;
+* `caInternalAuthSubsystemCert`.
+
+To include the role edit the profile as shown above for the _est_
+profile above and modify the `authz.acl` by appending, if not present,
+the value `|| group="Enterprise EST Administrators"`.
+
+
+[id="manual-est-configuration-upgrade-CA-update-group-ACLs"]
+=== Update group and ACLs
+
+If the _Enterprise EST Administrators_ group is not present in **CA**,
+it has to be added and include the **CA** administrators (in this
+example only the user _caadmin_ is included):
+
+[literal]
+....
+# pki -n caadmin ca-group-add "Enterprise EST Administrators" --description "People who are the administrators for the security domain for EST"
+# pki -n caadmin ca-group-member-add "Enterprise EST Administrators" "caadmin"
+....
+
+The new group should be present in the ACLs for the CA security domain
+operations. The list of ACLs can be retrieved with the command:
+
+
+[literal]
+....
+# pki-server ca-acl-find
+....
+
+
+If the `certServer.securitydomain.domainxml` ACL does not include the
+new **EST** group, delete and add it again with the new group:
+
+[literal]
+....
+# pki-server ca-acl-del 'certServer.securitydomain.domainxml:read,modify:allow (read) user="anybody";allow (modify) group="Subsystem Group" || group="Enterprise CA Administrators" || group="Enterprise KRA Administrators" || group="Enterprise RA Administrators" || group="Enterprise OCSP Administrators" || group="Enterprise TKS Administrators" || group="Enterprise TPS Administrators":Anybody is allowed to read domain.xml but only Subsystem group and Enterprise Administrators are allowed to modify the domain.xml'
+# pki-server ca-acl-add 'certServer.securitydomain.domainxml:read,modify:allow (read) user="anybody";allow (modify) group="Subsystem Group" || group="Enterprise CA Administrators" || group="Enterprise KRA Administrators" || group="Enterprise RA Administrators" || group="Enterprise OCSP Administrators" || group="Enterprise TKS Administrators" || group="Enterprise TPS Administrators" || group="Enterprise EST Administrators":Anybody is allowed to read domain.xml but only Subsystem group and Enterprise Administrators are allowed to modify the domain.xml'
+....
+
+If the `certServer.ca.registerUser` ACL does not include the new
+**EST** group, delete and add it again with the new group:
+
+[literal]
+....
+# pki-server ca-acl-del 'certServer.ca.registerUser:read,modify:allow (modify,read) group="Enterprise CA Administrators" || group="Enterprise KRA Administrators" || group="Enterprise RA Administrators" || group="Enterprise OCSP Administrators" || group="Enterprise TKS Administrators" || group="Enterprise TPS Administrators":Only Enterprise Administrators are allowed to register a new agent'
+# pki-server ca-acl-add 'certServer.ca.registerUser:read,modify:allow (modify,read) group="Enterprise CA Administrators" || group="Enterprise KRA Administrators" || group="Enterprise RA Administrators" || group="Enterprise OCSP Administrators" || group="Enterprise TKS Administrators" || group="Enterprise TPS Administrators" || group="Enterprise EST Administrators":Only Enterprise Administrators are allowed to register a new agent'
+....
+
+If the ACLs have been previously modified for other operations the
+above commands should match the rules stored in the **CA**.
+
+[id="manual-est-configuration-upgrade-CA-update-sd-EST-type"]
+=== Add EST security domain type
+
+Finally, the security domain has to include the **EST** subsystem
+type. The new type can be added with the command:
+
+[literal]
+....
+# pki-server sd-type-add EST
+....
+
+
+
+[id="manual-est-configuration-upgrade-EST"]
+== EST configuration upgrade
+
+**EST** instances are not automatically updated during an upgrade to
+PKI version v11.9 and above.  However, If the CA is updated as
+described in the previous section also the **EST** instance need an
+update.
+
+The main difference is related to the **EST** authentication to the
+**CA**. The new implementation perform authentication using a
+subsystem account registered in the **CA**. If **CA** and **EST** share
+the same instance than a subsystem user is already present for **CA**
+and the certificate is available in the internal certificate
+store. The name of this certificate has to be configured in **EST**
+`/<sbusystem_instance>/est/backend.conf` file with the key _nickname_.
+The _username_ and _password_ keys are not needed and must be removed.
+
+If **EST** runs in a dedicate instance, the **CA** user associated
+with the instance has to be included in the "Certificate Manager
+Agents" group and the authentication has to be performed using a
+certificate.  This change can be applied to the _EST RA Agents_ (id is
+`est-ra-1` if created following previous instructions) user with the
+command:
+
+[literal]
+....
+# pki -n caadmin ca-user-membership-add est-ra-1  "Certificate Manager Agents"
+....
+
+
+
+Alternatively, it is possible to destroy and create a new EST instance
+following the xref:../../installation/est/installing-est.adoc[EST
+installation documentation].
+
+New instances of **EST** have an additional `CS.cfg` configuration
+file. A template is available in `/usr/share/pki/est/conf`. Copy this
+file in **EST** configuration folder `<pki insance config
+folder>/est/` and modify the field `machineName` with the actual value
+of your host name.
