@@ -11,7 +11,17 @@ The *EST subsystem* requires the package `dogtag-pki-est` installed on the serve
 # dnf install dogtag-pki-est
 ....
 
+The EST configuration has been modified with PKI v.11.9 requiring some
+change to the CA.  If the CA was installed with a previous version of
+PKI, the changes should automatically be applied but there are
+conditions where these could be skipped, such as *EST* already
+deployed duting the update. In this case the CA has to be manually
+update before installing a new *EST subsystem*. Details on the steps
+to follow are available in the xref:../../upgrade/v11.9/upgrading-est-configuration.adoc[Manual upgrade of EST configuration].
+
+
 == Prerequisites 
+
 
 If the EST has to be installed in standalone mode, not joining any security
 domain, an agent user has to be created for the EST subsystem in the CA.  On the
