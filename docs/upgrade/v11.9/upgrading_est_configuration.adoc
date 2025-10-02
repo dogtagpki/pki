@@ -1,0 +1,104 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="manual-est-configuration-upgrade"]
+= Manual upgrade of EST configuration
+
+**EST** configuration in _PKI_ version v11.9 has been modified to allow a
+higher control of released certificates by the **CA** and an easier
+installation when a security domain is configured in the CA. These new
+features require some changes in the running **CA** which are
+automatically performed during the package upgrade. However, if an **EST**
+instance is in place some changes could not be applied to avoid
+problems with the running instance, which should keep working as expected.
+
+In case a new **EST** instance has to be deployed, or if the current
+instance has to be reinstalled to exploit the new features, it is
+possible to manually perform the **CA** upgrade steps skipped during package
+upgrade because of an existing instance.
+
+The upgrade steps for the **CA** are the following:
+
+- update and enable the EST profile;
+- update internal profiles;
+- create **EST** administrator group and update ACLs;
+- add a new security domain type for **EST** subsystem.
+
+
+In more detail, after upgrading the rpms packages, the **CA**
+administrator has to verify the _est_ profile.  The updated _est_
+profile in `/usr/share/pki/ca/profiles/ca/estServiceCert.cfg` has to
+be deployed and enabled in the **CA**.  If the profile is not present
+then it has to be added with the command:
+
+[literal]
+....
+# pki -n caadmin ca-profile-add --raw /usr/share/pki/ca/profiles/ca/estServiceCert.cfg
+....
+
+If the profile is already in use and it has not been updated then it
+has to be edited to include the new option, as defined in the new
+profile file, with the command:
+
+[literal]
+....
+pki -n caadmin ca-profile-disable estServiceCert
+pki -n caadmin ca-profile-edit estServiceCert
+pki -n caadmin ca-profile-enable estServiceCert
+....
+
+
+Then the following profiles have to include the ACLs for the _Enterprise EST Administrators_ group:
+- `caECInternalAuthSubsystemCert`;
+- `caInternalAuthServerCert`;
+- `caInternalAuthSubsystemCert`.
+
+To include the role edit the profile as shown above for the _est_
+profile above and modify the `authz.acl` by appending, if not present,
+the value `|| group="Enterprise EST Administrators"`.
+
+
+If the group is not present in **CA**, it has to be added and include
+the **CA** administrators (in this example only the user _caadmin_ is
+included):
+
+[literal]
+....
+#pki -n caadmin ca-group-add "Enterprise EST Administrators" --description "People who are the administrators for the security domain for EST"
+# pki -n caadmin ca-group-member-add "Enterprise EST Administrators" "caadmin"
+....
+
+The new group should be present in the ACLs for the CA security domain
+operations. The list of ACLs can be retrieved with the command:
+
+
+[literal]
+....
+# pki-server ca-acl-find
+....
+
+
+If the ACLs `certServer.securitydomain.domainxm` and
+`certServer.ca.registerUser` do not include the new **EST** group,
+they can be deleted and added again with the new group:
+
+[literal]
+....
+# pki-server ca-acl-del 'certServer.securitydomain.domainxml:read,modify:allow (read) user="anybody";allow (modify) group="Subsystem Group" || group="Enterprise CA Administrators" || group="Enterprise KRA Administrators" || group="Enterprise RA Administrators" || group="Enterprise OCSP Administrators" || group="Enterprise TKS Administrators" || group="Enterprise TPS Administrators":Anybody is allowed to read domain.xml but only Subsystem group and Enterprise Administrators are allowed to modify the domain.xml'
+
+# pki-server ca-acl-add 'certServer.securitydomain.domainxml:read,modify:allow (read) user="anybody";allow (modify) group="Subsystem Group" || group="Enterprise CA Administrators" || group="Enterprise KRA Administrators" || group="Enterprise RA Administrators" || group="Enterprise OCSP Administrators" || group="Enterprise TKS Administrators" || group="Enterprise TPS Administrators" || group="Enterprise EST Administrators":Anybody is allowed to read domain.xml but only Subsystem group and Enterprise Administrators are allowed to modify the domain.xml'
+
+# pki-server ca-acl-del 'certServer.ca.registerUser:read,modify:allow (modify,read) group="Enterprise CA Administrators" || group="Enterprise KRA Administrators" || group="Enterprise RA Administrators" || group="Enterprise OCSP Administrators" || group="Enterprise TKS Administrators" || group="Enterprise TPS Administrators":Only Enterprise Administrators are allowed to register a new agent'
+# pki-server ca-acl-add 'certServer.ca.registerUser:read,modify:allow (modify,read) group="Enterprise CA Administrators" || group="Enterprise KRA Administrators" || group="Enterprise RA Administrators" || group="Enterprise OCSP Administrators" || group="Enterprise TKS Administrators" || group="Enterprise TPS Administrators" || group="Enterprise EST Administrators":Only Enterprise Administrators are allowed to register a new agent'
+....
+
+If the ACLs have been previously modified for other operations the
+above commands should match the rules stored in the **CA**.
+
+Finally, the security domain has to include the **EST** subsystem
+type. The new type can be added with the command:
+
+[literal]
+....
+# pki-server sd-type-add EST
+....
+
