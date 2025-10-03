@@ -1,0 +1,608 @@
+name: ACME clone
+# This test will perform the following operations:
+# - create a CA with DS
+# - create a primary ACME with DS
+# - initialize ACME database and realm
+# - create a secondary ACME with DS
+# - configure ACME replication
+# - register an account in primary ACME
+# - verify the account is replicated into secondary ACME
+# - enroll a cert in secondary ACME
+# - verify the cert is replicated into primary ACME
+#
+# https://github.com/dogtagpki/pki/wiki/Installing-ACME-Responder-Clone
+
+on: workflow_call
+
+env:
+  DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Retrieve ACME images
+        uses: actions/cache@v4
+        with:
+          key: acme-images-${{ github.sha }}
+          path: acme-images.tar
+
+      - name: Load ACME images
+        run: docker load --input acme-images.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up CA DS container
+        run: |
+          tests/bin/ds-create.sh \
+              --image=${{ env.DS_IMAGE }} \
+              --hostname=cads.example.com \
+              --password=Secret.123 \
+              --network=example \
+              --network-alias=cads.example.com \
+              cads
+
+      - name: Set up CA container
+        run: |
+          tests/bin/runner-init.sh \
+              --hostname=ca.example.com \
+              --network=example \
+              --network-alias=ca.example.com \
+              ca
+
+      - name: Install CA
+        run: |
+          docker exec ca pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_url=ldap://cads.example.com:3389 \
+              -v
+
+          docker exec ca dnf install -y xmlstarlet
+
+          # disable access log buffer
+          docker exec ca xmlstarlet edit --inplace \
+              -u "//Valve[@className='org.apache.catalina.valves.AccessLogValve']/@buffered" \
+              -v "false" \
+              -i "//Valve[@className='org.apache.catalina.valves.AccessLogValve' and not(@buffered)]" \
+              -t attr \
+              -n "buffered" \
+              -v "false" \
+              /etc/pki/pki-tomcat/server.xml
+
+      - name: Set up primary ACME DS container
+        run: |
+          tests/bin/ds-create.sh \
+              --image=${{ env.DS_IMAGE }} \
+              --hostname=primaryacmeds.example.com \
+              --password=Secret.123 \
+              --network=example \
+              --network-alias=primaryacmeds.example.com \
+              primaryacmeds
+
+      - name: Set up primary ACME container
+        run: |
+          tests/bin/runner-init.sh \
+              --hostname=primaryacme.example.com \
+              --network=example \
+              --network-alias=primaryacme.example.com \
+              --network-alias=acme.example.com \
+              primaryacme
+
+      - name: Install primary ACME
+        run: |
+          docker exec primaryacme pkispawn \
+              -f /usr/share/pki/server/examples/installation/acme.cfg \
+              -s ACME \
+              -D acme_database_url=ldap://primaryacmeds.example.com:3389 \
+              -D acme_issuer_url=https://ca.example.com:8443 \
+              -D acme_realm_url=ldap://primaryacmeds.example.com:3389 \
+              -v
+
+          docker exec primaryacme dnf install -y xmlstarlet
+
+          # disable access log buffer
+          docker exec primaryacme xmlstarlet edit --inplace \
+              -u "//Valve[@className='org.apache.catalina.valves.AccessLogValve']/@buffered" \
+              -v "false" \
+              -i "//Valve[@className='org.apache.catalina.valves.AccessLogValve' and not(@buffered)]" \
+              -t attr \
+              -n "buffered" \
+              -v "false" \
+              /etc/pki/pki-tomcat/server.xml
+
+      - name: Check primary ACME database config
+        run: |
+          docker exec primaryacme cat /etc/pki/pki-tomcat/acme/database.conf | tee output
+
+          cat > expected << EOF
+          authType=BasicAuth
+          baseDN=dc=acme,dc=pki,dc=example,dc=com
+          bindDN=cn=Directory Manager
+          bindPassword=Secret.123
+          class=org.dogtagpki.acme.database.DSDatabase
+          url=ldap://primaryacmeds.example.com:3389
+          EOF
+
+          diff expected output
+
+      - name: Check primary ACME issuer config
+        run: |
+          docker exec primaryacme cat /etc/pki/pki-tomcat/acme/issuer.conf | tee output
+
+          cat > expected << EOF
+          class=org.dogtagpki.acme.issuer.PKIIssuer
+          password=Secret.123
+          profile=acmeServerCert
+          url=https://ca.example.com:8443
+          username=caadmin
+          EOF
+
+          diff expected output
+
+      - name: Check primary ACME realm config
+        run: |
+          docker exec primaryacme cat /etc/pki/pki-tomcat/acme/realm.conf | tee output
+
+          cat > expected << EOF
+          authType=BasicAuth
+          bindDN=cn=Directory Manager
+          bindPassword=Secret.123
+          class=org.dogtagpki.acme.realm.DSRealm
+          groupsDN=ou=groups,dc=acme,dc=pki,dc=example,dc=com
+          url=ldap://primaryacmeds.example.com:3389
+          usersDN=ou=people,dc=acme,dc=pki,dc=example,dc=com
+          EOF
+
+          diff expected output
+
+      - name: Check primary ACME system certs
+        run: |
+          docker exec primaryacme pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-cert-find
+
+      - name: Initialize primary ACME database
+        run: |
+          docker exec primaryacme pki-server acme-database-init -v
+
+      - name: Initialize primary ACME realm
+        run: |
+          docker exec primaryacme pki-server acme-realm-init -v
+
+      - name: Check primary ACME DS
+        run: |
+          docker exec primaryacmeds ldapsearch \
+              -H ldap://primaryacmeds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b dc=example,dc=com \
+              -o ldif_wrap=no \
+              -LLL
+
+      - name: Set up secondary ACME DS container
+        run: |
+          tests/bin/ds-create.sh \
+              --image=${{ env.DS_IMAGE }} \
+              --hostname=secondaryacmeds.example.com \
+              --password=Secret.123 \
+              --network=example \
+              --network-alias=secondaryacmeds.example.com \
+              secondaryacmeds
+
+      - name: Set up secondary ACME container
+        run: |
+          tests/bin/runner-init.sh \
+              --hostname=secondaryacme.example.com \
+              --network=example \
+              --network-alias=secondaryacme.example.com \
+              secondaryacme
+
+      - name: Install secondary ACME
+        run: |
+          docker exec secondaryacme pkispawn \
+              -f /usr/share/pki/server/examples/installation/acme.cfg \
+              -s ACME \
+              -D acme_database_url=ldap://secondaryacmeds.example.com:3389 \
+              -D acme_issuer_url=https://ca.example.com:8443 \
+              -D acme_realm_url=ldap://secondaryacmeds.example.com:3389 \
+              -v
+
+          docker exec secondaryacme dnf install -y xmlstarlet
+
+          # disable access log buffer
+          docker exec secondaryacme xmlstarlet edit --inplace \
+              -u "//Valve[@className='org.apache.catalina.valves.AccessLogValve']/@buffered" \
+              -v "false" \
+              -i "//Valve[@className='org.apache.catalina.valves.AccessLogValve' and not(@buffered)]" \
+              -t attr \
+              -n "buffered" \
+              -v "false" \
+              /etc/pki/pki-tomcat/server.xml
+
+      - name: Check secondary ACME database config
+        run: |
+          docker exec secondaryacme cat /etc/pki/pki-tomcat/acme/database.conf | tee output
+
+          cat > expected << EOF
+          authType=BasicAuth
+          baseDN=dc=acme,dc=pki,dc=example,dc=com
+          bindDN=cn=Directory Manager
+          bindPassword=Secret.123
+          class=org.dogtagpki.acme.database.DSDatabase
+          url=ldap://secondaryacmeds.example.com:3389
+          EOF
+
+          diff expected output
+
+      - name: Check secondary ACME issuer config
+        run: |
+          docker exec secondaryacme cat /etc/pki/pki-tomcat/acme/issuer.conf | tee output
+
+          cat > expected << EOF
+          class=org.dogtagpki.acme.issuer.PKIIssuer
+          password=Secret.123
+          profile=acmeServerCert
+          url=https://ca.example.com:8443
+          username=caadmin
+          EOF
+
+          diff expected output
+
+      - name: Check secondary ACME realm config
+        run: |
+          docker exec secondaryacme cat /etc/pki/pki-tomcat/acme/realm.conf | tee output
+
+          cat > expected << EOF
+          authType=BasicAuth
+          bindDN=cn=Directory Manager
+          bindPassword=Secret.123
+          class=org.dogtagpki.acme.realm.DSRealm
+          groupsDN=ou=groups,dc=acme,dc=pki,dc=example,dc=com
+          url=ldap://secondaryacmeds.example.com:3389
+          usersDN=ou=people,dc=acme,dc=pki,dc=example,dc=com
+          EOF
+
+          diff expected output
+
+      - name: Check secondary ACME system certs
+        run: |
+          docker exec secondaryacme pki \
+              -d /etc/pki/pki-tomcat/alias \
+              -f /etc/pki/pki-tomcat/password.conf \
+              nss-cert-find
+
+      - name: Set up ACME DS replication
+        run: |
+          # enable replication in primary ACME DS
+          docker exec primaryacmeds dsconf \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              ldap://primaryacmeds.example.com:3389 \
+              replication enable \
+              --suffix=dc=example,dc=com \
+              --role=supplier \
+              --replica-id=1 \
+              --bind-dn="cn=Replication Manager,cn=config" \
+              --bind-passwd=Secret.123
+
+          # enable replication in secondary ACME DS
+          docker exec secondaryacmeds dsconf \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              ldap://secondaryacmeds.example.com:3389 \
+              replication enable \
+              --suffix=dc=example,dc=com \
+              --role=supplier \
+              --replica-id=2 \
+              --bind-dn="cn=Replication Manager,cn=config" \
+              --bind-passwd=Secret.123
+
+          # create replication agreement in primary ACME DS
+          docker exec primaryacmeds dsconf \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              ldap://primaryacmeds.example.com:3389 \
+              repl-agmt create \
+              --suffix=dc=example,dc=com \
+              --host=secondaryacmeds.example.com \
+              --port=3389 \
+              --conn-protocol=LDAP \
+              --bind-dn="cn=Replication Manager,cn=config" \
+              --bind-passwd=Secret.123 \
+              --bind-method=SIMPLE \
+              primaryacmeds-to-secondaryacmeds
+
+          # create replication agreement in secondary ACME DS
+          docker exec secondaryacmeds dsconf \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              ldap://secondaryacmeds.example.com:3389 \
+              repl-agmt create \
+              --suffix=dc=example,dc=com \
+              --host=primaryacmeds.example.com \
+              --port=3389 \
+              --conn-protocol=LDAP \
+              --bind-dn="cn=Replication Manager,cn=config" \
+              --bind-passwd=Secret.123 \
+              --bind-method=SIMPLE \
+              secondaryacmeds-to-primaryacmeds
+
+          # start replication initialization
+          docker exec primaryacmeds dsconf \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              ldap://primaryacmeds.example.com:3389 \
+              repl-agmt init \
+              --suffix=dc=example,dc=com \
+              primaryacmeds-to-secondaryacmeds
+
+          # wait for initialization to complete
+          while true; do
+              sleep 1
+
+              docker exec primaryacmeds dsconf \
+                  -D "cn=Directory Manager" \
+                  -w Secret.123 \
+                  ldap://primaryacmeds.example.com:3389 \
+                  repl-agmt init-status \
+                  --suffix=dc=example,dc=com \
+                  primaryacmeds-to-secondaryacmeds \
+                  | tee output
+
+              MSG=$(cat output)
+              if [ "$MSG" = "Agreement successfully initialized." ]; then
+                  break
+              fi
+          done
+
+      - name: Check secondary ACME DS
+        run: |
+          docker exec secondaryacmeds ldapsearch \
+              -H ldap://secondaryacmeds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b dc=example,dc=com \
+              -o ldif_wrap=no \
+              -LLL
+
+      - name: Set up client container
+        run: |
+          tests/bin/runner-init.sh \
+              --hostname=client.example.com \
+              --network=example \
+              --network-alias=client.example.com \
+              client
+
+      - name: Install certbot in client container
+        run: docker exec client dnf install -y certbot
+
+      - name: Register account in primary ACME
+        run: |
+          docker exec client certbot register \
+              --server http://acme.example.com:8080/acme/directory \
+              --email testuser@example.com \
+              --agree-tos \
+              --non-interactive
+
+      - name: Check accounts in secondary ACME
+        run: |
+          docker exec secondaryacmeds ldapsearch \
+              -H ldap://secondaryacmeds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=accounts,dc=acme,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          # there should be one account
+          echo "1" > expected
+          grep "^dn:" output | wc -l > actual
+          diff expected actual
+
+          # status should be valid
+          echo "valid" > expected
+          sed -n 's/^acmeStatus: *\(.*\)$/\1/p' output > actual
+          diff expected actual
+
+          # email should be testuser@example.com
+          echo "mailto:testuser@example.com" > expected
+          sed -n 's/^acmeAccountContact: *\(.*\)$/\1/p' output > actual
+          diff expected actual
+
+      - name: Move acme.example.com to secondary ACME
+        run: |
+          docker network disconnect example primaryacme
+          docker network connect example primaryacme \
+              --alias primaryacme.example.com
+
+          docker network disconnect example secondaryacme
+          docker network connect example secondaryacme \
+              --alias secondaryacme.example.com \
+              --alias acme.example.com
+
+      - name: Enroll client cert against secondary ACME
+        run: |
+          docker exec client certbot certonly \
+              --server http://acme.example.com:8080/acme/directory \
+              -d client.example.com \
+              --key-type rsa \
+              --standalone \
+              --non-interactive
+
+      - name: Check client cert
+        run: |
+          docker exec client pki client-cert-import \
+              --cert /etc/letsencrypt/live/client.example.com/fullchain.pem \
+              client1
+
+          # store serial number
+          docker exec client pki nss-cert-show client1 | tee output
+          sed -n 's/^ *Serial Number: *\(.*\)/\1/p' output > serial1.txt
+
+          # subject should be CN=client.example.com
+          echo "CN=client.example.com" > expected
+          sed -n 's/^ *Subject DN: *\(.*\)/\1/p' output > actual
+          diff expected actual
+
+      - name: Check orders in primary ACME
+        run: |
+          docker exec primaryacmeds ldapsearch \
+              -H ldap://primaryacmeds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=orders,dc=acme,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          # there should be one order
+          echo "1" > expected
+          grep "^dn:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check authorizations in primary ACME
+        run: |
+          docker exec primaryacmeds ldapsearch \
+              -H ldap://primaryacmeds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=authorizations,dc=acme,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          # there should be one authorization
+          echo "1" > expected
+          grep "^dn:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check challenges in primary ACME
+        run: |
+          docker exec primaryacmeds ldapsearch \
+              -H ldap://primaryacmeds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=challenges,dc=acme,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          # there should be one challenge
+          echo "1" > expected
+          grep "^dn:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check certs in primary ACME
+        run: |
+          docker exec primaryacmeds ldapsearch \
+              -H ldap://primaryacmeds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b ou=certificates,dc=acme,dc=pki,dc=example,dc=com \
+              -s one \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          # there should be no certs (they are stored in CA)
+          echo "0" > expected
+          grep "^dn:" output | wc -l > actual
+          diff expected actual
+
+      - name: Remove secondary ACME
+        run: docker exec secondaryacme pkidestroy -s ACME -v
+
+      - name: Remove primary ACME
+        run: docker exec primaryacme pkidestroy -s ACME -v
+
+      - name: Remove CA
+        run: docker exec ca pkidestroy -s CA -v
+
+      - name: Check CA DS server systemd journal
+        if: always()
+        run: |
+          docker exec cads journalctl -x --no-pager -u dirsrv@localhost.service
+
+      - name: Check CA DS container logs
+        if: always()
+        run: |
+          docker logs cads
+
+      - name: Check CA server systemd journal
+        if: always()
+        run: |
+          docker exec ca journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check CA access log
+        if: always()
+        run: |
+          docker exec ca find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+
+      - name: Check CA debug log
+        if: always()
+        run: |
+          docker exec ca find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check primary ACME DS server systemd journal
+        if: always()
+        run: |
+          docker exec primaryacmeds journalctl -x --no-pager -u dirsrv@localhost.service
+
+      - name: Check primary ACME DS container logs
+        if: always()
+        run: |
+          docker logs primaryacmeds
+
+      - name: Check primary ACME server systemd journal
+        if: always()
+        run: |
+          docker exec primaryacme journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check primary ACME access log
+        if: always()
+        run: |
+          docker exec primaryacme find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+
+      - name: Check primary ACME debug log
+        if: always()
+        run: |
+          docker exec primaryacme find /var/lib/pki/pki-tomcat/logs/acme -name "debug.*" -exec cat {} \;
+
+      - name: Check secondary ACME DS server systemd journal
+        if: always()
+        run: |
+          docker exec secondaryacmeds journalctl -x --no-pager -u dirsrv@localhost.service
+
+      - name: Check secondary ACME DS container logs
+        if: always()
+        run: |
+          docker logs secondaryacmeds
+
+      - name: Check secondary ACME server systemd journal
+        if: always()
+        run: |
+          docker exec secondaryacme journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check secondary ACME access log
+        if: always()
+        run: |
+          docker exec secondaryacme find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+
+      - name: Check secondary ACME debug log
+        if: always()
+        run: |
+          docker exec secondaryacme find /var/lib/pki/pki-tomcat/logs/acme -name "debug.*" -exec cat {} \;
+
+      - name: Check certbot log
+        if: always()
+        run: |
+          docker exec client cat /var/log/letsencrypt/letsencrypt.log
