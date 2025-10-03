@@ -218,6 +218,9 @@ public class AuthorityRepository {
             return getAuthorityRecord(entry);
 
         } catch (LDAPException e) {
+            if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
+                return null;
+            }
             throw new DBException("Unable to retrieve authority: " + e.getMessage(), e);
 
         } finally {
