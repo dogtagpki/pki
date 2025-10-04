@@ -1,6 +1,6 @@
 dn: ou=people,dc=acme,dc=pki,dc=example,dc=com
 objectClass: organizationalUnit
-ou: users
+ou: people
 
 dn: ou=groups,dc=acme,dc=pki,dc=example,dc=com
 objectClass: organizationalUnit

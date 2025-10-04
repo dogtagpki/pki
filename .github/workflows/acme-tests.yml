@@ -140,6 +140,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/acme-postgresql-test.yml
 
+  acme-clone-test:
+    name: ACME clone
+    needs: build
+    uses: ./.github/workflows/acme-clone-test.yml
+
   publish:
     if: github.event_name == 'push' && github.ref_name == 'master'
     name: Publishing ACME images
