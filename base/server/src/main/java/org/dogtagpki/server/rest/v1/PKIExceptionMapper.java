@@ -24,15 +24,15 @@ public class PKIExceptionMapper implements ExceptionMapper<PKIException> {
 
         // The exception Data can only be serialised as XML or JSON,
         // so coerce the response content type to one of these.
-        // Default to XML, but consider the Accept header.
-        MediaType contentType = MediaType.APPLICATION_XML_TYPE;
+        // Default to JSON, but consider the Accept header.
+        MediaType contentType = MediaType.APPLICATION_JSON_TYPE;
         for (MediaType acceptType : headers.getAcceptableMediaTypes()) {
-            if (acceptType.isCompatible(MediaType.APPLICATION_XML_TYPE)) {
-                contentType = MediaType.APPLICATION_XML_TYPE;
-                break;
-            }
             if (acceptType.isCompatible(MediaType.APPLICATION_JSON_TYPE)) {
                 contentType = MediaType.APPLICATION_JSON_TYPE;
+                break;
+            }
+            if (acceptType.isCompatible(MediaType.APPLICATION_XML_TYPE)) {
+                contentType = MediaType.APPLICATION_XML_TYPE;
                 break;
             }
         }
