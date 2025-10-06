@@ -64,6 +64,7 @@ jobs:
       - name: Check pki SRPM
         if: always()
         run: |
+          docker exec pki rpm -qlp build/SRPMS/pki-*.src.rpm
           docker exec pki rpminspect-fedora \
               -p pki-rpminspect \
               build/SRPMS/pki-*.src.rpm
@@ -72,6 +73,7 @@ jobs:
         if: always()
         run: |
           VERSION=$(cat VERSION)
+          docker exec pki rpm -qlp build/RPMS/dogtag-pki-$VERSION.*.rpm
           docker exec pki rpminspect-fedora \
               -p pki-rpminspect \
               build/RPMS/dogtag-pki-$VERSION.*.rpm
@@ -80,6 +82,7 @@ jobs:
         if: always()
         run: |
           VERSION=$(cat VERSION)
+          docker exec pki rpm -qlp build/RPMS/dogtag-pki-acme-$VERSION.*.rpm
           docker exec pki rpminspect-fedora \
               -p pki-rpminspect \
               build/RPMS/dogtag-pki-acme-$VERSION.*.rpm
@@ -88,6 +91,7 @@ jobs:
         if: always()
         run: |
           VERSION=$(cat VERSION)
+          docker exec pki rpm -qlp build/RPMS/dogtag-pki-base-$VERSION.*.rpm
           docker exec pki rpminspect-fedora \
               -p pki-rpminspect \
               build/RPMS/dogtag-pki-base-$VERSION.*.rpm
@@ -96,6 +100,7 @@ jobs:
         if: always()
         run: |
           VERSION=$(cat VERSION)
+          docker exec pki rpm -qlp build/RPMS/dogtag-pki-ca-$VERSION.*.rpm
           docker exec pki rpminspect-fedora \
               -p pki-rpminspect \
               build/RPMS/dogtag-pki-ca-$VERSION.*.rpm
@@ -104,6 +109,7 @@ jobs:
         if: always()
         run: |
           VERSION=$(cat VERSION)
+          docker exec pki rpm -qlp build/RPMS/dogtag-pki-est-$VERSION.*.rpm
           docker exec pki rpminspect-fedora \
               -p pki-rpminspect \
               build/RPMS/dogtag-pki-est-$VERSION.*.rpm
@@ -112,6 +118,7 @@ jobs:
         if: always()
         run: |
           VERSION=$(cat VERSION)
+          docker exec pki rpm -qlp build/RPMS/dogtag-pki-java-$VERSION.*.rpm
           docker exec pki rpminspect-fedora \
               -p pki-rpminspect \
               build/RPMS/dogtag-pki-java-$VERSION.*.rpm
@@ -120,6 +127,7 @@ jobs:
         if: always()
         run: |
           VERSION=$(cat VERSION)
+          docker exec pki rpm -qlp build/RPMS/dogtag-pki-javadoc-$VERSION.*.rpm
           docker exec pki rpminspect-fedora \
               -p pki-rpminspect \
               build/RPMS/dogtag-pki-javadoc-$VERSION.*.rpm
@@ -128,6 +136,7 @@ jobs:
         if: always()
         run: |
           VERSION=$(cat VERSION)
+          docker exec pki rpm -qlp build/RPMS/dogtag-pki-kra-$VERSION.*.rpm
           docker exec pki rpminspect-fedora \
               -p pki-rpminspect \
               build/RPMS/dogtag-pki-kra-$VERSION.*.rpm
@@ -136,6 +145,7 @@ jobs:
         if: always()
         run: |
           VERSION=$(cat VERSION)
+          docker exec pki rpm -qlp build/RPMS/dogtag-pki-ocsp-$VERSION.*.rpm
           docker exec pki rpminspect-fedora \
               -p pki-rpminspect \
               build/RPMS/dogtag-pki-ocsp-$VERSION.*.rpm
@@ -144,6 +154,7 @@ jobs:
         if: always()
         run: |
           VERSION=$(cat VERSION)
+          docker exec pki rpm -qlp build/RPMS/dogtag-pki-server-$VERSION.*.rpm
           docker exec pki rpminspect-fedora \
               -p pki-rpminspect \
               build/RPMS/dogtag-pki-server-$VERSION.*.rpm
@@ -152,6 +163,7 @@ jobs:
         if: always()
         run: |
           VERSION=$(cat VERSION)
+          docker exec pki rpm -qlp build/RPMS/dogtag-pki-tests-$VERSION.*.rpm
           docker exec pki rpminspect-fedora \
               -p pki-rpminspect \
               build/RPMS/dogtag-pki-tests-$VERSION.*.rpm
@@ -160,6 +172,7 @@ jobs:
         if: always()
         run: |
           VERSION=$(cat VERSION)
+          docker exec pki rpm -qlp build/RPMS/dogtag-pki-theme-$VERSION.*.rpm
           docker exec pki rpminspect-fedora \
               -p pki-rpminspect \
               build/RPMS/dogtag-pki-theme-$VERSION.*.rpm
@@ -168,6 +181,7 @@ jobs:
         if: always()
         run: |
           VERSION=$(cat VERSION)
+          docker exec pki rpm -qlp build/RPMS/dogtag-pki-tks-$VERSION.*.rpm
           docker exec pki rpminspect-fedora \
               -p pki-rpminspect \
               build/RPMS/dogtag-pki-tks-$VERSION.*.rpm
@@ -176,6 +190,7 @@ jobs:
         if: always()
         run: |
           VERSION=$(cat VERSION)
+          docker exec pki rpm -qlp build/RPMS/dogtag-pki-tools-$VERSION.*.rpm
           docker exec pki rpminspect-fedora \
               -p pki-rpminspect \
               build/RPMS/dogtag-pki-tools-$VERSION.*.rpm
@@ -184,6 +199,7 @@ jobs:
         if: always()
         run: |
           VERSION=$(cat VERSION)
+          docker exec pki rpm -qlp build/RPMS/dogtag-pki-tools-debuginfo-$VERSION.*.rpm
           docker exec pki rpminspect-fedora \
               -p pki-rpminspect \
               build/RPMS/dogtag-pki-tools-debuginfo-$VERSION.*.rpm
@@ -192,6 +208,7 @@ jobs:
         if: always()
         run: |
           VERSION=$(cat VERSION)
+          docker exec pki rpm -qlp build/RPMS/dogtag-pki-tps-$VERSION.*.rpm
           docker exec pki rpminspect-fedora \
               -p pki-rpminspect \
               build/RPMS/dogtag-pki-tps-$VERSION.*.rpm
@@ -200,6 +217,7 @@ jobs:
         if: always()
         run: |
           VERSION=$(cat VERSION)
+          docker exec pki rpm -qlp build/RPMS/pki-debugsource-$VERSION.*.rpm
           docker exec pki rpminspect-fedora \
               -p pki-rpminspect \
               build/RPMS/pki-debugsource-$VERSION.*.rpm
@@ -208,6 +226,7 @@ jobs:
         if: always()
         run: |
           VERSION=$(cat VERSION)
+          docker exec pki rpm -qlp build/RPMS/python3-dogtag-pki-$VERSION.*.rpm
           docker exec pki rpminspect-fedora \
               -p pki-rpminspect \
               build/RPMS/python3-dogtag-pki-$VERSION.*.rpm
