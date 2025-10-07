@@ -156,6 +156,10 @@ public class UGSubsystem {
      * Retrieves a user from LDAP
      */
     public User getUser(String userID) throws EUsrGrpException {
+        return getUser(userID, null);
+    }
+
+    public User getUser(String userID, String[] attrNames) throws EUsrGrpException {
 
         if (userID == null) {
             return null;
@@ -171,6 +175,14 @@ public class UGSubsystem {
             userDN = userID;
         }
 
+        String[] attrs = null;
+        if (attrNames != null) {
+            // return all regular attributes plus the specified attributes
+            attrs = new String[attrNames.length + 1];
+            attrs[0] = "*";
+            System.arraycopy(attrNames, 0, attrs, 1, attrNames.length);
+        }
+
         LDAPConnection ldapconn = null;
 
         try {
@@ -182,7 +194,7 @@ public class UGSubsystem {
                     userDN,
                     LDAPv3.SCOPE_BASE,
                     "(objectclass=*)",
-                    null,
+                    attrs,
                     false);
 
             // throw EUsrGrpException if result is empty
@@ -491,18 +503,24 @@ public class UGSubsystem {
         String dn = entry.getDN();
         logger.info("UGSubsystem: User " + dn + ":");
 
-        LDAPAttribute uidAttr = entry.getAttribute("uid");
+        // process known attrs and remove them from the set
+        LDAPAttributeSet attrSet = entry.getAttributeSet();
+
+        LDAPAttribute uidAttr = attrSet.getAttribute("uid");
         if (uidAttr == null) {
             throw new EUsrGrpException("Missing UID attribute: " + entry.getDN());
         }
+        attrSet.remove("uid");
 
         String uid = uidAttr.getStringValues().nextElement();
         logger.info("UGSubsystem: - uid: " + uid);
 
         User user = createUser(uid);
+        user.setUserDN(dn);
 
-        LDAPAttribute cnAttr = entry.getAttribute("cn");
+        LDAPAttribute cnAttr = attrSet.getAttribute("cn");
         if (cnAttr != null) {
+            attrSet.remove("cn");
             String cn = cnAttr.getStringValues().nextElement();
 
             if (cn != null) {
@@ -510,8 +528,6 @@ public class UGSubsystem {
                 user.setFullName(cn);
             }
         }
-
-        user.setUserDN(dn);
 
         /*
          LDAPAttribute certdnAttr = entry.getAttribute(LDAP_ATTR_CERTDN);
@@ -522,9 +538,10 @@ public class UGSubsystem {
          }
          }
          */
-        LDAPAttribute mailAttr = entry.getAttribute("mail");
+        LDAPAttribute mailAttr = attrSet.getAttribute("mail");
 
         if (mailAttr != null) {
+            attrSet.remove("mail");
             Enumeration<String> en = mailAttr.getStringValues();
 
             if (en != null && en.hasMoreElements()) {
@@ -541,8 +558,9 @@ public class UGSubsystem {
             user.setEmail(""); // safety net
         }
 
-        LDAPAttribute pwdAttr = entry.getAttribute("userpassword");
+        LDAPAttribute pwdAttr = attrSet.getAttribute("userpassword");
         if (pwdAttr != null) {
+            attrSet.remove("userpassword");
             String pwd = pwdAttr.getStringValues().nextElement();
 
             if (pwd != null) {
@@ -551,8 +569,9 @@ public class UGSubsystem {
             }
         }
 
-        LDAPAttribute phoneAttr = entry.getAttribute("telephonenumber");
+        LDAPAttribute phoneAttr = attrSet.getAttribute("telephonenumber");
         if (phoneAttr != null) {
+            attrSet.remove("telephonenumber");
             Enumeration<String> en = phoneAttr.getStringValues();
 
             if (en != null && en.hasMoreElements()) {
@@ -569,11 +588,12 @@ public class UGSubsystem {
             user.setPhone(""); // safety net
         }
 
-        LDAPAttribute userTypeAttr = entry.getAttribute("usertype");
+        LDAPAttribute userTypeAttr = attrSet.getAttribute("usertype");
         if (userTypeAttr == null) {
             user.setUserType("");
 
         } else {
+            attrSet.remove("usertype");
             Enumeration<String> en = userTypeAttr.getStringValues();
 
             if (en != null && en.hasMoreElements()) {
@@ -588,10 +608,11 @@ public class UGSubsystem {
             }
         }
 
-        LDAPAttribute userStateAttr = entry.getAttribute("userstate");
+        LDAPAttribute userStateAttr = attrSet.getAttribute("userstate");
         if (userStateAttr == null) {
             user.setState("");
         } else {
+            attrSet.remove("userstate");
             Enumeration<String> en = userStateAttr.getStringValues();
 
             if (en != null && en.hasMoreElements()) {
@@ -606,8 +627,9 @@ public class UGSubsystem {
             }
         }
 
-        LDAPAttribute certAttr = entry.getAttribute(LDAP_ATTR_USER_CERT);
+        LDAPAttribute certAttr = attrSet.getAttribute(LDAP_ATTR_USER_CERT);
         if (certAttr != null) {
+            attrSet.remove(LDAP_ATTR_USER_CERT);
             Vector<X509Certificate> certVector = new Vector<>();
             Enumeration<byte[]> e = certAttr.getByteValues();
 
@@ -641,8 +663,9 @@ public class UGSubsystem {
             }
         }
 
-        LDAPAttribute profileAttr = entry.getAttribute(LDAP_ATTR_PROFILE_ID);
+        LDAPAttribute profileAttr = attrSet.getAttribute(LDAP_ATTR_PROFILE_ID);
         if (profileAttr != null) {
+            attrSet.remove(LDAP_ATTR_PROFILE_ID);
             Enumeration<String> profiles = profileAttr.getStringValues();
 
             List<String> tpsProfiles = new ArrayList<>();
@@ -654,6 +677,20 @@ public class UGSubsystem {
 
             user.setTpsProfiles(tpsProfiles);
         }
+
+        // convert remaining attrs into list
+        List<LDAPAttribute> attrs = new ArrayList<>();
+        for (Enumeration<LDAPAttribute> e = attrSet.getAttributes(); e.hasMoreElements(); ) {
+            LDAPAttribute attr = e.nextElement();
+            String name = attr.getName();
+            for (String value : attr.getStringValueArray()) {
+                logger.info("UGSubsystem: - " + name + ": " + value);
+            }
+            attrs.add(attr);
+        }
+
+        // store remaining attrs
+        user.setAttributes(attrs);
 
         return user;
     }
@@ -1129,8 +1166,7 @@ public class UGSubsystem {
     /**
      * modifies user attributes. Certs are handled separately
      */
-    public void modifyUser(User identity) throws EUsrGrpException {
-        User user = identity;
+    public void modifyUser(User user) throws EUsrGrpException {
         String st = null;
 
         /**
@@ -1146,17 +1182,17 @@ public class UGSubsystem {
 
         try {
             ldapconn = getConn();
+
             if ((st = user.getFullName()) != null) {
-                attrs.add(LDAPModification.REPLACE,
-                        new LDAPAttribute("sn", st));
-                attrs.add(LDAPModification.REPLACE,
-                        new LDAPAttribute("cn", st));
+                attrs.add(LDAPModification.REPLACE, new LDAPAttribute("sn", st));
+                attrs.add(LDAPModification.REPLACE, new LDAPAttribute("cn", st));
             }
+
             if ((st = user.getEmail()) != null) {
                 LDAPAttribute ld = new LDAPAttribute("mail", st);
-
                 attrs.add(LDAPModification.REPLACE, ld);
             }
+
             if ((st = user.getPassword()) != null) {
                 if (st.equals("")) {
                     attrs.add(LDAPModification.DELETE, new LDAPAttribute("userPassword"));
@@ -1164,10 +1200,10 @@ public class UGSubsystem {
                     attrs.add(LDAPModification.REPLACE, new LDAPAttribute("userPassword", st));
                 }
             }
+
             if ((st = user.getPhone()) != null) {
                 if (!st.equals("")) {
-                    attrs.add(LDAPModification.REPLACE,
-                            new LDAPAttribute("telephonenumber", st));
+                    attrs.add(LDAPModification.REPLACE, new LDAPAttribute("telephonenumber", st));
                 } else {
                     try {
                         LDAPModification singleChange = new LDAPModification(
@@ -1185,8 +1221,7 @@ public class UGSubsystem {
 
             if ((st = user.getState()) != null) {
                 if (!st.equals("")) {
-                    attrs.add(LDAPModification.REPLACE,
-                            new LDAPAttribute("userstate", st));
+                    attrs.add(LDAPModification.REPLACE, new LDAPAttribute("userstate", st));
                 } else {
                     try {
                         LDAPModification singleChange = new LDAPModification(
@@ -1217,6 +1252,24 @@ public class UGSubsystem {
                     attr.addValue(profile);
                 }
                 attrs.add(LDAPModification.REPLACE, attr);
+            }
+
+            List<LDAPAttribute> ldapAttrs = user.getAttributes();
+            if (ldapAttrs != null) {
+                for (LDAPAttribute ldapAttr : ldapAttrs) {
+                    String name = ldapAttr.getName();
+                    String[] values = ldapAttr.getStringValueArray();
+
+                    if (values == null
+                            || values.length == 0
+                            || values.length == 1 && "".equals(values[0])) {
+                        // if the value is missing or blank, remove the attribute
+                        attrs.add(LDAPModification.DELETE, new LDAPAttribute(name));
+                    } else {
+                        // otherwise, replace the attribute
+                        attrs.add(LDAPModification.REPLACE, ldapAttr);
+                    }
+                }
             }
 
             /**

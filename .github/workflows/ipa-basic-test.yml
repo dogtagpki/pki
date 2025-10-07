@@ -168,27 +168,95 @@ jobs:
         run: |
           docker exec ipa pki-server ca-user-find
 
-          # check CA subsystem user
+      - name: Check CA subsystem user
+        run: |
           docker exec ipa pki-server ca-user-show CA-ipa.example.com-8443
           docker exec ipa pki-server ca-user-cert-find CA-ipa.example.com-8443
           docker exec ipa pki-server ca-user-role-find CA-ipa.example.com-8443
 
-          # check CA admin user
+      - name: Check CA admin user
+        run: |
           docker exec ipa pki-server ca-user-show admin
           docker exec ipa pki-server ca-user-cert-find admin
           docker exec ipa pki-server ca-user-role-find admin
 
-          # check PKI database user
-          docker exec ipa pki-server ca-user-show pkidbuser
+      - name: Check PKI database user
+        run: |
+          docker exec ipa pki-server ca-user-show \
+              --attr nsPagedSizeLimit \
+              --attr nsPagedLookThroughLimit \
+              pkidbuser \
+              | tee output
+
+          # by default nsPagedSizeLimit should be -1
+          # and nsPagedLookThroughLimit should not exist
+          cat > expected << EOF
+            User ID: pkidbuser
+            Full Name: pkidbuser
+            Type: agentType
+            State: 1
+            nsPagedSizeLimit: -1
+          EOF
+
+          diff expected output
+
+          # update nsPagedSizeLimit and nsPagedLookThroughLimit
+          docker exec ipa pki-server ca-user-mod \
+              --attr nsPagedSizeLimit=10000 \
+              --attr nsPagedLookThroughLimit=20000 \
+              pkidbuser
+
+          docker exec ipa pki-server ca-user-show \
+              --attr nsPagedSizeLimit \
+              --attr nsPagedLookThroughLimit \
+              pkidbuser \
+              | tee output
+
+          # nsPagedSizeLimit and nsPagedLookThroughLimit should be updated
+          cat > expected << EOF
+            User ID: pkidbuser
+            Full Name: pkidbuser
+            Type: agentType
+            State: 1
+            nsPagedSizeLimit: 10000
+            nsPagedLookThroughLimit: 20000
+          EOF
+
+          diff expected output
+
+          # remove nsPagedSizeLimit and nsPagedLookThroughLimit
+          docker exec ipa pki-server ca-user-mod \
+              --attr nsPagedSizeLimit= \
+              --attr nsPagedLookThroughLimit= \
+              pkidbuser
+
+          docker exec ipa pki-server ca-user-show \
+              --attr nsPagedSizeLimit \
+              --attr nsPagedLookThroughLimit \
+              pkidbuser \
+              | tee output
+
+          # nsPagedSizeLimit and nsPagedLookThroughLimit should be removed
+          cat > expected << EOF
+            User ID: pkidbuser
+            Full Name: pkidbuser
+            Type: agentType
+            State: 1
+          EOF
+
+          diff expected output
+
           docker exec ipa pki-server ca-user-cert-find pkidbuser
           docker exec ipa pki-server ca-user-role-find pkidbuser
 
-          # check IPA RA user
+      - name: Check IPA RA user
+        run: |
           docker exec ipa pki-server ca-user-show ipara
           docker exec ipa pki-server ca-user-cert-find ipara
           docker exec ipa pki-server ca-user-role-find ipara
 
-          # check ACME subsystem user
+      - name: Check ACME subsystem user
+        run: |
           docker exec ipa pki-server ca-user-show acme-ipa.example.com
           docker exec ipa pki-server ca-user-cert-find acme-ipa.example.com
           docker exec ipa pki-server ca-user-role-find acme-ipa.example.com

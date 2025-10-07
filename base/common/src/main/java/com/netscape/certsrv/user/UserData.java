@@ -50,6 +50,15 @@ public class UserData implements JSONSerializer {
 
     Map<String, String> attributes = new LinkedHashMap<>();
 
+    public Map<String, String> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(Map<String, String> attributes) {
+        this.attributes.clear();
+        this.attributes.putAll(attributes);
+    }
+
     public String getAttribute(String name) {
         return attributes.get(name);
     }

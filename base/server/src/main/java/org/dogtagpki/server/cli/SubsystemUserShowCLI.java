@@ -5,10 +5,14 @@
 //
 package org.dogtagpki.server.cli;
 
+import java.util.Map;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.cli.CLI;
+import org.dogtagpki.util.logging.PKILogger;
+import org.dogtagpki.util.logging.PKILogger.LogLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +28,8 @@ import com.netscape.cmscore.usrgrp.User;
 import com.netscape.cmsutil.password.PasswordStore;
 import com.netscape.cmsutil.password.PasswordStoreConfig;
 
+import netscape.ldap.LDAPAttribute;
+
 /**
  * @author Endi S. Dewata
  */
@@ -33,6 +39,14 @@ public class SubsystemUserShowCLI extends SubsystemCLI {
 
     public SubsystemUserShowCLI(CLI parent) {
         super("show", "Display " + parent.getParent().getName().toUpperCase() + " user", parent);
+
+        Option option = new Option(null, "attr", true, "Show attribute.");
+        option.setArgName("name");
+        options.addOption(option);
+
+        options.addOption("v", "verbose", false, "Run in verbose mode.");
+        options.addOption(null, "debug", false, "Run in debug mode.");
+        options.addOption(null, "help", false, "Show help message.");
     }
 
     @Override
@@ -45,6 +59,13 @@ public class SubsystemUserShowCLI extends SubsystemCLI {
 
     @Override
     public void execute(CommandLine cmd) throws Exception {
+
+        if (cmd.hasOption("debug")) {
+            PKILogger.setLevel(PKILogger.LogLevel.DEBUG);
+
+        } else if (cmd.hasOption("verbose")) {
+            PKILogger.setLevel(LogLevel.INFO);
+        }
 
         String[] cmdArgs = cmd.getArgs();
 
@@ -74,9 +95,11 @@ public class SubsystemUserShowCLI extends SubsystemCLI {
 
         UserData userData = new UserData();
 
+        String[] attrNames = cmd.getOptionValues("attr");
+
         try {
             ugSubsystem.init(ldapConfig, socketConfig, passwordStore);
-            User user = ugSubsystem.getUser(userID);
+            User user = ugSubsystem.getUser(userID, attrNames);
 
             if (user == null) {
                 throw new UserNotFoundException(userID);
@@ -99,6 +122,12 @@ public class SubsystemUserShowCLI extends SubsystemCLI {
 
             String state = user.getState();
             if (!StringUtils.isEmpty(state)) userData.setState(state);
+
+            for (LDAPAttribute ldapAttr : user.getAttributes()) {
+                String name = ldapAttr.getName();
+                String value = ldapAttr.getStringValueArray()[0];
+                userData.setAttribute(name, value);
+            }
 
         } finally {
             ugSubsystem.shutdown();
@@ -134,6 +163,12 @@ public class SubsystemUserShowCLI extends SubsystemCLI {
             String state = userData.getState();
             if (!StringUtils.isEmpty(state)) {
                 System.out.println("  State: " + state);
+            }
+
+            Map<String, String> attributes = userData.getAttributes();
+            for (String name : attributes.keySet()) {
+                String value = attributes.get(name);
+                System.out.println("  " + name + ": " + value);
             }
 
         } else {

@@ -303,6 +303,9 @@ class UserModifyCLI(pki.cli.CLI):
             default='pki-tomcat')
         self.parser.add_argument('--password')
         self.parser.add_argument('--password-file')
+        self.parser.add_argument(
+            '--attr',
+            action='append')
         self.parser.add_argument('--add-see-also')
         self.parser.add_argument('--del-see-also')
         self.parser.add_argument(
@@ -325,6 +328,7 @@ class UserModifyCLI(pki.cli.CLI):
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
         print('      --password <password>          User password')
         print('      --password-file <path>         User password file')
+        print('      --attr <name>=<value>          Update attribute.')
         print('      --add-see-also <subject DN>    Link user to a certificate.')
         print('      --del-see-also <subject DN>    Unlink user from a certificate.')
         print('  -v, --verbose                      Run in verbose mode.')
@@ -351,8 +355,19 @@ class UserModifyCLI(pki.cli.CLI):
         subsystem_name = self.parent.parent.name
         password = args.password
         password_file = args.password_file
+
+        attrs = {}
+        if args.attr:
+            for attr in args.attr:
+                # parse <name>=<value>
+                parts = attr.split('=', 1)
+                name = parts[0]
+                value = parts[1]
+                attrs[name] = value
+
         add_see_also = args.add_see_also
         del_see_also = args.del_see_also
+
         user_id = args.user_id
 
         if user_id is None:
@@ -376,6 +391,7 @@ class UserModifyCLI(pki.cli.CLI):
             user_id,
             password=password,
             password_file=password_file,
+            attrs=attrs,
             add_see_also=add_see_also,
             del_see_also=del_see_also)
 
@@ -485,6 +501,9 @@ class UserShowCLI(pki.cli.CLI):
             '--instance',
             default='pki-tomcat')
         self.parser.add_argument(
+            '--attr',
+            action='append')
+        self.parser.add_argument(
             '-v',
             '--verbose',
             action='store_true')
@@ -502,6 +521,7 @@ class UserShowCLI(pki.cli.CLI):
         print('Usage: pki-server %s-user-show [OPTIONS] <user ID>' % self.parent.parent.name)
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('      --attr <name>                  Show attribute.')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -543,7 +563,7 @@ class UserShowCLI(pki.cli.CLI):
                          subsystem_name.upper(), instance_name)
             sys.exit(1)
 
-        user = subsystem.get_user(user_id)
+        user = subsystem.get_user(user_id, attrs=args.attr)
 
         print('  User ID: {}'.format(user['id']))
 
@@ -566,6 +586,14 @@ class UserShowCLI(pki.cli.CLI):
         state = user.get('state')
         if state:
             print('  State: {}'.format(state))
+
+        attrs = user.get('attributes')
+
+        if args.attr:
+            for name in args.attr:
+                value = attrs.get(name)
+                if value:
+                    print('  {}: {}'.format(name, value))
 
 
 class UserCertCLI(pki.cli.CLI):
