@@ -1973,12 +1973,24 @@ class PKISubsystem(object):
 
         return json.loads(result.stdout.decode())
 
-    def get_user(self, user_id, as_current_user=False):
+    def get_user(
+            self,
+            user_id,
+            attrs=None,
+            as_current_user=False):
 
         cmd = [self.name + '-user-show']
 
+        if attrs:
+            for name in attrs:
+                cmd.append('--attr')
+                cmd.append(name)
+
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
 
         cmd.append('--output-format')
         cmd.append('json')
@@ -2078,6 +2090,7 @@ class PKISubsystem(object):
             user_id,
             password=None,
             password_file=None,
+            attrs=None,
             add_see_also=None,
             del_see_also=None,
             as_current_user=False):
@@ -2089,6 +2102,12 @@ class PKISubsystem(object):
 
         if password_file is not None:
             cmd.extend(['--password-file', password_file])
+
+        if attrs:
+            for name in attrs:
+                value = attrs[name]
+                cmd.append('--attr')
+                cmd.append('{}={}'.format(name, value))
 
         if add_see_also:
             cmd.append('--add-see-also')

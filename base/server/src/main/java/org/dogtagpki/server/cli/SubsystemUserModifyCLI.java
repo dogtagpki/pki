@@ -7,6 +7,8 @@ package org.dogtagpki.server.cli;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -24,6 +26,8 @@ import com.netscape.cmscore.usrgrp.UGSubsystemConfig;
 import com.netscape.cmscore.usrgrp.User;
 import com.netscape.cmsutil.password.PasswordStore;
 import com.netscape.cmsutil.password.PasswordStoreConfig;
+
+import netscape.ldap.LDAPAttribute;
 
 /**
  * @author Endi S. Dewata
@@ -45,6 +49,10 @@ public class SubsystemUserModifyCLI extends SubsystemCLI {
 
         option = new Option(null, "password-file", true, "User password file");
         option.setArgName("password-file");
+        options.addOption(option);
+
+        option = new Option(null, "attr", true, "Update attribute.");
+        option.setArgName("name=value");
         options.addOption(option);
 
         option = new Option(null, "add-see-also", true, "Link user to a certificate.");
@@ -92,6 +100,8 @@ public class SubsystemUserModifyCLI extends SubsystemCLI {
             }
         }
 
+        String[] attrNameValuePairs = cmd.getOptionValues("attr");
+
         String addSeeAlso = cmd.getOptionValue("add-see-also");
         String delSeeAlso = cmd.getOptionValue("del-see-also");
 
@@ -105,6 +115,20 @@ public class SubsystemUserModifyCLI extends SubsystemCLI {
 
             if (password != null) {
                 user.setPassword(password);
+            }
+
+            if (attrNameValuePairs != null) {
+                // store attributes to be changed in the user object
+                List<LDAPAttribute> ldapAttrs = new ArrayList<>();
+                for (String attrValuePair : attrNameValuePairs) {
+                    String[] parts = attrValuePair.split("=", 2);
+                    LDAPAttribute ldapAttr = new LDAPAttribute(parts[0], parts[1]);
+                    ldapAttrs.add(ldapAttr);
+                }
+                user.setAttributes(ldapAttrs);
+            }
+
+            if (password != null || attrNameValuePairs != null) {
                 ugSubsystem.modifyUser(user);
             }
 

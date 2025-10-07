@@ -1,0 +1,14 @@
+= Server Changes =
+
+== Change nsPagedSizeLimit default value ==
+
+The default value for `nsPagedSizeLimit` has been changed to `-1` to avoid
+issues while cloning a CA or KRA that uses sequential serial numbers and
+the CA or KRA is configured to access the database using an LDAP user.
+
+Existing CA or KRA instances will need to be updated manually.
+
+See also:
+
+* link:https://github.com/dogtagpki/pki/issues/5133[PKI Issue #5133]
+* link:../../upgrade/v11.9/Upgrading-PKI-Database.adoc[Upgrading PKI 11.9 Database]

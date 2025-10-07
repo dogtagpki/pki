@@ -4180,7 +4180,7 @@ class PKIDeployer:
             user_type='agentType',
             state='1',
             attributes={
-                'nsPagedSizeLimit': '20000'
+                'nsPagedSizeLimit': '-1'
             },
             ignore_duplicate=True)
 

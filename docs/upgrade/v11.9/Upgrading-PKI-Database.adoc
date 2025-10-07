@@ -1,0 +1,22 @@
+= Overview =
+
+This page describes the process to upgrade an older PKI database into a PKI 11.9 database.
+
+== Updating nsPagedSizeLimit ==
+
+If the existing CA or KRA is configured to use Sequential Serial Numbers
+and it's also configured to use an LDAP user (e.g. `pkidbuser`) to access
+the database, update the `nsPagedSizeLimit` with the following command:
+
+----
+$ pki-server ca-user-mod \
+    --attr nsPagedSizeLimit=-1 \
+    pkidbuser
+----
+
+The change will be replicated automatically to other replicas.
+
+See also:
+
+* link:https://github.com/dogtagpki/pki/issues/5133[PKI Issue #5133]
+* link:../../changes/v11.9.0/Server-Changes.adoc[PKI 11.9.0 Server Changes]

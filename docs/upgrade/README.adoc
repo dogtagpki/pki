@@ -34,6 +34,7 @@ Currently the upgrade process has to be done manually:
 * link:v10.7/Upgrading_PKI_Database.adoc[Upgrading PKI 10.7 Database]
 * link:v10.8/Upgrading_PKI_Database.adoc[Upgrading PKI 10.8 Database]
 * link:v10.9/Upgrading_PKI_Database.adoc[Upgrading PKI 10.9 Database]
+* link:v11.9/Upgrading-PKI-Database.adoc[Upgrading PKI 11.9 Database]
 
 = Restarting PKI Server =
 
