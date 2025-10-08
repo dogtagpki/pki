@@ -650,7 +650,7 @@ class AuditEventUpdateCLI(pki.cli.CLI):
             logging.getLogger().setLevel(logging.INFO)
 
         instance_name = args.instance
-        event_filter = args.event_filter
+        event_filter = args.filter
         event_name = args.event_name
 
         if event_name is None:
