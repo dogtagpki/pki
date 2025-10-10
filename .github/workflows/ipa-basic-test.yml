@@ -183,10 +183,21 @@ jobs:
       - name: Check PKI database user
         run: |
           docker exec ipa pki-server ca-user-show \
-              --attr nsPagedSizeLimit \
-              --attr nsPagedLookThroughLimit \
+              --attr + \
               pkidbuser \
               | tee output
+
+          # normalize output
+          sed -i \
+              -e "s/^\(  createTimestamp: \).*/\1\*\*\*\*\*/" \
+              -e "s/^\(  modifyTimestamp: \).*/\1\*\*\*\*\*/" \
+              -e "s/^\(  nsUniqueId: \).*/\1\*\*\*\*\*/" \
+              -e "s/^\(  parentid: \).*/\1\*\*\*\*\*/" \
+              -e "s/^\(  entryid: \).*/\1\*\*\*\*\*/" \
+              -e "s/^\(  entryUUID: \).*/\1\*\*\*\*\*/" \
+              -e "s/^\(  entryusn: \).*/\1\*\*\*\*\*/" \
+              -e "s/^\(  description: .*;\).*\(;.*;.*\)/\1\*\*\*\*\*\2/" \
+              output
 
           # by default nsPagedSizeLimit should be -1
           # and nsPagedLookThroughLimit should not exist
@@ -195,7 +206,22 @@ jobs:
             Full Name: pkidbuser
             Type: agentType
             State: 1
+            objectClass: top
+            sn: pkidbuser
             nsPagedSizeLimit: -1
+            creatorsName: cn=directory manager
+            modifiersName: cn=directory manager
+            createTimestamp: *****
+            modifyTimestamp: *****
+            nsUniqueId: *****
+            parentid: *****
+            entryid: *****
+            entryUUID: *****
+            entryusn: *****
+            description: 2;*****;CN=Certificate Authority,O=EXAMPLE.COM;CN=CA Subsystem,O=EXAMPLE.COM
+            seeAlso: CN=CA Subsystem,O=EXAMPLE.COM
+            dsEntryDN: uid=pkidbuser,ou=People,o=ipaca
+            entrydn: uid=pkidbuser,ou=people,o=ipaca
           EOF
 
           diff expected output

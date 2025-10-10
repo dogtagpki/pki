@@ -590,7 +590,12 @@ class UserShowCLI(pki.cli.CLI):
         attrs = user.get('attributes')
 
         if args.attr:
-            for name in args.attr:
+            # if + is specified, display all non-empty atributes
+            # otherwise, display the specified non-empty attributes only
+            if '+' not in args.attr:
+                attrs = {k: v for k, v in attrs.items() if k in args.attr and v}
+
+            for name in attrs:
                 value = attrs.get(name)
                 if value:
                     print('  {}: {}'.format(name, value))
