@@ -694,6 +694,46 @@ jobs:
       - name: Run PKI healthcheck in secondary container
         run: docker exec secondary pki-healthcheck --failures-only
 
+      - name: Check PKI database user in primary CA
+        run: |
+          docker exec primary pki-server ca-user-show \
+              --attr nsPagedSizeLimit \
+              --attr nsPagedLookThroughLimit \
+              pkidbuser \
+              | tee output
+
+          cat > expected << EOF
+            User ID: pkidbuser
+            Full Name: pkidbuser
+            Type: agentType
+            State: 1
+            nsPagedSizeLimit: -1
+          EOF
+
+          diff expected output
+
+          docker exec primary pki-server ca-user-cert-find pkidbuser
+
+      - name: Check PKI database user in secondary CA
+        run: |
+          docker exec secondary pki-server ca-user-show \
+              --attr nsPagedSizeLimit \
+              --attr nsPagedLookThroughLimit \
+              pkidbuser \
+              | tee output
+
+          cat > expected << EOF
+            User ID: pkidbuser
+            Full Name: pkidbuser
+            Type: agentType
+            State: 1
+            nsPagedSizeLimit: -1
+          EOF
+
+          diff expected output
+
+          docker exec secondary pki-server ca-user-cert-find pkidbuser
+
       - name: Verify CA admin
         run: |
           docker exec primary cp /root/ca-agent.p12 ${SHARED}/ca-agent.p12
