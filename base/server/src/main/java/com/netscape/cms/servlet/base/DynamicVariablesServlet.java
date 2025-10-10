@@ -23,12 +23,12 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.authentication.AuthManager;
 
@@ -131,7 +131,7 @@ public class DynamicVariablesServlet extends CMSServlet {
      * configuration parameter 'cloning.cloneMasterCrlUrl'
      * </ul>
      *
-     * @see javax.servlet.Servlet#init(ServletConfig)
+     * @see jakarta.servlet.Servlet#init(ServletConfig)
      */
 
     @Override

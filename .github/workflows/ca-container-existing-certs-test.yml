@@ -173,7 +173,7 @@ jobs:
           # wait for CA to start
           docker exec client curl \
               --retry 180 \
-              --retry-delay 0 \
+              --retry-delay 1 \
               --retry-connrefused \
               -s \
               -k \
@@ -408,7 +408,7 @@ jobs:
           # wait for CA to restart
           docker exec client curl \
               --retry 180 \
-              --retry-delay 0 \
+              --retry-delay 1 \
               --retry-connrefused \
               -s \
               -k \

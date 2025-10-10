@@ -16,7 +16,7 @@ javac(pki-ocsp-classes
         ${JAXRS_API_JAR}
         ${JSS_JAR}
         ${JSS_TOMCAT_JAR}
-        ${JSS_TOMCAT_9_0_JAR}
+        ${JSS_TOMCAT_10_1_JAR}
         ${LDAPJDK_JAR}
         ${PKI_COMMON_JAR}
         ${PKI_SERVER_JAR}

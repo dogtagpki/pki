@@ -19,7 +19,7 @@ package com.netscape.cms.servlet.profile;
 
 import java.security.cert.X509Certificate;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.netscape.certsrv.authentication.ISSLClientCertProvider;
 
@@ -33,7 +33,7 @@ public class SSLClientCertProvider implements ISSLClientCertProvider {
     @Override
     public X509Certificate[] getClientCertificateChain() {
         X509Certificate[] allCerts = (X509Certificate[])
-                mRequest.getAttribute("javax.servlet.request.X509Certificate");
+                mRequest.getAttribute("jakarta.servlet.request.X509Certificate");
 
         return allCerts;
     }
