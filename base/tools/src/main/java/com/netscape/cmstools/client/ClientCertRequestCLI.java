@@ -30,6 +30,7 @@ import java.util.Vector;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.ca.CASystemCertClient;
+import org.dogtagpki.cli.CLIException;
 import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.common.CAInfoClient;
 import org.dogtagpki.nss.NSSDatabase;
@@ -46,6 +47,7 @@ import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.pkix.primitive.Name;
+import org.mozilla.jss.crypto.TokenException;
 
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CACertClient;
@@ -246,7 +248,6 @@ public class ClientCertRequestCLI extends CommandCLI {
 
         MainCLI mainCLI = (MainCLI) getRoot();
         NSSDatabase nssdb = mainCLI.getNSSDatabase();
-
         mainCLI.init();
         PKIClient client = getClient();
 
@@ -254,23 +255,34 @@ public class ClientCertRequestCLI extends CommandCLI {
         CryptoToken token = manager.getThreadToken();
 
         KeyPair keyPair;
-
+        // Handle any exceptions that may happen such as when nssdb password is missing when RSA/ECC keypair created
         if ("rsa".equals(algorithm)) {
 
-            keyPair = nssdb.createRSAKeyPair(
-                    token,
-                    length,
-                    wrap);
+            try {
+                keyPair = nssdb.createRSAKeyPair(
+                        token,
+                        length,
+                        wrap);
+            } catch (TokenException e) {
+                // Convert the exception into a CLIException
+                // with message describing the failing operation
+                // append the original exception message (from NSS) to the message
+		         throw new CLIException("Unable to create RSA key pair: "+ e.getMessage());
+            }
 
         } else if ("ec".equals(algorithm)) {
 
-            keyPair = nssdb.createECKeyPair(
-                    token,
-                    curve,
-                    sslECDH,
-                    temporary,
-                    sensitive,
-                    extractable);
+            try {
+                keyPair = nssdb.createECKeyPair(
+                        token,
+                        curve,
+                        sslECDH,
+                        temporary,
+                        sensitive,
+                        extractable);
+            } catch (TokenException e) {
+                throw new CLIException("Unable to create ECC key pair: "+ e.getMessage());
+            }
 
         } else {
             throw new Exception("Unknown algorithm: " + algorithm);
