@@ -52,6 +52,7 @@ jobs:
               -f /usr/share/pki/server/examples/installation/ca.cfg \
               -s CA \
               -D pki_ds_url=ldap://cads.example.com:3389 \
+              -D pki_security_domain_setup=False \
               -v
 
       - name: Initialize PKI client
@@ -68,54 +69,6 @@ jobs:
               --password Secret.123
 
           docker exec ca pki info
-
-      - name: Create EST server certificates in p12
-        run: |
-          docker exec ca pki nss-cert-request --csr estSSLServer.csr \
-              --ext /usr/share/pki/server/certs/sslserver.conf --subject 'CN=est.example.com'
-
-          docker exec ca pki \
-              -n caadmin \
-              ca-cert-issue \
-              --csr-file estSSLServer.csr \
-              --profile caServerCert \
-              --output-file estSSLServer.crt
-
-          docker exec ca pki nss-cert-import --cert estSSLServer.crt sslserver
-
-          docker exec ca pki pkcs12-cert-import sslserver --pkcs12-file $SHARED/est_server.p12 --pkcs12-password Secret.123
-
-      - name: Add CA EST user
-        run: |
-          docker exec ca pki -n caadmin ca-group-add "EST RA Agents"
-          docker exec ca pki -n caadmin ca-user-add \
-              est-ra-1 --fullName "EST RA 1" --password Secret.est
-          docker exec ca pki -n caadmin ca-group-member-add "EST RA Agents" est-ra-1
-
-      - name: Create EST subsystem cert for the user end store into the same p12
-        run: |
-          docker exec ca pki nss-cert-request --csr estUser.csr \
-              --ext /usr/share/pki/server/certs/admin.conf --subject 'CN=EST Subsystem Certificate,OU=pki-tomcat,O=EXAMPLE'
-
-          docker exec ca pki \
-              -n caadmin \
-              ca-cert-issue \
-              --csr-file estUser.csr \
-              --profile caSubsystemCert \
-              --output-file estUser.crt
-
-          docker exec ca pki nss-cert-import --cert estUser.crt "EST subsystem cert"
-
-          docker exec ca pki -n caadmin ca-user-cert-add est-ra-1 --input estUser.crt
-
-          docker exec ca pki pkcs12-cert-import "EST subsystem cert" --pkcs12-file $SHARED/est_server.p12 --pkcs12-password Secret.123 --append
-
-      - name: Configure CA est profile
-        run: |
-          docker exec ca pki -n caadmin ca-profile-add \
-              --raw /usr/share/pki/ca/profiles/ca/estServiceCert.cfg
-          docker exec ca pki -n caadmin ca-profile-enable estServiceCert
-          docker exec ca pki-server restart --wait
 
       - name: Set up EST DS container
         run: |
@@ -141,17 +94,62 @@ jobs:
               -D "cn=Directory Manager"  -w Secret.123 \
               -f /usr/share/pki/est/conf/realm/ds/create.ldif
 
-      - name: Install EST
+      - name: Install EST (step 1)
         run: |
           docker exec est pkispawn \
-              -f /usr/share/pki/server/examples/installation/est.cfg \
+              -f /usr/share/pki/server/examples/installation/est-standalone.cfg \
               -s EST \
               -D est_realm_url=ldap://estds.example.com:3389 \
               -D pki_ca_uri=https://ca.example.com:8443 \
               -D est_ca_user_password= \
-              -D est_ca_user_certificate="EST subsystem cert" \
-              -D pki_server_pkcs12_path=$SHARED/est_server.p12 \
-              -D pki_server_pkcs12_password=Secret.123 \
+              -D pki_cert_chain_nickname=ca_signing \
+              -D pki_subsystem_csr_path=${SHARED}/subsystem.csr \
+              -D pki_sslserver_csr_path=${SHARED}/sslserver.csr \
+              -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
+              -D pki_external_step_two=False \
+              -v
+
+      - name: Issue subsystem cert
+        run: |
+          docker exec ca openssl req -text -noout -in ${SHARED}/subsystem.csr
+          docker exec ca pki \
+              -n caadmin \
+              ca-cert-issue \
+              --profile caSubsystemCert \
+              --csr-file ${SHARED}/subsystem.csr \
+              --output-file ${SHARED}/subsystem.crt
+          docker exec ca openssl x509 -text -noout -in ${SHARED}/subsystem.crt
+
+      - name: Issue SSL server cert
+        run: |
+          docker exec ca openssl req -text -noout -in ${SHARED}/sslserver.csr
+          docker exec ca pki \
+              -n caadmin \
+              ca-cert-issue \
+              --profile caServerCert \
+              --csr-file ${SHARED}/sslserver.csr \
+              --output-file ${SHARED}/sslserver.crt
+          docker exec ca openssl x509 -text -noout -in ${SHARED}/sslserver.crt
+
+      - name: Stop CA
+        run: |
+          docker exec ca pki-server stop --wait
+
+      - name: Install EST (step 2)
+        run: |
+          docker exec est pkispawn \
+              -f /usr/share/pki/server/examples/installation/est-standalone.cfg \
+              -s EST \
+              -D est_realm_url=ldap://estds.example.com:3389 \
+              -D pki_ca_uri=https://ca.example.com:8443 \
+              -D est_ca_user_password= \
+              -D pki_cert_chain_nickname=ca_signing \
+              -D pki_subsystem_csr_path=${SHARED}/subsystem.csr \
+              -D pki_subsystem_cert_path=${SHARED}/subsystem.crt \
+              -D pki_sslserver_csr_path=${SHARED}/sslserver.csr \
+              -D pki_sslserver_cert_path=${SHARED}/sslserver.crt \
+              -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
+              -D pki_external_step_two=True \
               -v
 
       - name: Check EST server base dir after installation
@@ -251,6 +249,28 @@ jobs:
           EOF
 
           diff expected output
+
+      - name: Start CA
+        run: |
+          docker exec ca pki-server start --wait
+
+      - name: Add EST subsystem user in CA
+        run: |
+          # create EST subsystem user in CA
+          docker exec ca pki \
+              -n caadmin \
+              ca-user-add \
+              --full-name "EST-est.example.com-8443" \
+              --type agentType \
+              --cert-file $SHARED/subsystem.crt \
+              EST-est.example.com-8443
+
+          # allow EST to create certificates
+          docker exec ca pki \
+              -n caadmin \
+              ca-user-membership-add \
+              EST-est.example.com-8443 \
+              "Certificate Manager Agents"
 
       - name: Test CA certs
         run: |
