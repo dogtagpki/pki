@@ -67,6 +67,11 @@ SCHEMA_FILES = [
 
 DEFAULT_INSTANCE_NAME = 'pki-tomcat'
 
+DEFAULT_TOMCAT_PORT = 8005
+DEFAULT_TOMCAT_HTTP_PORT = 8080
+DEFAULT_TOMCAT_HTTPS_PORT = 8443
+DEFAULT_TOMCAT_AJP_PORT = 8009
+
 logger = logging.getLogger(__name__)
 
 parser = etree.XMLParser(remove_blank_text=True)

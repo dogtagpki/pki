@@ -520,19 +520,22 @@ class ConfigurationFile:
                         "pki_ocsp_signing_cert_path")
 
     def populate_non_default_ports(self):
-        if (self.mdict['pki_http_port'] !=
-                str(config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_HTTP_PORT)):
-            ports.append(self.mdict['pki_http_port'])
-        if (self.mdict['pki_https_port'] !=
-                str(config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_HTTPS_PORT)):
-            ports.append(self.mdict['pki_https_port'])
-        if (self.mdict['pki_tomcat_server_port'] !=
-                str(config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_SERVER_PORT)):
-            ports.append(self.mdict['pki_tomcat_server_port'])
-        if (self.mdict['pki_ajp_port'] !=
-                str(config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_AJP_PORT)):
-            ports.append(self.mdict['pki_ajp_port'])
-        return
+
+        tomcat_port = self.mdict['pki_tomcat_server_port']
+        if tomcat_port != str(pki.server.DEFAULT_TOMCAT_PORT):
+            ports.append(tomcat_port)
+
+        http_port = self.mdict['pki_http_port']
+        if http_port != str(pki.server.DEFAULT_TOMCAT_HTTP_PORT):
+            ports.append(http_port)
+
+        https_port = self.mdict['pki_https_port']
+        if https_port != str(pki.server.DEFAULT_TOMCAT_HTTPS_PORT):
+            ports.append(https_port)
+
+        ajp_port = self.mdict['pki_ajp_port']
+        if ajp_port != str(pki.server.DEFAULT_TOMCAT_AJP_PORT):
+            ports.append(ajp_port)
 
     def verify_selinux_ports(self):
         # Determine which ports still need to be labelled, and if any are
