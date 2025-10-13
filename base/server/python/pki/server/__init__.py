@@ -1,6 +1,7 @@
 # Authors:
 #     Endi S. Dewata <edewata@redhat.com>
 #     Dinesh Prasanth M K <dmoluguw@redhat.com>
+#     Marco Fargetta <mfargett@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -66,6 +67,8 @@ if selinux.is_selinux_enabled():
 SYSCONFIG_DIR = '/etc/sysconfig'
 ETC_SYSTEMD_DIR = '/etc/systemd'
 LIB_SYSTEMD_DIR = '/lib/systemd'
+FAPOLICY_RULES_PATH = '/etc/fapolicyd/rules.d'
+
 
 SUBSYSTEM_TYPES = ['ca', 'kra', 'ocsp', 'tks', 'tps', 'acme', 'est']
 
@@ -294,6 +297,10 @@ class PKIServer(object):
     @property
     def jss_conf(self):
         return os.path.join(self.conf_dir, 'jss.conf')
+
+    @property
+    def fapolicy_rule_file(self):
+        return os.path.join(FAPOLICY_RULES_PATH, '61-pki-{}.rules'.format(self.name))
 
     @property
     def ca_cert(self):
@@ -1764,6 +1771,65 @@ grant codeBase "file:%s" {
 
             logger.debug('Command: %s', ' '.join(cmd))
             subprocess.run(cmd, check=True)
+
+    def restart_fapolicy_daemon(self):
+        '''
+        Helper function to restart the fapolicyd after the rules are updated.
+        '''
+
+        stat = subprocess.call(['systemctl', 'is-active', '--quiet', 'fapolicyd'])
+        if stat != 0:
+            return
+
+        logger.info('Restarting fapolicy daemon')
+        subprocess.call(['systemctl', 'restart', '--quiet', 'fapolicyd'])
+
+    def install_fapolicy_rules(self):
+
+        logger.info('Installing fapolicy rules')
+
+        if not os.path.exists(FAPOLICY_RULES_PATH):
+            # fapolicy folder not found
+            return
+
+        template = os.path.join(
+            PKIServer.SHARE_DIR,
+            'server',
+            'etc',
+            'fapolicy.rules')
+
+        params = {
+            'WORK_DIR': self.work_dir
+        }
+
+        uid = pwd.getpwnam('root').pw_uid
+        gid = grp.getgrnam('fapolicyd').gr_gid
+        mode = 0o644
+
+        logger.info('Creating %s', self.fapolicy_rule_file)
+        pki.util.copyfile(
+            template,
+            self.fapolicy_rule_file,
+            params=params,
+            uid=uid,
+            gid=gid,
+            mode=mode,
+            force=True)
+
+        self.restart_fapolicy_daemon()
+
+    def remove_fapolicy_rules(self):
+
+        logger.info('Removing fapolicy rules')
+
+        if not os.path.exists(self.fapolicy_rule_file):
+            # rules not found
+            return
+
+        logger.info('Removing %s', self.fapolicy_rule_file)
+        os.remove(self.fapolicy_rule_file)
+
+        self.restart_fapolicy_daemon()
 
     @staticmethod
     def split_cert_id(cert_id):

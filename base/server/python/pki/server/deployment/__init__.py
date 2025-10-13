@@ -51,7 +51,6 @@ import pki.nssdb
 import pki.pkcs12
 import pki.server
 import pki.server.deployment.scriptlets.configuration
-import pki.server.deployment.scriptlets.fapolicy_setup
 import pki.server.deployment.scriptlets.finalization
 import pki.server.deployment.scriptlets.instance_layout
 import pki.server.deployment.scriptlets.subsystem_layout
@@ -5906,11 +5905,7 @@ class PKIDeployer:
             self.prepare_security_databases()
             self.create_selinux_contexts()
             self.generate_system_keys()
-
-        scriptlet = pki.server.deployment.scriptlets.fapolicy_setup.PkiScriptlet()
-        scriptlet.deployer = self
-        scriptlet.instance = self.instance
-        scriptlet.spawn(self)
+            self.instance.install_fapolicy_rules()
 
         scriptlet = pki.server.deployment.scriptlets.configuration.PkiScriptlet()
         scriptlet.deployer = self
@@ -5965,7 +5960,4 @@ class PKIDeployer:
         scriptlet.instance = self.instance
         scriptlet.destroy(self)
 
-        scriptlet = pki.server.deployment.scriptlets.fapolicy_setup.PkiScriptlet()
-        scriptlet.deployer = self
-        scriptlet.instance = self.instance
-        scriptlet.destroy(self)
+        self.instance.remove_fapolicy_rules()
