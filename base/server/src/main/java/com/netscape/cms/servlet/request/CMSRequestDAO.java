@@ -20,9 +20,9 @@ package com.netscape.cms.servlet.request;
 import java.util.Collection;
 import java.util.Iterator;
 
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.UriBuilder;
+import jakarta.ws.rs.core.UriInfo;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.request.CMSRequestInfo;

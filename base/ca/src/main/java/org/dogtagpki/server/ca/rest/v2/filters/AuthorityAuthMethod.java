@@ -8,8 +8,8 @@ package org.dogtagpki.server.ca.rest.v2.filters;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebFilter;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebFilter;
 
 import org.dogtagpki.server.rest.v2.filters.AuthMethodFilter;
 

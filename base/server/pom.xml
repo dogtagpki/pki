@@ -18,7 +18,7 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>pki-tomcat-9.0</artifactId>
+            <artifactId>pki-tomcat-10.1</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -27,7 +27,6 @@
             <artifactId>resteasy-servlet-initializer</artifactId>
             <version>3.0.26.Final</version>
         </dependency>
-
     </dependencies>
 
     <build>

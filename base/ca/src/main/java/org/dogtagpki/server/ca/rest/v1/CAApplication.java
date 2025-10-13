@@ -3,8 +3,8 @@ package org.dogtagpki.server.ca.rest.v1;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
+import jakarta.ws.rs.ApplicationPath;
+import jakarta.ws.rs.core.Application;
 
 import org.dogtagpki.server.rest.v1.ACLInterceptor;
 import org.dogtagpki.server.rest.v1.AccountService;
@@ -20,6 +20,8 @@ import org.dogtagpki.server.rest.v1.SelfTestService;
 import org.dogtagpki.server.rest.v1.SessionContextInterceptor;
 import org.dogtagpki.server.rest.v1.UserService;
 
+
+
 @ApplicationPath("/v1")
 public class CAApplication extends Application {
 
@@ -32,7 +34,6 @@ public class CAApplication extends Application {
 
         // account
         classes.add(AccountService.class);
-
         // audit
         classes.add(AuditService.class);
 

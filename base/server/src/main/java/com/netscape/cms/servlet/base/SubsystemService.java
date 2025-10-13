@@ -24,7 +24,7 @@ import java.net.URLClassLoader;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import javax.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.HttpHeaders;
 
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.cmscore.apps.CMS;
