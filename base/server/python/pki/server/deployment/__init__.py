@@ -1,5 +1,6 @@
 # Authors:
 #     Matthew Harmsen <mharmsen@redhat.com>
+#     Ade Lee <alee@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,10 +28,12 @@ import logging
 import os
 import pathlib
 import re
+import selinux
 import shutil
 import socket
 import struct
 import subprocess
+import sys
 import tempfile
 import time
 from time import strftime as date
@@ -52,7 +55,6 @@ import pki.server.deployment.scriptlets.fapolicy_setup
 import pki.server.deployment.scriptlets.finalization
 import pki.server.deployment.scriptlets.instance_layout
 import pki.server.deployment.scriptlets.keygen
-import pki.server.deployment.scriptlets.selinux_setup
 import pki.server.deployment.scriptlets.subsystem_layout
 import pki.system
 import pki.util
@@ -61,6 +63,16 @@ from . import pkiconfig as config
 from . import pkihelper as util
 from . import pkimanifest as manifest
 from . import pkimessages as log
+
+seobject = None
+if selinux.is_selinux_enabled():
+    try:
+        import seobject
+    except ImportError:
+        # TODO: Fedora 22 has an incomplete Python 3 package
+        # sepolgen is missing.
+        if sys.version_info.major == 2:
+            raise
 
 logger = logging.getLogger(__name__)
 
@@ -5749,6 +5761,97 @@ class PKIDeployer:
         nssdb.add_cert(nickname=nickname, cert_data=cert_pem)
         return system_cert
 
+    def create_selinux_contexts(self):
+
+        if not selinux.is_selinux_enabled() or not seobject:
+            logger.info('SELinux disabled')
+            return
+
+        # verify SELinux contexts of selected ports
+        ports = []
+        self.configuration_file.populate_selinux_ports(ports)
+        self.configuration_file.verify_selinux_ports(ports)
+
+        logger.info('Creating SELinux contexts')
+
+        # try to create SELinux contexts up to 10 times
+        max_tries = 10
+
+        for counter in range(1, max_tries):
+            try:
+                # check first if any transactions are required
+                if len(ports) == 0 and self.instance.name == pki.server.DEFAULT_INSTANCE_NAME:
+                    self.instance.restore_selinux_contexts()
+                    return
+
+                if len(self.instance.get_subsystems()) > 1:
+                    # not the first subsystem
+                    return
+
+                # add SELinux contexts when adding the first subsystem
+                if self.instance.name != pki.server.DEFAULT_INSTANCE_NAME:
+                    self.instance.create_selinux_contexts(ports)
+
+                self.instance.restore_selinux_contexts()
+                return
+
+            except ValueError as e:
+                error_message = str(e)
+                logger.error(error_message)
+
+                if error_message.strip() != 'Could not start semanage transaction':
+                    raise
+
+                if counter >= max_tries:
+                    raise
+
+                time.sleep(5)
+                logger.debug('Retrying to setup the selinux context ...')
+
+    def remove_selinux_contexts(self):
+
+        if not selinux.is_selinux_enabled() or not seobject:
+            logger.info('SELinux disabled')
+            return
+
+        # get ports to remove SELinux contexts
+        ports = []
+        self.configuration_file.populate_selinux_ports(ports)
+
+        # check first if any transactions are required
+        if len(ports) == 0 and self.instance.name == pki.server.DEFAULT_INSTANCE_NAME:
+            return
+
+        logger.info('Removing SELinux contexts')
+
+        # try to delete SELinux contexts up to 10 times
+        max_tries = 10
+
+        for counter in range(1, max_tries):
+            try:
+                if self.instance.get_subsystems():
+                    # not the last subsystem
+                    return
+
+                # remove SELinux contexts when removing the last subsystem
+                if self.instance.name != pki.server.DEFAULT_INSTANCE_NAME:
+                    self.instance.remove_selinux_contexts(ports)
+
+                return
+
+            except ValueError as e:
+                error_message = str(e)
+                logger.error(error_message)
+
+                if error_message.strip() != 'Could not start semanage transaction':
+                    raise
+
+                if counter >= max_tries:
+                    raise
+
+                time.sleep(5)
+                logger.debug('Retrying to remove selinux context ...')
+
     def spawn(self):
 
         print('Installing ' + self.subsystem_type + ' into ' + self.instance.base_dir + '.')
@@ -5787,11 +5890,7 @@ class PKIDeployer:
 
         if not config.str2bool(self.mdict['pki_skip_installation']):
             self.prepare_security_databases()
-
-        scriptlet = pki.server.deployment.scriptlets.selinux_setup.PkiScriptlet()
-        scriptlet.deployer = self
-        scriptlet.instance = self.instance
-        scriptlet.spawn(self)
+            self.create_selinux_contexts()
 
         scriptlet = pki.server.deployment.scriptlets.keygen.PkiScriptlet()
         scriptlet.deployer = self
@@ -5854,10 +5953,7 @@ class PKIDeployer:
         scriptlet.instance = self.instance
         scriptlet.destroy(self)
 
-        scriptlet = pki.server.deployment.scriptlets.selinux_setup.PkiScriptlet()
-        scriptlet.deployer = self
-        scriptlet.instance = self.instance
-        scriptlet.destroy(self)
+        self.remove_selinux_contexts()
 
         scriptlet = pki.server.deployment.scriptlets.finalization.PkiScriptlet()
         scriptlet.deployer = self
