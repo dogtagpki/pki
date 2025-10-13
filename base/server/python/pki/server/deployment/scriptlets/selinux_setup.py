@@ -72,16 +72,16 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 # check first if any transactions are required
                 if len(ports) == 0 and instance.name == \
                         pki.server.DEFAULT_INSTANCE_NAME:
-                    deployer.restore_selinux_contexts()
+                    instance.restore_selinux_contexts()
                     return
 
                 # add SELinux contexts when adding the first subsystem
                 if len(instance.get_subsystems()) == 1:
                     if instance.name != \
                             pki.server.DEFAULT_INSTANCE_NAME:
-                        deployer.create_selinux_contexts(ports)
+                        instance.create_selinux_contexts(ports)
 
-                    deployer.restore_selinux_contexts()
+                    instance.restore_selinux_contexts()
                 break
 
             except ValueError as e:
@@ -124,7 +124,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 if not instance.get_subsystems():
                     if instance.name != \
                             pki.server.DEFAULT_INSTANCE_NAME:
-                        deployer.remove_selinux_contexts(ports)
+                        instance.remove_selinux_contexts(ports)
                 break
 
             except ValueError as e:

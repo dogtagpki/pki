@@ -50,7 +50,6 @@ PKI_DEPLOYMENT_INTERRUPT_BANNER = "-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"\
 PKI_DEPLOYMENT_SOURCE_ROOT = "/usr/share/pki"
 # NOTE: Top-level "/etc/pki" is owned by the "filesystem" package!
 PKI_DEPLOYMENT_CONFIGURATION_ROOT = "/etc/pki"
-PKI_DEPLOYMENT_LOG_ROOT = "/var/log/pki"
 # NOTE:  Well-known 'registry root', default 'instance', and default
 #        'configuration file' names MUST be created in order to potentially
 #        obtain an instance-specific configuration file

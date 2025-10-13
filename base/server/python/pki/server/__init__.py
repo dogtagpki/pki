@@ -32,11 +32,13 @@ import pathlib
 import pwd
 import re
 import requests
+import selinux
 import shutil
+import socket
 import subprocess
+import sys
 import tempfile
 import time
-import socket
 
 import ldap
 import ldap.filter
@@ -50,6 +52,16 @@ import pki.nssdb
 import pki.util
 from pki.keyring import Keyring
 import pki.server.subsystem
+
+seobject = None
+if selinux.is_selinux_enabled():
+    try:
+        import seobject
+    except ImportError:
+        # TODO: Fedora 22 has an incomplete Python 3 package
+        # sepolgen is missing.
+        if sys.version_info.major == 2:
+            raise
 
 SYSCONFIG_DIR = '/etc/sysconfig'
 ETC_SYSTEMD_DIR = '/etc/systemd'
@@ -1633,6 +1645,125 @@ grant codeBase "file:%s" {
 
         sslcert.set('certificateKeyAlias', fullname)
         server_config.save()
+
+    def selinux_context_exists(self, records, context_value):
+        '''
+        Check if a given `context_value` exists in the given set of `records`.
+        This method can process both port contexts and file contexts.
+        '''
+        for keys in records.keys():
+            for key in keys:
+                if str(key) == context_value:
+                    return True
+        return False
+
+    def create_selinux_contexts(self, ports):
+
+        suffix = '(/.*)?'
+
+        trans = seobject.semanageRecords('targeted')
+        trans.start()
+
+        fcon = seobject.fcontextRecords(trans)
+
+        logger.info('Adding SELinux fcontext "%s"', self.actual_conf_dir + suffix)
+        fcon.add(
+            self.actual_conf_dir + suffix,
+            pki.server.PKI_CFG_SELINUX_CONTEXT, '', 's0', '')
+
+        logger.info('Adding SELinux fcontext "%s"', self.nssdb_dir + suffix)
+        fcon.add(
+            self.nssdb_dir + suffix,
+            pki.server.PKI_CERTDB_SELINUX_CONTEXT, '', 's0', '')
+
+        logger.info('Adding SELinux fcontext "%s"', self.base_dir + suffix)
+        fcon.add(
+            self.base_dir + suffix,
+            pki.server.PKI_INSTANCE_SELINUX_CONTEXT, '', 's0', '')
+
+        logger.info('Adding SELinux fcontext "%s"', self.actual_logs_dir + suffix)
+        fcon.add(
+            self.actual_logs_dir + suffix,
+            pki.server.PKI_LOG_SELINUX_CONTEXT, '', 's0', '')
+
+        port_records = seobject.portRecords(trans)
+
+        for port in ports:
+            logger.info('Adding SELinux port %s', port)
+            port_records.add(
+                port, 'tcp', 's0',
+                pki.server.PKI_PORT_SELINUX_CONTEXT)
+
+        trans.finish()
+
+    def remove_selinux_contexts(self, ports):
+
+        suffix = '(/.*)?'
+
+        trans = seobject.semanageRecords('targeted')
+        trans.start()
+
+        port_records = seobject.portRecords(trans)
+        port_record_values = port_records.get_all()
+
+        for port in ports:
+            if self.selinux_context_exists(port_record_values, port):
+                logger.info('Removing SELinux port %s', port)
+                port_records.delete(port, 'tcp')
+
+        fcon = seobject.fcontextRecords(trans)
+        file_records = fcon.get_all()
+
+        if self.selinux_context_exists(file_records, self.actual_logs_dir + suffix):
+            logger.info('Removing SELinux fcontext "%s"', self.actual_logs_dir + suffix)
+            fcon.delete(self.actual_logs_dir + suffix, '')
+
+        if self.selinux_context_exists(file_records, self.base_dir + suffix):
+            logger.info('Removing SELinux fcontext "%s"', self.base_dir + suffix)
+            fcon.delete(self.base_dir + suffix, '')
+
+        if self.selinux_context_exists(file_records, self.nssdb_dir + suffix):
+            logger.info('Removing SELinux fcontext "%s"', self.nssdb_dir + suffix)
+            fcon.delete(self.nssdb_dir + suffix, '')
+
+        if self.selinux_context_exists(file_records, self.actual_conf_dir + suffix):
+            logger.info('Removing SELinux fcontext "%s"', self.actual_conf_dir + suffix)
+            fcon.delete(self.actual_conf_dir + suffix, '')
+
+        trans.finish()
+
+    def restore_selinux_contexts(self):
+        '''
+        The restocon API is not working in RHEL
+        (see https://issues.redhat.com/browse/RHEL-73348).
+
+        selinux.restorecon(self.base_dir, True)
+        selinux.restorecon(PKIServer.LOG_DIR, True)
+        selinux.restorecon(self.actual_logs_dir, True)
+        selinux.restorecon(self.actual_conf_dir, True)
+        '''
+
+        folders = [
+            self.base_dir,
+            PKIServer.LOG_DIR,
+            self.actual_logs_dir,
+            self.actual_conf_dir
+        ]
+
+        for folder in folders:
+
+            cmd = [
+                '/usr/sbin/restorecon',
+                '-R'
+            ]
+
+            if logger.isEnabledFor(logging.DEBUG):
+                cmd.append('-v')
+
+            cmd.append(folder)
+
+            logger.debug('Command: %s', ' '.join(cmd))
+            subprocess.run(cmd, check=True)
 
     @staticmethod
     def split_cert_id(cert_id):

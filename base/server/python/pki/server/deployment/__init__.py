@@ -28,12 +28,10 @@ import logging
 import os
 import pathlib
 import re
-import selinux
 import shutil
 import socket
 import struct
 import subprocess
-import sys
 import tempfile
 import time
 from time import strftime as date
@@ -67,16 +65,6 @@ from . import pkiconfig as config
 from . import pkihelper as util
 from . import pkimanifest as manifest
 from . import pkimessages as log
-
-seobject = None
-if selinux.is_selinux_enabled():
-    try:
-        import seobject
-    except ImportError:
-        # TODO: Fedora 22 has an incomplete Python 3 package
-        # sepolgen is missing.
-        if sys.version_info.major == 2:
-            raise
 
 logger = logging.getLogger(__name__)
 
@@ -5109,117 +5097,6 @@ class PKIDeployer:
         logger.info('Creating %s', manifest_archive)
 
         self.instance.copy(manifest_file, manifest_archive, force=True)
-
-    def restore_selinux_contexts(self):
-        # The restocon API is not working in RHEL
-        # (see https://issues.redhat.com/browse/RHEL-73348).
-        #
-        # selinux.restorecon(self.instance.base_dir, True)
-        # selinux.restorecon(config.PKI_DEPLOYMENT_LOG_ROOT, True)
-        # selinux.restorecon(self.instance.actual_logs_dir, True)
-        # selinux.restorecon(self.instance.actual_conf_dir, True)
-        folders = [
-            self.instance.base_dir,
-            config.PKI_DEPLOYMENT_LOG_ROOT,
-            self.instance.actual_logs_dir,
-            self.instance.actual_conf_dir
-        ]
-        for folder in folders:
-            cmd = [
-                '/usr/sbin/restorecon',
-                '-R'
-            ]
-            if logger.isEnabledFor(logging.DEBUG):
-                cmd.append('-v')
-            cmd.append(folder)
-            logger.debug('Command: %s', ' '.join(cmd))
-            subprocess.run(cmd, check=True)
-
-    def selinux_context_exists(self, records, context_value):
-        '''
-        Check if a given `context_value` exists in the given set of `records`.
-        This method can process both port contexts and file contexts.
-        '''
-        for keys in records.keys():
-            for key in keys:
-                if str(key) == context_value:
-                    return True
-        return False
-
-    def create_selinux_contexts(self, ports):
-
-        suffix = '(/.*)?'
-
-        trans = seobject.semanageRecords('targeted')
-        trans.start()
-
-        fcon = seobject.fcontextRecords(trans)
-
-        logger.info('Adding SELinux fcontext "%s"', self.instance.actual_conf_dir + suffix)
-        fcon.add(
-            self.instance.actual_conf_dir + suffix,
-            pki.server.PKI_CFG_SELINUX_CONTEXT, '', 's0', '')
-
-        logger.info('Adding SELinux fcontext "%s"', self.instance.nssdb_dir + suffix)
-        fcon.add(
-            self.instance.nssdb_dir + suffix,
-            pki.server.PKI_CERTDB_SELINUX_CONTEXT, '', 's0', '')
-
-        logger.info('Adding SELinux fcontext "%s"', self.instance.base_dir + suffix)
-        fcon.add(
-            self.instance.base_dir + suffix,
-            pki.server.PKI_INSTANCE_SELINUX_CONTEXT, '', 's0', '')
-
-        logger.info('Adding SELinux fcontext "%s"', self.instance.actual_logs_dir + suffix)
-        fcon.add(
-            self.instance.actual_logs_dir + suffix,
-            pki.server.PKI_LOG_SELINUX_CONTEXT, '', 's0', '')
-
-        port_records = seobject.portRecords(trans)
-
-        for port in ports:
-            logger.info('Adding SELinux port %s', port)
-            port_records.add(
-                port, 'tcp', 's0',
-                pki.server.PKI_PORT_SELINUX_CONTEXT)
-
-        trans.finish()
-
-    def remove_selinux_contexts(self, ports):
-
-        suffix = '(/.*)?'
-
-        trans = seobject.semanageRecords('targeted')
-        trans.start()
-
-        port_records = seobject.portRecords(trans)
-        port_record_values = port_records.get_all()
-
-        for port in ports:
-            if self.selinux_context_exists(port_record_values, port):
-                logger.info('Removing SELinux port %s', port)
-                port_records.delete(port, 'tcp')
-
-        fcon = seobject.fcontextRecords(trans)
-        file_records = fcon.get_all()
-
-        if self.selinux_context_exists(file_records, self.instance.actual_logs_dir + suffix):
-            logger.info('Removing SELinux fcontext "%s"', self.instance.actual_logs_dir + suffix)
-            fcon.delete(self.instance.actual_logs_dir + suffix, '')
-
-        if self.selinux_context_exists(file_records, self.instance.base_dir + suffix):
-            logger.info('Removing SELinux fcontext "%s"', self.instance.base_dir + suffix)
-            fcon.delete(self.instance.base_dir + suffix, '')
-
-        if self.selinux_context_exists(file_records, self.instance.nssdb_dir + suffix):
-            logger.info('Removing SELinux fcontext "%s"', self.instance.nssdb_dir + suffix)
-            fcon.delete(self.instance.nssdb_dir + suffix, '')
-
-        if self.selinux_context_exists(file_records, self.instance.actual_conf_dir + suffix):
-            logger.info('Removing SELinux fcontext "%s"', self.instance.actual_conf_dir + suffix)
-            fcon.delete(self.instance.actual_conf_dir + suffix, '')
-
-        trans.finish()
 
     def create_acme_subsystem(self):
         '''
