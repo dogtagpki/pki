@@ -18,10 +18,6 @@
 # All rights reserved.
 #
 
-# System Imports
-from __future__ import absolute_import
-from __future__ import print_function
-
 import getpass
 import logging
 import sys
@@ -35,7 +31,6 @@ from pwd import getpwuid
 
 # PKI Deployment Imports
 from . import pkiconfig as config
-from .pkiconfig import pki_selinux_config_ports as ports
 from . import pkimessages as log
 from .pkiparser import PKIConfigParser
 
@@ -519,7 +514,7 @@ class ConfigurationFile:
                     self.confirm_file_exists(
                         "pki_ocsp_signing_cert_path")
 
-    def populate_non_default_ports(self):
+    def populate_selinux_ports(self, ports):
 
         tomcat_port = self.mdict['pki_tomcat_server_port']
         if tomcat_port != str(pki.server.DEFAULT_TOMCAT_PORT):
@@ -537,7 +532,7 @@ class ConfigurationFile:
         if ajp_port != str(pki.server.DEFAULT_TOMCAT_AJP_PORT):
             ports.append(ajp_port)
 
-    def verify_selinux_ports(self):
+    def verify_selinux_ports(self, ports):
         # Determine which ports still need to be labelled, and if any are
         # incorrectly labelled
         if len(ports) == 0:

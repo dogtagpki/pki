@@ -129,5 +129,3 @@ PKI_HSM_LUNASA_LIB = "/usr/safenet/lunaclient/lib/libCryptoki2_64.so"
 PKI_HSM_NCIPHER_EXE = "/opt/nfast/sbin/init.d-ncipher"
 PKI_HSM_NCIPHER_LIB = "/opt/nfast/toolkits/pkcs11/libcknfast.so"
 PKI_HSM_NCIPHER_GROUP = "nfast"
-
-pki_selinux_config_ports = []

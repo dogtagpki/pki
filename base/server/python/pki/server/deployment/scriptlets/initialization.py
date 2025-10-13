@@ -18,7 +18,6 @@
 # All rights reserved.
 #
 
-from __future__ import absolute_import
 import logging
 import os
 
@@ -152,9 +151,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         deployer.configuration_file.verify_mutually_exclusive_data()
         # verify existence of PREDEFINED configuration file data
         deployer.configuration_file.verify_predefined_configuration_file_data()
-        # verify selinux context of selected ports
-        deployer.configuration_file.populate_non_default_ports()
-        deployer.configuration_file.verify_selinux_ports()
 
         if config.str2bool(deployer.mdict['pki_ds_setup']):
 
@@ -189,6 +185,3 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # establish 'uid' and 'gid'
         deployer.identity.set_uid(instance.user)
         deployer.identity.set_gid(instance.group)
-
-        # get ports to remove selinux context
-        deployer.configuration_file.populate_non_default_ports()

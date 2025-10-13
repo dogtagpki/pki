@@ -5146,7 +5146,7 @@ class PKIDeployer:
                     return True
         return False
 
-    def create_selinux_contexts(self):
+    def create_selinux_contexts(self, ports):
 
         suffix = '(/.*)?'
 
@@ -5177,7 +5177,7 @@ class PKIDeployer:
 
         port_records = seobject.portRecords(trans)
 
-        for port in config.pki_selinux_config_ports:
+        for port in ports:
             logger.info('Adding SELinux port %s', port)
             port_records.add(
                 port, 'tcp', 's0',
@@ -5185,7 +5185,7 @@ class PKIDeployer:
 
         trans.finish()
 
-    def remove_selinux_contexts(self):
+    def remove_selinux_contexts(self, ports):
 
         suffix = '(/.*)?'
 
@@ -5195,7 +5195,7 @@ class PKIDeployer:
         port_records = seobject.portRecords(trans)
         port_record_values = port_records.get_all()
 
-        for port in config.pki_selinux_config_ports:
+        for port in ports:
             if self.selinux_context_exists(port_record_values, port):
                 logger.info('Removing SELinux port %s', port)
                 port_records.delete(port, 'tcp')

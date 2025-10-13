@@ -18,7 +18,6 @@
 # All rights reserved.
 #
 
-from __future__ import absolute_import
 import logging
 import selinux
 import sys
@@ -28,7 +27,6 @@ import pki.server
 
 # PKI Deployment Imports
 from .. import pkiconfig as config
-from ..pkiconfig import pki_selinux_config_ports as ports
 from .. import pkiscriptlet
 
 seobject = None
@@ -59,6 +57,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         instance = self.instance
 
+        # verify selinux context of selected ports
+        ports = []
+        deployer.configuration_file.populate_selinux_ports(ports)
+        deployer.configuration_file.verify_selinux_ports(ports)
+
         logger.info('Creating SELinux contexts')
 
         # A maximum of 10 tries to create the SELinux contexts
@@ -76,7 +79,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 if len(instance.get_subsystems()) == 1:
                     if instance.name != \
                             pki.server.DEFAULT_INSTANCE_NAME:
-                        deployer.create_selinux_contexts()
+                        deployer.create_selinux_contexts(ports)
 
                     deployer.restore_selinux_contexts()
                 break
@@ -102,6 +105,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('SELinux disabled')
             return
 
+        # get ports to remove selinux context
+        ports = []
+        deployer.configuration_file.populate_selinux_ports(ports)
+
         # check first if any transactions are required
         if (len(ports) == 0 and instance.name ==
                 pki.server.DEFAULT_INSTANCE_NAME):
@@ -117,7 +124,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 if not instance.get_subsystems():
                     if instance.name != \
                             pki.server.DEFAULT_INSTANCE_NAME:
-                        deployer.remove_selinux_contexts()
+                        deployer.remove_selinux_contexts(ports)
                 break
 
             except ValueError as e:
