@@ -565,7 +565,7 @@ class ConfigurationFile:
                 # port has no current context
                 # leave it in list of ports to set
                 continue
-            elif context == config.PKI_PORT_SELINUX_CONTEXT:
+            elif context == pki.server.PKI_PORT_SELINUX_CONTEXT:
                 # port is already set correctly
                 # remove from list of ports to set
                 ports.remove(port)

@@ -5158,22 +5158,22 @@ class PKIDeployer:
         logger.info('Adding SELinux fcontext "%s"', self.instance.actual_conf_dir + suffix)
         fcon.add(
             self.instance.actual_conf_dir + suffix,
-            config.PKI_CFG_SELINUX_CONTEXT, '', 's0', '')
+            pki.server.PKI_CFG_SELINUX_CONTEXT, '', 's0', '')
 
         logger.info('Adding SELinux fcontext "%s"', self.instance.nssdb_dir + suffix)
         fcon.add(
             self.instance.nssdb_dir + suffix,
-            config.PKI_CERTDB_SELINUX_CONTEXT, '', 's0', '')
+            pki.server.PKI_CERTDB_SELINUX_CONTEXT, '', 's0', '')
 
         logger.info('Adding SELinux fcontext "%s"', self.instance.base_dir + suffix)
         fcon.add(
             self.instance.base_dir + suffix,
-            config.PKI_INSTANCE_SELINUX_CONTEXT, '', 's0', '')
+            pki.server.PKI_INSTANCE_SELINUX_CONTEXT, '', 's0', '')
 
         logger.info('Adding SELinux fcontext "%s"', self.instance.actual_logs_dir + suffix)
         fcon.add(
             self.instance.actual_logs_dir + suffix,
-            config.PKI_LOG_SELINUX_CONTEXT, '', 's0', '')
+            pki.server.PKI_LOG_SELINUX_CONTEXT, '', 's0', '')
 
         port_records = seobject.portRecords(trans)
 
@@ -5181,7 +5181,7 @@ class PKIDeployer:
             logger.info('Adding SELinux port %s', port)
             port_records.add(
                 port, 'tcp', 's0',
-                config.PKI_PORT_SELINUX_CONTEXT)
+                pki.server.PKI_PORT_SELINUX_CONTEXT)
 
         trans.finish()
 

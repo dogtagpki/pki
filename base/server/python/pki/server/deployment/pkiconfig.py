@@ -130,10 +130,4 @@ PKI_HSM_NCIPHER_EXE = "/opt/nfast/sbin/init.d-ncipher"
 PKI_HSM_NCIPHER_LIB = "/opt/nfast/toolkits/pkcs11/libcknfast.so"
 PKI_HSM_NCIPHER_GROUP = "nfast"
 
-# PKI Selinux Constants and parameters
-PKI_INSTANCE_SELINUX_CONTEXT = "pki_tomcat_var_lib_t"
-PKI_LOG_SELINUX_CONTEXT = "pki_tomcat_log_t"
-PKI_CFG_SELINUX_CONTEXT = "pki_tomcat_etc_rw_t"
-PKI_CERTDB_SELINUX_CONTEXT = "pki_tomcat_cert_t"
-PKI_PORT_SELINUX_CONTEXT = "http_port_t"
 pki_selinux_config_ports = []
