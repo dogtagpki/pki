@@ -54,7 +54,6 @@ import pki.server.deployment.scriptlets.configuration
 import pki.server.deployment.scriptlets.fapolicy_setup
 import pki.server.deployment.scriptlets.finalization
 import pki.server.deployment.scriptlets.instance_layout
-import pki.server.deployment.scriptlets.keygen
 import pki.server.deployment.scriptlets.subsystem_layout
 import pki.system
 import pki.util
@@ -5852,6 +5851,21 @@ class PKIDeployer:
                 time.sleep(5)
                 logger.debug('Retrying to remove selinux context ...')
 
+    def generate_system_keys(self):
+
+        logger.info('Generating system keys')
+
+        self.instance.load()
+
+        subsystem = self.instance.get_subsystem(self.subsystem_type.lower())
+
+        external = self.configuration_file.external
+        standalone = self.configuration_file.standalone
+        step_one = self.configuration_file.external_step_one
+
+        if (external or standalone) and step_one:
+            self.generate_system_cert_requests(subsystem)
+
     def spawn(self):
 
         print('Installing ' + self.subsystem_type + ' into ' + self.instance.base_dir + '.')
@@ -5891,11 +5905,7 @@ class PKIDeployer:
         if not config.str2bool(self.mdict['pki_skip_installation']):
             self.prepare_security_databases()
             self.create_selinux_contexts()
-
-        scriptlet = pki.server.deployment.scriptlets.keygen.PkiScriptlet()
-        scriptlet.deployer = self
-        scriptlet.instance = self.instance
-        scriptlet.spawn(self)
+            self.generate_system_keys()
 
         scriptlet = pki.server.deployment.scriptlets.fapolicy_setup.PkiScriptlet()
         scriptlet.deployer = self
@@ -5934,11 +5944,6 @@ class PKIDeployer:
             return
 
         scriptlet = pki.server.deployment.scriptlets.configuration.PkiScriptlet()
-        scriptlet.deployer = self
-        scriptlet.instance = self.instance
-        scriptlet.destroy(self)
-
-        scriptlet = pki.server.deployment.scriptlets.keygen.PkiScriptlet()
         scriptlet.deployer = self
         scriptlet.instance = self.instance
         scriptlet.destroy(self)
