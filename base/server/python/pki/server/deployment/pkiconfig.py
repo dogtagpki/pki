@@ -60,8 +60,6 @@ PKI_DEPLOYMENT_LOG_ROOT = "/var/log/pki"
 #        the default 'instance' name may be overridden by the value specified
 #        in the configuration file (the value in the default configuration file
 #        should always match the 'default' instance name specified below).
-PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME = "pki-tomcat"
-
 DEFAULT_DEPLOYMENT_CFG = PKI_DEPLOYMENT_SOURCE_ROOT + '/server/etc/default.cfg'
 USER_DEPLOYMENT_CONFIGURATION = "deployment.cfg"
 

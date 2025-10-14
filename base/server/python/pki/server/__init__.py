@@ -65,6 +65,8 @@ SCHEMA_FILES = [
     '/usr/share/pki/server/database/ds/schema.ldif'
 ]
 
+DEFAULT_INSTANCE_NAME = 'pki-tomcat'
+
 logger = logging.getLogger(__name__)
 
 parser = etree.XMLParser(remove_blank_text=True)

@@ -24,6 +24,8 @@ import selinux
 import sys
 import time
 
+import pki.server
+
 # PKI Deployment Imports
 from .. import pkiconfig as config
 from ..pkiconfig import pki_selinux_config_ports as ports
@@ -66,14 +68,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             try:
                 # check first if any transactions are required
                 if len(ports) == 0 and instance.name == \
-                        config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME:
+                        pki.server.DEFAULT_INSTANCE_NAME:
                     deployer.restore_selinux_contexts()
                     return
 
                 # add SELinux contexts when adding the first subsystem
                 if len(instance.get_subsystems()) == 1:
                     if instance.name != \
-                            config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME:
+                            pki.server.DEFAULT_INSTANCE_NAME:
                         deployer.create_selinux_contexts()
 
                     deployer.restore_selinux_contexts()
@@ -102,7 +104,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # check first if any transactions are required
         if (len(ports) == 0 and instance.name ==
-                config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME):
+                pki.server.DEFAULT_INSTANCE_NAME):
             return
 
         logger.info('Removing SELinux contexts')
@@ -114,7 +116,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 # remove SELinux contexts when removing the last subsystem
                 if not instance.get_subsystems():
                     if instance.name != \
-                            config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME:
+                            pki.server.DEFAULT_INSTANCE_NAME:
                         deployer.remove_selinux_contexts()
                 break
 
