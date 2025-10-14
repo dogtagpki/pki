@@ -163,6 +163,57 @@ generate_rpm_sources() {
         .
 }
 
+get_tomcat_app_server() {
+    release_file="/etc/os-release"   
+    fedora_cutoff=$1
+    rhel_cutoff=$2
+    def_app_server=tomcat-9.0
+    app_server_10=tomcat-10.1
+    app_server=""
+    distro=""
+    ver=""
+    ID=""
+    VERSION_ID=""
+
+    ID=$(sed -n  's/^ID=//p;' $release_file)
+    VERSION_ID=$(sed -n  's/^VERSION_ID=//p;' $release_file)
+
+    case "$ID" in
+         "rhel")
+             distro="rhel"
+             version=$VERSION_ID
+             ;;
+         "fedora")
+             distro="fedora"
+             ver=$VERSION_ID
+             ;;
+         "centos")
+             distro="rhel"
+             ver=$VERSION_ID
+             ;;
+         *)
+             echo $def_app_server 
+             return
+             ;;
+     esac      
+
+     if [ "$distro" = "fedora" ]; then
+         if [ $ver -ge $fedora_cutoff ]; then
+             app_server=$app_server_10
+         else
+             app_server=$def_app_server
+         fi
+     else
+         if [ $ver -ge $rhel_cutoff ]; then
+             app_server=$app_server_10
+         else
+             app_server=$def_app_server 
+         fi
+     fi
+
+     echo $app_server
+}
+
 generate_patch() {
 
     PATCH="pki-$FULL_VERSION.patch"
@@ -586,13 +637,10 @@ if [ "$DEBUG" = true ] ; then
     echo "P11_KIT_TRUST: $P11_KIT_TRUST"
 fi
 
-regex=$'%global *app_server *([^\n]+)'
-if [[ $spec =~ $regex ]] ; then
-    APP_SERVER="${BASH_REMATCH[1]}"
-else
-    echo "ERROR: Missing app_server macro in $SPEC_TEMPLATE"
-    exit 1
-fi
+#First arg is fedora cutoff, second is rhel cutoff.
+APP_SERVER=$(get_tomcat_app_server 43 10)
+
+export APP_SERVER_CM=$APP_SERVER
 
 if [ "$DEBUG" = true ] ; then
     echo "APP_SERVER: $APP_SERVER"

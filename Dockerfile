@@ -73,7 +73,7 @@ RUN dnf install -y /tmp/RPMS/* \
 COPY . /root/pki/
 
 # Build PKI packages
-RUN ./build.sh --work-dir=build $BUILD_OPTS rpm
+RUN ./build.sh  --work-dir=build $BUILD_OPTS rpm
 
 ################################################################################
 FROM alpine:latest AS pki-dist

@@ -11,27 +11,45 @@
         <version>11.9.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>pki-server</artifactId>
+    <artifactId>pki-tomcat-10.1</artifactId>
     <packaging>jar</packaging>
 
     <dependencies>
 
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>pki-tomcat-9.0</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-catalina</artifactId>
+            <version>10.1.36</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-servlet-api</artifactId>
+            <version>10.1.36</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-jaspic-api</artifactId>
+            <version>10.1.36</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-util-scan</artifactId>
+            <version>10.1.36</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.dogtagpki.jss</groupId>
+            <artifactId>jss-tomcat-10.1</artifactId>
+            <version>[5.9.0-SNAPSHOT,)</version>
         </dependency>
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>pki-tomcat-10.1</artifactId>
+            <artifactId>pki-tomcat</artifactId>
             <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jboss.resteasy</groupId>
-            <artifactId>resteasy-servlet-initializer</artifactId>
-            <version>3.0.26.Final</version>
         </dependency>
 
     </dependencies>
@@ -56,7 +74,7 @@
                 <version>3.1.2</version>
             </plugin>
         </plugins>
-        <finalName>pki-server</finalName>
+        <finalName>pki-tomcat-10.1</finalName>
     </build>
 
 </project>
