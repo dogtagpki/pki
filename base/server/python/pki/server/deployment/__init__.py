@@ -52,7 +52,6 @@ import pki.server.deployment.scriptlets.fapolicy_setup
 import pki.server.deployment.scriptlets.finalization
 import pki.server.deployment.scriptlets.instance_layout
 import pki.server.deployment.scriptlets.keygen
-import pki.server.deployment.scriptlets.security_databases
 import pki.server.deployment.scriptlets.selinux_setup
 import pki.server.deployment.scriptlets.subsystem_layout
 import pki.system
@@ -872,6 +871,69 @@ class PKIDeployer:
 
         self.instance.store_external_certs()
 
+    def init_client_nssdb(self):
+
+        # Place 'slightly' less restrictive permissions on
+        # the top-level client directory ONLY
+
+        pki.util.makedirs(
+            self.mdict['pki_client_subsystem_dir'],
+            mode=config.PKI_DEPLOYMENT_DEFAULT_CLIENT_DIR_PERMISSIONS,
+            exist_ok=True)
+
+        # Since 'certutil' does NOT strip the 'token=' portion of
+        # the 'token=password' entries, create a client password file
+        # which ONLY contains the 'password' for the purposes of
+        # allowing 'certutil' to generate the security databases
+
+        logger.info('Creating password file: %s', self.mdict['pki_client_password_conf'])
+
+        self.password.create_password_conf(
+            self.mdict['pki_client_password_conf'],
+            self.mdict['pki_client_database_password'],
+            pin_sans_token=True)
+
+        os.chmod(
+            self.mdict['pki_client_password_conf'],
+            pki.server.DEFAULT_FILE_MODE)
+
+        # Similarly, create a simple password file containing the
+        # PKCS #12 password used when exporting the 'Admin Certificate'
+        # into a PKCS #12 file
+
+        self.password.create_client_pkcs12_password_conf(
+            self.mdict['pki_client_pkcs12_password_conf'])
+
+        os.chmod(
+            self.mdict['pki_client_pkcs12_password_conf'],
+            pki.server.DEFAULT_FILE_MODE)
+
+        pki.util.makedirs(self.mdict['pki_client_database_dir'], exist_ok=True)
+
+        client_nssdb = pki.nssdb.NSSDatabase(
+            directory=self.mdict['pki_client_database_dir'],
+            password_file=self.mdict['pki_client_password_conf'],
+            user=self.mdict['pki_user'],
+            group=self.mdict['pki_group'])
+
+        try:
+            if not client_nssdb.exists():
+                client_nssdb.create()
+        finally:
+            client_nssdb.close()
+
+    def prepare_security_databases(self):
+
+        self.import_server_pkcs12()
+        self.import_clone_pkcs12()
+        self.install_cert_chain()
+        self.import_external_certs()
+
+        if config.str2bool(self.mdict['pki_ds_setup']):
+            self.import_ds_ca_cert()
+
+        self.init_client_nssdb()
+
     def create_cs_cfg(self, subsystem):
 
         tmpdir = tempfile.mkdtemp()
@@ -1038,57 +1100,6 @@ class PKIDeployer:
         if san_inject and san_for_server_cert:
             subsystem.set_config('service.injectSAN', 'true')
             subsystem.set_config('service.sslserver.san', san_for_server_cert)
-
-    def init_client_nssdb(self):
-
-        # Place 'slightly' less restrictive permissions on
-        # the top-level client directory ONLY
-
-        pki.util.makedirs(
-            self.mdict['pki_client_subsystem_dir'],
-            mode=config.PKI_DEPLOYMENT_DEFAULT_CLIENT_DIR_PERMISSIONS,
-            exist_ok=True)
-
-        # Since 'certutil' does NOT strip the 'token=' portion of
-        # the 'token=password' entries, create a client password file
-        # which ONLY contains the 'password' for the purposes of
-        # allowing 'certutil' to generate the security databases
-
-        logger.info('Creating password file: %s', self.mdict['pki_client_password_conf'])
-
-        self.password.create_password_conf(
-            self.mdict['pki_client_password_conf'],
-            self.mdict['pki_client_database_password'],
-            pin_sans_token=True)
-
-        os.chmod(
-            self.mdict['pki_client_password_conf'],
-            pki.server.DEFAULT_FILE_MODE)
-
-        # Similarly, create a simple password file containing the
-        # PKCS #12 password used when exporting the 'Admin Certificate'
-        # into a PKCS #12 file
-
-        self.password.create_client_pkcs12_password_conf(
-            self.mdict['pki_client_pkcs12_password_conf'])
-
-        os.chmod(
-            self.mdict['pki_client_pkcs12_password_conf'],
-            pki.server.DEFAULT_FILE_MODE)
-
-        pki.util.makedirs(self.mdict['pki_client_database_dir'], exist_ok=True)
-
-        client_nssdb = pki.nssdb.NSSDatabase(
-            directory=self.mdict['pki_client_database_dir'],
-            password_file=self.mdict['pki_client_password_conf'],
-            user=self.mdict['pki_user'],
-            group=self.mdict['pki_group'])
-
-        try:
-            if not client_nssdb.exists():
-                client_nssdb.create()
-        finally:
-            client_nssdb.close()
 
     def verify_subsystem_exists(self):
 
@@ -5774,10 +5785,8 @@ class PKIDeployer:
         scriptlet.instance = self.instance
         scriptlet.spawn(self)
 
-        scriptlet = pki.server.deployment.scriptlets.security_databases.PkiScriptlet()
-        scriptlet.deployer = self
-        scriptlet.instance = self.instance
-        scriptlet.spawn(self)
+        if not config.str2bool(self.mdict['pki_skip_installation']):
+            self.prepare_security_databases()
 
         scriptlet = pki.server.deployment.scriptlets.selinux_setup.PkiScriptlet()
         scriptlet.deployer = self
@@ -5836,11 +5845,6 @@ class PKIDeployer:
         scriptlet.destroy(self)
 
         scriptlet = pki.server.deployment.scriptlets.subsystem_layout.PkiScriptlet()
-        scriptlet.deployer = self
-        scriptlet.instance = self.instance
-        scriptlet.destroy(self)
-
-        scriptlet = pki.server.deployment.scriptlets.security_databases.PkiScriptlet()
         scriptlet.deployer = self
         scriptlet.instance = self.instance
         scriptlet.destroy(self)
