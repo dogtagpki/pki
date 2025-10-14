@@ -51,7 +51,6 @@ import pki.nssdb
 import pki.pkcs12
 import pki.server
 import pki.server.deployment.scriptlets.configuration
-import pki.server.deployment.scriptlets.finalization
 import pki.server.deployment.scriptlets.instance_layout
 import pki.server.deployment.scriptlets.subsystem_layout
 import pki.system
@@ -5865,6 +5864,29 @@ class PKIDeployer:
         if (external or standalone) and step_one:
             self.generate_system_cert_requests(subsystem)
 
+    def finalize_installation(self):
+
+        self.instance.load()
+
+        subsystem = self.instance.get_subsystem(self.subsystem_type.lower())
+
+        if config.str2bool(self.mdict['pki_backup_keys']):
+
+            # by default store the backup file in the NSS databases directory
+            if not self.mdict['pki_backup_file']:
+                self.mdict['pki_backup_file'] = \
+                    self.instance.nssdb_dir + '/' + \
+                    self.subsystem_type.lower() + '_backup_keys.p12'
+
+            logger.info('Backing up keys into %s', self.mdict['pki_backup_file'])
+            self.backup_keys(subsystem)
+
+        # optionally, purge the entire temporary client folder
+        # including the client NSS security databases and password files
+        if config.str2bool(self.mdict['pki_client_database_purge']):
+            if os.path.exists(self.mdict['pki_client_subsystem_dir']):
+                pki.util.rmtree(self.mdict['pki_client_subsystem_dir'])
+
     def spawn(self):
 
         print('Installing ' + self.subsystem_type + ' into ' + self.instance.base_dir + '.')
@@ -5912,10 +5934,15 @@ class PKIDeployer:
         scriptlet.instance = self.instance
         scriptlet.spawn(self)
 
-        scriptlet = pki.server.deployment.scriptlets.finalization.PkiScriptlet()
-        scriptlet.deployer = self
-        scriptlet.instance = self.instance
-        scriptlet.spawn(self)
+        external = self.configuration_file.external
+        standalone = self.configuration_file.standalone
+        step_one = self.configuration_file.external_step_one
+        skip_configuration = self.configuration_file.skip_configuration
+
+        if (external or standalone) and step_one or skip_configuration:
+            return
+
+        self.finalize_installation()
 
     def destroy(self):
 
@@ -5954,10 +5981,4 @@ class PKIDeployer:
         scriptlet.destroy(self)
 
         self.remove_selinux_contexts()
-
-        scriptlet = pki.server.deployment.scriptlets.finalization.PkiScriptlet()
-        scriptlet.deployer = self
-        scriptlet.instance = self.instance
-        scriptlet.destroy(self)
-
         self.instance.remove_fapolicy_rules()
