@@ -50,7 +50,6 @@ import pki.server
 import pki.server.deployment.scriptlets.configuration
 import pki.server.deployment.scriptlets.fapolicy_setup
 import pki.server.deployment.scriptlets.finalization
-import pki.server.deployment.scriptlets.infrastructure_layout
 import pki.server.deployment.scriptlets.instance_layout
 import pki.server.deployment.scriptlets.keygen
 import pki.server.deployment.scriptlets.security_databases
@@ -366,6 +365,15 @@ class PKIDeployer:
 
             # if secure DS connection is required, verify parameters
             self.configuration_file.verify_ds_secure_connection_data()
+
+        # archive the user deployment configuration excluding the sensitive parameters
+        sensitive_parameters = self.mdict['sensitive_parameters'].split()
+        sections = self.user_config.sections()
+        sections.append('DEFAULT')
+
+        for s in sections:
+            for k in sensitive_parameters:
+                self.user_config.remove_option(s, k)
 
     def configure_server_xml(self):
 
@@ -5752,11 +5760,6 @@ class PKIDeployer:
         if not config.str2bool(self.mdict['pki_skip_installation']):
             self.prepare_installation()
 
-        scriptlet = pki.server.deployment.scriptlets.infrastructure_layout.PkiScriptlet()
-        scriptlet.deployer = self
-        scriptlet.instance = self.instance
-        scriptlet.spawn(self)
-
         scriptlet = pki.server.deployment.scriptlets.instance_layout.PkiScriptlet()
         scriptlet.deployer = self
         scriptlet.instance = self.instance
@@ -5848,11 +5851,6 @@ class PKIDeployer:
         scriptlet.destroy(self)
 
         scriptlet = pki.server.deployment.scriptlets.selinux_setup.PkiScriptlet()
-        scriptlet.deployer = self
-        scriptlet.instance = self.instance
-        scriptlet.destroy(self)
-
-        scriptlet = pki.server.deployment.scriptlets.infrastructure_layout.PkiScriptlet()
         scriptlet.deployer = self
         scriptlet.instance = self.instance
         scriptlet.destroy(self)
