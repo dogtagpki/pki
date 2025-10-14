@@ -18,7 +18,6 @@
 # All rights reserved.
 #
 
-from __future__ import absolute_import
 import base64
 import binascii
 import configparser
@@ -262,6 +261,79 @@ class PKIDeployer:
             subsystem_dict = dict(self.main_config.items(self.subsystem_type))
             subsystem_dict[0] = None
             self.mdict.update(subsystem_dict)
+
+    def verify_sensitive_data(self):
+
+        # silently verify the existence of sensitive data
+        configuration_file = self.configuration_file
+
+        # verify existence of admin password (except for clones)
+        if configuration_file.subsystem not in ['ACME', 'EST'] and \
+                not configuration_file.clone:
+
+            configuration_file.confirm_data_exists('pki_admin_password')
+
+        # if HSM, verify absence of all PKCS #12 backup parameters
+        if config.str2bool(self.mdict['pki_hsm_enable']):
+
+            if config.str2bool(self.mdict['pki_backup_keys']):
+                logger.error(log.PKIHELPER_HSM_KEYS_CANNOT_BE_BACKED_UP_TO_PKCS12_FILES)
+                raise Exception(
+                    log.PKIHELPER_HSM_KEYS_CANNOT_BE_BACKED_UP_TO_PKCS12_FILES)
+
+            if self.mdict.get('pki_backup_password', None):
+                logger.error(log.PKIHELPER_HSM_KEYS_CANNOT_BE_BACKED_UP_TO_PKCS12_FILES)
+                raise Exception(
+                    log.PKIHELPER_HSM_KEYS_CANNOT_BE_BACKED_UP_TO_PKCS12_FILES)
+
+        # if required, verify existence of backup password
+        if config.str2bool(self.mdict['pki_backup_keys']):
+            configuration_file.confirm_data_exists('pki_backup_password')
+
+        # verify existence of client PIN for NSS client security databases
+        # if not a clone.
+        if not configuration_file.clone:
+            configuration_file.confirm_data_exists('pki_client_database_password')
+
+        # verify existence of client PKCS #12 password for admin cert
+        if configuration_file.subsystem not in ['ACME', 'EST']:
+            configuration_file.confirm_data_exists('pki_client_pkcs12_password')
+
+        if configuration_file.clone:
+
+            # verify absence of all PKCS #12 clone parameters for HSMs
+            if config.str2bool(self.mdict['pki_hsm_enable']):
+
+                if os.path.exists(self.mdict['pki_clone_pkcs12_path']):
+                    logger.error(log.PKIHELPER_HSM_CLONES_MUST_SHARE_HSM_MASTER_PRIVATE_KEYS)
+                    raise Exception(
+                        log.PKIHELPER_HSM_CLONES_MUST_SHARE_HSM_MASTER_PRIVATE_KEYS)
+
+                if self.mdict.get('pki_clone_pkcs12_password', None):
+                    logger.error(log.PKIHELPER_HSM_CLONES_MUST_SHARE_HSM_MASTER_PRIVATE_KEYS)
+                    raise Exception(
+                        log.PKIHELPER_HSM_CLONES_MUST_SHARE_HSM_MASTER_PRIVATE_KEYS)
+
+        # verify existence of security domain password
+        # (only for KRA, OCSP, TKS, TPS, Clones, or subordinate CA
+        # that will be automatically configured and are not standalone)
+        if configuration_file.subsystem in ['KRA', 'OCSP', 'TKS', 'TPS'] or \
+                configuration_file.clone or \
+                configuration_file.subordinate:
+
+            if not configuration_file.skip_configuration and not configuration_file.standalone:
+                configuration_file.confirm_data_exists('pki_security_domain_password')
+
+        # if required, verify existence of token password
+        if config.str2bool(self.mdict['pki_hsm_enable']):
+            configuration_file.confirm_data_exists('pki_token_name')
+
+            if pki.nssdb.internal_token(self.mdict['pki_token_name']):
+                logger.error(log.PKIHELPER_UNDEFINED_HSM_TOKEN)
+                raise Exception(log.PKIHELPER_UNDEFINED_HSM_TOKEN)
+
+        if not pki.nssdb.internal_token(self.mdict['pki_token_name']):
+            configuration_file.confirm_data_exists('pki_token_password')
 
     def configure_server_xml(self):
 
