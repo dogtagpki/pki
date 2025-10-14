@@ -51,7 +51,6 @@ import pki.server.deployment.scriptlets.configuration
 import pki.server.deployment.scriptlets.fapolicy_setup
 import pki.server.deployment.scriptlets.finalization
 import pki.server.deployment.scriptlets.infrastructure_layout
-import pki.server.deployment.scriptlets.initialization
 import pki.server.deployment.scriptlets.instance_layout
 import pki.server.deployment.scriptlets.keygen
 import pki.server.deployment.scriptlets.security_databases
@@ -334,6 +333,39 @@ class PKIDeployer:
 
         if not pki.nssdb.internal_token(self.mdict['pki_token_name']):
             configuration_file.confirm_data_exists('pki_token_password')
+
+    def prepare_installation(self):
+
+        # verify that the subsystem already exists for the following cases:
+        # - external CA/KRA/OCSP/TKS/TPS (step 2)
+        # - standalone PKI (step 2)
+        # - two-step installation (step 2)
+        if (self.subsystem_type in ['CA', 'KRA', 'OCSP', 'TKS', 'TPS'] or
+                config.str2bool(self.mdict['pki_standalone'])) and \
+                config.str2bool(self.mdict['pki_external_step_two']) or \
+                config.str2bool(self.mdict['pki_skip_installation']):
+
+            self.verify_subsystem_exists()
+            self.mdict['pki_skip_installation'] = 'True'
+
+        # verify existence of sensitive configuration file data
+        self.verify_sensitive_data()
+
+        # verify existence of mutually exclusive configuration file data
+        self.configuration_file.verify_mutually_exclusive_data()
+
+        # verify existence of predefined configuration file data
+        self.configuration_file.verify_predefined_configuration_file_data()
+
+        if config.str2bool(self.mdict['pki_ds_setup']):
+
+            # verify existence of DS password
+            # (unless configuration will not be automatically executed)
+            if not self.configuration_file.skip_configuration:
+                self.configuration_file.confirm_data_exists('pki_ds_password')
+
+            # if secure DS connection is required, verify parameters
+            self.configuration_file.verify_ds_secure_connection_data()
 
     def configure_server_xml(self):
 
@@ -5699,12 +5731,26 @@ class PKIDeployer:
         return system_cert
 
     def spawn(self):
+
         print('Installing ' + self.subsystem_type + ' into ' + self.instance.base_dir + '.')
 
-        scriptlet = pki.server.deployment.scriptlets.initialization.PkiScriptlet()
-        scriptlet.deployer = self
-        scriptlet.instance = self.instance
-        scriptlet.spawn(self)
+        self.instance.load()
+
+        # generate random password for client database if not specified
+        if not self.mdict['pki_client_database_password']:
+            self.mdict['pki_client_database_password'] = pki.generate_password()
+
+        # always initialize uid and gid
+        self.identity.add_uid_and_gid(self.mdict['pki_user'], self.mdict['pki_group'])
+        # always establish uid and gid
+        self.identity.set_uid(self.mdict['pki_user'])
+        self.identity.set_gid(self.mdict['pki_group'])
+
+        # always initialize HSMs (when and if present)
+        self.hsm.initialize()
+
+        if not config.str2bool(self.mdict['pki_skip_installation']):
+            self.prepare_installation()
 
         scriptlet = pki.server.deployment.scriptlets.infrastructure_layout.PkiScriptlet()
         scriptlet.deployer = self
@@ -5759,14 +5805,22 @@ class PKIDeployer:
 
         print('Uninstalling ' + self.subsystem_type + ' from ' + self.instance.base_dir + '.')
 
+        self.instance.load()
+
+        # verify that this type of subsystem currently exists for this instance
+        self.verify_subsystem_exists()
+
+        # verify that the command-line parameters match the values
+        # that are present in the corresponding configuration file
+        self.configuration_file.verify_command_matches_configuration_file()
+
+        # establish uid and gid
+        self.identity.set_uid(self.instance.user)
+        self.identity.set_gid(self.instance.group)
+
         if self.subsystem_type == 'ACME':
             self.destroy_acme()
             return
-
-        scriptlet = pki.server.deployment.scriptlets.initialization.PkiScriptlet()
-        scriptlet.deployer = self
-        scriptlet.instance = self.instance
-        scriptlet.destroy(self)
 
         scriptlet = pki.server.deployment.scriptlets.configuration.PkiScriptlet()
         scriptlet.deployer = self

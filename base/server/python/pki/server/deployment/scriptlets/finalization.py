@@ -24,7 +24,6 @@ import os
 
 # PKI Deployment Imports
 from .. import pkiconfig as config
-from .. import pkimessages as log
 from .. import pkiscriptlet
 
 import pki.util
@@ -74,16 +73,3 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if config.str2bool(deployer.mdict['pki_client_database_purge']):
             if os.path.exists(deployer.mdict['pki_client_subsystem_dir']):
                 pki.util.rmtree(deployer.mdict['pki_client_subsystem_dir'])
-
-        # Log final process messages
-        logger.info(log.PKISPAWN_END_MESSAGE_2,
-                    deployer.subsystem_type,
-                    instance.name)
-
-    def destroy(self, deployer):
-
-        instance = self.instance
-
-        logger.info(log.PKIDESTROY_END_MESSAGE_2,
-                    deployer.subsystem_type,
-                    instance.name)

@@ -96,9 +96,6 @@ PKI_UNABLE_TO_CREATE_LOG_DIRECTORY_1 = "Could not create log directory '%s'!"
 
 
 # PKI Deployment 'pkispawn' and 'pkidestroy' Messages
-PKIDESTROY_BEGIN_MESSAGE_2 = \
-    "BEGIN destroying %s subsystem in %s instance"
-PKIDESTROY_END_MESSAGE_2 = "END destroying %s subsystem in %s instance"
 PKIDESTROY_EPILOG = '''
 REMINDER:
 
@@ -112,10 +109,6 @@ REMINDER:
     prepended to the default PKI instance path which is placed in front
     of the specified '-i <instance>' parameter.
 '''
-PKISPAWN_BEGIN_MESSAGE_2 = \
-    "BEGIN spawning %s subsystem in %s instance"
-PKISPAWN_END_MESSAGE_2 = \
-    "END spawning %s subsystem in %s instance"
 PKISPAWN_EPILOG = """
 REMINDER:
 
