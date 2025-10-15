@@ -33,7 +33,7 @@ import com.netscape.certsrv.ca.CAMissingCertException;
 import com.netscape.certsrv.ca.CAMissingKeyException;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
-public class KeyRetrieverRunner implements Runnable {
+public class KeyRetrieverRunner {
 
     public final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeyRetrieverRunner.class);
 
@@ -61,24 +61,10 @@ public class KeyRetrieverRunner implements Runnable {
 
     }
 
-    @Override
-    public void run() {
-        try {
-            long d = 10000;  // initial delay of 10 seconds
-
-            while (!_run()) {
-                logger.debug("Retrying in " + d / 1000 + " seconds");
-                try {
-                    Thread.sleep(d);
-                } catch (InterruptedException e) {
-                    break;
-                }
-                d += d / 2;  // back off
-            }
-
-        } finally {
-            ca.removeKeyRetriever();
-        }
+    /** Return the AuthorityID of the authority whose keys this runner
+     * attempts to retrieve. */
+    public AuthorityID getAuthorityID() {
+        return aid;
     }
 
     /**
@@ -89,8 +75,12 @@ public class KeyRetrieverRunner implements Runnable {
      *         does not necessarily imply that the process fully
      *         completed.  See comments at sites of 'return true;'
      *         below.
+     *
+     * This method has package visibility to allow KeyRetrieverWorker
+     * to access it.  You do not need to call it directly when running
+     * a KeyRetrieverRunner in its own thread.
      */
-    private boolean _run() {
+    boolean attemptRetrieval() {
 
         CAEngine engine = CAEngine.getInstance();
         CAEngineConfig cs = engine.getConfig();

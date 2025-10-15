@@ -78,6 +78,7 @@ import com.netscape.ca.CRLExtensionsConfig;
 import com.netscape.ca.CRLIssuingPoint;
 import com.netscape.ca.CRLIssuingPointConfig;
 import com.netscape.ca.CertificateAuthority;
+import com.netscape.ca.KeyRetrieverWorker;
 import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.EBaseException;
@@ -208,6 +209,8 @@ public class CAEngine extends CMSEngine {
     protected AuthorityMonitor authorityMonitor;
     protected boolean enableAuthorityMonitor = true;
 
+    private KeyRetrieverWorker keyRetrieverWorker;
+
     // is the current KRA-related info authoritative?
     private static boolean kraInfoAuthoritative = false;
 
@@ -326,6 +329,10 @@ public class CAEngine extends CMSEngine {
 
     public boolean getEnableOCSP() {
         return enableOCSP;
+    }
+
+    public KeyRetrieverWorker getKeyRetrieverWorker() {
+        return keyRetrieverWorker;
     }
 
     /**
@@ -1086,6 +1093,10 @@ public class CAEngine extends CMSEngine {
 
             initCRLPublisher();
             initPublisherProcessor();
+
+            // initialise key retriever worker (before
+            // initialising signing units)
+            keyRetrieverWorker = new KeyRetrieverWorker();
 
             // initialize host CA signing units
             hostCA.initSigningUnits();
