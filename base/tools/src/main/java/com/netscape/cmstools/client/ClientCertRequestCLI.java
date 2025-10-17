@@ -30,6 +30,7 @@ import java.util.Vector;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.ca.CASystemCertClient;
+import org.dogtagpki.cli.CLIException;
 import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.common.CAInfoClient;
 import org.dogtagpki.nss.NSSDatabase;
@@ -246,7 +247,6 @@ public class ClientCertRequestCLI extends CommandCLI {
 
         MainCLI mainCLI = (MainCLI) getRoot();
         NSSDatabase nssdb = mainCLI.getNSSDatabase();
-
         mainCLI.init();
         PKIClient client = getClient();
 
@@ -254,23 +254,41 @@ public class ClientCertRequestCLI extends CommandCLI {
         CryptoToken token = manager.getThreadToken();
 
         KeyPair keyPair;
-
+        // Handle any exceptions that may happen such as when nssdb password is missing when keypair created
         if ("rsa".equals(algorithm)) {
 
-            keyPair = nssdb.createRSAKeyPair(
-                    token,
-                    length,
-                    wrap);
+            try {
+                keyPair = nssdb.createRSAKeyPair(
+                        token,
+                        length,
+                        wrap);
+            } catch (org.mozilla.jss.crypto.TokenException e) {
+                if (e.getMessage().contains("unable to login to token")) {
+                    // Debug mode: Show full exception call stack details
+                    logger.debug("TokenException details:", e);
+                    throw new CLIException("ERROR: Unable to login to NSS token. Please provide NSSDB password using -c <password>.");
+                }
+                throw e; // Default for a different TokenException
+            }
 
         } else if ("ec".equals(algorithm)) {
 
-            keyPair = nssdb.createECKeyPair(
-                    token,
-                    curve,
-                    sslECDH,
-                    temporary,
-                    sensitive,
-                    extractable);
+            try {
+                keyPair = nssdb.createECKeyPair(
+                        token,
+                        curve,
+                        sslECDH,
+                        temporary,
+                        sensitive,
+                        extractable);
+            } catch (org.mozilla.jss.crypto.TokenException e) {
+                if (e.getMessage().contains("unable to login to token")) {
+                    // Debug mode: Show full exception call stack details
+                    logger.debug("TokenException details:", e);
+                    throw new CLIException("ERROR: Unable to login to NSS token. Please provide NSSDB password using -c <password>.");
+                }
+                throw e; // Default for all other TokenException messages
+            }
 
         } else {
             throw new Exception("Unknown algorithm: " + algorithm);
