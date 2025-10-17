@@ -346,36 +346,38 @@ class PKIServer(object):
         if sslhost is None:
             raise Exception('Missing SSL host')
 
-        sslcert = server_config.get_sslcert(sslhost)
+        sslcerts = server_config.get_sslcerts(sslhost)
 
-        if sslcert is None:
+        if not sslcerts:
             raise Exception('Missing SSL certificate')
 
-        keystore_type = sslcert.get('certificateKeystoreType')
-        keystore_provider = sslcert.get('certificateKeystoreProvider')
+        for sslcert in sslcerts:
+            keystore_type = sslcert.get('certificateKeystoreType')
+            keystore_provider = sslcert.get('certificateKeystoreProvider')
 
-        if keystore_type == 'pkcs11' and keystore_provider == 'Mozilla-JSS':
+            if keystore_type == 'pkcs11' and keystore_provider == 'Mozilla-JSS':
 
-            # export CA cert from NSS database
+                # export CA cert from NSS database
 
-            token = pki.nssdb.INTERNAL_TOKEN_NAME
-            nickname = self.get_sslserver_cert_nickname()
+                token = pki.nssdb.INTERNAL_TOKEN_NAME
+                nickname = sslcert.get('certificateKeyAlias')
 
-            if nickname is None:
-                return
+                if nickname is None:
+                    continue
 
-            if ':' in nickname:
-                parts = nickname.split(':', 1)
-                token = parts[0]
-                nickname = parts[1]
+                if ':' in nickname:
+                    parts = nickname.split(':', 1)
+                    token = parts[0]
+                    nickname = parts[1]
 
-            nssdb = self.open_nssdb(token=token)
-            try:
-                nssdb.extract_ca_cert(self.ca_cert, nickname)
-            finally:
-                nssdb.close()
+                nssdb = self.open_nssdb(token=token)
+                try:
+                    nssdb.extract_ca_cert(self.ca_cert, nickname)
+                    return
+                finally:
+                    nssdb.close()
 
-        # TODO: handle other types of HTTP connector
+            # TODO: handle other types of HTTP connector
 
     def cert_file(self, cert_id):
         '''
