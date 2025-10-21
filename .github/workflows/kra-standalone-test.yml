@@ -151,92 +151,72 @@ jobs:
               -D pki_security_domain_setup=False \
               -v
 
-      - name: Issue KRA storage cert
+      - name: Check KRA system and admin CSRs
         run: |
-          docker exec client openssl req -text -noout -in ${SHARED}/kra_storage.csr
+          docker exec client openssl req -text -noout -in $SHARED/kra_storage.csr
+          docker exec client openssl req -text -noout -in $SHARED/kra_transport.csr
+          docker exec client openssl req -text -noout -in $SHARED/subsystem.csr
+          docker exec client openssl req -text -noout -in $SHARED/sslserver.csr
+          docker exec client openssl req -text -noout -in $SHARED/kra_audit_signing.csr
+          docker exec client openssl req -text -noout -in $SHARED/kra_admin.csr
 
-          docker exec client pki \
+      - name: Issue KRA system and admin certs
+        run: |
+          docker exec -i client pki \
+              -v \
               -U https://ca.example.com:8443 \
               -n caadmin \
-              ca-cert-issue \
+              - << EOF
+
+          # issue KRA storage cert
+          ca-cert-issue \
               --profile caStorageCert \
-              --csr-file ${SHARED}/kra_storage.csr \
-              --output-file ${SHARED}/kra_storage.crt
+              --csr-file $SHARED/kra_storage.csr \
+              --output-file $SHARED/kra_storage.crt
 
-          docker exec client openssl x509 -text -noout -in ${SHARED}/kra_storage.crt
-
-      - name: Issue KRA transport cert
-        run: |
-          docker exec client openssl req -text -noout -in ${SHARED}/kra_transport.csr
-
-          docker exec client pki \
-              -U https://ca.example.com:8443 \
-              -n caadmin \
-              ca-cert-issue \
+          # issue KRA transport cert
+          ca-cert-issue \
               --profile caTransportCert \
-              --csr-file ${SHARED}/kra_transport.csr \
-              --output-file ${SHARED}/kra_transport.crt
+              --csr-file $SHARED/kra_transport.csr \
+              --output-file $SHARED/kra_transport.crt
 
-          docker exec client openssl x509 -text -noout -in ${SHARED}/kra_transport.crt
-
-      - name: Issue subsystem cert
-        run: |
-          docker exec client openssl req -text -noout -in ${SHARED}/subsystem.csr
-
-          docker exec client pki \
-              -U https://ca.example.com:8443 \
-              -n caadmin \
-              ca-cert-issue \
+          # issue subsystem cert
+          ca-cert-issue \
               --profile caSubsystemCert \
-              --csr-file ${SHARED}/subsystem.csr \
-              --output-file ${SHARED}/subsystem.crt
+              --csr-file $SHARED/subsystem.csr \
+              --output-file $SHARED/subsystem.crt
 
-          docker exec client openssl x509 -text -noout -in ${SHARED}/subsystem.crt
-
-      - name: Issue SSL server cert
-        run: |
-          docker exec client openssl req -text -noout -in ${SHARED}/sslserver.csr
-
-          docker exec client pki \
-              -U https://ca.example.com:8443 \
-              -n caadmin \
-              ca-cert-issue \
+          # issue SSL server cert
+          ca-cert-issue \
               --profile caServerCert \
-              --csr-file ${SHARED}/sslserver.csr \
-              --output-file ${SHARED}/sslserver.crt
+              --csr-file $SHARED/sslserver.csr \
+              --output-file $SHARED/sslserver.crt
 
-          docker exec client openssl x509 -text -noout -in ${SHARED}/sslserver.crt
-
-      - name: Issue KRA audit signing cert
-        run: |
-          docker exec client openssl req -text -noout -in ${SHARED}/kra_audit_signing.csr
-
-          docker exec client pki \
-              -U https://ca.example.com:8443 \
-              -n caadmin \
-              ca-cert-issue \
+          # issue KRA audit signing cert
+          ca-cert-issue \
               --profile caAuditSigningCert \
-              --csr-file ${SHARED}/kra_audit_signing.csr \
-              --output-file ${SHARED}/kra_audit_signing.crt
+              --csr-file $SHARED/kra_audit_signing.csr \
+              --output-file $SHARED/kra_audit_signing.crt
 
-          docker exec client openssl x509 -text -noout -in ${SHARED}/kra_audit_signing.crt
-
-      - name: Issue KRA admin cert
-        run: |
-          docker exec client openssl req -text -noout -in ${SHARED}/kra_admin.csr
-
-          docker exec client pki \
-              -U https://ca.example.com:8443 \
-              -n caadmin \
-              ca-cert-issue \
+          # issue KRA admin cert
+          ca-cert-issue \
               --profile AdminCert \
-              --csr-file ${SHARED}/kra_admin.csr \
-              --output-file ${SHARED}/kra_admin.crt
+              --csr-file $SHARED/kra_admin.csr \
+              --output-file $SHARED/kra_admin.crt
+          EOF
 
-          docker exec client openssl x509 -text -noout -in ${SHARED}/kra_admin.crt
+      - name: Check KRA system and admin certs
+        run: |
+          docker exec client openssl x509 -text -noout -in $SHARED/kra_storage.crt
+          docker exec client openssl x509 -text -noout -in $SHARED/kra_transport.crt
+          docker exec client openssl x509 -text -noout -in $SHARED/subsystem.crt
+          docker exec client openssl x509 -text -noout -in $SHARED/sslserver.crt
+          docker exec client openssl x509 -text -noout -in $SHARED/kra_audit_signing.crt
+          docker exec client openssl x509 -text -noout -in $SHARED/kra_admin.crt
 
       - name: Stop CA
         run: |
+          # ensure KRA installation can complete without a running CA
           docker exec ca pki-server stop --wait
 
       - name: Install standalone KRA (step 2)

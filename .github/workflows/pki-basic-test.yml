@@ -13,6 +13,11 @@ jobs:
     env:
       SHARED: /tmp/workdir/pki
     steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install xmlstarlet
+
       - name: Clone repository
         uses: actions/checkout@v4
 
@@ -33,7 +38,6 @@ jobs:
 
       - name: Check pki CLI help message
         run: |
-          docker exec pki pki
           docker exec pki pki --help
 
           # TODO: validate output
@@ -68,3 +72,43 @@ jobs:
           docker exec pki pki nss --help
 
           # TODO: validate output
+
+      - name: Check pki CLI in shell mode (with prompts)
+        run: |
+          VERSION=$(xmlstarlet sel -t -v '/_:project/_:version' pom.xml)
+
+          docker exec -i pki pki << EOF \
+              > >(tee stdout) 2> >(tee stderr >&2)
+          nss-cert-find
+          nss-key-find
+          exit
+          EOF
+
+          cat > expected << EOF
+          PKI Command-Line Interface $VERSION
+          EOF
+
+          diff expected stdout
+
+          # there should be 1 prompt for each input line
+          cp /dev/null expected
+          echo -n "pki> " >> expected
+          echo -n "pki> " >> expected
+          echo -n "pki> " >> expected
+
+          diff expected stderr
+
+      - name: Check pki CLI in batch mode (without prompts)
+        run: |
+          docker exec -i pki pki - << EOF \
+              > >(tee stdout) 2> >(tee stderr >&2)
+          # check certs
+          nss-cert-find
+
+          # check keys
+          nss-key-find
+          EOF
+
+          # there should be no prompts
+          diff /dev/null stdout
+          diff /dev/null stderr

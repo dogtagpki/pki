@@ -25,3 +25,8 @@ a file to store the ID of a new key or to load the ID of an existing key:
 * `pki nss-key-create`
 * `pki nss-key-show`
 * `pki nss-cert-request`
+
+== New shell/batch mode for PKI CLI ==
+
+PKI CLI now provides a shell mode to run commands interactively and
+a batch mode to run multiple commands at once.

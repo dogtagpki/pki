@@ -395,10 +395,6 @@ class PKICLI(pki.cli.CLI):
             command = args.remainder[0]
         logger.debug('CLI Command: %s', command)
 
-        if not command:
-            self.print_help()
-            return
-
         if client_type == 'python' or command in PYTHON_COMMANDS:
             module = self.find_module(command)
             logger.debug('Module: %s', module.get_full_name())
