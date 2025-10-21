@@ -661,6 +661,58 @@ public class MainCLI extends CLI {
         return client;
     }
 
+    public void executeCommands(BufferedReader in, boolean shell) throws Exception {
+
+        if (shell) {
+            printVersion();
+        }
+
+        while (true) {
+
+            if (shell) {
+                System.err.print("pki> ");
+                System.err.flush();
+            }
+
+            String line = in.readLine();
+
+            if (line == null) {
+                // exit shell/batch mode
+                break;
+            }
+
+            String[] args = parseLine(line);
+
+            if (args.length == 0) {
+                // skip blank line
+                continue;
+            }
+
+            String command = args[0];
+
+            if (command.startsWith("#")) {
+                // skip comment
+                continue;
+
+            } else if (command.equalsIgnoreCase("exit")) {
+                // exit shell/batch mode
+                break;
+            }
+
+            try {
+                super.execute(args);
+            } catch (Exception e) {
+                if (shell) {
+                    // shell mode -> show error but don't exit
+                    handleException(e);
+                } else {
+                    // batch mode -> exit on error
+                    throw e;
+                }
+            }
+        }
+    }
+
     @Override
     public void execute(String[] args) throws Exception {
 
@@ -673,13 +725,29 @@ public class MainCLI extends CLI {
             return;
         }
 
-        if (cmdArgs.length == 0 || cmd.hasOption("help")) {
-            // Print 'pki' usage
+        if (cmd.hasOption("help")) {
             printHelp();
             return;
         }
 
         parseOptions(cmd);
+
+        if (cmdArgs.length == 0) {
+            // no args -> enter shell mode (with prompts)
+            try (BufferedReader in = new BufferedReader(new InputStreamReader(System.in))) {
+                executeCommands(in, true);
+            }
+            return;
+
+        } else if (cmdArgs.length == 1 && cmdArgs[0].equals("-")) {
+            // "-" arg -> enter batch mode (without prompts)
+            try (BufferedReader in = new BufferedReader(new InputStreamReader(System.in))) {
+                executeCommands(in, false);
+            }
+            return;
+        }
+
+        // run a single command
 
         if (logger.isDebugEnabled()) {
             StringBuilder sb = new StringBuilder("Command:");
