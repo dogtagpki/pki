@@ -5,6 +5,9 @@
 //
 package com.netscape.cmstools.nss;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.lang3.StringUtils;
@@ -47,6 +50,10 @@ public class NSSKeyShowCLI extends CommandCLI {
         option.setArgName("ID");
         options.addOption(option);
 
+        option = new Option(null, "key-id-file", true, "File containing key ID");
+        option.setArgName("path");
+        options.addOption(option);
+
         option = new Option(null, "key-nickname", true, "Key nickname");
         option.setArgName("nickname");
         options.addOption(option);
@@ -82,6 +89,13 @@ public class NSSKeyShowCLI extends CommandCLI {
         mainCLI.init();
 
         String keyID = cmd.getOptionValue("key-id");
+        String keyIDFile = cmd.getOptionValue("key-id-file");
+
+        if (keyID == null && keyIDFile != null) {
+            // load key ID from file
+            keyID = Files.readString(Paths.get(keyIDFile)).strip();
+        }
+
         String keyNickname = cmd.getOptionValue("key-nickname");
         String outputFormat = cmd.getOptionValue("output-format", "text");
 

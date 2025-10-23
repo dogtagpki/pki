@@ -62,6 +62,10 @@ public class NSSCertRequestCLI extends CommandCLI {
         option.setArgName("ID");
         options.addOption(option);
 
+        option = new Option(null, "key-id-file", true, "File containing key ID");
+        option.setArgName("path");
+        options.addOption(option);
+
         option = new Option(null, "key-type", true, "Key type: RSA (default), EC");
         option.setArgName("type");
         options.addOption(option);
@@ -134,6 +138,13 @@ public class NSSCertRequestCLI extends CommandCLI {
         boolean subjectEncoding = cmd.hasOption("subject-encoding");
 
         String keyID = cmd.getOptionValue("key-id");
+        String keyIDFile = cmd.getOptionValue("key-id-file");
+
+        if (keyID == null && keyIDFile != null) {
+            // load key ID from file
+            keyID = Files.readString(Paths.get(keyIDFile)).strip();
+        }
+
         String keyType = cmd.getOptionValue("key-type", "RSA");
         String keySize = cmd.getOptionValue("key-size", "2048");
         boolean keyWrap = cmd.hasOption("key-wrap");

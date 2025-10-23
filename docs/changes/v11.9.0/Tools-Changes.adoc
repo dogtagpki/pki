@@ -16,3 +16,12 @@ The `pki-server <subsystem>-group-add` command has been added to create group.
 
 The `pki-server sd-type-add` command has been added to allow the introduction
 of new security domain types.
+
+== New `--key-id-file` option ==
+
+The following commands have been modified to provide an option to specify
+a file to store the ID of a new key or to load the ID of an existing key:
+
+* `pki nss-key-create`
+* `pki nss-key-show`
+* `pki nss-cert-request`
