@@ -33,13 +33,12 @@ jobs:
 
       - name: Create EC key
         run: |
-          docker exec pki pki nss-key-create --key-type EC | tee output
+          docker exec pki pki nss-key-create \
+              --key-type EC \
+              --key-id-file $SHARED/ca_signing.key-id
 
-          # get key ID
-          KEY_ID=$(sed -n 's/^\s*Key ID:\s*\(\S\+\)\s*$/\1/p' output)
-          echo $KEY_ID > ca_signing_key_id
-
-          docker exec pki pki nss-key-show --key-id $KEY_ID
+          docker exec pki pki nss-key-show \
+              --key-id-file $SHARED/ca_signing.key-id
 
       - name: Verify key type
         run: |
@@ -57,7 +56,7 @@ jobs:
       - name: Create CA signing cert request with existing EC key
         run: |
           docker exec pki pki nss-cert-request \
-              --key-id $(cat ca_signing_key_id) \
+              --key-id-file $SHARED/ca_signing.key-id \
               --subject "CN=Certificate Authority" \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --csr ca_signing.csr
@@ -121,7 +120,10 @@ jobs:
 
           # get key ID
           docker exec pki certutil -K -d /root/.dogtag/nssdb | tee output
-          sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\)\s\+NSS Certificate DB:sslserver$/\1/p' output > sslserver_key_id
+          sed -n \
+              's/^<.*>\s\+\S\+\s\+\(\S\+\)\s\+NSS Certificate DB:sslserver$/0x\1/p' \
+              output \
+              > sslserver.key-id
 
       - name: Verify trust flags
         run: |
@@ -169,7 +171,7 @@ jobs:
       - name: Create new SSL server cert request with existing EC key
         run: |
           docker exec pki pki nss-cert-request \
-              --key-id "0x`cat sslserver_key_id`" \
+              --key-id-file $SHARED/sslserver.key-id \
               --subject "CN=pki.example.com" \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               --csr new_sslserver.csr
@@ -217,8 +219,12 @@ jobs:
       - name: Verify key ID
         run: |
           docker exec pki certutil -K -d /root/.dogtag/nssdb | tee output
-          sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\)\s\+NSS Certificate DB:new_sslserver$/\1/p' output > new_sslserver_key_id
-          diff sslserver_key_id new_sslserver_key_id
+          sed -n \
+              's/^<.*>\s\+\S\+\s\+\(\S\+\)\s\+NSS Certificate DB:new_sslserver$/0x\1/p' \
+              output \
+              > new_sslserver.key-id
+
+          diff sslserver.key-id new_sslserver.key-id
 
       - name: Delete SSL server cert and key
         run: |

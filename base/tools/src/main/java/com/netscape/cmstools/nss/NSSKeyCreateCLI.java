@@ -18,6 +18,7 @@
 
 package com.netscape.cmstools.nss;
 
+import java.io.FileWriter;
 import java.security.KeyPair;
 
 import org.apache.commons.cli.CommandLine;
@@ -93,6 +94,10 @@ public class NSSKeyCreateCLI extends CommandCLI {
         option.setArgName("usage list");
         options.addOption(option);
 
+        option = new Option(null, "key-id-file", true, "File to store key ID");
+        option.setArgName("path");
+        options.addOption(option);
+
         option = new Option(null, "output-format", true, "Output format: text (default), json.");
         option.setArgName("format");
         options.addOption(option);
@@ -107,7 +112,6 @@ public class NSSKeyCreateCLI extends CommandCLI {
         } else if (cmd.hasOption("verbose")) {
             PKILogger.setLevel(LogLevel.INFO);
         }
-
 
         String[] cmdArgs = cmd.getArgs();
 
@@ -244,6 +248,14 @@ public class NSSKeyCreateCLI extends CommandCLI {
 
         } else {
             throw new Exception("Unsupported key type: " + keyType);
+        }
+
+        String keyIDFile = cmd.getOptionValue("key-id-file");
+        if (keyIDFile != null) {
+            // store key ID to file
+            try (FileWriter out = new FileWriter(keyIDFile)) {
+                out.write(keyInfo.getKeyId().toHexString());
+            }
         }
 
         String outputFormat = cmd.getOptionValue("output-format", "text");
