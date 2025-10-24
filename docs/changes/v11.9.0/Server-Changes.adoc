@@ -12,3 +12,11 @@ See also:
 
 * link:https://github.com/dogtagpki/pki/issues/5133[PKI Issue #5133]
 * link:../../upgrade/v11.9/Upgrading-PKI-Database.adoc[Upgrading PKI 11.9 Database]
+
+== Introduce ML-DSA algorithm family ==
+
+The new algorithms `ML-DSA-44`, `ML-DSA-65` and `ML-DSA-87` are
+enabled for certificate key and signature. It is possible to deploy a
+CA using the `ML-DSA-44` algorithm using the example `pkispawn`
+configuration file provided in the
+link:../../..//base/server/examples/installation/ca-mldsa.cfg[installation examples].

@@ -64,7 +64,7 @@ public class NSSKeyCreateCLI extends CommandCLI {
         option.setArgName("type");
         options.addOption(option);
 
-        option = new Option(null, "key-size", true, "Key size (RSA default: 2048, AES default: 256)");
+        option = new Option(null, "key-size", true, "Key size (RSA default: 2048, AES default: 256, MLDSA default: 65)");
         option.setArgName("size");
         options.addOption(option);
 
@@ -125,7 +125,6 @@ public class NSSKeyCreateCLI extends CommandCLI {
         boolean keyWrap = cmd.hasOption("key-wrap");
         String curve = cmd.getOptionValue("curve", "nistp256");
         boolean sslECDH = cmd.hasOption("ssl-ecdh");
-
         boolean temporary = cmd.hasOption("temporary");
 
         String sensitiveStr = cmd.getOptionValue("sensitive");
@@ -206,6 +205,35 @@ public class NSSKeyCreateCLI extends CommandCLI {
             KeyPair keyPair = nssdb.createECKeyPair(
                     token,
                     curve,
+                    temporary,
+                    sensitive,
+                    extractable,
+                    usages,
+                    usagesMask);
+
+            PK11PrivKey privateKey = (PK11PrivKey) keyPair.getPrivate();
+
+            String hexKeyID = "0x" + Utils.HexEncode(privateKey.getUniqueID());
+            keyInfo.setKeyId(new KeyId(hexKeyID));
+            keyInfo.setType(privateKey.getType().toString());
+            keyInfo.setAlgorithm(privateKey.getAlgorithm());
+
+        } else if ("ML-DSA".equalsIgnoreCase(keyType)) {
+            if (keySize == null) keySize = "65";
+
+            KeyPairGeneratorSpi.Usage[] usages = null;
+            if (opFlags != null && !opFlags.isEmpty()) {
+                usages = CryptoUtil.generateUsage(opFlags);
+            }
+
+            KeyPairGeneratorSpi.Usage[] usagesMask = null;
+            if (opFlagsMask != null && !opFlagsMask.isEmpty()) {
+                usagesMask = CryptoUtil.generateUsage(opFlagsMask);
+            }
+
+            KeyPair keyPair = nssdb.createMLDSAKeyPair(
+                    token,
+                    Integer.parseInt(keySize),
                     temporary,
                     sensitive,
                     extractable,

@@ -476,6 +476,48 @@ public class CryptoUtil {
         return keygen.genKeyPair();
     }
 
+    /**
+     * Generates an MLDSA key pair.
+     */
+    public static KeyPair generateMLDSAKeyPair(
+            CryptoToken token,
+            int keySize,
+            Boolean temporary,
+            Boolean sensitive,
+            Boolean extractable,
+            Usage[] usages,
+            Usage[] usagesMask) throws Exception {
+
+        logger.debug("CryptoUtil: Generating MLDSA key pair");
+
+        KeyPairGenerator keygen = token.getKeyPairGenerator(KeyPairAlgorithm.MLDSA);
+
+        logger.debug("CryptoUtil: - temporary: " + temporary);
+        if (temporary != null) {
+            keygen.temporaryPairs(temporary);
+        }
+
+        logger.debug("CryptoUtil: - sensitive: " + sensitive);
+        if (sensitive != null) {
+            keygen.sensitivePairs(sensitive);
+        }
+
+        logger.debug("CryptoUtil: - extractable: " + extractable);
+        if (extractable != null) {
+            keygen.extractablePairs(extractable);
+        }
+
+        String usageList = usages != null ? String.join(",", Stream.of(usages).map(org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage::name).toArray(String[]::new)) : "";
+        logger.debug("CryptoUtil: generateMLDSAKeyPair with key usage {}", usageList);
+        String usageMaskList = usagesMask != null ? String.join(",", Stream.of(usagesMask).map(org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage::name).toArray(String[]::new)) : "";
+        logger.debug("CryptoUtil: generateMLDSAKeyPair with key usage mask {}", usageMaskList);
+        keygen.setKeyPairUsages(usages, usagesMask);
+        logger.debug("CryptoUtil: - key size: " + keySize);
+        keygen.initialize(keySize);
+
+        return keygen.genKeyPair();
+    }
+
     public static boolean isECCKey(X509Key key) {
         String keyAlgo = key.getAlgorithm();
         if (keyAlgo.equals("EC") ||
@@ -919,16 +961,6 @@ public class CryptoUtil {
                     new BigInt(rsaPublicKey.getModulus()),
                     new BigInt(rsaPublicKey.getPublicExponent()));
 
-        } else if (publicKey instanceof ECPublicKey) {
-
-            ECPublicKey ecPublicKey = (ECPublicKey) publicKey;
-            try {
-                DerValue derValue = new DerValue(ecPublicKey.getEncoded());
-                return X509Key.parse(derValue);
-            } catch (IOException e) {
-                throw new InvalidKeyException(e);
-            }
-
         } else if (publicKey instanceof DSAPublicKey) {
 
             DSAPublicKey dsaPublicKey = (DSAPublicKey) publicKey;
@@ -939,10 +971,24 @@ public class CryptoUtil {
                     params.getQ(),
                     params.getG());
 
+        } else if (publicKey instanceof ECPublicKey) {
+
+            ECPublicKey ecPublicKey = (ECPublicKey) publicKey;
+            try {
+                DerValue derValue = new DerValue(ecPublicKey.getEncoded());
+                return X509Key.parse(derValue);
+            } catch (IOException e) {
+                throw new InvalidKeyException(e);
+            }
+
         } else {
-            String message = "Unsupported public key: " + publicKey.getClass().getName();
-            logger.error(message);
-            throw new InvalidKeyException(message);
+            // Generic handler for other keys (including ML-DSA)
+            try {
+                DerValue derValue = new DerValue(publicKey.getEncoded());
+                return X509Key.parse(derValue);
+            } catch (IOException e) {
+                throw new InvalidKeyException(e);
+            }
         }
     }
 
@@ -2942,6 +2988,12 @@ public class CryptoUtil {
             return "SHA384withRSA/PSS";
         else if (algname.equals(SignatureAlgorithm.RSAPSSSignatureWithSHA512Digest.toString()))
             return "SHA512withRSA/PSS";
+        else if (algname.equals(SignatureAlgorithm.MLDSA44.toString()))
+            return "ML-DSA-44";
+        else if (algname.equals(SignatureAlgorithm.MLDSA65.toString()))
+            return "ML-DSA-65";
+        else if (algname.equals(SignatureAlgorithm.MLDSA87.toString()))
+            return "ML-DSA-87";
 
         throw new NoSuchAlgorithmException(method + alg);
     }
