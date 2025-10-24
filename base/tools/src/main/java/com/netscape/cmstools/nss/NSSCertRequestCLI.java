@@ -214,6 +214,14 @@ public class NSSCertRequestCLI extends CommandCLI {
                     sensitive,
                     extractable);
 
+        } else if ("ML-DSA".equalsIgnoreCase(keyType)) {
+            keyPair = nssdb.createMLDSAKeyPair(
+                    token,
+                    Integer.parseInt(keySize),
+                    temporary,
+                    sensitive,
+                    extractable);
+
         } else {
             throw new Exception("Unsupported key type: " + keyType);
         }
@@ -273,6 +281,8 @@ public class NSSCertRequestCLI extends CommandCLI {
             } else if ("EC".equalsIgnoreCase(keyType)) {
                 signatureAlgorithm = SignatureAlgorithm.ECSignatureWithSHA256Digest;
 
+            } else if ("ML-DSA".equalsIgnoreCase(keyType)) {
+                signatureAlgorithm = SignatureAlgorithm.MLDSA;
             } else {
                 throw new Exception("Unknown algorithm: " + keyType);
             }

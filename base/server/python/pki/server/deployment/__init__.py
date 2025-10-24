@@ -629,6 +629,11 @@ class PKIDeployer:
 
             hash_alg = m.group(1)
 
+        elif key_type == 'mldsa':
+            key_type = 'ML-DSA'
+            curve = None
+            hash_alg = None
+
         else:
             raise Exception('Invalid key type: %s' % key_type)
 
@@ -1141,7 +1146,7 @@ class PKIDeployer:
         if key_type == 'ECC':
             key_type = 'EC'
 
-        if key_type not in ['RSA', 'EC']:
+        if key_type not in ['RSA', 'EC', 'MLDSA']:
             raise Exception('Unsupported key type: %s' % key_type)
 
         return key_type
@@ -3106,6 +3111,9 @@ class PKIDeployer:
             curve = request.systemCert.keyCurveName
             ssl_ecdh = request.systemCert.sslECDH
 
+        elif request.systemCert.keyType == 'MLDSA':
+            key_type = 'ML-DSA'
+            key_size = request.systemCert.keySize
         else:
             raise Exception('Unsupported key type: %s' % key_type)
 
@@ -3819,9 +3827,11 @@ class PKIDeployer:
         if key_type == 'DSA' and 'DSA' in algorithm:
             return True
 
+        if key_type == 'MLDSA' and 'ML-DSA' in algorithm:
+            return True
         return False
 
-    def get_signing_algorithm(self, subsystem, profile):
+    def get_signing_algorithm(self, subsystem, profile, req_algorithm=None):
         '''
         Get the signing algorithm from a profile.
 
@@ -3864,6 +3874,9 @@ class PKIDeployer:
             raise Exception('Unable to get allowed signing algorithms')
 
         # check algorithm
+        if req_algorithm and algorithm and algorithm == '-':
+            algorithm = req_algorithm
+
         if algorithm and algorithm != '-':
 
             if not self.valid_algorithm(key_type, algorithm):
@@ -3917,7 +3930,8 @@ class PKIDeployer:
         profile = {}
         pki.util.load_properties(profile_filename, profile)
 
-        request.systemCert.keyAlgorithm = self.get_signing_algorithm(subsystem, profile)
+        request.systemCert.keyAlgorithm = self.get_signing_algorithm(
+                subsystem, profile, keyalgorithm)
         logger.info('Signing algorithm: %s', request.systemCert.keyAlgorithm)
 
         if config.str2bool(self.mdict['pki_ds_setup']):

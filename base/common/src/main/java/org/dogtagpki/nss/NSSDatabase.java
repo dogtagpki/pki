@@ -110,6 +110,7 @@ import org.mozilla.jss.pkix.primitive.Name;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.password.PasswordStore;
+import org.mozilla.jss.pkcs11.KeyType;
 
 /**
  * @author Endi S. Dewata
@@ -1031,6 +1032,49 @@ public class NSSDatabase {
                 usagesMask);
     }
 
+    public KeyPair createMLDSAKeyPair(
+            CryptoToken token,
+            int keySize,
+            Boolean temporary,
+            Boolean sensitive,
+            Boolean extractable) throws Exception {
+
+        logger.debug("NSSDatabase: Creating MLDSA key");
+        logger.debug("NSSDatabase: - size: " + keySize);
+
+        return CryptoUtil.generateMLDSAKeyPair(
+                token,
+                keySize,
+                temporary,
+                sensitive,
+                extractable,
+                null,
+                null);
+        
+    }
+
+    public KeyPair createMLDSAKeyPair(
+            CryptoToken token,
+            int keySize,
+            Boolean temporary,
+            Boolean sensitive,
+            Boolean extractable,
+            Usage[] usages,
+            Usage[] usagesMask) throws Exception {
+
+        logger.debug("NSSDatabase: Creating MLDSA key");
+        logger.debug("NSSDatabase: - size: " + keySize);
+
+        return CryptoUtil.generateMLDSAKeyPair(
+                token,
+                keySize,
+                temporary,
+                sensitive,
+                extractable,
+                usages,
+                usagesMask);
+    }
+
     public KeyPair createECKeyPair(
             CryptoToken token,
             String curveName,
@@ -1132,8 +1176,15 @@ public class NSSDatabase {
         logger.debug("NSSDatabase: - subject: " + subject);
 
         PK11PrivKey privateKey = (PK11PrivKey) keyPair.getPrivate();
-        String algorithm = hash + "with" + privateKey.getType();
-
+        String algorithm;
+        if (privateKey.getKeyType() == KeyType.MLDSA) {
+            // ignore hash for ML-DSA
+            // Accepted signature are ML-DSA-44, ML-DSA-65 and ML-DSA-87
+            algorithm = privateKey.getType().toString();
+        } else {
+            // Example of signature: SHA256withRSA or SHA256withEC
+            algorithm = hash + "with" + privateKey.getType();
+        }
         /*
         PublicKey publicKey = keyPair.getPublic();
         X509Key key = CryptoUtil.createX509Key(publicKey);
