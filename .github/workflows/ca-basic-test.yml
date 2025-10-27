@@ -53,7 +53,13 @@ jobs:
               -s CA \
               -D pki_ds_url=ldap://ds.example.com:3389 \
               -D pki_audit_signing_nickname= \
-              -v
+              --debug \
+              > >(tee stdout) 2> >(tee stderr >&2)
+
+      - name: Check external commands
+        run: |
+          sed -n '/^DEBUG: Command:/p' stderr | tee output
+          wc -l output
 
       - name: Check PKI server base dir after installation
         run: |

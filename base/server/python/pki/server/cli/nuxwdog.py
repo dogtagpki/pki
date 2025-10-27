@@ -202,7 +202,10 @@ class NuxwdogEnableCLI(pki.cli.CLI):
             os.unlink(new_systemd_link)
         os.symlink(new_systemd_source, new_systemd_link)
 
-        subprocess.check_call(['systemctl', 'daemon-reload'])
+        cmd = ['systemctl', 'daemon-reload']
+
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     def modify_password_class_in_cs_cfg(self, instance):
         pclass = "com.netscape.cmsutil.password.NuxwdogPasswordStore"
@@ -338,7 +341,10 @@ class NuxwdogDisableCLI(pki.cli.CLI):
             os.unlink(new_systemd_link)
         os.symlink(new_systemd_source, new_systemd_link)
 
-        subprocess.check_call(['systemctl', 'daemon-reload'])
+        cmd = ['systemctl', 'daemon-reload']
+
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     def modify_password_class_in_cs_cfg(self, instance):
         pclass = "com.netscape.cmsutil.password.PlainPasswordFile"

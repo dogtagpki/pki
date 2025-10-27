@@ -106,7 +106,13 @@ jobs:
               -D acme_database_url=ldap://ds.example.com:3389 \
               -D acme_issuer_url=https://pki.example.com:8443 \
               -D acme_realm_url=ldap://ds.example.com:3389 \
-              -v
+              --debug \
+              > >(tee stdout) 2> >(tee stderr >&2)
+
+      - name: Check external commands
+        run: |
+          sed -n '/^DEBUG: Command:/p' stderr | tee output
+          wc -l output
 
       - name: Check PKI server base dir after installation
         run: |

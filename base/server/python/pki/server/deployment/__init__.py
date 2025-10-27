@@ -763,7 +763,7 @@ class PKIDeployer:
 
             pki_ca_crt_path = os.path.join(self.instance.nssdb_dir, 'ca.crt')
 
-            cmd_export_ca = [
+            cmd = [
                 'openssl', 'pkcs12',
                 '-nomacver',
                 '-in', pki_clone_pkcs12_path,
@@ -773,8 +773,9 @@ class PKIDeployer:
                 '-passin', 'pass:' + pki_clone_pkcs12_password
             ]
 
+            logger.debug('Command: %s', ' '.join(cmd))
             res_ca = subprocess.check_output(
-                cmd_export_ca,
+                cmd,
                 stderr=subprocess.STDOUT).decode('utf-8')
 
             logger.debug('Result of CA certificate export: %s', res_ca)

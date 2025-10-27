@@ -164,7 +164,7 @@ class PKIServerCLI(pki.cli.CLI):
         command = None
         if len(args.remainder) > 0:
             command = args.remainder[0]
-        logger.debug('Command: %s', command)
+        logger.debug('CLI Command: %s', command)
 
         if not command:
             self.print_help()
