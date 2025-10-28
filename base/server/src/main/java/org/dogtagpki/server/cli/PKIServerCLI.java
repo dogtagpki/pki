@@ -94,7 +94,8 @@ public class PKIServerCLI extends CLI {
         super.execute(cmdArgs);
     }
 
-    public static void handleException(Throwable t) {
+    @Override
+    public void handleException(Throwable t) {
 
         if (logger.isInfoEnabled()) {
             t.printStackTrace(System.err);
@@ -119,8 +120,8 @@ public class PKIServerCLI extends CLI {
     }
 
     public static void main(String[] args) throws Exception {
+        PKIServerCLI cli = new PKIServerCLI();
         try {
-            PKIServerCLI cli = new PKIServerCLI();
             cli.execute(args);
 
         } catch (CLIException e) {
@@ -131,7 +132,7 @@ public class PKIServerCLI extends CLI {
             System.exit(e.getCode());
 
         } catch (Throwable t) {
-            handleException(t);
+            cli.handleException(t);
             System.exit(-1);
         }
     }

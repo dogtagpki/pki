@@ -149,6 +149,7 @@ public class MainCLI extends CLI {
         return apiVersion;
     }
 
+    @Override
     public void printVersion() {
         Package pkg = MainCLI.class.getPackage();
         System.out.println("PKI Command-Line Interface " + pkg.getImplementationVersion());
@@ -661,56 +662,9 @@ public class MainCLI extends CLI {
         return client;
     }
 
-    public void executeCommands(BufferedReader in, boolean shell) throws Exception {
-
-        if (shell) {
-            printVersion();
-        }
-
-        while (true) {
-
-            if (shell) {
-                System.err.print("pki> ");
-                System.err.flush();
-            }
-
-            String line = in.readLine();
-
-            if (line == null) {
-                // exit shell/batch mode
-                break;
-            }
-
-            String[] args = parseLine(line);
-
-            if (args.length == 0) {
-                // skip blank line
-                continue;
-            }
-
-            String command = args[0];
-
-            if (command.startsWith("#")) {
-                // skip comment
-                continue;
-
-            } else if (command.equalsIgnoreCase("exit")) {
-                // exit shell/batch mode
-                break;
-            }
-
-            try {
-                super.execute(args);
-            } catch (Exception e) {
-                if (shell) {
-                    // shell mode -> show error but don't exit
-                    handleException(e);
-                } else {
-                    // batch mode -> exit on error
-                    throw e;
-                }
-            }
-        }
+    @Override
+    public void executeCommand(String[] args) throws Exception {
+        super.execute(args);
     }
 
     @Override
@@ -759,7 +713,7 @@ public class MainCLI extends CLI {
             logger.debug(sb.toString());
         }
 
-        super.execute(cmdArgs);
+        executeCommand(cmdArgs);
     }
 
     public static void printMessage(String message) {
@@ -768,7 +722,8 @@ public class MainCLI extends CLI {
         System.out.println(StringUtils.repeat("-", message.length()));
     }
 
-    public static void handleException(Throwable t) {
+    @Override
+    public void handleException(Throwable t) {
 
         if (logger.isInfoEnabled()) {
             t.printStackTrace(System.err);
@@ -795,9 +750,9 @@ public class MainCLI extends CLI {
         }
     }
 
-    public static void main(String args[]) {
+    public static void main(String args[]) throws Exception {
+        MainCLI cli = new MainCLI();
         try {
-            MainCLI cli = new MainCLI();
             cli.execute(args);
 
         } catch (CLIException e) {
@@ -808,7 +763,7 @@ public class MainCLI extends CLI {
             System.exit(e.getCode());
 
         } catch (Throwable t) {
-            handleException(t);
+            cli.handleException(t);
             System.exit(-1);
         }
     }
