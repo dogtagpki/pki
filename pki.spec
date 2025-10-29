@@ -217,6 +217,8 @@ BuildRequires:    javapackages-tools
 BuildRequires:    xmlstarlet
 %endif
 
+#Test tomcat 10 support on ci
+
 %if 0%{?fedora} >= %{fedora_cutoff} || 0%{?rhel} >= 10
 BuildRequires:     tomcat-lib >= 1:10.1.36
 BuildRequires:     tomcat-jakartaee-migration
