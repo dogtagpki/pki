@@ -65,6 +65,7 @@ jobs:
           PermitRootLogin yes
           PubkeyAuthentication yes
           AuthenticationMethods publickey
+          UsePAM yes
           EOF
 
           # start SSH server
