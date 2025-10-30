@@ -71,7 +71,7 @@ To customize JUL configuration, replace the link with a copy of the default conf
 ```
 $ rm -f /var/lib/pki/<instance>/conf/logging.properties
 $ cp /usr/share/pki/server/conf/logging.properties /var/lib/pki/<instance>/conf
-$ chown pkiuser.pkiuser /var/lib/pki/<instance>/conf/logging.properties
+$ chown pkiuser:pkiuser /var/lib/pki/<instance>/conf/logging.properties
 ```
 
 Then edit the file as needed.

@@ -17,9 +17,9 @@ $ openssl req \
     -subj "/CN=$HOSTNAME" \
     -keyout /var/lib/pki/pki-tomcat/conf/sslserver.key \
     -out /var/lib/pki/pki-tomcat/conf/sslserver.crt
-$ chown pkiuser.pkiuser /var/lib/pki/pki-tomcat/conf/sslserver.crt
+$ chown pkiuser:pkiuser /var/lib/pki/pki-tomcat/conf/sslserver.crt
 $ chmod 660 /var/lib/pki/pki-tomcat/conf/sslserver.crt
-$ chown pkiuser.pkiuser /var/lib/pki/pki-tomcat/conf/sslserver.key
+$ chown pkiuser:pkiuser /var/lib/pki/pki-tomcat/conf/sslserver.key
 $ chmod 660 /var/lib/pki/pki-tomcat/conf/sslserver.key
 ----
 

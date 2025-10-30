@@ -50,7 +50,7 @@ jobs:
               -dname "CN=$HOSTNAME" \
               -keyalg RSA \
               -keypass Secret.123
-          docker exec pki chown pkiuser.pkiuser /var/lib/pki/pki-tomcat/conf/keystore.jks
+          docker exec pki chown pkiuser:pkiuser /var/lib/pki/pki-tomcat/conf/keystore.jks
           docker exec pki chmod 660 /var/lib/pki/pki-tomcat/conf/keystore.jks
 
       - name: Create HTTPS connector with JKS file

@@ -51,9 +51,9 @@ jobs:
               -subj "/CN=$HOSTNAME" \
               -keyout /var/lib/pki/pki-tomcat/conf/sslserver.key \
               -out /var/lib/pki/pki-tomcat/conf/sslserver.crt
-          docker exec pki chown pkiuser.pkiuser /var/lib/pki/pki-tomcat/conf/sslserver.crt
+          docker exec pki chown pkiuser:pkiuser /var/lib/pki/pki-tomcat/conf/sslserver.crt
           docker exec pki chmod 660 /var/lib/pki/pki-tomcat/conf/sslserver.crt
-          docker exec pki chown pkiuser.pkiuser /var/lib/pki/pki-tomcat/conf/sslserver.key
+          docker exec pki chown pkiuser:pkiuser /var/lib/pki/pki-tomcat/conf/sslserver.key
           docker exec pki chmod 660 /var/lib/pki/pki-tomcat/conf/sslserver.key
 
       - name: Create HTTPS connector with PEM files

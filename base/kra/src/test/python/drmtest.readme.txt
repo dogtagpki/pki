@@ -24,7 +24,7 @@ root user.
 
    cd <Dogtag source tree>/base/kra/functional
    cp drmtest.py <KRA agent home directory>
-   chown kraagent.kraagent <KRA agent home directory>/drmtest.py
+   chown kraagent:kraagent <KRA agent home directory>/drmtest.py
 
 5. As KRA agent, export the KRA agent client certificate:
 

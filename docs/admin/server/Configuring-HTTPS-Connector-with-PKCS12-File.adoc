@@ -17,7 +17,7 @@ $ keytool -genkeypair \
     -dname "CN=$HOSTNAME" \
     -keyalg RSA \
     -keypass Secret.123
-$ chown pkiuser.pkiuser /var/lib/pki/pki-tomcat/conf/keystore.p12
+$ chown pkiuser:pkiuser /var/lib/pki/pki-tomcat/conf/keystore.p12
 $ chmod 660 /var/lib/pki/pki-tomcat/conf/keystore.p12
 ----
 
