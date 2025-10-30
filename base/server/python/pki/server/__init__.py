@@ -1567,14 +1567,18 @@ grant codeBase "file:%s" {
             self.passwords[name] = password
             return password
 
-        except subprocess.CalledProcessError:
-            logger.info('Password unavailable in Keyring.')
+        except (subprocess.CalledProcessError, ValueError) as e:
+            logger.info('Password unavailable in Keyring:', e)
 
-        # prompt for password if not found
-        password = getpass.getpass(prompt='Enter password for %s: ' % name)
-        self.passwords[name] = password
+        try:
+            # prompt for password if not found and terminal is available
+            password = getpass.getpass(prompt='Enter password for %s: ' % name)
+            self.passwords[name] = password
+            return password
+        except EOFError:
+            logger.info('Password cannot be provided from standard I/O')
 
-        return password
+        raise Exception('No available password for "%s"' % name)
 
     def get_token_password(self, token=pki.nssdb.INTERNAL_TOKEN_NAME):
 
@@ -1597,14 +1601,18 @@ grant codeBase "file:%s" {
             self.passwords[name] = password
             return password
 
-        except subprocess.CalledProcessError:
-            logger.info('Password unavailable in Keyring.')
+        except (subprocess.CalledProcessError, ValueError) as e:
+            logger.info('Password unavailable in Keyring:', e)
 
-        # prompt for password if not found
-        password = getpass.getpass(prompt='Enter password for %s: ' % token)
-        self.passwords[name] = password
+        try:
+            # prompt for password if not found and terminal is available
+            password = getpass.getpass(prompt='Enter password for %s: ' % token)
+            self.passwords[name] = password
+            return password
+        except EOFError:
+            logger.info('Password cannot be provided from standard I/O')
 
-        return password
+        raise Exception('No available password to access the token "%s"' % token)
 
     def get_sslserver_cert_nickname(self):
 

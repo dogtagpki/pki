@@ -122,6 +122,9 @@ class Keyring:
 
         key_id = self.get_key_id(key_name)
 
+        if not key_id:
+            raise ValueError("No id for key %s in keyring" % key_name)
+
         cmd = []
         if self.user:
             cmd = ['runuser', '-u', self.user, '--']
