@@ -3931,7 +3931,7 @@ class PKIDeployer:
         pki.util.load_properties(profile_filename, profile)
 
         request.systemCert.keyAlgorithm = self.get_signing_algorithm(
-                subsystem, profile, keyalgorithm)
+            subsystem, profile, keyalgorithm)
         logger.info('Signing algorithm: %s', request.systemCert.keyAlgorithm)
 
         if config.str2bool(self.mdict['pki_ds_setup']):
