@@ -2280,8 +2280,8 @@ class PKISubsystem(object):
             as_current_user=False,
             capture_output=False):
 
-        java_home = self.instance.config['JAVA_HOME']
-        java_opts = self.instance.config['JAVA_OPTS']
+        java_home = self.instance.config.get('JAVA_HOME')
+        java_opts = self.instance.config.get('JAVA_OPTS')
 
         classpath = [
             pki.server.Tomcat.LIB_DIR + '/*',
