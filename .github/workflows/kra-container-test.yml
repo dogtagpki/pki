@@ -398,12 +398,8 @@ jobs:
           # TODO: review owners/permissions
           cat > expected << EOF
           drwxrwxrwx runner backup
-          -rw-rw-rw- runner catalina.$DATE.log
-          -rw-rw-rw- runner host-manager.$DATE.log
           drwxrwxrwx runner kra
-          -rw-rw-rw- runner localhost.$DATE.log
           -rw-rw-rw- runner localhost_access_log.$DATE.txt
-          -rw-rw-rw- runner manager.$DATE.log
           drwxrwxrwx runner pki
           EOF
 
