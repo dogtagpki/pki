@@ -256,12 +256,8 @@ jobs:
           cat > expected << EOF
           drwxrwx--- pkiuser pkiuser backup
           drwxrwx--- pkiuser pkiuser ca
-          -rw-rw-r-- pkiuser pkiuser catalina.$DATE.log
           drwxrwx--- pkiuser pkiuser est
-          -rw-rw-r-- pkiuser pkiuser host-manager.$DATE.log
-          -rw-rw-r-- pkiuser pkiuser localhost.$DATE.log
           -rw-r--r-- pkiuser pkiuser localhost_access_log.$DATE.txt
-          -rw-rw-r-- pkiuser pkiuser manager.$DATE.log
           drwxr-xr-x pkiuser pkiuser pki
           EOF
 
@@ -542,12 +538,8 @@ jobs:
           cat > expected << EOF
           drwxrwx--- pkiuser pkiuser backup
           drwxrwx--- pkiuser pkiuser ca
-          -rw-rw-r-- pkiuser pkiuser catalina.$DATE.log
           drwxrwx--- pkiuser pkiuser est
-          -rw-rw-r-- pkiuser pkiuser host-manager.$DATE.log
-          -rw-rw-r-- pkiuser pkiuser localhost.$DATE.log
           -rw-r--r-- pkiuser pkiuser localhost_access_log.$DATE.txt
-          -rw-rw-r-- pkiuser pkiuser manager.$DATE.log
           drwxr-xr-x pkiuser pkiuser pki
           EOF
 
