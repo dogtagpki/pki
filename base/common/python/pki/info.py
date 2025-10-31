@@ -119,10 +119,18 @@ class InfoClient(object):
         else:
             self.pki_client = parent
             self.connection = self.pki_client.connection
+        self.api_path = None
+        self.api_version = None
 
     @pki.handle_exceptions()
     def get_info(self):
         """ Return an Info object form a PKI server """
+
+        api_versions = {
+            'rest': 'v1',
+            'v1': 'v1',
+            'v2': 'v2',
+        }
 
         if self.pki_client and self.pki_client.api_path:
             # use REST API path specified in PKIClient
@@ -154,6 +162,9 @@ class InfoClient(object):
         if not response:
             raise Exception('Unable to get PKI server info')
 
+        self.api_path = api_path
+        self.api_version = api_versions[api_path]
+
         json_response = response.json()
         logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
 
@@ -164,6 +175,14 @@ class InfoClient(object):
         """ return Version object from server """
         version_string = self.get_info().version
         return Version(version_string)
+
+    @pki.handle_exceptions()
+    def get_api_path(self):
+        return self.api_path
+
+    @pki.handle_exceptions()
+    def get_api_version(self):
+        return self.api_version
 
 
 if __name__ == '__main__':

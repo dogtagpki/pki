@@ -424,12 +424,14 @@ class PKIClient:
         logger.info('Connecting to %s', urllib.parse.urlunparse(self.url))
 
         self.info = self.info_client.get_info()
+        self.api_path = self.info_client.get_api_path()
+        self.api_version = self.info_client.get_api_version()
 
         self.server_version = pki.util.Version(self.info.version)
         logger.debug('- server version: %s', self.server_version)
 
         # if not specified, set REST API version and path based on server version
-        if not self.api_version:
+        if not self.api_version and not self.api_path:
             if self.server_version >= pki.util.Version('11.6.0'):
                 # use REST API v2 for PKI 11.6.0 or later
                 self.api_version = 'v2'
