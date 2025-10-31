@@ -42,13 +42,15 @@ class Info(object):
 
     json_attribute_names = {
         'Version': 'version',
-        'Banner': 'banner'
+        'Banner': 'banner',
+        'ApiPath': 'api_path',
     }
 
     def __init__(self, version=None, banner=None):
         """ Constructor """
         self.version = version
         self.banner = banner
+        self.api_path = None
 
     @classmethod
     def from_json(cls, attr_list):
@@ -155,6 +157,7 @@ class InfoClient(object):
             raise Exception('Unable to get PKI server info')
 
         json_response = response.json()
+        json_response['ApiPath'] = api_path
         logger.debug('Response:\n%s', json.dumps(json_response, indent=4))
 
         return Info.from_json(json_response)

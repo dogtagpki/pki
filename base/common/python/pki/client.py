@@ -429,7 +429,7 @@ class PKIClient:
         logger.debug('- server version: %s', self.server_version)
 
         # if not specified, set REST API version and path based on server version
-        if not self.api_version:
+        if not self.api_version and not self.info.api_path:
             if self.server_version >= pki.util.Version('11.6.0'):
                 # use REST API v2 for PKI 11.6.0 or later
                 self.api_version = 'v2'
@@ -437,6 +437,10 @@ class PKIClient:
             else:
                 self.api_version = 'v1'
                 self.api_path = 'rest'
+        else:
+            api_versions = {'rest': 'v1', 'v2': 'v2'}
+            self.api_path = self.info.api_path
+            self.api_version = api_versions.get(self.api_path)
 
         logger.debug('- API version: %s', self.api_version)
         logger.debug('- API path: %s', self.api_path)
