@@ -716,6 +716,12 @@ Requires(pre):    shadow-utils
 %if 0%{?rhel}
 Requires:         ipa-healthcheck-core
 %else
+
+# Temporary fix. This should be required by freeipa-healthcheck-core
+# This is solved in https://src.fedoraproject.org/rpms/freeipa-healthcheck/c/19a33fac34459feb4929d838d539930d8edfc4fe?branch=f43
+# but new build has to be pushed to fedora 43
+Requires:         python3-setuptools
+
 Requires:         freeipa-healthcheck-core
 %endif
 
