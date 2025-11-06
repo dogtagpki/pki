@@ -1912,57 +1912,60 @@ class NSSDatabase(object):
         :rtype: str
         """
         logger.debug('NSSDatabase.get_trust(%s)', nickname)
-        cert_trust = None
 
         tmpdir = self.create_tmpdir()
         try:
             token = self.get_effective_token(token)
             password_file = self.get_password_file(tmpdir, token)
             cmd = [
-                'certutil',
-                '-L',
+                'pki',
                 '-d', self.directory
             ]
             fullname = nickname
 
             if token:
-                cmd.extend(['-h', token])
                 fullname = token + ':' + fullname
 
-            logger.debug('fullname: %s', fullname)
+            if self.password_conf:
+                cmd.extend(['-f', self.password_conf])
 
-            if password_file:
-                cmd.extend(['-f', password_file])
+            elif password_file:
+                cmd.extend(['-C', password_file])
+
+            cmd.extend([
+                'nss-cert-show',
+                fullname
+            ])
 
             result = self.run(cmd, capture_output=True)
 
-            output = result.stdout.decode()
-            error = result.stderr.decode()
-
-            if error:
-                # certutil returned an error
-                # raise exception unless its not cert not found
-                logger.error('error : %s', error)
-                if error.startswith(b'certutil: Could not find cert: '):
-                    return None
-
-                raise Exception('Could not find certificate: %s: %s' % (fullname, error.strip()))
-
-            if result.returncode != 0:
-                logger.warning('certutil returned non-zero exit code (bug #1539996)')
-
-            re_compile = re.compile(r'^' + fullname + r'\s+(\S+)\s*$', re.MULTILINE)
-            match = re.search(re_compile, output)
-
-            if match:
-                cert_trust = match.group(1)
-            else:
-                cert_trust = None
-
-            return cert_trust
-
         finally:
             shutil.rmtree(tmpdir)
+
+        stdout = result.stdout.decode()
+        stderr = result.stderr.decode()
+
+        if stderr:
+            logger.error('stderr : %s', stderr)
+
+            # TODO: use RC instead of text to determine missing cert
+            if re.search('^ERROR: Certificate not found: ', stderr, re.MULTILINE):
+                # cert not found -> return None
+                return None
+
+            raise Exception('Unable to get certificate %s: %s' % (fullname, stderr.strip()))
+
+        if result.returncode != 0:
+            raise Exception('Unable to get certificate %s: rc=%s' % (fullname, result.returncode))
+
+        # TODO: use JSON instead of text to get cert trust
+        re_compile = re.compile(r'^\s*Trust Flags:\s*(\S+)\s*$', re.MULTILINE)
+        match = re.search(re_compile, stdout)
+
+        if not match:
+            return None
+
+        return match.group(1)
 
     def show_cert(self, nickname, token=None):
 
