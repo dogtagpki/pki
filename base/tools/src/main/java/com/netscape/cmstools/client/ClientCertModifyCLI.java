@@ -54,6 +54,9 @@ public class ClientCertModifyCLI extends CommandCLI {
     @Override
     public void execute(CommandLine cmd) throws Exception {
 
+        logger.warn("The pki client-cert-mod has been deprecated. Use the following command instead:");
+        logger.warn("  $ pki nss-cert-mod --trust-flags <flags> <nickname>");
+
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length > 1) {

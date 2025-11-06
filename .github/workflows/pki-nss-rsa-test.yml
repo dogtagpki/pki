@@ -232,6 +232,18 @@ jobs:
           sed -n 's/\s*Type:\s*\(\S\+\)\s*$/\L\1/p' output > actual
           diff actual expected
 
+      - name: Modify trust flags
+        run: |
+          docker exec pki pki nss-cert-mod \
+              --trust-flags ",,P" \
+              new_sslserver | tee output
+
+          echo "u,u,Pu" > expected
+
+          docker exec pki pki nss-cert-show new_sslserver | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
       - name: Delete SSL server cert and key
         run: |
           docker exec pki pki nss-cert-del new_sslserver --remove-key

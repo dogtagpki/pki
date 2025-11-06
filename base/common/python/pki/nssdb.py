@@ -902,23 +902,20 @@ class NSSDatabase(object):
         self.run(cmd, input=data, check=True)
 
     def modify_cert(self, nickname, trust_attributes):
-        cmd = [
-            'certutil',
-            '-M',
-            '-d', self.directory
-        ]
 
         if self.token:
-            cmd.extend(['-h', self.token])
+            fullname = self.token + ':' + nickname
+        else:
+            fullname = nickname
 
-        password_file = self.get_password_file(self.tmpdir, None,
-                                               all_tokens=True)
-        cmd.extend(['-f', password_file])
-
-        cmd.extend([
-            '-n', nickname,
-            '-t', trust_attributes
-        ])
+        cmd = [
+            'pki',
+            '-d', self.directory,
+            '-f', self.password_conf,
+            'nss-cert-mod',
+            '--trust-flags', trust_attributes,
+            fullname
+        ]
 
         self.run(cmd, check=True)
 
