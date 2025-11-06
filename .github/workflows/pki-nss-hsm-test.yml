@@ -364,6 +364,25 @@ jobs:
               --cert new_sslserver.crt \
               new_sslserver
 
+          # check short cert info
+          docker exec pki pki \
+              -f $SHARED/password.conf \
+              nss-cert-show HSM:new_sslserver
+
+          # check full cert info
+          docker exec pki pki \
+              -f $SHARED/password.conf \
+              nss-cert-export \
+              --format RAW \
+              HSM:new_sslserver
+
+          # check PEM cert
+          docker exec pki pki \
+              -f $SHARED/password.conf \
+              nss-cert-export \
+              --format PEM \
+              HSM:new_sslserver
+
       - name: Verify SSL server cert in internal token
         run: |
           # verify trust flags
@@ -451,6 +470,22 @@ jobs:
           sed -n 's/^<.*>\s\+\S\+\s\+\S\+\s\+\(.*\)$/\1/p' output | sort > actual
           diff expected actual
 
+          cat > expected << EOF
+          ERROR: Certificate not found: new_sslserver
+          EOF
+
+          # pki nss-cert-show should fail
+          docker exec pki pki nss-cert-show new_sslserver \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          diff expected stderr
+
+          # pki nss-cert-export should fail
+          docker exec pki pki nss-cert-export new_sslserver \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          diff expected stderr
+
       - name: Verify SSL server cert in HSM
         run: |
           docker exec pki certutil -L \
@@ -472,6 +507,28 @@ jobs:
           echo "HSM:ca_signing" > expected
           sed -n 's/^<.*>\s\+\S\+\s\+\S\+\s\+\(.*\)$/\1/p' output | sort > actual
           diff expected actual
+
+          cat > expected << EOF
+          ERROR: Certificate not found: HSM:new_sslserver
+          EOF
+
+          # pki nss-cert-show should fail
+          docker exec pki pki \
+              -f $SHARED/password.conf \
+              nss-cert-show \
+              HSM:new_sslserver \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          diff expected stderr
+
+          # pki nss-cert-export should fail
+          docker exec pki pki \
+              -f $SHARED/password.conf \
+              nss-cert-export \
+              HSM:new_sslserver \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          diff expected stderr
 
       - name: Remove HSM token
         run: docker exec pki softhsm2-util --delete-token --token HSM

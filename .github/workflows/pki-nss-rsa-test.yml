@@ -190,6 +190,19 @@ jobs:
               --cert new_sslserver.crt \
               new_sslserver
 
+          # check short cert info
+          docker exec pki pki nss-cert-show new_sslserver
+
+          # check full cert info
+          docker exec pki pki nss-cert-export \
+              --format RAW \
+              new_sslserver
+
+          # check PEM cert
+          docker exec pki pki nss-cert-export \
+              --format PEM \
+              new_sslserver
+
       - name: Verify trust flags
         run: |
           echo "u,u,u" > expected
@@ -236,3 +249,19 @@ jobs:
           echo "NSS Certificate DB:ca_signing" > expected
           sed -n 's/^<.*>\s\+\S\+\s\+\S\+\s\+\(.*\)$/\1/p' output | sort > actual
           diff expected actual
+
+          cat > expected << EOF
+          ERROR: Certificate not found: new_sslserver
+          EOF
+
+          # pki nss-cert-show should fail
+          docker exec pki pki nss-cert-show new_sslserver \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          diff expected stderr
+
+          # pki nss-cert-export should fail
+          docker exec pki pki nss-cert-export new_sslserver \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+
+          diff expected stderr
