@@ -2015,13 +2015,13 @@ class NSSDatabase(object):
         logger.debug('NSSDatabase.get_cert(%s) begins', nickname)
 
         if output_format == 'pem':
-            output_format_option = '-a'
+            output_format_option = 'PEM'
 
         elif output_format == 'base64':
-            output_format_option = '-r'
+            output_format_option = 'DER'
 
         elif output_format == 'pretty-print':
-            output_format_option = None
+            output_format_option = 'RAW'
 
         else:
             raise Exception('Unsupported output format: %s' % output_format)
@@ -2032,61 +2032,63 @@ class NSSDatabase(object):
             password_file = self.get_password_file(tmpdir, token)
 
             cmd = [
-                'certutil',
-                '-L',
+                'pki',
                 '-d', self.directory
             ]
 
             fullname = nickname
 
             if token:
-                cmd.extend(['-h', token])
                 fullname = token + ':' + fullname
 
-            if password_file:
-                cmd.extend(['-f', password_file])
+            if self.password_conf:
+                cmd.extend(['-f', self.password_conf])
 
-            cmd.extend(['-n', fullname])
+            elif password_file:
+                cmd.extend(['-C', password_file])
 
-            if output_format_option:
-                cmd.extend([output_format_option])
+            cmd.extend([
+                'nss-cert-export',
+                '--format', output_format_option,
+                fullname
+            ])
 
             result = self.run(cmd, capture_output=True)
 
-            cert_data = result.stdout
-            stderr = result.stderr.decode('utf-8')
-
-            if stderr:
-                # certutil returned an error
-                # raise exception unless its not cert not found
-                logger.debug('stderr:\n%s', stderr)
-                if re.search('^certutil: Could not find cert: ', stderr, re.MULTILINE):
-                    logger.debug('Cert not found: %s', nickname)
-                    return None
-
-                raise Exception('Could not find cert: %s: %s' % (fullname, stderr.strip()))
-
-            if not cert_data:
-                logger.debug('certutil did not return cert data')
-                return None
-            else:
-                logger.debug('certutil returned cert data')
-
-            if result.returncode != 0:
-                logger.warning('certutil returned non-zero exit code (bug #1539996)')
-                logger.debug('return code: %s', result.returncode)
-
-            if output_format == 'base64':
-                cert_data = base64.b64encode(cert_data).decode('utf-8')
-            if output_text and not isinstance(cert_data, six.string_types):
-                cert_data = cert_data.decode('ascii')
-
-            logger.debug('NSSDatabase.get_cert(%s) ends', nickname)
-
-            return cert_data
-
         finally:
             shutil.rmtree(tmpdir)
+
+        cert_data = result.stdout
+        stderr = result.stderr.decode('utf-8')
+
+        if stderr:
+            logger.debug('stderr:\n%s', stderr)
+
+            # TODO: use RC instead of text to determine missing cert
+            if re.search('^ERROR: Certificate not found: ', stderr, re.MULTILINE):
+                # cert not found -> return None
+                return None
+
+            # otherwise, raise exception
+            raise Exception('Unable to get certificate %s: %s' % (fullname, stderr.strip()))
+
+        if not cert_data:
+            raise Exception('Unable to get certificate %s: Missing data' % fullname)
+
+        if result.returncode != 0:
+            raise Exception('Unable to get certificate %s: rc=%s' % (fullname, result.returncode))
+
+        if output_format == 'base64':
+            # convert to base-64
+            cert_data = base64.b64encode(cert_data).decode('utf-8')
+
+        if output_text and not isinstance(cert_data, six.string_types):
+            # convert to text
+            cert_data = cert_data.decode('ascii')
+
+        logger.debug('NSSDatabase.get_cert(%s) ends', nickname)
+
+        return cert_data
 
     def get_cert_info(self, nickname, token=None):
 
