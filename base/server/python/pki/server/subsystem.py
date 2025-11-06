@@ -2320,10 +2320,9 @@ class PKISubsystem(object):
             cmd.extend(non_empty_opts)
 
         cmd.extend(['org.dogtagpki.server.cli.PKIServerCLI'])
-
         cmd.extend(args)
 
-        logger.debug('Command: %s', ' '.join(cmd))
+        logger.debug('Command: pki-server %s', ' '.join(args))
 
         # https://stackoverflow.com/questions/53209127/subprocess-unexpected-keyword-argument-capture-output/53209196
         if capture_output:
