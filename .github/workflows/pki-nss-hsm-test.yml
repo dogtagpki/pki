@@ -439,6 +439,40 @@ jobs:
           sed -n 's/\s*Key ID:\s*\(\S\+\)\s*$/\L\1/p' output > new_sslserver_key_id
           diff sslserver_key_id new_sslserver_key_id
 
+      - name: Modify trust flags
+        run: |
+          docker exec pki pki nss-cert-mod \
+              --trust-flags ",,P" \
+              new_sslserver
+
+          # trust flags should be modified in internal token
+          echo ",,P" > expected
+
+          docker exec pki certutil -L -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^new_sslserver\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+          docker exec pki pki nss-cert-show new_sslserver | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+          # trust flags should be modified in HSM
+          echo "u,u,Pu" > expected
+
+          docker exec pki certutil -L \
+              -d /root/.dogtag/nssdb \
+              -h HSM \
+              -f $SHARED/password.txt | tee output
+          sed -n 's/^HSM:new_sslserver\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+          docker exec pki pki \
+              -f $SHARED/password.conf \
+              nss-cert-show \
+              HSM:new_sslserver | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
       - name: Delete SSL server cert and key from internal token and HSM
         run: |
           # delete cert from internal token

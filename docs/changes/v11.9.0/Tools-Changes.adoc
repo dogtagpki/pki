@@ -30,3 +30,10 @@ a file to store the ID of a new key or to load the ID of an existing key:
 
 PKI CLI now provides a shell mode to run commands interactively and
 a batch mode to run multiple commands at once.
+
+== New pki nss-cert-mod command ==
+
+The `pki nss-cert-mod` has been added to modify the trust flags
+of an existing certificate in NSS database.
+
+The `pki client-cert-mod` has been deprecated.
