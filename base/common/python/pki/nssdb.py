@@ -661,15 +661,8 @@ class NSSDatabase(object):
             '-d', self.directory
         ]
 
-        if token:
-            password_file = self.get_password_file(self.tmpdir, token)
-            cmd.extend(['-C', password_file])
-
-        elif self.password_conf:
+        if self.password_conf:
             cmd.extend(['-f', self.password_conf])
-
-        elif self.password_file:
-            cmd.extend(['-C', self.password_file])
 
         token = self.get_effective_token(token)
         if token:
