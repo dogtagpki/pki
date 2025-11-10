@@ -1,4 +1,16 @@
 name: PKI PKCS12 CLI
+# This test will perform the following operations:
+# - create CA signing cert
+# - create SSL server cert
+# - create audit signing cert
+# - export everything into PKCS #12 file
+# - remove CA signing key from PKCS #12 file
+# - remove audit signing cert and key from PKCS #12 file
+# - re-import audit signing cert and key into PKCS #12 file
+# - import everything from PKCS #12 file
+# - import PKCS #12 file without trust flags
+# - import PKCS #12 file without CA certs
+# - import PKCS #12 file without user certs
 
 on: workflow_call
 
@@ -31,146 +43,420 @@ jobs:
         env:
           HOSTNAME: pki.example.com
 
-      - name: Generate CA signing cert request in NSS database
+      - name: Create CA signing cert
         run: |
-          docker exec pki pki nss-cert-request \
+          docker exec -i pki pki - << EOF
+          nss-key-create \
+              --key-id-file $SHARED/ca_signing.key_id
+          nss-cert-request \
+              --key-id-file $SHARED/ca_signing.key_id \
               --subject "CN=Certificate Authority" \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
-              --csr ca_signing.csr
-
-      - name: Issue self-signed CA signing cert
-        run: |
-          docker exec pki pki nss-cert-issue \
-              --csr ca_signing.csr \
+              --csr $SHARED/ca_signing.csr
+          nss-cert-issue \
+              --csr $SHARED/ca_signing.csr \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
-              --cert ca_signing.crt
-          docker exec pki cat ca_signing.crt
-
-      - name: Import CA signing cert into NSS database
-        run: |
-          docker exec pki pki nss-cert-import \
-              --cert ca_signing.crt \
+              --cert $SHARED/ca_signing.crt
+          nss-cert-import \
+              --cert $SHARED/ca_signing.crt \
               --trust CT,C,C \
               ca_signing
+          EOF
 
-      - name: Generate SSL server cert request in NSS database
+          cat ca_signing.crt
+
+      - name: Create SSL server cert
         run: |
-          docker exec pki pki nss-cert-request \
+          docker exec -i pki pki - << EOF
+          nss-key-create \
+              --key-id-file $SHARED/sslserver.key_id
+          nss-cert-request \
+              --key-id-file $SHARED/sslserver.key_id \
               --subject "CN=localhost.localdomain" \
               --ext /usr/share/pki/server/certs/sslserver.conf \
-              --csr sslserver.csr
-
-      - name: Issue SSL server cert signed by CA signing cert
-        run: |
-          docker exec pki pki nss-cert-issue \
+              --csr $SHARED/sslserver.csr
+          nss-cert-issue \
               --issuer ca_signing \
-              --csr sslserver.csr \
+              --csr $SHARED/sslserver.csr \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
-              --cert sslserver.crt
-          docker exec pki cat sslserver.crt
+              --cert $SHARED/sslserver.crt
+          nss-cert-import \
+              --cert $SHARED/sslserver.crt \
+              sslserver
+          EOF
 
-      - name: Import SSL server cert into NSS database
-        run: docker exec pki pki nss-cert-import --cert sslserver.crt sslserver
+          cat sslserver.crt
 
-      - name: "Export all certs and keys from NSS database into PKCS #12 file"
+      - name: Create audit signing cert
+        run: |
+          docker exec -i pki pki - << EOF
+          nss-key-create \
+              --key-id-file $SHARED/audit_signing.key_id
+          nss-cert-request \
+              --key-id-file $SHARED/audit_signing.key_id \
+              --subject "CN=Audit Signing Certificate" \
+              --ext /usr/share/pki/server/certs/audit_signing.conf \
+              --csr $SHARED/audit_signing.csr
+          nss-cert-issue \
+              --issuer ca_signing \
+              --csr $SHARED/audit_signing.csr \
+              --ext /usr/share/pki/server/certs/audit_signing.conf \
+              --cert $SHARED/audit_signing.crt
+          nss-cert-import \
+              --cert $SHARED/audit_signing.crt \
+              --trust ,,P \
+              audit_signing
+          EOF
+
+          cat audit_signing.crt
+
+      - name: Check certs and keys in NSS database
+        run: |
+          docker exec pki certutil -L -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^\(\S\+\)\s*\(\S\+\)\s*$/\1 \2/p' output > actual
+
+          # all certs should be be present with trust flags
+          cat > expected << EOF
+          ca_signing CTu,Cu,Cu
+          sslserver u,u,u
+          audit_signing u,u,Pu
+          EOF
+
+          diff expected actual
+
+          docker exec pki certutil -K -d /root/.dogtag/nssdb | tee output
+          sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\)\s\+.*:\(\S\+\)/\2 0x\1/p' output > actual
+
+          # CA signing key should not be present
+          cat > expected << EOF
+          ca_signing $(cat ca_signing.key_id)
+          sslserver $(cat sslserver.key_id)
+          audit_signing $(cat audit_signing.key_id)
+          EOF
+
+          diff expected actual
+
+      - name: "Export everything into PKCS #12 file"
         run: |
           docker exec pki pki pkcs12-export \
               --pkcs12-file test.p12 \
               --pkcs12-password Secret.123
 
-      - name: "List certs in PKCS #12 file"
+      - name: "Check certs and keys in PKCS #12 file"
         run: |
           docker exec pki pki pkcs12-cert-find \
               --pkcs12-file test.p12 \
               --pkcs12-password Secret.123 | tee output
+          sed -n \
+              -e '/^\s*Friendly Name:/p' \
+              -e '/^\s*Trust Flags:/p' \
+              -e '/^\s*Has Key:/p' \
+              -e '/^$/p' \
+              output > actual
 
-          # compare certs in PKCS #12 file and in NSS database
-          sed -n 's/^\s*Friendly Name:\s*\(.\+\)\s*$/\1/p' output | sort > actual
-          docker exec pki certutil -L -d /root/.dogtag/nssdb | tee output
-          tail -n +5 output | awk '{print $1;}' | sort > expected
-          diff actual expected
+          # all certs should be present
+          cat > expected << EOF
+            Friendly Name: ca_signing
+            Trust Flags: CTu,Cu,Cu
+            Has Key: true
 
-      - name: "List keys in PKCS #12 file"
-        run: |
+            Friendly Name: sslserver
+            Trust Flags: u,u,u
+            Has Key: true
+
+            Friendly Name: audit_signing
+            Trust Flags: u,u,Pu
+            Has Key: true
+          EOF
+
+          diff expected actual
+
           docker exec pki pki pkcs12-key-find \
               --pkcs12-file test.p12 \
               --pkcs12-password Secret.123 | tee output
+          sed -n 's/^\s*Key ID:\s*\(.\+\)\s*$/\1/p' output > actual
 
-          # compare keys in PKCS #12 file and in NSS database
-          sed -n 's/^\s*Key ID:\s*0x\(.\+\)\s*$/\1/p' output | sort > actual
-          docker exec pki certutil -K -d /root/.dogtag/nssdb | tee output
-          sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\).*/\1/p' output | sort > expected
-          diff actual expected
+          # all keys should be present
+          cat > expected << EOF
+          $(cat ca_signing.key_id)
+          $(cat sslserver.key_id)
+          $(cat audit_signing.key_id)
+          EOF
 
-      - name: "Export SSL server cert from PKCS #12 file"
-        run: |
+          diff expected actual
+
           docker exec pki pki pkcs12-cert-export \
               --pkcs12-file test.p12 \
               --pkcs12-password Secret.123 \
-              --cert-file sslserver2.crt \
+              --cert-file $SHARED/ca_signing2.crt \
+              ca_signing
+
+          # CA signing cert should match the original
+          diff ca_signing.crt ca_signing2.crt
+
+          docker exec pki pki pkcs12-cert-export \
+              --pkcs12-file test.p12 \
+              --pkcs12-password Secret.123 \
+              --cert-file $SHARED/sslserver2.crt \
               sslserver
 
-          # verify exported cert
-          docker exec pki diff sslserver.crt sslserver2.crt
+          # SSL server cert should match the original
+          diff sslserver.crt sslserver2.crt
 
-      - name: "Remove SSL server cert from PKCS #12 file"
+          docker exec pki pki pkcs12-cert-export \
+              --pkcs12-file test.p12 \
+              --pkcs12-password Secret.123 \
+              --cert-file $SHARED/audit_signing2.crt \
+              audit_signing
+
+          # audit signing cert should match the original
+          diff audit_signing.crt audit_signing2.crt
+
+      - name: "Remove CA signing key from PKCS #12 file"
+        run: |
+          docker exec pki pki pkcs12-key-del \
+              --pkcs12-file test.p12 \
+              --pkcs12-password Secret.123 \
+              $(cat ca_signing.key_id)
+
+          docker exec pki pki pkcs12-cert-find \
+              --pkcs12-file test.p12 \
+              --pkcs12-password Secret.123 | tee output
+          sed -n \
+              -e '/^\s*Friendly Name:/p' \
+              -e '/^\s*Trust Flags:/p' \
+              -e '/^\s*Has Key:/p' \
+              -e '/^$/p' \
+              output > actual
+
+          # all certs should be present
+          cat > expected << EOF
+            Friendly Name: ca_signing
+            Trust Flags: CT,C,C
+            Has Key: false
+
+            Friendly Name: sslserver
+            Trust Flags: u,u,u
+            Has Key: true
+
+            Friendly Name: audit_signing
+            Trust Flags: u,u,Pu
+            Has Key: true
+          EOF
+
+          diff expected actual
+
+          docker exec pki pki pkcs12-key-find \
+              --pkcs12-file test.p12 \
+              --pkcs12-password Secret.123 | tee output
+          sed -n 's/^\s*Key ID:\s*\(.\+\)\s*$/\1/p' output > actual
+
+          # CA signing key should be removed
+          cat > expected << EOF
+          $(cat sslserver.key_id)
+          $(cat audit_signing.key_id)
+          EOF
+
+          diff expected actual
+
+      - name: "Remove audit signing cert and key from PKCS #12 file"
         run: |
           docker exec pki pki pkcs12-cert-del \
               --pkcs12-file test.p12 \
               --pkcs12-password Secret.123 \
-              sslserver
+              audit_signing
 
-          # verify cert removal
           docker exec pki pki pkcs12-cert-find \
               --pkcs12-file test.p12 \
               --pkcs12-password Secret.123 | tee output
-          sed -n 's/^\s*Friendly Name:\s*\(.\+\)\s*$/\1/p' output | sort > actual
-          echo ca_signing > expected
-          diff actual expected
+          sed -n \
+              -e '/^\s*Friendly Name:/p' \
+              -e '/^\s*Trust Flags:/p' \
+              -e '/^\s*Has Key:/p' \
+              -e '/^$/p' \
+              output > actual
 
-      - name: "Re-import SSL server cert from NSS database into PKCS #12 file"
+          # audit signing cert should be removed
+          cat > expected << EOF
+            Friendly Name: ca_signing
+            Trust Flags: CT,C,C
+            Has Key: false
+
+            Friendly Name: sslserver
+            Trust Flags: u,u,u
+            Has Key: true
+          EOF
+
+          diff expected actual
+
+          docker exec pki pki pkcs12-key-find \
+              --pkcs12-file test.p12 \
+              --pkcs12-password Secret.123 | tee output
+          sed -n 's/^\s*Key ID:\s*\(.\+\)\s*$/\1/p' output > actual
+
+          # audit signing key should be removed
+          cat > expected << EOF
+          $(cat sslserver.key_id)
+          EOF
+
+          diff expected actual
+
+      - name: "Re-import audit signing cert and key into PKCS #12 file"
         run: |
           docker exec pki pki pkcs12-cert-import \
               --pkcs12-file test.p12 \
               --pkcs12-password Secret.123 \
               --append \
               --no-chain \
-              sslserver
+              audit_signing
 
-          # compare certs in PKCS #12 file and in NSS database
           docker exec pki pki pkcs12-cert-find \
               --pkcs12-file test.p12 \
               --pkcs12-password Secret.123 | tee output
-          sed -n 's/^\s*Friendly Name:\s*\(.\+\)\s*$/\1/p' output | sort > actual
-          docker exec pki certutil -L -d /root/.dogtag/nssdb | tee output
-          tail -n +5 output | awk '{print $1;}' | sort > expected
-          diff actual expected
+          sed -n \
+              -e '/^\s*Friendly Name:/p' \
+              -e '/^\s*Trust Flags:/p' \
+              -e '/^\s*Has Key:/p' \
+              -e '/^$/p' \
+              output > actual
 
-          # compare keys in PKCS #12 file and in NSS database
+          # audit signing cert should be imported
+          cat > expected << EOF
+            Friendly Name: ca_signing
+            Trust Flags: CT,C,C
+            Has Key: false
+
+            Friendly Name: sslserver
+            Trust Flags: u,u,u
+            Has Key: true
+
+            Friendly Name: audit_signing
+            Trust Flags: u,u,Pu
+            Has Key: true
+          EOF
+
+          diff expected actual
+
           docker exec pki pki pkcs12-key-find \
               --pkcs12-file test.p12 \
               --pkcs12-password Secret.123 | tee output
-          sed -n 's/^\s*Key ID:\s*0x\(.\+\)\s*$/\1/p' output | sort > actual
-          docker exec pki certutil -K -d /root/.dogtag/nssdb | tee output
-          sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\).*/\1/p' output| sort > expected
-          diff actual expected
+          sed -n 's/^\s*Key ID:\s*\(.\+\)\s*$/\1/p' output > actual
 
-      - name: "Import all certs and keys from PKCS #12 file into a new NSS database"
+          # audit signing key should be imported
+          cat > expected << EOF
+          $(cat sslserver.key_id)
+          $(cat audit_signing.key_id)
+          EOF
+
+          diff expected actual
+
+      - name: "Import everything from PKCS #12 file"
         run: |
-          docker exec pki pki -d nssdb pkcs12-import \
-              --pkcs12-file test.p12 \
-              --pkcs12-password Secret.123
+          docker exec pki pki -d nssdb1 pkcs12-import \
+              --pkcs12 test.p12 \
+              --password Secret.123
 
-          # compare certs in new and old NSS databases
-          docker exec pki certutil -L -d nssdb | tee output
-          tail -n +5 output | awk '{print $1;}' | sort > actual
-          docker exec pki certutil -L -d /root/.dogtag/nssdb | tee output
-          tail -n +5 output | awk '{print $1;}' | sort > expected
-          diff actual expected
+          docker exec pki certutil -L -d nssdb1 | tee output
+          sed -n 's/^\(\S\+\)\s*\(\S\+\)\s*$/\1 \2/p' output > actual
 
-          # compare keys in new and old NSS databases
-          docker exec pki certutil -K -d nssdb | tee output
-          sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\).*/\1/p' output | sort > actual
-          docker exec pki certutil -K -d /root/.dogtag/nssdb | tee output
-          sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\).*/\1/p' output | sort > expected
-          diff actual expected
+          # all certs should be be present with trust flags
+          cat > expected << EOF
+          ca_signing CT,C,C
+          sslserver u,u,u
+          audit_signing u,u,Pu
+          EOF
+
+          diff expected actual
+
+          docker exec pki certutil -K -d nssdb1 | tee output
+          sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\)\s\+\(\S\+\)/\2 0x\1/p' output > actual
+
+          # CA signing key should not be present
+          cat > expected << EOF
+          sslserver $(cat sslserver.key_id)
+          audit_signing $(cat audit_signing.key_id)
+          EOF
+
+          diff expected actual
+
+      - name: "Import PKCS #12 file without trust flags"
+        run: |
+          docker exec pki pki -d nssdb2 pkcs12-import \
+              --pkcs12 test.p12 \
+              --password Secret.123 \
+              --no-trust-flags
+
+          docker exec pki certutil -L -d nssdb2 | tail -n +5 | tee output
+          sed -n 's/^\(\S\+\)\s*\(\S\+\)\s*$/\1 \2/p' output > actual
+
+          # all certs should be present without trust flags
+          cat > expected << EOF
+          ca_signing ,,
+          sslserver u,u,u
+          audit_signing u,u,u
+          EOF
+
+          diff expected actual
+
+          docker exec pki certutil -K -d nssdb2 | tee output
+          sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\)\s\+\(\S\+\)/\2 0x\1/p' output > actual
+
+          # CA signing key should not be present
+          cat > expected << EOF
+          sslserver $(cat sslserver.key_id)
+          audit_signing $(cat audit_signing.key_id)
+          EOF
+
+          diff expected actual
+
+      - name: "Import PKCS #12 file without CA certs"
+        run: |
+          docker exec pki pki -d nssdb3 pkcs12-import \
+              --pkcs12 test.p12 \
+              --password Secret.123 \
+              --no-ca-certs
+
+          docker exec pki certutil -L -d nssdb3 | tail -n +5 | tee output
+          sed -n 's/^\(\S\+\)\s*\(\S\+\)\s*$/\1 \2/p' output > actual
+
+          # CA signing cert should not be present
+          cat > expected << EOF
+          sslserver u,u,u
+          audit_signing u,u,Pu
+          EOF
+
+          diff expected actual
+
+          docker exec pki certutil -K -d nssdb3 | tee output
+          sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\)\s\+\(\S\+\)/\2 0x\1/p' output > actual
+
+          # CA signing key should not be present
+          cat > expected << EOF
+          sslserver $(cat sslserver.key_id)
+          audit_signing $(cat audit_signing.key_id)
+          EOF
+
+          diff expected actual
+
+      - name: "Import PKCS #12 file without user certs"
+        run: |
+          docker exec pki pki -d nssdb4 pkcs12-import \
+              --pkcs12 test.p12 \
+              --password Secret.123 \
+              --no-user-certs
+
+          docker exec pki certutil -L -d nssdb4 | tail -n +5 | tee output
+          sed -n 's/^\(\S\+\)\s*\(\S\+\)\s*$/\1 \2/p' output > actual
+
+          # only CA signing cert should be present
+          cat > expected << EOF
+          ca_signing CT,C,C
+          EOF
+
+          diff expected actual
+
+          docker exec pki certutil -K -d nssdb4 | tee output
+          sed -n 's/^<.*>\s\+\S\+\s\+\(\S\+\)\s\+\(\S\+\)/\2 0x\1/p' output > actual
+
+          # no keys should be present
+          diff /dev/null actual

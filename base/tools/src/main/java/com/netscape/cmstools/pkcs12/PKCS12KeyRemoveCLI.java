@@ -25,6 +25,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.netscape.security.pkcs.PKCS12;
+import org.mozilla.jss.netscape.security.pkcs.PKCS12CertInfo;
 import org.mozilla.jss.netscape.security.pkcs.PKCS12Util;
 import org.mozilla.jss.util.Password;
 
@@ -69,7 +70,7 @@ public class PKCS12KeyRemoveCLI extends CommandCLI {
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length == 0) {
-            throw new Exception("Missing key ID.");
+            throw new Exception("Missing key ID");
         }
 
         KeyId keyID = new KeyId(cmdArgs[0]);
@@ -77,7 +78,7 @@ public class PKCS12KeyRemoveCLI extends CommandCLI {
         String filename = cmd.getOptionValue("pkcs12-file");
 
         if (filename == null) {
-            throw new Exception("Missing PKCS #12 file.");
+            throw new Exception("Missing PKCS #12 file");
         }
 
         String passwordString = cmd.getOptionValue("pkcs12-password");
@@ -93,7 +94,7 @@ public class PKCS12KeyRemoveCLI extends CommandCLI {
         }
 
         if (passwordString == null) {
-            throw new Exception("Missing PKCS #12 password.");
+            throw new Exception("Missing PKCS #12 password");
         }
 
         MainCLI mainCLI = (MainCLI) getRoot();
@@ -105,7 +106,25 @@ public class PKCS12KeyRemoveCLI extends CommandCLI {
             PKCS12Util util = new PKCS12Util();
 
             PKCS12 pkcs12 = util.loadFromFile(filename, password);
+
+            // find cert that uses the key to be removed
+            PKCS12CertInfo certInfo = pkcs12.getCertInfoByKeyID(keyID.toByteArray());
+
+            if (certInfo != null) {
+                // remove reference to key from cert
+                certInfo.setKeyID(null);
+
+                String trustFlags = certInfo.getTrustFlags();
+                if (trustFlags != null) {
+                    // remove u flags
+                    trustFlags = trustFlags.replace("u", "");
+                    certInfo.setTrustFlags(trustFlags);
+                }
+            }
+
+            // remove key
             pkcs12.removeKeyInfoByID(keyID.toByteArray());
+
             util.storeIntoFile(pkcs12, filename, password);
 
         } finally {
