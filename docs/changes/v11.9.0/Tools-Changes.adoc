@@ -37,3 +37,18 @@ The `pki nss-cert-mod` has been added to modify the trust flags
 of an existing certificate in NSS database.
 
 The `pki client-cert-mod` has been deprecated.
+
+== Deprecated command ==
+
+The following command have been deprecated:
+
+* `pki client-cert-request`
+
+== Add new algorithm value for ML-DSA ==
+
+The algorithm ML-DSA can be specified for the command:
+
+* `pki client-cert-request`: value **mldsa** for the option `--algorithm` and the option `--length` can be one of 44, 65 (default) or 87;
+* `pki nss-cert-request`: value **ML-DSA** for the option `--key-type` and the option `--key-size` can be one of 44, 65 (default) or 87.
+ 
+

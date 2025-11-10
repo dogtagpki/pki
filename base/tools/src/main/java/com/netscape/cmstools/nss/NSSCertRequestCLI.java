@@ -66,11 +66,11 @@ public class NSSCertRequestCLI extends CommandCLI {
         option.setArgName("path");
         options.addOption(option);
 
-        option = new Option(null, "key-type", true, "Key type: RSA (default), EC");
+        option = new Option(null, "key-type", true, "Key type: RSA (default), EC, ML-DSA");
         option.setArgName("type");
         options.addOption(option);
 
-        option = new Option(null, "key-size", true, "RSA key size (default: 2048)");
+        option = new Option(null, "key-size", true, "Key size (RSA default: 2048, ML-DSA default: 65)");
         option.setArgName("size");
         options.addOption(option);
 
@@ -146,7 +146,6 @@ public class NSSCertRequestCLI extends CommandCLI {
         }
 
         String keyType = cmd.getOptionValue("key-type", "RSA");
-        String keySize = cmd.getOptionValue("key-size", "2048");
         boolean keyWrap = cmd.hasOption("key-wrap");
         String keyWrapAlg = cmd.getOptionValue(
                 "key-wrap-alg",
@@ -195,7 +194,7 @@ public class NSSCertRequestCLI extends CommandCLI {
             keyType = keyPair.getPublic().getAlgorithm();
 
         } else if ("RSA".equalsIgnoreCase(keyType)) {
-
+            String keySize = cmd.getOptionValue("key-size", "2048");
             keyPair = nssdb.createRSAKeyPair(
                     token,
                     Integer.parseInt(keySize),
@@ -205,7 +204,6 @@ public class NSSCertRequestCLI extends CommandCLI {
                     extractable);
 
         } else if ("EC".equalsIgnoreCase(keyType)) {
-
             keyPair = nssdb.createECKeyPair(
                     token,
                     curve,
@@ -215,6 +213,7 @@ public class NSSCertRequestCLI extends CommandCLI {
                     extractable);
 
         } else if ("ML-DSA".equalsIgnoreCase(keyType)) {
+            String keySize = cmd.getOptionValue("key-size", "65");
             keyPair = nssdb.createMLDSAKeyPair(
                     token,
                     Integer.parseInt(keySize),
