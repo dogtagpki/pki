@@ -154,6 +154,7 @@ public class ClientCertRequestCLI extends CommandCLI {
 
     @Override
     public void execute(CommandLine cmd) throws Exception {
+        logger.warn("This command is deprecated. Please move to the command 'pki nss-cert-request'");
 
         String[] cmdArgs = cmd.getArgs();
 
@@ -181,9 +182,10 @@ public class ClientCertRequestCLI extends CommandCLI {
 
         boolean attributeEncoding = cmd.hasOption("attribute-encoding");
 
-        // rsa, ec
+        // rsa, ec or mldsa
         String algorithm = cmd.getOptionValue("algorithm", "rsa");
-        int length = Integer.parseInt(cmd.getOptionValue("length", "2048"));
+        int length = algorithm.equals("mldsa") ? 65 : 2048;
+        length = Integer.parseInt(cmd.getOptionValue("length", Integer.toString(length)));
         boolean wrap = cmd.hasOption("wrap");
         boolean useOAEP = cmd.hasOption("oaep");
 
@@ -284,6 +286,18 @@ public class ClientCertRequestCLI extends CommandCLI {
                 throw new CLIException("Unable to create ECC key pair: "+ e.getMessage());
             }
 
+        } else if ("mldsa".equals(algorithm)) {
+
+            try {
+                keyPair = nssdb.createMLDSAKeyPair(
+                        token,
+                        length,
+                        temporary,
+                        sensitive,
+                        extractable);
+            } catch (TokenException e) {
+                throw new CLIException("Unable to create ML-DSA key pair: "+ e.getMessage());
+            }
         } else {
             throw new Exception("Unknown algorithm: " + algorithm);
         }
