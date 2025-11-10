@@ -255,7 +255,11 @@ class PKCS12ImportCLI(pki.cli.CLI):
 
                         nssdb.remove_cert(nickname=nickname)
 
-                    if 'trust_flags' in cert_info:
+                    if no_trust_flags:
+                        # don't set trust flags
+                        trust_flags = None
+                    elif 'trust_flags' in cert_info:
+                        # use trust flags from PKCS #12 file
                         trust_flags = cert_info['trust_flags']
                     else:
                         # default trust flags for CA certificates
