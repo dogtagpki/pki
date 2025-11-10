@@ -19,11 +19,14 @@ package com.netscape.cmstools.pkcs12;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.netscape.security.pkcs.PKCS12;
+import org.mozilla.jss.netscape.security.pkcs.PKCS12CertInfo;
 import org.mozilla.jss.netscape.security.pkcs.PKCS12Util;
 import org.mozilla.jss.util.Password;
 
@@ -75,6 +78,8 @@ public class PKCS12ImportCLI extends CommandCLI {
         options.addOption(option);
 
         options.addOption(null, "no-trust-flags", false, "Do not include trust flags");
+        options.addOption(null, "no-user-certs", false, "Do not import user certificates");
+        options.addOption(null, "no-ca-certs", false, "Do not import CA certificates");
         options.addOption(null, "overwrite", false, "Overwrite existing certificates");
     }
 
@@ -83,25 +88,32 @@ public class PKCS12ImportCLI extends CommandCLI {
 
         String[] nicknames = cmd.getArgs();
 
-        String filename = cmd.getOptionValue("pkcs12");
+        String filename = cmd.getOptionValue("pkcs12-file");
+
         if (filename == null) {
-            filename = cmd.getOptionValue("pkcs12-file");
+            filename = cmd.getOptionValue("pkcs12");
+        } else {
+            logger.warn("The --pkcs12-file option has been deprecated. Use --pkcs12 instead.");
         }
 
         if (filename == null) {
             throw new Exception("Missing PKCS #12 file");
         }
 
-        String passwordString = cmd.getOptionValue("password");
+        String passwordString = cmd.getOptionValue("pkcs12-password");
         if (passwordString == null) {
-            passwordString = cmd.getOptionValue("pkcs12-password");
+            passwordString = cmd.getOptionValue("password");
+        } else {
+            logger.warn("The --pkcs12-password option has been deprecated. Use --password instead.");
         }
 
         if (passwordString == null) {
 
-            String passwordFile = cmd.getOptionValue("password-file");
+            String passwordFile = cmd.getOptionValue("pkcs12-password-file");
             if (passwordFile == null) {
-                passwordFile = cmd.getOptionValue("pkcs12-password-file");
+                passwordFile = cmd.getOptionValue("password-file");
+            } else {
+                logger.warn("The --pkcs12-password-file option has been deprecated. Use --password-file instead.");
             }
 
             if (passwordFile != null) {
@@ -116,6 +128,8 @@ public class PKCS12ImportCLI extends CommandCLI {
         }
 
         boolean trustFlagsEnabled = !cmd.hasOption("no-trust-flags");
+        boolean excludeCACerts = cmd.hasOption("no-ca-certs");
+        boolean excludeUserCerts = cmd.hasOption("no-user-certs");
         boolean overwrite = cmd.hasOption("overwrite");
 
         MainCLI mainCLI = (MainCLI) getRoot();
@@ -127,14 +141,43 @@ public class PKCS12ImportCLI extends CommandCLI {
             PKCS12Util util = new PKCS12Util();
             util.setTrustFlagsEnabled(trustFlagsEnabled);
 
+            // load PKCS12 object from file
             PKCS12 pkcs12 = util.loadFromFile(filename, password);
 
+            Collection<PKCS12CertInfo> caCerts = new ArrayList<>();
+            Collection<PKCS12CertInfo> userCerts = new ArrayList<>();
+
+            for (PKCS12CertInfo certInfo : pkcs12.getCertInfos()) {
+                byte[] keyID = certInfo.getKeyID();
+                if (keyID == null) {
+                    // no key -> CA cert
+                    caCerts.add(certInfo);
+                } else {
+                    // has key -> user cert
+                    userCerts.add(certInfo);
+                }
+            }
+
+            if (excludeCACerts) {
+                // remove CA certs from PKCS12 object
+                for (PKCS12CertInfo certInfo : caCerts) {
+                    pkcs12.removeCertInfoByFriendlyName(certInfo.getFriendlyName());
+                }
+            }
+
+            if (excludeUserCerts) {
+                // remove user certs from PKCS12 object
+                for (PKCS12CertInfo certInfo : userCerts) {
+                    pkcs12.removeCertInfoByFriendlyName(certInfo.getFriendlyName());
+                }
+            }
+
             if (nicknames.length == 0) {
-                // store all certificates
+                // import all certs from PKCS12 object
                 util.storeIntoNSS(pkcs12, password, overwrite);
 
             } else {
-                // load specified certificates
+                // import specified certs from PKCS12 object
                 for (String nickname : nicknames) {
                     util.storeCertIntoNSS(pkcs12, password, nickname, overwrite);
                 }

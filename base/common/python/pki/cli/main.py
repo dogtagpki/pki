@@ -27,13 +27,12 @@ import sys
 
 import pki.cli
 import pki.cli.password
-import pki.cli.pkcs12
 import pki.nssdb
 
 logger = logging.getLogger(__name__)
 
 
-PYTHON_COMMANDS = ['password-generate', 'pkcs12-import']
+PYTHON_COMMANDS = ['password-generate']
 
 JAVA_COMMANDS = {
     'help': 'Show help messages',
@@ -87,7 +86,6 @@ class PKICLI(pki.cli.CLI):
         self.skip_revocation_check = False
 
         self.add_module(pki.cli.password.PasswordCLI())
-        self.add_module(pki.cli.pkcs12.PKCS12CLI())
 
         self.extra_commands = JAVA_COMMANDS.copy()
 
