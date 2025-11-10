@@ -414,9 +414,6 @@ jobs:
               output > actual
 
           cat > expected << EOF
-          Nickname: external
-          Trust Flags: CT,C,C
-
           Nickname: subsystem
           Trust Flags: u,u,u
 
@@ -428,6 +425,9 @@ jobs:
 
           Nickname: ca_audit_signing
           Trust Flags: u,u,Pu
+
+          Nickname: external
+          Trust Flags: CT,C,C
 
           Nickname: ds_signing
           Trust Flags: CT,C,C
@@ -540,9 +540,6 @@ jobs:
               output > actual
 
           cat > expected << EOF
-          Nickname: external
-          Trust Flags: CT,C,C
-
           Nickname: subsystem
           Trust Flags: u,u,u
 
@@ -554,6 +551,9 @@ jobs:
 
           Nickname: ca_audit_signing
           Trust Flags: u,u,Pu
+
+          Nickname: external
+          Trust Flags: CT,C,C
 
           Nickname: ds_signing
           Trust Flags: CT,C,C
