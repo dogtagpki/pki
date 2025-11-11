@@ -77,12 +77,18 @@ public class ClientCertValidateCLI extends CommandCLI {
         mainCLI.init();
 
         if (certusage == null) {
+            // get current cert usages
+            // TODO: create a replacement and deprecate this command
             Set<CertificateUsage> usages = CertUtil.getCertificateUsages(nickname);
             System.out.println("Cert usages: " + StringUtils.join(usages, ", "));
             return;
         }
 
+        logger.warn("The --certusage option has been deprecated. Use the following command instead:");
+        logger.warn("  $ pki nss-cert-verify --cert-usage <usage> <nickname>");
+
         try {
+            // validate specified cert usage
             CertUtil.verifyCertificateUsage(nickname, certusage);
             System.out.println("Certificate is valid");
 
