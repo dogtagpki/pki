@@ -446,8 +446,8 @@ class PKISubsystem(object):
             cmd.extend(['--token', token])
 
         cmd.extend([
-            'client-cert-validate',
-            '--certusage', cert_usage,
+            'nss-cert-verify',
+            '--cert-usage', cert_usage,
             fullname
         ])
 

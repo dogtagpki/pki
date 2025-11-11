@@ -8,6 +8,7 @@ package com.netscape.cmstools.nss;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
+import java.util.Iterator;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -15,6 +16,8 @@ import org.apache.commons.io.IOUtils;
 import org.dogtagpki.cert.PKITrustManager;
 import org.dogtagpki.cli.CLIException;
 import org.dogtagpki.cli.CommandCLI;
+import org.dogtagpki.util.cert.CertUtil;
+import org.mozilla.jss.CertificateUsage;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
@@ -42,6 +45,17 @@ public class NSSCertVerifyCLI extends CommandCLI {
 
         option = new Option(null, "format", true, "Certificate format: PEM (default), DER");
         option.setArgName("format");
+        options.addOption(option);
+
+        StringBuilder usages = new StringBuilder();
+        Iterator<CertificateUsage> usage = CertificateUsage.getCertificateUsages();
+        while (usage.hasNext()) {
+            if (!usages.isEmpty()) usages.append(", ");
+            usages.append(usage.next());
+        }
+
+        option = new Option(null, "cert-usage", true, "Certificate usage: " + usages);
+        option.setArgName("usage");
         options.addOption(option);
     }
 
@@ -99,6 +113,18 @@ public class NSSCertVerifyCLI extends CommandCLI {
 
         } catch (Exception e) {
             throw new CLIException("Invalid certificate: " + e.getMessage());
+        }
+
+        String certUsage = cmd.getOptionValue("cert-usage");
+
+        if (nickname != null && certUsage != null) {
+            try {
+                // validate specified cert usage
+                CertUtil.verifyCertificateUsage(nickname, certUsage);
+
+            } catch (Exception e) {
+                throw new CLIException("Invalid certificate: " + e.getMessage());
+            }
         }
     }
 }
