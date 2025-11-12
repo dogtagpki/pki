@@ -71,7 +71,7 @@ jobs:
 
   - script: |
       docker exec runner \
-          /root/src/build.sh -v --with-console rpm
+          /root/src/build.sh -v rpm
     displayName: Build PKI RPM packages
 
   - script: |
@@ -133,7 +133,6 @@ jobs:
           /root/src/build.sh \
           --work-dir=/root/build \
           --python-dir=/usr/lib/python$PYTHON_VERSION/site-packages \
-          --with-console \
           dist
     displayName: Build PKI with CMake
 
@@ -142,6 +141,7 @@ jobs:
           --batch-mode \
           -f /root/src \
           -DskipTests \
+          -pl '!base/console'
           package
     displayName: Build PKI with Maven
 
@@ -248,14 +248,6 @@ jobs:
           jar tvf /root/src/base/est/target/pki-est.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort | tee pki-est.maven
       diff pki-est.cmake pki-est.maven
     displayName: Compare pki-est.jar
-
-  - script: |
-      docker exec runner \
-          jar tvf /root/build/dist/pki-console.jar | awk '{print $8;}' | grep -v '/$' | sort | tee pki-console.cmake
-      docker exec runner \
-          jar tvf /root/src/base/console/target/pki-console.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort | tee pki-console.maven
-      diff pki-console.cmake pki-console.maven
-    displayName: Compare pki-console.jar
 
   - script: |
       docker exec runner \
