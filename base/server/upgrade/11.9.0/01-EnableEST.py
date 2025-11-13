@@ -150,8 +150,8 @@ class EnableEST(pki.server.upgrade.PKIServerUpgradeScriptlet):
         admin_members_entries = subsystem.find_group_members("Administrators")['entries']
         ca_admin_members_entries = \
             subsystem.find_group_members("Enterprise CA Administrators")['entries']
-        admin_members = [d['id'] for d in admin_members_entries]
-        ca_admin_members = [d['id'] for d in ca_admin_members_entries]
+        admin_members = {d['id'] for d in admin_members_entries}
+        ca_admin_members = {d['id'] for d in ca_admin_members_entries}
         common_members = admin_members.intersection(ca_admin_members)
         for member in common_members:
             subsystem.add_group_member(group_id, member)
