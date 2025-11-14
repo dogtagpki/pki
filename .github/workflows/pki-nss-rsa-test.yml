@@ -27,9 +27,35 @@ jobs:
 
       - name: Set up runner container
         run: |
-          tests/bin/runner-init.sh pki
-        env:
-          HOSTNAME: pki.example.com
+          tests/bin/runner-init.sh \
+              --hostname=pki.example.com \
+              pki
+
+      - name: Check pki nss CLI help message
+        run: |
+          docker exec pki pki nss
+          docker exec pki pki nss --help
+
+          docker exec pki pki nss-create --help
+          docker exec pki pki nss-remove --help
+
+          docker exec pki pki nss-cert-find --help
+          docker exec pki pki nss-cert-export --help
+          docker exec pki pki nss-cert-import --help
+          docker exec pki pki nss-cert-issue --help
+          docker exec pki pki nss-cert-mod --help
+          docker exec pki pki nss-cert-request --help
+          docker exec pki pki nss-cert-show --help
+          docker exec pki pki nss-cert-del --help
+          docker exec pki pki nss-cert-verify --help
+
+          docker exec pki pki nss-key-create --help
+          docker exec pki pki nss-key-export --help
+          docker exec pki pki nss-key-find --help
+          docker exec pki pki nss-key-show --help
+          docker exec pki pki nss-key-import --help
+
+          # TODO: validate output
 
       - name: Create RSA key
         run: |

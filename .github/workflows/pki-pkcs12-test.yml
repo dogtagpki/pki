@@ -39,9 +39,26 @@ jobs:
 
       - name: Set up runner container
         run: |
-          tests/bin/runner-init.sh pki
-        env:
-          HOSTNAME: pki.example.com
+          tests/bin/runner-init.sh \
+              --hostname=pki.example.com \
+              pki
+
+      - name: Check pki pkcs12 CLI help message
+        run: |
+          docker exec pki pki pkcs12
+          docker exec pki pki pkcs12 --help
+
+          docker exec pki pki pkcs12-export --help
+          docker exec pki pki pkcs12-import --help
+
+          docker exec pki pki pkcs12-cert-export --help
+          docker exec pki pki pkcs12-cert-import --help
+          docker exec pki pki pkcs12-cert-find --help
+          docker exec pki pki pkcs12-cert-mod --help
+          docker exec pki pki pkcs12-cert-del --help
+
+          docker exec pki pki pkcs12-key-find --help
+          docker exec pki pki pkcs12-key-del --help
 
       - name: Create CA signing cert
         run: |

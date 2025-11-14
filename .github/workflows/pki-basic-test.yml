@@ -66,13 +66,6 @@ jobs:
 
           diff expected stderr
 
-      - name: Check pki nss CLI help message
-        run: |
-          docker exec pki pki nss
-          docker exec pki pki nss --help
-
-          # TODO: validate output
-
       - name: Check pki CLI in shell mode (with prompts)
         run: |
           VERSION=$(xmlstarlet sel -t -v '/_:project/_:version' pom.xml)

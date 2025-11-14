@@ -27,9 +27,23 @@ jobs:
 
       - name: Set up runner container
         run: |
-          tests/bin/runner-init.sh pki
-        env:
-          HOSTNAME: pki.example.com
+          tests/bin/runner-init.sh \
+              --hostname=pki.example.com \
+              pki
+
+      - name: Check pki pkcs11 CLI help message
+        run: |
+          docker exec pki pki pkcs11
+          docker exec pki pki pkcs11 --help
+
+          docker exec pki pki pkcs11-cert-export --help
+          docker exec pki pki pkcs11-cert-find --help
+          docker exec pki pki pkcs11-cert-show --help
+          docker exec pki pki pkcs11-cert-del --help
+
+          docker exec pki pki pkcs11-key-find --help
+          docker exec pki pki pkcs11-key-show --help
+          docker exec pki pki pkcs11-key-del --help
 
       - name: Create HSM token
         run: |
