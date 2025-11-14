@@ -64,6 +64,15 @@ jobs:
               --network-alias=pki.example.com \
               pki
 
+      - name: Check pki acme CLI help message
+        run: |
+          docker exec pki pki acme
+          docker exec pki pki acme --help
+
+          docker exec pki pki acme-info --help
+          docker exec pki pki acme-enable --help
+          docker exec pki pki acme-disable --help
+
       - name: Install CA in PKI container
         run: |
           docker exec pki pkispawn \

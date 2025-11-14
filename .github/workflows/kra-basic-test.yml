@@ -46,6 +46,14 @@ jobs:
               --network-alias=pki.example.com \
               pki
 
+      - name: Check pki kra CLI help messages
+        run: |
+          docker exec pki pki kra
+          docker exec pki pki kra --help
+
+          docker exec pki pki kra-key-find --help
+          docker exec pki pki kra-key-show --help
+
       - name: Install CA
         run: |
           docker exec pki pkispawn \

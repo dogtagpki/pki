@@ -46,6 +46,27 @@ jobs:
               --network-alias=pki.example.com \
               pki
 
+      - name: Check pki CLI help messages
+        run: |
+          docker exec pki pki info --help
+
+          docker exec pki pki securitydomain
+          docker exec pki pki securitydomain --help
+
+          docker exec pki pki client
+          docker exec pki pki client --help
+
+          docker exec pki pki ca
+          docker exec pki pki ca --help
+
+          docker exec pki pki ca-cert-find --help
+          docker exec pki pki ca-cert-show --help
+
+          docker exec pki pki ca-profile-find --help
+          docker exec pki pki ca-profile-show --help
+
+          docker exec pki pki ca-publisher-ocsp-add --help
+
       - name: Install CA
         run: |
           docker exec pki pkispawn \

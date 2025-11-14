@@ -46,6 +46,14 @@ jobs:
               --network-alias=pki.example.com \
               pki
 
+      - name: Check pki tps CLI help messages
+        run: |
+          docker exec pki pki tps
+          docker exec pki pki tps --help
+
+          docker exec pki pki tps-token-find --help
+          docker exec pki pki tps-token-show --help
+
       - name: Install CA
         run: |
           docker exec pki pkispawn \

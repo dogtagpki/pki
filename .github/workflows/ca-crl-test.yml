@@ -51,6 +51,10 @@ jobs:
               --network-alias=pki.example.com \
               pki
 
+      - name: Check pki ca-crl CLI help messages
+        run: |
+          docker exec pki pki ca-crl-update --help
+
       - name: Install CA
         run: |
           docker exec pki pkispawn \

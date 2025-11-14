@@ -41,20 +41,31 @@ jobs:
           tests/bin/ds-create.sh \
               --image=${{ env.DS_IMAGE }} \
               --hostname=ds.example.com \
+              --network=example \
+              --network-alias=ds.example.com \
               --password=Secret.123 \
               ds
 
-      - name: Connect DS container to network
-        run: docker network connect example ds --alias ds.example.com
-
       - name: Set up PKI container
         run: |
-          tests/bin/runner-init.sh pki
-        env:
-          HOSTNAME: pki.example.com
+          tests/bin/runner-init.sh \
+              --hostname=pki.example.com \
+              --network=example \
+              --network-alias=pki.example.com \
+              pki
 
-      - name: Connect PKI container to network
-        run: docker network connect example pki --alias pki.example.com
+      - name: Check pki ocsp CLI help messages
+        run: |
+          docker exec pki pki ocsp
+          docker exec pki pki ocsp --help
+
+          docker exec pki pki ocsp-cert-verify --help
+
+          docker exec pki pki ocsp-user-find --help
+          docker exec pki pki ocsp-user-show --help
+
+          docker exec pki pki ocsp-group-find --help
+          docker exec pki pki ocsp-group-show --help
 
       - name: Install CA
         run: |

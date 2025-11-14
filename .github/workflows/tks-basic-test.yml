@@ -33,20 +33,28 @@ jobs:
           tests/bin/ds-create.sh \
               --image=${{ env.DS_IMAGE }} \
               --hostname=ds.example.com \
+              --network=example \
+              --network-alias=ds.example.com \
               --password=Secret.123 \
               ds
 
-      - name: Connect DS container to network
-        run: docker network connect example ds --alias ds.example.com
-
       - name: Set up PKI container
         run: |
-          tests/bin/runner-init.sh pki
-        env:
-          HOSTNAME: pki.example.com
+          tests/bin/runner-init.sh \
+              --hostname=pki.example.com \
+              --network=example \
+              --network-alias=pki.example.com \
+              pki
 
-      - name: Connect PKI container to network
-        run: docker network connect example pki --alias pki.example.com
+      - name: Check pki tks CLI help messages
+        run: |
+          docker exec pki pki tks
+          docker exec pki pki tks --help
+
+          docker exec pki pki tks-audit-show --help
+          docker exec pki pki tks-audit-mod --help
+
+          docker exec pki pki tks-config-export --help
 
       - name: Install CA
         run: |
@@ -241,13 +249,6 @@ jobs:
               --pkcs12-password Secret.123
           docker exec pki pki -n caadmin tks-user-show tksadmin
 
-      - name: Gather artifacts
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh ds
-          tests/bin/pki-artifacts-save.sh pki
-        continue-on-error: true
-
       - name: Remove TKS
         run: docker exec pki pkidestroy -s TKS -v
 
@@ -337,6 +338,11 @@ jobs:
         run: |
           docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
 
+      - name: Check PKI server access log
+        if: always()
+        run: |
+          docker exec pki find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+
       - name: Check CA debug log
         if: always()
         run: |
@@ -346,10 +352,3 @@ jobs:
         if: always()
         run: |
           docker exec pki find /var/lib/pki/pki-tomcat/logs/tks -name "debug.*" -exec cat {} \;
-
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: tks-basic
-          path: /tmp/artifacts
