@@ -249,20 +249,6 @@ jobs:
           sed -n 's/^ *SD Manager: *\(.*\)$/\1/p' output > actual
           diff expected actual
 
-      - name: Check security domain config in KRA
-        run: |
-          # KRA should join security domain in CA
-          cat > expected << EOF
-          securitydomain.host=pki.example.com
-          securitydomain.httpport=8080
-          securitydomain.httpsadminport=8443
-          securitydomain.name=EXAMPLE
-          securitydomain.select=existing
-          EOF
-
-          docker exec pki pki-server kra-config-find | grep ^securitydomain. | sort | tee actual
-          diff expected actual
-
       - name: Check KRA storage cert
         run: |
           docker exec pki pki-server cert-export kra_storage \
@@ -300,6 +286,45 @@ jobs:
           docker exec pki ls -la /root/.dogtag/pki-tomcat
           docker exec pki cat /root/.dogtag/pki-tomcat/ca_admin.cert
           docker exec pki openssl x509 -text -noout -in /root/.dogtag/pki-tomcat/ca_admin.cert
+
+      - name: Check security domain after installing KRA
+        run: |
+          # KRA should join security domain in CA
+          cat > expected << EOF
+          securitydomain.host=pki.example.com
+          securitydomain.httpport=8080
+          securitydomain.httpsadminport=8443
+          securitydomain.name=EXAMPLE
+          securitydomain.select=existing
+          EOF
+
+          docker exec pki pki-server kra-config-find | grep ^securitydomain. | sort | tee actual
+          diff expected actual
+
+          # REST API should return security domain info
+          cat > expected << EOF
+            Domain: EXAMPLE
+
+            CA Subsystem:
+
+              Host ID: CA pki.example.com 8443
+              Hostname: pki.example.com
+              Port: 8080
+              Secure Port: 8443
+              Domain Manager: TRUE
+
+            KRA Subsystem:
+
+              Host ID: KRA pki.example.com 8443
+              Hostname: pki.example.com
+              Port: 8080
+              Secure Port: 8443
+              Domain Manager: FALSE
+
+          EOF
+
+          docker exec pki pki securitydomain-show | tee output
+          diff expected output
 
       - name: Run PKI healthcheck
         run: docker exec pki pki-healthcheck --failures-only

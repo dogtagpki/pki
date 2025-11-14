@@ -110,7 +110,7 @@ public class MainCLI extends CLI {
         addModule(new NSSCLI(this));
 
         addModule(new InfoCLI(this));
-        addModule(new ProxyCLI(new SecurityDomainCLI(this), "ca"));
+        addModule(new SecurityDomainCLI(this));
 
         addModule(new ACMECLI(this));
         addModule(new CACLI(this));
