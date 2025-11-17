@@ -30,7 +30,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
-import com.netscape.certsrv.group.GroupClient;
 import com.netscape.certsrv.selftests.SelfTestClient;
 import com.netscape.certsrv.system.TPSConnectorClient;
 import com.netscape.certsrv.user.UserClient;
@@ -44,7 +43,6 @@ public class TKSClient extends SubsystemClient {
     }
 
     public void init() throws Exception {
-        addClient(new GroupClient(this));
         addClient(new SelfTestClient(client, name));
         addClient(new TPSConnectorClient(client, name));
         addClient(new UserClient(this));

@@ -20,7 +20,6 @@ package com.netscape.cmstools.group;
 
 import org.dogtagpki.cli.CLI;
 
-import com.netscape.certsrv.group.GroupClient;
 import com.netscape.certsrv.group.GroupMemberData;
 
 /**
@@ -46,10 +45,6 @@ public class GroupMemberCLI extends CLI {
     @Override
     public String getManPage() {
         return "pki-group-member";
-    }
-
-    public GroupClient getGroupClient() throws Exception {
-        return parent.getGroupClient();
     }
 
     public static void printGroupMember(GroupMemberData groupMemberData) {

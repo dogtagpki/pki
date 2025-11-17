@@ -21,8 +21,6 @@ package com.netscape.cmstools.group;
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.cli.CLI;
 
-import com.netscape.certsrv.client.PKIClient;
-import com.netscape.certsrv.group.GroupClient;
 import com.netscape.certsrv.group.GroupData;
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmstools.cli.SubsystemCLI;
@@ -34,10 +32,11 @@ public class GroupCLI extends CLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GroupCLI.class);
 
-    public GroupClient groupClient;
+    public SubsystemCLI subsystemCLI;
 
-    public GroupCLI(CLI parent) {
-        super("group", "Group management commands", parent);
+    public GroupCLI(SubsystemCLI subsystemCLI) {
+        super("group", "Group management commands", subsystemCLI);
+        this.subsystemCLI = subsystemCLI;
 
         addModule(new GroupFindCLI(this));
         addModule(new GroupShowCLI(this));
@@ -56,28 +55,6 @@ public class GroupCLI extends CLI {
     @Override
     public String getManPage() {
         return "pki-group";
-    }
-
-    public GroupClient getGroupClient() throws Exception {
-
-        if (groupClient != null) return groupClient;
-
-        PKIClient client = getClient();
-
-        // determine the subsystem
-        String subsystem;
-        if (parent instanceof SubsystemCLI) {
-            SubsystemCLI subsystemCLI = (SubsystemCLI)parent;
-            subsystem = subsystemCLI.getName();
-        } else {
-            subsystem = client.getSubsystem();
-            if (subsystem == null) subsystem = "ca";
-        }
-
-        // create new group client
-        groupClient = new GroupClient(client, subsystem);
-
-        return groupClient;
     }
 
     public static void printGroup(GroupData groupData) {

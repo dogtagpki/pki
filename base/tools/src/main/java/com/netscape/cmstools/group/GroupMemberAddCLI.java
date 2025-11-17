@@ -21,6 +21,7 @@ package com.netscape.cmstools.group;
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.group.GroupClient;
 import com.netscape.certsrv.group.GroupMemberData;
 import com.netscape.cmstools.cli.MainCLI;
@@ -59,7 +60,8 @@ public class GroupMemberAddCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        GroupClient groupClient = groupMemberCLI.getGroupClient();
+        SubsystemClient subsystemClient = groupMemberCLI.parent.subsystemCLI.getSubsystemClient();
+        GroupClient groupClient = new GroupClient(subsystemClient);
         GroupMemberData groupMemberData = groupClient.addGroupMember(groupID, memberID);
 
         MainCLI.printMessage("Added group member \""+memberID+"\"");
