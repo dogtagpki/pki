@@ -1,4 +1,14 @@
 name: Basic KRA
+# This test will perform the following operations:
+# - install CA
+# - install KRA
+# - generate AES key
+# - generate RSA key
+# - enroll cert with key archival
+# - retrieve cert key
+# - deactivate cert key
+# - archive secret
+# - retrieve secret
 
 on: workflow_call
 
@@ -338,9 +348,11 @@ jobs:
       - name: Run PKI healthcheck
         run: docker exec pki pki-healthcheck --failures-only
 
-      - name: Check accesing KRA using CA admin cert
+      - name: Check KRA admin
         run: |
-          docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
+          docker exec pki pki-server cert-export \
+              --cert-file ca_signing.crt \
+              ca_signing
 
           docker exec pki pki nss-cert-import \
               --cert ca_signing.crt \
@@ -350,6 +362,7 @@ jobs:
           docker exec pki pki pkcs12-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
+
           docker exec pki pki -n caadmin kra-user-show kraadmin
 
       - name: Check KRA connector in CA
@@ -393,13 +406,232 @@ jobs:
           echo pki.example.com > expected
           diff expected actual
 
-      - name: Check cert enrollment with key archival
+      - name: Import transport cert
         run: |
-          # import transport cert
           docker exec pki pki nss-cert-import \
               --cert kra_transport.crt \
               kra_transport
 
+      - name: Check initial key requests
+        run: |
+          docker exec pki pki \
+              -n caadmin \
+              kra-key-request-find \
+              | tee output
+
+          # normalize output
+          sed \
+              -e '/-----/d' \
+              -e '/entries matched/d' \
+              -e '/Number of entries returned/d' \
+              -e '/^ *Request ID:/d' \
+              -e '/^ *Key ID:/d' \
+              -e '/^ *Creation Time:/d' \
+              -e '/^ *Modification Time:/d' \
+              output > actual
+
+          diff /dev/null actual
+
+      - name: Check initial keys
+        run: |
+          docker exec pki pki \
+              -n caadmin \
+              kra-key-find \
+              | tee output
+
+          # normalize output
+          sed \
+              -e '/-----/d' \
+              -e '/key(s) matched/d' \
+              -e '/Number of entries returned/d' \
+              -e '/^ *Request ID:/d' \
+              -e '/^ *Key ID:/d' \
+              -e '/^ *Creation Time:/d' \
+              -e '/^ *Modification Time:/d' \
+              output > actual
+
+          diff /dev/null actual
+
+      - name: Generate AES key
+        run: |
+          docker exec pki pki \
+              -n caadmin \
+              kra-key-generate \
+              --key-algorithm AES \
+              --key-size 256 \
+              --usages encrypt,decrypt \
+              test-aes-keygen \
+              | tee output
+
+          # normalize output
+          sed \
+              -e '/-----/d' \
+              -e '/Key generation request info/d' \
+              -e '/^ *Request ID:/d' \
+              -e '/^ *Key ID:/d' \
+              -e '/^ *Creation Time:/d' \
+              -e '/^ *Modification Time:/d' \
+              output > actual
+
+          cat > expected << EOF
+            Type: symkeyGenRequest
+            Status: complete
+          EOF
+
+          diff expected actual
+
+          sed -n 's/^ *Key ID: *\(.*\)$/\1/p' output > test-aes-keygen.key_id
+
+      - name: Check key requests after AES key generation
+        run: |
+          docker exec pki pki \
+              -n caadmin \
+              kra-key-request-find \
+              | tee output
+
+          # normalize output
+          sed \
+              -e '/-----/d' \
+              -e '/entries matched/d' \
+              -e '/Number of entries returned/d' \
+              -e '/^ *Request ID:/d' \
+              -e '/^ *Key ID:/d' \
+              -e '/^ *Creation Time:/d' \
+              -e '/^ *Modification Time:/d' \
+              output > actual
+
+          # there should be 1 key request
+          cat > expected << EOF
+            Type: symkeyGenRequest
+            Status: complete
+          EOF
+
+          diff expected actual
+
+      - name: Check keys after AES key generation
+        run: |
+          docker exec pki pki \
+              -n caadmin \
+              kra-key-find \
+              | tee output
+
+          # normalize output
+          sed \
+              -e '/-----/d' \
+              -e '/key(s) matched/d' \
+              -e '/Number of entries returned/d' \
+              -e '/^ *Request ID:/d' \
+              -e '/^ *Key ID:/d' \
+              -e '/^ *Creation Time:/d' \
+              -e '/^ *Modification Time:/d' \
+              output > actual
+
+          # there should be 1 key
+          cat > expected << EOF
+            Client Key ID: test-aes-keygen
+            Status: active
+            Algorithm: AES
+            Size: 256
+            Owner: kraadmin
+          EOF
+
+          diff expected actual
+
+      - name: Generate RSA key
+        run: |
+          docker exec pki pki \
+              -n caadmin \
+              kra-key-generate \
+              --key-algorithm RSA \
+              --key-size 2048 \
+              test-rsa-keygen \
+              | tee output
+
+          # normalize output
+          sed \
+              -e '/-----/d' \
+              -e '/Key generation request info/d' \
+              -e '/^ *Request ID:/d' \
+              -e '/^ *Key ID:/d' \
+              -e '/^ *Creation Time:/d' \
+              -e '/^ *Modification Time:/d' \
+              output > actual
+
+          cat > expected << EOF
+            Type: asymkeyGenRequest
+            Status: complete
+          EOF
+
+          diff expected actual
+
+          sed -n 's/^ *Key ID: *\(.*\)$/\1/p' output > test-rsa-keygen.key_id
+
+      - name: Check key requests after RSA key generation
+        run: |
+          docker exec pki pki \
+              -n caadmin \
+              kra-key-request-find \
+              | tee output
+
+          # normalize output
+          sed \
+              -e '/-----/d' \
+              -e '/entries matched/d' \
+              -e '/Number of entries returned/d' \
+              -e '/^ *Request ID:/d' \
+              -e '/^ *Key ID:/d' \
+              -e '/^ *Creation Time:/d' \
+              -e '/^ *Modification Time:/d' \
+              output > actual
+
+          # there should be 2 key requests
+          cat > expected << EOF
+            Type: symkeyGenRequest
+            Status: complete
+
+            Type: asymkeyGenRequest
+            Status: complete
+          EOF
+
+          diff expected actual
+
+      - name: Check keys after RSA key generation
+        run: |
+          docker exec pki pki \
+              -n caadmin \
+              kra-key-find \
+              | tee output
+
+          # normalize output
+          sed \
+              -e '/-----/d' \
+              -e '/key(s) matched/d' \
+              -e '/Number of entries returned/d' \
+              -e '/^ *Request ID:/d' \
+              -e '/^ *Key ID:/d' \
+              -e '/^ *Creation Time:/d' \
+              -e '/^ *Modification Time:/d' \
+              output > actual
+
+          # there should be 2 keys
+          cat > expected << EOF
+            Client Key ID: test-aes-keygen
+            Status: active
+            Algorithm: AES
+            Size: 256
+            Owner: kraadmin
+
+            Client Key ID: test-rsa-keygen
+            Status: active
+            Algorithm: RSA
+            Size: 2048
+            Owner: kraadmin
+          EOF
+
+          diff expected actual
+
+      - name: Enroll cert with key archival
+        run: |
           # generate key and cert request
           # https://github.com/dogtagpki/pki/wiki/Generating-Certificate-Request-with-PKI-NSS
           docker exec pki pki \
@@ -432,7 +664,7 @@ jobs:
           sed -n "s/^\s*Trust Flags:\s*\(\S*\)$/\1/p" output > actual
           diff expected actual
 
-      - name: Check key requests and keys after enrollment
+      - name: Check key requests after enrollment
         run: |
           docker exec pki pki \
               -n caadmin \
@@ -440,7 +672,7 @@ jobs:
               | tee output
 
           # normalize output
-          sed -i \
+          sed \
               -e '/-----/d' \
               -e '/entries matched/d' \
               -e '/Number of entries returned/d' \
@@ -448,23 +680,31 @@ jobs:
               -e '/^ *Key ID:/d' \
               -e '/^ *Creation Time:/d' \
               -e '/^ *Modification Time:/d' \
-              output
+              output > actual
 
-          # there should be 1 key request
+          # there should be 3 key requests
           cat > expected << EOF
+            Type: symkeyGenRequest
+            Status: complete
+
+            Type: asymkeyGenRequest
+            Status: complete
+
             Type: enrollment
             Status: complete
           EOF
 
-          diff expected output
+          diff expected actual
 
+      - name: Check keys after enrollment
+        run: |
           docker exec pki pki \
               -n caadmin \
               kra-key-find \
               | tee output
 
           # normalize output
-          sed -i \
+          sed \
               -e '/-----/d' \
               -e '/key(s) matched/d' \
               -e '/Number of entries returned/d' \
@@ -472,16 +712,28 @@ jobs:
               -e '/^ *Key ID:/d' \
               -e '/^ *Creation Time:/d' \
               -e '/^ *Modification Time:/d' \
-              output
+              output > actual
 
-          # there should be 1 key
+          # there should be 3 keys
           cat > expected << EOF
+            Client Key ID: test-aes-keygen
+            Status: active
+            Algorithm: AES
+            Size: 256
+            Owner: kraadmin
+
+            Client Key ID: test-rsa-keygen
+            Status: active
+            Algorithm: RSA
+            Size: 2048
+            Owner: kraadmin
+
             Algorithm: 1.2.840.113549.1.1.1
             Size: 2048
             Owner: UID=testuser
           EOF
 
-          diff expected output
+          diff expected actual
 
       - name: Check archived cert key
         run: |
@@ -494,7 +746,7 @@ jobs:
 
           KEY_ID=$(sed -n "s/^\s*Key ID:\s*\(\S*\)$/\1/p" output)
           echo "Key ID: $KEY_ID"
-          echo $KEY_ID > key.id
+          echo $KEY_ID > cert.key_id
 
           DEC_KEY_ID=$(python -c "print(int('$KEY_ID', 16))")
           echo "Dec Key ID: $DEC_KEY_ID"
@@ -519,9 +771,9 @@ jobs:
           sed -n 's/^metaInfo:\s*payloadWrapAlgorithm:\(.*\)$/\1/p' output > actual
           diff expected actual
 
-      - name: Check cert key retrieval
+      - name: Retrieve cert key
         run: |
-          KEY_ID=$(cat key.id)
+          KEY_ID=$(cat cert.key_id)
           echo "Key ID: $KEY_ID"
 
           # export cert into Base64-encoded format
@@ -575,7 +827,7 @@ jobs:
           sed -n "s/^\s*Trust Flags:\s*\(\S*\)$/\1/p" output > actual
           diff expected actual
 
-      - name: Check key requests and keys after retrieval
+      - name: Check key requests after retrieval
         run: |
           docker exec pki pki \
               -n caadmin \
@@ -583,7 +835,7 @@ jobs:
               | tee output
 
           # normalize output
-          sed -i \
+          sed \
               -e '/-----/d' \
               -e '/entries matched/d' \
               -e '/Number of entries returned/d' \
@@ -591,10 +843,16 @@ jobs:
               -e '/^ *Key ID:/d' \
               -e '/^ *Creation Time:/d' \
               -e '/^ *Modification Time:/d' \
-              output
+              output > actual
 
-          # there should be 2 key requests
+          # there should be 4 key requests
           cat > expected << EOF
+            Type: symkeyGenRequest
+            Status: complete
+
+            Type: asymkeyGenRequest
+            Status: complete
+
             Type: enrollment
             Status: complete
 
@@ -602,15 +860,17 @@ jobs:
             Status: complete
           EOF
 
-          diff expected output
+          diff expected actual
 
+      - name: Check keys after retrieval
+        run: |
           docker exec pki pki \
               -n caadmin \
               kra-key-find \
               | tee output
 
           # normalize output
-          sed -i \
+          sed \
               -e '/-----/d' \
               -e '/key(s) matched/d' \
               -e '/Number of entries returned/d' \
@@ -618,21 +878,33 @@ jobs:
               -e '/^ *Key ID:/d' \
               -e '/^ *Creation Time:/d' \
               -e '/^ *Modification Time:/d' \
-              output
+              output > actual
 
-          # there should be 1 key
+          # there should be 3 keys
           cat > expected << EOF
+            Client Key ID: test-aes-keygen
+            Status: active
+            Algorithm: AES
+            Size: 256
+            Owner: kraadmin
+
+            Client Key ID: test-rsa-keygen
+            Status: active
+            Algorithm: RSA
+            Size: 2048
+            Owner: kraadmin
+
             Algorithm: 1.2.840.113549.1.1.1
             Size: 2048
             Owner: UID=testuser
           EOF
 
-          diff expected output
+          diff expected actual
 
       # https://github.com/dogtagpki/pki/wiki/Changing-Archived-Key-Status
       - name: Deactivate cert key
         run: |
-          KEY_ID=$(cat key.id)
+          KEY_ID=$(cat cert.key_id)
           echo "KEY_ID: $KEY_ID"
 
           docker exec pki pki \
@@ -652,7 +924,7 @@ jobs:
 
           diff expected output
 
-      - name: Check key requests and keys after deactivation
+      - name: Check key requests after deactivation
         run: |
           docker exec pki pki \
               -n caadmin \
@@ -660,7 +932,7 @@ jobs:
               | tee output
 
           # normalize output
-          sed -i \
+          sed \
               -e '/-----/d' \
               -e '/entries matched/d' \
               -e '/Number of entries returned/d' \
@@ -668,10 +940,16 @@ jobs:
               -e '/^ *Key ID:/d' \
               -e '/^ *Creation Time:/d' \
               -e '/^ *Modification Time:/d' \
-              output
+              output > actual
 
-          # there should be 2 key requests
+          # there should be 4 key requests
           cat > expected << EOF
+            Type: symkeyGenRequest
+            Status: complete
+
+            Type: asymkeyGenRequest
+            Status: complete
+
             Type: enrollment
             Status: complete
 
@@ -679,15 +957,17 @@ jobs:
             Status: complete
           EOF
 
-          diff expected output
+          diff expected actual
 
+      - name: Check keys after deactivation
+        run: |
           docker exec pki pki \
               -n caadmin \
               kra-key-find \
               | tee output
 
           # normalize output
-          sed -i \
+          sed \
               -e '/-----/d' \
               -e '/key(s) matched/d' \
               -e '/Number of entries returned/d' \
@@ -695,17 +975,29 @@ jobs:
               -e '/^ *Key ID:/d' \
               -e '/^ *Creation Time:/d' \
               -e '/^ *Modification Time:/d' \
-              output
+              output > actual
 
-          # there should be 1 key which is inactive
+          # there should be 3 keys
           cat > expected << EOF
+            Client Key ID: test-aes-keygen
+            Status: active
+            Algorithm: AES
+            Size: 256
+            Owner: kraadmin
+
+            Client Key ID: test-rsa-keygen
+            Status: active
+            Algorithm: RSA
+            Size: 2048
+            Owner: kraadmin
+
             Status: inactive
             Algorithm: 1.2.840.113549.1.1.1
             Size: 2048
             Owner: UID=testuser
           EOF
 
-          diff expected output
+          diff expected actual
 
       # https://github.com/dogtagpki/pki/wiki/Archiving-Key-in-KRA
       - name: Archive secret
@@ -716,27 +1008,20 @@ jobs:
           docker exec pki pki \
               -n caadmin \
               kra-key-archive \
-              --clientKeyID testuser \
+              --clientKeyID test-secret \
               --transport kra_transport \
               --input-data $SHARED/secret.archived \
               -v
-
-          docker exec pki pki -n caadmin kra-key-find | tee output
-
-          # there should be 2 keys
-          echo "2" > expected
-          grep "^ *Key ID:" output | wc -l > actual
-          diff expected actual
 
           # get key ID
           docker exec pki pki \
               -n caadmin \
               kra-key-find \
-              --clientKeyID testuser | tee output
+              --clientKeyID test-secret | tee output
 
-          sed -n 's/^ *Key ID: *\(.*\)$/\1/p' output > key.id
+          sed -n 's/^ *Key ID: *\(.*\)$/\1/p' output > cert.key_id
 
-      - name: Check key requests and keys after secret archival
+      - name: Check key requests after secret archival
         run: |
           docker exec pki pki \
               -n caadmin \
@@ -744,7 +1029,7 @@ jobs:
               | tee output
 
           # normalize output
-          sed -i \
+          sed \
               -e '/-----/d' \
               -e '/entries matched/d' \
               -e '/Number of entries returned/d' \
@@ -752,10 +1037,16 @@ jobs:
               -e '/^ *Key ID:/d' \
               -e '/^ *Creation Time:/d' \
               -e '/^ *Modification Time:/d' \
-              output
+              output > actual
 
-          # there should be 3 key requests
+          # there should be 5 key requests
           cat > expected << EOF
+            Type: symkeyGenRequest
+            Status: complete
+
+            Type: asymkeyGenRequest
+            Status: complete
+
             Type: enrollment
             Status: complete
 
@@ -766,15 +1057,17 @@ jobs:
             Status: complete
           EOF
 
-          diff expected output
+          diff expected actual
 
+      - name: Check keys after secret archival
+        run: |
           docker exec pki pki \
               -n caadmin \
               kra-key-find \
               | tee output
 
           # normalize output
-          sed -i \
+          sed \
               -e '/-----/d' \
               -e '/key(s) matched/d' \
               -e '/Number of entries returned/d' \
@@ -782,26 +1075,38 @@ jobs:
               -e '/^ *Key ID:/d' \
               -e '/^ *Creation Time:/d' \
               -e '/^ *Modification Time:/d' \
-              output
+              output > actual
 
-          # there should be 2 keys
+          # there should be 4 keys
           cat > expected << EOF
+            Client Key ID: test-aes-keygen
+            Status: active
+            Algorithm: AES
+            Size: 256
+            Owner: kraadmin
+
+            Client Key ID: test-rsa-keygen
+            Status: active
+            Algorithm: RSA
+            Size: 2048
+            Owner: kraadmin
+
             Status: inactive
             Algorithm: 1.2.840.113549.1.1.1
             Size: 2048
             Owner: UID=testuser
 
-            Client Key ID: testuser
+            Client Key ID: test-secret
             Status: active
             Owner: kraadmin
           EOF
 
-          diff expected output
+          diff expected actual
 
       # https://github.com/dogtagpki/pki/wiki/Retrieving-Archived-Key
       - name: Retrieve secret
         run: |
-          KEY_ID=$(cat key.id)
+          KEY_ID=$(cat cert.key_id)
           echo "KEY_ID: $KEY_ID"
 
           docker exec pki pki \
@@ -814,7 +1119,7 @@ jobs:
 
           diff secret.archived secret.retrieved
 
-      - name: Check key requests and keys after secret retrieval
+      - name: Check key requests after secret retrieval
         run: |
           docker exec pki pki \
               -n caadmin \
@@ -822,7 +1127,7 @@ jobs:
               | tee output
 
           # normalize output
-          sed -i \
+          sed \
               -e '/-----/d' \
               -e '/entries matched/d' \
               -e '/Number of entries returned/d' \
@@ -830,10 +1135,16 @@ jobs:
               -e '/^ *Key ID:/d' \
               -e '/^ *Creation Time:/d' \
               -e '/^ *Modification Time:/d' \
-              output
+              output > actual
 
-          # there should be 4 key requests
+          # there should be 6 key requests
           cat > expected << EOF
+            Type: symkeyGenRequest
+            Status: complete
+
+            Type: asymkeyGenRequest
+            Status: complete
+
             Type: enrollment
             Status: complete
 
@@ -847,15 +1158,17 @@ jobs:
             Status: complete
           EOF
 
-          diff expected output
+          diff expected actual
 
+      - name: Check keys after secret retrieval
+        run: |
           docker exec pki pki \
               -n caadmin \
               kra-key-find \
               | tee output
 
           # normalize output
-          sed -i \
+          sed \
               -e '/-----/d' \
               -e '/key(s) matched/d' \
               -e '/Number of entries returned/d' \
@@ -863,21 +1176,33 @@ jobs:
               -e '/^ *Key ID:/d' \
               -e '/^ *Creation Time:/d' \
               -e '/^ *Modification Time:/d' \
-              output
+              output > actual
 
-          # there should be 2 keys
+          # there should be 4 keys
           cat > expected << EOF
+            Client Key ID: test-aes-keygen
+            Status: active
+            Algorithm: AES
+            Size: 256
+            Owner: kraadmin
+
+            Client Key ID: test-rsa-keygen
+            Status: active
+            Algorithm: RSA
+            Size: 2048
+            Owner: kraadmin
+
             Status: inactive
             Algorithm: 1.2.840.113549.1.1.1
             Size: 2048
             Owner: UID=testuser
 
-            Client Key ID: testuser
+            Client Key ID: test-secret
             Status: active
             Owner: kraadmin
           EOF
 
-          diff expected output
+          diff expected actual
 
       - name: Remove KRA
         run: docker exec pki pkidestroy -s KRA -v
