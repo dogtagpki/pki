@@ -13,9 +13,7 @@ import org.dogtagpki.cli.CLI;
 
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
-import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.profile.ProfileAttribute;
-import com.netscape.certsrv.profile.ProfileClient;
 import com.netscape.certsrv.profile.ProfileData;
 import com.netscape.certsrv.profile.ProfileDataInfo;
 import com.netscape.certsrv.profile.ProfileInput;
@@ -28,7 +26,6 @@ public class ProfileCLI extends CLI {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileCLI.class);
 
     public CACLI caCLI;
-    public ProfileClient profileClient;
 
     public ProfileCLI(CACLI caCLI) {
         super("profile", "Profile management commands", caCLI);
@@ -53,22 +50,6 @@ public class ProfileCLI extends CLI {
     @Override
     public String getManPage() {
         return "pki-ca-profile";
-    }
-
-    public ProfileClient getProfileClient() throws Exception {
-
-        if (profileClient != null) return profileClient;
-
-        PKIClient client = getClient();
-
-        // determine the subsystem
-        String subsystem = client.getSubsystem();
-        if (subsystem == null) subsystem = "ca";
-
-        // create new profile client
-        profileClient = new ProfileClient(client, subsystem);
-
-        return profileClient;
     }
 
     public static void printProfileDataInfo(ProfileDataInfo info) {

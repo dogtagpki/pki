@@ -25,6 +25,7 @@ import java.util.Arrays;
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.profile.ProfileClient;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -58,7 +59,8 @@ public class ProfileEditCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        ProfileClient profileClient = profileCLI.getProfileClient();
+        SubsystemClient subsystemClient = profileCLI.caCLI.getSubsystemClient();
+        ProfileClient profileClient = new ProfileClient(subsystemClient);
 
         // read profile into temporary file
         byte[] orig = profileClient.retrieveProfileRaw(profileId);

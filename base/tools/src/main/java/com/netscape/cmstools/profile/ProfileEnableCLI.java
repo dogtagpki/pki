@@ -3,6 +3,7 @@ package com.netscape.cmstools.profile;
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.profile.ProfileClient;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -36,7 +37,8 @@ public class ProfileEnableCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        ProfileClient profileClient = profileCLI.getProfileClient();
+        SubsystemClient subsystemClient = profileCLI.caCLI.getSubsystemClient();
+        ProfileClient profileClient = new ProfileClient(subsystemClient);
         profileClient.enableProfile(profileId);
 
         MainCLI.printMessage("Enabled profile \"" + profileId + "\"");

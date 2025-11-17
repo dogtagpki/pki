@@ -6,6 +6,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.profile.ProfileClient;
 import com.netscape.certsrv.profile.ProfileDataInfo;
 import com.netscape.certsrv.profile.ProfileDataInfos;
@@ -74,7 +75,8 @@ public class ProfileFindCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        ProfileClient profileClient = profileCLI.getProfileClient();
+        SubsystemClient subsystemClient = profileCLI.caCLI.getSubsystemClient();
+        ProfileClient profileClient = new ProfileClient(subsystemClient);
         ProfileDataInfos response = profileClient.listProfiles(start, size, visible, enable, enableBy);
 
         Integer total = response.getTotal();

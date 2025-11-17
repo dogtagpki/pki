@@ -165,7 +165,7 @@ public class CATest {
 
             caClient = new CAClient(new PKIClient(config));
             certClient = new CACertClient(caClient);
-            profileClient = (ProfileClient) caClient.getClient("profile");
+            profileClient = new ProfileClient(caClient);
 
         } catch (Exception e) {
             e.printStackTrace();
