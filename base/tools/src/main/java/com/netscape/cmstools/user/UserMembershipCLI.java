@@ -20,7 +20,6 @@ package com.netscape.cmstools.user;
 
 import org.dogtagpki.cli.CLI;
 
-import com.netscape.certsrv.user.UserClient;
 import com.netscape.certsrv.user.UserMembershipData;
 
 /**
@@ -40,10 +39,6 @@ public class UserMembershipCLI extends CLI {
         addModule(new UserMembershipFindCLI(this));
         addModule(new UserMembershipAddCLI(this));
         addModule(new UserMembershipRemoveCLI(this));
-    }
-
-    public UserClient getUserClient() throws Exception {
-        return parent.getUserClient();
     }
 
     public static void printUserMembership(UserMembershipData userMembershipData) {

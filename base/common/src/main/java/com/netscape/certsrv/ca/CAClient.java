@@ -35,7 +35,6 @@ import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.system.KRAConnectorInfo;
-import com.netscape.certsrv.user.UserClient;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.json.JSONObject;
 
@@ -45,11 +44,6 @@ public class CAClient extends SubsystemClient {
 
     public CAClient(PKIClient client) throws Exception {
         super(client, "ca");
-        init();
-    }
-
-    public void init() throws Exception {
-        addClient(new UserClient(this));
     }
 
     public PKCS7 getCertChain() throws Exception {

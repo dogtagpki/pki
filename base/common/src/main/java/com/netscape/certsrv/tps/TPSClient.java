@@ -26,7 +26,6 @@ import com.netscape.certsrv.tps.connector.ConnectorClient;
 import com.netscape.certsrv.tps.profile.ProfileClient;
 import com.netscape.certsrv.tps.profile.ProfileMappingClient;
 import com.netscape.certsrv.tps.token.TokenClient;
-import com.netscape.certsrv.user.UserClient;
 
 /**
  * @author Endi S. Dewata
@@ -46,6 +45,5 @@ public class TPSClient extends SubsystemClient {
         addClient(new ProfileClient(client, name));
         addClient(new ProfileMappingClient(client, name));
         addClient(new TokenClient(client, name));
-        addClient(new UserClient(this));
     }
 }

@@ -6,7 +6,6 @@ import org.dogtagpki.kra.KRASystemCertClient;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.key.KeyClient;
-import com.netscape.certsrv.user.UserClient;
 
 public class KRAClient extends SubsystemClient {
 
@@ -19,7 +18,6 @@ public class KRAClient extends SubsystemClient {
 
         addClient(new KeyClient(client, name));
         addClient(new KRASystemCertClient(client, name));
-        addClient(new UserClient(this));
         addClient(new KRAInfoClient(client, name));
     }
 }

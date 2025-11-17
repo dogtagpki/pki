@@ -31,12 +31,12 @@ import com.netscape.certsrv.client.SubsystemClient;
  */
 public class UserClient extends Client {
 
-    public UserClient(PKIClient client, String subsystem) throws Exception {
-        super(client, subsystem, "admin/users");
-    }
-
     public UserClient(SubsystemClient subsystemClient) throws Exception {
         this(subsystemClient.client, subsystemClient.getName());
+    }
+
+    public UserClient(PKIClient client, String subsystem) throws Exception {
+        super(client, subsystem, "admin/users");
     }
 
     public UserCollection findUsers(String filter, Integer start, Integer size) throws Exception {

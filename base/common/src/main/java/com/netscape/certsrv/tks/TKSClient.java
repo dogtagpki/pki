@@ -31,7 +31,6 @@ import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.system.TPSConnectorClient;
-import com.netscape.certsrv.user.UserClient;
 import com.netscape.cmsutil.json.JSONObject;
 
 public class TKSClient extends SubsystemClient {
@@ -43,7 +42,6 @@ public class TKSClient extends SubsystemClient {
 
     public void init() throws Exception {
         addClient(new TPSConnectorClient(client, name));
-        addClient(new UserClient(this));
     }
 
     public void importTransportCert(

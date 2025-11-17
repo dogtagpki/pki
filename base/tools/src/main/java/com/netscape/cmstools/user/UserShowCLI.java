@@ -21,6 +21,7 @@ package com.netscape.cmstools.user;
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.user.UserClient;
 import com.netscape.certsrv.user.UserData;
 import com.netscape.cmstools.cli.MainCLI;
@@ -58,7 +59,8 @@ public class UserShowCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        UserClient userClient = userCLI.getUserClient();
+        SubsystemClient subsystemClient = userCLI.subsystemCLI.getSubsystemClient();
+        UserClient userClient = new UserClient(subsystemClient);
         UserData userData = userClient.getUser(userId);
 
         MainCLI.printMessage("User \"" + userId + "\"");

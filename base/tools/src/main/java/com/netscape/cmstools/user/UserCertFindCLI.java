@@ -24,6 +24,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.user.UserCertCollection;
 import com.netscape.certsrv.user.UserCertData;
 import com.netscape.certsrv.user.UserClient;
@@ -79,7 +80,8 @@ public class UserCertFindCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        UserClient userClient = userCertCLI.getUserClient();
+        SubsystemClient subsystemClient = userCertCLI.parent.subsystemCLI.getSubsystemClient();
+        UserClient userClient = new UserClient(subsystemClient);
         UserCertCollection response = userClient.findUserCerts(userID, start, size);
 
         Integer total = response.getTotal();

@@ -21,7 +21,6 @@ package com.netscape.cmstools.user;
 import org.dogtagpki.cli.CLI;
 
 import com.netscape.certsrv.user.UserCertData;
-import com.netscape.certsrv.user.UserClient;
 
 /**
  * @author Endi S. Dewata
@@ -46,10 +45,6 @@ public class UserCertCLI extends CLI {
     @Override
     public String getManPage() {
         return "pki-user-cert";
-    }
-
-    public UserClient getUserClient() throws Exception {
-        return parent.getUserClient();
     }
 
     public static void printCert(

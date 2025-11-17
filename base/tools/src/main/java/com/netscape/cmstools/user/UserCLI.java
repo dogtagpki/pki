@@ -21,8 +21,6 @@ package com.netscape.cmstools.user;
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.cli.CLI;
 
-import com.netscape.certsrv.client.PKIClient;
-import com.netscape.certsrv.user.UserClient;
 import com.netscape.certsrv.user.UserData;
 import com.netscape.certsrv.user.UserResource;
 import com.netscape.cmstools.cli.MainCLI;
@@ -35,10 +33,11 @@ public class UserCLI extends CLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UserCLI.class);
 
-    public UserClient userClient;
+    public SubsystemCLI subsystemCLI;
 
-    public UserCLI(CLI parent) {
-        super("user", "User management commands", parent);
+    public UserCLI(SubsystemCLI subsystemCLI) {
+        super("user", "User management commands", subsystemCLI);
+        this.subsystemCLI = subsystemCLI;
 
         addModule(new UserFindCLI(this));
         addModule(new UserShowCLI(this));
@@ -60,28 +59,6 @@ public class UserCLI extends CLI {
     @Override
     public String getManPage() {
         return "pki-user";
-    }
-
-    public UserClient getUserClient() throws Exception {
-
-        if (userClient != null) return userClient;
-
-        PKIClient client = getClient();
-
-        // determine the subsystem
-        String subsystem;
-        if (parent instanceof SubsystemCLI) {
-            SubsystemCLI subsystemCLI = (SubsystemCLI)parent;
-            subsystem = subsystemCLI.getName();
-        } else {
-            subsystem = client.getSubsystem();
-            if (subsystem == null) subsystem = "ca";
-        }
-
-        // create new user client
-        userClient = new UserClient(client, subsystem);
-
-        return userClient;
     }
 
     public static void printUser(UserData userData) {

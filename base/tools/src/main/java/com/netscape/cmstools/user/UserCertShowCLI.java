@@ -26,6 +26,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.user.UserCertData;
 import com.netscape.certsrv.user.UserClient;
 import com.netscape.cmstools.cli.MainCLI;
@@ -78,7 +79,8 @@ public class UserCertShowCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        UserClient userClient = userCertCLI.getUserClient();
+        SubsystemClient subsystemClient = userCertCLI.parent.subsystemCLI.getSubsystemClient();
+        UserClient userClient = new UserClient(subsystemClient);
         UserCertData userCertData = userClient.getUserCert(userID, URLEncoder.encode(certID, "UTF-8"));
 
         String encoded = userCertData.getEncoded();

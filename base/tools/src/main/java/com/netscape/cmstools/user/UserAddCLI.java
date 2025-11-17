@@ -34,7 +34,6 @@ import com.netscape.certsrv.user.UserCertData;
 import com.netscape.certsrv.user.UserClient;
 import com.netscape.certsrv.user.UserData;
 import com.netscape.cmstools.cli.MainCLI;
-import com.netscape.cmstools.cli.SubsystemCLI;
 
 /**
  * @author Endi S. Dewata
@@ -168,10 +167,12 @@ public class UserAddCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
+        SubsystemClient subsystemClient = userCLI.subsystemCLI.getSubsystemClient();
+        UserClient userClient = new UserClient(subsystemClient);
+
         String securityDomain = cmd.getOptionValue("security-domain");
         if (securityDomain == null) {
 
-            UserClient userClient = userCLI.getUserClient();
             userData = userClient.addUser(userData);
 
             if (binCert != null) { // cert is optional
@@ -196,8 +197,6 @@ public class UserAddCLI extends CommandCLI {
 
             String b64Cert = Utils.base64encodeSingleLine(binCert);
 
-            SubsystemCLI subsystemCLI = (SubsystemCLI) userCLI.getParent();
-            SubsystemClient subsystemClient = subsystemCLI.getSubsystemClient();
             subsystemClient.addUser(uri, userID, fullName, b64Cert, sessionID);
         }
 

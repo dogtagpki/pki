@@ -22,6 +22,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.user.UserClient;
 import com.netscape.certsrv.user.UserData;
 import com.netscape.cmstools.cli.MainCLI;
@@ -97,7 +98,8 @@ public class UserModifyCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        UserClient userClient = userCLI.getUserClient();
+        SubsystemClient subsystemClient = userCLI.subsystemCLI.getSubsystemClient();
+        UserClient userClient = new UserClient(subsystemClient);
         userData = userClient.modifyUser(userId, userData);
 
         MainCLI.printMessage("Modified user \"" + userId + "\"");

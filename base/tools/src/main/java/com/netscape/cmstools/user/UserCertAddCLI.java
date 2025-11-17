@@ -28,6 +28,7 @@ import org.dogtagpki.cli.CommandCLI;
 import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.ca.CAClient;
 import com.netscape.certsrv.cert.CertData;
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.user.UserCertData;
 import com.netscape.certsrv.user.UserClient;
@@ -109,7 +110,8 @@ public class UserCertAddCLI extends CommandCLI {
 
         logger.info("Request:\n" + userCertData);
 
-        UserClient userClient = userCertCLI.getUserClient();
+        SubsystemClient subsystemClient = userCertCLI.parent.subsystemCLI.getSubsystemClient();
+        UserClient userClient = new UserClient(subsystemClient);
         userCertData = userClient.addUserCert(userID, userCertData);
 
         MainCLI.printMessage("Added certificate \"" + userCertData.getID() + "\"");

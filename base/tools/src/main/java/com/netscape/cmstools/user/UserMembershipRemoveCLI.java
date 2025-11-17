@@ -21,6 +21,7 @@ package com.netscape.cmstools.user;
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.user.UserClient;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -58,7 +59,8 @@ public class UserMembershipRemoveCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        UserClient userClient = userMembershipCLI.getUserClient();
+        SubsystemClient subsystemClient = userMembershipCLI.parent.subsystemCLI.getSubsystemClient();
+        UserClient userClient = new UserClient(subsystemClient);
         userClient.removeUserMembership(userID, groupID);
 
         MainCLI.printMessage("Deleted membership in group \""+groupID+"\"");
