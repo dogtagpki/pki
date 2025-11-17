@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.netscape.certsrv.authentication.EAuthException;
-import com.netscape.certsrv.authority.AuthorityClient;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
@@ -54,7 +53,6 @@ public class CAClient extends SubsystemClient {
     }
 
     public void init() throws Exception {
-        addClient(new AuthorityClient(client, name));
         addClient(new CACertClient(client, name));
         addClient(new FeatureClient(client, name));
         addClient(new GroupClient(this));

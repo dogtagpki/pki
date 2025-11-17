@@ -7,6 +7,7 @@ import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.authority.AuthorityClient;
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.cmstools.cli.MainCLI;
 
 public class AuthorityRemoveCLI extends CommandCLI {
@@ -56,7 +57,8 @@ public class AuthorityRemoveCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        AuthorityClient authorityClient = authorityCLI.getAuthorityClient();
+        SubsystemClient subsystemClient = authorityCLI.caCLI.getSubsystemClient();
+        AuthorityClient authorityClient = new AuthorityClient(subsystemClient);
         authorityClient.deleteCA(aidString);
 
         MainCLI.printMessage("Deleted authority \"" + aidString + "\"");

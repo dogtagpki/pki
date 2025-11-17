@@ -4,9 +4,7 @@ import java.math.BigInteger;
 
 import org.dogtagpki.cli.CLI;
 
-import com.netscape.certsrv.authority.AuthorityClient;
 import com.netscape.certsrv.authority.AuthorityData;
-import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.cmstools.ca.CACLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -14,7 +12,6 @@ import com.netscape.cmstools.cli.MainCLI;
 public class AuthorityCLI extends CLI {
 
     public CACLI caCLI;
-    public AuthorityClient authorityClient;
 
     public AuthorityCLI(CACLI caCLI) {
         super("authority", "CA management commands", caCLI);
@@ -33,16 +30,6 @@ public class AuthorityCLI extends CLI {
     public String getFullName() {
         // do not include MainCLI's name
         return parent instanceof MainCLI ? name : parent.getFullName() + "-" + name;
-    }
-
-    public AuthorityClient getAuthorityClient() throws Exception {
-
-        if (authorityClient != null) return authorityClient;
-
-        PKIClient client = getClient();
-        authorityClient = new AuthorityClient(client, "ca");
-
-        return authorityClient;
     }
 
     protected static void printAuthorityData(AuthorityData data) {

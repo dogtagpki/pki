@@ -8,6 +8,7 @@ import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.authority.AuthorityClient;
 import com.netscape.certsrv.authority.AuthorityData;
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.cmstools.cli.MainCLI;
 
 public class AuthorityFindCLI extends CommandCLI {
@@ -54,7 +55,8 @@ public class AuthorityFindCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        AuthorityClient authorityClient = authorityCLI.getAuthorityClient();
+        SubsystemClient subsystemClient = authorityCLI.caCLI.getSubsystemClient();
+        AuthorityClient authorityClient = new AuthorityClient(subsystemClient);
         Collection<AuthorityData> datas = authorityClient.findCAs(id, parentID, dn, issuerDN);
 
         MainCLI.printMessage(datas.size() + " entries matched");
