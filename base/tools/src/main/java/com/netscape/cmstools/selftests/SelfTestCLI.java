@@ -22,8 +22,8 @@ import java.io.IOException;
 
 import org.dogtagpki.cli.CLI;
 
-import com.netscape.certsrv.selftests.SelfTestClient;
 import com.netscape.certsrv.selftests.SelfTestData;
+import com.netscape.cmstools.cli.SubsystemCLI;
 /**
  * @author Endi S. Dewata
  */
@@ -31,23 +31,15 @@ public class SelfTestCLI extends CLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SelfTestCLI.class);
 
-    public SelfTestClient selfTestClient;
+    public SubsystemCLI subsystemCLI;
 
-    public SelfTestCLI(CLI parent) {
-        super("selftest", "Selftest management commands", parent);
+    public SelfTestCLI(SubsystemCLI subsystemCLI) {
+        super("selftest", "Selftest management commands", subsystemCLI);
+        this.subsystemCLI = subsystemCLI;
 
         addModule(new SelfTestFindCLI(this));
         addModule(new SelfTestRunCLI(this));
         addModule(new SelfTestShowCLI(this));
-    }
-
-    public SelfTestClient getSelfTestClient() throws Exception {
-
-        if (selfTestClient != null) return selfTestClient;
-
-        selfTestClient = (SelfTestClient) parent.getClient("selftests");
-
-        return selfTestClient;
     }
 
     public static void printSelfTestData(SelfTestData selfTestData) throws IOException {

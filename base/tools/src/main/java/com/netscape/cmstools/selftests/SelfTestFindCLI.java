@@ -24,6 +24,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.selftests.SelfTestClient;
 import com.netscape.certsrv.selftests.SelfTestCollection;
 import com.netscape.certsrv.selftests.SelfTestData;
@@ -74,7 +75,8 @@ public class SelfTestFindCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        SelfTestClient selfTestClient = selfTestCLI.getSelfTestClient();
+        SubsystemClient subsystemClient = selfTestCLI.subsystemCLI.getSubsystemClient();
+        SelfTestClient selfTestClient = new SelfTestClient(subsystemClient);
         SelfTestCollection result = selfTestClient.findSelfTests(filter, start, size);
 
         Integer total = result.getTotal();

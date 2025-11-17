@@ -19,7 +19,6 @@ package com.netscape.certsrv.ocsp;
 
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
-import com.netscape.certsrv.selftests.SelfTestClient;
 import com.netscape.certsrv.user.UserClient;
 
 public class OCSPClient extends SubsystemClient {
@@ -30,7 +29,6 @@ public class OCSPClient extends SubsystemClient {
     }
 
     public void init() throws Exception {
-        addClient(new SelfTestClient(client, name));
         addClient(new UserClient(this));
     }
 }
