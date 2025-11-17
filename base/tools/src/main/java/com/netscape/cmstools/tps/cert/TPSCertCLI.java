@@ -20,7 +20,6 @@ package com.netscape.cmstools.tps.cert;
 
 import org.dogtagpki.cli.CLI;
 
-import com.netscape.certsrv.tps.cert.TPSCertClient;
 import com.netscape.certsrv.tps.cert.TPSCertData;
 import com.netscape.cmstools.tps.TPSCLI;
 
@@ -32,7 +31,6 @@ public class TPSCertCLI extends CLI {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSCertCLI.class);
 
     public TPSCLI tpsCLI;
-    public TPSCertClient certClient;
 
     public TPSCertCLI(TPSCLI tpsCLI) {
         super("cert", "Certificate management commands", tpsCLI);
@@ -40,15 +38,6 @@ public class TPSCertCLI extends CLI {
 
         addModule(new TPSCertFindCLI(this));
         addModule(new TPSCertShowCLI(this));
-    }
-
-    public TPSCertClient getTPSCertClient() throws Exception {
-
-        if (certClient != null) return certClient;
-
-        certClient = (TPSCertClient) parent.getClient("certs");
-
-        return certClient;
     }
 
     public static void printCert(TPSCertData cert) {

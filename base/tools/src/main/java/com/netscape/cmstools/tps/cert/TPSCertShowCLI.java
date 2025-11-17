@@ -21,6 +21,7 @@ package com.netscape.cmstools.tps.cert;
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.tps.cert.TPSCertClient;
 import com.netscape.certsrv.tps.cert.TPSCertData;
 import com.netscape.cmstools.cli.MainCLI;
@@ -58,7 +59,8 @@ public class TPSCertShowCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        TPSCertClient certClient = certCLI.getTPSCertClient();
+        SubsystemClient subsystemClient = certCLI.tpsCLI.getSubsystemClient();
+        TPSCertClient certClient = new TPSCertClient(subsystemClient);
         TPSCertData certData = certClient.getCert(certID);
 
         MainCLI.printMessage("Certificate \"" + certID + "\"");

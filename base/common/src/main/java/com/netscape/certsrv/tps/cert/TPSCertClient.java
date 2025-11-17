@@ -22,11 +22,16 @@ import java.util.Map;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
+import com.netscape.certsrv.client.SubsystemClient;
 
 /**
  * @author Endi S. Dewata
  */
 public class TPSCertClient extends Client {
+
+    public TPSCertClient(SubsystemClient subsystemClient) throws Exception {
+        this(subsystemClient.client, subsystemClient.name);
+    }
 
     public TPSCertClient(PKIClient client, String subsystem) throws Exception {
         super(client, subsystem, "certs");
