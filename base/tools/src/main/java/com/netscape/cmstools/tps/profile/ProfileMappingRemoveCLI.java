@@ -21,6 +21,7 @@ package com.netscape.cmstools.tps.profile;
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.tps.profile.ProfileMappingClient;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -54,7 +55,8 @@ public class ProfileMappingRemoveCLI extends CommandCLI {
 
         String profileMappingID = cmdArgs[0];
 
-        ProfileMappingClient profileMappingClient = profileMappingCLI.getProfileMappingClient();
+        SubsystemClient subsystemClient = profileMappingCLI.profileCLI.tpsCLI.getSubsystemClient();
+        ProfileMappingClient profileMappingClient = new ProfileMappingClient(subsystemClient);
         profileMappingClient.removeProfileMapping(profileMappingID);
 
         MainCLI.printMessage("Deleted profile mapping \"" + profileMappingID + "\"");

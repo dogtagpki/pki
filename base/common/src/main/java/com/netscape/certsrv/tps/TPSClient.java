@@ -19,7 +19,6 @@ package com.netscape.certsrv.tps;
 
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
-import com.netscape.certsrv.tps.profile.ProfileMappingClient;
 import com.netscape.certsrv.tps.token.TokenClient;
 
 /**
@@ -33,7 +32,6 @@ public class TPSClient extends SubsystemClient {
     }
 
     public void init() throws Exception {
-        addClient(new ProfileMappingClient(client, name));
         addClient(new TokenClient(client, name));
     }
 }

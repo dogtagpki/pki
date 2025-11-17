@@ -27,6 +27,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.tps.profile.ProfileMappingClient;
 import com.netscape.certsrv.tps.profile.ProfileMappingData;
 import com.netscape.certsrv.util.JSONSerializer;
@@ -75,7 +76,8 @@ public class ProfileMappingModifyCLI extends CommandCLI {
         String action = cmd.getOptionValue("action", "update");
         String input = cmd.getOptionValue("input");
 
-        ProfileMappingClient profileMappingClient = profileMappingCLI.getProfileMappingClient();
+        SubsystemClient subsystemClient = profileMappingCLI.profileCLI.tpsCLI.getSubsystemClient();
+        ProfileMappingClient profileMappingClient = new ProfileMappingClient(subsystemClient);
         ProfileMappingData profileMappingData;
 
         if (action.equals("update")) {

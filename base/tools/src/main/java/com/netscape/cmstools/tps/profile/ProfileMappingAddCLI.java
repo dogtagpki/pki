@@ -27,6 +27,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.tps.profile.ProfileMappingClient;
 import com.netscape.certsrv.tps.profile.ProfileMappingData;
 import com.netscape.certsrv.util.JSONSerializer;
@@ -87,7 +88,8 @@ public class ProfileMappingAddCLI extends CommandCLI {
             profileMappingData = JSONSerializer.fromJSON(sw.toString(), ProfileMappingData.class);
         }
 
-        ProfileMappingClient profileMappingClient = profileMappingCLI.getProfileMappingClient();
+        SubsystemClient subsystemClient = profileMappingCLI.profileCLI.tpsCLI.getSubsystemClient();
+        ProfileMappingClient profileMappingClient = new ProfileMappingClient(subsystemClient);
         profileMappingData = profileMappingClient.addProfileMapping(profileMappingData);
 
         MainCLI.printMessage("Added profile mapping \"" + profileMappingData.getID() + "\"");

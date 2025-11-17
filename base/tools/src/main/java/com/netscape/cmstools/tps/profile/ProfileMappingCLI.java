@@ -23,7 +23,6 @@ import java.util.Map;
 
 import org.dogtagpki.cli.CLI;
 
-import com.netscape.certsrv.tps.profile.ProfileMappingClient;
 import com.netscape.certsrv.tps.profile.ProfileMappingData;
 
 /**
@@ -33,25 +32,17 @@ public class ProfileMappingCLI extends CLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileMappingCLI.class);
 
-    public ProfileMappingClient profileMappingClient;
+    public ProfileCLI profileCLI;
 
     public ProfileMappingCLI(ProfileCLI profileCLI) {
         super("mapping", "Profile mapping management commands", profileCLI);
+        this.profileCLI = profileCLI;
 
         addModule(new ProfileMappingAddCLI(this));
         addModule(new ProfileMappingFindCLI(this));
         addModule(new ProfileMappingModifyCLI(this));
         addModule(new ProfileMappingRemoveCLI(this));
         addModule(new ProfileMappingShowCLI(this));
-    }
-
-    public ProfileMappingClient getProfileMappingClient() throws Exception {
-
-        if (profileMappingClient != null) return profileMappingClient;
-
-        profileMappingClient = (ProfileMappingClient) parent.getClient("profile-mappings");
-
-        return profileMappingClient;
     }
 
     public static void printProfileMappingData(ProfileMappingData profileMappingData, boolean showProperties) throws IOException {

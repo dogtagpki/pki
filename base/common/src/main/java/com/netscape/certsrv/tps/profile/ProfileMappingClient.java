@@ -24,11 +24,16 @@ import org.apache.http.HttpEntity;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
+import com.netscape.certsrv.client.SubsystemClient;
 
 /**
  * @author Endi S. Dewata
  */
 public class ProfileMappingClient extends Client {
+
+    public ProfileMappingClient(SubsystemClient subsystemClient) throws Exception {
+        this(subsystemClient.client, subsystemClient.name);
+    }
 
     public ProfileMappingClient(PKIClient client, String subsystem) throws Exception {
         super(client, subsystem, "profile-mappings");
