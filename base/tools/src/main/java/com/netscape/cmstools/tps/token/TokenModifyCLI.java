@@ -22,6 +22,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.tps.token.TokenClient;
 import com.netscape.certsrv.tps.token.TokenData;
 import com.netscape.certsrv.tps.token.TokenStatus;
@@ -91,7 +92,8 @@ public class TokenModifyCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        TokenClient tokenClient = tokenCLI.getTokenClient();
+        SubsystemClient subsystemClient = tokenCLI.tpsCLI.getSubsystemClient();
+        TokenClient tokenClient = new TokenClient(subsystemClient);
 
         if (modify) {
             tokenData = tokenClient.modifyToken(tokenID, tokenData);

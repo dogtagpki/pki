@@ -24,6 +24,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.tps.token.TokenClient;
 import com.netscape.certsrv.tps.token.TokenCollection;
 import com.netscape.certsrv.tps.token.TokenData;
@@ -100,7 +101,8 @@ public class TokenFindCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        TokenClient tokenClient = tokenCLI.getTokenClient();
+        SubsystemClient subsystemClient = tokenCLI.tpsCLI.getSubsystemClient();
+        TokenClient tokenClient = new TokenClient(subsystemClient);
         TokenCollection result = tokenClient.findTokens(
                 filter,
                 tokenID,

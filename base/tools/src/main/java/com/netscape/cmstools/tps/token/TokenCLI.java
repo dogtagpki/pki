@@ -24,7 +24,6 @@ import java.util.Collection;
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.cli.CLI;
 
-import com.netscape.certsrv.tps.token.TokenClient;
 import com.netscape.certsrv.tps.token.TokenData;
 import com.netscape.certsrv.tps.token.TokenData.TokenStatusData;
 import com.netscape.certsrv.tps.token.TokenStatus;
@@ -38,7 +37,6 @@ public class TokenCLI extends CLI {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TokenCLI.class);
 
     public TPSCLI tpsCLI;
-    public TokenClient tokenClient;
 
     public TokenCLI(TPSCLI tpsCLI) {
         super("token", "Token management commands", tpsCLI);
@@ -49,15 +47,6 @@ public class TokenCLI extends CLI {
         addModule(new TokenModifyCLI(this));
         addModule(new TokenRemoveCLI(this));
         addModule(new TokenShowCLI(this));
-    }
-
-    public TokenClient getTokenClient() throws Exception {
-
-        if (tokenClient != null) return tokenClient;
-
-        tokenClient = (TokenClient) parent.getClient("tokens");
-
-        return tokenClient;
     }
 
     public static void printToken(TokenData token) {

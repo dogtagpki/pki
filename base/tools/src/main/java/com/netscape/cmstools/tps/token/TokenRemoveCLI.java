@@ -21,6 +21,7 @@ package com.netscape.cmstools.tps.token;
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.tps.token.TokenClient;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -57,7 +58,8 @@ public class TokenRemoveCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        TokenClient tokenClient = tokenCLI.getTokenClient();
+        SubsystemClient subsystemClient = tokenCLI.tpsCLI.getSubsystemClient();
+        TokenClient tokenClient = new TokenClient(subsystemClient);
         tokenClient.removeToken(tokenID);
 
         MainCLI.printMessage("Deleted token \"" + tokenID + "\"");

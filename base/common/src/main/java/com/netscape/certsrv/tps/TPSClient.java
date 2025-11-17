@@ -19,7 +19,6 @@ package com.netscape.certsrv.tps;
 
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
-import com.netscape.certsrv.tps.token.TokenClient;
 
 /**
  * @author Endi S. Dewata
@@ -28,10 +27,5 @@ public class TPSClient extends SubsystemClient {
 
     public TPSClient(PKIClient client) throws Exception {
         super(client, "tps");
-        init();
-    }
-
-    public void init() throws Exception {
-        addClient(new TokenClient(client, name));
     }
 }
