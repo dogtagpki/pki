@@ -78,6 +78,7 @@ jobs:
               > >(tee stdout) 2> >(tee stderr >&2)
 
       - name: Check external commands
+        if: always()
         run: |
           sed -n '/^DEBUG: Command:/p' stderr | tee output
           wc -l output

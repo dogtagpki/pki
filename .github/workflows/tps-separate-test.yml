@@ -183,8 +183,17 @@ jobs:
               -D pki_authdb_url=ldap://tpsds.example.com:3389 \
               -D pki_enable_server_side_keygen=True \
               -D pki_http_enable=False \
-              -v
+              --debug \
+              > >(tee stdout) 2> >(tee stderr >&2)
 
+      - name: Check external commands
+        if: always()
+        run: |
+          sed -n '/^DEBUG: Command:/p' stderr | tee output
+          wc -l output
+
+      - name: Check TPS certs
+        run: |
           docker exec tps pki-server cert-find
 
       - name: Verify there is no plain HTTP connectors in TPS
