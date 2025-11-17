@@ -32,6 +32,7 @@ import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertDataInfo;
 import com.netscape.certsrv.cert.CertDataInfos;
 import com.netscape.certsrv.cert.CertSearchRequest;
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.cmstools.cli.MainCLI;
 
 /**
@@ -224,7 +225,8 @@ public class CACertFindCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        CACertClient certClient = certCLI.getCertClient();
+        SubsystemClient subsystemClient = certCLI.caCLI.getSubsystemClient();
+        CACertClient certClient = new CACertClient(subsystemClient);
         CertDataInfos certs = certClient.findCerts(searchData, start, size);
 
         Integer total = certs.getTotal();

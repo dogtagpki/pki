@@ -154,7 +154,7 @@ public class CATest {
             log("Exception in logging into token:" + e.toString());
         }
 
-        CAClient client;
+        CAClient caClient;
         CACertClient certClient;
         ProfileClient profileClient;
 
@@ -163,9 +163,9 @@ public class CATest {
             config.setServerURL(protocol + "://" + host + ":" + port);
             config.setCertNickname(clientCertNickname);
 
-            client = new CAClient(new PKIClient(config));
-            certClient = (CACertClient)client.getClient("cert");
-            profileClient = (ProfileClient)client.getClient("profile");
+            caClient = new CAClient(new PKIClient(config));
+            certClient = new CACertClient(caClient);
+            profileClient = (ProfileClient) caClient.getClient("profile");
 
         } catch (Exception e) {
             e.printStackTrace();

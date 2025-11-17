@@ -23,12 +23,9 @@ import java.util.Date;
 
 import org.dogtagpki.cli.CLI;
 
-import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.cert.CertDataInfo;
-import com.netscape.certsrv.client.PKIClient;
 import com.netscape.cmstools.cli.MainCLI;
-import com.netscape.cmstools.cli.SubsystemCLI;
 
 /**
  * @author Endi S. Dewata
@@ -39,10 +36,11 @@ public class CACertCLI extends CLI {
 
     public static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-    public CACertClient certClient;
+    public CACLI caCLI;
 
-    public CACertCLI(CLI parent) {
-        super("cert", "Certificate management commands", parent);
+    public CACertCLI(CACLI caCLI) {
+        super("cert", "Certificate management commands", caCLI);
+        this.caCLI = caCLI;
 
         addModule(new CACertFindCLI(this));
         addModule(new CACertIssueCLI(this));
@@ -72,27 +70,6 @@ public class CACertCLI extends CLI {
     @Override
     public String getManPage() {
         return "pki-cert";
-    }
-
-    public CACertClient getCertClient() throws Exception {
-
-        if (certClient != null) return certClient;
-
-        PKIClient client = getClient();
-
-        // determine the subsystem
-        String subsystem;
-        if (parent instanceof SubsystemCLI) {
-            SubsystemCLI subsystemCLI = (SubsystemCLI)parent;
-            subsystem = subsystemCLI.getName();
-        } else {
-            subsystem = "ca";
-        }
-
-        // create new cert client
-        certClient = new CACertClient(client, subsystem);
-
-        return certClient;
     }
 
     public static String getAlgorithmNameFromOID(String oid) {

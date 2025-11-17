@@ -28,6 +28,7 @@ import org.mozilla.jss.netscape.security.util.Cert;
 
 import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertData;
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -75,7 +76,8 @@ public class CACertExportCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        CACertClient certClient = certCLI.getCertClient();
+        SubsystemClient subsystemClient = certCLI.caCLI.getSubsystemClient();
+        CACertClient certClient = new CACertClient(subsystemClient);
         CertData certData = certClient.getCert(certID);
 
         String outputFormat = cmd.getOptionValue("output-format", "pem");

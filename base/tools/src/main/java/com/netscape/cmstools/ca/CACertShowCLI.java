@@ -27,6 +27,7 @@ import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertData;
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -86,7 +87,8 @@ public class CACertShowCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        CACertClient certClient = certCLI.getCertClient();
+        SubsystemClient subsystemClient = certCLI.caCLI.getSubsystemClient();
+        CACertClient certClient = new CACertClient(subsystemClient);
         CertData certData = certClient.getCert(certID);
 
         String encoded = certData.getEncoded();

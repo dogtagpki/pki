@@ -35,6 +35,7 @@ import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertRequestInfos;
 import com.netscape.certsrv.cert.CertReviewResponse;
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
@@ -292,6 +293,12 @@ public class CACertIssueCLI extends CommandCLI {
             throw new CLIException("--issuer-id and --issuer-dn options are mutually exclusive");
         }
 
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
+        SubsystemClient subsystemClient = certCLI.caCLI.getSubsystemClient();
+        CACertClient certClient = new CACertClient(subsystemClient);
+
         String requestType = cmd.getOptionValue("request-type");
 
         CertEnrollmentRequest request;
@@ -299,7 +306,6 @@ public class CACertIssueCLI extends CommandCLI {
 
             logger.info("Retrieving " + profileID + " profile");
 
-            CACertClient certClient = certCLI.getCertClient();
             request = certClient.getEnrollmentTemplate(profileID);
 
             // set default request type for new request
@@ -479,11 +485,6 @@ public class CACertIssueCLI extends CommandCLI {
         logger.info("Requestor: " + requestor);
 
         String outputFormat = cmd.getOptionValue("output-format");
-
-        MainCLI mainCLI = (MainCLI) getRoot();
-        mainCLI.init();
-
-        CACertClient certClient = certCLI.getCertClient();
 
         String installToken = cmd.getOptionValue("install-token");
         String sessionID;

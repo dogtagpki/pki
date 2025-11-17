@@ -53,7 +53,6 @@ public class CAClient extends SubsystemClient {
     }
 
     public void init() throws Exception {
-        addClient(new CACertClient(client, name));
         addClient(new FeatureClient(client, name));
         addClient(new GroupClient(this));
         addClient(new ProfileClient(client, name));
