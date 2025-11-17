@@ -19,17 +19,17 @@ package com.netscape.cmstools.feature;
 
 import org.dogtagpki.cli.CLI;
 
-import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.Feature;
-import com.netscape.certsrv.system.FeatureClient;
 import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.cmstools.cli.SubsystemCLI;
 
 public class FeatureCLI extends CLI {
 
-    public FeatureClient featureClient;
+    public SubsystemCLI subsystemCLI;
 
-    public FeatureCLI(CLI parent) {
-        super("feature", "Feature management commands", parent);
+    public FeatureCLI(SubsystemCLI subsystemCLI) {
+        super("feature", "Feature management commands", subsystemCLI);
+        this.subsystemCLI = subsystemCLI;
 
         addModule(new FeatureFindCLI(this));
         addModule(new FeatureShowCLI(this));
@@ -39,16 +39,6 @@ public class FeatureCLI extends CLI {
     public String getFullName() {
         // do not include MainCLI's name
         return parent instanceof MainCLI ? name : parent.getFullName() + "-" + name;
-    }
-
-    public FeatureClient getFeatureClient() throws Exception {
-
-        if (featureClient != null) return featureClient;
-
-        PKIClient client = getClient();
-        featureClient = new FeatureClient(client, "ca");
-
-        return featureClient;
     }
 
     protected static void printFeature(Feature data) {

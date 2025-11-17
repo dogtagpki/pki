@@ -22,6 +22,7 @@ import java.util.Collection;
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.system.Feature;
 import com.netscape.certsrv.system.FeatureClient;
 import com.netscape.cmstools.cli.MainCLI;
@@ -46,7 +47,8 @@ public class FeatureFindCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        FeatureClient featureClient = featureCLI.getFeatureClient();
+        SubsystemClient subsystemClient = featureCLI.subsystemCLI.getSubsystemClient();
+        FeatureClient featureClient = new FeatureClient(subsystemClient);
         Collection<Feature> features = featureClient.listFeatures();
 
         MainCLI.printMessage(features.size() + " entries matched");

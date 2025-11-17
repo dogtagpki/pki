@@ -36,7 +36,6 @@ import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.group.GroupClient;
 import com.netscape.certsrv.selftests.SelfTestClient;
-import com.netscape.certsrv.system.FeatureClient;
 import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.certsrv.user.UserClient;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -52,7 +51,6 @@ public class CAClient extends SubsystemClient {
     }
 
     public void init() throws Exception {
-        addClient(new FeatureClient(client, name));
         addClient(new GroupClient(this));
         addClient(new SelfTestClient(client, name));
         addClient(new UserClient(this));

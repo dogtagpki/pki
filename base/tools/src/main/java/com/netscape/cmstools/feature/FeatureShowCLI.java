@@ -20,6 +20,7 @@ package com.netscape.cmstools.feature;
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.system.Feature;
 import com.netscape.certsrv.system.FeatureClient;
 import com.netscape.cmstools.cli.MainCLI;
@@ -56,7 +57,8 @@ public class FeatureShowCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        FeatureClient featureClient = featureCLI.getFeatureClient();
+        SubsystemClient subsystemClient = featureCLI.subsystemCLI.getSubsystemClient();
+        FeatureClient featureClient = new FeatureClient(subsystemClient);
         Feature data = featureClient.getFeature(featureID);
         FeatureCLI.printFeature(data);
     }

@@ -21,11 +21,16 @@ import java.util.Collection;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
+import com.netscape.certsrv.client.SubsystemClient;
 
 /**
 * @author Ade Lee &lt;alee@redhat.com&gt;
 */
 public class FeatureClient extends Client {
+
+    public FeatureClient(SubsystemClient subsystemClient) throws Exception {
+        this(subsystemClient.client, subsystemClient.getName());
+    }
 
     public FeatureClient(PKIClient client, String subsystem) throws Exception {
         super(client, subsystem, "config/features");
