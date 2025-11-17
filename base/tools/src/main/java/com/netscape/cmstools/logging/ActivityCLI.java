@@ -20,7 +20,6 @@ package com.netscape.cmstools.logging;
 
 import org.dogtagpki.cli.CLI;
 
-import com.netscape.certsrv.logging.ActivityClient;
 import com.netscape.certsrv.logging.ActivityData;
 import com.netscape.cmstools.tps.TPSCLI;
 
@@ -32,7 +31,6 @@ public class ActivityCLI extends CLI {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ActivityCLI.class);
 
     public TPSCLI tpsCLI;
-    public ActivityClient activityClient;
 
     public ActivityCLI(TPSCLI tpsCLI) {
         super("activity", "Activity management commands", tpsCLI);
@@ -40,15 +38,6 @@ public class ActivityCLI extends CLI {
 
         addModule(new ActivityFindCLI(this));
         addModule(new ActivityShowCLI(this));
-    }
-
-    public ActivityClient getActivityClient() throws Exception {
-
-        if (activityClient != null) return activityClient;
-
-        activityClient = (ActivityClient) parent.getClient("activities");
-
-        return activityClient;
     }
 
     public static void printActivity(ActivityData activity, boolean showAll) {

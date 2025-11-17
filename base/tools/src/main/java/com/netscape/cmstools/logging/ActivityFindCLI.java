@@ -24,6 +24,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.logging.ActivityClient;
 import com.netscape.certsrv.logging.ActivityCollection;
 import com.netscape.certsrv.logging.ActivityData;
@@ -74,7 +75,8 @@ public class ActivityFindCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        ActivityClient activityClient = activityCLI.getActivityClient();
+        SubsystemClient subsystemClient = activityCLI.tpsCLI.getSubsystemClient();
+        ActivityClient activityClient = new ActivityClient(subsystemClient);
         ActivityCollection result = activityClient.findActivities(filter, start, size);
 
         Integer total = result.getTotal();
