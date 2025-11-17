@@ -23,8 +23,8 @@ import java.util.Map;
 
 import org.dogtagpki.cli.CLI;
 
-import com.netscape.certsrv.tps.authenticator.AuthenticatorClient;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorData;
+import com.netscape.cmstools.tps.TPSCLI;
 
 /**
  * @author Endi S. Dewata
@@ -33,25 +33,17 @@ public class AuthenticatorCLI extends CLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuthenticatorCLI.class);
 
-    public AuthenticatorClient authenticatorClient;
+    public TPSCLI tpsCLI;
 
-    public AuthenticatorCLI(CLI parent) {
-        super("authenticator", "Authenticator management commands", parent);
+    public AuthenticatorCLI(TPSCLI tpsCLI) {
+        super("authenticator", "Authenticator management commands", tpsCLI);
+        this.tpsCLI = tpsCLI;
 
         addModule(new AuthenticatorAddCLI(this));
         addModule(new AuthenticatorFindCLI(this));
         addModule(new AuthenticatorModifyCLI(this));
         addModule(new AuthenticatorRemoveCLI(this));
         addModule(new AuthenticatorShowCLI(this));
-    }
-
-    public AuthenticatorClient getAuthenticatorClient() throws Exception {
-
-        if (authenticatorClient != null) return authenticatorClient;
-
-        authenticatorClient = (AuthenticatorClient) parent.getClient("authenticators");
-
-        return authenticatorClient;
     }
 
     public static void printAuthenticatorData(AuthenticatorData authenticatorData, boolean showProperties) throws IOException {

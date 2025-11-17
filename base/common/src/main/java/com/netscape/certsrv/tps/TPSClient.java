@@ -19,7 +19,6 @@ package com.netscape.certsrv.tps;
 
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
-import com.netscape.certsrv.tps.authenticator.AuthenticatorClient;
 import com.netscape.certsrv.tps.cert.TPSCertClient;
 import com.netscape.certsrv.tps.connector.ConnectorClient;
 import com.netscape.certsrv.tps.profile.ProfileClient;
@@ -37,7 +36,6 @@ public class TPSClient extends SubsystemClient {
     }
 
     public void init() throws Exception {
-        addClient(new AuthenticatorClient(client, name));
         addClient(new TPSCertClient(client, name));
         addClient(new ConnectorClient(client, name));
         addClient(new ProfileClient(client, name));

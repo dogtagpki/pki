@@ -21,6 +21,7 @@ package com.netscape.cmstools.tps.authenticator;
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorClient;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -57,7 +58,8 @@ public class AuthenticatorRemoveCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        AuthenticatorClient authenticatorClient = authenticatorCLI.getAuthenticatorClient();
+        SubsystemClient subsystemClient = authenticatorCLI.tpsCLI.getSubsystemClient();
+        AuthenticatorClient authenticatorClient = new AuthenticatorClient(subsystemClient);
         authenticatorClient.removeAuthenticator(authenticatorID);
 
         MainCLI.printMessage("Deleted authenticator \"" + authenticatorID + "\"");
