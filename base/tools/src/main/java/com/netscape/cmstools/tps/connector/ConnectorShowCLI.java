@@ -25,6 +25,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.tps.connector.ConnectorClient;
 import com.netscape.certsrv.tps.connector.ConnectorData;
 import com.netscape.cmstools.cli.MainCLI;
@@ -70,7 +71,8 @@ public class ConnectorShowCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        ConnectorClient connectorClient = connectorCLI.getConnectorClient();
+        SubsystemClient subsystemClient = connectorCLI.tpsCLI.getSubsystemClient();
+        ConnectorClient connectorClient = new ConnectorClient(subsystemClient);
         ConnectorData connectorData = connectorClient.getConnector(connectorID);
 
         if (output == null) {

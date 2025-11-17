@@ -21,6 +21,7 @@ package com.netscape.cmstools.tps.connector;
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.tps.connector.ConnectorClient;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -57,7 +58,8 @@ public class ConnectorRemoveCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        ConnectorClient connectorClient = connectorCLI.getConnectorClient();
+        SubsystemClient subsystemClient = connectorCLI.tpsCLI.getSubsystemClient();
+        ConnectorClient connectorClient = new ConnectorClient(subsystemClient);
         connectorClient.removeConnector(connectorID);
 
         MainCLI.printMessage("Deleted connector \"" + connectorID + "\"");

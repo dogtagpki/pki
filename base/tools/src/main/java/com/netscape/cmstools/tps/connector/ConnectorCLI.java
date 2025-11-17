@@ -23,8 +23,8 @@ import java.util.Map;
 
 import org.dogtagpki.cli.CLI;
 
-import com.netscape.certsrv.tps.connector.ConnectorClient;
 import com.netscape.certsrv.tps.connector.ConnectorData;
+import com.netscape.cmstools.tps.TPSCLI;
 
 /**
  * @author Endi S. Dewata
@@ -33,25 +33,17 @@ public class ConnectorCLI extends CLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ConnectorCLI.class);
 
-    public ConnectorClient connectorClient;
+    public TPSCLI tpsCLI;
 
-    public ConnectorCLI(CLI parent) {
-        super("connector", "Connector management commands", parent);
+    public ConnectorCLI(TPSCLI tpsCLI) {
+        super("connector", "Connector management commands", tpsCLI);
+        this.tpsCLI = tpsCLI;
 
         addModule(new ConnectorAddCLI(this));
         addModule(new ConnectorFindCLI(this));
         addModule(new ConnectorModifyCLI(this));
         addModule(new ConnectorRemoveCLI(this));
         addModule(new ConnectorShowCLI(this));
-    }
-
-    public ConnectorClient getConnectorClient() throws Exception {
-
-        if (connectorClient != null) return connectorClient;
-
-        connectorClient = (ConnectorClient) parent.getClient("connectors");
-
-        return connectorClient;
     }
 
     public static void printConnectorData(ConnectorData connectorData, boolean showProperties) throws IOException {
