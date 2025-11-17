@@ -23,7 +23,6 @@ import java.util.Map;
 
 import org.dogtagpki.cli.CLI;
 
-import com.netscape.certsrv.tps.profile.ProfileClient;
 import com.netscape.certsrv.tps.profile.ProfileData;
 import com.netscape.cmstools.tps.TPSCLI;
 
@@ -35,7 +34,6 @@ public class ProfileCLI extends CLI {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileCLI.class);
 
     public TPSCLI tpsCLI;
-    public ProfileClient profileClient;
 
     public ProfileCLI(TPSCLI tpsCLI) {
         super("profile", "Profile management commands", tpsCLI);
@@ -53,15 +51,6 @@ public class ProfileCLI extends CLI {
     @Override
     public String getManPage() {
         return "pki-tps-profile";
-    }
-
-    public ProfileClient getProfileClient() throws Exception {
-
-        if (profileClient != null) return profileClient;
-
-        profileClient = (ProfileClient) parent.getClient("profiles");
-
-        return profileClient;
     }
 
     public static void printProfileData(ProfileData profileData, boolean showProperties) throws IOException {

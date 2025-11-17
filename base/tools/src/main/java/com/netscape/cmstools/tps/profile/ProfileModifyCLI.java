@@ -27,6 +27,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.tps.profile.ProfileClient;
 import com.netscape.certsrv.tps.profile.ProfileData;
 import com.netscape.certsrv.util.JSONSerializer;
@@ -78,7 +79,8 @@ public class ProfileModifyCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        ProfileClient profileClient = profileCLI.getProfileClient();
+        SubsystemClient subsystemClient = profileCLI.tpsCLI.getSubsystemClient();
+        ProfileClient profileClient = new ProfileClient(subsystemClient);
         ProfileData profileData;
 
         if (action.equals("update")) {
