@@ -21,6 +21,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.system.TPSConnectorClient;
 import com.netscape.certsrv.system.TPSConnectorData;
 import com.netscape.cmstools.cli.MainCLI;
@@ -76,7 +77,8 @@ public class TPSConnectorShowCLI extends CommandCLI {
             throw new Exception("Missing TPS hostname");
         }
 
-        TPSConnectorClient tpsConnectorClient = tpsConnectorCLI.getTPSConnectorClient();
+        SubsystemClient subsystemClient = tpsConnectorCLI.tksCLI.getSubsystemClient();
+        TPSConnectorClient tpsConnectorClient = new TPSConnectorClient(subsystemClient);
         TPSConnectorData data = tpsConnectorClient.getConnector(tpsHost, tpsPort);
 
         if ("json".equalsIgnoreCase(outputFormat)) {

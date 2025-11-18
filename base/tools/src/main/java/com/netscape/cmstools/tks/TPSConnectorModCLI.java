@@ -4,6 +4,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.system.TPSConnectorClient;
 import com.netscape.certsrv.system.TPSConnectorData;
 import com.netscape.cmstools.cli.MainCLI;
@@ -56,7 +57,8 @@ public class TPSConnectorModCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        TPSConnectorClient tpsConnectorClient = tpsConnectorCLI.getTPSConnectorClient();
+        SubsystemClient subsystemClient = tpsConnectorCLI.tksCLI.getSubsystemClient();
+        TPSConnectorClient tpsConnectorClient = new TPSConnectorClient(subsystemClient);
         data = tpsConnectorClient.modifyConnector(connID, data);
 
         MainCLI.printMessage("Modified TPS connector \""+connID +"\"");

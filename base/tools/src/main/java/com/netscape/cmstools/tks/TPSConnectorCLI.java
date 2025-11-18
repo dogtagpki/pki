@@ -19,7 +19,6 @@ package com.netscape.cmstools.tks;
 
 import org.dogtagpki.cli.CLI;
 
-import com.netscape.certsrv.system.TPSConnectorClient;
 import com.netscape.certsrv.system.TPSConnectorData;
 
 /**
@@ -30,7 +29,6 @@ public class TPSConnectorCLI extends CLI {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSConnectorCLI.class);
 
     public TKSCLI tksCLI;
-    public TPSConnectorClient tpsConnectorClient;
 
     public TPSConnectorCLI(TKSCLI tksCLI) {
         super("tpsconnector", "TPS connector management commands", tksCLI);
@@ -46,15 +44,6 @@ public class TPSConnectorCLI extends CLI {
     @Override
     public String getFullName() {
         return parent.getFullName() + "-" + name;
-    }
-
-    public TPSConnectorClient getTPSConnectorClient() throws Exception {
-
-        if (tpsConnectorClient != null) return tpsConnectorClient;
-
-        tpsConnectorClient = (TPSConnectorClient) parent.getClient("admin/tps-connectors");
-
-        return tpsConnectorClient;
     }
 
     public static void printConnectorInfo(TPSConnectorData data) {
