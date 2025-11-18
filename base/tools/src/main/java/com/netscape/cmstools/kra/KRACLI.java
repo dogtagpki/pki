@@ -55,11 +55,10 @@ public class KRACLI extends SubsystemCLI {
     }
 
     @Override
-    public SubsystemClient getSubsystemClient() throws Exception {
+    public SubsystemClient getSubsystemClient(PKIClient client) throws Exception {
 
         if (kraClient != null) return kraClient;
 
-        PKIClient client = getClient();
         kraClient = new KRAClient(client);
 
         return kraClient;

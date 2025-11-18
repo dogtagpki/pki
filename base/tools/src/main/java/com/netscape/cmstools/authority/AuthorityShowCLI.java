@@ -7,6 +7,7 @@ import org.dogtagpki.cli.CommandCLI;
 import com.netscape.certsrv.authority.AuthorityClient;
 import com.netscape.certsrv.authority.AuthorityData;
 import com.netscape.certsrv.authority.AuthorityResource;
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -61,7 +62,8 @@ public class AuthorityShowCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        SubsystemClient subsystemClient = authorityCLI.caCLI.getSubsystemClient();
+        PKIClient client = mainCLI.getClient();
+        SubsystemClient subsystemClient = authorityCLI.caCLI.getSubsystemClient(client);
         AuthorityClient authorityClient = new AuthorityClient(subsystemClient);
         AuthorityData data = authorityClient.getCA(caIDString);
         AuthorityCLI.printAuthorityData(data);

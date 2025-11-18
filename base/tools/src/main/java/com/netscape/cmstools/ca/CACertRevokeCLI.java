@@ -31,6 +31,7 @@ import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertRevokeRequest;
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.request.RequestStatus;
@@ -181,7 +182,8 @@ public class CACertRevokeCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        SubsystemClient subsystemClient = certCLI.caCLI.getSubsystemClient();
+        PKIClient client = mainCLI.getClient();
+        SubsystemClient subsystemClient = certCLI.caCLI.getSubsystemClient(client);
         CACertClient certClient = new CACertClient(subsystemClient);
 
         for (String cmdArg : cmdArgs) {

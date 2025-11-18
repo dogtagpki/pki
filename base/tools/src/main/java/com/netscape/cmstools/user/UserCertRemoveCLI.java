@@ -23,6 +23,7 @@ import java.net.URLEncoder;
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.user.UserClient;
 import com.netscape.cmstools.cli.MainCLI;
@@ -64,7 +65,8 @@ public class UserCertRemoveCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        SubsystemClient subsystemClient = userCertCLI.parent.subsystemCLI.getSubsystemClient();
+        PKIClient client = mainCLI.getClient();
+        SubsystemClient subsystemClient = userCertCLI.parent.subsystemCLI.getSubsystemClient(client);
         UserClient userClient = new UserClient(subsystemClient);
         userClient.removeUserCert(userID, URLEncoder.encode(certID, "UTF-8"));
 

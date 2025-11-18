@@ -13,6 +13,7 @@ import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.common.Range;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -77,7 +78,8 @@ public class RangeRequestCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        SubsystemClient subsystemClient = rangeCLI.subsystemCLI.getSubsystemClient();
+        PKIClient client = mainCLI.getClient();
+        SubsystemClient subsystemClient = rangeCLI.subsystemCLI.getSubsystemClient(client);
         Range range = subsystemClient.requestRange(type, sessionID);
 
         if ("json".equalsIgnoreCase(outputFormat)) {

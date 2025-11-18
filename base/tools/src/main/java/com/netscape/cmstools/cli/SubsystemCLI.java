@@ -22,6 +22,7 @@ import org.dogtagpki.cli.CLI;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.ClientConfig;
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 
 
@@ -44,23 +45,26 @@ public class SubsystemCLI extends CLI {
         return name;
     }
 
-    public SubsystemClient getSubsystemClient() throws Exception {
+    public SubsystemClient getSubsystemClient(PKIClient client) throws Exception {
         return null;
     }
 
     public void login() throws Exception {
-        SubsystemClient subsystemClient = getSubsystemClient();
+        PKIClient client = getClient();
+        SubsystemClient subsystemClient = getSubsystemClient(client);
         subsystemClient.login();
     }
 
     public void logout() throws Exception {
-        SubsystemClient subsystemClient = getSubsystemClient();
+        PKIClient client = getClient();
+        SubsystemClient subsystemClient = getSubsystemClient(client);
         subsystemClient.logout();
     }
 
     @Override
     public Client getClient(String name) throws Exception {
-        SubsystemClient subsystemClient = getSubsystemClient();
+        PKIClient client = getClient();
+        SubsystemClient subsystemClient = getSubsystemClient(client);
         return subsystemClient.getClient(name);
     }
 

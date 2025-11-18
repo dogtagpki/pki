@@ -22,6 +22,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.selftests.SelfTestClient;
 import com.netscape.certsrv.selftests.SelfTestResult;
@@ -68,7 +69,8 @@ public class SelfTestRunCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        SubsystemClient subsystemClient = selfTestCLI.subsystemCLI.getSubsystemClient();
+        PKIClient client = mainCLI.getClient();
+        SubsystemClient subsystemClient = selfTestCLI.subsystemCLI.getSubsystemClient(client);
         SelfTestClient selfTestClient = new SelfTestClient(subsystemClient);
         SelfTestResults results;
 

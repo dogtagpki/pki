@@ -10,6 +10,7 @@ import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CLIException;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.profile.ProfileClient;
 import com.netscape.certsrv.profile.ProfileData;
@@ -59,7 +60,8 @@ public class ProfileAddCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        SubsystemClient subsystemClient = profileCLI.caCLI.getSubsystemClient();
+        PKIClient client = mainCLI.getClient();
+        SubsystemClient subsystemClient = profileCLI.caCLI.getSubsystemClient(client);
         ProfileClient profileClient = new ProfileClient(subsystemClient);
 
         if (cmd.hasOption("raw")) {

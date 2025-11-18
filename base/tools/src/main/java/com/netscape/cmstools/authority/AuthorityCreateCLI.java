@@ -7,6 +7,7 @@ import org.dogtagpki.cli.CommandCLI;
 import com.netscape.certsrv.authority.AuthorityClient;
 import com.netscape.certsrv.authority.AuthorityData;
 import com.netscape.certsrv.ca.AuthorityID;
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -71,7 +72,8 @@ public class AuthorityCreateCLI extends CommandCLI {
         AuthorityData data = new AuthorityData(
             null, dn, null, parentAIDString, null, null, true /* enabled */, desc, null);
 
-        SubsystemClient subsystemClient = authorityCLI.caCLI.getSubsystemClient();
+        PKIClient client = mainCLI.getClient();
+        SubsystemClient subsystemClient = authorityCLI.caCLI.getSubsystemClient(client);
         AuthorityClient authorityClient = new AuthorityClient(subsystemClient);
         AuthorityData newData = authorityClient.createCA(data);
         AuthorityCLI.printAuthorityData(newData);

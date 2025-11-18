@@ -21,6 +21,7 @@ package com.netscape.cmstools.logging;
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.logging.ActivityClient;
 import com.netscape.certsrv.logging.ActivityData;
@@ -59,7 +60,8 @@ public class ActivityShowCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        SubsystemClient subsystemClient = activityCLI.tpsCLI.getSubsystemClient();
+        PKIClient client = mainCLI.getClient();
+        SubsystemClient subsystemClient = activityCLI.tpsCLI.getSubsystemClient(client);
         ActivityClient activityClient = new ActivityClient(subsystemClient);
         ActivityData activityData = activityClient.getActivity(activityID);
 

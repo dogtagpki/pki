@@ -35,6 +35,7 @@ import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertRequestInfos;
 import com.netscape.certsrv.cert.CertReviewResponse;
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.profile.ProfileAttribute;
@@ -296,7 +297,8 @@ public class CACertIssueCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        SubsystemClient subsystemClient = certCLI.caCLI.getSubsystemClient();
+        PKIClient client = mainCLI.getClient();
+        SubsystemClient subsystemClient = certCLI.caCLI.getSubsystemClient(client);
         CACertClient certClient = new CACertClient(subsystemClient);
 
         String requestType = cmd.getOptionValue("request-type");

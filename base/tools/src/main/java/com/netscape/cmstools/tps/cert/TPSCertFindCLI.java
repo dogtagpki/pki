@@ -24,6 +24,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.tps.cert.TPSCertClient;
 import com.netscape.certsrv.tps.cert.TPSCertCollection;
@@ -91,7 +92,8 @@ public class TPSCertFindCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        SubsystemClient subsystemClient = certCLI.tpsCLI.getSubsystemClient();
+        PKIClient client = mainCLI.getClient();
+        SubsystemClient subsystemClient = certCLI.tpsCLI.getSubsystemClient(client);
         TPSCertClient certClient = new TPSCertClient(subsystemClient);
         TPSCertCollection result = certClient.findCerts(filter, tokenID, start, size);
 

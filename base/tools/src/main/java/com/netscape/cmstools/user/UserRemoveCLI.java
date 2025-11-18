@@ -21,6 +21,7 @@ package com.netscape.cmstools.user;
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.user.UserClient;
 import com.netscape.cmstools.cli.MainCLI;
@@ -55,7 +56,11 @@ public class UserRemoveCLI extends CommandCLI {
 
         String userID = cmdArgs[0];
 
-        SubsystemClient subsystemClient = userCLI.subsystemCLI.getSubsystemClient();
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
+        PKIClient client = mainCLI.getClient();
+        SubsystemClient subsystemClient = userCLI.subsystemCLI.getSubsystemClient(client);
         UserClient userClient = new UserClient(subsystemClient);
         userClient.removeUser(userID);
 

@@ -8,9 +8,11 @@ package com.netscape.cmstools.tks;
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.key.KeyData;
 import com.netscape.certsrv.system.TPSConnectorClient;
+import com.netscape.cmstools.cli.MainCLI;
 
 public class TKSKeyShowCLI extends CommandCLI {
 
@@ -39,7 +41,11 @@ public class TKSKeyShowCLI extends CommandCLI {
 
         String keyID = cmdArgs[0];
 
-        SubsystemClient subsystemClient = tksKeyCLI.tksCLI.getSubsystemClient();
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
+        PKIClient client = mainCLI.getClient();
+        SubsystemClient subsystemClient = tksKeyCLI.tksCLI.getSubsystemClient(client);
         TPSConnectorClient tpsConnectorClient = new TPSConnectorClient(subsystemClient);
         KeyData keyData = tpsConnectorClient.getSharedSecret(keyID);
 

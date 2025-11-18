@@ -27,6 +27,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorClient;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorData;
@@ -91,7 +92,8 @@ public class AuthenticatorAddCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        SubsystemClient subsystemClient = authenticatorCLI.tpsCLI.getSubsystemClient();
+        PKIClient client = mainCLI.getClient();
+        SubsystemClient subsystemClient = authenticatorCLI.tpsCLI.getSubsystemClient(client);
         AuthenticatorClient authenticatorClient = new AuthenticatorClient(subsystemClient);
         authenticatorData = authenticatorClient.addAuthenticator(authenticatorData);
 

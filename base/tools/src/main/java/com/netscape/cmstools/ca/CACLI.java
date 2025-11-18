@@ -62,11 +62,10 @@ public class CACLI extends SubsystemCLI {
     }
 
     @Override
-    public SubsystemClient getSubsystemClient() throws Exception {
+    public SubsystemClient getSubsystemClient(PKIClient client) throws Exception {
 
         if (caClient != null) return caClient;
 
-        PKIClient client = getClient();
         caClient = new CAClient(client);
 
         return caClient;

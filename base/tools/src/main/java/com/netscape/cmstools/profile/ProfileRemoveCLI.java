@@ -3,6 +3,7 @@ package com.netscape.cmstools.profile;
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.profile.ProfileClient;
 import com.netscape.cmstools.cli.MainCLI;
@@ -37,7 +38,8 @@ public class ProfileRemoveCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        SubsystemClient subsystemClient = profileCLI.caCLI.getSubsystemClient();
+        PKIClient client = mainCLI.getClient();
+        SubsystemClient subsystemClient = profileCLI.caCLI.getSubsystemClient(client);
         ProfileClient profileClient = new ProfileClient(subsystemClient);
         profileClient.deleteProfile(profileId);
 

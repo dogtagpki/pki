@@ -24,6 +24,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.group.GroupClient;
 import com.netscape.certsrv.group.GroupMemberCollection;
@@ -81,7 +82,8 @@ public class GroupMemberFindCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        SubsystemClient subsystemClient = groupMemberCLI.parent.subsystemCLI.getSubsystemClient();
+        PKIClient client = mainCLI.getClient();
+        SubsystemClient subsystemClient = groupMemberCLI.parent.subsystemCLI.getSubsystemClient(client);
         GroupClient groupClient = new GroupClient(subsystemClient);
         GroupMemberCollection response = groupClient.findGroupMembers(groupID, filter, start, size);
 

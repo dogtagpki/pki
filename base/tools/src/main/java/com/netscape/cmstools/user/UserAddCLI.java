@@ -29,6 +29,7 @@ import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.user.UserCertData;
 import com.netscape.certsrv.user.UserClient;
@@ -167,7 +168,8 @@ public class UserAddCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        SubsystemClient subsystemClient = userCLI.subsystemCLI.getSubsystemClient();
+        PKIClient client = mainCLI.getClient();
+        SubsystemClient subsystemClient = userCLI.subsystemCLI.getSubsystemClient(client);
         UserClient userClient = new UserClient(subsystemClient);
 
         String securityDomain = cmd.getOptionValue("security-domain");

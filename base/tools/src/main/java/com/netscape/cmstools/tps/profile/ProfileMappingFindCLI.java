@@ -24,6 +24,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.tps.profile.ProfileMappingClient;
 import com.netscape.certsrv.tps.profile.ProfileMappingCollection;
@@ -72,7 +73,11 @@ public class ProfileMappingFindCLI extends CommandCLI {
         s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
-        SubsystemClient subsystemClient = profileMappingCLI.profileCLI.tpsCLI.getSubsystemClient();
+        MainCLI mainCLI = (MainCLI) getRoot();
+        mainCLI.init();
+
+        PKIClient client = mainCLI.getClient();
+        SubsystemClient subsystemClient = profileMappingCLI.profileCLI.tpsCLI.getSubsystemClient(client);
         ProfileMappingClient profileMappingClient = new ProfileMappingClient(subsystemClient);
         ProfileMappingCollection result = profileMappingClient.findProfileMappings(filter, start, size);
 

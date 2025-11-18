@@ -21,6 +21,7 @@ package com.netscape.cmstools.tps.token;
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.tps.token.TokenClient;
 import com.netscape.certsrv.tps.token.TokenData;
@@ -59,7 +60,8 @@ public class TokenShowCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        SubsystemClient subsystemClient = tokenCLI.tpsCLI.getSubsystemClient();
+        PKIClient client = mainCLI.getClient();
+        SubsystemClient subsystemClient = tokenCLI.tpsCLI.getSubsystemClient(client);
         TokenClient tokenClient = new TokenClient(subsystemClient);
         TokenData tokenData = tokenClient.getToken(tokenID);
 

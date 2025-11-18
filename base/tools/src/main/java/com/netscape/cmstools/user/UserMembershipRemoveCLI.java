@@ -21,6 +21,7 @@ package com.netscape.cmstools.user;
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.user.UserClient;
 import com.netscape.cmstools.cli.MainCLI;
@@ -59,7 +60,8 @@ public class UserMembershipRemoveCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        SubsystemClient subsystemClient = userMembershipCLI.parent.subsystemCLI.getSubsystemClient();
+        PKIClient client = mainCLI.getClient();
+        SubsystemClient subsystemClient = userMembershipCLI.parent.subsystemCLI.getSubsystemClient(client);
         UserClient userClient = new UserClient(subsystemClient);
         userClient.removeUserMembership(userID, groupID);
 
