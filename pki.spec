@@ -228,7 +228,6 @@ BuildRequires:     pki-resteasy-core                 >= 3.0.26
 BuildRequires:     pki-resteasy-client               >= 3.0.26
 BuildRequires:     pki-resteasy-servlet-initializer  >= 3.0.26
 BuildRequires:     pki-resteasy-jackson2-provider    >= 3.0.26
-BuildRequires:     pki-resteasy                      >= 3.0.26
 
 BuildRequires:     dogtag-jss >= 5.9
 
@@ -1356,7 +1355,7 @@ export JAVA_HOME=%{java_home}
 %if %{with maven}
 # build Java binaries and run unit tests with Maven
 
-%if 0%{?fedora} && 0%{?fedora} >= %{fedora_cutoff}
+%if 0%{?fedora} && 0%{?fedora} >= %{fedora_cutoff} || 0%{?rhel} >= 10
 %pom_disable_module tomcat-9.0 base
 %pom_remove_dep :pki-tomcat-9.0 base/server
 %else

@@ -175,13 +175,13 @@ get_tomcat_app_server() {
     ID=""
     VERSION_ID=""
 
-    ID=$(sed -n  's/^ID=//p;' $release_file)
-    VERSION_ID=$(sed -n  's/^VERSION_ID=//p;' $release_file)
+    ID=$(sed -n  's/^ID=//p;' $release_file | tr -d '"')
+    VERSION_ID=$(sed -n  's/^VERSION_ID=//p;' $release_file | tr -d '"')
 
     case "$ID" in
          "rhel")
              distro="rhel"
-             version=$VERSION_ID
+             ver=$VERSION_ID
              ;;
          "fedora")
              distro="fedora"
