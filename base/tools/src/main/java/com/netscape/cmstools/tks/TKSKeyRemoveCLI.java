@@ -8,7 +8,7 @@ package com.netscape.cmstools.tks;
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CommandCLI;
 
-import com.netscape.certsrv.client.PKIClient;
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.system.TPSConnectorClient;
 
 public class TKSKeyRemoveCLI extends CommandCLI {
@@ -38,8 +38,8 @@ public class TKSKeyRemoveCLI extends CommandCLI {
 
         String keyID = cmdArgs[0];
 
-        PKIClient client = getClient();
-        TPSConnectorClient tpsConnectorClient = tksKeyCLI.getTPSConnectorClient();
+        SubsystemClient subsystemClient = tksKeyCLI.tksCLI.getSubsystemClient();
+        TPSConnectorClient tpsConnectorClient = new TPSConnectorClient(subsystemClient);
         tpsConnectorClient.deleteSharedSecret(keyID);
     }
 }

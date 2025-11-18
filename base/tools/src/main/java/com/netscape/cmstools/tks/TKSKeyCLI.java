@@ -9,14 +9,12 @@ import org.dogtagpki.cli.CLI;
 
 import com.netscape.certsrv.key.KeyData;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.certsrv.system.TPSConnectorClient;
 
 public class TKSKeyCLI extends CLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TKSKeyCLI.class);
 
     public TKSCLI tksCLI;
-    public TPSConnectorClient tpsConnectorClient;
 
     public TKSKeyCLI(TKSCLI tksCLI) {
         super("key", "Key management commands", tksCLI);
@@ -32,15 +30,6 @@ public class TKSKeyCLI extends CLI {
     @Override
     public String getFullName() {
         return parent.getFullName() + "-" + name;
-    }
-
-    public TPSConnectorClient getTPSConnectorClient() throws Exception {
-
-        if (tpsConnectorClient != null) return tpsConnectorClient;
-
-        tpsConnectorClient = (TPSConnectorClient) parent.getClient("admin/tps-connectors");
-
-        return tpsConnectorClient;
     }
 
     public static void printKeyInfo(String id, KeyData data) {

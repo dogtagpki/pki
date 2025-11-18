@@ -8,9 +8,14 @@ import org.apache.http.HttpEntity;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.key.KeyData;
 
 public class TPSConnectorClient extends Client {
+
+    public TPSConnectorClient(SubsystemClient subsystemClient) throws Exception {
+        this(subsystemClient.client, subsystemClient.getName());
+    }
 
     public TPSConnectorClient(PKIClient client, String subsystem) throws Exception {
         super(client, subsystem, "admin/tps-connectors");
