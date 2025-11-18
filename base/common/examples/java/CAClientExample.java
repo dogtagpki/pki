@@ -24,6 +24,7 @@ import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.account.Account;
+import com.netscape.certsrv.account.AccountClient;
 import com.netscape.certsrv.ca.CAClient;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
@@ -73,8 +74,9 @@ public class CAClientExample {
 
         PKIClient client = new PKIClient(config);
         CAClient caClient = new CAClient(client);
+        AccountClient accountClient = new AccountClient(caClient);
 
-        Account account = caClient.login();
+        Account account = accountClient.login();
 
         System.out.println("User ID: " + account.getID());
         System.out.println("Full name: " + account.getFullName());
@@ -85,6 +87,6 @@ public class CAClientExample {
             System.out.println("- " + role);
         }
 
-        caClient.logout();
+        accountClient.logout();
     }
 }

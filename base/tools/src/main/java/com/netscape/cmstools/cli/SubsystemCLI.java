@@ -20,6 +20,7 @@ package com.netscape.cmstools.cli;
 
 import org.dogtagpki.cli.CLI;
 
+import com.netscape.certsrv.account.AccountClient;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
@@ -56,20 +57,22 @@ public class SubsystemCLI extends CLI {
 
         PKIClient client = null;
         SubsystemClient subsystemClient = null;
+        AccountClient accountClient = null;
 
         // login if username or nickname is specified
         ClientConfig config = getConfig();
         if (config.getUsername() != null || config.getCertNickname() != null) {
             client = mainCLI.getClient();
             subsystemClient = getSubsystemClient(client);
-            subsystemClient.login();
+            accountClient = new AccountClient(subsystemClient);
+            accountClient.login();
         }
 
         super.execute(args);
 
         // logout if there is no failures
         if (config.getUsername() != null || config.getCertNickname() != null) {
-            subsystemClient.logout();
+            accountClient.logout();
         }
     }
 }

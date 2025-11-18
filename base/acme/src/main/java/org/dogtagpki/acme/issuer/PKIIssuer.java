@@ -21,12 +21,13 @@ import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.RevocationReason;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
+import com.netscape.certsrv.account.AccountClient;
+import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.ca.CAClient;
-import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.cert.CertRequestInfo;
@@ -134,6 +135,7 @@ public class PKIIssuer extends ACMEIssuer {
         try (PKIClient pkiClient = new PKIClient(clientConfig)) {
 
             CAClient caClient = new CAClient(pkiClient);
+            AccountClient accountClient = new AccountClient(caClient);
 
             // Here the agent credentials are stored in the ClientConfig and will
             // be sent to the CA automatically if any of the methods being called
@@ -160,7 +162,7 @@ public class PKIIssuer extends ACMEIssuer {
             // it's not actually necessary to call CAClient.login(). However, to
             // support both types of profiles the CAClient.login() needs to be
             // called explicitly.
-            caClient.login();
+            accountClient.login();
 
             CACertClient certClient = new CACertClient(caClient);
             CertEnrollmentRequest certEnrollmentRequest = certClient.getEnrollmentTemplate(profile);

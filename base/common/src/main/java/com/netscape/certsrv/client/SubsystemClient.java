@@ -38,8 +38,6 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.netscape.certsrv.account.Account;
-import com.netscape.certsrv.account.AccountClient;
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.cmsutil.json.JSONObject;
 import com.netscape.cmsutil.xml.XMLObject;
@@ -56,21 +54,9 @@ public class SubsystemClient extends Client {
     public static String FAILURE = "1";
     public static String AUTH_FAILURE = "2";
 
-    public AccountClient accountClient;
-
     public SubsystemClient(PKIClient client, String name) throws Exception {
         // subsystem name should match the client name
         super(client, name, name);
-
-        accountClient = new AccountClient(client, name);
-        addClient(accountClient);
-    }
-
-    /**
-     * Log in to the subsystem.
-     */
-    public Account login() throws Exception {
-        return accountClient.login();
     }
 
     public boolean exists() throws Exception {
@@ -255,12 +241,5 @@ public class SubsystemClient extends Client {
             String error = parser.getValue("Error");
             throw new IOException(error);
         }
-    }
-
-    /**
-     * Log out from the subsystem.
-     */
-    public void logout() throws Exception {
-        accountClient.logout();
     }
 }
