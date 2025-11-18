@@ -20,8 +20,6 @@ package com.netscape.cmstools.kra;
 
 import org.dogtagpki.cli.CLI;
 
-import com.netscape.certsrv.kra.KRAClient;
-
 /**
  * @author Endi S. Dewata
  */
@@ -30,7 +28,6 @@ public class KRACertCLI extends CLI {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KRACertCLI.class);
 
     public KRACLI kraCLI;
-    public KRAClient kraClient;
 
     public KRACertCLI(KRACLI kraCLI) {
         super("cert", "KRA certificate management commands", kraCLI);
