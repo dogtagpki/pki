@@ -205,11 +205,6 @@ public class CLI {
         return null;
     }
 
-    public Object getClient(String name) throws Exception {
-        if (parent != null) return parent.getClient(name);
-        return null;
-    }
-
     public void printVersion() {
     }
 

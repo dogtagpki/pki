@@ -20,7 +20,6 @@ package com.netscape.cmstools.cli;
 
 import org.dogtagpki.cli.CLI;
 
-import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
@@ -49,42 +48,28 @@ public class SubsystemCLI extends CLI {
         return null;
     }
 
-    public void login() throws Exception {
-        PKIClient client = getClient();
-        SubsystemClient subsystemClient = getSubsystemClient(client);
-        subsystemClient.login();
-    }
-
-    public void logout() throws Exception {
-        PKIClient client = getClient();
-        SubsystemClient subsystemClient = getSubsystemClient(client);
-        subsystemClient.logout();
-    }
-
-    @Override
-    public Client getClient(String name) throws Exception {
-        PKIClient client = getClient();
-        SubsystemClient subsystemClient = getSubsystemClient(client);
-        return subsystemClient.getClient(name);
-    }
-
     @Override
     public void execute(String[] args) throws Exception {
 
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
+        PKIClient client = null;
+        SubsystemClient subsystemClient = null;
+
         // login if username or nickname is specified
         ClientConfig config = getConfig();
         if (config.getUsername() != null || config.getCertNickname() != null) {
-            login();
+            client = mainCLI.getClient();
+            subsystemClient = getSubsystemClient(client);
+            subsystemClient.login();
         }
 
         super.execute(args);
 
         // logout if there is no failures
         if (config.getUsername() != null || config.getCertNickname() != null) {
-            logout();
+            subsystemClient.logout();
         }
     }
 }
