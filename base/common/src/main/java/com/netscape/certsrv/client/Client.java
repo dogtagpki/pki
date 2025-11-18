@@ -18,7 +18,6 @@
 package com.netscape.certsrv.client;
 
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.http.HttpEntity;
@@ -41,8 +40,6 @@ public class Client {
     // client name
     public String name;
 
-    public LinkedHashMap<String, Client> clients = new LinkedHashMap<>();
-
     public Client(PKIClient client, String subsystem, String name) {
         this(client, subsystem, client.getAPIVersion(), name);
     }
@@ -60,18 +57,6 @@ public class Client {
 
     public String getName() {
         return name;
-    }
-
-    public void addClient(Client client) {
-        clients.put(client.getName(), client);
-    }
-
-    public Client getClient(String name) {
-        return clients.get(name);
-    }
-
-    public void removeClient(String name) {
-        clients.remove(name);
     }
 
     public String getTargetPath(String suffix) {
