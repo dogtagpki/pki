@@ -3,6 +3,7 @@ package com.netscape.cmstools.system;
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.KRAConnectorClient;
 import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.cmstools.cli.MainCLI;
@@ -27,7 +28,8 @@ public class KRAConnectorShowCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        KRAConnectorClient kraConnectorClient = kraConnectorCLI.getKRAConnectorClient();
+        PKIClient client = mainCLI.getClient();
+        KRAConnectorClient kraConnectorClient = kraConnectorCLI.getKRAConnectorClient(client);
         KRAConnectorInfo info = kraConnectorClient.getConnectorInfo();
 
         // Print the KRA Connector Information.

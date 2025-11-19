@@ -47,11 +47,9 @@ public class KRAConnectorCLI extends CLI {
         return parent instanceof MainCLI ? name : parent.getFullName() + "-" + name;
     }
 
-    public KRAConnectorClient getKRAConnectorClient() throws Exception {
+    public KRAConnectorClient getKRAConnectorClient(PKIClient client) throws Exception {
 
         if (kraConnectorClient != null) return kraConnectorClient;
-
-        PKIClient client = getClient();
 
         // determine the subsystem
         String subsystem = client.getSubsystem();

@@ -119,7 +119,8 @@ public class KRAConnectorAddCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        KRAConnectorClient kraConnectorClient = kraConnectorCLI.getKRAConnectorClient();
+        PKIClient client = mainCLI.getClient();
+        KRAConnectorClient kraConnectorClient = kraConnectorCLI.getKRAConnectorClient(client);
 
         if (inputFile != null) {
 
@@ -215,7 +216,6 @@ public class KRAConnectorAddCLI extends CommandCLI {
         String timeout = cmd.getOptionValue("timeout", "30");
         info.setTimeout(timeout);
 
-        PKIClient client = mainCLI.getClient();
         CAClient caClient = new CAClient(client);
         caClient.addKRAConnector(info, sessionID);
     }

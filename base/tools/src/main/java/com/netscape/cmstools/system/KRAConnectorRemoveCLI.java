@@ -21,6 +21,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.KRAConnectorClient;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -67,7 +68,8 @@ public class KRAConnectorRemoveCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        KRAConnectorClient kraConnectorClient = kraConnectorCLI.getKRAConnectorClient();
+        PKIClient client = mainCLI.getClient();
+        KRAConnectorClient kraConnectorClient = kraConnectorCLI.getKRAConnectorClient(client);
         kraConnectorClient.removeConnector(kraHost, kraPort);
 
         MainCLI.printMessage("Removed KRA host \"" + kraHost + ":" + kraPort + "\"");
