@@ -12,6 +12,7 @@ import org.dogtagpki.cli.CommandCLI;
 import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertReviewResponse;
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.util.JSONSerializer;
 import com.netscape.cmstools.cli.MainCLI;
@@ -66,8 +67,10 @@ public class CACertRequestActionCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
+        PKIClient client = mainCLI.getClient();
+        CACertClient certClient = certRequestCLI.getCertClient(client);
+
         logger.info("Retrieving certificate request " + requestId.toHexString());
-        CACertClient certClient = certRequestCLI.getCertClient();
         CertReviewResponse reviewInfo = certClient.reviewRequest(requestId);
 
         // save new nonce

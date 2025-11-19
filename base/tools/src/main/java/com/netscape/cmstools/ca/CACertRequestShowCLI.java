@@ -5,6 +5,7 @@ import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertRequestInfo;
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -43,7 +44,8 @@ public class CACertRequestShowCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        CACertClient certClient = certRequestCLI.getCertClient();
+        PKIClient client = mainCLI.getClient();
+        CACertClient certClient = certRequestCLI.getCertClient(client);
         CertRequestInfo certRequest = certClient.getRequest(requestId);
 
         MainCLI.printMessage("Certificate request \"" + requestId.toHexString() + "\"");

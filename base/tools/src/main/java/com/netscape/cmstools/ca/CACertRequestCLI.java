@@ -70,11 +70,9 @@ public class CACertRequestCLI extends CLI {
         return "pki-cert";
     }
 
-    public CACertClient getCertClient() throws Exception {
+    public CACertClient getCertClient(PKIClient client) throws Exception {
 
         if (certClient != null) return certClient;
-
-        PKIClient client = getClient();
 
         // determine the subsystem
         String subsystem;

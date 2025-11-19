@@ -7,6 +7,7 @@ import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.ca.CACertClient;
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.profile.ProfileDataInfo;
 import com.netscape.certsrv.profile.ProfileDataInfos;
 import com.netscape.cmstools.cli.MainCLI;
@@ -57,7 +58,8 @@ public class CACertRequestProfileFindCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        CACertClient certClient = certRequestCLI.getCertClient();
+        PKIClient client = mainCLI.getClient();
+        CACertClient certClient = certRequestCLI.getCertClient(client);
         ProfileDataInfos response = certClient.listEnrollmentTemplates(start, size);
 
         Integer total = response.getTotal();

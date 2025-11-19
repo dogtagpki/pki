@@ -6,6 +6,7 @@ import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmstools.profile.ProfileCLI;
 
@@ -55,7 +56,8 @@ public class CACertRequestProfileShowCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        CACertClient certClient = certRequestCLI.getCertClient();
+        PKIClient client = mainCLI.getClient();
+        CACertClient certClient = certRequestCLI.getCertClient(client);
         CertEnrollmentRequest request = certClient.getEnrollmentTemplate(profileId);
 
         MainCLI.printMessage("Enrollment Template for Profile \"" + profileId + "\"");
