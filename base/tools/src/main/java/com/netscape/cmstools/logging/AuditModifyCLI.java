@@ -28,6 +28,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.logging.AuditClient;
 import com.netscape.certsrv.logging.AuditConfig;
 import com.netscape.certsrv.util.JSONSerializer;
@@ -83,7 +84,8 @@ public class AuditModifyCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        AuditClient auditClient = auditCLI.getAuditClient();
+        PKIClient client = mainCLI.getClient();
+        AuditClient auditClient = auditCLI.getAuditClient(client);
         AuditConfig auditConfig;
 
         if (action == null) { // modify audit configuration

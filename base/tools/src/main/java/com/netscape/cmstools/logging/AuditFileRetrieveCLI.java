@@ -26,6 +26,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.io.FileUtils;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.logging.AuditClient;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -74,7 +75,8 @@ public class AuditFileRetrieveCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        AuditClient auditClient = auditCLI.getAuditClient();
+        PKIClient client = mainCLI.getClient();
+        AuditClient auditClient = auditCLI.getAuditClient(client);
         InputStream is = auditClient.getAuditFile(filename);
         File outputFile = new File(output);
         FileUtils.copyInputStreamToFile(is, outputFile);

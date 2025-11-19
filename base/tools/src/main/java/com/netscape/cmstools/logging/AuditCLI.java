@@ -58,11 +58,10 @@ public class AuditCLI extends CLI {
         return "pki-audit";
     }
 
-    public AuditClient getAuditClient() throws Exception {
+    public AuditClient getAuditClient(PKIClient client) throws Exception {
 
         if (auditClient != null) return auditClient;
 
-        PKIClient client = getClient();
         auditClient = new AuditClient(client, subsystemCLI.getName());
 
         return auditClient;

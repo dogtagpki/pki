@@ -23,6 +23,7 @@ import java.util.Collection;
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.logging.AuditClient;
 import com.netscape.certsrv.logging.AuditFile;
 import com.netscape.certsrv.logging.AuditFileCollection;
@@ -59,7 +60,8 @@ public class AuditFileFindCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        AuditClient auditClient = auditCLI.getAuditClient();
+        PKIClient client = mainCLI.getClient();
+        AuditClient auditClient = auditCLI.getAuditClient(client);
         AuditFileCollection response = auditClient.findAuditFiles();
 
         Integer total = response.getTotal();
