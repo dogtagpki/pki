@@ -55,7 +55,7 @@ public class KeyConstraint extends EnrollConstraint {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeyConstraint.class);
 
-    public static final String CONFIG_KEY_TYPE = "keyType"; // (EC, RSA)
+    public static final String CONFIG_KEY_TYPE = "keyType"; // (EC, RSA, MLDSA)
     public static final String CONFIG_KEY_PARAMETERS = "keyParameters";
 
     private static String[] cfgECCurves = null;
@@ -90,7 +90,7 @@ public class KeyConstraint extends EnrollConstraint {
     @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_KEY_TYPE)) {
-            return new Descriptor(IDescriptor.CHOICE, "-,RSA,EC",
+            return new Descriptor(IDescriptor.CHOICE, "-,RSA,EC,MLDSA",
                     "RSA",
                     CMS.getUserMessage(locale, "CMS_PROFILE_KEY_TYPE"));
         } else if (name.equals(CONFIG_KEY_PARAMETERS)) {
@@ -120,7 +120,8 @@ public class KeyConstraint extends EnrollConstraint {
             String keyType = value;
 
             if (!isOptional(value)) {
-                if (!alg.equals(value)) {
+                String algKey = alg.startsWith("ML-DSA-") ? "MLDSA" : alg;
+                if (!algKey.equals(value)) {
                     logger.error("Invalid key type: " + value);
                     throw new ERejectException(
                             CMS.getUserMessage(
@@ -136,6 +137,8 @@ public class KeyConstraint extends EnrollConstraint {
                 keySize = getRSAKeyLen(key);
             } else if (alg.equals("DSA")) {
                 keySize = getDSAKeyLen(key);
+            } else if (alg.startsWith("ML-DSA-")) {
+                keySize = Integer.parseInt(alg.replaceFirst("^ML-DSA-", ""));
             } else if (alg.equals("EC")) {
                 //EC key case.
             } else {
@@ -193,6 +196,7 @@ public class KeyConstraint extends EnrollConstraint {
                 }
 
             } else {
+                logger.info("KeySize is {}", keySize);
                 if (!arrayContainsString(keyParams, Integer.toString(keySize))) {
                     throw new ERejectException(
                             CMS.getUserMessage(
