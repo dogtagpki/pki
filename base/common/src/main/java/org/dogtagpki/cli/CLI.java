@@ -200,11 +200,6 @@ public class CLI {
         return null;
     }
 
-    public PKIClient getClient() throws Exception {
-        if (parent != null) return parent.getClient();
-        return null;
-    }
-
     public void printVersion() {
     }
 

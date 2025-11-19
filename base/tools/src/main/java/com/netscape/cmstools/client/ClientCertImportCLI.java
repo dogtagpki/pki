@@ -231,7 +231,7 @@ public class ClientCertImportCLI extends CommandCLI {
 
             logger.info("Importing CA certificate from " + clientConfig.getServerURL());
 
-            PKIClient client = getClient();
+            PKIClient client = mainCLI.getClient();
             CAClient caClient = new CAClient(client);
             PKCS7 chain = caClient.getCertChain();
 

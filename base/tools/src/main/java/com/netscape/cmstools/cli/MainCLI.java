@@ -611,7 +611,6 @@ public class MainCLI extends CLI {
         return callback;
     }
 
-    @Override
     public PKIClient getClient() throws Exception {
 
         if (client != null) return client;

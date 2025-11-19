@@ -107,7 +107,7 @@ public class CACertStatusCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = getClient();
+        PKIClient client = mainCLI.getClient();
         CAClient caClient = new CAClient(client);
         CACertClient certClient = new CACertClient(caClient);
         AuthorityClient authorityClient = new AuthorityClient(caClient);

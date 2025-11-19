@@ -41,13 +41,13 @@ import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
+import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.pkix.primitive.Name;
-import org.mozilla.jss.crypto.TokenException;
 
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CACertClient;
@@ -251,7 +251,7 @@ public class ClientCertRequestCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         NSSDatabase nssdb = mainCLI.getNSSDatabase();
         mainCLI.init();
-        PKIClient client = getClient();
+        PKIClient client = mainCLI.getClient();
 
         CryptoManager manager = CryptoManager.getInstance();
         CryptoToken token = manager.getThreadToken();

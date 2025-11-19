@@ -81,6 +81,8 @@ public class UserCertAddCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
+        PKIClient client = mainCLI.getClient();
+
         String encoded;
 
         if (inputFile != null && serialNumber != null) {
@@ -95,7 +97,7 @@ public class UserCertAddCLI extends CommandCLI {
         } else if (serialNumber != null) {
             logger.info("Downloading certificate " + serialNumber);
 
-            CAClient caClient = mainCLI.createCAClient(parent.getClient());
+            CAClient caClient = mainCLI.createCAClient(client);
             CACertClient certClient = new CACertClient(caClient);
 
             CertData certData = certClient.getCert(new CertId(serialNumber));
@@ -111,7 +113,6 @@ public class UserCertAddCLI extends CommandCLI {
 
         logger.info("Request:\n" + userCertData);
 
-        PKIClient client = mainCLI.getClient();
         SubsystemClient subsystemClient = userCertCLI.parent.subsystemCLI.getSubsystemClient(client);
         UserClient userClient = new UserClient(subsystemClient);
         userCertData = userClient.addUserCert(userID, userCertData);

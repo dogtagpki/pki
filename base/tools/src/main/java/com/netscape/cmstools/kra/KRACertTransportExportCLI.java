@@ -70,7 +70,7 @@ public class KRACertTransportExportCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = getClient();
+        PKIClient client = mainCLI.getClient();
         KRASystemCertClient certClient = new KRASystemCertClient(client, "kra");
         CertData certData = certClient.getTransportCert();
 

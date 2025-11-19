@@ -70,7 +70,7 @@ public class CACertTransportExportCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = getClient();
+        PKIClient client = mainCLI.getClient();
         CASystemCertClient certClient = new CASystemCertClient(client, "ca");
         CertData certData = certClient.getTransportCert();
 
