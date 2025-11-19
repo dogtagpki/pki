@@ -13,6 +13,7 @@ import org.dogtagpki.job.JobClient;
 import org.dogtagpki.job.JobCollection;
 import org.dogtagpki.job.JobInfo;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.cmstools.cli.MainCLI;
 
 /**
@@ -40,7 +41,8 @@ public class JobFindCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        JobClient jobClient = jobCLI.getJobClient();
+        PKIClient client = mainCLI.getClient();
+        JobClient jobClient = jobCLI.getJobClient(client);
         JobCollection response = jobClient.findJobs();
 
         Collection<JobInfo> entries = response.getEntries();

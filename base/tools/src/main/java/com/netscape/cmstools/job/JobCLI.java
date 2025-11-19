@@ -29,14 +29,13 @@ public class JobCLI extends CLI {
         addModule(new JobStartCLI(this));
     }
 
-    public JobClient getJobClient() throws Exception {
+    public JobClient getJobClient(PKIClient client) throws Exception {
 
         if (jobClient != null) return jobClient;
 
         SubsystemCLI subsystemCLI = (SubsystemCLI) parent;
         String subsystem = subsystemCLI.getName();
 
-        PKIClient client = getClient();
         jobClient = new JobClient(client, subsystem);
 
         return jobClient;

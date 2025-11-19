@@ -10,6 +10,7 @@ import org.dogtagpki.cli.CLIException;
 import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.job.JobClient;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.cmstools.cli.MainCLI;
 
 /**
@@ -44,7 +45,8 @@ public class JobStartCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        JobClient jobClient = jobCLI.getJobClient();
+        PKIClient client = mainCLI.getClient();
+        JobClient jobClient = jobCLI.getJobClient(client);
         jobClient.startJob(id);
     }
 }
