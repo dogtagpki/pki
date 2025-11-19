@@ -47,11 +47,10 @@ public class ConfigCLI extends CLI {
         addModule(new ConfigExportCLI(this));
     }
 
-    public ConfigClient getConfigClient() throws Exception {
+    public ConfigClient getConfigClient(PKIClient client) throws Exception {
 
         if (configClient != null) return configClient;
 
-        PKIClient client = getClient();
         configClient = new ConfigClient(client, parent.name);
 
         return configClient;

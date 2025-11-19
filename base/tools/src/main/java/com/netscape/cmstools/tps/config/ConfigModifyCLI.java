@@ -30,6 +30,7 @@ import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.common.ConfigClient;
 import org.dogtagpki.common.ConfigData;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.util.JSONSerializer;
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmstools.config.ConfigCLI;
@@ -97,7 +98,8 @@ public class ConfigModifyCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        ConfigClient configClient = configCLI.getConfigClient();
+        PKIClient client = mainCLI.getClient();
+        ConfigClient configClient = configCLI.getConfigClient(client);
         configData = configClient.updateConfig(configData);
 
         MainCLI.printMessage("Updated configuration");
