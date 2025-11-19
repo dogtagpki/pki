@@ -22,6 +22,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.KeyClient;
 import com.netscape.certsrv.key.KeyInfo;
@@ -59,7 +60,8 @@ public class KRAKeyShowCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        KeyClient keyClient = keyCLI.getKeyClient();
+        PKIClient client = mainCLI.getClient();
+        KeyClient keyClient = keyCLI.getKeyClient(client);
         KeyInfo keyInfo;
 
         if (cmdArgs.length == 1) {

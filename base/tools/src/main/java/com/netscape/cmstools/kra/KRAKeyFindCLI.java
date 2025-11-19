@@ -24,6 +24,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.key.KeyClient;
 import com.netscape.certsrv.key.KeyInfo;
 import com.netscape.certsrv.key.KeyInfoCollection;
@@ -117,7 +118,8 @@ public class KRAKeyFindCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        KeyClient keyClient = keyCLI.getKeyClient();
+        PKIClient client = mainCLI.getClient();
+        KeyClient keyClient = keyCLI.getKeyClient(client);
         KeyInfoCollection keys = keyClient.listKeys(clientKeyID, status, maxResults, maxTime, start, size, realm, ownerName);
 
         if ("json".equalsIgnoreCase(outputFormat)) {

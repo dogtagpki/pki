@@ -73,15 +73,13 @@ public class KRAKeyCLI extends CLI {
         return "pki-key";
     }
 
-    public KeyClient getKeyClient() throws Exception {
-        return getKeyClient(null);
+    public KeyClient getKeyClient(PKIClient client) throws Exception {
+        return getKeyClient(client, null);
     }
 
-    public KeyClient getKeyClient(String transportNickname) throws Exception {
+    public KeyClient getKeyClient(PKIClient client, String transportNickname) throws Exception {
 
         if (keyClient != null) return keyClient;
-
-        PKIClient client = getClient();
 
         // determine the subsystem
         String subsystem;

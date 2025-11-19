@@ -24,6 +24,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.key.KeyClient;
 import com.netscape.certsrv.key.KeyRequestInfo;
 import com.netscape.certsrv.key.KeyRequestInfoCollection;
@@ -113,7 +114,8 @@ public class KRAKeyRequestFindCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        KeyClient keyClient = keyCLI.getKeyClient();
+        PKIClient client = mainCLI.getClient();
+        KeyClient keyClient = keyCLI.getKeyClient(client);
         KeyRequestInfoCollection keys = keyClient.listRequests(
                 status, type, clientKeyID, start, pageSize, maxResults, maxTime, realm);
 

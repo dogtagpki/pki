@@ -12,6 +12,7 @@ import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.netscape.security.util.Utils;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.Key;
 import com.netscape.certsrv.key.KeyClient;
@@ -88,6 +89,8 @@ public class KRAKeyRetrieveCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
+        PKIClient client = mainCLI.getClient();
+
         KeyData keyData = null;
         Key key = null;
 
@@ -100,7 +103,7 @@ public class KRAKeyRetrieveCLI extends CommandCLI {
             String outputDataFile = cmd.getOptionValue("output-data");
             String transportNickname = cmd.getOptionValue("transport");
             boolean useOAEP = cmd.hasOption("oaep");
-            KeyClient keyClient = keyCLI.getKeyClient(transportNickname);
+            KeyClient keyClient = keyCLI.getKeyClient(client, transportNickname);
             keyClient.setUseOAEP(useOAEP);
 
             if (requestFile != null) {

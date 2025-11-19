@@ -8,6 +8,7 @@ import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.netscape.security.util.Utils;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.KeyClient;
 import com.netscape.certsrv.key.KeyRecoveryRequest;
@@ -57,9 +58,10 @@ public class KRAKeyRecoverCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        KeyRequestResponse response = null;
-        KeyClient keyClient = keyCLI.getKeyClient();
+        PKIClient client = mainCLI.getClient();
+        KeyClient keyClient = keyCLI.getKeyClient(client);
 
+        KeyRequestResponse response = null;
         if (requestFile != null) {
             String json = Files.readString(Path.of(requestFile));
             KeyRecoveryRequest req = JSONSerializer.fromJSON(json, KeyRecoveryRequest.class);

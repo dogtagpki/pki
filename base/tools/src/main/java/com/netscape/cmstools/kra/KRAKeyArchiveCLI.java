@@ -10,6 +10,7 @@ import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.netscape.security.util.Utils;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.key.KeyArchivalRequest;
 import com.netscape.certsrv.key.KeyClient;
 import com.netscape.certsrv.key.KeyRequestResponse;
@@ -93,10 +94,11 @@ public class KRAKeyArchiveCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        KeyRequestResponse response = null;
-        KeyClient keyClient = keyCLI.getKeyClient(transportNickname);
+        PKIClient client = mainCLI.getClient();
+        KeyClient keyClient = keyCLI.getKeyClient(client, transportNickname);
         keyClient.setUseOAEP(useOAEP);
 
+        KeyRequestResponse response = null;
         if (inputDataFile != null) {
             // archiving a binary data
 

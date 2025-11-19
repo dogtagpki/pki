@@ -21,6 +21,7 @@ package com.netscape.cmstools.kra;
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.key.KeyClient;
 import com.netscape.certsrv.key.KeyRequestInfo;
 import com.netscape.certsrv.request.RequestId;
@@ -56,7 +57,8 @@ public class KRAKeyRequestShowCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        KeyClient keyClient = keyCLI.getKeyClient();
+        PKIClient client = mainCLI.getClient();
+        KeyClient keyClient = keyCLI.getKeyClient(client);
         KeyRequestInfo keyRequestInfo = keyClient.getRequestInfo(requestId);
 
         KRAKeyCLI.printKeyRequestInfo(keyRequestInfo);
