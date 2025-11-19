@@ -8,6 +8,7 @@ package com.netscape.cmstools.system;
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.SecurityDomainClient;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -42,7 +43,8 @@ public class SecurityDomainHostRemoveCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        SecurityDomainClient securityDomainClient = securityDomainHostCLI.getSecurityDomainClient();
+        PKIClient client = mainCLI.getClient();
+        SecurityDomainClient securityDomainClient = securityDomainHostCLI.getSecurityDomainClient(client);
         securityDomainClient.removeHost(hostID);
     }
 }

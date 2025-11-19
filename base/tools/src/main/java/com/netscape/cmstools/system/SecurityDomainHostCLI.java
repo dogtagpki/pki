@@ -7,6 +7,7 @@ package com.netscape.cmstools.system;
 
 import org.dogtagpki.cli.CLI;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.SecurityDomainClient;
 import com.netscape.certsrv.system.SecurityDomainHost;
 
@@ -27,8 +28,8 @@ public class SecurityDomainHostCLI extends CLI {
         addModule(new SecurityDomainHostRemoveCLI(this));
     }
 
-    public SecurityDomainClient getSecurityDomainClient() throws Exception {
-        return parent.getSecurityDomainClient();
+    public SecurityDomainClient getSecurityDomainClient(PKIClient client) throws Exception {
+        return parent.getSecurityDomainClient(client);
     }
 
     public static void printSecurityDomainHost(SecurityDomainHost host) {

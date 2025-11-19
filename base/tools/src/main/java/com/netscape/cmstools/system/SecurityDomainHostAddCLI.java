@@ -9,6 +9,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.SecurityDomainClient;
 import com.netscape.certsrv.system.SecurityDomainHost;
 import com.netscape.cmstools.cli.MainCLI;
@@ -80,7 +81,8 @@ public class SecurityDomainHostAddCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        SecurityDomainClient securityDomainClient = securityDomainHostCLI.getSecurityDomainClient();
+        PKIClient client = mainCLI.getClient();
+        SecurityDomainClient securityDomainClient = securityDomainHostCLI.getSecurityDomainClient(client);
         securityDomainClient.addHost(host);
     }
 }

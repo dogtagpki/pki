@@ -21,6 +21,7 @@ package com.netscape.cmstools.system;
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.SecurityDomainClient;
 import com.netscape.cmstools.cli.MainCLI;
@@ -54,7 +55,8 @@ public class SecurityDomainShowCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        SecurityDomainClient securityDomainClient = securityDomainCLI.getSecurityDomainClient();
+        PKIClient client = mainCLI.getClient();
+        SecurityDomainClient securityDomainClient = securityDomainCLI.getSecurityDomainClient(client);
         DomainInfo domain = securityDomainClient.getDomainInfo();
 
         SecurityDomainCLI.printSecurityDomain(domain);

@@ -10,6 +10,7 @@ import java.util.Collection;
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CommandCLI;
 
+import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.SecurityDomainClient;
 import com.netscape.certsrv.system.SecurityDomainHost;
 import com.netscape.cmstools.cli.MainCLI;
@@ -37,7 +38,8 @@ public class SecurityDomainHostFindCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        SecurityDomainClient securityDomainClient = securityDomainHostCLI.getSecurityDomainClient();
+        PKIClient client = mainCLI.getClient();
+        SecurityDomainClient securityDomainClient = securityDomainHostCLI.getSecurityDomainClient(client);
         Collection<SecurityDomainHost> hosts = securityDomainClient.getHosts();
         boolean first = true;
 

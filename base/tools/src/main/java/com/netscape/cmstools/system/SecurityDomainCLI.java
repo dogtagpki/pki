@@ -57,11 +57,10 @@ public class SecurityDomainCLI extends CLI {
         return "pki-securitydomain";
     }
 
-    public SecurityDomainClient getSecurityDomainClient() throws Exception {
+    public SecurityDomainClient getSecurityDomainClient(PKIClient client) throws Exception {
 
         if (securityDomainClient != null) return securityDomainClient;
 
-        PKIClient client = getClient();
         securityDomainClient = new SecurityDomainClient(client, "ca");
 
         return securityDomainClient;
