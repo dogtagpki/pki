@@ -62,7 +62,7 @@ public class GroupMemberShowCLI extends SubsystemCommandCLI {
         mainCLI.init();
 
         PKIClient client = mainCLI.getClient();
-        SubsystemClient subsystemClient = groupMemberCLI.parent.subsystemCLI.getSubsystemClient(client);
+        SubsystemClient subsystemClient = subsystemCLI.getSubsystemClient(client);
         GroupClient groupClient = new GroupClient(subsystemClient);
         GroupMemberData groupMemberData = groupClient.getGroupMember(groupID, memberID);
 

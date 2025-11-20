@@ -61,7 +61,7 @@ public class UserShowCLI extends SubsystemCommandCLI {
         mainCLI.init();
 
         PKIClient client = mainCLI.getClient();
-        SubsystemClient subsystemClient = userCLI.subsystemCLI.getSubsystemClient(client);
+        SubsystemClient subsystemClient = subsystemCLI.getSubsystemClient(client);
         UserClient userClient = new UserClient(subsystemClient);
         UserData userData = userClient.getUser(userId);
 

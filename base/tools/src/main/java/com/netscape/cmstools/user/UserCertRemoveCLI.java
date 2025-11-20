@@ -66,7 +66,7 @@ public class UserCertRemoveCLI extends SubsystemCommandCLI {
         mainCLI.init();
 
         PKIClient client = mainCLI.getClient();
-        SubsystemClient subsystemClient = userCertCLI.parent.subsystemCLI.getSubsystemClient(client);
+        SubsystemClient subsystemClient = subsystemCLI.getSubsystemClient(client);
         UserClient userClient = new UserClient(subsystemClient);
         userClient.removeUserCert(userID, URLEncoder.encode(certID, "UTF-8"));
 

@@ -169,7 +169,7 @@ public class UserAddCLI extends SubsystemCommandCLI {
         mainCLI.init();
 
         PKIClient client = mainCLI.getClient();
-        SubsystemClient subsystemClient = userCLI.subsystemCLI.getSubsystemClient(client);
+        SubsystemClient subsystemClient = subsystemCLI.getSubsystemClient(client);
         UserClient userClient = new UserClient(subsystemClient);
 
         String securityDomain = cmd.getOptionValue("security-domain");

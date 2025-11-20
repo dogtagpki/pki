@@ -83,7 +83,7 @@ public class UserMembershipFindCLI extends SubsystemCommandCLI {
         mainCLI.init();
 
         PKIClient client = mainCLI.getClient();
-        SubsystemClient subsystemClient = userMembershipCLI.parent.subsystemCLI.getSubsystemClient(client);
+        SubsystemClient subsystemClient = subsystemCLI.getSubsystemClient(client);
         UserClient userClient = new UserClient(subsystemClient);
         UserMembershipCollection response = userClient.findUserMemberships(userID, filter, start, size);
 

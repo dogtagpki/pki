@@ -82,7 +82,7 @@ public class UserCertFindCLI extends SubsystemCommandCLI {
         mainCLI.init();
 
         PKIClient client = mainCLI.getClient();
-        SubsystemClient subsystemClient = userCertCLI.parent.subsystemCLI.getSubsystemClient(client);
+        SubsystemClient subsystemClient = subsystemCLI.getSubsystemClient(client);
         UserClient userClient = new UserClient(subsystemClient);
         UserCertCollection response = userClient.findUserCerts(userID, start, size);
 

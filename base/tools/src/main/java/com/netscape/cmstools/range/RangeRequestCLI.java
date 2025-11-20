@@ -79,7 +79,7 @@ public class RangeRequestCLI extends SubsystemCommandCLI {
         mainCLI.init();
 
         PKIClient client = mainCLI.getClient();
-        SubsystemClient subsystemClient = rangeCLI.subsystemCLI.getSubsystemClient(client);
+        SubsystemClient subsystemClient = subsystemCLI.getSubsystemClient(client);
         Range range = subsystemClient.requestRange(type, sessionID);
 
         if ("json".equalsIgnoreCase(outputFormat)) {

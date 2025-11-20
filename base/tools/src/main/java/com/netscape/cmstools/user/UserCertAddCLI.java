@@ -113,7 +113,7 @@ public class UserCertAddCLI extends SubsystemCommandCLI {
 
         logger.info("Request:\n" + userCertData);
 
-        SubsystemClient subsystemClient = userCertCLI.parent.subsystemCLI.getSubsystemClient(client);
+        SubsystemClient subsystemClient = subsystemCLI.getSubsystemClient(client);
         UserClient userClient = new UserClient(subsystemClient);
         userCertData = userClient.addUserCert(userID, userCertData);
 

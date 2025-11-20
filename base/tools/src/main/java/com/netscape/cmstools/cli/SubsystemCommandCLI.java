@@ -15,7 +15,22 @@ import org.dogtagpki.cli.CommandCLI;
  */
 public class SubsystemCommandCLI extends CommandCLI {
 
+    public SubsystemCLI subsystemCLI;
+
     public SubsystemCommandCLI(String name, String description, CLI parent) {
         super(name, description, parent);
+
+        // find subsystem CLI object in CLI hierarchy
+        CLI cli = parent;
+        while (cli != null) {
+            if (cli instanceof SubsystemCLI subsystemCLI) {
+                // found subsystem CLI object
+                this.subsystemCLI = subsystemCLI;
+                break;
+            } else {
+                // keep looking
+                cli = cli.parent;
+            }
+        }
     }
 }
