@@ -23,14 +23,14 @@ import java.nio.file.Path;
 import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
-import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.profile.ProfileClient;
 import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.cmstools.cli.SubsystemCommandCLI;
 
-public class ProfileEditCLI extends CommandCLI {
+public class ProfileEditCLI extends SubsystemCommandCLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileEditCLI.class);
 

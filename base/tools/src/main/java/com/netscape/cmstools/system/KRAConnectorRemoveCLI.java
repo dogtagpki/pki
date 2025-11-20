@@ -19,16 +19,16 @@ package com.netscape.cmstools.system;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.KRAConnectorClient;
 import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.cmstools.cli.SubsystemCommandCLI;
 
 /**
  * @author Ade Lee
  */
-public class KRAConnectorRemoveCLI extends CommandCLI {
+public class KRAConnectorRemoveCLI extends SubsystemCommandCLI {
 
     public KRAConnectorCLI kraConnectorCLI;
 

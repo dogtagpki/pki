@@ -7,17 +7,17 @@ package com.netscape.cmstools.job;
 
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CLIException;
-import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.job.JobClient;
 import org.dogtagpki.job.JobInfo;
 
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.cmstools.cli.SubsystemCommandCLI;
 
 /**
  * @author Endi S. Dewata
  */
-public class JobShowCLI extends CommandCLI {
+public class JobShowCLI extends SubsystemCommandCLI {
 
     public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(JobShowCLI.class);
 

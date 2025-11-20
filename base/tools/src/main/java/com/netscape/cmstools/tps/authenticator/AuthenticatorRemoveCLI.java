@@ -19,17 +19,17 @@
 package com.netscape.cmstools.tps.authenticator;
 
 import org.apache.commons.cli.CommandLine;
-import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorClient;
 import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.cmstools.cli.SubsystemCommandCLI;
 
 /**
  * @author Endi S. Dewata
  */
-public class AuthenticatorRemoveCLI extends CommandCLI {
+public class AuthenticatorRemoveCLI extends SubsystemCommandCLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuthenticatorRemoveCLI.class);
 

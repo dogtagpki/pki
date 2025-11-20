@@ -13,18 +13,18 @@ import java.nio.file.Paths;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.io.IOUtils;
-import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.tks.TKSClient;
 import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.cmstools.cli.SubsystemCommandCLI;
 
 /**
  * @author Endi S. Dewata
  */
-public class TKSCertTransportImportCLI extends CommandCLI {
+public class TKSCertTransportImportCLI extends SubsystemCommandCLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TKSCertTransportImportCLI.class);
 

@@ -23,7 +23,6 @@ import java.nio.file.Paths;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.ca.CAClient;
 import com.netscape.certsrv.client.PKIClient;
@@ -32,11 +31,12 @@ import com.netscape.certsrv.system.KRAConnectorClient;
 import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.certsrv.util.JSONSerializer;
 import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.cmstools.cli.SubsystemCommandCLI;
 
 /**
  * @author Ade Lee
  */
-public class KRAConnectorAddCLI extends CommandCLI {
+public class KRAConnectorAddCLI extends SubsystemCommandCLI {
 
     public KRAConnectorCLI kraConnectorCLI;
 

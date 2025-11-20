@@ -6,14 +6,14 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 
 import org.apache.commons.cli.CommandLine;
-import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.base.RESTMessage;
 import com.netscape.certsrv.key.KeyTemplate;
 import com.netscape.certsrv.util.JSONSerializer;
 import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.cmstools.cli.SubsystemCommandCLI;
 
-public class KRAKeyTemplateFindCLI extends CommandCLI {
+public class KRAKeyTemplateFindCLI extends SubsystemCommandCLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KRAKeyTemplateFindCLI.class);
 

@@ -26,19 +26,19 @@ import java.io.StringWriter;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.common.ConfigClient;
 import org.dogtagpki.common.ConfigData;
 
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.util.JSONSerializer;
 import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.cmstools.cli.SubsystemCommandCLI;
 import com.netscape.cmstools.config.ConfigCLI;
 
 /**
  * @author Endi S. Dewata
  */
-public class ConfigModifyCLI extends CommandCLI {
+public class ConfigModifyCLI extends SubsystemCommandCLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ConfigModifyCLI.class);
 

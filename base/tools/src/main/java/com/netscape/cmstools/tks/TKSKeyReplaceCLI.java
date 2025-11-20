@@ -7,15 +7,15 @@ package com.netscape.cmstools.tks;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.key.KeyData;
 import com.netscape.certsrv.system.TPSConnectorClient;
 import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.cmstools.cli.SubsystemCommandCLI;
 
-public class TKSKeyReplaceCLI extends CommandCLI {
+public class TKSKeyReplaceCLI extends SubsystemCommandCLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TKSKeyReplaceCLI.class);
 

@@ -7,7 +7,6 @@ import java.security.PublicKey;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.OCTET_STRING;
@@ -23,9 +22,10 @@ import org.mozilla.jss.netscape.security.util.WrappingParams;
 import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 
 import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.cmstools.cli.SubsystemCommandCLI;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
-public class AuthorityKeyExportCLI extends CommandCLI {
+public class AuthorityKeyExportCLI extends SubsystemCommandCLI {
 
     public AuthorityCLI authorityCLI;
 

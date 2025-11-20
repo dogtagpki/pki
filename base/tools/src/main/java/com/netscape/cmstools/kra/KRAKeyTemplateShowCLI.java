@@ -6,12 +6,12 @@ import java.nio.file.Path;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.base.RESTMessage;
 import com.netscape.certsrv.util.JSONSerializer;
+import com.netscape.cmstools.cli.SubsystemCommandCLI;
 
-public class KRAKeyTemplateShowCLI extends CommandCLI {
+public class KRAKeyTemplateShowCLI extends SubsystemCommandCLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KRAKeyTemplateShowCLI.class);
 

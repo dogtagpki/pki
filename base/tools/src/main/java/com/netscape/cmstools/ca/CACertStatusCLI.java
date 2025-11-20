@@ -25,7 +25,6 @@ import java.util.Collection;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CLIException;
-import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.x509.X500Name;
@@ -41,6 +40,7 @@ import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.cmstools.cli.SubsystemCommandCLI;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
 import com.netscape.cmsutil.ocsp.CertID;
 import com.netscape.cmsutil.ocsp.CertStatus;
@@ -54,7 +54,7 @@ import com.netscape.cmsutil.ocsp.SingleResponse;
 /**
  * @author Endi S. Dewata
  */
-public class CACertStatusCLI extends CommandCLI {
+public class CACertStatusCLI extends SubsystemCommandCLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CACertStatusCLI.class);
 

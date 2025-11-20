@@ -23,7 +23,6 @@ import java.io.InputStreamReader;
 
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CLIException;
-import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertData;
@@ -33,11 +32,12 @@ import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.cmstools.cli.SubsystemCommandCLI;
 
 /**
  * @author Endi S. Dewata
  */
-public class CACertReleaseHoldCLI extends CommandCLI {
+public class CACertReleaseHoldCLI extends SubsystemCommandCLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CACertReleaseHoldCLI.class);
 

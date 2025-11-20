@@ -20,15 +20,15 @@ package com.netscape.cmstools.feature;
 import java.util.Collection;
 
 import org.apache.commons.cli.CommandLine;
-import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.system.Feature;
 import com.netscape.certsrv.system.FeatureClient;
 import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.cmstools.cli.SubsystemCommandCLI;
 
-public class FeatureFindCLI extends CommandCLI {
+public class FeatureFindCLI extends SubsystemCommandCLI {
 
     public FeatureCLI featureCLI;
 

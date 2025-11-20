@@ -1,15 +1,15 @@
 package com.netscape.cmstools.authority;
 
 import org.apache.commons.cli.CommandLine;
-import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.authority.AuthorityClient;
 import com.netscape.certsrv.authority.AuthorityData;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.cmstools.cli.SubsystemCommandCLI;
 
-public class AuthorityDisableCLI extends CommandCLI {
+public class AuthorityDisableCLI extends SubsystemCommandCLI {
 
     public AuthorityCLI authorityCLI;
 

@@ -13,13 +13,13 @@ import java.nio.file.Paths;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CLIException;
-import org.dogtagpki.cli.CommandCLI;
 import org.mozilla.jss.asn1.GeneralizedTime;
 import org.mozilla.jss.asn1.INTEGER;
 
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.cmstools.cli.SubsystemCommandCLI;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
 import com.netscape.cmsutil.ocsp.CertID;
 import com.netscape.cmsutil.ocsp.CertStatus;
@@ -33,7 +33,7 @@ import com.netscape.cmsutil.ocsp.SingleResponse;
 /**
  * @author Endi S. Dewata
  */
-public class OCSPCertVerifyCLI extends CommandCLI {
+public class OCSPCertVerifyCLI extends SubsystemCommandCLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OCSPCertVerifyCLI.class);
 

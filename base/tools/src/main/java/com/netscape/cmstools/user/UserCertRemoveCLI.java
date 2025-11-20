@@ -21,18 +21,18 @@ package com.netscape.cmstools.user;
 import java.net.URLEncoder;
 
 import org.apache.commons.cli.CommandLine;
-import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.user.UserClient;
 import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.cmstools.cli.SubsystemCommandCLI;
 
 
 /**
  * @author Endi S. Dewata
  */
-public class UserCertRemoveCLI extends CommandCLI {
+public class UserCertRemoveCLI extends SubsystemCommandCLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UserCertRemoveCLI.class);
 

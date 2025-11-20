@@ -19,17 +19,17 @@
 package com.netscape.cmstools.kra;
 
 import org.apache.commons.cli.CommandLine;
-import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.kra.KRASystemCertClient;
 
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.cmstools.cli.SubsystemCommandCLI;
 
 /**
  * @author Endi S. Dewata
  */
-public class KRACertTransportShowCLI extends CommandCLI {
+public class KRACertTransportShowCLI extends SubsystemCommandCLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KRACertTransportShowCLI.class);
 

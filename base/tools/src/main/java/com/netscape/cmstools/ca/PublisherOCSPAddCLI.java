@@ -11,13 +11,13 @@ import java.nio.file.Paths;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.ca.CAClient;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.cmstools.cli.SubsystemCommandCLI;
 
-public class PublisherOCSPAddCLI extends CommandCLI {
+public class PublisherOCSPAddCLI extends SubsystemCommandCLI {
 
     public PublisherOCSPCLI publisherOCSPCLI;
 

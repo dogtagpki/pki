@@ -16,17 +16,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.cli.CLIException;
-import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.tps.msg.TPSMessage;
 import org.dogtagpki.tps.msg.TPSMessage.MsgType;
 import org.dogtagpki.tps.msg.TPSMessage.OpType;
 
 import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.cmstools.cli.SubsystemCommandCLI;
 
 /**
  * @author Endi S. Dewata
  */
-public class TPSClientCLI extends CommandCLI {
+public class TPSClientCLI extends SubsystemCommandCLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSClientCLI.class);
 

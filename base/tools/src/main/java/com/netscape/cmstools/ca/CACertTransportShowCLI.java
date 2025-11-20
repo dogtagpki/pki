@@ -20,16 +20,16 @@ package com.netscape.cmstools.ca;
 
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.ca.CASystemCertClient;
-import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.cmstools.cli.SubsystemCommandCLI;
 
 /**
  * @author Endi S. Dewata
  */
-public class CACertTransportShowCLI extends CommandCLI {
+public class CACertTransportShowCLI extends SubsystemCommandCLI {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CACertTransportShowCLI.class);
 

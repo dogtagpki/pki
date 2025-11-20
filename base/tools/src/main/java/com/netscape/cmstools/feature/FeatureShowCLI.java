@@ -18,15 +18,15 @@
 package com.netscape.cmstools.feature;
 
 import org.apache.commons.cli.CommandLine;
-import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.system.Feature;
 import com.netscape.certsrv.system.FeatureClient;
 import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.cmstools.cli.SubsystemCommandCLI;
 
-public class FeatureShowCLI extends CommandCLI {
+public class FeatureShowCLI extends SubsystemCommandCLI {
 
     public FeatureCLI featureCLI;
 
