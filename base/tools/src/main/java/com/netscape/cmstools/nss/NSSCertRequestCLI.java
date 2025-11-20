@@ -66,11 +66,11 @@ public class NSSCertRequestCLI extends CommandCLI {
         option.setArgName("path");
         options.addOption(option);
 
-        option = new Option(null, "key-type", true, "Key type: RSA (default), EC, ML-DSA");
+        option = new Option(null, "key-type", true, "Key type: RSA (default), EC, MLDSA");
         option.setArgName("type");
         options.addOption(option);
 
-        option = new Option(null, "key-size", true, "Key size (RSA default: 2048, ML-DSA default: 65)");
+        option = new Option(null, "key-size", true, "Key size (RSA default: 2048, MLDSA default: 65)");
         option.setArgName("size");
         options.addOption(option);
 
@@ -212,7 +212,7 @@ public class NSSCertRequestCLI extends CommandCLI {
                     sensitive,
                     extractable);
 
-        } else if ("ML-DSA".equalsIgnoreCase(keyType)) {
+        } else if ("MLDSA".equalsIgnoreCase(keyType)) {
             String keySize = cmd.getOptionValue("key-size", "65");
             keyPair = nssdb.createMLDSAKeyPair(
                     token,
@@ -280,7 +280,7 @@ public class NSSCertRequestCLI extends CommandCLI {
             } else if ("EC".equalsIgnoreCase(keyType)) {
                 signatureAlgorithm = SignatureAlgorithm.ECSignatureWithSHA256Digest;
 
-            } else if ("ML-DSA".equalsIgnoreCase(keyType)) {
+            } else if ("MLDSA".equalsIgnoreCase(keyType)) {
                 signatureAlgorithm = SignatureAlgorithm.MLDSA;
             } else {
                 throw new Exception("Unknown algorithm: " + keyType);
