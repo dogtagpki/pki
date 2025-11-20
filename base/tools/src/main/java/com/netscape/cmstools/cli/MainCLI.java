@@ -47,6 +47,7 @@ import org.apache.commons.cli.UnrecognizedOptionException;
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CLIException;
+import org.dogtagpki.cli.CLIModule;
 import org.dogtagpki.common.Info;
 import org.dogtagpki.nss.NSSDatabase;
 import org.dogtagpki.util.logging.PKILogger;
@@ -663,7 +664,20 @@ public class MainCLI extends CLI {
 
     @Override
     public void executeCommand(String[] args) throws Exception {
-        super.execute(args);
+
+        String command = args[0];
+
+        CLIModule module = findModule(command);
+        if (module == null) {
+            throw new Exception("Invalid module \"" + command + "\".");
+        }
+
+        CLI cli = module.getCLI();
+
+        String[] cmdArgs = new String[args.length-1];
+        System.arraycopy(args, 1, cmdArgs, 0, args.length-1);
+
+        cli.execute(cmdArgs);
     }
 
     @Override

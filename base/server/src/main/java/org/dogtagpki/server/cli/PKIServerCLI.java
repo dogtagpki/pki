@@ -25,6 +25,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.UnrecognizedOptionException;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CLIException;
+import org.dogtagpki.cli.CLIModule;
 import org.dogtagpki.util.logging.PKILogger;
 import org.dogtagpki.util.logging.PKILogger.LogLevel;
 import org.slf4j.Logger;
@@ -77,6 +78,24 @@ public class PKIServerCLI extends CLI {
     }
 
     @Override
+    public void executeCommand(String[] args) throws Exception {
+
+        String command = args[0];
+
+        CLIModule module = findModule(command);
+        if (module == null) {
+            throw new Exception("Invalid module \"" + command + "\".");
+        }
+
+        CLI cli = module.getCLI();
+
+        String[] cmdArgs = new String[args.length-1];
+        System.arraycopy(args, 1, cmdArgs, 0, args.length-1);
+
+        cli.execute(cmdArgs);
+    }
+
+    @Override
     public void execute(String[] args) throws Exception {
 
         CommandLine cmd = parser.parse(options, args, true);
@@ -91,7 +110,7 @@ public class PKIServerCLI extends CLI {
         String[] cmdArgs = cmd.getArgs();
         logger.debug("Command: " + String.join(" ", cmdArgs));
 
-        super.execute(cmdArgs);
+        executeCommand(cmdArgs);
     }
 
     @Override
