@@ -61,7 +61,7 @@ public class TPSCertShowCLI extends SubsystemCommandCLI {
         mainCLI.init();
 
         PKIClient client = mainCLI.getClient();
-        SubsystemClient subsystemClient = certCLI.tpsCLI.getSubsystemClient(client);
+        SubsystemClient subsystemClient = subsystemCLI.getSubsystemClient(client);
         TPSCertClient certClient = new TPSCertClient(subsystemClient);
         TPSCertData certData = certClient.getCert(certID);
 

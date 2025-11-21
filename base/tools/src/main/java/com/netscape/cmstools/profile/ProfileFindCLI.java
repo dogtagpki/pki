@@ -77,7 +77,7 @@ public class ProfileFindCLI extends SubsystemCommandCLI {
         mainCLI.init();
 
         PKIClient client = mainCLI.getClient();
-        SubsystemClient subsystemClient = profileCLI.caCLI.getSubsystemClient(client);
+        SubsystemClient subsystemClient = subsystemCLI.getSubsystemClient(client);
         ProfileClient profileClient = new ProfileClient(subsystemClient);
         ProfileDataInfos response = profileClient.listProfiles(start, size, visible, enable, enableBy);
 

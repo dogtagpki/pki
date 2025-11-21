@@ -140,7 +140,7 @@ public class CACertHoldCLI extends SubsystemCommandCLI {
         mainCLI.init();
 
         PKIClient client = mainCLI.getClient();
-        SubsystemClient subsystemClient = certCLI.caCLI.getSubsystemClient(client);
+        SubsystemClient subsystemClient = subsystemCLI.getSubsystemClient(client);
         CACertClient certClient = new CACertClient(subsystemClient);
 
         for (String cmdArg : cmdArgs) {

@@ -82,7 +82,7 @@ public class TokenAddCLI extends SubsystemCommandCLI {
         mainCLI.init();
 
         PKIClient client = mainCLI.getClient();
-        SubsystemClient subsystemClient = tokenCLI.tpsCLI.getSubsystemClient(client);
+        SubsystemClient subsystemClient = subsystemCLI.getSubsystemClient(client);
         TokenClient tokenClient = new TokenClient(subsystemClient);
         tokenData = tokenClient.addToken(tokenData);
 

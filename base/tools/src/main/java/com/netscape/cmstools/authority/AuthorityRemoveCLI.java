@@ -59,7 +59,7 @@ public class AuthorityRemoveCLI extends SubsystemCommandCLI {
         mainCLI.init();
 
         PKIClient client = mainCLI.getClient();
-        SubsystemClient subsystemClient = authorityCLI.caCLI.getSubsystemClient(client);
+        SubsystemClient subsystemClient = subsystemCLI.getSubsystemClient(client);
         AuthorityClient authorityClient = new AuthorityClient(subsystemClient);
         authorityClient.deleteCA(aidString);
 

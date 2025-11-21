@@ -73,7 +73,7 @@ public class ProfileShowCLI extends SubsystemCommandCLI {
         mainCLI.init();
 
         PKIClient client = mainCLI.getClient();
-        SubsystemClient subsystemClient = profileCLI.tpsCLI.getSubsystemClient(client);
+        SubsystemClient subsystemClient = subsystemCLI.getSubsystemClient(client);
         ProfileClient profileClient = new ProfileClient(subsystemClient);
         ProfileData profileData = profileClient.getProfile(profileID);
 

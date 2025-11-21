@@ -39,7 +39,7 @@ public class AuthorityDisableCLI extends SubsystemCommandCLI {
             null, null, cmdArgs[0], null, null, null, false, null, null);
 
         PKIClient client = mainCLI.getClient();
-        SubsystemClient subsystemClient = authorityCLI.caCLI.getSubsystemClient(client);
+        SubsystemClient subsystemClient = subsystemCLI.getSubsystemClient(client);
         AuthorityClient authorityClient = new AuthorityClient(subsystemClient);
         data = authorityClient.modifyCA(data);
         AuthorityCLI.printAuthorityData(data);

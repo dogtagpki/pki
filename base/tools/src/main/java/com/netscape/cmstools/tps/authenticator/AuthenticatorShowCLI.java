@@ -73,7 +73,7 @@ public class AuthenticatorShowCLI extends SubsystemCommandCLI {
         mainCLI.init();
 
         PKIClient client = mainCLI.getClient();
-        SubsystemClient subsystemClient = authenticatorCLI.tpsCLI.getSubsystemClient(client);
+        SubsystemClient subsystemClient = subsystemCLI.getSubsystemClient(client);
         AuthenticatorClient authenticatorClient = new AuthenticatorClient(subsystemClient);
         AuthenticatorData authenticatorData = authenticatorClient.getAuthenticator(authenticatorID);
 
