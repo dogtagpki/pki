@@ -48,6 +48,9 @@ public class NSSCertRequestCLI extends CommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "type", true, "Request type: pkcs10 (default), crmf");
         option.setArgName("type");
         options.addOption(option);

@@ -51,6 +51,9 @@ public class OCSPCertVerifyCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "ca-cert", true, "CA certificate nickname");
         option.setArgName("nickname");
         options.addOption(option);

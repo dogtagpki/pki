@@ -52,6 +52,9 @@ public class KRAKeyRequestFindCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "status", true, "Request status");
         option.setArgName("status");
         options.addOption(option);

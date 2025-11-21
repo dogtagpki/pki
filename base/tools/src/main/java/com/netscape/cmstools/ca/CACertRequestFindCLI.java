@@ -51,10 +51,11 @@ public class CACertRequestFindCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
-        Option option = null;
+
+        super.createOptions();
 
         // request state
-        option = new Option(null, "status", true, "Request status (pending, cancelled, rejected, complete, all)");
+        Option option = new Option(null, "status", true, "Request status (pending, cancelled, rejected, complete, all)");
         option.setArgName("status");
         options.addOption(option);
 

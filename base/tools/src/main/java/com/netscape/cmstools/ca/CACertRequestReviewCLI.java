@@ -44,6 +44,9 @@ public class CACertRequestReviewCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "action", true, "DEPRECATED: Action: " + StringUtils.join(actions, ", "));
         option.setArgName("action");
         options.addOption(option);

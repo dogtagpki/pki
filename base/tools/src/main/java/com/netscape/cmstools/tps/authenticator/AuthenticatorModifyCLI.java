@@ -55,6 +55,9 @@ public class AuthenticatorModifyCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "action", true, "Action: update (default), approve, reject, enable, disable.");
         option.setArgName("action");
         options.addOption(option);

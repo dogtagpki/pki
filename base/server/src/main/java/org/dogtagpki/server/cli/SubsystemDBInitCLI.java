@@ -49,6 +49,8 @@ public class SubsystemDBInitCLI extends SubsystemCLI {
     @Override
     public void createOptions() {
 
+        super.createOptions();
+
         Option option = new Option("d", true, "NSS database location");
         option.setArgName("database");
         options.addOption(option);
@@ -61,10 +63,6 @@ public class SubsystemDBInitCLI extends SubsystemCLI {
         options.addOption(null, "skip-schema", false, "Skip DS schema setup");
         options.addOption(null, "skip-base", false, "Skip base entry setup");
         options.addOption(null, "skip-containers", false, "Skip container entries setup");
-
-        options.addOption("v", "verbose", false, "Run in verbose mode.");
-        options.addOption(null, "debug", false, "Run in debug mode.");
-        options.addOption(null, "help", false, "Show help message.");
     }
 
     public void init(DatabaseConfig dbConfig) throws Exception {

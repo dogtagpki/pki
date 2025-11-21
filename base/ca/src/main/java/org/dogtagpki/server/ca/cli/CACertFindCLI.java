@@ -57,13 +57,11 @@ public class CACertFindCLI extends CommandCLI {
     @Override
     public void createOptions() {
 
+        super.createOptions();
+
         Option option = new Option(null, "status", true, "Certificate status: VALID, INVALID, REVOKED, EXPIRED, REVOKED_EXPIRED");
         option.setArgName("status");
         options.addOption(option);
-
-        options.addOption("v", "verbose", false, "Run in verbose mode.");
-        options.addOption(null, "debug", false, "Run in debug mode.");
-        options.addOption(null, "help", false, "Show help message.");
     }
 
     @Override

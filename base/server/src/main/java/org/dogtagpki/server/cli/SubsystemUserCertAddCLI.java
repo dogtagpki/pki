@@ -40,6 +40,9 @@ public class SubsystemUserCertAddCLI extends SubsystemCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "cert", true, "Certificate to add");
         option.setArgName("path");
         options.addOption(option);

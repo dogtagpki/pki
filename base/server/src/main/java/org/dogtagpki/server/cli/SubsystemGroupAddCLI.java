@@ -33,6 +33,8 @@ public class SubsystemGroupAddCLI extends SubsystemCLI {
     @Override
     public void createOptions() {
 
+        super.createOptions();
+
         Option option = new Option(null, "description", true, "Description");
         option.setArgName("description");
         options.addOption(option);
@@ -71,7 +73,7 @@ public class SubsystemGroupAddCLI extends SubsystemCLI {
         try {
             ugSubsystem.init(ldapConfig, socketConfig, passwordStore);
             Group groupUg = ugSubsystem.createGroup(group);
-            
+
             if ( description != null && !description.isBlank() ) {
                 groupUg.set(Group.ATTR_DESCRIPTION, description);
             }

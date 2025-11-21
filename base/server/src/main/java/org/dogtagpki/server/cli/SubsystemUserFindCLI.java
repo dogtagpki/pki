@@ -41,6 +41,8 @@ public class SubsystemUserFindCLI extends SubsystemCLI {
     @Override
     public void createOptions() {
 
+        super.createOptions();
+
         Option option = new Option(null, "see-also", true, "Find users linked to a certificate.");
         option.setArgName("subject DN");
         options.addOption(option);

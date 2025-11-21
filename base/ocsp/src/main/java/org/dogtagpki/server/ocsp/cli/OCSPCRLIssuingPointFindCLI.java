@@ -50,6 +50,9 @@ public class OCSPCRLIssuingPointFindCLI extends CommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "size", true, "Page size");
         option.setArgName("size");
         options.addOption(option);

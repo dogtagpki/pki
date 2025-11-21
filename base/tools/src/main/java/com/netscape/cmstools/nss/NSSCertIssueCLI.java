@@ -40,6 +40,9 @@ public class NSSCertIssueCLI extends CommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "issuer", true, "Issuer nickname (default is self-signed)");
         option.setArgName("nickname");
         options.addOption(option);

@@ -49,8 +49,12 @@ public abstract class SubsystemIdGeneratorUpdateCLI extends SubsystemCLI {
     public SubsystemIdGeneratorUpdateCLI(CLI parent) {
         super("update", "Update " + parent.getParent().getParent().getName().toUpperCase() + " range generator", parent);
     }
+
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         options.addOption("t", "type", true, "Generator type to update.");
         options.addOption("r", "range", true, "Name of the ranges entry in DS.");
     }

@@ -61,6 +61,8 @@ public class CACertIssueCLI extends SubsystemCommandCLI {
     @Override
     public void createOptions() {
 
+        super.createOptions();
+
         Option option = new Option(null, "issuer-id", true, "Authority ID (host authority if omitted)");
         option.setArgName("ID");
         options.addOption(option);

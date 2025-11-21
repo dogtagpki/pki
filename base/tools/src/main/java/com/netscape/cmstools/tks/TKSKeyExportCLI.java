@@ -36,6 +36,9 @@ public class TKSKeyExportCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "output", true, "File to store the exported key");
         option.setArgName("path");
         options.addOption(option);

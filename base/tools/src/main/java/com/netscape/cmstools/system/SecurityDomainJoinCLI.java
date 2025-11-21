@@ -42,6 +42,8 @@ public class SecurityDomainJoinCLI extends CommandCLI {
     @Override
     public void createOptions() {
 
+        super.createOptions();
+
         Option option = new Option(null, "session", true, "Session ID");
         option.setArgName("ID");
         options.addOption(option);

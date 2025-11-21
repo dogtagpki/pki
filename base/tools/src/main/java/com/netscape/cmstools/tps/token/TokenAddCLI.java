@@ -49,6 +49,9 @@ public class TokenAddCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "user", true, "User ID");
         option.setArgName("User ID");
         options.addOption(option);

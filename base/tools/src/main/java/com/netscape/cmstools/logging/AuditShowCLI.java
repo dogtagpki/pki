@@ -51,6 +51,9 @@ public class AuditShowCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "output", true, "Output file to store audit configuration.");
         option.setArgName("file");
         options.addOption(option);

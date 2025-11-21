@@ -22,6 +22,9 @@ public class AuthorityShowCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option optParent = new Option(
             null, "host-authority", false, "Show host authority");
         options.addOption(optParent);

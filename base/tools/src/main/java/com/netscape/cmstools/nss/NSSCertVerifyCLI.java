@@ -39,6 +39,9 @@ public class NSSCertVerifyCLI extends CommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "cert", true, "Certificate to verify");
         option.setArgName("path");
         options.addOption(option);

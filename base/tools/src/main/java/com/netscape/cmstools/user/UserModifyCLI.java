@@ -49,6 +49,9 @@ public class UserModifyCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "fullName", true, "Full name");
         option.setArgName("fullName");
         options.addOption(option);

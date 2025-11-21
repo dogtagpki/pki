@@ -46,6 +46,9 @@ public class NSSKeyShowCLI extends CommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "key-id", true, "Key ID");
         option.setArgName("ID");
         options.addOption(option);

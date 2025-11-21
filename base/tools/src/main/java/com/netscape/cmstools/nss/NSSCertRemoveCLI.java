@@ -27,6 +27,9 @@ public class NSSCertRemoveCLI extends CommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         options.addOption(null, "remove-key", false, "Remove key");
     }
 

@@ -36,6 +36,9 @@ public class ConfigExportCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "names", true, "Comma-separated list of configuration property names.");
         option.setArgName("names");
         options.addOption(option);

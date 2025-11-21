@@ -52,6 +52,9 @@ public class TPSCertFindCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "token", true, "Token ID");
         option.setArgName("ID");
         options.addOption(option);

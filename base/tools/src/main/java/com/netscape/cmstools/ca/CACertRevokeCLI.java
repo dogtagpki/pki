@@ -60,6 +60,9 @@ public class CACertRevokeCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         StringBuilder sb = new StringBuilder();
 
         for (RevocationReason reason : RevocationReason.INSTANCES) {

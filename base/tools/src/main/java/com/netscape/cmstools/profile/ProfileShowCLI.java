@@ -31,6 +31,9 @@ public class ProfileShowCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option optFilename = new Option(null, "output", true, "Output filename");
         optFilename.setArgName("filename");
         options.addOption(optFilename);

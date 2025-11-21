@@ -31,6 +31,9 @@ public class KRAKeyGenerateCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "key-algorithm", true,
                 "Algorithm to be used to create a key.\nValid values: AES, DES, DES3, RC2, RC4, DESede, RSA, DSA");
         option.setArgName("algorithm");

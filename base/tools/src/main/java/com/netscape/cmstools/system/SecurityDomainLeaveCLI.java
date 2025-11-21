@@ -41,6 +41,8 @@ public class SecurityDomainLeaveCLI extends CommandCLI {
     @Override
     public void createOptions() {
 
+        super.createOptions();
+
         Option option = new Option(null, "type", true, "Subsystem type");
         option.setArgName("type");
         options.addOption(option);

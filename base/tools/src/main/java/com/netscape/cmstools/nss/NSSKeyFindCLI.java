@@ -64,6 +64,9 @@ public class NSSKeyFindCLI extends CommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "nickname", true, "Certificate nickname");
         option.setArgName("nickname");
         options.addOption(option);

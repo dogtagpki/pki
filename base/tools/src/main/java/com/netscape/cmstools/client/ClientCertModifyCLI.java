@@ -46,6 +46,9 @@ public class ClientCertModifyCLI extends CommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "trust", true, "Trust flags. Default: u,u,u.");
         option.setArgName("trust flags");
         options.addOption(option);

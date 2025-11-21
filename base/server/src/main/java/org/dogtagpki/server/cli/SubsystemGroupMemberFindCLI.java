@@ -39,6 +39,9 @@ public class SubsystemGroupMemberFindCLI extends SubsystemCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "output-format", true, "Output format: text (default), json.");
         option.setArgName("format");
         options.addOption(option);

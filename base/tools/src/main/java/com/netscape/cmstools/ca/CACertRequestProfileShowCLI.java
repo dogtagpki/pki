@@ -28,6 +28,9 @@ public class CACertRequestProfileShowCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "output", true, "Output filename");
         option.setArgName("filename");
         options.addOption(option);

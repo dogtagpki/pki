@@ -85,6 +85,9 @@ public class ClientCertRequestCLI extends CommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "type", true, "Request type (default: pkcs10)");
         option.setArgName("request type");
         options.addOption(option);

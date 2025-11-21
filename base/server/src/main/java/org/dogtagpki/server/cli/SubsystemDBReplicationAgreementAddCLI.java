@@ -48,15 +48,13 @@ public class SubsystemDBReplicationAgreementAddCLI extends SubsystemCLI {
     @Override
     public void createOptions() {
 
+        super.createOptions();
+
         options.addOption(null, "ldap-config", true, "LDAP configuration file");
         options.addOption(null, "replica-url", true, "Replica URL");
         options.addOption(null, "replica-bind-dn", true, "Replica bind DN");
         options.addOption(null, "replica-bind-password-file", true, "Replica bind password file");
         options.addOption(null, "replication-security", true, "Replication security: SSL, TLS, None");
-
-        options.addOption("v", "verbose", false, "Run in verbose mode.");
-        options.addOption(null, "debug", false, "Run in debug mode.");
-        options.addOption(null, "help", false, "Show help message.");
     }
 
     @Override

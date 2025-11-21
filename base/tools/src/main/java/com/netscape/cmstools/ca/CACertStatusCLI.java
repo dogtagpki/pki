@@ -72,6 +72,9 @@ public class CACertStatusCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "ocsp", true, "OCSP URL");
         option.setArgName("URL");
         options.addOption(option);

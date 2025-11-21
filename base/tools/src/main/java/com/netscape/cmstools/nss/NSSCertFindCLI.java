@@ -35,6 +35,9 @@ public class NSSCertFindCLI extends CommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "subject", true, "Subject DN");
         option.setArgName("DN");
         options.addOption(option);

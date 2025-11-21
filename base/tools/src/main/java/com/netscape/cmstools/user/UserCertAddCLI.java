@@ -56,6 +56,9 @@ public class UserCertAddCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "input", true, "Input file");
         option.setArgName("file");
         options.addOption(option);

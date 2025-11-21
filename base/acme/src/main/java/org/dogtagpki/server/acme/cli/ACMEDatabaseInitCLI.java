@@ -39,12 +39,11 @@ public class ACMEDatabaseInitCLI extends SubsystemCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         options.addOption(null, "ds-backend", true, "DS backend (default: userroot)");
         options.addOption(null, "skip-reindex", false, "Skip database reindex.");
-
-        options.addOption("v", "verbose", false, "Run in verbose mode.");
-        options.addOption(null, "debug", false, "Run in debug mode.");
-        options.addOption(null, "help", false, "Show help message.");
     }
 
     @Override

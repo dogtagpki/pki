@@ -40,11 +40,10 @@ public class ACMEDatabaseIndexRebuildCLI extends SubsystemCLI {
 
     @Override
     public void createOptions() {
-        options.addOption(null, "ds-backend", true, "DS backend (default: userroot)");
 
-        options.addOption("v", "verbose", false, "Run in verbose mode.");
-        options.addOption(null, "debug", false, "Run in debug mode.");
-        options.addOption(null, "help", false, "Show help message.");
+        super.createOptions();
+
+        options.addOption(null, "ds-backend", true, "DS backend (default: userroot)");
     }
 
     @Override

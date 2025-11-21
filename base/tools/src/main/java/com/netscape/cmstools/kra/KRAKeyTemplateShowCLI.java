@@ -29,6 +29,9 @@ public class KRAKeyTemplateShowCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "output", true, "Location to store the template.");
         option.setArgName("output file");
         options.addOption(option);

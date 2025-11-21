@@ -42,6 +42,8 @@ public class AuthorityKeyExportCLI extends SubsystemCommandCLI {
     @Override
     public void createOptions() {
 
+        super.createOptions();
+
         Option option = new Option("o", "output", true, "Output file");
         option.setArgName("filename");
         options.addOption(option);

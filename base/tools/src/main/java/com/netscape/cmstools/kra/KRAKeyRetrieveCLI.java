@@ -41,6 +41,9 @@ public class KRAKeyRetrieveCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "keyID", true, "Key Identifier for the secret to be recovered.");
         option.setArgName("Key Identifier");
         options.addOption(option);

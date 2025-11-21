@@ -43,6 +43,8 @@ public class TKSCertTransportImportCLI extends SubsystemCommandCLI {
     @Override
     public void createOptions() {
 
+        super.createOptions();
+
         Option option = new Option(null, "security-domain", true, "Security domain URL");
         option.setArgName("URL");
         options.addOption(option);

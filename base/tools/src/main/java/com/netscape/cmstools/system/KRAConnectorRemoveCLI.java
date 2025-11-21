@@ -44,6 +44,9 @@ public class KRAConnectorRemoveCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "host", true, "KRA host");
         option.setArgName("host");
         options.addOption(option);

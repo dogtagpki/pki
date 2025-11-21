@@ -60,6 +60,9 @@ public class CACertHoldCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "comments", true, "Comments");
         option.setArgName("comments");
         options.addOption(option);

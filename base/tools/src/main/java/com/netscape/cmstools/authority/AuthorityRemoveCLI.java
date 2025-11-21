@@ -22,6 +22,9 @@ public class AuthorityRemoveCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         options.addOption(null, "force", false, "Force delete");
     }
 

@@ -41,6 +41,8 @@ public class SubsystemDBRemoveCLI extends SubsystemCLI {
     @Override
     public void createOptions() {
 
+        super.createOptions();
+
         Option option = new Option("d", true, "NSS database location");
         option.setArgName("database");
         options.addOption(option);
@@ -50,10 +52,6 @@ public class SubsystemDBRemoveCLI extends SubsystemCLI {
         options.addOption(option);
 
         options.addOption(null, "force", false, "Force");
-
-        options.addOption("v", "verbose", false, "Run in verbose mode.");
-        options.addOption(null, "debug", false, "Run in debug mode.");
-        options.addOption(null, "help", false, "Show help message.");
     }
 
     @Override

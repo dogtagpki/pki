@@ -52,6 +52,9 @@ public class ProfileMappingFindCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "start", true, "Page start");
         option.setArgName("start");
         options.addOption(option);

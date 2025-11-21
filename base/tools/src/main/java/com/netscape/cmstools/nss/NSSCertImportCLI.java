@@ -34,6 +34,9 @@ public class NSSCertImportCLI extends CommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "cert", true, "Certificate to import");
         option.setArgName("path");
         options.addOption(option);

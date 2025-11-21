@@ -64,6 +64,9 @@ public class ClientCertImportCLI extends CommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "cert", true, "Certificate file to import.");
         option.setArgName("path");
         options.addOption(option);

@@ -43,6 +43,8 @@ public class SubsystemUserModifyCLI extends SubsystemCLI {
     @Override
     public void createOptions() {
 
+        super.createOptions();
+
         Option option = new Option(null, "password", true, "User password");
         option.setArgName("password");
         options.addOption(option);

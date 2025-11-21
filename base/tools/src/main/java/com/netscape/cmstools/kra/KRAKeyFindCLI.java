@@ -51,6 +51,9 @@ public class KRAKeyFindCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "clientKeyID", true, "Unique client key identifier");
         option.setArgName("client key ID");
         options.addOption(option);

@@ -46,6 +46,9 @@ public class SDSubsystemAddCLI extends CommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "subsystem", true, "Subsystem type");
         option.setArgName("type");
         options.addOption(option);

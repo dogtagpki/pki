@@ -37,6 +37,9 @@ public class NSSKeyImportCLI extends CommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "input", true, "File that contains the key to be imported");
         option.setArgName("path");
         options.addOption(option);

@@ -39,20 +39,18 @@ public class SubsystemUserShowCLI extends SubsystemCLI {
 
     public SubsystemUserShowCLI(CLI parent) {
         super("show", "Display " + parent.getParent().getName().toUpperCase() + " user", parent);
-
-        Option option = new Option(null, "attr", true, "Show attribute.");
-        option.setArgName("name");
-        options.addOption(option);
-
-        options.addOption("v", "verbose", false, "Run in verbose mode.");
-        options.addOption(null, "debug", false, "Run in debug mode.");
-        options.addOption(null, "help", false, "Show help message.");
     }
 
     @Override
     public void createOptions() {
 
-        Option option = new Option(null, "output-format", true, "Output format: text (default), json.");
+        super.createOptions();
+
+        Option option = new Option(null, "attr", true, "Show attribute.");
+        option.setArgName("name");
+        options.addOption(option);
+
+        option = new Option(null, "output-format", true, "Output format: text (default), json.");
         option.setArgName("format");
         options.addOption(option);
     }

@@ -55,6 +55,9 @@ public class CACertReleaseHoldCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         options.addOption(null, "force", false, "Force");
     }
 

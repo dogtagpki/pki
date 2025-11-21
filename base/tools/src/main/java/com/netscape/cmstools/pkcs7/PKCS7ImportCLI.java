@@ -36,6 +36,9 @@ public class PKCS7ImportCLI extends CommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "pkcs7", true, "PKCS #7 file");
         option.setArgName("path");
         options.addOption(option);

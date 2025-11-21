@@ -55,6 +55,9 @@ public class ProfileAddCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "input", true, "Input file containing profile properties.");
         option.setArgName("file");
         options.addOption(option);

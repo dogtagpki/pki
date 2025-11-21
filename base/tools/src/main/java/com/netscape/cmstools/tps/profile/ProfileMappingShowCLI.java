@@ -52,6 +52,9 @@ public class ProfileMappingShowCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "output", true, "Output file to store profile mapping properties.");
         option.setArgName("file");
         options.addOption(option);

@@ -58,6 +58,8 @@ public class SubsystemDBInfoCLI extends SubsystemCLI {
     @Override
     public void createOptions() {
 
+        super.createOptions();
+
         Option option = new Option("d", true, "NSS database location");
         option.setArgName("database");
         options.addOption(option);

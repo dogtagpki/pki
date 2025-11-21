@@ -86,6 +86,8 @@ public class CACertCreateCLI extends CommandCLI {
     @Override
     public void createOptions() {
 
+        super.createOptions();
+
         Option option = new Option(null, "request", true, "Request ID");
         option.setArgName("ID");
         options.addOption(option);
@@ -125,10 +127,6 @@ public class CACertCreateCLI extends CommandCLI {
         option = new Option(null, "cert", true, "Certificate path");
         option.setArgName("path");
         options.addOption(option);
-
-        options.addOption("v", "verbose", false, "Run in verbose mode.");
-        options.addOption(null, "debug", false, "Run in debug mode.");
-        options.addOption(null, "help", false, "Show help message.");
     }
 
     @Override

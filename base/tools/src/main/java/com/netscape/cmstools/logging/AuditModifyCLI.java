@@ -55,6 +55,9 @@ public class AuditModifyCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "action", true, "Action: enable, disable.");
         option.setArgName("action");
         options.addOption(option);

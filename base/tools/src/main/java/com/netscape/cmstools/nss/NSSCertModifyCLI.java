@@ -31,6 +31,9 @@ public class NSSCertModifyCLI extends CommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "trust-flags", true, "Certificate trust flags");
         option.setArgName("flags");
         options.addOption(option);

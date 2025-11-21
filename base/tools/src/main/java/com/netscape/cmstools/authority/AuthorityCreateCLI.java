@@ -22,6 +22,9 @@ public class AuthorityCreateCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option optParent = new Option(null, "parent", true, "ID of parent CA");
         optParent.setArgName("id");
         options.addOption(optParent);

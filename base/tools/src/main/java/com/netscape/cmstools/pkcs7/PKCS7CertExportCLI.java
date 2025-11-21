@@ -54,6 +54,9 @@ public class PKCS7CertExportCLI extends CommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "pkcs7", true, "PKCS #7 file");
         option.setArgName("path");
         options.addOption(option);

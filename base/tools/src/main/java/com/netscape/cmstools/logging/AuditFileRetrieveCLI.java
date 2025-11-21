@@ -51,6 +51,9 @@ public class AuditFileRetrieveCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "output", true, "Output file.");
         option.setArgName("path");
         options.addOption(option);

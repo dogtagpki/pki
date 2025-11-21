@@ -31,20 +31,18 @@ public class CommandCLI extends CLI {
 
     public CommandCLI(String name, String description, CLI parent) {
         super(name, description, parent);
-
-        // add default options
-        options.addOption("v", "verbose", false, "Run in verbose mode.");
-        options.addOption(null, "debug", false, "Run in debug mode.");
-        options.addOption(null, "help", false, "Show help message.");
-
-        createOptions();
     }
 
     public void createOptions() {
+        options.addOption("v", "verbose", false, "Run in verbose mode.");
+        options.addOption(null, "debug", false, "Run in debug mode.");
+        options.addOption(null, "help", false, "Show help message.");
     }
 
     @Override
     public void execute(String[] args) throws Exception {
+
+        createOptions();
 
         CommandLine cmd = parser.parse(options, args);
 

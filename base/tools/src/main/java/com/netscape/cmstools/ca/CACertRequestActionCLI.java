@@ -38,6 +38,9 @@ public class CACertRequestActionCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "input-file", true, "Input file containing certificate request.");
         option.setArgName("filename");
         options.addOption(option);

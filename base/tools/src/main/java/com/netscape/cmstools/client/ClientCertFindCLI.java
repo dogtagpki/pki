@@ -46,6 +46,9 @@ public class ClientCertFindCLI extends CommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         options.addOption(null, "ca", false, "Find CA certificates only");
     }
 

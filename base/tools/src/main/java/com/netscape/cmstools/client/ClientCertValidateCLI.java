@@ -45,6 +45,9 @@ public class ClientCertValidateCLI extends CommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "certusage", true, "Certificate usage: " +
                 "CheckAllUsages, SSLClient, SSLServer, SSLServerWithStepUp, SSLCA, " +
                 "EmailSigner, EmailRecipient, ObjectSigner, UserCertImport, " +

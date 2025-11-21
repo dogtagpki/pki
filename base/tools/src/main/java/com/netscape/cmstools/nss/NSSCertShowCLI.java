@@ -37,6 +37,9 @@ public class NSSCertShowCLI extends CommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "cert-file", true, "Certificate to show");
         option.setArgName("path");
         options.addOption(option);

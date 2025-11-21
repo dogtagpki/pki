@@ -49,6 +49,9 @@ public class GroupModifyCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "description", true, "Description");
         option.setArgName("description");
         options.addOption(option);

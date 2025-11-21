@@ -45,6 +45,9 @@ public class SDCreateCLI extends CommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "name", true, "Security domain name");
         option.setArgName("name");
         options.addOption(option);

@@ -44,6 +44,8 @@ public class SubsystemUserAddCLI extends SubsystemCLI {
     @Override
     public void createOptions() {
 
+        super.createOptions();
+
         Option option = new Option(null, "full-name", true, "Full name");
         option.setArgName("full name");
         options.addOption(option);

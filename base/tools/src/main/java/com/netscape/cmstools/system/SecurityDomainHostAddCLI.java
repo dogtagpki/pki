@@ -33,6 +33,9 @@ public class SecurityDomainHostAddCLI extends CommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "port", true, "Port");
         option.setArgName("port");
         options.addOption(option);

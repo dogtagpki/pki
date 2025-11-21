@@ -33,6 +33,9 @@ public class TKSKeyCreateCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "output-format", true, "Output format: text (default), json");
         option.setArgName("format");
         options.addOption(option);
@@ -54,7 +57,7 @@ public class TKSKeyCreateCLI extends SubsystemCommandCLI {
         mainCLI.init();
 
         PKIClient client = mainCLI.getClient();
-        SubsystemClient subsystemClient = tksKeyCLI.tksCLI.getSubsystemClient(client);
+        SubsystemClient subsystemClient = subsystemCLI.getSubsystemClient(client);
         TPSConnectorClient tpsConnectorClient = new TPSConnectorClient(subsystemClient);
         KeyData keyData = tpsConnectorClient.createSharedSecret(keyID);
 

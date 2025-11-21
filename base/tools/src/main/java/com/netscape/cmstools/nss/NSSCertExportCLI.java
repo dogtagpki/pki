@@ -36,6 +36,9 @@ public class NSSCertExportCLI extends CommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "output-file", true, "Output file path");
         option.setArgName("path");
         options.addOption(option);

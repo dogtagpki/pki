@@ -34,6 +34,8 @@ public class PublisherOCSPAddCLI extends SubsystemCommandCLI {
     @Override
     public void createOptions() {
 
+        super.createOptions();
+
         Option option = new Option(null, "url", true, "Publisher URL");
         option.setArgName("URL");
         options.addOption(option);

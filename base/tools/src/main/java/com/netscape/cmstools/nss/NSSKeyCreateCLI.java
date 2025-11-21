@@ -60,6 +60,8 @@ public class NSSKeyCreateCLI extends CommandCLI {
     @Override
     public void createOptions() {
 
+        super.createOptions();
+
         Option option = new Option(null, "key-type", true, "Key type: RSA (default), EC, AES");
         option.setArgName("type");
         options.addOption(option);

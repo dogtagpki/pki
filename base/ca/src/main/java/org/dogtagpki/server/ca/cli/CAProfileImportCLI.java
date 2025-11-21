@@ -56,11 +56,10 @@ public class CAProfileImportCLI extends CommandCLI {
 
     @Override
     public void createOptions() {
-        options.addOption(null, "input-folder", true, "Input folder");
 
-        options.addOption("v", "verbose", false, "Run in verbose mode.");
-        options.addOption(null, "debug", false, "Run in debug mode.");
-        options.addOption(null, "help", false, "Show help message.");
+        super.createOptions();
+
+        options.addOption(null, "input-folder", true, "Input folder");
     }
 
     @Override

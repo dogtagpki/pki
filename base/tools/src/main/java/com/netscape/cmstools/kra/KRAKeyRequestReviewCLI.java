@@ -28,6 +28,9 @@ public class KRAKeyRequestReviewCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "action", true,
                 "Action to be performed on the request.\nValid values: approve, reject, cancel.");
         option.setArgName("Action to perform");

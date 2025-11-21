@@ -57,6 +57,8 @@ public class OCSPCRLIssuingPointAddCLI extends CommandCLI {
     @Override
     public void createOptions() {
 
+        super.createOptions();
+
         Option option = new Option(null, "cert-chain", true, "Path to PKCS #7 certificate chain");
         option.setArgName("path");
         options.addOption(option);

@@ -57,6 +57,9 @@ public class UserAddCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "fullName", true, "DEPRECATED: Full name");
         option.setArgName("full name");
         options.addOption(option);

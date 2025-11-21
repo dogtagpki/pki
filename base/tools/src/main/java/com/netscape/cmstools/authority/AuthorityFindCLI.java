@@ -28,6 +28,9 @@ public class AuthorityFindCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "id", true, "Authority ID");
         option.setArgName("ID");
         options.addOption(option);

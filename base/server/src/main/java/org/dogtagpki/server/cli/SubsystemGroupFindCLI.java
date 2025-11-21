@@ -39,6 +39,8 @@ public class SubsystemGroupFindCLI extends SubsystemCLI {
     @Override
     public void createOptions() {
 
+        super.createOptions();
+
         Option option = new Option(null, "member", true, "Member ID");
         option.setArgName("ID");
         options.addOption(option);

@@ -55,6 +55,9 @@ public class ConnectorAddCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "input", true, "Input file containing connector properties.");
         option.setArgName("file");
         options.addOption(option);

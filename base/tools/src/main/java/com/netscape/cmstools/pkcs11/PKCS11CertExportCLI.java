@@ -40,6 +40,9 @@ public class PKCS11CertExportCLI extends CommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "output-format", true, "Output format: pem (default), der");
         option.setArgName("format");
         options.addOption(option);

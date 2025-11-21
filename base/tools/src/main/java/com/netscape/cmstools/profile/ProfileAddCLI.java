@@ -29,6 +29,9 @@ public class ProfileAddCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option optRaw = new Option(null, "raw", false, "Use raw format");
         optRaw.setArgName("raw");
         options.addOption(optRaw);

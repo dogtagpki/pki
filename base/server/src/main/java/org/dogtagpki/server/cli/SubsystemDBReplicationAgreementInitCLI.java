@@ -44,11 +44,9 @@ public class SubsystemDBReplicationAgreementInitCLI extends SubsystemCLI {
     @Override
     public void createOptions() {
 
-        options.addOption(null, "ldap-config", true, "LDAP configuration file");
+        super.createOptions();
 
-        options.addOption("v", "verbose", false, "Run in verbose mode.");
-        options.addOption(null, "debug", false, "Run in debug mode.");
-        options.addOption(null, "help", false, "Show help message.");
+        options.addOption(null, "ldap-config", true, "LDAP configuration file");
     }
 
     @Override

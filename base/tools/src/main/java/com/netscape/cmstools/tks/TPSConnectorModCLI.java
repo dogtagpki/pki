@@ -28,6 +28,9 @@ public class TPSConnectorModCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "host", true, "TPS host");
         option.setArgName("host");
         options.addOption(option);

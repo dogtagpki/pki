@@ -53,6 +53,9 @@ public class CACertShowCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "output", true, "DEPRECATED: Output file");
         option.setArgName("file");
         options.addOption(option);

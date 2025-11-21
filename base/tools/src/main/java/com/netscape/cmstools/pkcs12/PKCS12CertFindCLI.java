@@ -51,6 +51,9 @@ public class PKCS12CertFindCLI extends CommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "pkcs12", true, "PKCS #12 file");
         option.setArgName("path");
         options.addOption(option);

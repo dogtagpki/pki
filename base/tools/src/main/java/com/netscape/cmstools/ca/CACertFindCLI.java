@@ -57,10 +57,11 @@ public class CACertFindCLI extends SubsystemCommandCLI {
 
     @Override
     public void createOptions() {
-        Option option = null;
+
+        super.createOptions();
 
         //pagination options
-        option = new Option(null, "start", true, "Page start");
+        Option option = new Option(null, "start", true, "Page start");
         option.setArgName("start");
         options.addOption(option);
 

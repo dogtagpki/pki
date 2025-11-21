@@ -55,6 +55,9 @@ public class ClientCertShowCLI extends CommandCLI {
 
     @Override
     public void createOptions() {
+
+        super.createOptions();
+
         Option option = new Option(null, "cert", true, "PEM file to store the certificate.");
         option.setArgName("path");
         options.addOption(option);
