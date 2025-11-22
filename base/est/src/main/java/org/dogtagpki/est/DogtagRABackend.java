@@ -1,3 +1,8 @@
+//
+// Copyright Red Hat, Inc.
+//
+// SPDX-License-Identifier: GPL-2.0-or-later
+//
 package org.dogtagpki.est;
 
 import java.io.File;
@@ -6,7 +11,12 @@ import java.security.cert.X509Certificate;
 import java.util.Optional;
 import java.util.Properties;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.util.EntityUtils;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.mozilla.jss.netscape.security.util.Cert;
@@ -40,6 +50,7 @@ import com.netscape.cms.realm.PKIPrincipal;
  * EST backend that acts as RA for a Dogtag CA subsystem
  *
  * @author Fraser Tweedale
+ * @author cfu (added /fullcmc support)
  */
 public class DogtagRABackend extends ESTBackend {
 
@@ -48,6 +59,23 @@ public class DogtagRABackend extends ESTBackend {
     private ClientConfig clientConfig = new ClientConfig();
 
     private String profile;
+    private String fullcmcProfile;
+    // TODO: Add multi-profile support for all EST operations
+
+    // ThreadLocal to store CMC status for current request thread
+    // Used to pass CMC status from CA response to EST HTTP status mapping
+    private static ThreadLocal<Integer> cmcStatus = new ThreadLocal<>();
+
+    /**
+     * Get the CMC status from the last fullcmc() call in this thread.
+     * This is used by ESTServlet to map CMC status to HTTP status codes.
+     *
+     * @return CMC status value (SUCCESS=0, FAILED=2, PENDING=3, etc.)
+     *         or null if not set
+     */
+    public Integer getLastCMCStatus() {
+        return cmcStatus.get();
+    }
 
     @Override
     public void start() throws Throwable {
@@ -104,6 +132,12 @@ public class DogtagRABackend extends ESTBackend {
         if (profile == null) {
             throw new RuntimeException("DogtagRABackend: 'password' property missing");
         }
+
+        // Read /fullcmc profile (preliminary implementation uses single profile)
+        fullcmcProfile = config.getParameter("fullcmc.profile");
+        if (fullcmcProfile != null) {
+            logger.info("- /fullcmc profile: " + fullcmcProfile);
+        }
     }
 
     @Override
@@ -143,6 +177,88 @@ public class DogtagRABackend extends ESTBackend {
          * additional behaviour for re-enroll (e.g. revoking previous certificates).
          */
         return simpleenroll(label, csr, authzData, authzResult);
+    }
+
+    @Override
+    public byte[] fullcmc(Optional<String> label, byte[] cmcRequest, ESTRequestAuthorizationData authzData, Object authzResult)
+            throws PKIException {
+        logger.info("Processing fullcmc request");
+
+        // Use configured profile (preliminary implementation uses single profile)
+        String profileId = fullcmcProfile;
+        if (profileId == null) {
+            throw new PKIException("No /fullcmc profile configured (set fullcmc.profile in backend.conf)");
+        }
+        logger.info("Using /fullcmc profile: " + profileId);
+
+        // Forward the CMC request to the CA's ProfileSubmitCMCFull endpoint
+        // The CMC request data contains the base64-encoded CMC request from the EST client
+
+        try (PKIClient pkiClient = new PKIClient(clientConfig)) {
+            // The CA's CMC endpoint path (relative to server URL)
+            String cmcPath = "/ca/ee/ca/profileSubmitCMCFull?profileId=" + profileId;
+            logger.debug("Forwarding CMC request to: " + cmcPath);
+
+            // Build the URI
+            java.net.URI uri = new java.net.URI(clientConfig.getServerURL() + cmcPath);
+
+            // Create HttpPost manually so we can add custom headers
+            org.apache.http.client.methods.HttpPost httpPost =
+                new org.apache.http.client.methods.HttpPost(uri);
+
+            // Set the CMC request as the body
+            org.apache.http.HttpEntity entity = pkiClient.entity(cmcRequest);
+            httpPost.setEntity(entity);
+
+            // Mark this as an EST request so CA can set appropriate response headers
+            httpPost.setHeader("pki-est-request", "true");
+
+           // Add custom header with EST client certificate if available
+           // This allows EST's CMCAuth to verify the CMC signer matches the EST client
+            if (authzData.clientCertChain != null && authzData.clientCertChain.length > 0) {
+                String estClientCertB64 = org.mozilla.jss.netscape.security.util.Utils.base64encodeSingleLine(
+                    authzData.clientCertChain[0].getEncoded());
+                httpPost.setHeader("pki-est-client-cert", estClientCertB64);
+                logger.debug("Added pki-est-client-cert header with EST client certificate");
+            }
+
+            // Execute the request using PKIClient's connection
+            org.apache.http.client.HttpClient httpClient = pkiClient.getConnection().getHttpClient();
+            org.apache.http.HttpResponse httpResp = httpClient.execute(httpPost);
+
+            // Check response status
+            int statusCode = httpResp.getStatusLine().getStatusCode();
+            logger.debug("CMC response status code: " + statusCode);
+
+            if (statusCode != 200) {
+                throw new PKIException("CMC request failed with status: " + statusCode);
+            }
+
+            // Read pki-cmc-status header for HTTP status mapping (RFC 7030/8951)
+            org.apache.http.Header cmcStatusHeader = httpResp.getFirstHeader("pki-cmc-status");
+            if (cmcStatusHeader != null) {
+                int status = Integer.parseInt(cmcStatusHeader.getValue());
+                cmcStatus.set(status);
+                logger.debug("pki-cmc-status header: " + status);
+            } else {
+                logger.warn("pki-cmc-status header not found in CA response");
+                cmcStatus.set(null);
+            }
+
+            // Read response body (CMC response)
+            org.apache.http.HttpEntity responseEntity = httpResp.getEntity();
+            byte[] cmcResponse = org.apache.http.util.EntityUtils.toByteArray(responseEntity);
+
+            logger.debug("Received CMC response, length: " + (cmcResponse != null ? cmcResponse.length : 0));
+
+            return cmcResponse;
+
+        } catch (PKIException e) {
+            throw e; // re-raise
+        } catch (Throwable e) {
+            // unexpected; wrap in PKIException, which will result in 500
+            throw new PKIException("Internal error in /fullcmc: " + e, e);
+        }
     }
 
     private X509CertImpl issueCertificate(Optional<String> label, PKCS10 pkcs10, ESTRequestAuthorizationData authzData)

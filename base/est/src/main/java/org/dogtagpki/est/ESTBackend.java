@@ -1,3 +1,8 @@
+//
+// Copyright Red Hat, Inc.
+//
+// SPDX-License-Identifier: GPL-2.0-or-later
+//
 package org.dogtagpki.est;
 
 import java.util.Optional;
@@ -12,6 +17,7 @@ import com.netscape.certsrv.base.PKIException;
  * The EST API backend interface.
  *
  * @author Fraser Tweedale
+ * @author cfu (added /fullcmc support)
  */
 public abstract class ESTBackend {
 
@@ -47,5 +53,27 @@ public abstract class ESTBackend {
      */
     public abstract X509CertImpl simplereenroll(Optional<String> label, PKCS10 csr, ESTRequestAuthorizationData authzData, Object authzResult)
         throws PKIException;
+
+    /**
+     * Full CMC (labeled CA).  RFC 7030 section 4.3.
+     *
+     * @param label Optional CA label (preliminary implementation ignores this; future consideration)
+     * @param cmcRequest The CMC request data (base64-encoded)
+     * @param authzData Authorization data from the request
+     * @param authzResult Result from the ESTRequestAuthorizer. May be null.
+     * @return CMC response data (binary). Will be base64-encoded by ESTServlet before sending to client.
+     */
+    public abstract byte[] fullcmc(Optional<String> label, byte[] cmcRequest, ESTRequestAuthorizationData authzData, Object authzResult)
+        throws PKIException;
+
+    /**
+     * Get the CMC status from the last fullcmc() call in this thread.
+     * This is used by ESTServlet to map CMC status to HTTP status codes per RFC 7030/8951.
+     *
+     * @return CMC status value (SUCCESS=0, FAILED=2, PENDING=3, etc.) or null if not available
+     */
+    public Integer getLastCMCStatus() {
+        return null;  // Default implementation returns null
+    }
 
 }

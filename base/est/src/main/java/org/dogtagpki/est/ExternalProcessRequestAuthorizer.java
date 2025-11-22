@@ -43,6 +43,7 @@ public class ExternalProcessRequestAuthorizer extends ESTRequestAuthorizer {
 
     static final String OPERATION_SIMPLEENROLL = "simpleenroll";
     static final String OPERATION_SIMPLEREENROLL = "simplereenroll";
+    static final String OPERATION_FULLCMC = "fullcmc";
 
     String executable;
     boolean enrollMatchSubjSAN = true;
@@ -96,6 +97,15 @@ public class ExternalProcessRequestAuthorizer extends ESTRequestAuthorizer {
         return check(OPERATION_SIMPLEREENROLL, data, csr, toBeRenewed);
     }
 
+    @Override
+    public Object authorizeFullCMC(
+        ESTRequestAuthorizationData data, byte[] cmcRequest)
+            throws PKIException {
+        // For now, delegate to external process similar to other operations
+        // The external process will receive the CMC request data for validation
+        return checkCMC(OPERATION_FULLCMC, data, cmcRequest);
+    }
+
 
     private String check(
             String op,
@@ -103,15 +113,28 @@ public class ExternalProcessRequestAuthorizer extends ESTRequestAuthorizer {
             PKCS10 csr,
             X509Certificate toBeRenewed)
             throws PKIException {
-        logger.debug("About to execute command: " + this.executable);
-        ProcessBuilder pb = new ProcessBuilder(this.executable);
-
         // prepare object to be serialised to stdin of external process
         Data data = new Data();
         data.operation = op;
         data.authzData = authzData;
         data.csr = csr;
         data.toBeRenewed = toBeRenewed;
+
+        return executeExternalAuthorizer(data);
+    }
+
+    /**
+     * Execute external authorizer process with the given data object.
+     * Common method used by both check() and checkCMC().
+     *
+     * @param data The data object to serialize to the external process stdin
+     * @return stdout from the external process
+     * @throws PKIException if authorization fails or times out
+     */
+    private String executeExternalAuthorizer(Object data) throws PKIException {
+        String method = "executeExternalAuthorizer: ";
+        logger.debug(method + "About to execute command: " + this.executable);
+        ProcessBuilder pb = new ProcessBuilder(this.executable);
         ObjectMapper mapper = new ObjectMapper();
 
         Process p;
@@ -134,19 +157,59 @@ public class ExternalProcessRequestAuthorizer extends ESTRequestAuthorizer {
             }
         } catch (Throwable e) {
             String msg = "Caught exception while executing command: " + this.executable;
-            logger.error(msg + ": " + e.getMessage(), e);
+            logger.error(method + msg + ": " + e.getMessage(), e);
             throw new ForbiddenException(msg, e);
         }
         if (timedOut)
             throw new PKIException("Request validation timed out");
         int exitValue = p.exitValue();
-        logger.debug("ExternalProcessRequestAuthorizer: exit value: " + exitValue);
-        logger.debug("ExternalProcessRequestAuthorizer: stdout: " + stdout);
-        logger.debug("ExternalProcessRequestAuthorizer: stderr: " + stderr);
+        logger.debug(method + "exit value: " + exitValue);
+        logger.debug(method + "stdout: " + stdout);
+        logger.debug(method + "stderr: " + stderr);
         if (exitValue != 0)
             throw new ForbiddenException(stdout);
 
         return stdout;
+    }
+
+    /**
+     * Invoke external authorization program for CMC requests (e.g., /fullcmc).
+     *
+     * This method passes the CMC request blob to the configured external authorizer
+     * program via JSON on stdin, similar to check() for simple enrollment.
+     *
+     * The JSON payload includes:
+     * - operation: "fullcmc"
+     * - authzData: Client authentication data (username, roles, client cert, etc.)
+     * - cmcRequest: Base64-encoded CMC request blob
+     *
+     * By default, the external authorizer (/usr/share/pki/est/bin/estauthz) only
+     * checks if the authenticated user has the required role (e.g., "EST Users")
+     * and does NOT parse or validate the CMC request content itself. The CMC data
+     * is included to allow administrators to implement custom authorization logic
+     * if needed (e.g., validating CMC controls, checking request attributes, etc.).
+     *
+     * Note: The CA will perform additional authentication and authorization via
+     * auth module configured in the profile when processing the forwarded CMC request.
+     *
+     * @param op The EST operation name ("fullcmc")
+     * @param authzData The EST request authorization data
+     * @param cmcRequest The raw CMC request bytes
+     * @return stdout from the external authorizer program
+     * @throws PKIException if authorization fails or times out
+     */
+    private String checkCMC(
+            String op,
+            ESTRequestAuthorizationData authzData,
+            byte[] cmcRequest)
+            throws PKIException {
+        // prepare object to be serialised to stdin of external process
+        CMCData data = new CMCData();
+        data.operation = op;
+        data.authzData = authzData;
+        data.cmcRequest = cmcRequest;
+
+        return executeExternalAuthorizer(data);
     }
 
 
@@ -173,6 +236,24 @@ public class ExternalProcessRequestAuthorizer extends ESTRequestAuthorizer {
         String getToBeRenewed() throws CertificateEncodingException {
             if (null == toBeRenewed) return null;
             return Base64.encodeBase64String(toBeRenewed.getEncoded());
+        }
+
+    }
+
+    static class CMCData {
+
+        @JsonProperty("operation")
+        String operation;
+
+        @JsonProperty("authzData")
+        @JsonSerialize(using=ESTRequestAuthorizationDataSerializer.class)
+        ESTRequestAuthorizationData authzData;
+
+        byte[] cmcRequest;
+
+        @JsonProperty("cmcRequest")
+        String getCMCRequest() {
+            return Base64.encodeBase64String(cmcRequest);
         }
 
     }
