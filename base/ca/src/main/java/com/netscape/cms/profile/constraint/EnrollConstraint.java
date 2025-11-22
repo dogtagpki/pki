@@ -20,17 +20,26 @@ package com.netscape.cms.profile.constraint;
 import java.util.Enumeration;
 import java.util.Locale;
 
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
+import com.netscape.certsrv.usrgrp.Certificates;
+import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
+import com.netscape.cmscore.usrgrp.ExactMatchCertUserLocator;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
+import com.netscape.cmscore.usrgrp.User;
+
+import netscape.ldap.LDAPException;
 
 /**
  * This class implements the generic enrollment constraint.
@@ -187,5 +196,34 @@ public abstract class EnrollConstraint extends PolicyConstraint {
 
     protected int getConfigInt(String value) {
         return getInt(getConfig(value));
+    }
+
+    /**
+     * Check if a certificate belongs to a Certificate Manager Agent.
+     * This is used by RA-related constraints to determine authorization level.
+     *
+     * @param cert The certificate to check
+     * @return true if the certificate owner is a member of "Certificate Manager Agents" group
+     */
+    protected boolean isAgentCert(X509CertImpl cert) {
+        ExactMatchCertUserLocator mcu = new ExactMatchCertUserLocator();
+        CAEngine engine = CAEngine.getInstance();
+        mcu.setCMSEngine(engine);
+        X509CertImpl[] certList = new X509CertImpl[1];
+        certList[0] = cert;
+        Certificates ci = new Certificates(certList);
+        User user;
+        try {
+            user = mcu.locateUser(ci);
+        } catch (EUsrGrpException | LDAPException e) {
+            logger.debug("EnrollConstraint: isAgentCert - could not locate user", e);
+            return false;
+        }
+        UGSubsystem uggroup = engine.getUGSubsystem();
+        if (uggroup.isMemberOf(user, "Certificate Manager Agents")) {
+            logger.debug("EnrollConstraint: User {} is a Certificate Manager Agent", user.getUserID());
+            return true;
+        }
+        return false;
     }
 }
