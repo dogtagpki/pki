@@ -27,6 +27,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  * The EST authorization backend interface.
  *
  * @author Fraser Tweedale
+ * @author cfu (added /fullcmc authorization)
  */
 public abstract class ESTRequestAuthorizer {
 
@@ -62,6 +63,20 @@ public abstract class ESTRequestAuthorizer {
      */
     public abstract Object authorizeSimplereenroll(
         ESTRequestAuthorizationData data, PKCS10 csr, X509Certificate toBeRenewed)
+            throws PKIException;
+
+    /**
+     * Authorize a fullcmc request
+     *
+     * @param data Authorization data from the request
+     * @param cmcRequest The CMC request data
+     * @throws ForbiddenException on authorization failure
+     * @throws PKIException on error
+     * @return on success, an Object, which will be passed to the
+     *         issuance backend (null allowed)
+     */
+    public abstract Object authorizeFullCMC(
+        ESTRequestAuthorizationData data, byte[] cmcRequest)
             throws PKIException;
 
     /** Ensure subject info in CSR matches the certificate.
