@@ -409,9 +409,17 @@ class PKIServer(object):
 
         # add Tomcat's default policy
         filename = '/usr/share/tomcat/conf/catalina.policy'
+        new_filename = '/etc/tomcat/catalina.policy'
+
         logger.info('Appending %s', filename)
-        with open(filename, 'r', encoding='utf-8') as f:
-            content += f.read()
+
+        try:
+            with open(filename, 'r', encoding='utf-8') as f:
+                content += f.read()
+        except FileNotFoundError:
+            logger.info('Now trying %s', new_filename)
+            #with open(new_filename, 'r', encoding='utf-8') as f:
+            #    content += f.read()
 
         content += '\n\n'
 
