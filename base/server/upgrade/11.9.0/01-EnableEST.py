@@ -115,7 +115,7 @@ class EnableEST(pki.server.upgrade.PKIServerUpgradeScriptlet):
             subsystem.registry['constraintPolicy.ids'] = \
                 ','.join([policy_ids, 'raClientAuthSubjectNameConstraintImpl'])
             subsystem.registry['constraintPolicy.raClientAuthSubjectNameConstraintImpl.class'] = \
-                'com.netscape.cms.profile.constraint.RAClientAuthSubjectNameContraint'
+                'com.netscape.cms.profile.constraint.RAClientAuthSubjectNameConstraint'
             subsystem.registry['constraintPolicy.raClientAuthSubjectNameConstraintImpl.desc'] = \
                 'RA Client Subject Name Constraint'
             subsystem.registry['constraintPolicy.raClientAuthSubjectNameConstraintImpl.name'] = \
