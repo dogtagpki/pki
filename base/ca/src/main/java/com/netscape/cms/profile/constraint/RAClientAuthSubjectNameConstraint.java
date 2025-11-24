@@ -39,11 +39,11 @@ import netscape.ldap.LDAPException;
  * be used to limit the the new certificate subject name to the same used by the client for
  * authentication or to its name.
  */
-public class RAClientAuthSubjectNameContraint extends EnrollConstraint {
-    private static final Logger logger = LoggerFactory.getLogger(RAClientAuthSubjectNameContraint.class);
+public class RAClientAuthSubjectNameConstraint extends EnrollConstraint {
+    private static final Logger logger = LoggerFactory.getLogger(RAClientAuthSubjectNameConstraint.class);
     private static final String CONFIG_PATTERN = "pattern";
 
-    public RAClientAuthSubjectNameContraint() {
+    public RAClientAuthSubjectNameConstraint() {
         // configuration names
         addConfigName(CONFIG_PATTERN);
     }
@@ -59,12 +59,12 @@ public class RAClientAuthSubjectNameContraint extends EnrollConstraint {
     }
     @Override
     public void validate(Request request, X509CertInfo info) throws ERejectException {
-        logger.debug("RAClientSubjectNameContraint: validate start");
+        logger.debug("RAClientAuthSubjectNameConstraint: validate start");
         CertificateSubjectName sn = null;
 
         try {
             sn = info.getSubjectObj();
-            logger.debug("RAClientSubjectNameContraint: validate cert subject {}",
+            logger.debug("RAClientAuthSubjectNameConstraint: validate cert subject {}",
                          sn.toString());
         } catch (Exception e) {
             throw new ERejectException(
@@ -75,7 +75,7 @@ public class RAClientAuthSubjectNameContraint extends EnrollConstraint {
         String name = request.getExtDataInString(RAClientAuthInfoInput.NAME);
         String uid = request.getExtDataInString(RAClientAuthInfoInput.UID);
         String strCert = request.getExtDataInString(RAClientAuthInfoInput.CERT);
-        logger.debug("RAClientSubjectNameContraint: Client {} with cert {}", name, strCert);
+        logger.debug("RAClientAuthSubjectNameConstraint: Client {} with cert {}", name, strCert);
         if ((name == null || name.isBlank()) &&
                 (uid == null || uid.isBlank()) &&
                 (strCert == null || strCert.isBlank())) {
@@ -95,7 +95,7 @@ public class RAClientAuthSubjectNameContraint extends EnrollConstraint {
                             "CMS_PROFILE_SUBJECT_NAME_NOT_MATCHED") + e);
             }
             snClient = cert.getSubjectObj();
-            logger.debug("RAClientSubjectNameContraint: Client cert subject {}", snClient);
+            logger.debug("RAClientAuthSubjectNameConstraint: Client cert subject {}", snClient);
 
             if (isAgentCert(cert) || snClient.toString().equals(sn.toString()))
                 return;
