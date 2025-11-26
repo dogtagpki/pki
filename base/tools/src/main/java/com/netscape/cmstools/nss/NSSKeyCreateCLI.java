@@ -62,7 +62,7 @@ public class NSSKeyCreateCLI extends CommandCLI {
 
         super.createOptions();
 
-        Option option = new Option(null, "key-type", true, "Key type: RSA (default), EC, AES");
+        Option option = new Option(null, "key-type", true, "Key type: RSA (default), EC, MLDSA, AES");
         option.setArgName("type");
         options.addOption(option);
 
@@ -220,7 +220,7 @@ public class NSSKeyCreateCLI extends CommandCLI {
             keyInfo.setType(privateKey.getType().toString());
             keyInfo.setAlgorithm(privateKey.getAlgorithm());
 
-        } else if ("ML-DSA".equalsIgnoreCase(keyType)) {
+        } else if ("MLDSA".equalsIgnoreCase(keyType)) {
             if (keySize == null) keySize = "65";
 
             KeyPairGeneratorSpi.Usage[] usages = null;

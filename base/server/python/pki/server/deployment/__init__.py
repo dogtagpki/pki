@@ -630,7 +630,7 @@ class PKIDeployer:
             hash_alg = m.group(1)
 
         elif key_type == 'mldsa':
-            key_type = 'ML-DSA'
+            key_type = 'MLDSA'
             curve = None
             hash_alg = None
 
@@ -3112,7 +3112,7 @@ class PKIDeployer:
             ssl_ecdh = request.systemCert.sslECDH
 
         elif request.systemCert.keyType == 'MLDSA':
-            key_type = 'ML-DSA'
+            key_type = 'MLDSA'
             key_size = request.systemCert.keySize
         else:
             raise Exception('Unsupported key type: %s' % key_type)
