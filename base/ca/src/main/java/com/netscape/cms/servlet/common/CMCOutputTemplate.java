@@ -116,6 +116,21 @@ public class CMCOutputTemplate {
     public CMCOutputTemplate() {
     }
 
+    /**
+     * Check if the request is from EST by looking for the pki-est-request header.
+     * Only EST requests should get the pki-cmc-status response header.
+     *
+     * @return true if this is an EST request, false otherwise
+     */
+    private boolean isESTRequest() {
+        SessionContext context = SessionContext.getExistingContext();
+        if (context != null) {
+            Object estRequest = context.get("pki-est-request");
+            return "true".equals(estRequest);
+        }
+        return false;
+    }
+
     public void createFullResponseWithFailedStatus(HttpServletResponse resp,
             SEQUENCE bpids, int code, UTF8String s) {
         SEQUENCE controlSeq = new SEQUENCE();
@@ -148,6 +163,10 @@ public class CMCOutputTemplate {
 
             resp.setContentType("application/pkcs7-mime");
             resp.setContentLength(contentBytes.length);
+            // Add CMC status as HTTP header for EST (RFC 7030/8951 HTTP status mapping)
+            if (isESTRequest()) {
+                resp.setHeader("pki-cmc-status", String.valueOf(CMCStatusInfoV2.FAILED));
+            }
             OutputStream os = resp.getOutputStream();
             os.write(contentBytes);
             os.flush();
@@ -169,6 +188,10 @@ public class CMCOutputTemplate {
         SEQUENCE cmsSeq = new SEQUENCE();
         SEQUENCE otherMsgSeq = new SEQUENCE();
         SessionContext context = SessionContext.getContext();
+
+        // Track overall CMC status for HTTP header (RFC 7030/8951 HTTP status mapping)
+        // Priority: FAILED > PENDING > POP_REQUIRED > CONFIRM_REQUIRED > SUCCESS
+        int overallStatus = CMCStatusInfoV2.SUCCESS;
 
         // set status info control for simple enrollment request
         // in rfc 2797: body list value is 1
@@ -239,6 +262,7 @@ public class CMCOutputTemplate {
 
             SEQUENCE decryptedPOPBpids = (SEQUENCE) context.get("decryptedPOP");
             if (decryptedPOPBpids != null && decryptedPOPBpids.size() > 0) {
+                overallStatus = CMCStatusInfoV2.FAILED;
                 OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL,
                         new INTEGER(OtherInfo.POP_FAILED), null, null);
                 cmcStatusInfoV2 = new CMCStatusInfoV2(CMCStatusInfoV2.FAILED,
@@ -251,6 +275,7 @@ public class CMCOutputTemplate {
 
             SEQUENCE identificationBpids = (SEQUENCE) context.get("identification");
             if (identificationBpids != null && identificationBpids.size() > 0) {
+                overallStatus = CMCStatusInfoV2.FAILED;
                 OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL,
                         new INTEGER(OtherInfo.BAD_IDENTITY), null, null);
                 cmcStatusInfoV2 = new CMCStatusInfoV2(CMCStatusInfoV2.FAILED,
@@ -263,6 +288,7 @@ public class CMCOutputTemplate {
 
             SEQUENCE identityV2Bpids = (SEQUENCE) context.get("identityProofV2");
             if (identityV2Bpids != null && identityV2Bpids.size() > 0) {
+                overallStatus = CMCStatusInfoV2.FAILED;
                 OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL,
                         new INTEGER(OtherInfo.BAD_IDENTITY), null, null);
                 cmcStatusInfoV2 = new CMCStatusInfoV2(CMCStatusInfoV2.FAILED,
@@ -276,6 +302,7 @@ public class CMCOutputTemplate {
 
             SEQUENCE identityBpids = (SEQUENCE) context.get("identityProof");
             if (identityBpids != null && identityBpids.size() > 0) {
+                overallStatus = CMCStatusInfoV2.FAILED;
                 OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL,
                         new INTEGER(OtherInfo.BAD_IDENTITY), null, null);
                 cmcStatusInfoV2 = new CMCStatusInfoV2(CMCStatusInfoV2.FAILED,
@@ -288,6 +315,7 @@ public class CMCOutputTemplate {
 
             SEQUENCE POPLinkWitnessV2Bpids = (SEQUENCE) context.get("POPLinkWitnessV2");
             if (POPLinkWitnessV2Bpids != null && POPLinkWitnessV2Bpids.size() > 0) {
+                overallStatus = CMCStatusInfoV2.FAILED;
                 OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL,
                         new INTEGER(OtherInfo.BAD_REQUEST), null, null);
                 cmcStatusInfoV2 = new CMCStatusInfoV2(CMCStatusInfoV2.FAILED,
@@ -300,6 +328,7 @@ public class CMCOutputTemplate {
 
             SEQUENCE POPLinkWitnessBpids = (SEQUENCE) context.get("POPLinkWitness");
             if (POPLinkWitnessBpids != null && POPLinkWitnessBpids.size() > 0) {
+                overallStatus = CMCStatusInfoV2.FAILED;
                 OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL,
                         new INTEGER(OtherInfo.BAD_REQUEST), null, null);
                 cmcStatusInfoV2 = new CMCStatusInfoV2(CMCStatusInfoV2.FAILED,
@@ -311,6 +340,11 @@ public class CMCOutputTemplate {
             }
 
             if (popRequired_bpids.size() > 0) {
+                // Update overall status only if not already FAILED
+                if (overallStatus != CMCStatusInfoV2.FAILED) {
+                    overallStatus = CMCStatusInfoV2.POP_REQUIRED;
+                }
+
                 // handle encryptedPOP control
 
                 if (encPop != null) {
@@ -343,6 +377,12 @@ public class CMCOutputTemplate {
             }
 
             if (pending_bpids.size() > 0) {
+                // Update overall status only if not already FAILED or POP_REQUIRED
+                if (overallStatus != CMCStatusInfoV2.FAILED &&
+                    overallStatus != CMCStatusInfoV2.POP_REQUIRED) {
+                    overallStatus = CMCStatusInfoV2.PENDING;
+                }
+
                 String reqId = reqs[0].getRequestId().toString();
                 PendInfo pendInfo = new PendInfo(reqId, new Date());
                 OtherInfo otherInfo = new OtherInfo(OtherInfo.PEND, null,
@@ -369,11 +409,18 @@ public class CMCOutputTemplate {
 
                 logger.debug("CMCOutputTemplate: confirm required: " + confirmRequired);
                 if (confirmRequired) {
+                    // Update overall status only if not already FAILED, POP_REQUIRED, or PENDING
+                    if (overallStatus != CMCStatusInfoV2.FAILED &&
+                        overallStatus != CMCStatusInfoV2.POP_REQUIRED &&
+                        overallStatus != CMCStatusInfoV2.PENDING) {
+                        overallStatus = CMCStatusInfoV2.CONFIRM_REQUIRED;
+                    }
                     logger.debug(method + " confirmRequired in the request");
                     cmcStatusInfoV2 =
                             new CMCStatusInfoV2(CMCStatusInfoV2.CONFIRM_REQUIRED,
                                     success_bpids, (String) null, null);
                 } else {
+                    // overallStatus remains SUCCESS (initialized value) if no other status set
                     cmcStatusInfoV2 = new CMCStatusInfoV2(CMCStatusInfoV2.SUCCESS,
                             success_bpids, (String) null, null);
                 }
@@ -384,6 +431,7 @@ public class CMCOutputTemplate {
             }
 
             if (failed_bpids.size() > 0) {
+                overallStatus = CMCStatusInfoV2.FAILED;
                 OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL,
                         new INTEGER(OtherInfo.BAD_REQUEST), null, null);
                 cmcStatusInfoV2 = new CMCStatusInfoV2(CMCStatusInfoV2.FAILED,
@@ -483,6 +531,16 @@ public class CMCOutputTemplate {
 
             resp.setContentType("application/pkcs7-mime");
             resp.setContentLength(contentBytes.length);
+            // Add CMC status as HTTP header for EST (RFC 7030/8951 HTTP status mapping)
+            // CMC status values: SUCCESS=0, FAILED=2, PENDING=3, NO_SUPPORT=4,
+            //                    CONFIRM_REQUIRED=5, POP_REQUIRED=6, PARTIAL=7
+            // EST will map these to HTTP status codes (preliminary implementation):
+            //   SUCCESS -> HTTP 200 OK
+            //   FAILED -> HTTP 400 Bad Request
+            //   NO_SUPPORT/PENDING/CONFIRM_REQUIRED/POP_REQUIRED/PARTIAL -> HTTP 501 Not Implemented
+            if (isESTRequest()) {
+                resp.setHeader("pki-cmc-status", String.valueOf(overallStatus));
+            }
             OutputStream os = resp.getOutputStream();
             os.write(contentBytes);
             os.flush();
@@ -725,6 +783,10 @@ public class CMCOutputTemplate {
 
             resp.setContentType("application/pkcs7-mime");
             resp.setContentLength(contentBytes.length);
+            // Simple response (certs-only) implies SUCCESS
+            if (isESTRequest()) {
+                resp.setHeader("pki-cmc-status", String.valueOf(CMCStatusInfoV2.SUCCESS));
+            }
             OutputStream os = resp.getOutputStream();
             os.write(contentBytes);
             os.flush();

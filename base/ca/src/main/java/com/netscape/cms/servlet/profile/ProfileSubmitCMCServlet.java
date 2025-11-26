@@ -163,6 +163,25 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
         CMSEngine engine = getCMSEngine();
         Auditor auditor = engine.getAuditor();
 
+        // For EST-forwarded CMC requests, capture EST headers and store in session context
+        String estRequestHeader = request.getHeader("pki-est-request");
+        if (estRequestHeader != null && !estRequestHeader.isEmpty()) {
+            logger.debug(method + "Found pki-est-request header, this is an EST request");
+            SessionContext sc = SessionContext.getExistingContext();
+            if (sc != null) {
+                sc.put("pki-est-request", estRequestHeader);
+            }
+        }
+
+        String estClientCertHeader = request.getHeader("pki-est-client-cert");
+        if (estClientCertHeader != null && !estClientCertHeader.isEmpty()) {
+            logger.debug(method + "Found pki-est-client-cert header, storing in session context");
+            SessionContext sc = SessionContext.getExistingContext();
+            if (sc != null) {
+                sc.put("pki-est-client-cert", estClientCertHeader);
+            }
+        }
+
         AuthCredentials credentials = new AuthCredentials();
 
         // build credential
@@ -273,6 +292,20 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
         HttpServletRequest request = cmsReq.getHttpReq();
         HttpServletResponse response = cmsReq.getHttpResp();
 
+        // For EST-forwarded CMC requests, capture EST headers and store in session context
+        // Do this early so it's available for all error responses
+        String estRequestHeader = request.getHeader("pki-est-request");
+        if (estRequestHeader != null && !estRequestHeader.isEmpty()) {
+            SessionContext sc = SessionContext.getContext();
+            sc.put("pki-est-request", estRequestHeader);
+        }
+
+        String estClientCertHeader = request.getHeader("pki-est-client-cert");
+        if (estClientCertHeader != null && !estClientCertHeader.isEmpty()) {
+            SessionContext sc = SessionContext.getContext();
+            sc.put("pki-est-client-cert", estClientCertHeader);
+        }
+
         Locale locale = getLocale(request);
         String cert_request_type = servletConfig.getInitParameter("cert_request_type");
         String outputFormat = servletConfig.getInitParameter("outputFormat");
@@ -368,6 +401,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                     profileId + " " + e.getMessage(), e);
         }
         if (profile == null) {
+            logger.warn("ProfileSubmitCMCServlet: profile not found profileId " + profileId);
             CMCOutputTemplate template = new CMCOutputTemplate();
             SEQUENCE seq = new SEQUENCE();
             seq.addElement(new INTEGER(0));
@@ -471,12 +505,12 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                     logger.warn("ProfileSubmitCMCServlet authorization failure: " + e.getMessage(), e);
                 }
 
-                // CMCAuth should pair with additional authz check as it counts
-                // as pre-approved
+                // CMCAuth should pair with additional authz check as it counts as pre-approved.
+                // CMCAuthForEST uses constraint-based authorization instead (see RAHeaderClientCertSubjectNameConstraint).
                 String authMgrID = authenticator.getName();
                 if (authMgrID.equals("CMCAuth")) {
                     authzToken = null; // reset authzToken
-                    logger.debug("ProfileSubmitCMCServlet CMCAuth requires additional authz check");
+                    logger.debug("ProfileSubmitCMCServlet " + authMgrID + " requires additional authz check");
                     try {
                         authzToken = authorize(mAclMethod, authToken,
                                 "certServer.ca.certrequests", "execute");
@@ -1095,8 +1129,30 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                         return;
                     }
                 }
-                template.createFullResponse(response, reqs, cert_request_type,
-                        error_codes);
+
+                // Check if simple response is allowed for successful enrollments
+                // Per RFC 5272, Simple PKI Response can be used "if the enrollment
+                // was successful and only certificates are returned"
+                boolean simpleResponseOnSuccess = engine.getConfig().getBoolean("cmc.response.useSimpleOnSuccess", false);
+
+                // Check if all requests succeeded (error_codes all 0)
+                boolean allSuccess = true;
+                if (error_codes != null) {
+                    for (int i = 0; i < error_codes.length; i++) {
+                        if (error_codes[i] != 0) {
+                            allSuccess = false;
+                            break;
+                        }
+                    }
+                }
+
+                if (simpleResponseOnSuccess && allSuccess) {
+                    logger.debug("ProfileSubmitCMCServlet: Using Simple PKI Response for successful enrollment (cmc.response.useSimpleOnSuccess=true)");
+                    template.createSimpleResponse(response, reqs);
+                } else {
+                    template.createFullResponse(response, reqs, cert_request_type,
+                            error_codes);
+                }
             }
 
         } catch (Exception e) {

@@ -41,6 +41,7 @@ import com.netscape.certsrv.base.WebAction;
  *
  * @author Fraser Tweedale
  * @author Marco Fargetta {@literal <mfargett@redhat.com>}
+ * @author cfu (added /fullcmc support)
  */
 @WebServlet(
         name = "estServlet",
@@ -104,6 +105,52 @@ public class ESTServlet extends org.dogtagpki.server.rest.v2.PKIServlet {
         out.write(certs);
     }
 
+    @WebAction(method = HttpMethod.POST, paths = {"fullcmc", "{}/fullcmc"})
+    public void fullcmc(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        String[] pathElement = request.getPathInfo().substring(1).split("/");
+        Optional<String> aid = pathElement.length == 2 ? Optional.of(pathElement[0]) : Optional.empty();
+        logger.debug("ESTFrontend.fullcmc: processing request (label: {})", aid.orElse("None"));
+
+        // RFC 7030 section 4.3.1:
+        //   full cmc request Content-Type should be application/pkcs7-mime
+        //   with smime-type=CMC-request
+        String contentType = request.getContentType();
+        if (contentType == null) {
+            throw new UnsupportedMediaType("Content-Type header is required");
+        }
+        String contentTypeLower = contentType.toLowerCase();
+        if (!contentTypeLower.startsWith(MimeType.APPLICATION_PKCS7)) {
+            throw new UnsupportedMediaType("Unsupported Content-Type: " + request.getContentType());
+        }
+        // RFC 7030 Section 4.3.1 requires smime-type=CMC-request
+        if (!contentTypeLower.contains("smime-type=cmc-request")) {
+            throw new UnsupportedMediaType("Missing required smime-type=CMC-request parameter in Content-Type: " + request.getContentType());
+        }
+
+        ESTRequestAuthorizationData authzData = makeAuthzData(aid, request);
+        InputStream is = request.getInputStream();
+        byte[] data = is.readAllBytes();
+        byte[] cmcResponse = fullcmc(aid, authzData, data);
+
+        // Map CMC status to HTTP status code (RFC 7030/8951)
+        Integer cmcStatus = getBackend().getLastCMCStatus();
+        if (cmcStatus == null) {
+            throw new PKIException("CMC status not available from backend - this is a bug");
+        }
+        int httpStatus = mapCMCStatusToHTTP(cmcStatus);
+        response.setStatus(httpStatus);
+        logger.debug("ESTServlet.fullcmc: CMC status {} mapped to HTTP {}", cmcStatus, httpStatus);
+
+        // RFC 8951 section 3.2.3:
+        //   Response body is base64 encoding of the PKI Response
+        // RFC 7030 section 4.3.2:
+        //   Response Content-Type is application/pkcs7-mime
+        //   with smime-type=CMC-response
+        response.setContentType(MimeType.APPLICATION_PKCS7 + "; smime-type=CMC-response");
+        OutputStream out = response.getOutputStream();
+        out.write(Base64.encodeBase64(cmcResponse, true /* wrap output */));
+    }
+
     private byte[] enroll(Optional<String> label, ESTRequestAuthorizationData authzData, byte[] data) throws PKIException {
         PKCS10 csr = parseCSR(data);
 
@@ -131,6 +178,14 @@ public class ESTServlet extends org.dogtagpki.server.rest.v2.PKIServlet {
 
         X509Certificate cert = getBackend().simplereenroll(label, csr, authzData,  authzResult);
         return certResponse(cert);
+    }
+
+    private byte[] fullcmc(Optional<String> label, ESTRequestAuthorizationData authzData, byte[] data) throws PKIException {
+        // For now, authorization is handled similarly to simpleenroll
+        // TODO: implement proper CMC-specific authorization if needed
+        Object authzResult = getRequestAuthorizer().authorizeFullCMC(authzData, data);
+
+        return getBackend().fullcmc(label, data, authzData, authzResult);
     }
 
     private ESTRequestAuthorizationData makeAuthzData(Optional<String> label, HttpServletRequest servletRequest) {
@@ -225,5 +280,55 @@ public class ESTServlet extends org.dogtagpki.server.rest.v2.PKIServlet {
     // shorthand convenience method
     private ESTRequestAuthorizer getRequestAuthorizer() {
         return ESTEngine.getInstance().getRequestAuthorizer();
+    }
+
+    /**
+     * Map CMC status to HTTP status code per RFC 7030/8951.
+     *
+     * CMC status values from RFC 5272:
+     *   SUCCESS (0) - request was granted
+     *   FAILED (2) - request was not granted
+     *   PENDING (3) - request is being processed, poll back later
+     *   NO_SUPPORT (4) - requested operation not supported
+     *   CONFIRM_REQUIRED (5) - confirmation required before cert can be used
+     *   POP_REQUIRED (6) - proof-of-possession required
+     *   PARTIAL (7) - partial response, poll for unfulfilled portions
+     *
+     * @param cmcStatus CMC status value from CMCStatusInfoV2
+     * @return HTTP status code
+     */
+    private int mapCMCStatusToHTTP(int cmcStatus) {
+        // Simplified mapping for preliminary /fullcmc implementation.
+        // This implementation focuses on agent-signed CMC requests which typically
+        // complete immediately. RFC 5273 states "Servers MUST use the 200 response code
+        // for successful responses" but doesn't define what to use for non-successful responses.
+        switch (cmcStatus) {
+            case 0: // SUCCESS
+                // RFC 5273: "Servers MUST use the 200 response code for successful responses"
+                return HttpServletResponse.SC_OK; // 200
+
+            case 2: // FAILED
+                // RFC 7030: "the server MUST specify either an HTTP 4xx error or
+                // an HTTP 5xx error"
+                return HttpServletResponse.SC_BAD_REQUEST; // 400
+
+            case 4: // NO_SUPPORT
+                // RFC 7030: "A client interprets an HTTP 404 or 501 response to
+                // indicate that this service is not implemented"
+                return HttpServletResponse.SC_NOT_IMPLEMENTED; // 501
+
+            case 3: // PENDING
+            case 5: // CONFIRM_REQUIRED
+            case 6: // POP_REQUIRED
+            case 7: // PARTIAL
+                // These workflows are not yet implemented in this preliminary version.
+                // Return 501 to clearly indicate lack of support.
+                return HttpServletResponse.SC_NOT_IMPLEMENTED; // 501
+
+            default:
+                // Unknown CMC status - treat as server error
+                logger.error("ESTServlet: Unknown CMC status: {}", cmcStatus);
+                return HttpServletResponse.SC_INTERNAL_SERVER_ERROR; // 500
+        }
     }
 }
