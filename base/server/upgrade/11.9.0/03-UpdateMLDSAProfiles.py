@@ -40,17 +40,21 @@ class UpdateMLDSAProfiles(pki.server.upgrade.PKIServerUpgradeScriptlet):
         # If the signature algorithms have been modified in the instance
         # the new algorithms are not included
         new_signing_algs = {'ML-DSA-87', 'ML-DSA-44', 'ML-DSA-65'}
-        for profile in profile_list:
-            file_name = '{}.cfg'.format(profile)
+
+        path_instance = os.path.join(subsystem.base_dir, 'profiles', 'ca')
+        for file_name in os.listdir(path_instance):
+            if file_name[-4:] != '.cfg':
+                continue
+            if not os.path.exists('/usr/share/pki/ca/profiles/ca/{}'.format(file_name)):
+                continue
+
             new_profile = {}
             instance_profile = {}
             pki.util.load_properties(
                 '/usr/share/pki/ca/profiles/ca/{}'.format(file_name),
                 new_profile)
-            path = os.path.join(subsystem.base_dir, 'profiles', 'ca', file_name)
-            if not os.path.exists(path):
-                continue
 
+            path = os.path.join(path_instance, file_name)
             pki.util.load_properties(
                 path,
                 instance_profile)
