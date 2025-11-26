@@ -33,6 +33,7 @@ public class CommandCLI extends CLI {
         super(name, description, parent);
     }
 
+    @Override
     public void createOptions() {
         options.addOption("v", "verbose", false, "Run in verbose mode.");
         options.addOption(null, "debug", false, "Run in debug mode.");

@@ -27,7 +27,6 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.net.InetAddress;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collection;
@@ -123,8 +122,6 @@ public class MainCLI extends CLI {
         addModule(new PKCS7CLI(this));
         addModule(new PKCS11CLI(this));
         addModule(new PKCS12CLI(this));
-
-        createOptions();
     }
 
     @Override
@@ -165,7 +162,8 @@ public class MainCLI extends CLI {
         super.printHelp();
     }
 
-    public void createOptions() throws UnknownHostException {
+    @Override
+    public void createOptions() throws Exception {
 
         Option option = new Option("U", true, "Server URL");
         option.setArgName("uri");
@@ -682,6 +680,8 @@ public class MainCLI extends CLI {
 
     @Override
     public void execute(String[] args) throws Exception {
+
+        createOptions();
 
         CommandLine cmd = parser.parse(options, args, true);
 

@@ -200,6 +200,9 @@ public class CLI {
         return null;
     }
 
+    public void createOptions() throws Exception {
+    }
+
     public void printVersion() {
     }
 

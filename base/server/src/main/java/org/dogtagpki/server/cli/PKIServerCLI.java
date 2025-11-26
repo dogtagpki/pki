@@ -44,8 +44,6 @@ public class PKIServerCLI extends CLI {
         addModule("tks", "org.dogtagpki.server.tks.cli.TKSCLI");
         addModule("tps", "org.dogtagpki.server.tps.cli.TPSCLI");
         addModule("acme", "org.dogtagpki.server.acme.cli.ACMECLI");
-
-        createOptions();
     }
 
     @Override
@@ -53,6 +51,7 @@ public class PKIServerCLI extends CLI {
         return moduleName;
     }
 
+    @Override
     public void createOptions() throws Exception {
 
         Option option = new Option("d", true, "NSS database location");
@@ -97,6 +96,8 @@ public class PKIServerCLI extends CLI {
 
     @Override
     public void execute(String[] args) throws Exception {
+
+        createOptions();
 
         CommandLine cmd = parser.parse(options, args, true);
 
