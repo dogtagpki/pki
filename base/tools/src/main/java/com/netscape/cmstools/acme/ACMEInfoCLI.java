@@ -12,8 +12,6 @@ import org.dogtagpki.acme.ACMEClient;
 import org.dogtagpki.acme.ACMEDirectory;
 import org.dogtagpki.acme.ACMEMetadata;
 import org.dogtagpki.cli.CommandCLI;
-import org.dogtagpki.util.logging.PKILogger;
-import org.dogtagpki.util.logging.PKILogger.LogLevel;
 
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.client.PKIClient;
@@ -37,13 +35,6 @@ public class ACMEInfoCLI extends CommandCLI {
 
     @Override
     public void execute(CommandLine cmd) throws Exception {
-
-        if (cmd.hasOption("debug")) {
-            PKILogger.setLevel(PKILogger.LogLevel.DEBUG);
-
-        } else if (cmd.hasOption("verbose")) {
-            PKILogger.setLevel(LogLevel.INFO);
-        }
 
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();

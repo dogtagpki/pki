@@ -41,22 +41,30 @@ public class CommandCLI extends CLI {
     }
 
     @Override
-    public void execute(String[] args) throws Exception {
+    public CommandLine parseOptions(String[] args) throws Exception {
 
-        createOptions();
-
-        CommandLine cmd = parser.parse(options, args);
-
-        if (cmd.hasOption("help")) {
-            printHelp();
-            return;
-        }
+        CommandLine cmd = super.parseOptions(args);
 
         if (cmd.hasOption("debug")) {
             PKILogger.setLevel(PKILogger.LogLevel.DEBUG);
 
         } else if (cmd.hasOption("verbose")) {
             PKILogger.setLevel(LogLevel.INFO);
+        }
+
+        return cmd;
+    }
+
+    @Override
+    public void execute(String[] args) throws Exception {
+
+        createOptions();
+
+        CommandLine cmd = parseOptions(args);
+
+        if (cmd.hasOption("help")) {
+            printHelp();
+            return;
         }
 
         execute(cmd);

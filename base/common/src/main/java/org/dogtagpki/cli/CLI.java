@@ -26,6 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -201,6 +202,10 @@ public class CLI {
     }
 
     public void createOptions() throws Exception {
+    }
+
+    public CommandLine parseOptions(String[] args) throws Exception {
+        return parser.parse(options, args);
     }
 
     public void printVersion() {

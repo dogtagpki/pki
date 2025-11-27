@@ -26,8 +26,6 @@ import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CLIException;
 import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.nss.NSSDatabase;
-import org.dogtagpki.util.logging.PKILogger;
-import org.dogtagpki.util.logging.PKILogger.LogLevel;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyPairGeneratorSpi;
@@ -107,13 +105,6 @@ public class NSSKeyCreateCLI extends CommandCLI {
 
     @Override
     public void execute(CommandLine cmd) throws Exception {
-
-        if (cmd.hasOption("debug")) {
-            PKILogger.setLevel(PKILogger.LogLevel.DEBUG);
-
-        } else if (cmd.hasOption("verbose")) {
-            PKILogger.setLevel(LogLevel.INFO);
-        }
 
         String[] cmdArgs = cmd.getArgs();
 

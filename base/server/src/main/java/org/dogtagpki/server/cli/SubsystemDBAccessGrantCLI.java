@@ -7,8 +7,6 @@ package org.dogtagpki.server.cli;
 
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CLI;
-import org.dogtagpki.util.logging.PKILogger;
-import org.dogtagpki.util.logging.PKILogger.LogLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,13 +36,6 @@ public class SubsystemDBAccessGrantCLI extends SubsystemCLI {
 
     @Override
     public void execute(CommandLine cmd) throws Exception {
-
-        if (cmd.hasOption("debug")) {
-            PKILogger.setLevel(LogLevel.DEBUG);
-
-        } else if (cmd.hasOption("verbose")) {
-            PKILogger.setLevel(LogLevel.INFO);
-        }
 
         String[] cmdArgs = cmd.getArgs();
 

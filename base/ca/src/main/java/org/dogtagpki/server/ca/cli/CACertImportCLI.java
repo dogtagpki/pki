@@ -18,8 +18,6 @@ import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.jss.tomcat.TomcatJSS;
 import org.dogtagpki.server.ca.CAEngineConfig;
-import org.dogtagpki.util.logging.PKILogger;
-import org.dogtagpki.util.logging.PKILogger.LogLevel;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.slf4j.Logger;
@@ -83,13 +81,6 @@ public class CACertImportCLI extends CommandCLI {
 
     @Override
     public void execute(CommandLine cmd) throws Exception {
-
-        if (cmd.hasOption("debug")) {
-            PKILogger.setLevel(PKILogger.LogLevel.DEBUG);
-
-        } else if (cmd.hasOption("verbose")) {
-            PKILogger.setLevel(LogLevel.INFO);
-        }
 
         if (!cmd.hasOption("cert")) {
             throw new Exception("Missing certificate");

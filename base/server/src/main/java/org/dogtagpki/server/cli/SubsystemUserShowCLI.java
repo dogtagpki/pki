@@ -11,8 +11,6 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.cli.CLI;
-import org.dogtagpki.util.logging.PKILogger;
-import org.dogtagpki.util.logging.PKILogger.LogLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,13 +55,6 @@ public class SubsystemUserShowCLI extends SubsystemCLI {
 
     @Override
     public void execute(CommandLine cmd) throws Exception {
-
-        if (cmd.hasOption("debug")) {
-            PKILogger.setLevel(PKILogger.LogLevel.DEBUG);
-
-        } else if (cmd.hasOption("verbose")) {
-            PKILogger.setLevel(LogLevel.INFO);
-        }
 
         String[] cmdArgs = cmd.getArgs();
 

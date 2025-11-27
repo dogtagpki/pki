@@ -11,8 +11,6 @@ import java.nio.file.Paths;
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CLIException;
-import org.dogtagpki.util.logging.PKILogger;
-import org.dogtagpki.util.logging.PKILogger.LogLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,13 +65,6 @@ public class SubsystemDBReplicationAgreementAddCLI extends SubsystemCLI {
         }
 
         String agreementName = cmdArgs[0];
-
-        if (cmd.hasOption("debug")) {
-            PKILogger.setLevel(LogLevel.DEBUG);
-
-        } else if (cmd.hasOption("verbose")) {
-            PKILogger.setLevel(LogLevel.INFO);
-        }
 
         String ldapConfigFile = cmd.getOptionValue("ldap-config");
 

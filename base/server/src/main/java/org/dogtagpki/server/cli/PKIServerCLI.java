@@ -68,6 +68,21 @@ public class PKIServerCLI extends CLI {
     }
 
     @Override
+    public CommandLine parseOptions(String[] args) throws Exception {
+
+        CommandLine cmd = parser.parse(options, args, true);
+
+        if (cmd.hasOption("debug")) {
+            PKILogger.setLevel(LogLevel.DEBUG);
+
+        } else if (cmd.hasOption("verbose")) {
+            PKILogger.setLevel(LogLevel.INFO);
+        }
+
+        return cmd;
+    }
+
+    @Override
     public void printHelp() throws Exception {
 
         formatter.printHelp(name + " [OPTIONS..] <command> [ARGS..]", options);
@@ -99,14 +114,7 @@ public class PKIServerCLI extends CLI {
 
         createOptions();
 
-        CommandLine cmd = parser.parse(options, args, true);
-
-        if (cmd.hasOption("debug")) {
-            PKILogger.setLevel(LogLevel.DEBUG);
-
-        } else if (cmd.hasOption("verbose")) {
-            PKILogger.setLevel(LogLevel.INFO);
-        }
+        CommandLine cmd = parseOptions(args);
 
         String[] cmdArgs = cmd.getArgs();
         logger.debug("Command: " + String.join(" ", cmdArgs));

@@ -9,7 +9,6 @@ import java.math.BigInteger;
 
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CLI;
-import org.dogtagpki.util.logging.PKILogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,13 +68,6 @@ public abstract class SubsystemIdGeneratorUpdateCLI extends SubsystemCLI {
         String newRangesName = generator == IDGenerator.LEGACY_2 ? "ranges_v2" : "ranges_new";
         if (cmd.hasOption("range")) {
             newRangesName = cmd.getOptionValue("range");
-        }
-
-        if (cmd.hasOption("debug")) {
-            PKILogger.setLevel(PKILogger.LogLevel.DEBUG);
-
-        } else if (cmd.hasOption("verbose")) {
-            PKILogger.setLevel(PKILogger.LogLevel.INFO);
         }
 
         String[] cmdArgs = cmd.getArgs();

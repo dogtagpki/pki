@@ -346,7 +346,10 @@ public class MainCLI extends CLI {
         return caClient;
     }
 
-    public void parseOptions(CommandLine cmd) throws Exception {
+    @Override
+    public CommandLine parseOptions(String[] args) throws Exception {
+
+        CommandLine cmd = parser.parse(options, args, true);
 
         if (cmd.hasOption("debug")) {
             PKILogger.setLevel(PKILogger.LogLevel.DEBUG);
@@ -485,6 +488,8 @@ public class MainCLI extends CLI {
 
         config.setCertRevocationVerify(!cmd.hasOption("skip-revocation-check"));
         optionsParsed = true;
+
+        return cmd;
     }
 
     public void convertCertStatusList(String list, Collection<Integer> statuses) throws Exception {
@@ -683,7 +688,7 @@ public class MainCLI extends CLI {
 
         createOptions();
 
-        CommandLine cmd = parser.parse(options, args, true);
+        CommandLine cmd = parseOptions(args);
 
         String[] cmdArgs = cmd.getArgs();
 
@@ -696,8 +701,6 @@ public class MainCLI extends CLI {
             printHelp();
             return;
         }
-
-        parseOptions(cmd);
 
         if (cmdArgs.length == 0) {
             // no args -> enter shell mode (with prompts)

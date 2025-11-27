@@ -8,8 +8,6 @@ package com.netscape.cmstools.acme;
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.acme.ACMEClient;
 import org.dogtagpki.cli.CommandCLI;
-import org.dogtagpki.util.logging.PKILogger;
-import org.dogtagpki.util.logging.PKILogger.LogLevel;
 
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.cmstools.cli.MainCLI;
@@ -32,13 +30,6 @@ public class ACMEEnableCLI extends CommandCLI {
 
     @Override
     public void execute(CommandLine cmd) throws Exception {
-
-        if (cmd.hasOption("debug")) {
-            PKILogger.setLevel(PKILogger.LogLevel.DEBUG);
-
-        } else if (cmd.hasOption("verbose")) {
-            PKILogger.setLevel(LogLevel.INFO);
-        }
 
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
