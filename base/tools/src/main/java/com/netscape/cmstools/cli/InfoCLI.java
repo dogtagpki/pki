@@ -38,7 +38,7 @@ public class InfoCLI extends CommandCLI {
         ClientConfig config = mainCLI.getConfig();
         System.out.println("  Server URL: " + config.getServerURL());
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = mainCLI.getPKIClient();
         Info info = client.getInfo();
         if (info == null) return;
 

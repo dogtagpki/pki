@@ -132,7 +132,7 @@ public class SecurityDomainJoinCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = mainCLI.getPKIClient();
         String response = client.post("ca/admin/ca/updateDomainXML", content, String.class);
 
         if (StringUtils.isEmpty(response)) {

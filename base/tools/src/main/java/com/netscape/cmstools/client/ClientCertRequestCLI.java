@@ -254,7 +254,7 @@ public class ClientCertRequestCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         NSSDatabase nssdb = mainCLI.getNSSDatabase();
         mainCLI.init();
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = mainCLI.getPKIClient();
 
         CryptoManager manager = CryptoManager.getInstance();
         CryptoToken token = manager.getThreadToken();

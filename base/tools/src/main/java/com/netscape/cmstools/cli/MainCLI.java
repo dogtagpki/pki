@@ -101,6 +101,8 @@ public class MainCLI extends CLI {
     boolean initialized;
     boolean optionsParsed;
 
+    public PKIClient client;
+
     public MainCLI() throws Exception {
         super("pki", "PKI command-line interface");
 
@@ -615,7 +617,7 @@ public class MainCLI extends CLI {
         return callback;
     }
 
-    public PKIClient getClient() throws Exception {
+    public PKIClient getPKIClient() throws Exception {
 
         if (client != null) return client;
 

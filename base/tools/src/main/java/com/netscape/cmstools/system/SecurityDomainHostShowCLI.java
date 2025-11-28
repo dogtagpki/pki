@@ -44,7 +44,7 @@ public class SecurityDomainHostShowCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = mainCLI.getPKIClient();
         SecurityDomainClient securityDomainClient = securityDomainHostCLI.getSecurityDomainClient(client);
         SecurityDomainHost host = securityDomainClient.getHost(hostID);
 

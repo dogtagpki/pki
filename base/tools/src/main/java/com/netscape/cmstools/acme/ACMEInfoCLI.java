@@ -39,7 +39,7 @@ public class ACMEInfoCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = mainCLI.getPKIClient();
         ACMEClient acmeClient = new ACMEClient(client);
 
         try {

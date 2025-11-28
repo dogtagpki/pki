@@ -38,7 +38,7 @@ public class SecurityDomainHostFindCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = mainCLI.getPKIClient();
         SecurityDomainClient securityDomainClient = securityDomainHostCLI.getSecurityDomainClient(client);
         Collection<SecurityDomainHost> hosts = securityDomainClient.getHosts();
         boolean first = true;

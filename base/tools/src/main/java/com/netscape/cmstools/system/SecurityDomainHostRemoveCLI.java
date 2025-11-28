@@ -43,7 +43,7 @@ public class SecurityDomainHostRemoveCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = mainCLI.getPKIClient();
         SecurityDomainClient securityDomainClient = securityDomainHostCLI.getSecurityDomainClient(client);
         securityDomainClient.removeHost(hostID);
     }

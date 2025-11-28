@@ -34,7 +34,6 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.lang3.StringUtils;
 
 import com.netscape.certsrv.client.ClientConfig;
-import com.netscape.certsrv.client.PKIClient;
 
 
 /**
@@ -55,8 +54,6 @@ public class CLI {
 
     public Options options = new Options();
     public Map<String, CLIModule> modules = new LinkedHashMap<>();
-
-    public PKIClient client;
 
     public CLI(String name, String description) {
         this(name, description, null);

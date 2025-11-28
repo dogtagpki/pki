@@ -41,7 +41,7 @@ public class SubsystemCommandCLI extends CommandCLI {
 
     public PKIClient getPKIClient() throws Exception {
         MainCLI mainCLI = (MainCLI) getRoot();
-        return mainCLI.getClient();
+        return mainCLI.getPKIClient();
     }
 
     public SubsystemClient getSubsystemClient(PKIClient client) throws Exception {
@@ -63,7 +63,7 @@ public class SubsystemCommandCLI extends CommandCLI {
         if (config.getUsername() != null || config.getCertNickname() != null) {
 
             // connect to the server
-            client = mainCLI.getClient();
+            client = mainCLI.getPKIClient();
 
             // connect to the subsystem
             subsystemClient = getSubsystemClient(client);
