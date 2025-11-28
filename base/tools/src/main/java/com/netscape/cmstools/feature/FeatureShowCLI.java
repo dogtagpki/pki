@@ -58,7 +58,7 @@ public class FeatureShowCLI extends SubsystemCommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = getPKIClient();
         SubsystemClient subsystemClient = getSubsystemClient(client);
         FeatureClient featureClient = new FeatureClient(subsystemClient);
         Feature data = featureClient.getFeature(featureID);

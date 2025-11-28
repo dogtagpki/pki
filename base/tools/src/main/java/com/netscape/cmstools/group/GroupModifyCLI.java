@@ -75,7 +75,7 @@ public class GroupModifyCLI extends SubsystemCommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = getPKIClient();
         SubsystemClient subsystemClient = getSubsystemClient(client);
         GroupClient groupClient = new GroupClient(subsystemClient);
         groupData = groupClient.modifyGroup(groupID, groupData);

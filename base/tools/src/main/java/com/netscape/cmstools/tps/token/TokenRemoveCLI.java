@@ -59,7 +59,7 @@ public class TokenRemoveCLI extends SubsystemCommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = getPKIClient();
         SubsystemClient subsystemClient = getSubsystemClient(client);
         TokenClient tokenClient = new TokenClient(subsystemClient);
         tokenClient.removeToken(tokenID);

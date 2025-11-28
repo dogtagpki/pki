@@ -59,7 +59,7 @@ public class AuthenticatorRemoveCLI extends SubsystemCommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = getPKIClient();
         SubsystemClient subsystemClient = getSubsystemClient(client);
         AuthenticatorClient authenticatorClient = new AuthenticatorClient(subsystemClient);
         authenticatorClient.removeAuthenticator(authenticatorID);

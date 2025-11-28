@@ -57,7 +57,7 @@ public class KRAKeyRequestShowCLI extends SubsystemCommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = getPKIClient();
         KeyClient keyClient = keyCLI.getKeyClient(client);
         KeyRequestInfo keyRequestInfo = keyClient.getRequestInfo(requestId);
 

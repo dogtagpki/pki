@@ -59,7 +59,7 @@ public class TKSKeyExportCLI extends SubsystemCommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = getPKIClient();
         SubsystemClient subsystemClient = getSubsystemClient(client);
         TPSConnectorClient tpsConnectorClient = new TPSConnectorClient(subsystemClient);
         KeyData keyData = tpsConnectorClient.getSharedSecret(keyID);

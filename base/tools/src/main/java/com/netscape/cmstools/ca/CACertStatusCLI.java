@@ -110,7 +110,7 @@ public class CACertStatusCLI extends SubsystemCommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = getPKIClient();
         CAClient caClient = new CAClient(client);
         CACertClient certClient = new CACertClient(caClient);
         AuthorityClient authorityClient = new AuthorityClient(caClient);

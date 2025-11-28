@@ -179,7 +179,7 @@ public class CACertRequestSubmitCLI extends SubsystemCommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = getPKIClient();
         CACertClient certClient = certRequestCLI.getCertClient(client);
 
         String requestType = cmd.getOptionValue("request-type");

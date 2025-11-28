@@ -122,7 +122,7 @@ public class CACertReleaseHoldCLI extends SubsystemCommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = getPKIClient();
         SubsystemClient subsystemClient = getSubsystemClient(client);
         CACertClient certClient = new CACertClient(subsystemClient);
 

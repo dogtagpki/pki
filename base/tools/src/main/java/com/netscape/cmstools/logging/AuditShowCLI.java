@@ -73,7 +73,7 @@ public class AuditShowCLI extends SubsystemCommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = getPKIClient();
         AuditClient auditClient = auditCLI.getAuditClient(client);
         AuditConfig auditConfig = auditClient.getAuditConfig();
 

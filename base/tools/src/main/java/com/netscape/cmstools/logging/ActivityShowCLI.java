@@ -60,7 +60,7 @@ public class ActivityShowCLI extends SubsystemCommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = getPKIClient();
         SubsystemClient subsystemClient = getSubsystemClient(client);
         ActivityClient activityClient = new ActivityClient(subsystemClient);
         ActivityData activityData = activityClient.getActivity(activityID);

@@ -47,7 +47,7 @@ public class JobShowCLI extends SubsystemCommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = getPKIClient();
         JobClient jobClient = jobCLI.getJobClient(client);
         JobInfo jobInfo = jobClient.getJob(id);
 

@@ -74,7 +74,7 @@ public class KRAKeyModifyCLI extends SubsystemCommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = getPKIClient();
         KeyClient keyClient = keyCLI.getKeyClient(client);
         keyClient.modifyKeyStatus(keyId, status);
 

@@ -51,7 +51,7 @@ public class KRACertTransportShowCLI extends SubsystemCommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = getPKIClient();
         KRASystemCertClient certClient = new KRASystemCertClient(client, "kra");
         CertData certData = certClient.getTransportCert();
 

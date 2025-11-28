@@ -99,7 +99,7 @@ public class CACertRequestReviewCLI extends SubsystemCommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = getPKIClient();
         CACertClient certClient = certRequestCLI.getCertClient(client);
 
         logger.info("Retrieving certificate request " + requestId.toHexString());

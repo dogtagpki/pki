@@ -33,7 +33,7 @@ public class CACRLUpdateCLI extends SubsystemCommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = getPKIClient();
         CAClient caClient = new CAClient(client);
         CACRLClient crlClient = new CACRLClient(caClient);
 

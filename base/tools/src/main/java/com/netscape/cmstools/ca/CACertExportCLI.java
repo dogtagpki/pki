@@ -80,7 +80,7 @@ public class CACertExportCLI extends SubsystemCommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = getPKIClient();
         SubsystemClient subsystemClient = getSubsystemClient(client);
         CACertClient certClient = new CACertClient(subsystemClient);
         CertData certData = certClient.getCert(certID);

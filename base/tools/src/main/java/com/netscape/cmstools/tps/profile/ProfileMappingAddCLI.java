@@ -95,7 +95,7 @@ public class ProfileMappingAddCLI extends SubsystemCommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = getPKIClient();
         SubsystemClient subsystemClient = getSubsystemClient(client);
         ProfileMappingClient profileMappingClient = new ProfileMappingClient(subsystemClient);
         profileMappingData = profileMappingClient.addProfileMapping(profileMappingData);

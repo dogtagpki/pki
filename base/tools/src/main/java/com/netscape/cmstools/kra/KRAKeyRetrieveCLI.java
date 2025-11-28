@@ -92,7 +92,7 @@ public class KRAKeyRetrieveCLI extends SubsystemCommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = getPKIClient();
 
         KeyData keyData = null;
         Key key = null;

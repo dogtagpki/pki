@@ -60,7 +60,7 @@ public class AuditFileFindCLI extends SubsystemCommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = getPKIClient();
         AuditClient auditClient = auditCLI.getAuditClient(client);
         AuditFileCollection response = auditClient.findAuditFiles();
 

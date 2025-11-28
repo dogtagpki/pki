@@ -41,7 +41,7 @@ public class JobFindCLI extends SubsystemCommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = getPKIClient();
         JobClient jobClient = jobCLI.getJobClient(client);
         JobCollection response = jobClient.findJobs();
 

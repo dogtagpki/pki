@@ -59,7 +59,7 @@ public class CACertRequestProfileShowCLI extends SubsystemCommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = getPKIClient();
         CACertClient certClient = certRequestCLI.getCertClient(client);
         CertEnrollmentRequest request = certClient.getEnrollmentTemplate(profileId);
 

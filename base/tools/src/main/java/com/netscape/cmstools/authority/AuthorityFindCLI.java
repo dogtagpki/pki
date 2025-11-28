@@ -59,7 +59,7 @@ public class AuthorityFindCLI extends SubsystemCommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = getPKIClient();
         SubsystemClient subsystemClient = getSubsystemClient(client);
         AuthorityClient authorityClient = new AuthorityClient(subsystemClient);
         Collection<AuthorityData> datas = authorityClient.findCAs(id, parentID, dn, issuerDN);

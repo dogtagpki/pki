@@ -101,7 +101,7 @@ public class ConfigModifyCLI extends SubsystemCommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = getPKIClient();
         ConfigClient configClient = configCLI.getConfigClient(client);
         configData = configClient.updateConfig(configData);
 

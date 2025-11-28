@@ -121,7 +121,7 @@ public class KRAKeyFindCLI extends SubsystemCommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = getPKIClient();
         KeyClient keyClient = keyCLI.getKeyClient(client);
         KeyInfoCollection keys = keyClient.listKeys(clientKeyID, status, maxResults, maxTime, start, size, realm, ownerName);
 

@@ -84,7 +84,7 @@ public class TPSConnectorShowCLI extends SubsystemCommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = getPKIClient();
         SubsystemClient subsystemClient = getSubsystemClient(client);
         TPSConnectorClient tpsConnectorClient = new TPSConnectorClient(subsystemClient);
         TPSConnectorData data = tpsConnectorClient.getConnector(tpsHost, tpsPort);

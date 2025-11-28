@@ -38,7 +38,7 @@ public class CACertSubsystemShowCLI extends SubsystemCommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = getPKIClient();
         CASystemCertClient certClient = new CASystemCertClient(client, "ca");
         CertData certData = certClient.getSubsystemCert();
 

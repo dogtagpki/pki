@@ -71,7 +71,7 @@ public class KRAConnectorRemoveCLI extends SubsystemCommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = getPKIClient();
         KRAConnectorClient kraConnectorClient = kraConnectorCLI.getKRAConnectorClient(client);
         kraConnectorClient.removeConnector(kraHost, kraPort);
 

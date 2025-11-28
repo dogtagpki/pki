@@ -56,7 +56,7 @@ public class TKSKeyCreateCLI extends SubsystemCommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = getPKIClient();
         SubsystemClient subsystemClient = getSubsystemClient(client);
         TPSConnectorClient tpsConnectorClient = new TPSConnectorClient(subsystemClient);
         KeyData keyData = tpsConnectorClient.createSharedSecret(keyID);

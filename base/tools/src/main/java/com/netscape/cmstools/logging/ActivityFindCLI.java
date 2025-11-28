@@ -79,7 +79,7 @@ public class ActivityFindCLI extends SubsystemCommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = getPKIClient();
         SubsystemClient subsystemClient = getSubsystemClient(client);
         ActivityClient activityClient = new ActivityClient(subsystemClient);
         ActivityCollection result = activityClient.findActivities(filter, start, size);

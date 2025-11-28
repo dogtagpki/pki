@@ -69,7 +69,7 @@ public class SelfTestRunCLI extends SubsystemCommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = getPKIClient();
         SubsystemClient subsystemClient = getSubsystemClient(client);
         SelfTestClient selfTestClient = new SelfTestClient(subsystemClient);
         SelfTestResults results;

@@ -56,8 +56,6 @@ public class PublisherOCSPAddCLI extends SubsystemCommandCLI {
     @Override
     public void execute(CommandLine cmd) throws Exception {
 
-        String[] cmdArgs = cmd.getArgs();
-
         String publisherURL = cmd.getOptionValue("url");
         if (publisherURL == null) {
             throw new Exception("Missing publisher URL");
@@ -88,9 +86,8 @@ public class PublisherOCSPAddCLI extends SubsystemCommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = getPKIClient();
         CAClient caClient = new CAClient(client);
-
         caClient.addOCSPPublisher(url, subsystemCert, sessionID);
     }
 }

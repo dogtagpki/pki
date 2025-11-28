@@ -78,7 +78,7 @@ public class AuditFileRetrieveCLI extends SubsystemCommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = getPKIClient();
         AuditClient auditClient = auditCLI.getAuditClient(client);
         InputStream is = auditClient.getAuditFile(filename);
         File outputFile = new File(output);

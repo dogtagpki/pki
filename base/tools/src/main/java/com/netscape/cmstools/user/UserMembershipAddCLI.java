@@ -61,7 +61,7 @@ public class UserMembershipAddCLI extends SubsystemCommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = getPKIClient();
         SubsystemClient subsystemClient = getSubsystemClient(client);
         UserClient userClient = new UserClient(subsystemClient);
         UserMembershipData userMembershipData = userClient.addUserMembership(userID, groupID);

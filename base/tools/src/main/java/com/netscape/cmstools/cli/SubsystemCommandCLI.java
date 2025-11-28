@@ -39,6 +39,11 @@ public class SubsystemCommandCLI extends CommandCLI {
         }
     }
 
+    public PKIClient getPKIClient() throws Exception {
+        MainCLI mainCLI = (MainCLI) getRoot();
+        return mainCLI.getClient();
+    }
+
     public SubsystemClient getSubsystemClient(PKIClient client) throws Exception {
         return subsystemCLI.getSubsystemClient(client);
     }

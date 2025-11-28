@@ -45,7 +45,7 @@ public class JobStartCLI extends SubsystemCommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getClient();
+        PKIClient client = getPKIClient();
         JobClient jobClient = jobCLI.getJobClient(client);
         jobClient.startJob(id);
     }
