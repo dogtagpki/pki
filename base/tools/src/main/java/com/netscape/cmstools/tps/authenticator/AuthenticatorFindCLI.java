@@ -80,7 +80,7 @@ public class AuthenticatorFindCLI extends SubsystemCommandCLI {
         mainCLI.init();
 
         PKIClient client = mainCLI.getClient();
-        SubsystemClient subsystemClient = subsystemCLI.getSubsystemClient(client);
+        SubsystemClient subsystemClient = getSubsystemClient(client);
         AuthenticatorClient authenticatorClient = new AuthenticatorClient(subsystemClient);
         AuthenticatorCollection result = authenticatorClient.findAuthenticators(filter, start, size);
 

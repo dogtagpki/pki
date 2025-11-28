@@ -96,7 +96,7 @@ public class TPSCertFindCLI extends SubsystemCommandCLI {
         mainCLI.init();
 
         PKIClient client = mainCLI.getClient();
-        SubsystemClient subsystemClient = subsystemCLI.getSubsystemClient(client);
+        SubsystemClient subsystemClient = getSubsystemClient(client);
         TPSCertClient certClient = new TPSCertClient(subsystemClient);
         TPSCertCollection result = certClient.findCerts(filter, tokenID, start, size);
 

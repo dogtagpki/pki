@@ -76,7 +76,7 @@ public class AuthorityCreateCLI extends SubsystemCommandCLI {
             null, dn, null, parentAIDString, null, null, true /* enabled */, desc, null);
 
         PKIClient client = mainCLI.getClient();
-        SubsystemClient subsystemClient = subsystemCLI.getSubsystemClient(client);
+        SubsystemClient subsystemClient = getSubsystemClient(client);
         AuthorityClient authorityClient = new AuthorityClient(subsystemClient);
         AuthorityData newData = authorityClient.createCA(data);
         AuthorityCLI.printAuthorityData(newData);

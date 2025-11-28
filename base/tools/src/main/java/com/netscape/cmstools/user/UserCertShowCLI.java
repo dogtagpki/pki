@@ -84,7 +84,7 @@ public class UserCertShowCLI extends SubsystemCommandCLI {
         mainCLI.init();
 
         PKIClient client = mainCLI.getClient();
-        SubsystemClient subsystemClient = subsystemCLI.getSubsystemClient(client);
+        SubsystemClient subsystemClient = getSubsystemClient(client);
         UserClient userClient = new UserClient(subsystemClient);
         UserCertData userCertData = userClient.getUserCert(userID, URLEncoder.encode(certID, "UTF-8"));
 

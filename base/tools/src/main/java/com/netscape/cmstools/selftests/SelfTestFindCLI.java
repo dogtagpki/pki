@@ -80,7 +80,7 @@ public class SelfTestFindCLI extends SubsystemCommandCLI {
         mainCLI.init();
 
         PKIClient client = mainCLI.getClient();
-        SubsystemClient subsystemClient = subsystemCLI.getSubsystemClient(client);
+        SubsystemClient subsystemClient = getSubsystemClient(client);
         SelfTestClient selfTestClient = new SelfTestClient(subsystemClient);
         SelfTestCollection result = selfTestClient.findSelfTests(filter, start, size);
 

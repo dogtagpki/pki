@@ -80,7 +80,7 @@ public class GroupFindCLI extends SubsystemCommandCLI {
         mainCLI.init();
 
         PKIClient client = mainCLI.getClient();
-        SubsystemClient subsystemClient = subsystemCLI.getSubsystemClient(client);
+        SubsystemClient subsystemClient = getSubsystemClient(client);
         GroupClient groupClient = new GroupClient(subsystemClient);
         GroupCollection response = groupClient.findGroups(filter, start, size);
 

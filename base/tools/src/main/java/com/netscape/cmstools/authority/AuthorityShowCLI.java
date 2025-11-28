@@ -66,7 +66,7 @@ public class AuthorityShowCLI extends SubsystemCommandCLI {
         mainCLI.init();
 
         PKIClient client = mainCLI.getClient();
-        SubsystemClient subsystemClient = subsystemCLI.getSubsystemClient(client);
+        SubsystemClient subsystemClient = getSubsystemClient(client);
         AuthorityClient authorityClient = new AuthorityClient(subsystemClient);
         AuthorityData data = authorityClient.getCA(caIDString);
         AuthorityCLI.printAuthorityData(data);

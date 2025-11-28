@@ -61,7 +61,7 @@ public class GroupMemberRemoveCLI extends SubsystemCommandCLI {
         mainCLI.init();
 
         PKIClient client = mainCLI.getClient();
-        SubsystemClient subsystemClient = subsystemCLI.getSubsystemClient(client);
+        SubsystemClient subsystemClient = getSubsystemClient(client);
         GroupClient groupClient = new GroupClient(subsystemClient);
         groupClient.removeGroupMember(groupID, memberID);
 

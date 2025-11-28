@@ -76,7 +76,7 @@ public class SelfTestShowCLI extends SubsystemCommandCLI {
         mainCLI.init();
 
         PKIClient client = mainCLI.getClient();
-        SubsystemClient subsystemClient = subsystemCLI.getSubsystemClient(client);
+        SubsystemClient subsystemClient = getSubsystemClient(client);
         SelfTestClient selfTestClient = new SelfTestClient(subsystemClient);
         SelfTestData selfTestInfo = selfTestClient.getSelfTest(selfTestID);
 

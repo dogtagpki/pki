@@ -228,7 +228,7 @@ public class CACertFindCLI extends SubsystemCommandCLI {
         mainCLI.init();
 
         PKIClient client = mainCLI.getClient();
-        SubsystemClient subsystemClient = subsystemCLI.getSubsystemClient(client);
+        SubsystemClient subsystemClient = getSubsystemClient(client);
         CACertClient certClient = new CACertClient(subsystemClient);
         CertDataInfos certs = certClient.findCerts(searchData, start, size);
 

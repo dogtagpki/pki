@@ -60,7 +60,7 @@ public class ConnectorRemoveCLI extends SubsystemCommandCLI {
         mainCLI.init();
 
         PKIClient client = mainCLI.getClient();
-        SubsystemClient subsystemClient = subsystemCLI.getSubsystemClient(client);
+        SubsystemClient subsystemClient = getSubsystemClient(client);
         ConnectorClient connectorClient = new ConnectorClient(subsystemClient);
         connectorClient.removeConnector(connectorID);
 

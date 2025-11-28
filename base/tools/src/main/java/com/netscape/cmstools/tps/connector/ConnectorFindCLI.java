@@ -80,7 +80,7 @@ public class ConnectorFindCLI extends SubsystemCommandCLI {
         mainCLI.init();
 
         PKIClient client = mainCLI.getClient();
-        SubsystemClient subsystemClient = subsystemCLI.getSubsystemClient(client);
+        SubsystemClient subsystemClient = getSubsystemClient(client);
         ConnectorClient connectorClient = new ConnectorClient(subsystemClient);
         ConnectorCollection result = connectorClient.findConnectors(filter, start, size);
 

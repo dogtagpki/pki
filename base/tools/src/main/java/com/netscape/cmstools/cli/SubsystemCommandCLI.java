@@ -39,6 +39,10 @@ public class SubsystemCommandCLI extends CommandCLI {
         }
     }
 
+    public SubsystemClient getSubsystemClient(PKIClient client) throws Exception {
+        return subsystemCLI.getSubsystemClient(client);
+    }
+
     @Override
     public void execute(String[] args) throws Exception {
 
@@ -57,7 +61,7 @@ public class SubsystemCommandCLI extends CommandCLI {
             client = mainCLI.getClient();
 
             // connect to the subsystem
-            subsystemClient = subsystemCLI.getSubsystemClient(client);
+            subsystemClient = getSubsystemClient(client);
 
             // authenticate against the subsystem
             accountClient = new AccountClient(subsystemClient);

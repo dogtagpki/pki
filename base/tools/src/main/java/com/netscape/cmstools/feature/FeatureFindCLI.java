@@ -49,7 +49,7 @@ public class FeatureFindCLI extends SubsystemCommandCLI {
         mainCLI.init();
 
         PKIClient client = mainCLI.getClient();
-        SubsystemClient subsystemClient = subsystemCLI.getSubsystemClient(client);
+        SubsystemClient subsystemClient = getSubsystemClient(client);
         FeatureClient featureClient = new FeatureClient(subsystemClient);
         Collection<Feature> features = featureClient.listFeatures();
 
