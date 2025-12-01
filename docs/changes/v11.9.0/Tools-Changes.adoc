@@ -51,4 +51,6 @@ The algorithm ML-DSA can be specified for the command:
 * `pki client-cert-request`: value **mldsa** for the option `--algorithm` and the option `--length` can be one of 44, 65 (default) or 87;
 * `pki nss-cert-request`: value **MLDSA** for the option `--key-type` and the option `--key-size` can be one of 44, 65 (default) or 87.
  
+== Add `pki --http-output` option ==
 
+The `pki --http-output` option has been added to replace the `--output` option.

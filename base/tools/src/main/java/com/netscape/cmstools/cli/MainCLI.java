@@ -91,12 +91,11 @@ public class MainCLI extends CLI {
     NSSDatabase nssdb;
     String apiVersion;
 
-    public Collection<Integer> rejectedCertStatuses = new HashSet<>();
-    public Collection<Integer> ignoredCertStatuses = new HashSet<>();
+    Collection<Integer> rejectedCertStatuses = new HashSet<>();
+    Collection<Integer> ignoredCertStatuses = new HashSet<>();
 
-    public boolean ignoreBanner;
-
-    String output;
+    boolean ignoreBanner;
+    String httpOutput;
 
     boolean initialized;
     boolean optionsParsed;
@@ -183,7 +182,7 @@ public class MainCLI extends CLI {
         option.setArgName("port");
         options.addOption(option);
 
-        option = new Option("t", true, "Subsystem type (deprecated)");
+        option = new Option("t", true, "DEPRECATED: Subsystem type");
         option.setArgName("type");
         options.addOption(option);
 
@@ -227,7 +226,11 @@ public class MainCLI extends CLI {
         option.setArgName("version");
         options.addOption(option);
 
-        option = new Option(null, "output", true, "Folder to store HTTP messages");
+        option = new Option(null, "http-output", true, "Folder to store HTTP messages");
+        option.setArgName("folder");
+        options.addOption(option);
+
+        option = new Option(null, "output", true, "DEPRECATED: Folder to store HTTP messages");
         option.setArgName("folder");
         options.addOption(option);
 
@@ -360,7 +363,12 @@ public class MainCLI extends CLI {
             PKILogger.setLevel(LogLevel.INFO);
         }
 
-        output = cmd.getOptionValue("output");
+        httpOutput = cmd.getOptionValue("output");
+        if (httpOutput == null) {
+            httpOutput = cmd.getOptionValue("http-output");
+        } else {
+            logger.warn("The --output option has been deprecated. Use --http-output instead.");
+        }
 
         String url = cmd.getOptionValue("U");
 
@@ -494,7 +502,7 @@ public class MainCLI extends CLI {
         return cmd;
     }
 
-    public void convertCertStatusList(String list, Collection<Integer> statuses) throws Exception {
+    public static void convertCertStatusList(String list, Collection<Integer> statuses) throws Exception {
 
         if (list == null) return;
 
@@ -617,23 +625,23 @@ public class MainCLI extends CLI {
         return callback;
     }
 
-    public PKIClient getPKIClient() throws Exception {
+    public static PKIClient createPKIClient(
+            ClientConfig config,
+            SSLCertificateApprovalCallback callback,
+            String apiVersion,
+            boolean ignoreBanner,
+            String httpOutput) throws Exception {
 
-        if (client != null) return client;
+        PKIClient newClient = new PKIClient(config, apiVersion, callback);
 
-        logger.info("Connecting to " + config.getServerURL());
-
-        SSLCertificateApprovalCallback callback = createCertApprovalCallback();
-        client = new PKIClient(config, apiVersion, callback);
-
-        if (output != null) {
-            File file = new File(output);
+        if (httpOutput != null) {
+            File file = new File(httpOutput);
             file.mkdirs();
-            client.setOutput(file);
+            newClient.setOutput(file);
         }
 
         try {
-            Info info = client.getInfo();
+            Info info = newClient.getInfo();
 
             logger.info("Server Name: " + info.getName());
             logger.info("Server Version: " + info.getVersion());
@@ -663,6 +671,18 @@ public class MainCLI extends CLI {
             }
             logger.warn("Unable to get server info: " + e.getMessage());
         }
+
+        return newClient;
+    }
+
+    public PKIClient getPKIClient() throws Exception {
+
+        if (client != null) return client;
+
+        logger.info("Connecting to " + config.getServerURL());
+
+        SSLCertificateApprovalCallback callback = createCertApprovalCallback();
+        client = createPKIClient(config, callback, apiVersion, ignoreBanner, httpOutput);
 
         return client;
     }

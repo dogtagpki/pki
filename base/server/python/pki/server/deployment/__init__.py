@@ -3736,8 +3736,8 @@ class PKIDeployer:
                 'pki',
                 '-d', self.instance.nssdb_dir,
                 '-f', self.instance.password_conf,
+                'ca-cert-issue',
                 '-U', url,
-                '--skip-revocation-check'
             ]
 
             if credentials:
@@ -3754,8 +3754,8 @@ class PKIDeployer:
                     cmd.extend(['-w', password])
 
             cmd.extend([
+                '--skip-revocation-check',
                 '--ignore-banner',
-                'ca-cert-issue',
                 '--request-type', request_type,
                 '--csr-file', request_file,
                 '--profile', profile
@@ -4394,14 +4394,14 @@ class PKIDeployer:
                 'pki',
                 '-d', self.instance.nssdb_dir,
                 '-f', self.instance.password_conf,
-                '-U', subsystem_url,
-                '--ignore-banner',
-                '--skip-revocation-check',
                 '%s-user-add' % subsystem_type,
-                uid,
+                '-U', subsystem_url,
+                '--skip-revocation-check',
+                '--ignore-banner',
                 '--security-domain', sd_url,
                 '--install-token', install_token,
-                '--fullName', full_name
+                '--fullName', full_name,
+                uid
             ]
 
             if cert:
@@ -4428,11 +4428,11 @@ class PKIDeployer:
             'pki',
             '-d', self.instance.nssdb_dir,
             '-f', self.instance.password_conf,
+            'ca-cert-signing-export',
             '-U', ca_url,
+            '--skip-revocation-check',
             '--ignore-cert-status', 'UNTRUSTED_ISSUER,UNKNOWN_ISSUER',
             '--ignore-banner',
-            '--skip-revocation-check',
-            'ca-cert-signing-export',
             '--pkcs7'
         ]
 
@@ -4453,10 +4453,10 @@ class PKIDeployer:
             'pki',
             '-d', self.instance.nssdb_dir,
             '-f', self.instance.password_conf,
+            'ca-cert-subsystem-export',
             '-U', ca_url,
-            '--ignore-banner',
             '--skip-revocation-check',
-            'ca-cert-subsystem-export'
+            '--ignore-banner'
         ]
 
         if logger.isEnabledFor(logging.DEBUG):
@@ -4499,10 +4499,10 @@ class PKIDeployer:
                 'pki',
                 '-d', self.instance.nssdb_dir,
                 '-f', self.instance.password_conf,
-                '-U', ca_url,
-                '--ignore-banner',
-                '--skip-revocation-check',
                 'ca-kraconnector-add',
+                '-U', ca_url,
+                '--skip-revocation-check',
+                '--ignore-banner',
                 '--url', kra_url,
                 '--subsystem-cert', subsystem_cert_file,
                 '--transport-cert', transport_cert_file,
@@ -4546,9 +4546,9 @@ class PKIDeployer:
                 'pki',
                 '-d', self.instance.nssdb_dir,
                 '-f', self.instance.password_conf,
+                'ca-publisher-ocsp-add',
                 '-U', ca_url,
                 '--ignore-banner',
-                'ca-publisher-ocsp-add',
                 '--url', ocsp_url,
                 '--subsystem-cert', subsystem_cert_file,
                 '--install-token', install_token
@@ -4574,10 +4574,10 @@ class PKIDeployer:
             'pki',
             '-d', self.instance.nssdb_dir,
             '-f', self.instance.password_conf,
+            'kra-cert-transport-export',
             '-U', kra_url,
-            '--ignore-banner',
             '--skip-revocation-check',
-            'kra-cert-transport-export'
+            '--ignore-banner'
         ]
 
         if logger.isEnabledFor(logging.DEBUG):
@@ -4614,10 +4614,10 @@ class PKIDeployer:
                 'pki',
                 '-d', self.instance.nssdb_dir,
                 '-f', self.instance.password_conf,
-                '-U', tks_url,
-                '--ignore-banner',
-                '--skip-revocation-check',
                 'tks-cert-transport-import',
+                '-U', tks_url,
+                '--skip-revocation-check',
+                '--ignore-banner',
                 '--security-domain', sd_url,
                 '--install-token', install_token,
                 nickname
@@ -4659,13 +4659,13 @@ class PKIDeployer:
 
         cmd = [
             'pki',
-            '-U', tks_uri,
             '-d', self.instance.nssdb_dir,
             '-f', self.instance.password_conf,
-            '-n', nickname,
-            '--ignore-banner',
-            '--skip-revocation-check',
             'tks-tpsconnector-show',
+            '-U', tks_uri,
+            '-n', nickname,
+            '--skip-revocation-check',
+            '--ignore-banner',
             '--host', self.mdict['pki_hostname'],
             '--port', https_port
         ]
@@ -4694,13 +4694,13 @@ class PKIDeployer:
 
         cmd = [
             'pki',
-            '-U', tks_uri,
             '-d', self.instance.nssdb_dir,
             '-f', self.instance.password_conf,
-            '-n', nickname,
-            '--ignore-banner',
-            '--skip-revocation-check',
             'tks-tpsconnector-add',
+            '-U', tks_uri,
+            '-n', nickname,
+            '--skip-revocation-check',
+            '--ignore-banner',
             '--host', self.mdict['pki_hostname'],
             '--port', https_port,
             '--output-format', 'json'
@@ -4727,13 +4727,14 @@ class PKIDeployer:
 
         cmd = [
             'pki',
-            '-U', tks_uri,
             '-d', self.instance.nssdb_dir,
             '-f', self.instance.password_conf,
+            'tks-key-export',
+            '-U', tks_uri,
             '-n', nickname,
-            '--ignore-banner',
             '--skip-revocation-check',
-            'tks-key-export', tps_connector_id
+            '--ignore-banner',
+            tps_connector_id
         ]
 
         logger.debug('Command: %s', ' '.join(cmd))
@@ -4757,14 +4758,15 @@ class PKIDeployer:
 
         cmd = [
             'pki',
-            '-U', tks_uri,
             '-d', self.instance.nssdb_dir,
             '-f', self.instance.password_conf,
+            'tks-key-create',
+            '-U', tks_uri,
             '-n', nickname,
-            '--ignore-banner',
             '--skip-revocation-check',
-            'tks-key-create', tps_connector_id,
-            '--output-format', 'json'
+            '--ignore-banner',
+            '--output-format', 'json',
+            tps_connector_id
         ]
 
         logger.debug('Command: %s', ' '.join(cmd))
@@ -4788,14 +4790,15 @@ class PKIDeployer:
 
         cmd = [
             'pki',
-            '-U', tks_uri,
             '-d', self.instance.nssdb_dir,
             '-f', self.instance.password_conf,
             '-n', nickname,
-            '--ignore-banner',
+            'tks-key-replace',
+            '-U', tks_uri,
             '--skip-revocation-check',
-            'tks-key-replace', tps_connector_id,
-            '--output-format', 'json'
+            '--ignore-banner',
+            '--output-format', 'json',
+            tps_connector_id
         ]
 
         logger.debug('Command: %s', ' '.join(cmd))

@@ -812,10 +812,10 @@ class KRAConnector:
                     'pki',
                     '-d', instance.nssdb_dir,
                     '-f', instance.password_conf,
+                    'ca-kraconnector-del',
                     '-U', ca_url,
                     '-n', subsystemnick,
                     '--ignore-banner',
-                    'ca-kraconnector-del',
                     '--host', krahost,
                     '--port', str(kraport)
                 ]
@@ -901,13 +901,13 @@ class TPSConnector:
         try:
             cmd = [
                 'pki',
-                '-U', tks_url,
-                '-n', subsystemnick,
                 '-d', instance.nssdb_dir,
                 '-f', instance.password_conf,
-                '--ignore-banner',
-                '--skip-revocation-check',
                 'tks-tpsconnector-del',
+                '-U', tks_url,
+                '-n', subsystemnick,
+                '--skip-revocation-check',
+                '--ignore-banner',
                 '--host', tpshost,
                 '--port', str(tpsport)
             ]
