@@ -18,6 +18,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/ca-ecc-test.yml
 
+  ca-mldsa-test:
+    name: CA with ML-DSA-44
+    needs: build
+    uses: ./.github/workflows/ca-mldsa-test.yml
+
   ca-rsa-test:
     name: CA with RSA
     needs: build
