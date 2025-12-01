@@ -1513,13 +1513,13 @@ class PKISubsystem(object):
                 'pki',
                 '-d', self.instance.nssdb_dir,
                 '-f', self.instance.password_conf,
-                '-U', master_url,
-                '--ignore-banner',
-                '--skip-revocation-check',
                 '%s-range-request' % self.name,
-                range_type,
+                '-U', master_url,
+                '--skip-revocation-check',
+                '--ignore-banner',
                 '--install-token', install_token,
-                '--output-format', 'json'
+                '--output-format', 'json',
+                range_type
             ]
 
             if logger.isEnabledFor(logging.DEBUG):
@@ -1623,10 +1623,10 @@ class PKISubsystem(object):
                 'pki',
                 '-d', self.instance.nssdb_dir,
                 '-f', self.instance.password_conf,
-                '-U', master_url,
-                '--ignore-banner',
-                '--skip-revocation-check',
                 '%s-config-export' % self.name,
+                '-U', master_url,
+                '--skip-revocation-check',
+                '--ignore-banner',
                 '--names', ','.join(names),
                 '--substores', ','.join(substores),
                 '--install-token', install_token,
