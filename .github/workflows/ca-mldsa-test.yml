@@ -1,0 +1,330 @@
+name: CA with ML-DSA
+
+on: workflow_call
+
+env:
+  DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
+
+jobs:
+  # docs/installation/ca/installing_ca_with_mldsa.md
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Retrieve PKI images
+        uses: actions/cache@v4
+        with:
+          key: pki-images-${{ github.sha }}
+          path: pki-images.tar
+
+      - name: Load PKI images
+        run: docker load --input pki-images.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-create.sh \
+              --image=${{ env.DS_IMAGE }} \
+              --hostname=ds.example.com \
+              --password=Secret.123 \
+              ds
+
+      - name: Connect DS container to network
+        run: docker network connect example ds --alias ds.example.com
+
+      - name: Set up PKI container
+        run: |
+          tests/bin/runner-init.sh pki
+        env:
+          HOSTNAME: pki.example.com
+
+      - name: Connect PKI container to network
+        run: docker network connect example pki --alias pki.example.com
+
+      - name: Enable ML-DSA-44 in default crypto-policies
+        # ML-DSA algorithms for nss are enabled as default in rawhide (Fedora 44)
+        run: |
+          docker exec pki sed -i 's/smime-key-exchange:ECDSA/smime-key-exchange:ML-DSA-44:ECDSA/' \
+              /etc/crypto-policies/back-ends/nss.config
+
+      - name: Install CA
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca-mldsa.cfg \
+              -s CA \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_enable_access_log=False \
+              -v
+
+      - name: Check system cert keys
+        run: |
+          # all keys should be "mldsa"
+          echo Secret.123 > password.txt
+          docker exec pki certutil -K -d /var/lib/pki/pki-tomcat/conf/alias -f ${SHARED}/password.txt | tee output
+          echo "mldsa" > expected
+
+          grep ca_signing output | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > actual
+          diff expected actual
+
+          grep ca_ocsp_signing output | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > actual
+          diff expected actual
+
+          grep ca_audit_signing output | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > actual
+          diff expected actual
+
+          grep subsystem output | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > actual
+          diff expected actual
+
+          grep sslserver output | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > actual
+          diff expected actual
+
+      - name: Check CA signing cert
+        run: |
+          # inspect cert with certutil
+          docker exec pki certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -f ${SHARED}/password.txt -n ca_signing | tee output
+
+          # signing algorithm should be "ML-DSA-44"
+          echo "ML-DSA-44" > expected
+          sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
+          diff expected actual
+
+          # inspect cert with openssl
+          docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
+          docker exec pki openssl x509 -text -noout -in ca_signing.crt | tee output
+
+          # signing algorithm should be "ML-DSA-44"
+          echo "ML-DSA-44" > expected
+          sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
+          diff expected actual
+
+          # default signing algorithm should be "ML-DSA-44"
+          echo "ML-DSA-44" > expected
+          docker exec pki pki-server ca-config-show ca.signing.defaultSigningAlgorithm | tee actual
+          diff expected actual
+
+      - name: Check CA OCSP signing cert
+        run: |
+          # inspect cert with certutil
+          docker exec pki certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -f ${SHARED}/password.txt -n ca_ocsp_signing | tee output
+
+          # signing algorithm should be "ML-DSA-44"
+          echo "ML-DSA-44" > expected
+          sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
+          diff expected actual
+
+          # inspect cert with openssl
+          docker exec pki pki-server cert-export ca_ocsp_signing --cert-file ca_ocsp_signing.crt
+          docker exec pki openssl x509 -text -noout -in ca_ocsp_signing.crt | tee output
+
+          # signing algorithm should be "ML-DSA-44"
+          echo "ML-DSA-44" > expected
+          sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
+          diff expected actual
+
+          # default signing algorithm should be "ML-DSA-44"
+          echo "ML-DSA-44" > expected
+          docker exec pki pki-server ca-config-show ca.ocsp_signing.defaultSigningAlgorithm | tee actual
+          diff expected actual
+
+      - name: Check CA audit signing cert
+        run: |
+          # inspect cert with certutil
+          docker exec pki certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -f ${SHARED}/password.txt -n ca_audit_signing | tee output
+
+          # signing algorithm should be "ML-DSA-44"
+          echo "ML-DSA-44" > expected
+          sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
+          diff expected actual
+
+          # inspect cert with openssl
+          docker exec pki pki-server cert-export ca_audit_signing --cert-file ca_audit_signing.crt
+          docker exec pki openssl x509 -text -noout -in ca_audit_signing.crt | tee output
+
+          # signing algorithm should be "ML-DSA-44"
+          echo "ML-DSA-44" > expected
+          sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
+          diff expected actual
+
+          # default signing algorithm should be "ML-DSA-44"
+          echo "ML-DSA-44" > expected
+          docker exec pki pki-server ca-config-show ca.audit_signing.defaultSigningAlgorithm | tee actual
+          diff expected actual
+
+      - name: Check subsystem cert
+        run: |
+          # inspect cert with certutil
+          docker exec pki certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -f ${SHARED}/password.txt -n subsystem | tee output
+
+          # signing algorithm should be "ML-DSA-44"
+          echo "ML-DSA-44" > expected
+          sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
+          diff expected actual
+
+          # inspect cert with openssl
+          docker exec pki pki-server cert-export subsystem --cert-file subsystem.crt
+          docker exec pki openssl x509 -text -noout -in subsystem.crt | tee output
+
+          # signing algorithm should be "ML-DSA-44"
+          echo "ML-DSA-44" > expected
+          sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
+          diff expected actual
+
+          # default signing algorithm should not exist
+          echo "ERROR: No such parameter: ca.subsystem.defaultSigningAlgorithm" > expected
+          docker exec pki pki-server ca-config-show ca.subsystem.defaultSigningAlgorithm \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+          diff expected stderr
+
+      - name: Check SSL server cert
+        run: |
+          # inspect cert with certutil
+          docker exec pki certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -f ${SHARED}/password.txt -n sslserver | tee output
+
+          # signing algorithm should be "ML-DSA-44"
+          echo "ML-DSA-44" > expected
+          sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
+          diff expected actual
+
+          # inspect cert with openssl
+          docker exec pki pki-server cert-export sslserver --cert-file sslserver.crt
+          docker exec pki openssl x509 -text -noout -in sslserver.crt | tee output
+
+          # signing algorithm should be "ML-DSA-44"
+          echo "ML-DSA-44" > expected
+          sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
+          diff expected actual
+
+          # default signing algorithm should not exist
+          echo "ERROR: No such parameter: ca.sslserver.defaultSigningAlgorithm" > expected
+          docker exec pki pki-server ca-config-show ca.sslserver.defaultSigningAlgorithm \
+              > >(tee stdout) 2> >(tee stderr >&2) || true
+          diff expected stderr
+
+      - name: Run PKI healthcheck
+        run: docker exec pki pki-healthcheck --failures-only
+
+      - name: Check authenticating as CA admin user
+        run: |
+          docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
+
+          docker exec pki pki nss-cert-import \
+              --cert ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
+          docker exec pki pki pkcs12-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password Secret.123
+          docker exec pki pki -n caadmin ca-user-show caadmin
+
+      - name: Check CA admin cert
+        run: |
+          # inspect cert with certutil
+          docker exec pki certutil -L -d /root/.dogtag/nssdb -n caadmin | tee output
+
+          # signing algorithm should be "ML-DSA-44"
+          echo "ML-DSA-44" > expected
+          sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
+          diff expected actual
+
+          # inspect cert with openssl
+          docker exec pki openssl x509 -text -noout -in /root/.dogtag/pki-tomcat/ca_admin.cert | tee output
+
+          # signing algorithm should be "ML-DSA-44"
+          echo "ML-DSA-44" > expected
+          sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
+          diff expected actual
+
+      - name: Check issuing SSL server cert with RSA key
+        run: |
+          # issue cert
+          docker exec pki /usr/share/pki/tests/ca/bin/sslserver-create.sh
+
+          # inspect cert with certutil
+          docker exec pki certutil -L -d /root/.dogtag/nssdb -n sslserver | tee output
+
+          # key type should be "PKCS #1 RSA Encryption"
+          echo "PKCS #1 RSA Encryption" > expected
+          sed -n -e "s/\s*$//" -e "s/^\s*Public Key Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
+          diff expected actual
+
+          # signing algorithm should be "ML-DSA-44"
+          echo "ML-DSA-44" > expected
+          sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
+          diff expected actual
+
+          # inspect cert with openssl
+          docker exec pki openssl x509 -text -noout -in sslserver.crt | tee output
+
+          # signing algorithm should be "ML-DSA-44"
+          echo "ML-DSA-44" > expected
+          sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
+          diff expected actual
+
+      - name: Check issuing SSL server cert with ML-DSA-44 key
+        run: |
+          docker exec pki certutil -F -d /root/.dogtag/nssdb -n sslserver
+
+          # issue cert
+          docker exec pki pki nss-cert-request \
+                  --subject "CN=pki.example.com" \
+                  --ext /usr/share/pki/server/certs/sslserver.conf \
+                  --csr sslserver_mldsa.csr \
+                  --key-type MLDSA --key-size 44
+
+          docker exec pki  pki -n caadmin ca-cert-issue \
+                  --profile caMLDSAServerCert \
+                  --csr-file sslserver_mldsa.csr \
+                  --output-file sslserver_mldsa.crt
+
+          docker exec pki pki nss-cert-import sslserver --cert sslserver_mldsa.crt
+
+          echo "ML-DSA-44" > expected
+
+          # inspect cert with certutil
+          docker exec pki certutil -L -d /root/.dogtag/nssdb -n sslserver | tee output
+
+          # key type should be "ML-DSA-44"
+          sed -n -e "s/\s*$//" -e "s/^\s*Public Key Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
+          diff expected actual
+          
+          # signing algorithm should be "ML-DSA-44"
+          sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
+          diff expected actual
+
+          # inspect cert with openssl
+          docker exec pki openssl x509 -text -noout -in sslserver_mldsa.crt | tee output
+
+          # signing algorithm should be "ML-DSA-44"
+          sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
+          diff expected actual
+
+      - name: Remove CA
+        run: docker exec pki pkidestroy -s CA -v
+
+      - name: Check DS server systemd journal
+        if: always()
+        run: |
+          docker exec ds journalctl -x --no-pager -u dirsrv@localhost.service
+
+      - name: Check DS container logs
+        if: always()
+        run: |
+          docker logs ds
+
+      - name: Check PKI server systemd journal
+        if: always()
+        run: |
+          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check CA debug log
+        if: always()
+        run: |
+          docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
