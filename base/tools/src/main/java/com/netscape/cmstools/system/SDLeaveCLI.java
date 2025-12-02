@@ -15,24 +15,22 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.dogtagpki.cli.CLIException;
-import org.dogtagpki.cli.CommandCLI;
 
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.cmstools.cli.SubsystemCommandCLI;
 import com.netscape.cmsutil.xml.XMLObject;
 
 /**
  * @author Endi S. Dewata
- * @deprecated Replaced by SDLeaveCLI.
  */
-@Deprecated
-public class SecurityDomainLeaveCLI extends CommandCLI {
+public class SDLeaveCLI extends SubsystemCommandCLI {
 
-    SecurityDomainCLI securityDomainCLI;
+    public SDCLI sdCLI;
 
-    public SecurityDomainLeaveCLI(SecurityDomainCLI securityDomainCLI) {
-        super("leave", "Leave security domain", securityDomainCLI);
-        this.securityDomainCLI = securityDomainCLI;
+    public SDLeaveCLI(SDCLI sdCLI) {
+        super("leave", "Leave security domain", sdCLI);
+        this.sdCLI = sdCLI;
     }
 
     @Override
@@ -60,8 +58,6 @@ public class SecurityDomainLeaveCLI extends CommandCLI {
 
     @Override
     public void execute(CommandLine cmd) throws Exception {
-
-        logger.warn("The pki " + getFullName() + " has been deprecated. Use pki ca-sd-leave instead.");
 
         String[] cmdArgs = cmd.getArgs();
 
@@ -93,7 +89,7 @@ public class SecurityDomainLeaveCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getPKIClient();
+        PKIClient client = getPKIClient();
         String response = client.post("ca/agent/ca/updateDomainXML", content, String.class);
 
         if (StringUtils.isEmpty(response)) {

@@ -54,3 +54,8 @@ The algorithm ML-DSA can be specified for the command:
 == Add `pki --http-output` option ==
 
 The `pki --http-output` option has been added to replace the `--output` option.
+
+== Add `pki ca-sd-join/leave` commands ==
+
+The `pki ca-sd-join/leave` commands hav been added to replace
+the `pki securitydomain-join/leave` commands.
