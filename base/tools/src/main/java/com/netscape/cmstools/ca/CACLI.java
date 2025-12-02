@@ -33,6 +33,7 @@ import com.netscape.cmstools.profile.ProfileCLI;
 import com.netscape.cmstools.range.RangeCLI;
 import com.netscape.cmstools.selftests.SelfTestCLI;
 import com.netscape.cmstools.system.KRAConnectorCLI;
+import com.netscape.cmstools.system.SDCLI;
 import com.netscape.cmstools.user.UserCLI;
 
 /**
@@ -57,6 +58,7 @@ public class CACLI extends SubsystemCLI {
         addModule(new PublisherCLI(this));
         addModule(new JobCLI(this));
         addModule(new RangeCLI(this));
+        addModule(new SDCLI(this));
         addModule(new SelfTestCLI(this));
         addModule(new UserCLI(this));
     }

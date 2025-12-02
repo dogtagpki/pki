@@ -16,24 +16,20 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
-import org.dogtagpki.cli.CommandCLI;
+import org.dogtagpki.cli.CLIException;
 
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.cmstools.cli.SubsystemCommandCLI;
 import com.netscape.cmsutil.xml.XMLObject;
 
 /**
  * @author Endi S. Dewata
- * @deprecated Replaced by SDJoinCLI.
  */
-@Deprecated
-public class SecurityDomainJoinCLI extends CommandCLI {
+public class SDJoinCLI extends SubsystemCommandCLI {
 
-    public SecurityDomainCLI securityDomainCLI;
-
-    public SecurityDomainJoinCLI(SecurityDomainCLI securityDomainCLI) {
-        super("join", "Join security domain", securityDomainCLI);
-        this.securityDomainCLI = securityDomainCLI;
+    public SDJoinCLI(SDCLI sdCLI) {
+        super("join", "Join security domain", sdCLI);
     }
 
     @Override
@@ -77,12 +73,10 @@ public class SecurityDomainJoinCLI extends CommandCLI {
     @Override
     public void execute(CommandLine cmd) throws Exception {
 
-        logger.warn("The pki " + getFullName() + " has been deprecated. Use pki ca-sd-join instead.");
-
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length < 1) {
-            throw new Exception("Missing host ID");
+            throw new CLIException("Missing host ID");
         }
 
         String hostID = cmdArgs[0];
@@ -97,17 +91,17 @@ public class SecurityDomainJoinCLI extends CommandCLI {
         }
 
         if (sessionID == null) {
-            throw new Exception("Missing session ID or install token");
+            throw new CLIException("Missing session ID or install token");
         }
 
         String type = cmd.getOptionValue("type");
         if (type == null) {
-            throw new Exception("Missing subsystem type");
+            throw new CLIException("Missing subsystem type");
         }
 
         String hostname = cmd.getOptionValue("hostname");
         if (hostname == null) {
-            throw new Exception("Missing hostname");
+            throw new CLIException("Missing hostname");
         }
 
         String unsecurePort = cmd.getOptionValue("unsecure-port");
@@ -136,12 +130,12 @@ public class SecurityDomainJoinCLI extends CommandCLI {
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
-        PKIClient client = mainCLI.getPKIClient();
+        PKIClient client = getPKIClient();
         String response = client.post("ca/admin/ca/updateDomainXML", content, String.class);
 
         if (StringUtils.isEmpty(response)) {
             logger.error("Missing response");
-            throw new Exception("Missing response");
+            throw new CLIException("Missing response");
         }
 
         ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
@@ -155,10 +149,10 @@ public class SecurityDomainJoinCLI extends CommandCLI {
         }
 
         if (status.equals("1")) {
-            throw new Exception("Authentication failure");
+            throw new CLIException("Authentication failure");
         }
 
         String error = obj.getValue("Error");
-        throw new Exception(error);
+        throw new CLIException(error);
     }
 }
