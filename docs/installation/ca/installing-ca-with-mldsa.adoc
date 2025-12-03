@@ -9,7 +9,7 @@ Supported ML-DSA strength:
 
 * 44
 * 65
-* 86
+* 87
 
 Supported ML-DSA key algorithms:
 
