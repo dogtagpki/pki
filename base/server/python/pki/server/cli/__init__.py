@@ -20,7 +20,10 @@
 
 import argparse
 import logging
+import os
+import re
 import socket
+import subprocess
 import sys
 
 import pki.cli
@@ -53,6 +56,18 @@ import pki.server.cli.webapp
 import pki.util
 
 logger = logging.getLogger(__name__)
+
+
+JAVA_COMMANDS = [
+    r'[^-]*-db-create$',
+    r'[^-]*-db-init$',
+    r'[^-]*-db-empty$',
+    r'[^-]*-db-remove$',
+    r'[^-]*-db-index-add$',
+    r'[^-]*-db-index-rebuild$',
+    r'[^-]*-db-access-grant$',
+    r'[^-]*-db-access-revoke$'
+]
 
 
 class PKIServerCLI(pki.cli.CLI):
@@ -105,6 +120,9 @@ class PKIServerCLI(pki.cli.CLI):
             prog=self.name,
             add_help=False)
         self.parser.add_argument(
+            '-i',
+            '--instance')
+        self.parser.add_argument(
             '-v',
             '--verbose',
             action='store_true')
@@ -131,6 +149,7 @@ class PKIServerCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server [OPTIONS]')
         print()
+        print('  -i, --instance <instance ID>   Instance ID (default: pki-tomcat)')
         print('  -v, --verbose                  Run in verbose mode.')
         print('      --debug                    Show debug messages.')
         print('      --help                     Show help message.')
@@ -141,6 +160,77 @@ class PKIServerCLI(pki.cli.CLI):
 
     def print_version(self):
         print('PKI Server Command-Line Interface %s' % pki.implementation_version())
+
+    def is_java_command(self, command):
+        for pattern in JAVA_COMMANDS:
+            if re.match(pattern, command):
+                return True
+        return False
+
+    def execute_java(self, instance_name, command, args):
+
+        instance = pki.server.PKIServerFactory.create(instance_name)
+        instance.load()
+
+        cmd = []
+
+        java_home = os.getenv('JAVA_HOME')
+        cmd.extend([java_home + '/bin/java'])
+
+        # include Tomcat and all PKI libraries
+        classpath = [
+            pki.server.Tomcat.LIB_DIR + '/*',
+            pki.server.PKIServer.SHARE_DIR + '/lib/*',
+            pki.server.PKIServer.SHARE_DIR + '/server/common/lib/*',
+            pki.server.PKIServer.SHARE_DIR + '/' +
+            'ca/webapps/ca/WEB-INF/lib/*',
+            pki.server.PKIServer.SHARE_DIR + '/' +
+            'kra/webapps/kra/WEB-INF/lib/*',
+            pki.server.PKIServer.SHARE_DIR + '/' +
+            'ocsp/webapps/ocsp/WEB-INF/lib/*',
+            pki.server.PKIServer.SHARE_DIR + '/' +
+            'tks/webapps/tks/WEB-INF/lib/*',
+            pki.server.PKIServer.SHARE_DIR + '/' +
+            'tps/webapps/tps/WEB-INF/lib/*',
+            pki.server.PKIServer.SHARE_DIR + '/' +
+            'acme/webapps/acme/WEB-INF/lib/*',
+            pki.server.PKIServer.SHARE_DIR + '/' +
+            'est/webapps/est/WEB-INF/lib/*',
+        ]
+
+        cmd.extend([
+            '-classpath', os.pathsep.join(classpath),
+            '-Djava.io.tmpdir=' + instance.temp_dir,
+            '-Djava.util.logging.config.file=' + instance.logging_properties,
+            '-Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager',
+            '-Djava.endorsed.dirs=',
+            '-Djavax.sql.DataSource.Factory=org.apache.commons.dbcp.BasicDataSourceFactory',
+            '-Dcatalina.home=' + pki.server.Tomcat.SHARE_DIR,
+            '-Dcatalina.base=' + instance.base_dir
+        ])
+
+        java_fips_cmd = os.getenv('JAVA_FIPS_ENABLED')
+        if java_fips_cmd:
+            cmd.append(java_fips_cmd)
+
+        # suppress JNI warnings
+        cmd.append('--enable-native-access=ALL-UNNAMED')
+
+        cmd.extend([
+            'org.dogtagpki.server.cli.PKIServerCLI',
+            command
+        ])
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.extend(['--debug'])
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.extend(['-v'])
+
+        cmd.extend(args)
+
+        logger.debug('Java Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     def execute(self, argv, args=None):
 
@@ -161,6 +251,8 @@ class PKIServerCLI(pki.cli.CLI):
         elif args.verbose:
             logging.getLogger().setLevel(logging.INFO)
 
+        instance_name = args.instance
+
         command = None
         if len(args.remainder) > 0:
             command = args.remainder[0]
@@ -180,6 +272,24 @@ class PKIServerCLI(pki.cli.CLI):
         module_args = args.remainder[1:]
         logger.debug('Arguments: %s', ' '.join(module_args))
 
+        if self.is_java_command(command):
+
+            if not instance_name:
+                # if global instance name (pki-server -i <instance>)
+                # is not specified, get the command's instance name
+                # (pki-server <command> -i <instance>) which defaults
+                # to pki-tomcat
+                cmd_args = module.parser.parse_args(args=module_args)
+                instance_name = cmd_args.instance
+
+            self.execute_java(
+                instance_name,
+                command,
+                module_args)
+
+            return
+
+        # execute Python command
         module.execute(module_args)
 
     @staticmethod

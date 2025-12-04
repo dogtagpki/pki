@@ -9,7 +9,6 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CLI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,14 +41,6 @@ public class SubsystemDBEmptyCLI extends ServerCommandCLI {
     public void createOptions() {
 
         super.createOptions();
-
-        Option option = new Option("d", true, "NSS database location");
-        option.setArgName("database");
-        options.addOption(option);
-
-        option = new Option("f", true, "NSS database password configuration");
-        option.setArgName("password config");
-        options.addOption(option);
 
         options.addOption(null, "force", false, "Force");
     }
