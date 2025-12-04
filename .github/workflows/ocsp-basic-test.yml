@@ -248,7 +248,6 @@ jobs:
           drwxrwx--- pkiuser pkiuser ca
           -rw-r--r-- pkiuser pkiuser localhost_access_log.$DATE.txt
           drwxrwx--- pkiuser pkiuser ocsp
-          drwxr-xr-x pkiuser pkiuser pki
           EOF
 
           diff expected output
@@ -909,7 +908,6 @@ jobs:
           drwxrwx--- pkiuser pkiuser ca
           -rw-r--r-- pkiuser pkiuser localhost_access_log.$DATE.txt
           drwxrwx--- pkiuser pkiuser ocsp
-          drwxr-xr-x pkiuser pkiuser pki
           EOF
 
           diff expected output

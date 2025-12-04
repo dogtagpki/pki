@@ -376,7 +376,6 @@ jobs:
           drwxrwxrwx runner backup
           -rw-rw-rw- runner localhost_access_log.$DATE.txt
           drwxrwxrwx runner ocsp
-          drwxrwxrwx runner pki
           EOF
 
           diff expected output
