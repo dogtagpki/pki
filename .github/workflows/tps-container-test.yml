@@ -731,7 +731,6 @@ jobs:
           cat > expected << EOF
           drwxrwxrwx runner backup
           -rw-rw-rw- runner localhost_access_log.$DATE.txt
-          drwxrwxrwx runner pki
           drwxrwxrwx runner tps
           EOF
 

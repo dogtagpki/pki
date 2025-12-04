@@ -163,7 +163,6 @@ jobs:
           drwxrwx--- pkiuser pkiuser backup
           drwxrwx--- pkiuser pkiuser ca
           -rw-r--r-- pkiuser pkiuser localhost_access_log.$DATE.txt
-          drwxr-xr-x pkiuser pkiuser pki
           drwxrwx--- pkiuser pkiuser tks
           EOF
 
@@ -324,7 +323,6 @@ jobs:
           drwxrwx--- pkiuser pkiuser backup
           drwxrwx--- pkiuser pkiuser ca
           -rw-r--r-- pkiuser pkiuser localhost_access_log.$DATE.txt
-          drwxr-xr-x pkiuser pkiuser pki
           drwxrwx--- pkiuser pkiuser tks
           EOF
 

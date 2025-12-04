@@ -385,8 +385,3 @@ jobs:
         if: always()
         run: |
           docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
-
-      - name: Check PKI debug log
-        if: always()
-        run: |
-          docker exec pki find /var/lib/pki/pki-tomcat/logs/pki -name "debug.*" -exec cat {} \;

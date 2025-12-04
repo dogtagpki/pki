@@ -115,7 +115,6 @@ jobs:
           # TODO: review owners/permissions
           cat > expected << EOF
           -rw-rw-rw- runner localhost_access_log.$DATE.txt
-          drwxrwxrwx runner pki
           EOF
 
           diff expected output

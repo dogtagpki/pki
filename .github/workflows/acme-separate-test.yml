@@ -231,7 +231,6 @@ jobs:
           drwxrwx--- pkiuser pkiuser acme
           drwxrwx--- pkiuser pkiuser backup
           -rw-r--r-- pkiuser pkiuser localhost_access_log.$DATE.txt
-          drwxr-xr-x pkiuser pkiuser pki
           EOF
 
           diff expected output
@@ -858,7 +857,6 @@ jobs:
           drwxrwx--- pkiuser pkiuser acme
           drwxrwx--- pkiuser pkiuser backup
           -rw-r--r-- pkiuser pkiuser localhost_access_log.$DATE.txt
-          drwxr-xr-x pkiuser pkiuser pki
           EOF
 
           diff expected output

@@ -400,7 +400,6 @@ jobs:
           drwxrwxrwx runner backup
           drwxrwxrwx runner kra
           -rw-rw-rw- runner localhost_access_log.$DATE.txt
-          drwxrwxrwx runner pki
           EOF
 
           diff expected output
