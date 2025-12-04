@@ -1162,7 +1162,11 @@ class PKISubsystem(object):
 
     def create_database(self):
 
-        cmd = [self.name + '-db-create']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            self.name + '-db-create'
+        ]
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
@@ -1170,7 +1174,8 @@ class PKISubsystem(object):
         elif logger.isEnabledFor(logging.INFO):
             cmd.append('--verbose')
 
-        self.run(cmd)
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     # pylint: disable=W0613
     def init_database(
@@ -1183,7 +1188,11 @@ class PKISubsystem(object):
             skip_reindex=False,
             as_current_user=False):
 
-        cmd = [self.name + '-db-init']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            self.name + '-db-init'
+        ]
 
         if skip_config:
             cmd.append('--skip-config')
@@ -1203,11 +1212,16 @@ class PKISubsystem(object):
         elif logger.isEnabledFor(logging.INFO):
             cmd.append('--verbose')
 
-        self.run(cmd, as_current_user=as_current_user)
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     def add_indexes(self):
 
-        cmd = [self.name + '-db-index-add']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            self.name + '-db-index-add'
+        ]
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
@@ -1215,12 +1229,17 @@ class PKISubsystem(object):
         elif logger.isEnabledFor(logging.INFO):
             cmd.append('--verbose')
 
-        self.run(cmd)
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     # pylint: disable=W0613
     def rebuild_indexes(self, ds_backend=None):
 
-        cmd = [self.name + '-db-index-rebuild']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            self.name + '-db-index-rebuild'
+        ]
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
@@ -1228,11 +1247,16 @@ class PKISubsystem(object):
         elif logger.isEnabledFor(logging.INFO):
             cmd.append('--verbose')
 
-        self.run(cmd)
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     def empty_database(self, force=False, as_current_user=False):
 
-        cmd = [self.name + '-db-empty']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            self.name + '-db-empty'
+        ]
 
         if force:
             cmd.append('--force')
@@ -1243,11 +1267,16 @@ class PKISubsystem(object):
         elif logger.isEnabledFor(logging.INFO):
             cmd.append('--verbose')
 
-        self.run(cmd, as_current_user=as_current_user)
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     def remove_database(self, force=False, as_current_user=False):
 
-        cmd = [self.name + '-db-remove']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            self.name + '-db-remove'
+        ]
 
         if force:
             cmd.append('--force')
@@ -1258,14 +1287,19 @@ class PKISubsystem(object):
         elif logger.isEnabledFor(logging.INFO):
             cmd.append('--verbose')
 
-        self.run(cmd, as_current_user=as_current_user)
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     def grant_database_access(
             self,
             dn,
             as_current_user=False):
 
-        cmd = [self.name + '-db-access-grant']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            self.name + '-db-access-grant'
+        ]
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
@@ -1275,17 +1309,19 @@ class PKISubsystem(object):
 
         cmd.append(dn)
 
-        self.run(
-            cmd,
-            stdout=subprocess.PIPE,
-            as_current_user=as_current_user)
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     def revoke_database_access(
             self,
             dn,
             as_current_user=False):
 
-        cmd = [self.name + '-db-access-revoke']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            self.name + '-db-access-revoke'
+        ]
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
@@ -1295,10 +1331,8 @@ class PKISubsystem(object):
 
         cmd.append(dn)
 
-        self.run(
-            cmd,
-            stdout=subprocess.PIPE,
-            as_current_user=as_current_user)
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     def enable_replication(
             self,

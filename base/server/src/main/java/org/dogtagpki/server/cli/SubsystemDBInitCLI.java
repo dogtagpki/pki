@@ -6,7 +6,6 @@
 package org.dogtagpki.server.cli;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.cli.CLI;
 import org.slf4j.Logger;
@@ -50,14 +49,6 @@ public class SubsystemDBInitCLI extends ServerCommandCLI {
     public void createOptions() {
 
         super.createOptions();
-
-        Option option = new Option("d", true, "NSS database location");
-        option.setArgName("database");
-        options.addOption(option);
-
-        option = new Option("f", true, "NSS database password configuration");
-        option.setArgName("password config");
-        options.addOption(option);
 
         options.addOption(null, "skip-config", false, "Skip DS server configuration");
         options.addOption(null, "skip-schema", false, "Skip DS schema setup");
