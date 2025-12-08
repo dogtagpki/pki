@@ -1612,7 +1612,11 @@ class PKISubsystem(object):
 
     def update_ranges(self, as_current_user=False):
 
-        cmd = [self.name + '-range-update']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            self.name + '-range-update'
+        ]
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
@@ -1620,7 +1624,8 @@ class PKISubsystem(object):
         elif logger.isEnabledFor(logging.INFO):
             cmd.append('--verbose')
 
-        self.run(cmd, as_current_user=as_current_user)
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     def update_id_generator(
             self, generator, generator_object,

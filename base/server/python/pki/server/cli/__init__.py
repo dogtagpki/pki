@@ -88,6 +88,7 @@ JAVA_COMMANDS = [
     r'[^-]*-sd-subsystem-find$',
     r'[^-]*-sd-subsystem-add$',
     r'[^-]*-sd-subsystem-del$',
+    r'[^-]*-range-update$',
     r'ca-profile-import$',
     r'ca-cert-request-import$',
     r'ca-cert-find$',
