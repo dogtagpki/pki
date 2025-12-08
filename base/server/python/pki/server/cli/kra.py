@@ -56,6 +56,7 @@ class KRACLI(pki.cli.CLI):
         self.add_module(pki.server.cli.range.RangeCLI(self))
         self.add_module(pki.server.cli.user.UserCLI(self))
         self.add_module(pki.server.cli.acl.SubsystemACLCLI(self))
+        self.add_module(pki.server.cli.sd.SubsystemSDCLI(self))
 
 
 class KRACloneCLI(pki.cli.CLI):
