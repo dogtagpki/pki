@@ -83,6 +83,11 @@ JAVA_COMMANDS = [
     r'[^-]*-group-member-find$',
     r'[^-]*-group-member-add$',
     r'[^-]*-group-member-del$',
+    r'[^-]*-sd-create$',
+    r'[^-]*-sd-type-add$',
+    r'[^-]*-sd-subsystem-find$',
+    r'[^-]*-sd-subsystem-add$',
+    r'[^-]*-sd-subsystem-del$',
     r'ca-profile-import$',
     r'ca-cert-request-import$',
     r'ca-cert-find$',
@@ -296,13 +301,18 @@ class PKIServerCLI(pki.cli.CLI):
 
         if self.is_java_command(command):
 
+            cmd_args, _ = module.parser.parse_known_args(args=module_args)
+
             if not instance_name:
                 # if global instance name (pki-server -i <instance>)
                 # is not specified, get the command's instance name
                 # (pki-server <command> -i <instance>) which defaults
                 # to pki-tomcat
-                cmd_args = module.parser.parse_args(args=module_args)
                 instance_name = cmd_args.instance
+
+            if cmd_args.help:
+                module.print_help()
+                return
 
             self.execute_java(
                 instance_name,

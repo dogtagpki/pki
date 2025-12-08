@@ -126,15 +126,15 @@ jobs:
           docker exec pki pki-server subsystem-enable --help
           docker exec pki pki-server subsystem-disable --help
 
-      - name: Check pki-server sd help messages
+      - name: Check pki-server ca-sd help messages
         run: |
-          docker exec pki pki-server sd-create --help
+          docker exec pki pki-server ca-sd-create --help
 
-      - name: Check pki-server sd-subsystem help messages
+      - name: Check pki-server ca-sd-subsystem help messages
         run: |
-          docker exec pki pki-server sd-subsystem-find --help
-          docker exec pki pki-server sd-subsystem-add --help
-          docker exec pki pki-server sd-subsystem-del --help
+          docker exec pki pki-server ca-sd-subsystem-find --help
+          docker exec pki pki-server ca-sd-subsystem-add --help
+          docker exec pki pki-server ca-sd-subsystem-del --help
 
       - name: Check pki-server ca-config help messages
         run: |

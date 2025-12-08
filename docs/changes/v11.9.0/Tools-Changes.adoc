@@ -12,11 +12,6 @@ The following commands have been added to find, add and delete ACL:
 
 The `pki-server <subsystem>-group-add` command has been added to create group.
 
-== Add command for new SD type ==
-
-The `pki-server sd-type-add` command has been added to allow the introduction
-of new security domain types.
-
 == New `--key-id-file` option ==
 
 The following commands have been modified to provide an option to specify
@@ -36,14 +31,6 @@ a batch mode to run multiple commands at once.
 The `pki nss-cert-mod` has been added to modify the trust flags
 of an existing certificate in NSS database.
 
-The `pki client-cert-mod` has been deprecated.
-
-== Deprecated command ==
-
-The following command have been deprecated:
-
-* `pki client-cert-request`
-
 == Add new algorithm value for ML-DSA ==
 
 The algorithm ML-DSA can be specified for the command:
@@ -59,3 +46,27 @@ The `pki --http-output` option has been added to replace the `--output` option.
 
 The `pki ca-sd-join/leave` commands have been added to replace
 the `pki securitydomain-join/leave` commands.
+
+== Add `pki-server <subsystem>-sd-*` commands ==
+
+The `pki-server <subsystem>-sd-*` commands have been added to replace
+the `pki-server sd-*` commands.
+
+== Add command for new SD type ==
+
+The `pki-server <subsystem>-sd-type-add` command has been added to allow the introduction
+of new security domain types.
+
+== Deprecated commands ==
+
+The following commands have been deprecated:
+
+* `pki client-cert-request`
+* `pki client-cert-mod`
+* `pki securitydomain-join`
+* `pki securitydomain-leave`
+* `pki-server sd-create`
+* `pki-server sd-type-add`
+* `pki-server sd-subsystem-find`
+* `pki-server sd-subsystem-add`
+* `pki-server sd-subsystem-del`

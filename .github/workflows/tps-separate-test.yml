@@ -212,7 +212,7 @@ jobs:
 
       - name: Verify there is no plain HTTP ports in security domain but CA
         run: |
-          docker exec ca pki-server sd-subsystem-find | tee output
+          docker exec ca pki-server ca-sd-subsystem-find | tee output
 
           echo "  Port: 8080" > expected
           sed -ne "/^ *Port:/p" output > actual

@@ -246,7 +246,7 @@ jobs:
       # https://github.com/dogtagpki/pki/wiki/Setting-up-Security-Domain
       - name: Create security domain database
         run: |
-          docker exec pki pki-server sd-create \
+          docker exec pki pki-server ca-sd-create \
               --name EXAMPLE
 
       - name: Configure security domain manager
@@ -263,7 +263,7 @@ jobs:
           docker exec pki pki-server ca-config-set securitydomain.source ldap
 
           # register CA as security domain manager
-          docker exec pki pki-server sd-subsystem-add \
+          docker exec pki pki-server ca-sd-subsystem-add \
               --subsystem CA \
               --hostname pki.example.com \
               --unsecure-port 8080 \

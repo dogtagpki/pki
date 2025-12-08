@@ -55,6 +55,7 @@ class OCSPCLI(pki.cli.CLI):
         self.add_module(pki.server.cli.group.GroupCLI(self))
         self.add_module(pki.server.cli.user.UserCLI(self))
         self.add_module(pki.server.cli.acl.SubsystemACLCLI(self))
+        self.add_module(pki.server.cli.sd.SubsystemSDCLI(self))
 
 
 class OCSPCloneCLI(pki.cli.CLI):

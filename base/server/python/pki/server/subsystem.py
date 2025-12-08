@@ -1707,7 +1707,11 @@ class PKISubsystem(object):
 
     def create_security_domain(self, name=None, as_current_user=False):
 
-        cmd = [self.name + '-sd-create']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            self.name + '-sd-create'
+        ]
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
@@ -1718,11 +1722,16 @@ class PKISubsystem(object):
         if name:
             cmd.extend(['--name', name])
 
-        self.run(cmd, as_current_user=as_current_user)
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     def add_security_domain_type(self, subsystem_type=None, as_current_user=False):
 
-        cmd = [self.name + '-sd-type-add']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            self.name + '-sd-type-add'
+        ]
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
@@ -1732,7 +1741,8 @@ class PKISubsystem(object):
 
         cmd.append(subsystem_type)
 
-        self.run(cmd, as_current_user=as_current_user)
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     def display_security_domain_subsystems(self, as_current_user=False):
         '''
@@ -1742,7 +1752,11 @@ class PKISubsystem(object):
         which returns a JSON object containing the subsystem information.
         '''
 
-        cmd = [self.name + '-sd-subsystem-find']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            self.name + '-sd-subsystem-find'
+        ]
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
@@ -1750,7 +1764,8 @@ class PKISubsystem(object):
         elif logger.isEnabledFor(logging.INFO):
             cmd.append('--verbose')
 
-        self.run(cmd, as_current_user=as_current_user)
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     def add_security_domain_subsystem(
             self,
@@ -1764,6 +1779,8 @@ class PKISubsystem(object):
             as_current_user=False):
 
         cmd = [
+            'pki-server',
+            '-i', self.instance.name,
             self.name + '-sd-subsystem-add',
             '--subsystem', subsystem_type,
             '--hostname', hostname
@@ -1791,14 +1808,19 @@ class PKISubsystem(object):
 
         cmd.append(subsystem_id)
 
-        self.run(cmd, as_current_user=as_current_user)
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     def remove_security_domain_subsystem(
             self,
             subsystem_id,
             as_current_user=False):
 
-        cmd = [self.name + '-sd-subsystem-del']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            self.name + '-sd-subsystem-del'
+        ]
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
@@ -1808,7 +1830,8 @@ class PKISubsystem(object):
 
         cmd.append(subsystem_id)
 
-        self.run(cmd, as_current_user=as_current_user)
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     def join_security_domain(
             self,
