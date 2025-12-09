@@ -118,4 +118,52 @@ public class CAConfig extends ConfigStore {
     public SCEPConfig getSCEPConfig() {
         return getSubStore("scep", SCEPConfig.class);
     }
+
+    /**
+     * Returns the comma-separated list of digest algorithms from CS.cfg 
+     * ca.ocspRejectAlgorithms or ocsp.rejectAlgorithms to reject in OCSP requests.
+     * If not configured or empty, all algorithms are accepted.
+     *
+     * Example: "SHA-1,MD5,MD2"
+     *
+     * @return the list of algorithm names to reject, or empty string if not set
+     * @throws EBaseException if configuration cannot be read
+     */
+    public String getOCSPRejectAlgorithms() throws EBaseException {
+        return getString("ocspRejectAlgorithms", "");
+    }
+
+    /**
+     * Sets the list of digest algorithms to reject in OCSP requests.
+     *
+     * @param algorithms comma-separated list of algorithm names to reject from CS.cfg file
+     */
+    public void setOCSPRejectAlgorithms(String algorithms) {
+        if (algorithms == null || algorithms.isEmpty()) {
+            remove("ocspRejectAlgorithms");
+        } else {
+            putString("ocspRejectAlgorithms", algorithms);
+        }
+    }
+
+    /**
+     * Checks if a digest algorithm should be rejected in OCSP requests.
+     *
+     * @param algorithm the algorithm name to check from CS.cfg file (e.g., "SHA-1", "MD5")
+     * @return true if the algorithm should be rejected, false otherwise
+     * @throws EBaseException if configuration cannot be read
+     */
+    public boolean isOCSPAlgorithmRejected(String algorithm) throws EBaseException {
+        String rejectList = getOCSPRejectAlgorithms();
+        if (rejectList == null || rejectList.isEmpty()) {
+            return false;
+        }
+        for (String rejected : rejectList.split(",")) {
+            if (rejected.trim().equalsIgnoreCase(algorithm)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
