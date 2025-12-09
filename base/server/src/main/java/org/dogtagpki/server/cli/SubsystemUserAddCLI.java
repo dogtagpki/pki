@@ -14,6 +14,8 @@ import java.util.List;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CLI;
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,6 +84,14 @@ public class SubsystemUserAddCLI extends ServerCommandCLI {
         option.setArgName("attributes");
         options.addOption(option);
 
+        option = new Option(null, "cert", true, "Certificate file");
+        option.setArgName("path");
+        options.addOption(option);
+
+        option = new Option(null, "cert-format", true, "Certificate format: PEM (default), DER");
+        option.setArgName("format");
+        options.addOption(option);
+
         options.addOption(null, "ignore-duplicate", false, "Ignore duplicate.");
     }
 
@@ -110,10 +120,33 @@ public class SubsystemUserAddCLI extends ServerCommandCLI {
         String state = cmd.getOptionValue("state");
         String tpsProfiles = cmd.getOptionValue("tps-profiles");
         String attributes = cmd.getOptionValue("attributes");
+
+        String certPath = cmd.getOptionValue("cert");
+        String certFormat = cmd.getOptionValue("cert-format");
+
         boolean ignoreDuplicate = cmd.hasOption("ignore-duplicate");
 
         if (passwordFile != null) {
             password = new String(Files.readAllBytes(Paths.get(passwordFile)), "UTF-8").trim();
+        }
+
+        // load cert if provided
+        X509CertImpl cert = null;
+        if (certPath != null) {
+            // read from file
+            byte[] certBytes = Files.readAllBytes(Paths.get(certPath));
+
+            if (certFormat == null || "PEM".equalsIgnoreCase(certFormat)) {
+                certBytes = Cert.parseCertificate(new String(certBytes));
+
+            } else if ("DER".equalsIgnoreCase(certFormat)) {
+                // nothing to do
+
+            } else {
+                throw new Exception("Unsupported certificate format: " + certFormat);
+            }
+
+            cert = new X509CertImpl(certBytes);
         }
 
         initializeTomcatJSS();
@@ -159,6 +192,10 @@ public class SubsystemUserAddCLI extends ServerCommandCLI {
                 user.setAttributes(ldapAttrList);
             }
             ugSubsystem.addUser(user);
+
+            if (cert != null) {
+                ugSubsystem.addUserCert(userID, cert);
+            }
 
         } catch (ConflictingOperationException e) {
             if (!ignoreDuplicate) {

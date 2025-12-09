@@ -1985,7 +1985,11 @@ class PKISubsystem(object):
 
     def find_users(self, see_also=None, as_current_user=False):
 
-        cmd = [self.name + '-user-find']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            self.name + '-user-find'
+        ]
 
         if see_also:
             cmd.append('--see-also')
@@ -2000,10 +2004,11 @@ class PKISubsystem(object):
         cmd.append('--output-format')
         cmd.append('json')
 
-        result = self.run(
+        logger.debug('Command: %s', ' '.join(cmd))
+        result = subprocess.run(
             cmd,
             stdout=subprocess.PIPE,
-            as_current_user=as_current_user)
+            check=True)
 
         return json.loads(result.stdout.decode())
 
@@ -2013,7 +2018,11 @@ class PKISubsystem(object):
             attrs=None,
             as_current_user=False):
 
-        cmd = [self.name + '-user-show']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            self.name + '-user-show'
+        ]
 
         if attrs:
             for name in attrs:
@@ -2031,10 +2040,11 @@ class PKISubsystem(object):
 
         cmd.append(user_id)
 
-        result = self.run(
+        logger.debug('Command: %s', ' '.join(cmd))
+        result = subprocess.run(
             cmd,
             stdout=subprocess.PIPE,
-            as_current_user=as_current_user)
+            check=True)
 
         return json.loads(result.stdout.decode())
 
@@ -2062,7 +2072,11 @@ class PKISubsystem(object):
                 with open(password_file, 'w', encoding='utf-8') as f:
                     f.write(password)
 
-            cmd = [self.name + '-user-add']
+            cmd = [
+                'pki-server',
+                '-i', self.instance.name,
+                self.name + '-user-add'
+            ]
 
             if full_name:
                 cmd.append('--full-name')
@@ -2111,10 +2125,11 @@ class PKISubsystem(object):
 
             cmd.append(user_id)
 
-            self.run(
+            logger.debug('Command: %s', ' '.join(cmd))
+            subprocess.run(
                 cmd,
                 stdout=subprocess.PIPE,
-                as_current_user=as_current_user)
+                check=True)
 
         finally:
             shutil.rmtree(tmpdir)
@@ -2129,7 +2144,11 @@ class PKISubsystem(object):
             del_see_also=None,
             as_current_user=False):
 
-        cmd = [self.name + '-user-mod']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            self.name + '-user-mod'
+        ]
 
         if password is not None:
             cmd.extend(['--password', password])
@@ -2159,14 +2178,19 @@ class PKISubsystem(object):
 
         cmd.append(user_id)
 
-        self.run(
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.run(
             cmd,
             stdout=subprocess.PIPE,
-            as_current_user=as_current_user)
+            check=True)
 
     def remove_user(self, user_id, as_current_user=False):
 
-        cmd = [self.name + '-user-del']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            self.name + '-user-del'
+        ]
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
@@ -2176,17 +2200,22 @@ class PKISubsystem(object):
 
         cmd.append(user_id)
 
-        self.run(
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.run(
             cmd,
             stdout=subprocess.PIPE,
-            as_current_user=as_current_user)
+            check=True)
 
     def find_user_certs(
             self,
             user_id,
             as_current_user=False):
 
-        cmd = [self.name + '-user-cert-find']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            self.name + '-user-cert-find'
+        ]
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
@@ -2196,9 +2225,8 @@ class PKISubsystem(object):
 
         cmd.append(user_id)
 
-        self.run(
-            cmd,
-            as_current_user=as_current_user)
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     def add_user_cert(self, user_id,
                       cert_data=None,
@@ -2207,7 +2235,11 @@ class PKISubsystem(object):
                       ignore_duplicate=False,
                       as_current_user=False):
 
-        cmd = [self.name + '-user-cert-add']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            self.name + '-user-cert-add'
+        ]
 
         if cert_path:
             cmd.append('--cert')
@@ -2228,15 +2260,20 @@ class PKISubsystem(object):
 
         cmd.append(user_id)
 
-        self.run(
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.run(
             cmd,
             input=cert_data,
             stdout=subprocess.PIPE,
-            as_current_user=as_current_user)
+            check=True)
 
     def remove_user_cert(self, user_id, cert_id):
 
-        cmd = [self.name + '-user-cert-del']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            self.name + '-user-cert-del'
+        ]
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
@@ -2247,14 +2284,19 @@ class PKISubsystem(object):
         cmd.append(user_id)
         cmd.append(cert_id)
 
-        self.run(cmd)
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     def find_user_roles(
             self,
             user_id,
             output_format=None):
 
-        cmd = [self.name + '-user-role-find']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            self.name + '-user-role-find'
+        ]
 
         if output_format:
             cmd.append('--output-format')
@@ -2268,14 +2310,19 @@ class PKISubsystem(object):
 
         cmd.append(user_id)
 
-        self.run(cmd)
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     def add_user_role(
             self,
             user_id,
             role_id):
 
-        cmd = [self.name + '-user-role-add']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            self.name + '-user-role-add'
+        ]
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
@@ -2286,14 +2333,19 @@ class PKISubsystem(object):
         cmd.append(user_id)
         cmd.append(role_id)
 
-        self.run(cmd)
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     def remove_user_role(
             self,
             user_id,
             role_id):
 
-        cmd = [self.name + '-user-role-del']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            self.name + '-user-role-del'
+        ]
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
@@ -2304,7 +2356,8 @@ class PKISubsystem(object):
         cmd.append(user_id)
         cmd.append(role_id)
 
-        self.run(cmd)
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     def run(self,
             args,

@@ -5,7 +5,9 @@
 //
 package org.dogtagpki.server.cli;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -112,10 +114,28 @@ public class SubsystemUserShowCLI extends ServerCommandCLI {
             String state = user.getState();
             if (!StringUtils.isEmpty(state)) userData.setState(state);
 
-            for (LDAPAttribute ldapAttr : user.getAttributes()) {
-                String name = ldapAttr.getName();
-                String value = ldapAttr.getStringValueArray()[0];
-                userData.setAttribute(name, value);
+            if (attrNames != null) {
+
+                // normalize attribute list
+                Set<String> attrList = new HashSet<>();
+                for (String attr : attrNames) {
+                    attrList.add(attr.toLowerCase());
+                }
+
+                // if + is specified, display all non-empty atributes
+                // otherwise, display the specified non-empty attributes only
+                boolean includeAllAttr = attrList.contains("+");
+
+                for (LDAPAttribute ldapAttr : user.getAttributes()) {
+                    String name = ldapAttr.getName();
+                    String value = ldapAttr.getStringValueArray()[0];
+
+                    if (StringUtils.isEmpty(value)) continue;
+
+                    if (includeAllAttr || attrList.contains(name.toLowerCase())) {
+                        userData.setAttribute(name, value);
+                    }
+                }
             }
 
         } finally {
@@ -131,7 +151,7 @@ public class SubsystemUserShowCLI extends ServerCommandCLI {
 
             String fullName = userData.getFullName();
             if (!StringUtils.isEmpty(fullName)) {
-                System.out.println("  Full name: " + fullName);
+                System.out.println("  Full Name: " + fullName);
             }
 
             String email = userData.getEmail();
