@@ -11,13 +11,21 @@ EnvironmentFile=-/etc/sysconfig/%i
 EnvironmentFile=/usr/share/pki/etc/pki.conf
 EnvironmentFile=/etc/pki/pki.conf
 
+# Required environment variables for Tomcat
+Environment="CATALINA_HOME=/usr/share/tomcat"
+Environment="CATALINA_BASE=/var/lib/pki/%i"
+Environment="CATALINA_TMPDIR=/var/lib/pki/%i/temp"
+
 ExecStartPre=/usr/sbin/pki-server upgrade %i
 ExecStartPre=/usr/sbin/pki-server migrate %i
 ExecStartPre=/usr/bin/pkidaemon start %i
-ExecStart=/usr/libexec/tomcat/server start
-ExecStop=/usr/libexec/tomcat/server stop
+
+# Use abstraction wrappers - work for both old and new Tomcat
+ExecStart=/usr/bin/pki-tomcat-start
+ExecStop=/usr/bin/pki-tomcat-stop
 
 SuccessExitStatus=143
+Restart=on-failure    # Works well for both old and new
 User=pkiuser
 Group=pkiuser
 

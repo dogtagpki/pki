@@ -257,6 +257,7 @@ class PKIInstance(pki.server.PKIServer):
 
         self.create_registry()
 
+        # Create symlink to enable the instance
         self.symlink(PKIInstance.UNIT_FILE, self.unit_file, exist_ok=True)
 
     def create_libs(self, force=False):

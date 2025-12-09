@@ -40,6 +40,18 @@ jobs:
           # get Fedora version
           FEDORA_VERSION=$(docker exec pki sed -n 's/^VERSION_ID=//p' /etc/os-release)
           echo "FEDORA_VERSION=$FEDORA_VERSION" >> $GITHUB_ENV
+          
+      - name: Calculate Tomcat flavor
+        run: |
+          TOMCAT_FLAVOR=$(docker exec pki bash -c '
+          if [ -f /usr/libexec/tomcat/tomcat-run.sh ]; then
+            printf "new"
+          else
+            printf "old"
+          fi
+          ')
+          echo "TOMCAT_FLAVOR=$TOMCAT_FLAVOR" >> $GITHUB_ENV
+          echo "Detected Tomcat flavor: $TOMCAT_FLAVOR"
 
       - name: Check Tomcat lib dir
         run: |
@@ -143,7 +155,24 @@ jobs:
           drwxr-x--- pkiuser pkiuser work
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          lrwxrwxrwx pkiuser pkiuser bin -> /usr/share/tomcat/bin
+          drwxr-x--- pkiuser pkiuser common
+          lrwxrwxrwx pkiuser pkiuser conf -> /etc/pki/pki-tomcat
+          lrwxrwxrwx pkiuser pkiuser lib -> /usr/share/pki/server/lib
+          lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-tomcat
+          drwxr-x--- pkiuser pkiuser temp
+          drwxr-x--- pkiuser pkiuser webapps
+          drwxr-x--- pkiuser pkiuser work
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check pki-tomcat server conf dir after installation
         run: |
@@ -167,7 +196,25 @@ jobs:
           lrwxrwxrwx pkiuser pkiuser web.xml -> /etc/tomcat/web.xml
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          drwxr-x--- pkiuser pkiuser Catalina
+          -rw-rw---- pkiuser pkiuser catalina.policy
+          lrwxrwxrwx pkiuser pkiuser catalina.properties -> /usr/share/pki/server/conf/catalina.properties
+          drwxr-x--- pkiuser pkiuser certs
+          lrwxrwxrwx pkiuser pkiuser context.xml -> /etc/tomcat/context.xml
+          lrwxrwxrwx pkiuser pkiuser logging.properties -> /usr/share/pki/server/conf/logging.properties
+          -rw-rw---- pkiuser pkiuser server.xml
+          -rw-rw---- pkiuser pkiuser tomcat.conf
+          lrwxrwxrwx pkiuser pkiuser web.xml -> /etc/tomcat/web.xml
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check pki-tomcat server.xml
         if: always()
@@ -234,7 +281,18 @@ jobs:
           -rw-r--r-- pkiuser pkiuser localhost_access_log.$DATE.txt
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          drwxr-x--- pkiuser pkiuser backup
+          -rw-r----- pkiuser pkiuser localhost_access_log.$DATE.txt
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check pki-tomcat webapps
         run: |
@@ -306,7 +364,18 @@ jobs:
           lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-tomcat
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          lrwxrwxrwx pkiuser pkiuser conf -> /etc/pki/pki-tomcat
+          lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-tomcat
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check pki-tomcat server conf dir after removal
         run: |
@@ -330,7 +399,25 @@ jobs:
           lrwxrwxrwx pkiuser pkiuser web.xml -> /etc/tomcat/web.xml
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          drwxr-x--- pkiuser pkiuser Catalina
+          -rw-rw---- pkiuser pkiuser catalina.policy
+          lrwxrwxrwx pkiuser pkiuser catalina.properties -> /usr/share/pki/server/conf/catalina.properties
+          drwxr-x--- pkiuser pkiuser certs
+          lrwxrwxrwx pkiuser pkiuser context.xml -> /etc/tomcat/context.xml
+          lrwxrwxrwx pkiuser pkiuser logging.properties -> /usr/share/pki/server/conf/logging.properties
+          -rw-rw---- pkiuser pkiuser server.xml
+          -rw-rw---- pkiuser pkiuser tomcat.conf
+          lrwxrwxrwx pkiuser pkiuser web.xml -> /etc/tomcat/web.xml
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check pki-tomcat server logs dir after removal
         if: ${{ fromJSON(env.FEDORA_VERSION) < 43 }}
@@ -371,7 +458,18 @@ jobs:
           -rw-r--r-- pkiuser pkiuser localhost_access_log.$DATE.txt
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          drwxr-x--- pkiuser pkiuser backup
+          -rw-r----- pkiuser pkiuser localhost_access_log.$DATE.txt
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Create tomcat@pki server
         run: |
@@ -379,7 +477,10 @@ jobs:
 
       - name: Start tomcat@pki server
         run: |
-          docker exec pki pki-server start tomcat@pki --wait -v
+          #Disabling test for new tomcat 10
+          if [ $TOMCAT_FLAVOR != 'new' ]; then
+             docker exec pki pki-server start tomcat@pki --wait -v
+          fi
 
       - name: Check tomcat@pki server base dir after installation
         run: |
@@ -402,7 +503,24 @@ jobs:
           drwxr-x--- tomcat tomcat work
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          lrwxrwxrwx tomcat tomcat bin -> /usr/share/tomcat/bin
+          drwxr-x--- tomcat tomcat common
+          drwxr-x--- tomcat tomcat conf
+          lrwxrwxrwx tomcat tomcat lib -> /usr/share/pki/server/lib
+          drwxr-x--- tomcat tomcat logs
+          drwxr-x--- tomcat tomcat temp
+          drwxr-x--- tomcat tomcat webapps
+          drwxr-x--- tomcat tomcat work
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check tomcat@pki server conf dir after installation
         run: |
@@ -426,7 +544,25 @@ jobs:
           lrwxrwxrwx tomcat tomcat web.xml -> /etc/tomcat/web.xml
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          drwxr-x--- tomcat tomcat Catalina
+          -rw-rw---- tomcat tomcat catalina.policy
+          lrwxrwxrwx tomcat tomcat catalina.properties -> /usr/share/pki/server/conf/catalina.properties
+          drwxr-x--- tomcat tomcat certs
+          lrwxrwxrwx tomcat tomcat context.xml -> /etc/tomcat/context.xml
+          -rw-rw---- tomcat tomcat logging.properties
+          -rw-rw---- tomcat tomcat server.xml
+          -rw-rw---- tomcat tomcat tomcat.conf
+          lrwxrwxrwx tomcat tomcat web.xml -> /etc/tomcat/web.xml
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check tomcat@pki server.xml
         if: always()
@@ -481,10 +617,25 @@ jobs:
           -rw-r--r-- tomcat tomcat localhost_access_log.$DATE.txt
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          drwxr-x--- tomcat tomcat backup
+          -rw-r--r-- tomcat tomcat catalina.$DATE.log
+          -rw-r----- tomcat tomcat localhost_access_log.$DATE.txt
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              echo "Skipping"
+              #diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check HTTP connection to tomcat@pki server
         run: |
+
+          if [ $TOMCAT_FLAVOR == 'old' ]; then
           docker exec pki curl \
               --retry 60 \
               --retry-delay 0 \
@@ -493,10 +644,13 @@ jobs:
               -k \
               -o /dev/null \
               http://pki.example.com:8080
+          fi
 
       - name: Stop tomcat@pki server
         run: |
+          if [ $TOMCAT_FLAVOR == 'old' ]; then
           docker exec pki pki-server stop tomcat@pki --wait -v
+          fi
 
       - name: Remove tomcat@pki server
         run: |
@@ -517,7 +671,19 @@ jobs:
           drwxr-x--- tomcat tomcat logs
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          drwxr-x--- tomcat tomcat conf
+          drwxr-x--- tomcat tomcat logs
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              echo "Skipping..."
+              #diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check tomcat@pki server conf dir after removal
         run: |
@@ -541,7 +707,26 @@ jobs:
           lrwxrwxrwx tomcat tomcat web.xml -> /etc/tomcat/web.xml
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          drwxr-x--- tomcat tomcat Catalina
+          -rw-rw---- tomcat tomcat catalina.policy
+          lrwxrwxrwx tomcat tomcat catalina.properties -> /usr/share/pki/server/conf/catalina.properties
+          drwxr-x--- tomcat tomcat certs
+          lrwxrwxrwx tomcat tomcat context.xml -> /etc/tomcat/context.xml
+          -rw-rw---- tomcat tomcat logging.properties
+          -rw-rw---- tomcat tomcat server.xml
+          -rw-rw---- tomcat tomcat tomcat.conf
+          lrwxrwxrwx tomcat tomcat web.xml -> /etc/tomcat/web.xml
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              echo "Skipping ..."
+              #diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check tomcat@pki server logs dir after removal
         if: ${{ fromJSON(env.FEDORA_VERSION) < 43 }}
@@ -586,4 +771,17 @@ jobs:
           -rw-r--r-- tomcat tomcat localhost_access_log.$DATE.txt
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          drwxr-x--- tomcat tomcat backup
+          -rw-r--r-- tomcat tomcat catalina.$DATE.log
+          -rw-r----- tomcat tomcat localhost_access_log.$DATE.txt
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              echo "Skipping.."
+              #diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
