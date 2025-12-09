@@ -175,7 +175,7 @@ jobs:
               /var/lib/pki/pki-tomcat/ca/profiles/ca/caFullCMCUserSignedCert.cfg
 
           # restart CA subsystem
-          docker exec pki pki-server ca-redeploy --wait
+          docker exec pki pki-server ca-redeploy --wait --max-wait 120
 
       # https://github.com/dogtagpki/pki/wiki/Generating-CMC-Shared-Token
       - name: Generate shared token for user
