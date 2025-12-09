@@ -63,7 +63,9 @@ public class OCSPResponse implements ASN1Value {
         sequence.addElement(responseStatus);
 
         this.responseBytes = responseBytes;
-        sequence.addElement(new EXPLICIT(Tag.get(0), responseBytes));
+        if (responseBytes != null) {
+            sequence.addElement(new EXPLICIT(Tag.get(0), responseBytes));
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////

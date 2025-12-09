@@ -177,4 +177,29 @@ public class CertID implements ASN1Value {
     public String getDigestName() {
         return digestNames.get(hashAlgorithm.getOID());
     }
+
+    /**
+     * Checks if the hash algorithm used in this CertID is deprecated.
+     * Deprecated algorithms include MD2, MD5, and SHA-1 which are not
+     * compliant with FIPS 140-3.
+     *
+     * @return true if the algorithm is deprecated, false otherwise
+     */
+    public boolean isDeprecatedAlgorithm() {
+        String name = getDigestName();
+        if (name == null) {
+            // Unknown algorithm - treat as potentially deprecated
+            return true;
+        }
+        return "MD2".equals(name) || "MD5".equals(name) || "SHA-1".equals(name);
+    }
+
+    /**
+     * Returns the OID of the hash algorithm as a string.
+     *
+     * @return the hash algorithm OID string
+     */
+    public String getHashAlgorithmOID() {
+        return hashAlgorithm.getOID().toString();
+    }
 }
