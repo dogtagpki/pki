@@ -7,7 +7,6 @@
 import argparse
 import inspect
 import logging
-import sys
 import textwrap
 
 import pki.cli
@@ -105,81 +104,6 @@ class UserAddCLI(pki.cli.CLI):
         print(textwrap.dedent(self.__class__.help).format(
             subsystem=self.parent.parent.name))
 
-    def execute(self, argv, args=None):
-
-        if not args:
-            args = self.parser.parse_args(args=argv)
-
-        if args.help:
-            self.print_help()
-            return
-
-        if args.debug:
-            logging.getLogger().setLevel(logging.DEBUG)
-
-        elif args.verbose:
-            logging.getLogger().setLevel(logging.INFO)
-
-        instance_name = args.instance
-        subsystem_name = self.parent.parent.name
-        full_name = args.full_name
-        email = args.email
-        password = args.password
-        password_file = args.password_file
-        cert_path = args.cert
-        cert_format = args.cert_format
-        phone = args.phone
-        user_type = args.type
-        state = args.state
-
-        tps_profiles = None
-        if args.tps_profiles:
-            tps_profiles = [x.strip() for x in args.tps_profiles.split(',')]
-
-        ignore_duplicate = args.ignore_duplicate
-        user_id = args.user_id
-
-        if user_id is None:
-            raise pki.cli.CLIException('Missing user ID')
-
-        if not full_name:
-            logger.error('Missing full name')
-            self.print_help()
-            sys.exit(1)
-
-        instance = pki.server.PKIServerFactory.create(instance_name)
-        if not instance.exists():
-            logger.error('Invalid instance: %s', instance_name)
-            sys.exit(1)
-
-        instance.load()
-
-        subsystem = instance.get_subsystem(subsystem_name)
-
-        if not subsystem:
-            logger.error('No %s subsystem in instance %s',
-                         subsystem_name.upper(), instance_name)
-            sys.exit(1)
-
-        subsystem.add_user(
-            user_id,
-            full_name=full_name,
-            email=email,
-            password=password,
-            password_file=password_file,
-            phone=phone,
-            user_type=user_type,
-            state=state,
-            tps_profiles=tps_profiles,
-            ignore_duplicate=ignore_duplicate,
-            as_current_user=True)
-
-        if cert_path:
-            subsystem.add_user_cert(
-                user_id,
-                cert_path=cert_path,
-                cert_format=cert_format)
-
 
 class UserFindCLI(pki.cli.CLI):
 
@@ -218,71 +142,6 @@ class UserFindCLI(pki.cli.CLI):
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
         print()
-
-    def execute(self, argv, args=None):
-
-        if not args:
-            args = self.parser.parse_args(args=argv)
-
-        if args.help:
-            self.print_help()
-            return
-
-        if args.debug:
-            logging.getLogger().setLevel(logging.DEBUG)
-
-        elif args.verbose:
-            logging.getLogger().setLevel(logging.INFO)
-
-        instance_name = args.instance
-        subsystem_name = self.parent.parent.name
-        see_also = args.see_also
-
-        instance = pki.server.PKIServerFactory.create(instance_name)
-        if not instance.exists():
-            logger.error('Invalid instance: %s', instance_name)
-            sys.exit(1)
-
-        instance.load()
-
-        subsystem = instance.get_subsystem(subsystem_name)
-
-        if not subsystem:
-            logger.error('No %s subsystem in instance %s',
-                         subsystem_name.upper(), instance_name)
-            sys.exit(1)
-
-        users = subsystem.find_users(see_also=see_also)
-
-        first = True
-
-        for user in users['entries']:
-            if first:
-                first = False
-            else:
-                print()
-
-            print('  User ID: {}'.format(user['id']))
-
-            full_name = user.get('fullName')
-            if full_name:
-                print('  Full Name: {}'.format(full_name))
-
-            email = user.get('email')
-            if email:
-                print('  Email: {} '.format(email))
-
-            phone = user.get('phone')
-            if phone:
-                print('  Phone: {} '.format(phone))
-
-            user_type = user.get('type')
-            if user_type:
-                print('  Type: {} '.format(user_type))
-
-            state = user.get('state')
-            if state:
-                print('  State: {} '.format(state))
 
 
 class UserModifyCLI(pki.cli.CLI):
@@ -336,65 +195,6 @@ class UserModifyCLI(pki.cli.CLI):
         print('      --help                         Show help message.')
         print()
 
-    def execute(self, argv, args=None):
-
-        if not args:
-            args = self.parser.parse_args(args=argv)
-
-        if args.help:
-            self.print_help()
-            return
-
-        if args.debug:
-            logging.getLogger().setLevel(logging.DEBUG)
-
-        elif args.verbose:
-            logging.getLogger().setLevel(logging.INFO)
-
-        instance_name = args.instance
-        subsystem_name = self.parent.parent.name
-        password = args.password
-        password_file = args.password_file
-
-        attrs = {}
-        if args.attr:
-            for attr in args.attr:
-                # parse <name>=<value>
-                parts = attr.split('=', 1)
-                name = parts[0]
-                value = parts[1]
-                attrs[name] = value
-
-        add_see_also = args.add_see_also
-        del_see_also = args.del_see_also
-
-        user_id = args.user_id
-
-        if user_id is None:
-            raise pki.cli.CLIException('Missing user ID')
-
-        instance = pki.server.PKIServerFactory.create(instance_name)
-        if not instance.exists():
-            logger.error('Invalid instance: %s', instance_name)
-            sys.exit(1)
-
-        instance.load()
-
-        subsystem = instance.get_subsystem(subsystem_name)
-
-        if not subsystem:
-            logger.error('No %s subsystem in instance %s',
-                         subsystem_name.upper(), instance_name)
-            sys.exit(1)
-
-        subsystem.modify_user(
-            user_id,
-            password=password,
-            password_file=password_file,
-            attrs=attrs,
-            add_see_also=add_see_also,
-            del_see_also=del_see_also)
-
 
 class UserRemoveCLI(pki.cli.CLI):
     '''
@@ -445,44 +245,6 @@ class UserRemoveCLI(pki.cli.CLI):
         print(textwrap.dedent(self.__class__.help).format(
             subsystem=self.parent.parent.name))
 
-    def execute(self, argv, args=None):
-
-        if not args:
-            args = self.parser.parse_args(args=argv)
-
-        if args.help:
-            self.print_help()
-            return
-
-        if args.debug:
-            logging.getLogger().setLevel(logging.DEBUG)
-
-        elif args.verbose:
-            logging.getLogger().setLevel(logging.INFO)
-
-        instance_name = args.instance
-        subsystem_name = self.parent.parent.name
-        user_id = args.user_id
-
-        if user_id is None:
-            raise pki.cli.CLIException('Missing user ID')
-
-        instance = pki.server.PKIServerFactory.create(instance_name)
-        if not instance.exists():
-            logger.error('Invalid instance: %s', instance_name)
-            sys.exit(1)
-
-        instance.load()
-
-        subsystem = instance.get_subsystem(subsystem_name)
-
-        if not subsystem:
-            logger.error('No %s subsystem in instance %s',
-                         subsystem_name.upper(), instance_name)
-            sys.exit(1)
-
-        subsystem.remove_user(user_id)
-
 
 class UserShowCLI(pki.cli.CLI):
 
@@ -526,79 +288,6 @@ class UserShowCLI(pki.cli.CLI):
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
         print()
-
-    def execute(self, argv, args=None):
-
-        if not args:
-            args = self.parser.parse_args(args=argv)
-
-        if args.help:
-            self.print_help()
-            return
-
-        if args.debug:
-            logging.getLogger().setLevel(logging.DEBUG)
-
-        elif args.verbose:
-            logging.getLogger().setLevel(logging.INFO)
-
-        instance_name = args.instance
-        subsystem_name = self.parent.parent.name
-        user_id = args.user_id
-
-        if user_id is None:
-            raise pki.cli.CLIException('Missing user ID')
-
-        instance = pki.server.PKIServerFactory.create(instance_name)
-        if not instance.exists():
-            logger.error('Invalid instance: %s', instance_name)
-            sys.exit(1)
-
-        instance.load()
-
-        subsystem = instance.get_subsystem(subsystem_name)
-
-        if not subsystem:
-            logger.error('No %s subsystem in instance %s',
-                         subsystem_name.upper(), instance_name)
-            sys.exit(1)
-
-        user = subsystem.get_user(user_id, attrs=args.attr)
-
-        print('  User ID: {}'.format(user['id']))
-
-        full_name = user.get('FullName')
-        if full_name:
-            print('  Full Name: {}'.format(full_name))
-
-        email = user.get('Email')
-        if email:
-            print('  Email: {}'.format(email))
-
-        phone = user.get('phone')
-        if phone:
-            print('  Phone: {}'.format(phone))
-
-        user_type = user.get('type')
-        if user_type:
-            print('  Type: {}'.format(user_type))
-
-        state = user.get('state')
-        if state:
-            print('  State: {}'.format(state))
-
-        attrs = user.get('attributes')
-
-        if args.attr:
-            # if + is specified, display all non-empty atributes
-            # otherwise, display the specified non-empty attributes only
-            if '+' not in args.attr:
-                attrs = {k: v for k, v in attrs.items() if k in args.attr and v}
-
-            for name in attrs:
-                value = attrs.get(name)
-                if value:
-                    print('  {}: {}'.format(name, value))
 
 
 class UserCertCLI(pki.cli.CLI):
@@ -652,44 +341,6 @@ class UserCertFindCLI(pki.cli.CLI):
         print('      --help                         Show help message.')
         print()
 
-    def execute(self, argv, args=None):
-
-        if not args:
-            args = self.parser.parse_args(args=argv)
-
-        if args.help:
-            self.print_help()
-            return
-
-        if args.debug:
-            logging.getLogger().setLevel(logging.DEBUG)
-
-        elif args.verbose:
-            logging.getLogger().setLevel(logging.INFO)
-
-        instance_name = args.instance
-        subsystem_name = self.parent.parent.parent.name
-        user_id = args.user_id
-
-        if user_id is None:
-            raise pki.cli.CLIException('Missing user ID')
-
-        instance = pki.server.PKIServerFactory.create(instance_name)
-        if not instance.exists():
-            logger.error('Invalid instance: %s', instance_name)
-            sys.exit(1)
-
-        instance.load()
-
-        subsystem = instance.get_subsystem(subsystem_name)
-
-        if not subsystem:
-            logger.error('No %s subsystem in instance %s',
-                         subsystem_name.upper(), instance_name)
-            sys.exit(1)
-
-        subsystem.find_user_certs(user_id)
-
 
 class UserCertAddCLI(pki.cli.CLI):
 
@@ -740,51 +391,6 @@ class UserCertAddCLI(pki.cli.CLI):
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
         print()
-
-    def execute(self, argv, args=None):
-
-        if not args:
-            args = self.parser.parse_args(args=argv)
-
-        if args.help:
-            self.print_help()
-            return
-
-        if args.debug:
-            logging.getLogger().setLevel(logging.DEBUG)
-
-        elif args.verbose:
-            logging.getLogger().setLevel(logging.INFO)
-
-        instance_name = args.instance
-        subsystem_name = self.parent.parent.parent.name
-        cert_path = args.cert
-        cert_format = args.format
-        ignore_duplicate = args.ignore_duplicate
-        user_id = args.user_id
-
-        if user_id is None:
-            raise pki.cli.CLIException('Missing user ID')
-
-        instance = pki.server.PKIServerFactory.create(instance_name)
-        if not instance.exists():
-            logger.error('Invalid instance: %s', instance_name)
-            sys.exit(1)
-
-        instance.load()
-
-        subsystem = instance.get_subsystem(subsystem_name)
-
-        if not subsystem:
-            logger.error('No %s subsystem in instance %s',
-                         subsystem_name.upper(), instance_name)
-            sys.exit(1)
-
-        subsystem.add_user_cert(
-            user_id,
-            cert_path=cert_path,
-            cert_format=cert_format,
-            ignore_duplicate=ignore_duplicate)
 
 
 class UserCertRemoveCLI(pki.cli.CLI):
@@ -838,48 +444,6 @@ class UserCertRemoveCLI(pki.cli.CLI):
     def print_help(self):
         print(textwrap.dedent(self.__class__.help).format(
             subsystem=self.parent.parent.parent.name))
-
-    def execute(self, argv, args=None):
-
-        if not args:
-            args = self.parser.parse_args(args=argv)
-
-        if args.help:
-            self.print_help()
-            return
-
-        if args.debug:
-            logging.getLogger().setLevel(logging.DEBUG)
-
-        elif args.verbose:
-            logging.getLogger().setLevel(logging.INFO)
-
-        instance_name = args.instance
-        subsystem_name = self.parent.parent.parent.name
-        user_id = args.user_id
-        cert_id = args.cert_id
-
-        if user_id is None:
-            raise pki.cli.CLIException('Missing user ID')
-
-        if cert_id is None:
-            raise pki.cli.CLIException('Missing certificate ID')
-
-        instance = pki.server.PKIServerFactory.create(instance_name)
-        if not instance.exists():
-            logger.error('Invalid instance: %s', instance_name)
-            sys.exit(1)
-
-        instance.load()
-
-        subsystem = instance.get_subsystem(subsystem_name)
-
-        if not subsystem:
-            logger.error('No %s subsystem in instance %s',
-                         subsystem_name.upper(), instance_name)
-            sys.exit(1)
-
-        subsystem.remove_user_cert(user_id, cert_id)
 
 
 class UserRoleCLI(pki.cli.CLI):
@@ -944,45 +508,6 @@ class UserRoleFindCLI(pki.cli.CLI):
         print(textwrap.dedent(self.__class__.help).format(
             subsystem=self.parent.parent.parent.name))
 
-    def execute(self, argv, args=None):
-
-        if not args:
-            args = self.parser.parse_args(args=argv)
-
-        if args.help:
-            self.print_help()
-            return
-
-        if args.debug:
-            logging.getLogger().setLevel(logging.DEBUG)
-
-        elif args.verbose:
-            logging.getLogger().setLevel(logging.INFO)
-
-        instance_name = args.instance
-        subsystem_name = self.parent.parent.parent.name
-        output_format = args.output_format
-        user_id = args.user_id
-
-        if user_id is None:
-            raise pki.cli.CLIException('Missing user ID')
-
-        instance = pki.server.PKIServerFactory.create(instance_name)
-        if not instance.exists():
-            logger.error('Invalid instance: %s', instance_name)
-            sys.exit(1)
-
-        instance.load()
-
-        subsystem = instance.get_subsystem(subsystem_name)
-
-        if not subsystem:
-            logger.error('No %s subsystem in instance %s',
-                         subsystem_name.upper(), instance_name)
-            sys.exit(1)
-
-        subsystem.find_user_roles(user_id, output_format=output_format)
-
 
 class UserRoleAddCLI(pki.cli.CLI):
     '''
@@ -1036,49 +561,6 @@ class UserRoleAddCLI(pki.cli.CLI):
         print(textwrap.dedent(self.__class__.help).format(
             subsystem=self.parent.parent.parent.name))
 
-    def execute(self, argv, args=None):
-
-        if not args:
-            args = self.parser.parse_args(args=argv)
-
-        if args.help:
-            self.print_help()
-            return
-
-        if args.debug:
-            logging.getLogger().setLevel(logging.DEBUG)
-
-        elif args.verbose:
-            logging.getLogger().setLevel(logging.INFO)
-
-        instance_name = args.instance
-        subsystem_name = self.parent.parent.parent.name
-
-        user_id = args.user_id
-        role_id = args.role_id
-
-        if user_id is None:
-            raise pki.cli.CLIException('Missing user ID')
-
-        if role_id is None:
-            raise pki.cli.CLIException('Missing role ID')
-
-        instance = pki.server.PKIServerFactory.create(instance_name)
-        if not instance.exists():
-            logger.error('Invalid instance: %s', instance_name)
-            sys.exit(1)
-
-        instance.load()
-
-        subsystem = instance.get_subsystem(subsystem_name)
-
-        if not subsystem:
-            logger.error('No %s subsystem in instance %s',
-                         subsystem_name.upper(), instance_name)
-            sys.exit(1)
-
-        subsystem.add_user_role(user_id, role_id)
-
 
 class UserRoleRemoveCLI(pki.cli.CLI):
     '''
@@ -1131,46 +613,3 @@ class UserRoleRemoveCLI(pki.cli.CLI):
     def print_help(self):
         print(textwrap.dedent(self.__class__.help).format(
             subsystem=self.parent.parent.parent.name))
-
-    def execute(self, argv, args=None):
-
-        if not args:
-            args = self.parser.parse_args(args=argv)
-
-        if args.help:
-            self.print_help()
-            return
-
-        if args.debug:
-            logging.getLogger().setLevel(logging.DEBUG)
-
-        elif args.verbose:
-            logging.getLogger().setLevel(logging.INFO)
-
-        instance_name = args.instance
-        subsystem_name = self.parent.parent.parent.name
-
-        user_id = args.user_id
-        role_id = args.role_id
-
-        if user_id is None:
-            raise pki.cli.CLIException('Missing user ID')
-
-        if role_id is None:
-            raise pki.cli.CLIException('Missing role ID')
-
-        instance = pki.server.PKIServerFactory.create(instance_name)
-        if not instance.exists():
-            logger.error('Invalid instance: %s', instance_name)
-            sys.exit(1)
-
-        instance.load()
-
-        subsystem = instance.get_subsystem(subsystem_name)
-
-        if not subsystem:
-            logger.error('No %s subsystem in instance %s',
-                         subsystem_name.upper(), instance_name)
-            sys.exit(1)
-
-        subsystem.remove_user_role(user_id, role_id)
