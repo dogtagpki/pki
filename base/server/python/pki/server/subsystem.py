@@ -1902,7 +1902,11 @@ class PKISubsystem(object):
 
     def add_group(self, group_id=None, description=None, as_current_user=False):
 
-        cmd = [self.name + '-group-add']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            self.name + '-group-add'
+        ]
 
         if description is not None:
             cmd.extend(['--description', description])
@@ -1914,11 +1918,17 @@ class PKISubsystem(object):
             cmd.append('--verbose')
 
         cmd.append(group_id)
-        self.run(cmd, as_current_user=as_current_user)
+
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     def find_groups(self, member_id=None, as_current_user=False):
 
-        cmd = [self.name + '-group-find']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            self.name + '-group-find'
+        ]
 
         if member_id is not None:
             cmd.extend(['--member', member_id])
@@ -1929,11 +1939,16 @@ class PKISubsystem(object):
         elif logger.isEnabledFor(logging.INFO):
             cmd.append('--verbose')
 
-        self.run(cmd, as_current_user=as_current_user)
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     def find_group_members(self, group_id, as_current_user=False):
 
-        cmd = [self.name + '-group-member-find']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            self.name + '-group-member-find'
+        ]
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
@@ -1946,16 +1961,20 @@ class PKISubsystem(object):
 
         cmd.append(group_id)
 
-        result = self.run(
+        result = subprocess.run(
             cmd,
             stdout=subprocess.PIPE,
-            as_current_user=as_current_user)
+            check=True)
 
         return json.loads(result.stdout.decode())
 
     def add_group_member(self, group_id, member_id, as_current_user=False):
 
-        cmd = [self.name + '-group-member-add']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            self.name + '-group-member-add'
+        ]
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
@@ -1966,11 +1985,16 @@ class PKISubsystem(object):
         cmd.append(group_id)
         cmd.append(member_id)
 
-        self.run(cmd, as_current_user=as_current_user)
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     def remove_group_member(self, group_id, member_id, as_current_user=False):
 
-        cmd = [self.name + '-group-member-del']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            self.name + '-group-member-del'
+        ]
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
@@ -1981,7 +2005,8 @@ class PKISubsystem(object):
         cmd.append(group_id)
         cmd.append(member_id)
 
-        self.run(cmd, as_current_user=as_current_user)
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     def find_users(self, see_also=None, as_current_user=False):
 
