@@ -98,16 +98,17 @@ public class OCSPProcessor {
     public OCSPRequest createRequest(X500Name issuerName, X509Key issuerKey, BigInteger serialNumber)
             throws Exception {
 
-        MessageDigest md = MessageDigest.getInstance("SHA");
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
 
         // calculate hashes
         byte issuerNameHash[] = md.digest(issuerName.getEncoded());
         byte issuerKeyHash[] = md.digest(issuerKey.getKey());
 
         // constructing the OCSP request
+        // Use SHA-256 OID (2.16.840.1.101.3.4.2.1) for FIPS 140-3 compliance
         CertID certID = new CertID(
                 new AlgorithmIdentifier(
-                        new OBJECT_IDENTIFIER("1.3.14.3.2.26"), new NULL()),
+                        new OBJECT_IDENTIFIER("2.16.840.1.101.3.4.2.1"), new NULL()),
                 new OCTET_STRING(issuerNameHash),
                 new OCTET_STRING(issuerKeyHash),
                 new INTEGER(serialNumber));

@@ -147,6 +147,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ocsp.CertID;
 import com.netscape.cmsutil.ocsp.OCSPRequest;
 import com.netscape.cmsutil.ocsp.OCSPResponse;
+import com.netscape.cmsutil.ocsp.OCSPResponseStatus;
 import com.netscape.cmsutil.ocsp.Request;
 import com.netscape.cmsutil.ocsp.TBSRequest;
 
@@ -2172,6 +2173,20 @@ public class CAEngine extends CMSEngine {
         if (tbsRequest.getRequestCount() == 0) {
             logger.error(CMS.getLogMessage("OCSP_REQUEST_FAILURE", "No Request Found"));
             throw new EBaseException("OCSP request is empty");
+        }
+
+        // Check for rejected digest algorithms based on configuration in CS.cfg
+        // eg ca.ocspRejectAlgorithms=SHA-1,MD5,MD2
+        CAConfig caConfig = getConfig().getCAConfig();
+        for (int i = 0; i < tbsRequest.getRequestCount(); i++) {
+            Request req = tbsRequest.getRequestAt(i);
+            CertID reqCertID = req.getCertID();
+            String reqDigestName = reqCertID.getDigestName();
+
+            if (reqDigestName != null && caConfig.isOCSPAlgorithmRejected(reqDigestName)) {
+                logger.error("CAEngine: OCSP request uses rejected digest algorithm: " + reqDigestName);
+                return new OCSPResponse(OCSPResponseStatus.MALFORMED_REQUEST, null);
+            }
         }
 
         /* An OCSP request can contain CertIDs for certificates

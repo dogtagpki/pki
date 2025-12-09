@@ -64,6 +64,7 @@ import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.util.StatsSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
+import com.netscape.cmsutil.ocsp.CertID;
 import com.netscape.cmsutil.ocsp.KeyHashID;
 import com.netscape.cmsutil.ocsp.NameID;
 import com.netscape.cmsutil.ocsp.OCSPRequest;
@@ -371,6 +372,19 @@ public class OCSPAuthority extends Subsystem implements IAuthority, IOCSPService
             logger.error("OCSPAuthority: No request found");
             logger.error(CMS.getLogMessage("OCSP_REQUEST_FAILURE", "No Request Found"));
             throw new EBaseException("OCSP request is empty");
+        }
+
+        // Check for rejected digest algorithms based on configuration in OCSP CS.cfg
+	// where this param is  set example:  ocsp.rejectAlgorithms=SHA-1,MD5,MD2
+        for (int i = 0; i < tbsReq.getRequestCount(); i++) {
+            Request req = tbsReq.getRequestAt(i);
+            CertID certID = req.getCertID();
+            String digestName = certID.getDigestName();
+
+            if (digestName != null && mConfig.isAlgorithmRejected(digestName)) {
+                logger.error("OCSPAuthority: OCSP request uses rejected digest algorithm: " + digestName);
+                return new OCSPResponse(OCSPResponseStatus.MALFORMED_REQUEST, null);
+            }
         }
 
         OCSPEngine engine = OCSPEngine.getInstance();
