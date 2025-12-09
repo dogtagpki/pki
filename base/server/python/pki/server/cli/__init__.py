@@ -77,7 +77,12 @@ JAVA_COMMANDS = [
     r'[^-]*-user-cert-del$',
     r'[^-]*-user-role-find$',
     r'[^-]*-user-role-add$',
-    r'[^-]*-user-role-del$'
+    r'[^-]*-user-role-del$',
+    r'[^-]*-group-find$',
+    r'[^-]*-group-add$',
+    r'[^-]*-group-member-find$',
+    r'[^-]*-group-member-add$',
+    r'[^-]*-group-member-del$'
 ]
 
 
