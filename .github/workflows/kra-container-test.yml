@@ -4,6 +4,7 @@ on: workflow_call
 
 env:
   DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
+  TOMCAT_FLAVOR: old
 
 jobs:
   # https://github.com/dogtagpki/pki/wiki/Deploying-KRA-Container
@@ -365,7 +366,30 @@ jobs:
           lrwxrwxrwx runner web.xml -> /etc/tomcat/web.xml
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          drwxrwxrwx runner Catalina
+          drwxrwxrwx runner alias
+          -rw-rw-rw- runner catalina.policy
+          lrwxrwxrwx runner catalina.properties -> /usr/share/pki/server/conf/catalina.properties
+          drwxrwxrwx runner certs
+          lrwxrwxrwx runner context.xml -> /etc/tomcat/context.xml
+          -rw-rw-rw- runner jss.conf
+          drwxrwxrwx runner kra
+          lrwxrwxrwx runner logging.properties -> /usr/share/pki/server/conf/logging.properties
+          -rw-rw-rw- runner password.conf
+          -rw-rw-rw- runner server.xml
+          -rw-rw-rw- runner serverCertNick.conf
+          -rw-rw-rw- runner tomcat.conf
+          lrwxrwxrwx runner web.xml -> /etc/tomcat/web.xml
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check KRA conf/kra dir
         if: always()
@@ -385,7 +409,19 @@ jobs:
           -rw-rw---- runner registry.cfg
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          -rw-rw-rw- runner CS.cfg
+          drwxrwxrwx runner archives
+          -rw-rw-rw- runner registry.cfg
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check KRA logs dir
         if: ${{ fromJSON(env.FEDORA_VERSION) < 43 }}
@@ -429,7 +465,19 @@ jobs:
           -rw-rw-rw- runner localhost_access_log.$DATE.txt
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          drwxrwxrwx runner backup
+          drwxrwxrwx runner kra
+          -rw-rw-rw- runner localhost_access_log.$DATE.txt
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check KRA info
         run: |
@@ -521,7 +569,24 @@ jobs:
           ca.connector.KRA.uri=/kra/agent/kra/connector
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          ca.connector.KRA.enable=true
+          ca.connector.KRA.host=kra.example.com
+          ca.connector.KRA.local=false
+          ca.connector.KRA.nickName=subsystem
+          ca.connector.KRA.port=8443
+          ca.connector.KRA.timeout=30
+          ca.connector.KRA.transportCert=$TRANSPORT_CERT
+          ca.connector.KRA.uri=/kra/agent/kra/connector
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Restart CA
         run: |

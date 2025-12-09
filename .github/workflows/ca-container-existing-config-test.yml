@@ -4,6 +4,7 @@ on: workflow_call
 
 env:
   DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
+  TOMCAT_FLAVOR: old
 
 jobs:
   test:
@@ -217,7 +218,29 @@ jobs:
           lrwxrwxrwx root web.xml -> /etc/tomcat/web.xml
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          drwxrwxrwx root Catalina
+          drwxrwxrwx root alias
+          drwxrwxrwx root ca
+          -rw-rw-rw- root catalina.policy
+          lrwxrwxrwx root catalina.properties -> /usr/share/pki/server/conf/catalina.properties
+          drwxrwxrwx root certs
+          lrwxrwxrwx root context.xml -> /etc/tomcat/context.xml
+          lrwxrwxrwx root logging.properties -> /usr/share/pki/server/conf/logging.properties
+          -rw-rw-rw- root password.conf
+          -rw-rw-rw- root server.xml
+          -rw-rw-rw- root serverCertNick.conf
+          -rw-rw-rw- root tomcat.conf
+          lrwxrwxrwx root web.xml -> /etc/tomcat/web.xml
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check conf/ca dir
         if: always()
@@ -247,7 +270,29 @@ jobs:
           -rw-rw---- root subsystemCert.profile
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          -rw-rw-rw- root CS.cfg
+          -rw-rw-rw- root adminCert.profile
+          drwxrwxrwx root archives
+          -rw-rw-rw- root caAuditSigningCert.profile
+          -rw-rw-rw- root caCert.profile
+          -rw-rw-rw- root caOCSPCert.profile
+          drwxrwxrwx root emails
+          -rw-rw-rw- root flatfile.txt
+          drwxrwxrwx root profiles
+          -rw-rw-rw- root proxy.conf
+          -rw-rw-rw- root registry.cfg
+          -rw-rw-rw- root serverCert.profile
+          -rw-rw-rw- root subsystemCert.profile
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check logs dir
         if: always()
@@ -268,7 +313,19 @@ jobs:
           -rw-rw-rw- root localhost_access_log.$DATE.txt
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          drwxrwxrwx root backup
+          drwxrwxrwx root ca
+          -rw-rw-rw- root localhost_access_log.$DATE.txt
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check CA admin user again
         run: |
