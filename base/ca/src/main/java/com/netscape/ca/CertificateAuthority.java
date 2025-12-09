@@ -1213,7 +1213,12 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
         CAEngine engine = CAEngine.getInstance();
         ensureReady();
 
-        String algname = mOCSPSigningUnit.getDefaultAlgorithm();
+        // Use the configured OCSP response signing algorithm, or fall back to default
+        String algname = mConfig.getOCSPResponseSigningAlgorithm();
+        if (algname == null || algname.isEmpty()) {
+            algname = mOCSPSigningUnit.getDefaultAlgorithm();
+        }
+        logger.debug("CertificateAuthority: signing OCSP response with algorithm: " + algname);
 
         try (DerOutputStream out = new DerOutputStream()) {
             DerOutputStream tmp = new DerOutputStream();
