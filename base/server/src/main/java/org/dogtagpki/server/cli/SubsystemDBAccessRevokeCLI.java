@@ -26,7 +26,7 @@ import com.netscape.cmsutil.password.PasswordStoreConfig;
 /**
  * @author Endi S. Dewata
  */
-public class SubsystemDBAccessRevokeCLI extends SubsystemCLI {
+public class SubsystemDBAccessRevokeCLI extends ServerCommandCLI {
 
     public static Logger logger = LoggerFactory.getLogger(SubsystemDBAccessRevokeCLI.class);
 

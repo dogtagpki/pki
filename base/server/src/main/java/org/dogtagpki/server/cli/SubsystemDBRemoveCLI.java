@@ -30,7 +30,7 @@ import com.netscape.cmsutil.password.PasswordStoreConfig;
 /**
  * @author Endi S. Dewata
  */
-public class SubsystemDBRemoveCLI extends SubsystemCLI {
+public class SubsystemDBRemoveCLI extends ServerCommandCLI {
 
     public static Logger logger = LoggerFactory.getLogger(SubsystemDBRemoveCLI.class);
 

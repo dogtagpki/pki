@@ -26,7 +26,7 @@ import com.netscape.cmsutil.password.PasswordStoreConfig;
 /**
  * @author Endi S. Dewata
  */
-public class SubsystemDBIndexAddCLI extends SubsystemCLI {
+public class SubsystemDBIndexAddCLI extends ServerCommandCLI {
 
     public static final Logger logger = LoggerFactory.getLogger(SubsystemDBIndexAddCLI.class);
 

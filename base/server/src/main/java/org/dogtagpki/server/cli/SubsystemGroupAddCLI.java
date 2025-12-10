@@ -22,7 +22,7 @@ import com.netscape.cmscore.usrgrp.UGSubsystemConfig;
 import com.netscape.cmsutil.password.PasswordStore;
 import com.netscape.cmsutil.password.PasswordStoreConfig;
 
-public class SubsystemGroupAddCLI extends SubsystemCLI {
+public class SubsystemGroupAddCLI extends ServerCommandCLI {
 
     public static final Logger logger = LoggerFactory.getLogger(SubsystemGroupAddCLI.class);
 

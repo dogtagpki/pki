@@ -41,7 +41,7 @@ import netscape.ldap.LDAPv3;
 /**
  * @author Marco Fargetta {@literal <mfargett@redhat.com>}
  */
-public abstract class SubsystemIdGeneratorUpdateCLI extends SubsystemCLI {
+public abstract class SubsystemIdGeneratorUpdateCLI extends ServerCommandCLI {
     private static final Logger logger = LoggerFactory.getLogger(SubsystemIdGeneratorUpdateCLI.class);
     protected IDGenerator idGenerator;
 

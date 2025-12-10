@@ -28,7 +28,7 @@ import com.netscape.cmsutil.password.PasswordStoreConfig;
 /**
  * @author Endi S. Dewata
  */
-public class SubsystemUserCertFindCLI extends SubsystemCLI {
+public class SubsystemUserCertFindCLI extends ServerCommandCLI {
 
     public static final Logger logger = LoggerFactory.getLogger(SubsystemUserCertFindCLI.class);
 

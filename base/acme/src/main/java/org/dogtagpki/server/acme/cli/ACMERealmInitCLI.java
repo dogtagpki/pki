@@ -11,7 +11,7 @@ import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CLI;
-import org.dogtagpki.server.cli.SubsystemCLI;
+import org.dogtagpki.server.cli.ServerCommandCLI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +22,7 @@ import com.netscape.cmscore.apps.CMS;
 /**
  * @author Endi S. Dewata
  */
-public class ACMERealmInitCLI extends SubsystemCLI {
+public class ACMERealmInitCLI extends ServerCommandCLI {
 
     public static Logger logger = LoggerFactory.getLogger(ACMERealmInitCLI.class);
 

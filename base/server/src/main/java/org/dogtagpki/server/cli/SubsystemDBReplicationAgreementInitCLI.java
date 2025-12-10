@@ -28,7 +28,7 @@ import netscape.ldap.LDAPConnection;
 /**
  * @author Endi S. Dewata
  */
-public class SubsystemDBReplicationAgreementInitCLI extends SubsystemCLI {
+public class SubsystemDBReplicationAgreementInitCLI extends ServerCommandCLI {
 
     public static final Logger logger = LoggerFactory.getLogger(SubsystemDBReplicationAgreementInitCLI.class);
 

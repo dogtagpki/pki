@@ -24,7 +24,7 @@ import com.netscape.cmsutil.password.PasswordStoreConfig;
 /**
  * @author Endi S. Dewata
  */
-public class SubsystemGroupMemberRemoveCLI extends SubsystemCLI {
+public class SubsystemGroupMemberRemoveCLI extends ServerCommandCLI {
 
     public static final Logger logger = LoggerFactory.getLogger(SubsystemGroupMemberRemoveCLI.class);
 

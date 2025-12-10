@@ -28,12 +28,12 @@ import com.netscape.cmsutil.password.PasswordStore;
 /**
  * @author Chris S. Kelley
  */
-public abstract class SubsystemCLI extends CommandCLI {
+public abstract class ServerCommandCLI extends CommandCLI {
 
-    public static final Logger logger = LoggerFactory.getLogger(SubsystemCLI.class);
+    public static final Logger logger = LoggerFactory.getLogger(ServerCommandCLI.class);
     private static final String SERVER_XML = "server.xml";
 
-    protected SubsystemCLI(String name, String description, CLI parent) {
+    protected ServerCommandCLI(String name, String description, CLI parent) {
         super(name, description, parent);
     }
 

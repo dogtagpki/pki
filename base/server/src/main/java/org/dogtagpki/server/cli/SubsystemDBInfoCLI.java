@@ -47,7 +47,7 @@ import netscape.ldap.LDAPv3;
 /**
  * @author Endi S. Dewata
  */
-public class SubsystemDBInfoCLI extends SubsystemCLI {
+public class SubsystemDBInfoCLI extends ServerCommandCLI {
 
     public static Logger logger = LoggerFactory.getLogger(SubsystemDBInfoCLI.class);
 

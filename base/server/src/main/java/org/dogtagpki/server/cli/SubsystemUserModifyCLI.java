@@ -32,7 +32,7 @@ import netscape.ldap.LDAPAttribute;
 /**
  * @author Endi S. Dewata
  */
-public class SubsystemUserModifyCLI extends SubsystemCLI {
+public class SubsystemUserModifyCLI extends ServerCommandCLI {
 
     public static Logger logger = LoggerFactory.getLogger(SubsystemUserModifyCLI.class);
 

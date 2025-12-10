@@ -32,7 +32,7 @@ import netscape.ldap.LDAPConnection;
 /**
  * @author Endi S. Dewata
  */
-public class SubsystemDBReplicationEnableCLI extends SubsystemCLI {
+public class SubsystemDBReplicationEnableCLI extends ServerCommandCLI {
 
     public static final Logger logger = LoggerFactory.getLogger(SubsystemDBReplicationEnableCLI.class);
 

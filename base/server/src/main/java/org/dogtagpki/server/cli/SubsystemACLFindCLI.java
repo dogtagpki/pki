@@ -30,7 +30,7 @@ import netscape.ldap.LDAPEntry;
 
 /**
  */
-public class SubsystemACLFindCLI extends SubsystemCLI {
+public class SubsystemACLFindCLI extends ServerCommandCLI {
 
     public static Logger logger = LoggerFactory.getLogger(SubsystemACLFindCLI.class);
 

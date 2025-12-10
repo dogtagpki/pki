@@ -35,7 +35,7 @@ import netscape.ldap.LDAPModification;
 /**
  * @author Endi S. Dewata
  */
-public class SubsystemRangeUpdateCLI extends SubsystemCLI {
+public class SubsystemRangeUpdateCLI extends ServerCommandCLI {
 
     public static final Logger logger = LoggerFactory.getLogger(SubsystemRangeUpdateCLI.class);
 

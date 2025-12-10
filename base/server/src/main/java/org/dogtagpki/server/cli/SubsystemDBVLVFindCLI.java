@@ -32,7 +32,7 @@ import netscape.ldap.LDAPEntry;
 /**
  * @author Endi S. Dewata
  */
-public class SubsystemDBVLVFindCLI extends SubsystemCLI {
+public class SubsystemDBVLVFindCLI extends ServerCommandCLI {
 
     public static Logger logger = LoggerFactory.getLogger(SubsystemDBVLVFindCLI.class);
 

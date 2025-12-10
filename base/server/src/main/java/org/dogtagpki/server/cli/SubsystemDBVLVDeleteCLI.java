@@ -26,7 +26,7 @@ import com.netscape.cmsutil.password.PasswordStoreConfig;
 /**
  * @author Endi S. Dewata
  */
-public class SubsystemDBVLVDeleteCLI extends SubsystemCLI {
+public class SubsystemDBVLVDeleteCLI extends ServerCommandCLI {
 
     public static Logger logger = LoggerFactory.getLogger(SubsystemDBVLVDeleteCLI.class);
 

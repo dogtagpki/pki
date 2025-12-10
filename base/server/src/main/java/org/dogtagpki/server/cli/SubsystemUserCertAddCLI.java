@@ -30,7 +30,7 @@ import com.netscape.cmsutil.password.PasswordStoreConfig;
 /**
  * @author Endi S. Dewata
  */
-public class SubsystemUserCertAddCLI extends SubsystemCLI {
+public class SubsystemUserCertAddCLI extends ServerCommandCLI {
 
     public static Logger logger = LoggerFactory.getLogger(SubsystemUserCertAddCLI.class);
 

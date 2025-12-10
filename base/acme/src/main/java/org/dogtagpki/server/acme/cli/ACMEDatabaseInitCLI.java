@@ -16,7 +16,7 @@ import org.dogtagpki.acme.database.ACMEDatabase;
 import org.dogtagpki.acme.database.ACMEDatabaseConfig;
 import org.dogtagpki.acme.database.LDAPDatabase;
 import org.dogtagpki.cli.CLI;
-import org.dogtagpki.server.cli.SubsystemCLI;
+import org.dogtagpki.server.cli.ServerCommandCLI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +25,7 @@ import com.netscape.cmscore.apps.CMS;
 /**
  * @author Endi S. Dewata
  */
-public class ACMEDatabaseInitCLI extends SubsystemCLI {
+public class ACMEDatabaseInitCLI extends ServerCommandCLI {
 
     public static Logger logger = LoggerFactory.getLogger(ACMEDatabaseInitCLI.class);
 
