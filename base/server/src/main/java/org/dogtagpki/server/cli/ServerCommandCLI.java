@@ -7,6 +7,7 @@ package org.dogtagpki.server.cli;
 
 import java.io.File;
 
+import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.jss.tomcat.TomcatJSS;
@@ -35,6 +36,16 @@ public abstract class ServerCommandCLI extends CommandCLI {
 
     protected ServerCommandCLI(String name, String description, CLI parent) {
         super(name, description, parent);
+    }
+
+    @Override
+    public void createOptions() {
+
+        super.createOptions();
+
+        Option option = new Option("i", "instance", true, "Instance ID (default: pki-tomcat)");
+        option.setArgName("instance ID");
+        options.addOption(option);
     }
 
     protected void initializeTomcatJSS() throws Exception {
