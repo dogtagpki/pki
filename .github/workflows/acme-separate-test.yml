@@ -789,7 +789,23 @@ jobs:
           diff expected actual
 
       - name: Remove ACME
-        run: docker exec acme pkidestroy -s ACME -v
+        run: |
+          docker exec acme pkidestroy \
+              -s ACME \
+              --debug \
+              > >(tee stdout) 2> >(tee stderr >&2)
+
+      - name: Check for warnings
+        if: always()
+        run: |
+          sed -n '/^WARNING:/p' stderr | tee output
+          wc -l output
+
+      - name: Check external commands
+        if: always()
+        run: |
+          sed -n '/^DEBUG: Command:/p' stderr | tee output
+          wc -l output
 
       - name: Remove CA
         run: docker exec ca pkidestroy -s CA -v

@@ -256,7 +256,23 @@ jobs:
           docker exec pki pki -n caadmin tks-user-show tksadmin
 
       - name: Remove TKS
-        run: docker exec pki pkidestroy -s TKS -v
+        run: |
+          docker exec pki pkidestroy \
+              -s TKS \
+              --debug \
+              > >(tee stdout) 2> >(tee stderr >&2)
+
+      - name: Check for warnings
+        if: always()
+        run: |
+          sed -n '/^WARNING:/p' stderr | tee output
+          wc -l output
+
+      - name: Check external commands
+        if: always()
+        run: |
+          sed -n '/^DEBUG: Command:/p' stderr | tee output
+          wc -l output
 
       - name: Remove CA
         run: docker exec pki pkidestroy -s CA -v

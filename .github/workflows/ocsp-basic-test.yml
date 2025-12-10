@@ -840,7 +840,23 @@ jobs:
           diff expected actual
 
       - name: Remove OCSP
-        run: docker exec pki pkidestroy -s OCSP -v
+        run: |
+          docker exec pki pkidestroy \
+              -s OCSP \
+              --debug \
+              > >(tee stdout) 2> >(tee stderr >&2)
+
+      - name: Check for warnings
+        if: always()
+        run: |
+          sed -n '/^WARNING:/p' stderr | tee output
+          wc -l output
+
+      - name: Check external commands
+        if: always()
+        run: |
+          sed -n '/^DEBUG: Command:/p' stderr | tee output
+          wc -l output
 
       - name: Remove CA
         run: docker exec pki pkidestroy -s CA -v

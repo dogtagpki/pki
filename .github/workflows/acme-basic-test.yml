@@ -784,7 +784,23 @@ jobs:
           diff expected actual
           
       - name: Remove ACME from PKI container
-        run: docker exec pki pkidestroy -s ACME -v
+        run: |
+          docker exec pki pkidestroy \
+              -s ACME \
+              --debug \
+              > >(tee stdout) 2> >(tee stderr >&2)
+
+      - name: Check for warnings
+        if: always()
+        run: |
+          sed -n '/^WARNING:/p' stderr | tee output
+          wc -l output
+
+      - name: Check external commands
+        if: always()
+        run: |
+          sed -n '/^DEBUG: Command:/p' stderr | tee output
+          wc -l output
 
       - name: Remove CA from PKI container
         run: docker exec pki pkidestroy -s CA -v

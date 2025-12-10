@@ -299,7 +299,23 @@ jobs:
           diff expected output
 
       - name: Remove TPS
-        run: docker exec tps pkidestroy -s TPS -v
+        run: |
+          docker exec tps pkidestroy \
+              -s TPS \
+              --debug \
+              > >(tee stdout) 2> >(tee stderr >&2)
+
+      - name: Check for warnings
+        if: always()
+        run: |
+          sed -n '/^WARNING:/p' stderr | tee output
+          wc -l output
+
+      - name: Check external commands
+        if: always()
+        run: |
+          sed -n '/^DEBUG: Command:/p' stderr | tee output
+          wc -l output
 
       - name: Remove TKS
         run: docker exec tks pkidestroy -s TKS -v

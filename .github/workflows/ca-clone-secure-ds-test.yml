@@ -503,7 +503,22 @@ jobs:
 
       - name: Remove CA from secondary PKI container
         run: |
-          docker exec secondary pkidestroy -s CA -v
+          docker exec secondary pkidestroy \
+              -s CA \
+              --debug \
+              > >(tee stdout) 2> >(tee stderr >&2)
+
+      - name: Check for warnings
+        if: always()
+        run: |
+          sed -n '/^WARNING:/p' stderr | tee output
+          wc -l output
+
+      - name: Check external commands
+        if: always()
+        run: |
+          sed -n '/^DEBUG: Command:/p' stderr | tee output
+          wc -l output
 
       - name: Re-install CA in secondary PKI container
         run: |
