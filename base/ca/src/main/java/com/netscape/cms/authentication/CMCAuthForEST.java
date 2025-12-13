@@ -19,18 +19,26 @@
 package com.netscape.cms.authentication;
 
 import java.io.ByteArrayInputStream;
+import java.math.BigInteger;
 import java.security.cert.X509Certificate;
 
 import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.pkix.cms.SignedData;
 
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.usrgrp.Certificates;
+import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.cmscore.authentication.AuthSubsystem;
+import com.netscape.cmscore.usrgrp.ExactMatchCertUserLocator;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
+import com.netscape.cmscore.usrgrp.User;
 
 /**
  * EST CMC Authentication.
@@ -153,5 +161,85 @@ public class CMCAuthForEST extends CMCAuth {
 
         // Call parent CMCAuth.authenticate() which will now use the end-user cert
         return super.authenticate(credentials);
+    }
+
+    /**
+     * Override verifySignerInfo to skip CA user database authentication for EST.
+     *
+     * For EST fullcmc enrollment, authentication is handled by:
+     * 1. EST subsystem authentication (in authenticate() above) - proves request came from authorized EST
+     * 2. CMC signature verification (done here) - proves client owns the private key
+     * 3. Profile's RAHeaderClientCertSubjectNameConstraint - validates subject match and agent status
+     *
+     * The profile constraint already uses isAgentCert() to check if the client is a CA agent:
+     * - If agent: allows any subject name
+     * - If non-agent: requires subject to match client certificate
+     *
+     * Therefore, we don't need to authenticate against CA user database here.
+     * This allows both agent and non-agent EST users to enroll via fullcmc.
+     *
+     * @param auditContext Session context
+     * @param authToken Authentication token
+     * @param cmcFullReq Signed CMC request
+     * @return AuthToken if successful
+     * @throws EBaseException if signature verification fails
+     */
+    @Override
+    protected AuthToken verifySignerInfo(
+            SessionContext auditContext,
+            AuthToken authToken,
+            SignedData cmcFullReq) throws EBaseException {
+
+        String method = "CMCAuthForEST.verifySignerInfo: ";
+        logger.debug(method + "begins");
+
+        // Call parent's signature verification, but catch the exception
+        // when it tries to authenticate against CA user database
+        try {
+            return super.verifySignerInfo(auditContext, authToken, cmcFullReq);
+        } catch (EBaseException e) {
+            // Check if this is a CA database authentication failure
+            // (happens for both non-agent users and users not in CA database)
+            String errorMsg = e.getMessage();
+            if (errorMsg != null &&
+                (errorMsg.contains("User not found") ||
+                 errorMsg.contains("Invalid Credential") ||
+                 errorMsg.contains("CMS_AUTHENTICATION_MANAGER_NOT_FOUND") ||
+                 errorMsg.contains("cannot map certificate"))) {
+
+                logger.debug(method + "CA database authentication skipped for EST enrollment");
+
+                // Get the client certificate from session context
+                X509Certificate clientCert =
+                        (X509Certificate) auditContext.get(SessionContext.SSL_CLIENT_CERT);
+
+                if (clientCert == null) {
+                    throw new EInvalidCredentials("Missing client certificate for EST enrollment");
+                }
+
+                // Set the authenticated cert subject in the auth token
+                // (needed by the profile processing)
+                X500Name principal = (X500Name) clientCert.getSubjectDN();
+                String subjectDN = principal.getName();
+                logger.debug(method + "Setting authenticated cert subject: " + subjectDN);
+
+                authToken.set(AuthToken.TOKEN_AUTHENTICATED_CERT_SUBJECT, subjectDN);
+
+                BigInteger certSerial = clientCert.getSerialNumber();
+                authToken.set(AuthManager.CRED_SSL_CLIENT_CERT, certSerial.toString());
+
+                // Set USER_ID for audit logging (use cert subject since no CA database user)
+                authToken.set(AuthToken.USER_ID, subjectDN);
+                authToken.set("id", subjectDN);
+
+                // Note: The profile's RAHeaderClientCertSubjectNameConstraint will run later
+                // and will check if the client is an agent or validate subject name match
+                return authToken;
+            } else {
+                // Some other error (signature verification failed, etc.)
+                logger.error(method + "CMC signature verification failed: " + errorMsg);
+                throw e;
+            }
+        }
     }
 }
