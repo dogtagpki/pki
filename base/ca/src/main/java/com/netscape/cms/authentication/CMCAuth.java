@@ -698,6 +698,50 @@ public class CMCAuth extends AuthManager implements IExtendedPluginInfo {
         return s;
     }
 
+    /**
+     * Authenticate the CMC signer's certificate against the CA user database.
+     *
+     * This method verifies that the certificate used to sign the CMC request
+     * belongs to a user in the CA's user database. By default, this uses the
+     * CertUserDB authentication manager to validate the certificate.
+     *
+     * Subclasses can override this method to skip CA user database authentication
+     * when using alternative authentication mechanisms (e.g., EST LDAP realm).
+     *
+     * @param authToken The authentication token to populate
+     * @param x509Certs Array containing the signer's certificate (cert[0] is the signer)
+     * @return AuthToken from the CA user database authentication
+     * @throws EBaseException if authentication fails
+     */
+    protected AuthToken authenticateCAUser(AuthToken authToken, X509Certificate[] x509Certs)
+            throws EBaseException {
+        String method = "CMCAuth: authenticateCAUser: ";
+
+        // authenticate signer's certificate using the userdb
+        AuthSubsystem authSS = engine.getAuthSubsystem();
+
+        AuthManager agentAuth = authSS.getAuthManager(AuthSubsystem.CERTUSERDB_AUTHMGR_ID);
+        if (agentAuth == null) {
+            throw new EBaseException(CMS.getUserMessage("CMS_AUTHENTICATION_MANAGER_NOT_FOUND",
+                    AuthSubsystem.CERTUSERDB_AUTHMGR_ID));
+        }
+        AuthCredentials agentCred = new AuthCredentials();
+
+        agentCred.set(AuthManager.CRED_SSL_CLIENT_CERT, x509Certs);
+
+        AuthToken tempToken = agentAuth.authenticate(agentCred);
+        org.mozilla.jss.netscape.security.x509.X500Name tempPrincipal =
+                (X500Name) x509Certs[0].getSubjectDN();
+        String ID = tempPrincipal.getName();
+        logger.debug(method + "Principal name = " + ID);
+        authToken.set(AuthToken.TOKEN_AUTHENTICATED_CERT_SUBJECT, ID);
+
+        BigInteger agentCertSerial = x509Certs[0].getSerialNumber();
+        authToken.set(AuthManager.CRED_SSL_CLIENT_CERT, agentCertSerial.toString());
+        tempToken.set("id", ID);
+        return tempToken;
+    }
+
     protected AuthToken verifySignerInfo(
             SessionContext auditContext,
             AuthToken authToken,
@@ -859,6 +903,10 @@ public class CMCAuth extends AuthManager implements IExtendedPluginInfo {
                                 logger.debug("CMCAuth: signing key alg=DSA");
                                 keyType = PrivateKey.DSA;
                                 pubK = PK11PubKey.fromSPKI(/*keyType,*/ ((X509Key) signKey).getKey());
+                            } else if (alg.startsWith("ML-DSA-")) {
+                                logger.debug("CMCAuth: signing key alg=" + alg);
+                                byte publicKeyData[] = ((X509Key) signKey).getEncoded();
+                                pubK = PK11PubKey.fromSPKI(publicKeyData);
                             }
 
                             String tokenName = cs.getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
@@ -880,27 +928,7 @@ public class CMCAuth extends AuthManager implements IExtendedPluginInfo {
                         }
                         logger.debug("CMCAuth: finished checking signature");
 
-                        // authenticate signer's certificate using the userdb
-                        AuthSubsystem authSS = engine.getAuthSubsystem();
-
-                        AuthManager agentAuth = authSS.getAuthManager(AuthSubsystem.CERTUSERDB_AUTHMGR_ID);//AGENT_AUTHMGR_ID);
-                        if (agentAuth == null) {
-                            throw new EBaseException(CMS.getUserMessage("CMS_AUTHENTICATION_MANAGER_NOT_FOUND", AuthSubsystem.CERTUSERDB_AUTHMGR_ID));
-                        }
-                        AuthCredentials agentCred = new AuthCredentials();
-
-                        agentCred.set(AuthManager.CRED_SSL_CLIENT_CERT, x509Certs);
-
-                        AuthToken tempToken = agentAuth.authenticate(agentCred);
-                        org.mozilla.jss.netscape.security.x509.X500Name tempPrincipal = (X500Name) x509Certs[0].getSubjectDN();
-                        String ID = tempPrincipal.getName();
-                        logger.debug(method + " Principal name = " + ID);
-                        authToken.set(AuthToken.TOKEN_AUTHENTICATED_CERT_SUBJECT, ID);
-
-                        BigInteger agentCertSerial = x509Certs[0].getSerialNumber();
-                        authToken.set(AuthManager.CRED_SSL_CLIENT_CERT, agentCertSerial.toString());
-                        tempToken.set("id", ID);
-                        return tempToken;
+                        return authenticateCAUser(authToken, x509Certs);
 
                     }
                     // find from internaldb if it's ca. (ra does not have that.)
