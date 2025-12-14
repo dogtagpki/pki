@@ -93,6 +93,7 @@ JAVA_COMMANDS = [
     r'[^-]*-acl-find$',
     r'[^-]*-acl-add$',
     r'[^-]*-acl-del$',
+    r'[^-]*-id-generator-update$',
     r'[^-]*-sd-create$',
     r'[^-]*-sd-type-add$',
     r'[^-]*-sd-subsystem-find$',

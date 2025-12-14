@@ -1677,7 +1677,11 @@ class PKISubsystem(object):
             self, generator, generator_object,
             range_object=None, as_current_user=False):
 
-        cmd = [self.name + '-id-generator-update']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            self.name + '-id-generator-update'
+        ]
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
@@ -1693,7 +1697,8 @@ class PKISubsystem(object):
         cmd.append(generator)
         cmd.append(generator_object)
 
-        self.run(cmd, as_current_user=as_current_user)
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     def retrieve_config(self, master_url, names, substores, session_id=None, install_token=None):
 
