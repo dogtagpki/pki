@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.math.BigInteger;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyPair;
@@ -53,6 +54,7 @@ import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.FileConfigStorage;
+import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.Repository.IDGenerator;
@@ -90,6 +92,24 @@ public class CACertCreateCLI extends CommandCLI {
         option.setArgName("ID");
         options.addOption(option);
 
+        option = new Option(null, "request-type", true, "Certificate request type: pkcs10 (default), crmf");
+        option.setArgName("format");
+        options.addOption(option);
+
+        option = new Option(null, "csr", true, "CSR path");
+        option.setArgName("path");
+        options.addOption(option);
+
+        option = new Option(null, "csr-format", true, "CSR format: PEM (default), DER");
+        option.setArgName("format");
+        options.addOption(option);
+
+        option = new Option(null, "dns-names", true, "Comma-separated list of DNS names");
+        option.setArgName("names");
+        options.addOption(option);
+
+        options.addOption(null, "adjust-validity", false, "Adjust validity");
+
         option = new Option(null, "profile", true, "Bootstrap profile path");
         option.setArgName("path");
         options.addOption(option);
@@ -125,15 +145,49 @@ public class CACertCreateCLI extends CommandCLI {
         option = new Option(null, "cert", true, "Certificate path");
         option.setArgName("path");
         options.addOption(option);
+
+        options.addOption(null, "import-cert", false, "Import certificate into CA database.");
     }
 
     @Override
     public void execute(CommandLine cmd) throws Exception {
 
-        String requestID = cmd.getOptionValue("request");
-        if (requestID == null) {
-            throw new CLIException("Missing request ID");
+        String value = cmd.getOptionValue("request");
+        RequestId requestID = null;
+        if (value != null) {
+            requestID = new RequestId(value);
         }
+
+        String requestType = cmd.getOptionValue("request-type", "pkcs10");
+
+        String csrPath = cmd.getOptionValue("csr");
+        String csrFormat = cmd.getOptionValue("csr-format");
+
+        // load CSR if provided
+        byte[] csrBytes = null;
+        if (csrPath != null) {
+            logger.info("Importing " + csrPath);
+            csrBytes = Files.readAllBytes(Paths.get(csrPath));
+
+            if (csrFormat == null || "PEM".equalsIgnoreCase(csrFormat)) {
+                csrBytes = CertUtil.parseCSR(new String(csrBytes));
+
+            } else if ("DER".equalsIgnoreCase(csrFormat)) {
+                // nothing to do
+
+            } else {
+                throw new Exception("Unsupported CSR format: " + csrFormat);
+            }
+        }
+
+        value = cmd.getOptionValue("dns-names");
+        String[] dnsNames = null;
+        if (value != null) {
+            dnsNames = value.split(",");
+        }
+
+        value = cmd.getOptionValue("adjust-validity", "false");
+        boolean adjustValidity = Boolean.parseBoolean(value);
 
         String profilePath = cmd.getOptionValue("profile");
         if (profilePath == null) {
@@ -176,7 +230,9 @@ public class CACertCreateCLI extends CommandCLI {
         ConfigStorage profileStorage = new FileConfigStorage(path.toString());
         ConfigStore profileConfig = new ConfigStore(profileStorage);
         profileConfig.load();
+
         BootstrapProfile profile = new BootstrapProfile(cs, profileConfig);
+        String profileIDMapping = profileConfig.getString("profileIDMapping");
 
         DatabaseConfig dbConfig = cs.getDatabaseConfig();
         LDAPConfig ldapConfig = dbConfig.getLDAPConfig();
@@ -206,10 +262,27 @@ public class CACertCreateCLI extends CommandCLI {
         dbSubsystem.init(dbConfig, ldapConfig, passwordStore);
 
         try {
+            // import CSR if provided
+            if (csrBytes != null) {
+                Request request = CACertCLI.importCertRequest(
+                        secureRandom,
+                        dbSubsystem,
+                        requestID,
+                        requestType,
+                        csrBytes,
+                        dnsNames,
+                        profileConfig,
+                        adjustValidity);
+
+                requestID = request.getRequestId();
+                logger.info("Created request record " + requestID.toHexString());
+            }
+
+            // create cert
             CertRequestRepository requestRepository = new CertRequestRepository(secureRandom, dbSubsystem);
             requestRepository.init();
 
-            Request requestRecord = requestRepository.readRequest(new RequestId(requestID));
+            Request requestRecord = requestRepository.readRequest(requestID);
             if (requestRecord == null) {
                 throw new CLIException("Certificate request not found: " + requestID);
             }
@@ -326,18 +399,28 @@ public class CACertCreateCLI extends CommandCLI {
             profile.populate(requestRecord, certInfo);
             requestRepository.updateRequest(requestRecord);
 
-            X509CertImpl certImpl = CryptoUtil.signCert(
+            X509CertImpl cert = CryptoUtil.signCert(
                     signingPrivateKey,
                     certInfo,
                     signingAlgorithm);
 
+            if (cmd.hasOption("import-cert")) {
+                CertRecord certRecord = certificateRepository.createCertRecord(
+                        requestID,
+                        profileIDMapping,
+                        cert);
+
+                certificateRepository.addCertificateRecord(certRecord);
+                logger.info("Created cert record 0x" + cert.getSerialNumber().toString(16));
+            }
+
             byte[] bytes;
 
             if ("PEM".equalsIgnoreCase(certFormat)) {
-                bytes = CertUtil.toPEM(certImpl).getBytes();
+                bytes = CertUtil.toPEM(cert).getBytes();
 
             } else if ("DER".equalsIgnoreCase(certFormat)) {
-                bytes = certImpl.getEncoded();
+                bytes = cert.getEncoded();
 
             } else {
                 throw new CLIException("Unsupported certificate format: " + certFormat);
