@@ -82,7 +82,8 @@ JAVA_COMMANDS = [
     r'[^-]*-group-add$',
     r'[^-]*-group-member-find$',
     r'[^-]*-group-member-add$',
-    r'[^-]*-group-member-del$'
+    r'[^-]*-group-member-del$',
+    r'ca-profile-import$'
 ]
 
 

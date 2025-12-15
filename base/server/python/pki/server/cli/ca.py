@@ -1971,41 +1971,6 @@ class CAProfileImportCLI(pki.cli.CLI):
         print('      --help                         Show help message.')
         print()
 
-    def execute(self, argv, args=None):
-
-        if not args:
-            args = self.parser.parse_args(args=argv)
-
-        if args.help:
-            self.print_help()
-            return
-
-        if args.debug:
-            logging.getLogger().setLevel(logging.DEBUG)
-
-        elif args.verbose:
-            logging.getLogger().setLevel(logging.INFO)
-
-        instance_name = args.instance
-        input_folder = args.input_folder
-        as_current_user = args.as_current_user
-
-        instance = pki.server.PKIServerFactory.create(instance_name)
-        if not instance.exists():
-            logger.error('Invalid instance: %s', instance_name)
-            sys.exit(1)
-
-        instance.load()
-
-        subsystem = instance.get_subsystem('ca')
-        if not subsystem:
-            logger.error('No CA subsystem in instance %s', instance_name)
-            sys.exit(1)
-
-        subsystem.import_profiles(
-            input_folder=input_folder,
-            as_current_user=as_current_user)
-
 
 class CAProfileModifyCLI(pki.cli.CLI):
     '''
