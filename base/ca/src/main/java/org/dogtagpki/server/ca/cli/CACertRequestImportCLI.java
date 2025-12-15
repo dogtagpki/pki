@@ -31,14 +31,12 @@ import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.base.FileConfigStorage;
 import com.netscape.cmscore.dbs.DBSubsystem;
-import com.netscape.cmscore.dbs.Repository.IDGenerator;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LDAPConnectionConfig;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 import com.netscape.cmscore.ldapconn.PKISocketConfig;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
-import com.netscape.cmscore.request.CertRequestRepository;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.security.SecureRandomConfig;
 import com.netscape.cmscore.security.SecureRandomFactory;
@@ -111,18 +109,18 @@ public class CACertRequestImportCLI extends CommandCLI {
         String requestPath = cmd.getOptionValue("csr");
         String requestFormat = cmd.getOptionValue("format");
 
-        byte[] bytes;
+        byte[] csrBytes;
         if (requestPath == null) {
             // read from standard input
-            bytes = IOUtils.toByteArray(System.in);
+            csrBytes = IOUtils.toByteArray(System.in);
 
         } else {
             logger.info("Importing " + requestPath);
-            bytes = Files.readAllBytes(Paths.get(requestPath));
+            csrBytes = Files.readAllBytes(Paths.get(requestPath));
         }
 
         if (requestFormat == null || "PEM".equalsIgnoreCase(requestFormat)) {
-            bytes = CertUtil.parseCSR(new String(bytes));
+            csrBytes = CertUtil.parseCSR(new String(csrBytes));
 
         } else if ("DER".equalsIgnoreCase(requestFormat)) {
             // nothing to do
@@ -190,32 +188,18 @@ public class CACertRequestImportCLI extends CommandCLI {
         dbSubsystem.init(dbConfig, ldapConfig, passwordStore);
 
         try {
-            CertRequestRepository requestRepository = new CertRequestRepository(secureRandom, dbSubsystem);
-            requestRepository.init();
-
-            if (requestID == null) {
-                if (requestRepository.getIDGenerator() != IDGenerator.RANDOM) {
-                    throw new Exception("Unable to generate random request ID");
-                }
-                requestID = requestRepository.createRequestID();
-            }
-
-            Request request = requestRepository.createRequest(requestID, "enrollment");
-
-            requestRepository.updateRequest(
-                    request,
+            Request request = CACertCLI.importCertRequest(
+                    secureRandom,
+                    dbSubsystem,
+                    requestID,
                     requestType,
-                    bytes,
-                    dnsNames);
-
-            requestRepository.updateRequest(
-                    request,
-                    profileConfig.getString("id"),
-                    profileConfig.getString("profileIDMapping"),
-                    profileConfig.getString("profileSetIDMapping"),
+                    csrBytes,
+                    dnsNames,
+                    profileConfig,
                     adjustValidity);
 
-            requestRepository.updateRequest(request);
+            requestID = request.getRequestId();
+            logger.info("Created request record " + requestID.toHexString());
 
             CertRequestInfo info = CertRequestInfoFactory.create(request);
 

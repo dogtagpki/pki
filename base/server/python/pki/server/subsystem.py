@@ -2552,12 +2552,17 @@ class CASubsystem(PKISubsystem):
         logger.debug('Command: %s', ' '.join(cmd))
         subprocess.check_call(cmd)
 
+    # pylint: disable=W0613
     def find_certs(
             self,
             status=None,
             as_current_user=False):
 
-        cmd = ['ca-cert-find']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            'ca-cert-find'
+        ]
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
@@ -2568,7 +2573,8 @@ class CASubsystem(PKISubsystem):
         if status:
             cmd.extend(['--status', status])
 
-        self.run(cmd, as_current_user=as_current_user)
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     def create_cert(
             self,
@@ -2585,7 +2591,11 @@ class CASubsystem(PKISubsystem):
         tmpdir = tempfile.mkdtemp()
 
         try:
-            cmd = ['ca-cert-create']
+            cmd = [
+                'pki-server',
+                '-i', self.instance.name,
+                'ca-cert-create'
+            ]
 
             if logger.isEnabledFor(logging.DEBUG):
                 cmd.append('--debug')
@@ -2620,9 +2630,11 @@ class CASubsystem(PKISubsystem):
             if cert_format:
                 cmd.extend(['--format', cert_format])
 
-            result = self.run(
+            logger.debug('Command: %s', ' '.join(cmd))
+            result = subprocess.run(
                 cmd,
-                stdout=subprocess.PIPE)
+                stdout=subprocess.PIPE,
+                check=True)
 
         finally:
             shutil.rmtree(tmpdir)
@@ -2645,7 +2657,11 @@ class CASubsystem(PKISubsystem):
                 with open(cert_path, 'wb') as f:
                     f.write(cert_data)
 
-            cmd = ['ca-cert-import']
+            cmd = [
+                'pki-server',
+                '-i', self.instance.name,
+                'ca-cert-import'
+            ]
 
             if logger.isEnabledFor(logging.DEBUG):
                 cmd.append('--debug')
@@ -2665,15 +2681,20 @@ class CASubsystem(PKISubsystem):
             if profile_path:
                 cmd.extend(['--profile', profile_path])
 
-            # run as current user so it can read the input file
-            self.run(cmd, as_current_user=True)
+            logger.debug('Command: %s', ' '.join(cmd))
+            subprocess.check_call(cmd)
 
         finally:
             shutil.rmtree(tmpdir)
 
+    # pylint: disable=W0613
     def remove_cert(self, serial_number, as_current_user=False):
 
-        cmd = ['ca-cert-del']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            'ca-cert-del'
+        ]
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
@@ -2683,7 +2704,8 @@ class CASubsystem(PKISubsystem):
 
         cmd.append(serial_number)
 
-        self.run(cmd, as_current_user=as_current_user)
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     def find_cert_requests(self, cert=None):
 
@@ -2727,7 +2749,11 @@ class CASubsystem(PKISubsystem):
             with open(request_path, 'r', encoding='utf-8') as f:
                 request_data = f.read()
 
-        cmd = ['ca-cert-request-import']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            'ca-cert-request-import'
+        ]
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
@@ -2756,10 +2782,12 @@ class CASubsystem(PKISubsystem):
         if request_id:
             cmd.append(request_id)
 
-        result = self.run(
+        logger.debug('Command: %s', ' '.join(cmd))
+        result = subprocess.run(
             cmd,
             input=request_data.encode('utf-8'),
-            stdout=subprocess.PIPE)
+            stdout=subprocess.PIPE,
+            check=True)
 
         return json.loads(result.stdout.decode('utf-8'))
 

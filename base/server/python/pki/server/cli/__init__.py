@@ -83,7 +83,12 @@ JAVA_COMMANDS = [
     r'[^-]*-group-member-find$',
     r'[^-]*-group-member-add$',
     r'[^-]*-group-member-del$',
-    r'ca-profile-import$'
+    r'ca-profile-import$',
+    r'ca-cert-request-import$',
+    r'ca-cert-find$',
+    r'ca-cert-create$',
+    r'ca-cert-import$',
+    r'ca-cert-del$'
 ]
 
 

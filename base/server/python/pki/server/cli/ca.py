@@ -123,39 +123,6 @@ class CACertFindCLI(pki.cli.CLI):
     def print_help(self):
         print(textwrap.dedent(self.__class__.help))
 
-    def execute(self, argv, args=None):
-
-        if not args:
-            args = self.parser.parse_args(args=argv)
-
-        if args.help:
-            self.print_help()
-            return
-
-        if args.debug:
-            logging.getLogger().setLevel(logging.DEBUG)
-
-        elif args.verbose:
-            logging.getLogger().setLevel(logging.INFO)
-
-        instance_name = args.instance
-        status = args.status
-
-        instance = pki.server.PKIServerFactory.create(instance_name)
-        if not instance.exists():
-            logger.error('Invalid instance: %s', instance_name)
-            sys.exit(1)
-
-        instance.load()
-
-        subsystem = instance.get_subsystem('ca')
-        if not subsystem:
-            logger.error('No CA subsystem in instance %s', instance_name)
-            sys.exit(1)
-
-        subsystem.find_certs(
-            status=status)
-
 
 class CACertCreateCLI(pki.cli.CLI):
     '''
@@ -235,82 +202,6 @@ class CACertCreateCLI(pki.cli.CLI):
     def print_help(self):
         print(textwrap.dedent(self.__class__.help))
 
-    def execute(self, argv, args=None):
-
-        if not args:
-            args = self.parser.parse_args(args=argv)
-
-        if args.help:
-            self.print_help()
-            return
-
-        if args.debug:
-            logging.getLogger().setLevel(logging.DEBUG)
-
-        elif args.verbose:
-            logging.getLogger().setLevel(logging.INFO)
-
-        instance_name = args.instance
-        csr_path = args.csr
-        csr_format = args.csr_format
-        request_id = args.request
-        profile_path = args.profile
-        cert_type = args.type
-        key_id = args.key_id
-        key_token = args.key_token
-        key_algorithm = args.key_algorithm
-        signing_algorithm = args.signing_algorithm
-        serial = args.serial
-        cert_format = args.format
-        cert_path = args.cert
-        import_cert = args.import_cert
-
-        instance = pki.server.PKIServerFactory.create(instance_name)
-        if not instance.exists():
-            logger.error('Invalid instance: %s', instance_name)
-            sys.exit(1)
-
-        instance.load()
-
-        subsystem = instance.get_subsystem('ca')
-        if not subsystem:
-            logger.error('No CA subsystem in instance %s', instance_name)
-            sys.exit(1)
-
-        # if request ID is missing, import the CSR
-        if not request_id:
-            result = subsystem.import_cert_request(
-                request_path=csr_path,
-                request_format=csr_format,
-                profile_path=profile_path)
-
-            request_id = result['requestID']
-
-        cert_data = subsystem.create_cert(
-            request_id=request_id,
-            profile_path=profile_path,
-            cert_type=cert_type,
-            key_token=key_token,
-            key_id=key_id,
-            key_algorithm=key_algorithm,
-            signing_algorithm=signing_algorithm,
-            serial=serial,
-            cert_format=cert_format)
-
-        if import_cert:
-            subsystem.import_cert(
-                cert_data=cert_data,
-                cert_format=cert_format,
-                profile_path=profile_path,
-                request_id=request_id)
-
-        if cert_path:
-            with open(cert_path, 'wb') as f:
-                f.write(cert_data)
-
-        else:
-            sys.stdout.buffer.write(cert_data)
-
 
 class CACertImportCLI(pki.cli.CLI):
 
@@ -362,58 +253,6 @@ class CACertImportCLI(pki.cli.CLI):
         print('      --help                         Show help message.')
         print()
 
-    def execute(self, argv, args=None):
-
-        if not args:
-            args = self.parser.parse_args(args=argv)
-
-        if args.help:
-            self.print_help()
-            return
-
-        if args.debug:
-            logging.getLogger().setLevel(logging.DEBUG)
-
-        elif args.verbose:
-            logging.getLogger().setLevel(logging.INFO)
-
-        instance_name = args.instance
-        cert_path = args.cert
-        cert_format = args.format
-        csr_path = args.csr
-        csr_format = args.csr_format
-        profile_path = args.profile
-        request_id = args.request
-
-        instance = pki.server.PKIServerFactory.create(instance_name)
-        if not instance.exists():
-            logger.error('Invalid instance: %s', instance_name)
-            sys.exit(1)
-
-        instance.load()
-
-        subsystem = instance.get_subsystem('ca')
-        if not subsystem:
-            logger.error('No CA subsystem in instance %s', instance_name)
-            sys.exit(1)
-
-        if csr_path:
-            # import CSR if provided
-            result = subsystem.import_cert_request(
-                request_path=csr_path,
-                request_format=csr_format,
-                profile_path=profile_path,
-                request_id=request_id)
-
-            request_id = result['requestID']
-
-        # import cert
-        subsystem.import_cert(
-            cert_path=cert_path,
-            cert_format=cert_format,
-            profile_path=profile_path,
-            request_id=request_id)
-
 
 class CACertRemoveCLI(pki.cli.CLI):
 
@@ -451,41 +290,6 @@ class CACertRemoveCLI(pki.cli.CLI):
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
         print()
-
-    def execute(self, argv, args=None):
-
-        if not args:
-            args = self.parser.parse_args(args=argv)
-
-        if args.help:
-            self.print_help()
-            return
-
-        if args.debug:
-            logging.getLogger().setLevel(logging.DEBUG)
-
-        elif args.verbose:
-            logging.getLogger().setLevel(logging.INFO)
-
-        instance_name = args.instance
-        serial_number = args.serial_number
-
-        if serial_number is None:
-            raise pki.cli.CLIException('Missing serial number')
-
-        instance = pki.server.PKIServerFactory.create(instance_name)
-        if not instance.exists():
-            logger.error('Invalid instance: %s', instance_name)
-            sys.exit(1)
-
-        instance.load()
-
-        subsystem = instance.get_subsystem('ca')
-        if not subsystem:
-            logger.error('No CA subsystem in instance %s', instance_name)
-            sys.exit(1)
-
-        subsystem.remove_cert(serial_number)
 
 
 class CACertChainCLI(pki.cli.CLI):
@@ -829,48 +633,6 @@ class CACertRequestImportCLI(pki.cli.CLI):
         print('      --debug                      Run in debug mode.')
         print('      --help                       Show help message.')
         print()
-
-    def execute(self, argv, args=None):
-
-        if not args:
-            args = self.parser.parse_args(args=argv)
-
-        if args.help:
-            self.print_help()
-            return
-
-        if args.debug:
-            logging.getLogger().setLevel(logging.DEBUG)
-
-        elif args.verbose:
-            logging.getLogger().setLevel(logging.INFO)
-
-        instance_name = args.instance
-        request_path = args.csr
-        request_format = args.format
-        profile_path = args.profile
-        request_id = args.request
-
-        instance = pki.server.PKIServerFactory.create(instance_name)
-        if not instance.exists():
-            logger.error('Invalid instance: %s', instance_name)
-            sys.exit(1)
-
-        instance.load()
-
-        subsystem = instance.get_subsystem('ca')
-        if not subsystem:
-            logger.error('No CA subsystem in instance %s', instance_name)
-            sys.exit(1)
-
-        result = subsystem.import_cert_request(
-            request_path=request_path,
-            request_format=request_format,
-            profile_path=profile_path,
-            request_id=request_id)
-
-        request_id = result['requestID']
-        print('  Request ID: %s' % request_id)
 
 
 class CACRLCLI(pki.cli.CLI):
