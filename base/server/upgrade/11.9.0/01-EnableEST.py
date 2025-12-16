@@ -169,7 +169,7 @@ class EnableEST(pki.server.upgrade.PKIServerUpgradeScriptlet):
         else:
             # Register the implementation class
             subsystem.set_config('auths.impl.CMCAuthForEST.class',
-                               'com.netscape.cms.authentication.CMCAuthForEST')
+                                 'com.netscape.cms.authentication.CMCAuthForEST')
 
         # Check if CMCAuthForEST instance is already configured
         auth_instance_plugin = subsystem.config.get('auths.instance.CMCAuthForEST.pluginName')
