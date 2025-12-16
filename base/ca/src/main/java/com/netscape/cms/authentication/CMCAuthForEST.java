@@ -19,18 +19,26 @@
 package com.netscape.cms.authentication;
 
 import java.io.ByteArrayInputStream;
+import java.math.BigInteger;
 import java.security.cert.X509Certificate;
 
 import org.dogtagpki.server.authentication.AuthManager;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.pkix.cms.SignedData;
 
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.usrgrp.Certificates;
+import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.cmscore.authentication.AuthSubsystem;
+import com.netscape.cmscore.usrgrp.ExactMatchCertUserLocator;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
+import com.netscape.cmscore.usrgrp.User;
 
 /**
  * EST CMC Authentication.
@@ -153,5 +161,52 @@ public class CMCAuthForEST extends CMCAuth {
 
         // Call parent CMCAuth.authenticate() which will now use the end-user cert
         return super.authenticate(credentials);
+    }
+
+    /**
+     * Override to skip CA user database authentication for EST.
+     *
+     * For EST fullcmc enrollment, authentication is handled by:
+     * 1. EST subsystem authentication (in authenticate() above) - proves request came from authorized EST
+     * 2. EST LDAP realm authentication - validates the end-user via EST's LDAP
+     * 3. CMC signature verification (in parent's verifySignerInfo) - proves client owns the private key
+     * 4. Profile's RAHeaderClientCertSubjectNameConstraint - validates subject match and agent status
+     *
+     * Since EST users are authenticated via EST's LDAP realm (not the CA user database),
+     * we skip the CA user database authentication step.
+     *
+     * The profile constraint uses isAgentCert() to check if the client is a CA agent:
+     * - If agent: allows any subject name
+     * - If non-agent: requires subject to match client certificate
+     *
+     * @param authToken The authentication token to populate
+     * @param x509Certs Array containing the signer's certificate
+     * @return AuthToken with certificate subject information
+     * @throws EBaseException if client certificate is missing
+     */
+    @Override
+    protected AuthToken authenticateCAUser(AuthToken authToken, X509Certificate[] x509Certs)
+            throws EBaseException {
+        String method = "CMCAuthForEST.authenticateCAUser: ";
+        logger.debug(method + "Skipping CA user database authentication for EST enrollment");
+
+        // EST users are authenticated via EST LDAP realm, not CA user database
+        // Just populate the auth token with certificate information for profile processing
+        X509Certificate clientCert = x509Certs[0];
+
+        X500Name principal = (X500Name) clientCert.getSubjectDN();
+        String subjectDN = principal.getName();
+        logger.debug(method + "Setting authenticated cert subject: " + subjectDN);
+
+        authToken.set(AuthToken.TOKEN_AUTHENTICATED_CERT_SUBJECT, subjectDN);
+
+        BigInteger certSerial = clientCert.getSerialNumber();
+        authToken.set(AuthManager.CRED_SSL_CLIENT_CERT, certSerial.toString());
+
+        // Set USER_ID for audit logging (use cert subject since no CA database user)
+        authToken.set(AuthToken.USER_ID, subjectDN);
+        authToken.set("id", subjectDN);
+
+        return authToken;
     }
 }
