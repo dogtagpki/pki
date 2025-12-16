@@ -508,7 +508,20 @@ jobs:
               -D pki_subsystem_token=HSM \
               -D pki_subsystem_csr_path=${SHARED}/subsystem.csr \
               -D pki_sslserver_token=internal \
-              -v
+              --debug \
+              > >(tee stdout) 2> >(tee stderr >&2)
+
+      - name: Check for warnings
+        if: always()
+        run: |
+          sed -n '/^WARNING:/p' stderr | tee output
+          wc -l output
+
+      - name: Check external commands
+        if: always()
+        run: |
+          sed -n '/^DEBUG: Command:/p' stderr | tee output
+          wc -l output
 
       - name: Check system certs in internal token
         run: |
@@ -598,7 +611,23 @@ jobs:
           diff expected actual
 
       - name: Remove CA from tertiary PKI container
-        run: docker exec tertiary pkidestroy -s CA -v
+        run: |
+          docker exec tertiary pkidestroy \
+              -s CA \
+              --debug \
+              > >(tee stdout) 2> >(tee stderr >&2)
+
+      - name: Check for warnings
+        if: always()
+        run: |
+          sed -n '/^WARNING:/p' stderr | tee output
+          wc -l output
+
+      - name: Check external commands
+        if: always()
+        run: |
+          sed -n '/^DEBUG: Command:/p' stderr | tee output
+          wc -l output
 
       - name: Remove CA from secondary PKI container
         run: docker exec secondary pkidestroy -s CA -v
