@@ -1499,7 +1499,11 @@ class PKISubsystem(object):
 
     def find_vlv(self, as_current_user=False):
 
-        cmd = [self.name + '-db-vlv-find']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            self.name + '-db-vlv-find'
+        ]
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
@@ -1507,11 +1511,16 @@ class PKISubsystem(object):
         elif logger.isEnabledFor(logging.INFO):
             cmd.append('--verbose')
 
-        self.run(cmd, as_current_user=as_current_user)
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     def add_vlv(self, as_current_user=False):
 
-        cmd = [self.name + '-db-vlv-add']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            self.name + '-db-vlv-add'
+        ]
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
@@ -1519,11 +1528,16 @@ class PKISubsystem(object):
         elif logger.isEnabledFor(logging.INFO):
             cmd.append('--verbose')
 
-        self.run(cmd, as_current_user=as_current_user)
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     def delete_vlv(self, as_current_user=False):
 
-        cmd = [self.name + '-db-vlv-del']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            self.name + '-db-vlv-del'
+        ]
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
@@ -1531,11 +1545,16 @@ class PKISubsystem(object):
         elif logger.isEnabledFor(logging.INFO):
             cmd.append('--verbose')
 
-        self.run(cmd, as_current_user=as_current_user)
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     def reindex_vlv(self, as_current_user=False):
 
-        cmd = [self.name + '-db-vlv-reindex']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            self.name + '-db-vlv-reindex'
+        ]
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
@@ -1543,7 +1562,8 @@ class PKISubsystem(object):
         elif logger.isEnabledFor(logging.INFO):
             cmd.append('--verbose')
 
-        self.run(cmd, as_current_user=as_current_user)
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     def request_range(self, master_url, range_type, session_id=None, install_token=None):
 
