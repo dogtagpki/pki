@@ -1353,6 +1353,8 @@ class PKISubsystem(object):
             self.instance.chown(password_file)
 
             cmd = [
+                'pki-server',
+                '-i', self.instance.name,
                 self.name + '-db-repl-enable',
                 '--ldap-config', ldap_config_file,
                 '--replica-bind-dn', replica_bind_dn,
@@ -1368,7 +1370,8 @@ class PKISubsystem(object):
             elif logger.isEnabledFor(logging.INFO):
                 cmd.append('--verbose')
 
-            self.run(cmd)
+            logger.debug('Command: %s', ' '.join(cmd))
+            subprocess.check_call(cmd)
 
         finally:
             shutil.rmtree(tmpdir)
@@ -1394,6 +1397,8 @@ class PKISubsystem(object):
             self.instance.chown(password_file)
 
             cmd = [
+                'pki-server',
+                '-i', self.instance.name,
                 self.name + '-db-repl-agmt-add',
                 '--ldap-config', ldap_config_file,
                 '--replica-url', replica_url,
@@ -1412,7 +1417,8 @@ class PKISubsystem(object):
 
             cmd.append(name)
 
-            self.run(cmd)
+            logger.debug('Command: %s', ' '.join(cmd))
+            subprocess.check_call(cmd)
 
         finally:
             shutil.rmtree(tmpdir)
@@ -1428,7 +1434,11 @@ class PKISubsystem(object):
             pki.util.store_properties(ldap_config_file, ldap_config)
             self.instance.chown(tmpdir)
 
-            cmd = [self.name + '-db-repl-agmt-init']
+            cmd = [
+                'pki-server',
+                '-i', self.instance.name,
+                self.name + '-db-repl-agmt-init'
+            ]
 
             if ldap_config_file:
                 cmd.extend(['--ldap-config', ldap_config_file])
@@ -1441,7 +1451,8 @@ class PKISubsystem(object):
 
             cmd.append(name)
 
-            self.run(cmd)
+            logger.debug('Command: %s', ' '.join(cmd))
+            subprocess.check_call(cmd)
 
         finally:
             shutil.rmtree(tmpdir)
