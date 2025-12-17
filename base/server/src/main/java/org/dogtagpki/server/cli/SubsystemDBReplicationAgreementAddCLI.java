@@ -5,10 +5,12 @@
 //
 package org.dogtagpki.server.cli;
 
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CLIException;
 import org.slf4j.Logger;
@@ -48,11 +50,49 @@ public class SubsystemDBReplicationAgreementAddCLI extends ServerCommandCLI {
 
         super.createOptions();
 
-        options.addOption(null, "ldap-config", true, "LDAP configuration file");
-        options.addOption(null, "replica-url", true, "Replica URL");
-        options.addOption(null, "replica-bind-dn", true, "Replica bind DN");
-        options.addOption(null, "replica-bind-password-file", true, "Replica bind password file");
-        options.addOption(null, "replication-security", true, "Replication security: SSL, TLS, None");
+        Option option = new Option(null, "url", true, "Database URL");
+        option.setArgName("URL");
+        options.addOption(option);
+
+        option = new Option(null, "bind-dn", true, "Database bind DN");
+        option.setArgName("DN");
+        options.addOption(option);
+
+        option = new Option(null, "bind-password", true, "Database bind password");
+        option.setArgName("password");
+        options.addOption(option);
+
+        option = new Option(null, "bind-password-file", true, "Database bind password file");
+        option.setArgName("path");
+        options.addOption(option);
+
+        option = new Option(null, "suffix", true, "Database suffix");
+        option.setArgName("DN");
+        options.addOption(option);
+
+        option = new Option(null, "ldap-config", true, "LDAP configuration file");
+        option.setArgName("path");
+        options.addOption(option);
+
+        option = new Option(null, "replica-url", true, "Replica URL");
+        option.setArgName("URL");
+        options.addOption(option);
+
+        option = new Option(null, "replica-bind-dn", true, "Replica bind DN");
+        option.setArgName("DN");
+        options.addOption(option);
+
+        option = new Option(null, "replica-bind-password", true, "Replica bind password");
+        option.setArgName("password");
+        options.addOption(option);
+
+        option = new Option(null, "replica-bind-password-file", true, "Replica bind password file");
+        option.setArgName("path");
+        options.addOption(option);
+
+        option = new Option(null, "replication-security", true, "Replication security: SSL, TLS, None");
+        option.setArgName("value");
+        options.addOption(option);
     }
 
     @Override
@@ -67,14 +107,72 @@ public class SubsystemDBReplicationAgreementAddCLI extends ServerCommandCLI {
         String agreementName = cmdArgs[0];
 
         String ldapConfigFile = cmd.getOptionValue("ldap-config");
+        LDAPConfig ldapConfig;
+        LDAPConnectionConfig ldapConnConfig;
+        LDAPAuthenticationConfig ldapAuthConfig;
 
         if (ldapConfigFile == null) {
-            throw new CLIException("Missing LDAP configuration file");
+            ldapConfig = new LDAPConfig();
+
+            ldapConnConfig = ldapConfig.getConnectionConfig();
+            ldapAuthConfig = ldapConfig.getAuthenticationConfig();
+
+            String urlString = cmd.getOptionValue("url");
+            if (urlString == null) {
+                throw new CLIException("Missing database URL");
+            }
+
+            URI url = new URI(urlString);
+            ldapConnConfig.setSecure("ldaps".equals(url.getScheme()));
+            ldapConnConfig.setHostname(url.getHost());
+            ldapConnConfig.setPort(url.getPort());
+
+            String suffix = cmd.getOptionValue("suffix");
+            if (suffix == null) {
+                throw new CLIException("Missing database suffix");
+            }
+
+            ldapConfig.setBaseDN(suffix);
+
+            ldapAuthConfig.setAuthType("BasicAuth");
+
+            String bindDN = cmd.getOptionValue("bind-dn");
+            if (bindDN == null) {
+                throw new CLIException("Missing database bind DN");
+            }
+
+            ldapAuthConfig.setBindDN(bindDN);
+
+            String bindPassword = cmd.getOptionValue("bind-password");
+            if (bindPassword == null) {
+                String bindPasswordFile = cmd.getOptionValue("bind-password-file");
+                bindPassword = Files.readString(Paths.get(bindPasswordFile));
+            }
+            if (bindPassword == null) {
+                throw new CLIException("Missing database bind password");
+            }
+
+            ldapAuthConfig.setBindPassword(bindPassword);
+
+        } else {
+            logger.info("Loading {}", ldapConfigFile);
+            ConfigStorage masterConfigStorage = new FileConfigStorage(ldapConfigFile);
+            ldapConfig = new LDAPConfig(masterConfigStorage);
+            ldapConfig.load();
+
+            ldapConnConfig = ldapConfig.getConnectionConfig();
+            ldapAuthConfig = ldapConfig.getAuthenticationConfig();
         }
 
         LDAPUrl replicaUrl = new LDAPUrl(cmd.getOptionValue("replica-url"));
         String replicaBindDN = cmd.getOptionValue("replica-bind-dn");
-        String replicaBindPasswordFile = cmd.getOptionValue("replica-bind-password-file");
+        String replicaBindPassword = cmd.getOptionValue("replica-bind-password");
+
+        if (replicaBindPassword == null) {
+            String replicaBindPasswordFile = cmd.getOptionValue("replica-bind-password-file");
+            replicaBindPassword = Files.readString(Paths.get(replicaBindPasswordFile));
+        }
+
         String replicationSecurity = cmd.getOptionValue("replication-security");
 
         initializeTomcatJSS();
@@ -84,18 +182,8 @@ public class SubsystemDBReplicationAgreementAddCLI extends ServerCommandCLI {
 
         PKISocketConfig socketConfig = cs.getSocketConfig();
 
-        logger.info("Loading {}", ldapConfigFile);
-        ConfigStorage masterConfigStorage = new FileConfigStorage(ldapConfigFile);
-        LDAPConfig ldapConfig = new LDAPConfig(masterConfigStorage);
-        ldapConfig.load();
-
         String replicaHostname = replicaUrl.getHost();
         int replicaPort = replicaUrl.getPort();
-
-        String replicaBindPassword = Files.readAllLines(Paths.get(replicaBindPasswordFile)).get(0);
-
-        LDAPConnectionConfig ldapConnConfig = ldapConfig.getConnectionConfig();
-        LDAPAuthenticationConfig ldapAuthConfig = ldapConfig.getAuthenticationConfig();
 
         PKISocketFactory socketFactory = new PKISocketFactory();
         socketFactory.setSecure(ldapConnConfig.isSecure());

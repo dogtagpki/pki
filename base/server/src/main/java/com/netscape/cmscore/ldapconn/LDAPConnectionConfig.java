@@ -30,6 +30,10 @@ public class LDAPConnectionConfig extends ConfigStore {
         return getBoolean(LdapConnInfo.PROP_SECURE, false);
     }
 
+    public void setSecure(boolean secure) throws EBaseException {
+        putBoolean(LdapConnInfo.PROP_SECURE, secure);
+    }
+
     /**
      * Returns <LDAP>.ldapconn.host parameter.
      */
@@ -37,11 +41,19 @@ public class LDAPConnectionConfig extends ConfigStore {
         return getString(LdapConnInfo.PROP_HOST);
     }
 
+    public void setHostname(String hostname) throws EBaseException {
+        putString(LdapConnInfo.PROP_HOST, hostname);
+    }
+
     /**
      * Returns <LDAP>.ldapconn.port parameter.
      */
     public int getPort() throws EBaseException {
         return getInteger(LdapConnInfo.PROP_PORT);
+    }
+
+    public void setPort(int port) throws EBaseException {
+        putInteger(LdapConnInfo.PROP_PORT, port);
     }
 
     /**

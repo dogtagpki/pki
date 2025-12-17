@@ -25,7 +25,6 @@ import logging
 import subprocess
 import sys
 import textwrap
-import urllib.parse
 
 import pki.cli
 import pki.server.instance
@@ -1208,76 +1207,6 @@ class SubsystemDBReplicationEnableCLI(pki.cli.CLI):
         print(textwrap.dedent(self.__class__.help).format(
             subsystem=self.parent.parent.parent.name))
 
-    def execute(self, argv, args=None):
-
-        if not args:
-            args = self.parser.parse_args(args=argv)
-
-        if args.help:
-            self.print_help()
-            return
-
-        if args.debug:
-            logging.getLogger().setLevel(logging.DEBUG)
-
-        elif args.verbose:
-            logging.getLogger().setLevel(logging.INFO)
-
-        instance_name = args.instance
-        subsystem_name = self.parent.parent.parent.name
-        url = urllib.parse.urlparse(args.url)
-        bind_dn = args.bind_dn
-        bind_password = args.bind_password
-        replica_bind_dn = args.replica_bind_dn
-        replica_bind_password = args.replica_bind_password
-        replica_id = args.replica_id
-        suffix = args.suffix
-
-        # user must provide the replica ID is required since
-        # in the future the auto-generated replica ID will no
-        # longer be supported
-
-        if not replica_id:
-            logger.error('Missing replica ID')
-            sys.exit(1)
-
-        instance = pki.server.instance.PKIInstance(instance_name)
-
-        if not instance.exists():
-            logger.error('Invalid instance: %s', instance_name)
-            sys.exit(1)
-
-        instance.load()
-
-        subsystem = instance.get_subsystem(subsystem_name)
-
-        if not subsystem:
-            logger.error('No %s subsystem in instance %s.',
-                         subsystem_name.upper(), instance_name)
-            sys.exit(1)
-
-        ldap_config = {}
-
-        if url.scheme == 'ldaps':
-            ldap_config['ldapconn.secureConn'] = 'true'
-        else:
-            ldap_config['ldapconn.secureConn'] = 'false'
-
-        ldap_config['ldapconn.host'] = url.hostname
-        ldap_config['ldapconn.port'] = str(url.port)
-
-        ldap_config['ldapauth.authtype'] = 'BasicAuth'
-        ldap_config['ldapauth.bindDN'] = bind_dn
-        ldap_config['ldapauth.bindPassword'] = bind_password
-
-        ldap_config['basedn'] = suffix
-
-        subsystem.enable_replication(
-            ldap_config,
-            replica_bind_dn,
-            replica_bind_password,
-            replica_id)
-
 
 class SubsystemDBReplicationAgreementCLI(pki.cli.CLI):
     '''
@@ -1360,75 +1289,6 @@ class SubsystemDBReplicationAgreementAddCLI(pki.cli.CLI):
         print(textwrap.dedent(self.__class__.help).format(
             subsystem=self.parent.parent.parent.parent.name))
 
-    def execute(self, argv, args=None):
-
-        if not args:
-            args = self.parser.parse_args(args=argv)
-
-        if args.help:
-            self.print_help()
-            return
-
-        if args.debug:
-            logging.getLogger().setLevel(logging.DEBUG)
-
-        elif args.verbose:
-            logging.getLogger().setLevel(logging.INFO)
-
-        instance_name = args.instance
-        subsystem_name = self.parent.parent.parent.parent.name
-        url = urllib.parse.urlparse(args.url)
-        bind_dn = args.bind_dn
-        bind_password = args.bind_password
-        replica_url = args.replica_url
-        replica_bind_dn = args.replica_bind_dn
-        replica_bind_password = args.replica_bind_password
-        replication_security = args.replication_security
-        suffix = args.suffix
-        name = args.name
-
-        if name is None:
-            raise pki.cli.CLIException('Missing replication agreement name')
-
-        instance = pki.server.instance.PKIInstance(instance_name)
-
-        if not instance.exists():
-            logger.error('Invalid instance: %s', instance_name)
-            sys.exit(1)
-
-        instance.load()
-
-        subsystem = instance.get_subsystem(subsystem_name)
-
-        if not subsystem:
-            logger.error('No %s subsystem in instance %s.',
-                         subsystem_name.upper(), instance_name)
-            sys.exit(1)
-
-        ldap_config = {}
-
-        if url.scheme == 'ldaps':
-            ldap_config['ldapconn.secureConn'] = 'true'
-        else:
-            ldap_config['ldapconn.secureConn'] = 'false'
-
-        ldap_config['ldapconn.host'] = url.hostname
-        ldap_config['ldapconn.port'] = str(url.port)
-
-        ldap_config['ldapauth.authtype'] = 'BasicAuth'
-        ldap_config['ldapauth.bindDN'] = bind_dn
-        ldap_config['ldapauth.bindPassword'] = bind_password
-
-        ldap_config['basedn'] = suffix
-
-        subsystem.add_replication_agreement(
-            name,
-            ldap_config,
-            replica_url,
-            replica_bind_dn,
-            replica_bind_password,
-            replication_security)
-
 
 class SubsystemDBReplicationAgreementInitCLI(pki.cli.CLI):
     '''
@@ -1486,67 +1346,6 @@ class SubsystemDBReplicationAgreementInitCLI(pki.cli.CLI):
     def print_help(self):
         print(textwrap.dedent(self.__class__.help).format(
             subsystem=self.parent.parent.parent.parent.name))
-
-    def execute(self, argv, args=None):
-
-        if not args:
-            args = self.parser.parse_args(args=argv)
-
-        if args.help:
-            self.print_help()
-            return
-
-        if args.debug:
-            logging.getLogger().setLevel(logging.DEBUG)
-
-        elif args.verbose:
-            logging.getLogger().setLevel(logging.INFO)
-
-        instance_name = args.instance
-        subsystem_name = self.parent.parent.parent.parent.name
-        url = urllib.parse.urlparse(args.url)
-        bind_dn = args.bind_dn
-        bind_password = args.bind_password
-        suffix = args.suffix
-        name = args.name
-
-        if name is None:
-            raise pki.cli.CLIException('Missing replication agreement name')
-
-        instance = pki.server.instance.PKIInstance(instance_name)
-
-        if not instance.exists():
-            logger.error('Invalid instance: %s', instance_name)
-            sys.exit(1)
-
-        instance.load()
-
-        subsystem = instance.get_subsystem(subsystem_name)
-
-        if not subsystem:
-            logger.error('No %s subsystem in instance %s.',
-                         subsystem_name.upper(), instance_name)
-            sys.exit(1)
-
-        ldap_config = {}
-
-        if url.scheme == 'ldaps':
-            ldap_config['ldapconn.secureConn'] = 'true'
-        else:
-            ldap_config['ldapconn.secureConn'] = 'false'
-
-        ldap_config['ldapconn.host'] = url.hostname
-        ldap_config['ldapconn.port'] = str(url.port)
-
-        ldap_config['ldapauth.authtype'] = 'BasicAuth'
-        ldap_config['ldapauth.bindDN'] = bind_dn
-        ldap_config['ldapauth.bindPassword'] = bind_password
-
-        ldap_config['basedn'] = suffix
-
-        subsystem.init_replication_agreement(
-            name,
-            ldap_config)
 
 
 class SubsystemDBVLVCLI(pki.cli.CLI):
