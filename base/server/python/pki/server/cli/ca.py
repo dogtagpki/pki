@@ -1093,41 +1093,6 @@ class CACRLRecordShowCLI(pki.cli.CLI):
     def print_help(self):
         print(textwrap.dedent(self.__class__.help))
 
-    def execute(self, argv, args=None):
-
-        if not args:
-            args = self.parser.parse_args(args=argv)
-
-        if args.help:
-            self.print_help()
-            return
-
-        if args.debug:
-            logging.getLogger().setLevel(logging.DEBUG)
-
-        elif args.verbose:
-            logging.getLogger().setLevel(logging.INFO)
-
-        instance_name = args.instance
-        crl_record_id = args.id
-
-        if crl_record_id is None:
-            raise pki.cli.CLIException('Missing CRL record ID')
-
-        instance = pki.server.PKIServerFactory.create(instance_name)
-        if not instance.exists():
-            logger.error('Invalid instance: %s', instance_name)
-            sys.exit(1)
-
-        instance.load()
-
-        subsystem = instance.get_subsystem('ca')
-        if not subsystem:
-            logger.error('No CA subsystem in instance %s', instance_name)
-            sys.exit(1)
-
-        subsystem.show_crl_record(crl_record_id)
-
 
 class CACRLRecordCertCLI(pki.cli.CLI):
 
@@ -1179,41 +1144,6 @@ class CACRLRecordCertFindCLI(pki.cli.CLI):
 
     def print_help(self):
         print(textwrap.dedent(self.__class__.help))
-
-    def execute(self, argv, args=None):
-
-        if not args:
-            args = self.parser.parse_args(args=argv)
-
-        if args.help:
-            self.print_help()
-            return
-
-        if args.debug:
-            logging.getLogger().setLevel(logging.DEBUG)
-
-        elif args.verbose:
-            logging.getLogger().setLevel(logging.INFO)
-
-        instance_name = args.instance
-        crl_record_id = args.id
-
-        if crl_record_id is None:
-            raise pki.cli.CLIException('Missing CRL record ID')
-
-        instance = pki.server.PKIServerFactory.create(instance_name)
-        if not instance.exists():
-            logger.error('Invalid instance: %s', instance_name)
-            sys.exit(1)
-
-        instance.load()
-
-        subsystem = instance.get_subsystem('ca')
-        if not subsystem:
-            logger.error('No CA subsystem in instance %s', instance_name)
-            sys.exit(1)
-
-        subsystem.find_crl_record_certs(crl_record_id)
 
 
 class CACloneCLI(pki.cli.CLI):
