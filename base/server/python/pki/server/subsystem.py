@@ -1459,7 +1459,11 @@ class PKISubsystem(object):
 
     def find_acl(self, as_current_user=False):
 
-        cmd = [self.name + '-acl-find']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            self.name + '-acl-find'
+        ]
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
@@ -1467,11 +1471,16 @@ class PKISubsystem(object):
         elif logger.isEnabledFor(logging.INFO):
             cmd.append('--verbose')
 
-        self.run(cmd, as_current_user=as_current_user)
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     def add_acl(self, acl, as_current_user=False):
 
-        cmd = [self.name + '-acl-add']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            self.name + '-acl-add'
+        ]
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
@@ -1481,11 +1490,16 @@ class PKISubsystem(object):
 
         cmd.append(acl)
 
-        self.run(cmd, as_current_user=as_current_user)
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     def delete_acl(self, acl, as_current_user=False):
 
-        cmd = [self.name + '-acl-del']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            self.name + '-acl-del'
+        ]
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
@@ -1495,7 +1509,8 @@ class PKISubsystem(object):
 
         cmd.append(acl)
 
-        self.run(cmd, as_current_user=as_current_user)
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     def find_vlv(self, as_current_user=False):
 
