@@ -104,7 +104,11 @@ JAVA_COMMANDS = [
     r'ca-cert-find$',
     r'ca-cert-create$',
     r'ca-cert-import$',
-    r'ca-cert-del$'
+    r'ca-cert-del$',
+    r'ca-crl-record-show$',
+    r'ca-crl-record-cert-find$',
+    r'ocsp-crl-issuingpoint-find$',
+    r'ocsp-crl-issuingpoint-add$'
 ]
 
 

@@ -2997,7 +2997,11 @@ class CASubsystem(PKISubsystem):
             crl_record_id,
             as_current_user=False):
 
-        cmd = [self.name + '-crl-record-show']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            'ca-crl-record-show'
+        ]
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
@@ -3007,14 +3011,19 @@ class CASubsystem(PKISubsystem):
 
         cmd.append(crl_record_id)
 
-        self.run(cmd, as_current_user=as_current_user)
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     def find_crl_record_certs(
             self,
             crl_record_id,
             as_current_user=False):
 
-        cmd = [self.name + '-crl-record-cert-find']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            'ca-crl-record-cert-find'
+        ]
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
@@ -3024,7 +3033,8 @@ class CASubsystem(PKISubsystem):
 
         cmd.append(crl_record_id)
 
-        self.run(cmd, as_current_user=as_current_user)
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     def get_connector_ids(self):
 
@@ -3135,12 +3145,17 @@ class OCSPSubsystem(PKISubsystem):
     def __init__(self, instance):
         super().__init__(instance, 'ocsp')
 
+    # pylint: disable=W0613
     def find_crl_issuing_point(
             self,
             size=None,
             as_current_user=False):
 
-        cmd = [self.name + '-crl-issuingpoint-find']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            'ocsp-crl-issuingpoint-find'
+        ]
 
         if size:
             cmd.extend(['--size', size])
@@ -3151,8 +3166,10 @@ class OCSPSubsystem(PKISubsystem):
         elif logger.isEnabledFor(logging.INFO):
             cmd.append('--verbose')
 
-        self.run(cmd, as_current_user=as_current_user)
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
+    # pylint: disable=W0613
     def add_crl_issuing_point(
             self,
             cert_chain=None,
@@ -3161,7 +3178,11 @@ class OCSPSubsystem(PKISubsystem):
             ignore_duplicate=False,
             as_current_user=False):
 
-        cmd = [self.name + '-crl-issuingpoint-add']
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            'ocsp-crl-issuingpoint-add'
+        ]
 
         if cert_chain_file:
             cmd.extend(['--cert-chain', cert_chain_file])
@@ -3178,10 +3199,11 @@ class OCSPSubsystem(PKISubsystem):
         elif logger.isEnabledFor(logging.INFO):
             cmd.append('--verbose')
 
-        self.run(
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.run(
             cmd,
             input=cert_chain,
-            as_current_user=as_current_user)
+            check=True)
 
 
 class TKSSubsystem(PKISubsystem):
