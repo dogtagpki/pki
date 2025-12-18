@@ -5,6 +5,9 @@
 //
 package com.netscape.cmstools.nss;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import org.dogtagpki.cli.CLI;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.pkcs11.PK11Cert;
@@ -48,13 +51,21 @@ public class NSSCertCLI extends CLI {
     }
 
     public static void printCertInfo(NSSCertInfo cert) throws Exception {
+        try (StringWriter sb = new StringWriter();
+                PrintWriter out = new PrintWriter(sb)) {
+            printCertInfo(cert, out);
+            System.out.print(sb);
+            System.out.flush();
+        }
+    }
 
-        System.out.println("  Nickname: " + cert.getNickname());
-        System.out.println("  Serial Number: " + cert.getSerialNumber().toHexString());
-        System.out.println("  Subject DN: " + cert.getSubjectDN());
-        System.out.println("  Issuer DN: " + cert.getIssuerDN());
-        System.out.println("  Not Valid Before: " + cert.getNotBefore());
-        System.out.println("  Not Valid After: " + cert.getNotAfter());
-        System.out.println("  Trust Flags: " + cert.getTrustFlags());
+    public static void printCertInfo(NSSCertInfo cert, PrintWriter out) throws Exception {
+        out.println("  Nickname: " + cert.getNickname());
+        out.println("  Serial Number: " + cert.getSerialNumber().toHexString());
+        out.println("  Subject DN: " + cert.getSubjectDN());
+        out.println("  Issuer DN: " + cert.getIssuerDN());
+        out.println("  Not Valid Before: " + cert.getNotBefore());
+        out.println("  Not Valid After: " + cert.getNotAfter());
+        out.println("  Trust Flags: " + cert.getTrustFlags());
     }
 }

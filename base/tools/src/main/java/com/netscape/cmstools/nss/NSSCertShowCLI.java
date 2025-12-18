@@ -5,6 +5,9 @@
 //
 package com.netscape.cmstools.nss;
 
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -46,6 +49,10 @@ public class NSSCertShowCLI extends CommandCLI {
 
         option = new Option(null, "cert-format", true, "Certificate format: PEM (default), DER");
         option.setArgName("format");
+        options.addOption(option);
+
+        option = new Option(null, "output-file", true, "Output file path");
+        option.setArgName("path");
         options.addOption(option);
 
         option = new Option(null, "output-format", true, "Output format: text (default), json");
@@ -128,15 +135,31 @@ public class NSSCertShowCLI extends CommandCLI {
         }
 
         NSSCertInfo certInfo = NSSCertCLI.createCertInfo(cert);
+        byte[] output;
 
         if ("json".equalsIgnoreCase(outputFormat)) {
-            System.out.println(certInfo.toJSON());
+            output = certInfo.toJSON().getBytes();
 
         } else if ("text".equalsIgnoreCase(outputFormat)) {
-            NSSCertCLI.printCertInfo(certInfo);
+            try (StringWriter sb = new StringWriter();
+                    PrintWriter out = new PrintWriter(sb)) {
+                NSSCertCLI.printCertInfo(certInfo, out);
+                output = sb.toString().getBytes();
+            }
 
         } else {
             throw new CLIException("Unsupported output format: " + outputFormat);
+        }
+
+        String outputFile = cmd.getOptionValue("output-file");
+
+        if (outputFile == null) {
+            System.out.write(output);
+
+        } else {
+            try (FileOutputStream fos = new FileOutputStream(outputFile)) {
+                fos.write(output);
+            }
         }
     }
 }
