@@ -61,6 +61,10 @@ public class NSSCertRequestCLI extends CommandCLI {
 
         options.addOption(null, "subject-encoding", false, "Enable attribute encoding in subject name");
 
+        option = new Option(null, "token", true, "Security token name");
+        option.setArgName("token");
+        options.addOption(option);
+
         option = new Option(null, "key-id", true, "Key ID");
         option.setArgName("ID");
         options.addOption(option);
@@ -183,7 +187,10 @@ public class NSSCertRequestCLI extends CommandCLI {
         ClientConfig clientConfig = mainCLI.getConfig();
         NSSDatabase nssdb = mainCLI.getNSSDatabase();
 
-        String tokenName = clientConfig.getTokenName();
+        String tokenName = cmd.getOptionValue("token");
+        if (tokenName == null) {
+            tokenName = clientConfig.getTokenName();
+        }
         CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
 
         KeyPair keyPair;
