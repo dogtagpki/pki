@@ -18,7 +18,10 @@
 
 package com.netscape.cmstools.nss;
 
+import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.security.KeyPair;
 
 import org.apache.commons.cli.CommandLine;
@@ -99,6 +102,10 @@ public class NSSKeyCreateCLI extends CommandCLI {
         options.addOption(option);
 
         option = new Option(null, "key-id-file", true, "File to store key ID");
+        option.setArgName("path");
+        options.addOption(option);
+
+        option = new Option(null, "output-file", true, "Output file path");
         option.setArgName("path");
         options.addOption(option);
 
@@ -287,15 +294,31 @@ public class NSSKeyCreateCLI extends CommandCLI {
         }
 
         String outputFormat = cmd.getOptionValue("output-format", "text");
+        byte[] output;
 
         if (outputFormat.equalsIgnoreCase("json")) {
-            System.out.println(keyInfo.toJSON());
+            output = keyInfo.toJSON().getBytes();
 
         } else if (outputFormat.equalsIgnoreCase("text")) {
-            NSSKeyCLI.printKeyInfo(keyInfo);
+            try (StringWriter sb = new StringWriter();
+                    PrintWriter out = new PrintWriter(sb)) {
+                NSSKeyCLI.printKeyInfo(keyInfo, out);
+                output = sb.toString().getBytes();
+            }
 
         } else {
             throw new Exception("Unsupported output format: " + outputFormat);
+        }
+
+        String outputFile = cmd.getOptionValue("output-file");
+
+        if (outputFile == null) {
+            System.out.write(output);
+
+        } else {
+            try (FileOutputStream fos = new FileOutputStream(outputFile)) {
+                fos.write(output);
+            }
         }
     }
 }
