@@ -96,12 +96,12 @@ public class NSSCertExportCLI extends CommandCLI {
         if (chain) {
             certs = km.getCertificateChain(nickname);
             if (certs == null) {
-                throw new CLIException("Certificate chain not found: " + nickname);
+                throw new CLIException("Certificate chain not found: " + nickname, 1);
             }
         } else {
             PK11Cert cert = (PK11Cert) km.getCertificate(nickname);
             if (cert == null) {
-                throw new CLIException("Certificate not found: " + nickname);
+                throw new CLIException("Certificate not found: " + nickname, 1);
             }
             certs = new X509Certificate[] { cert };
         }
