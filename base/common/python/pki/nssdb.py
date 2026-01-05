@@ -2132,7 +2132,8 @@ class NSSDatabase(object):
             token=None,
             cert_data=None,
             cert_file=None,
-            cert_format='PEM'):
+            cert_format='PEM',
+            cert_usage=None):
 
         if cert_file and not cert_data:
             with open(cert_file, 'r', encoding='utf-8') as f:
@@ -2154,18 +2155,21 @@ class NSSDatabase(object):
 
         cmd.append('nss-cert-verify')
 
-        if nickname:
-            if token:
-                fullname = token + ':' + nickname
-            else:
-                fullname = nickname
-            cmd.append(fullname)
+        if cert_usage:
+            cmd.extend(['--cert-usage', cert_usage])
 
         if logger.isEnabledFor(logging.DEBUG):
             cmd.append('--debug')
 
         elif logger.isEnabledFor(logging.INFO):
             cmd.append('--verbose')
+
+        if nickname:
+            if token:
+                fullname = token + ':' + nickname
+            else:
+                fullname = nickname
+            cmd.append(fullname)
 
         self.run(cmd, input=cert_data, text=True, check=True, runas=True)
 
