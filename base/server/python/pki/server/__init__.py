@@ -371,10 +371,15 @@ class PKIServer(object):
                     token = parts[0]
                     nickname = parts[1]
 
-                nssdb = self.open_nssdb(token=token)
+                # Build a chain containing the certificate we're trying to
+                # export. OpenSSL gets confused if we don't have a key for
+                # the end certificate: rh-bz#1246371
+                nssdb = self.open_nssdb()
                 try:
-                    nssdb.extract_ca_cert(self.ca_cert, nickname)
-                    return
+                    nssdb.export_cert_bundle(
+                        nickname,
+                        token=token,
+                        output_file=self.ca_cert)
                 finally:
                     nssdb.close()
 

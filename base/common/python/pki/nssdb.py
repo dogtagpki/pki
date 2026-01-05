@@ -2177,32 +2177,32 @@ class NSSDatabase(object):
     def convert_time_to_millis(date):
         return date.timestamp() * 1000
 
-    def export_cert_from_db(self,
-                            nickname,
-                            output_file,
-                            include_chain=False,
-                            output_format=None):
+    def export_cert_bundle(
+            self,
+            nickname,
+            token=None,
+            include_chain=True,
+            output_file=None,
+            output_format=None):
+
         cmd = [
             'pki',
             '-d', self.directory
         ]
 
-        if self.password_file:
+        if self.password_conf and os.path.exists(self.password_conf):
+            cmd.extend(['-f', self.password_conf])
+
+        elif self.password_file and os.path.exists(self.password_file):
             cmd.extend(['-C', self.password_file])
 
-        if self.token:
-            cmd.extend(['--token', self.token])
-            fullname = self.token + ':' + nickname
-        else:
-            fullname = nickname
-
-        cmd.extend([
-            'nss-cert-export',
-            '--output-file', output_file
-        ])
+        cmd.append('nss-cert-export')
 
         if include_chain:
             cmd.extend(['--with-chain'])
+
+        if output_file:
+            cmd.extend(['--output-file', output_file])
 
         if output_format:
             cmd.extend(['--format', output_format])
@@ -2212,6 +2212,13 @@ class NSSDatabase(object):
 
         elif logger.isEnabledFor(logging.INFO):
             cmd.append('--verbose')
+
+        token = self.get_effective_token(token)
+
+        if token:
+            fullname = token + ':' + nickname
+        else:
+            fullname = nickname
 
         cmd.append(fullname)
 
@@ -2765,13 +2772,6 @@ class NSSDatabase(object):
 
         finally:
             shutil.rmtree(tmpdir)
-
-    def extract_ca_cert(self, ca_path, nickname):
-        # Build a chain containing the certificate we're trying to
-        # export. OpenSSL gets confused if we don't have a key for
-        # the end certificate: rh-bz#1246371
-        self.export_cert_from_db(nickname, ca_path, include_chain=True,
-                                 output_format="PEM")
 
     @staticmethod
     def __generate_key_args(key_type=None, key_size=None, curve=None):
