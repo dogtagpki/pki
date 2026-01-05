@@ -252,6 +252,8 @@ public class MainCLI extends CLI {
         option.setArgName("format");
         options.addOption(option);
 
+        options.addOption("e", "exit-on-error", false, "Exit on error.");
+
         options.addOption("v", "verbose", false, "Run in verbose mode.");
         options.addOption(null, "debug", false, "Run in debug mode.");
         options.addOption(null, "help", false, "Show help message.");
@@ -498,6 +500,8 @@ public class MainCLI extends CLI {
 
         config.setCertRevocationVerify(!cmd.hasOption("skip-revocation-check"));
         optionsParsed = true;
+
+        exitOnError = cmd.hasOption("e");
 
         return cmd;
     }

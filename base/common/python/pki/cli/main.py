@@ -84,6 +84,7 @@ class PKICLI(pki.cli.CLI):
         self.ignore_cert_status = False
         self.ignore_banner = False
         self.skip_revocation_check = False
+        self.exit_on_error = False
 
         self.add_module(pki.cli.password.PasswordCLI())
 
@@ -129,6 +130,11 @@ class PKICLI(pki.cli.CLI):
         self.parser.add_argument(
             '--skip-revocation-check',
             action='store_true')
+        self.parser.add_argument(
+            '-e',
+            '--exit-on-error',
+            action='store_true')
+
         self.parser.add_argument(
             '-v',
             '--verbose',
@@ -194,6 +200,7 @@ class PKICLI(pki.cli.CLI):
               'certificate validity statuses')
         print('      --ignore-banner            Ignore banner')
         print('      --skip-revocation-check    Do not perform revocation check')
+        print('  -e, --exit-on-error            Exit on error.')
         print()
         print('  -v, --verbose                  Run in verbose mode.')
         print('      --debug                    Show debug messages.')
@@ -318,6 +325,9 @@ class PKICLI(pki.cli.CLI):
         if self.skip_revocation_check:
             cmd.extend(['--skip-revocation-check'])
 
+        if self.exit_on_error:
+            cmd.extend(['--exit-on-error'])
+
         if self.ignore_banner:
             cmd.extend(['--ignore-banner'])
 
@@ -387,6 +397,7 @@ class PKICLI(pki.cli.CLI):
         self.ignore_cert_status = args.ignore_cert_status
         self.ignore_banner = args.ignore_banner
         self.skip_revocation_check = args.skip_revocation_check
+        self.exit_on_error = args.exit_on_error
 
         command = None
         if len(args.remainder) > 0:

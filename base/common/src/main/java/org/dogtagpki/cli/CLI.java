@@ -55,6 +55,8 @@ public class CLI {
     public Options options = new Options();
     public Map<String, CLIModule> modules = new LinkedHashMap<>();
 
+    public boolean exitOnError;
+
     public CLI(String name, String description) {
         this(name, description, null);
     }
@@ -372,10 +374,10 @@ public class CLI {
                 executeCommand(args);
             } catch (Exception e) {
                 if (shell) {
-                    // shell mode -> show error but don't exit
                     handleException(e);
-                } else {
-                    // batch mode -> exit on error
+                }
+
+                if (exitOnError) {
                     throw e;
                 }
             }
