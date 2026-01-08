@@ -85,6 +85,10 @@ jobs:
               -o /dev/null \
               http://acme.example.com:8080/acme/directory
 
+          # get Fedora version
+          FEDORA_VERSION=$(docker exec acme sed -n 's/^VERSION_ID=//p' /etc/os-release)
+          echo "FEDORA_VERSION=$FEDORA_VERSION" >> $GITHUB_ENV
+
       - name: Check conf dir
         if: always()
         run: |
@@ -134,7 +138,28 @@ jobs:
           diff expected output
 
       - name: Check logs dir
-        if: always()
+        if: ${{ fromJSON(env.FEDORA_VERSION) < 43 }}
+        run: |
+          ls -l logs \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
+              | tee output
+
+          DATE=$(date +'%Y-%m-%d')
+
+          # everything should be owned by root group (GID=0)
+          # TODO: review owners/permissions
+          cat > expected << EOF
+          -rw-rw-rw- root localhost.$DATE.log
+          -rw-rw-rw- root localhost_access_log.$DATE.txt
+          drwxrwxrwx root pki
+          EOF
+
+          diff expected output
+
+      - name: Check logs dir
+        if: ${{ fromJSON(env.FEDORA_VERSION) >= 43 }}
         run: |
           ls -l logs \
               | sed \
