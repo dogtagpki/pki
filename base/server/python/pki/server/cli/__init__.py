@@ -254,7 +254,7 @@ class PKIServerCLI(pki.cli.CLI):
 
         java_fips_cmd = os.getenv('JAVA_FIPS_ENABLED')
         if java_fips_cmd:
-            cmd.append(java_fips_cmd)
+            cmd.extend(java_fips_cmd.split(' '))
 
         # suppress JNI warnings
         cmd.append('--enable-native-access=ALL-UNNAMED')
