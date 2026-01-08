@@ -53,6 +53,7 @@ JAVA_OPTIONS=""
 ${JAVA} ${JAVA_OPTIONS} \
   -cp "${PKI_LIB}/*" \
   -Dcom.redhat.fips=false \
+  -Dredhat.crypto-policies=false \
   -Djava.util.logging.config.file=${PKI_LOGGING_CONFIG} \
   com.netscape.cmstools.${COMMAND} "$@"
 

@@ -237,9 +237,9 @@ class PKICLI(pki.cli.CLI):
 
         java_fips_cmd = os.getenv('JAVA_FIPS_ENABLED')
         if java_fips_cmd:
-            cmd.extend([
-                java_fips_cmd
-            ])
+            cmd.extend(
+                java_fips_cmd.split(' ')
+            )
 
         # Deal with warnings that alter CI test results.
         cmd.extend([
