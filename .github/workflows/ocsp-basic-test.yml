@@ -54,6 +54,10 @@ jobs:
               --network-alias=pki.example.com \
               pki
 
+          # get Fedora version
+          FEDORA_VERSION=$(docker exec pki sed -n 's/^VERSION_ID=//p' /etc/os-release)
+          echo "FEDORA_VERSION=$FEDORA_VERSION" >> $GITHUB_ENV
+
       - name: Check pki ocsp CLI help messages
         run: |
           docker exec pki pki ocsp
@@ -232,6 +236,31 @@ jobs:
           docker exec pki cat /etc/pki/pki-tomcat/server.xml
 
       - name: Check PKI server logs dir after installation
+        if: ${{ fromJSON(env.FEDORA_VERSION) < 43 }}
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /var/log/pki/pki-tomcat \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          DATE=$(date +'%Y-%m-%d')
+
+          # TODO: review permissions
+          cat > expected << EOF
+          drwxrwx--- pkiuser pkiuser backup
+          drwxrwx--- pkiuser pkiuser ca
+          -rw-rw-r-- root root localhost.$DATE.log
+          -rw-r--r-- pkiuser pkiuser localhost_access_log.$DATE.txt
+          drwxrwx--- pkiuser pkiuser ocsp
+          drwxr-xr-x pkiuser pkiuser pki
+          EOF
+
+          diff expected output
+
+      - name: Check PKI server logs dir after installation
+        if: ${{ fromJSON(env.FEDORA_VERSION) >= 43 }}
         run: |
           # check file types, owners, and permissions
           docker exec pki ls -l /var/log/pki/pki-tomcat \
@@ -908,6 +937,31 @@ jobs:
           diff expected output
 
       - name: Check PKI server logs dir after removal
+        if: ${{ fromJSON(env.FEDORA_VERSION) < 43 }}
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /var/log/pki/pki-tomcat \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          DATE=$(date +'%Y-%m-%d')
+
+          # TODO: review permissions
+          cat > expected << EOF
+          drwxrwx--- pkiuser pkiuser backup
+          drwxrwx--- pkiuser pkiuser ca
+          -rw-rw-r-- root root localhost.$DATE.log
+          -rw-r--r-- pkiuser pkiuser localhost_access_log.$DATE.txt
+          drwxrwx--- pkiuser pkiuser ocsp
+          drwxr-xr-x pkiuser pkiuser pki
+          EOF
+
+          diff expected output
+
+      - name: Check PKI server logs dir after removal
+        if: ${{ fromJSON(env.FEDORA_VERSION) >= 43 }}
         run: |
           # check file types, owners, and permissions
           docker exec pki ls -l /var/log/pki/pki-tomcat \

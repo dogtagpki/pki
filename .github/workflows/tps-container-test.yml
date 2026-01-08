@@ -664,6 +664,10 @@ jobs:
               -o /dev/null \
               https://tps.example.com:8443
 
+          # get Fedora version
+          FEDORA_VERSION=$(docker exec tps sed -n 's/^VERSION_ID=//p' /etc/os-release)
+          echo "FEDORA_VERSION=$FEDORA_VERSION" >> $GITHUB_ENV
+
       - name: Check TPS conf dir
         if: always()
         run: |
@@ -716,7 +720,30 @@ jobs:
           diff expected output
 
       - name: Check TPS logs dir
-        if: always()
+        if: ${{ fromJSON(env.FEDORA_VERSION) < 43 }}
+        run: |
+          ls -l tps/logs \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
+              | tee output
+
+          DATE=$(date +'%Y-%m-%d')
+
+          # everything should be owned by runner group
+          # TODO: review owners/permissions
+          cat > expected << EOF
+          drwxrwxrwx runner backup
+          -rw-rw-rw- runner localhost.$DATE.log
+          -rw-rw-rw- runner localhost_access_log.$DATE.txt
+          drwxrwxrwx runner pki
+          drwxrwxrwx runner tps
+          EOF
+
+          diff expected output
+
+      - name: Check TPS logs dir
+        if: ${{ fromJSON(env.FEDORA_VERSION) >= 43 }}
         run: |
           ls -l tps/logs \
               | sed \
