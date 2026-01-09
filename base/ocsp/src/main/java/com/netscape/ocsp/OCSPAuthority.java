@@ -64,6 +64,7 @@ import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.util.StatsSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
+import com.netscape.cmsutil.ocsp.CertID;
 import com.netscape.cmsutil.ocsp.KeyHashID;
 import com.netscape.cmsutil.ocsp.NameID;
 import com.netscape.cmsutil.ocsp.OCSPRequest;
@@ -371,6 +372,26 @@ public class OCSPAuthority extends Subsystem implements IAuthority, IOCSPService
             logger.error("OCSPAuthority: No request found");
             logger.error(CMS.getLogMessage("OCSP_REQUEST_FAILURE", "No Request Found"));
             throw new EBaseException("OCSP request is empty");
+        }
+
+        // Check for deprecated digest algorithms (FIPS 140-3 compliance)
+        boolean rejectDeprecated = mConfig.getRejectDeprecatedAlgorithms();
+        for (int i = 0; i < tbsReq.getRequestCount(); i++) {
+            Request req = tbsReq.getRequestAt(i);
+            CertID certID = req.getCertID();
+            String digestName = certID.getDigestName();
+
+            if (certID.isDeprecatedAlgorithm()) {
+                String msg = "OCSP request uses deprecated digest algorithm: " +
+                        (digestName != null ? digestName : certID.getHashAlgorithmOID());
+                if (rejectDeprecated) {
+                    logger.error("OCSPAuthority: " + msg + " - rejecting request (FIPS 140-3 compliance)");
+                    return new OCSPResponse(OCSPResponseStatus.MALFORMED_REQUEST, null);
+                } else {
+                    logger.warn("OCSPAuthority: " + msg +
+                            " - processing anyway (set ocsp.rejectDeprecatedAlgorithms=true to reject)");
+                }
+            }
         }
 
         OCSPEngine engine = OCSPEngine.getInstance();

@@ -147,6 +147,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ocsp.CertID;
 import com.netscape.cmsutil.ocsp.OCSPRequest;
 import com.netscape.cmsutil.ocsp.OCSPResponse;
+import com.netscape.cmsutil.ocsp.OCSPResponseStatus;
 import com.netscape.cmsutil.ocsp.Request;
 import com.netscape.cmsutil.ocsp.TBSRequest;
 
@@ -2172,6 +2173,27 @@ public class CAEngine extends CMSEngine {
         if (tbsRequest.getRequestCount() == 0) {
             logger.error(CMS.getLogMessage("OCSP_REQUEST_FAILURE", "No Request Found"));
             throw new EBaseException("OCSP request is empty");
+        }
+
+        // Check for deprecated digest algorithms (FIPS 140-3 compliance)
+        CAConfig caConfig = getConfig().getCAConfig();
+        boolean rejectDeprecated = caConfig.getOCSPRejectDeprecatedAlgorithms();
+        for (int i = 0; i < tbsRequest.getRequestCount(); i++) {
+            Request req = tbsRequest.getRequestAt(i);
+            CertID reqCertID = req.getCertID();
+            String reqDigestName = reqCertID.getDigestName();
+
+            if (reqCertID.isDeprecatedAlgorithm()) {
+                String msg = "OCSP request uses deprecated digest algorithm: " +
+                        (reqDigestName != null ? reqDigestName : reqCertID.getHashAlgorithmOID());
+                if (rejectDeprecated) {
+                    logger.error("CAEngine: " + msg + " - rejecting request (FIPS 140-3 compliance)");
+                    return new OCSPResponse(OCSPResponseStatus.MALFORMED_REQUEST, null);
+                } else {
+                    logger.warn("CAEngine: " + msg +
+                            " - processing anyway (set ca.ocspRejectDeprecatedAlgorithms=true to reject)");
+                }
+            }
         }
 
         /* An OCSP request can contain CertIDs for certificates

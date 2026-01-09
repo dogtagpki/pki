@@ -118,4 +118,24 @@ public class CAConfig extends ConfigStore {
     public SCEPConfig getSCEPConfig() {
         return getSubStore("scep", SCEPConfig.class);
     }
+
+    /**
+     * Returns whether to reject OCSP requests using deprecated digest algorithms
+     * (MD2, MD5, SHA-1) for FIPS 140-3 compliance.
+     *
+     * @return true if deprecated algorithms should be rejected, false otherwise (default: false)
+     * @throws EBaseException if configuration cannot be read
+     */
+    public boolean getOCSPRejectDeprecatedAlgorithms() throws EBaseException {
+        return getBoolean("ocspRejectDeprecatedAlgorithms", false);
+    }
+
+    /**
+     * Sets whether to reject OCSP requests using deprecated digest algorithms.
+     *
+     * @param reject true to reject deprecated algorithms, false to allow
+     */
+    public void setOCSPRejectDeprecatedAlgorithms(boolean reject) {
+        putBoolean("ocspRejectDeprecatedAlgorithms", reject);
+    }
 }
