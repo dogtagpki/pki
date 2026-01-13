@@ -711,10 +711,10 @@ jobs:
           # everything should be owned by runner group
           # TODO: review owners/permissions
           cat > expected << EOF
-          -rw-rw-rw- runner CS.cfg
+          -rw-rw---- runner CS.cfg
           drwxrwxrwx runner archives
           -rw-rw-rw- runner phoneHome.xml
-          -rw-rw-rw- runner registry.cfg
+          -rw-rw---- runner registry.cfg
           EOF
 
           diff expected output

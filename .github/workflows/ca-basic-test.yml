@@ -238,7 +238,7 @@ jobs:
 
           # TODO: review permissions
           cat > expected << EOF
-          -rw-rw-r-- pkiuser pkiuser CS.cfg
+          -rw-rw---- pkiuser pkiuser CS.cfg
           -rw-rw---- pkiuser pkiuser adminCert.profile
           drwxr-xr-x pkiuser pkiuser archives
           -rw-rw---- pkiuser pkiuser caAuditSigningCert.profile

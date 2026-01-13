@@ -232,7 +232,7 @@ jobs:
           # everything should be owned by root group
           # TODO: review owners/permissions
           cat > expected << EOF
-          -rw-rw-rw- root CS.cfg
+          -rw-rw---- root CS.cfg
           -rw-rw-rw- root adminCert.profile
           drwxrwxrwx root archives
           -rw-rw-rw- root caAuditSigningCert.profile
@@ -242,7 +242,7 @@ jobs:
           -rw-rw-rw- root flatfile.txt
           drwxrwxrwx root profiles
           -rw-rw-rw- root proxy.conf
-          -rw-rw-rw- root registry.cfg
+          -rw-rw---- root registry.cfg
           -rw-rw-rw- root serverCert.profile
           -rw-rw-rw- root subsystemCert.profile
           EOF

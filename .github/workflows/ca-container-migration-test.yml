@@ -244,7 +244,7 @@ jobs:
           # everything should be owned by pkiuser group
           # TODO: review owners/permissions
           cat > expected << EOF
-          -rw-rw-rw- pkiuser CS.cfg
+          -rw-rw---- pkiuser CS.cfg
           -rw-rw-rw- pkiuser adminCert.profile
           drwxrwxrwx pkiuser archives
           -rw-rw-rw- pkiuser caAuditSigningCert.profile
@@ -254,7 +254,7 @@ jobs:
           -rw-rw-rw- pkiuser flatfile.txt
           drwxrwxrwx pkiuser profiles
           -rw-rw-rw- pkiuser proxy.conf
-          -rw-rw-rw- pkiuser registry.cfg
+          -rw-rw---- pkiuser registry.cfg
           -rw-rw-rw- pkiuser serverCert.profile
           -rw-rw-rw- pkiuser subsystemCert.profile
           EOF

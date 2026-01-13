@@ -794,6 +794,7 @@ grant codeBase "file:%s" {
 
     def store_properties(self, filename, properties):
         pki.util.store_properties(filename, properties)
+        os.chmod(filename, DEFAULT_FILE_MODE)
         self.chown(filename)
 
     def create(self, force=False):

@@ -253,7 +253,7 @@ jobs:
 
           # TODO: review permissions
           cat > expected << EOF
-          -rw-rw-r-- pkiuser pkiuser CS.cfg
+          -rw-rw---- pkiuser pkiuser CS.cfg
           -rw-rw---- pkiuser pkiuser phoneHome.xml
           -rw-rw---- pkiuser pkiuser registry.cfg
           EOF
