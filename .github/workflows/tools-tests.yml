@@ -43,6 +43,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/pki-nss-exts-test.yml
 
+  pki-password-test:
+    name: PKI Password CLI
+    needs: build
+    uses: ./.github/workflows/pki-password-test.yml
+
   pki-pkcs7-test:
     name: PKI PKCS7 CLI
     needs: build
