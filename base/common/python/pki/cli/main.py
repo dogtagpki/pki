@@ -26,13 +26,10 @@ import subprocess
 import sys
 
 import pki.cli
-import pki.cli.password
 import pki.nssdb
 
 logger = logging.getLogger(__name__)
 
-
-PYTHON_COMMANDS = ['password-generate']
 
 JAVA_COMMANDS = {
     'help': 'Show help messages',
@@ -46,6 +43,7 @@ JAVA_COMMANDS = {
     'ocsp': 'OCSP management commands',
     'tks': 'TKS management commands',
     'tps': 'TPS management commands',
+    'password': 'Password utilities',
     'pkcs7': 'PKCS #7 utilities',
     'pkcs11': 'PKCS #11 utilities',
     'pkcs12': 'PKCS #12 utilities'
@@ -86,8 +84,6 @@ class PKICLI(pki.cli.CLI):
         self.skip_revocation_check = False
         self.exit_on_error = False
 
-        self.add_module(pki.cli.password.PasswordCLI())
-
         self.extra_commands = JAVA_COMMANDS.copy()
 
     def create_parser(self, subparsers=None):
@@ -97,9 +93,10 @@ class PKICLI(pki.cli.CLI):
             prog=self.name,
             add_help=False)
 
-        self.parser.add_argument(
-            '--client-type',
-            default='java')
+        # keep this option for backward compatibility
+        # TODO: remove this option in the future
+        self.parser.add_argument('--client-type')
+
         self.parser.add_argument(
             '-D',
             action='append')
@@ -163,7 +160,7 @@ class PKICLI(pki.cli.CLI):
         print('Usage: pki [OPTIONS]')
 
         print()
-        print('      --client-type <type>       PKI client type (default: java)')
+        print('      --client-type <type>       DEPRECATED: PKI client type')
         print('   -D <name>=<value>             System propery')
 
         print('   -d <path>                     NSS database location ' +
@@ -188,7 +185,7 @@ class PKICLI(pki.cli.CLI):
         print('   -P <protocol>                 Protocol (default: https)')
         print('   -h <hostname>                 Hostname')
         print('   -p <port>                     Port (default: 8443)')
-        print('   -t <subsystem>                Subsystem type (deprecated)')
+        print('   -t <subsystem>                DEPRECATED: Subsystem type')
 
         print('      --api <version>            API version: v1, v2')
         print('      --output <folder>          Folder to store HTTP messages')
@@ -366,7 +363,9 @@ class PKICLI(pki.cli.CLI):
         elif args.verbose:
             logging.getLogger().setLevel(logging.INFO)
 
-        client_type = args.client_type
+        if args.client_type:
+            logger.warning(
+                'The --client-type <type> option is no longer supported.')
 
         if args.D:
             for param in args.D:
@@ -389,6 +388,7 @@ class PKICLI(pki.cli.CLI):
         self.hostname = args.h
         self.port = args.p
         self.subsystem = args.t
+
         self.api = args.api
         self.output = args.output
         self.message_format = args.message_format
@@ -404,20 +404,7 @@ class PKICLI(pki.cli.CLI):
             command = args.remainder[0]
         logger.debug('CLI Command: %s', command)
 
-        if client_type == 'python' or command in PYTHON_COMMANDS:
-            module = self.find_module(command)
-            logger.debug('Module: %s', module.get_full_name())
-
-            module_args = args.remainder[1:]
-            logger.debug('Arguments: %s', ' '.join(module_args))
-
-            module.execute(module_args)
-
-        elif client_type == 'java':
-            self.execute_java(args.remainder)
-
-        else:
-            raise Exception('Unsupported client type: ' + client_type)
+        self.execute_java(args.remainder)
 
 
 if __name__ == '__main__':
