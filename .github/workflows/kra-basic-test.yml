@@ -282,8 +282,8 @@ jobs:
 
           # TODO: review permissions
           cat > expected << EOF
-          -rw-rw-r-- pkiuser pkiuser CS.cfg
-          -rw-rw-r-- pkiuser pkiuser registry.cfg
+          -rw-rw---- pkiuser pkiuser CS.cfg
+          -rw-rw---- pkiuser pkiuser registry.cfg
           EOF
 
           diff expected output

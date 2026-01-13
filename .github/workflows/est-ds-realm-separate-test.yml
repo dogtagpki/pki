@@ -217,11 +217,11 @@ jobs:
 
           # TODO: review permissions
           cat > expected << EOF
-          -rw-rw-r-- pkiuser pkiuser CS.cfg
+          -rw-rw---- pkiuser pkiuser CS.cfg
           -rw-rw---- pkiuser pkiuser authorizer.conf
           -rw-rw---- pkiuser pkiuser backend.conf
-          -rw-rw-r-- pkiuser pkiuser realm.conf
-          -rw-rw-r-- pkiuser pkiuser registry.cfg
+          -rw-rw---- pkiuser pkiuser realm.conf
+          -rw-rw---- pkiuser pkiuser registry.cfg
           EOF
 
           diff expected output

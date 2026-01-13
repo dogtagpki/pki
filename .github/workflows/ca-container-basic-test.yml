@@ -117,7 +117,7 @@ jobs:
           # everything should be owned by runner group
           # TODO: review owners/permissions
           cat > expected << EOF
-          -rw-rw-rw- runner CS.cfg
+          -rw-rw---- runner CS.cfg
           -rw-rw-rw- runner adminCert.profile
           drwxrwxrwx runner archives
           -rw-rw-rw- runner caAuditSigningCert.profile
@@ -127,7 +127,7 @@ jobs:
           -rw-rw-rw- runner flatfile.txt
           drwxrwxrwx runner profiles
           -rw-rw-rw- runner proxy.conf
-          -rw-rw-rw- runner registry.cfg
+          -rw-rw---- runner registry.cfg
           -rw-rw-rw- runner serverCert.profile
           -rw-rw-rw- runner subsystemCert.profile
           EOF
