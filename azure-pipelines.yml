@@ -13,7 +13,7 @@ jobs:
         import os
         import re
 
-        value = os.getenv('BASE_IMAGE', 'registry.fedoraproject.org/fedora:latest')
+        value = os.getenv('BASE_IMAGE', 'registry.fedoraproject.org/fedora:44')
         print('BASE_IMAGE: {value}'.format(value=value))
         print('##vso[task.setvariable variable=BASE_IMAGE]{value}'.format(value=value))
 
@@ -30,7 +30,7 @@ jobs:
       docker build \
           --build-arg BASE_IMAGE=$BASE_IMAGE \
           --target pki-base \
-          --tag pki-base:latest \
+          --tag pki-base:11.9\
           .
 
       docker run \
@@ -38,7 +38,7 @@ jobs:
           -v $BUILD_SOURCESDIRECTORY:/root/src \
           --privileged \
           --detach \
-          pki-base:latest
+          pki-base:11.9
 
       while :
       do
@@ -54,11 +54,11 @@ jobs:
       docker exec runner dnf install -y dnf-plugins-core rpm-build
       if [ -n "$COPR_REPO" ]; then docker exec runner dnf copr enable -y $COPR_REPO; fi
 
-      docker create --name=jss-dist quay.io/$NAMESPACE/jss-dist:latest
+      docker create --name=jss-dist quay.io/$NAMESPACE/jss-dist:5.9
       docker cp jss-dist:/root/RPMS/. /tmp/RPMS
       docker rm -f jss-dist
 
-      docker create --name=ldapjdk-dist quay.io/$NAMESPACE/ldapjdk-dist:latest
+      docker create --name=ldapjdk-dist quay.io/$NAMESPACE/ldapjdk-dist:5.6
       docker cp ldapjdk-dist:/root/RPMS/. /tmp/RPMS
       docker rm -f ldapjdk-dist
 

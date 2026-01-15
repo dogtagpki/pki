@@ -22,7 +22,7 @@ License:          GPL-2.0-only AND LGPL-2.0-only
 # - development (unsupported): alpha<n> where n >= 1
 # - stabilization (supported): beta<n> where n >= 1
 # - GA/update (supported): <none>
-%global           phase alpha1
+%global           phase beta1
 
 %global           fedora_cutoff 43
 
