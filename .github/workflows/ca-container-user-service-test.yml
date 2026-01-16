@@ -181,16 +181,16 @@ jobs:
           drwxrwxrwx pkiuser Catalina
           drwxrwxrwx pkiuser alias
           drwxrwxrwx pkiuser ca
-          -rw-rw-rw- pkiuser catalina.policy
+          -rw-rw---- pkiuser catalina.policy
           lrwxrwxrwx pkiuser catalina.properties -> /usr/share/pki/server/conf/catalina.properties
           drwxrwxrwx pkiuser certs
           lrwxrwxrwx pkiuser context.xml -> /etc/tomcat/context.xml
-          -rw-rw-rw- pkiuser jss.conf
+          -rw-rw---- pkiuser jss.conf
           lrwxrwxrwx pkiuser logging.properties -> /usr/share/pki/server/conf/logging.properties
-          -rw-rw-rw- pkiuser password.conf
-          -rw-rw-rw- pkiuser server.xml
-          -rw-rw-rw- pkiuser serverCertNick.conf
-          -rw-rw-rw- pkiuser tomcat.conf
+          -rw-rw---- pkiuser password.conf
+          -rw-rw---- pkiuser server.xml
+          -rw-rw---- pkiuser serverCertNick.conf
+          -rw-rw---- pkiuser tomcat.conf
           lrwxrwxrwx pkiuser web.xml -> /etc/tomcat/web.xml
           EOF
 
@@ -209,9 +209,9 @@ jobs:
           # TODO: review owners/permissions
           cat > expected << EOF
           -rw-rw-rw- pkiuser ca.crt
-          -rw-rw-rw- pkiuser cert9.db
-          -rw-rw-rw- pkiuser key4.db
-          -rw-rw-rw- pkiuser pkcs11.txt
+          -rw-rw---- pkiuser cert9.db
+          -rw-rw---- pkiuser key4.db
+          -rw-rw---- pkiuser pkcs11.txt
           EOF
 
           diff expected output
@@ -230,18 +230,18 @@ jobs:
           # TODO: review owners/permissions
           cat > expected << EOF
           -rw-rw---- pkiuser CS.cfg
-          -rw-rw-rw- pkiuser adminCert.profile
+          -rw-rw---- pkiuser adminCert.profile
           drwxrwxrwx pkiuser archives
-          -rw-rw-rw- pkiuser caAuditSigningCert.profile
-          -rw-rw-rw- pkiuser caCert.profile
-          -rw-rw-rw- pkiuser caOCSPCert.profile
+          -rw-rw---- pkiuser caAuditSigningCert.profile
+          -rw-rw---- pkiuser caCert.profile
+          -rw-rw---- pkiuser caOCSPCert.profile
           drwxrwxrwx pkiuser emails
-          -rw-rw-rw- pkiuser flatfile.txt
+          -rw-rw---- pkiuser flatfile.txt
           drwxrwxrwx pkiuser profiles
-          -rw-rw-rw- pkiuser proxy.conf
+          -rw-rw---- pkiuser proxy.conf
           -rw-rw---- pkiuser registry.cfg
-          -rw-rw-rw- pkiuser serverCert.profile
-          -rw-rw-rw- pkiuser subsystemCert.profile
+          -rw-rw---- pkiuser serverCert.profile
+          -rw-rw---- pkiuser subsystemCert.profile
           EOF
 
           diff expected output

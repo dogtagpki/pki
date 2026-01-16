@@ -195,16 +195,16 @@ jobs:
           drwxrwxrwx runner Catalina
           drwxrwxrwx runner alias
           drwxrwxrwx runner ca
-          -rw-rw-rw- runner catalina.policy
+          -rw-rw---- runner catalina.policy
           lrwxrwxrwx runner catalina.properties -> /usr/share/pki/server/conf/catalina.properties
           drwxrwxrwx runner certs
           lrwxrwxrwx runner context.xml -> /etc/tomcat/context.xml
-          -rw-rw-rw- runner jss.conf
+          -rw-rw---- runner jss.conf
           lrwxrwxrwx runner logging.properties -> /usr/share/pki/server/conf/logging.properties
-          -rw-rw-rw- runner password.conf
-          -rw-rw-rw- runner server.xml
-          -rw-rw-rw- runner serverCertNick.conf
-          -rw-rw-rw- runner tomcat.conf
+          -rw-rw---- runner password.conf
+          -rw-rw---- runner server.xml
+          -rw-rw---- runner serverCertNick.conf
+          -rw-rw---- runner tomcat.conf
           lrwxrwxrwx runner web.xml -> /etc/tomcat/web.xml
           EOF
 
@@ -224,18 +224,18 @@ jobs:
           # TODO: review owners/permissions
           cat > expected << EOF
           -rw-rw---- runner CS.cfg
-          -rw-rw-rw- runner adminCert.profile
+          -rw-rw---- runner adminCert.profile
           drwxrwxrwx runner archives
-          -rw-rw-rw- runner caAuditSigningCert.profile
-          -rw-rw-rw- runner caCert.profile
-          -rw-rw-rw- runner caOCSPCert.profile
+          -rw-rw---- runner caAuditSigningCert.profile
+          -rw-rw---- runner caCert.profile
+          -rw-rw---- runner caOCSPCert.profile
           drwxrwxrwx runner emails
-          -rw-rw-rw- runner flatfile.txt
+          -rw-rw---- runner flatfile.txt
           drwxrwxrwx runner profiles
-          -rw-rw-rw- runner proxy.conf
+          -rw-rw---- runner proxy.conf
           -rw-rw---- runner registry.cfg
-          -rw-rw-rw- runner serverCert.profile
-          -rw-rw-rw- runner subsystemCert.profile
+          -rw-rw---- runner serverCert.profile
+          -rw-rw---- runner subsystemCert.profile
           EOF
 
           diff expected output

@@ -205,15 +205,15 @@ jobs:
           drwxrwxrwx root Catalina
           drwxrwxrwx root alias
           drwxrwxrwx root ca
-          -rw-rw-rw- root catalina.policy
+          -rw-rw---- root catalina.policy
           lrwxrwxrwx root catalina.properties -> /usr/share/pki/server/conf/catalina.properties
           drwxrwxrwx root certs
           lrwxrwxrwx root context.xml -> /etc/tomcat/context.xml
           lrwxrwxrwx root logging.properties -> /usr/share/pki/server/conf/logging.properties
-          -rw-rw-rw- root password.conf
-          -rw-rw-rw- root server.xml
-          -rw-rw-rw- root serverCertNick.conf
-          -rw-rw-rw- root tomcat.conf
+          -rw-rw---- root password.conf
+          -rw-rw---- root server.xml
+          -rw-rw---- root serverCertNick.conf
+          -rw-rw---- root tomcat.conf
           lrwxrwxrwx root web.xml -> /etc/tomcat/web.xml
           EOF
 
@@ -233,18 +233,18 @@ jobs:
           # TODO: review owners/permissions
           cat > expected << EOF
           -rw-rw---- root CS.cfg
-          -rw-rw-rw- root adminCert.profile
+          -rw-rw---- root adminCert.profile
           drwxrwxrwx root archives
-          -rw-rw-rw- root caAuditSigningCert.profile
-          -rw-rw-rw- root caCert.profile
-          -rw-rw-rw- root caOCSPCert.profile
+          -rw-rw---- root caAuditSigningCert.profile
+          -rw-rw---- root caCert.profile
+          -rw-rw---- root caOCSPCert.profile
           drwxrwxrwx root emails
-          -rw-rw-rw- root flatfile.txt
+          -rw-rw---- root flatfile.txt
           drwxrwxrwx root profiles
-          -rw-rw-rw- root proxy.conf
+          -rw-rw---- root proxy.conf
           -rw-rw---- root registry.cfg
-          -rw-rw-rw- root serverCert.profile
-          -rw-rw-rw- root subsystemCert.profile
+          -rw-rw---- root serverCert.profile
+          -rw-rw---- root subsystemCert.profile
           EOF
 
           diff expected output

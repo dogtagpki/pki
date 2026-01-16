@@ -175,7 +175,7 @@ then
     chown -Rf pkiuser:root /logs
 fi
 
-find /conf -type f -exec chmod +rw -- {} +
+find /conf -type f -exec chmod ug+rw,o-rw -- {} +
 find /conf -type d -exec chmod +rwx -- {} +
 find /logs -type f -exec chmod +rw -- {} +
 find /logs -type d -exec chmod +rwx -- {} +

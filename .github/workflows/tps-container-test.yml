@@ -682,16 +682,16 @@ jobs:
           cat > expected << EOF
           drwxrwxrwx runner Catalina
           drwxrwxrwx runner alias
-          -rw-rw-rw- runner catalina.policy
+          -rw-rw---- runner catalina.policy
           lrwxrwxrwx runner catalina.properties -> /usr/share/pki/server/conf/catalina.properties
           drwxrwxrwx runner certs
           lrwxrwxrwx runner context.xml -> /etc/tomcat/context.xml
-          -rw-rw-rw- runner jss.conf
+          -rw-rw---- runner jss.conf
           lrwxrwxrwx runner logging.properties -> /usr/share/pki/server/conf/logging.properties
-          -rw-rw-rw- runner password.conf
-          -rw-rw-rw- runner server.xml
-          -rw-rw-rw- runner serverCertNick.conf
-          -rw-rw-rw- runner tomcat.conf
+          -rw-rw---- runner password.conf
+          -rw-rw---- runner server.xml
+          -rw-rw---- runner serverCertNick.conf
+          -rw-rw---- runner tomcat.conf
           drwxrwxrwx runner tps
           lrwxrwxrwx runner web.xml -> /etc/tomcat/web.xml
           EOF
@@ -713,7 +713,7 @@ jobs:
           cat > expected << EOF
           -rw-rw---- runner CS.cfg
           drwxrwxrwx runner archives
-          -rw-rw-rw- runner phoneHome.xml
+          -rw-rw---- runner phoneHome.xml
           -rw-rw---- runner registry.cfg
           EOF
 
