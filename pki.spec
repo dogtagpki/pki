@@ -229,7 +229,7 @@ BuildRequires:     pki-resteasy-client               >= 3.0.26
 BuildRequires:     pki-resteasy-servlet-initializer  >= 3.0.26
 BuildRequires:     pki-resteasy-jackson2-provider    >= 3.0.26
 
-BuildRequires:     dogtag-jss >= 5.9
+BuildRequires:     dogtag-jss >= 5.10
 
 BuildRequires:    mvn(commons-cli:commons-cli)
 BuildRequires:    mvn(commons-codec:commons-codec)
@@ -281,8 +281,8 @@ BuildRequires:    mvn(org.apache.tomcat:tomcat-util-scan) >= 9.0.62
 
 %endif
 
-BuildRequires:    mvn(org.dogtagpki.jss:jss-base) >= 5.9
-BuildRequires:    mvn(org.dogtagpki.jss:jss-tomcat) >= 5.9
+BuildRequires:    mvn(org.dogtagpki.jss:jss-base) >= 5.10
+BuildRequires:    mvn(org.dogtagpki.jss:jss-tomcat) >= 5.10
 BuildRequires:    mvn(org.dogtagpki.ldap-sdk:ldapjdk) >= 5.6.0
 
 # Python build dependencies
@@ -623,7 +623,7 @@ Provides:         bundled(resteasy-client)
 Provides:         bundled(resteasy-jackson2-provider)
 %endif
 
-Requires:         mvn(org.dogtagpki.jss:jss-base) >= 5.9.0
+Requires:         mvn(org.dogtagpki.jss:jss-base) >= 5.10.0
 Requires:         mvn(org.dogtagpki.ldap-sdk:ldapjdk) >= 5.6.0
 Requires:         %{product_id}-base = %{version}-%{release}
 
@@ -704,7 +704,7 @@ Requires:         tomcat >= 1:10.1.36
 Requires:         tomcat >= 9.0
 %endif
 
-Requires:         mvn(org.dogtagpki.jss:jss-tomcat) >= 5.9.0
+Requires:         mvn(org.dogtagpki.jss:jss-tomcat) >= 5.10.0
 
 Requires:         systemd
 Requires(post):   systemd-units
