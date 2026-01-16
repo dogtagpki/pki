@@ -118,4 +118,52 @@ public class CAConfig extends ConfigStore {
     public SCEPConfig getSCEPConfig() {
         return getSubStore("scep", SCEPConfig.class);
     }
+
+    /**
+     * Returns whether to reject OCSP requests using deprecated digest algorithms
+     * (MD2, MD5, SHA-1) for FIPS 140-3 compliance.
+     *
+     * @return true if deprecated algorithms should be rejected, false otherwise (default: false)
+     * @throws EBaseException if configuration cannot be read
+     */
+    public boolean getOCSPRejectDeprecatedAlgorithms() throws EBaseException {
+        return getBoolean("ocspRejectDeprecatedAlgorithms", false);
+    }
+
+    /**
+     * Sets whether to reject OCSP requests using deprecated digest algorithms.
+     *
+     * @param reject true to reject deprecated algorithms, false to allow
+     */
+    public void setOCSPRejectDeprecatedAlgorithms(boolean reject) {
+        putBoolean("ocspRejectDeprecatedAlgorithms", reject);
+    }
+
+    /**
+     * Returns the signing algorithm to use for OCSP responses.
+     * If not configured, returns null to indicate the default algorithm
+     * from the OCSP signing unit should be used.
+     *
+     * Example values: SHA256withRSA, SHA384withRSA, SHA512withRSA,
+     *                 SHA256withEC, SHA384withEC, SHA512withEC
+     *
+     * @return the configured signing algorithm, or null if not set
+     * @throws EBaseException if configuration cannot be read
+     */
+    public String getOCSPResponseSigningAlgorithm() throws EBaseException {
+        return getString("ocspResponseSigningAlgorithm", null);
+    }
+
+    /**
+     * Sets the signing algorithm to use for OCSP responses.
+     *
+     * @param algorithm the signing algorithm (e.g., SHA256withRSA), or null to use default
+     */
+    public void setOCSPResponseSigningAlgorithm(String algorithm) {
+        if (algorithm == null) {
+            remove("ocspResponseSigningAlgorithm");
+        } else {
+            putString("ocspResponseSigningAlgorithm", algorithm);
+        }
+    }
 }
