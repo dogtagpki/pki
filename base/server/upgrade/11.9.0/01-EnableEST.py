@@ -202,7 +202,7 @@ class EnableEST(pki.server.upgrade.PKIServerUpgradeScriptlet):
             logger.info('Group %s already exist', group_id)
             return
         except subprocess.CalledProcessError:
-            logger.info("Group %s has to be created.")
+            logger.info("Group '%s' will be created.", group_id)
 
         subsystem.add_group(
             group_id,
