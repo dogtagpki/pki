@@ -40,6 +40,10 @@ public class CLIException extends Exception {
         this.code = code;
     }
 
+    public CLIException(String string, Exception e) {
+        super(string, e);
+    }
+
     public int getCode() {
         return code;
     }

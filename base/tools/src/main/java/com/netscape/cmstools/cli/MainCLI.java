@@ -771,7 +771,7 @@ public class MainCLI extends CLI {
         if (logger.isInfoEnabled()) {
             t.printStackTrace(System.err);
 
-        } else if (t.getClass() == Exception.class) {
+        } else if (t.getClass() == Exception.class || t instanceof CLIException) {
             // display a generic error
             System.err.println("ERROR: " + t.getMessage());
 
@@ -799,10 +799,7 @@ public class MainCLI extends CLI {
             cli.execute(args);
 
         } catch (CLIException e) {
-            String message = e.getMessage();
-            if (message != null) {
-                System.err.println("ERROR: " + message);
-            }
+            cli.handleException(e);
             System.exit(e.getCode());
 
         } catch (Throwable t) {
