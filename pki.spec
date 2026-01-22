@@ -2,16 +2,16 @@
 Name:             pki
 ################################################################################
 
-Summary:          %{product_name} Package
-URL:              https://www.dogtagpki.org
-# The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
-License:          GPL-2.0-only AND LGPL-2.0-only
-
 # Don't use macros in these params since they need to be parsed by build.sh
 %global           vendor_id dogtag
 %global           product_name Dogtag PKI
 %global           product_id dogtag-pki
 %global           theme dogtag
+
+Summary:          %{product_name} Package
+URL:              https://www.dogtagpki.org
+# The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
+License:          GPL-2.0-only AND LGPL-2.0-only
 
 # Upstream version number:
 %global           major_version 11
@@ -24,15 +24,13 @@ License:          GPL-2.0-only AND LGPL-2.0-only
 # - GA/update (supported): <none>
 %global           phase alpha1
 
-%global           fedora_cutoff 43
-
 %undefine         timestamp
 %undefine         commit_id
 
 # Full version number:
 # - development/stabilization: <major>.<minor>.<update>-<phase>
 # - GA/update:                 <major>.<minor>.<update>
-%global         full_version %{major_version}.%{minor_version}.%{update_version}%{?phase:-}%{?phase}
+%global           full_version %{major_version}.%{minor_version}.%{update_version}%{?phase:-}%{?phase}
 
 # RPM version number:
 # - development:   <major>.<minor>.<update>~<phase>^<timestamp>.<commit_id>
@@ -40,10 +38,14 @@ License:          GPL-2.0-only AND LGPL-2.0-only
 # - GA/update:     <major>.<minor>.<update>
 #
 # https://docs.fedoraproject.org/en-US/packaging-guidelines/Versioning
-
 Version:          %{major_version}.%{minor_version}.%{update_version}%{?phase:~}%{?phase}%{?timestamp:^}%{?timestamp}%{?commit_id:.}%{?commit_id}
-Release:          %autorelease 
 
+# RPM release number
+%if 0%{?rhel} && 0%{?rhel} < 10
+Release:          1%{?dist}
+%else
+Release:          %autorelease
+%endif
 
 # To create a tarball from a version tag:
 # $ git archive \
@@ -76,31 +78,33 @@ ExcludeArch: i686
 # Java
 ################################################################################
 
-# use Java 17 on Fedora 39 or older and RHEL 9 or older
-# otherwise, use Java 21
+# Use Java 21 before Fedora 43, otherwise use Java 25.
+# Use Java 17 before RHEL 9, otherwise use Java 21.
+
+%global           fedora_java21_cutoff 43
+%global           rhel_java17_cutoff 9
 
 # maven-local is a subpackage of javapackages-tools
 
-%if 0%{?rhel} && 0%{?rhel} <= 9
+%if 0%{?rhel} && 0%{?rhel} < %{rhel_java17_cutoff}
 
 %define java_runtime java-17-openjdk
 %define java_devel java-17-openjdk-devel
 %define java_headless java-17-openjdk-headless
 %define java_home %{_jvmdir}/jre-17-openjdk
-%define maven_local maven-local-openjdk17
+%define maven_local maven-local
 
 %else
 
-%if  0%{?fedora} < %{fedora_cutoff}  ||  0%{?rhel} >= 10
+%if 0%{?fedora} && 0%{?fedora} < %{fedora_java21_cutoff} || 0%{?rhel}
 
 %define java_runtime java-21-openjdk
 %define java_devel java-21-openjdk-devel
 %define java_headless java-21-openjdk-headless
 %define java_home %{_jvmdir}/jre-21-openjdk
-%define maven_local maven-local
+%define maven_local maven-local-openjdk21
 
 %else
-# fedora >= 43
 
 %define java_runtime java-25-openjdk
 %define java_devel java-25-openjdk-devel
@@ -111,6 +115,15 @@ ExcludeArch: i686
 %endif
 
 %endif
+
+###############################################################################
+# Tomcat
+################################################################################
+
+# Use Tomcat 9 before Fedora 43 and RHEL 10, otherwise use Tomcat 10.
+
+%global           fedora_tomcat9_cutoff 43
+%global           rhel_tomcat9_cutoff 10
 
 ################################################################################
 # PKI
@@ -217,11 +230,11 @@ BuildRequires:    javapackages-tools
 BuildRequires:    xmlstarlet
 %endif
 
-%if 0%{?fedora} >= %{fedora_cutoff} || 0%{?rhel} >= 10
+%if 0%{?fedora} && 0%{?fedora} < %{fedora_tomcat9_cutoff} || 0%{?rhel} && 0%{?rhel} < %{rhel_tomcat9_cutoff}
+BuildRequires:     tomcat-lib >= 9.0
+%else
 BuildRequires:     tomcat-lib >= 1:10.1.36
 BuildRequires:     tomcat-jakartaee-migration
-%else
-BuildRequires:     tomcat-lib >= 9.0
 %endif
 
 BuildRequires:     pki-resteasy-core                 >= 3.0.26
@@ -229,7 +242,7 @@ BuildRequires:     pki-resteasy-client               >= 3.0.26
 BuildRequires:     pki-resteasy-servlet-initializer  >= 3.0.26
 BuildRequires:     pki-resteasy-jackson2-provider    >= 3.0.26
 
-BuildRequires:     dogtag-jss >= 5.10
+BuildRequires:     %{vendor_id}-jss >= 5.10
 
 BuildRequires:    mvn(commons-cli:commons-cli)
 BuildRequires:    mvn(commons-codec:commons-codec)
@@ -265,19 +278,19 @@ BuildRequires:    mvn(org.jboss.resteasy:resteasy-servlet-initializer)
 
 %endif
 
-%if 0%{?fedora} >= %{fedora_cutoff} || 0%{?rhel} >= 10
-
-BuildRequires:    mvn(org.apache.tomcat:tomcat-catalina) >= 10.1.36
-BuildRequires:    mvn(org.apache.tomcat:tomcat-servlet-api) >= 10.1.36
-BuildRequires:    mvn(org.apache.tomcat:tomcat-jaspic-api) >= 10.1.36
-BuildRequires:    mvn(org.apache.tomcat:tomcat-util-scan) >= 10.0.36
-
-%else
+%if 0%{?fedora} && 0%{?fedora} < %{fedora_tomcat9_cutoff} || 0%{?rhel} && 0%{?rhel} < %{rhel_tomcat9_cutoff}
 
 BuildRequires:    mvn(org.apache.tomcat:tomcat-catalina) >= 9.0.62
 BuildRequires:    mvn(org.apache.tomcat:tomcat-servlet-api) >= 9.0.62
 BuildRequires:    mvn(org.apache.tomcat:tomcat-jaspic-api) >= 9.0.62
 BuildRequires:    mvn(org.apache.tomcat:tomcat-util-scan) >= 9.0.62
+
+%else
+
+BuildRequires:    mvn(org.apache.tomcat:tomcat-catalina) >= 10.1.36
+BuildRequires:    mvn(org.apache.tomcat:tomcat-servlet-api) >= 10.1.36
+BuildRequires:    mvn(org.apache.tomcat:tomcat-jaspic-api) >= 10.1.36
+BuildRequires:    mvn(org.apache.tomcat:tomcat-util-scan) >= 10.0.36
 
 %endif
 
@@ -698,10 +711,10 @@ Requires:         mvn(org.jboss.resteasy:resteasy-servlet-initializer)
 Provides:         bundled(resteasy-servlet-initializer)
 %endif
 
-%if 0%{?fedora} >= %{fedora_cutoff} || 0%{?rhel} >= 10
-Requires:         tomcat >= 1:10.1.36
-%else
+%if 0%{?fedora} && 0%{?fedora} < %{fedora_tomcat9_cutoff} || 0%{?rhel} && 0%{?rhel} < %{rhel_tomcat9_cutoff}
 Requires:         tomcat >= 9.0
+%else
+Requires:         tomcat >= 1:10.1.36
 %endif
 
 Requires:         mvn(org.dogtagpki.jss:jss-tomcat) >= 5.10.0
@@ -1086,8 +1099,9 @@ This package provides test suite for %{product_name}.
 
 %autosetup -n pki-%{full_version} -p 1
 
-%if 0%{?fedora} >= %{fedora_cutoff} || 0%{?rhel} >= 10
-#migrate the source first because we are starting with tomcat 9 code, so we can build against either tomcat 9 or 10.1, based on the build platform
+%if 0%{?fedora} >= %{fedora_tomcat9_cutoff} || 0%{?rhel} >= %{rhel_tomcat9_cutoff}
+# Migrate the source first because we are starting with Tomcat 9 code,
+# so we can build against either Tomcat 9 or 10.1, based on the build platform.
 /usr/bin/javax2jakarta -profile=EE -exclude=./base/tomcat-9.0 ./base ./base 
 %endif
 
@@ -1164,40 +1178,43 @@ then
     cp /usr/share/java/resteasy/resteasy-jackson2-provider.jar \
         resteasy-jackson2-provider-$RESTEASY_VERSION.jar
 
-    #migrate necessary files being copied around to jakarta 9.0 ee, for >= f43 and rhel10
+    # Migrate necessary files being copied around to jakarta 9.0 ee, for >= f43 and rhel10
 
-    %if 0%{?fedora} >= %{fedora_cutoff} || 0%{?rhel} >= 10
+    %if 0%{?fedora} >= %{fedora_tomcat9_cutoff} || 0%{?rhel} >= %{rhel_tomcat9_cutoff}
 
-    echo "Doing the tomcat 10 version..."
+    echo "Doing the Tomcat 10 version..."
 
-    /usr/bin/javax2jakarta  -profile=EE  jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar  jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar 
+    /usr/bin/javax2jakarta -profile=EE jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar
 
-    /usr/bin/javax2jakarta  -profile=EE  jackson-jaxrs-json-provider-$JACKSON_VERSION.jar jackson-jaxrs-json-provider-$JACKSON_VERSION.jar
+    /usr/bin/javax2jakarta -profile=EE jackson-jaxrs-json-provider-$JACKSON_VERSION.jar jackson-jaxrs-json-provider-$JACKSON_VERSION.jar
 
-    /usr/bin/javax2jakarta  -profile=EE  jackson-annotations-$JACKSON_VERSION.jar jackson-annotations-$JACKSON_VERSION.jar
-    /usr/bin/javax2jakarta  -profile=EE  jackson-core-$JACKSON_VERSION.jar  jackson-core-$JACKSON_VERSION.jar
-    /usr/bin/javax2jakarta  -profile=EE  jackson-databind-$JACKSON_VERSION.jar jackson-databind-$JACKSON_VERSION.jar
-    /usr/bin/javax2jakarta  -profile=EE  jackson-jaxrs-base-$JACKSON_VERSION.jar  jackson-jaxrs-base-$JACKSON_VERSION.jar
-    /usr/bin/javax2jakarta  -profile=EE  jackson-jaxrs-json-provider-$JACKSON_VERSION.jar jackson-jaxrs-json-provider-$JACKSON_VERSION.jar 
-    /usr/bin/javax2jakarta  -profile=EE  jackson-module-jaxb-annotations-$JACKSON_VERSION.jar jackson-module-jaxb-annotations-$JACKSON_VERSION.jar
+    /usr/bin/javax2jakarta -profile=EE jackson-annotations-$JACKSON_VERSION.jar jackson-annotations-$JACKSON_VERSION.jar
+    /usr/bin/javax2jakarta -profile=EE jackson-core-$JACKSON_VERSION.jar jackson-core-$JACKSON_VERSION.jar
+    /usr/bin/javax2jakarta -profile=EE jackson-databind-$JACKSON_VERSION.jar jackson-databind-$JACKSON_VERSION.jar
+    /usr/bin/javax2jakarta -profile=EE jackson-jaxrs-base-$JACKSON_VERSION.jar jackson-jaxrs-base-$JACKSON_VERSION.jar
+    /usr/bin/javax2jakarta -profile=EE jackson-jaxrs-json-provider-$JACKSON_VERSION.jar jackson-jaxrs-json-provider-$JACKSON_VERSION.jar
+    /usr/bin/javax2jakarta -profile=EE jackson-module-jaxb-annotations-$JACKSON_VERSION.jar jackson-module-jaxb-annotations-$JACKSON_VERSION.jar
 
-    /usr/bin/javax2jakarta  -profile=EE   jakarta.activation-api-$JAKARTA_ACTIVATION_API_VERSION.jar  jakarta.activation-api-$JAKARTA_ACTIVATION_API_VERSION.jar
-    /usr/bin/javax2jakarta  -profile=EE   jakarta.annotation-api-$JAKARTA_ANNOTATION_API_VERSION.jar jakarta.annotation-api-$JAKARTA_ANNOTATION_API_VERSION.jar  
-    /usr/bin/javax2jakarta  -profile=EE   jakarta.xml.bind-api-$JAXB_API_VERSION.jar jakarta.xml.bind-api-$JAXB_API_VERSION.jar 
+    /usr/bin/javax2jakarta -profile=EE jakarta.activation-api-$JAKARTA_ACTIVATION_API_VERSION.jar jakarta.activation-api-$JAKARTA_ACTIVATION_API_VERSION.jar
+    /usr/bin/javax2jakarta -profile=EE jakarta.annotation-api-$JAKARTA_ANNOTATION_API_VERSION.jar jakarta.annotation-api-$JAKARTA_ANNOTATION_API_VERSION.jar
+    /usr/bin/javax2jakarta -profile=EE jakarta.xml.bind-api-$JAXB_API_VERSION.jar jakarta.xml.bind-api-$JAXB_API_VERSION.jar
 
-     # Now migrate the required rest easy jars, in case we are using an existing resteasy version.
+    # Now migrate the required resteasy jars, in case we are using an existing resteasy version.
 
-    /usr/bin/javax2jakarta  -profile=EE resteasy-client-$RESTEASY_VERSION.jar  resteasy-client-$RESTEASY_VERSION.jar
-    /usr/bin/javax2jakarta  -profile=EE resteasy-jackson2-provider-$RESTEASY_VERSION.jar resteasy-jackson2-provider-$RESTEASY_VERSION.jar
-    /usr/bin/javax2jakarta  -profile=EE resteasy-jaxrs-$RESTEASY_VERSION.jar  resteasy-jaxrs-$RESTEASY_VERSION.jar
+    /usr/bin/javax2jakarta -profile=EE resteasy-client-$RESTEASY_VERSION.jar resteasy-client-$RESTEASY_VERSION.jar
+    /usr/bin/javax2jakarta -profile=EE resteasy-jackson2-provider-$RESTEASY_VERSION.jar resteasy-jackson2-provider-$RESTEASY_VERSION.jar
+    /usr/bin/javax2jakarta -profile=EE resteasy-jaxrs-$RESTEASY_VERSION.jar resteasy-jaxrs-$RESTEASY_VERSION.jar
 
     # Add local artifact so we can compile against the migrated jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar
     # We could have used the maven install plugin but it's not available with standard rpms.
 
     %endif
-    # Create the local artifact structure for either tomcat 9 or tomcat 10. tomcat 9 doesn't get the file imgrated
+
+    # Create the local artifact structure for either Tomcat 9 or Tomcat 10.
+    # Tomcat 9 doesn't get the file migrated.
     mkdir -p ~/.m2/repository/pki-local/jboss-jaxrs-api_2.0_spec/$JAXRS_VERSION
-    # Copy over the jaxrs api so we can compile
+
+    # Copy over the jaxrs api so we can compile.
     cp jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar  ~/.m2/repository/pki-local/jboss-jaxrs-api_2.0_spec/$JAXRS_VERSION/jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar
 
     popd
@@ -1205,7 +1222,7 @@ fi
 
 if [ ! -d base/server/lib ]
 then
-    # import server libraries from RPMs
+    # Import server libraries from RPMs.
 
     mkdir -p base/server/lib
     pushd base/server/lib
@@ -1217,10 +1234,9 @@ then
         resteasy-servlet-initializer-$RESTEASY_VERSION.jar
 
     # Migrate the resteasy servlet initializer, in case we are using an existing resteasy version.
-    %if 0%{?fedora} >= %{fedora_cutoff} || 0%{?rhel} >= 10
-    /usr/bin/javax2jakarta  -profile=EE resteasy-servlet-initializer-$RESTEASY_VERSION.jar resteasy-servlet-initializer-$RESTEASY_VERSION.jar
+    %if 0%{?fedora} >= %{fedora_tomcat9_cutoff} || 0%{?rhel} >= %{rhel_tomcat9_cutoff}
+    /usr/bin/javax2jakarta -profile=EE resteasy-servlet-initializer-$RESTEASY_VERSION.jar resteasy-servlet-initializer-$RESTEASY_VERSION.jar
     %endif
-
 
     ls -l
     popd
@@ -1234,10 +1250,10 @@ fi
 
 %if ! %{with server}
 %pom_disable_module tomcat base
-%if 0%{?fedora} >= %{fedora_cutoff} || 0%{?rhel} >= 10
-%pom_disable_module tomcat-10.1 base
-%else
+%if 0%{?fedora} && 0%{?fedora} < %{fedora_tomcat9_cutoff} || 0%{?rhel} && 0%{?rhel} < %{rhel_tomcat9_cutoff}
 %pom_disable_module tomcat-9.0 base
+%else
+%pom_disable_module tomcat-10.1 base
 %endif
 
 %pom_disable_module server base
@@ -1288,10 +1304,10 @@ fi
 %mvn_file org.dogtagpki.pki:pki-server-webapp     pki/pki-server-webapp
 %mvn_file org.dogtagpki.pki:pki-tomcat            pki/pki-tomcat
 
-%if 0%{?fedora} >= %{fedora_cutoff} || 0%{?rhel} >= 10
-%mvn_file org.dogtagpki.pki:pki-tomcat-10.1       pki/pki-tomcat-10.1
-%else
+%if 0%{?fedora} && 0%{?fedora} < %{fedora_tomcat9_cutoff} || 0%{?rhel} && 0%{?rhel} < %{rhel_tomcat9_cutoff}
 %mvn_file org.dogtagpki.pki:pki-tomcat-9.0        pki/pki-tomcat-9.0
+%else
+%mvn_file org.dogtagpki.pki:pki-tomcat-10.1       pki/pki-tomcat-10.1
 %endif
 
 %mvn_file org.dogtagpki.pki:pki-ca                pki/pki-ca
@@ -1314,10 +1330,10 @@ fi
 %mvn_package org.dogtagpki.pki:pki-tomcat         pki-server
 
 
-%if 0%{?fedora} >= %{fedora_cutoff} || 0%{?rhel} >= 10
-%mvn_package org.dogtagpki.pki:pki-tomcat-10.1     pki-server
+%if 0%{?fedora} && 0%{?fedora} < %{fedora_tomcat9_cutoff} || 0%{?rhel} && 0%{?rhel} < %{rhel_tomcat9_cutoff}
+%mvn_package org.dogtagpki.pki:pki-tomcat-9.0     pki-server
 %else
-%mvn_package org.dogtagpki.pki:pki-tomcat-9.0      pki-server
+%mvn_package org.dogtagpki.pki:pki-tomcat-10.1    pki-server
 %endif
 
 %mvn_package org.dogtagpki.pki:pki-ca             pki-ca
@@ -1355,12 +1371,12 @@ export JAVA_HOME=%{java_home}
 %if %{with maven}
 # build Java binaries and run unit tests with Maven
 
-%if 0%{?fedora} && 0%{?fedora} >= %{fedora_cutoff} || 0%{?rhel} >= 10
-%pom_disable_module tomcat-9.0 base
-%pom_remove_dep :pki-tomcat-9.0 base/server
-%else
+%if 0%{?fedora} && 0%{?fedora} < %{fedora_tomcat9_cutoff} || 0%{?rhel} && 0%{?rhel} < %{rhel_tomcat9_cutoff}
 %pom_disable_module tomcat-10.1 base
 %pom_remove_dep :pki-tomcat-10.1 base/server
+%else
+%pom_disable_module tomcat-9.0 base
+%pom_remove_dep :pki-tomcat-9.0 base/server
 %endif
 
 %mvn_build %{!?with_test:-f} -j
@@ -1377,10 +1393,10 @@ ln -sf ../../base/tools/target/pki-tools.jar
 %if %{with server}
 ln -sf ../../base/tomcat/target/pki-tomcat.jar
 
-%if 0%{?fedora} >= %{fedora_cutoff} || 0%{?rhel} >= 10
-ln -sf ../../base/tomcat-10.1/target/pki-tomcat-10.1.jar
-%else
+%if 0%{?fedora} && 0%{?fedora} < %{fedora_tomcat9_cutoff} || 0%{?rhel} && 0%{?rhel} < %{rhel_tomcat9_cutoff}
 ln -sf ../../base/tomcat-9.0/target/pki-tomcat-9.0.jar
+%else
+ln -sf ../../base/tomcat-10.1/target/pki-tomcat-10.1.jar
 %endif
 
 ln -sf ../../base/server/target/pki-server.jar
@@ -1975,10 +1991,10 @@ fi
 %{_datadir}/java/pki/pki-server-webapp.jar
 %{_datadir}/java/pki/pki-tomcat.jar
 
-%if 0%{?fedora} >= %{fedora_cutoff} || 0%{?rhel} >= 10
-%{_datadir}/java/pki/pki-tomcat-10.1.jar
-%else
+%if 0%{?fedora} && 0%{?fedora} < %{fedora_tomcat9_cutoff} || 0%{?rhel} && 0%{?rhel} < %{rhel_tomcat9_cutoff}
 %{_datadir}/java/pki/pki-tomcat-9.0.jar
+%else
+%{_datadir}/java/pki/pki-tomcat-10.1.jar
 %endif
 
 #without maven
@@ -2166,8 +2182,20 @@ fi
 %endif
 
 ################################################################################
+# For changelog header, use the RPM <version>~<phase>-<release>, for example
+# 10.6.0~alpha1-1.
+#
+# For changelog content, use the upstream <version>-<phase>, for example
+# "Rebase to PKI 10.6.0-alpha1" which means the RPM includes all enhancements
+# and bug fixes from that upstream version.
+#
+# The <phase> is only available during development/stabilization. It should
+# not be included in GA/update releases.
+#
+# To list all changes in <branch> since <tag>:
+# $ git log --pretty=oneline --abbrev-commit --no-decorate <tag>..<branch>
+
 %changelog
-* Tue Mar 6 2018 Dogtag PKI Team <devel@lists.dogtagpki.org> 10.6.0-0
-- To list changes in <branch> since <tag>:
-  $ git log --pretty=oneline --abbrev-commit --no-decorate <tag>..<branch>
+* Tue Mar 6 2018 Dogtag PKI Team <devel@lists.dogtagpki.org> 10.6.0-1
+- Rebase to PKI 10.6.0
 
