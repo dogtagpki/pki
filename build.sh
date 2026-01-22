@@ -167,7 +167,7 @@ get_tomcat_app_server() {
     release_file="/etc/os-release"   
     fedora_cutoff=$1
     rhel_cutoff=$2
-    def_app_server=tomcat-9.0
+    app_server_9=tomcat-9.0
     app_server_10=tomcat-10.1
     app_server=""
     distro=""
@@ -176,7 +176,8 @@ get_tomcat_app_server() {
     VERSION_ID=""
 
     ID=$(sed -n  's/^ID=//p;' $release_file | tr -d '"')
-    VERSION_ID=$(sed -n  's/^VERSION_ID=//p;' $release_file | tr -d '"')
+    # Get only the OS major version. No tomcat change in minor versions are expected
+    VERSION_ID=$(sed -n  's/^VERSION_ID="\?\([0-9]*\).*/\1/p;' $release_file)
 
     case "$ID" in
          "rhel")
@@ -201,13 +202,13 @@ get_tomcat_app_server() {
          if [ $ver -ge $fedora_cutoff ]; then
              app_server=$app_server_10
          else
-             app_server=$def_app_server
+             app_server=$app_server_9
          fi
      else
-         if [ $ver -ge $rhel_cutoff ]; then
+	 if [ $ver -ge $rhel_cutoff ]; then
              app_server=$app_server_10
          else
-             app_server=$def_app_server 
+             app_server=$app_server_9
          fi
      fi
 
