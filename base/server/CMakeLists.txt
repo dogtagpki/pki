@@ -29,7 +29,7 @@ javac(pki-server-classes
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
     DEPENDS
-        pki-common-jar pki-tools-jar pki-tomcat-jar pki-tomcat-9.0-jar
+        pki-common-jar pki-tools-jar pki-tomcat-jar pki-${APP_SERVER}-jar
 )
 
 add_dependencies(java pki-server-classes)
