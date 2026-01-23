@@ -224,7 +224,11 @@ class CertRequestInfo(object):
                 str(cert_request_info.request_url)[(str(
                     cert_request_info.request_url).rfind("/") + 1):]
         else:
-            cert_request_info.request_id = attr_list.get('requestID')
+            if attr_list.get('requestID').startswith('0x'):
+                cert_request_info.request_id = str(
+                    int(attr_list.get('requestID'), 16))
+            else:
+                cert_request_info.request_id = attr_list.get('requestID')
 
         return cert_request_info
 
@@ -642,7 +646,7 @@ class CertClient(object):
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/certs/%s' % (api_path, cert_serial_number)
 
@@ -667,7 +671,7 @@ class CertClient(object):
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/certs/search' % api_path
 
@@ -702,7 +706,7 @@ class CertClient(object):
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/agent/certs/%s' % (api_path, cert_serial_number)
 
@@ -768,7 +772,7 @@ class CertClient(object):
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/agent/certs/%s/revoke' % (api_path, cert_serial_number)
 
@@ -792,7 +796,7 @@ class CertClient(object):
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/agent/certs/%s/revoke-ca' % (api_path, cert_serial_number)
 
@@ -828,7 +832,7 @@ class CertClient(object):
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/agent/certs/%s/unrevoke' % (api_path, cert_serial_number)
 
@@ -863,7 +867,7 @@ class CertClient(object):
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/certrequests/%s' % (api_path, request_id)
 
@@ -889,7 +893,7 @@ class CertClient(object):
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/agent/certrequests' % api_path
 
@@ -928,7 +932,7 @@ class CertClient(object):
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/agent/certrequests/%s' % (api_path, request_id)
 
@@ -961,7 +965,7 @@ class CertClient(object):
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/agent/certrequests/%s/%s' % (api_path, request_id, action)
 
@@ -1049,7 +1053,7 @@ class CertClient(object):
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/certrequests/profiles' % api_path
 
@@ -1085,7 +1089,7 @@ class CertClient(object):
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/certrequests/profiles/%s' % (api_path, profile_id)
 
@@ -1141,7 +1145,7 @@ class CertClient(object):
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/certrequests' % api_path
 

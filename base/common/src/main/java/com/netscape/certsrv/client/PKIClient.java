@@ -77,7 +77,7 @@ public class PKIClient implements AutoCloseable {
     }
 
     public PKIClient(ClientConfig config, SSLCertificateApprovalCallback callback) throws Exception {
-        this(config, "rest", callback);
+        this(config, "v2", callback);
     }
 
     public PKIClient(ClientConfig config, String apiVersion, SSLCertificateApprovalCallback callback) throws Exception {

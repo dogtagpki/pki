@@ -83,7 +83,7 @@ class SystemCertClient(object):
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/config/cert/transport' % api_path
 

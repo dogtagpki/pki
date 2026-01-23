@@ -1039,7 +1039,7 @@ class ProfileClient(object):
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/profiles' % api_path
 
@@ -1069,7 +1069,7 @@ class ProfileClient(object):
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/profiles/%s' % (api_path, profile_id)
         if raw:
@@ -1101,7 +1101,7 @@ class ProfileClient(object):
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/profiles/%s' % (api_path, profile_id)
 
@@ -1133,7 +1133,7 @@ class ProfileClient(object):
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/profiles' % api_path
 
@@ -1174,7 +1174,7 @@ class ProfileClient(object):
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/profiles/%s' % (api_path, profile_id)
 
@@ -1242,7 +1242,7 @@ class ProfileClient(object):
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/profiles/%s' % (api_path, profile_id)
 
