@@ -595,7 +595,7 @@ class KeyClient:
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/agent/keys' % api_path
 
@@ -628,7 +628,7 @@ class KeyClient:
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/agent/keyrequests' % api_path
 
@@ -660,7 +660,7 @@ class KeyClient:
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/agent/keyrequests/%s' % (api_path, request_id)
 
@@ -683,7 +683,7 @@ class KeyClient:
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/agent/keys/%s' % (api_path, key_id)
 
@@ -706,7 +706,7 @@ class KeyClient:
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/agent/keys/active/%s' % (api_path, quote(client_key_id))
 
@@ -729,7 +729,7 @@ class KeyClient:
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/agent/keys/%s' % (api_path, key_id)
 
@@ -748,7 +748,7 @@ class KeyClient:
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/agent/keyrequests/%s/approve' % (api_path, request_id)
 
@@ -766,7 +766,7 @@ class KeyClient:
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/agent/keyrequests/%s/reject' % (api_path, request_id)
 
@@ -784,7 +784,7 @@ class KeyClient:
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/agent/keyrequests/%s/cancel' % (api_path, request_id)
 
@@ -810,7 +810,7 @@ class KeyClient:
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/agent/keyrequests' % api_path
 
@@ -1130,7 +1130,7 @@ class KeyClient:
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/agent/keys/retrieve' % api_path
 

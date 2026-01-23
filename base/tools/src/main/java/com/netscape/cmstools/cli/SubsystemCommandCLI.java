@@ -152,7 +152,7 @@ public class SubsystemCommandCLI extends CommandCLI {
         }
         MainCLI.convertCertStatusList(list, ignoredCertStatuses);
 
-        apiVersion = cmd.getOptionValue("api", "rest");
+        apiVersion = cmd.getOptionValue("api", "v2");
 
         ignoreBanner = cmd.hasOption("ignore-banner");
         if (serverURL == null && ignoreBanner) {

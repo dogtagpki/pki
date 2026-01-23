@@ -151,7 +151,7 @@ class AuthorityClient(object):
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/authorities/%s' % (api_path, aid)
 
@@ -182,7 +182,7 @@ class AuthorityClient(object):
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/authorities/%s/cert' % (api_path, aid)
 
@@ -216,7 +216,7 @@ class AuthorityClient(object):
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/authorities/%s/chain' % (api_path, aid)
 
@@ -243,7 +243,7 @@ class AuthorityClient(object):
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/authorities' % api_path
 
@@ -287,7 +287,7 @@ class AuthorityClient(object):
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/authorities' % api_path
 
@@ -323,7 +323,7 @@ class AuthorityClient(object):
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/authorities/%s/enable' % (api_path, aid)
 
@@ -347,7 +347,7 @@ class AuthorityClient(object):
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/authorities/%s/disable' % (api_path, aid)
 
@@ -371,7 +371,7 @@ class AuthorityClient(object):
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/authorities/%s' % (api_path, aid)
 

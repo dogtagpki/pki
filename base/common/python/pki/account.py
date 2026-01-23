@@ -91,7 +91,7 @@ class AccountClient:
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/account/login' % api_path
 
@@ -120,7 +120,7 @@ class AccountClient:
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/account/logout' % api_path
 

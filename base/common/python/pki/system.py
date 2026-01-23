@@ -278,7 +278,7 @@ class SecurityDomainClient(object):
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/securityDomain/domainInfo' % api_path
 
@@ -326,7 +326,7 @@ class SecurityDomainClient(object):
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/securityDomain/installToken' % api_path
 
@@ -351,7 +351,7 @@ class SecurityDomainClient(object):
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = f'/{api_path}/securityDomain/hosts/{subsystem}%20{hostname}%20{port}'
 
@@ -451,7 +451,7 @@ class SystemConfigClient(object):
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/installer/createRequestID' % api_path
 
@@ -484,7 +484,7 @@ class SystemConfigClient(object):
         if self.pki_client:
             api_path = self.pki_client.get_api_path()
         else:
-            api_path = 'rest'
+            api_path = 'v2'
 
         path = '/%s/installer/createCertID' % api_path
 

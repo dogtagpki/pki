@@ -485,7 +485,7 @@ public class MainCLI extends CLI {
         // store user password
         config.setPassword(password);
 
-        apiVersion = cmd.getOptionValue("api", "rest");
+        apiVersion = cmd.getOptionValue("api", "v2");
 
         String list = cmd.getOptionValue("reject-cert-status");
         convertCertStatusList(list, rejectedCertStatuses);
