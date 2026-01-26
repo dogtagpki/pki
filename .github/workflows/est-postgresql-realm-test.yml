@@ -323,7 +323,9 @@ jobs:
 
       - name: Add EST user
         run: |
-          DIGEST=$(docker exec pki tomcat-digest Secret.123 | sed 's/.*://')
+          # The tomcat-digest script does not work with tomcat-10 because some library changes. An explicit
+          # classpath is needed to temporary fix the problem
+          DIGEST=$(docker exec -e CLASSPATH=/usr/share/tomcat/lib/tomcat-servlet-api.jar pki tomcat-digest Secret.123 | sed 's/.*://')
 
           docker exec postgresql psql -U est -t -A -c "INSERT INTO users VALUES ('est-test-user', 'test.example.com', '$DIGEST');"  est
           docker exec postgresql psql -U est -t -A -c "INSERT INTO group_members VALUES ('EST Users', 'est-test-user');"  est
