@@ -449,14 +449,14 @@ jobs:
               | tee output
 
           cat > expected << EOF
-          GET /pki/v1/info HTTP/1.1 200 -
+          GET /pki/v2/info HTTP/1.1 200 -
           EOF
 
           diff expected output
 
-      - name: Check pki info with API v2
+      - name: Check pki info with API v1
         run: |
-          docker exec pki pki --api v2 info
+          docker exec pki pki --api v1 info
 
           # check HTTP methods, paths, protocols, status, and authenticated users
           docker exec pki find /var/log/pki/pki-tomcat \
@@ -467,7 +467,7 @@ jobs:
               | tee output
 
           cat > expected << EOF
-          GET /pki/v2/info HTTP/1.1 200 -
+          GET /pki/v1/info HTTP/1.1 200 -
           EOF
 
           diff expected output
@@ -502,6 +502,38 @@ jobs:
           # get total certs found
           sed -n "s/^\(\S*\) entries found$/\1/p" output > actual
 
+          # there should be no total certs found
+          diff /dev/null actual
+
+          # check HTTP methods, paths, protocols, status, and authenticated users
+          docker exec pki find /var/log/pki/pki-tomcat \
+              -name "localhost_access_log.*" \
+              -exec cat {} \; \
+              | tail -2 \
+              | sed -e 's/^.* .* \(.*\) \[.*\] "\(.*\)" \(.*\) .*$/\2 \3 \1/' \
+              | tee output
+
+          cat > expected << EOF
+          GET /pki/v2/info HTTP/1.1 200 -
+          POST /ca/v2/certs/search HTTP/1.1 200 -
+          EOF
+
+          diff expected output
+
+      - name: Check pki ca-cert-find with API v1
+        run: |
+          docker exec pki pki --api v1 ca-cert-find | tee output
+
+          # get certs returned
+          grep "Serial Number:" output | wc -l > actual
+
+          # there should be 6 certs returned
+          echo "6" > expected
+          diff expected actual
+
+          # get total certs found
+          sed -n "s/^\(\S*\) entries found$/\1/p" output > actual
+
           # there should be 6 certs found
           echo "6" > expected
           diff expected actual
@@ -517,38 +549,6 @@ jobs:
           cat > expected << EOF
           GET /pki/v1/info HTTP/1.1 200 -
           POST /ca/v1/certs/search HTTP/1.1 200 -
-          EOF
-
-          diff expected output
-
-      - name: Check pki ca-cert-find with API v2
-        run: |
-          docker exec pki pki --api v2 ca-cert-find | tee output
-
-          # get certs returned
-          grep "Serial Number:" output | wc -l > actual
-
-          # there should be 6 certs returned
-          echo "6" > expected
-          diff expected actual
-
-          # get total certs found
-          sed -n "s/^\(\S*\) entries found$/\1/p" output > actual
-
-          # there should be no total certs found
-          diff /dev/null actual
-
-          # check HTTP methods, paths, protocols, status, and authenticated users
-          docker exec pki find /var/log/pki/pki-tomcat \
-              -name "localhost_access_log.*" \
-              -exec cat {} \; \
-              | tail -2 \
-              | sed -e 's/^.* .* \(.*\) \[.*\] "\(.*\)" \(.*\) .*$/\2 \3 \1/' \
-              | tee output
-
-          cat > expected << EOF
-          GET /pki/v2/info HTTP/1.1 200 -
-          POST /ca/v2/certs/search HTTP/1.1 200 -
           EOF
 
           diff expected output
@@ -577,17 +577,17 @@ jobs:
               | tee output
 
           cat > expected << EOF
-          GET /pki/v1/info HTTP/1.1 200 -
-          GET /ca/v1/account/login HTTP/1.1 200 caadmin
-          GET /ca/v1/admin/users/caadmin HTTP/1.1 200 caadmin
-          GET /ca/v1/account/logout HTTP/1.1 204 caadmin
+          GET /pki/v2/info HTTP/1.1 200 -
+          GET /ca/v2/account/login HTTP/1.1 200 caadmin
+          GET /ca/v2/admin/users/caadmin HTTP/1.1 200 caadmin
+          GET /ca/v2/account/logout HTTP/1.1 204 caadmin
           EOF
 
           diff expected output
 
-      - name: Check pki ca-user-show with API v2
+      - name: Check pki ca-user-show with API v1
         run: |
-          docker exec pki pki -n caadmin --api v2 ca-user-show caadmin
+          docker exec pki pki -n caadmin --api v1 ca-user-show caadmin
 
           # check HTTP methods, paths, protocols, status, and authenticated users
           docker exec pki find /var/log/pki/pki-tomcat \
@@ -598,10 +598,10 @@ jobs:
               | tee output
 
           cat > expected << EOF
-          GET /pki/v2/info HTTP/1.1 200 -
-          GET /ca/v2/account/login HTTP/1.1 200 caadmin
-          GET /ca/v2/admin/users/caadmin HTTP/1.1 200 caadmin
-          GET /ca/v2/account/logout HTTP/1.1 204 caadmin
+          GET /pki/v1/info HTTP/1.1 200 -
+          GET /ca/v1/account/login HTTP/1.1 200 caadmin
+          GET /ca/v1/admin/users/caadmin HTTP/1.1 200 caadmin
+          GET /ca/v1/account/logout HTTP/1.1 204 caadmin
           EOF
 
           diff expected output

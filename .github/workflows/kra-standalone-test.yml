@@ -124,7 +124,7 @@ jobs:
               > >(tee stdout) 2> >(tee stderr >&2) || true
 
           # REST API should not return security domain info
-          echo "ResourceNotFoundException: " > expected
+          echo "ResourceNotFoundException: Security domain not available" > expected
           diff expected stderr
 
       - name: Set up KRA container
