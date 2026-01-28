@@ -4,6 +4,7 @@ on: workflow_call
 
 env:
   DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
+  TOMCAT_FLAVOR: old
 
 jobs:
   # docs/installation/ca/Installing_CA.md
@@ -116,7 +117,26 @@ jobs:
           drwxrwx--- pkiuser pkiuser work
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          lrwxrwxrwx pkiuser pkiuser alias -> /var/lib/pki/pki-tomcat/conf/alias
+          lrwxrwxrwx pkiuser pkiuser bin -> /usr/share/tomcat/bin
+          drwxrwx--- pkiuser pkiuser ca
+          drwxrwx--- pkiuser pkiuser common
+          lrwxrwxrwx pkiuser pkiuser conf -> /etc/pki/pki-tomcat
+          lrwxrwxrwx pkiuser pkiuser lib -> /usr/share/pki/server/lib
+          lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-tomcat
+          drwxrwx--- pkiuser pkiuser temp
+          drwxrwx--- pkiuser pkiuser webapps
+          drwxrwx--- pkiuser pkiuser work
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check PKI server conf dir after installation
         run: |
@@ -144,7 +164,29 @@ jobs:
           lrwxrwxrwx pkiuser pkiuser web.xml -> /etc/tomcat/web.xml
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          drwxrwx--- pkiuser pkiuser Catalina
+          drwxrwx--- pkiuser pkiuser alias
+          drwxrwx--- pkiuser pkiuser ca
+          -rw-r--r-- pkiuser pkiuser catalina.policy
+          lrwxrwxrwx pkiuser pkiuser catalina.properties -> /usr/share/pki/server/conf/catalina.properties
+          drwxrwx--- pkiuser pkiuser certs
+          lrwxrwxrwx pkiuser pkiuser context.xml -> /etc/tomcat/context.xml
+          lrwxrwxrwx pkiuser pkiuser logging.properties -> /usr/share/pki/server/conf/logging.properties
+          -rw-rw---- pkiuser pkiuser password.conf
+          -rw-rw---- pkiuser pkiuser server.xml
+          -rw-rw---- pkiuser pkiuser serverCertNick.conf
+          -rw-rw---- pkiuser pkiuser tomcat.conf
+          lrwxrwxrwx pkiuser pkiuser web.xml -> /etc/tomcat/web.xml
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check server.xml
         if: always()
@@ -203,7 +245,18 @@ jobs:
           -rw-r--r-- pkiuser pkiuser localhost_access_log.$DATE.txt
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          drwxrwx--- pkiuser pkiuser backup
+          drwxrwx--- pkiuser pkiuser ca
+          -rw-r----- pkiuser pkiuser localhost_access_log.$DATE.txt
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check CA base dir
         run: |
@@ -224,7 +277,22 @@ jobs:
           lrwxrwxrwx pkiuser pkiuser registry -> /etc/sysconfig/pki/tomcat/pki-tomcat
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          lrwxrwxrwx pkiuser pkiuser alias -> /var/lib/pki/pki-tomcat/alias
+          lrwxrwxrwx pkiuser pkiuser conf -> /var/lib/pki/pki-tomcat/conf/ca
+          lrwxrwxrwx pkiuser pkiuser emails -> /var/lib/pki/pki-tomcat/conf/ca/emails
+          lrwxrwxrwx pkiuser pkiuser logs -> /var/lib/pki/pki-tomcat/logs/ca
+          lrwxrwxrwx pkiuser pkiuser profiles -> /var/lib/pki/pki-tomcat/conf/ca/profiles
+          lrwxrwxrwx pkiuser pkiuser registry -> /etc/sysconfig/pki/tomcat/pki-tomcat
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check CA conf dir
         run: |
@@ -253,7 +321,29 @@ jobs:
           -rw-rw---- pkiuser pkiuser subsystemCert.profile
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          -rw-rw-r-- pkiuser pkiuser CS.cfg
+          -rw-rw---- pkiuser pkiuser adminCert.profile
+          drwxr-xr-x pkiuser pkiuser archives
+          -rw-rw---- pkiuser pkiuser caAuditSigningCert.profile
+          -rw-rw---- pkiuser pkiuser caCert.profile
+          -rw-rw---- pkiuser pkiuser caOCSPCert.profile
+          drwxrwx--- pkiuser pkiuser emails
+          -rw-rw---- pkiuser pkiuser flatfile.txt
+          drwxrwx--- pkiuser pkiuser profiles
+          -rw-rw---- pkiuser pkiuser proxy.conf
+          -rw-rw---- pkiuser pkiuser registry.cfg
+          -rw-rw---- pkiuser pkiuser serverCert.profile
+          -rw-rw---- pkiuser pkiuser subsystemCert.profile
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check CA server status
         run: |
@@ -452,7 +542,17 @@ jobs:
           GET /pki/v1/info HTTP/1.1 200 -
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          GET /pki/v1/info HTTP/1.1 200 -
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check pki info with API v2
         run: |
@@ -470,7 +570,17 @@ jobs:
           GET /pki/v2/info HTTP/1.1 200 -
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          GET /pki/v2/info HTTP/1.1 200 -
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Test CA certs
         run: |
@@ -519,7 +629,18 @@ jobs:
           POST /ca/v1/certs/search HTTP/1.1 200 -
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          GET /pki/v1/info HTTP/1.1 200 -
+          POST /ca/v1/certs/search HTTP/1.1 200 -
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check pki ca-cert-find with API v2
         run: |
@@ -551,7 +672,18 @@ jobs:
           POST /ca/v2/certs/search HTTP/1.1 200 -
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          GET /pki/v2/info HTTP/1.1 200 -
+          POST /ca/v2/certs/search HTTP/1.1 200 -
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check users in DS
         run: |
@@ -583,7 +715,20 @@ jobs:
           GET /ca/v1/account/logout HTTP/1.1 204 caadmin
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          GET /pki/v1/info HTTP/1.1 200 -
+          GET /ca/v1/account/login HTTP/1.1 200 caadmin
+          GET /ca/v1/admin/users/caadmin HTTP/1.1 200 caadmin
+          GET /ca/v1/account/logout HTTP/1.1 204 caadmin
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check pki ca-user-show with API v2
         run: |
@@ -604,7 +749,20 @@ jobs:
           GET /ca/v2/account/logout HTTP/1.1 204 caadmin
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          GET /pki/v2/info HTTP/1.1 200 -
+          GET /ca/v2/account/login HTTP/1.1 200 caadmin
+          GET /ca/v2/admin/users/caadmin HTTP/1.1 200 caadmin
+          GET /ca/v2/account/logout HTTP/1.1 204 caadmin
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check cert requests in DS
         run: |
@@ -671,7 +829,18 @@ jobs:
           lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-tomcat
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          lrwxrwxrwx pkiuser pkiuser conf -> /etc/pki/pki-tomcat
+          lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-tomcat
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check PKI server conf dir after removal
         run: |
@@ -699,7 +868,29 @@ jobs:
           lrwxrwxrwx pkiuser pkiuser web.xml -> /etc/tomcat/web.xml
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          drwxrwx--- pkiuser pkiuser Catalina
+          drwxrwx--- pkiuser pkiuser alias
+          drwxrwx--- pkiuser pkiuser ca
+          -rw-r--r-- pkiuser pkiuser catalina.policy
+          lrwxrwxrwx pkiuser pkiuser catalina.properties -> /usr/share/pki/server/conf/catalina.properties
+          drwxrwx--- pkiuser pkiuser certs
+          lrwxrwxrwx pkiuser pkiuser context.xml -> /etc/tomcat/context.xml
+          lrwxrwxrwx pkiuser pkiuser logging.properties -> /usr/share/pki/server/conf/logging.properties
+          -rw-rw---- pkiuser pkiuser password.conf
+          -rw-rw---- pkiuser pkiuser server.xml
+          -rw-rw---- pkiuser pkiuser serverCertNick.conf
+          -rw-rw---- pkiuser pkiuser tomcat.conf
+          lrwxrwxrwx pkiuser pkiuser web.xml -> /etc/tomcat/web.xml
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check PKI server logs dir after removal
         if: ${{ fromJSON(env.FEDORA_VERSION) < 43 }}
@@ -743,7 +934,19 @@ jobs:
           -rw-r--r-- pkiuser pkiuser localhost_access_log.$DATE.txt
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          drwxrwx--- pkiuser pkiuser backup
+          drwxrwx--- pkiuser pkiuser ca
+          -rw-r----- pkiuser pkiuser localhost_access_log.$DATE.txt
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check DS server systemd journal
         if: always()

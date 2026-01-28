@@ -104,18 +104,28 @@ class Tomcat(object):
     CONF_DIR = '/etc/tomcat'
     LIB_DIR = '/usr/share/java/tomcat'
     SHARE_DIR = '/usr/share/tomcat'
-    EXECUTABLE = '/usr/sbin/tomcat'
+    OLD_EXECUTABLE = '/usr/bin/tomcat'
+    EXECUTABLE = '/usr/share/tomcat/bin/catalina.sh'
     UNIT_FILE = '/lib/systemd/system/tomcat@.service'
     SERVER_XML = CONF_DIR + '/server.xml'
     TOMCAT_CONF = CONF_DIR + '/tomcat.conf'
 
     @classmethod
     def get_version(cls):
-        cmd = [Tomcat.EXECUTABLE, 'version']
-        logger.debug('Command: %s', ' '.join(cmd))
-        output = subprocess.check_output(cmd)
-        output = output.decode('utf-8')
+        cmd = [Tomcat.OLD_EXECUTABLE, 'version']
+        cmd_new = [Tomcat.EXECUTABLE, 'version']
+        logger.error('Command: %s', ' '.join(cmd))
+        logger.error('Command New: %s', ' '.join(cmd_new))
 
+        if os.path.exists(Tomcat.EXECUTABLE):
+            logger.error('Using cmd_new.')
+            output = subprocess.check_output(cmd_new)
+        else:
+            logger.error('Using cmd.')
+            output = subprocess.check_output(cmd)
+            output = output.decode('utf-8')
+
+        logger.error('output get_version: %s', output)
         # find "Server version: Apache Tomcat/<version>"
         match = re.search(
             r'^Server version: *.*/(.+)$',
@@ -123,6 +133,12 @@ class Tomcat(object):
             re.MULTILINE  # pylint: disable=no-member
         )
 
+        if not match:
+            match = re.search(
+                r'^Server version: *.*/(.+)$',
+                output_new,
+                re.MULTILINE  # pylint: disable=no-member
+            )
         if not match:
             raise Exception('Unable to determine Tomcat version')
 
@@ -409,9 +425,17 @@ class PKIServer(object):
 
         # add Tomcat's default policy
         filename = '/usr/share/tomcat/conf/catalina.policy'
+        new_filename = '/usr/share/tomcat/user-instance/conf/catalina.policy'
+
         logger.info('Appending %s', filename)
-        with open(filename, 'r', encoding='utf-8') as f:
-            content += f.read()
+
+        try:
+            with open(filename, 'r', encoding='utf-8') as f:
+                content += f.read()
+        except FileNotFoundError:
+            logger.info('Now trying %s', new_filename)
+            with open(new_filename, 'r', encoding='utf-8') as f:
+                content += f.read()
 
         content += '\n\n'
 

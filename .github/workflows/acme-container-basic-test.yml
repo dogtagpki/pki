@@ -4,6 +4,7 @@ on: workflow_call
 
 env:
   DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
+  TOMCAT_FLAVOR: old
 
 jobs:
   test:
@@ -116,7 +117,29 @@ jobs:
           lrwxrwxrwx root web.xml -> /etc/tomcat/web.xml
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          drwxrwxrwx root Catalina
+          drwxrwxrwx root acme
+          drwxrwxrwx root alias
+          -rw-rw-rw- root catalina.policy
+          lrwxrwxrwx root catalina.properties -> /usr/share/pki/server/conf/catalina.properties
+          drwxrwxrwx root certs
+          lrwxrwxrwx root context.xml -> /etc/tomcat/context.xml
+          -rw-rw-rw- root jss.conf
+          lrwxrwxrwx root logging.properties -> /usr/share/pki/server/conf/logging.properties
+          -rw-rw-rw- root password.conf
+          -rw-rw-rw- root server.xml
+          -rw-rw-rw- root tomcat.conf
+          lrwxrwxrwx root web.xml -> /etc/tomcat/web.xml
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check conf/acme dir
         if: always()
@@ -135,7 +158,19 @@ jobs:
           -rw-rw-rw- root realm.conf
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          -rw-rw-rw- root database.conf
+          -rw-rw-rw- root issuer.conf
+          -rw-rw-rw- root realm.conf
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check logs dir
         if: ${{ fromJSON(env.FEDORA_VERSION) < 43 }}
@@ -175,7 +210,17 @@ jobs:
           -rw-rw-rw- root localhost_access_log.$DATE.txt
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          -rw-rw-rw- root localhost_access_log.$DATE.txt
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Install CA signing cert
         run: |
