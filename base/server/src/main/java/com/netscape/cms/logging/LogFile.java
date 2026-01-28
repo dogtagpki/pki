@@ -516,6 +516,10 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
                 sigAlgorithm = "SHA-256/RSA";
             } else if (mSigningKey.getAlgorithm().equalsIgnoreCase("EC")) {
                 sigAlgorithm = "SHA-256/EC";
+            } else if (mSigningKey.getAlgorithm().equalsIgnoreCase("ML-DSA-44") ||
+                       mSigningKey.getAlgorithm().equalsIgnoreCase("ML-DSA-67") ||
+                       mSigningKey.getAlgorithm().equalsIgnoreCase("ML-DSA-87")) {
+                sigAlgorithm = mSigningKey.getAlgorithm();
             } else {
                 throw new NoSuchAlgorithmException("Unknown private key type");
             }
