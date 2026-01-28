@@ -207,6 +207,12 @@ jobs:
               > >(tee stdout) 2> >(tee stderr >&2) || true
           diff expected stderr
 
+      - name: Enable audit signing
+        run: |
+          docker exec pki pki-server stop --wait
+          docker exec pki pki-server ca-audit-config-mod --logSigning True
+          docker exec pki pki-server start --wait
+
       - name: Run PKI healthcheck
         run: docker exec pki pki-healthcheck --failures-only
 
@@ -305,6 +311,11 @@ jobs:
           # signing algorithm should be "ML-DSA-44"
           sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
           diff expected actual
+
+      - name: Check audit get signed
+        run: |
+          docker exec pki cat /var/log/pki/pki-tomcat/ca/signedAudit/ca_audit | grep AuditEvent=AUDIT_LOG_SIGNING | tee output
+          grep -q . output
 
       - name: Remove CA
         run: docker exec pki pkidestroy -s CA -v
