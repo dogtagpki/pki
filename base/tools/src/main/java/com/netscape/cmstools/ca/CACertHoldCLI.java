@@ -147,13 +147,15 @@ public class CACertHoldCLI extends SubsystemCommandCLI {
         CACertClient certClient = new CACertClient(subsystemClient);
 
         for (String cmdArg : cmdArgs) {
-            CertId certID = new CertId(cmdArg);
+            CertId certID = null;
             try {
+                certID = new CertId(cmdArg);
                 holdCert(certClient, certID, comments, force);
             } catch (Exception e) {
-                logger.error("Unable to hold certificate " + certID + ": " + e.getMessage(), e);
+                mainCLI.handleException(new Exception("Unable to hold certificate " + cmdArg + ": " + e.getMessage(), e));
                 // continue to the next cert
             }
+
         }
     }
 }

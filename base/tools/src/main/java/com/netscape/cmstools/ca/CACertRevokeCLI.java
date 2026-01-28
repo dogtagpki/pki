@@ -190,11 +190,12 @@ public class CACertRevokeCLI extends SubsystemCommandCLI {
         CACertClient certClient = new CACertClient(subsystemClient);
 
         for (String cmdArg : cmdArgs) {
-            CertId certID = new CertId(cmdArg);
+            CertId certID = null;
             try {
+                certID = new CertId(cmdArg);
                 revokeCert(certClient, certID, reason, comments, isCA, force);
             } catch (Exception e) {
-                logger.error("Unable to revoke certificate " + certID + ": " + e.getMessage(), e);
+                mainCLI.handleException(new Exception("Unable to revoke certificate " + cmdArg + ": " + e.getMessage(), e));
                 // continue to the next cert
             }
         }
