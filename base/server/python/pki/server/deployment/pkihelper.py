@@ -22,7 +22,6 @@ import getpass
 import logging
 import sys
 import os
-import requests
 import subprocess
 from grp import getgrgid
 from grp import getgrnam
@@ -736,6 +735,7 @@ class KRAConnector:
     """PKI Deployment KRA Connector Class"""
 
     def __init__(self, deployer):
+        self.deployer = deployer
         self.mdict = deployer.mdict
         self.password = deployer.password
 
@@ -776,24 +776,13 @@ class KRAConnector:
         # automatically update the rest.
         # TODO(alee): Fix this logic once we move connector data to LDAP
 
-        # get a list of all the CA's in the security domain
-        # noinspection PyBroadException
-        # pylint: disable=W0703
-        sechost = cs_cfg.get('securitydomain.host')
-        secport = cs_cfg.get('securitydomain.httpsadminport')
-
-        logger.info('Getting security domain info from https://%s:%s', sechost, secport)
-
-        ca_cert = os.path.join(instance.nssdb_dir, 'ca.crt')
-
         try:
-            ca_list = self.get_ca_list_from_security_domain(
-                sechost, secport, ca_cert)
-        except Exception as e:
-            logger.error(
-                "unable to access security domain. Continuing .. %s ",
-                e)
-            ca_list = []
+            # get a list of all the CA's in the security domain
+            info = self.deployer.get_domain_info()
+            ca_list = list(info.subsystems['CA'].hosts.values())
+        except Exception as e:  # pylint: disable=broad-except
+            logger.warning('Unable to access security domain: %s', e)
+            return
 
         for ca in ca_list:
             ca_host = ca.Hostname
@@ -842,23 +831,6 @@ class KRAConnector:
                     ca_url,
                     krahost,
                     kraport)
-
-    @staticmethod
-    def get_ca_list_from_security_domain(sechost, secport, cert_paths):
-        sd_connection = pki.client.PKIConnection(
-            protocol='https',
-            hostname=sechost,
-            port=secport,
-            trust_env=False,
-            cert_paths=cert_paths)
-        sd = pki.system.SecurityDomainClient(sd_connection)
-        try:
-            info = sd.get_domain_info()
-        except requests.exceptions.HTTPError as e:
-            logger.warning('Unable to get CA list from security domain: %s', e)
-            logger.info('Trying older interface.')
-            info = sd.get_old_domain_info()
-        return list(info.subsystems['CA'].hosts.values())
 
 
 class TPSConnector:
