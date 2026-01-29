@@ -137,6 +137,21 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.setup_system_certs(nssdb, subsystem)
             subsystem.save()
 
+            # Set up and rebuild VLV indexes after certificates are created
+            # so that the CA signing certificate DN is available for VLV filter.
+            #
+            # Note: This creates VLV indexes for the main CA signing certificate only.
+            # Lightweight CA (LWCA) support for CRL VLV indexes is not currently
+            # implemented. If needed in the future, a separate method could be created
+            # to add VLV indexes for each LWCA signing certificate DN.
+            #
+            # See DOGTAG-4244.
+            if config.str2bool(deployer.mdict['pki_ds_setup']) and \
+                    config.str2bool(deployer.mdict['pki_ds_setup_vlv']):
+                logger.info('Setting up VLV indexes')
+                subsystem.add_vlv()
+                subsystem.reindex_vlv()
+
             deployer.validate_system_certs(subsystem)
 
         finally:
