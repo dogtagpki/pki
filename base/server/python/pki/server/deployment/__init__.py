@@ -4519,6 +4519,34 @@ class PKIDeployer:
         finally:
             shutil.rmtree(tmpdir)
 
+    def remove_kra_connector(
+            self,
+            ca_url,
+            nickname,
+            kra_hostname,
+            kra_port):
+
+        cmd = [
+            'pki',
+            '-d', self.instance.nssdb_dir,
+            '-f', self.instance.password_conf,
+            'ca-kraconnector-del',
+            '-U', ca_url,
+            '-n', nickname,
+            '--ignore-banner',
+            '--host', kra_hostname,
+            '--port', str(kra_port)
+        ]
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
+
     def add_ocsp_publisher(self, subsystem, ca_url):
 
         server_config = self.instance.get_server_config()

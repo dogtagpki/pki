@@ -797,30 +797,7 @@ class KRAConnector:
             # noinspection PyBroadException
             # pylint: disable=W0703
             try:
-                cmd = [
-                    'pki',
-                    '-d', instance.nssdb_dir,
-                    '-f', instance.password_conf,
-                    'ca-kraconnector-del',
-                    '-U', ca_url,
-                    '-n', subsystemnick,
-                    '--ignore-banner',
-                    '--host', krahost,
-                    '--port', str(kraport)
-                ]
-
-                logger.debug('Command: %s', ' '.join(cmd))
-
-                # don't use capture_output and text params to support Python 3.6
-                # https://stackoverflow.com/questions/53209127/subprocess-unexpected-keyword-argument-capture-output/53209196
-                # https://stackoverflow.com/questions/52663518/python-subprocess-popen-doesnt-take-text-argument
-
-                result = subprocess.run(
-                    cmd,
-                    stdout=subprocess.PIPE,
-                    check=True)
-
-                logger.debug('Output:\n%s', result.stdout.strip())
+                self.deployer.remove_kra_connector(ca_url, subsystemnick, krahost, kraport)
 
             except subprocess.CalledProcessError as e:
                 # ignore exceptions
