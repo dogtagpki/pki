@@ -31,7 +31,6 @@ from pwd import getpwuid
 # PKI Deployment Imports
 from . import pkiconfig as config
 from . import pkimessages as log
-from .pkiparser import PKIConfigParser
 
 import pki.nssdb
 import pki.server
@@ -729,71 +728,6 @@ class HSM:
             if critical_failure:
                 raise
         return
-
-
-class TPSConnector:
-    """PKI Deployment TPS Connector Class"""
-
-    def __init__(self, deployer):
-        self.mdict = deployer.mdict
-        self.password = deployer.password
-
-    def deregister(self, instance, subsystem):
-
-        # this is applicable to TPSs only
-        if self.mdict['pki_subsystem_type'] != "tps":
-            return
-
-        logger.info('Removing TPS connector from TKS subsystem')
-
-        cs_cfg = PKIConfigParser.read_simple_configuration_file(subsystem.cs_conf)
-        tpshost = cs_cfg.get('machineName')
-
-        server_config = instance.get_server_config()
-        tpsport = server_config.get_https_port()
-
-        tkshost = cs_cfg.get('tps.connector.tks1.host')
-        tksport = cs_cfg.get('tps.connector.tks1.port')
-        if tkshost is None or tksport is None:
-            logger.warning(log.PKIHELPER_TPSCONNECTOR_UPDATE_FAILURE)
-            logger.error(log.PKIHELPER_UNDEFINED_TKS_HOST_PORT)
-            raise Exception(log.PKIHELPER_UNDEFINED_TKS_HOST_PORT)
-
-        tks_url = 'https://%s:%s' % (tkshost, tksport)
-
-        # retrieve subsystem nickname
-        subsystemnick = cs_cfg.get('tps.cert.subsystem.nickname')
-        if subsystemnick is None:
-            logger.warning(log.PKIHELPER_TPSCONNECTOR_UPDATE_FAILURE)
-            logger.error(log.PKIHELPER_UNDEFINED_SUBSYSTEM_NICKNAME)
-            raise Exception(log.PKIHELPER_UNDEFINED_SUBSYSTEM_NICKNAME)
-
-        try:
-            cmd = [
-                'pki',
-                '-d', instance.nssdb_dir,
-                '-f', instance.password_conf,
-                'tks-tpsconnector-del',
-                '-U', tks_url,
-                '-n', subsystemnick,
-                '--skip-revocation-check',
-                '--ignore-banner',
-                '--host', tpshost,
-                '--port', str(tpsport)
-            ]
-
-            logger.debug('Command: %s', ' '.join(cmd))
-
-            result = subprocess.run(
-                cmd,
-                stdout=subprocess.PIPE,
-                check=True)
-
-            logger.debug('Output:\n%s', result.stdout.strip())
-
-        except subprocess.CalledProcessError as e:
-            # ignore exceptions
-            logger.warning('Unable to remove TPS connector: %s', e.stderr.strip())
 
 
 class Systemd(object):

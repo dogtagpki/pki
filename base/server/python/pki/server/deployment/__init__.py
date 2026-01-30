@@ -95,7 +95,6 @@ class PKIDeployer:
         self.password = None
         self.hsm = None
         self.systemd = None
-        self.tps_connector = None
         self.nss_db_type = None
 
         self.with_maven_deps = False
@@ -178,7 +177,6 @@ class PKIDeployer:
         self.password = util.Password(self)
         self.hsm = util.HSM(self)
         self.systemd = util.Systemd(self)
-        self.tps_connector = util.TPSConnector(self)
 
     def get_authdb_url(self):
 
@@ -4751,6 +4749,12 @@ class PKIDeployer:
             '--port', https_port
         ]
 
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
         logger.debug('Command: %s', ' '.join(cmd))
         result = subprocess.run(cmd, stdout=subprocess.PIPE, check=False)
 
@@ -4787,6 +4791,12 @@ class PKIDeployer:
             '--output-format', 'json'
         ]
 
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
         logger.debug('Command: %s', ' '.join(cmd))
         result = subprocess.run(cmd, stdout=subprocess.PIPE, check=False)
 
@@ -4794,6 +4804,59 @@ class PKIDeployer:
             return json.loads(result.stdout.decode())
         else:
             return None
+
+    def remove_tps_connector(self, subsystem):
+
+        logger.info('Removing TPS connector')
+
+        server_config = self.instance.get_server_config()
+
+        tks_hostname = subsystem.config.get('tps.connector.tks1.host')
+        tks_port = subsystem.config.get('tps.connector.tks1.port')
+
+        if not tks_hostname or not tks_port:
+            logger.warning(log.PKIHELPER_TPSCONNECTOR_UPDATE_FAILURE)
+            logger.error(log.PKIHELPER_UNDEFINED_TKS_HOST_PORT)
+            raise Exception(log.PKIHELPER_UNDEFINED_TKS_HOST_PORT)
+
+        tks_url = 'https://%s:%s' % (tks_hostname, tks_port)
+
+        nickname = subsystem.config.get('tps.cert.subsystem.nickname')
+
+        if not nickname:
+            logger.warning(log.PKIHELPER_TPSCONNECTOR_UPDATE_FAILURE)
+            logger.error(log.PKIHELPER_UNDEFINED_SUBSYSTEM_NICKNAME)
+            raise Exception(log.PKIHELPER_UNDEFINED_SUBSYSTEM_NICKNAME)
+
+        tps_hostname = subsystem.config.get('machineName')
+        tps_port = server_config.get_https_port()
+
+        try:
+            cmd = [
+                'pki',
+                '-d', self.instance.nssdb_dir,
+                '-f', self.instance.password_conf,
+                'tks-tpsconnector-del',
+                '-U', tks_url,
+                '-n', nickname,
+                '--skip-revocation-check',
+                '--ignore-banner',
+                '--host', tps_hostname,
+                '--port', str(tps_port)
+            ]
+
+            if logger.isEnabledFor(logging.DEBUG):
+                cmd.append('--debug')
+
+            elif logger.isEnabledFor(logging.INFO):
+                cmd.append('--verbose')
+
+            logger.debug('Command: %s', ' '.join(cmd))
+            subprocess.check_call(cmd)
+
+        except subprocess.CalledProcessError as e:
+            # ignore exceptions
+            logger.warning('Unable to remove TPS connector: %s', e.stderr.strip())
 
     def get_shared_secret(self, subsystem, tps_connector_id):
 

@@ -266,10 +266,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if subsystem.type == 'KRA':
             deployer.remove_kra_connectors(subsystem)
 
-        try:
-            # remove TPS connector from TKS if this is a TPS
-            deployer.tps_connector.deregister(instance, subsystem)
+        elif subsystem.type == 'TPS':
+            deployer.remove_tps_connector(subsystem)
 
+        try:
             # deregister instance from Security Domain
             #
             # NOTE: Since the security domain of an instance must
