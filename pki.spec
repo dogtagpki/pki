@@ -24,6 +24,8 @@ License:          GPL-2.0-only AND LGPL-2.0-only
 # - GA/update (supported): <none>
 %global           phase alpha1
 
+%global           fedora_new_tomcat10_cutoff 44
+
 %undefine         timestamp
 %undefine         commit_id
 
@@ -179,6 +181,8 @@ ExcludeArch: i686
 %define pki_uid 17
 %define pki_groupname pkiuser
 %define pki_gid 17
+
+%define tomcat_groupname tomcat
 
 # Create a home directory for PKI user at /home/pkiuser
 # to store rootless Podman container.
@@ -1105,6 +1109,11 @@ This package provides test suite for %{product_name}.
 /usr/bin/javax2jakarta -profile=EE -exclude=./base/tomcat-9.0 ./base ./base 
 %endif
 
+%if 0%{?fedora} >= %{fedora_new_tomcat10_cutoff}
+echo "Modifying the service files for new tomcat 10"
+cp ./base/server/share/lib/systemd/system/pki-tomcatd-nuxwdog@.service.new-tomcat  ./base/server/share/lib/systemd/system/pki-tomcatd-nuxwdog@.service
+cp ./base/server/share/lib/systemd/system/pki-tomcatd-nuxwdog@.service.new-tomcat  ./base/server/share/lib/systemd/system/pki-tomcatd-nuxwdog@.service
+%endif
 
 %if %{without runtime_deps}
 
@@ -1354,6 +1363,7 @@ fi
 cat > %{product_id}.sysusers.conf <<EOF
 g %{pki_username} %{pki_gid}
 u %{pki_groupname} %{pki_uid} 'Certificate System' %{pki_homedir} -
+m %{pki_username} %{tomcat_groupname}
 EOF
 
 %endif
@@ -1712,6 +1722,10 @@ getent group %{pki_groupname} >/dev/null || groupadd -f -g %{pki_gid} -r %{pki_g
 if ! getent passwd %{pki_username} >/dev/null ; then
     useradd -r -u %{pki_uid} -g %{pki_groupname} -d %{pki_homedir} -s /sbin/nologin -c "Certificate System" %{pki_username}
 fi
+
+#Add pkiuser to the tomcat group for now to get things working
+#while we investigate the issue.
+#usermod -a -G %{tomcat_groupname} %{pki_username}
 
 %endif
 
