@@ -94,7 +94,6 @@ class PKIDeployer:
         self.war = None
         self.password = None
         self.hsm = None
-        self.kra_connector = None
         self.systemd = None
         self.tps_connector = None
         self.nss_db_type = None
@@ -178,7 +177,6 @@ class PKIDeployer:
         self.configuration_file = util.ConfigurationFile(self)
         self.password = util.Password(self)
         self.hsm = util.HSM(self)
-        self.kra_connector = util.KRAConnector(self)
         self.systemd = util.Systemd(self)
         self.tps_connector = util.TPSConnector(self)
 
@@ -4546,6 +4544,64 @@ class PKIDeployer:
 
         logger.debug('Command: %s', ' '.join(cmd))
         subprocess.check_call(cmd)
+
+    def remove_kra_connectors(self, subsystem):
+
+        logger.info('Removing KRA connectors')
+
+        server_config = self.instance.get_server_config()
+
+        kra_hostname = subsystem.config.get('machineName')
+        kra_port = server_config.get_https_port()
+
+        proxy_secure_port = subsystem.config.get('proxy.securePort', '')
+        if proxy_secure_port != '':
+            kra_port = proxy_secure_port
+
+        nickname = subsystem.config.get('kra.cert.subsystem.nickname')
+        if not nickname:
+            logger.warning(log.PKIHELPER_KRACONNECTOR_UPDATE_FAILURE)
+            logger.error(log.PKIHELPER_UNDEFINED_SUBSYSTEM_NICKNAME)
+            raise Exception(log.PKIHELPER_UNDEFINED_SUBSYSTEM_NICKNAME)
+
+        # Note: this is a hack to resolve Trac Ticket 1113
+        # We need to remove the KRA connector data from all relevant clones,
+        # but we have no way of easily identifying which instances are
+        # the right ones.  Instead, We will attempt to remove the KRA
+        # connector from all CAs in the security domain.
+        # The better - and long term solution is to store the connector
+        # configuration in LDAP so that updating one clone will
+        # automatically update the rest.
+        # TODO(alee): Fix this logic once we move connector data to LDAP
+
+        try:
+            # get a list of all the CA's in the security domain
+            info = self.get_domain_info()
+            ca_list = list(info.subsystems['CA'].hosts.values())
+
+        except Exception as e:  # pylint: disable=broad-except
+            logger.warning('Unable to access security domain: %s', e)
+            return
+
+        for ca in ca_list:
+            ca_hostname = ca.Hostname
+            ca_port = ca.SecurePort
+
+            ca_url = 'https://%s:%s' % (ca_hostname, ca_port)
+            logger.info('Removing KRA connector from CA at %s', ca_url)
+
+            try:
+                self.remove_kra_connector(ca_url, nickname, kra_hostname, kra_port)
+
+            except subprocess.CalledProcessError as e:
+                # ignore exceptions
+                logger.warning('Unable to remove KRA connector: %s', e.stderr)
+                logger.warning('To remove KRA connector manually:')
+                logger.warning(
+                    '$ pki -U %s -n <admin> ca-kraconnector-del --host %s --port %s',
+                    ca_url,
+                    kra_hostname,
+                    kra_port)
 
     def add_ocsp_publisher(self, subsystem, ca_url):
 

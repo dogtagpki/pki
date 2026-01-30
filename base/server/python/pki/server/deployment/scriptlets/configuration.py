@@ -263,10 +263,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 or config.str2bool(deployer.mdict['pki_external']):
             return
 
-        try:
-            # remove KRA connector from CA if this is a KRA
-            deployer.kra_connector.deregister(instance, subsystem)
+        if subsystem.type == 'KRA':
+            deployer.remove_kra_connectors(subsystem)
 
+        try:
             # remove TPS connector from TKS if this is a TPS
             deployer.tps_connector.deregister(instance, subsystem)
 
