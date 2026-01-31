@@ -1722,12 +1722,9 @@ class PKIDeployer:
         subsystem.add_indexes()
         subsystem.rebuild_indexes()
 
-        # Set up and rebuild VLV indexes on each DS instance (if needed) since
-        # VLV indexes are not replicated.
-
-        if config.str2bool(self.mdict['pki_ds_setup_vlv']):
-            subsystem.add_vlv()
-            subsystem.reindex_vlv()
+        # NOTE: VLV index creation has been moved to after certificate installation
+        # in configuration.py so that the CA signing certificate DN is available
+        # for the VLV filter. See DOGTAG-4244.
 
     def setup_replication(self, subsystem, master_config):
 
