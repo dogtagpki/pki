@@ -193,6 +193,13 @@ jobs:
 
           diff expected actual
 
+      - name: Check VLV usage in DS access log
+        run: |
+          # Check if VLV index was used during CRL generation
+          # The query for revoked certs should use the allRevokedCertsByIssuer VLV index
+          echo "Checking DS access log for VLV usage during CRL generation:"
+          docker exec ds sh -c "grep 'certStatus=REVOKED' /var/log/dirsrv/slapd-localhost/access* || true"
+
       - name: Unrevoke user 1 cert
         run: |
           CERT_ID=$(cat cert.id)

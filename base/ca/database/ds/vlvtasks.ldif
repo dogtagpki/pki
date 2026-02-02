@@ -38,3 +38,4 @@ nsindexVLVAttribute: caRejectedRenewal-{instanceId}Index
 nsindexVLVAttribute: caRejectedRevocation-{instanceId}Index
 nsindexVLVAttribute: caRenewal-{instanceId}Index
 nsindexVLVAttribute: caRevocation-{instanceId}Index
+nsindexVLVAttribute: allRevokedCertsByIssuer-{instanceId}Index
