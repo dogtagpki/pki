@@ -1,5 +1,6 @@
 package org.dogtagpki.cert;
 
+import java.security.InvalidKeyException;
 import java.security.SignatureException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -79,16 +80,20 @@ public class PKITrustManager implements X509TrustManager {
                 cert.verify(caCert.getPublicKey(), "Mozilla-JSS");
                 issuer = caCert;
                 break;
+            } catch (InvalidKeyException e) {
+                // The CA key could not be used to sign the certificate, it is possible to move to the next CA
+                logger.debug("PKITrustManager: cert not compatible with " + caCert.getSubjectX500Principal() + ": " + e.getMessage());
             } catch (SignatureException e) {
-                logger.debug("PKITrustManager: cert not issued by " + caCert.getSubjectDN() + ": " + e.getMessage());
+                // The CA has not signed the certificate, it is possible to move to the next CA
+                logger.debug("PKITrustManager: cert not issued by " + caCert.getSubjectX500Principal() + ": " + e.getMessage());
             }
         }
 
         if (issuer == null) {
-            throw new SignatureException("Unable to validate certificate signature: " + cert.getSubjectDN());
+            throw new SignatureException("Unable to validate certificate signature: " + cert.getSubjectX500Principal());
         }
 
-        logger.debug("PKITrustManager: cert signed by " + issuer.getSubjectDN());
+        logger.debug("PKITrustManager: cert signed by " + issuer.getSubjectX500Principal());
 
         logger.debug("PKITrustManager: checking validity range:");
         logger.debug("PKITrustManager:  - not before: " + cert.getNotBefore());
@@ -160,7 +165,7 @@ public class PKITrustManager implements X509TrustManager {
         try {
             CryptoManager manager = CryptoManager.getInstance();
             for (org.mozilla.jss.crypto.X509Certificate cert : manager.getCACerts()) {
-                logger.debug("PKITrustManager:  - " + cert.getSubjectDN());
+                logger.debug("PKITrustManager:  - " + cert.getSubjectX500Principal());
 
                 try {
                     X509CertImpl caCert = new X509CertImpl(cert.getEncoded());
