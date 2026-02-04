@@ -156,6 +156,44 @@ jobs:
         run: |
           docker exec pki cat /etc/pki/pki-tomcat/tomcat.conf
 
+      - name: Check PKI server conf/alias dir after installation
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /etc/pki/pki-tomcat/alias \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          # TODO: review permissions
+          cat > expected << EOF
+          -rw-r--r-- pkiuser pkiuser ca.crt
+          -rw------- pkiuser pkiuser cert9.db
+          -rw------- pkiuser pkiuser key4.db
+          -rw------- pkiuser pkiuser pkcs11.txt
+          EOF
+
+          diff expected output
+
+      - name: Check PKI server conf/Catalina/localhost dir after installation
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /etc/pki/pki-tomcat/Catalina/localhost \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          # TODO: review permissions
+          cat > expected << EOF
+          -rw-rw---- pkiuser pkiuser ROOT.xml
+          -rw-rw---- pkiuser pkiuser ca.xml
+          -rw-rw---- pkiuser pkiuser pki.xml
+          lrwxrwxrwx pkiuser pkiuser rewrite.config -> /usr/share/pki/server/conf/Catalina/localhost/rewrite.config
+          EOF
+
+          diff expected output
+
       - name: Check /etc/sysconfig/pki-tomcat
         if: always()
         run: |
