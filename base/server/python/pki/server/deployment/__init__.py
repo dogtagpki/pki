@@ -1195,6 +1195,8 @@ class PKIDeployer:
                     return 'caInternalAuthServerCert'
                 elif key_type == 'EC':
                     return 'caECInternalAuthServerCert'
+                elif key_type == 'MLDSA':
+                    return 'caMLDSAInternalAuthServerCert'
 
         elif cert_id == 'subsystem':
 
@@ -1207,6 +1209,8 @@ class PKIDeployer:
                     return 'caInternalAuthSubsystemCert'
                 elif key_type == 'EC':
                     return 'caECInternalAuthSubsystemCert'
+                elif key_type == 'MLDSA':
+                    return 'caMLDSAInternalAuthSubsystemCert'
 
         elif cert_id == 'admin':
             return 'adminCert.profile'
@@ -3033,6 +3037,10 @@ class PKIDeployer:
                 request.systemCert.sslECDH = True
             else:
                 request.systemCert.sslECDH = False
+
+        elif key_type == 'MLDSA':
+            if not request.systemCert.keySize:
+                request.systemCert.keySize = subsystem.config['keys.mldsa.keysize.default']
 
         request.systemCert.keyAlgorithm = self.mdict['pki_%s_key_algorithm' % cert_param_id]
 
