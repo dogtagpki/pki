@@ -11,7 +11,7 @@ ARG COMPONENT="dogtag-pki"
 ARG LICENSE="GPLv2 and LGPLv2"
 ARG ARCH="x86_64"
 ARG VERSION="0"
-ARG BASE_IMAGE="registry.fedoraproject.org/fedora:latest"
+ARG BASE_IMAGE="registry.fedoraproject.org/fedora:44"
 ARG COPR_REPO=""
 ARG BUILD_OPTS=""
 
@@ -58,10 +58,10 @@ FROM pki-builder-deps AS pki-builder
 ARG BUILD_OPTS
 
 # Import JSS packages
-COPY --from=quay.io/dogtagpki/jss-dist:latest /root/RPMS /tmp/RPMS/
+COPY --from=quay.io/dogtagpki/jss-dist:5.9 /root/RPMS /tmp/RPMS/
 
 # Import LDAP SDK packages
-COPY --from=quay.io/dogtagpki/ldapjdk-dist:latest /root/RPMS /tmp/RPMS/
+COPY --from=quay.io/dogtagpki/ldapjdk-dist:5.6 /root/RPMS /tmp/RPMS/
 
 # Install build dependencies
 RUN dnf install -y /tmp/RPMS/* \
@@ -86,10 +86,10 @@ COPY --from=pki-builder /root/pki/build/RPMS /root/RPMS/
 FROM pki-deps AS pki-runner
 
 # Import JSS packages
-COPY --from=quay.io/dogtagpki/jss-dist:latest /root/RPMS /tmp/RPMS/
+COPY --from=quay.io/dogtagpki/jss-dist:5.9 /root/RPMS /tmp/RPMS/
 
 # Import LDAP SDK packages
-COPY --from=quay.io/dogtagpki/ldapjdk-dist:latest /root/RPMS /tmp/RPMS/
+COPY --from=quay.io/dogtagpki/ldapjdk-dist:5.6 /root/RPMS /tmp/RPMS/
 
 # Import PKI packages
 COPY --from=pki-dist /root/RPMS /tmp/RPMS/

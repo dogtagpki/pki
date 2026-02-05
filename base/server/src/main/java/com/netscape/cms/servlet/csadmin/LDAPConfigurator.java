@@ -95,6 +95,10 @@ public class LDAPConfigurator {
         return params;
     }
 
+    public void setParam(String name, String value) {
+        params.put(name, value);
+    }
+
     public void configureServer() throws Exception {
         logger.info("Configuring DS server");
         importLDIF("/usr/share/pki/server/database/ds/config.ldif", true);

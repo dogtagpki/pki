@@ -54,6 +54,10 @@ jobs:
               --network-alias=ca.example.com \
               pki
 
+          # get Fedora version
+          FEDORA_VERSION=$(docker exec pki sed -n 's/^VERSION_ID=//p' /etc/os-release)
+          echo "FEDORA_VERSION=$FEDORA_VERSION" >> $GITHUB_ENV
+
       - name: Install CA
         run: |
           docker exec pki pkispawn \
@@ -250,7 +254,30 @@ jobs:
           diff expected output
 
       - name: Check logs dir
-        if: always()
+        if: ${{ fromJSON(env.FEDORA_VERSION) < 43 }}
+        run: |
+          ls -l logs \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
+              | tee output
+
+          DATE=$(date +'%Y-%m-%d')
+
+          # everything should be owned by root group
+          # TODO: review owners/permissions
+          cat > expected << EOF
+          drwxrwxrwx root backup
+          drwxrwxrwx root ca
+          -rw-rw-rw- root localhost.$DATE.log
+          -rw-rw-rw- root localhost_access_log.$DATE.txt
+          drwxrwxrwx root pki
+          EOF
+
+          diff expected output
+
+      - name: Check logs dir
+        if: ${{ fromJSON(env.FEDORA_VERSION) >= 43 }}
         run: |
           ls -l logs \
               | sed \
@@ -328,27 +355,3 @@ jobs:
         if: always()
         run: |
           docker exec ca find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
-
-      - name: Gather artifacts
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh ds
-          tests/bin/pki-artifacts-save.sh pki
-
-          mkdir -p /tmp/artifacts/ca
-          # TODO: fix permission issue
-          # cp -r certs /tmp/artifacts/ca
-          # cp -r conf /tmp/artifacts/ca
-          # cp -r logs /tmp/artifacts/ca
-
-          docker logs ca > /tmp/artifacts/ca/container.out 2> /tmp/artifacts/ca/container.err
-
-          mkdir -p /tmp/artifacts/client
-          docker logs client > /tmp/artifacts/client/container.out 2> /tmp/artifacts/client/container.err
-
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ca-container-existing-config
-          path: /tmp/artifacts

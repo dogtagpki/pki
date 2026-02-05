@@ -120,14 +120,18 @@ public class NSSCertVerifyCLI extends CommandCLI {
 
         String certUsage = cmd.getOptionValue("cert-usage");
 
-        if (nickname != null && certUsage != null) {
-            try {
-                // validate specified cert usage
-                CertUtil.verifyCertificateUsage(nickname, certUsage);
-
-            } catch (Exception e) {
-                throw new CLIException("Invalid certificate: " + e.getMessage());
-            }
+        if (certUsage == null) {
+            return;
+        }
+        if (nickname == null) {
+            throw new CLIException("Certificate nickname must be specified for --cert-usage option.");                
+        }
+        try {
+            // validate specified cert usage
+            CertUtil.verifyCertificateUsage(nickname, certUsage);
+        } catch (Exception e) {
+            throw new CLIException("Invalid certificate: " + e.getMessage());
         }
     }
+
 }

@@ -7,6 +7,8 @@ package org.dogtagpki.server.cli;
 
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CLI;
+import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.crypto.X509Certificate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,6 +68,24 @@ public class SubsystemDBVLVAddCLI extends ServerCommandCLI {
         LDAPConfigurator ldapConfigurator = new LDAPConfigurator(conn, ldapConfig, instanceId);
 
         try {
+            // For CA subsystem, set the CA issuer DN for VLV filter
+            if ("ca".equalsIgnoreCase(subsystem)) {
+                String signingCertNickname = cs.getString("ca.signing.nickname");
+                if (signingCertNickname == null) {
+                    throw new Exception("ca.signing.nickname not found in CS.cfg");
+                }
+
+                try {
+                    CryptoManager cryptoManager = CryptoManager.getInstance();
+                    X509Certificate signingCert = cryptoManager.findCertByNickname(signingCertNickname);
+                    String caIssuerDN = signingCert.getSubjectDN().toString();
+                    logger.info("Setting caIssuerDN from certificate: " + caIssuerDN);
+                    ldapConfigurator.setParam("caIssuerDN", caIssuerDN);
+                } catch (Exception e) {
+                    throw new Exception("Unable to get CA signing certificate: " + e.getMessage(), e);
+                }
+            }
+
             ldapConfigurator.addVLVs(subsystem);
 
         } finally {

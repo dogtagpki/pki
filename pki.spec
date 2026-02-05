@@ -15,14 +15,14 @@ License:          GPL-2.0-only AND LGPL-2.0-only
 
 # Upstream version number:
 %global           major_version 11
-%global           minor_version 10
+%global           minor_version 9
 %global           update_version 0
 
 # Development phase:
 # - development (unsupported): alpha<n> where n >= 1
 # - stabilization (supported): beta<n> where n >= 1
 # - GA/update (supported): <none>
-%global           phase alpha1
+%global           phase beta1
 
 %undefine         timestamp
 %undefine         commit_id
@@ -242,7 +242,7 @@ BuildRequires:     pki-resteasy-client               >= 3.0.26
 BuildRequires:     pki-resteasy-servlet-initializer  >= 3.0.26
 BuildRequires:     pki-resteasy-jackson2-provider    >= 3.0.26
 
-BuildRequires:     %{vendor_id}-jss >= 5.10
+BuildRequires:     %{vendor_id}-jss >= 5.9
 
 BuildRequires:    mvn(commons-cli:commons-cli)
 BuildRequires:    mvn(commons-codec:commons-codec)
@@ -294,8 +294,8 @@ BuildRequires:    mvn(org.apache.tomcat:tomcat-util-scan) >= 10.0.36
 
 %endif
 
-BuildRequires:    mvn(org.dogtagpki.jss:jss-base) >= 5.10
-BuildRequires:    mvn(org.dogtagpki.jss:jss-tomcat) >= 5.10
+BuildRequires:    mvn(org.dogtagpki.jss:jss-base) >= 5.9
+BuildRequires:    mvn(org.dogtagpki.jss:jss-tomcat) >= 5.9
 BuildRequires:    mvn(org.dogtagpki.ldap-sdk:ldapjdk) >= 5.6.0
 
 # Python build dependencies
@@ -636,7 +636,7 @@ Provides:         bundled(resteasy-client)
 Provides:         bundled(resteasy-jackson2-provider)
 %endif
 
-Requires:         mvn(org.dogtagpki.jss:jss-base) >= 5.10.0
+Requires:         mvn(org.dogtagpki.jss:jss-base) >= 5.9.0
 Requires:         mvn(org.dogtagpki.ldap-sdk:ldapjdk) >= 5.6.0
 Requires:         %{product_id}-base = %{version}-%{release}
 
@@ -717,7 +717,7 @@ Requires:         tomcat >= 9.0
 Requires:         tomcat >= 1:10.1.36
 %endif
 
-Requires:         mvn(org.dogtagpki.jss:jss-tomcat) >= 5.10.0
+Requires:         mvn(org.dogtagpki.jss:jss-tomcat) >= 5.9.0
 
 Requires:         systemd
 Requires(post):   systemd-units

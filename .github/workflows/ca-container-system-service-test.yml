@@ -44,6 +44,10 @@ jobs:
               --network=example \
               pki
 
+          # get Fedora version
+          FEDORA_VERSION=$(docker exec pki sed -n 's/^VERSION_ID=//p' /etc/os-release)
+          echo "FEDORA_VERSION=$FEDORA_VERSION" >> $GITHUB_ENV
+
       - name: Install Podman
         run: |
           docker exec pki dnf install -y podman sqlite
@@ -214,7 +218,30 @@ jobs:
           diff expected output
 
       - name: Check logs dir
-        if: always()
+        if: ${{ fromJSON(env.FEDORA_VERSION) < 43 }}
+        run: |
+          docker exec pki ls -l /home/pkiuser/logs \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
+              | tee output
+
+          DATE=$(date +'%Y-%m-%d')
+
+          # everything should be owned by pkiuser group
+          # TODO: review owners/permissions
+          cat > expected << EOF
+          drwxrwxrwx pkiuser backup
+          drwxrwxrwx pkiuser ca
+          -rw-rw-rw- pkiuser localhost.$DATE.log
+          -rw-rw-rw- pkiuser localhost_access_log.$DATE.txt
+          drwxrwxrwx pkiuser pki
+          EOF
+
+          diff expected output
+
+      - name: Check logs dir
+        if: ${{ fromJSON(env.FEDORA_VERSION) >= 43 }}
         run: |
           docker exec pki ls -l /home/pkiuser/logs \
               | sed \
@@ -345,23 +372,3 @@ jobs:
         if: always()
         run: |
           docker exec pki find /home/pkiuser/logs/ca -name "debug.*" -exec cat {} \;
-
-      - name: Gather artifacts
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh ds
-          tests/bin/pki-artifacts-save.sh pki
-
-          mkdir -p /tmp/artifacts/ca
-          docker cp pki:/home/pkiuser/certs /tmp/artifacts/ca
-          docker cp pki:/home/pkiuser/conf /tmp/artifacts/ca
-          docker cp pki:/home/pkiuser/logs /tmp/artifacts/ca
-
-          docker exec pki podman logs systemd-pki-ca > /tmp/artifacts/ca/container.out 2> /tmp/artifacts/ca/container.err
-
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ca-container-system-service
-          path: /tmp/artifacts

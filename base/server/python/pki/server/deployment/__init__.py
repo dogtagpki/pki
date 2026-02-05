@@ -1195,6 +1195,8 @@ class PKIDeployer:
                     return 'caInternalAuthServerCert'
                 elif key_type == 'EC':
                     return 'caECInternalAuthServerCert'
+                elif key_type == 'MLDSA':
+                    return 'caMLDSAInternalAuthServerCert'
 
         elif cert_id == 'subsystem':
 
@@ -1207,6 +1209,8 @@ class PKIDeployer:
                     return 'caInternalAuthSubsystemCert'
                 elif key_type == 'EC':
                     return 'caECInternalAuthSubsystemCert'
+                elif key_type == 'MLDSA':
+                    return 'caMLDSAInternalAuthSubsystemCert'
 
         elif cert_id == 'admin':
             return 'adminCert.profile'
@@ -1722,12 +1726,9 @@ class PKIDeployer:
         subsystem.add_indexes()
         subsystem.rebuild_indexes()
 
-        # Set up and rebuild VLV indexes on each DS instance (if needed) since
-        # VLV indexes are not replicated.
-
-        if config.str2bool(self.mdict['pki_ds_setup_vlv']):
-            subsystem.add_vlv()
-            subsystem.reindex_vlv()
+        # NOTE: VLV index creation has been moved to after certificate installation
+        # in configuration.py so that the CA signing certificate DN is available
+        # for the VLV filter. See DOGTAG-4244.
 
     def setup_replication(self, subsystem, master_config):
 
@@ -3036,6 +3037,10 @@ class PKIDeployer:
                 request.systemCert.sslECDH = True
             else:
                 request.systemCert.sslECDH = False
+
+        elif key_type == 'MLDSA':
+            if not request.systemCert.keySize:
+                request.systemCert.keySize = subsystem.config['keys.mldsa.keysize.default']
 
         request.systemCert.keyAlgorithm = self.mdict['pki_%s_key_algorithm' % cert_param_id]
 
