@@ -4119,6 +4119,8 @@ class PKIDeployer:
 
         if key_type.lower() == 'ecc':
             profile = 'caECAdminCert'
+        elif key_type.lower() == 'mldsa':
+            profile = 'caMLDSAdminCert'
         else:
             profile = self.mdict['pki_admin_profile_id']
 
