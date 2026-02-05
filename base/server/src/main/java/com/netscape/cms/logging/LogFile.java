@@ -517,7 +517,7 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
             } else if (mSigningKey.getAlgorithm().equalsIgnoreCase("EC")) {
                 sigAlgorithm = "SHA-256/EC";
             } else if (mSigningKey.getAlgorithm().equalsIgnoreCase("ML-DSA-44") ||
-                       mSigningKey.getAlgorithm().equalsIgnoreCase("ML-DSA-67") ||
+                       mSigningKey.getAlgorithm().equalsIgnoreCase("ML-DSA-65") ||
                        mSigningKey.getAlgorithm().equalsIgnoreCase("ML-DSA-87")) {
                 sigAlgorithm = mSigningKey.getAlgorithm();
             } else {
