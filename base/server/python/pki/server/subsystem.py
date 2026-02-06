@@ -1342,15 +1342,15 @@ class PKISubsystem(object):
             replica_id):
 
         tmpdir = tempfile.mkdtemp()
+        self.instance.chown(tmpdir)
+
         try:
             ldap_config_file = os.path.join(tmpdir, 'ldap.conf')
             pki.util.store_properties(ldap_config_file, ldap_config)
-            self.instance.chown(tmpdir)
 
             password_file = os.path.join(tmpdir, 'password.txt')
             with open(password_file, 'w', encoding='utf-8') as f:
                 f.write(replica_bind_password)
-            self.instance.chown(password_file)
 
             cmd = [
                 'pki-server',
@@ -1386,15 +1386,15 @@ class PKISubsystem(object):
             replication_security=None):
 
         tmpdir = tempfile.mkdtemp()
+        self.instance.chown(tmpdir)
+
         try:
             ldap_config_file = os.path.join(tmpdir, 'ldap.conf')
             pki.util.store_properties(ldap_config_file, ldap_config)
-            self.instance.chown(tmpdir)
 
             password_file = os.path.join(tmpdir, 'password.txt')
             with open(password_file, 'w', encoding='utf-8') as f:
                 f.write(replica_bind_password)
-            self.instance.chown(password_file)
 
             cmd = [
                 'pki-server',
@@ -1429,10 +1429,11 @@ class PKISubsystem(object):
             ldap_config):
 
         tmpdir = tempfile.mkdtemp()
+        self.instance.chown(tmpdir)
+
         try:
             ldap_config_file = os.path.join(tmpdir, 'ldap.conf')
             pki.util.store_properties(ldap_config_file, ldap_config)
-            self.instance.chown(tmpdir)
 
             cmd = [
                 'pki-server',
@@ -2169,6 +2170,7 @@ class PKISubsystem(object):
         logger.info('Adding user %s', user_id)
 
         tmpdir = tempfile.mkdtemp()
+        self.instance.chown(tmpdir)
 
         try:
             if password and not password_file:
@@ -2667,56 +2669,50 @@ class CASubsystem(PKISubsystem):
             serial=None,
             cert_format=None):
 
-        tmpdir = tempfile.mkdtemp()
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            'ca-cert-create'
+        ]
 
-        try:
-            cmd = [
-                'pki-server',
-                '-i', self.instance.name,
-                'ca-cert-create'
-            ]
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
 
-            if logger.isEnabledFor(logging.DEBUG):
-                cmd.append('--debug')
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
 
-            elif logger.isEnabledFor(logging.INFO):
-                cmd.append('--verbose')
+        if request_id:
+            cmd.extend(['--request', request_id])
 
-            if request_id:
-                cmd.extend(['--request', request_id])
+        if profile_path:
+            cmd.extend(['--profile', profile_path])
 
-            if profile_path:
-                cmd.extend(['--profile', profile_path])
+        if cert_type:
+            cmd.extend(['--type', cert_type])
 
-            if cert_type:
-                cmd.extend(['--type', cert_type])
+        if key_id:
+            cmd.extend(['--key-id', key_id])
 
-            if key_id:
-                cmd.extend(['--key-id', key_id])
+        if key_token:
+            cmd.extend(['--key-token', key_token])
 
-            if key_token:
-                cmd.extend(['--key-token', key_token])
+        if key_algorithm:
+            cmd.extend(['--key-algorithm', key_algorithm])
 
-            if key_algorithm:
-                cmd.extend(['--key-algorithm', key_algorithm])
+        if signing_algorithm:
+            cmd.extend(['--signing-algorithm', signing_algorithm])
 
-            if signing_algorithm:
-                cmd.extend(['--signing-algorithm', signing_algorithm])
+        if serial:
+            cmd.extend(['--serial', serial])
 
-            if serial:
-                cmd.extend(['--serial', serial])
+        if cert_format:
+            cmd.extend(['--format', cert_format])
 
-            if cert_format:
-                cmd.extend(['--format', cert_format])
-
-            logger.debug('Command: %s', ' '.join(cmd))
-            result = subprocess.run(
-                cmd,
-                stdout=subprocess.PIPE,
-                check=True)
-
-        finally:
-            shutil.rmtree(tmpdir)
+        logger.debug('Command: %s', ' '.join(cmd))
+        result = subprocess.run(
+            cmd,
+            stdout=subprocess.PIPE,
+            check=True)
 
         return result.stdout
 
@@ -2729,6 +2725,7 @@ class CASubsystem(PKISubsystem):
             request_id=None):
 
         tmpdir = tempfile.mkdtemp()
+        self.instance.chown(tmpdir)
 
         try:
             if cert_data and not cert_path:
