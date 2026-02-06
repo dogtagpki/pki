@@ -31,6 +31,8 @@ class UpdateMLDSAProfiles(pki.server.upgrade.PKIServerUpgradeScriptlet):
             'caMLDSAServerCert',
             'caMLDSASubsystemCert',
             'caMLDSAAdminCert',
+            'caMLDSAInternalAuthServerCert',
+            'caMLDSAInternalAuthSubsystemCert'
         ]
 
         # Read the available profile list
@@ -93,6 +95,8 @@ class UpdateMLDSAProfiles(pki.server.upgrade.PKIServerUpgradeScriptlet):
             subsystem.set_config('profile.{}.class_id'.format(profile), 'caEnrollImpl')
 
         subsystem.set_config('profile.list', ','.join(profile_list))
+
+        subsystem.set_config('keys.mldsa.keysize.default', '65')
 
         # Make a backup of existing CS.cfg before writing modified values
         self.backup(subsystem.cs_conf)
