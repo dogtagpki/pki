@@ -290,7 +290,7 @@ jobs:
           cat > expected << EOF
           drwxrwx--- pkiuser pkiuser backup
           drwxrwx--- pkiuser pkiuser ca
-          -rw-rw-r-- root root localhost.$DATE.log
+          -rw-r--r-- pkiuser pkiuser localhost.$DATE.log
           -rw-r--r-- pkiuser pkiuser localhost_access_log.$DATE.txt
           drwxrwx--- pkiuser pkiuser ocsp
           drwxr-xr-x pkiuser pkiuser pki
@@ -991,7 +991,7 @@ jobs:
           cat > expected << EOF
           drwxrwx--- pkiuser pkiuser backup
           drwxrwx--- pkiuser pkiuser ca
-          -rw-rw-r-- root root localhost.$DATE.log
+          -rw-r--r-- pkiuser pkiuser localhost.$DATE.log
           -rw-r--r-- pkiuser pkiuser localhost_access_log.$DATE.txt
           drwxrwx--- pkiuser pkiuser ocsp
           drwxr-xr-x pkiuser pkiuser pki

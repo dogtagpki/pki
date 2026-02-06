@@ -272,10 +272,10 @@ jobs:
           docker exec ca pki-server ca-cert-create \
               --csr admin.csr \
               --profile /usr/share/pki/ca/conf/rsaAdminCert.profile \
-              --cert admin.crt \
+              --cert /tmp/admin.crt \
               --import-cert
 
-          docker cp ca:admin.crt .
+          docker cp ca:/tmp/admin.crt .
 
           # import cert
           docker exec client pki nss-cert-import \
@@ -295,7 +295,7 @@ jobs:
           docker exec ca pki-server ca-user-add \
               --full-name Administrator \
               --type adminType \
-              --cert admin.crt \
+              --cert /tmp/admin.crt \
               admin
 
           # add CA admin user into CA groups

@@ -168,7 +168,7 @@ jobs:
           drwxrwx--- pkiuser pkiuser backup
           drwxrwx--- pkiuser pkiuser ca
           drwxrwx--- pkiuser pkiuser kra
-          -rw-rw-r-- root root localhost.$DATE.log
+          -rw-r--r-- pkiuser pkiuser localhost.$DATE.log
           -rw-r--r-- pkiuser pkiuser localhost_access_log.$DATE.txt
           drwxr-xr-x pkiuser pkiuser pki
           EOF
