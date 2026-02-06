@@ -42,3 +42,8 @@ jobs:
     name: CA clone with SSNv2
     needs: build
     uses: ./.github/workflows/ca-clone-ssnv2-test.yml
+
+  ca-clone-mldsa-test:
+    name: CA clone with ML-DSA
+    needs: build
+    uses: ./.github/workflows/ca-clone-mldsa-test.yml

@@ -1,0 +1,1186 @@
+name: CA clone
+# This test will perform the following operations:
+# - create a primary CA and DS
+# - clone the primary CA and DS into a secondary CA and DS
+# - clone the secondary CA and DS into a tertiary CA and DS
+# - enroll a cert
+# - check cert status using the built-in OCSP in all CAs
+# - revoke the cert
+# - check cert status using the built-in OCSP in all CAs
+# - unrevoke the cert
+# - check cert status using the built-in OCSP in all CAs
+
+on: workflow_call
+
+env:
+  DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Retrieve PKI images
+        uses: actions/cache@v4
+        with:
+          key: pki-images-${{ github.sha }}
+          path: pki-images.tar
+
+      - name: Load PKI images
+        run: docker load --input pki-images.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up client container
+        run: |
+          tests/bin/runner-init.sh \
+              --hostname=client.example.com \
+              --network=example \
+              client
+
+      - name: Set up primary DS container
+        run: |
+          tests/bin/ds-create.sh \
+              --image=${{ env.DS_IMAGE }} \
+              --hostname=primaryds.example.com \
+              --network=example \
+              --network-alias=primaryds.example.com \
+              --password=Secret.123 \
+              primaryds
+
+      - name: Set up primary PKI container
+        run: |
+          tests/bin/runner-init.sh \
+              --hostname=primary.example.com \
+              --network=example \
+              --network-alias=primary.example.com \
+              primary
+
+      - name: Enable ML-DSA-44 in default crypto-policies
+        # ML-DSA algorithms for nss are enabled as default in rawhide (Fedora 44)
+        run: |
+          docker exec primary sed -i 's/smime-key-exchange:ECDSA/smime-key-exchange:ML-DSA-44:ECDSA/' \
+              /etc/crypto-policies/back-ends/nss.config
+      
+      # docs/installation/ca/installing-ca.adoc
+      - name: Install CA in primary PKI container
+        run: |
+          docker exec primary pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca-mldsa.cfg \
+              -s CA \
+              -D pki_audit_signing_nickname= \
+              -D pki_ds_url=ldap://primaryds.example.com:3389 \
+              -v
+
+      - name: Check schema in primary DS
+        if: always()
+        run: |
+          docker exec primaryds ldapsearch \
+              -H ldap://primaryds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b cn=schema \
+              -o ldif_wrap=no \
+              -LLL \
+              objectClasses attributeTypes \
+              | grep "\-oid" \
+              | sort \
+              | tee primaryds.schema
+
+      - name: Check initial replica range config in primary CA
+        if: always()
+        run: |
+          tests/ca/bin/ca-replica-range-config.sh primary | tee output
+
+          # primary range should be 1-100 initially
+          cat > expected << EOF
+          dbs.beginReplicaNumber=1
+          dbs.endReplicaNumber=100
+          dbs.replicaCloneTransferNumber=5
+          dbs.replicaIncrement=100
+          dbs.replicaLowWaterMark=20
+          EOF
+
+          diff expected output
+
+      - name: Check initial CA replica range objects
+        if: always()
+        run: |
+          tests/ca/bin/ca-replica-range-objects.sh primaryds | tee output
+
+          # there should be no range allocations
+          diff /dev/null output
+
+      - name: Check initial CA replica next range
+        if: always()
+        run: |
+          tests/ca/bin/ca-replica-next-range.sh primaryds | tee output
+
+          # next range should start from 1000
+          # see ou=replica in base/ca/database/ds/create.ldif
+          cat > expected << EOF
+          nextRange: 1000
+          EOF
+
+          diff expected output
+
+      - name: Check primary CA server status
+        run: |
+          docker exec primary pki-server status | tee output
+
+          # primary CA should be a domain manager
+          echo "True" > expected
+          sed -n 's/^ *SD Manager: *\(.*\)$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check primary CA system certs
+        run: |
+          docker exec primary pki-server cert-find
+
+      - name: Check admin cert for primary CA
+        run: |
+          docker exec primary pki-server cert-export \
+              --cert-file $SHARED/ca_signing.crt \
+              ca_signing
+
+          docker exec client pki nss-cert-import \
+              --cert $SHARED/ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
+          docker exec primary cp \
+              /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              $SHARED
+
+          docker exec client pki pkcs12-import \
+              --pkcs12 $SHARED/ca_admin_cert.p12 \
+              --password Secret.123
+
+          docker exec client pki \
+              -U https://primary.example.com:8443 \
+              -n caadmin \
+              ca-user-show \
+              caadmin
+
+      - name: Check SD hosts in primary PKI server
+        run: |
+          docker exec client pki \
+              -U https://primary.example.com:8443 \
+              securitydomain-host-find
+
+      - name: Check users in primary CA
+        run: |
+          docker exec client pki \
+              -U https://primary.example.com:8443 \
+              -n caadmin \
+              ca-user-find
+
+      - name: Check cert requests in primary CA
+        run: |
+          docker exec client pki \
+              -U https://primary.example.com:8443 \
+              -n caadmin \
+              ca-cert-request-find
+
+      - name: Check certs in primary CA
+        run: |
+          docker exec client pki \
+              -U https://primary.example.com:8443 \
+              ca-cert-find
+
+      - name: Set up secondary DS container
+        run: |
+          tests/bin/ds-create.sh \
+              --image=${{ env.DS_IMAGE }} \
+              --hostname=secondaryds.example.com \
+              --network=example \
+              --network-alias=secondaryds.example.com \
+              --password=Secret.123 \
+              secondaryds
+
+      - name: Set up secondary PKI container
+        run: |
+          tests/bin/runner-init.sh \
+              --hostname=secondary.example.com \
+              --network=example \
+              --network-alias=secondary.example.com \
+              secondary
+
+      - name: Enable ML-DSA-44 in default crypto-policies
+        # ML-DSA algorithms for nss are enabled as default in rawhide (Fedora 44)
+        run: |
+          docker exec secondary sed -i 's/smime-key-exchange:ECDSA/smime-key-exchange:ML-DSA-44:ECDSA/' \
+              /etc/crypto-policies/back-ends/nss.config
+      
+      # docs/installation/ca/installing-ca-clone.adoc
+      - name: Install CA in secondary PKI container
+        run: |
+          # get CS.cfg from primary CA before cloning
+          docker cp primary:/var/lib/pki/pki-tomcat/conf/ca/CS.cfg CS.cfg.primary
+
+          docker exec primary pki-server ca-clone-prepare \
+              --pkcs12-file $SHARED/ca-certs.p12 \
+              --pkcs12-password Secret.123
+
+          docker exec secondary pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca-clone-mldsa.cfg \
+              -s CA \
+              -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
+              -D pki_clone_pkcs12_path=${SHARED}/ca-certs.p12 \
+              -D pki_clone_pkcs12_password=Secret.123 \
+              -D pki_audit_signing_nickname= \
+              -D pki_ds_url=ldap://secondaryds.example.com:3389 \
+              --debug \
+              > >(tee stdout) 2> >(tee stderr >&2)
+
+      - name: Check for warnings
+        if: always()
+        run: |
+          sed -n '/^WARNING:/p' stderr | tee output
+          wc -l output
+
+      - name: Check external commands
+        if: always()
+        run: |
+          sed -n '/^DEBUG: Command:/p' stderr | tee output
+          wc -l output
+
+      - name: Check secondary CA server status
+        run: |
+          docker exec secondary pki-server status | tee output
+
+          # secondary CA should be a domain manager
+          echo "True" > expected
+          sed -n 's/^ *SD Manager: *\(.*\)$/\1/p' output > actual
+          diff expected actual
+
+      - name: Check secondary CA system certs
+        run: |
+          docker exec secondary pki-server cert-find
+
+      - name: Check schema in secondary DS
+        if: always()
+        run: |
+          docker exec secondaryds ldapsearch \
+              -H ldap://secondaryds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b cn=schema \
+              -o ldif_wrap=no \
+              -LLL \
+              objectClasses attributeTypes \
+              | grep "\-oid" | sort | tee secondaryds.schema
+
+          diff primaryds.schema secondaryds.schema
+
+      - name: Check replication manager on primary DS
+        if: always()
+        run: |
+          docker exec primaryds ldapsearch \
+              -H ldap://primaryds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "cn=Replication Manager masterAgreement1-secondary.example.com-pki-tomcat,ou=csusers,cn=config" \
+              -s base \
+              -o ldif_wrap=no \
+              -LLL
+
+      - name: Check replication manager on secondary DS
+        if: always()
+        run: |
+          docker exec secondaryds ldapsearch \
+              -H ldap://secondaryds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "cn=Replication Manager cloneAgreement1-secondary.example.com-pki-tomcat,ou=csusers,cn=config" \
+              -s base \
+              -o ldif_wrap=no \
+              -LLL
+
+      - name: Check replica object on primary DS
+        if: always()
+        run: |
+          docker exec primaryds ldapsearch \
+              -H ldap://primaryds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "cn=replica,cn=dc\3Dca\2Cdc\3Dpki\2Cdc\3Dexample\2Cdc\3Dcom,cn=mapping tree,cn=config" \
+              -s base \
+              -o ldif_wrap=no \
+              -LLL \
+              | tee output
+
+          # primary DS should have replica ID 96
+          echo "96" > expected
+          sed -n 's/^nsDS5ReplicaId:\s*\(\S\+\)\s*$/\1/p' output > actual
+
+          diff expected actual
+
+      - name: Check CA replica object on secondary DS
+        if: always()
+        run: |
+          docker exec secondaryds ldapsearch \
+              -H ldap://secondaryds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "cn=replica,cn=dc\3Dca\2Cdc\3Dpki\2Cdc\3Dexample\2Cdc\3Dcom,cn=mapping tree,cn=config" \
+              -s base \
+              -o ldif_wrap=no \
+              -LLL \
+              | tee output
+
+          # secondary DS should have replica ID 97
+          echo "97" > expected
+          sed -n 's/^nsDS5ReplicaId:\s*\(\S\+\)\s*$/\1/p' output > actual
+
+          diff expected actual
+
+      - name: Check CA replication agreement on primary DS
+        if: always()
+        run: |
+          docker exec primaryds ldapsearch \
+              -H ldap://primaryds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "cn=masterAgreement1-secondary.example.com-pki-tomcat,cn=replica,cn=dc\3Dca\2Cdc\3Dpki\2Cdc\3Dexample\2Cdc\3Dcom,cn=mapping tree,cn=config" \
+              -s base \
+              -o ldif_wrap=no \
+              -LLL
+
+      - name: Check CA replication agreement on secondary DS
+        if: always()
+        run: |
+          docker exec secondaryds ldapsearch \
+              -H ldap://secondaryds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "cn=cloneAgreement1-secondary.example.com-pki-tomcat,cn=replica,cn=dc\3Dca\2Cdc\3Dpki\2Cdc\3Dexample\2Cdc\3Dcom,cn=mapping tree,cn=config" \
+              -s base \
+              -o ldif_wrap=no \
+              -LLL
+
+      - name: Check CS.cfg in primary CA after cloning
+        run: |
+          # get CS.cfg from primary CA after cloning
+          docker cp primary:/var/lib/pki/pki-tomcat/conf/ca/CS.cfg CS.cfg.primary.after
+
+          docker exec primary pki-server ca-config-find | grep ca.crl.MasterCRL
+
+          # normalize expected result:
+          # - remove params that cannot be compared
+          # - set dbs.enableSerialManagement to true (automatically enabled when cloned)
+          sed -e '/^dbs.beginReplicaNumber=/d' \
+              -e '/^dbs.endReplicaNumber=/d' \
+              -e '/^dbs.nextBeginReplicaNumber=/d' \
+              -e '/^dbs.nextEndReplicaNumber=/d' \
+              -e 's/^\(dbs.enableSerialManagement\)=.*$/\1=true/' \
+              CS.cfg.primary \
+              | sort > expected
+
+          # normalize actual result:
+          # - remove params that cannot be compared
+          sed -e '/^dbs.beginReplicaNumber=/d' \
+              -e '/^dbs.endReplicaNumber=/d' \
+              -e '/^dbs.nextBeginReplicaNumber=/d' \
+              -e '/^dbs.nextEndReplicaNumber=/d' \
+              CS.cfg.primary.after \
+              | sort > actual
+
+          diff expected actual
+
+      - name: Check CS.cfg in secondary CA
+        run: |
+          # get CS.cfg from secondary CA
+          docker cp secondary:/var/lib/pki/pki-tomcat/conf/ca/CS.cfg CS.cfg.secondary
+
+          docker exec secondary pki-server ca-config-find | grep ca.crl.MasterCRL
+
+          # normalize expected result:
+          # - remove params that cannot be compared
+          # - replace primary.example.com with secondary.example.com
+          # - replace primaryds.example.com with secondaryds.example.com
+          # - set ca.crl.MasterCRL.enableCRLCache to false (automatically disabled in the clone)
+          # - set ca.crl.MasterCRL.enableCRLUpdates to false (automatically disabled in the clone)
+          # - add params for the clone
+          sed -e '/^installDate=/d' \
+              -e '/^dbs.beginReplicaNumber=/d' \
+              -e '/^dbs.endReplicaNumber=/d' \
+              -e '/^dbs.nextBeginReplicaNumber=/d' \
+              -e '/^dbs.nextEndReplicaNumber=/d' \
+              -e '/^ca.sslserver.cert=/d' \
+              -e '/^ca.sslserver.certreq=/d' \
+              -e 's/primary.example.com/secondary.example.com/' \
+              -e 's/primaryds.example.com/secondaryds.example.com/' \
+              -e 's/^\(ca.crl.MasterCRL.enableCRLCache\)=.*$/\1=false/' \
+              -e 's/^\(ca.crl.MasterCRL.enableCRLUpdates\)=.*$/\1=false/' \
+              -e '$ a ca.certStatusUpdateInterval=0' \
+              -e '$ a ca.listenToCloneModifications=false' \
+              -e '$ a master.ca.agent.host=primary.example.com' \
+              -e '$ a master.ca.agent.port=8443' \
+              CS.cfg.primary.after \
+              | sort > expected
+
+          # normalize actual result:
+          # - remove params that cannot be compared
+          sed -e '/^installDate=/d' \
+              -e '/^dbs.beginReplicaNumber=/d' \
+              -e '/^dbs.endReplicaNumber=/d' \
+              -e '/^dbs.nextBeginReplicaNumber=/d' \
+              -e '/^dbs.nextEndReplicaNumber=/d' \
+              -e '/^ca.sslserver.cert=/d' \
+              -e '/^ca.sslserver.certreq=/d' \
+              CS.cfg.secondary \
+              | sort > actual
+
+          diff expected actual
+
+      - name: Check replica range config in primary CA after cloning
+        if: always()
+        run: |
+          tests/ca/bin/ca-replica-range-config.sh primary | tee output
+
+          # 5 numbers were transfered to secondary range
+          # so now primary range should be 1-95
+          cat > expected << EOF
+          dbs.beginReplicaNumber=1
+          dbs.endReplicaNumber=95
+          dbs.replicaCloneTransferNumber=5
+          dbs.replicaIncrement=100
+          dbs.replicaLowWaterMark=20
+          EOF
+
+          diff expected output
+
+      - name: Check replica range config in secondary CA
+        if: always()
+        run: |
+          tests/ca/bin/ca-replica-range-config.sh secondary | tee output
+
+          # secondary range should be 96-100 initially
+          # first two numbers were assigned to primary DS and secondary DS
+          # so now secondary range should be 98-100
+          cat > expected << EOF
+          dbs.beginReplicaNumber=98
+          dbs.endReplicaNumber=100
+          dbs.replicaCloneTransferNumber=5
+          dbs.replicaIncrement=100
+          dbs.replicaLowWaterMark=20
+          EOF
+
+          diff expected output
+
+      - name: Check CA replica range objects
+        if: always()
+        run: |
+          tests/ca/bin/ca-replica-range-objects.sh primaryds | tee output
+
+          # there should be no range allocations
+          diff /dev/null output
+
+      - name: Check CA replica next range
+        if: always()
+        run: |
+          tests/ca/bin/ca-replica-next-range.sh primaryds | tee output
+
+          # next range should start from 1000
+          cat > expected << EOF
+          nextRange: 1000
+          EOF
+
+          diff expected output
+
+      - name: Check admin cert for secondary CA
+        run: |
+          docker exec client pki \
+              -U https://secondary.example.com:8443 \
+              -n caadmin \
+              ca-user-show \
+              caadmin
+
+      - name: Check SD hosts in secondary PKI server
+        run: |
+          docker exec client pki \
+              -U https://secondary.example.com:8443 \
+              securitydomain-host-find
+
+      - name: Check users in secondary CA
+        run: |
+          docker exec client pki \
+              -U https://secondary.example.com:8443 \
+              -n caadmin \
+              ca-user-find
+
+      - name: Check cert requests in secondary CA
+        run: |
+          docker exec client pki \
+              -U https://secondary.example.com:8443 \
+              -n caadmin \
+              ca-cert-request-find
+
+      - name: Check certs in secondary CA
+        run: |
+          docker exec client pki \
+              -U https://secondary.example.com:8443 \
+              ca-cert-find
+
+      - name: Set up tertiary DS container
+        run: |
+          tests/bin/ds-create.sh \
+              --image=${{ env.DS_IMAGE }} \
+              --hostname=tertiaryds.example.com \
+              --network=example \
+              --network-alias=tertiaryds.example.com \
+              --password=Secret.123 \
+              tertiaryds
+
+      - name: Set up tertiary PKI container
+        run: |
+          tests/bin/runner-init.sh \
+              --hostname=tertiary.example.com \
+              --network=example \
+              --network-alias=tertiary.example.com \
+              tertiary
+
+      # docs/installation/ca/installing-ca-clone.adoc
+      - name: Install CA in tertiary PKI container
+        run: |
+          docker exec secondary pki-server ca-clone-prepare \
+              --pkcs12-file $SHARED/ca-certs.p12 \
+              --pkcs12-password Secret.123
+
+          # export CA signing CSR
+          docker exec secondary pki-server cert-export ca_signing \
+              --csr-file ${SHARED}/ca_signing.csr
+
+          # export CA OCSP signing CSR
+          docker exec secondary pki-server cert-export ca_ocsp_signing \
+              --csr-file ${SHARED}/ca_ocsp_signing.csr
+
+          # export subsystem CSR
+          docker exec secondary pki-server cert-export subsystem \
+              --csr-file ${SHARED}/subsystem.csr
+
+          docker exec tertiary pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca-clone-of-clone.cfg \
+              -s CA \
+              -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
+              -D pki_clone_pkcs12_path=${SHARED}/ca-certs.p12 \
+              -D pki_clone_pkcs12_password=Secret.123 \
+              -D pki_ca_signing_csr_path=${SHARED}/ca_signing.csr \
+              -D pki_ocsp_signing_csr_path=${SHARED}/ca_ocsp_signing.csr \
+              -D pki_subsystem_csr_path=${SHARED}/subsystem.csr \
+              -D pki_audit_signing_nickname= \
+              -D pki_ds_url=ldap://tertiaryds.example.com:3389 \
+              -v
+
+          docker exec tertiary pki-server cert-find
+
+      - name: Check schema in tertiary DS
+        if: always()
+        run: |
+          docker exec tertiaryds ldapsearch \
+              -H ldap://tertiaryds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b cn=schema \
+              -o ldif_wrap=no \
+              -LLL \
+              objectClasses attributeTypes \
+              | grep "\-oid" | sort | tee tertiaryds.schema
+
+          diff secondaryds.schema tertiaryds.schema
+
+      - name: Check replication manager on tertiary DS
+        if: always()
+        run: |
+          docker exec tertiaryds ldapsearch \
+              -H ldap://tertiaryds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "cn=Replication Manager cloneAgreement1-tertiary.example.com-pki-tomcat,ou=csusers,cn=config" \
+              -s base \
+              -o ldif_wrap=no \
+              -LLL
+
+      - name: Check CA replica object on tertiary DS
+        if: always()
+        run: |
+          docker exec tertiaryds ldapsearch \
+              -H ldap://tertiaryds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "cn=replica,cn=dc\3Dca\2Cdc\3Dpki\2Cdc\3Dexample\2Cdc\3Dcom,cn=mapping tree,cn=config" \
+              -s base \
+              -o ldif_wrap=no \
+              -LLL \
+              | tee output
+
+          # tertiary DS should have replica ID 1095
+          echo "1095" > expected
+          sed -n 's/^nsDS5ReplicaId:\s*\(\S\+\)\s*$/\1/p' output > actual
+
+          diff expected actual
+
+      - name: Check CA replication agreement on tertiary DS
+        if: always()
+        run: |
+          docker exec tertiaryds ldapsearch \
+              -H ldap://tertiaryds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "cn=cloneAgreement1-tertiary.example.com-pki-tomcat,cn=replica,cn=dc\3Dca\2Cdc\3Dpki\2Cdc\3Dexample\2Cdc\3Dcom,cn=mapping tree,cn=config" \
+              -s base \
+              -o ldif_wrap=no \
+              -LLL
+
+      - name: Check CS.cfg in secondary CA after cloning
+        run: |
+          # get CS.cfg from secondary CA after cloning
+          docker cp secondary:/var/lib/pki/pki-tomcat/conf/ca/CS.cfg CS.cfg.secondary.after
+
+          docker exec secondary pki-server ca-config-find | grep ca.crl.MasterCRL
+
+          # normalize expected result:
+          # - remove params that cannot be compared
+          sed -e '/^dbs.beginReplicaNumber=/d' \
+              -e '/^dbs.endReplicaNumber=/d' \
+              -e '/^dbs.nextBeginReplicaNumber=/d' \
+              -e '/^dbs.nextEndReplicaNumber=/d' \
+              CS.cfg.secondary \
+              | sort > expected
+
+          # normalize actual result:
+          # - remove params that cannot be compared
+          sed -e '/^dbs.beginReplicaNumber=/d' \
+              -e '/^dbs.endReplicaNumber=/d' \
+              -e '/^dbs.nextBeginReplicaNumber=/d' \
+              -e '/^dbs.nextEndReplicaNumber=/d' \
+              CS.cfg.secondary.after \
+              | sort > actual
+
+          diff expected actual
+
+      - name: Check CS.cfg in tertiary CA
+        run: |
+          # get CS.cfg from tertiary CA
+          docker cp tertiary:/var/lib/pki/pki-tomcat/conf/ca/CS.cfg CS.cfg.tertiary
+
+          docker exec tertiary pki-server ca-config-find | grep ca.crl.MasterCRL
+
+          # normalize expected result:
+          # - remove params that cannot be compared
+          # - replace secondary.example.com with tertiary.example.com
+          # - replace secondaryds.example.com with tertiaryds.example.com
+          # - set master.ca.agent.host to secondary.example.com
+          sed -e '/^installDate=/d' \
+              -e '/^dbs.beginReplicaNumber=/d' \
+              -e '/^dbs.endReplicaNumber=/d' \
+              -e '/^dbs.nextBeginReplicaNumber=/d' \
+              -e '/^dbs.nextEndReplicaNumber=/d' \
+              -e '/^ca.sslserver.cert=/d' \
+              -e '/^ca.sslserver.certreq=/d' \
+              -e 's/secondary.example.com/tertiary.example.com/' \
+              -e 's/secondaryds.example.com/tertiaryds.example.com/' \
+              -e 's/^\(master.ca.agent.host\)=.*$/\1=secondary.example.com/' \
+              CS.cfg.secondary.after \
+              | sort > expected
+
+          # normalize actual result:
+          # - remove params that cannot be compared
+          sed -e '/^installDate=/d' \
+              -e '/^dbs.beginReplicaNumber=/d' \
+              -e '/^dbs.endReplicaNumber=/d' \
+              -e '/^dbs.nextBeginReplicaNumber=/d' \
+              -e '/^dbs.nextEndReplicaNumber=/d' \
+              -e '/^ca.sslserver.cert=/d' \
+              -e '/^ca.sslserver.certreq=/d' \
+              CS.cfg.tertiary \
+              | sort > actual
+
+          diff expected actual
+
+      - name: Check replica range config in secondary CA after cloning
+        if: always()
+        run: |
+          tests/ca/bin/ca-replica-range-config.sh secondary | tee output
+
+          # secondary range should remain 98-100
+          # next secondary range should be 1000-1099 initially
+          # 5 numbers were transferred to tertiary range
+          # so now next secondary range should be 1000-1094
+          cat > expected << EOF
+          dbs.beginReplicaNumber=98
+          dbs.endReplicaNumber=100
+          dbs.nextBeginReplicaNumber=1000
+          dbs.nextEndReplicaNumber=1094
+          dbs.replicaCloneTransferNumber=5
+          dbs.replicaIncrement=100
+          dbs.replicaLowWaterMark=20
+          EOF
+
+          diff expected output
+
+      - name: Check replica range config in tertiary CA
+        if: always()
+        run: |
+          tests/ca/bin/ca-replica-range-config.sh tertiary | tee output
+
+          # tertiary range should be 1095-1099 initially
+          # first number is assigned to tertiary DS
+          # so now tertiary range should be 1096-1099
+          cat > expected << EOF
+          dbs.beginReplicaNumber=1096
+          dbs.endReplicaNumber=1099
+          dbs.replicaCloneTransferNumber=5
+          dbs.replicaIncrement=100
+          dbs.replicaLowWaterMark=20
+          EOF
+
+          diff expected output
+
+      - name: Check CA replica range objects
+        if: always()
+        run: |
+          tests/ca/bin/ca-replica-range-objects.sh primaryds | tee output
+
+          # range 1000-1099 should be allocated to secondary CA
+          cat > expected << EOF
+          SecurePort: 8443
+          beginRange: 1000
+          endRange: 1099
+          host: secondary.example.com
+
+          EOF
+
+          diff expected output
+
+      - name: Check CA replica next range
+        if: always()
+        run: |
+          tests/ca/bin/ca-replica-next-range.sh primaryds | tee output
+
+          # next range should start from 1100
+          cat > expected << EOF
+          nextRange: 1100
+          EOF
+
+          diff expected output
+
+      - name: Check admin cert for tertiary CA
+        run: |
+          docker exec client pki \
+              -U https://tertiary.example.com:8443 \
+              -n caadmin \
+              ca-user-show \
+              caadmin
+
+      - name: Check SD hosts in tertiary PKI server
+        run: |
+          docker exec client pki \
+              -U https://tertiary.example.com:8443 \
+              securitydomain-host-find
+
+      - name: Check users in tertiary CA
+        run: |
+          docker exec client pki \
+              -U https://tertiary.example.com:8443 \
+              -n caadmin \
+              ca-user-find
+
+      - name: Check cert requests in tertiary CA
+        run: |
+          docker exec client pki \
+              -U https://tertiary.example.com:8443 \
+              -n caadmin \
+              ca-cert-request-find
+
+      - name: Check certs in tertiary CA
+        run: |
+          docker exec client pki \
+              -U https://tertiary.example.com:8443 \
+              ca-cert-find
+
+      - name: Enroll cert in primary CA
+        run: |
+          docker exec client pki nss-cert-request \
+              --subject "UID=testuser" \
+              --ext /usr/share/pki/tools/examples/certs/testuser.conf \
+              --csr testuser.csr
+
+          docker exec client pki \
+              -U https://primary.example.com:8443 \
+              ca-cert-request-submit \
+              --profile caUserCert \
+              --csr-file testuser.csr \
+              | tee output
+
+          REQUEST_ID=$(sed -n "s/^\s*Request ID:\s*\(\S*\)$/\1/p" output)
+
+          docker exec client pki \
+              -U https://primary.example.com:8443 \
+              -n caadmin \
+              ca-cert-request-approve \
+              --force \
+              $REQUEST_ID \
+              | tee output
+
+          CERT_ID=$(sed -n "s/^\s*Certificate ID:\s*\(\S*\)$/\1/p" output)
+          echo "$CERT_ID" > cert.id
+
+      - name: Check initial cert status in primary OCSP
+        run: |
+          CERT_ID=$(cat cert.id)
+
+          docker exec client pki \
+              -U http://primary.example.com:8080 \
+              ocsp-cert-verify \
+              --path /ca/ocsp \
+              --ca-cert ca_signing \
+              $CERT_ID \
+              | tee output
+
+          sed -n "/^\s*Status:/p" output > actual
+
+          # cert status should be good
+          cat > expected << EOF
+            Status: Good
+          EOF
+
+          diff expected actual
+
+      - name: Check initial cert status in secondary OCSP
+        run: |
+          CERT_ID=$(cat cert.id)
+
+          docker exec client pki \
+              -U http://secondary.example.com:8080 \
+              ocsp-cert-verify \
+              --path /ca/ocsp \
+              --ca-cert ca_signing \
+              $CERT_ID \
+              | tee output
+
+          sed -n "/^\s*Status:/p" output > actual
+
+          # cert status should be good
+          cat > expected << EOF
+            Status: Good
+          EOF
+
+          diff expected actual
+
+      - name: Check initial cert status in tertiary OCSP
+        run: |
+          CERT_ID=$(cat cert.id)
+
+          docker exec client pki \
+              -U http://tertiary.example.com:8080 \
+              ocsp-cert-verify \
+              --path /ca/ocsp \
+              --ca-cert ca_signing \
+              $CERT_ID \
+              | tee output
+
+          sed -n "/^\s*Status:/p" output > actual
+
+          # cert status should be good
+          cat > expected << EOF
+            Status: Good
+          EOF
+
+          diff expected actual
+
+      - name: Revoke cert in primary CA
+        run: |
+          CERT_ID=$(cat cert.id)
+
+          docker exec client pki \
+              -U https://primary.example.com:8443 \
+              -n caadmin \
+              ca-cert-hold \
+              --force \
+              $CERT_ID
+
+      - name: Check revoked cert in primary OCSP
+        run: |
+          CERT_ID=$(cat cert.id)
+
+          docker exec client pki \
+              -U http://primary.example.com:8080 \
+              ocsp-cert-verify \
+              --path /ca/ocsp \
+              --ca-cert ca_signing \
+              $CERT_ID \
+              | tee output
+
+          sed -n "/^\s*Status:/p" output > actual
+
+          # cert status should be revoked
+          cat > expected << EOF
+            Status: Revoked
+          EOF
+
+          diff expected actual
+
+      - name: Check revoked cert in secondary OCSP
+        run: |
+          CERT_ID=$(cat cert.id)
+
+          docker exec client pki \
+              -U http://secondary.example.com:8080 \
+              ocsp-cert-verify \
+              --path /ca/ocsp \
+              --ca-cert ca_signing \
+              $CERT_ID \
+              | tee output
+
+          sed -n "/^\s*Status:/p" output > actual
+
+          # cert status should be revoked
+          cat > expected << EOF
+            Status: Revoked
+          EOF
+
+          diff expected actual
+
+      - name: Check revoked cert in tertiary OCSP
+        run: |
+          CERT_ID=$(cat cert.id)
+
+          docker exec client pki \
+              -U http://tertiary.example.com:8080 \
+              ocsp-cert-verify \
+              --path /ca/ocsp \
+              --ca-cert ca_signing \
+              $CERT_ID \
+              | tee output
+
+          sed -n "/^\s*Status:/p" output > actual
+
+          # cert status should be revoked
+          cat > expected << EOF
+            Status: Revoked
+          EOF
+
+          diff expected actual
+
+      - name: Unrevoke cert in tertiary CA
+        run: |
+          CERT_ID=$(cat cert.id)
+
+          docker exec client pki \
+              -U https://tertiary.example.com:8443 \
+              -n caadmin \
+              ca-cert-release-hold \
+              --force \
+              $CERT_ID
+
+      - name: Check good cert in primary OCSP
+        run: |
+          CERT_ID=$(cat cert.id)
+
+          docker exec client pki \
+              -U http://primary.example.com:8080 \
+              ocsp-cert-verify \
+              --path /ca/ocsp \
+              --ca-cert ca_signing \
+              $CERT_ID \
+              | tee output
+
+          sed -n "/^\s*Status:/p" output > actual
+
+          # cert status should be good
+          cat > expected << EOF
+            Status: Good
+          EOF
+
+          diff expected actual
+
+      - name: Check good cert in secondary OCSP
+        run: |
+          CERT_ID=$(cat cert.id)
+
+          docker exec client pki \
+              -U http://secondary.example.com:8080 \
+              ocsp-cert-verify \
+              --path /ca/ocsp \
+              --ca-cert ca_signing \
+              $CERT_ID \
+              | tee output
+
+          sed -n "/^\s*Status:/p" output > actual
+
+          # cert status should be good
+          cat > expected << EOF
+            Status: Good
+          EOF
+
+          diff expected actual
+
+      - name: Check good cert in tertiary OCSP
+        run: |
+          CERT_ID=$(cat cert.id)
+
+          docker exec client pki \
+              -U http://tertiary.example.com:8080 \
+              ocsp-cert-verify \
+              --path /ca/ocsp \
+              --ca-cert ca_signing \
+              $CERT_ID \
+              | tee output
+
+          sed -n "/^\s*Status:/p" output > actual
+
+          # cert status should be good
+          cat > expected << EOF
+            Status: Good
+          EOF
+
+          diff expected actual
+
+      - name: Remove CA from tertiary PKI container
+        run: |
+          docker exec client pki \
+              -U https://tertiary.example.com:8443 \
+              -n caadmin \
+              ca-user-find
+
+          docker exec client pki \
+              -U https://tertiary.example.com:8443 \
+              securitydomain-host-find
+
+          docker exec tertiary pkidestroy -s CA -v
+
+      - name: Remove CA from secondary PKI container
+        run: |
+          docker exec client pki \
+              -U https://secondary.example.com:8443 \
+              -n caadmin \
+              ca-user-find
+
+          docker exec client pki \
+              -U https://secondary.example.com:8443 \
+              securitydomain-host-find
+
+          docker exec secondary pkidestroy \
+              -s CA \
+              --debug \
+              > >(tee stdout) 2> >(tee stderr >&2)
+
+      - name: Check for warnings
+        if: always()
+        run: |
+          sed -n '/^WARNING:/p' stderr | tee output
+          wc -l output
+
+      - name: Check external commands
+        if: always()
+        run: |
+          sed -n '/^DEBUG: Command:/p' stderr | tee output
+          wc -l output
+
+      - name: Remove CA from primary PKI container
+        run: |
+          docker exec client pki \
+              -U https://primary.example.com:8443 \
+              -n caadmin \
+              ca-user-find
+
+          docker exec client pki \
+              -U https://primary.example.com:8443 \
+              securitydomain-host-find
+
+          docker exec primary pkidestroy -s CA -v
+
+      - name: Check primary DS server systemd journal
+        if: always()
+        run: |
+          docker exec primaryds journalctl -x --no-pager -u dirsrv@localhost.service
+
+      - name: Check primary DS container logs
+        if: always()
+        run: |
+          docker logs primaryds
+
+      - name: Check primary PKI server systemd journal
+        if: always()
+        run: |
+          docker exec primary journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check primary PKI server access log
+        if: always()
+        run: |
+          docker exec primary find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+
+      - name: Check primary CA debug log
+        if: always()
+        run: |
+          docker exec primary find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check secondary DS server systemd journal
+        if: always()
+        run: |
+          docker exec secondaryds journalctl -x --no-pager -u dirsrv@localhost.service
+
+      - name: Check secondary DS container logs
+        if: always()
+        run: |
+          docker logs secondaryds
+
+      - name: Check secondary PKI server systemd journal
+        if: always()
+        run: |
+          docker exec secondary journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check secondary PKI server access log
+        if: always()
+        run: |
+          docker exec secondary find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+
+      - name: Check secondary CA debug log
+        if: always()
+        run: |
+          docker exec secondary find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check tertiary DS server systemd journal
+        if: always()
+        run: |
+          docker exec tertiaryds journalctl -x --no-pager -u dirsrv@localhost.service
+
+      - name: Check tertiary DS container logs
+        if: always()
+        run: |
+          docker logs tertiaryds
+
+      - name: Check tertiary PKI server systemd journal
+        if: always()
+        run: |
+          docker exec tertiary journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check tertiary PKI server access log
+        if: always()
+        run: |
+          docker exec tertiary find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+
+      - name: Check tertiary CA debug log
+        if: always()
+        run: |
+          docker exec tertiary find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
