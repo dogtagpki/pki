@@ -180,6 +180,8 @@ ExcludeArch: i686
 %define pki_groupname pkiuser
 %define pki_gid 17
 
+%define tomcat_groupname tomcat
+
 # Create a home directory for PKI user at /home/pkiuser
 # to store rootless Podman container.
 %define pki_homedir /home/%{pki_username}
@@ -1106,6 +1108,13 @@ This package provides test suite for %{product_name}.
 %endif
 
 
+# Moify the unit file if we are "new" tomcat-10
+if [ -e  /usr/libexec/tomcat/tomcat-run.sh ]; then
+echo "Modifying the service files for new tomcat 10"
+cp ./base/server/share/lib/systemd/system/pki-tomcatd@.service.new-tomcat  ./base/server/share/lib/systemd/system/pki-tomcatd@.service
+cp ./base/server/share/lib/systemd/system/pki-tomcatd-nuxwdog@.service.new-tomcat  ./base/server/share/lib/systemd/system/pki-tomcatd-nuxwdog@.service
+fi
+
 %if %{without runtime_deps}
 
 if [ ! -d base/common/lib ]
@@ -1354,6 +1363,7 @@ fi
 cat > %{product_id}.sysusers.conf <<EOF
 g %{pki_username} %{pki_gid}
 u %{pki_groupname} %{pki_uid} 'Certificate System' %{pki_homedir} -
+m %{pki_username} %{tomcat_groupname}
 EOF
 
 %endif
@@ -1712,6 +1722,10 @@ getent group %{pki_groupname} >/dev/null || groupadd -f -g %{pki_gid} -r %{pki_g
 if ! getent passwd %{pki_username} >/dev/null ; then
     useradd -r -u %{pki_uid} -g %{pki_groupname} -d %{pki_homedir} -s /sbin/nologin -c "Certificate System" %{pki_username}
 fi
+
+#Add pkiuser to the tomcat group for now to get things working
+#while we investigate the issue.
+#usermod -a -G %{tomcat_groupname} %{pki_username}
 
 %endif
 

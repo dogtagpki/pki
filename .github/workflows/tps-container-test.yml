@@ -667,6 +667,18 @@ jobs:
           # get Fedora version
           FEDORA_VERSION=$(docker exec tps sed -n 's/^VERSION_ID=//p' /etc/os-release)
           echo "FEDORA_VERSION=$FEDORA_VERSION" >> $GITHUB_ENV
+          
+      - name: Calculate Tomcat flavor
+        run: |
+          TOMCAT_FLAVOR=$(docker exec tps bash -c '
+          if [ -f /usr/libexec/tomcat/tomcat-run.sh ]; then
+            printf "new"
+          else
+            printf "old"
+          fi
+          ')
+            echo "TOMCAT_FLAVOR=$TOMCAT_FLAVOR" >> $GITHUB_ENV
+            echo "Detected Tomcat flavor: $TOMCAT_FLAVOR"
 
       - name: Check TPS conf dir
         if: always()
@@ -696,7 +708,30 @@ jobs:
           lrwxrwxrwx runner web.xml -> /etc/tomcat/web.xml
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          drwxrwxrwx runner Catalina
+          drwxrwxrwx runner alias
+          -rw-rw---- runner catalina.policy
+          lrwxrwxrwx runner catalina.properties -> /usr/share/pki/server/conf/catalina.properties
+          drwxrwxrwx runner certs
+          lrwxrwxrwx runner context.xml -> /etc/tomcat/context.xml
+          -rw-rw---- runner jss.conf
+          lrwxrwxrwx runner logging.properties -> /usr/share/pki/server/conf/logging.properties
+          -rw-rw---- runner password.conf
+          -rw-rw---- runner server.xml
+          -rw-rw---- runner serverCertNick.conf
+          -rw-rw---- runner tomcat.conf
+          drwxrwxrwx runner tps
+          lrwxrwxrwx runner web.xml -> /etc/tomcat/web.xml
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check TPS conf/tps dir
         if: always()
@@ -717,7 +752,20 @@ jobs:
           -rw-rw---- runner registry.cfg
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          -rw-rw---- runner CS.cfg
+          drwxrwxrwx runner archives
+          -rw-rw---- runner phoneHome.xml
+          -rw-rw---- runner registry.cfg
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check TPS logs dir
         if: ${{ fromJSON(env.FEDORA_VERSION) < 43 }}
@@ -761,7 +809,19 @@ jobs:
           drwxrwxrwx runner tps
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          drwxrwxrwx runner backup
+          -rw-rw-rw- runner localhost_access_log.$DATE.txt
+          drwxrwxrwx runner tps
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check TPS info
         run: |
@@ -1041,7 +1101,21 @@ jobs:
           tps.list=0
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          tps.0.host=tps.example.com
+          tps.0.nickname=TPS sharedSecret
+          tps.0.port=8443
+          tps.0.userid=TPS
+          tps.list=0
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Restart TPS
         run: |
@@ -1092,7 +1166,28 @@ jobs:
           tps.connector.ca1.uri.unrevoke=/ca/ee/subsystem/ca/doUnrevoke
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          tps.connector.ca1.enable=true
+          tps.connector.ca1.host=ca.example.com
+          tps.connector.ca1.maxHttpConns=15
+          tps.connector.ca1.minHttpConns=1
+          tps.connector.ca1.nickName=subsystem
+          tps.connector.ca1.port=8443
+          tps.connector.ca1.timeout=30
+          tps.connector.ca1.uri.enrollment=/ca/ee/ca/profileSubmitSSLClient
+          tps.connector.ca1.uri.getcert=/ca/ee/ca/displayBySerial
+          tps.connector.ca1.uri.renewal=/ca/ee/ca/profileSubmitSSLClient
+          tps.connector.ca1.uri.revoke=/ca/ee/subsystem/ca/doRevoke
+          tps.connector.ca1.uri.unrevoke=/ca/ee/subsystem/ca/doUnrevoke
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check TPS subsystem user in KRA after restart
         run: |
@@ -1115,7 +1210,25 @@ jobs:
           tps.connector.kra1.uri.TokenKeyRecovery=/kra/agent/kra/TokenKeyRecovery
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          tps.connector.kra1.enable=true
+          tps.connector.kra1.host=kra.example.com
+          tps.connector.kra1.maxHttpConns=15
+          tps.connector.kra1.minHttpConns=1
+          tps.connector.kra1.nickName=subsystem
+          tps.connector.kra1.port=8443
+          tps.connector.kra1.timeout=30
+          tps.connector.kra1.uri.GenerateKeyPair=/kra/agent/kra/GenerateKeyPair
+          tps.connector.kra1.uri.TokenKeyRecovery=/kra/agent/kra/TokenKeyRecovery
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check TPS subsystem user in TKS after restart
         run: |
@@ -1144,7 +1257,31 @@ jobs:
           tps.connector.tks1.uri.encryptData=/tks/agent/tks/encryptData
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          tps.connector.tks1.enable=true
+          tps.connector.tks1.generateHostChallenge=true
+          tps.connector.tks1.host=tks.example.com
+          tps.connector.tks1.keySet=defKeySet
+          tps.connector.tks1.maxHttpConns=15
+          tps.connector.tks1.minHttpConns=1
+          tps.connector.tks1.nickName=subsystem
+          tps.connector.tks1.port=8443
+          tps.connector.tks1.serverKeygen=true
+          tps.connector.tks1.timeout=30
+          tps.connector.tks1.tksSharedSymKeyName=sharedSecret
+          tps.connector.tks1.uri.computeRandomData=/tks/agent/tks/computeRandomData
+          tps.connector.tks1.uri.computeSessionKey=/tks/agent/tks/computeSessionKey
+          tps.connector.tks1.uri.createKeySetData=/tks/agent/tks/createKeySetData
+          tps.connector.tks1.uri.encryptData=/tks/agent/tks/encryptData
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check shared secret in TPS after restart
         run: |
@@ -1159,7 +1296,17 @@ jobs:
           conn.tks1.tksSharedSymKeyName=TPS sharedSecret
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          conn.tks1.tksSharedSymKeyName=TPS sharedSecret
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Add token
         run: |

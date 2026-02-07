@@ -1,0 +1,35 @@
+[Unit]
+Description=PKI Tomcat Server %i Started by Nuxwdog
+PartOf=pki-tomcatd-nuxwdog.target
+
+[Service]
+Type=simple
+EnvironmentFile=/usr/share/pki/etc/tomcat.conf
+EnvironmentFile=/etc/tomcat/tomcat.conf
+Environment="NAME=%i"
+Environment="STARTED_BY_SYSTEMD=1"
+Environment="WD_PIPE_NAME=%i"
+EnvironmentFile=-/etc/sysconfig/%i
+EnvironmentFile=/usr/share/pki/etc/pki.conf
+EnvironmentFile=/etc/pki/pki.conf
+
+Environment="CATALINA_HOME=/usr/share/tomcat"
+Environment="CATALINA_BASE=/var/lib/tomcat"
+Environment="CATALINA_TMPDIR=/tmp"
+
+ExecStartPre=+/usr/bin/pki-server-nuxwdog
+ExecStartPre=/usr/sbin/pki-server upgrade %i
+ExecStartPre=/usr/sbin/pki-server migrate %i
+ExecStartPre=/usr/bin/pkidaemon start %i
+ExecStart=/usr/libexec/tomcat/tomcat-run.sh
+ExecStopPost=+/usr/bin/pki-server-nuxwdog --clear
+
+KeyringMode=shared
+SuccessExitStatus=143
+TimeoutStartSec=180
+User=pkiuser
+Group=pkiuser
+Restart=on-failure
+
+[Install]
+WantedBy=pki-tomcatd-nuxwdog.target

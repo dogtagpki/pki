@@ -161,7 +161,7 @@ class PKIDeployer:
             self.startup_timeout = 120
 
         if self.startup_timeout <= 0:
-            self.startup_timeout = 60
+            self.startup_timeout = 120
 
         # Configure status request timeout. This is used for each
         # status request in wait_for_startup().
