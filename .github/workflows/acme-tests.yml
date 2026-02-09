@@ -3,8 +3,9 @@ name: ACME Tests
 on: [push, pull_request]
 
 env:
-  BASE_IMAGE: ${{ vars.BASE_IMAGE || 'registry.fedoraproject.org/fedora:latest' }}
-  COPR_REPO: ${{ vars.COPR_REPO || '@pki/master' }}
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+  BASE_IMAGE: ${{ vars.BASE_IMAGE }}
+  COPR_REPO: ${{ vars.COPR_REPO }}
 
 jobs:
   build:
@@ -15,6 +16,9 @@ jobs:
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
+
+      - name: Initialization
+        run: tests/bin/test-init.sh
 
       - name: Update Dockerfile
         run: |
