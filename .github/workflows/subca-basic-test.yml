@@ -159,7 +159,17 @@ jobs:
           docker exec subordinate openssl x509 -text -noout -in /root/.dogtag/pki-tomcat/ca_admin.cert
 
       - name: Run PKI healthcheck
-        run: docker exec subordinate pki-healthcheck --failures-only
+        run: |
+          docker exec subordinate pki-healthcheck \
+              --failures-only \
+              --debug \
+              > >(tee stdout) 2> >(tee stderr >&2)
+
+      - name: Check external commands
+        if: always()
+        run: |
+          sed -n '/^Command:/p' stderr | tee output
+          wc -l output
 
       - name: Verify CA admin
         run: |
