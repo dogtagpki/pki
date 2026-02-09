@@ -449,7 +449,17 @@ jobs:
           docker exec pki pki-server ca-redeploy --wait
 
       - name: Run PKI healthcheck
-        run: docker exec pki pki-healthcheck --failures-only
+        run: |
+          docker exec pki pki-healthcheck \
+              --failures-only \
+              --debug \
+              > >(tee stdout) 2> >(tee stderr >&2)
+
+      - name: Check external commands
+        if: always()
+        run: |
+          sed -n '/^Command:/p' stderr | tee output
+          wc -l output
 
       - name: Initialize PKI client
         run: |
