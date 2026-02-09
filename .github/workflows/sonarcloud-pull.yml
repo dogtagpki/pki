@@ -6,8 +6,9 @@ on:
       - completed
 
 env:
-  BASE_IMAGE: ${{ vars.BASE_IMAGE || 'registry.fedoraproject.org/fedora:44' }}
-  COPR_REPO: ${{ vars.COPR_REPO || '@pki/11.9' }}
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+  BASE_IMAGE: ${{ vars.BASE_IMAGE }}
+  COPR_REPO: ${{ vars.COPR_REPO }}
   NAMESPACE: ${{ vars.REGISTRY_NAMESPACE || 'dogtagpki' }}
 
 jobs:
@@ -83,6 +84,9 @@ jobs:
           repository: ${{ github.event.workflow_run.head_repository.full_name }}
           ref: ${{ github.event.workflow_run.head_branch }}
           fetch-depth: 0
+
+      - name: Initialization
+        run: tests/bin/test-init.sh
 
       - name: Rebase to master
         run: |
