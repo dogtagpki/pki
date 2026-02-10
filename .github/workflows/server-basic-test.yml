@@ -59,6 +59,79 @@ jobs:
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
               | tee output
 
+          # the following libraries should be bundled:
+          # - commons-logging
+          # - jackson-annotations
+          # - jackson-core
+          # - jackson-databind
+          # - jackson-jaxrs-base
+          # - jackson-jaxrs-json-provider
+          # - jackson-module-jaxb-annotations
+          # - jakarta.activation-api
+          # - jakarta.annotation-api
+          # - jakarta.xml.bind-api
+          # - jboss-jaxrs-api_2.0_spec
+          # - jboss-logging
+          # - resteasy-client
+          # - resteasy-jackson2-provider
+          # - resteasy-jaxrs
+          cat > expected << EOF
+          lrwxrwxrwx root root commons-cli.jar -> ../../../../usr/share/java/commons-cli.jar
+          lrwxrwxrwx root root commons-codec.jar -> ../../../../usr/share/java/commons-codec.jar
+          lrwxrwxrwx root root commons-io.jar -> ../../../../usr/share/java/commons-io.jar
+          lrwxrwxrwx root root commons-lang3.jar -> ../../../../usr/share/java/commons-lang3.jar
+          -rw-r--r-- root root commons-logging-x.y.z.jar
+          lrwxrwxrwx root root commons-logging.jar -> commons-logging-x.y.z.jar
+          lrwxrwxrwx root root commons-net.jar -> ../../../../usr/share/java/commons-net.jar
+          lrwxrwxrwx root root httpclient.jar -> ../../../../usr/share/java/httpcomponents/httpclient.jar
+          lrwxrwxrwx root root httpcore.jar -> ../../../../usr/share/java/httpcomponents/httpcore.jar
+          -rw-r--r-- root root jackson-annotations-x.y.z.jar
+          lrwxrwxrwx root root jackson-annotations.jar -> jackson-annotations-x.y.z.jar
+          -rw-r--r-- root root jackson-core-x.y.z.jar
+          lrwxrwxrwx root root jackson-core.jar -> jackson-core-x.y.z.jar
+          -rw-r--r-- root root jackson-databind-x.y.z.jar
+          lrwxrwxrwx root root jackson-databind.jar -> jackson-databind-x.y.z.jar
+          -rw-r--r-- root root jackson-jaxrs-base-x.y.z.jar
+          lrwxrwxrwx root root jackson-jaxrs-base.jar -> jackson-jaxrs-base-x.y.z.jar
+          -rw-r--r-- root root jackson-jaxrs-json-provider-x.y.z.jar
+          lrwxrwxrwx root root jackson-jaxrs-json-provider.jar -> jackson-jaxrs-json-provider-x.y.z.jar
+          -rw-r--r-- root root jackson-module-jaxb-annotations-x.y.z.jar
+          lrwxrwxrwx root root jackson-module-jaxb-annotations.jar -> jackson-module-jaxb-annotations-x.y.z.jar
+          -rw-r--r-- root root jakarta.activation-api-x.y.z.jar
+          lrwxrwxrwx root root jakarta.activation-api.jar -> jakarta.activation-api-x.y.z.jar
+          -rw-r--r-- root root jakarta.annotation-api-x.y.z.jar
+          lrwxrwxrwx root root jakarta.annotation-api.jar -> jakarta.annotation-api-x.y.z.jar
+          -rw-r--r-- root root jakarta.xml.bind-api-x.y.z.jar
+          lrwxrwxrwx root root jakarta.xml.bind-api.jar -> jakarta.xml.bind-api-x.y.z.jar
+          -rw-r--r-- root root jboss-jaxrs-api_2.0_spec-x.y.z.Final.jar
+          lrwxrwxrwx root root jboss-jaxrs-api_2.0_spec.jar -> jboss-jaxrs-api_2.0_spec-x.y.z.Final.jar
+          -rw-r--r-- root root jboss-logging-x.y.z.Final.jar
+          lrwxrwxrwx root root jboss-logging.jar -> jboss-logging-x.y.z.Final.jar
+          lrwxrwxrwx root root jss.jar -> ../../../../usr/lib/java/jss.jar
+          lrwxrwxrwx root root ldapjdk.jar -> ../../../../usr/share/java/ldapjdk.jar
+          lrwxrwxrwx root root p11-kit-trust.so -> ../../../../usr/lib64/pkcs11/p11-kit-trust.so
+          lrwxrwxrwx root root pki-common.jar -> ../../../../usr/share/java/pki/pki-common.jar
+          lrwxrwxrwx root root pki-tools.jar -> ../../../../usr/share/java/pki/pki-tools.jar
+          -rw-r--r-- root root resteasy-client-x.y.z.Final.jar
+          -rw-r--r-- root root resteasy-jackson2-provider-x.y.z.Final.jar
+          lrwxrwxrwx root root resteasy-jackson2-provider.jar -> resteasy-jackson2-provider-x.y.z.Final.jar
+          -rw-r--r-- root root resteasy-jaxrs-x.y.z.Final.jar
+          lrwxrwxrwx root root resteasy-jaxrs.jar -> resteasy-jaxrs-x.y.z.Final.jar
+          lrwxrwxrwx root root servlet.jar -> ../../../../usr/share/java/tomcat-servlet-api.jar
+          lrwxrwxrwx root root slf4j-api.jar -> ../../../../usr/share/java/slf4j/slf4j-api.jar
+          lrwxrwxrwx root root slf4j-jdk14.jar -> ../../../../usr/share/java/slf4j/slf4j-jdk14.jar
+          EOF
+
+          # normalize actual result:
+          # - replace version number with x.y.z
+          # - replace servlet.jar with tomcat-servlet-api.jar
+          sed -e 's/-[0-9]*\.[0-9]*\.[0-9]*\.jar$/-x.y.z.jar/' \
+              -e 's/-[0-9]*\.[0-9]*\.[0-9]*\.Final\.jar$/-x.y.z.Final.jar/' \
+              -e 's/\/servlet.jar$/\/tomcat-servlet-api.jar/' \
+              output > actual
+
+          diff expected actual
+
       - name: Check PKI server common lib dir
         run: |
           # check file types, owners, and permissions
@@ -68,6 +141,52 @@ jobs:
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
               | tee output
 
+          # the following libraries should be bundled:
+          # - resteasy-servlet-initializer
+          cat > expected << EOF
+          lrwxrwxrwx root root commons-codec.jar -> ../../../lib/commons-codec.jar
+          lrwxrwxrwx root root commons-io.jar -> ../../../lib/commons-io.jar
+          lrwxrwxrwx root root commons-lang3.jar -> ../../../lib/commons-lang3.jar
+          lrwxrwxrwx root root commons-logging.jar -> ../../../lib/commons-logging.jar
+          lrwxrwxrwx root root commons-net.jar -> ../../../lib/commons-net.jar
+          lrwxrwxrwx root root httpclient.jar -> ../../../lib/httpclient.jar
+          lrwxrwxrwx root root httpcore.jar -> ../../../lib/httpcore.jar
+          lrwxrwxrwx root root jackson-annotations.jar -> ../../../lib/jackson-annotations.jar
+          lrwxrwxrwx root root jackson-core.jar -> ../../../lib/jackson-core.jar
+          lrwxrwxrwx root root jackson-databind.jar -> ../../../lib/jackson-databind.jar
+          lrwxrwxrwx root root jackson-jaxrs-base.jar -> ../../../lib/jackson-jaxrs-base.jar
+          lrwxrwxrwx root root jackson-jaxrs-json-provider.jar -> ../../../lib/jackson-jaxrs-json-provider.jar
+          lrwxrwxrwx root root jackson-module-jaxb-annotations.jar -> ../../../lib/jackson-module-jaxb-annotations.jar
+          lrwxrwxrwx root root jakarta.activation-api.jar -> ../../../lib/jakarta.activation-api.jar
+          lrwxrwxrwx root root jakarta.annotation-api.jar -> ../../../lib/jakarta.annotation-api.jar
+          lrwxrwxrwx root root jakarta.xml.bind-api.jar -> ../../../lib/jakarta.xml.bind-api.jar
+          lrwxrwxrwx root root jboss-jaxrs-api_2.0_spec.jar -> ../../../lib/jboss-jaxrs-api_2.0_spec.jar
+          lrwxrwxrwx root root jboss-logging.jar -> ../../../lib/jboss-logging.jar
+          lrwxrwxrwx root root jss-tomcat-10.1.jar -> ../../../../../../usr/share/java/jss/jss-tomcat-10.1.jar
+          lrwxrwxrwx root root jss-tomcat.jar -> ../../../../../../usr/share/java/jss/jss-tomcat.jar
+          lrwxrwxrwx root root jss.jar -> ../../../lib/jss.jar
+          lrwxrwxrwx root root ldapjdk.jar -> ../../../lib/ldapjdk.jar
+          lrwxrwxrwx root root pki-common.jar -> ../../../lib/pki-common.jar
+          lrwxrwxrwx root root pki-tomcat-10.1.jar -> ../../../../../../usr/share/java/pki/pki-tomcat-10.1.jar
+          lrwxrwxrwx root root pki-tomcat.jar -> ../../../../../../usr/share/java/pki/pki-tomcat.jar
+          lrwxrwxrwx root root resteasy-jackson2-provider.jar -> ../../../lib/resteasy-jackson2-provider.jar
+          lrwxrwxrwx root root resteasy-jaxrs.jar -> ../../../lib/resteasy-jaxrs.jar
+          -rw-r--r-- root root resteasy-servlet-initializer-x.y.z.Final.jar
+          lrwxrwxrwx root root resteasy-servlet-initializer.jar -> resteasy-servlet-initializer-x.y.z.Final.jar
+          EOF
+
+          # normalize actual result:
+          # - replace version number with x.y.z
+          # - replace jss-tomcat-9.0.jar with jss-tomcat-10.1.jar
+          # - replace pki-tomcat-9.0.jar with pki-tomcat-10.1.jar
+          sed -e 's/-[0-9]*\.[0-9]*\.[0-9]*\.jar$/-x.y.z.jar/' \
+              -e 's/-[0-9]*\.[0-9]*\.[0-9]*\.Final\.jar$/-x.y.z.Final.jar/' \
+              -e 's/jss-tomcat-9.0.jar/jss-tomcat-10.1.jar/g' \
+              -e 's/pki-tomcat-9.0.jar/pki-tomcat-10.1.jar/g' \
+              output > actual
+
+          diff expected actual
+
       - name: Check PKI server lib dir
         run: |
           # check file types, owners, and permissions
@@ -76,6 +195,13 @@ jobs:
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
               | tee output
+
+          cat > expected << EOF
+          lrwxrwxrwx root root slf4j-api.jar -> ../../lib/slf4j-api.jar
+          lrwxrwxrwx root root slf4j-jdk14.jar -> ../../lib/slf4j-jdk14.jar
+          EOF
+
+          diff expected output
 
       - name: Check pki-server CLI help message
         run: |

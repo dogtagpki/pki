@@ -121,7 +121,7 @@ add_custom_command(
     COMMAND ln -sf ../../../..${COMMONS_CODEC_JAR} lib/commons-codec.jar
     COMMAND ln -sf ../../../..${COMMONS_IO_JAR} lib/commons-io.jar
     COMMAND ln -sf ../../../..${COMMONS_LANG3_JAR} lib/commons-lang3.jar
-    COMMAND ln -sf ../../../..${COMMONS_LOGGING_JAR} lib/commons-logging.jar
+    COMMAND ln -sf ${COMMONS_LOGGING_LINK} lib/commons-logging.jar
     COMMAND ln -sf ../../../..${COMMONS_NET_JAR} lib/commons-net.jar
     COMMAND ln -sf ../../../..${HTTPCLIENT_JAR} lib/httpclient.jar
     COMMAND ln -sf ../../../..${HTTPCORE_JAR} lib/httpcore.jar
