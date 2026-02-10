@@ -231,18 +231,13 @@ BuildRequires:    xmlstarlet
 %endif
 
 %if 0%{?fedora} && 0%{?fedora} < %{fedora_tomcat9_cutoff} || 0%{?rhel} && 0%{?rhel} < %{rhel_tomcat9_cutoff}
-BuildRequires:     tomcat-lib >= 9.0
+BuildRequires:    tomcat-lib >= 9.0
 %else
-BuildRequires:     tomcat-lib >= 1:10.1.36
-BuildRequires:     tomcat-jakartaee-migration
+BuildRequires:    tomcat-lib >= 1:10.1.36
+BuildRequires:    tomcat-jakartaee-migration
 %endif
 
-BuildRequires:     pki-resteasy-core                 >= 3.0.26
-BuildRequires:     pki-resteasy-client               >= 3.0.26
-BuildRequires:     pki-resteasy-servlet-initializer  >= 3.0.26
-BuildRequires:     pki-resteasy-jackson2-provider    >= 3.0.26
-
-BuildRequires:     %{vendor_id}-jss >= 5.9
+BuildRequires:    %{vendor_id}-jss >= 5.9
 
 BuildRequires:    mvn(commons-cli:commons-cli)
 BuildRequires:    mvn(commons-codec:commons-codec)
@@ -1102,9 +1097,8 @@ This package provides test suite for %{product_name}.
 %if 0%{?fedora} >= %{fedora_tomcat9_cutoff} || 0%{?rhel} >= %{rhel_tomcat9_cutoff}
 # Migrate the source first because we are starting with Tomcat 9 code,
 # so we can build against either Tomcat 9 or 10.1, based on the build platform.
-/usr/bin/javax2jakarta -profile=EE -exclude=./base/tomcat-9.0 ./base ./base 
+/usr/bin/javax2jakarta -profile=EE -exclude=./base/tomcat-9.0 ./base ./base
 %endif
-
 
 %if %{without runtime_deps}
 
@@ -1214,7 +1208,7 @@ then
     # Tomcat 9 doesn't get the file migrated.
     mkdir -p ~/.m2/repository/pki-local/jboss-jaxrs-api_2.0_spec/$JAXRS_VERSION
 
-    # Copy over the jaxrs api so we can compile.
+    # Copy over the JAX-RS API so we can compile.
     cp jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar  ~/.m2/repository/pki-local/jboss-jaxrs-api_2.0_spec/$JAXRS_VERSION/jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar
 
     popd
