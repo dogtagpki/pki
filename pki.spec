@@ -242,7 +242,6 @@ BuildRequires:    %{vendor_id}-jss >= 5.9
 BuildRequires:    mvn(commons-cli:commons-cli)
 BuildRequires:    mvn(commons-codec:commons-codec)
 BuildRequires:    mvn(commons-io:commons-io)
-BuildRequires:    mvn(commons-logging:commons-logging)
 BuildRequires:    mvn(commons-net:commons-net)
 BuildRequires:    mvn(org.apache.commons:commons-lang3)
 BuildRequires:    mvn(org.apache.httpcomponents:httpclient)
@@ -252,6 +251,8 @@ BuildRequires:    mvn(xml-resolver:xml-resolver)
 BuildRequires:    mvn(org.junit.jupiter:junit-jupiter-api)
 
 %if %{with build_deps}
+BuildRequires:    mvn(commons-logging:commons-logging)
+
 BuildRequires:    mvn(jakarta.activation:jakarta.activation-api)
 BuildRequires:    mvn(jakarta.annotation:jakarta.annotation-api)
 BuildRequires:    mvn(jakarta.xml.bind:jakarta.xml.bind-api)
@@ -587,7 +588,6 @@ Requires:         %{java_headless}
 Requires:         mvn(commons-cli:commons-cli)
 Requires:         mvn(commons-codec:commons-codec)
 Requires:         mvn(commons-io:commons-io)
-Requires:         mvn(commons-logging:commons-logging)
 Requires:         mvn(commons-net:commons-net)
 Requires:         mvn(org.apache.commons:commons-lang3)
 Requires:         mvn(org.apache.httpcomponents:httpclient)
@@ -595,6 +595,8 @@ Requires:         mvn(org.slf4j:slf4j-api)
 Requires:         mvn(org.slf4j:slf4j-jdk14)
 
 %if %{with runtime_deps}
+Requires:         mvn(commons-logging:commons-logging)
+
 Requires:         mvn(jakarta.activation:jakarta.activation-api)
 Requires:         mvn(jakarta.annotation:jakarta.annotation-api)
 Requires:         mvn(jakarta.xml.bind:jakarta.xml.bind-api)
@@ -612,6 +614,8 @@ Requires:         mvn(org.jboss.resteasy:resteasy-jaxrs)
 Requires:         mvn(org.jboss.resteasy:resteasy-client)
 Requires:         mvn(org.jboss.resteasy:resteasy-jackson2-provider)
 %else
+Provides:         bundled(commons-logging)
+
 Provides:         bundled(jakarta-activation)
 Provides:         bundled(jakarta-annotations)
 Provides:         bundled(jaxb-api)
@@ -1109,6 +1113,12 @@ then
     mkdir -p base/common/lib
     pushd base/common/lib
 
+    COMMON_LOGGING_VERSION=$(rpm -q apache-commons-logging | sed -n 's/^apache-commons-logging-\([^-]*\)-.*$/\1/p')
+    echo "COMMON_LOGGING_VERSION: $COMMON_LOGGING_VERSION"
+
+    cp /usr/share/java/commons-logging.jar \
+        commons-logging-$COMMON_LOGGING_VERSION.jar
+
     JAKARTA_ACTIVATION_API_VERSION=$(rpm -q jakarta-activation | sed -n 's/^jakarta-activation-\([^-]*\)-.*$/\1/p')
     echo "JAKARTA_ACTIVATION_API_VERSION: $JAKARTA_ACTIVATION_API_VERSION"
 
@@ -1178,20 +1188,18 @@ then
 
     echo "Doing the Tomcat 10 version..."
 
-    /usr/bin/javax2jakarta -profile=EE jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar
-
-    /usr/bin/javax2jakarta -profile=EE jackson-jaxrs-json-provider-$JACKSON_VERSION.jar jackson-jaxrs-json-provider-$JACKSON_VERSION.jar
+    /usr/bin/javax2jakarta -profile=EE jakarta.activation-api-$JAKARTA_ACTIVATION_API_VERSION.jar jakarta.activation-api-$JAKARTA_ACTIVATION_API_VERSION.jar
+    /usr/bin/javax2jakarta -profile=EE jakarta.annotation-api-$JAKARTA_ANNOTATION_API_VERSION.jar jakarta.annotation-api-$JAKARTA_ANNOTATION_API_VERSION.jar
+    /usr/bin/javax2jakarta -profile=EE jakarta.xml.bind-api-$JAXB_API_VERSION.jar jakarta.xml.bind-api-$JAXB_API_VERSION.jar
 
     /usr/bin/javax2jakarta -profile=EE jackson-annotations-$JACKSON_VERSION.jar jackson-annotations-$JACKSON_VERSION.jar
     /usr/bin/javax2jakarta -profile=EE jackson-core-$JACKSON_VERSION.jar jackson-core-$JACKSON_VERSION.jar
     /usr/bin/javax2jakarta -profile=EE jackson-databind-$JACKSON_VERSION.jar jackson-databind-$JACKSON_VERSION.jar
+    /usr/bin/javax2jakarta -profile=EE jackson-module-jaxb-annotations-$JACKSON_VERSION.jar jackson-module-jaxb-annotations-$JACKSON_VERSION.jar
     /usr/bin/javax2jakarta -profile=EE jackson-jaxrs-base-$JACKSON_VERSION.jar jackson-jaxrs-base-$JACKSON_VERSION.jar
     /usr/bin/javax2jakarta -profile=EE jackson-jaxrs-json-provider-$JACKSON_VERSION.jar jackson-jaxrs-json-provider-$JACKSON_VERSION.jar
-    /usr/bin/javax2jakarta -profile=EE jackson-module-jaxb-annotations-$JACKSON_VERSION.jar jackson-module-jaxb-annotations-$JACKSON_VERSION.jar
 
-    /usr/bin/javax2jakarta -profile=EE jakarta.activation-api-$JAKARTA_ACTIVATION_API_VERSION.jar jakarta.activation-api-$JAKARTA_ACTIVATION_API_VERSION.jar
-    /usr/bin/javax2jakarta -profile=EE jakarta.annotation-api-$JAKARTA_ANNOTATION_API_VERSION.jar jakarta.annotation-api-$JAKARTA_ANNOTATION_API_VERSION.jar
-    /usr/bin/javax2jakarta -profile=EE jakarta.xml.bind-api-$JAXB_API_VERSION.jar jakarta.xml.bind-api-$JAXB_API_VERSION.jar
+    /usr/bin/javax2jakarta -profile=EE jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar
 
     # Now migrate the required resteasy jars, in case we are using an existing resteasy version.
 
@@ -1209,7 +1217,7 @@ then
     mkdir -p ~/.m2/repository/pki-local/jboss-jaxrs-api_2.0_spec/$JAXRS_VERSION
 
     # Copy over the JAX-RS API so we can compile.
-    cp jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar  ~/.m2/repository/pki-local/jboss-jaxrs-api_2.0_spec/$JAXRS_VERSION/jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar
+    cp jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar ~/.m2/repository/pki-local/jboss-jaxrs-api_2.0_spec/$JAXRS_VERSION/jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar
 
     popd
 fi
@@ -1519,8 +1527,10 @@ fi
 %if %{with maven}
 
 %if %{with meta}
-echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki.xml"
+echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/%{name}.xml"
+cat %{buildroot}%{_datadir}/maven-metadata/%{name}.xml
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='commons-logging']" \
     -d "//_:dependency[_:groupId='jakarta.activation']" \
     -d "//_:dependency[_:groupId='jakarta.annotation']" \
     -d "//_:dependency[_:groupId='jakarta.xml.bind']" \
@@ -1534,8 +1544,10 @@ xmlstarlet edit --inplace \
 %endif
 
 %if %{with base}
-echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-java.xml"
+echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-java.xml"
+cat %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-java.xml
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='commons-logging']" \
     -d "//_:dependency[_:groupId='jakarta.activation']" \
     -d "//_:dependency[_:groupId='jakarta.annotation']" \
     -d "//_:dependency[_:groupId='jakarta.xml.bind']" \
@@ -1548,8 +1560,10 @@ xmlstarlet edit --inplace \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
     %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-java.xml
 
-echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-tools.xml"
+echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-tools.xml"
+cat %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-tools.xml
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='commons-logging']" \
     -d "//_:dependency[_:groupId='jakarta.activation']" \
     -d "//_:dependency[_:groupId='jakarta.annotation']" \
     -d "//_:dependency[_:groupId='jakarta.xml.bind']" \
@@ -1563,8 +1577,10 @@ xmlstarlet edit --inplace \
 %endif
 
 %if %{with server}
-echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-server.xml"
+echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-server.xml"
+cat %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-server.xml
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='commons-logging']" \
     -d "//_:dependency[_:groupId='jakarta.activation']" \
     -d "//_:dependency[_:groupId='jakarta.annotation']" \
     -d "//_:dependency[_:groupId='jakarta.xml.bind']" \
@@ -1578,8 +1594,10 @@ xmlstarlet edit --inplace \
 %endif
 
 %if %{with ca}
-echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-ca.xml"
+echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-ca.xml"
+cat %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-ca.xml
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='commons-logging']" \
     -d "//_:dependency[_:groupId='jakarta.activation']" \
     -d "//_:dependency[_:groupId='jakarta.annotation']" \
     -d "//_:dependency[_:groupId='jakarta.xml.bind']" \
@@ -1593,8 +1611,10 @@ xmlstarlet edit --inplace \
 %endif
 
 %if %{with kra}
-echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-kra.xml"
+echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata//%{name}-pki-kra.xml"
+cat %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-kra.xml
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='commons-logging']" \
     -d "//_:dependency[_:groupId='jakarta.activation']" \
     -d "//_:dependency[_:groupId='jakarta.annotation']" \
     -d "//_:dependency[_:groupId='jakarta.xml.bind']" \
@@ -1608,8 +1628,10 @@ xmlstarlet edit --inplace \
 %endif
 
 %if %{with ocsp}
-echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-ocsp.xml"
+echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-ocsp.xml"
+cat %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-ocsp.xml
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='commons-logging']" \
     -d "//_:dependency[_:groupId='jakarta.activation']" \
     -d "//_:dependency[_:groupId='jakarta.annotation']" \
     -d "//_:dependency[_:groupId='jakarta.xml.bind']" \
@@ -1623,8 +1645,10 @@ xmlstarlet edit --inplace \
 %endif
 
 %if %{with tks}
-echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-tks.xml"
+echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-tks.xml"
+cat %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-tks.xml
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='commons-logging']" \
     -d "//_:dependency[_:groupId='jakarta.activation']" \
     -d "//_:dependency[_:groupId='jakarta.annotation']" \
     -d "//_:dependency[_:groupId='jakarta.xml.bind']" \
@@ -1638,8 +1662,10 @@ xmlstarlet edit --inplace \
 %endif
 
 %if %{with tps}
-echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-tps.xml"
+echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-tps.xml"
+cat %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-tps.xml
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='commons-logging']" \
     -d "//_:dependency[_:groupId='jakarta.activation']" \
     -d "//_:dependency[_:groupId='jakarta.annotation']" \
     -d "//_:dependency[_:groupId='jakarta.xml.bind']" \
@@ -1653,8 +1679,10 @@ xmlstarlet edit --inplace \
 %endif
 
 %if %{with acme}
-echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-acme.xml"
+echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-acme.xml"
+cat %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-acme.xml
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='commons-logging']" \
     -d "//_:dependency[_:groupId='jakarta.activation']" \
     -d "//_:dependency[_:groupId='jakarta.annotation']" \
     -d "//_:dependency[_:groupId='jakarta.xml.bind']" \
@@ -1668,8 +1696,10 @@ xmlstarlet edit --inplace \
 %endif
 
 %if %{with est}
-echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/pki-pki-est.xml"
+echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-est.xml"
+cat %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-est.xml
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='commons-logging']" \
     -d "//_:dependency[_:groupId='jakarta.activation']" \
     -d "//_:dependency[_:groupId='jakarta.annotation']" \
     -d "//_:dependency[_:groupId='jakarta.xml.bind']" \
