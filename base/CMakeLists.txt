@@ -1,5 +1,13 @@
 project(base)
 
+execute_process(
+    COMMAND awk -F= "$1==\"ID\" { print $2 ;}" /etc/os-release
+    OUTPUT_VARIABLE DISTRO
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+find_program(XMVN_RESOLVE /bin/xmvn-resolve)
+
 find_file(SERVLET_JAR
     NAMES
         servlet.jar
@@ -92,12 +100,41 @@ find_file(COMMONS_LANG3_JAR
         /usr/share/java
 )
 
-find_file(COMMONS_LOGGING_JAR
-    NAMES
-        commons-logging.jar
-    PATHS
-        /usr/share/java
-)
+if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+    execute_process(
+        COMMAND ls ${CMAKE_SOURCE_DIR}/base/common/lib
+        COMMAND sed -n "s/^commons-logging-\\(.*\\)\\.jar\$/\\1/p"
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        OUTPUT_VARIABLE COMMONS_LOGGING_VERSION
+    )
+endif (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+
+if (COMMONS_LOGGING_VERSION)
+    # use imported JARs
+
+    set(COMMONS_LOGGING_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/commons-logging-${COMMONS_LOGGING_VERSION}.jar")
+    set(COMMONS_LOGGING_LINK "commons-logging-${COMMONS_LOGGING_VERSION}.jar")
+
+else()
+    # use system JARs
+
+    if(XMVN_RESOLVE)
+        execute_process(
+            COMMAND xmvn-resolve commons-logging:commons-logging
+            OUTPUT_VARIABLE COMMONS_LOGGING_JAR
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    else()
+        find_file(COMMONS_LOGGING_JAR
+            NAMES
+                commons-logging.jar
+            PATHS
+                /usr/share/java
+        )
+    endif(XMVN_RESOLVE)
+    set(COMMONS_LOGGING_LINK "../../../..${COMMONS_LOGGING_JAR}")
+
+endif (COMMONS_LOGGING_VERSION)
 
 find_file(COMMONS_NET_JAR
     NAMES
@@ -215,14 +252,6 @@ else()
     set(JACKSON_MODULE_JAXB_ANNOTATIONS_LINK "../../../..${JACKSON_MODULE_JAXB_ANNOTATIONS_JAR}")
 
 endif (JACKSON_VERSION)
-
-execute_process(
-    COMMAND awk -F= "$1==\"ID\" { print $2 ;}" /etc/os-release
-    OUTPUT_VARIABLE DISTRO
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-
-find_program(XMVN_RESOLVE /bin/xmvn-resolve)
 
 if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
     execute_process(
