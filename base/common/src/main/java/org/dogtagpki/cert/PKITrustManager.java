@@ -14,6 +14,11 @@ import javax.net.ssl.X509TrustManager;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.DerInputStream;
+import org.mozilla.jss.netscape.security.util.PrettyPrintFormat;
+import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
+import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
+import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,17 +70,37 @@ public class PKITrustManager implements X509TrustManager {
 
     public void checkCert(X509Certificate cert, X509Certificate[] caCerts, String keyUsage) throws Exception {
 
-        logger.debug("PKITrustManager: checkCert(" + cert.getSubjectDN() + "):");
+        logger.debug("PKITrustManager: checkCert(" + cert.getSubjectX500Principal().getName() + "):");
 
-        boolean[] aki = cert.getIssuerUniqueID();
-        logger.debug("PKITrustManager: cert AKI: " + Arrays.toString(aki));
+        DerInputStream in;
+        byte[] aki = cert.getExtensionValue("2.5.29.35");
+        KeyIdentifier akiId = null;
+        PrettyPrintFormat pp = new PrettyPrintFormat(":", 30);
+        if (aki != null) {
+            in = new DerInputStream(aki);
+            AuthorityKeyIdentifierExtension akiEx = new AuthorityKeyIdentifierExtension(Boolean.TRUE, in.getOctetString());
+            akiId = (KeyIdentifier) akiEx.get(AuthorityKeyIdentifierExtension.KEY_ID);
+            logger.debug("PKITrustManager: cert AKI: " + pp.toHexString(akiId.getIdentifier()).trim());
+        }
 
         X509Certificate issuer = null;
         for (X509Certificate caCert : caCerts) {
+            byte[] ski = caCert.getExtensionValue("2.5.29.14");
+            KeyIdentifier skiId = null;
+            if (ski != null){
+                in = new DerInputStream(ski);
+                SubjectKeyIdentifierExtension skiEx = new SubjectKeyIdentifierExtension(Boolean.TRUE, in.getOctetString());
+                skiId = (KeyIdentifier) skiEx.get(SubjectKeyIdentifierExtension.KEY_ID);
+                logger.debug("PKITrustManager: SKI of " + caCert.getSubjectX500Principal() + ": " + pp.toHexString(skiId.getIdentifier()).trim());
+            }
 
-            boolean[] ski = caCert.getSubjectUniqueID();
-            logger.debug("PKITrustManager: SKI of " + caCert.getSubjectDN() + ": " + Arrays.toString(ski));
-
+            if (akiId != null && skiId != null &&
+                    ! Arrays.equals(akiId.getIdentifier(), skiId.getIdentifier())) {
+                // If AKI in the certificate and SKI in the root certificate are present
+                // they have to match
+                logger.debug("PKITrustManager: cert AKI not compatible with CA SKI of " + caCert.getSubjectX500Principal());
+                continue;
+            }
             try {
                 cert.verify(caCert.getPublicKey(), "Mozilla-JSS");
                 issuer = caCert;
