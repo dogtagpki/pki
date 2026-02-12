@@ -72,33 +72,149 @@ find_file(SLF4J_SIMPLE_JAR
         /usr/share/java
 )
 
-find_file(COMMONS_CLI_JAR
-    NAMES
-        commons-cli.jar
-    PATHS
-        /usr/share/java
-)
+if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+    execute_process(
+        COMMAND ls ${CMAKE_SOURCE_DIR}/base/common/lib
+        COMMAND sed -n "s/^commons-cli-\\(.*\\)\\.jar\$/\\1/p"
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        OUTPUT_VARIABLE COMMONS_CLI_VERSION
+    )
+endif (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
 
-find_file(COMMONS_CODEC_JAR
-    NAMES
-        commons-codec.jar
-    PATHS
-        /usr/share/java
-)
+if (COMMONS_CLI_VERSION)
+    # use imported JARs
 
-find_file(COMMONS_IO_JAR
-    NAMES
-        commons-io.jar
-    PATHS
-        /usr/share/java
-)
+    set(COMMONS_CLI_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/commons-cli-${COMMONS_CLI_VERSION}.jar")
+    set(COMMONS_CLI_LINK "commons-cli-${COMMONS_CLI_VERSION}.jar")
 
-find_file(COMMONS_LANG3_JAR
-    NAMES
-        commons-lang3.jar
-    PATHS
-        /usr/share/java
-)
+else()
+    # use system JARs
+
+    if(XMVN_RESOLVE)
+        execute_process(
+            COMMAND xmvn-resolve commons-cli:commons-cli
+            OUTPUT_VARIABLE COMMONS_CLI_JAR
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    else()
+        find_file(COMMONS_CLI_JAR
+            NAMES
+                commons-cli.jar
+            PATHS
+                /usr/share/java
+        )
+    endif(XMVN_RESOLVE)
+    set(COMMONS_CLI_LINK "../../../..${COMMONS_CLI_JAR}")
+
+endif (COMMONS_CLI_VERSION)
+
+if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+    execute_process(
+        COMMAND ls ${CMAKE_SOURCE_DIR}/base/common/lib
+        COMMAND sed -n "s/^commons-codec-\\(.*\\)\\.jar\$/\\1/p"
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        OUTPUT_VARIABLE COMMONS_CODEC_VERSION
+    )
+endif (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+
+if (COMMONS_CODEC_VERSION)
+    # use imported JARs
+
+    set(COMMONS_CODEC_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/commons-codec-${COMMONS_CODEC_VERSION}.jar")
+    set(COMMONS_CODEC_LINK "commons-codec-${COMMONS_CODEC_VERSION}.jar")
+
+else()
+    # use system JARs
+
+    if(XMVN_RESOLVE)
+        execute_process(
+            COMMAND xmvn-resolve commons-codec:commons-codec
+            OUTPUT_VARIABLE COMMONS_CODEC_JAR
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    else()
+        find_file(COMMONS_CODEC_JAR
+            NAMES
+                commons-codec.jar
+            PATHS
+                /usr/share/java
+        )
+    endif(XMVN_RESOLVE)
+    set(COMMONS_CODEC_LINK "../../../..${COMMONS_CODEC_JAR}")
+
+endif (COMMONS_CODEC_VERSION)
+
+if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+    execute_process(
+        COMMAND ls ${CMAKE_SOURCE_DIR}/base/common/lib
+        COMMAND sed -n "s/^commons-io-\\(.*\\)\\.jar\$/\\1/p"
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        OUTPUT_VARIABLE COMMONS_IO_VERSION
+    )
+endif (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+
+if (COMMONS_IO_VERSION)
+    # use imported JARs
+
+    set(COMMONS_IO_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/commons-io-${COMMONS_IO_VERSION}.jar")
+    set(COMMONS_IO_LINK "commons-io-${COMMONS_IO_VERSION}.jar")
+
+else()
+    # use system JARs
+
+    if(XMVN_RESOLVE)
+        execute_process(
+            COMMAND xmvn-resolve commons-io:commons-io
+            OUTPUT_VARIABLE COMMONS_IO_JAR
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    else()
+        find_file(COMMONS_IO_JAR
+            NAMES
+                commons-io.jar
+            PATHS
+                /usr/share/java
+        )
+    endif(XMVN_RESOLVE)
+    set(COMMONS_IO_LINK "../../../..${COMMONS_IO_JAR}")
+
+endif (COMMONS_IO_VERSION)
+
+if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+    execute_process(
+        COMMAND ls ${CMAKE_SOURCE_DIR}/base/common/lib
+        COMMAND sed -n "s/^commons-lang3-\\(.*\\)\\.jar\$/\\1/p"
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        OUTPUT_VARIABLE COMMONS_LANG3_VERSION
+    )
+endif (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+
+if (COMMONS_LANG3_VERSION)
+    # use imported JARs
+
+    set(COMMONS_LANG3_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/commons-lang3-${COMMONS_LANG3_VERSION}.jar")
+    set(COMMONS_LANG3_LINK "commons-lang3-${COMMONS_LANG3_VERSION}.jar")
+
+else()
+    # use system JARs
+
+    if(XMVN_RESOLVE)
+        execute_process(
+            COMMAND xmvn-resolve org.apache.commons:commons-lang3
+            OUTPUT_VARIABLE COMMONS_LANG3_JAR
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    else()
+        find_file(COMMONS_LANG3_JAR
+            NAMES
+                commons-lang3.jar
+            PATHS
+                /usr/share/java
+        )
+    endif(XMVN_RESOLVE)
+    set(COMMONS_LANG3_LINK "../../../..${COMMONS_LANG3_JAR}")
+
+endif (COMMONS_LANG3_VERSION)
 
 if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
     execute_process(
@@ -136,12 +252,41 @@ else()
 
 endif (COMMONS_LOGGING_VERSION)
 
-find_file(COMMONS_NET_JAR
-    NAMES
-        commons-net.jar
-    PATHS
-        /usr/share/java
-)
+if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+    execute_process(
+        COMMAND ls ${CMAKE_SOURCE_DIR}/base/common/lib
+        COMMAND sed -n "s/^commons-net-\\(.*\\)\\.jar\$/\\1/p"
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        OUTPUT_VARIABLE COMMONS_NET_VERSION
+    )
+endif (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+
+if (COMMONS_NET_VERSION)
+    # use imported JARs
+
+    set(COMMONS_NET_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/commons-net-${COMMONS_NET_VERSION}.jar")
+    set(COMMONS_NET_LINK "commons-net-${COMMONS_NET_VERSION}.jar")
+
+else()
+    # use system JARs
+
+    if(XMVN_RESOLVE)
+        execute_process(
+            COMMAND xmvn-resolve commons-net:commons-net
+            OUTPUT_VARIABLE COMMONS_NET_JAR
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    else()
+        find_file(COMMONS_NET_JAR
+            NAMES
+                commons-net.jar
+            PATHS
+                /usr/share/java
+        )
+    endif(XMVN_RESOLVE)
+    set(COMMONS_NET_LINK "../../../..${COMMONS_NET_JAR}")
+
+endif (COMMONS_NET_VERSION)
 
 find_file(HAMCREST_JAR
     NAMES
