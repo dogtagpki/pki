@@ -145,7 +145,7 @@ class EnableEST(pki.server.upgrade.PKIServerUpgradeScriptlet):
             ] = 'RA Header Client Cert Subject Name Constraint'
 
         input_ids = subsystem.registry.get('profileInput.ids')
-        if 'raClientAuthSubjectNameConstraintImpl' in policy_ids:
+        if 'raClientAuthInfoInputImpl' in input_ids:
             logger.info('Input already defined.')
         else:
             subsystem.registry['profileInput.ids'] = \
@@ -156,7 +156,7 @@ class EnableEST(pki.server.upgrade.PKIServerUpgradeScriptlet):
                 'RA Client Authentication Information Input'
             subsystem.registry['profileInput.raClientAuthInfoInputImpl.name'] = \
                 'RA Client Authentication Information Input'
-            subsystem.save()
+        subsystem.save()
 
     def register_ca_auth_for_est(self, subsystem):
         """Register CMCAuthForEST authentication module in CS.cfg"""
