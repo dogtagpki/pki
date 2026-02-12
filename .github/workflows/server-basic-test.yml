@@ -60,7 +60,12 @@ jobs:
               | tee output
 
           # the following libraries should be bundled:
+          # - commons-cli
+          # - commons-codec
+          # - commons-io
+          # - commons-lang3
           # - commons-logging
+          # - commons-net
           # - jackson-annotations
           # - jackson-core
           # - jackson-databind
@@ -76,13 +81,18 @@ jobs:
           # - resteasy-jackson2-provider
           # - resteasy-jaxrs
           cat > expected << EOF
-          lrwxrwxrwx root root commons-cli.jar -> ../../../../usr/share/java/commons-cli.jar
-          lrwxrwxrwx root root commons-codec.jar -> ../../../../usr/share/java/commons-codec.jar
-          lrwxrwxrwx root root commons-io.jar -> ../../../../usr/share/java/commons-io.jar
-          lrwxrwxrwx root root commons-lang3.jar -> ../../../../usr/share/java/commons-lang3.jar
+          -rw-r--r-- root root commons-cli-x.y.z.jar
+          lrwxrwxrwx root root commons-cli.jar -> commons-cli-x.y.z.jar
+          -rw-r--r-- root root commons-codec-x.y.z.jar
+          lrwxrwxrwx root root commons-codec.jar -> commons-codec-x.y.z.jar
+          -rw-r--r-- root root commons-io-x.y.z.jar
+          lrwxrwxrwx root root commons-io.jar -> commons-io-x.y.z.jar
+          -rw-r--r-- root root commons-lang3-x.y.z.jar
+          lrwxrwxrwx root root commons-lang3.jar -> commons-lang3-x.y.z.jar
           -rw-r--r-- root root commons-logging-x.y.z.jar
           lrwxrwxrwx root root commons-logging.jar -> commons-logging-x.y.z.jar
-          lrwxrwxrwx root root commons-net.jar -> ../../../../usr/share/java/commons-net.jar
+          -rw-r--r-- root root commons-net-x.y.z.jar
+          lrwxrwxrwx root root commons-net.jar -> commons-net-x.y.z.jar
           lrwxrwxrwx root root httpclient.jar -> ../../../../usr/share/java/httpcomponents/httpclient.jar
           lrwxrwxrwx root root httpcore.jar -> ../../../../usr/share/java/httpcomponents/httpcore.jar
           -rw-r--r-- root root jackson-annotations-x.y.z.jar
