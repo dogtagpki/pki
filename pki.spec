@@ -239,11 +239,6 @@ BuildRequires:    tomcat-jakartaee-migration
 
 BuildRequires:    %{vendor_id}-jss >= 5.10
 
-BuildRequires:    mvn(commons-cli:commons-cli)
-BuildRequires:    mvn(commons-codec:commons-codec)
-BuildRequires:    mvn(commons-io:commons-io)
-BuildRequires:    mvn(commons-net:commons-net)
-BuildRequires:    mvn(org.apache.commons:commons-lang3)
 BuildRequires:    mvn(org.apache.httpcomponents:httpclient)
 BuildRequires:    mvn(org.slf4j:slf4j-api)
 BuildRequires:    mvn(xml-apis:xml-apis)
@@ -251,7 +246,12 @@ BuildRequires:    mvn(xml-resolver:xml-resolver)
 BuildRequires:    mvn(org.junit.jupiter:junit-jupiter-api)
 
 %if %{with build_deps}
+BuildRequires:    mvn(commons-cli:commons-cli)
+BuildRequires:    mvn(commons-codec:commons-codec)
+BuildRequires:    mvn(commons-io:commons-io)
+BuildRequires:    mvn(org.apache.commons:commons-lang3)
 BuildRequires:    mvn(commons-logging:commons-logging)
+BuildRequires:    mvn(commons-net:commons-net)
 
 BuildRequires:    mvn(jakarta.activation:jakarta.activation-api)
 BuildRequires:    mvn(jakarta.annotation:jakarta.annotation-api)
@@ -585,17 +585,17 @@ Obsoletes:        %{product_id}-base-java < %{version}-%{release}
 Provides:         %{product_id}-base-java = %{version}-%{release}
 
 Requires:         %{java_headless}
-Requires:         mvn(commons-cli:commons-cli)
-Requires:         mvn(commons-codec:commons-codec)
-Requires:         mvn(commons-io:commons-io)
-Requires:         mvn(commons-net:commons-net)
-Requires:         mvn(org.apache.commons:commons-lang3)
 Requires:         mvn(org.apache.httpcomponents:httpclient)
 Requires:         mvn(org.slf4j:slf4j-api)
 Requires:         mvn(org.slf4j:slf4j-jdk14)
 
 %if %{with runtime_deps}
+Requires:         mvn(commons-cli:commons-cli)
+Requires:         mvn(commons-codec:commons-codec)
+Requires:         mvn(commons-io:commons-io)
+Requires:         mvn(org.apache.commons:commons-lang3)
 Requires:         mvn(commons-logging:commons-logging)
+Requires:         mvn(commons-net:commons-net)
 
 Requires:         mvn(jakarta.activation:jakarta.activation-api)
 Requires:         mvn(jakarta.annotation:jakarta.annotation-api)
@@ -614,7 +614,12 @@ Requires:         mvn(org.jboss.resteasy:resteasy-jaxrs)
 Requires:         mvn(org.jboss.resteasy:resteasy-client)
 Requires:         mvn(org.jboss.resteasy:resteasy-jackson2-provider)
 %else
-Provides:         bundled(commons-logging)
+Provides:         bundled(apache-commons-cli)
+Provides:         bundled(apache-commons-codec)
+Provides:         bundled(apache-commons-io)
+Provides:         bundled(apache-commons-lang3)
+Provides:         bundled(apache-commons-logging)
+Provides:         bundled(apache-commons-net)
 
 Provides:         bundled(jakarta-activation)
 Provides:         bundled(jakarta-annotations)
@@ -1113,11 +1118,41 @@ then
     mkdir -p base/common/lib
     pushd base/common/lib
 
-    COMMON_LOGGING_VERSION=$(rpm -q apache-commons-logging | sed -n 's/^apache-commons-logging-\([^-]*\)-.*$/\1/p')
-    echo "COMMON_LOGGING_VERSION: $COMMON_LOGGING_VERSION"
+    COMMONS_CLI_VERSION=$(rpm -q apache-commons-cli | sed -n 's/^apache-commons-cli-\([^-]*\)-.*$/\1/p')
+    echo "COMMONS_CLI_VERSION: $COMMONS_CLI_VERSION"
+
+    cp /usr/share/java/commons-cli.jar \
+        commons-cli-$COMMONS_CLI_VERSION.jar
+
+    COMMONS_CODEC_VERSION=$(rpm -q apache-commons-codec | sed -n 's/^apache-commons-codec-\([^-]*\)-.*$/\1/p')
+    echo "COMMONS_CODEC_VERSION: $COMMONS_CODEC_VERSION"
+
+    cp /usr/share/java/commons-codec.jar \
+        commons-codec-$COMMONS_CODEC_VERSION.jar
+
+    COMMONS_IO_VERSION=$(rpm -q apache-commons-io | sed -n 's/^apache-commons-io-\([^-]*\)-.*$/\1/p')
+    echo "COMMONS_IO_VERSION: $COMMONS_IO_VERSION"
+
+    cp /usr/share/java/commons-io.jar \
+        commons-io-$COMMONS_IO_VERSION.jar
+
+    COMMONS_LANG3_VERSION=$(rpm -q apache-commons-lang3 | sed -n 's/^apache-commons-lang3-\([^-]*\)-.*$/\1/p')
+    echo "COMMONS_LANG3_VERSION: $COMMONS_LANG3_VERSION"
+
+    cp /usr/share/java/commons-lang3.jar \
+        commons-lang3-$COMMONS_LANG3_VERSION.jar
+
+    COMMONS_LOGGING_VERSION=$(rpm -q apache-commons-logging | sed -n 's/^apache-commons-logging-\([^-]*\)-.*$/\1/p')
+    echo "COMMONS_LOGGING_VERSION: $COMMONS_LOGGING_VERSION"
 
     cp /usr/share/java/commons-logging.jar \
-        commons-logging-$COMMON_LOGGING_VERSION.jar
+        commons-logging-$COMMONS_LOGGING_VERSION.jar
+
+    COMMONS_NET_VERSION=$(rpm -q apache-commons-net | sed -n 's/^apache-commons-net-\([^-]*\)-.*$/\1/p')
+    echo "COMMONS_NET_VERSION: $COMMONS_NET_VERSION"
+
+    cp /usr/share/java/commons-net.jar \
+        commons-net-$COMMONS_NET_VERSION.jar
 
     JAKARTA_ACTIVATION_API_VERSION=$(rpm -q jakarta-activation | sed -n 's/^jakarta-activation-\([^-]*\)-.*$/\1/p')
     echo "JAKARTA_ACTIVATION_API_VERSION: $JAKARTA_ACTIVATION_API_VERSION"
@@ -1530,7 +1565,12 @@ fi
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/%{name}.xml"
 cat %{buildroot}%{_datadir}/maven-metadata/%{name}.xml
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='commons-cli']" \
+    -d "//_:dependency[_:groupId='commons-codec']" \
+    -d "//_:dependency[_:groupId='commons-io']" \
+    -d "//_:dependency[_:groupId='org.apache.commons']" \
     -d "//_:dependency[_:groupId='commons-logging']" \
+    -d "//_:dependency[_:groupId='commons-net']" \
     -d "//_:dependency[_:groupId='jakarta.activation']" \
     -d "//_:dependency[_:groupId='jakarta.annotation']" \
     -d "//_:dependency[_:groupId='jakarta.xml.bind']" \
@@ -1547,7 +1587,12 @@ xmlstarlet edit --inplace \
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-java.xml"
 cat %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-java.xml
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='commons-cli']" \
+    -d "//_:dependency[_:groupId='commons-codec']" \
+    -d "//_:dependency[_:groupId='commons-io']" \
+    -d "//_:dependency[_:groupId='org.apache.commons']" \
     -d "//_:dependency[_:groupId='commons-logging']" \
+    -d "//_:dependency[_:groupId='commons-net']" \
     -d "//_:dependency[_:groupId='jakarta.activation']" \
     -d "//_:dependency[_:groupId='jakarta.annotation']" \
     -d "//_:dependency[_:groupId='jakarta.xml.bind']" \
@@ -1563,7 +1608,12 @@ xmlstarlet edit --inplace \
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-tools.xml"
 cat %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-tools.xml
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='commons-cli']" \
+    -d "//_:dependency[_:groupId='commons-codec']" \
+    -d "//_:dependency[_:groupId='commons-io']" \
+    -d "//_:dependency[_:groupId='org.apache.commons']" \
     -d "//_:dependency[_:groupId='commons-logging']" \
+    -d "//_:dependency[_:groupId='commons-net']" \
     -d "//_:dependency[_:groupId='jakarta.activation']" \
     -d "//_:dependency[_:groupId='jakarta.annotation']" \
     -d "//_:dependency[_:groupId='jakarta.xml.bind']" \
@@ -1580,7 +1630,12 @@ xmlstarlet edit --inplace \
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-server.xml"
 cat %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-server.xml
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='commons-cli']" \
+    -d "//_:dependency[_:groupId='commons-codec']" \
+    -d "//_:dependency[_:groupId='commons-io']" \
+    -d "//_:dependency[_:groupId='org.apache.commons']" \
     -d "//_:dependency[_:groupId='commons-logging']" \
+    -d "//_:dependency[_:groupId='commons-net']" \
     -d "//_:dependency[_:groupId='jakarta.activation']" \
     -d "//_:dependency[_:groupId='jakarta.annotation']" \
     -d "//_:dependency[_:groupId='jakarta.xml.bind']" \
@@ -1597,7 +1652,12 @@ xmlstarlet edit --inplace \
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-ca.xml"
 cat %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-ca.xml
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='commons-cli']" \
+    -d "//_:dependency[_:groupId='commons-codec']" \
+    -d "//_:dependency[_:groupId='commons-io']" \
+    -d "//_:dependency[_:groupId='org.apache.commons']" \
     -d "//_:dependency[_:groupId='commons-logging']" \
+    -d "//_:dependency[_:groupId='commons-net']" \
     -d "//_:dependency[_:groupId='jakarta.activation']" \
     -d "//_:dependency[_:groupId='jakarta.annotation']" \
     -d "//_:dependency[_:groupId='jakarta.xml.bind']" \
@@ -1614,7 +1674,12 @@ xmlstarlet edit --inplace \
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata//%{name}-pki-kra.xml"
 cat %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-kra.xml
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='commons-cli']" \
+    -d "//_:dependency[_:groupId='commons-codec']" \
+    -d "//_:dependency[_:groupId='commons-io']" \
+    -d "//_:dependency[_:groupId='org.apache.commons']" \
     -d "//_:dependency[_:groupId='commons-logging']" \
+    -d "//_:dependency[_:groupId='commons-net']" \
     -d "//_:dependency[_:groupId='jakarta.activation']" \
     -d "//_:dependency[_:groupId='jakarta.annotation']" \
     -d "//_:dependency[_:groupId='jakarta.xml.bind']" \
@@ -1631,7 +1696,12 @@ xmlstarlet edit --inplace \
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-ocsp.xml"
 cat %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-ocsp.xml
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='commons-cli']" \
+    -d "//_:dependency[_:groupId='commons-codec']" \
+    -d "//_:dependency[_:groupId='commons-io']" \
+    -d "//_:dependency[_:groupId='org.apache.commons']" \
     -d "//_:dependency[_:groupId='commons-logging']" \
+    -d "//_:dependency[_:groupId='commons-net']" \
     -d "//_:dependency[_:groupId='jakarta.activation']" \
     -d "//_:dependency[_:groupId='jakarta.annotation']" \
     -d "//_:dependency[_:groupId='jakarta.xml.bind']" \
@@ -1648,7 +1718,12 @@ xmlstarlet edit --inplace \
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-tks.xml"
 cat %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-tks.xml
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='commons-cli']" \
+    -d "//_:dependency[_:groupId='commons-codec']" \
+    -d "//_:dependency[_:groupId='commons-io']" \
+    -d "//_:dependency[_:groupId='org.apache.commons']" \
     -d "//_:dependency[_:groupId='commons-logging']" \
+    -d "//_:dependency[_:groupId='commons-net']" \
     -d "//_:dependency[_:groupId='jakarta.activation']" \
     -d "//_:dependency[_:groupId='jakarta.annotation']" \
     -d "//_:dependency[_:groupId='jakarta.xml.bind']" \
@@ -1665,7 +1740,12 @@ xmlstarlet edit --inplace \
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-tps.xml"
 cat %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-tps.xml
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='commons-cli']" \
+    -d "//_:dependency[_:groupId='commons-codec']" \
+    -d "//_:dependency[_:groupId='commons-io']" \
+    -d "//_:dependency[_:groupId='org.apache.commons']" \
     -d "//_:dependency[_:groupId='commons-logging']" \
+    -d "//_:dependency[_:groupId='commons-net']" \
     -d "//_:dependency[_:groupId='jakarta.activation']" \
     -d "//_:dependency[_:groupId='jakarta.annotation']" \
     -d "//_:dependency[_:groupId='jakarta.xml.bind']" \
@@ -1682,7 +1762,12 @@ xmlstarlet edit --inplace \
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-acme.xml"
 cat %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-acme.xml
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='commons-cli']" \
+    -d "//_:dependency[_:groupId='commons-codec']" \
+    -d "//_:dependency[_:groupId='commons-io']" \
+    -d "//_:dependency[_:groupId='org.apache.commons']" \
     -d "//_:dependency[_:groupId='commons-logging']" \
+    -d "//_:dependency[_:groupId='commons-net']" \
     -d "//_:dependency[_:groupId='jakarta.activation']" \
     -d "//_:dependency[_:groupId='jakarta.annotation']" \
     -d "//_:dependency[_:groupId='jakarta.xml.bind']" \
@@ -1699,7 +1784,12 @@ xmlstarlet edit --inplace \
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-est.xml"
 cat %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-est.xml
 xmlstarlet edit --inplace \
+    -d "//_:dependency[_:groupId='commons-cli']" \
+    -d "//_:dependency[_:groupId='commons-codec']" \
+    -d "//_:dependency[_:groupId='commons-io']" \
+    -d "//_:dependency[_:groupId='org.apache.commons']" \
     -d "//_:dependency[_:groupId='commons-logging']" \
+    -d "//_:dependency[_:groupId='commons-net']" \
     -d "//_:dependency[_:groupId='jakarta.activation']" \
     -d "//_:dependency[_:groupId='jakarta.annotation']" \
     -d "//_:dependency[_:groupId='jakarta.xml.bind']" \
