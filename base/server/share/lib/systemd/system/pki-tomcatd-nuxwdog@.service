@@ -19,7 +19,6 @@ ExecStartPre=/usr/sbin/pki-server migrate %i
 ExecStartPre=/usr/bin/pkidaemon start %i
 ExecStart=/usr/libexec/tomcat/server start
 ExecStop=/usr/libexec/tomcat/server stop
-ExecStopPost=+/usr/bin/pki-server-nuxwdog --clear
 
 KeyringMode=shared
 SuccessExitStatus=143

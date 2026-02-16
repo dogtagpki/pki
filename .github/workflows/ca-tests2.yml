@@ -93,6 +93,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/ca-nuxwdog-test.yml
 
+  ca-nuxwdog-hsm-test:
+    name: CA with Nuxwdog and HSM
+    needs: build
+    uses: ./.github/workflows/ca-nuxwdog-hsm-test.yml
+
   scep-test:
     name: SCEP responder
     needs: build
