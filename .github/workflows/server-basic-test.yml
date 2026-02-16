@@ -82,6 +82,8 @@ jobs:
           # - resteasy-client
           # - resteasy-jackson2-provider
           # - resteasy-jaxrs
+          # - slf4j-api
+          # - slf4j-jdk14
           cat > expected << EOF
           -rw-r--r-- root root commons-cli-x.y.z.jar
           lrwxrwxrwx root root commons-cli.jar -> commons-cli-x.y.z.jar
@@ -132,8 +134,10 @@ jobs:
           -rw-r--r-- root root resteasy-jaxrs-x.y.z.Final.jar
           lrwxrwxrwx root root resteasy-jaxrs.jar -> resteasy-jaxrs-x.y.z.Final.jar
           lrwxrwxrwx root root servlet.jar -> ../../../../usr/share/java/tomcat-servlet-api.jar
-          lrwxrwxrwx root root slf4j-api.jar -> ../../../../usr/share/java/slf4j/slf4j-api.jar
-          lrwxrwxrwx root root slf4j-jdk14.jar -> ../../../../usr/share/java/slf4j/slf4j-jdk14.jar
+          -rw-r--r-- root root slf4j-api-x.y.z.jar
+          lrwxrwxrwx root root slf4j-api.jar -> slf4j-api-x.y.z.jar
+          -rw-r--r-- root root slf4j-jdk14-x.y.z.jar
+          lrwxrwxrwx root root slf4j-jdk14.jar -> slf4j-jdk14-x.y.z.jar
           EOF
 
           # normalize actual result:
