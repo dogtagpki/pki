@@ -36,7 +36,7 @@ RUN if [ -n "$COPR_REPO" ]; then dnf copr enable -y $COPR_REPO; fi
 RUN dnf install -y dogtag-pki \
     && REGEX="^java-|^dogtag-|^python3-dogtag-" \
     && REGEX="$REGEX|^apache-commons-cli-|^apache-commons-codec-|^apache-commons-io-|^apache-commons-lang3-|^apache-commons-logging-|^apache-commons-net-" \
-    && REGEX="$REGEX|^httpcomponents-" \
+    && REGEX="$REGEX|^httpcomponents-|^slf4j-" \
     && REGEX="$REGEX|^jakarta-activation-|^jakarta-annotations-|^jaxb-api-" \
     && REGEX="$REGEX|^jboss-logging-|^jboss-jaxrs-2.0-api-" \
     && REGEX="$REGEX|^jackson-|^pki-resteasy-" \

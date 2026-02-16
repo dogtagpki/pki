@@ -93,7 +93,7 @@ if(RUN_TESTS)
 
     add_junit_test(test-pki-server
         CLASSPATH
-            ${SLF4J_API_JAR} ${SLF4J_SIMPLE_JAR}
+            ${SLF4J_API_JAR} ${SLF4J_JDK14_JAR}
             ${PKI_COMMON_JAR} ${PKI_SERVER_JAR}
             ${LDAPJDK_JAR} ${SERVLET_JAR}
             ${COMMONS_CODEC_JAR} ${COMMONS_LANG3_JAR}
