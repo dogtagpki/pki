@@ -48,29 +48,58 @@ else()
 
 endif (JAXRS_API_VERSION)
 
-find_file(SLF4J_API_JAR
-    NAMES
-        slf4j-api.jar
-    PATHS
-        /usr/share/java/slf4j
-        /usr/share/java
-)
+if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+    execute_process(
+        COMMAND ls ${CMAKE_SOURCE_DIR}/base/common/lib
+        COMMAND sed -n "s/^slf4j-api-\\(.*\\)\\.jar\$/\\1/p"
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        OUTPUT_VARIABLE SLF4J_VERSION
+    )
+endif (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
 
-find_file(SLF4J_JDK14_JAR
-    NAMES
-        slf4j-jdk14.jar
-    PATHS
-        /usr/share/java/slf4j
-        /usr/share/java
-)
+if (SLF4J_VERSION)
+    # use imported JARs
 
-find_file(SLF4J_SIMPLE_JAR
-    NAMES
-        slf4j-simple.jar
-    PATHS
-        /usr/share/java/slf4j
-        /usr/share/java
-)
+    set(SLF4J_API_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/slf4j-api-${SLF4J_VERSION}.jar")
+    set(SLF4J_API_LINK "slf4j-api-${SLF4J_VERSION}.jar")
+
+    set(SLF4J_JDK14_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/slf4j-jdk14-${SLF4J_VERSION}.jar")
+    set(SLF4J_JDK14_LINK "slf4j-jdk14-${SLF4J_VERSION}.jar")
+
+else()
+    # use system JARs
+
+    if(XMVN_RESOLVE)
+        execute_process(
+            COMMAND xmvn-resolve org.slf4j:slf4j-api
+            OUTPUT_VARIABLE SLF4J_API_JAR
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+        execute_process(
+            COMMAND xmvn-resolve org.slf4j:slf4j-jdk14
+            OUTPUT_VARIABLE SLF4J_JDK14_JAR
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    else()
+        find_file(SLF4J_API_JAR
+            NAMES
+                slf4j-api.jar
+            PATHS
+                /usr/share/java/slf4j
+                /usr/share/java
+        )
+        find_file(SLF4J_JDK14_JAR
+            NAMES
+                slf4j-jdk14.jar
+            PATHS
+                /usr/share/java/slf4j
+                /usr/share/java
+        )
+    endif(XMVN_RESOLVE)
+    set(SLF4J_API_LINK "../../../..${SLF4J_API_JAR}")
+    set(SLF4J_JDK14_LINK "../../../..${SLF4J_JDK14_JAR}")
+
+endif (SLF4J_VERSION)
 
 if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
     execute_process(
