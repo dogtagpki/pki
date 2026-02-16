@@ -66,6 +66,8 @@ jobs:
           # - commons-lang3
           # - commons-logging
           # - commons-net
+          # - httpclient
+          # - httpcore
           # - jackson-annotations
           # - jackson-core
           # - jackson-databind
@@ -93,8 +95,10 @@ jobs:
           lrwxrwxrwx root root commons-logging.jar -> commons-logging-x.y.z.jar
           -rw-r--r-- root root commons-net-x.y.z.jar
           lrwxrwxrwx root root commons-net.jar -> commons-net-x.y.z.jar
-          lrwxrwxrwx root root httpclient.jar -> ../../../../usr/share/java/httpcomponents/httpclient.jar
-          lrwxrwxrwx root root httpcore.jar -> ../../../../usr/share/java/httpcomponents/httpcore.jar
+          -rw-r--r-- root root httpclient-x.y.z.jar
+          lrwxrwxrwx root root httpclient.jar -> httpclient-x.y.z.jar
+          -rw-r--r-- root root httpcore-x.y.z.jar
+          lrwxrwxrwx root root httpcore.jar -> httpcore-x.y.z.jar
           -rw-r--r-- root root jackson-annotations-x.y.z.jar
           lrwxrwxrwx root root jackson-annotations.jar -> jackson-annotations-x.y.z.jar
           -rw-r--r-- root root jackson-core-x.y.z.jar
