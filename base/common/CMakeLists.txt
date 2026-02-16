@@ -123,8 +123,8 @@ add_custom_command(
     COMMAND ln -sf ${COMMONS_LANG3_LINK} lib/commons-lang3.jar
     COMMAND ln -sf ${COMMONS_LOGGING_LINK} lib/commons-logging.jar
     COMMAND ln -sf ${COMMONS_NET_LINK} lib/commons-net.jar
-    COMMAND ln -sf ../../../..${HTTPCLIENT_JAR} lib/httpclient.jar
-    COMMAND ln -sf ../../../..${HTTPCORE_JAR} lib/httpcore.jar
+    COMMAND ln -sf ${HTTPCLIENT_LINK} lib/httpclient.jar
+    COMMAND ln -sf ${HTTPCORE_LINK} lib/httpcore.jar
     COMMAND ln -sf ${JACKSON_ANNOTATIONS_LINK} lib/jackson-annotations.jar
     COMMAND ln -sf ${JACKSON_CORE_LINK} lib/jackson-core.jar
     COMMAND ln -sf ${JACKSON_DATABIND_LINK} lib/jackson-databind.jar

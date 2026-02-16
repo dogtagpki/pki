@@ -296,21 +296,79 @@ find_file(HAMCREST_JAR
         /usr/share/java
 )
 
-find_file(HTTPCLIENT_JAR
-    NAMES
-        httpclient.jar
-    PATHS
-        /usr/share/java/httpcomponents
-        /usr/share/java
-)
+if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+    execute_process(
+        COMMAND ls ${CMAKE_SOURCE_DIR}/base/common/lib
+        COMMAND sed -n "s/^httpclient-\\(.*\\)\\.jar\$/\\1/p"
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        OUTPUT_VARIABLE HTTPCLIENT_VERSION
+    )
+endif (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
 
-find_file(HTTPCORE_JAR
-    NAMES
-        httpcore.jar
-    PATHS
-        /usr/share/java/httpcomponents
-        /usr/share/java
-)
+if (HTTPCLIENT_VERSION)
+    # use imported JARs
+
+    set(HTTPCLIENT_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/httpclient-${HTTPCLIENT_VERSION}.jar")
+    set(HTTPCLIENT_LINK "httpclient-${HTTPCLIENT_VERSION}.jar")
+
+else()
+    # use system JARs
+
+    if(XMVN_RESOLVE)
+        execute_process(
+            COMMAND xmvn-resolve org.apache.httpcomponents:httpclient
+            OUTPUT_VARIABLE HTTPCLIENT_JAR
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    else()
+        find_file(HTTPCLIENT_JAR
+            NAMES
+                httpclient.jar
+            PATHS
+                /usr/share/java/httpcomponents
+                /usr/share/java
+        )
+    endif(XMVN_RESOLVE)
+    set(HTTPCLIENT_LINK "../../../..${HTTPCLIENT_JAR}")
+
+endif (HTTPCLIENT_VERSION)
+
+if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+    execute_process(
+        COMMAND ls ${CMAKE_SOURCE_DIR}/base/common/lib
+        COMMAND sed -n "s/^httpcore-\\(.*\\)\\.jar\$/\\1/p"
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        OUTPUT_VARIABLE HTTPCORE_VERSION
+    )
+endif (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+
+if (HTTPCORE_VERSION)
+    # use imported JARs
+
+    set(HTTPCORE_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/httpcore-${HTTPCORE_VERSION}.jar")
+    set(HTTPCORE_LINK "httpcore-${HTTPCORE_VERSION}.jar")
+
+else()
+    # use system JARs
+
+    if(XMVN_RESOLVE)
+        execute_process(
+            COMMAND xmvn-resolve org.apache.httpcomponents:httpcore
+            OUTPUT_VARIABLE HTTPCORE_JAR
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    else()
+        find_file(HTTPCORE_JAR
+            NAMES
+                httpcore.jar
+            PATHS
+                /usr/share/java/httpcomponents
+                /usr/share/java
+        )
+    endif(XMVN_RESOLVE)
+    set(HTTPCORE_LINK "../../../..${HTTPCORE_JAR}")
+
+endif (HTTPCORE_VERSION)
 
 if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
     execute_process(
