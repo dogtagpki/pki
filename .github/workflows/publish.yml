@@ -123,3 +123,13 @@ jobs:
         run: |
           docker tag pki-ocsp ${{ vars.REGISTRY }}/$NAMESPACE/pki-ocsp:latest
           docker push ${{ vars.REGISTRY }}/$NAMESPACE/pki-ocsp:latest
+
+      - name: Publish pki-quarkus-ca image
+        run: |
+          docker tag pki-quarkus-ca ${{ vars.REGISTRY }}/$NAMESPACE/pki-quarkus-ca:latest
+          docker push ${{ vars.REGISTRY }}/$NAMESPACE/pki-quarkus-ca:latest
+
+      - name: Publish pki-quarkus-est image
+        run: |
+          docker tag pki-quarkus-est ${{ vars.REGISTRY }}/$NAMESPACE/pki-quarkus-est:latest
+          docker push ${{ vars.REGISTRY }}/$NAMESPACE/pki-quarkus-est:latest

@@ -1,0 +1,136 @@
+name: Basic Quarkus EST
+
+on: workflow_call
+
+env:
+  DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
+
+jobs:
+  # Smoke test for EST subsystem running on Quarkus
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Retrieve PKI images
+        uses: actions/cache@v4
+        with:
+          key: pki-images-${{ github.sha }}
+          path: pki-images.tar
+
+      - name: Load PKI images
+        run: docker load --input pki-images.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-create.sh \
+              --image=${{ env.DS_IMAGE }} \
+              --hostname=ds.example.com \
+              --network=example \
+              --network-alias=ds.example.com \
+              --password=Secret.123 \
+              ds
+
+      - name: Set up CA container (Tomcat, for issuing certs)
+        run: |
+          tests/bin/runner-init.sh \
+              --hostname=ca.example.com \
+              --network=example \
+              --network-alias=ca.example.com \
+              ca
+
+      - name: Install CA
+        run: |
+          docker exec ca pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
+              --debug
+
+      - name: Set up EST Quarkus container
+        run: |
+          docker run \
+              --name est-quarkus \
+              --hostname=est.example.com \
+              --network=example \
+              --network-alias=est.example.com \
+              -d \
+              -e QUARKUS_HTTP_PORT=8080 \
+              -e QUARKUS_HTTP_SSL_PORT=8443 \
+              -e QUARKUS_HTTP_INSECURE_REQUESTS=enabled \
+              pki-quarkus-est
+
+      - name: Wait for EST Quarkus to start
+        run: |
+          echo "Waiting for EST Quarkus to start..."
+          for i in $(seq 1 30); do
+            if docker exec est-quarkus curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/q/health 2>/dev/null | grep -q "200"; then
+              echo "EST Quarkus is ready"
+              break
+            fi
+            if [ "$i" -eq 30 ]; then
+              echo "EST Quarkus failed to start"
+              docker logs est-quarkus
+              exit 1
+            fi
+            echo "  Attempt $i/30..."
+            sleep 5
+          done
+
+      - name: Verify EST Quarkus is running
+        run: |
+          echo "Checking EST Quarkus process..."
+          docker exec est-quarkus ps aux | grep quarkus || true
+
+          echo "Checking EST Quarkus HTTP port..."
+          docker exec est-quarkus curl -s -o /dev/null -w "%{http_code}\n" \
+              http://localhost:8080/rest/.well-known/est/cacerts || echo "cacerts endpoint not available (may require configuration)"
+
+      - name: Check EST Quarkus container logs
+        if: always()
+        run: |
+          docker logs est-quarkus
+
+      - name: Check DS server systemd journal
+        if: always()
+        run: |
+          docker exec ds journalctl -x --no-pager -u dirsrv@localhost.service
+
+      - name: Check DS container logs
+        if: always()
+        run: |
+          docker logs ds
+
+      - name: Check CA server systemd journal
+        if: always()
+        run: |
+          docker exec ca journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Remove EST Quarkus container
+        if: always()
+        run: |
+          docker stop est-quarkus || true
+          docker rm est-quarkus || true
+
+      - name: Remove CA
+        if: always()
+        run: |
+          docker exec ca pkidestroy -s CA --debug || true
+
+      - name: Remove DS
+        if: always()
+        run: |
+          docker stop ds || true
+          docker rm ds || true
+
+      - name: Remove network
+        if: always()
+        run: |
+          docker network rm example || true

@@ -1,0 +1,24 @@
+name: Quarkus Tests
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: Waiting for build
+    uses: ./.github/workflows/wait-for-build.yml
+    secrets: inherit
+
+  quarkus-build-test:
+    name: Quarkus Build
+    needs: build
+    uses: ./.github/workflows/quarkus-build-test.yml
+
+  quarkus-est-basic-test:
+    name: Quarkus EST Basic
+    needs: build
+    uses: ./.github/workflows/quarkus-est-basic-test.yml
+
+  quarkus-ca-basic-test:
+    name: Quarkus CA Basic
+    needs: build
+    uses: ./.github/workflows/quarkus-ca-basic-test.yml
