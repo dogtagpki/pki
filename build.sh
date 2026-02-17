@@ -51,6 +51,7 @@ DIST=
 
 WITH_JAVA=true
 WITH_CONSOLE=
+WITH_QUARKUS=
 RUN_TESTS=true
 
 PKG_LIST="base, server, ca, kra, ocsp, tks, tps, acme, est, javadoc, theme, meta, tests, debug"
@@ -92,6 +93,8 @@ usage() {
     echo "    --dist=<name>          Distribution name (e.g. fc28)."
     echo "    --without-java         Do not build Java binaries."
     echo "    --with-console         Build console package."
+    echo "    --with-quarkus         Build Quarkus modules."
+    echo "    --without-quarkus      Do not build Quarkus modules."
     echo "    --with-pkgs=<list>     Build packages specified in comma-separated list only."
     echo "    --without-pkgs=<list>  Build everything except packages specified in comma-separated list."
     echo "    --without-test         Do not run unit tests."
@@ -382,6 +385,12 @@ while getopts v-: arg ; do
             ;;
         with-console)
             WITH_CONSOLE=true
+            ;;
+        with-quarkus)
+            WITH_QUARKUS=true
+            ;;
+        without-quarkus)
+            WITH_QUARKUS=false
             ;;
         with-pkgs=?*)
             if [ "$WITHOUT_PKGS" != "" ]; then
@@ -739,6 +748,10 @@ if [ "$BUILD_TARGET" = "dist" ] ; then
 
     if [ "$WITH_CONSOLE" = true ] ; then
         OPTIONS+=(-DWITH_CONSOLE:BOOL=ON)
+    fi
+
+    if [ "$WITH_QUARKUS" = true ] ; then
+        OPTIONS+=(-DWITH_QUARKUS:BOOL=ON)
     fi
 
     if [ "$RUN_TESTS" = false ] ; then

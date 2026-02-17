@@ -14,6 +14,7 @@
         <github.global.server>github</github.global.server>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
+        <quarkus.platform.version>3.17.4</quarkus.platform.version>
     </properties>
 
     <modules>

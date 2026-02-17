@@ -1469,6 +1469,7 @@ ln -sf ../../base/tomcat-9.0/target/pki-tomcat-9.0.jar
 ln -sf ../../base/tomcat-10.1/target/pki-tomcat-10.1.jar
 %endif
 
+ln -sf ../../base/server-core/target/pki-server-core.jar
 ln -sf ../../base/server/target/pki-server.jar
 ln -sf ../../base/server-webapp/target/pki-server-webapp.jar
 %endif
@@ -2156,6 +2157,7 @@ fi
 %{_sysusersdir}/%{product_id}.conf
 %endif
 %if %{without maven}
+%{_datadir}/java/pki/pki-server-core.jar
 %{_datadir}/java/pki/pki-server.jar
 %{_datadir}/java/pki/pki-server-webapp.jar
 %{_datadir}/java/pki/pki-tomcat.jar

@@ -1,0 +1,102 @@
+# Quarkus ACME Responder Configuration
+
+quarkus:
+  # Application
+  application:
+    name: pki-acme-quarkus
+    version: 11.10.0-SNAPSHOT
+
+  # HTTP Configuration
+  http:
+    port: 8080
+    ssl-port: 8443
+
+    # SSL/TLS Configuration (to be customized per deployment)
+    ssl:
+      # Client certificate authentication
+      client-auth: REQUEST
+      # certificate:
+      #   key-store-file: /etc/pki/pki-tomcat/alias/keystore.p12
+      #   key-store-password: <password>
+      #   trust-store-file: /etc/pki/pki-tomcat/alias/ca.p12
+      #   trust-store-password: <password>
+
+    # Force HTTPS for all endpoints
+    insecure-requests: REDIRECT
+
+    # Security Constraints (replaces web.xml)
+    auth:
+      # ACME protocol endpoints: no authentication required
+      # (ACME uses JWS-based authentication in the request body)
+      permission:
+        acme-protocol:
+          paths: /directory/*,/new-nonce/*,/new-account/*,/new-order/*,/authz/*,/chall/*,/order/*,/cert/*,/revoke-cert/*,/acct/*
+          policy: permit
+
+      # Login POST: requires authentication
+      permission:
+        login-post:
+          paths: /login
+          methods: POST
+          policy: authenticated
+
+      # Login GET: public
+      permission:
+        login-get:
+          paths: /login
+          methods: GET
+          policy: permit
+
+      # Logout: public
+      permission:
+        logout:
+          paths: /logout
+          policy: permit
+
+      # Enable/disable: requires admin role
+      permission:
+        admin-enable:
+          paths: /enable
+          methods: POST
+          policy: authenticated
+
+      permission:
+        admin-disable:
+          paths: /disable
+          methods: POST
+          policy: authenticated
+
+  # Security
+  security:
+    users:
+      embedded:
+        enabled: false
+
+  # Logging
+  log:
+    level: INFO
+    category:
+      "org.dogtagpki.acme":
+        level: DEBUG
+      "io.quarkus":
+        level: INFO
+    console:
+      enable: true
+      format: "%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p [%c{3.}] (%t) %s%e%n"
+
+  # Native compilation options (for GraalVM native-image)
+  native:
+    enable-http-url-handler: true
+    enable-https-url-handler: true
+
+# ACME Engine Configuration
+# The ACME engine reads its configuration from files in the
+# instance configuration directory: <instance-dir>/conf/acme/
+# This includes:
+#   engine.conf      - Engine settings (enabled, baseURL, nonces, policy)
+#   metadata.conf    - ACME metadata (termsOfService, website)
+#   database.conf    - Database backend class and settings
+#   validators.conf  - Challenge validator classes
+#   issuer.conf      - Certificate issuer class and settings
+#   scheduler.conf   - Background task scheduler settings
+#   configsources.conf - Dynamic configuration source monitors

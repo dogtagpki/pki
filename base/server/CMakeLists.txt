@@ -24,12 +24,13 @@ javac(pki-server-classes
         ${JAXRS_API_JAR}
         ${RESTEASY_JAXRS_JAR}
         ${PKI_COMMON_JAR}
+        ${PKI_SERVER_CORE_JAR}
         ${PKI_TOMCAT_JAR}
         ${PKI_TOMCAT_IMPL_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
     DEPENDS
-        pki-common-jar pki-tools-jar pki-tomcat-jar pki-${APP_SERVER}-jar
+        pki-common-jar pki-tools-jar pki-server-core-jar pki-tomcat-jar pki-${APP_SERVER}-jar
 )
 
 add_dependencies(java pki-server-classes)
@@ -174,6 +175,7 @@ add_custom_command(
     COMMAND ln -sf ../../../../../..${jssTomcatVerJar} common/lib/${jssTomcatJar}
     COMMAND ln -sf ../../../lib/ldapjdk.jar common/lib/ldapjdk.jar
     COMMAND ln -sf ../../../lib/pki-common.jar common/lib/pki-common.jar
+    COMMAND ln -sf ../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-server-core.jar common/lib/pki-server-core.jar
     COMMAND ln -sf ../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-tomcat.jar common/lib/pki-tomcat.jar
     COMMAND ln -sf ../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/${pkiTomcatJar} common/lib/${pkiTomcatJar}
     COMMAND ln -sf ../../../lib/resteasy-jackson2-provider.jar common/lib/resteasy-jackson2-provider.jar

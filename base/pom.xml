@@ -20,6 +20,7 @@
         <module>tomcat</module>
         <module>tomcat-9.0</module>
         <module>tomcat-10.1</module>
+        <module>server-core</module>
         <module>server</module>
         <module>server-webapp</module>
         <module>ca</module>
@@ -31,5 +32,21 @@
         <module>est</module>
         <module>console</module>
     </modules>
+
+    <profiles>
+        <profile>
+            <id>quarkus</id>
+            <modules>
+                <module>quarkus-common</module>
+                <module>est-quarkus</module>
+                <module>acme-quarkus</module>
+                <module>ocsp-quarkus</module>
+                <module>kra-quarkus</module>
+                <module>tks-quarkus</module>
+                <module>tps-quarkus</module>
+                <module>ca-quarkus</module>
+            </modules>
+        </profile>
+    </profiles>
 
 </project>

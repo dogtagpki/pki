@@ -40,7 +40,6 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServlet;
 
 import org.apache.commons.lang3.StringUtils;
-import org.dogtagpki.jss.tomcat.TomcatJSS;
 import org.dogtagpki.server.PKIClientSocketListener;
 import org.dogtagpki.server.PKIServerSocketListener;
 import org.dogtagpki.server.authentication.AuthenticationConfig;
@@ -158,6 +157,7 @@ public class CMSEngine {
 
     protected PKIClientSocketListener clientSocketListener;
     protected PKIServerSocketListener serverSocketListener;
+    protected SocketListenerRegistry socketListenerRegistry = new TomcatSocketListenerRegistry();
 
     protected JssSubsystem jssSubsystem;
     protected DBSubsystem dbSubsystem;
@@ -242,6 +242,14 @@ public class CMSEngine {
 
     public PKIServerSocketListener getServerSocketListener() {
         return serverSocketListener;
+    }
+
+    public SocketListenerRegistry getSocketListenerRegistry() {
+        return socketListenerRegistry;
+    }
+
+    public void setSocketListenerRegistry(SocketListenerRegistry socketListenerRegistry) {
+        this.socketListenerRegistry = socketListenerRegistry;
     }
 
     public JssSubsystem getJSSSubsystem() {
@@ -1238,12 +1246,11 @@ public class CMSEngine {
         mStartupTime = System.currentTimeMillis();
 
         logger.info(name + " engine started");
-        // Register TomcatJSS socket listener
-        TomcatJSS tomcatJss = TomcatJSS.getInstance();
-        if(serverSocketListener == null) {
+        // Register socket listener via container-agnostic registry
+        if (serverSocketListener == null) {
             serverSocketListener = new PKIServerSocketListener();
         }
-        tomcatJss.addSocketListener(serverSocketListener);
+        socketListenerRegistry.addSocketListener(serverSocketListener);
 
         notifySubsystemStarted();
 
@@ -1589,9 +1596,8 @@ public class CMSEngine {
 
         isStarted = false;
         if (serverSocketListener != null) {
-            // De-Register TomcatJSS socket listener
-            TomcatJSS tomcatJss = TomcatJSS.getInstance();
-            tomcatJss.removeSocketListener(serverSocketListener);
+            // De-register socket listener via container-agnostic registry
+            socketListenerRegistry.removeSocketListener(serverSocketListener);
         }
         logger.info("Shutting down " + name + " subsystem");
 

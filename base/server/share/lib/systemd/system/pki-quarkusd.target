@@ -1,0 +1,16 @@
+# Systemd target for all Quarkus-based PKI subsystems
+#
+# This target groups all Quarkus PKI subsystem services.
+# Starting this target starts all enabled Quarkus subsystems.
+#
+# Usage:
+#   systemctl start pki-quarkusd.target
+#   systemctl stop pki-quarkusd.target
+
+[Unit]
+Description=Dogtag PKI Quarkus Subsystems Target
+After=network.target
+After=syslog.target
+
+[Install]
+WantedBy=multi-user.target

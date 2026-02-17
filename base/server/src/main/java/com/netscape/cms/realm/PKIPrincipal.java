@@ -8,13 +8,17 @@ import org.dogtagpki.server.authentication.AuthToken;
 import com.netscape.cmscore.usrgrp.User;
 
 /**
+ * Tomcat-specific PKI principal.
+ *
+ * Extends Tomcat's GenericPrincipal for compatibility with the
+ * Tomcat Realm/Valve infrastructure, while delegating user and
+ * auth token storage to the container-agnostic PKIPrincipalCore.
+ *
  * @author Endi S. Dewata
  */
-
 public class PKIPrincipal extends GenericPrincipal {
 
-    User user;
-    AuthToken authToken;
+    private final PKIPrincipalCore core;
 
     public PKIPrincipal(User user, String password, List<String> roles) {
         this(user, password, roles, null);
@@ -22,15 +26,18 @@ public class PKIPrincipal extends GenericPrincipal {
 
     public PKIPrincipal(User user, String password, List<String> roles, AuthToken authToken) {
         super(user.getUserID(), password, roles);
-        this.user = user;
-        this.authToken = authToken;
+        this.core = new PKIPrincipalCore(user.getUserID(), password, roles, user, authToken);
+    }
+
+    public PKIPrincipalCore getCore() {
+        return core;
     }
 
     public User getUser() {
-        return user;
+        return (User) core.getUser();
     }
 
     public AuthToken getAuthToken() {
-        return authToken;
+        return (AuthToken) core.getAuthToken();
     }
 }

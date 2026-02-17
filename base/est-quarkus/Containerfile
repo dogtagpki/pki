@@ -1,0 +1,81 @@
+# Containerfile for Dogtag PKI EST Quarkus PoC Development Environment
+# Use with Podman for rootless container development
+
+FROM registry.fedoraproject.org/fedora:40
+
+LABEL maintainer="Dogtag PKI Team"
+LABEL description="Development environment for EST Quarkus PoC"
+LABEL version="1.0"
+
+# Install system dependencies
+RUN dnf install -y \
+    java-17-openjdk-devel \
+    maven \
+    git \
+    gcc \
+    gcc-c++ \
+    make \
+    cmake \
+    rpm-build \
+    && dnf clean all
+
+# Detect architecture and handle JSS/LDAP SDK installation
+RUN ARCH=$(uname -m) && \
+    if [ "$ARCH" = "x86_64" ]; then \
+        echo "Installing JSS/LDAP SDK from COPR (x86_64)..."; \
+        dnf install -y 'dnf-command(copr)' && \
+        dnf copr enable -y @pki/master && \
+        dnf install -y jss ldapjdk && \
+        dnf clean all; \
+    else \
+        echo "ARM64/aarch64 detected - COPR packages not available"; \
+        echo "Installing dependencies from standard repos only..."; \
+        dnf install -y \
+            slf4j \
+            slf4j-jdk14 \
+            apache-commons-cli \
+            apache-commons-codec \
+            apache-commons-io \
+            apache-commons-lang3 \
+            apache-commons-net \
+        && dnf clean all; \
+        echo ""; \
+        echo "NOTE: JSS and LDAP SDK are not available for ARM64"; \
+        echo "The PoC will compile but won't run with real PKI backends"; \
+        echo "This container is suitable for:"; \
+        echo "  - Reviewing migration patterns"; \
+        echo "  - Compiling Quarkus code"; \
+        echo "  - Understanding architecture"; \
+        echo ""; \
+    fi
+
+# Set Java environment
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
+ENV MAVEN_OPTS="-Xmx2048m"
+
+# Create working directory
+WORKDIR /workspace
+
+# Copy PKI source code
+COPY . /workspace/pki
+
+# Build parent PKI modules (only on x86_64 with JSS)
+WORKDIR /workspace/pki
+RUN ARCH=$(uname -m) && \
+    if [ "$ARCH" = "x86_64" ]; then \
+        echo "Building parent PKI modules..."; \
+        ./build.sh dist || echo "PKI build attempted"; \
+    else \
+        echo "Skipping parent PKI build on ARM64 (JSS not available)"; \
+        echo "PoC can be reviewed but not fully built"; \
+    fi
+
+# Set default working directory to PoC
+WORKDIR /workspace/pki/base/est-quarkus
+
+# Expose Quarkus ports
+EXPOSE 8080 8443 5005
+
+# Default command
+CMD ["/bin/bash"]

@@ -1,0 +1,118 @@
+#
+# Copyright Red Hat, Inc.
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+# Containerfile for Quarkus-based PKI subsystems
+#
+# This creates a minimal container image for running individual PKI
+# subsystems as Quarkus applications. Each subsystem runs as an
+# independent process instead of sharing a Tomcat instance.
+#
+# Build:
+#   podman build -f Containerfile.quarkus \
+#     --build-arg SUBSYSTEM=ca \
+#     -t pki-ca-quarkus .
+#
+# Run:
+#   podman run -d \
+#     -p 8443:8443 \
+#     -v /etc/pki/pki-tomcat:/etc/pki/pki-tomcat:Z \
+#     -v /var/lib/pki/pki-tomcat:/var/lib/pki/pki-tomcat:Z \
+#     pki-ca-quarkus
+
+ARG BASE_IMAGE="registry.fedoraproject.org/fedora:latest"
+ARG SUBSYSTEM="ca"
+
+################################################################################
+# Build stage
+################################################################################
+FROM $BASE_IMAGE AS builder
+
+ARG SUBSYSTEM
+
+# Install build dependencies
+RUN dnf install -y \
+    java-17-openjdk-devel \
+    maven \
+    rpm-build \
+    && dnf clean all
+
+# Copy source
+COPY . /root/pki
+WORKDIR /root/pki
+
+# Build the Quarkus module
+RUN ./build.sh -Pquarkus dist
+
+################################################################################
+# Runtime stage
+################################################################################
+FROM $BASE_IMAGE AS runtime
+
+ARG VENDOR="Dogtag"
+ARG MAINTAINER="Dogtag PKI Team <devel@lists.dogtagpki.org>"
+ARG LICENSE="GPLv2 and LGPLv2"
+ARG SUBSYSTEM
+
+LABEL name="pki-${SUBSYSTEM}-quarkus" \
+      vendor="${VENDOR}" \
+      maintainer="${MAINTAINER}" \
+      license="${LICENSE}" \
+      summary="Dogtag PKI ${SUBSYSTEM} (Quarkus)" \
+      description="Dogtag PKI ${SUBSYSTEM} subsystem running on Quarkus"
+
+# Install minimal runtime dependencies
+RUN dnf install -y \
+    java-17-openjdk-headless \
+    nss \
+    nss-tools \
+    openldap-clients \
+    jss \
+    ldapjdk \
+    && dnf clean all \
+    && rm -rf /var/cache/dnf
+
+# Create PKI user
+RUN groupadd -r pkiuser && \
+    useradd -r -g pkiuser -d /var/lib/pki -s /sbin/nologin pkiuser
+
+# Create directory structure
+RUN mkdir -p /var/lib/pki /etc/pki /var/log/pki /usr/share/pki
+
+# Copy built Quarkus runner JAR
+COPY --from=builder /root/pki/base/${SUBSYSTEM}-quarkus/target/quarkus-app/ \
+    /usr/share/pki/${SUBSYSTEM}-quarkus/
+
+# Copy PKI common libraries
+COPY --from=builder /root/pki/base/common/target/pki-common.jar \
+    /usr/share/pki/lib/
+COPY --from=builder /root/pki/base/server-core/target/pki-server-core.jar \
+    /usr/share/pki/lib/
+COPY --from=builder /root/pki/base/quarkus-common/target/pki-quarkus-common.jar \
+    /usr/share/pki/lib/
+COPY --from=builder /root/pki/base/${SUBSYSTEM}/target/pki-${SUBSYSTEM}.jar \
+    /usr/share/pki/lib/
+
+# Set ownership
+RUN chown -R pkiuser:pkiuser /var/lib/pki /var/log/pki
+
+# Switch to PKI user
+USER pkiuser
+
+# Expose ports
+EXPOSE 8080 8443
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
+    CMD curl -f -k https://localhost:8443/v2/info || exit 1
+
+# Environment variables
+ENV JAVA_OPTS="-Xms256m -Xmx1024m"
+ENV PKI_INSTANCE_DIR="/var/lib/pki/pki-tomcat"
+
+# Run the Quarkus application
+ENTRYPOINT ["java"]
+CMD ["-Dpki.instance.dir=/var/lib/pki/pki-tomcat", \
+     "-Dquarkus.http.host=0.0.0.0", \
+     "-jar", "/usr/share/pki/${SUBSYSTEM}-quarkus/quarkus-run.jar"]

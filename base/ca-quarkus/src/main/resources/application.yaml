@@ -1,0 +1,144 @@
+# Quarkus CA (Certificate Authority) Configuration
+
+quarkus:
+  # Application
+  application:
+    name: pki-ca-quarkus
+    version: 11.10.0-SNAPSHOT
+
+  # HTTP Configuration
+  http:
+    port: 8080
+    ssl-port: 8443
+
+    # SSL/TLS Configuration (to be customized per deployment)
+    ssl:
+      # Client certificate authentication
+      client-auth: REQUEST
+      # certificate:
+      #   key-store-file: /etc/pki/pki-tomcat/alias/keystore.p12
+      #   key-store-password: <password>
+      #   trust-store-file: /etc/pki/pki-tomcat/alias/ca.p12
+      #   trust-store-password: <password>
+
+    # Force HTTPS for all endpoints
+    insecure-requests: REDIRECT
+
+    # Security Constraints (replaces web.xml)
+    auth:
+      # Account services: require authentication
+      permission:
+        account:
+          paths: /v2/account/*
+          policy: authenticated
+
+      # Admin services (groups, users): require authentication
+      permission:
+        admin:
+          paths: /v2/admin/*
+          policy: authenticated
+
+      # Audit: require authentication
+      permission:
+        audit:
+          paths: /v2/audit/*
+          policy: authenticated
+
+      # Agent cert operations: require authentication
+      permission:
+        agent-certs:
+          paths: /v2/agent/certs/*
+          policy: authenticated
+
+      # Agent cert request operations: require authentication
+      permission:
+        agent-certrequests:
+          paths: /v2/agent/certrequests/*
+          policy: authenticated
+
+      # Authorities (sub-CAs): require authentication
+      permission:
+        authorities:
+          paths: /v2/authorities/*
+          policy: authenticated
+
+      # Certificates: public (read-only listing and retrieval)
+      permission:
+        certs:
+          paths: /v2/certs/*
+          policy: permit
+
+      # Certificate requests: public (enrollment endpoints)
+      permission:
+        certrequests:
+          paths: /v2/certrequests/*
+          policy: permit
+
+      # Profiles: require authentication for management
+      permission:
+        profiles:
+          paths: /v2/profiles/*
+          policy: authenticated
+
+      # System config: require authentication
+      permission:
+        config:
+          paths: /v2/config/*
+          policy: authenticated
+
+      # Self tests: require authentication
+      permission:
+        selftests:
+          paths: /v2/selftests/*
+          policy: authenticated
+
+      # Jobs: require authentication
+      permission:
+        jobs:
+          paths: /v2/jobs/*
+          policy: authenticated
+
+      # CA info: public
+      permission:
+        info:
+          paths: /v2/info
+          policy: permit
+
+      # Security domain install token: require authentication
+      permission:
+        security-domain-install:
+          paths: /v2/securityDomain/installToken
+          policy: authenticated
+
+      # Security domain info: public
+      permission:
+        security-domain-info:
+          paths: /v2/securityDomain/domainInfo,/v2/securityDomain/hosts,/v2/securityDomain/hosts/*
+          policy: permit
+
+  # Security
+  security:
+    users:
+      embedded:
+        enabled: false
+
+  # Logging
+  log:
+    level: INFO
+    category:
+      "org.dogtagpki.server.ca":
+        level: DEBUG
+      "com.netscape.ca":
+        level: DEBUG
+      "com.netscape.certsrv":
+        level: INFO
+      "io.quarkus":
+        level: INFO
+    console:
+      enable: true
+      format: "%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p [%c{3.}] (%t) %s%e%n"
+
+  # Native compilation options (for GraalVM native-image)
+  native:
+    enable-http-url-handler: true
+    enable-https-url-handler: true

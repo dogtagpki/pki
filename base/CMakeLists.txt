@@ -847,6 +847,7 @@ if(WITH_SERVER OR WITH_CA OR WITH_KRA OR WITH_OCSP OR WITH_TKS OR WITH_TPS OR WI
 
     add_subdirectory(tomcat)
     add_subdirectory(${APP_SERVER})
+    add_subdirectory(server-core)
     add_subdirectory(server)
     add_subdirectory(server-webapp)
 

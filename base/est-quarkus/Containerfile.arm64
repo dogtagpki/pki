@@ -1,0 +1,64 @@
+# Containerfile for ARM64/Apple Silicon Macs
+# Lightweight container for reviewing PoC code without full PKI stack
+
+FROM registry.fedoraproject.org/fedora:40
+
+LABEL maintainer="Dogtag PKI Team"
+LABEL description="EST Quarkus PoC Review Environment (ARM64)"
+LABEL version="1.0-arm64"
+
+# Install basic development tools
+RUN dnf install -y \
+    java-17-openjdk-devel \
+    maven \
+    git \
+    vim \
+    tree \
+    diffutils \
+    && dnf clean all
+
+# Install common dependencies (no JSS/LDAP SDK - not available on ARM64)
+RUN dnf install -y \
+    slf4j \
+    slf4j-jdk14 \
+    apache-commons-cli \
+    apache-commons-codec \
+    apache-commons-io \
+    apache-commons-lang3 \
+    apache-commons-net \
+    && dnf clean all
+
+# Set Java environment
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
+ENV MAVEN_OPTS="-Xmx2048m"
+
+# Create working directory
+WORKDIR /workspace
+
+# Display ARM64 notice
+RUN echo "╔════════════════════════════════════════════════════════╗" && \
+    echo "║  ARM64 Review Environment                             ║" && \
+    echo "╠════════════════════════════════════════════════════════╣" && \
+    echo "║  This container is for reviewing the Quarkus PoC      ║" && \
+    echo "║  on Apple Silicon Macs (M1/M2/M3).                    ║" && \
+    echo "║                                                        ║" && \
+    echo "║  Limitations:                                          ║" && \
+    echo "║   • JSS/LDAP SDK not available (x86_64 only)          ║" && \
+    echo "║   • Cannot build full PKI stack                       ║" && \
+    echo "║   • Cannot run with real backends                     ║" && \
+    echo "║                                                        ║" && \
+    echo "║  What you CAN do:                                      ║" && \
+    echo "║   ✓ Review all source code                            ║" && \
+    echo "║   ✓ Compare Tomcat vs Quarkus implementations         ║" && \
+    echo "║   ✓ Study migration patterns                          ║" && \
+    echo "║   ✓ Read comprehensive documentation                  ║" && \
+    echo "║   ✓ Compile Quarkus classes (with stubs)             ║" && \
+    echo "║                                                        ║" && \
+    echo "║  For full build: Use x86_64 Linux machine or         ║" && \
+    echo "║  Podman with platform emulation                       ║" && \
+    echo "╚════════════════════════════════════════════════════════╝"
+
+# Default command opens shell in PoC directory
+WORKDIR /workspace/pki/base/est-quarkus
+CMD ["/bin/bash", "-c", "echo && cat /workspace/.arm64-notice.txt 2>/dev/null || true && echo && exec /bin/bash"]

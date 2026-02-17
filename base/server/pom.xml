@@ -18,6 +18,12 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>pki-server-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>pki-tomcat-9.0</artifactId>
             <version>${project.version}</version>
         </dependency>

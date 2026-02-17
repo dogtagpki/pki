@@ -1,0 +1,100 @@
+# Quarkus OCSP Responder Configuration
+
+quarkus:
+  # Application
+  application:
+    name: pki-ocsp-quarkus
+    version: 11.10.0-SNAPSHOT
+
+  # HTTP Configuration
+  http:
+    port: 8080
+    ssl-port: 8443
+
+    # SSL/TLS Configuration (to be customized per deployment)
+    ssl:
+      # Client certificate authentication
+      client-auth: REQUEST
+      # certificate:
+      #   key-store-file: /etc/pki/pki-tomcat/alias/keystore.p12
+      #   key-store-password: <password>
+      #   trust-store-file: /etc/pki/pki-tomcat/alias/ca.p12
+      #   trust-store-password: <password>
+
+    # Force HTTPS for all endpoints
+    insecure-requests: REDIRECT
+
+    # Security Constraints (replaces web.xml)
+    auth:
+      # OCSP protocol endpoint: no authentication required (public OCSP responder)
+      permission:
+        ocsp-protocol:
+          paths: /ee/ocsp/*
+          policy: permit
+
+      # Account services: require authentication
+      permission:
+        account:
+          paths: /v2/account/*
+          policy: authenticated
+
+      # Admin services: require authentication
+      permission:
+        admin:
+          paths: /v2/admin/*
+          policy: authenticated
+
+      # Audit: require authentication
+      permission:
+        audit:
+          paths: /v2/audit/*
+          policy: authenticated
+
+      # Security domain install token: require authentication
+      permission:
+        security-domain-install:
+          paths: /v2/securityDomain/installToken
+          policy: authenticated
+
+      # Security domain info: public
+      permission:
+        security-domain-info:
+          paths: /v2/securityDomain/domainInfo,/v2/securityDomain/hosts,/v2/securityDomain/hosts/*
+          policy: permit
+
+      # Self tests: require authentication
+      permission:
+        selftests:
+          paths: /v2/selftests/*
+          policy: authenticated
+
+      # Jobs: require authentication
+      permission:
+        jobs:
+          paths: /v2/jobs/*
+          policy: authenticated
+
+  # Security
+  security:
+    users:
+      embedded:
+        enabled: false
+
+  # Logging
+  log:
+    level: INFO
+    category:
+      "org.dogtagpki.server.ocsp":
+        level: DEBUG
+      "com.netscape.ocsp":
+        level: DEBUG
+      "io.quarkus":
+        level: INFO
+    console:
+      enable: true
+      format: "%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p [%c{3.}] (%t) %s%e%n"
+
+  # Native compilation options (for GraalVM native-image)
+  native:
+    enable-http-url-handler: true
+    enable-https-url-handler: true

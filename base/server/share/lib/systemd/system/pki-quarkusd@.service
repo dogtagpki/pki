@@ -1,0 +1,62 @@
+# Systemd service template for Quarkus-based PKI subsystems
+#
+# Each PKI subsystem runs as an independent Quarkus process.
+# Instance name format: <instance>-<subsystem>
+# Example: pki-tomcat-ca, pki-tomcat-kra, pki-tomcat-ocsp
+#
+# Usage:
+#   systemctl start pki-quarkusd@pki-tomcat-ca
+#   systemctl stop pki-quarkusd@pki-tomcat-ca
+#   systemctl status pki-quarkusd@pki-tomcat-ca
+
+[Unit]
+Description=Dogtag PKI Quarkus Subsystem (%i)
+After=network.target
+After=syslog.target
+After=dirsrv.target
+
+[Service]
+Type=simple
+User=pkiuser
+Group=pkiuser
+
+# Parse instance name and subsystem type from %i
+# Format: <instance>-<subsystem> (e.g., pki-tomcat-ca)
+Environment=PKI_INSTANCE_DIR=/var/lib/pki
+Environment=PKI_SHARE_DIR=/usr/share/pki
+
+# JVM options
+Environment=JAVA_OPTS=-Xms256m -Xmx1024m
+
+# Working directory
+WorkingDirectory=/var/lib/pki
+
+# Execute the Quarkus runner JAR
+ExecStart=/usr/bin/java \
+    $JAVA_OPTS \
+    -Dpki.instance.name=%i \
+    -Dpki.instance.dir=/var/lib/pki/%i \
+    -Dquarkus.http.host=0.0.0.0 \
+    -jar /usr/share/pki/quarkus/%i-runner.jar
+
+# Graceful shutdown
+ExecStop=/bin/kill -TERM $MAINPID
+TimeoutStopSec=30
+
+# Restart on failure
+Restart=on-failure
+RestartSec=10
+
+# Security hardening
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=pki-quarkusd-%i
+
+[Install]
+WantedBy=pki-quarkusd.target

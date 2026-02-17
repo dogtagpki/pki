@@ -1,0 +1,126 @@
+╔═══════════════════════════════════════════════════════════════════╗
+║  Podman Development Environment - Ready to Use!                  ║
+╚═══════════════════════════════════════════════════════════════════╝
+
+QUICK START
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  1. Build the container (one-time, ~15 minutes):
+     $ ./podman-build.sh
+
+  2. Run the development environment:
+     $ ./podman-run.sh
+
+  3. Inside the container, start Quarkus:
+     $ ./quarkus-dev.sh
+
+  4. Access from your browser:
+     http://localhost:8080/q/dev
+
+FILES CREATED
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  📦 Containerfile           - Fedora 40 image with all dependencies
+  🔧 podman-build.sh         - Build the container image
+  🚀 podman-run.sh           - Run interactive development container
+  ⚡ quarkus-dev.sh          - Start Quarkus in dev mode (inside container)
+  📚 PODMAN.md               - Complete Podman guide (workflows, troubleshooting)
+
+WHAT'S INCLUDED IN THE CONTAINER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✅ Fedora 40 (latest stable)
+  ✅ Java 17 OpenJDK
+  ✅ Apache Maven 3.x
+  ✅ JSS (Java Security Services) from COPR
+  ✅ LDAP SDK from COPR
+  ✅ Build tools (gcc, cmake, rpm-build)
+  ✅ Pre-built parent PKI modules
+
+PORTS EXPOSED
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  8080  → HTTP (Quarkus Dev UI, API)
+  8443  → HTTPS (EST API)
+  5005  → Debug (Remote JVM debugging)
+
+BENEFITS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  🎯 Zero host dependencies (only Podman required)
+  🎯 Clean, reproducible environment
+  🎯 Rootless container security
+  🎯 Source code stays on host (edit with your IDE)
+  🎯 Live reload - changes reflect immediately
+  🎯 Isolated from your system packages
+
+COMMON WORKFLOWS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Build and Run:
+    $ ./podman-build.sh && ./podman-run.sh
+    [container]$ ./quarkus-dev.sh
+
+  Just Compile:
+    [container]$ mvn clean compile
+
+  Run Tests:
+    [container]$ mvn test
+
+  Build Package:
+    [container]$ mvn clean package
+
+  Rebuild Parent PKI:
+    [container]$ cd /workspace/pki && ./build.sh dist
+
+DOCUMENTATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  📖 PODMAN.md              - Complete Podman guide
+  📖 QUICKSTART.md          - Quick start for all approaches
+  📖 README.md              - PoC architecture details
+  📖 MIGRATION-GUIDE.md     - Step-by-step migration patterns
+  📖 BUILD.md               - Alternative build methods
+
+TROUBLESHOOTING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Podman not found:
+    $ brew install podman              # macOS
+    $ sudo dnf install podman          # Fedora/RHEL
+
+  macOS: Initialize Podman machine:
+    $ podman machine init
+    $ podman machine start
+
+  Port already in use:
+    $ sudo lsof -i :8080               # Find what's using it
+
+  Container build fails:
+    $ podman system prune -a           # Clear cache
+    $ ./podman-build.sh                # Rebuild
+
+  Can't access from browser:
+    - Check container is running: podman ps
+    - Check port mapping: podman port pki-est-quarkus
+    - Ensure binding to 0.0.0.0 in quarkus-dev.sh
+
+NEXT STEPS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  1. Read PODMAN.md for detailed workflows
+  2. Build the container: ./podman-build.sh
+  3. Run it: ./podman-run.sh
+  4. Start developing!
+
+SUPPORT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Questions? Check the documentation:
+  - PODMAN.md      → Podman-specific help
+  - QUICKSTART.md  → Getting started
+  - README.md      → Architecture overview
+
+╔═══════════════════════════════════════════════════════════════════╗
+║  Ready to go! Run ./podman-build.sh to get started               ║
+╚═══════════════════════════════════════════════════════════════════╝

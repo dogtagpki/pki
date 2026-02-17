@@ -1,0 +1,91 @@
+# Quarkus EST Subsystem Configuration
+
+quarkus:
+  # Application
+  application:
+    name: pki-est-quarkus
+    version: 11.10.0-SNAPSHOT
+
+  # HTTP Configuration
+  http:
+    port: 8080
+    ssl-port: 8443
+
+    # SSL/TLS Configuration (to be customized per deployment)
+    ssl:
+      # Client certificate authentication
+      client-auth: REQUEST
+      # certificate:
+      #   key-store-file: /etc/pki/pki-tomcat/alias/keystore.p12
+      #   key-store-password: <password>
+      #   trust-store-file: /etc/pki/pki-tomcat/alias/ca.p12
+      #   trust-store-password: <password>
+
+    # Force HTTPS for all endpoints
+    insecure-requests: REDIRECT
+
+    # Security Constraints (replaces web.xml)
+    auth:
+      # GET requests: HTTPS required, no authentication
+      permission:
+        public-get:
+          paths: /rest/*
+          methods: GET
+          policy: permit
+
+      # POST requests: HTTPS required, authenticated client
+      permission:
+        authenticated-post:
+          paths: /rest/*
+          methods: POST
+          policy: authenticated
+
+      # Reject other HTTP methods
+      permission:
+        other-methods:
+          paths: /rest/*
+          methods: PUT,DELETE,PATCH,HEAD,OPTIONS
+          policy: deny
+
+  # Security
+  security:
+    users:
+      embedded:
+        enabled: false
+
+  # Logging
+  log:
+    level: INFO
+    category:
+      "org.dogtagpki.est":
+        level: DEBUG
+      "io.quarkus":
+        level: INFO
+    console:
+      enable: true
+      format: "%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p [%c{3.}] (%t) %s%e%n"
+
+  # Native compilation options (for GraalVM native-image)
+  native:
+    enable-http-url-handler: true
+    enable-https-url-handler: true
+
+# EST Engine Configuration
+est:
+  # Instance ID (default: ROOT)
+  instance-id: ${EST_INSTANCE_ID:ROOT}
+
+  # Configuration directory
+  config-dir: ${EST_CONFIG_DIR:/etc/pki/pki-tomcat/est}
+
+  # Backend configuration file
+  backend:
+    config-file: ${est.config-dir}/backend.conf
+
+  # Request authorizer configuration file
+  authorizer:
+    config-file: ${est.config-dir}/authorizer.conf
+
+  # Realm configuration file
+  realm:
+    config-file: ${est.config-dir}/realm.conf

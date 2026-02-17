@@ -1,0 +1,142 @@
+# Quarkus TPS (Token Processing System) Configuration
+
+quarkus:
+  # Application
+  application:
+    name: pki-tps-quarkus
+    version: 11.10.0-SNAPSHOT
+
+  # HTTP Configuration
+  http:
+    port: 8080
+    ssl-port: 8443
+
+    # SSL/TLS Configuration (to be customized per deployment)
+    ssl:
+      # Client certificate authentication
+      client-auth: REQUEST
+      # certificate:
+      #   key-store-file: /etc/pki/pki-tomcat/alias/keystore.p12
+      #   key-store-password: <password>
+      #   trust-store-file: /etc/pki/pki-tomcat/alias/ca.p12
+      #   trust-store-password: <password>
+
+    # Force HTTPS for all endpoints
+    insecure-requests: REDIRECT
+
+    # Security Constraints (replaces web.xml)
+    auth:
+      # Account services: require authentication
+      permission:
+        account:
+          paths: /v2/account/*
+          policy: authenticated
+
+      # Admin services (groups, users): require authentication
+      permission:
+        admin:
+          paths: /v2/admin/*
+          policy: authenticated
+
+      # Audit: require authentication
+      permission:
+        audit:
+          paths: /v2/audit/*
+          policy: authenticated
+
+      # Authenticators: require authentication
+      permission:
+        authenticators:
+          paths: /v2/authenticators/*
+          policy: authenticated
+
+      # Configuration: require authentication
+      permission:
+        config:
+          paths: /v2/config/*
+          policy: authenticated
+
+      # Connectors: require authentication
+      permission:
+        connectors:
+          paths: /v2/connectors/*
+          policy: authenticated
+
+      # Profiles: require authentication
+      permission:
+        profiles:
+          paths: /v2/profiles/*
+          policy: authenticated
+
+      # Profile mappings: require authentication
+      permission:
+        profile-mappings:
+          paths: /v2/profile-mappings/*
+          policy: authenticated
+
+      # Tokens: require authentication
+      permission:
+        tokens:
+          paths: /v2/tokens/*
+          policy: authenticated
+
+      # Certificates: require authentication
+      permission:
+        certs:
+          paths: /v2/certs/*
+          policy: authenticated
+
+      # Activities: require authentication
+      permission:
+        activities:
+          paths: /v2/activities/*
+          policy: authenticated
+
+      # Self tests: require authentication
+      permission:
+        selftests:
+          paths: /v2/selftests/*
+          policy: authenticated
+
+      # Jobs: require authentication
+      permission:
+        jobs:
+          paths: /v2/jobs/*
+          policy: authenticated
+
+      # Security domain install token: require authentication
+      permission:
+        security-domain-install:
+          paths: /v2/securityDomain/installToken
+          policy: authenticated
+
+      # Security domain info: public
+      permission:
+        security-domain-info:
+          paths: /v2/securityDomain/domainInfo,/v2/securityDomain/hosts,/v2/securityDomain/hosts/*
+          policy: permit
+
+  # Security
+  security:
+    users:
+      embedded:
+        enabled: false
+
+  # Logging
+  log:
+    level: INFO
+    category:
+      "org.dogtagpki.server.tps":
+        level: DEBUG
+      "com.netscape.tps":
+        level: DEBUG
+      "io.quarkus":
+        level: INFO
+    console:
+      enable: true
+      format: "%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p [%c{3.}] (%t) %s%e%n"
+
+  # Native compilation options (for GraalVM native-image)
+  native:
+    enable-http-url-handler: true
+    enable-https-url-handler: true

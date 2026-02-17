@@ -1,0 +1,57 @@
+╔══════════════════════════════════════════════════════════════════════╗
+║                                                                      ║
+║  PKI EST Subsystem - Tomcat to Quarkus Migration PoC                ║
+║                                                                      ║
+║  🍎 Apple Silicon Detected - You have 3 options:                    ║
+║                                                                      ║
+╠══════════════════════════════════════════════════════════════════════╣
+║                                                                      ║
+║  OPTION 1: Review Environment (Recommended) ⭐                       ║
+║  ─────────────────────────────────────────────                       ║
+║  Time:  5 minutes                                                    ║
+║  What:  Review code, learn patterns, compare implementations         ║
+║  Run:   ./podman-build.sh && ./podman-run.sh                         ║
+║  Value: 80% of PoC benefit without hassle                            ║
+║                                                                      ║
+║  OPTION 2: x86 Emulation (QEMU)                                      ║
+║  ───────────────────────────────                                     ║
+║  Time:  45 minutes build + slower runtime                            ║
+║  What:  Full build with JSS/LDAP SDK via QEMU                        ║
+║  Run:   ./podman-build-x86.sh && ./podman-run-x86.sh                 ║
+║  Value: 100% functionality but 2-3x slower                            ║
+║                                                                      ║
+║  OPTION 3: Just Read                                                 ║
+║  ────────────────────                                                ║
+║  Time:  0 minutes                                                    ║
+║  What:  Read documentation and source code                           ║
+║  Start: cat README.md                                                ║
+║  Value: Quick overview                                               ║
+║                                                                      ║
+╠══════════════════════════════════════════════════════════════════════╣
+║                                                                      ║
+║  📚 DOCUMENTATION                                                    ║
+║  ────────────────────────────────────────────────────────────────    ║
+║                                                                      ║
+║  START-HERE.md           → Quick start for your situation            ║
+║  QUICK-REFERENCE.md      → Command cheat sheet                       ║
+║  ARM64-README.md         → Complete ARM64 guide                      ║
+║  QEMU-EMULATION-GUIDE.md → Detailed emulation instructions           ║
+║  PODMAN.md               → Full Podman documentation                 ║
+║  README.md               → PoC architecture and details              ║
+║  MIGRATION-GUIDE.md      → Step-by-step migration patterns           ║
+║                                                                      ║
+╠══════════════════════════════════════════════════════════════════════╣
+║                                                                      ║
+║  🚀 QUICK START                                                      ║
+║                                                                      ║
+║  # Review environment (fastest):                                     ║
+║  ./podman-build.sh                                                   ║
+║                                                                      ║
+║  # Full build with emulation (slower):                               ║
+║  ./podman-build-x86.sh                                               ║
+║                                                                      ║
+║  # Read first:                                                       ║
+║  cat START-HERE.md                                                   ║
+║  cat QUICK-REFERENCE.md                                              ║
+║                                                                      ║
+╚══════════════════════════════════════════════════════════════════════╝

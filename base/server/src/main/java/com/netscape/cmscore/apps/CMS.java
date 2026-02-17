@@ -43,6 +43,8 @@ public final class CMS {
 
     public static final Logger logger = LoggerFactory.getLogger(CMS.class);
 
+    private static InstanceConfig instanceConfig = new TomcatInstanceConfig();
+
     // product name is provided by the server theme package
     private static final String PRODUCT_NAME_FILE = "/usr/share/pki/CS_SERVER_VERSION";
 
@@ -74,13 +76,20 @@ public final class CMS {
         return System.getenv("PKI_VERSION");  // defined in tomcat.conf
     }
 
+    public static InstanceConfig getInstanceConfig() {
+        return instanceConfig;
+    }
+
+    public static void setInstanceConfig(InstanceConfig config) {
+        instanceConfig = config;
+    }
+
     public static String getInstanceDir() {
-        return System.getProperty("catalina.base");  // defined by Tomcat
+        return instanceConfig.getInstanceDir();
     }
 
     public static String getInstanceID() {
-        Path instancePath = Paths.get(getInstanceDir());
-        return instancePath.getFileName().toString();
+        return instanceConfig.getInstanceID();
     }
 
     /**

@@ -109,6 +109,7 @@ import com.netscape.cms.authentication.CAAuthSubsystem;
 import com.netscape.cms.listeners.CARequestInQListener;
 import com.netscape.cms.listeners.CertificateIssuedListener;
 import com.netscape.cms.listeners.CertificateRevokedListener;
+import com.netscape.cms.listeners.WebhookListener;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.request.RequestScheduler;
 import com.netscape.cms.servlet.admin.KRAConnectorProcessor;
@@ -198,6 +199,7 @@ public class CAEngine extends CMSEngine {
     public RequestListener certIssuedListener;
     public RequestListener certRevokedListener;
     public RequestListener requestInQueueListener;
+    public WebhookListener webhookListener;
 
     public RetrieveModificationsTask retrieveModificationsTask;
     public CertStatusUpdateTask certStatusUpdateTask;
@@ -637,6 +639,15 @@ public class CAEngine extends CMSEngine {
         return requestInQueueListener;
     }
 
+    /**
+     * Retrieves the webhook listener.
+     *
+     * @return the webhook listener
+     */
+    public WebhookListener getWebhookListener() {
+        return webhookListener;
+    }
+
     public LdapBoundConnFactory getConnectionFactory() {
         return connectionFactory;
     }
@@ -888,6 +899,24 @@ public class CAEngine extends CMSEngine {
         requestInQueueListener = (RequestListener) Class.forName(className).getDeclaredConstructor().newInstance();
         requestInQueueListener.setCMSEngine(this);
         requestInQueueListener.init(listenerConfig);
+    }
+
+    public void initWebhookListener() throws Exception {
+
+        logger.info("CAEngine: Initializing webhook listener");
+
+        CAEngineConfig engineConfig = getConfig();
+        CAConfig caConfig = engineConfig.getCAConfig();
+
+        ConfigStore listenerConfig = caConfig.getSubStore(CertificateAuthority.PROP_NOTIFY_SUBSTORE, ConfigStore.class);
+        if (listenerConfig == null || listenerConfig.size() == 0) {
+            logger.info("CAEngine: No notification configuration, skipping webhook listener");
+            return;
+        }
+
+        webhookListener = new WebhookListener();
+        webhookListener.setCMSEngine(this);
+        webhookListener.init(listenerConfig);
     }
 
     public void startCertStatusUpdate() throws Exception {
@@ -1174,6 +1203,7 @@ public class CAEngine extends CMSEngine {
             initCertIssuedListener();
             initCertRevokedListener();
             initRequestInQueueListener();
+            initWebhookListener();
         }
 
         super.startupSubsystems();
