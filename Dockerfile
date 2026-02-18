@@ -426,6 +426,8 @@ COPY . /root/pki/
 # Prepare sources the same way the RPM %prep section does:
 # 1. Migrate source from javax to jakarta (needed for Fedora 43+ / Tomcat 10+)
 # 2. Install pki-local:jboss-jaxrs-api_2.0_spec into ~/.m2 so Maven can resolve it
+# 3. Disable tomcat-9.0 module (incompatible with Jakarta Servlet on Fedora 43+)
+#    and remove its dependency from base/server, matching pki.spec behavior
 RUN cd /root/pki \
     && /usr/bin/javax2jakarta -profile=EE -exclude=./base/tomcat-9.0 ./base ./base \
     && JAXRS_VERSION=$(rpm -q jboss-jaxrs-2.0-api | sed -n 's/^jboss-jaxrs-2.0-api-\([^-]*\)-.*$/\1.Final/p') \
@@ -433,7 +435,9 @@ RUN cd /root/pki \
     && /usr/bin/javax2jakarta -profile=EE jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar \
     && mkdir -p ~/.m2/repository/pki-local/jboss-jaxrs-api_2.0_spec/$JAXRS_VERSION \
     && cp jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar ~/.m2/repository/pki-local/jboss-jaxrs-api_2.0_spec/$JAXRS_VERSION/jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar \
-    && rm -f jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar
+    && rm -f jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar \
+    && sed -i '/<module>tomcat-9.0<\/module>/d' base/pom.xml \
+    && sed -i '/<artifactId>pki-tomcat-9.0<\/artifactId>/,/<\/dependency>/d' base/server/pom.xml
 
 # Build all modules (including Quarkus) via Maven.
 # This stage runs in parallel with pki-builder since both inherit from
