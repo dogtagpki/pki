@@ -180,6 +180,8 @@ ExcludeArch: i686
 %define pki_groupname pkiuser
 %define pki_gid 17
 
+%define tomcat_groupname tomcat
+
 # Create a home directory for PKI user at /home/pkiuser
 # to store rootless Podman container.
 %define pki_homedir /home/%{pki_username}
@@ -1380,6 +1382,7 @@ fi
 cat > %{product_id}.sysusers.conf <<EOF
 g %{pki_username} %{pki_gid}
 u %{pki_groupname} %{pki_uid} 'Certificate System' %{pki_homedir} -
+m %{pki_username} %{tomcat_groupname}
 EOF
 
 %endif
@@ -2068,6 +2071,9 @@ fi
 %{_sbindir}/pkidestroy
 %{_sbindir}/pki-server
 %{_sbindir}/pki-healthcheck
+%{_sbindir}/pki-tomcat-start
+%{_sbindir}/pki-tomcat-stop
+
 %{python3_sitelib}/pki/server/
 %{python3_sitelib}/pkihealthcheck-*.egg-info/
 %config(noreplace) %{_sysconfdir}/pki/healthcheck.conf
@@ -2083,6 +2089,7 @@ fi
 %attr(644,-,-) %{_unitdir}/pki-tomcatd.target
 %dir %{_sysconfdir}/systemd/system/pki-tomcatd-nuxwdog.target.wants
 %attr(644,-,-) %{_unitdir}/pki-tomcatd-nuxwdog@.service
+
 %attr(644,-,-) %{_unitdir}/pki-tomcatd-nuxwdog.target
 %dir %{_sharedstatedir}/pki
 %{_mandir}/man1/pkidaemon.1.gz
@@ -2250,7 +2257,6 @@ fi
 
 %license base/console/LICENSE
 %{_bindir}/pkiconsole
-
 %if %{without maven}
 %{_datadir}/java/pki/pki-console.jar
 %endif

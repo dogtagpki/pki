@@ -346,6 +346,8 @@ install(
         ${CMAKE_CURRENT_SOURCE_DIR}/sbin/pki-server
         ${CMAKE_CURRENT_SOURCE_DIR}/sbin/pkidestroy
         ${CMAKE_CURRENT_SOURCE_DIR}/sbin/pkispawn
+        ${CMAKE_CURRENT_SOURCE_DIR}/sbin/pki-tomcat-start
+        ${CMAKE_CURRENT_SOURCE_DIR}/sbin/pki-tomcat-stop
     DESTINATION
         ${SBIN_INSTALL_DIR}
     PERMISSIONS

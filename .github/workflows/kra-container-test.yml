@@ -336,6 +336,18 @@ jobs:
           # get Fedora version
           FEDORA_VERSION=$(docker exec kra sed -n 's/^VERSION_ID=//p' /etc/os-release)
           echo "FEDORA_VERSION=$FEDORA_VERSION" >> $GITHUB_ENV
+          
+      - name: Calculate Tomcat flavor
+        run: |
+          TOMCAT_FLAVOR=$(docker exec kra bash -c '
+          if [ -f /usr/libexec/tomcat/tomcat-run.sh ]; then
+            printf "new"
+          else
+            printf "old"
+          fi
+          ')
+          echo "TOMCAT_FLAVOR=$TOMCAT_FLAVOR" >> $GITHUB_ENV
+          echo "Detected Tomcat flavor: $TOMCAT_FLAVOR"
 
       - name: Check KRA conf dir
         if: always()
@@ -365,7 +377,30 @@ jobs:
           lrwxrwxrwx runner web.xml -> /etc/tomcat/web.xml
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          drwxrwxrwx runner Catalina
+          drwxrwxrwx runner alias
+          -rw-rw---- runner catalina.policy
+          lrwxrwxrwx runner catalina.properties -> /usr/share/pki/server/conf/catalina.properties
+          drwxrwxrwx runner certs
+          lrwxrwxrwx runner context.xml -> /etc/tomcat/context.xml
+          -rw-rw---- runner jss.conf
+          drwxrwxrwx runner kra
+          lrwxrwxrwx runner logging.properties -> /usr/share/pki/server/conf/logging.properties
+          -rw-rw---- runner password.conf
+          -rw-rw---- runner server.xml
+          -rw-rw---- runner serverCertNick.conf
+          -rw-rw---- runner tomcat.conf
+          lrwxrwxrwx runner web.xml -> /etc/tomcat/web.xml
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check KRA conf/kra dir
         if: always()
@@ -385,7 +420,19 @@ jobs:
           -rw-rw---- runner registry.cfg
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          -rw-rw---- runner CS.cfg
+          drwxrwxrwx runner archives
+          -rw-rw---- runner registry.cfg
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check KRA logs dir
         if: ${{ fromJSON(env.FEDORA_VERSION) < 43 }}
@@ -429,7 +476,19 @@ jobs:
           -rw-rw-rw- runner localhost_access_log.$DATE.txt
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          drwxrwxrwx runner backup
+          drwxrwxrwx runner kra
+          -rw-rw-rw- runner localhost_access_log.$DATE.txt
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check KRA info
         run: |

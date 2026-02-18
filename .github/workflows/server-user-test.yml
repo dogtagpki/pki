@@ -45,6 +45,18 @@ jobs:
               --network-alias=pki.example.com \
               pki
 
+      - name: Calculate Tomcat flavor
+        run: |
+          TOMCAT_FLAVOR=$(docker exec pki bash -c '
+          if [ -f /usr/libexec/tomcat/tomcat-run.sh ]; then
+            printf "new"
+          else
+            printf "old"
+          fi
+          ')
+          echo "TOMCAT_FLAVOR=$TOMCAT_FLAVOR" >> $GITHUB_ENV
+          echo "Detected Tomcat flavor: $TOMCAT_FLAVOR"
+
       - name: Create custom user and group
         run: |
           docker exec pki groupadd pki
@@ -52,6 +64,12 @@ jobs:
 
           docker exec pki useradd -g pki pki
           docker exec pki getent passwd pki
+
+          # We need to add the user to tomcat group or server will never restart.
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              docker exec pki usermod -a -G tomcat pki
+          fi
 
       - name: Install CA with custom user and group
         run: |
