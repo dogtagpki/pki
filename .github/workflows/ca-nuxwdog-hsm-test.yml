@@ -1,4 +1,4 @@
-name: CA with Nuxwdog
+name: CA with Nuxwdog and HSM
 
 on: workflow_call
 
@@ -6,6 +6,8 @@ env:
   DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
 
 jobs:
+  # docs/installation/ca/Installing_CA_with_HSM.md
+  # docs/admin/Nuxwdog.md
   test:
     name: Test
     runs-on: ubuntu-latest
@@ -45,12 +47,41 @@ jobs:
               --network-alias=pki.example.com \
               pki
 
-      - name: Install CA
+      - name: Install dependencies
+        run: |
+          docker exec pki dnf install -y softhsm
+
+      - name: Create SoftHSM token
+        run: |
+          # allow PKI user to access SoftHSM files
+          docker exec pki usermod pkiuser -a -G ods
+
+          # create SoftHSM token for PKI server
+          docker exec pki runuser -u pkiuser -- \
+              softhsm2-util \
+              --init-token \
+              --label HSM \
+              --so-pin Secret.HSM \
+              --pin Secret.HSM \
+              --free
+
+          docker exec pki ls -laR /var/lib/softhsm/tokens
+
+      - name: Install CA with HSM
         run: |
           docker exec pki pkispawn \
               -f /usr/share/pki/server/examples/installation/ca.cfg \
               -s CA \
               -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_hsm_enable=True \
+              -D pki_token_name=HSM \
+              -D pki_token_password=Secret.HSM \
+              -D pki_server_database_password=Secret.123 \
+              -D pki_ca_signing_token=HSM \
+              -D pki_ocsp_signing_token=HSM \
+              -D pki_audit_signing_token=HSM \
+              -D pki_subsystem_token=HSM \
+              -D pki_sslserver_token=internal \
               -v
 
       - name: Check sysconfig file
@@ -96,6 +127,31 @@ jobs:
         run: |
           docker exec pki pki-server ca-config-find | grep passwordClass | tee output
 
+      - name: Check system certs in internal token
+        run: |
+          # there should be 5 certs
+          echo "5" > expected
+          docker exec pki pki \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              nss-cert-find | tee output
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check system certs in HSM
+        run: |
+          echo Secret.HSM > password.txt
+          echo "4" > expected
+          docker exec pki pki \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -C ${SHARED}/password.txt \
+              --token HSM \
+              nss-cert-find | tee output
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+      - name: Run PKI healthcheck
+        run: docker exec pki pki-healthcheck --failures-only
+
       - name: Check CA
         run: |
           docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
@@ -128,6 +184,12 @@ jobs:
               | cut -d= -f2 \
               | docker exec -i pki runuser -u pkiuser -- \
                   keyctl padd user pki-tomcat/internal @u
+
+          echo "Importing HSM token password into keyring"
+          docker exec pki grep '^hardware-HSM=' /var/lib/pki/pki-tomcat/conf/password.conf \
+              | cut -d= -f2 \
+              | docker exec -i pki runuser -u pkiuser -- \
+                  keyctl padd user pki-tomcat/HSM @u
 
           echo "Importing internal database password into keyring"
           docker exec pki grep '^internaldb=' /var/lib/pki/pki-tomcat/conf/password.conf \
@@ -209,7 +271,7 @@ jobs:
               -o /dev/null \
               https://pki.example.com:8443
 
-      - name: Check CA again
+      - name: Check CA with Nuxwdog
         run: |
           docker exec pki pki info
           docker exec pki pki -n caadmin ca-user-show caadmin
@@ -234,8 +296,15 @@ jobs:
 
           echo "Exporting internal password from keyring"
           KEY_ID=$(docker exec pki runuser -u pkiuser -- keyctl search @u user pki-tomcat/internal)
+          echo "KEY_ID: $KEY_ID"
           KEY=$(docker exec pki runuser -u pkiuser -- keyctl pipe $KEY_ID)
           echo "internal=$KEY" \
+              | docker exec -i pki \
+                  tee -a /var/lib/pki/pki-tomcat/conf/password.conf
+
+          KEY_ID=$(docker exec pki runuser -u pkiuser -- keyctl search @u user pki-tomcat/HSM)
+          KEY=$(docker exec pki runuser -u pkiuser -- keyctl pipe $KEY_ID)
+          echo "hardware-HSM=$KEY" \
               | docker exec -i pki \
                   tee -a /var/lib/pki/pki-tomcat/conf/password.conf
 
@@ -312,6 +381,11 @@ jobs:
 
       - name: Remove CA
         run: docker exec pki pkidestroy -s CA -v
+
+      - name: Remove SoftHSM token
+        run: |
+          docker exec pki ls -laR /var/lib/softhsm/tokens
+          docker exec pki runuser -u pkiuser -- softhsm2-util --delete-token --token HSM
 
       - name: Check DS server systemd journal
         if: always()
