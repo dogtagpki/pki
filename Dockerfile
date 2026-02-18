@@ -437,7 +437,7 @@ RUN cd /root/pki \
     && cp jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar ~/.m2/repository/pki-local/jboss-jaxrs-api_2.0_spec/$JAXRS_VERSION/jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar \
     && rm -f jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar \
     && sed -i '/<module>tomcat-9.0<\/module>/d' base/pom.xml \
-    && sed -i '/<artifactId>pki-tomcat-9.0<\/artifactId>/,/<\/dependency>/d' base/server/pom.xml
+    && sed -i '/<dependency>/{N;N;N;N;/pki-tomcat-9.0/d}' base/server/pom.xml
 
 # Build all modules (including Quarkus) via Maven.
 # This stage runs in parallel with pki-builder since both inherit from
