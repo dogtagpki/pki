@@ -63,4 +63,4 @@ enrollment via EST, along with the `CMCAuthForEST` authenticator and
 
 See also:
 
-* link:../../installation/est/configuring-est-fullcmc-example.adoc
+* link:../../installation/est/configuring-est-fullcmc-example.adoc[Configuring EST fullcmc - Example]
