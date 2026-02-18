@@ -183,6 +183,18 @@ jobs:
               -k \
               -o /dev/null \
               https://ca.example.com:8443
+              
+      - name: Calculate Tomcat flavor
+        run: |
+          TOMCAT_FLAVOR=$(docker exec ca bash -c '
+          if [ -f /usr/libexec/tomcat/tomcat-run.sh ]; then
+            printf "new"
+          else
+            printf "old"
+          fi
+          ')
+          echo "TOMCAT_FLAVOR=$TOMCAT_FLAVOR" >> $GITHUB_ENV
+          echo "Detected Tomcat flavor: $TOMCAT_FLAVOR"
 
       - name: Check conf dir
         if: always()
@@ -212,7 +224,30 @@ jobs:
           lrwxrwxrwx runner web.xml -> /etc/tomcat/web.xml
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          drwxrwxrwx runner Catalina
+          drwxrwxrwx runner alias
+          drwxrwxrwx runner ca
+          -rw-rw---- runner catalina.policy
+          lrwxrwxrwx runner catalina.properties -> /usr/share/pki/server/conf/catalina.properties
+          drwxrwxrwx runner certs
+          lrwxrwxrwx runner context.xml -> /etc/tomcat/context.xml
+          -rw-rw---- runner jss.conf
+          lrwxrwxrwx runner logging.properties -> /usr/share/pki/server/conf/logging.properties
+          -rw-rw---- runner password.conf
+          -rw-rw---- runner server.xml
+          -rw-rw---- runner serverCertNick.conf
+          -rw-rw---- runner tomcat.conf
+          lrwxrwxrwx runner web.xml -> /etc/tomcat/web.xml
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check conf/ca dir
         if: always()
@@ -242,7 +277,29 @@ jobs:
           -rw-rw---- runner subsystemCert.profile
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          -rw-rw---- runner CS.cfg
+          -rw-rw---- runner adminCert.profile
+          drwxrwxrwx runner archives
+          -rw-rw---- runner caAuditSigningCert.profile
+          -rw-rw---- runner caCert.profile
+          -rw-rw---- runner caOCSPCert.profile
+          drwxrwxrwx runner emails
+          -rw-rw---- runner flatfile.txt
+          drwxrwxrwx runner profiles
+          -rw-rw---- runner proxy.conf
+          -rw-rw---- runner registry.cfg
+          -rw-rw---- runner serverCert.profile
+          -rw-rw---- runner subsystemCert.profile
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check logs dir
         if: ${{ fromJSON(env.FEDORA_VERSION) < 43 }}
@@ -286,7 +343,19 @@ jobs:
           -rw-rw-rw- runner localhost_access_log.$DATE.txt
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          drwxrwxrwx runner backup
+          drwxrwxrwx runner ca
+          -rw-rw-rw- runner localhost_access_log.$DATE.txt
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check CA info
         run: |

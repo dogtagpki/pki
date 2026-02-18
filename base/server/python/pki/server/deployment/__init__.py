@@ -158,7 +158,7 @@ class PKIDeployer:
         try:
             self.startup_timeout = int(os.environ['PKISPAWN_STARTUP_TIMEOUT_SECONDS'])
         except (KeyError, ValueError):
-            self.startup_timeout = 120
+            self.startup_timeout = 60
 
         if self.startup_timeout <= 0:
             self.startup_timeout = 60

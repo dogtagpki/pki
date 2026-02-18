@@ -136,6 +136,18 @@ jobs:
               -k \
               -o /dev/null \
               https://ca.example.com:8443
+              
+      - name: Calculate Tomcat flavor
+        run: |
+          TOMCAT_FLAVOR=$(docker exec pki bash -c '
+          if [ -f /usr/libexec/tomcat/tomcat-run.sh ]; then
+            printf "new"
+          else
+            printf "old"
+          fi
+          ')
+          echo "TOMCAT_FLAVOR=$TOMCAT_FLAVOR" >> $GITHUB_ENV
+          echo "Detected Tomcat flavor: $TOMCAT_FLAVOR"
 
       - name: Check conf dir
         if: always()
@@ -165,7 +177,30 @@ jobs:
           lrwxrwxrwx pkiuser web.xml -> /etc/tomcat/web.xml
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          drwxrwxrwx pkiuser Catalina
+          drwxrwxrwx pkiuser alias
+          drwxrwxrwx pkiuser ca
+          -rw-rw-rw- pkiuser catalina.policy
+          lrwxrwxrwx pkiuser catalina.properties -> /usr/share/pki/server/conf/catalina.properties
+          drwxrwxrwx pkiuser certs
+          lrwxrwxrwx pkiuser context.xml -> /etc/tomcat/context.xml
+          -rw-rw-rw- pkiuser jss.conf
+          lrwxrwxrwx pkiuser logging.properties -> /usr/share/pki/server/conf/logging.properties
+          -rw-rw-rw- pkiuser password.conf
+          -rw-rw-rw- pkiuser server.xml
+          -rw-rw-rw- pkiuser serverCertNick.conf
+          -rw-rw-rw- pkiuser tomcat.conf
+          lrwxrwxrwx pkiuser web.xml -> /etc/tomcat/web.xml
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check conf/alias dir
         if: always()
@@ -185,7 +220,20 @@ jobs:
           -rw-rw---- pkiuser pkcs11.txt
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          -rw-rw-rw- pkiuser ca.crt
+          -rw-rw-rw- pkiuser cert9.db
+          -rw-rw-rw- pkiuser key4.db
+          -rw-rw-rw- pkiuser pkcs11.txt
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check conf/ca dir
         if: always()
@@ -215,7 +263,29 @@ jobs:
           -rw-rw---- pkiuser subsystemCert.profile
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          -rw-rw-rw- pkiuser CS.cfg
+          -rw-rw-rw- pkiuser adminCert.profile
+          drwxrwxrwx pkiuser archives
+          -rw-rw-rw- pkiuser caAuditSigningCert.profile
+          -rw-rw-rw- pkiuser caCert.profile
+          -rw-rw-rw- pkiuser caOCSPCert.profile
+          drwxrwxrwx pkiuser emails
+          -rw-rw-rw- pkiuser flatfile.txt
+          drwxrwxrwx pkiuser profiles
+          -rw-rw-rw- pkiuser proxy.conf
+          -rw-rw-rw- pkiuser registry.cfg
+          -rw-rw-rw- pkiuser serverCert.profile
+          -rw-rw-rw- pkiuser subsystemCert.profile
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check logs dir
         if: ${{ fromJSON(env.FEDORA_VERSION) < 43 }}
@@ -259,7 +329,19 @@ jobs:
           -rw-rw-rw- pkiuser localhost_access_log.$DATE.txt
           EOF
 
-          diff expected output
+          cat > expected_new_tomcat10 << EOF
+          drwxrwxrwx pkiuser backup
+          drwxrwxrwx pkiuser ca
+          -rw-rw-rw- pkiuser localhost_access_log.$DATE.txt
+          EOF
+
+          if [ $TOMCAT_FLAVOR == 'new' ]; then
+              echo "New tomcat 10!"
+              diff expected_new_tomcat10 output
+          else
+              echo "Old tomcat 10!"
+              diff expected output
+          fi
 
       - name: Check CA info
         run: |
