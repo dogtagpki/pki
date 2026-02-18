@@ -1382,6 +1382,7 @@ fi
 # specify Maven artifact locations
 %mvn_file org.dogtagpki.pki:pki-common            pki/pki-common
 %mvn_file org.dogtagpki.pki:pki-tools             pki/pki-tools
+%mvn_file org.dogtagpki.pki:pki-server-core        pki/pki-server-core
 %mvn_file org.dogtagpki.pki:pki-server            pki/pki-server
 %mvn_file org.dogtagpki.pki:pki-server-webapp     pki/pki-server-webapp
 %mvn_file org.dogtagpki.pki:pki-tomcat            pki/pki-tomcat
@@ -1407,6 +1408,7 @@ fi
 # specify Maven artifact packages
 %mvn_package org.dogtagpki.pki:pki-common         pki-java
 %mvn_package org.dogtagpki.pki:pki-tools          pki-tools
+%mvn_package org.dogtagpki.pki:pki-server-core    pki-server
 %mvn_package org.dogtagpki.pki:pki-server         pki-server
 %mvn_package org.dogtagpki.pki:pki-server-webapp  pki-server
 %mvn_package org.dogtagpki.pki:pki-tomcat         pki-server
