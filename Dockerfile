@@ -404,16 +404,62 @@ VOLUME [ \
 CMD [ "/usr/share/pki/acme/bin/pki-acme-run" ]
 
 ################################################################################
-FROM pki-builder AS pki-quarkus-builder
+FROM pki-builder-deps AS pki-quarkus-builder
 
-# Install all modules (including Quarkus) into Maven local repo.
-# The pki-builder stage used CMake/RPM which does not populate ~/.m2.
-# Quarkus modules now build by default without needing -Pquarkus.
+ARG BUILD_OPTS
+
+# Import JSS packages
+COPY --from=quay.io/dogtagpki/jss-dist:latest /root/RPMS /tmp/RPMS/
+
+# Import LDAP SDK packages
+COPY --from=quay.io/dogtagpki/ldapjdk-dist:latest /root/RPMS /tmp/RPMS/
+
+# Install build dependencies
+RUN dnf install -y /tmp/RPMS/* \
+    && dnf clean all \
+    && rm -rf /var/cache/dnf \
+    && rm -rf /tmp/RPMS
+
+# Import PKI sources
+COPY . /root/pki/
+
+# Build all modules (including Quarkus) via Maven.
+# This stage runs in parallel with pki-builder since both inherit from
+# pki-builder-deps and BuildKit can schedule them concurrently.
 RUN cd /root/pki \
     && mvn install -DskipTests -ntp
 
 ################################################################################
-FROM pki-runner AS pki-quarkus-runner
+FROM pki-base AS pki-quarkus-runner
+
+ARG COPR_REPO
+
+# Enable COPR repo if specified
+RUN if [ -n "$COPR_REPO" ]; then dnf copr enable -y $COPR_REPO; fi
+
+# Import JSS packages
+COPY --from=quay.io/dogtagpki/jss-dist:latest /root/RPMS /tmp/RPMS/
+
+# Import LDAP SDK packages
+COPY --from=quay.io/dogtagpki/ldapjdk-dist:latest /root/RPMS /tmp/RPMS/
+
+# Install minimal runtime dependencies for Quarkus
+RUN dnf install -y \
+    java-17-openjdk-headless \
+    nss \
+    nss-tools \
+    openldap-clients \
+    curl \
+    /tmp/RPMS/* \
+    && dnf clean all \
+    && rm -rf /var/cache/dnf \
+    && rm -rf /tmp/RPMS
+
+# Create pkiuser for Quarkus runtime
+RUN groupadd -r pkiuser \
+    && useradd -r -g pkiuser -d /home/pkiuser -s /sbin/nologin pkiuser \
+    && mkdir -p /home/pkiuser \
+    && chown -R pkiuser:pkiuser /home/pkiuser
 
 # Install Quarkus runner JARs from builder
 # Each *-quarkus module produces a quarkus-app/ directory with the uber-jar
