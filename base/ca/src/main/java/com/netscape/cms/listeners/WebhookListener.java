@@ -24,12 +24,12 @@ import java.util.Enumeration;
 import java.util.List;
 
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.CAEngineConfig;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.Subsystem;
 import com.netscape.certsrv.request.RequestListener;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
@@ -80,9 +80,8 @@ public class WebhookListener extends RequestListener {
     public void init(Subsystem sub, ConfigStore config) throws EBaseException {
 
         CAEngine engine = CAEngine.getInstance();
-        CAEngineConfig cs = engine.getConfig();
 
-        mInstanceId = cs.getInstanceID();
+        mInstanceId = CMS.getInstanceID();
         mDateFormat = DateFormat.getDateTimeInstance();
 
         // Get webhook configuration substore
