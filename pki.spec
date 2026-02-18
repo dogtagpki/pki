@@ -1362,6 +1362,18 @@ fi
 %pom_disable_module console base
 %endif
 
+# Quarkus modules are built separately via direct Maven (not RPM).
+# They require online access to resolve Quarkus BOM/plugins which
+# are not available in the offline xmvn environment used by rpmbuild.
+%pom_disable_module quarkus-common base
+%pom_disable_module est-quarkus base
+%pom_disable_module acme-quarkus base
+%pom_disable_module ocsp-quarkus base
+%pom_disable_module kra-quarkus base
+%pom_disable_module tks-quarkus base
+%pom_disable_module tps-quarkus base
+%pom_disable_module ca-quarkus base
+
 # remove plugins not needed to build RPM
 %pom_remove_plugin org.codehaus.mojo:flatten-maven-plugin
 %pom_remove_plugin org.apache.maven.plugins:maven-deploy-plugin
