@@ -852,6 +852,7 @@ if(WITH_SERVER OR WITH_CA OR WITH_KRA OR WITH_OCSP OR WITH_TKS OR WITH_TPS OR WI
     add_subdirectory(server-webapp)
 
     list(APPEND PKI_JAVADOC_SOURCEPATH
+        ${CMAKE_SOURCE_DIR}/base/server-core/src/main/java
         ${CMAKE_SOURCE_DIR}/base/server/src/main/java)
 
     list(APPEND PKI_JAVADOC_SUBPACKAGES
@@ -860,6 +861,7 @@ if(WITH_SERVER OR WITH_CA OR WITH_KRA OR WITH_OCSP OR WITH_TKS OR WITH_TPS OR WI
     list(APPEND PKI_JAVADOC_CLASSPATH
         ${PKI_TOMCAT_JAR}
         ${PKI_TOMCAT_IMPL_JAR}
+        ${PKI_SERVER_CORE_JAR}
         ${PKI_SERVER_JAR})
 
     if(WITH_CA)
