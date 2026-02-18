@@ -406,12 +406,17 @@ CMD [ "/usr/share/pki/acme/bin/pki-acme-run" ]
 ################################################################################
 FROM pki-builder AS pki-quarkus-builder
 
-# Build Quarkus modules (requires the standard build to have run first)
-# The -Pquarkus profile activates quarkus-common and all *-quarkus modules
+# Install base modules into Maven local repo (the pki-builder stage used
+# CMake/RPM which does not populate ~/.m2). The Quarkus modules depend on
+# pki-common, pki-server-core, pki-server, pki-ca, pki-est, etc.
+RUN cd /root/pki \
+    && mvn install -DskipTests -ntp
+
+# Build Quarkus modules using the -Pquarkus profile
 RUN cd /root/pki \
     && mvn install -Pquarkus \
        -pl base/quarkus-common,base/est-quarkus,base/acme-quarkus,base/ocsp-quarkus,base/kra-quarkus,base/tks-quarkus,base/tps-quarkus,base/ca-quarkus \
-       -DskipTests
+       -DskipTests -ntp
 
 ################################################################################
 FROM pki-runner AS pki-quarkus-runner
