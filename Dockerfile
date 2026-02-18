@@ -406,17 +406,11 @@ CMD [ "/usr/share/pki/acme/bin/pki-acme-run" ]
 ################################################################################
 FROM pki-builder AS pki-quarkus-builder
 
-# Install base modules into Maven local repo (the pki-builder stage used
-# CMake/RPM which does not populate ~/.m2). The Quarkus modules depend on
-# pki-common, pki-server-core, pki-server, pki-ca, pki-est, etc.
+# Install all modules (including Quarkus) into Maven local repo.
+# The pki-builder stage used CMake/RPM which does not populate ~/.m2.
+# Quarkus modules now build by default without needing -Pquarkus.
 RUN cd /root/pki \
     && mvn install -DskipTests -ntp
-
-# Build Quarkus modules using the -Pquarkus profile
-RUN cd /root/pki \
-    && mvn install -Pquarkus \
-       -pl base/quarkus-common,base/est-quarkus,base/acme-quarkus,base/ocsp-quarkus,base/kra-quarkus,base/tks-quarkus,base/tps-quarkus,base/ca-quarkus \
-       -DskipTests -ntp
 
 ################################################################################
 FROM pki-runner AS pki-quarkus-runner
@@ -474,6 +468,91 @@ LABEL name="pki-quarkus-est" \
       com.redhat.component="$COMPONENT"
 
 CMD [ "java", "-jar", "/usr/share/pki/quarkus/est/quarkus-run.jar" ]
+
+################################################################################
+FROM pki-quarkus-runner AS pki-quarkus-acme
+
+ARG SUMMARY="Dogtag PKI ACME Responder (Quarkus)"
+
+LABEL name="pki-quarkus-acme" \
+      summary="$SUMMARY" \
+      license="$LICENSE" \
+      version="$VERSION" \
+      architecture="$ARCH" \
+      maintainer="$MAINTAINER" \
+      vendor="$VENDOR" \
+      usage="podman run -p 8080:8080 -p 8443:8443 pki-quarkus-acme" \
+      com.redhat.component="$COMPONENT"
+
+CMD [ "java", "-jar", "/usr/share/pki/quarkus/acme/quarkus-run.jar" ]
+
+################################################################################
+FROM pki-quarkus-runner AS pki-quarkus-ocsp
+
+ARG SUMMARY="Dogtag PKI OCSP Responder (Quarkus)"
+
+LABEL name="pki-quarkus-ocsp" \
+      summary="$SUMMARY" \
+      license="$LICENSE" \
+      version="$VERSION" \
+      architecture="$ARCH" \
+      maintainer="$MAINTAINER" \
+      vendor="$VENDOR" \
+      usage="podman run -p 8080:8080 -p 8443:8443 pki-quarkus-ocsp" \
+      com.redhat.component="$COMPONENT"
+
+CMD [ "java", "-jar", "/usr/share/pki/quarkus/ocsp/quarkus-run.jar" ]
+
+################################################################################
+FROM pki-quarkus-runner AS pki-quarkus-kra
+
+ARG SUMMARY="Dogtag PKI Key Recovery Authority (Quarkus)"
+
+LABEL name="pki-quarkus-kra" \
+      summary="$SUMMARY" \
+      license="$LICENSE" \
+      version="$VERSION" \
+      architecture="$ARCH" \
+      maintainer="$MAINTAINER" \
+      vendor="$VENDOR" \
+      usage="podman run -p 8080:8080 -p 8443:8443 pki-quarkus-kra" \
+      com.redhat.component="$COMPONENT"
+
+CMD [ "java", "-jar", "/usr/share/pki/quarkus/kra/quarkus-run.jar" ]
+
+################################################################################
+FROM pki-quarkus-runner AS pki-quarkus-tks
+
+ARG SUMMARY="Dogtag PKI Token Key Service (Quarkus)"
+
+LABEL name="pki-quarkus-tks" \
+      summary="$SUMMARY" \
+      license="$LICENSE" \
+      version="$VERSION" \
+      architecture="$ARCH" \
+      maintainer="$MAINTAINER" \
+      vendor="$VENDOR" \
+      usage="podman run -p 8080:8080 -p 8443:8443 pki-quarkus-tks" \
+      com.redhat.component="$COMPONENT"
+
+CMD [ "java", "-jar", "/usr/share/pki/quarkus/tks/quarkus-run.jar" ]
+
+################################################################################
+FROM pki-quarkus-runner AS pki-quarkus-tps
+
+ARG SUMMARY="Dogtag PKI Token Processing System (Quarkus)"
+
+LABEL name="pki-quarkus-tps" \
+      summary="$SUMMARY" \
+      license="$LICENSE" \
+      version="$VERSION" \
+      architecture="$ARCH" \
+      maintainer="$MAINTAINER" \
+      vendor="$VENDOR" \
+      usage="podman run -p 8080:8080 -p 8443:8443 pki-quarkus-tps" \
+      com.redhat.component="$COMPONENT"
+
+CMD [ "java", "-jar", "/usr/share/pki/quarkus/tps/quarkus-run.jar" ]
 
 ################################################################################
 FROM pki-runner AS ipa-runner

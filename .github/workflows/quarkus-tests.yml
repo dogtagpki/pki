@@ -22,3 +22,28 @@ jobs:
     name: Quarkus CA Basic
     needs: build
     uses: ./.github/workflows/quarkus-ca-basic-test.yml
+
+  quarkus-acme-basic-test:
+    name: Quarkus ACME Basic
+    needs: build
+    uses: ./.github/workflows/quarkus-acme-basic-test.yml
+
+  quarkus-ocsp-basic-test:
+    name: Quarkus OCSP Basic
+    needs: build
+    uses: ./.github/workflows/quarkus-ocsp-basic-test.yml
+
+  quarkus-kra-basic-test:
+    name: Quarkus KRA Basic
+    needs: build
+    uses: ./.github/workflows/quarkus-kra-basic-test.yml
+
+  quarkus-tks-basic-test:
+    name: Quarkus TKS Basic
+    needs: build
+    uses: ./.github/workflows/quarkus-tks-basic-test.yml
+
+  quarkus-tps-basic-test:
+    name: Quarkus TPS Basic
+    needs: build
+    uses: ./.github/workflows/quarkus-tps-basic-test.yml

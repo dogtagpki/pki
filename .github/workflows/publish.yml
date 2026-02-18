@@ -133,3 +133,28 @@ jobs:
         run: |
           docker tag pki-quarkus-est ${{ vars.REGISTRY }}/$NAMESPACE/pki-quarkus-est:latest
           docker push ${{ vars.REGISTRY }}/$NAMESPACE/pki-quarkus-est:latest
+
+      - name: Publish pki-quarkus-acme image
+        run: |
+          docker tag pki-quarkus-acme ${{ vars.REGISTRY }}/$NAMESPACE/pki-quarkus-acme:latest
+          docker push ${{ vars.REGISTRY }}/$NAMESPACE/pki-quarkus-acme:latest
+
+      - name: Publish pki-quarkus-ocsp image
+        run: |
+          docker tag pki-quarkus-ocsp ${{ vars.REGISTRY }}/$NAMESPACE/pki-quarkus-ocsp:latest
+          docker push ${{ vars.REGISTRY }}/$NAMESPACE/pki-quarkus-ocsp:latest
+
+      - name: Publish pki-quarkus-kra image
+        run: |
+          docker tag pki-quarkus-kra ${{ vars.REGISTRY }}/$NAMESPACE/pki-quarkus-kra:latest
+          docker push ${{ vars.REGISTRY }}/$NAMESPACE/pki-quarkus-kra:latest
+
+      - name: Publish pki-quarkus-tks image
+        run: |
+          docker tag pki-quarkus-tks ${{ vars.REGISTRY }}/$NAMESPACE/pki-quarkus-tks:latest
+          docker push ${{ vars.REGISTRY }}/$NAMESPACE/pki-quarkus-tks:latest
+
+      - name: Publish pki-quarkus-tps image
+        run: |
+          docker tag pki-quarkus-tps ${{ vars.REGISTRY }}/$NAMESPACE/pki-quarkus-tps:latest
+          docker push ${{ vars.REGISTRY }}/$NAMESPACE/pki-quarkus-tps:latest

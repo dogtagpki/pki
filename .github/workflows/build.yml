@@ -215,6 +215,66 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           outputs: type=docker
 
+      - name: Build pki-quarkus-acme image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          build-args: |
+            BASE_IMAGE=${{ env.BASE_IMAGE }}
+            COPR_REPO=${{ env.COPR_REPO }}
+          tags: pki-quarkus-acme
+          target: pki-quarkus-acme
+          cache-from: type=local,src=/tmp/.buildx-cache
+          outputs: type=docker
+
+      - name: Build pki-quarkus-ocsp image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          build-args: |
+            BASE_IMAGE=${{ env.BASE_IMAGE }}
+            COPR_REPO=${{ env.COPR_REPO }}
+          tags: pki-quarkus-ocsp
+          target: pki-quarkus-ocsp
+          cache-from: type=local,src=/tmp/.buildx-cache
+          outputs: type=docker
+
+      - name: Build pki-quarkus-kra image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          build-args: |
+            BASE_IMAGE=${{ env.BASE_IMAGE }}
+            COPR_REPO=${{ env.COPR_REPO }}
+          tags: pki-quarkus-kra
+          target: pki-quarkus-kra
+          cache-from: type=local,src=/tmp/.buildx-cache
+          outputs: type=docker
+
+      - name: Build pki-quarkus-tks image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          build-args: |
+            BASE_IMAGE=${{ env.BASE_IMAGE }}
+            COPR_REPO=${{ env.COPR_REPO }}
+          tags: pki-quarkus-tks
+          target: pki-quarkus-tks
+          cache-from: type=local,src=/tmp/.buildx-cache
+          outputs: type=docker
+
+      - name: Build pki-quarkus-tps image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          build-args: |
+            BASE_IMAGE=${{ env.BASE_IMAGE }}
+            COPR_REPO=${{ env.COPR_REPO }}
+          tags: pki-quarkus-tps
+          target: pki-quarkus-tps
+          cache-from: type=local,src=/tmp/.buildx-cache
+          outputs: type=docker
+
       - name: Save PKI images
         run: |
           docker images
@@ -229,7 +289,12 @@ jobs:
               pki-tps \
               pki-quarkus-runner \
               pki-quarkus-ca \
-              pki-quarkus-est
+              pki-quarkus-est \
+              pki-quarkus-acme \
+              pki-quarkus-ocsp \
+              pki-quarkus-kra \
+              pki-quarkus-tks \
+              pki-quarkus-tps
 
       - name: Store PKI images
         uses: actions/cache@v4

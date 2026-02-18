@@ -31,22 +31,14 @@
         <module>acme</module>
         <module>est</module>
         <module>console</module>
+        <module>quarkus-common</module>
+        <module>est-quarkus</module>
+        <module>acme-quarkus</module>
+        <module>ocsp-quarkus</module>
+        <module>kra-quarkus</module>
+        <module>tks-quarkus</module>
+        <module>tps-quarkus</module>
+        <module>ca-quarkus</module>
     </modules>
-
-    <profiles>
-        <profile>
-            <id>quarkus</id>
-            <modules>
-                <module>quarkus-common</module>
-                <module>est-quarkus</module>
-                <module>acme-quarkus</module>
-                <module>ocsp-quarkus</module>
-                <module>kra-quarkus</module>
-                <module>tks-quarkus</module>
-                <module>tps-quarkus</module>
-                <module>ca-quarkus</module>
-            </modules>
-        </profile>
-    </profiles>
 
 </project>
