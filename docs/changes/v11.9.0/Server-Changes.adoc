@@ -43,3 +43,24 @@ pki-server ca-db-vlv-reindex
 *Note:* The reindex operation may take significant time on databases with
 many certificates. For replicated environments, VLV indexes are not
 replicated, so each replica must run these commands independently.
+
+== EST /fullcmc Support ==
+
+The EST subsystem now supports Full CMC (Certificate Management over CMS)
+requests via a new `/fullcmc` endpoint. This feature enables EST clients to
+submit CMC certificate enrollment requests that are forwarded to the CA's
+`ProfileSubmitCMCFull` endpoint, complying with RFC 7030 and RFC 8951.
+
+The implementation supports two-tier authentication: the EST subsystem validates
+the client's TLS certificate, and the CA verifies the end-user's client
+certificate embedded in the CMC request. Agent users can request certificates
+with any subject name, while non-agent users are restricted to requesting
+certificates matching their own subject name.
+
+A new profile `estFullcmcDeviceCert` has been added for CMC device certificate
+enrollment via EST, along with the `CMCAuthForEST` authenticator and
+`RAHeaderClientCertSubjectNameConstraint` for subject name validation.
+
+See also:
+
+* link:../../installation/est/configuring-est-fullcmc-example.adoc[Configuring EST fullcmc - Example]
