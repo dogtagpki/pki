@@ -21,7 +21,7 @@ jobs:
   ca-mldsa-test:
     # disable ML-DSA test on Fedora 42 since it's failing with SSLV3_ALERT_HANDSHAKE_FAILURE
     if: ${{ vars.BASE_IMAGE != 'registry.fedoraproject.org/fedora:42' }}
-    name: CA with ML-DSA-44
+    name: CA with ML-DSA
     needs: build
     uses: ./.github/workflows/ca-mldsa-test.yml
 
