@@ -46,10 +46,15 @@ jobs:
               --network-alias=pki.example.com \
               pki
 
+          # get Fedora version
+          FEDORA_VERSION=$(docker exec pki sed -n 's/^VERSION_ID=//p' /etc/os-release)
+          echo "FEDORA_VERSION=$FEDORA_VERSION" >> $GITHUB_ENV
+
       - name: Enable ML-DSA-44 in default crypto-policies
+        if: ${{ fromJSON(env.FEDORA_VERSION) < 44 }}
         # ML-DSA algorithms for nss are enabled as default in rawhide (Fedora 44)
         run: |
-          docker exec pki sed -i 's/smime-key-exchange:ECDSA/smime-key-exchange:ML-DSA-44:ECDSA/' \
+          docker exec pki sed -i 's/smime-key-exchange:ECDSA/smime-key-exchange:ML-DSA-44:ML-DSA-87:ECDSA/' \
               /etc/crypto-policies/back-ends/nss.config
 
       - name: Install CA
@@ -314,6 +319,102 @@ jobs:
         run: |
           docker exec pki cat /var/log/pki/pki-tomcat/ca/signedAudit/ca_audit | grep AuditEvent=AUDIT_LOG_SIGNING | tee output
           grep -q . output
+
+      - name: Remove CA and cleanup home
+        run: |
+          docker exec pki pkidestroy -s CA --remove-logs --remove-conf --force -v
+          docker exec pki rm -rf /root/.dogtag
+
+      - name: Create ML-DSA-87 configuration
+        # ML-DSA algorithms for nss are enabled as default in rawhide (Fedora 44)
+        run: |
+          docker exec pki cp /usr/share/pki/server/examples/installation/ca-mldsa.cfg /ca-mldsa-87.cfg
+          docker exec pki sed -i 's/44$/87/' /ca-mldsa-87.cfg
+
+      - name: Install CA with ML-DSA-87 with default buffer
+        # pkispawn with ML-DSA-87 certificate will fail because the buffer is too small
+        run: |
+          docker exec pki pkispawn \
+              -f /ca-mldsa-87.cfg \
+              -s CA \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_enable_access_log=False \
+              -v || echo "Failed" | tee output
+
+          echo "Failed" > expected
+          tail -n 1 output > actual
+          diff expected actual
+
+      - name: Remove CA and increase the buffer
+        run: |
+          docker exec pki pkidestroy -s CA --remove-logs --remove-conf --force -v
+          docker exec pki rm -rf /root/.dogtag
+          docker exec pki sed -i 's/-Dredhat.crypto-policies=false/-Dredhat.crypto-policies=false -Djdk.tls.maxHandshakeMessageSize=64000/' /usr/share/pki/server/conf/tomcat.conf
+
+      - name: Install CA with ML-DSA-87 and increased buffer
+        run: |
+          docker exec pki pkispawn \
+              -f /ca-mldsa-87.cfg \
+              -s CA \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_enable_access_log=False \
+              -v
+
+      - name: Check CA signing cert
+        run: |
+          # inspect cert with certutil
+          docker exec pki certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -f ${SHARED}/password.txt -n ca_signing | tee output
+
+          # signing algorithm should be "ML-DSA-87"
+          echo "ML-DSA-87" > expected
+          sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
+          diff expected actual
+
+          # inspect cert with openssl
+          docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
+          docker exec pki openssl x509 -text -noout -in ca_signing.crt | tee output
+
+          # signing algorithm should be "ML-DSA-87"
+          echo "ML-DSA-87" > expected
+          sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
+          diff expected actual
+
+          # default signing algorithm should be "ML-DSA-87"
+          echo "ML-DSA-87" > expected
+          docker exec pki pki-server ca-config-show ca.signing.defaultSigningAlgorithm | tee actual
+          diff expected actual
+
+      - name: Check authenticating as CA admin user
+        run: |
+          docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
+
+          docker exec pki pki nss-cert-import \
+              --cert ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
+          docker exec pki pki pkcs12-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password Secret.123
+          docker exec pki pki -n caadmin ca-user-show caadmin
+
+      - name: Check CA admin cert
+        run: |
+          # inspect cert with certutil
+          docker exec pki certutil -L -d /root/.dogtag/nssdb -n caadmin | tee output
+
+          # signing algorithm should be "ML-DSA-87"
+          echo "ML-DSA-87" > expected
+          sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
+          diff expected actual
+
+          # inspect cert with openssl
+          docker exec pki openssl x509 -text -noout -in /root/.dogtag/pki-tomcat/ca_admin.cert | tee output
+
+          # signing algorithm should be "ML-DSA-87"
+          echo "ML-DSA-87" > expected
+          sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
+          diff expected actual
 
       - name: Remove CA
         run: docker exec pki pkidestroy -s CA -v
