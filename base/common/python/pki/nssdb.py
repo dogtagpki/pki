@@ -298,7 +298,10 @@ class NSSDatabase(object):
             self.internal_password_file = self.password_file
 
         self.passwords = passwords
-        self.password_conf = password_conf
+        if password_conf and os.path.isfile(password_conf):
+            self.password_conf = password_conf
+        else:
+            self.password_conf = None
 
     def run(self,
             cmd,
@@ -403,10 +406,9 @@ class NSSDatabase(object):
         passwords = []
         for token, pw in self.passwords.items():
             if token.startswith('hardware-'):
-                token = token.replace('hardware-', '')
-                passwords.append(f'{token}:{pw}')
+                passwords.append(f'{token}={pw}')
             elif token == INTERNAL_TOKEN_NAME:
-                passwords.append(f'{dbname}:{pw}')
+                passwords.append(f'{dbname}={pw}')
 
         return '\n'.join(passwords)
 
@@ -910,12 +912,17 @@ class NSSDatabase(object):
 
         cmd = [
             'pki',
-            '-d', self.directory,
-            '-f', self.password_conf,
+            '-d', self.directory
+        ]
+
+        if self.password_conf:
+            cmd.extend(['-f', self.password_conf])
+
+        cmd.extend([
             'nss-cert-mod',
             '--trust-flags', trust_attributes,
             fullname
-        ]
+        ])
 
         self.run(cmd, check=True)
 
@@ -1906,7 +1913,13 @@ class NSSDatabase(object):
         tmpdir = self.create_tmpdir()
         try:
             token = self.get_effective_token(token)
-            password_file = self.get_password_file(tmpdir, token)
+
+            # When accessing certs from HSM tokens, we need passwords for both
+            # the internal token and the HSM token. Use all_tokens=True to create
+            # a multi-token password file that can be used with -f option.
+            need_all_tokens = token and not internal_token(token)
+            password_file = self.get_password_file(tmpdir, token, all_tokens=need_all_tokens)
+
             cmd = [
                 'pki',
                 '-d', self.directory
@@ -1920,7 +1933,11 @@ class NSSDatabase(object):
                 cmd.extend(['-f', self.password_conf])
 
             elif password_file:
-                cmd.extend(['-C', password_file])
+                # Use -f for multi-token password files, -C for single password
+                if need_all_tokens:
+                    cmd.extend(['-f', password_file])
+                else:
+                    cmd.extend(['-C', password_file])
 
             cmd.extend([
                 'nss-cert-show',
@@ -2022,7 +2039,12 @@ class NSSDatabase(object):
         tmpdir = self.create_tmpdir()
         try:
             token = self.get_effective_token(token)
-            password_file = self.get_password_file(tmpdir, token)
+
+            # When accessing certs from HSM tokens, we need passwords for both
+            # the internal token and the HSM token. Use all_tokens=True to create
+            # a multi-token password file that can be used with -f option.
+            need_all_tokens = token and not internal_token(token)
+            password_file = self.get_password_file(tmpdir, token, all_tokens=need_all_tokens)
 
             cmd = [
                 'pki',
@@ -2038,7 +2060,11 @@ class NSSDatabase(object):
                 cmd.extend(['-f', self.password_conf])
 
             elif password_file:
-                cmd.extend(['-C', password_file])
+                # Use -f for multi-token password files, -C for single password
+                if need_all_tokens:
+                    cmd.extend(['-f', password_file])
+                else:
+                    cmd.extend(['-C', password_file])
 
             cmd.extend([
                 'nss-cert-export',
@@ -2144,9 +2170,11 @@ class NSSDatabase(object):
 
         cmd = [
             'pki',
-            '-d', self.directory,
-            '-f', self.password_conf
+            '-d', self.directory
         ]
+
+        if self.password_conf:
+            cmd.extend(['-f', self.password_conf])
 
         token = self.get_effective_token(token)
 
@@ -2185,44 +2213,59 @@ class NSSDatabase(object):
             output_file=None,
             output_format=None):
 
-        cmd = [
-            'pki',
-            '-d', self.directory
-        ]
+        tmpdir = self.create_tmpdir()
+        try:
+            token = self.get_effective_token(token)
 
-        if self.password_conf and os.path.exists(self.password_conf):
-            cmd.extend(['-f', self.password_conf])
+            # When exporting certs from HSM tokens, we need passwords for both
+            # the internal token and the HSM token. Use all_tokens=True to create
+            # a multi-token password file that can be used with -f option.
+            need_all_tokens = token and not internal_token(token)
+            password_file = self.get_password_file(tmpdir, token, all_tokens=need_all_tokens)
 
-        elif self.password_file and os.path.exists(self.password_file):
-            cmd.extend(['-C', self.password_file])
+            cmd = [
+                'pki',
+                '-d', self.directory
+            ]
 
-        cmd.append('nss-cert-export')
+            if self.password_conf:
+                cmd.extend(['-f', self.password_conf])
 
-        if include_chain:
-            cmd.extend(['--with-chain'])
+            elif password_file:
+                # Use -f for multi-token password files, -C for single password
+                if need_all_tokens:
+                    cmd.extend(['-f', password_file])
+                else:
+                    cmd.extend(['-C', password_file])
 
-        if output_file:
-            cmd.extend(['--output-file', output_file])
+            cmd.append('nss-cert-export')
 
-        if output_format:
-            cmd.extend(['--format', output_format])
+            if include_chain:
+                cmd.extend(['--with-chain'])
 
-        if logger.isEnabledFor(logging.DEBUG):
-            cmd.append('--debug')
+            if output_file:
+                cmd.extend(['--output-file', output_file])
 
-        elif logger.isEnabledFor(logging.INFO):
-            cmd.append('--verbose')
+            if output_format:
+                cmd.extend(['--format', output_format])
 
-        token = self.get_effective_token(token)
+            if logger.isEnabledFor(logging.DEBUG):
+                cmd.append('--debug')
 
-        if token:
-            fullname = token + ':' + nickname
-        else:
-            fullname = nickname
+            elif logger.isEnabledFor(logging.INFO):
+                cmd.append('--verbose')
 
-        cmd.append(fullname)
+            if token:
+                fullname = token + ':' + nickname
+            else:
+                fullname = nickname
 
-        self.run(cmd, check=True)
+            cmd.append(fullname)
+
+            self.run(cmd, check=True)
+
+        finally:
+            shutil.rmtree(tmpdir)
 
     def export_cert(self,
                     nickname,
