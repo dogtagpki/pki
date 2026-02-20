@@ -49,14 +49,18 @@ public class Keyring {
         };
         logger.debug("Command: " + String.join(" ", cmd));
 
+        String output = null;
         try {
-            String output = Utils.exec(cmd, null);
+            output = Utils.exec(cmd, null);
+            output = output.trim();
             return Long.parseLong(output);
+        } catch (NumberFormatException ne) {
+            logger.debug("keyctl search returned non-numeric output: " + output);
+            return -1;
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error executing keyctl search", e);
+            return -1;
         }
-
-        return -1;
     }
 
     /**
@@ -83,6 +87,12 @@ public class Keyring {
             throw new IllegalArgumentException("output_format must be one of [\'raw\', \'hex\'].");
 
         long keyID = getKeyID(keyName);
+        logger.debug("Got key ID " + keyID + " for key " + keyName);
+
+        if (keyID == -1) {
+            logger.error("Key not found: " + keyName);
+            return null;
+        }
 
         String[] cmd = {
                 "keyctl",
@@ -93,6 +103,7 @@ public class Keyring {
 
         try {
             String output = Utils.exec(cmd, null);
+            logger.debug("Retrieved password for " + keyName + ", length: " + (output != null ? output.length() : 0));
             return output;
         } catch (IOException e) {
             e.printStackTrace();

@@ -374,6 +374,12 @@ class PKIServer(object):
                 # Build a chain containing the certificate we're trying to
                 # export. OpenSSL gets confused if we don't have a key for
                 # the end certificate: rh-bz#1246371
+
+                # Ensure HSM token password is available (e.g. from
+                # keyring when password.conf does not exist)
+                if not pki.nssdb.internal_token(token):
+                    self.get_token_password(token)
+
                 nssdb = self.open_nssdb()
                 try:
                     nssdb.export_cert_bundle(
