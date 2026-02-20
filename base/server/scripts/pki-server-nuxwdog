@@ -145,4 +145,4 @@ for tag in sorted(iter(tags)):
 
 # 4. Put this script to sleep in background to keep the keyring fd open until main program starts
 # due to systemd bug #1668954
-subprocess.Popen(['/usr/bin/sleep', '10'])
+subprocess.Popen(['/usr/bin/sleep', '600'])
