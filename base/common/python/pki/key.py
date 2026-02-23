@@ -916,65 +916,6 @@ class KeyClient:
         return self.submit_request(request)
 
     @pki.handle_exceptions()
-    def archive_key(self, client_key_id, data_type, private_data,
-                    key_algorithm=None, key_size=None, realm=None):
-        """ Archive a secret (symmetric key or passphrase) on the DRM.
-
-            Requires a user-supplied client ID.  There can be only one active
-            key with a specified client ID.  If a record for a duplicate active
-            key exists, a BadRequestException is thrown.
-
-            data_type can be one of the following:
-                KeyClient.SYMMETRIC_KEY_TYPE,
-                KeyClient.ASYMMETRIC_KEY_TYPE,
-                KeyClient.PASS_PHRASE_TYPE
-
-            key_algorithm and key_size are applicable to symmetric keys only.
-            If a symmetric key is being archived, these parameters are required.
-
-            private_data is the raw secret to be archived.
-            It will be wrapped and sent to the DRM.
-
-            The function returns a KeyRequestResponse object containing a
-            KeyRequestInfo object with details about the archival request and
-            key archived.
-        """
-        if (client_key_id is None) or (data_type is None):
-            raise TypeError("Client Key ID and data type must be specified")
-
-        if data_type == KeyClient.SYMMETRIC_KEY_TYPE:
-            if (key_algorithm is None) or (key_size is None):
-                raise TypeError(
-                    "For symmetric keys, key algorithm and key_size must "
-                    "be specified")
-
-        if private_data is None:
-            raise TypeError("No data provided to be archived")
-
-        nonce_iv = self.crypto.generate_nonce_iv()
-        session_key = self.crypto.generate_session_key()
-
-        wrapped_session_key = self.crypto.asymmetric_wrap(
-            session_key,
-            self.get_transport_cert())
-
-        encrypted_data = self.crypto.symmetric_wrap(
-            private_data,
-            session_key,
-            nonce_iv=nonce_iv)
-
-        return self.archive_encrypted_data(
-            client_key_id,
-            data_type,
-            encrypted_data,
-            wrapped_session_key,
-            algorithm_oid=self.encrypt_alg_oid,
-            nonce_iv=nonce_iv,
-            key_algorithm=key_algorithm,
-            key_size=key_size,
-            realm=realm)
-
-    @pki.handle_exceptions()
     def archive_encrypted_data(self,
                                client_key_id,
                                data_type,
@@ -988,8 +929,17 @@ class KeyClient:
         """
         Archive a secret (symmetric key or passphrase) on the DRM.
 
-        Refer to archive_key() comments for a description of client_key_id,
-        data_type, key_algorithm and key_size.
+        Requires a user-supplied client ID.  There can be only one active
+        key with a specified client ID.  If a record for a duplicate active
+        key exists, a BadRequestException is thrown.
+
+        data_type can be one of the following:
+            KeyClient.SYMMETRIC_KEY_TYPE,
+            KeyClient.ASYMMETRIC_KEY_TYPE,
+            KeyClient.PASS_PHRASE_TYPE
+
+        key_algorithm and key_size are applicable to symmetric keys only.
+        If a symmetric key is being archived, these parameters are required.
 
         The following parameters are also required:
             - encrypted_data - which is the data encrypted by a
@@ -1054,8 +1004,17 @@ class KeyClient:
                             key_algorithm=None, key_size=None, realm=None):
         """ Archive a secret (symmetric key or passphrase) on the DRM.
 
-            Refer to archive_key() comments for a description of client_key_id,
-            data_type, key_algorithm and key_size.
+            Requires a user-supplied client ID.  There can be only one active
+            key with a specified client ID.  If a record for a duplicate active
+            key exists, a BadRequestException is thrown.
+
+            data_type can be one of the following:
+                KeyClient.SYMMETRIC_KEY_TYPE,
+                KeyClient.ASYMMETRIC_KEY_TYPE,
+                KeyClient.PASS_PHRASE_TYPE
+
+            key_algorithm and key_size are applicable to symmetric keys only.
+            If a symmetric key is being archived, these parameters are required.
 
             pki_archive_options is the data to be archived wrapped in a
             PKIArchiveOptions structure,

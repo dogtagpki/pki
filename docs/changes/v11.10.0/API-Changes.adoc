@@ -1,0 +1,6 @@
+= API Changes =
+
+== Remove KeyClient.archive_key() ==
+
+The `KeyClient.archive_key()` has been removed.
+Use `KeyClient.archive_encrypted_data()` instead.
