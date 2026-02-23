@@ -1148,8 +1148,13 @@ class KeyClient:
         return Key(key_data)
 
     @pki.handle_exceptions()
-    def retrieve_key(self, key_id=None, trans_wrapped_session_key=None,
-                     request_id=None):
+    def retrieve_key(
+            self,
+            key_id=None,
+            trans_wrapped_session_key=None,
+            request_id=None,
+            encrypt_alg_oid=None,
+            wrap_name=None):
         """ Retrieve a secret (passphrase or symmetric key) from the DRM.
 
         This method will retrieve a key from the KRA given the key_id or
@@ -1203,13 +1208,19 @@ class KeyClient:
                 session_key,
                 self.get_transport_cert())
 
+        if not encrypt_alg_oid:
+            encrypt_alg_oid = self.encrypt_alg_oid
+
+        if not wrap_name:
+            wrap_name = self.wrap_name
+
         request = KeyRecoveryRequest(
             key_id=key_id,
             request_id=request_id,
             trans_wrapped_session_key=base64.b64encode(
                 trans_wrapped_session_key).decode('ascii'),
-            payload_encryption_oid=self.encrypt_alg_oid,
-            payload_wrapping_name=self.wrap_name
+            payload_encryption_oid=encrypt_alg_oid,
+            payload_wrapping_name=wrap_name
         )
 
         key = self.retrieve_key_data(request)
