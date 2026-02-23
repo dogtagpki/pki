@@ -251,11 +251,23 @@ def run_test(protocol, hostname, port, client_cert, certdb_dir,
     print("key to archive: " + key1)
     client_key_id = "Vek #4" + time.strftime('%c')
 
-    response = keyclient.archive_key(client_key_id,
-                                     keyclient.SYMMETRIC_KEY_TYPE,
-                                     b64decode(key1),
-                                     key_algorithm=keyclient.AES_ALGORITHM,
-                                     key_size=128)
+    nonce_iv = crypto.generate_nonce_iv()
+
+    encrypted_data = crypto.symmetric_wrap(
+        b64decode(key1),
+        session_key,
+        nonce_iv=nonce_iv)
+
+    response = keyclient.archive_encrypted_data(
+        client_key_id,
+        keyclient.SYMMETRIC_KEY_TYPE,
+        encrypted_data,
+        wrapped_session_key,
+        algorithm_oid=keyclient.encrypt_alg_oid,
+        nonce_iv=nonce_iv,
+        key_algorithm=keyclient.AES_ALGORITHM,
+        key_size=128)
+
     print_key_request(response.request_info)
 
     # Test 20: Lets get it back
