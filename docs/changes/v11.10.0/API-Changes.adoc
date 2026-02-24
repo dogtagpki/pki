@@ -4,3 +4,7 @@
 
 The `KeyClient.archive_key()` has been removed.
 Use `KeyClient.archive_encrypted_data()` instead.
+
+== Update KeyClient.retrieve_key() ==
+
+The `trans_wrapped_session_key` parameter in `KeyClient.retrieve_key()` must be specified.
