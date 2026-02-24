@@ -33,20 +33,18 @@ jobs:
           tests/bin/ds-create.sh \
               --image=${{ env.DS_IMAGE }} \
               --hostname=cads.example.com \
+              --network=example \
+              --network-alias=cads.example.com \
               --password=Secret.123 \
               cads
 
-      - name: Connect CA DS container to network
-        run: docker network connect example cads --alias cads.example.com
-
       - name: Set up CA container
         run: |
-          tests/bin/runner-init.sh ca
-        env:
-          HOSTNAME: ca.example.com
-
-      - name: Connect CA container to network
-        run: docker network connect example ca --alias ca.example.com
+          tests/bin/runner-init.sh \
+              --hostname=ca.example.com \
+              --network=example \
+              --network-alias=ca.example.com \
+              ca
 
       - name: Install CA in CA container
         run: |
@@ -76,20 +74,18 @@ jobs:
           tests/bin/ds-create.sh \
               --image=${{ env.DS_IMAGE }} \
               --hostname=krads.example.com \
+              --network=example \
+              --network-alias=krads.example.com \
               --password=Secret.123 \
               krads
 
-      - name: Connect KRA DS container to network
-        run: docker network connect example krads --alias krads.example.com
-
       - name: Set up KRA container
         run: |
-          tests/bin/runner-init.sh kra
-        env:
-          HOSTNAME: kra.example.com
-
-      - name: Connect KRA container to network
-        run: docker network connect example kra --alias kra.example.com
+          tests/bin/runner-init.sh \
+              --hostname=kra.example.com \
+              --network=example \
+              --network-alias=kra.example.com \
+              kra
 
       - name: Install KRA in KRA container (step 1)
         run: |
@@ -243,19 +239,3 @@ jobs:
         if: always()
         run: |
           docker exec kra find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
-
-      - name: Gather artifacts
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh cads
-          tests/bin/pki-artifacts-save.sh ca
-          tests/bin/ds-artifacts-save.sh krads
-          tests/bin/pki-artifacts-save.sh kra
-        continue-on-error: true
-
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: kra-external-certs
-          path: /tmp/artifacts
