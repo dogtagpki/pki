@@ -162,25 +162,13 @@ def run_test(protocol, hostname, port, client_cert, certdb_dir,
                                                  keyclient.transport_cert)
     print("My key id is " + str(key_id))
     key_data = keyclient.retrieve_key(
-        key_id, trans_wrapped_session_key=wrapped_session_key)
+        key_id,
+        trans_wrapped_session_key=wrapped_session_key)
     print_key_data(key_data)
     unwrapped_key = crypto.symmetric_unwrap(key_data.encrypted_data,
                                             session_key,
                                             nonce_iv=key_data.nonce_data)
     key1 = b64encode(unwrapped_key)
-
-    # Test 7: Recover key without providing trans_wrapped_session_key
-    key_data = keyclient.retrieve_key(key_id)
-    print_key_data(key_data)
-    key2 = b64encode(key_data.data)
-
-    # Test 8 - Confirm that keys returned are the same
-    if key1 == key2:
-        print("Success: The keys returned match! Key = " + str(key1))
-    else:
-        print("Failure: The returned keys do not match!")
-        print("key1: " + key1)
-        print("key2: " + key2)
 
     # Test 10 = test BadRequestException on create()
     print("Trying to generate a new symkey with the same client ID")
@@ -204,7 +192,9 @@ def run_test(protocol, hostname, port, client_cert, certdb_dir,
     # Test 12 - Test exception on retrieve_key.
     print("Try to retrieve an invalid key")
     try:
-        keyclient.retrieve_key('2000003434')
+        keyclient.retrieve_key(
+            '2000003434',
+            trans_wrapped_session_key=wrapped_session_key)
     except pki.KeyNotFoundException as exc:
         print("KeyNotFoundException thrown - Code:" + str(exc.code) +
               " Message: " + exc.message)
@@ -274,9 +264,16 @@ def run_test(protocol, hostname, port, client_cert, certdb_dir,
     key_info = keyclient.get_active_key_info(client_key_id)
     print_key_info(key_info)
 
-    key_data = keyclient.retrieve_key(key_info.get_key_id())
+    key_data = keyclient.retrieve_key(
+        key_info.get_key_id(),
+        trans_wrapped_session_key=wrapped_session_key)
     print_key_data(key_data)
-    key2 = b64encode(key_data.data)
+    unwrapped_key = crypto.key_unwrap(
+        key.wrap_algorithm,
+        key_data.encrypted_data,
+        session_key,
+        key_data.nonce_data)
+    key2 = b64encode(unwrapped_key)
 
     if key1 == key2:
         print("Success: archived and recovered keys match")

@@ -1141,12 +1141,7 @@ class KeyClient:
         being sent to the DRM.  The parameter trans_wrapped_session_key refers
         to this wrapped session key.
 
-        If the trans_wrapped_session_key is not provided by caller, the method
-        will call CryptoProvider methods to generate and wrap the session key.
-        The function will return the KeyData object with a private_data
-        attribute which stores the unwrapped key information.
-
-        If the trans_wrapped_session_key is provided by the caller, the method
+        The trans_wrapped_session_key must be provided by the caller. The method
         will simply pass the data to the KRA, and will return the secret
         wrapped in the session key.  The secret will still need to be unwrapped
         by the caller.  The function will return the KeyData object, where the
@@ -1159,13 +1154,8 @@ class KeyClient:
         elif key_id is None:
             raise TypeError("Either request_id or Key ID must be specified")
 
-        key_provided = (trans_wrapped_session_key is not None)
-        session_key = None
-        if trans_wrapped_session_key is None:
-            session_key = self.crypto.generate_session_key()
-            trans_wrapped_session_key = self.crypto.asymmetric_wrap(
-                session_key,
-                self.get_transport_cert())
+        if not trans_wrapped_session_key:
+            raise TypeError('trans_wrapped_session_key must be specified')
 
         if not encrypt_alg_oid:
             encrypt_alg_oid = self.encrypt_alg_oid
@@ -1182,43 +1172,7 @@ class KeyClient:
             payload_wrapping_name=wrap_name
         )
 
-        key = self.retrieve_key_data(request)
-        if not key_provided and key.encrypted_data is not None:
-            self.process_returned_key(key, session_key)
-        return key
-
-    @pki.handle_exceptions()
-    def process_returned_key(self, key, session_key):
-        """
-        Decrypt the returned key and place in key.data
-
-        The data will either by encrypted using an encryption algorithm -
-        in which case, the key data will contain an encryption algorithm OID,
-        or it will be key wrapped - in which case, the key data will contain
-        a key wrap mechanism name.
-
-        Only one of these should be present.  If we are talking to an older
-        server, and none is present, we will assume encryption.
-        """
-        if key.wrap_algorithm is not None:
-            if key.encrypt_algorithm_oid is not None:
-                raise ValueError(
-                    "Both encryptOID and wrapping name have been set " +
-                    "in server response"
-                )
-            # do key unwrapping here
-            key.data = self.crypto.key_unwrap(
-                key.wrap_algorithm,
-                key.encrypted_data,
-                session_key,
-                key.nonce_data)
-            return
-
-        # do decryption
-        key.data = self.crypto.symmetric_unwrap(
-            key.encrypted_data,
-            session_key,
-            nonce_iv=key.nonce_data)
+        return self.retrieve_key_data(request)
 
     @pki.handle_exceptions()
     def retrieve_key_by_passphrase(self, key_id=None, request_id=None,
