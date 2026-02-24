@@ -33,20 +33,18 @@ jobs:
           tests/bin/ds-create.sh \
               --image=${{ env.DS_IMAGE }} \
               --hostname=primaryds.example.com \
+              --network=example \
+              --network-alias=primaryds.example.com \
               --password=Secret.123 \
               primaryds
 
-      - name: Connect primary DS container to network
-        run: docker network connect example primaryds --alias primaryds.example.com
-
       - name: Set up primary PKI container
         run: |
-          tests/bin/runner-init.sh primary
-        env:
-          HOSTNAME: primary.example.com
-
-      - name: Connect primary PKI container to network
-        run: docker network connect example primary --alias primary.example.com
+          tests/bin/runner-init.sh \
+              --hostname=primary.example.com \
+              --network=example \
+              --network-alias=primary.example.com \
+              primary
 
       - name: Install primary CA
         run: |
@@ -94,20 +92,18 @@ jobs:
           tests/bin/ds-create.sh \
               --image=${{ env.DS_IMAGE }} \
               --hostname=secondaryds.example.com \
+              --network=example \
+              --network-alias=secondaryds.example.com \
               --password=Secret.123 \
               secondaryds
 
-      - name: Connect secondary DS container to network
-        run: docker network connect example secondaryds --alias secondaryds.example.com
-
       - name: Set up secondary PKI container
         run: |
-          tests/bin/runner-init.sh secondary
-        env:
-          HOSTNAME: secondary.example.com
-
-      - name: Connect secondary PKI container to network
-        run: docker network connect example secondary --alias secondary.example.com
+          tests/bin/runner-init.sh \
+              --hostname=secondary.example.com \
+              --network=example \
+              --network-alias=secondary.example.com \
+              secondary
 
       - name: Create secondary PKI server
         run: |
@@ -623,19 +619,3 @@ jobs:
         if: always()
         run: |
           docker exec secondary find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
-
-      - name: Gather artifacts
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh primaryds
-          tests/bin/ds-artifacts-save.sh secondaryds
-          tests/bin/pki-artifacts-save.sh primary
-          tests/bin/pki-artifacts-save.sh secondary
-        continue-on-error: true
-
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: kra-clone-replicated-ds
-          path: /tmp/artifacts

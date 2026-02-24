@@ -33,20 +33,18 @@ jobs:
           tests/bin/ds-create.sh \
               --image=${{ env.DS_IMAGE }} \
               --hostname=rootcads.example.com \
+              --network=example \
+              --network-alias=rootcads.example.com \
               --password=Secret.123 \
               rootcads
 
-      - name: Connect root CA DS container to network
-        run: docker network connect example rootcads --alias rootcads.example.com
-
       - name: Set up root CA container
         run: |
-          tests/bin/runner-init.sh rootca
-        env:
-          HOSTNAME: rootca.example.com
-
-      - name: Connect root CA container to network
-        run: docker network connect example rootca --alias rootca.example.com
+          tests/bin/runner-init.sh \
+              --hostname=rootca.example.com \
+              --network=example \
+              --network-alias=rootca.example.com \
+              rootca
 
       - name: Install root CA
         run: |
@@ -104,20 +102,18 @@ jobs:
           tests/bin/ds-create.sh \
               --image=${{ env.DS_IMAGE }} \
               --hostname=subcads.example.com \
+              --network=example \
+              --network-alias=subcads.example.com \
               --password=Secret.123 \
               subcads
 
-      - name: Connect sub CA DS container to network
-        run: docker network connect example subcads --alias subcads.example.com
-
       - name: Set up sub CA container
         run: |
-          tests/bin/runner-init.sh subca
-        env:
-          HOSTNAME: subca.example.com
-
-      - name: Connect sub CA container to network
-        run: docker network connect example subca --alias subca.example.com
+          tests/bin/runner-init.sh \
+              --hostname=subca.example.com \
+              --network=example \
+              --network-alias=subca.example.com \
+              subca
 
       - name: Install sub CA
         run: |
@@ -207,20 +203,18 @@ jobs:
           tests/bin/ds-create.sh \
               --image=${{ env.DS_IMAGE }} \
               --hostname=krads.example.com \
+              --network=example \
+              --network-alias=krads.example.com \
               --password=Secret.123 \
               krads
 
-      - name: Connect KRA DS container to network
-        run: docker network connect example krads --alias krads.example.com
-
       - name: Set up KRA container
         run: |
-          tests/bin/runner-init.sh kra
-        env:
-          HOSTNAME: kra.example.com
-
-      - name: Connect KRA container to network
-        run: docker network connect example kra --alias kra.example.com
+          tests/bin/runner-init.sh \
+              --hostname=kra.example.com \
+              --network=example \
+              --network-alias=kra.example.com \
+              kra
 
       - name: Install KRA
         run: |
@@ -396,21 +390,3 @@ jobs:
         if: always()
         run: |
           docker exec kra find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
-
-      - name: Gather artifacts
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh rootcads
-          tests/bin/pki-artifacts-save.sh rootca
-          tests/bin/ds-artifacts-save.sh subcads
-          tests/bin/pki-artifacts-save.sh subca
-          tests/bin/ds-artifacts-save.sh krads
-          tests/bin/pki-artifacts-save.sh kra
-        continue-on-error: true
-
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: kra-separate
-          path: /tmp/artifacts
