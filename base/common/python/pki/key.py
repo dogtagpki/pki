@@ -512,8 +512,12 @@ class KeyClient:
                         'Accept': 'application/json'}
 
         self.crypto = crypto
-        self.transport_cert_nick = transport_cert_nick
-        self.transport_cert = None
+
+        if transport_cert_nick:
+            logger.warning(
+                '%s:%s: The transport_cert_nick parameter in KeyClient.__init__() '
+                'is no longer used.',
+                inspect.stack()[1].filename, inspect.stack()[1].lineno)
 
         self.info_client = info_client
         self.encrypt_alg_oid = None
@@ -521,23 +525,6 @@ class KeyClient:
 
         if crypto:
             self.set_crypto_algorithms()
-
-    def get_transport_cert(self):
-
-        if self.transport_cert:
-            return self.transport_cert
-
-        self.crypto.initialize()
-        self.transport_cert = self.crypto.get_cert(self.transport_cert_nick)
-
-        return self.transport_cert
-
-    def set_transport_cert(self, transport_cert_nick):
-        """ Set the transport certificate for crypto operations """
-        if transport_cert_nick is None:
-            raise TypeError(
-                "Transport certificate nickname must be specified.")
-        self.transport_cert = self.crypto.get_cert(self.transport_cert_nick)
 
     @pki.handle_exceptions()
     def set_crypto_algorithms(self):

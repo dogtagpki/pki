@@ -49,10 +49,7 @@ class KRAClient(pki.subsystem.SubsystemClient):
         :param connection - PKIConnection object with DRM connection info.
         :param crypto - CryptoProvider object.
         :param transport_cert_nick - identifier for the DRM transport
-                        certificate.  This will be passed to the
-                        CryptoProvider.get_cert() command to get a
-                        representation of the transport certificate usable for
-                        crypto ops.
+                        certificate.
 
                         Note that for NSS databases, the database must have
                         been initialized beforehand.
@@ -75,7 +72,7 @@ class KRAClient(pki.subsystem.SubsystemClient):
             self.keys = pki.key.KeyClient(
                 self.connection,
                 crypto,
-                transport_cert_nick,
+                None,
                 self.info)
 
             self.system_certs = pki.systemcert.SystemCertClient(self.connection)
@@ -89,3 +86,9 @@ class KRAClient(pki.subsystem.SubsystemClient):
             self.info = None
             self.keys = None
             self.system_certs = None
+
+        if transport_cert_nick:
+            logger.warning(
+                '%s:%s: The transport_cert_nick parameter in KRAClient.__init__() '
+                'is no longer used.',
+                inspect.stack()[1].filename, inspect.stack()[1].lineno)
