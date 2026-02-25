@@ -109,9 +109,6 @@ def run_test(protocol, hostname, port, client_cert, certdb_dir,
     # for NSS db, this must be done after importing the transport cert
     crypto.initialize()
 
-    # set transport cert into keyclient
-    keyclient.set_transport_cert(transport_nick)
-
     # Test 2: Get key request info
     print("Now getting key request")
     try:
@@ -158,8 +155,7 @@ def run_test(protocol, hostname, port, client_cert, certdb_dir,
     # Test 6: Barbican_decode() - Retrieve while providing
     # trans_wrapped_session_key
     session_key = crypto.generate_session_key()
-    wrapped_session_key = crypto.asymmetric_wrap(session_key,
-                                                 keyclient.transport_cert)
+    wrapped_session_key = crypto.asymmetric_wrap(session_key, transport_cert)
     print("My key id is " + str(key_id))
     key_data = keyclient.retrieve_key(
         key_id,

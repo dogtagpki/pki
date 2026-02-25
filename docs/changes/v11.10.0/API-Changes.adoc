@@ -8,3 +8,7 @@ Use `KeyClient.archive_encrypted_data()` instead.
 == Update KeyClient.retrieve_key() ==
 
 The `trans_wrapped_session_key` parameter in `KeyClient.retrieve_key()` must be specified.
+
+== Remove KeyClient.get_transport_cert()/set_transport_cert() ==
+
+The `KeyClient.get_transport_cert()` and `set_transport_cert()` have been removed.
