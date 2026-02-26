@@ -22,12 +22,11 @@
 import argparse
 import collections
 import logging
-from six import itervalues
 
 logger = logging.getLogger(__name__)
 
 
-class CLI(object):
+class CLI:
 
     def __init__(self, name, description, deprecated=False):
 
@@ -73,7 +72,7 @@ class CLI(object):
         if self.extra_commands:
             commands = self.extra_commands.copy()
 
-        for module in itervalues(self.modules):
+        for module in self.modules.values():
 
             if module.deprecated:
                 continue
@@ -85,7 +84,7 @@ class CLI(object):
 
         first = True
 
-        for module in itervalues(self.modules):
+        for module in self.modules.values():
 
             if not module.deprecated:
                 continue

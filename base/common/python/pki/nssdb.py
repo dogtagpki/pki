@@ -20,7 +20,6 @@
 # All rights reserved.
 #
 
-from __future__ import absolute_import
 import base64
 import binascii
 import json
@@ -34,8 +33,6 @@ import tempfile
 import datetime
 import grp
 import pwd
-
-import six
 
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
@@ -111,7 +108,7 @@ def convert_data(data, input_format, output_format,
         lines = [data[i:i + 64] for i in range(0, len(data), 64)]
 
         # add header and footer
-        return '%s\n%s\n%s\n' % (header, '\n'.join(lines), footer)
+        return '{}\n{}\n{}\n'.format(header, '\n'.join(lines), footer)
 
     # converting from PEM to base-64
     if input_format == 'PEM' and output_format == 'BASE64':
@@ -240,7 +237,7 @@ def normalize_token(token):
     return token
 
 
-class NSSDatabase(object):
+class NSSDatabase:
 
     def __init__(self, directory=None,
                  token=None,
@@ -596,7 +593,7 @@ class NSSDatabase(object):
 
         self.run(
             cmd,
-            input='\n'.encode('utf-8'),
+            input=b'\n',
             stdout=subprocess.DEVNULL,
             check=True)
 
@@ -811,7 +808,7 @@ class NSSDatabase(object):
         '''
 
         if cert_file and not cert_data:
-            with open(cert_file, 'r', encoding='utf-8') as f:
+            with open(cert_file, encoding='utf-8') as f:
                 cert_data = f.read()
 
         cert_data = convert_cert(cert_data, cert_format, 'pem')
@@ -1027,7 +1024,7 @@ class NSSDatabase(object):
         if cka_id is None and key_id is not None:
             cka_id = key_id[2:]
 
-        if cka_id is not None and not isinstance(cka_id, six.text_type):
+        if cka_id is not None and not isinstance(cka_id, str):
             raise TypeError('cka_id must be a text string')
 
         tmpdir = self.create_tmpdir()
@@ -1192,7 +1189,7 @@ class NSSDatabase(object):
             self.run(cmd, check=True)
 
             # read base-64 request
-            with open(b64_request_file, 'r', encoding='utf-8') as f:
+            with open(b64_request_file, encoding='utf-8') as f:
                 b64_request = f.read()
 
             # add header and footer
@@ -1960,10 +1957,11 @@ class NSSDatabase(object):
                 # cert not found -> return None
                 return None
 
-            raise Exception('Unable to get certificate %s: %s' % (fullname, stderr.strip()))
+            raise Exception('Unable to get certificate {}: {}'.format(fullname, stderr.strip()))
 
         if result.returncode != 0:
-            raise Exception('Unable to get certificate %s: rc=%s' % (fullname, result.returncode))
+            raise Exception('Unable to get certificate {}: rc={}'
+                            .format(fullname, result.returncode))
 
         # TODO: use JSON instead of text to get cert trust
         re_compile = re.compile(r'^\s*Trust Flags:\s*(\S+)\s*$', re.MULTILINE)
@@ -2009,7 +2007,8 @@ class NSSDatabase(object):
                 if error.startswith(b'certutil: Could not find cert: '):
                     return None
 
-                raise Exception('Could not find certificate: %s: %s' % (fullname, error.strip()))
+                raise Exception('Could not find certificate: {}: {}'
+                                .format(fullname, error.strip()))
 
             if result.returncode != 0:
                 logger.warning('certutil returned non-zero exit code (bug #1539996)')
@@ -2089,19 +2088,20 @@ class NSSDatabase(object):
                 return None
 
             # otherwise, raise exception
-            raise Exception('Unable to get certificate %s: %s' % (fullname, stderr.strip()))
+            raise Exception('Unable to get certificate {}: {}'.format(fullname, stderr.strip()))
 
         if not cert_data:
             raise Exception('Unable to get certificate %s: Missing data' % fullname)
 
         if result.returncode != 0:
-            raise Exception('Unable to get certificate %s: rc=%s' % (fullname, result.returncode))
+            raise Exception('Unable to get certificate {}: rc={}'
+                            .format(fullname, result.returncode))
 
         if output_format == 'base64':
             # convert to base-64
             cert_data = base64.b64encode(cert_data).decode('utf-8')
 
-        if output_text and not isinstance(cert_data, six.string_types):
+        if output_text and not isinstance(cert_data, str):
             # convert to text
             cert_data = cert_data.decode('ascii')
 
@@ -2162,7 +2162,7 @@ class NSSDatabase(object):
             cert_usage=None):
 
         if cert_file and not cert_data:
-            with open(cert_file, 'r', encoding='utf-8') as f:
+            with open(cert_file, encoding='utf-8') as f:
                 cert_data = f.read()
 
         if cert_data:
@@ -2422,7 +2422,7 @@ class NSSDatabase(object):
         logger.debug('NSSDatabase.import_cert_chain(%s) begins', nickname)
 
         if not cert_chain_data:
-            with open(cert_chain_file, 'r', encoding='utf-8') as f:
+            with open(cert_chain_file, encoding='utf-8') as f:
                 cert_chain_data = f.read()
 
         logger.debug('NSSDatabase: Cert chain:\n%s', cert_chain_data)
@@ -2493,7 +2493,7 @@ class NSSDatabase(object):
                 cert_chain = []
 
                 for cert_file in cert_files:
-                    with open(cert_file, 'r', encoding='utf-8') as f:
+                    with open(cert_file, encoding='utf-8') as f:
                         cert_data = f.read()
                     cert_chain.append(cert_data)
 
@@ -2523,7 +2523,7 @@ class NSSDatabase(object):
 
                 self.run(cmd, input=cert_data.encode('utf-8'), check=True)
 
-            with open(output_file, 'r', encoding='utf-8') as f:
+            with open(output_file, encoding='utf-8') as f:
                 return f.read()
 
         finally:
@@ -2575,7 +2575,7 @@ class NSSDatabase(object):
                 if not os.path.exists(cert_file):
                     break
 
-                with open(cert_file, 'r', encoding='utf-8') as f:
+                with open(cert_file, encoding='utf-8') as f:
                     cert_data = f.read()
 
                 certs.append(cert_data)

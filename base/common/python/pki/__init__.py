@@ -21,8 +21,6 @@
 """
 This module contains top-level classes and functions used by the Dogtag project.
 """
-from __future__ import absolute_import
-from __future__ import print_function
 
 from functools import wraps
 import cryptography.x509
@@ -37,7 +35,6 @@ import subprocess
 import sys
 
 import requests
-import six
 
 
 CONF_DIR = '/etc/pki'
@@ -128,7 +125,7 @@ def convert_x509_name_to_dn(name):
         oid = attr.oid
         attr_name = ATTR_NAME_BY_OID.get(oid, oid.dotted_string)
         attr_value = ldap.dn.escape_dn_chars(attr.value)
-        rdn = '%s=%s' % (attr_name, attr_value)
+        rdn = '{}={}'.format(attr_name, attr_value)
 
         if dn:
             dn = rdn + ',' + dn
@@ -157,7 +154,7 @@ def implementation_version():
 
 
 def get_info(name):
-    with open(PACKAGE_VERSION, 'r', encoding='utf-8') as input_file:
+    with open(PACKAGE_VERSION, encoding='utf-8') as input_file:
         for line in input_file:
             line = line.strip('\n')
 
@@ -254,7 +251,7 @@ class FIPS:
 
 
 # pylint: disable=R0903
-class Attribute(object):
+class Attribute:
     """
     Class representing a key/value pair.
 
@@ -268,7 +265,7 @@ class Attribute(object):
 
 
 # pylint: disable=R0903
-class AttributeList(object):
+class AttributeList:
     """
     Class representing a list of attributes.
 
@@ -281,7 +278,7 @@ class AttributeList(object):
         self.Attribute = []
 
 
-class ResourceMessage(object):
+class ResourceMessage:
     """
     This class is the basis for the various types of key requests.
     It is essentially a list of attributes.
@@ -443,7 +440,8 @@ def handle_exceptions():
                     # json raises ValueError. simplejson raises
                     # JSONDecodeError, which is a subclass of ValueError.
                     # re-raise original exception
-                    six.reraise(exc_type, exc_val, exc_tb)
+                    logger.debug('re-raise original exception ignoring exc_type: %s', exc_type)
+                    raise exc_val.with_traceback(exc_tb) from None
                 else:
                     # clear reference cycle
                     exc_type = exc_val = exc_tb = None
@@ -458,7 +456,7 @@ def handle_exceptions():
     return exceptions_decorator
 
 
-class PropertyFile(object):
+class PropertyFile:
     """
     Class to manage property files  The contents of the property file
     are maintained internally as a list of properties.
@@ -492,7 +490,7 @@ class PropertyFile(object):
             return
 
         # read all lines and preserve the original order
-        with open(self.filename, 'r', encoding='utf-8') as f_in:
+        with open(self.filename, encoding='utf-8') as f_in:
             for line in f_in:
                 line = line.strip('\n')
                 self.lines.append(line)
@@ -553,8 +551,8 @@ class PropertyFile(object):
         for i, line in enumerate(self.lines):
 
             # parse <key> <delimiter> <value>
-            match = re.match(r'^\s*([^%s]*)\s*%s\s*(.*)\s*$' % (self.delimiter, self.delimiter),
-                             line)
+            match = re.match(r'^\s*([^{}]*)\s*{}\s*(.*)\s*$'
+                             .format(self.delimiter, self.delimiter), line)
 
             if not match:
                 continue
@@ -576,8 +574,8 @@ class PropertyFile(object):
         for line in self.lines:
 
             # parse <key> <delimiter> <value>
-            match = re.match(r'^\s*([^%s]*)\s*%s\s*(.*)\s*$' % (self.delimiter, self.delimiter),
-                             line)
+            match = re.match(r'^\s*([^{}]*)\s*{}\s*(.*)\s*$'
+                             .format(self.delimiter, self.delimiter), line)
 
             if not match:
                 continue
@@ -614,8 +612,8 @@ class PropertyFile(object):
         for i, line in enumerate(self.lines):
 
             # parse <key> <delimiter> <value>
-            match = re.match(r'^\s*([^%s]*)\s*%s\s*(.*)\s*$' % (self.delimiter, self.delimiter),
-                             line)
+            match = re.match(r'^\s*([^{}]*)\s*{}\s*(.*)\s*$'
+                             .format(self.delimiter, self.delimiter), line)
 
             if not match:
                 continue
@@ -643,8 +641,8 @@ class PropertyFile(object):
         for i, line in enumerate(self.lines):
 
             # parse <key> <delimiter> <value>
-            match = re.match(r'^\s*([^%s]*)\s*%s\s*(.*)\s*$' % (self.delimiter, self.delimiter),
-                             line)
+            match = re.match(r'^\s*([^{}]*)\s*{}\s*(.*)\s*$'.
+                             format(self.delimiter, self.delimiter), line)
 
             if not match:
                 continue

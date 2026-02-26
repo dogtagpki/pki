@@ -21,7 +21,6 @@
 import inspect
 import json
 import logging
-from six import iteritems
 import uuid
 
 import pki
@@ -32,7 +31,7 @@ import pki.cert as cert
 logger = logging.getLogger(__name__)
 
 
-class AuthorityData(object):
+class AuthorityData:
     """
     Class containing authority data to be sent to/from the server when
     getting or creating subordinate CAs
@@ -77,7 +76,7 @@ class AuthorityData(object):
         """ Return AuthorityData object from JSON dict """
         ca_data = cls()
 
-        for k, v in iteritems(attr_list):
+        for k, v in attr_list.items():
             if k in AuthorityData.json_attribute_names:
                 setattr(ca_data, AuthorityData.json_attribute_names[k], v)
             else:
@@ -86,7 +85,7 @@ class AuthorityData(object):
         return ca_data
 
 
-class AuthorityDataCollection(object):
+class AuthorityDataCollection:
     """
     Class containing list of AuthorityData objects and their respective link
     objects.
@@ -116,7 +115,7 @@ class AuthorityDataCollection(object):
         return ret
 
 
-class AuthorityClient(object):
+class AuthorityClient:
     """
     Class encapsulating and mirroring the functionality in the
     AuthorityResource Java interface class defining the REST API for
@@ -153,7 +152,7 @@ class AuthorityClient(object):
         else:
             api_path = 'v2'
 
-        path = '/%s/authorities/%s' % (api_path, aid)
+        path = '/{}/authorities/{}'.format(api_path, aid)
 
         if not self.connection.subsystem:
             path = '/ca' + path
@@ -184,7 +183,7 @@ class AuthorityClient(object):
         else:
             api_path = 'v2'
 
-        path = '/%s/authorities/%s/cert' % (api_path, aid)
+        path = '/{}/authorities/{}/cert'.format(api_path, aid)
 
         if not self.connection.subsystem:
             path = '/ca' + path
@@ -218,7 +217,7 @@ class AuthorityClient(object):
         else:
             api_path = 'v2'
 
-        path = '/%s/authorities/%s/chain' % (api_path, aid)
+        path = '/{}/authorities/{}/chain'.format(api_path, aid)
 
         if not self.connection.subsystem:
             path = '/ca' + path
@@ -325,7 +324,7 @@ class AuthorityClient(object):
         else:
             api_path = 'v2'
 
-        path = '/%s/authorities/%s/enable' % (api_path, aid)
+        path = '/{}/authorities/{}/enable'.format(api_path, aid)
 
         if not self.connection.subsystem:
             path = '/ca' + path
@@ -349,7 +348,7 @@ class AuthorityClient(object):
         else:
             api_path = 'v2'
 
-        path = '/%s/authorities/%s/disable' % (api_path, aid)
+        path = '/{}/authorities/{}/disable'.format(api_path, aid)
 
         if not self.connection.subsystem:
             path = '/ca' + path
@@ -373,7 +372,7 @@ class AuthorityClient(object):
         else:
             api_path = 'v2'
 
-        path = '/%s/authorities/%s' % (api_path, aid)
+        path = '/{}/authorities/{}'.format(api_path, aid)
 
         if not self.connection.subsystem:
             path = '/ca' + path
