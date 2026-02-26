@@ -43,13 +43,11 @@ class KRAClient(pki.subsystem.SubsystemClient):
     KeyRequest REST APIs.
     """
 
-    def __init__(self, parent, crypto=None, transport_cert_nick=None):
+    def __init__(self, parent, crypto=None):
         """ Constructor
 
         :param connection - PKIConnection object with DRM connection info.
         :param crypto - CryptoProvider object.
-        :param transport_cert_nick - identifier for the DRM transport
-                        certificate.
 
                         Note that for NSS databases, the database must have
                         been initialized beforehand.
@@ -72,7 +70,6 @@ class KRAClient(pki.subsystem.SubsystemClient):
             self.keys = pki.key.KeyClient(
                 self.connection,
                 crypto,
-                None,
                 self.info)
 
             self.system_certs = pki.systemcert.SystemCertClient(self.connection)
@@ -86,9 +83,3 @@ class KRAClient(pki.subsystem.SubsystemClient):
             self.info = None
             self.keys = None
             self.system_certs = None
-
-        if transport_cert_nick:
-            logger.warning(
-                '%s:%s: The transport_cert_nick parameter in KRAClient.__init__() '
-                'is no longer used.',
-                inspect.stack()[1].filename, inspect.stack()[1].lineno)

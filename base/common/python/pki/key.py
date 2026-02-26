@@ -488,7 +488,6 @@ class KeyClient:
             self,
             parent,
             crypto=None,
-            transport_cert_nick=None,
             info_client=None):
         """ Constructor """
 
@@ -512,12 +511,6 @@ class KeyClient:
                         'Accept': 'application/json'}
 
         self.crypto = crypto
-
-        if transport_cert_nick:
-            logger.warning(
-                '%s:%s: The transport_cert_nick parameter in KeyClient.__init__() '
-                'is no longer used.',
-                inspect.stack()[1].filename, inspect.stack()[1].lineno)
 
         self.info_client = info_client
         self.encrypt_alg_oid = None
