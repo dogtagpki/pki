@@ -83,8 +83,7 @@ transport_cert = cryptography.x509.load_pem_x509_certificate(
     transport_pem,
     cryptography.hazmat.backends.default_backend())
 
-crypto = pki.crypto.CryptographyCryptoProvider(
-    transport_cert=transport_cert)
+crypto = pki.crypto.CryptographyCryptoProvider()
 crypto.initialize()
 
 pki_client = pki.client.PKIClient(

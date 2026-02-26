@@ -23,6 +23,8 @@ Module containing crypto classes.
 """
 from __future__ import absolute_import
 import abc
+import inspect
+import logging
 import os
 
 import six
@@ -33,7 +35,6 @@ from cryptography.hazmat.primitives.ciphers import (
 from cryptography.hazmat.primitives import keywrap
 from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.primitives.asymmetric.padding import PKCS1v15
-import cryptography.x509
 
 # encryption algorithms OIDs
 DES_EDE3_CBC_OID = "{1 2 840 113549 3 7}"
@@ -44,6 +45,8 @@ WRAP_AES_CBC_PAD = "AES/CBC/PKCS5Padding"
 WRAP_AES_KEY_WRAP = "AES KeyWrap"
 WRAP_AES_KEY_WRAP_PAD = "AES KeyWrap/Padding"
 WRAP_DES3_CBC_PAD = "DES3/CBC/Pad"
+
+logger = logging.getLogger(__name__)
 
 
 class CryptoProvider(six.with_metaclass(abc.ABCMeta, object)):
@@ -106,10 +109,6 @@ class CryptoProvider(six.with_metaclass(abc.ABCMeta, object)):
     def key_unwrap(self, mechanism, data, wrapping_key, nonce_iv):
         """ Unwrap data that has been key wrapped using AES KeyWrap """
 
-    @abc.abstractmethod
-    def get_cert(self, cert_nick):
-        """ Get the certificate for the specified cert_nick. """
-
 
 class CryptographyCryptoProvider(CryptoProvider):
     """
@@ -124,18 +123,18 @@ class CryptographyCryptoProvider(CryptoProvider):
         """ Initialize python-cryptography
         """
         super(CryptographyCryptoProvider, self).__init__()
-        self.certs = {}
-
-        if not isinstance(transport_cert, cryptography.x509.Certificate):
-            # it's a file name
-            with open(transport_cert, 'rb') as f:
-                transport_pem = f.read()
-            transport_cert = cryptography.x509.load_pem_x509_certificate(
-                transport_pem,
-                backend)
 
         if transport_cert_nick:
-            self.certs[transport_cert_nick] = transport_cert
+            logger.warning(
+                '%s:%s: The transport_cert_nick parameter in '
+                'CryptographyCryptoProvider.__init__() is no longer used.',
+                inspect.stack()[1].filename, inspect.stack()[1].lineno)
+
+        if transport_cert:
+            logger.warning(
+                '%s:%s: The transport_cert parameter in CryptographyCryptoProvider.__init__() '
+                'is no longer used.',
+                inspect.stack()[1].filename, inspect.stack()[1].lineno)
 
         # default to AES
         self.encrypt_alg = algorithms.AES
@@ -287,9 +286,3 @@ class CryptographyCryptoProvider(CryptoProvider):
             return keywrap.aes_key_unwrap(wrapping_key, data, self.backend)
 
         raise ValueError("Unsupported key wrap algorithm: " + mechanism)
-
-    def get_cert(self, cert_nick):
-        """
-        :param cert_nick  Nickname for the certificate to be returned.
-        """
-        return self.certs[cert_nick]

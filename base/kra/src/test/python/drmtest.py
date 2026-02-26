@@ -101,7 +101,7 @@ def run_test(protocol, hostname, port, client_cert, certdb_dir,
     print(transport_cert.encoded)
 
     # create kraclient
-    crypto = pki.crypto.CryptographyCryptoProvider(transport_nick, transport_cert)
+    crypto = pki.crypto.CryptographyCryptoProvider()
     kraclient = KRAClient(connection, crypto)
     keyclient = kraclient.keys
 
