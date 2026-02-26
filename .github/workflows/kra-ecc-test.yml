@@ -1,5 +1,9 @@
 name: KRA with ECC
-# docs/installation/kra/Installing_KRA_with_ECC.md
+# This test will perform the following operations:
+# - install CA with EC certs
+# - install KRA with EC certs
+# - enroll EC cert with key archival using CRMFPopClient
+# - enroll EC cert with key archival using pki ca-cert-issue
 
 on: workflow_call
 
@@ -46,7 +50,7 @@ jobs:
               --network-alias=pki.example.com \
               pki
 
-      - name: Install CA
+      - name: Install CA with EC certs
         run: |
           docker exec pki pkispawn \
               -f /usr/share/pki/server/examples/installation/ca-ecc.cfg \
@@ -54,8 +58,9 @@ jobs:
               -D pki_ds_url=ldap://ds.example.com:3389 \
               -v
 
-      - name: Install KRA
+      - name: Install KRA with EC certs
         run: |
+          # docs/installation/kra/Installing_KRA_with_ECC.md
           docker exec pki pkispawn \
               -f /usr/share/pki/server/examples/installation/kra-ecc.cfg \
               -s KRA \
@@ -204,15 +209,25 @@ jobs:
       - name: Run PKI healthcheck
         run: docker exec pki pki-healthcheck --failures-only
 
-      - name: Check KRA admin
+      - name: Import CA signing cert
         run: |
-          docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
+          docker exec pki pki-server cert-export \
+              --cert-file ca_signing.crt \
+              ca_signing
 
           docker exec pki pki nss-cert-import \
               --cert ca_signing.crt \
               --trust CT,C,C \
               ca_signing
 
+      - name: Import KRA transport cert
+        run: |
+          docker exec pki pki nss-cert-import \
+              --cert kra_transport.crt \
+              kra_transport
+
+      - name: Check KRA admin
+        run: |
           docker exec pki pki pkcs12-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
@@ -223,7 +238,7 @@ jobs:
           docker exec pki pki-server ca-profile-mod --enable true caECUserCert
           docker exec pki pki-server restart --wait
 
-      - name: Check key archival with CRMFPopClient
+      - name: Enroll EC cert with key archival using CRMFPopClient
         run: |
           # generate key and cert request
           docker exec pki CRMFPopClient \
@@ -257,15 +272,83 @@ jobs:
           docker exec pki pki nss-cert-import --cert testuser1.crt testuser1
           docker exec pki pki nss-cert-show testuser1 | tee output
 
-          # verify that the cert matches the key (trust flags must be u,u,u)
-          sed -n "s/^\s*Trust Flags:\s*\(\S*\)\s*$/\1/p" output > actual
-          echo "u,u,u" > expected
+          # normalize output
+          sed \
+              -e '/^ *Serial Number:/d' \
+              -e '/^ *Not Valid Before:/d' \
+              -e '/^ *Not Valid After:/d' \
+              output > actual
+
+          cat > expected << EOF
+            Nickname: testuser1
+            Subject DN: UID=testuser1
+            Issuer DN: CN=CA Signing Certificate,OU=pki-tomcat,O=EXAMPLE
+            Trust Flags: u,u,u
+          EOF
+
           diff expected actual
 
+      - name: Check key requests after key archival using CRMFPopClient
+        run: |
+          docker exec pki pki \
+              -n caadmin \
+              kra-key-request-find \
+              | tee output
+
+          # normalize output
+          sed \
+              -e '/-----/d' \
+              -e '/entries matched/d' \
+              -e '/Number of entries returned/d' \
+              -e '/^ *Request ID:/d' \
+              -e '/^ *Key ID:/d' \
+              -e '/^ *Creation Time:/d' \
+              -e '/^ *Modification Time:/d' \
+              output > actual
+
+          # there should be 1 key request
+          cat > expected << EOF
+            Type: enrollment
+            Status: complete
+          EOF
+
+          diff expected actual
+
+      - name: Check keys after key archival using CRMFPopClient
+        run: |
+          docker exec pki pki \
+              -n caadmin \
+              kra-key-find \
+              | tee output
+
+          # normalize output
+          sed \
+              -e '/-----/d' \
+              -e '/key(s) matched/d' \
+              -e '/Number of entries returned/d' \
+              -e '/^ *Request ID:/d' \
+              -e '/^ *Key ID:/d' \
+              -e '/^ *Creation Time:/d' \
+              -e '/^ *Modification Time:/d' \
+              output > actual
+
+          # there should be 1 key
+          cat > expected << EOF
+            Algorithm: 1.2.840.10045.2.1
+            Size: -1
+            Owner: UID=testuser1
+          EOF
+
+          diff expected actual
+
+      - name: Check key record after key archival using CRMFPopClient
+        run: |
           docker exec pki pki \
               -u kraadmin \
               -w Secret.123 \
-              kra-key-find --owner UID=testuser1 | tee output
+              kra-key-find \
+              --owner UID=testuser1 \
+              | tee output
 
           HEX_KEY_ID=$(sed -n "s/^\s*Key ID:\s*\(\S*\)$/\1/p" output)
           echo "Key ID: $HEX_KEY_ID"
@@ -283,57 +366,157 @@ jobs:
               -o ldif_wrap=no \
               -LLL | tee output
 
-          # encryption mode should be "false" by default
-          echo "false" > expected
-          sed -n 's/^metaInfo: payloadEncrypted:\(.*\)$/\1/p' output > actual
+          # normalize output
+          sed \
+              -e '/^$/d' \
+              -e 's/^\(serialno\): .*$/\1: XXXXX/' \
+              -e 's/^\(privateKeyData\):: .*$/\1:: XXXXX/' \
+              -e 's/^\(publicKeyData\):: .*$/\1:: XXXXX/' \
+              -e 's/^\(metaInfo: payloadEncryptionIV\):.*/\1:XXXXX/' \
+              -e 's/^\(dateOfCreate\): .*$/\1: XXXXX/' \
+              -e 's/^\(dateOfModify\): .*$/\1: XXXXX/' \
+              output > actual
+
+          cat > expected << EOF
+          dn: cn=$DEC_KEY_ID,ou=keyRepository,ou=kra,dc=kra,dc=pki,dc=example,dc=com
+          objectClass: top
+          objectClass: keyRecord
+          keyState: VALID
+          serialno: XXXXX
+          ownerName: UID=testuser1
+          keySize: -1
+          algorithm: 1.2.840.10045.2.1
+          privateKeyData:: XXXXX
+          publicKeyData:: XXXXX
+          metaInfo: payloadEncrypted:false
+          metaInfo: sessionKeyLength:128
+          metaInfo: sessionKeyWrapAlgorithm:RSA
+          metaInfo: sessionKeyKeyGenAlgorithm:AES
+          metaInfo: payloadEncryptionOID:2.16.840.1.101.3.4.1.2
+          metaInfo: payloadEncryptionIV:XXXXX
+          metaInfo: payloadWrapAlgorithm:AES KeyWrap/Padding
+          metaInfo: EllipticCurve:ANSI X9.62 elliptic curve prime256v1 (aka secp256r1, NIST P-256)
+          metaInfo: sessionKeyType:AES
+          dateOfCreate: XXXXX
+          dateOfModify: XXXXX
+          archivedBy: CA-pki.example.com-8443
+          cn: $DEC_KEY_ID
+          EOF
+
           diff expected actual
 
-          # key wrap algorithm should be "AES KeyWrap/Padding" by default
-          echo "AES KeyWrap/Padding" > expected
-          sed -n 's/^metaInfo: payloadWrapAlgorithm:\(.*\)$/\1/p' output > actual
-          diff expected actual
-
-      - name: Check key archival with pki client-cert-request
+      - name: Enroll EC cert with key archival using pki ca-cert-issue
         run: |
           # generate key and cert request
-          docker exec pki pki \
-              -U http://pki.example.com:8080 \
-              client-cert-request \
-              --profile caECUserCert \
+          # https://github.com/dogtagpki/pki/wiki/Generating-Certificate-Request-with-PKI-NSS
+          docker exec pki pki nss-cert-request \
+              --key-type EC \
+              --curve nistp521 \
               --type crmf \
-              --algorithm ec \
-              --permanent \
-              --transport kra_transport.crt \
-              UID=testuser2 | tee output
-
-          REQUEST_ID=$(sed -n "s/^\s*Request ID:\s*\(\S*\)\s*$/\1/p" output)
-          echo "Request ID: $REQUEST_ID"
+              --subject UID=testuser2 \
+              --transport kra_transport \
+              --csr testuser2.csr
 
           # issue cert
+          # https://github.com/dogtagpki/pki/wiki/Issuing-Certificates
           docker exec pki pki \
               -u caadmin \
               -w Secret.123 \
-              ca-cert-request-approve \
-              --force \
-              $REQUEST_ID | tee output
-
-          CERT_ID=$(sed -n "s/^\s*Certificate ID:\s*\(\S*\)\s*$/\1/p" output)
-          echo "Cert ID: $CERT_ID"
+              ca-cert-issue \
+              --request-type crmf \
+              --profile caECUserCert \
+              --subject UID=testuser2 \
+              --csr-file testuser2.csr \
+              --output-file testuser2.crt
 
           # import cert
-          docker exec pki pki ca-cert-export --output-file testuser2.crt $CERT_ID
           docker exec pki pki nss-cert-import --cert testuser2.crt testuser2
           docker exec pki pki nss-cert-show testuser2 | tee output
 
-          # verify that the cert matches the key (trust flags must be u,u,u)
-          sed -n "s/^\s*Trust Flags:\s*\(\S*\)\s*$/\1/p" output > actual
-          echo "u,u,u" > expected
+          # normalize output
+          sed \
+              -e '/^ *Serial Number:/d' \
+              -e '/^ *Not Valid Before:/d' \
+              -e '/^ *Not Valid After:/d' \
+              output > actual
+
+          cat > expected << EOF
+            Nickname: testuser2
+            Subject DN: UID=testuser2
+            Issuer DN: CN=CA Signing Certificate,OU=pki-tomcat,O=EXAMPLE
+            Trust Flags: u,u,u
+          EOF
+
           diff expected actual
 
+      - name: Check key requests after key archival using pki ca-cert-issue
+        run: |
+          docker exec pki pki \
+              -n caadmin \
+              kra-key-request-find \
+              | tee output
+
+          # normalize output
+          sed \
+              -e '/-----/d' \
+              -e '/entries matched/d' \
+              -e '/Number of entries returned/d' \
+              -e '/^ *Request ID:/d' \
+              -e '/^ *Key ID:/d' \
+              -e '/^ *Creation Time:/d' \
+              -e '/^ *Modification Time:/d' \
+              output > actual
+
+          # there should be 2 key requests
+          cat > expected << EOF
+            Type: enrollment
+            Status: complete
+
+            Type: enrollment
+            Status: complete
+          EOF
+
+          diff expected actual
+
+      - name: Check keys after key archival using pki ca-cert-issue
+        run: |
+          docker exec pki pki \
+              -n caadmin \
+              kra-key-find \
+              | tee output
+
+          # normalize output
+          sed \
+              -e '/-----/d' \
+              -e '/key(s) matched/d' \
+              -e '/Number of entries returned/d' \
+              -e '/^ *Request ID:/d' \
+              -e '/^ *Key ID:/d' \
+              -e '/^ *Creation Time:/d' \
+              -e '/^ *Modification Time:/d' \
+              output > actual
+
+          # there should be 2 keys
+          cat > expected << EOF
+            Algorithm: 1.2.840.10045.2.1
+            Size: -1
+            Owner: UID=testuser1
+
+            Algorithm: 1.2.840.10045.2.1
+            Size: -1
+            Owner: UID=testuser2
+          EOF
+
+          diff expected actual
+
+      - name: Check key record after key archival using pki ca-cert-issue
+        run: |
           docker exec pki pki \
               -u kraadmin \
               -w Secret.123 \
-              kra-key-find --owner UID=testuser2 | tee output
+              kra-key-find \
+              --owner UID=testuser2 \
+              | tee output
 
           HEX_KEY_ID=$(sed -n "s/^\s*Key ID:\s*\(\S*\)$/\1/p" output)
           echo "Key ID: $HEX_KEY_ID"
@@ -351,14 +534,43 @@ jobs:
               -o ldif_wrap=no \
               -LLL | tee output
 
-          # encryption mode should be "false" by default
-          echo "false" > expected
-          sed -n 's/^metaInfo: payloadEncrypted:\(.*\)$/\1/p' output > actual
-          diff expected actual
+          # normalize output
+          sed \
+              -e '/^$/d' \
+              -e 's/^\(serialno\): .*$/\1: XXXXX/' \
+              -e 's/^\(privateKeyData\):: .*$/\1:: XXXXX/' \
+              -e 's/^\(publicKeyData\):: .*$/\1:: XXXXX/' \
+              -e 's/^\(metaInfo: payloadEncryptionIV\):.*/\1:XXXXX/' \
+              -e 's/^\(dateOfCreate\): .*$/\1: XXXXX/' \
+              -e 's/^\(dateOfModify\): .*$/\1: XXXXX/' \
+              output > actual
 
-          # key wrap algorithm should be "AES KeyWrap/Padding" by default
-          echo "AES KeyWrap/Padding" > expected
-          sed -n 's/^metaInfo: payloadWrapAlgorithm:\(.*\)$/\1/p' output > actual
+          cat > expected << EOF
+          dn: cn=$DEC_KEY_ID,ou=keyRepository,ou=kra,dc=kra,dc=pki,dc=example,dc=com
+          objectClass: top
+          objectClass: keyRecord
+          keyState: VALID
+          serialno: XXXXX
+          ownerName: UID=testuser2
+          keySize: -1
+          algorithm: 1.2.840.10045.2.1
+          privateKeyData:: XXXXX
+          publicKeyData:: XXXXX
+          metaInfo: payloadEncrypted:false
+          metaInfo: sessionKeyLength:128
+          metaInfo: sessionKeyWrapAlgorithm:RSA
+          metaInfo: sessionKeyKeyGenAlgorithm:AES
+          metaInfo: payloadEncryptionOID:2.16.840.1.101.3.4.1.2
+          metaInfo: payloadEncryptionIV:XXXXX
+          metaInfo: payloadWrapAlgorithm:AES KeyWrap/Padding
+          metaInfo: EllipticCurve:SECG elliptic curve secp521r1 (aka NIST P-521)
+          metaInfo: sessionKeyType:AES
+          dateOfCreate: XXXXX
+          dateOfModify: XXXXX
+          archivedBy: CA-pki.example.com-8443
+          cn: $DEC_KEY_ID
+          EOF
+
           diff expected actual
 
       - name: Remove KRA
@@ -371,6 +583,11 @@ jobs:
         if: always()
         run: |
           docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check PKI server access log
+        if: always()
+        run: |
+          docker exec pki find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
 
       - name: Check CA debug log
         if: always()
