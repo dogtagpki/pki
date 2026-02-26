@@ -22,8 +22,6 @@ import inspect
 import json
 import logging
 
-from six import iteritems
-
 import pki
 import pki.client as client
 import pki.encoder as encoder
@@ -31,7 +29,7 @@ import pki.encoder as encoder
 logger = logging.getLogger(__name__)
 
 
-class Feature(object):
+class Feature:
     """Class containing data about Features advertised by the CS server
     """
 
@@ -65,7 +63,7 @@ class Feature(object):
         """ Return Feature object from JSON dict """
         feature = cls()
 
-        for k, v in iteritems(attr_list):
+        for k, v in attr_list.items():
             if k in Feature.json_attribute_names:
                 setattr(feature, Feature.json_attribute_names[k], v)
             else:
@@ -74,7 +72,7 @@ class Feature(object):
         return feature
 
 
-class FeatureCollection(object):
+class FeatureCollection:
     """
     Class containing list of Feature objects.
     This data is returned when listing features.
@@ -103,7 +101,7 @@ class FeatureCollection(object):
         return ret
 
 
-class FeatureClient(object):
+class FeatureClient:
     """
     Class encapsulating and mirroring the functionality in the
     AuthorityResource Java interface class defining the REST API for
@@ -143,7 +141,7 @@ class FeatureClient(object):
         else:
             api_path = 'v2'
 
-        path = '/%s/config/features/%s' % (api_path, feature_id)
+        path = '/{}/config/features/{}'.format(api_path, feature_id)
 
         if not self.connection.subsystem:
             path = '/ca' + path

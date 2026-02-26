@@ -31,8 +31,7 @@ import logging
 import os
 import warnings
 
-from six import iteritems
-from six.moves.urllib.parse import quote  # pylint: disable=F0401,E0611
+from urllib.parse import quote  # pylint: disable=F0401,E0611
 
 import pki
 import pki.crypto
@@ -45,7 +44,7 @@ logger = logging.getLogger(__name__)
 
 # should be moved to request.py
 # pylint: disable=R0903
-class RequestId(object):
+class RequestId:
     """
     Class representing a Request ID
     """
@@ -56,7 +55,7 @@ class RequestId(object):
 
 
 # pylint: disable=R0903
-class KeyData(object):
+class KeyData:
     """
     This is the object that contains the encoded wrapped secret
     when that secret is retrieved. It is used by the DRM
@@ -89,7 +88,7 @@ class KeyData(object):
     def from_json(cls, attr_list):
         """ Return a KeyData object from a JSON dict """
         key_data = cls()
-        for k, v in iteritems(attr_list):
+        for k, v in attr_list.items():
             if k in KeyData.json_attribute_names:
                 setattr(key_data, KeyData.json_attribute_names[k], v)
             else:
@@ -97,7 +96,7 @@ class KeyData(object):
         return key_data
 
 
-class Key(object):
+class Key:
     """
     An instance of this class stores the decoded encrypted secret
     present in the KeyData object passed in the constructor.
@@ -127,7 +126,7 @@ class Key(object):
         self.data = None
 
 
-class KeyInfo(object):
+class KeyInfo:
     """
     This is the object that contains information stored
     in the database record for an archived secret.  It does not
@@ -155,7 +154,7 @@ class KeyInfo(object):
     def from_json(cls, attr_list):
         """ Return KeyInfo from JSON dict """
         key_info = cls()
-        for k, v in iteritems(attr_list):
+        for k, v in attr_list.items():
             if k in KeyInfo.json_attribute_names:
                 setattr(key_info, KeyInfo.json_attribute_names[k], v)
             else:
@@ -173,7 +172,7 @@ class KeyInfo(object):
 
 
 # pylint: disable=R0903
-class KeyInfoCollection(object):
+class KeyInfoCollection:
     """
     This class represents data returned when searching the DRM archived
     secrets.  Essentially, its a list of KeyInfo objects.
@@ -197,7 +196,7 @@ class KeyInfoCollection(object):
         return ret
 
 
-class KeyRequestInfo(object):
+class KeyRequestInfo:
     """
     This class represents data about key requests (archival, recovery,
     key generation etc.) in the DRM.
@@ -221,7 +220,7 @@ class KeyRequestInfo(object):
     def from_json(cls, attr_list):
         """ Return a KeyRequestInfo object from a JSON dict. """
         key_request_info = cls()
-        for k, v in iteritems(attr_list):
+        for k, v in attr_list.items():
             if k in KeyRequestInfo.json_attribute_names:
                 setattr(key_request_info,
                         KeyRequestInfo.json_attribute_names[k], v)
@@ -246,7 +245,7 @@ class KeyRequestInfo(object):
 
 
 # pylint: disable=R0903
-class KeyRequestInfoCollection(object):
+class KeyRequestInfoCollection:
     """
     This class represents the data returned when searching the key
     requests in the DRM.  Essentially, its a list of KeyRequestInfo
@@ -273,7 +272,7 @@ class KeyRequestInfoCollection(object):
         return ret
 
 
-class KeyRequestResponse(object):
+class KeyRequestResponse:
     """
     This class is returned when an archival, recovery or key generation
     request is created.  It includes a KeyRequestInfo object with
@@ -642,7 +641,7 @@ class KeyClient:
         else:
             api_path = 'v2'
 
-        path = '/%s/agent/keyrequests/%s' % (api_path, request_id)
+        path = '/{}/agent/keyrequests/{}'.format(api_path, request_id)
 
         if not self.connection.subsystem:
             path = '/kra' + path
@@ -665,7 +664,7 @@ class KeyClient:
         else:
             api_path = 'v2'
 
-        path = '/%s/agent/keys/%s' % (api_path, key_id)
+        path = '/{}/agent/keys/{}'.format(api_path, key_id)
 
         if not self.connection.subsystem:
             path = '/kra' + path
@@ -688,7 +687,7 @@ class KeyClient:
         else:
             api_path = 'v2'
 
-        path = '/%s/agent/keys/active/%s' % (api_path, quote(client_key_id))
+        path = '/{}/agent/keys/active/{}'.format(api_path, quote(client_key_id))
 
         if not self.connection.subsystem:
             path = '/kra' + path
@@ -711,7 +710,7 @@ class KeyClient:
         else:
             api_path = 'v2'
 
-        path = '/%s/agent/keys/%s' % (api_path, key_id)
+        path = '/{}/agent/keys/{}'.format(api_path, key_id)
 
         if not self.connection.subsystem:
             path = '/kra' + path
@@ -730,7 +729,7 @@ class KeyClient:
         else:
             api_path = 'v2'
 
-        path = '/%s/agent/keyrequests/%s/approve' % (api_path, request_id)
+        path = '/{}/agent/keyrequests/{}/approve'.format(api_path, request_id)
 
         if not self.connection.subsystem:
             path = '/kra' + path
@@ -748,7 +747,7 @@ class KeyClient:
         else:
             api_path = 'v2'
 
-        path = '/%s/agent/keyrequests/%s/reject' % (api_path, request_id)
+        path = '/{}/agent/keyrequests/{}/reject'.format(api_path, request_id)
 
         if not self.connection.subsystem:
             path = '/kra' + path
@@ -766,7 +765,7 @@ class KeyClient:
         else:
             api_path = 'v2'
 
-        path = '/%s/agent/keyrequests/%s/cancel' % (api_path, request_id)
+        path = '/{}/agent/keyrequests/{}/cancel'.format(api_path, request_id)
 
         if not self.connection.subsystem:
             path = '/kra' + path

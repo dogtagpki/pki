@@ -309,7 +309,6 @@ BuildRequires:    python3-lxml
 BuildRequires:    python3-ldap
 BuildRequires:    python3-libselinux
 BuildRequires:    python3-requests >= 2.6.0
-BuildRequires:    python3-six
 BuildRequires:    python3-sphinx
 
 BuildRequires:    systemd-units
@@ -572,7 +571,6 @@ Requires:         python3-cryptography
 Requires:         python3-ldap
 Requires:         python3-lxml
 Requires:         python3-requests >= 2.6.0
-Requires:         python3-six
 
 %description -n   python3-%{product_id}
 This package provides common and client library for Python 3.

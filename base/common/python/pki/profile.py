@@ -22,8 +22,6 @@ import json
 import logging
 import os
 
-from six import iteritems
-
 import pki
 import pki.client as client
 import pki.account as account
@@ -32,7 +30,7 @@ import pki.encoder as encoder
 logger = logging.getLogger(__name__)
 
 
-class ProfileDataInfo(object):
+class ProfileDataInfo:
     """Stores information about a profile"""
 
     json_attribute_names = {
@@ -63,7 +61,7 @@ class ProfileDataInfo(object):
             return None
 
         profile_data_info = cls()
-        for k, v in iteritems(attr_list):
+        for k, v in attr_list.items():
             if k in ProfileDataInfo.json_attribute_names:
                 setattr(profile_data_info,
                         ProfileDataInfo.json_attribute_names[k], v)
@@ -73,7 +71,7 @@ class ProfileDataInfo(object):
         return profile_data_info
 
 
-class ProfileDataInfoCollection(object):
+class ProfileDataInfoCollection:
     """
     Represents a collection of ProfileDataInfo objects.
     Also encapsulates the links for the list of the objects stored.
@@ -101,7 +99,7 @@ class ProfileDataInfoCollection(object):
         return ret
 
 
-class Descriptor(object):
+class Descriptor:
     """
     This class represents the description of a ProfileAttribute.
     It stores information such as the syntax, constraint and default value of
@@ -126,7 +124,7 @@ class Descriptor(object):
             return None
 
         descriptor = cls()
-        for k, v in iteritems(attr_list):
+        for k, v in attr_list.items():
             if k in Descriptor.json_attribute_names:
                 setattr(descriptor,
                         Descriptor.json_attribute_names[k], v)
@@ -136,7 +134,7 @@ class Descriptor(object):
         return descriptor
 
 
-class ProfileAttribute(object):
+class ProfileAttribute:
     """
     Represents a profile attribute of a ProfileInput.
     """
@@ -165,7 +163,7 @@ class ProfileAttribute(object):
         return attribute
 
 
-class ProfileInput(object):
+class ProfileInput:
     """
     This class encapsulates all the attributes of a profile to generate a
     specific property of a certificate.
@@ -258,7 +256,7 @@ class ProfileInput(object):
             return None
         profile_input = cls()
 
-        for k, v in iteritems(attr_list):
+        for k, v in attr_list.items():
             if k not in ['Attribute', 'ConfigAttribute']:
                 if k in ProfileInput.json_attribute_names:
                     setattr(profile_input,
@@ -287,7 +285,7 @@ class ProfileInput(object):
         return profile_input
 
 
-class ProfileOutput(object):
+class ProfileOutput:
     """
     This class defines the output of a certificate enrollment request
     using a profile.
@@ -343,7 +341,7 @@ class ProfileOutput(object):
             return None
 
         profile_output = cls()
-        for k, v in iteritems(attr_list):
+        for k, v in attr_list.items():
             if k not in ['attributes']:
                 if k in ProfileOutput.json_attribute_names:
                     setattr(profile_output,
@@ -362,7 +360,7 @@ class ProfileOutput(object):
         return profile_output
 
 
-class ProfileParameter(object):
+class ProfileParameter:
     def __init__(self, name=None, value=None):
         self.name = name
         self.value = value
@@ -378,7 +376,7 @@ class ProfileParameter(object):
         return param
 
 
-class PolicyDefault(object):
+class PolicyDefault:
     """
     An object of this class contains information of the default usage of a
     specific ProfileInput.
@@ -465,7 +463,7 @@ class PolicyDefault(object):
             return None
 
         policy_def = cls()
-        for k, v in iteritems(attr_list):
+        for k, v in attr_list.items():
             if k not in ['policyAttribute', 'params']:
                 if k in PolicyDefault.json_attribute_names:
                     setattr(policy_def,
@@ -496,7 +494,7 @@ class PolicyDefault(object):
         return policy_def
 
 
-class PolicyConstraintValue(object):
+class PolicyConstraintValue:
     """
     Represents a PolicyConstraintValue
     """
@@ -528,7 +526,7 @@ class PolicyConstraintValue(object):
         return ret
 
 
-class PolicyConstraint(object):
+class PolicyConstraint:
     """
     An object of this class contains the policy constraints applied to a
     ProfileInput used by a certificate enrollment request.
@@ -584,7 +582,7 @@ class PolicyConstraint(object):
             return None
 
         policy_constraint = cls()
-        for k, v in iteritems(attr_list):
+        for k, v in attr_list.items():
             if k not in ['constraint']:
                 if k in PolicyConstraint.json_attribute_names:
                     setattr(policy_constraint,
@@ -605,7 +603,7 @@ class PolicyConstraint(object):
         return policy_constraint
 
 
-class ProfilePolicy(object):
+class ProfilePolicy:
     """
     This class represents the policy a profile adheres to.
     An object of this class stores the default values for profile and the
@@ -640,7 +638,7 @@ class ProfilePolicy(object):
         return policy
 
 
-class ProfilePolicySet(object):
+class ProfilePolicySet:
     """
     Stores a list of ProfilePolicy objects.
     """
@@ -665,7 +663,7 @@ class ProfilePolicySet(object):
         return policy_set
 
 
-class PolicySet(object):
+class PolicySet:
     """
     An object of this class contains a name value pair of the
     policy name and the ProfilePolicy object.
@@ -726,7 +724,7 @@ class PolicySet(object):
         return policy_set
 
 
-class PolicySetList(object):
+class PolicySetList:
     """
     An object of this class stores a list of ProfileSet objects.
     """
@@ -793,7 +791,7 @@ class PolicySetList(object):
         return policy_set_list
 
 
-class Profile(object):
+class Profile:
     """
     This class represents an enrollment profile.
     """
@@ -917,7 +915,7 @@ class Profile(object):
     @classmethod
     def from_json(cls, attr_list):
         profile_data = cls()
-        for k, v in iteritems(attr_list):
+        for k, v in attr_list.items():
             if k not in ['Input', 'Output', 'PolicySets']:
                 if k in Profile.json_attribute_names:
                     setattr(profile_data,
@@ -974,7 +972,7 @@ class Profile(object):
         return None
 
 
-class ProfileClient(object):
+class ProfileClient:
     """
     This class consists of methods for accessing the ProfileResource.
     """
@@ -1071,7 +1069,7 @@ class ProfileClient(object):
         else:
             api_path = 'v2'
 
-        path = '/%s/profiles/%s' % (api_path, profile_id)
+        path = '/{}/profiles/{}'.format(api_path, profile_id)
         if raw:
             path += '/raw'
 
@@ -1103,7 +1101,7 @@ class ProfileClient(object):
         else:
             api_path = 'v2'
 
-        path = '/%s/profiles/%s' % (api_path, profile_id)
+        path = '/{}/profiles/{}'.format(api_path, profile_id)
 
         if not self.connection.subsystem:
             path = '/ca' + path
@@ -1176,7 +1174,7 @@ class ProfileClient(object):
         else:
             api_path = 'v2'
 
-        path = '/%s/profiles/%s' % (api_path, profile_id)
+        path = '/{}/profiles/{}'.format(api_path, profile_id)
 
         if not self.connection.subsystem:
             path = '/ca' + path
@@ -1244,7 +1242,7 @@ class ProfileClient(object):
         else:
             api_path = 'v2'
 
-        path = '/%s/profiles/%s' % (api_path, profile_id)
+        path = '/{}/profiles/{}'.format(api_path, profile_id)
 
         if not self.connection.subsystem:
             path = '/ca' + path
