@@ -162,6 +162,9 @@ ExcludeArch: i686
 # Don't build console unless --with console is specified.
 %bcond_with console
 
+# REST API version control
+# The rest_api_deprecated and rest_api_disabled macros are provided by build.sh
+
 %if ! %{with debug}
 %define debug_package %{nil}
 %endif
@@ -1452,6 +1455,15 @@ export JAVA_HOME=%{java_home}
 %pom_remove_dep :pki-tomcat-9.0 base/server
 %endif
 
+# Configure REST API version control
+%if %{defined rest_api_deprecated}
+%pom_xpath_set "pom:project/pom:properties/pom:rest_api_deprecated_version" "%{rest_api_deprecated}" base/server
+%endif
+
+%if %{defined rest_api_disabled}
+%pom_xpath_set "pom:project/pom:properties/pom:rest_api_disabled_versions" "%{rest_api_disabled}" base/server
+%endif
+
 %mvn_build %{!?with_test:-f} -j
 
 # create links to Maven-built JAR files for CMake
@@ -1559,6 +1571,8 @@ pkgs=base\
     --with-pkgs=$pkgs \
     %{?with_console:--with-console} \
     --without-test \
+    %{?rest_api_deprecated:--rest-api-deprecated=%{rest_api_deprecated}} \
+    %{?rest_api_disabled:--rest-api-disabled=%{rest_api_disabled}} \
     dist
 
 ################################################################################
