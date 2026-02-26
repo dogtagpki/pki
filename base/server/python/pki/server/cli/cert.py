@@ -33,7 +33,7 @@ from tempfile import NamedTemporaryFile
 import textwrap
 import urllib.parse
 
-from six.moves.urllib.parse import quote  # pylint: disable=F0401,E0611
+from urllib.parse import quote  # pylint: disable=F0401,E0611
 
 import pki.cert
 import pki.cli
@@ -392,8 +392,9 @@ class CertValidateCLI(pki.cli.CLI):
             subsystem = instance.get_subsystems()[0]
 
         if not subsystem:
+            missing = subsystem_name or '<unknown>'
             raise Exception(
-                'No %s subsystem in instance %s' % (subsystem.type, instance_name))
+                'No {} subsystem in instance {}'.format(missing, instance_name))
 
         subsystem.validate_system_cert(cert_tag)
 
@@ -1084,7 +1085,7 @@ class CertExportCLI(pki.cli.CLI):
                 else:
                     crt_path = os.path.join(instance.conf_dir, 'certs', cert_id + '.crt')
                     try:
-                        with open(crt_path, 'r', encoding='utf-8') as f:
+                        with open(crt_path, encoding='utf-8') as f:
                             cert_data = ''.join(f.readlines())
                     except FileNotFoundError:
                         logger.error('Unable to find certificate data for %s', cert_id)
@@ -1103,7 +1104,7 @@ class CertExportCLI(pki.cli.CLI):
                 else:
                     csr_path = os.path.join(instance.conf_dir, 'certs', cert_id + '.csr')
                     try:
-                        with open(csr_path, 'r', encoding='utf-8') as f:
+                        with open(csr_path, encoding='utf-8') as f:
                             csr_data = ''.join(f.readlines())
                     except FileNotFoundError:
                         logger.error('Unable to find certificate request for %s', cert_id)

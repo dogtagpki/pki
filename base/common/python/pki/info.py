@@ -27,14 +27,12 @@ import json
 import logging
 import requests.exceptions
 
-from six import iteritems
-
 import pki
 
 logger = logging.getLogger(__name__)
 
 
-class Info(object):
+class Info:
     """
     This class encapsulates the parameters returned by the server's
     InfoService.
@@ -54,7 +52,7 @@ class Info(object):
     def from_json(cls, attr_list):
         """ Return Info from JSON dict """
         info = cls()
-        for k, v in iteritems(attr_list):
+        for k, v in attr_list.items():
             if k in Info.json_attribute_names:
                 setattr(info, Info.json_attribute_names[k], v)
             else:
@@ -96,7 +94,7 @@ class Version(tuple):
         return self[2]
 
 
-class InfoClient(object):
+class InfoClient:
     """
     Class encapsulating and mirroring the functionality in the
     InfoResource Java interface class defining the REST API for

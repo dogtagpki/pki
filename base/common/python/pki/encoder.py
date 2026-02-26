@@ -15,13 +15,9 @@
 # Copyright (C) 2016 Red Hat, Inc.
 # All rights reserved.
 #
-from __future__ import absolute_import
 
 import base64
 import json
-
-import six
-from six import iteritems, itervalues
 
 TYPES = {}
 NOTYPES = {}
@@ -36,7 +32,7 @@ def encode_cert(data):
     :type data: str, bytes
     :rtype: bytes
     """
-    if isinstance(data, six.text_type):
+    if isinstance(data, str):
         data = data.encode('ascii')
     return base64.b64encode(data)
 
@@ -48,7 +44,7 @@ def decode_cert(data):
     :type data: str, bytes
     :rtype: bytes
     """
-    if isinstance(data, six.text_type):
+    if isinstance(data, str):
         data = data.encode('ascii')
     return base64.b64decode(data)
 
@@ -83,10 +79,10 @@ class CustomTypeEncoder(json.JSONEncoder):
     # pylint: disable=E0202
 
     def default(self, o):
-        for k, v in iteritems(TYPES):
+        for k, v in TYPES.items():
             if isinstance(o, v):
                 return {k: o.__dict__}
-        for t in itervalues(NOTYPES):
+        for t in NOTYPES.values():
             if isinstance(o, t):
                 return self.attr_name_conversion(o.__dict__, type(o))
         return json.JSONEncoder.default(self, o)
@@ -96,9 +92,9 @@ class CustomTypeEncoder(json.JSONEncoder):
         if not hasattr(object_class, 'json_attribute_names'):
             return attr_dict
         reverse_dict = {v: k for k, v in
-                        iteritems(object_class.json_attribute_names)}
+                        object_class.json_attribute_names.items()}
         new_dict = dict()
-        for k, v in iteritems(attr_dict):
+        for k, v in attr_dict.items():
             if k in reverse_dict:
                 new_dict[reverse_dict[k]] = v
             else:

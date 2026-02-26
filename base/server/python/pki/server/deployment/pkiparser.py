@@ -19,8 +19,6 @@
 #
 
 # System Imports
-from __future__ import absolute_import
-from __future__ import print_function
 import argparse
 import getpass
 import json
@@ -28,10 +26,8 @@ import logging
 import os
 import string
 
-import six
-from six.moves import input  # pylint: disable=W0622,F0401
-from six.moves import configparser  # pylint: disable=F0401
-from six.moves.urllib.parse import urlparse  # pylint: disable=F0401,E0611
+import configparser
+from urllib.parse import urlparse  # pylint: disable=F0401,E0611
 
 
 # PKI Imports
@@ -398,10 +394,7 @@ class PKIConfigParser:
         self.deployer.user_config.optionxform = str
 
         with open(config.DEFAULT_DEPLOYMENT_CFG, encoding='utf-8') as f:
-            if six.PY2:
-                self.deployer.main_config.readfp(f)
-            else:
-                self.deployer.main_config.read_file(f)
+            self.deployer.main_config.read_file(f)
 
         self.deployer.flatten_master_dict()
 
@@ -602,21 +595,22 @@ class PKIConfigParser:
 
             # no new section and no replacement param -> display removal warning
             if not new_section and not new_param:
-                message = 'The \'%s\' in [%s] is no longer used.' % (param, section)
+                message = 'The \'{}\' in [{}] is no longer used.'.format(param, section)
 
             else:
                 # display deprecation warning
-                message = 'The \'%s\' in [%s] has been deprecated.' % (param, section)
+                message = 'The \'{}\' in [{}] has been deprecated.'.format(param, section)
 
                 # If new param is defined in a different section, include it in message.
 
                 if new_section and new_section != section:
-                    message = '%s Use \'%s\' in [%s] instead.' % (message, new_param, new_section)
+                    message = '{} Use \'{}\' in [{}] instead.'.format(message, new_param,
+                                                                      new_section)
                 else:
-                    message = '%s Use \'%s\' instead.' % (message, new_param)
+                    message = '{} Use \'{}\' instead.'.format(message, new_param)
 
             if info:
-                message = '%s %s' % (message, info)
+                message = '{} {}'.format(message, info)
 
             logger.warning(message)
 

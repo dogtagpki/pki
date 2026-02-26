@@ -24,8 +24,6 @@ import inspect
 import json
 import logging
 
-from six import iteritems
-
 import pki
 import pki.ca
 import pki.client as client
@@ -35,7 +33,7 @@ import pki.profile as profile
 logger = logging.getLogger(__name__)
 
 
-class CertData(object):
+class CertData:
     """
     Class containing certificate data as returned from getCert()
     """
@@ -79,7 +77,7 @@ class CertData(object):
         """ Return CertData object from JSON dict """
         cert_data = cls()
 
-        for k, v in iteritems(attr_list):
+        for k, v in attr_list.items():
             if k in CertData.json_attribute_names:
                 setattr(cert_data, CertData.json_attribute_names[k], v)
             else:
@@ -88,7 +86,7 @@ class CertData(object):
         return cert_data
 
 
-class CertDataInfo(object):
+class CertDataInfo:
     """
     Class containing information contained in a CertRecord on the CA.
     This data is returned when searching/listing certificate records.
@@ -133,7 +131,7 @@ class CertDataInfo(object):
     def from_json(cls, attr_list):
         """ Return CertDataInfo object from JSON dict """
         cert_data_info = cls()
-        for k, v in iteritems(attr_list):
+        for k, v in attr_list.items():
             if k in CertDataInfo.json_attribute_names:
                 setattr(cert_data_info,
                         CertDataInfo.json_attribute_names[k], v)
@@ -143,7 +141,7 @@ class CertDataInfo(object):
         return cert_data_info
 
 
-class CertDataInfoCollection(object):
+class CertDataInfoCollection:
     """
     Class containing list of CertDataInfo objects and their respective link
     objects.
@@ -173,7 +171,7 @@ class CertDataInfoCollection(object):
         return ret
 
 
-class CertRequestInfo(object):
+class CertRequestInfo:
     """
        An object of this class stores represents a
        certificate request.
@@ -212,7 +210,7 @@ class CertRequestInfo(object):
     def from_json(cls, attr_list):
         cert_request_info = cls()
 
-        for k, v in iteritems(attr_list):
+        for k, v in attr_list.items():
             if k in CertRequestInfo.json_attribute_names:
                 setattr(cert_request_info,
                         CertRequestInfo.json_attribute_names[k], v)
@@ -233,7 +231,7 @@ class CertRequestInfo(object):
         return cert_request_info
 
 
-class CertRequestStatus(object):
+class CertRequestStatus:
     """
     Class containing valid cert statuses.
     """
@@ -244,7 +242,7 @@ class CertRequestStatus(object):
     COMPLETE = "complete"
 
 
-class CertEnrollmentResult(object):
+class CertEnrollmentResult:
     """
     Class containing results of an enrollment request.
 
@@ -261,7 +259,7 @@ class CertEnrollmentResult(object):
         self.cert = cert
 
 
-class CertRequestInfoCollection(object):
+class CertRequestInfoCollection:
     """
     Class containing list of CertRequestInfo objects.
     This data is returned when listing certificate request records in the CA.
@@ -290,7 +288,7 @@ class CertRequestInfoCollection(object):
         return ret
 
 
-class CertSearchRequest(object):
+class CertSearchRequest:
     """
         An object of this class is used to store the search parameters
         and send them to server.
@@ -327,7 +325,7 @@ class CertSearchRequest(object):
         if len(cert_search_params) == 0:
             setattr(self, 'serialNumberRangeInUse', True)
 
-        for param, value in iteritems(cert_search_params):
+        for param, value in cert_search_params.items():
             if param not in CertSearchRequest.search_params:
                 raise ValueError('Invalid search parameter: ' + param)
 
@@ -391,7 +389,7 @@ class CertSearchRequest(object):
                 setattr(self, 'certTypeInUse', True)
 
 
-class CertRevokeRequest(object):
+class CertRevokeRequest:
     """
         An object of this class encapsulates all the
         parameters required for revoking a certificate.
@@ -425,7 +423,7 @@ class CertRevokeRequest(object):
             setattr(self, "Comments", comments)
 
 
-class CertEnrollmentRequest(object):
+class CertEnrollmentRequest:
     """
     This class encapsulates the parameters required for a certificate
      enrollment request.
@@ -493,7 +491,7 @@ class CertEnrollmentRequest(object):
 
         enroll_request = cls()
 
-        for k, v in iteritems(attr_list):
+        for k, v in attr_list.items():
             if k not in ['Input', 'Output']:
                 if k in CertEnrollmentRequest.json_attribute_names:
                     setattr(enroll_request,
@@ -557,10 +555,8 @@ class CertReviewResponse(CertEnrollmentRequest):
                  profile_remote_host=None, profile_remote_address=None,
                  policy_sets=None):
 
-        super(CertReviewResponse, self).__init__(profile_id, renewal,
-                                                 serial_number, remote_host,
-                                                 remote_address, inputs,
-                                                 outputs)
+        super().__init__(profile_id, renewal, serial_number, remote_host, remote_address, inputs,
+                         outputs)
         self.nonce = nonce
         self.request_id = request_id
         self.request_type = request_type
@@ -586,9 +582,9 @@ class CertReviewResponse(CertEnrollmentRequest):
     def from_json(cls, attr_list):
 
         # First read the values for attributes defined in CertEnrollmentRequest
-        review_response = super(CertReviewResponse, cls).from_json(attr_list)
+        review_response = super().from_json(attr_list)
 
-        for k, v in iteritems(attr_list):
+        for k, v in attr_list.items():
             if k not in ['ProfilePolicySet'] and k not in \
                     CertEnrollmentRequest.json_attribute_names:
                 if k in CertReviewResponse.json_attribute_names:
@@ -607,7 +603,7 @@ class CertReviewResponse(CertEnrollmentRequest):
         return review_response
 
 
-class CertClient(object):
+class CertClient:
     """
     Class encapsulating and mirroring the functionality in the CertResource
     Java interface class defining the REST API for Certificate resources.
@@ -648,7 +644,7 @@ class CertClient(object):
         else:
             api_path = 'v2'
 
-        path = '/%s/certs/%s' % (api_path, cert_serial_number)
+        path = '/{}/certs/{}'.format(api_path, cert_serial_number)
 
         if not self.connection.subsystem:
             path = '/ca' + path
@@ -708,7 +704,7 @@ class CertClient(object):
         else:
             api_path = 'v2'
 
-        path = '/%s/agent/certs/%s' % (api_path, cert_serial_number)
+        path = '/{}/agent/certs/{}'.format(api_path, cert_serial_number)
 
         if not self.connection.subsystem:
             path = '/ca' + path
@@ -774,7 +770,7 @@ class CertClient(object):
         else:
             api_path = 'v2'
 
-        path = '/%s/agent/certs/%s/revoke' % (api_path, cert_serial_number)
+        path = '/{}/agent/certs/{}/revoke'.format(api_path, cert_serial_number)
 
         if not self.connection.subsystem:
             path = '/ca' + path
@@ -798,7 +794,7 @@ class CertClient(object):
         else:
             api_path = 'v2'
 
-        path = '/%s/agent/certs/%s/revoke-ca' % (api_path, cert_serial_number)
+        path = '/{}/agent/certs/{}/revoke-ca'.format(api_path, cert_serial_number)
 
         if not self.connection.subsystem:
             path = '/ca' + path
@@ -834,7 +830,7 @@ class CertClient(object):
         else:
             api_path = 'v2'
 
-        path = '/%s/agent/certs/%s/unrevoke' % (api_path, cert_serial_number)
+        path = '/{}/agent/certs/{}/unrevoke'.format(api_path, cert_serial_number)
 
         if not self.connection.subsystem:
             path = '/ca' + path
@@ -869,7 +865,7 @@ class CertClient(object):
         else:
             api_path = 'v2'
 
-        path = '/%s/certrequests/%s' % (api_path, request_id)
+        path = '/{}/certrequests/{}'.format(api_path, request_id)
 
         if not self.connection.subsystem:
             path = '/ca' + path
@@ -934,7 +930,7 @@ class CertClient(object):
         else:
             api_path = 'v2'
 
-        path = '/%s/agent/certrequests/%s' % (api_path, request_id)
+        path = '/{}/agent/certrequests/{}'.format(api_path, request_id)
 
         if not self.connection.subsystem:
             path = '/ca' + path
@@ -967,7 +963,7 @@ class CertClient(object):
         else:
             api_path = 'v2'
 
-        path = '/%s/agent/certrequests/%s/%s' % (api_path, request_id, action)
+        path = '/{}/agent/certrequests/{}/{}'.format(api_path, request_id, action)
 
         if not self.connection.subsystem:
             path = '/ca' + path
@@ -1091,7 +1087,7 @@ class CertClient(object):
         else:
             api_path = 'v2'
 
-        path = '/%s/certrequests/profiles/%s' % (api_path, profile_id)
+        path = '/{}/certrequests/profiles/{}'.format(api_path, profile_id)
 
         if not self.connection.subsystem:
             path = '/ca' + path
