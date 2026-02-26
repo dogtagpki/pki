@@ -22,3 +22,81 @@ pki-server ca-db-vlv-reindex
 *Note:* The reindex operation may take significant time on databases with
 many certificates. For replicated environments, VLV indexes are not
 replicated, so each replica must run these commands independently.
+
+== REST API Version Control ==
+
+A new REST API version control mechanism has been added to manage API
+version availability at build time and runtime.
+
+=== Build-time Configuration ===
+
+API version settings can be configured during the build process:
+
+* `rest.api.deprecated.version`: Marks an API version as deprecated (e.g., `v1`)
+* `rest.api.disabled.versions`: Comma-separated list of versions disabled by default
+
+=== Runtime Configuration ===
+
+==== For CMSEngine (CA, KRA, OCSP, TKS, TPS) ====
+
+Administrators can control API versions using CS.cfg parameters:
+
+* `rest.api.enabled`: Comma-separated list of API versions to enable at runtime.
+This can re-enable versions that were disabled at build time.
+If not specified, uses build-time configuration.
+
+* `rest.api.suppress_deprecation_warnings`: Boolean to suppress deprecation
+headers. Default is `false` (warnings are sent).
+
+==== For PKIEngine (ACME, EST) ====
+
+Runtime configuration is provided via a `rest-api-option.properties` file
+placed in the classpath. This file overrides build-time settings from
+`rest-api.properties`.
+
+Supported properties:
+
+* `deprecated.version`: Override the deprecated API version
+* `disabled.versions`: Comma-separated list of versions to disable
+* `suppress_deprecation_warnings`: Boolean to suppress deprecation headers
+
+=== Deprecation Headers ===
+
+When accessing a deprecated API version, a `Deprecation: true` HTTP header
+is added to responses (unless suppressed).
+
+Example:
+----
+GET /ca/v1/certs/123
+
+HTTP/1.1 200 OK
+Deprecation: true
+...
+----
+
+=== Examples ===
+
+==== CMSEngine (CA, KRA, OCSP, TKS, TPS) ====
+
+Enable v1 API that was disabled at build time:
+----
+pki-server ca-config-set rest.api.enabled v1,v2
+----
+
+Suppress deprecation warnings:
+----
+pki-server ca-config-set rest.api.suppress_deprecation_warnings true
+----
+
+==== PKIEngine (ACME, EST) ====
+
+Create `rest-api-option.properties` in the webapp's classpath
+(e.g., `/usr/share/pki/acme/webapps/acme/WEB-INF/classes/`):
+
+----
+# Disable v1 API
+disabled.versions=v1
+
+# Suppress deprecation warnings
+suppress_deprecation_warnings=true
+----
