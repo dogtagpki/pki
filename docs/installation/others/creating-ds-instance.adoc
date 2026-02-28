@@ -74,6 +74,10 @@ objectClass: domain
 dc: pki
 EOF
 ....
+To confirm you can run:
+....
+$ ldapsearch -H ldap://$HOSTNAME -x
+....
 
 The subtree for each PKI subsystem is created when the subsystem is installed. When all PKI subsystems are created, the LDAP tree looks like the following:
 
