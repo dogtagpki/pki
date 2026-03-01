@@ -28,3 +28,7 @@ The `CryptoProvider.asymmetric_wrap()` has been removed.
 == Remove CryptoProvider.key_unwrap() ==
 
 The `CryptoProvider.key_unwrap()` has been removed.
+
+== Remove CryptoProvider.symmetric_unwrap() ==
+
+The `CryptoProvider.symmetric_unwrap()` has been removed.

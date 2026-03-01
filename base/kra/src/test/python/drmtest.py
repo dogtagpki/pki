@@ -171,9 +171,18 @@ def run_test(protocol, hostname, port, client_cert, certdb_dir,
         key_id,
         trans_wrapped_session_key=wrapped_session_key)
     print_key_data(key_data)
-    unwrapped_key = crypto.symmetric_unwrap(key_data.encrypted_data,
-                                            session_key,
-                                            nonce_iv=key_data.nonce_data)
+
+    cipher = Cipher(
+        crypto.encrypt_alg(session_key),
+        crypto.encrypt_mode(key_data.nonce_data),
+        backend=default_backend())
+
+    decryptor = cipher.decryptor()
+    unwrapped = decryptor.update(key_data.encrypted_data) + decryptor.finalize()
+
+    unpadder = PKCS7(crypto.encrypt_alg.block_size).unpadder()
+    unwrapped_key = unpadder.update(unwrapped) + unpadder.finalize()
+
     key1 = b64encode(unwrapped_key)
 
     # Test 10 = test BadRequestException on create()
@@ -283,10 +292,16 @@ def run_test(protocol, hostname, port, client_cert, certdb_dir,
 
     if key_data.wrap_algorithm == pki.crypto.WRAP_AES_CBC_PAD \
             or key_data.wrap_algorithm == pki.crypto.WRAP_DES3_CBC_PAD:
-        unwrapped_key = crypto.symmetric_unwrap(
-            key_data.encrypted_data,
-            session_key,
-            nonce_iv=key_data.nonce_data)
+        cipher = Cipher(
+            crypto.encrypt_alg(session_key),
+            crypto.encrypt_mode(key_data.nonce_data),
+            backend=default_backend())
+
+        decryptor = cipher.decryptor()
+        unwrapped = decryptor.update(key_data.encrypted_data) + decryptor.finalize()
+
+        unpadder = PKCS7(crypto.encrypt_alg.block_size).unpadder()
+        unwrapped_key = unpadder.update(unwrapped) + unpadder.finalize()
 
     elif key_data.wrap_algorithm == pki.crypto.WRAP_AES_KEY_WRAP:
         unwrapped_key = aes_key_unwrap(

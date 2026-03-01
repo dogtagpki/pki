@@ -11,6 +11,8 @@ import os
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric.padding import PKCS1v15
+from cryptography.hazmat.primitives.ciphers import Cipher
+from cryptography.hazmat.primitives.padding import PKCS7
 
 import pki.kra
 import pki.account
@@ -120,10 +122,16 @@ key = key_client.retrieve_key(
 
 account_client.logout()
 
-key_data = crypto.symmetric_unwrap(
-    key.encrypted_data,
-    session_key,
-    nonce_iv=key.nonce_data)
+cipher = Cipher(
+    crypto.encrypt_alg(session_key),
+    crypto.encrypt_mode(key.nonce_data),
+    backend=default_backend())
+
+decryptor = cipher.decryptor()
+unwrapped = decryptor.update(key.encrypted_data) + decryptor.finalize()
+
+unpadder = PKCS7(crypto.encrypt_alg.block_size).unpadder()
+key_data = unpadder.update(unwrapped) + unpadder.finalize()
 
 with open(args.output_filename, 'wb') as f:
     f.write(key_data)
