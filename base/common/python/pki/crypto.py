@@ -30,9 +30,8 @@ import os
 import six
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.ciphers import (
-    Cipher, algorithms, modes
+    algorithms, modes
 )
-from cryptography.hazmat.primitives import padding
 
 # encryption algorithms OIDs
 DES_EDE3_CBC_OID = "{1 2 840 113549 3 7}"
@@ -79,15 +78,6 @@ class CryptoProvider(six.with_metaclass(abc.ABCMeta, object)):
     def generate_session_key(self):
         """ Generate a session key to be used for wrapping data to the DRM
         This must return a 3DES 168 bit key """
-
-    def symmetric_unwrap(self, data, wrapping_key, mechanism=None,
-                         nonce_iv=None):
-        """ decrypt data originally encrypted with symmetric key (wrapping key)
-
-        We expect the data and nonce_iv values to be base64 encoded.
-        The mechanism is the type of key used to do the wrapping.  It defaults
-        to a 56 bit DES3 key.
-        """
 
 
 class CryptographyCryptoProvider(CryptoProvider):
@@ -165,36 +155,3 @@ class CryptographyCryptoProvider(CryptoProvider):
         """ Returns a session key to be used when wrapping secrets for the DRM.
         """
         return self.generate_symmetric_key()
-
-    def symmetric_unwrap(self, data, wrapping_key,
-                         mechanism=None, nonce_iv=None):
-        """
-        :param data            Data to be unwrapped
-        :param wrapping_key    Symmetric key to unwrap data
-        :param mechanism       Mechanism to use when unwrapping
-        :param nonce_iv        iv data
-
-        Unwrap (decrypt) data using the supplied symmetric key
-        """
-
-        # TODO(alee) As above, no idea what to do with mechanism
-        # ignoring for now.
-
-        if wrapping_key is None:
-            raise ValueError("Wrapping key must be provided")
-
-        cipher = Cipher(self.encrypt_alg(wrapping_key),
-                        self.encrypt_mode(nonce_iv),
-                        backend=self.backend)
-
-        decryptor = cipher.decryptor()
-        unwrapped = decryptor.update(data) + decryptor.finalize()
-
-        if self.encrypt_mode.name == 'CBC':
-            unpadder = padding.PKCS7(self.encrypt_alg.block_size).unpadder()
-            unpadded = unpadder.update(unwrapped) + unpadder.finalize()
-            unwrapped = unpadded
-        else:
-            raise ValueError('Only CBC mode is currently supported')
-
-        return unwrapped
