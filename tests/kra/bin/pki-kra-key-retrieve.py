@@ -8,9 +8,8 @@ import argparse
 import logging
 import os
 
-import cryptography.hazmat.backends
-import cryptography.hazmat.primitives.padding
-import cryptography.x509
+from cryptography import x509
+from cryptography.hazmat.backends import default_backend
 
 import pki.kra
 import pki.account
@@ -76,9 +75,9 @@ elif args.verbose:
 with open(args.transport, 'rb') as f:
     transport_pem = f.read()
 
-transport_cert = cryptography.x509.load_pem_x509_certificate(
+transport_cert = x509.load_pem_x509_certificate(
     transport_pem,
-    cryptography.hazmat.backends.default_backend())
+    default_backend())
 
 crypto = pki.crypto.CryptographyCryptoProvider()
 crypto.initialize()

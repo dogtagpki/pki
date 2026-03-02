@@ -8,9 +8,10 @@ import argparse
 import logging
 import os
 
-import cryptography.hazmat.backends
-import cryptography.hazmat.primitives.padding
-import cryptography.x509
+from cryptography import x509
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.ciphers import Cipher
+from cryptography.hazmat.primitives.padding import PKCS7
 
 import pki.kra
 import pki.account
@@ -79,9 +80,9 @@ with open(args.transport, 'rb') as f:
 with open(args.input_filename, 'rb') as f:
     input_data = f.read()
 
-transport_cert = cryptography.x509.load_pem_x509_certificate(
+transport_cert = x509.load_pem_x509_certificate(
     transport_pem,
-    cryptography.hazmat.backends.default_backend())
+    default_backend())
 
 crypto = pki.crypto.CryptographyCryptoProvider()
 crypto.initialize()
@@ -105,10 +106,16 @@ key_client = pki.key.KeyClient(kra_client)
 nonce_iv = crypto.generate_nonce_iv()
 session_key = crypto.generate_session_key()
 
-encrypted_data = crypto.symmetric_wrap(
-    input_data,
-    session_key,
-    nonce_iv=nonce_iv)
+padder = PKCS7(crypto.encrypt_alg.block_size).padder()
+padded_data = padder.update(input_data) + padder.finalize()
+
+cipher = Cipher(
+    crypto.encrypt_alg(session_key),
+    crypto.encrypt_mode(nonce_iv),
+    backend=default_backend())
+
+encryptor = cipher.encryptor()
+encrypted_data = encryptor.update(padded_data) + encryptor.finalize()
 
 wrapped_session_key = crypto.asymmetric_wrap(
     session_key,
