@@ -16,3 +16,7 @@ The `KeyClient.get_transport_cert()` and `set_transport_cert()` have been remove
 == Remove CryptoProvider.get_cert() ==
 
 The `CryptoProvider.get_cert()` has been removed.
+
+== Remove CryptoProvider.symmetric_wrap() ==
+
+The `CryptoProvider.symmetric_wrap()` has been removed.

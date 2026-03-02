@@ -82,12 +82,6 @@ class CryptoProvider(six.with_metaclass(abc.ABCMeta, object)):
         """ Generate a session key to be used for wrapping data to the DRM
         This must return a 3DES 168 bit key """
 
-    @abc.abstractmethod
-    def symmetric_wrap(self, data, wrapping_key, mechanism=None,
-                       nonce_iv=None):
-        """ encrypt data using a symmetric key (wrapping key)"""
-
-    @abc.abstractmethod
     def symmetric_unwrap(self, data, wrapping_key, mechanism=None,
                          nonce_iv=None):
         """ decrypt data originally encrypted with symmetric key (wrapping key)
@@ -185,37 +179,6 @@ class CryptographyCryptoProvider(CryptoProvider):
         """ Returns a session key to be used when wrapping secrets for the DRM.
         """
         return self.generate_symmetric_key()
-
-    def symmetric_wrap(self, data, wrapping_key, mechanism=None,
-                       nonce_iv=None):
-        """
-        :param data            Data to be wrapped
-        :param wrapping_key    Symmetric key to wrap data
-        :param mechanism       Mechanism to use for wrapping key
-        :param nonce_iv        Nonce for initialization vector
-
-        Wrap (encrypt) data using the supplied symmetric key
-        """
-        # TODO(alee)  Not sure yet how to handle non-default mechanisms
-        # For now, lets just ignore them
-
-        if wrapping_key is None:
-            raise ValueError("Wrapping key must be provided")
-
-        if self.encrypt_mode.name == "CBC":
-            padder = padding.PKCS7(self.encrypt_alg.block_size).padder()
-            padded_data = padder.update(data) + padder.finalize()
-            data = padded_data
-        else:
-            raise ValueError('Only CBC mode is currently supported')
-
-        cipher = Cipher(self.encrypt_alg(wrapping_key),
-                        self.encrypt_mode(nonce_iv),
-                        backend=self.backend)
-
-        encryptor = cipher.encryptor()
-        ct = encryptor.update(data) + encryptor.finalize()
-        return ct
 
     def symmetric_unwrap(self, data, wrapping_key,
                          mechanism=None, nonce_iv=None):

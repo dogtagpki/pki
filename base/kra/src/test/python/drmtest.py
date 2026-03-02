@@ -43,6 +43,10 @@ from base64 import b64decode, b64encode
 
 from six.moves import range  # pylint: disable=W0622,F0401
 
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.ciphers import Cipher
+from cryptography.hazmat.primitives.padding import PKCS7
+
 import pki
 import pki.crypto
 import pki.key as key
@@ -239,10 +243,16 @@ def run_test(protocol, hostname, port, client_cert, certdb_dir,
 
     nonce_iv = crypto.generate_nonce_iv()
 
-    encrypted_data = crypto.symmetric_wrap(
-        b64decode(key1),
-        session_key,
-        nonce_iv=nonce_iv)
+    padder = PKCS7(crypto.encrypt_alg.block_size).padder()
+    padded_data = padder.update(b64decode(key1)) + padder.finalize()
+
+    cipher = Cipher(
+        crypto.encrypt_alg(session_key),
+        crypto.encrypt_mode(nonce_iv),
+        backend=default_backend())
+
+    encryptor = cipher.encryptor()
+    encrypted_data = encryptor.update(padded_data) + encryptor.finalize()
 
     response = keyclient.archive_encrypted_data(
         client_key_id,
