@@ -1,4 +1,12 @@
 name: IPA KRA
+# This test will perform the following operations:
+# - install IPA server with CA
+# - install KRA
+# - run test_vault_plugin.py
+# - create vault
+# - generate private key
+# - archive private key
+# - retrieve private key
 
 on: workflow_call
 
@@ -70,10 +78,35 @@ jobs:
 
       - name: Check DS server
         run: |
+          # check DS instances
           docker exec ipa dsctl --list
+
+          # check DS backends
           docker exec ipa dsconf slapd-EXAMPLE-COM backend suffix list
 
-      - name: Check admin user
+          # check root DSE
+          docker exec ipa ldapsearch \
+              -H ldap://ipa.example.com:389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "" \
+              -s base \
+              -o ldif_wrap=no \
+              -LLL
+
+          # check CA base DN
+          docker exec ipa ldapsearch \
+              -H ldap://ipa.example.com:389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "o=ipaca" \
+              -s base \
+              -o ldif_wrap=no \
+              -LLL
+
+      - name: Check IPA admin user
         run: |
           echo Secret.123 | docker exec -i ipa kinit admin
           docker exec ipa ipa ping
@@ -129,10 +162,32 @@ jobs:
           grep "(orphan)" output | wc -l > actual
           diff expected actual
 
-      - name: Check DS server
+      - name: Check DS server after installing KRA
         run: |
-          docker exec ipa dsctl --list
+          # check DS backends
           docker exec ipa dsconf slapd-EXAMPLE-COM backend suffix list
+
+          # check root DSE
+          docker exec ipa ldapsearch \
+              -H ldap://ipa.example.com:389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "" \
+              -s base \
+              -o ldif_wrap=no \
+              -LLL
+
+          # check KRA base DN
+          docker exec ipa ldapsearch \
+              -H ldap://ipa.example.com:389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "o=kra,o=ipaca" \
+              -s base \
+              -o ldif_wrap=no \
+              -LLL
 
       - name: Check CA admin cert after installing KRA
         run: |
@@ -211,24 +266,78 @@ jobs:
           docker exec ipa ipa-run-tests -x --verbose \
               test_xmlrpc/test_vault_plugin.py
 
-      - name: Check key archival and retrieval
+      - name: Create vault
         run: |
-          # create a vault
           docker exec ipa ipa vault-add \
               --type symmetric \
               --password Secret.123 \
               testvault
 
-          # there should be 1 active key record initially
-          echo "active" > expected
           docker exec ipa pki \
               -n ipa-ra-agent \
               kra-key-find \
               --clientKeyID ipa:/users/admin/testvault | tee output
+
+          # there should be 1 active key record initially
+          echo "active" > expected
           sed -n 's/^\s*Status:\s*\(.*\)$/\1/p' output > actual
           diff expected actual
 
-          # retrieve the vault content
+          HEX_KEY_ID=$(sed -n "s/^\s*Key ID:\s*\(\S*\)$/\1/p" output)
+          echo "Key ID: $HEX_KEY_ID"
+
+          DEC_KEY_ID=$(python -c "print(int('$HEX_KEY_ID', 16))")
+          echo "Dec Key ID: $DEC_KEY_ID"
+
+          # check key record
+          docker exec ipa ldapsearch \
+              -H ldap://ipa.example.com:389 \
+              -x \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b "cn=$DEC_KEY_ID,ou=keyRepository,ou=kra,o=kra,o=ipaca" \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          # normalize output
+          sed \
+              -e '/^$/d' \
+              -e 's/^\(serialno\): .*$/\1: XXXXX/' \
+              -e 's/^\(privateKeyData\):: .*$/\1:: XXXXX/' \
+              -e 's/^\(metaInfo: payloadEncryptionIV\):.*/\1:XXXXX/' \
+              -e 's/^\(dateOfCreate\): .*$/\1: XXXXX/' \
+              -e 's/^\(dateOfModify\): .*$/\1: XXXXX/' \
+              output > actual
+
+          cat > expected << EOF
+          dn: cn=$DEC_KEY_ID,ou=keyRepository,ou=kra,o=kra,o=ipaca
+          objectClass: top
+          objectClass: keyRecord
+          keyState: VALID
+          serialno: XXXXX
+          ownerName: ipakra
+          privateKeyData:: XXXXX
+          metaInfo: sessionKeyWrapAlgorithm:RSA
+          metaInfo: payloadEncrypted:true
+          metaInfo: sessionKeyKeyGenAlgorithm:AES
+          metaInfo: sessionKeyType:AES
+          metaInfo: sessionKeyLength:128
+          metaInfo: payloadEncryptionOID:2.16.840.1.101.3.4.1.2
+          metaInfo: payloadEncryptionIV:XXXXX
+          metaInfo: payloadWrapAlgorithm:AES KeyWrap/Padding
+          dateOfCreate: XXXXX
+          dateOfModify: XXXXX
+          archivedBy: ipakra
+          clientId: ipa:/users/admin/testvault
+          status: active
+          dataType: passPhrase
+          cn: $DEC_KEY_ID
+          EOF
+
+          diff expected actual
+
+      - name: Retrieve initial vault content
+        run: |
           docker exec ipa ipa vault-retrieve \
               --password Secret.123 \
               --out $SHARED/output \
@@ -237,34 +346,93 @@ jobs:
           # the vault should be empty initially
           diff /dev/null output
 
-          # generate a private key
+      - name: Generate private key
+        run: |
           docker exec ipa openssl genrsa -out $SHARED/private.key 2048
           docker exec ipa chmod go+r $SHARED/private.key
           cat private.key
 
-          # archive the private key into the vault
+      - name: Archive private key
+        run: |
           docker exec ipa ipa vault-archive \
               --password Secret.123 \
               --in $SHARED/private.key \
               testvault
 
-          # the initial key record should be inactive and the new one should be active
-          echo "inactive" > expected
-          echo "active" >> expected
           docker exec ipa pki \
               -n ipa-ra-agent \
               kra-key-find \
               --clientKeyID ipa:/users/admin/testvault | tee output
+
+          # the initial key record should be inactive and the new one should be active
+          echo "inactive" > expected
+          echo "active" >> expected
           sed -n 's/^\s*Status:\s*\(.*\)$/\1/p' output > actual
           diff expected actual
 
-          # retrieve the vault content
+          # get the latest key ID
+          HEX_KEY_ID=$(sed -n "s/^\s*Key ID:\s*\(\S*\)$/\1/p" output | tail -1)
+          echo "Key ID: $HEX_KEY_ID"
+
+          DEC_KEY_ID=$(python -c "print(int('$HEX_KEY_ID', 16))")
+          echo "$DEC_KEY_ID" > key.id
+          echo "Dec Key ID: $DEC_KEY_ID"
+
+          # check key record
+          docker exec ipa ldapsearch \
+              -H ldap://ipa.example.com:389 \
+              -x \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b "cn=$DEC_KEY_ID,ou=keyRepository,ou=kra,o=kra,o=ipaca" \
+              -o ldif_wrap=no \
+              -LLL | tee output
+
+          # normalize output
+          sed \
+              -e '/^$/d' \
+              -e 's/^\(serialno\): .*$/\1: XXXXX/' \
+              -e 's/^\(privateKeyData\):: .*$/\1:: XXXXX/' \
+              -e 's/^\(metaInfo: payloadEncryptionIV\):.*/\1:XXXXX/' \
+              -e 's/^\(dateOfCreate\): .*$/\1: XXXXX/' \
+              -e 's/^\(dateOfModify\): .*$/\1: XXXXX/' \
+              output > actual
+
+          cat > expected << EOF
+          dn: cn=$DEC_KEY_ID,ou=keyRepository,ou=kra,o=kra,o=ipaca
+          objectClass: top
+          objectClass: keyRecord
+          keyState: VALID
+          serialno: XXXXX
+          ownerName: ipakra
+          privateKeyData:: XXXXX
+          metaInfo: sessionKeyWrapAlgorithm:RSA
+          metaInfo: payloadEncrypted:true
+          metaInfo: sessionKeyKeyGenAlgorithm:AES
+          metaInfo: sessionKeyType:AES
+          metaInfo: sessionKeyLength:128
+          metaInfo: payloadEncryptionOID:2.16.840.1.101.3.4.1.2
+          metaInfo: payloadEncryptionIV:XXXXX
+          metaInfo: payloadWrapAlgorithm:AES KeyWrap/Padding
+          dateOfCreate: XXXXX
+          dateOfModify: XXXXX
+          archivedBy: ipakra
+          clientId: ipa:/users/admin/testvault
+          status: active
+          dataType: passPhrase
+          cn: $DEC_KEY_ID
+          EOF
+
+          diff expected actual
+
+      - name: Retrieve private key
+        run: |
           docker exec ipa ipa vault-retrieve \
               --password Secret.123 \
               --out $SHARED/output \
               testvault
 
-          # the original private key should be identical to the archived one
+          # the retrieved key should be identical to the original
           diff private.key output
 
       - name: Check IPA CA install log

@@ -68,11 +68,6 @@ jobs:
           # restart PKI server
           docker exec ipa pki-server restart --wait
 
-      - name: Check DS server
-        run: |
-          docker exec ipa dsctl --list
-          docker exec ipa dsconf slapd-EXAMPLE-COM backend suffix list
-
       - name: Check admin user
         run: |
           echo Secret.123 | docker exec -i ipa kinit admin
@@ -163,6 +158,36 @@ jobs:
           EOF
 
           diff expected output
+
+      - name: Check DS server
+        run: |
+          # check DS instances
+          docker exec ipa dsctl --list
+
+          # check DS backends
+          docker exec ipa dsconf slapd-EXAMPLE-COM backend suffix list
+
+          # check root DSE
+          docker exec ipa ldapsearch \
+              -H ldap://ipa.example.com:389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "" \
+              -s base \
+              -o ldif_wrap=no \
+              -LLL
+
+          # check CA base DN
+          docker exec ipa ldapsearch \
+              -H ldap://ipa.example.com:389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -x \
+              -b "o=ipaca" \
+              -s base \
+              -o ldif_wrap=no \
+              -LLL
 
       - name: Check CA users
         run: |
