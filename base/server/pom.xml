@@ -14,6 +14,12 @@
     <artifactId>pki-server</artifactId>
     <packaging>jar</packaging>
 
+    <properties>
+        <!-- REST API version control build-time configuration -->
+        <rest_api_deprecated_version>v1</rest_api_deprecated_version>
+        <rest_api_disabled_versions></rest_api_disabled_versions>
+    </properties>
+
     <dependencies>
 
         <dependency>
@@ -37,6 +43,23 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>rest-api.properties</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <excludes>
+                    <exclude>rest-api.properties</exclude>
+                </excludes>
+            </resource>
+        </resources>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
