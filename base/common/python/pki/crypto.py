@@ -34,7 +34,6 @@ from cryptography.hazmat.primitives.ciphers import (
 )
 from cryptography.hazmat.primitives import keywrap
 from cryptography.hazmat.primitives import padding
-from cryptography.hazmat.primitives.asymmetric.padding import PKCS1v15
 
 # encryption algorithms OIDs
 DES_EDE3_CBC_OID = "{1 2 840 113549 3 7}"
@@ -89,14 +88,6 @@ class CryptoProvider(six.with_metaclass(abc.ABCMeta, object)):
         We expect the data and nonce_iv values to be base64 encoded.
         The mechanism is the type of key used to do the wrapping.  It defaults
         to a 56 bit DES3 key.
-        """
-
-    @abc.abstractmethod
-    def asymmetric_wrap(self, data, wrapping_cert, mechanism=None):
-        """ encrypt a symmetric key with the public key of a transport cert.
-
-        The mechanism is the type of symmetric key, which defaults to a 56 bit
-        DES3 key.
         """
 
     @abc.abstractmethod
@@ -212,21 +203,6 @@ class CryptographyCryptoProvider(CryptoProvider):
             raise ValueError('Only CBC mode is currently supported')
 
         return unwrapped
-
-    def asymmetric_wrap(self, data, wrapping_cert,
-                        mechanism=None):
-        """
-        :param data             Data to be wrapped
-        :param wrapping_cert    Public key to wrap data
-        :param mechanism        algorithm of symmetric key to be wrapped
-
-        Wrap (encrypt) data using the supplied asymmetric key
-        """
-        public_key = wrapping_cert.public_key()
-        return public_key.encrypt(
-            data,
-            PKCS1v15()
-        )
 
     def key_unwrap(self, mechanism, data, wrapping_key, nonce_iv):
         """
