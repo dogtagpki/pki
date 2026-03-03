@@ -10,6 +10,7 @@ import os
 
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.asymmetric.padding import PKCS1v15
 
 import pki.kra
 import pki.account
@@ -105,9 +106,9 @@ key_id = key_info.get_key_id()
 
 session_key = crypto.generate_session_key()
 
-wrapped_session_key = crypto.asymmetric_wrap(
+wrapped_session_key = transport_cert.public_key().encrypt(
     session_key,
-    transport_cert)
+    PKCS1v15())
 
 # use AES_128_CBC to match pki kra-key-retrieve
 # see Java KeyClient.getEncryptAlgorithmOID()

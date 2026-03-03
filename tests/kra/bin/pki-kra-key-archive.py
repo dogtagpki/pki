@@ -10,6 +10,7 @@ import os
 
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.asymmetric.padding import PKCS1v15
 from cryptography.hazmat.primitives.ciphers import Cipher
 from cryptography.hazmat.primitives.padding import PKCS7
 
@@ -117,9 +118,9 @@ cipher = Cipher(
 encryptor = cipher.encryptor()
 encrypted_data = encryptor.update(padded_data) + encryptor.finalize()
 
-wrapped_session_key = crypto.asymmetric_wrap(
+wrapped_session_key = transport_cert.public_key().encrypt(
     session_key,
-    transport_cert)
+    PKCS1v15())
 
 # use AES_128_CBC to match pki kra-key-archve
 # see Java KeyClient.getEncryptAlgorithmOID()

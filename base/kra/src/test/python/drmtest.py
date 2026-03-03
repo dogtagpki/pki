@@ -44,6 +44,7 @@ from base64 import b64decode, b64encode
 from six.moves import range  # pylint: disable=W0622,F0401
 
 from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.asymmetric.padding import PKCS1v15
 from cryptography.hazmat.primitives.ciphers import Cipher
 from cryptography.hazmat.primitives.padding import PKCS7
 
@@ -159,7 +160,11 @@ def run_test(protocol, hostname, port, client_cert, certdb_dir,
     # Test 6: Barbican_decode() - Retrieve while providing
     # trans_wrapped_session_key
     session_key = crypto.generate_session_key()
-    wrapped_session_key = crypto.asymmetric_wrap(session_key, transport_cert)
+
+    wrapped_session_key = transport_cert.public_key().encrypt(
+        session_key,
+        PKCS1v15())
+
     print("My key id is " + str(key_id))
     key_data = keyclient.retrieve_key(
         key_id,

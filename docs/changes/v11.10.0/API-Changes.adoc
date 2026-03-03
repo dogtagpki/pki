@@ -20,3 +20,7 @@ The `CryptoProvider.get_cert()` has been removed.
 == Remove CryptoProvider.symmetric_wrap() ==
 
 The `CryptoProvider.symmetric_wrap()` has been removed.
+
+== Remove CryptoProvider.asymmetric_wrap() ==
+
+The `CryptoProvider.asymmetric_wrap()` has been removed.
