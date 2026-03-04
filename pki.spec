@@ -1124,137 +1124,106 @@ This package provides test suite for %{product_name}.
 
 %if %{without runtime_deps}
 
-if [ ! -d base/common/lib ]
+if [ -d base/common/lib ]
 then
-    # import common libraries from RPMs
+    pushd base/common/lib
 
+    # get JAR versions
+    COMMONS_CLI_VERSION=$(ls commons-cli-*.jar | sed 's/^commons-cli-\(.*\)\.jar$/\1/')
+    COMMONS_CODEC_VERSION=$(ls commons-codec-*.jar | sed 's/^commons-codec-\(.*\)\.jar$/\1/')
+    COMMONS_IO_VERSION=$(ls commons-io-*.jar | sed 's/^commons-io-\(.*\)\.jar$/\1/')
+    COMMONS_LANG3_VERSION=$(ls commons-lang3-*.jar | sed 's/^commons-lang3-\(.*\)\.jar$/\1/')
+    COMMONS_LOGGING_VERSION=$(ls commons-logging-*.jar | sed 's/^commons-logging-\(.*\)\.jar$/\1/')
+    COMMONS_NET_VERSION=$(ls commons-net-*.jar | sed 's/^commons-net-\(.*\)\.jar$/\1/')
+    HTTPCLIENT_VERSION=$(ls httpclient-*.jar | sed 's/^httpclient-\(.*\)\.jar$/\1/')
+    HTTPCORE_VERSION=$(ls httpcore-*.jar | sed 's/^httpcore-\(.*\)\.jar$/\1/')
+    SLF4J_VERSION=$(ls slf4j-api-*.jar | sed 's/^slf4j-api-\(.*\)\.jar$/\1/')
+    JAKARTA_ACTIVATION_API_VERSION=$(ls jakarta.activation-api-*.jar | sed 's/^jakarta\.activation-api-\(.*\)\.jar$/\1/')
+    JAKARTA_ANNOTATION_API_VERSION=$(ls jakarta.annotation-api-*.jar | sed 's/^jakarta\.annotation-api-\(.*\)\.jar$/\1/')
+    JAXB_API_VERSION=$(ls jakarta.xml.bind-api-*.jar | sed 's/^jakarta\.xml\.bind-api-\(.*\)\.jar$/\1/')
+    JACKSON_VERSION=$(ls jackson-annotations-*.jar | sed 's/^jackson-annotations-\(.*\)\.jar$/\1/')
+    JAXRS_VERSION=$(ls jboss-jaxrs-api_2.0_spec-*.jar | sed 's/^jboss-jaxrs-api_2\.0_spec-\(.*\)\.jar$/\1/')
+    JBOSS_LOGGING_VERSION=$(ls jboss-logging-*.jar| sed 's/^jboss-logging-\(.*\)\.jar$/\1/')
+    RESTEASY_VERSION=$(ls resteasy-jaxrs-*.jar | sed 's/^resteasy-jaxrs-\(.*\)\.jar$/\1/')
+
+    popd
+
+else
     mkdir -p base/common/lib
     pushd base/common/lib
 
+    # get RPM versions
     COMMONS_CLI_VERSION=$(rpm -q apache-commons-cli | sed -n 's/^apache-commons-cli-\([^-]*\)-.*$/\1/p')
-    echo "COMMONS_CLI_VERSION: $COMMONS_CLI_VERSION"
-
-    cp /usr/share/java/commons-cli.jar \
-        commons-cli-$COMMONS_CLI_VERSION.jar
-
     COMMONS_CODEC_VERSION=$(rpm -q apache-commons-codec | sed -n 's/^apache-commons-codec-\([^-]*\)-.*$/\1/p')
-    echo "COMMONS_CODEC_VERSION: $COMMONS_CODEC_VERSION"
-
-    cp /usr/share/java/commons-codec.jar \
-        commons-codec-$COMMONS_CODEC_VERSION.jar
-
     COMMONS_IO_VERSION=$(rpm -q apache-commons-io | sed -n 's/^apache-commons-io-\([^-]*\)-.*$/\1/p')
-    echo "COMMONS_IO_VERSION: $COMMONS_IO_VERSION"
-
-    cp /usr/share/java/commons-io.jar \
-        commons-io-$COMMONS_IO_VERSION.jar
-
     COMMONS_LANG3_VERSION=$(rpm -q apache-commons-lang3 | sed -n 's/^apache-commons-lang3-\([^-]*\)-.*$/\1/p')
-    echo "COMMONS_LANG3_VERSION: $COMMONS_LANG3_VERSION"
-
-    cp /usr/share/java/commons-lang3.jar \
-        commons-lang3-$COMMONS_LANG3_VERSION.jar
-
     COMMONS_LOGGING_VERSION=$(rpm -q apache-commons-logging | sed -n 's/^apache-commons-logging-\([^-]*\)-.*$/\1/p')
-    echo "COMMONS_LOGGING_VERSION: $COMMONS_LOGGING_VERSION"
-
-    cp /usr/share/java/commons-logging.jar \
-        commons-logging-$COMMONS_LOGGING_VERSION.jar
-
     COMMONS_NET_VERSION=$(rpm -q apache-commons-net | sed -n 's/^apache-commons-net-\([^-]*\)-.*$/\1/p')
-    echo "COMMONS_NET_VERSION: $COMMONS_NET_VERSION"
-
-    cp /usr/share/java/commons-net.jar \
-        commons-net-$COMMONS_NET_VERSION.jar
-
     HTTPCLIENT_VERSION=$(rpm -q httpcomponents-client | sed -n 's/^httpcomponents-client-\([^-]*\)-.*$/\1/p')
-    echo "HTTPCLIENT_VERSION: $HTTPCLIENT_VERSION"
-
-    cp /usr/share/java/httpcomponents/httpclient.jar \
-        httpclient-$HTTPCLIENT_VERSION.jar
-
     HTTPCORE_VERSION=$(rpm -q httpcomponents-core | sed -n 's/^httpcomponents-core-\([^-]*\)-.*$/\1/p')
-    echo "HTTPCORE_VERSION: $HTTPCORE_VERSION"
-
-    cp /usr/share/java/httpcomponents/httpcore.jar \
-        httpcore-$HTTPCORE_VERSION.jar
-
     SLF4J_VERSION=$(rpm -q slf4j | sed -n 's/^slf4j-\([^-]*\)-.*$/\1/p')
-    echo "SLF4J_VERSION: $SLF4J_VERSION"
-
-    cp /usr/share/java/slf4j/slf4j-api.jar \
-        slf4j-api-$SLF4J_VERSION.jar
-    cp /usr/share/java/slf4j/slf4j-jdk14.jar \
-        slf4j-jdk14-$SLF4J_VERSION.jar
-
     JAKARTA_ACTIVATION_API_VERSION=$(rpm -q jakarta-activation | sed -n 's/^jakarta-activation-\([^-]*\)-.*$/\1/p')
-    echo "JAKARTA_ACTIVATION_API_VERSION: $JAKARTA_ACTIVATION_API_VERSION"
-
-    cp /usr/share/java/jakarta-activation/jakarta.activation-api.jar \
-        jakarta.activation-api-$JAKARTA_ACTIVATION_API_VERSION.jar
-
     JAKARTA_ANNOTATION_API_VERSION=$(rpm -q jakarta-annotations | sed -n 's/^jakarta-annotations-\([^-]*\)-.*$/\1/p')
-    echo "JAKARTA_ANNOTATION_API_VERSION: $JAKARTA_ANNOTATION_API_VERSION"
-
-    cp /usr/share/java/jakarta-annotations/jakarta.annotation-api.jar \
-        jakarta.annotation-api-$JAKARTA_ANNOTATION_API_VERSION.jar
-
     JAXB_API_VERSION=$(rpm -q jaxb-api | sed -n 's/^jaxb-api-\([^-]*\)-.*$/\1/p')
-    echo "JAXB_API_VERSION: $JAXB_API_VERSION"
+    JACKSON_VERSION=$(rpm -q jackson-annotations | sed -n 's/^jackson-annotations-\([^-]*\)-.*$/\1/p')
+    JAXRS_VERSION=$(rpm -q jboss-jaxrs-2.0-api | sed -n 's/^jboss-jaxrs-2.0-api-\([^-]*\)-.*$/\1.Final/p')
+    JBOSS_LOGGING_VERSION=$(rpm -q jboss-logging | sed -n 's/^jboss-logging-\([^-]*\)-.*$/\1.Final/p')
+    RESTEASY_VERSION=$(rpm -q pki-resteasy-core | sed -n 's/^pki-resteasy-core-\([^-]*\)-.*$/\1.Final/p')
+
+    # import common libraries from RPMs
+    cp /usr/share/java/commons-cli.jar commons-cli-$COMMONS_CLI_VERSION.jar
+    cp /usr/share/java/commons-codec.jar commons-codec-$COMMONS_CODEC_VERSION.jar
+    cp /usr/share/java/commons-io.jar commons-io-$COMMONS_IO_VERSION.jar
+    cp /usr/share/java/commons-lang3.jar commons-lang3-$COMMONS_LANG3_VERSION.jar
+    cp /usr/share/java/commons-logging.jar commons-logging-$COMMONS_LOGGING_VERSION.jar
+    cp /usr/share/java/commons-net.jar commons-net-$COMMONS_NET_VERSION.jar
+    cp /usr/share/java/httpcomponents/httpclient.jar httpclient-$HTTPCLIENT_VERSION.jar
+    cp /usr/share/java/httpcomponents/httpcore.jar httpcore-$HTTPCORE_VERSION.jar
+    cp /usr/share/java/slf4j/slf4j-api.jar slf4j-api-$SLF4J_VERSION.jar
+    cp /usr/share/java/slf4j/slf4j-jdk14.jar slf4j-jdk14-$SLF4J_VERSION.jar
+    cp /usr/share/java/jakarta-activation/jakarta.activation-api.jar jakarta.activation-api-$JAKARTA_ACTIVATION_API_VERSION.jar
+    cp /usr/share/java/jakarta-annotations/jakarta.annotation-api.jar jakarta.annotation-api-$JAKARTA_ANNOTATION_API_VERSION.jar
 
     if [ -f /usr/share/java/jaxb-api.jar ]
     then
-        cp /usr/share/java/jaxb-api.jar \
-            jakarta.xml.bind-api-$JAXB_API_VERSION.jar
+        cp /usr/share/java/jaxb-api.jar jakarta.xml.bind-api-$JAXB_API_VERSION.jar
     elif [ -f /usr/share/java/jaxb-api/jakarta.xml.bind-api.jar ]
     then
-        cp /usr/share/java/jaxb-api/jakarta.xml.bind-api.jar \
-            jakarta.xml.bind-api-$JAXB_API_VERSION.jar
+        cp /usr/share/java/jaxb-api/jakarta.xml.bind-api.jar jakarta.xml.bind-api-$JAXB_API_VERSION.jar
     fi
 
-    JACKSON_VERSION=$(rpm -q jackson-annotations | sed -n 's/^jackson-annotations-\([^-]*\)-.*$/\1/p')
-    echo "JACKSON_VERSION: $JACKSON_VERSION"
+    cp /usr/share/java/jackson-annotations.jar jackson-annotations-$JACKSON_VERSION.jar
+    cp /usr/share/java/jackson-core.jar jackson-core-$JACKSON_VERSION.jar
+    cp /usr/share/java/jackson-databind.jar jackson-databind-$JACKSON_VERSION.jar
+    cp /usr/share/java/jackson-jaxrs-providers/jackson-jaxrs-base.jar jackson-jaxrs-base-$JACKSON_VERSION.jar
+    cp /usr/share/java/jackson-jaxrs-providers/jackson-jaxrs-json-provider.jar jackson-jaxrs-json-provider-$JACKSON_VERSION.jar
+    cp /usr/share/java/jackson-modules/jackson-module-jaxb-annotations.jar jackson-module-jaxb-annotations-$JACKSON_VERSION.jar
+    cp /usr/share/java/jboss-jaxrs-2.0-api.jar jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar
+    cp /usr/share/java/jboss-logging/jboss-logging.jar jboss-logging-$JBOSS_LOGGING_VERSION.jar
+    cp /usr/share/java/resteasy/resteasy-jaxrs.jar resteasy-jaxrs-$RESTEASY_VERSION.jar
+    cp /usr/share/java/resteasy/resteasy-client.jar resteasy-client-$RESTEASY_VERSION.jar
+    cp /usr/share/java/resteasy/resteasy-jackson2-provider.jar resteasy-jackson2-provider-$RESTEASY_VERSION.jar
 
-    cp /usr/share/java/jackson-annotations.jar \
-        jackson-annotations-$JACKSON_VERSION.jar
-    cp /usr/share/java/jackson-core.jar \
-        jackson-core-$JACKSON_VERSION.jar
-    cp /usr/share/java/jackson-databind.jar \
-        jackson-databind-$JACKSON_VERSION.jar
-    cp /usr/share/java/jackson-jaxrs-providers/jackson-jaxrs-base.jar \
-        jackson-jaxrs-base-$JACKSON_VERSION.jar
-    cp /usr/share/java/jackson-jaxrs-providers/jackson-jaxrs-json-provider.jar \
-        jackson-jaxrs-json-provider-$JACKSON_VERSION.jar
-    cp /usr/share/java/jackson-modules/jackson-module-jaxb-annotations.jar \
-        jackson-module-jaxb-annotations-$JACKSON_VERSION.jar
+    popd
+fi
 
-    JAXRS_VERSION=$(rpm -q jboss-jaxrs-2.0-api | sed -n 's/^jboss-jaxrs-2.0-api-\([^-]*\)-.*$/\1.Final/p')
-    echo "JAXRS_VERSION: $JAXRS_VERSION"
+if [ ! -d base/server/lib ]
+then
+    mkdir -p base/server/lib
+    pushd base/server/lib
 
-    cp /usr/share/java/jboss-jaxrs-2.0-api.jar \
-        jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar
+    # import server libraries from RPMs
+    cp /usr/share/java/resteasy/resteasy-servlet-initializer.jar resteasy-servlet-initializer-$RESTEASY_VERSION.jar
 
-    JBOSS_LOGGING_VERSION=$(rpm -q jboss-logging | sed -n 's/^jboss-logging-\([^-]*\)-.*$/\1.Final/p')
-    echo "JBOSS_LOGGING_VERSION: $JBOSS_LOGGING_VERSION"
+    popd
+fi
+%endif
 
-    cp /usr/share/java/jboss-logging/jboss-logging.jar \
-        jboss-logging-$JBOSS_LOGGING_VERSION.jar
-
-    RESTEASY_VERSION=$(rpm -q pki-resteasy-core | sed -n 's/^pki-resteasy-core-\([^-]*\)-.*$/\1.Final/p')
-    echo "RESTEASY_VERSION: $RESTEASY_VERSION"
-
-    cp /usr/share/java/resteasy/resteasy-jaxrs.jar \
-        resteasy-jaxrs-$RESTEASY_VERSION.jar
-    cp /usr/share/java/resteasy/resteasy-client.jar \
-        resteasy-client-$RESTEASY_VERSION.jar
-    cp /usr/share/java/resteasy/resteasy-jackson2-provider.jar \
-        resteasy-jackson2-provider-$RESTEASY_VERSION.jar
-
-    # Migrate necessary files being copied around to jakarta 9.0 ee, for >= f43 and rhel10
-
-    %if 0%{?fedora} >= %{fedora_tomcat9_cutoff} || 0%{?rhel} >= %{rhel_tomcat9_cutoff}
-
-    echo "Doing the Tomcat 10 version..."
+%if 0%{?fedora} >= %{fedora_tomcat9_cutoff} || 0%{?rhel} >= %{rhel_tomcat9_cutoff}
+if [ -d base/common/lib ]
+then
+    # migrate common libraries
+    pushd base/common/lib
 
     /usr/bin/javax2jakarta -profile=EE jakarta.activation-api-$JAKARTA_ACTIVATION_API_VERSION.jar jakarta.activation-api-$JAKARTA_ACTIVATION_API_VERSION.jar
     /usr/bin/javax2jakarta -profile=EE jakarta.annotation-api-$JAKARTA_ANNOTATION_API_VERSION.jar jakarta.annotation-api-$JAKARTA_ANNOTATION_API_VERSION.jar
@@ -1269,46 +1238,33 @@ then
 
     /usr/bin/javax2jakarta -profile=EE jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar
 
-    # Now migrate the required resteasy jars, in case we are using an existing resteasy version.
-
     /usr/bin/javax2jakarta -profile=EE resteasy-client-$RESTEASY_VERSION.jar resteasy-client-$RESTEASY_VERSION.jar
     /usr/bin/javax2jakarta -profile=EE resteasy-jackson2-provider-$RESTEASY_VERSION.jar resteasy-jackson2-provider-$RESTEASY_VERSION.jar
     /usr/bin/javax2jakarta -profile=EE resteasy-jaxrs-$RESTEASY_VERSION.jar resteasy-jaxrs-$RESTEASY_VERSION.jar
 
-    # Add local artifact so we can compile against the migrated jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar
-    # We could have used the maven install plugin but it's not available with standard rpms.
-
-    %endif
-
-    # Create the local artifact structure for either Tomcat 9 or Tomcat 10.
-    # Tomcat 9 doesn't get the file migrated.
-    mkdir -p ~/.m2/repository/pki-local/jboss-jaxrs-api_2.0_spec/$JAXRS_VERSION
-
-    # Copy over the JAX-RS API so we can compile.
-    cp jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar ~/.m2/repository/pki-local/jboss-jaxrs-api_2.0_spec/$JAXRS_VERSION/jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar
-
     popd
 fi
 
-if [ ! -d base/server/lib ]
+if [ -d base/server/lib ]
 then
-    # Import server libraries from RPMs.
-
-    mkdir -p base/server/lib
+    # migrate server libraries
     pushd base/server/lib
 
-    RESTEASY_VERSION=$(rpm -q pki-resteasy-servlet-initializer | sed -n 's/^pki-resteasy-servlet-initializer-\([^-]*\)-.*$/\1.Final/p')
-    echo "RESTEASY_VERSION: $RESTEASY_VERSION"
-
-    cp /usr/share/java/resteasy/resteasy-servlet-initializer.jar \
-        resteasy-servlet-initializer-$RESTEASY_VERSION.jar
-
-    # Migrate the resteasy servlet initializer, in case we are using an existing resteasy version.
-    %if 0%{?fedora} >= %{fedora_tomcat9_cutoff} || 0%{?rhel} >= %{rhel_tomcat9_cutoff}
     /usr/bin/javax2jakarta -profile=EE resteasy-servlet-initializer-$RESTEASY_VERSION.jar resteasy-servlet-initializer-$RESTEASY_VERSION.jar
-    %endif
 
-    ls -l
+    popd
+fi
+%endif
+
+%if %{without runtime_deps}
+if [ -d base/common/lib ]
+then
+    # install migrated common libraries
+    pushd base/common/lib
+
+    mkdir -p ~/.m2/repository/pki-local/jboss-jaxrs-api_2.0_spec/$JAXRS_VERSION
+    cp jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar ~/.m2/repository/pki-local/jboss-jaxrs-api_2.0_spec/$JAXRS_VERSION
+
     popd
 fi
 %endif
