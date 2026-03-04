@@ -189,7 +189,7 @@ jobs:
           lrwxrwxrwx pkiuser pkiuser lib -> /usr/share/pki/server/lib
           lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-tomcat
           drwxr-x--- pkiuser pkiuser temp
-          drwxr-x--- pkiuser pkiuser webapps
+          drwxrwx--- pkiuser pkiuser webapps
           drwxr-x--- pkiuser pkiuser work
           EOF
 
@@ -202,7 +202,7 @@ jobs:
           lrwxrwxrwx pkiuser pkiuser lib -> /usr/share/pki/server/lib
           lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-tomcat
           drwxr-x--- pkiuser pkiuser temp
-          drwxr-x--- pkiuser pkiuser webapps
+          drwxrwx--- pkiuser pkiuser webapps
           drwxr-x--- pkiuser pkiuser work
           EOF
 
