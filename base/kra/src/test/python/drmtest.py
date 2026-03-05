@@ -46,6 +46,7 @@ from six.moves import range  # pylint: disable=W0622,F0401
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric.padding import PKCS1v15
 from cryptography.hazmat.primitives.ciphers import Cipher
+from cryptography.hazmat.primitives.keywrap import aes_key_unwrap
 from cryptography.hazmat.primitives.padding import PKCS7
 
 import pki
@@ -279,11 +280,23 @@ def run_test(protocol, hostname, port, client_cert, certdb_dir,
         key_info.get_key_id(),
         trans_wrapped_session_key=wrapped_session_key)
     print_key_data(key_data)
-    unwrapped_key = crypto.key_unwrap(
-        key.wrap_algorithm,
-        key_data.encrypted_data,
-        session_key,
-        key_data.nonce_data)
+
+    if key_data.wrap_algorithm == pki.crypto.WRAP_AES_CBC_PAD \
+            or key_data.wrap_algorithm == pki.crypto.WRAP_DES3_CBC_PAD:
+        unwrapped_key = crypto.symmetric_unwrap(
+            key_data.encrypted_data,
+            session_key,
+            nonce_iv=key_data.nonce_data)
+
+    elif key_data.wrap_algorithm == pki.crypto.WRAP_AES_KEY_WRAP:
+        unwrapped_key = aes_key_unwrap(
+            session_key,
+            key_data.encrypted_data,
+            backend=default_backend())
+
+    else:
+        raise ValueError("Unsupported key wrap algorithm: " + key.wrap_algorithm)
+
     key2 = b64encode(unwrapped_key)
 
     if key1 == key2:
