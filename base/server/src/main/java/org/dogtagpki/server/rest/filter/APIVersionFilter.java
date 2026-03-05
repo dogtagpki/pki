@@ -40,8 +40,12 @@ import com.netscape.cmscore.apps.EngineConfig;
  * and adds deprecation warnings to deprecated API versions.
  *
  * Build-time configuration (rest-api.properties):
+ * - versions.built: Comma-separated list of API versions included in the build
  * - deprecated.version: API version marked as deprecated
  * - disabled.versions: API versions disabled by default at build time
+ *
+ * Versions not included in versions.built are automatically disabled at runtime
+ * and cannot be enabled (since the code doesn't exist).
  *
  * Runtime configuration for CMSEngine (CS.cfg):
  * - rest.api.enabled: Comma-separated list of versions to enable (overrides build-time disabled)
@@ -87,6 +91,10 @@ public class APIVersionFilter implements Filter {
                 deprecatedVersion = null;
             }
 
+            // Get versions that were built
+            String builtVersions = buildConfig.getProperty("versions.built", "");
+            Set<String> versionsBuilt = parseVersions(builtVersions);
+
             String buildDisabled = buildConfig.getProperty("disabled.versions", "");
             Set<String> defaultDisabledVersions = parseVersions(buildDisabled);
 
@@ -115,6 +123,16 @@ public class APIVersionFilter implements Filter {
                     mergedConfig.getProperty("suppress_deprecation_warnings", "false"));
             }
 
+            // Add versions that were not built to the disabled list
+            // These cannot be enabled at runtime since they don't exist
+            if (!versionsBuilt.isEmpty()) {
+                // Assume all known versions (v1, v2) and disable those not built
+                Set<String> allKnownVersions = new HashSet<>(Arrays.asList("v1", "v2"));
+                allKnownVersions.removeAll(versionsBuilt);
+                disabledVersions.addAll(allKnownVersions);
+            }
+
+            logger.info("REST API versions built: {}", versionsBuilt);
             logger.info("REST API build-time disabled: {}", defaultDisabledVersions);
             logger.info("REST API runtime enabled: {}", runtimeEnabledVersions);
             logger.info("REST API final disabled: {}", disabledVersions);
