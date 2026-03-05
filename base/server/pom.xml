@@ -16,6 +16,7 @@
 
     <properties>
         <!-- REST API version control build-time configuration -->
+        <rest_api_versions_to_build>v1,v2</rest_api_versions_to_build>
         <rest_api_deprecated_version>v1</rest_api_deprecated_version>
         <rest_api_disabled_versions></rest_api_disabled_versions>
     </properties>
@@ -34,13 +35,42 @@
             <version>${project.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.jboss.resteasy</groupId>
-            <artifactId>resteasy-servlet-initializer</artifactId>
-            <version>3.0.26.Final</version>
-        </dependency>
-
     </dependencies>
+
+    <profiles>
+        <!-- Default: build both v1 and v2, include RESTEasy for v1 -->
+        <profile>
+            <id>default-rest-api</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.jboss.resteasy</groupId>
+                    <artifactId>resteasy-servlet-initializer</artifactId>
+                    <version>3.0.26.Final</version>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <!-- Build v1 only - needs RESTEasy -->
+        <profile>
+            <id>api-v1-only</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.jboss.resteasy</groupId>
+                    <artifactId>resteasy-servlet-initializer</artifactId>
+                    <version>3.0.26.Final</version>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <!-- Build v2 only - no RESTEasy needed -->
+        <profile>
+            <id>api-v2-only</id>
+            <!-- No RESTEasy dependency -->
+        </profile>
+    </profiles>
 
     <build>
         <resources>

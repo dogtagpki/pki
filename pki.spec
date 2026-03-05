@@ -163,7 +163,20 @@ ExcludeArch: i686
 %bcond_with console
 
 # REST API version control
-# The rest_api_deprecated and rest_api_disabled macros are provided by build.sh
+# The rest_api_versions_to_build, rest_api_deprecated and rest_api_disabled macros are provided by build.sh
+
+# Set defaults if not provided by build.sh
+%if ! %{defined rest_api_versions_to_build}
+%define rest_api_versions_to_build v1,v2
+%endif
+
+%if ! %{defined rest_api_deprecated}
+%define rest_api_deprecated v1
+%endif
+
+%if ! %{defined rest_api_disabled}
+%define rest_api_disabled ""
+%endif
 
 %if ! %{with debug}
 %define debug_package %{nil}
@@ -1410,6 +1423,11 @@ export JAVA_HOME=%{java_home}
 %endif
 
 # Configure REST API version control
+%if %{defined rest_api_versions_to_build}
+%pom_xpath_set "pom:project/pom:properties/pom:rest_api_versions_to_build" "%{rest_api_versions_to_build}" base
+%pom_xpath_set "pom:project/pom:properties/pom:rest_api_versions_to_build" "%{rest_api_versions_to_build}" base/server
+%endif
+
 %if %{defined rest_api_deprecated}
 %pom_xpath_set "pom:project/pom:properties/pom:rest_api_deprecated_version" "%{rest_api_deprecated}" base/server
 %endif
@@ -1418,7 +1436,17 @@ export JAVA_HOME=%{java_home}
 %pom_xpath_set "pom:project/pom:properties/pom:rest_api_disabled_versions" "%{rest_api_disabled}" base/server
 %endif
 
-%mvn_build %{!?with_test:-f} -j
+# Determine Maven profile for API version exclusion
+%if %{defined rest_api_versions_to_build}
+%if "%{rest_api_versions_to_build}" == "v1"
+%global mvn_profile -Papi-v1-only
+%endif
+%if "%{rest_api_versions_to_build}" == "v2"
+%global mvn_profile -Papi-v2-only
+%endif
+%endif
+
+%mvn_build %{!?with_test:-f} -j %{?mvn_profile:-- %{mvn_profile}}
 
 # create links to Maven-built JAR files for CMake
 mkdir -p %{_vpath_builddir}/dist
@@ -1525,6 +1553,7 @@ pkgs=base\
     --with-pkgs=$pkgs \
     %{?with_console:--with-console} \
     --without-test \
+    %{?rest_api_versions_to_build:--rest-api-versions=%{rest_api_versions_to_build}} \
     %{?rest_api_deprecated:--rest-api-deprecated=%{rest_api_deprecated}} \
     %{?rest_api_disabled:--rest-api-disabled=%{rest_api_disabled}} \
     dist
