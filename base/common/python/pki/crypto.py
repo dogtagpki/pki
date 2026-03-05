@@ -32,7 +32,6 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.ciphers import (
     Cipher, algorithms, modes
 )
-from cryptography.hazmat.primitives import keywrap
 from cryptography.hazmat.primitives import padding
 
 # encryption algorithms OIDs
@@ -89,10 +88,6 @@ class CryptoProvider(six.with_metaclass(abc.ABCMeta, object)):
         The mechanism is the type of key used to do the wrapping.  It defaults
         to a 56 bit DES3 key.
         """
-
-    @abc.abstractmethod
-    def key_unwrap(self, mechanism, data, wrapping_key, nonce_iv):
-        """ Unwrap data that has been key wrapped using AES KeyWrap """
 
 
 class CryptographyCryptoProvider(CryptoProvider):
@@ -203,25 +198,3 @@ class CryptographyCryptoProvider(CryptoProvider):
             raise ValueError('Only CBC mode is currently supported')
 
         return unwrapped
-
-    def key_unwrap(self, mechanism, data, wrapping_key, nonce_iv):
-        """
-        :param mechanism        key wrapping mechanism
-        :param data:            data to unwrap
-        :param wrapping_key:    AES key used to wrap data
-        :param nonce_iv         Nonce data
-        :return:                unwrapped data
-
-        Unwrap the encrypted data which has been wrapped using a
-        KeyWrap mechanism.
-        """
-        if mechanism == WRAP_AES_CBC_PAD or mechanism == WRAP_DES3_CBC_PAD:
-            return self.symmetric_unwrap(
-                data,
-                wrapping_key,
-                nonce_iv=nonce_iv)
-
-        if mechanism == WRAP_AES_KEY_WRAP:
-            return keywrap.aes_key_unwrap(wrapping_key, data, self.backend)
-
-        raise ValueError("Unsupported key wrap algorithm: " + mechanism)
