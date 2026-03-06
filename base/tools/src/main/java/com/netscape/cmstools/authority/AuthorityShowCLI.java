@@ -5,7 +5,6 @@ import org.apache.commons.cli.Option;
 
 import com.netscape.certsrv.authority.AuthorityClient;
 import com.netscape.certsrv.authority.AuthorityData;
-import com.netscape.certsrv.authority.AuthorityResource;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.cmstools.cli.MainCLI;
@@ -14,6 +13,7 @@ import com.netscape.cmstools.cli.SubsystemCommandCLI;
 public class AuthorityShowCLI extends SubsystemCommandCLI {
 
     public AuthorityCLI authorityCLI;
+    private static final String HOST_AUTHORITY = "host-authority";
 
     public AuthorityShowCLI(AuthorityCLI authorityCLI) {
         super("show", "Show CAs", authorityCLI);
@@ -55,7 +55,7 @@ public class AuthorityShowCLI extends SubsystemCommandCLI {
             if (caIDString != null) {
                 throw new Exception("Authority ID and --host-authority are mutually exclusive.");
             }
-            caIDString = AuthorityResource.HOST_AUTHORITY;
+            caIDString = HOST_AUTHORITY;
         }
 
         if (caIDString == null) {

@@ -31,7 +31,6 @@ import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.tps.profile.ProfileCollection;
 import com.netscape.certsrv.tps.profile.ProfileData;
-import com.netscape.certsrv.user.UserResource;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.logging.Auditor;
 
@@ -43,7 +42,7 @@ public class ProfileProcessor {
     private static final Logger logger = LoggerFactory.getLogger(ProfileProcessor.class);
     private static final Pattern PROFILE_ID_PATTERN = Pattern.compile("^[a-zA-Z0-9_]+$");
     private static final Pattern PROPERTY_NAME_PATTERN = Pattern.compile("^[a-zA-Z0-9_\\.]+$");
-
+    public static final String ALL_PROFILES = "All Profiles";
     private TPSSubsystem subsystem;
     private ProfileDatabase database;
     private Auditor auditor;
@@ -69,7 +68,7 @@ public class ProfileProcessor {
 
                 Collection<ProfileRecord> filteredProfiles = database.findRecords(filter);
 
-                if (authorizedProfiles.contains(UserResource.ALL_PROFILES)) {
+                if (authorizedProfiles.contains(ALL_PROFILES)) {
                     logger.debug("{} User allowed to access all profiles", method);
                     profiles.addAll(filteredProfiles);
 
@@ -179,7 +178,7 @@ public class ProfileProcessor {
             throw new BadRequestException(method + "Missing profile ID");
         }
         try {
-           if ((authorizedProfiles== null) || (!authorizedProfiles.contains(UserResource.ALL_PROFILES) && !authorizedProfiles.contains(profileID))) {
+           if ((authorizedProfiles == null) || (!authorizedProfiles.contains(ALL_PROFILES) && !authorizedProfiles.contains(profileID))) {
                 msg = "profile record restricted for profileID:" + profileID;
                 logger.debug("{} {}", method, msg);
                 throw new PKIException(msg);
@@ -219,7 +218,7 @@ public class ProfileProcessor {
             }
         }
         try {
-            if ((authorizedProfiles== null) || (!authorizedProfiles.contains(UserResource.ALL_PROFILES) && !authorizedProfiles.contains(profileID))) {
+            if ((authorizedProfiles == null) || (!authorizedProfiles.contains(ALL_PROFILES) && !authorizedProfiles.contains(profileID))) {
                 msg = "profile record restricted for profileID:" + profileID;
                 logger.debug("{} {}", method,  msg);
 
@@ -304,7 +303,7 @@ public class ProfileProcessor {
         logger.info("{} Changing profile {} status: {}", method, profileID, action);
 
         try {
-            if ((authorizedProfiles== null) || (!authorizedProfiles.contains(UserResource.ALL_PROFILES) && !authorizedProfiles.contains(profileID))) {
+            if ((authorizedProfiles == null) || (!authorizedProfiles.contains(ALL_PROFILES) && !authorizedProfiles.contains(profileID))) {
                 msg = "profile record restricted for profileID:" + profileID;
                 logger.debug("{} {}", method, msg);
 

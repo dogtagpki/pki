@@ -32,7 +32,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.user.UserResource;
 import com.netscape.certsrv.util.JSONSerializer;
 import com.netscape.cmscore.apps.CMS;
 
@@ -92,7 +91,8 @@ public class User implements JSONSerializer {
      * Constant for usertype
      */
     public static final String ATTR_TPS_PROFILES = "tpsProfiles";
-
+    public static final String ALL_PROFILES = "All Profiles";
+    
     public static final String ATTR_X509_CERTIFICATES = "userCertificates";
     public static final String ATTRIBUTES = "attributes";
     public static final String CMS_BASE_INVALID_ATTRIBUTE = "CMS_BASE_INVALID_ATTRIBUTE";
@@ -143,7 +143,7 @@ public class User implements JSONSerializer {
 
         boolean setAll = false;
         for (String profile: tpsProfiles) {
-            if (profile.equals(UserResource.ALL_PROFILES)) {
+            if (ALL_PROFILES.equals(profile)) {
                 setAll = true;
                 break;
             }
@@ -152,7 +152,7 @@ public class User implements JSONSerializer {
             this.tpsProfiles = tpsProfiles;
         } else {
             List<String> list = new ArrayList<>();
-            list.add(UserResource.ALL_PROFILES);
+            list.add(ALL_PROFILES);
             this.tpsProfiles = list;
         }
     }

@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import com.netscape.ca.CASigningUnit;
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.authority.AuthorityData;
-import com.netscape.certsrv.authority.AuthorityResource;
 import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ConflictingOperationException;
@@ -84,6 +83,8 @@ public class AuthorityRepository {
     private static Logger logger = LoggerFactory.getLogger(AuthorityRepository.class);
 
     private CAEngine engine;
+
+    public static final String HOST_AUTHORITY = "host-authority";
 
     public AuthorityRepository(CAEngine engine) {
         this.engine = engine;
@@ -468,7 +469,7 @@ public class AuthorityRepository {
         logger.info("AuthorityRepository: Getting authority {}:", authId);
 
         AuthorityID aid = null;
-        if (AuthorityResource.HOST_AUTHORITY.equals(authId)) {
+        if (HOST_AUTHORITY.equals(authId)) {
             CertificateAuthority ca = engine.getCA();
             aid = ca.getAuthorityID();
         } else {
@@ -505,7 +506,7 @@ public class AuthorityRepository {
         logger.info("AuthorityRepository: Getting cert for authority {}", authId);
 
         AuthorityID aid = null;
-        if (!AuthorityResource.HOST_AUTHORITY.equals(authId)) {
+        if (!HOST_AUTHORITY.equals(authId)) {
             try {
                 aid = new AuthorityID(authId);
             } catch (IllegalArgumentException e) {
@@ -549,7 +550,7 @@ public class AuthorityRepository {
         logger.info("AuthorityRepository: Getting cert chain for authority {}", authId);
 
         AuthorityID aid = null;
-        if (!AuthorityResource.HOST_AUTHORITY.equals(authId)) {
+        if (!HOST_AUTHORITY.equals(authId)) {
             try {
                 aid = new AuthorityID(authId);
             } catch (IllegalArgumentException e) {
@@ -591,7 +592,7 @@ public class AuthorityRepository {
         CertificateAuthority hostCA = engine.getCA();
         String parentAIDString = data.getParentID();
         AuthorityID parentAID = null;
-        if (AuthorityResource.HOST_AUTHORITY.equals(parentAIDString)) {
+        if (HOST_AUTHORITY.equals(parentAIDString)) {
             parentAID = hostCA.getAuthorityID();
         } else {
             try {

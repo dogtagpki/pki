@@ -31,6 +31,7 @@ import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.TokenDatabase;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
+import org.dogtagpki.server.tps.rest.base.ProfileProcessor;
 import org.dogtagpki.tps.main.TPSException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +48,6 @@ import com.netscape.certsrv.tps.token.TokenCollection;
 import com.netscape.certsrv.tps.token.TokenData;
 import com.netscape.certsrv.tps.token.TokenData.TokenStatusData;
 import com.netscape.certsrv.tps.token.TokenStatus;
-import com.netscape.certsrv.user.UserResource;
 import com.netscape.certsrv.util.JSONSerializer;
 
 import netscape.ldap.LDAPException;
@@ -133,7 +133,7 @@ public class TokenServlet extends TPSServlet {
         }
         String type = trec.getType();
         if ((type == null) || type.isEmpty() ||
-                authorizedProfiles.contains(UserResource.ALL_PROFILES) ||
+                authorizedProfiles.contains(ProfileProcessor.ALL_PROFILES) ||
                 authorizedProfiles.contains(type)) {
             try {
                 TokenData tData = createTokenData(trec, request.getLocale());
@@ -230,14 +230,14 @@ public class TokenServlet extends TPSServlet {
             int start, int size,
             Locale loc) throws Exception {
 
-        String method = "ActivityServlet.retrieveActivities:";
+        String method = "TokenServlet.retrieveTokens:";
         logger.debug(method);
         TokenCollection tokens = new TokenCollection();
 
         List<TokenRecord> tokenList = (List<TokenRecord>) database.findRecords(
                 filter, attributes, null, start, size);
 
-        if (authorizedProfiles.contains(UserResource.ALL_PROFILES)) {
+        if (authorizedProfiles.contains(ProfileProcessor.ALL_PROFILES)) {
             for (TokenRecord tRec: tokenList) {
                 tokens.addEntry(createTokenData(tRec, loc));
             }
@@ -470,7 +470,7 @@ public class TokenServlet extends TPSServlet {
                 throw new PKIException(method + "Token record not found");
             }
             String type = tokenRecord.getType();
-            if ((type != null) && !type.isEmpty() && !authorizedProfiles.contains(UserResource.ALL_PROFILES) && !authorizedProfiles.contains(type)) {
+            if ((type != null) && !type.isEmpty() && !authorizedProfiles.contains(ProfileProcessor.ALL_PROFILES) && !authorizedProfiles.contains(type)) {
                 logger.debug("{} token record restricted: {}", method, type);
 
                 throw new PKIException("token record restricted");
@@ -569,7 +569,7 @@ public class TokenServlet extends TPSServlet {
         String type = tokenRecord.getType();
         // if token not associated with any keyType/profile, disallow access,
         // unless the user has the "ALL_PROFILES" privilege
-        if (!authorizedProfiles.contains(UserResource.ALL_PROFILES) &&
+        if (!authorizedProfiles.contains(ProfileProcessor.ALL_PROFILES) &&
                 (((type == null) || type.isEmpty()) || !authorizedProfiles.contains(type))) {
                throw new PKIException(method + "Token record restricted");
         }
@@ -719,7 +719,7 @@ public class TokenServlet extends TPSServlet {
             }
 
             String type = tokenRecord.getType();
-            if ((type != null) && !type.isEmpty() && !authorizedProfiles.contains(UserResource.ALL_PROFILES) && !authorizedProfiles.contains(type))
+            if ((type != null) && !type.isEmpty() && !authorizedProfiles.contains(ProfileProcessor.ALL_PROFILES) && !authorizedProfiles.contains(type))
                    throw new PKIException(method + "Token record restricted");
 
             tokenRecord.setUserID(remoteUser);
@@ -819,7 +819,7 @@ public class TokenServlet extends TPSServlet {
                 throw new PKIException(method + "Token record not found");
             }
             String type = tokenRecord.getType();
-            if ((type != null) && !type.isEmpty() && !authorizedProfiles.contains(UserResource.ALL_PROFILES) && !authorizedProfiles.contains(type)) {
+            if ((type != null) && !type.isEmpty() && !authorizedProfiles.contains(ProfileProcessor.ALL_PROFILES) && !authorizedProfiles.contains(type)) {
                 logger.debug("{} token record restricted", method);
 
                 throw new PKIException("token record restricted");
@@ -927,7 +927,7 @@ public class TokenServlet extends TPSServlet {
             }
 
             String type = tokenRecord.getType();
-            if ((type != null) && !type.isEmpty() && !authorizedProfiles.contains(UserResource.ALL_PROFILES) && !authorizedProfiles.contains(type))
+            if ((type != null) && !type.isEmpty() && !authorizedProfiles.contains(ProfileProcessor.ALL_PROFILES) && !authorizedProfiles.contains(type))
                   throw new PKIException(method + "Token record restricted");
 
             //delete all certs associated with this token

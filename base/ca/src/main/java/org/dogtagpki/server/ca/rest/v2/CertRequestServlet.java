@@ -21,7 +21,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.rest.v1.ProfileService;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,11 +45,15 @@ import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileDataInfo;
 import com.netscape.certsrv.profile.ProfileDataInfos;
 import com.netscape.certsrv.profile.ProfileInput;
+import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestNotFoundException;
 import com.netscape.certsrv.util.JSONSerializer;
 import com.netscape.cms.authentication.DirBasedAuthentication;
 import com.netscape.cms.profile.common.Profile;
+import com.netscape.cms.profile.common.ProfileConfig;
+import com.netscape.cms.profile.common.ProfileInputConfig;
+import com.netscape.cms.profile.common.ProfileInputsConfig;
 import com.netscape.cms.servlet.cert.CertRequestInfoFactory;
 import com.netscape.cms.servlet.cert.EnrollmentProcessor;
 import com.netscape.cms.servlet.cert.RenewalProcessor;
@@ -399,7 +402,10 @@ public class CertRequestServlet extends CAServlet {
         while (inputIds.hasMoreElements()) {
             String id = inputIds.nextElement();
             try {
-                ProfileInput input = ProfileService.createProfileInput(profile, id, locale);
+                ProfileInput input = createProfileInput(profile, id, locale);
+                if (input == null) {
+                    continue;
+                }
                 for (ProfileAttribute attr : input.getAttributes()) {
                     attr.setValue("");
                 }
@@ -460,6 +466,34 @@ public class CertRequestServlet extends CAServlet {
             return null;
         }
         return CertRequestInfoFactory.create(request);
+    }
+    
+    private ProfileInput createProfileInput(Profile profile, String inputId, Locale locale) throws EBaseException {
+        com.netscape.cms.profile.common.ProfileInput profileInput = profile.getProfileInput(inputId);
+        if (profileInput == null) {
+            logger.warn("CertRequestServlet: null input {} for profile {}", inputId, profile.getId());
+            return null;
+        }
+
+        ProfileConfig profileConfig = profile.getConfigStore();
+        ProfileInputsConfig inputStore = profileConfig.getProfileInputsConfig();
+        String name = profileInput.getName(locale);
+        ProfileInputConfig inputConfig = inputStore.getProfileInputConfig(inputId);
+        String classId = inputConfig.getString("class_id");
+
+        ProfileInput input = new ProfileInput(inputId, name, classId);
+
+        Enumeration<String> attrNames = profileInput.getValueNames();
+        while (attrNames.hasMoreElements()) {
+            String attrName = attrNames.nextElement();
+
+            Descriptor descriptor = (Descriptor) profileInput.getValueDescriptor(locale, attrName);
+
+            ProfileAttribute attr = new ProfileAttribute(attrName, null, descriptor);
+            input.addAttribute(attr);
+        }
+
+        return input;
     }
 
 }

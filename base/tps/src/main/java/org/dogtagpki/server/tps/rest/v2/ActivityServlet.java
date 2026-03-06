@@ -20,6 +20,7 @@ import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.ActivityRecord;
 import org.dogtagpki.server.tps.dbs.TokenDatabase;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
+import org.dogtagpki.server.tps.rest.base.ProfileProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +31,6 @@ import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.certsrv.base.WebAction;
 import com.netscape.certsrv.logging.ActivityCollection;
 import com.netscape.certsrv.logging.ActivityData;
-import com.netscape.certsrv.user.UserResource;
 
 /**
  * @author Marco Fargetta {@literal <mfargett@redhat.com>}
@@ -96,7 +96,7 @@ public class ActivityServlet extends TPSServlet {
         }
         String type = aRec.getType();
 
-        if ((type != null) && !type.isEmpty() && !authorizedProfiles.contains(UserResource.ALL_PROFILES) && !authorizedProfiles.contains(type)) {
+        if ((type != null) && !type.isEmpty() && !authorizedProfiles.contains(ProfileProcessor.ALL_PROFILES) && !authorizedProfiles.contains(type)) {
             String msg = "token type restricted: " + type;
             logger.debug("{} {}", method, msg);
             throw new PKIException(msg);
@@ -153,7 +153,7 @@ public class ActivityServlet extends TPSServlet {
         List<ActivityRecord> activityList = (List<ActivityRecord>) database.findRecords(
                 filter, null, new String[] { "-date" }, start, size);
 
-        if (authorizedProfiles.contains(UserResource.ALL_PROFILES)) {
+        if (authorizedProfiles.contains(ProfileProcessor.ALL_PROFILES)) {
             for (ActivityRecord aRec: activityList) {
                 activities.addEntry(createActivityData(aRec));
             }
