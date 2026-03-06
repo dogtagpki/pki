@@ -23,11 +23,9 @@ Module containing utility functions and classes for the Dogtag python code
 """
 
 
-from __future__ import absolute_import
 import fileinput
 import functools
 import getpass
-import io
 import logging
 import operator
 import os
@@ -39,8 +37,6 @@ try:
 except ImportError:
     WindowsError = None
 
-import six
-from six.moves import input   # pylint: disable=W0622,F0401
 import subprocess
 
 DEFAULT_PKI_ENV_LIST = [
@@ -410,19 +406,19 @@ def store_properties(filename, properties):
 
     sorted_props = sorted(properties.items(), key=operator.itemgetter(0))
 
-    with io.open(filename, 'w', encoding='utf-8') as f:
+    with open(filename, 'w', encoding='utf-8') as f:
 
         for name, value in sorted_props:
 
             if value is None:
                 # write None as empty value
-                f.write('{0}=\n'.format(name))
+                f.write('{}=\n'.format(name))
 
-            elif isinstance(value, six.string_types):
-                f.write('{0}={1}\n'.format(name, value))
+            elif isinstance(value, str):
+                f.write('{}={}\n'.format(name, value))
 
-            elif isinstance(value, six.integer_types):
-                f.write('{0}={1:d}\n'.format(name, value))
+            elif isinstance(value, int):
+                f.write('{}={:d}\n'.format(name, value))
 
             else:
                 raise TypeError((name, value, type(value)))
@@ -497,7 +493,7 @@ def copytree(src, dst, symlinks=False, ignore=None):
         # continue with other files
         except Error as err:
             errors.extend(err.args[0])
-        except EnvironmentError as why:
+        except OSError as why:
             errors.append((srcname, dstname, str(why)))
     try:
         shutil.copystat(src, dst)
@@ -608,11 +604,11 @@ def read_text(message,
 
 
 @functools.total_ordering
-class Version(object):
+class Version:
 
     def __init__(self, obj):
 
-        if isinstance(obj, six.string_types):
+        if isinstance(obj, str):
 
             # parse <major>.<minor>.<patch>[<suffix>]
             match = re.match(r'^(\d+)\.(\d+)\.(\d+)', obj)

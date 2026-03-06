@@ -41,8 +41,6 @@ import tempfile
 import time
 from base64 import b64decode, b64encode
 
-from six.moves import range  # pylint: disable=W0622,F0401
-
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric.padding import PKCS1v15
 from cryptography.hazmat.primitives.ciphers import Cipher

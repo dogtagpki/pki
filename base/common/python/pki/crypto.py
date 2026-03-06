@@ -21,13 +21,11 @@
 """
 Module containing crypto classes.
 """
-from __future__ import absolute_import
 import abc
 import inspect
 import logging
 import os
 
-import six
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.ciphers import (
     Cipher, algorithms, modes
@@ -48,7 +46,7 @@ WRAP_DES3_CBC_PAD = "DES3/CBC/Pad"
 logger = logging.getLogger(__name__)
 
 
-class CryptoProvider(six.with_metaclass(abc.ABCMeta, object)):
+class CryptoProvider(metaclass=abc.ABCMeta):
     """
     Abstract class containing methods to do cryptographic operations.
     """
@@ -107,7 +105,7 @@ class CryptographyCryptoProvider(CryptoProvider):
                  backend=default_backend()):
         """ Initialize python-cryptography
         """
-        super(CryptographyCryptoProvider, self).__init__()
+        super().__init__()
 
         if transport_cert_nick:
             logger.warning(
