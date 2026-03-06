@@ -17,6 +17,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.util.EntityUtils;
+
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.mozilla.jss.netscape.security.util.Cert;
@@ -26,7 +27,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.account.AccountClient;
 import com.netscape.certsrv.authority.AuthorityClient;
-import com.netscape.certsrv.authority.AuthorityResource;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ca.AuthorityID;
@@ -62,10 +62,11 @@ public class DogtagRABackend extends ESTBackend {
     private String fullcmcProfile;
     // TODO: Add multi-profile support for all EST operations
 
+    private static final String HOST_AUTHORITY = "host-authority";
+
     // ThreadLocal to store CMC status for current request thread
     // Used to pass CMC status from CA response to EST HTTP status mapping
     private static ThreadLocal<Integer> cmcStatus = new ThreadLocal<>();
-
     /**
      * Get the CMC status from the last fullcmc() call in this thread.
      * This is used by ESTServlet to map CMC status to HTTP status codes.
@@ -145,7 +146,7 @@ public class DogtagRABackend extends ESTBackend {
         try (PKIClient pkiClient = new PKIClient(clientConfig)) {
             AuthorityClient authorityClient = new AuthorityClient(pkiClient, "ca");
 
-            String authorityID = label.orElse(AuthorityResource.HOST_AUTHORITY);
+            String authorityID = label.orElse(HOST_AUTHORITY);
             String pkcs7pem = authorityClient.getChainPEM(authorityID);
             logger.debug("Cert chain:\n" + pkcs7pem);
 

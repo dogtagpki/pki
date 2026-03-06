@@ -26,6 +26,8 @@ import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Path;
+import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import org.dogtagpki.server.authentication.AuthToken;
@@ -37,7 +39,10 @@ import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertRequestInfos;
+import com.netscape.certsrv.cert.CertRequestResource;
+import com.netscape.certsrv.cert.CertResource;
 import com.netscape.certsrv.cert.CertReviewResponse;
+import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.request.CMSRequestInfo;
 import com.netscape.certsrv.request.CMSRequestInfos;
 import com.netscape.certsrv.request.RequestId;
@@ -55,6 +60,8 @@ import com.netscape.cms.servlet.request.CMSRequestDAO;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.security.JssSubsystem;
+import java.lang.reflect.Method;
+import java.math.BigInteger;
 
 /**
  * @author alee
@@ -228,7 +235,7 @@ public class CertRequestDAO extends CMSRequestDAO {
         Request reqs[] = (Request[]) results.get(CAProcessor.ARG_REQUESTS);
         for (Request req : reqs) {
             try {
-                CertRequestInfo info = CertRequestInfoFactory.create(req, uriInfo);
+                CertRequestInfo info = create(req, uriInfo);
                 ret.addEntry(info);
             } catch (NoSuchMethodException e) {
                 logger.warn("Error in creating certrequestinfo - no such method: " + e.getMessage(), e);
@@ -277,11 +284,38 @@ public class CertRequestDAO extends CMSRequestDAO {
     @Override
     public CertRequestInfo createCMSRequestInfo(Request request, UriInfo uriInfo) {
         try {
-            return CertRequestInfoFactory.create(request, uriInfo);
+            return create(request, uriInfo);
         } catch (NoSuchMethodException e) {
             logger.warn("Error in creating certrequestinfo - no such method: " + e.getMessage(), e);
         }
         return null;
+    }
+
+    
+    public CertRequestInfo create(Request request, UriInfo uriInfo) throws SecurityException, NoSuchMethodException {
+
+        CertRequestInfo info =  CertRequestInfoFactory.create(request);
+
+        Method getRequestInfo = CertRequestResource.class.getMethod("getRequestInfo", RequestId.class);
+        Path certRequestPath = getRequestInfo.getAnnotation(Path.class);
+
+        UriBuilder reqBuilder = uriInfo.getBaseUriBuilder();
+        reqBuilder.path(certRequestPath.value());
+        info.setRequestURL(reqBuilder.build(info.getRequestID()).toString());
+
+        Method getCert = CertResource.class.getMethod("getCert", CertId.class);
+        Path certPath = getCert.getAnnotation(Path.class);
+
+        UriBuilder certBuilder = uriInfo.getBaseUriBuilder();
+        certBuilder.path(certPath.value());
+
+        CertId certID = info.getCertId();
+        if (certID != null) {
+            BigInteger serialNo = info.getCertId().toBigInteger();
+            info.setCertURL(certBuilder.build(serialNo).toString());
+        }
+
+        return info;
     }
 
 }

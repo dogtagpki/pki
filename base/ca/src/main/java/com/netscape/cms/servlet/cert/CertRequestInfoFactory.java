@@ -18,19 +18,12 @@
 
 package com.netscape.cms.servlet.cert;
 
-import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.util.Date;
-
-import javax.ws.rs.Path;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
 
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.cert.CertRequestInfo;
-import com.netscape.certsrv.cert.CertRequestResource;
-import com.netscape.certsrv.cert.CertResource;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
@@ -85,32 +78,6 @@ public class CertRequestInfoFactory {
 
         Date modificationTime = request.getModificationTime();
         info.setModificationTime(modificationTime);
-
-        return info;
-    }
-
-    public static CertRequestInfo create(Request request, UriInfo uriInfo) throws SecurityException, NoSuchMethodException {
-
-        CertRequestInfo info = create(request);
-
-        Method getRequestInfo = CertRequestResource.class.getMethod("getRequestInfo", RequestId.class);
-        Path certRequestPath = getRequestInfo.getAnnotation(Path.class);
-
-        UriBuilder reqBuilder = uriInfo.getBaseUriBuilder();
-        reqBuilder.path(certRequestPath.value());
-        info.setRequestURL(reqBuilder.build(info.getRequestID()).toString());
-
-        Method getCert = CertResource.class.getMethod("getCert", CertId.class);
-        Path certPath = getCert.getAnnotation(Path.class);
-
-        UriBuilder certBuilder = uriInfo.getBaseUriBuilder();
-        certBuilder.path(certPath.value());
-
-        CertId certID = info.getCertId();
-        if (certID != null) {
-            BigInteger serialNo = info.getCertId().toBigInteger();
-            info.setCertURL(certBuilder.build(serialNo).toString());
-        }
 
         return info;
     }

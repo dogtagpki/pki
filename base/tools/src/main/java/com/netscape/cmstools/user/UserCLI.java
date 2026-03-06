@@ -22,7 +22,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.cli.CLI;
 
 import com.netscape.certsrv.user.UserData;
-import com.netscape.certsrv.user.UserResource;
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmstools.cli.SubsystemCLI;
 
@@ -34,6 +33,8 @@ public class UserCLI extends CLI {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UserCLI.class);
 
     public SubsystemCLI subsystemCLI;
+    
+    private static final String ATTR_TPS_PROFILES = "tpsProfiles";
 
     public UserCLI(SubsystemCLI subsystemCLI) {
         super("user", "User management commands", subsystemCLI);
@@ -84,7 +85,7 @@ public class UserCLI extends CLI {
         if (!StringUtils.isEmpty(state))
             System.out.println("  State: " + state);
 
-        String tpsProfiles = userData.getAttribute(UserResource.ATTR_TPS_PROFILES);
+        String tpsProfiles = userData.getAttribute(ATTR_TPS_PROFILES);
         if (tpsProfiles != null) {
             System.out.println("  TPS Profiles:");
             for (String profile: tpsProfiles.split(",")) {

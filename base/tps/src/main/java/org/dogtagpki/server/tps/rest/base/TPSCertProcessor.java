@@ -24,7 +24,6 @@ import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.tps.cert.TPSCertCollection;
 import com.netscape.certsrv.tps.cert.TPSCertData;
-import com.netscape.certsrv.user.UserResource;
 
 /**
  * @author Marco Fargetta {@literal <mfargett@redhat.com>}
@@ -73,7 +72,7 @@ public class TPSCertProcessor {
                 throw new PKIException(method + msg);
             }
             String type = tRecord.getType();
-            if ((type != null) && !type.isEmpty() && !authorizedProfiles.contains(UserResource.ALL_PROFILES) && !authorizedProfiles.contains(type))
+            if ((type != null) && !type.isEmpty() && !authorizedProfiles.contains(ProfileProcessor.ALL_PROFILES) && !authorizedProfiles.contains(type))
                 throw new PKIException(method + "Token record restricted");
 
             // token was from an authorized profile
@@ -121,7 +120,7 @@ public class TPSCertProcessor {
              TPSCertDatabase database = subsystem.getCertDatabase();
              TPSCertRecord certRec = database.getRecord(certID);
              String type = certRec.getKeyType();
-             if ((type != null) && !type.isEmpty() && !authorizedProfiles.contains(UserResource.ALL_PROFILES) && !authorizedProfiles.contains(type))
+             if ((type != null) && !type.isEmpty() && !authorizedProfiles.contains(ProfileProcessor.ALL_PROFILES) && !authorizedProfiles.contains(type))
                     throw new PKIException(method + "Cert record restricted");
 
              return createCertData(database.getRecord(certID));
@@ -175,7 +174,7 @@ public class TPSCertProcessor {
                 }
                 if (tokenRecord != null) {
                     String type = tokenRecord.getType();
-                    if (type == null || type.isEmpty() || authorizedProfiles.contains(type) || authorizedProfiles.contains(UserResource.ALL_PROFILES)) {
+                    if (type == null || type.isEmpty() || authorizedProfiles.contains(type) || authorizedProfiles.contains(ProfileProcessor.ALL_PROFILES)) {
                         // Return entries from the start of the page up to the page size
                         if (total >= start && total < start + size) {
                             response.addEntry(createCertData(certRecord));
