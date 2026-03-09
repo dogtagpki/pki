@@ -188,6 +188,10 @@ get_tomcat_app_server() {
              distro="fedora"
              ver=$VERSION_ID
              ;;
+         "ol")
+             distro="rhel"
+             ver=$VERSION_ID
+             ;;
          "centos")
              distro="rhel"
              ver=$VERSION_ID
