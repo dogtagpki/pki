@@ -16,7 +16,7 @@
 
     <properties>
         <!-- REST API versions to build (comma-separated: v1,v2) -->
-        <rest.api.versions.to.build>v1,v2</rest.api.versions.to.build>
+        <rest_api_versions_to_build>v1,v2</rest_api_versions_to_build>
     </properties>
 
     <modules>
@@ -42,7 +42,7 @@
         <profile>
             <id>api-v1-only</id>
             <properties>
-                <rest.api.versions.to.build>v1</rest.api.versions.to.build>
+                <rest_api_versions_to_build>v1</rest_api_versions_to_build>
             </properties>
             <build>
                 <pluginManagement>
@@ -69,7 +69,7 @@
         <profile>
             <id>api-v2-only</id>
             <properties>
-                <rest.api.versions.to.build>v2</rest.api.versions.to.build>
+                <rest_api_versions_to_build>v2</rest_api_versions_to_build>
             </properties>
             <build>
                 <pluginManagement>
