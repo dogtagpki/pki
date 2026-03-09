@@ -197,7 +197,7 @@ get_tomcat_app_server() {
              ver=$VERSION_ID
              ;;
          *)
-             echo $def_app_server 
+             echo $app_server_9
              return
              ;;
      esac      
