@@ -11,7 +11,7 @@ import os
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric.padding import PKCS1v15
-from cryptography.hazmat.primitives.ciphers import Cipher
+from cryptography.hazmat.primitives.ciphers import algorithms, modes, Cipher
 from cryptography.hazmat.primitives.padding import PKCS7
 
 import pki.kra
@@ -104,15 +104,22 @@ account_client.login()
 
 key_client = pki.key.KeyClient(kra_client)
 
-nonce_iv = crypto.generate_nonce_iv()
-session_key = crypto.generate_session_key()
+# use AES_128_CBC to match pki kra-key-archve
+# see Java KeyClient.getEncryptAlgorithmOID()
+encrypt_alg_oid = pki.crypto.AES_128_CBC_OID
+encrypt_alg = algorithms.AES
+encrypt_mode = modes.CBC
+encrypt_size = 128
 
-padder = PKCS7(crypto.encrypt_alg.block_size).padder()
+nonce_iv = os.urandom(encrypt_alg.block_size // 8)
+session_key = os.urandom(encrypt_size // 8)
+
+padder = PKCS7(encrypt_alg.block_size).padder()
 padded_data = padder.update(input_data) + padder.finalize()
 
 cipher = Cipher(
-    crypto.encrypt_alg(session_key),
-    crypto.encrypt_mode(nonce_iv),
+    encrypt_alg(session_key),
+    encrypt_mode(nonce_iv),
     backend=default_backend())
 
 encryptor = cipher.encryptor()
@@ -122,16 +129,12 @@ wrapped_session_key = transport_cert.public_key().encrypt(
     session_key,
     PKCS1v15())
 
-# use AES_128_CBC to match pki kra-key-archve
-# see Java KeyClient.getEncryptAlgorithmOID()
-algorithm_oid = pki.crypto.AES_128_CBC_OID
-
 key_client.archive_encrypted_data(
     args.client_key_id,
     pki.key.KeyClient.PASS_PHRASE_TYPE,
     encrypted_data,
     wrapped_session_key,
-    algorithm_oid=algorithm_oid,
+    algorithm_oid=encrypt_alg_oid,
     nonce_iv=nonce_iv)
 
 account_client.logout()

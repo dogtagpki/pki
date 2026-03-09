@@ -33,6 +33,7 @@ See drmtest.readme.txt.
 """
 
 import argparse
+import os
 import random
 import shutil
 import string
@@ -45,7 +46,7 @@ from six.moves import range  # pylint: disable=W0622,F0401
 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric.padding import PKCS1v15
-from cryptography.hazmat.primitives.ciphers import Cipher
+from cryptography.hazmat.primitives.ciphers import algorithms, modes, Cipher
 from cryptography.hazmat.primitives.keywrap import aes_key_unwrap
 from cryptography.hazmat.primitives.padding import PKCS7
 
@@ -115,6 +116,31 @@ def run_test(protocol, hostname, port, client_cert, certdb_dir,
     # for NSS db, this must be done after importing the transport cert
     crypto.initialize()
 
+    server_keyset = keyclient.get_server_keyset()
+    client_keyset = keyclient.get_client_keyset()
+    crypto_keyset = 1  # default to AES_128_CBC
+
+    keyset_id = min([server_keyset, client_keyset, crypto_keyset])
+
+    if keyset_id == 0:
+        # Note that 3DES keys are actually 192 bits long,
+        # even though only 168 bits are used internally.
+        # See https://tools.ietf.org/html/rfc4949.
+        # Using 168 here will cause python-cryptography key verification
+        # checks to fail.
+        encrypt_alg = algorithms.TripleDES
+        encrypt_mode = modes.CBC
+        encrypt_size = 192
+
+    elif keyset_id == 1:
+        # AES_128_CBC
+        encrypt_alg = algorithms.AES
+        encrypt_mode = modes.CBC
+        encrypt_size = 128
+
+    else:
+        raise ValueError("Invalid keyset")
+
     # Test 2: Get key request info
     print("Now getting key request")
     try:
@@ -160,7 +186,7 @@ def run_test(protocol, hostname, port, client_cert, certdb_dir,
 
     # Test 6: Barbican_decode() - Retrieve while providing
     # trans_wrapped_session_key
-    session_key = crypto.generate_session_key()
+    session_key = os.urandom(encrypt_size // 8)
 
     wrapped_session_key = transport_cert.public_key().encrypt(
         session_key,
@@ -173,14 +199,14 @@ def run_test(protocol, hostname, port, client_cert, certdb_dir,
     print_key_data(key_data)
 
     cipher = Cipher(
-        crypto.encrypt_alg(session_key),
-        crypto.encrypt_mode(key_data.nonce_data),
+        encrypt_alg(session_key),
+        encrypt_mode(key_data.nonce_data),
         backend=default_backend())
 
     decryptor = cipher.decryptor()
     unwrapped = decryptor.update(key_data.encrypted_data) + decryptor.finalize()
 
-    unpadder = PKCS7(crypto.encrypt_alg.block_size).unpadder()
+    unpadder = PKCS7(encrypt_alg.block_size).unpadder()
     unwrapped_key = unpadder.update(unwrapped) + unpadder.finalize()
 
     key1 = b64encode(unwrapped_key)
@@ -256,14 +282,14 @@ def run_test(protocol, hostname, port, client_cert, certdb_dir,
     print("key to archive: " + key1)
     client_key_id = "Vek #4" + time.strftime('%c')
 
-    nonce_iv = crypto.generate_nonce_iv()
+    nonce_iv = os.urandom(encrypt_alg.block_size // 8)
 
-    padder = PKCS7(crypto.encrypt_alg.block_size).padder()
+    padder = PKCS7(encrypt_alg.block_size).padder()
     padded_data = padder.update(b64decode(key1)) + padder.finalize()
 
     cipher = Cipher(
-        crypto.encrypt_alg(session_key),
-        crypto.encrypt_mode(nonce_iv),
+        encrypt_alg(session_key),
+        encrypt_mode(nonce_iv),
         backend=default_backend())
 
     encryptor = cipher.encryptor()
@@ -293,14 +319,14 @@ def run_test(protocol, hostname, port, client_cert, certdb_dir,
     if key_data.wrap_algorithm == pki.crypto.WRAP_AES_CBC_PAD \
             or key_data.wrap_algorithm == pki.crypto.WRAP_DES3_CBC_PAD:
         cipher = Cipher(
-            crypto.encrypt_alg(session_key),
-            crypto.encrypt_mode(key_data.nonce_data),
+            encrypt_alg(session_key),
+            encrypt_mode(key_data.nonce_data),
             backend=default_backend())
 
         decryptor = cipher.decryptor()
         unwrapped = decryptor.update(key_data.encrypted_data) + decryptor.finalize()
 
-        unpadder = PKCS7(crypto.encrypt_alg.block_size).unpadder()
+        unpadder = PKCS7(encrypt_alg.block_size).unpadder()
         unwrapped_key = unpadder.update(unwrapped) + unpadder.finalize()
 
     elif key_data.wrap_algorithm == pki.crypto.WRAP_AES_KEY_WRAP:

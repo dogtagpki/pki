@@ -523,11 +523,8 @@ class KeyClient:
     def set_crypto_algorithms(self):
         server_keyset = self.get_server_keyset()
         client_keyset = self.get_client_keyset()
-        crypto_keyset = self.crypto.get_supported_algorithm_keyset()
+        crypto_keyset = 1  # default to AES_128_CBC
         keyset_id = min([server_keyset, client_keyset, crypto_keyset])
-
-        # set keyset in crypto provider
-        self.crypto.set_algorithm_keyset(keyset_id)
 
         # set keyset related constants needed in KeyClient
         if keyset_id == 0:
