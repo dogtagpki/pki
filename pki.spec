@@ -16,7 +16,7 @@ License:          GPL-2.0-only AND LGPL-2.0-only
 # Upstream version number:
 %global           major_version 11
 %global           minor_version 9
-%global           update_version 0
+%global           update_version 1
 
 # Development phase:
 # - development (unsupported): alpha<n> where n >= 1
