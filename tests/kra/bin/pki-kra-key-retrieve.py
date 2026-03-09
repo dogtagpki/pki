@@ -11,7 +11,7 @@ import os
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric.padding import PKCS1v15
-from cryptography.hazmat.primitives.ciphers import Cipher
+from cryptography.hazmat.primitives.ciphers import algorithms, modes, Cipher
 from cryptography.hazmat.primitives.padding import PKCS7
 
 import pki.kra
@@ -101,36 +101,40 @@ account_client.login()
 
 key_client = pki.key.KeyClient(kra_client)
 
+# use AES_128_CBC to match pki kra-key-retrieve
+# see Java KeyClient.getEncryptAlgorithmOID()
+encrypt_alg_oid = pki.crypto.AES_128_CBC_OID
+encrypt_alg = algorithms.AES
+encrypt_mode = modes.CBC
+encrypt_size = 128
+
 # find key ID from client's key ID
 result = key_client.list_keys(client_key_id=args.client_key_id)
 key_info = result.key_infos[0]
 key_id = key_info.get_key_id()
 
-session_key = crypto.generate_session_key()
+session_key = os.urandom(encrypt_size // 8)
 
 wrapped_session_key = transport_cert.public_key().encrypt(
     session_key,
     PKCS1v15())
 
-# use AES_128_CBC to match pki kra-key-retrieve
-# see Java KeyClient.getEncryptAlgorithmOID()
-key_client.encrypt_alg_oid = pki.crypto.AES_128_CBC_OID
-
 key = key_client.retrieve_key(
     key_id,
-    wrapped_session_key)
+    wrapped_session_key,
+    encrypt_alg_oid=encrypt_alg_oid)
 
 account_client.logout()
 
 cipher = Cipher(
-    crypto.encrypt_alg(session_key),
-    crypto.encrypt_mode(key.nonce_data),
+    encrypt_alg(session_key),
+    encrypt_mode(key.nonce_data),
     backend=default_backend())
 
 decryptor = cipher.decryptor()
 unwrapped = decryptor.update(key.encrypted_data) + decryptor.finalize()
 
-unpadder = PKCS7(crypto.encrypt_alg.block_size).unpadder()
+unpadder = PKCS7(encrypt_alg.block_size).unpadder()
 key_data = unpadder.update(unwrapped) + unpadder.finalize()
 
 with open(args.output_filename, 'wb') as f:

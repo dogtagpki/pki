@@ -13,22 +13,17 @@ The `trans_wrapped_session_key` parameter in `KeyClient.retrieve_key()` must be 
 
 The `KeyClient.get_transport_cert()` and `set_transport_cert()` have been removed.
 
-== Remove CryptoProvider.get_cert() ==
+== Update CryptoProvider ==
 
-The `CryptoProvider.get_cert()` has been removed.
+The following methods have been removed:
 
-== Remove CryptoProvider.symmetric_wrap() ==
-
-The `CryptoProvider.symmetric_wrap()` has been removed.
-
-== Remove CryptoProvider.asymmetric_wrap() ==
-
-The `CryptoProvider.asymmetric_wrap()` has been removed.
-
-== Remove CryptoProvider.key_unwrap() ==
-
-The `CryptoProvider.key_unwrap()` has been removed.
-
-== Remove CryptoProvider.symmetric_unwrap() ==
-
-The `CryptoProvider.symmetric_unwrap()` has been removed.
+* `get_supported_algorithm_keyset()`
+* `set_algorithm_keyset()`
+* `generate_nonce_iv()`
+* `generate_symmetric_key()`
+* `generate_session_key()`
+* `symmetric_wrap()`
+* `symmetric_unwrap()`
+* `asymmetric_wrap()`
+* `key_unwrap()`
+* `get_cert()`
