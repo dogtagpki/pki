@@ -18,13 +18,12 @@
 
 package com.netscape.certsrv.user;
 
-import javax.ws.rs.FormParam;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.util.JSONSerializer;
+import com.netscape.certsrv.util.Param;
 
 /**
  * @author Endi S. Dewata
@@ -36,7 +35,7 @@ public class UserMembershipData implements JSONSerializer {
     String id;
     String userID;
 
-    @FormParam(Constants.PR_GROUP_GROUP)
+    @Param(Constants.PR_GROUP_GROUP)
     public String getID() {
         return id;
     }

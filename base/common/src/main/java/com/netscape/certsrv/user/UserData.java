@@ -23,14 +23,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.FormParam;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.util.JSONSerializer;
+import com.netscape.certsrv.util.Param;
 
 /**
  * @author Endi S. Dewata
@@ -84,7 +83,7 @@ public class UserData implements JSONSerializer {
         this.userID = userID;
     }
 
-    @FormParam(Constants.PR_USER_FULLNAME)
+    @Param(Constants.PR_USER_FULLNAME)
     @JsonProperty("FullName")
     public String getFullName() {
         return fullName;
@@ -94,7 +93,7 @@ public class UserData implements JSONSerializer {
         this.fullName = fullName;
     }
 
-    @FormParam(Constants.PR_USER_EMAIL)
+    @Param(Constants.PR_USER_EMAIL)
     @JsonProperty("Email")
     public String getEmail() {
         return email;
@@ -104,7 +103,7 @@ public class UserData implements JSONSerializer {
         this.email = email;
     }
 
-    @FormParam(Constants.PR_USER_PASSWORD)
+    @Param(Constants.PR_USER_PASSWORD)
     public String getPassword() {
         return password;
     }
@@ -113,7 +112,7 @@ public class UserData implements JSONSerializer {
         this.password = password;
     }
 
-    @FormParam(Constants.PR_USER_PHONE)
+    @Param(Constants.PR_USER_PHONE)
     public String getPhone() {
         return phone;
     }
@@ -122,7 +121,7 @@ public class UserData implements JSONSerializer {
         this.phone = phone;
     }
 
-    @FormParam(Constants.PR_USER_TYPE)
+    @Param(Constants.PR_USER_TYPE)
     public String getType() {
         return type;
     }
@@ -131,7 +130,7 @@ public class UserData implements JSONSerializer {
         this.type = type;
     }
 
-    @FormParam(Constants.PR_USER_STATE)
+    @Param(Constants.PR_USER_STATE)
     public String getState() {
         return state;
     }
