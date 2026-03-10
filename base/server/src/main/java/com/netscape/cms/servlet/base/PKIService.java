@@ -28,7 +28,6 @@ import java.util.Map;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.FormParam;
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.EntityTag;
@@ -41,6 +40,7 @@ import javax.ws.rs.core.UriInfo;
 
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.util.JSONSerializer;
+import com.netscape.certsrv.util.Param;
 import com.netscape.cmscore.apps.CMSEngine;
 
 /**
@@ -309,7 +309,7 @@ public class PKIService {
     }
 
     /**
-     * Get the values of the fields annotated with @FormParam.
+     * Get the values of the fields annotated with @Param.
      */
     public Map<String, String> getParams(Object object) {
 
@@ -317,7 +317,7 @@ public class PKIService {
 
         // for each fields in the object
         for (Method method : object.getClass().getMethods()) {
-            FormParam element = method.getAnnotation(FormParam.class);
+            Param element = method.getAnnotation(Param.class);
             if (element == null) continue;
 
             String name = element.value();

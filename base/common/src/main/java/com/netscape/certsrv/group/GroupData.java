@@ -18,14 +18,13 @@
 
 package com.netscape.certsrv.group;
 
-import javax.ws.rs.FormParam;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.util.JSONSerializer;
+import com.netscape.certsrv.util.Param;
 
 /**
  * @author Endi S. Dewata
@@ -57,7 +56,7 @@ public class GroupData implements JSONSerializer {
         this.groupID = groupID;
     }
 
-    @FormParam(Constants.PR_GROUP_DESC)
+    @Param(Constants.PR_GROUP_DESC)
     @JsonProperty("Description")
     public String getDescription() {
         return description;

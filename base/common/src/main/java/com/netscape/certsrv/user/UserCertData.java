@@ -20,8 +20,6 @@ package com.netscape.certsrv.user;
 
 import java.util.StringTokenizer;
 
-import javax.ws.rs.FormParam;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -29,6 +27,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.util.JSONSerializer;
+import com.netscape.certsrv.util.Param;
 
 /**
  * @author Endi S. Dewata
@@ -105,7 +104,7 @@ public class UserCertData implements JSONSerializer {
         this.prettyPrint = prettyPrint;
     }
 
-    @FormParam(Constants.PR_USER_CERT)
+    @Param(Constants.PR_USER_CERT)
     @JsonProperty("Encoded")
     public String getEncoded() {
         return encoded;
