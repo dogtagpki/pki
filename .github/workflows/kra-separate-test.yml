@@ -361,6 +361,12 @@ jobs:
       - name: Remove root CA
         run: docker exec rootca pkidestroy -s CA -v
 
+      - name: Check for root CA core dumps
+        if: failure()
+        run: |
+          docker exec rootca ls -l
+          docker exec rootca find / -path /proc -prune -o -name "hs_err_pid*.log" -exec cat {} \;
+
       - name: Check PKI server systemd journal in root CA container
         if: always()
         run: |
@@ -371,6 +377,12 @@ jobs:
         run: |
           docker exec rootca find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
 
+      - name: Check for sub CA core dumps
+        if: failure()
+        run: |
+          docker exec subca ls -l
+          docker exec subca find / -path /proc -prune -o -name "hs_err_pid*.log" -exec cat {} \;
+
       - name: Check PKI server systemd journal in sub CA container
         if: always()
         run: |
@@ -380,6 +392,12 @@ jobs:
         if: always()
         run: |
           docker exec subca find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check for KRA core dumps
+        if: failure()
+        run: |
+          docker exec kra ls -l
+          docker exec kra find / -path /proc -prune -o -name "hs_err_pid*.log" -exec cat {} \;
 
       - name: Check PKI server systemd journal in KRA container
         if: always()

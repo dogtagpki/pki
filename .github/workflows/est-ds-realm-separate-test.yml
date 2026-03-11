@@ -513,15 +513,21 @@ jobs:
         run: |
           docker exec ca journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
 
-      - name: Check EST PKI server systemd journal
-        if: always()
-        run: |
-          docker exec est journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
-
       - name: Check CA debug log
         if: always()
         run: |
           docker exec ca find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check for EST core dumps
+        if: failure()
+        run: |
+          docker exec est ls -l
+          docker exec est find / -path /proc -prune -o -name "hs_err_pid*.log" -exec cat {} \;
+
+      - name: Check EST PKI server systemd journal
+        if: always()
+        run: |
+          docker exec est journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
 
       - name: Check EST debug log
         if: always()

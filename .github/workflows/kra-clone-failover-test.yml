@@ -449,6 +449,12 @@ jobs:
       - name: Remove CA
         run: docker exec ca pkidestroy -s CA -v
 
+      - name: Check for CA core dumps
+        if: failure()
+        run: |
+          docker exec ca ls -l
+          docker exec ca find / -path /proc -prune -o -name "hs_err_pid*.log" -exec cat {} \;
+
       - name: Check CA systemd journal
         if: always()
         run: |
@@ -464,6 +470,12 @@ jobs:
         run: |
           docker exec ca find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
 
+      - name: Check for primary KRA core dumps
+        if: failure()
+        run: |
+          docker exec primarykra ls -l
+          docker exec primarykra find / -path /proc -prune -o -name "hs_err_pid*.log" -exec cat {} \;
+
       - name: Check primary KRA systemd journal
         if: always()
         run: |
@@ -478,6 +490,12 @@ jobs:
         if: always()
         run: |
           docker exec primarykra find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
+
+      - name: Check for secondary KRA core dumps
+        if: failure()
+        run: |
+          docker exec secondarykra ls -l
+          docker exec secondarykra find / -path /proc -prune -o -name "hs_err_pid*.log" -exec cat {} \;
 
       - name: Check secondary KRA systemd journal
         if: always()

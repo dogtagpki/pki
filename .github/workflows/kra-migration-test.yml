@@ -408,6 +408,12 @@ jobs:
       - name: Remove second CA
         run: docker exec pki2 pkidestroy -s CA -v
 
+      - name: Check for first PKI core dumps
+        if: failure()
+        run: |
+          docker exec pki1 ls -l
+          docker exec pki1 find / -path /proc -prune -o -name "hs_err_pid*.log" -exec cat {} \;
+
       - name: Check first CA debug log
         if: always()
         run: |
@@ -417,6 +423,12 @@ jobs:
         if: always()
         run: |
           docker exec pki1 find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
+
+      - name: Check for second PKI core dumps
+        if: failure()
+        run: |
+          docker exec pki2 ls -l
+          docker exec pki2 find / -path /proc -prune -o -name "hs_err_pid*.log" -exec cat {} \;
 
       - name: Check second CA debug log
         if: always()
