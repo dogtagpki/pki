@@ -1180,6 +1180,12 @@ jobs:
         run: |
           docker logs ds
 
+      - name: Check for PKI core dumps
+        if: failure()
+        run: |
+          docker exec pki ls -l
+          docker exec pki find / -path /proc -prune -o -name "hs_err_pid*.log" -exec cat {} \;
+
       - name: Check PKI server systemd journal
         if: always()
         run: |

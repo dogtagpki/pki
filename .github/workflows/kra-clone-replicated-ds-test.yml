@@ -590,6 +590,12 @@ jobs:
       - name: Remove CA from primary PKI container
         run: docker exec primary pkidestroy -s CA -v
 
+      - name: Check for primary PKI core dumps
+        if: failure()
+        run: |
+          docker exec primary ls -l
+          docker exec primary find / -path /proc -prune -o -name "hs_err_pid*.log" -exec cat {} \;
+
       - name: Check PKI server systemd journal in primary container
         if: always()
         run: |
@@ -604,6 +610,12 @@ jobs:
         if: always()
         run: |
           docker exec primary find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
+
+      - name: Check for secondary PKI core dumps
+        if: failure()
+        run: |
+          docker exec secondary ls -l
+          docker exec secondary find / -path /proc -prune -o -name "hs_err_pid*.log" -exec cat {} \;
 
       - name: Check PKI server systemd journal in secondary container
         if: always()

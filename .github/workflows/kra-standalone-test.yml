@@ -466,6 +466,18 @@ jobs:
       - name: Remove CA
         run: docker exec ca pkidestroy -s CA -v
 
+      - name: Check for client core dumps
+        if: failure()
+        run: |
+          docker exec client ls -l
+          docker exec client find / -path /proc -prune -o -name "hs_err_pid*.log" -exec cat {} \;
+
+      - name: Check for CA core dumps
+        if: failure()
+        run: |
+          docker exec ca ls -l
+          docker exec ca find / -path /proc -prune -o -name "hs_err_pid*.log" -exec cat {} \;
+
       - name: Check CA systemd journal
         if: always()
         run: |
@@ -480,6 +492,12 @@ jobs:
         if: always()
         run: |
           docker exec ca find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check for KRA core dumps
+        if: failure()
+        run: |
+          docker exec kra ls -l
+          docker exec kra find / -path /proc -prune -o -name "hs_err_pid*.log" -exec cat {} \;
 
       - name: Check KRA systemd journal
         if: always()
