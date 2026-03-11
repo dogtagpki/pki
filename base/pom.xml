@@ -14,6 +14,11 @@
     <artifactId>pki-base-parent</artifactId>
     <packaging>pom</packaging>
 
+    <properties>
+        <!-- REST API versions to build (comma-separated: v1,v2) -->
+        <rest_api_versions_to_build>v1,v2</rest_api_versions_to_build>
+    </properties>
+
     <modules>
         <module>common</module>
         <module>tools</module>
@@ -31,5 +36,67 @@
         <module>est</module>
         <module>console</module>
     </modules>
+
+    <profiles>
+        <!-- Profile to build only v1 API (excludes v2) -->
+        <profile>
+            <id>api-v1-only</id>
+            <properties>
+                <rest_api_versions_to_build>v1</rest_api_versions_to_build>
+            </properties>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-compiler-plugin</artifactId>
+                            <configuration>
+                                <excludes>
+                                    <!-- Exclude v2 servlet implementations -->
+                                    <exclude>**/rest/v2/*.java</exclude>
+                                    <exclude>**/rest/v2/**/*.java</exclude>
+                                    <!-- Exclude v2 base class -->
+                                    <exclude>org/dogtagpki/server/rest/v2/PKIServlet.java</exclude>
+                                </excludes>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+
+        <!-- Profile to build only v2 API (excludes v1) -->
+        <profile>
+            <id>api-v2-only</id>
+            <properties>
+                <rest_api_versions_to_build>v2</rest_api_versions_to_build>
+            </properties>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-compiler-plugin</artifactId>
+                            <configuration combine.self="override">
+                                <excludes>
+                                    <!-- Exclude v1 service implementations -->
+                                    <exclude>**/rest/v1/*.java</exclude>
+                                    <exclude>**/rest/v1/**/*.java</exclude>
+                                    <!-- Exclude v1 base classes -->
+                                    <exclude>com/netscape/cms/servlet/base/PKIService.java</exclude>
+                                    <exclude>org/dogtagpki/server/rest/v1/PKIApplication.java</exclude>
+                                    <!-- Exclude v1 JAX-RS Resource interfaces -->
+                                    <exclude>com/netscape/certsrv/**/*Resource.java</exclude>
+                                    <exclude>org/dogtagpki/common/ConfigResource.java</exclude>
+                                    <!-- Exclude TPS v1 service outside v1 directory -->
+                                    <exclude>org/dogtagpki/server/tps/TPSAccountService.java</exclude>
+                                </excludes>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+    </profiles>
 
 </project>

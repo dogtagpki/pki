@@ -53,6 +53,11 @@ WITH_JAVA=true
 WITH_CONSOLE=
 RUN_TESTS=true
 
+# REST API version control
+REST_API_VERSIONS_TO_BUILD="v1,v2"
+REST_API_DEPRECATED_VERSION="v1"
+REST_API_DISABLED_VERSIONS=""
+
 PKG_LIST="base, server, ca, kra, ocsp, tks, tps, acme, est, javadoc, theme, meta, tests, debug"
 ALL_PKGS=( $(echo "$PKG_LIST" | sed 's/ *, */ /g') )
 
@@ -95,6 +100,9 @@ usage() {
     echo "    --with-pkgs=<list>     Build packages specified in comma-separated list only."
     echo "    --without-pkgs=<list>  Build everything except packages specified in comma-separated list."
     echo "    --without-test         Do not run unit tests."
+    echo "    --rest-api-versions=<versions>   Set REST API versions to build (default: v1,v2)."
+    echo "    --rest-api-deprecated=<version>  Set deprecated REST API version (default: v1)."
+    echo "    --rest-api-disabled=<versions>   Set disabled REST API versions (comma-separated)."
     echo " -v,--verbose              Run in verbose mode."
     echo "    --debug                Run in debug mode."
     echo "    --help                 Show help message."
@@ -404,6 +412,15 @@ while getopts v-: arg ; do
         without-test)
             RUN_TESTS=false
             ;;
+        rest-api-versions=*)
+            REST_API_VERSIONS_TO_BUILD="$LONG_OPTARG"
+            ;;
+        rest-api-deprecated=*)
+            REST_API_DEPRECATED_VERSION="$LONG_OPTARG"
+            ;;
+        rest-api-disabled=*)
+            REST_API_DISABLED_VERSIONS="$LONG_OPTARG"
+            ;;
         verbose)
             VERBOSE=true
             ;;
@@ -422,7 +439,8 @@ while getopts v-: arg ; do
         prefix-dir* | include-dir* | lib-dir* | sysconf-dir* | share-dir* | \
         cmake* | c-flags* | java-home* | jni-dir* | \
         unit-dir* | python* | python-dir* | install-dir* | \
-        source-tag* | spec* | with-pkgs* | without-pkgs* | dist*)
+        source-tag* | spec* | with-pkgs* | without-pkgs* | dist* | \
+        rest-api-versions* | rest-api-deprecated* | rest-api-disabled*)
             echo "ERROR: Missing argument for --$OPTARG option" >&2
             exit 1
             ;;
@@ -749,6 +767,18 @@ if [ "$BUILD_TARGET" = "dist" ] ; then
         OPTIONS+=(-DRUN_TESTS:BOOL=OFF)
     fi
 
+    if [ -n "$REST_API_VERSIONS_TO_BUILD" ] ; then
+        OPTIONS+=(-DREST_API_VERSIONS_TO_BUILD:STRING="$REST_API_VERSIONS_TO_BUILD")
+    fi
+
+    if [ -n "$REST_API_DEPRECATED_VERSION" ] ; then
+        OPTIONS+=(-DREST_API_DEPRECATED_VERSION:STRING="$REST_API_DEPRECATED_VERSION")
+    fi
+
+    if [ -n "$REST_API_DISABLED_VERSIONS" ] ; then
+        OPTIONS+=(-DREST_API_DISABLED_VERSIONS:STRING="$REST_API_DISABLED_VERSIONS")
+    fi
+
     $CMAKE "${OPTIONS[@]}"
 
     OPTIONS=()
@@ -939,6 +969,18 @@ if [ "$RUN_TESTS" = false ] ; then
     OPTIONS+=(--without test)
 fi
 
+if [ -n "$REST_API_VERSIONS_TO_BUILD" ] ; then
+    OPTIONS+=(--define "rest_api_versions_to_build $REST_API_VERSIONS_TO_BUILD")
+fi
+
+if [ -n "$REST_API_DEPRECATED_VERSION" ] ; then
+    OPTIONS+=(--define "rest_api_deprecated $REST_API_DEPRECATED_VERSION")
+fi
+
+if [ -n "$REST_API_DISABLED_VERSIONS" ] ; then
+    OPTIONS+=(--define "rest_api_disabled $REST_API_DISABLED_VERSIONS")
+fi
+
 if [ "$DEBUG" = true ] ; then
     echo "rpmbuild -bs" "${OPTIONS[@]}" " $SPEC_FILE"
 fi
@@ -973,6 +1015,18 @@ if [ "$VERBOSE" = true ] ; then
 fi
 
 OPTIONS+=(--define "_topdir ${WORK_DIR}")
+
+if [ -n "$REST_API_VERSIONS_TO_BUILD" ] ; then
+    OPTIONS+=(--define "rest_api_versions_to_build $REST_API_VERSIONS_TO_BUILD")
+fi
+
+if [ -n "$REST_API_DEPRECATED_VERSION" ] ; then
+    OPTIONS+=(--define "rest_api_deprecated $REST_API_DEPRECATED_VERSION")
+fi
+
+if [ -n "$REST_API_DISABLED_VERSIONS" ] ; then
+    OPTIONS+=(--define "rest_api_disabled $REST_API_DISABLED_VERSIONS")
+fi
 
 if [ "$DEBUG" = true ] ; then
     echo "rpmbuild --rebuild" "${OPTIONS[@]}" "$SRPM"

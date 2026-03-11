@@ -38,6 +38,23 @@ set(PKI_SERVER_JAR ${CMAKE_BINARY_DIR}/dist/pki-server.jar
     CACHE INTERNAL "pki-server.jar"
 )
 
+# REST API version control build-time configuration
+set(REST_API_VERSIONS_TO_BUILD "v1,v2" CACHE STRING "REST API versions to build (comma-separated)")
+set(REST_API_DEPRECATED_VERSION "v1" CACHE STRING "Deprecated REST API version")
+set(REST_API_DISABLED_VERSIONS "" CACHE STRING "Disabled REST API versions (comma-separated)")
+
+# Set variables with underscores for template substitution (Maven naming)
+set(rest_api_versions_to_build "${REST_API_VERSIONS_TO_BUILD}")
+set(rest_api_deprecated_version "${REST_API_DEPRECATED_VERSION}")
+set(rest_api_disabled_versions "${REST_API_DISABLED_VERSIONS}")
+
+# Process REST API properties template
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/rest-api.properties
+    ${CMAKE_CURRENT_BINARY_DIR}/resources/rest-api.properties
+    @ONLY
+)
+
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/META-INF/MANIFEST.MF
     ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.MF
@@ -54,7 +71,11 @@ jar(pki-server-jar
     INPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
     INPUT_DIR
+        ${CMAKE_CURRENT_BINARY_DIR}/resources
+    INPUT_DIR
         ${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources
+    EXCLUDE
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/rest-api.properties
     FILES
         audit-events.properties
         LogMessages.properties
