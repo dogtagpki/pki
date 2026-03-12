@@ -20,9 +20,6 @@ import com.netscape.certsrv.dbs.keydb.KeyId;
 @AuthMethodMapping("keys")
 public interface KeyResource {
 
-    public static final String KEY_STATUS_ACTIVE = "active";
-    public static final String KEY_STATUS_INACTIVE = "inactive";
-
     @GET
     public Response listKeys(@QueryParam("clientKeyID") String clientKeyID,
                                  @QueryParam("status") String status,

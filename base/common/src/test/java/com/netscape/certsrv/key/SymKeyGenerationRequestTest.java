@@ -14,7 +14,7 @@ public class SymKeyGenerationRequestTest {
     @BeforeAll
     public static void setUpBefore() {
         before.setClientKeyId("vek 12345");
-        before.setKeyAlgorithm(KeyRequestResource.AES_ALGORITHM);
+        before.setKeyAlgorithm(KeyParameters.AES_ALGORITHM);
         before.setKeySize(128);
         before.addUsage(SymKeyGenerationRequest.DECRYPT_USAGE);
         before.addUsage(SymKeyGenerationRequest.ENCRYPT_USAGE);

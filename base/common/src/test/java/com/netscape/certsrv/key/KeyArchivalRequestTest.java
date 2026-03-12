@@ -14,9 +14,9 @@ public class KeyArchivalRequestTest {
     @BeforeAll
     public static void setUpBefore() {
         before.setClientKeyId("vek 12345");
-        before.setDataType(KeyRequestResource.SYMMETRIC_KEY_TYPE);
+        before.setDataType(KeyParameters.SYMMETRIC_KEY_TYPE);
         before.setWrappedPrivateData("XXXXABCDEFXXX");
-        before.setKeyAlgorithm(KeyRequestResource.AES_ALGORITHM);
+        before.setKeyAlgorithm(KeyParameters.AES_ALGORITHM);
         before.setRealm("ipa-vault");
         before.setKeySize(128);
     }

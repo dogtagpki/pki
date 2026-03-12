@@ -8,7 +8,7 @@ import org.apache.commons.cli.Option;
 
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.key.KeyClient;
-import com.netscape.certsrv.key.KeyRequestResource;
+import com.netscape.certsrv.key.KeyParameters;
 import com.netscape.certsrv.key.KeyRequestResponse;
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmstools.cli.SubsystemCommandCLI;
@@ -84,18 +84,18 @@ public class KRAKeyGenerateCLI extends SubsystemCommandCLI {
 
         if (keySize == null) {
             switch (keyAlgorithm) {
-            case KeyRequestResource.DES3_ALGORITHM:
-            case KeyRequestResource.DESEDE_ALGORITHM:
+            case KeyParameters.DES3_ALGORITHM:
+            case KeyParameters.DESEDE_ALGORITHM:
                 keySize = "168";
                 break;
-            case KeyRequestResource.DES_ALGORITHM:
+            case KeyParameters.DES_ALGORITHM:
                 keySize = "56";
                 break;
-            case KeyRequestResource.RC4_ALGORITHM:
-            case KeyRequestResource.AES_ALGORITHM:
-            case KeyRequestResource.RC2_ALGORITHM:
-            case KeyRequestResource.RSA_ALGORITHM:
-            case KeyRequestResource.DSA_ALGORITHM:
+            case KeyParameters.RC4_ALGORITHM:
+            case KeyParameters.AES_ALGORITHM:
+            case KeyParameters.RC2_ALGORITHM:
+            case KeyParameters.RSA_ALGORITHM:
+            case KeyParameters.DSA_ALGORITHM:
                 throw new Exception("Key size must be specified for the algorithm used.");
             default:
                 throw new Exception("Algorithm not supported.");
@@ -123,17 +123,17 @@ public class KRAKeyGenerateCLI extends SubsystemCommandCLI {
 
         KeyRequestResponse response = null;
         switch (keyAlgorithm) {
-        case KeyRequestResource.DES3_ALGORITHM:
-        case KeyRequestResource.DESEDE_ALGORITHM:
-        case KeyRequestResource.DES_ALGORITHM:
-        case KeyRequestResource.RC4_ALGORITHM:
-        case KeyRequestResource.AES_ALGORITHM:
-        case KeyRequestResource.RC2_ALGORITHM:
+        case KeyParameters.DES3_ALGORITHM:
+        case KeyParameters.DESEDE_ALGORITHM:
+        case KeyParameters.DES_ALGORITHM:
+        case KeyParameters.RC4_ALGORITHM:
+        case KeyParameters.AES_ALGORITHM:
+        case KeyParameters.RC2_ALGORITHM:
             response = keyClient.generateSymmetricKey(
                     clientKeyId, keyAlgorithm, size, usages, null, realm);
             break;
-        case KeyRequestResource.RSA_ALGORITHM:
-        case KeyRequestResource.DSA_ALGORITHM:
+        case KeyParameters.RSA_ALGORITHM:
+        case KeyParameters.DSA_ALGORITHM:
             response = keyClient.generateAsymmetricKey(
                     clientKeyId, keyAlgorithm, size, usages, null, realm);
             break;

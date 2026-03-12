@@ -38,7 +38,7 @@ import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.keydb.KeyId;
-import com.netscape.certsrv.key.KeyRequestResource;
+import com.netscape.certsrv.key.KeyParameters;
 import com.netscape.certsrv.kra.EKRAException;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalProcessedEvent;
 import com.netscape.certsrv.request.RequestId;
@@ -174,9 +174,9 @@ public class SecurityDataProcessor {
         String keyType = null;
         byte [] tmp_unwrapped = null;
         byte [] unwrapped = null;
-        if (dataType.equals(KeyRequestResource.SYMMETRIC_KEY_TYPE)) {
+        if (dataType.equals(KeyParameters.SYMMETRIC_KEY_TYPE)) {
             // Symmetric Key
-            keyType = KeyRequestResource.SYMMETRIC_KEY_TYPE;
+            keyType = KeyParameters.SYMMETRIC_KEY_TYPE;
 
             if (allowEncDecrypt_archival) {
                 try {
@@ -214,8 +214,8 @@ public class SecurityDataProcessor {
                 }
             }
 
-        } else if (dataType.equals(KeyRequestResource.PASS_PHRASE_TYPE)) {
-            keyType = KeyRequestResource.PASS_PHRASE_TYPE;
+        } else if (dataType.equals(KeyParameters.PASS_PHRASE_TYPE)) {
+            keyType = KeyParameters.PASS_PHRASE_TYPE;
             try {
                 securityData = transportUnit.decryptExternalPrivate(
                         wrappedSessionKey,
@@ -325,7 +325,7 @@ public class SecurityDataProcessor {
         rec.set(KeyRecord.ATTR_DATA_TYPE, keyType);
         rec.set(KeyRecord.ATTR_STATUS, STATUS_ACTIVE);
 
-        if (dataType.equals(KeyRequestResource.SYMMETRIC_KEY_TYPE)) {
+        if (dataType.equals(KeyParameters.SYMMETRIC_KEY_TYPE)) {
             rec.set(KeyRecord.ATTR_ALGORITHM, algorithm);
             rec.set(KeyRecord.ATTR_KEY_SIZE, strength);
         }
@@ -417,7 +417,7 @@ public class SecurityDataProcessor {
         KeyRecord keyRecord = keyRepository.readKeyRecord(keyId.toBigInteger());
 
         String dataType = (String) keyRecord.get(KeyRecord.ATTR_DATA_TYPE);
-        if (dataType == null) dataType = KeyRequestResource.ASYMMETRIC_KEY_TYPE;
+        if (dataType == null) dataType = KeyParameters.ASYMMETRIC_KEY_TYPE;
 
         SymmetricKey unwrappedSess = null;
         SymmetricKey symKey = null;
@@ -431,7 +431,7 @@ public class SecurityDataProcessor {
             encrypted = allowEncDecrypt_recovery;
         }
 
-        if (dataType.equals(KeyRequestResource.SYMMETRIC_KEY_TYPE)) {
+        if (dataType.equals(KeyParameters.SYMMETRIC_KEY_TYPE)) {
             if (encrypted) {
                 logger.debug("Recover symmetric key by decrypting as per allowEncDecrypt_recovery: true.");
                 unwrappedSecData = recoverSecurityData(keyRecord);
@@ -439,9 +439,9 @@ public class SecurityDataProcessor {
                 symKey = recoverSymKey(keyRecord);
             }
 
-        } else if (dataType.equals(KeyRequestResource.PASS_PHRASE_TYPE)) {
+        } else if (dataType.equals(KeyParameters.PASS_PHRASE_TYPE)) {
             unwrappedSecData = recoverSecurityData(keyRecord);
-        } else if (dataType.equals(KeyRequestResource.ASYMMETRIC_KEY_TYPE)) {
+        } else if (dataType.equals(KeyParameters.ASYMMETRIC_KEY_TYPE)) {
             try {
                 if (encrypted) {
                     logger.debug("Recover asymmetric key by decrypting as per allowEncDecrypt_recovery: true.");
@@ -559,7 +559,7 @@ public class SecurityDataProcessor {
                 jssSubsystem.obscureChars(passChars);
 
 
-                if (dataType.equals(KeyRequestResource.SYMMETRIC_KEY_TYPE)) {
+                if (dataType.equals(KeyParameters.SYMMETRIC_KEY_TYPE)) {
 
                     logger.debug("SecurityDataProcessor.recover(): wrap or encrypt stored symmetric key with transport passphrase");
                     if (encrypted) {
@@ -569,11 +569,11 @@ public class SecurityDataProcessor {
                         pbeWrappedData = createEncryptedContentInfo(ct, symKey, null, null, pass);
                     }
 
-                } else if (dataType.equals(KeyRequestResource.PASS_PHRASE_TYPE)) {
+                } else if (dataType.equals(KeyParameters.PASS_PHRASE_TYPE)) {
 
                     logger.debug("SecurityDataProcessor.recover(): encrypt stored passphrase with transport passphrase");
                     pbeWrappedData = createEncryptedContentInfo(ct, null, unwrappedSecData, null, pass);
-                } else if (dataType.equals(KeyRequestResource.ASYMMETRIC_KEY_TYPE)) {
+                } else if (dataType.equals(KeyParameters.ASYMMETRIC_KEY_TYPE)) {
                     if (encrypted) {
                         logger.debug("SecurityDataProcessor.recover(): allowEncDecyypt_recovery: true, asymmetric key:  create blob with unwrapped key.");
                         pbeWrappedData = createEncryptedContentInfo(ct, null, unwrappedSecData, null, pass);
@@ -601,7 +601,7 @@ public class SecurityDataProcessor {
         } else {
             logger.debug("SecurityDataProcessor.recover(): secure retrieved data with session key");
 
-            if (dataType.equals(KeyRequestResource.SYMMETRIC_KEY_TYPE)) {
+            if (dataType.equals(KeyParameters.SYMMETRIC_KEY_TYPE)) {
                 logger.debug("SecurityDataProcessor.recover(): wrap or encrypt stored symmetric key with session key");
                 try {
                     if (encrypted) {
@@ -630,7 +630,7 @@ public class SecurityDataProcessor {
                     throw new EBaseException("Cannot wrap symmetric key: " + e, e);
                 }
 
-            } else if (dataType.equals(KeyRequestResource.PASS_PHRASE_TYPE)) {
+            } else if (dataType.equals(KeyParameters.PASS_PHRASE_TYPE)) {
                 logger.debug("SecurityDataProcessor.recover(): encrypt stored passphrase with session key");
                 try {
                     unwrappedSess = transportUnit.unwrap_session_key(ct, wrappedSessKey,
@@ -647,7 +647,7 @@ public class SecurityDataProcessor {
                     throw new EBaseException("Cannot encrypt passphrase: " + e, e);
                 }
 
-            } else if (dataType.equals(KeyRequestResource.ASYMMETRIC_KEY_TYPE)) {
+            } else if (dataType.equals(KeyParameters.ASYMMETRIC_KEY_TYPE)) {
                 logger.debug("SecurityDataProcessor.recover(): wrap or encrypt stored private key with session key");
                 try {
                     if (encrypted) {
@@ -689,7 +689,7 @@ public class SecurityDataProcessor {
         params.put(Request.SECURITY_DATA_PL_WRAPPING_NAME,
                 wrapParams.getPayloadWrapAlgorithm().toString());
 
-        if (encrypted || dataType.equals(KeyRequestResource.PASS_PHRASE_TYPE)) {
+        if (encrypted || dataType.equals(KeyParameters.PASS_PHRASE_TYPE)) {
             params.put(Request.SECURITY_DATA_PL_WRAPPED, Boolean.toString(false));
             if (wrapParams.getPayloadEncryptionIV() != null) {
                 params.put(Request.SECURITY_DATA_IV_STRING_OUT, ivStr);

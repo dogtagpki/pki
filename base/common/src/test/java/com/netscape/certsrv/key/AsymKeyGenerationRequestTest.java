@@ -16,7 +16,7 @@ public class AsymKeyGenerationRequestTest {
 
     @BeforeAll
     public static void setUpBefore() {
-        before.setKeyAlgorithm(KeyRequestResource.RSA_ALGORITHM);
+        before.setKeyAlgorithm(KeyParameters.RSA_ALGORITHM);
         before.setKeySize(1024);
         before.setClientKeyId("vek12345");
         List<String> usages = new ArrayList<>();

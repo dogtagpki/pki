@@ -281,8 +281,8 @@ public class KeyClient extends Client {
         if (id == null || status == null) {
             throw new IllegalArgumentException("Key Id and status must be specified.");
         }
-        if (!status.equalsIgnoreCase(KeyResource.KEY_STATUS_ACTIVE)
-                && !status.equalsIgnoreCase(KeyResource.KEY_STATUS_INACTIVE)) {
+        if (!status.equalsIgnoreCase(KeyParameters.KEY_STATUS_ACTIVE)
+                && !status.equalsIgnoreCase(KeyParameters.KEY_STATUS_INACTIVE)) {
             throw new IllegalArgumentException("Invalid status value.");
         }
         Map<String, Object> params = new HashMap<>();
@@ -447,7 +447,7 @@ public class KeyClient extends Client {
         // data was key-wrapped and is a private or symmetric key
         byte[] bytes = null;
 
-        if (data.getType().equalsIgnoreCase(KeyRequestResource.SYMMETRIC_KEY_TYPE)) {
+        if (data.getType().equalsIgnoreCase(KeyParameters.SYMMETRIC_KEY_TYPE)) {
             bytes = crypto.unwrapSymmetricKeyWithSessionKey(
                     data.getEncryptedData(),
                     sessionKey,
@@ -649,7 +649,7 @@ public class KeyClient extends Client {
         }
 
         // Need to pass the sessionWrappedPassphrase and transWrappedSessionKey when the
-        // both request and recovery are done at the same time. So the KeyRequestResounse itself
+        // both request and recovery are done at the same time. So the  KeyRequestResponse itself
         // contains the KeyData
         RequestId requestId = recoverKey(keyId, null, null, null, null).getRequestId();
         approveRequest(requestId);
@@ -737,7 +737,7 @@ public class KeyClient extends Client {
                 sessionKey,
                 encryptAlgorithm);
 
-        return archiveEncryptedData(clientKeyId, KeyRequestResource.PASS_PHRASE_TYPE, null, null, algorithmOID,
+        return archiveEncryptedData(clientKeyId, KeyParameters.PASS_PHRASE_TYPE, null, null, algorithmOID,
                 nonceData, encryptedData, transWrappedSessionKey, realm);
     }
 
@@ -797,7 +797,7 @@ public class KeyClient extends Client {
         byte[] encryptedData = crypto.wrapWithSessionKey(secret, sessionKey, nonceData, wrapAlgorithm);
         byte[] transWrappedSessionKey = crypto.wrapSymmetricKey(sessionKey, transportCert.getPublicKey(),alg);
 
-        return archiveEncryptedData(clientKeyId, KeyRequestResource.SYMMETRIC_KEY_TYPE, keyAlgorithm, keySize,
+        return archiveEncryptedData(clientKeyId, KeyParameters.SYMMETRIC_KEY_TYPE, keyAlgorithm, keySize,
                 algorithmOID, nonceData, encryptedData, transWrappedSessionKey, realm);
     }
 
@@ -844,7 +844,7 @@ public class KeyClient extends Client {
             throw new IllegalArgumentException("Client key id and data type must be specified.");
         }
 
-        if (dataType == KeyRequestResource.SYMMETRIC_KEY_TYPE) {
+        if (dataType.equals(KeyParameters.SYMMETRIC_KEY_TYPE)) {
             if (keyAlgorithm == null || keySize < 0) {
                 throw new IllegalArgumentException(
                         "Key algorithm and key size must be specified for a symmetric key type request.");
@@ -898,7 +898,7 @@ public class KeyClient extends Client {
         if (clientKeyId == null || dataType == null) {
             throw new IllegalArgumentException("Client key id and data type must be specified.");
         }
-        if (dataType == KeyRequestResource.SYMMETRIC_KEY_TYPE) {
+        if (dataType.equals(KeyParameters.SYMMETRIC_KEY_TYPE)) {
             if (keyAlgorithm == null || keySize < 0) {
                 throw new IllegalArgumentException(
                         "Key algorithm and key size must be specified for a symmetric key type request.");
@@ -1002,8 +1002,9 @@ public class KeyClient extends Client {
                 }
             }
         }
-        if (!(keyAlgorithm.equals(KeyRequestResource.RSA_ALGORITHM) || keyAlgorithm
-                .equals(KeyRequestResource.DSA_ALGORITHM))) {
+        if (keyAlgorithm == null || 
+                !(keyAlgorithm.equals(KeyParameters.RSA_ALGORITHM) ||
+                keyAlgorithm.equals(KeyParameters.DSA_ALGORITHM))) {
             throw new IllegalArgumentException("Unsupported algorithm specified.");
         }
 
@@ -1013,7 +1014,7 @@ public class KeyClient extends Client {
          *
          * For DSA, JSS accepts key sizes 512, 768, 1024 only, when there are no p,q,g params specified.
          */
-        if (keyAlgorithm.equals(KeyRequestResource.RSA_ALGORITHM)) {
+        if (keyAlgorithm.equals(KeyParameters.RSA_ALGORITHM)) {
             if (keySize >= 256) {
                 if ((keySize - 256) % 16 != 0) {
                     throw new IllegalArgumentException("Invalid key size specified.");
@@ -1021,7 +1022,7 @@ public class KeyClient extends Client {
             } else {
                 throw new IllegalArgumentException("Invalid key size specified.");
             }
-        } else if (keyAlgorithm.equals(KeyRequestResource.DSA_ALGORITHM)) {
+        } else if (keyAlgorithm.equals(KeyParameters.DSA_ALGORITHM)) {
             if (keySize != 512 && keySize != 768 && keySize != 1024) {
                 throw new IllegalArgumentException("Invalid key size specified.");
             }
