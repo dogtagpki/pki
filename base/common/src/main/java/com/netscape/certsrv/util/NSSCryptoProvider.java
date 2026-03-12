@@ -19,7 +19,7 @@ import org.mozilla.jss.util.IncorrectPasswordException;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.client.ClientConfig;
-import com.netscape.certsrv.key.KeyRequestResource;
+import com.netscape.certsrv.key.KeyParameters;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class NSSCryptoProvider extends CryptoProvider {
@@ -101,7 +101,7 @@ public class NSSCryptoProvider extends CryptoProvider {
 
     @Override
     public SymmetricKey generateSessionKey() throws Exception {
-        return generateSymmetricKey(KeyRequestResource.AES_ALGORITHM, 128);
+        return generateSymmetricKey(KeyParameters.AES_ALGORITHM, 128);
     }
 
     @Override
@@ -218,22 +218,22 @@ public class NSSCryptoProvider extends CryptoProvider {
         }
         KeyGenAlgorithm alg = null;
         switch (keyAlgorithm) {
-        case KeyRequestResource.AES_ALGORITHM:
+        case KeyParameters.AES_ALGORITHM:
             alg = KeyGenAlgorithm.AES;
             break;
-        case KeyRequestResource.DES_ALGORITHM:
+        case KeyParameters.DES_ALGORITHM:
             alg = KeyGenAlgorithm.DES;
             break;
-        case KeyRequestResource.DESEDE_ALGORITHM:
+        case KeyParameters.DESEDE_ALGORITHM:
             alg = KeyGenAlgorithm.DESede;
             break;
-        case KeyRequestResource.RC2_ALGORITHM:
+        case KeyParameters.RC2_ALGORITHM:
             alg = KeyGenAlgorithm.RC2;
             break;
-        case KeyRequestResource.RC4_ALGORITHM:
+        case KeyParameters.RC4_ALGORITHM:
             alg = KeyGenAlgorithm.RC4;
             break;
-        case KeyRequestResource.DES3_ALGORITHM:
+        case KeyParameters.DES3_ALGORITHM:
             alg = KeyGenAlgorithm.DES3;
             break;
         default:
@@ -248,19 +248,19 @@ public class NSSCryptoProvider extends CryptoProvider {
         }
         EncryptionAlgorithm alg = null;
         switch (encryptionAlgorithm) {
-        case KeyRequestResource.AES_ALGORITHM:
+        case KeyParameters.AES_ALGORITHM:
             alg = EncryptionAlgorithm.AES_CBC_PAD;
             break;
-        case KeyRequestResource.DES_ALGORITHM:
+        case KeyParameters.DES_ALGORITHM:
             alg = EncryptionAlgorithm.DES_CBC_PAD;
             break;
-        case KeyRequestResource.RC2_ALGORITHM:
+        case KeyParameters.RC2_ALGORITHM:
             alg = EncryptionAlgorithm.RC2_CBC_PAD;
             break;
-        case KeyRequestResource.RC4_ALGORITHM:
+        case KeyParameters.RC4_ALGORITHM:
             alg = EncryptionAlgorithm.RC4;
             break;
-        case KeyRequestResource.DES3_ALGORITHM:
+        case KeyParameters.DES3_ALGORITHM:
             alg = EncryptionAlgorithm.DES3_CBC_PAD;
             break;
         default:

@@ -29,7 +29,7 @@ import org.mozilla.jss.netscape.security.util.WrappingParams;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.AsymKeyGenerationRequest;
-import com.netscape.certsrv.key.KeyRequestResource;
+import com.netscape.certsrv.key.KeyParameters;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.AsymKeyGenerationProcessedEvent;
 import com.netscape.certsrv.logging.event.ServerSideKeygenEnrollKeygenProcessedEvent;
@@ -312,7 +312,7 @@ public class AsymKeyGenService implements IService {
         record.set(KeyRecord.ATTR_CLIENT_ID, clientKeyId);
         record.setSerialNumber(serialNo);
         record.set(KeyRecord.ATTR_ID, serialNo);
-        record.set(KeyRecord.ATTR_DATA_TYPE, KeyRequestResource.ASYMMETRIC_KEY_TYPE);
+        record.set(KeyRecord.ATTR_DATA_TYPE, KeyParameters.ASYMMETRIC_KEY_TYPE);
         record.set(KeyRecord.ATTR_STATUS, STATUS_ACTIVE);
         record.set(KeyRecord.ATTR_KEY_SIZE, keySize);
         request.setExtData(ATTR_KEY_RECORD, serialNo);

@@ -39,6 +39,7 @@ import com.netscape.certsrv.key.KeyData;
 import com.netscape.certsrv.key.KeyInfo;
 import com.netscape.certsrv.key.KeyInfoCollection;
 import com.netscape.certsrv.key.KeyNotFoundException;
+import com.netscape.certsrv.key.KeyParameters;
 import com.netscape.certsrv.key.KeyRecoveryRequest;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.SecurityDataExportEvent;
@@ -64,8 +65,6 @@ import com.netscape.kra.KeyRecoveryAuthority;
  * @author alee
  */
 public class KeyProcessor {
-    public static final String KEY_STATUS_ACTIVE = "active";
-    public static final String KEY_STATUS_INACTIVE = "inactive";
     public static final String ATTR_SERIALNO = "serialNumber";
 
     private static final Logger logger = LoggerFactory.getLogger(KeyProcessor.class);
@@ -190,7 +189,7 @@ public class KeyProcessor {
                 principal,
                 baseUrl,
                 clientKeyID,
-                KEY_STATUS_ACTIVE,
+                KeyParameters.KEY_STATUS_ACTIVE,
                 KRAServlet.DEFAULT_MAXRESULTS,
                 PKIServlet.DEFAULT_MAXTIME,
                 0,

@@ -32,7 +32,7 @@ import org.mozilla.jss.netscape.security.util.WrappingParams;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.keydb.KeyId;
-import com.netscape.certsrv.key.KeyRequestResource;
+import com.netscape.certsrv.key.KeyParameters;
 import com.netscape.certsrv.key.SymKeyGenerationRequest;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.SymKeyGenerationProcessedEvent;
@@ -266,7 +266,7 @@ public class SymKeyGenService implements IService {
         }
 
         rec.set(KeyRecord.ATTR_ID, serialNo);
-        rec.set(KeyRecord.ATTR_DATA_TYPE, KeyRequestResource.SYMMETRIC_KEY_TYPE);
+        rec.set(KeyRecord.ATTR_DATA_TYPE, KeyParameters.SYMMETRIC_KEY_TYPE);
         rec.set(KeyRecord.ATTR_STATUS, STATUS_ACTIVE);
         rec.set(KeyRecord.ATTR_KEY_SIZE, keySize);
         request.setExtData(ATTR_KEY_RECORD, serialNo);

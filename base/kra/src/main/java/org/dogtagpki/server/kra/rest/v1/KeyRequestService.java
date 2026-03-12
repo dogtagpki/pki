@@ -42,6 +42,7 @@ import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.AsymKeyGenerationRequest;
 import com.netscape.certsrv.key.KeyArchivalRequest;
+import com.netscape.certsrv.key.KeyParameters;
 import com.netscape.certsrv.key.KeyRecoveryRequest;
 import com.netscape.certsrv.key.KeyRequestInfo;
 import com.netscape.certsrv.key.KeyRequestInfoCollection;
@@ -79,12 +80,12 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
     public static final Map<String, SymmetricKey.Type> SYMKEY_TYPES;
     static {
         SYMKEY_TYPES = new HashMap<>();
-        SYMKEY_TYPES.put(KeyRequestResource.DES_ALGORITHM, SymmetricKey.DES);
-        SYMKEY_TYPES.put(KeyRequestResource.DESEDE_ALGORITHM, SymmetricKey.DES3);
-        SYMKEY_TYPES.put(KeyRequestResource.DES3_ALGORITHM, SymmetricKey.DES3);
-        SYMKEY_TYPES.put(KeyRequestResource.RC2_ALGORITHM, SymmetricKey.RC2);
-        SYMKEY_TYPES.put(KeyRequestResource.RC4_ALGORITHM, SymmetricKey.RC4);
-        SYMKEY_TYPES.put(KeyRequestResource.AES_ALGORITHM, SymmetricKey.AES);
+        SYMKEY_TYPES.put(KeyParameters.DES_ALGORITHM, SymmetricKey.DES);
+        SYMKEY_TYPES.put(KeyParameters.DESEDE_ALGORITHM, SymmetricKey.DES3);
+        SYMKEY_TYPES.put(KeyParameters.DES3_ALGORITHM, SymmetricKey.DES3);
+        SYMKEY_TYPES.put(KeyParameters.RC2_ALGORITHM, SymmetricKey.RC2);
+        SYMKEY_TYPES.put(KeyParameters.RC4_ALGORITHM, SymmetricKey.RC4);
+        SYMKEY_TYPES.put(KeyParameters.AES_ALGORITHM, SymmetricKey.AES);
     }
 
     /**
@@ -151,7 +152,7 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
         String keyAlgorithm = data.getKeyAlgorithm();
         logger.info("KeyRequestService: key algorithm: " + keyAlgorithm);
 
-        if (dataType.equals(KeyRequestResource.SYMMETRIC_KEY_TYPE) &&
+        if (dataType.equals(KeyParameters.SYMMETRIC_KEY_TYPE) &&
                 (keyAlgorithm == null || !SYMKEY_TYPES.containsKey(keyAlgorithm))) {
             throw new BadRequestException("Invalid symmetric key algorithm: " + keyAlgorithm);
         }

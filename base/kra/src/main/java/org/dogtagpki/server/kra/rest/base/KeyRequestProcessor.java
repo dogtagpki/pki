@@ -44,10 +44,10 @@ import com.netscape.certsrv.key.AsymKeyGenerationRequest;
 import com.netscape.certsrv.key.KeyArchivalRequest;
 import com.netscape.certsrv.key.KeyData;
 import com.netscape.certsrv.key.KeyNotFoundException;
+import com.netscape.certsrv.key.KeyParameters;
 import com.netscape.certsrv.key.KeyRecoveryRequest;
 import com.netscape.certsrv.key.KeyRequestInfo;
 import com.netscape.certsrv.key.KeyRequestInfoCollection;
-import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.key.KeyRequestResponse;
 import com.netscape.certsrv.key.SymKeyGenerationRequest;
 import com.netscape.certsrv.logging.ILogger;
@@ -91,28 +91,28 @@ public class KeyRequestProcessor {
     private static final Map<String, SymmetricKey.Type> SYMKEY_TYPES;
     static {
         SYMKEY_TYPES = new HashMap<>();
-        SYMKEY_TYPES.put(KeyRequestResource.DES_ALGORITHM, SymmetricKey.DES);
-        SYMKEY_TYPES.put(KeyRequestResource.DESEDE_ALGORITHM, SymmetricKey.DES3);
-        SYMKEY_TYPES.put(KeyRequestResource.DES3_ALGORITHM, SymmetricKey.DES3);
-        SYMKEY_TYPES.put(KeyRequestResource.RC2_ALGORITHM, SymmetricKey.RC2);
-        SYMKEY_TYPES.put(KeyRequestResource.RC4_ALGORITHM, SymmetricKey.RC4);
-        SYMKEY_TYPES.put(KeyRequestResource.AES_ALGORITHM, SymmetricKey.AES);
+        SYMKEY_TYPES.put(KeyParameters.DES_ALGORITHM, SymmetricKey.DES);
+        SYMKEY_TYPES.put(KeyParameters.DESEDE_ALGORITHM, SymmetricKey.DES3);
+        SYMKEY_TYPES.put(KeyParameters.DES3_ALGORITHM, SymmetricKey.DES3);
+        SYMKEY_TYPES.put(KeyParameters.RC2_ALGORITHM, SymmetricKey.RC2);
+        SYMKEY_TYPES.put(KeyParameters.RC4_ALGORITHM, SymmetricKey.RC4);
+        SYMKEY_TYPES.put(KeyParameters.AES_ALGORITHM, SymmetricKey.AES);
     }
     private static final Map<String, KeyGenAlgorithm> SYMKEY_GEN_ALGORITHMS;
     private static final Map<String, KeyPairAlgorithm> ASYMKEY_GEN_ALGORITHMS;
 
     static {
         SYMKEY_GEN_ALGORITHMS = new HashMap<>();
-        SYMKEY_GEN_ALGORITHMS.put(KeyRequestResource.DES_ALGORITHM, KeyGenAlgorithm.DES);
-        SYMKEY_GEN_ALGORITHMS.put(KeyRequestResource.DESEDE_ALGORITHM, KeyGenAlgorithm.DESede);
-        SYMKEY_GEN_ALGORITHMS.put(KeyRequestResource.DES3_ALGORITHM, KeyGenAlgorithm.DES3);
-        SYMKEY_GEN_ALGORITHMS.put(KeyRequestResource.RC2_ALGORITHM, KeyGenAlgorithm.RC2);
-        SYMKEY_GEN_ALGORITHMS.put(KeyRequestResource.RC4_ALGORITHM, KeyGenAlgorithm.RC4);
-        SYMKEY_GEN_ALGORITHMS.put(KeyRequestResource.AES_ALGORITHM, KeyGenAlgorithm.AES);
+        SYMKEY_GEN_ALGORITHMS.put(KeyParameters.DES_ALGORITHM, KeyGenAlgorithm.DES);
+        SYMKEY_GEN_ALGORITHMS.put(KeyParameters.DESEDE_ALGORITHM, KeyGenAlgorithm.DESede);
+        SYMKEY_GEN_ALGORITHMS.put(KeyParameters.DES3_ALGORITHM, KeyGenAlgorithm.DES3);
+        SYMKEY_GEN_ALGORITHMS.put(KeyParameters.RC2_ALGORITHM, KeyGenAlgorithm.RC2);
+        SYMKEY_GEN_ALGORITHMS.put(KeyParameters.RC4_ALGORITHM, KeyGenAlgorithm.RC4);
+        SYMKEY_GEN_ALGORITHMS.put(KeyParameters.AES_ALGORITHM, KeyGenAlgorithm.AES);
 
         ASYMKEY_GEN_ALGORITHMS = new HashMap<>();
-        ASYMKEY_GEN_ALGORITHMS.put(KeyRequestResource.RSA_ALGORITHM, KeyPairAlgorithm.RSA);
-        ASYMKEY_GEN_ALGORITHMS.put(KeyRequestResource.DSA_ALGORITHM, KeyPairAlgorithm.DSA);
+        ASYMKEY_GEN_ALGORITHMS.put(KeyParameters.RSA_ALGORITHM, KeyPairAlgorithm.RSA);
+        ASYMKEY_GEN_ALGORITHMS.put(KeyParameters.DSA_ALGORITHM, KeyPairAlgorithm.DSA);
     }
     private static final String ATTR_SERIALNO = "serialNumber";
 
@@ -495,7 +495,7 @@ public class KeyRequestProcessor {
         String keyAlgorithm = data.getKeyAlgorithm();
         logger.info("KeyRequestProcessor: key algorithm: " + keyAlgorithm);
 
-        if (dataType.equals(KeyRequestResource.SYMMETRIC_KEY_TYPE) &&
+        if (dataType.equals(KeyParameters.SYMMETRIC_KEY_TYPE) &&
                 (keyAlgorithm == null || !SYMKEY_TYPES.containsKey(keyAlgorithm))) {
             throw new BadRequestException("Invalid symmetric key algorithm: " + keyAlgorithm);
         }
@@ -664,7 +664,7 @@ public class KeyRequestProcessor {
         String pkiArchiveOptions = data.getPKIArchiveOptions();
         String dataType = data.getDataType();
         String keyAlgorithm = data.getKeyAlgorithm();
-        int keyStrength = dataType.equals(KeyRequestResource.SYMMETRIC_KEY_TYPE) ?
+        int keyStrength = dataType.equals(KeyParameters.SYMMETRIC_KEY_TYPE) ?
                 data.getKeySize(): 0;
         String realm = data.getRealm();
 
@@ -790,7 +790,7 @@ public class KeyRequestProcessor {
                 throw new BadRequestException(
                         "Invalid request.  Must specify key algorithm if size is specified");
             }
-            algName = KeyRequestResource.AES_ALGORITHM;
+            algName = KeyParameters.AES_ALGORITHM;
             keySize = Integer.valueOf(128);
         }
 
@@ -857,13 +857,13 @@ public class KeyRequestProcessor {
         }
 
         if (keySize == null) {
-            if (algName.equalsIgnoreCase(KeyRequestResource.RSA_ALGORITHM)
-                    || algName.equalsIgnoreCase(KeyRequestResource.DSA_ALGORITHM)) {
+            if (algName.equalsIgnoreCase(KeyParameters.RSA_ALGORITHM)
+                    || algName.equalsIgnoreCase(KeyParameters.DSA_ALGORITHM)) {
                 throw new BadRequestException("Key size must be specified.");
             }
         } else {
             //Validate key size
-            if (algName.equalsIgnoreCase(KeyRequestResource.RSA_ALGORITHM)) {
+            if (algName.equalsIgnoreCase(KeyParameters.RSA_ALGORITHM)) {
                 int size = keySize;
                 int minSize = cs.getInteger("keys.rsa.min.size", 256);
                 int maxSize = cs.getInteger("keys.rsa.max.size", 8192);
@@ -877,7 +877,7 @@ public class KeyRequestProcessor {
                 if (((size - 256) % 16) != 0) {
                     throw new BadRequestException("Invalid key size specified.");
                 }
-            } else if (algName.equalsIgnoreCase(KeyRequestResource.DSA_ALGORITHM)) {
+            } else if (algName.equalsIgnoreCase(KeyParameters.DSA_ALGORITHM)) {
                 // Without the PQGParams, JSS can create DSA keys of size 512, 768, 1024 only.
                 String[] sizes = engine.getConfig().getString("keys.dsa.list", "512,768,1024").split(",");
                 if (!Arrays.asList(sizes).contains(String.valueOf(keySize))) {
