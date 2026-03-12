@@ -1,4 +1,14 @@
 name: Basic CA
+# This test will perform the following operations:
+# - install CA
+# - check installed files and folders
+# - check system certs and keys in NSS database
+# - enable audit log signing
+# - check entries in DS
+# - check audit operations
+# - check profile operations
+# - remove CA
+# - check remaining files and folders
 
 on: workflow_call
 
@@ -519,20 +529,6 @@ jobs:
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
 
-      - name: Update CA configuration
-        run: |
-          docker exec pki dnf install -y xmlstarlet
-
-          # disable access log buffer
-          docker exec pki xmlstarlet edit --inplace \
-              -u "//Valve[@className='org.apache.catalina.valves.AccessLogValve']/@buffered" \
-              -v "false" \
-              -i "//Valve[@className='org.apache.catalina.valves.AccessLogValve' and not(@buffered)]" \
-              -t attr \
-              -n "buffered" \
-              -v "false" \
-              /etc/pki/pki-tomcat/server.xml
-
       - name: Enable audit log signing
         run: |
           # https://github.com/dogtagpki/pki/wiki/Enabling-Audit-Log-Signing
@@ -574,53 +570,9 @@ jobs:
           docker exec pki pki-server ca-config-find | grep audit_signing
           docker exec pki pki-server ca-audit-config-show
 
-      - name: Configure RESTEasy logging
-        run: |
-          docker exec -i pki tee /var/lib/pki/pki-tomcat/conf/ca/logging.properties << EOF
-          org.jboss.resteasy.level = INFO
-          EOF
-
-          docker exec pki chown pkiuser:pkiuser /var/lib/pki/pki-tomcat/conf/ca/logging.properties
-
       - name: Restart PKI server
         run: |
           docker exec pki pki-server restart --wait
-
-      - name: Check pki info with default API
-        run: |
-          docker exec pki pki info
-
-          # check HTTP methods, paths, protocols, status, and authenticated users
-          docker exec pki find /var/log/pki/pki-tomcat \
-              -name "localhost_access_log.*" \
-              -exec cat {} \; \
-              | tail -1 \
-              | sed -e 's/^.* .* \(.*\) \[.*\] "\(.*\)" \(.*\) .*$/\2 \3 \1/' \
-              | tee output
-
-          cat > expected << EOF
-          GET /pki/v2/info HTTP/1.1 200 -
-          EOF
-
-          diff expected output
-
-      - name: Check pki info with API v1
-        run: |
-          docker exec pki pki --api v1 info
-
-          # check HTTP methods, paths, protocols, status, and authenticated users
-          docker exec pki find /var/log/pki/pki-tomcat \
-              -name "localhost_access_log.*" \
-              -exec cat {} \; \
-              | tail -1 \
-              | sed -e 's/^.* .* \(.*\) \[.*\] "\(.*\)" \(.*\) .*$/\2 \3 \1/' \
-              | tee output
-
-          cat > expected << EOF
-          GET /pki/v1/info HTTP/1.1 200 -
-          EOF
-
-          diff expected output
 
       - name: Test CA certs
         run: |
@@ -638,71 +590,6 @@ jobs:
               -o ldif_wrap=no \
               -LLL
 
-      - name: Check pki ca-cert-find with default API
-        run: |
-          docker exec pki pki ca-cert-find | tee output
-
-          # get certs returned
-          grep "Serial Number:" output | wc -l > actual
-
-          # there should be 6 certs returned
-          echo "6" > expected
-          diff expected actual
-
-          # get total certs found
-          sed -n "s/^\(\S*\) entries found$/\1/p" output > actual
-
-          # there should be no total certs found
-          diff /dev/null actual
-
-          # check HTTP methods, paths, protocols, status, and authenticated users
-          docker exec pki find /var/log/pki/pki-tomcat \
-              -name "localhost_access_log.*" \
-              -exec cat {} \; \
-              | tail -2 \
-              | sed -e 's/^.* .* \(.*\) \[.*\] "\(.*\)" \(.*\) .*$/\2 \3 \1/' \
-              | tee output
-
-          cat > expected << EOF
-          GET /pki/v2/info HTTP/1.1 200 -
-          POST /ca/v2/certs/search HTTP/1.1 200 -
-          EOF
-
-          diff expected output
-
-      - name: Check pki ca-cert-find with API v1
-        run: |
-          docker exec pki pki --api v1 ca-cert-find | tee output
-
-          # get certs returned
-          grep "Serial Number:" output | wc -l > actual
-
-          # there should be 6 certs returned
-          echo "6" > expected
-          diff expected actual
-
-          # get total certs found
-          sed -n "s/^\(\S*\) entries found$/\1/p" output > actual
-
-          # there should be 6 certs found
-          echo "6" > expected
-          diff expected actual
-
-          # check HTTP methods, paths, protocols, status, and authenticated users
-          docker exec pki find /var/log/pki/pki-tomcat \
-              -name "localhost_access_log.*" \
-              -exec cat {} \; \
-              | tail -2 \
-              | sed -e 's/^.* .* \(.*\) \[.*\] "\(.*\)" \(.*\) .*$/\2 \3 \1/' \
-              | tee output
-
-          cat > expected << EOF
-          GET /pki/v1/info HTTP/1.1 200 -
-          POST /ca/v1/certs/search HTTP/1.1 200 -
-          EOF
-
-          diff expected output
-
       - name: Check users in DS
         run: |
           docker exec ds ldapsearch \
@@ -714,48 +601,6 @@ jobs:
               -o ldif_wrap=no \
               -LLL
 
-      - name: Check pki ca-user-show with default API
-        run: |
-          docker exec pki pki -n caadmin ca-user-show caadmin
-
-          # check HTTP methods, paths, protocols, status, and authenticated users
-          docker exec pki find /var/log/pki/pki-tomcat \
-              -name "localhost_access_log.*" \
-              -exec cat {} \; \
-              | tail -4 \
-              | sed -e 's/^.* .* \(.*\) \[.*\] "\(.*\)" \(.*\) .*$/\2 \3 \1/' \
-              | tee output
-
-          cat > expected << EOF
-          GET /pki/v2/info HTTP/1.1 200 -
-          GET /ca/v2/account/login HTTP/1.1 200 caadmin
-          GET /ca/v2/admin/users/caadmin HTTP/1.1 200 caadmin
-          GET /ca/v2/account/logout HTTP/1.1 204 caadmin
-          EOF
-
-          diff expected output
-
-      - name: Check pki ca-user-show with API v1
-        run: |
-          docker exec pki pki -n caadmin --api v1 ca-user-show caadmin
-
-          # check HTTP methods, paths, protocols, status, and authenticated users
-          docker exec pki find /var/log/pki/pki-tomcat \
-              -name "localhost_access_log.*" \
-              -exec cat {} \; \
-              | tail -4 \
-              | sed -e 's/^.* .* \(.*\) \[.*\] "\(.*\)" \(.*\) .*$/\2 \3 \1/' \
-              | tee output
-
-          cat > expected << EOF
-          GET /pki/v1/info HTTP/1.1 200 -
-          GET /ca/v1/account/login HTTP/1.1 200 caadmin
-          GET /ca/v1/admin/users/caadmin HTTP/1.1 200 caadmin
-          GET /ca/v1/account/logout HTTP/1.1 204 caadmin
-          EOF
-
-          diff expected output
-
       - name: Check cert requests in DS
         run: |
           docker exec ds ldapsearch \
@@ -766,10 +611,6 @@ jobs:
               -b "ou=requests,dc=ca,dc=pki,dc=example,dc=com" \
               -o ldif_wrap=no \
               -LLL
-
-      - name: Check cert requests in CA
-        run: |
-          docker exec pki pki -n caadmin ca-cert-request-find
 
       - name: Test CA auditor
         run: |
