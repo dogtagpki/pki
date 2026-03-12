@@ -29,17 +29,26 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.math.BigInteger;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
+import java.security.cert.CertificateFactory;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.spec.MGF1ParameterSpec;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
@@ -59,6 +68,11 @@ import org.mozilla.jss.KeyDatabaseException;
 import org.mozilla.jss.crypto.AlreadyInitializedException;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.InvalidKeyFormatException;
+import org.mozilla.jss.crypto.IVParameterSpec;
+import org.mozilla.jss.crypto.KeyGenAlgorithm;
+import org.mozilla.jss.crypto.KeyGenerator;
+import org.mozilla.jss.crypto.KeyPairAlgorithm;
+import org.mozilla.jss.crypto.KeyPairGenerator;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.KeyWrapper;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
@@ -72,6 +86,7 @@ import org.mozilla.jss.netscape.security.util.DerOutputStream;
 import org.mozilla.jss.netscape.security.util.DerValue;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkcs11.PK11Cert;
 import org.mozilla.jss.pkcs11.PK11PubKey;
 import org.mozilla.jss.util.Password;
@@ -502,8 +517,86 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  *
  * </PRE>
  *
+ * <h3>Cross-Scheme Migration Support</h3>
+ *
+ * <p>
+ * KRATool supports cross-scheme migration, enabling secure migration of archived
+ * keys between KRA instances using different cryptographic schemes (e.g., from
+ * RSA+AES/CBC to RSA-OAEP+AES-KWP for FIPS-mode HSMs).
+ * </p>
+ *
+ * <p><b>Key Features:</b></p>
+ * <ul>
+ * <li><b>Secure rewrap flow:</b> Private keys remain wrapped in tokens throughout
+ *     the migration process and are never exposed in cleartext. Only session keys
+ *     are temporarily exposed during token transfer.</li>
+ * <li><b>Order-independent LDIF parsing:</b> Extracts privateKeyData and publicKeyData
+ *     fields independently, regardless of their order in LDIF records.</li>
+ * <li><b>Algorithm auto-detection:</b> Automatically regenerates session keys only
+ *     when source and target algorithms or key sizes differ.</li>
+ * <li><b>HSM compatibility:</b> Supports payload processing in NSS DB
+ *     (software token) via -use_nss_for_payload_processing flag when HSM lacks
+ *     support for source or target algorithms.</li>
+ * <li><b>Pure Java implementation:</b> When -use_nss_for_payload_processing is used,
+ *     the importSessionKeyToToken() method implements JSS_KeyExchange mechanism in pure
+ *     Java with automatic fallback to temporary RSA keypair approach.</li>
+ * </ul>
+ *
+ * <p><b>Supported Algorithms:</b></p>
+ * <ul>
+ * <li>Session key wrap: RSA, RSA-OAEP</li>
+ * <li>Payload wrap: AES KeyWrap/Wrapped (CKM_AES_KEY_WRAP_KWP, recommended for HSM/FIPS),
+ *     AES KeyWrap/Padding (CKM_AES_KEY_WRAP_PAD), AES KeyWrap/NoPadding (CKM_AES_KEY_WRAP),
+ *     AES/CBC/PKCS5Padding, DES3/CBC/Padding</li>
+ * </ul>
+ *
+ * <p><b>Cross-Scheme Command-Line Options:</b></p>
+ * <pre>
+ *   -source_rsa_wrap_algorithm &lt;RSA|RSA-OAEP&gt;
+ *       Source session key wrap algorithm (default: RSA)
+ *
+ *   -target_rsa_wrap_algorithm &lt;RSA|RSA-OAEP&gt;
+ *       Target session key wrap algorithm (default: RSA-OAEP, recommended for HSM/FIPS)
+ *
+ *   -source_payload_wrap_algorithm &lt;algorithm&gt;
+ *       Source payload wrap algorithm (must match source KRA's payloadWrapAlgorithm)
+ *       Supported: "AES KeyWrap/Wrapped"   - CKM_AES_KEY_WRAP_KWP (0x210B) (recommended)
+ *                  "AES KeyWrap/Padding"   - CKM_AES_KEY_WRAP_PAD (0x210A)
+ *                  "AES KeyWrap/NoPadding" - CKM_AES_KEY_WRAP (0x2109)
+ *                  "AES/CBC/PKCS5Padding", "DES3/CBC/Padding"
+ *
+ *   -target_payload_wrap_algorithm &lt;algorithm&gt;
+ *       Target payload wrap algorithm (must match target KRA's configured algorithm)
+ *       Supported: "AES KeyWrap/Wrapped"   - CKM_AES_KEY_WRAP_KWP (0x210B) (recommended)
+ *                  "AES KeyWrap/Padding"   - CKM_AES_KEY_WRAP_PAD (0x210A)
+ *                  "AES KeyWrap/NoPadding" - CKM_AES_KEY_WRAP (0x2109)
+ *                  "AES/CBC/PKCS5Padding", "DES3/CBC/Padding"
+ *
+ *   -source_payload_wrap_keysize &lt;128|192|256&gt;
+ *       Source payload wrapping key size in bits (default: 128)
+ *
+ *   -target_payload_wrap_keysize &lt;128|192|256&gt;
+ *       Target payload wrapping key size in bits (default: 128)
+ *
+ *   -use_nss_for_payload_processing
+ *       Perform payload unwrap/rewrap in NSS DB (software token) when HSM lacks
+ *       support for target algorithms
+ *
+ *   -regenerate_session_key
+ *       Force regeneration of session key even when algorithms match
+ *
+ *   -split_target_ldif_per_records &lt;N&gt;
+ *       Split output into multiple LDIF files, each containing N records
+ *
+ *   -verbose
+ *       Enable detailed per-record logging (useful for debugging)
+ *
+ *   -use_oaep_rsa_key_wrap
+ *       Use RSA-OAEP instead of RSA PKCS#1 v1.5 (legacy flag)
+ * </pre>
+ *
  * @author mharmsen
- * @version $Revision$, $Date$
+ * @author cfu (added cross-scheme migration support)
  */
 public class KRATool {
 
@@ -608,7 +701,7 @@ public class KRATool {
     private static final String SOURCE_STORAGE_TOKEN_NAME_EXAMPLE = SOURCE_STORAGE_TOKEN_NAME
                                       + " "
                                       + TIC
-                                      + CryptoUtil.INTERNAL_TOKEN_FULL_NAME
+                                      + "SourceHSM"
                                       + TIC;
 
     private static final String SOURCE_STORAGE_CERT_NICKNAME = "-source_storage_certificate_nickname";
@@ -656,6 +749,19 @@ public class KRATool {
                                   + " "
                                   + "/export/pki/pwdfile";
 
+    private static final String SOURCE_HSM_TOKEN_PWDFILE = "-source_hsm_token_pwdfile";
+
+    private static final String SOURCE_HSM_TOKEN_PWDFILE_DESCRIPTION = "  <complete path to the password "
+                                      + "file which ONLY contains the"
+                                      + NEWLINE
+                                      + "        "
+                                      + "   password used to access the "
+                                      + "source HSM token>";
+
+    private static final String SOURCE_HSM_TOKEN_PWDFILE_EXAMPLE = SOURCE_HSM_TOKEN_PWDFILE
+                                  + " "
+                                  + "/export/pki/hsm-pwdfile";
+
     // Constants:  Command-line Options (ID Offset)
     private static final String APPEND_ID_OFFSET = "-append_id_offset";
 
@@ -677,6 +783,60 @@ public class KRATool {
 
     // Constants:  Command-line Options
     private static final String USE_OAEP_RSA_KEY_WRAP = "-use_rsa_oaep_keywrap";
+
+    // New flags for cross-scheme migration support
+    private static final String SOURCE_RSA_WRAP_ALGORITHM = "-source_rsa_wrap_algorithm";
+    private static final String SOURCE_RSA_WRAP_ALGORITHM_DESCRIPTION = "  <RSA|RSA-OAEP> Source session key wrap algorithm (default: RSA)";
+
+    private static final String TARGET_RSA_WRAP_ALGORITHM = "-target_rsa_wrap_algorithm";
+    private static final String TARGET_RSA_WRAP_ALGORITHM_DESCRIPTION = "  <RSA|RSA-OAEP> Target session key wrap algorithm (default: RSA-OAEP, recommended for HSM/FIPS)";
+
+    private static final String SOURCE_PAYLOAD_WRAP_ALGORITHM = "-source_payload_wrap_algorithm";
+    private static final String SOURCE_PAYLOAD_WRAP_ALGORITHM_DESCRIPTION = "  <algorithm> Source payload wrap algorithm" + NEWLINE +
+                                                                             "        " + "   Supported:" + NEWLINE +
+                                                                             "        " + "     \"AES KeyWrap/Wrapped\"   - CKM_AES_KEY_WRAP_KWP (0x210B) (recommended for HSM/FIPS)" + NEWLINE +
+                                                                             "        " + "     \"AES KeyWrap/Padding\"   - CKM_AES_KEY_WRAP_PAD (0x210A)" + NEWLINE +
+                                                                             "        " + "     \"AES KeyWrap/NoPadding\" - CKM_AES_KEY_WRAP (0x2109)" + NEWLINE +
+                                                                             "        " + "     \"AES/CBC/PKCS5Padding\"  - CKM_AES_CBC_PAD (0x1085)" + NEWLINE +
+                                                                             "        " + "     \"DES3/CBC/Padding\"      - CKM_DES3_CBC_PAD" + NEWLINE +
+                                                                             "        " + "   (must match source KRA's payloadWrapAlgorithm metaInfo)";
+
+    private static final String TARGET_PAYLOAD_WRAP_ALGORITHM = "-target_payload_wrap_algorithm";
+    private static final String TARGET_PAYLOAD_WRAP_ALGORITHM_DESCRIPTION = "  <algorithm> Target payload wrap algorithm" + NEWLINE +
+                                                                             "        " + "   Supported:" + NEWLINE +
+                                                                             "        " + "     \"AES KeyWrap/Wrapped\"   - CKM_AES_KEY_WRAP_KWP (0x210B) (recommended for HSM/FIPS)" + NEWLINE +
+                                                                             "        " + "     \"AES KeyWrap/Padding\"   - CKM_AES_KEY_WRAP_PAD (0x210A)" + NEWLINE +
+                                                                             "        " + "     \"AES KeyWrap/NoPadding\" - CKM_AES_KEY_WRAP (0x2109)" + NEWLINE +
+                                                                             "        " + "     \"AES/CBC/PKCS5Padding\"  - CKM_AES_CBC_PAD (0x1085)" + NEWLINE +
+                                                                             "        " + "     \"DES3/CBC/Padding\"      - CKM_DES3_CBC_PAD" + NEWLINE +
+                                                                             "        " + "   (must match target KRA's configured algorithm)";
+
+    private static final String USE_NSS_FOR_PAYLOAD_PROCESSING = "-use_nss_for_payload_processing";
+    private static final String USE_NSS_FOR_PAYLOAD_PROCESSING_DESCRIPTION = "  Use NSS DB (software token) for payload unwrap/rewrap" + NEWLINE +
+                                                                               "        " + "   operations (useful when HSM doesn't support target algorithms)";
+
+    private static final String REGENERATE_SESSION_KEY = "-regenerate_session_key";
+    private static final String REGENERATE_SESSION_KEY_DESCRIPTION = "  Force generation of new session key during rewrap" + NEWLINE +
+                                                                      "        " + "   (default: auto-detect based on algorithm compatibility)";
+
+    private static final String SKIP_REWRAP = "-skip_rewrap";
+    private static final String SKIP_REWRAP_DESCRIPTION = "  **TEST ONLY** Skip cryptographic rewrap operations, copy key data as-is" + NEWLINE +
+                                                          "        " + "   Use for testing LDIF transformations without HSM access";
+
+    private static final String SPLIT_TARGET_LDIF_PER_RECORDS = "-split_target_ldif_per_records";
+    private static final String SPLIT_TARGET_LDIF_PER_RECORDS_DESCRIPTION = "  <number> Split target LDIF into multiple files after every N records" + NEWLINE +
+                                                                             "        " + "   Creates files: targetfile-1.ldif, targetfile-2.ldif, etc.";
+
+    private static final String USE_CROSS_SCHEME = "-use_cross_scheme";
+    private static final String USE_CROSS_SCHEME_DESCRIPTION = "  Enable cross-scheme migration mode (entry-based processing)" + NEWLINE +
+                                                                "        " + "   Required for migrating between different wrapping algorithms";
+
+    private static final String SOURCE_PAYLOAD_WRAP_KEYSIZE = "-source_payload_wrap_keysize";
+    private static final String SOURCE_PAYLOAD_WRAP_KEYSIZE_DESCRIPTION = "  <128|192|256> Source payload wrapping key size in bits (default: 128)";
+
+    private static final String TARGET_PAYLOAD_WRAP_KEYSIZE = "-target_payload_wrap_keysize";
+    private static final String TARGET_PAYLOAD_WRAP_KEYSIZE_DESCRIPTION = "  <128|192|256> Target payload wrapping key size in bits (default: 128)";
+
     private static final String SOURCE_KRA_NAMING_CONTEXT = "-source_kra_naming_context";
 
     private static final String SOURCE_KRA_NAMING_CONTEXT_DESCRIPTION = "  <source KRA naming context>";
@@ -699,6 +859,10 @@ public class KRATool {
 
     private static final String PROCESS_REQUESTS_AND_KEY_RECORDS_ONLY =
             "-process_requests_and_key_records_only";
+
+    private static final String VERBOSE = "-verbose";
+
+    private static final String VERBOSE_DESCRIPTION = "  Enable detailed per-record logging (useful for debugging)";
 
     private static final String KEY_UNWRAP_ALGORITHM = "-unwrap_algorithm";
 
@@ -929,6 +1093,7 @@ public class KRATool {
     private static final String KRA_LDIF_EXTDATA_REQUEST_TYPE = "extdata-requesttype:";
     private static final String KRA_LDIF_EXTDATA_SERIAL_NUMBER = "extdata-serialnumber:";
     private static final String KRA_LDIF_PRIVATE_KEY_DATA = "privateKeyData::";
+    private static final String KRA_LDIF_PUBLIC_KEY_DATA = "publicKeyData::";  // cross-scheme
     private static final String KRA_LDIF_REQUEST_ID = "requestId:";
     private static final String KRA_LDIF_REQUEST_TYPE = "requestType:";
     private static final String KRA_LDIF_SERIAL_NO = "serialno:";
@@ -984,6 +1149,11 @@ public class KRATool {
     private static boolean mKraNamingContextsFlag = false;
     private static boolean mProcessRequestsAndKeyRecordsOnlyFlag = false;
     private static boolean mUseOAEPKeyWrapAlg = false;
+    private static boolean mVerboseFlag = false;
+    // cross-scheme
+    private static boolean mUseNssForPayloadProcessing = false;
+    private static boolean mRegenerateSessionKey = false;
+    private static boolean mSkipRewrap = false;  // TEST ONLY - for validating LDIF transformations
     private static int mMandatoryNameValuePairs = 0;
     private static int mRewrapNameValuePairs = 0;
     private static int mPKISecurityDatabasePwdfileNameValuePairs = 0;
@@ -1003,8 +1173,22 @@ public class KRATool {
     private static String mSourceStorageCertNickname = null;
     private static String mTargetStorageCertificateFilename = null;
 
+    // Variables: Cross-Scheme Migration
+    private static boolean mUseCrossSchemeFlag = false;
+    private static Boolean mSessionKeyDecisionMade = null;  // Cache user's regeneration decision
+    private static int mSplitTargetLdifPerRecords = 0;  // Split output into multiple files after N records
+    private static int mCurrentFileNumber = 1;  // Current output file number (for split mode)
+    private static int mRecordsInCurrentFile = 0;  // Records written to current output file
+    private static int mProcessedKeyRecords = 0;
+    private static int mFailedKeyRecords = 0;
+    private static int mProcessedEntries = 0;  // cross-scheme: total entries written (for blank line logic)
+    private static int mSourcePayloadWrapKeySize = 128;  // Source payload key size (default: 128)
+    private static int mTargetPayloadWrapKeySize = 128;  // Target payload key size (default: 128)
+
     // Variables: Command-Line Values (Rewrap Password File)
     private static String mSourcePKISecurityDatabasePwdfile = null;
+    private static String mSourceHsmTokenPwdfile = null;
+    private static boolean mHsmPwdfileFlag = false;
 
     // Variables: Command-Line Values (ID Offset)
     private static BigInteger mAppendIdOffset = null;
@@ -1031,6 +1215,26 @@ public class KRATool {
     private static PublicKey mWrapPublicKey = null;
     private static int mPublicKeySize = 0;
     private static SymmetricKey.Type keyUnwrapAlgorithm = SymmetricKey.DES3;
+
+    // Variables: Cross-scheme migration support
+    private static String mSourceRSAWrapAlgName = null;  // User-specified source RSA algorithm
+    private static String mTargetRSAWrapAlgName = null;  // User-specified target RSA algorithm
+    private static String mSourcePayloadWrapAlgName = null;  // User-specified source payload algorithm
+    private static String mTargetPayloadWrapAlgName = null;  // User-specified target payload algorithm
+    private static KeyWrapAlgorithm mSourceRSAWrapAlg = KeyWrapAlgorithm.RSA;  // Actual source RSA algorithm (default: RSA)
+    private static KeyWrapAlgorithm mTargetRSAWrapAlg = KeyWrapAlgorithm.RSA_OAEP;  // Actual target RSA algorithm (default: RSA_OAEP)
+    private static IVParameterSpec mSourcePayloadWrappingIV = null;  // Source payload wrapping IV
+    private static X509Certificate mTargetStorageCert = null;  // Target storage certificate
+
+    // cross-scheme: Temporary RSA keypair for session key transfer (performance optimization)
+    // Generated once at startup and reused across all LDIF entries to avoid repeated keypair generation
+    private static java.security.KeyPair mTempRSAKeyPair = null;  // Temporary RSA keypair for JSS_KeyExchange-style transfer
+    private static boolean mTempRSAKeyPairInitialized = false;  // Track initialization status
+
+    // cross-scheme: Cache for cloneKey capability (performance optimization)
+    // null = not yet tested, true = cloneKey works, false = cloneKey fails (use RSA keypair method)
+    // Avoids millions of failed cloneKey attempts when HSM doesn't support extractable keys
+    private static Boolean mIsKeyClonable = null;
 
     // Variables:  KRA LDIF Record Messages
     private static String mSourcePKISecurityDatabasePwdfileMessage = null;
@@ -1132,6 +1336,14 @@ public class KRATool {
                           + NEWLINE
                           + "        "
                           + "["
+                          + SOURCE_HSM_TOKEN_PWDFILE
+                          + NEWLINE
+                          + "        "
+                          + SOURCE_HSM_TOKEN_PWDFILE_DESCRIPTION
+                          + "]"
+                          + NEWLINE
+                          + "        "
+                          + "["
                           + APPEND_ID_OFFSET
                           + NEWLINE
                           + "        "
@@ -1173,6 +1385,106 @@ public class KRATool {
                           + "        "
                           + "["
                           + PROCESS_REQUESTS_AND_KEY_RECORDS_ONLY
+                          + "]"
+                          + NEWLINE
+                          + "        "
+                          + "["
+                          + VERBOSE
+                          + NEWLINE
+                          + "        "
+                          + VERBOSE_DESCRIPTION
+                          + "]"
+                          + NEWLINE
+                          + NEWLINE
+                          + "    --- Cross-Scheme Migration Options ---"
+                          + NEWLINE
+                          + "        "
+                          + "["
+                          + SOURCE_RSA_WRAP_ALGORITHM
+                          + NEWLINE
+                          + "        "
+                          + SOURCE_RSA_WRAP_ALGORITHM_DESCRIPTION
+                          + "]"
+                          + NEWLINE
+                          + "        "
+                          + "["
+                          + TARGET_RSA_WRAP_ALGORITHM
+                          + NEWLINE
+                          + "        "
+                          + TARGET_RSA_WRAP_ALGORITHM_DESCRIPTION
+                          + "]"
+                          + NEWLINE
+                          + "        "
+                          + "["
+                          + SOURCE_PAYLOAD_WRAP_ALGORITHM
+                          + NEWLINE
+                          + "        "
+                          + SOURCE_PAYLOAD_WRAP_ALGORITHM_DESCRIPTION
+                          + "]"
+                          + NEWLINE
+                          + "        "
+                          + "["
+                          + TARGET_PAYLOAD_WRAP_ALGORITHM
+                          + NEWLINE
+                          + "        "
+                          + TARGET_PAYLOAD_WRAP_ALGORITHM_DESCRIPTION
+                          + "]"
+                          + NEWLINE
+                          + "        "
+                          + "["
+                          + USE_NSS_FOR_PAYLOAD_PROCESSING
+                          + NEWLINE
+                          + "        "
+                          + USE_NSS_FOR_PAYLOAD_PROCESSING_DESCRIPTION
+                          + "]"
+                          + NEWLINE
+                          + "        "
+                          + "["
+                          + REGENERATE_SESSION_KEY
+                          + NEWLINE
+                          + "        "
+                          + REGENERATE_SESSION_KEY_DESCRIPTION
+                          + "]"
+                          + NEWLINE
+                          // Hidden from usage - internal testing only
+                          // + "        "
+                          // + "["
+                          // + SKIP_REWRAP
+                          // + NEWLINE
+                          // + "        "
+                          // + SKIP_REWRAP_DESCRIPTION
+                          // + "]"
+                          // + NEWLINE
+                          + "        "
+                          + "["
+                          + SPLIT_TARGET_LDIF_PER_RECORDS
+                          + NEWLINE
+                          + "        "
+                          + SPLIT_TARGET_LDIF_PER_RECORDS_DESCRIPTION
+                          + "]"
+                          + NEWLINE
+                          + "        "
+                          + "["
+                          + SOURCE_PAYLOAD_WRAP_KEYSIZE
+                          + NEWLINE
+                          + "        "
+                          + SOURCE_PAYLOAD_WRAP_KEYSIZE_DESCRIPTION
+                          + "]"
+                          + NEWLINE
+                          + "        "
+                          + "["
+                          + TARGET_PAYLOAD_WRAP_KEYSIZE
+                          + NEWLINE
+                          + "        "
+                          + TARGET_PAYLOAD_WRAP_KEYSIZE_DESCRIPTION
+                          + "]"
+                          + NEWLINE
+                          + "        "
+                          + "["
+                          + USE_CROSS_SCHEME
+                          + NEWLINE
+                          + "        "
+                          + USE_CROSS_SCHEME_DESCRIPTION
                           + "]"
                           + NEWLINE);
 
@@ -1372,6 +1684,213 @@ public class KRATool {
                           + "        "
                           + PROCESS_REQUESTS_AND_KEY_RECORDS_ONLY
                           + NEWLINE);
+
+        System.out.println("Example of 'Cross-Scheme Migration with Session Key Regeneration':"
+                          + NEWLINE
+                          + NEWLINE
+                          + "        "
+                          + KRA_TOOL
+                          + NEWLINE
+                          + "        "
+                          + KRATOOL_CFG_FILE_EXAMPLE
+                          + NEWLINE
+                          + "        "
+                          + SOURCE_LDIF_FILE_EXAMPLE
+                          + NEWLINE
+                          + "        "
+                          + TARGET_LDIF_FILE_EXAMPLE
+                          + NEWLINE
+                          + "        "
+                          + LOG_FILE_EXAMPLE
+                          + NEWLINE
+                          + "        "
+                          + SOURCE_NSS_DB_PATH_EXAMPLE
+                          + NEWLINE
+                          + "        "
+                          + SOURCE_STORAGE_TOKEN_NAME_EXAMPLE
+                          + NEWLINE
+                          + "        "
+                          + SOURCE_STORAGE_CERT_NICKNAME_EXAMPLE
+                          + NEWLINE
+                          + "        "
+                          + TARGET_STORAGE_CERTIFICATE_FILE_EXAMPLE
+                          + NEWLINE
+                          + "        "
+                          + SOURCE_NSS_DB_PWDFILE_EXAMPLE
+                          + NEWLINE
+                          + "        "
+                          + SOURCE_RSA_WRAP_ALGORITHM + " RSA-OAEP"
+                          + NEWLINE
+                          + "        "
+                          + TARGET_RSA_WRAP_ALGORITHM + " RSA-OAEP"
+                          + NEWLINE
+                          + "        "
+                          + SOURCE_PAYLOAD_WRAP_ALGORITHM + " \"AES KeyWrap/Wrapped\""
+                          + NEWLINE
+                          + "        "
+                          + TARGET_PAYLOAD_WRAP_ALGORITHM + " \"AES256 KeyWrap/Wrapped\""
+                          + NEWLINE
+                          + "        "
+                          + REGENERATE_SESSION_KEY
+                          + NEWLINE
+                          + "        "
+                          + SPLIT_TARGET_LDIF_PER_RECORDS + " 1000"
+                          + NEWLINE
+                          + NEWLINE
+                          + "        "
+                          + "NOTE: This example migrates from 128-bit to 256-bit AES session keys."
+                          + NEWLINE
+                          + "        "
+                          + "      The -regenerate_session_key flag forces regeneration without prompt."
+                          + NEWLINE
+                          + "        "
+                          + "      Without the flag, tool will detect key size change and prompt user."
+                          + NEWLINE
+                          + "        "
+                          + "      The -split_target_ldif_per_records creates separate files every 1000 records."
+                          + NEWLINE);
+
+        System.out.println("Example of 'Cross-Scheme Migration' (RSA+AES/CBC to RSA-OAEP+AES-KWP):"
+                          + NEWLINE
+                          + NEWLINE
+                          + "        "
+                          + KRA_TOOL
+                          + NEWLINE
+                          + "        "
+                          + KRATOOL_CFG_FILE_EXAMPLE
+                          + NEWLINE
+                          + "        "
+                          + SOURCE_LDIF_FILE_EXAMPLE
+                          + NEWLINE
+                          + "        "
+                          + TARGET_LDIF_FILE_EXAMPLE
+                          + NEWLINE
+                          + "        "
+                          + LOG_FILE_EXAMPLE
+                          + NEWLINE
+                          + "        "
+                          + SOURCE_NSS_DB_PATH_EXAMPLE
+                          + NEWLINE
+                          + "        "
+                          + SOURCE_STORAGE_TOKEN_NAME_EXAMPLE
+                          + NEWLINE
+                          + "        "
+                          + SOURCE_STORAGE_CERT_NICKNAME_EXAMPLE
+                          + NEWLINE
+                          + "        "
+                          + TARGET_STORAGE_CERTIFICATE_FILE_EXAMPLE
+                          + NEWLINE
+                          + "        "
+                          + SOURCE_NSS_DB_PWDFILE_EXAMPLE
+                          + NEWLINE
+                          + "        "
+                          + SOURCE_HSM_TOKEN_PWDFILE_EXAMPLE
+                          + NEWLINE
+                          + "        "
+                          + SOURCE_RSA_WRAP_ALGORITHM + " RSA"
+                          + NEWLINE
+                          + "        "
+                          + TARGET_RSA_WRAP_ALGORITHM + " RSA-OAEP"
+                          + NEWLINE
+                          + "        "
+                          + SOURCE_PAYLOAD_WRAP_ALGORITHM + " \"AES/CBC/PKCS5Padding\""
+                          + NEWLINE
+                          + "        "
+                          + TARGET_PAYLOAD_WRAP_ALGORITHM + " \"AES KeyWrap/Wrapped\""
+                          + NEWLINE
+                          + "        "
+                          + SPLIT_TARGET_LDIF_PER_RECORDS + " 1000"
+                          + NEWLINE
+                          + NEWLINE
+                          + "        "
+                          + "NOTE: If the command fails during payload unwrap/rewrap with an error"
+                          + NEWLINE
+                          + "        "
+                          + "      about unsupported algorithms, add the " + USE_NSS_FOR_PAYLOAD_PROCESSING
+                          + NEWLINE
+                          + "        "
+                          + "      flag to perform payload operations in NSS DB (software token)."
+                          + NEWLINE
+                          + "        "
+                          + "      The -split_target_ldif_per_records creates separate files every 1000 records."
+                          + NEWLINE);
+
+        System.out.println("Example of 'Cross-Scheme Migration with Software Token Fallback':"
+                          + NEWLINE
+                          + NEWLINE
+                          + "        "
+                          + KRA_TOOL
+                          + NEWLINE
+                          + "        "
+                          + KRATOOL_CFG_FILE_EXAMPLE
+                          + NEWLINE
+                          + "        "
+                          + SOURCE_LDIF_FILE_EXAMPLE
+                          + NEWLINE
+                          + "        "
+                          + TARGET_LDIF_FILE_EXAMPLE
+                          + NEWLINE
+                          + "        "
+                          + LOG_FILE_EXAMPLE
+                          + NEWLINE
+                          + "        "
+                          + SOURCE_NSS_DB_PATH_EXAMPLE
+                          + NEWLINE
+                          + "        "
+                          + SOURCE_STORAGE_TOKEN_NAME_EXAMPLE
+                          + NEWLINE
+                          + "        "
+                          + SOURCE_STORAGE_CERT_NICKNAME_EXAMPLE
+                          + NEWLINE
+                          + "        "
+                          + TARGET_STORAGE_CERTIFICATE_FILE_EXAMPLE
+                          + NEWLINE
+                          + "        "
+                          + SOURCE_NSS_DB_PWDFILE_EXAMPLE
+                          + NEWLINE
+                          + "        "
+                          + SOURCE_HSM_TOKEN_PWDFILE_EXAMPLE
+                          + NEWLINE
+                          + "        "
+                          + SOURCE_RSA_WRAP_ALGORITHM + " RSA"
+                          + NEWLINE
+                          + "        "
+                          + TARGET_RSA_WRAP_ALGORITHM + " RSA-OAEP"
+                          + NEWLINE
+                          + "        "
+                          + SOURCE_PAYLOAD_WRAP_ALGORITHM + " \"AES/CBC/PKCS5Padding\""
+                          + NEWLINE
+                          + "        "
+                          + TARGET_PAYLOAD_WRAP_ALGORITHM + " \"AES KeyWrap/Wrapped\""
+                          + NEWLINE
+                          + "        "
+                          + SOURCE_PAYLOAD_WRAP_KEYSIZE + " 128"
+                          + NEWLINE
+                          + "        "
+                          + TARGET_PAYLOAD_WRAP_KEYSIZE + " 256"
+                          + NEWLINE
+                          + "        "
+                          + USE_NSS_FOR_PAYLOAD_PROCESSING
+                          + NEWLINE
+                          + NEWLINE
+                          + "        "
+                          + "NOTE: Use this option when the HSM does not support the target payload"
+                          + NEWLINE
+                          + "        "
+                          + "      wrap algorithm (e.g., AES KeyWrap/Wrapped). Payload unwrap/rewrap will"
+                          + NEWLINE
+                          + "        "
+                          + "      be performed in NSS DB (software token). Session key operations"
+                          + NEWLINE
+                          + "        "
+                          + "      still use the HSM. This example also demonstrates key size change"
+                          + NEWLINE
+                          + "        "
+                          + "      from 128-bit to 256-bit, which will trigger automatic session key"
+                          + NEWLINE
+                          + "        "
+                          + "      regeneration with user confirmation."
+                          + NEWLINE);
     }
 
     /*******************/
@@ -1437,7 +1956,7 @@ public class KRATool {
      *
      * @return the private RSA storage key from the "source" KRA
      */
-    private static PrivateKey getPrivateKey() {
+    private static PrivateKey getStoragePrivateKey() {
         try {
             PrivateKey pk[] = mSourceToken.getCryptoStore().getPrivateKeys();
 
@@ -1469,7 +1988,7 @@ public class KRATool {
      *
      * @return the public RSA storage key from the "target" KRA
      */
-    private static PublicKey getPublicKey() {
+    private static PublicKey getStoragePublicKey() {
         BufferedReader inputCert = null;
         String encodedBASE64CertChunk;
         StringBuffer encodedBASE64Cert = new StringBuffer();
@@ -1637,14 +2156,21 @@ public class KRATool {
                 return FAILURE;
             }
 
-            if (mPwdfileFlag) {
+            if (mPwdfileFlag || mHsmPwdfileFlag) {
                 BufferedReader in = null;
                 String pwd = null;
+                String pwdfile = null;
 
                 try {
+                    // Use HSM password file if provided, otherwise use NSS DB password file
+                    if (mHsmPwdfileFlag) {
+                        pwdfile = mSourceHsmTokenPwdfile;
+                    } else {
+                        pwdfile = mSourcePKISecurityDatabasePwdfile;
+                    }
+
                     in = new BufferedReader(
-                             new FileReader(
-                                     mSourcePKISecurityDatabasePwdfile));
+                             new FileReader(pwdfile));
                     pwd = in.readLine();
                     if (pwd == null) {
                         pwd = "";
@@ -1659,7 +2185,7 @@ public class KRATool {
                 } catch (Exception exReadPwd) {
                     logger.error("Failed to read the keydb password from "
                             + "the file '"
-                            + mSourcePKISecurityDatabasePwdfile
+                            + (mHsmPwdfileFlag ? mSourceHsmTokenPwdfile : mSourcePKISecurityDatabasePwdfile)
                             + "': "
                             + exReadPwd.getMessage(),
                             exReadPwd);
@@ -1745,7 +2271,7 @@ public class KRATool {
         // Extract the private key from the source storage token
         logger.info("BEGIN: Obtaining the private key from the source storage token");
 
-        mUnwrapPrivateKey = getPrivateKey();
+        mUnwrapPrivateKey = getStoragePrivateKey();
 
         if (mUnwrapPrivateKey == null) {
             logger.error("Failed extracting private key from the source storage token");
@@ -1759,7 +2285,7 @@ public class KRATool {
             logger.info("BEGIN: Obtaining the public key from the target storage certificate");
 
             mWrapPublicKey = PK11PubKey.fromSPKI(
-                     getPublicKey().getEncoded());
+                     getStoragePublicKey().getEncoded());
 
             if (mWrapPublicKey == null) {
                 logger.error("Failed extracting "
@@ -1783,164 +2309,783 @@ public class KRATool {
     }
 
     /**
-     * This method basically rewraps the "wrappedKeyData" by implementiing
-     * "mStorageUnit.decryptInternalPrivate( byte wrappedKeyData[] )" and
-     * "mStorageUnit.encryptInternalPrivate( byte priKey[] )", where
-     * "wrappedKeyData" uses the following structure:
-     *
-     * SEQUENCE {
-     * encryptedSession OCTET STRING,
-     * encryptedPrivate OCTET STRING
-     * }
-     *
-     * This method is based upon code from
-     * 'com.netscape.kra.EncryptionUnit'.
-     * <P>
-     *
-     * @return a byte[] containing the rewrappedKeyData
+     * cross-scheme support: Extract the base algorithm family from a full algorithm specification.
+     * Strips key size and wrapping mechanism to get just the algorithm family.
+     * E.g., "AES/CBC/PKCS5Padding" -> "AES"
+     *       "AES128/CBC/PKCS5Padding" -> "AES"
+     *       "AES256 KeyWrap/Wrapped" -> "AES"
+     *       "AES KeyWrap/Wrapped" -> "AES"
+     *       "DES3/CBC/PKCS5Padding" -> "DES3"
      */
-    private static byte[] rewrap_wrapped_key_data(byte[] wrappedKeyData)
-            throws Exception {
-        DerValue val = null;
-        DerInputStream in = null;
-        DerValue dSession = null;
-        byte source_session[] = null;
-        DerValue dPri = null;
-        byte pri[] = null;
-        KeyWrapper source_rsaWrap = null;
-        SymmetricKey sk = null;
-        KeyWrapper target_rsaWrap = null;
-        byte target_session[] = null;
-        DerOutputStream tmp = null;
-        byte[] rewrappedKeyData = null;
+    private static String getBaseAlgorithm(String fullAlgorithm) {
+        if (fullAlgorithm == null) return null;
 
-        // public byte[]
-        // mStorageUnit.decryptInternalPrivate( byte wrappedKeyData[] );
-        // throws EBaseException
+        // First extract everything before the first '/' (if any)
+        int slashIndex = fullAlgorithm.indexOf('/');
+        String base = slashIndex > 0 ? fullAlgorithm.substring(0, slashIndex) : fullAlgorithm;
+
+        // Now strip key size and wrapping mechanism keywords
+        // Remove key sizes (128, 192, 256)
+        base = base.replaceAll("128|192|256", "");
+
+        // Remove wrapping mechanism keywords (KeyWrap, KWP, etc.)
+        base = base.replaceAll("\\s*KeyWrap|\\s*KWP", "");
+
+        // Trim any remaining whitespace
+        base = base.trim();
+
+        return base;
+    }
+
+    /**
+     * cross-scheme support: Get key size for payload wrap algorithm.
+     * For source/target algorithms, uses the explicit size parameters.
+     * For other algorithms, returns default of 128 for AES.
+     */
+    private static int getKeySizeFromAlgorithm(String algorithm) {
+        if (algorithm == null) return 128;
+
+        // For source/target payload algorithms, use explicit size parameters
+        if (algorithm.equals(mSourcePayloadWrapAlgName)) {
+            return mSourcePayloadWrapKeySize;
+        }
+        if (algorithm.equals(mTargetPayloadWrapAlgName)) {
+            return mTargetPayloadWrapKeySize;
+        }
+
+        // Default to 128 for AES (all algorithms are just names like "AES KeyWrap/Wrapped", no embedded sizes)
+        return 128;
+    }
+
+    /**
+     * cross-scheme support: Convert payload algorithm string to JSS KeyWrapAlgorithm.
+     * E.g., "AES/CBC/PKCS5Padding" -> KeyWrapAlgorithm.AES_CBC_PAD
+     *       "AES KeyWrap/Wrapped" -> KeyWrapAlgorithm.AES_KEY_WRAP_PAD_KWP
+     *       "AES KeyWrap/Padding" -> KeyWrapAlgorithm.AES_KEY_WRAP_PAD
+     *       "AES KeyWrap/NoPadding" -> KeyWrapAlgorithm.AES_KEY_WRAP
+     */
+    private static KeyWrapAlgorithm getPayloadWrapAlgorithm(String algName) throws Exception {
+        if (algName == null) {
+            throw new Exception("Payload wrap algorithm name is null");
+        }
+
+        // Map algorithm strings to JSS KeyWrapAlgorithm
+        if (algName.contains("AES") && algName.contains("CBC")) {
+            // AES/CBC/PKCS5Padding
+            return KeyWrapAlgorithm.AES_CBC_PAD;
+        } else if (algName.contains("AES") && algName.contains("KeyWrap")) {
+            // Distinguish between different AES KeyWrap variants
+            if (algName.contains("Wrapped") || algName.contains("KWP")) {
+                // "AES KeyWrap/Wrapped" -> CKM_AES_KEY_WRAP_KWP (0x210B)
+                return KeyWrapAlgorithm.AES_KEY_WRAP_PAD_KWP;
+            } else if (algName.contains("Padding")) {
+                // "AES KeyWrap/Padding" -> CKM_AES_KEY_WRAP_PAD (0x210A)
+                return KeyWrapAlgorithm.AES_KEY_WRAP_PAD;
+            } else if (algName.contains("NoPadding")) {
+                // "AES KeyWrap/NoPadding" -> CKM_AES_KEY_WRAP (0x2109)
+                return KeyWrapAlgorithm.AES_KEY_WRAP;
+            } else {
+                // Default to PAD for backward compatibility
+                return KeyWrapAlgorithm.AES_KEY_WRAP_PAD;
+            }
+        } else if (algName.contains("DES3") || algName.contains("DESede")) {
+            return KeyWrapAlgorithm.DES3_CBC_PAD;
+        }
+
+        throw new Exception("Unsupported payload wrap algorithm: " + algName);
+    }
+
+    /**
+     * cross-scheme support: Determine if IV is needed for the given algorithm.
+     * Returns true for CBC modes, false for KeyWrap modes.
+     */
+    private static boolean needsIV(String algName) {
+        if (algName == null) return false;
+        // KeyWrap algorithms don't need IV
+        if (algName.contains("KeyWrap") || algName.contains("KWP")) {
+            return false;
+        }
+        // CBC modes need IV
+        return algName.contains("CBC");
+    }
+
+    /**
+     * cross-scheme support: Parses a PublicKey from LDIF publicKeyData field.
+     *
+     * @param publicKeyData X.509 SubjectPublicKeyInfo DER bytes
+     * @return PublicKey object
+     */
+    private static PublicKey parsePublicKeyFromLDIF(byte[] publicKeyData) throws Exception {
+        if (publicKeyData == null || publicKeyData.length == 0) {
+            throw new Exception("publicKeyData is null or empty");
+        }
+
         try {
-            val = new DerValue(wrappedKeyData);
-            in = val.data;
-            dSession = in.getDerValue();
-            source_session = dSession.getOctetString();
-            dPri = in.getDerValue();
-            pri = dPri.getOctetString();
+            // Parse X.509 SubjectPublicKeyInfo format and convert to PK11PubKey
+            // HSM operations require PKCS#11 format (PK11PubKey), not generic X509Key
+            // This is essential for both RSA and ECC keys when unwrapping on HSM
+            X509Key x509Key = new X509Key();
+            x509Key.decode(publicKeyData);
 
-            KeyWrapAlgorithm wrapAlg = KeyWrapAlgorithm.RSA;
+            // Convert to PK11PubKey for HSM compatibility
+            PK11PubKey pk11Key = PK11PubKey.fromSPKI(publicKeyData);
+            return pk11Key;
+        } catch (Exception e) {
+            logger.error("Failed to parse public key: " + e.getMessage());
+            throw new Exception("Failed to parse publicKeyData from LDIF", e);
+        }
+    }
 
-            if(mUseOAEPKeyWrapAlg == true) {
-                wrapAlg = KeyWrapAlgorithm.RSA_OAEP;
+    /**
+     * cross-scheme support: Generates a random IV for the given wrap algorithm.
+     *
+     * @param wrapAlg Key wrap algorithm
+     * @return IV parameter spec
+     */
+    private static IVParameterSpec generateIV(KeyWrapAlgorithm wrapAlg) throws Exception {
+        int ivLength;
+
+        // Determine IV length based on algorithm
+        if (wrapAlg == KeyWrapAlgorithm.AES_CBC_PAD) {
+            ivLength = 16;  // AES block size
+        } else if (wrapAlg == KeyWrapAlgorithm.DES3_CBC_PAD) {
+            ivLength = 8;   // DES block size
+        } else {
+            throw new Exception("Cannot generate IV for algorithm: " + wrapAlg);
+        }
+
+        // Generate random IV
+        SecureRandom random = new SecureRandom();
+        byte[] iv = new byte[ivLength];
+        random.nextBytes(iv);
+
+        return new IVParameterSpec(iv);
+    }
+
+    /**
+     * cross-scheme support: Converts session key wrap algorithm name to KeyWrapAlgorithm.
+     *
+     * @param algName Algorithm name (e.g., "RSA", "RSA-OAEP")
+     * @return KeyWrapAlgorithm constant
+     */
+    private static KeyWrapAlgorithm getSessionKeyWrapAlgorithm(String algName) throws Exception {
+        if (algName == null) {
+            throw new Exception("Session key wrap algorithm name is null");
+        }
+
+        if (algName.equalsIgnoreCase("RSA")) {
+            return KeyWrapAlgorithm.RSA;
+        } else if (algName.equalsIgnoreCase("RSA-OAEP") ||
+                   algName.equalsIgnoreCase("RSA_OAEP") ||
+                   algName.equalsIgnoreCase("RSAES-OAEP") ||
+                   algName.contains("OAEP")) {
+            return KeyWrapAlgorithm.RSA_OAEP;
+        }
+
+        throw new Exception("Unsupported session key wrap algorithm: " + algName);
+    }
+
+    /**
+     * cross-scheme support: Determines whether a new session key needs to be generated.
+     * Returns true if:
+     * - User explicitly requested regeneration (-regenerate_session_key flag)
+     * - Algorithm family changed (e.g., DES3 -> AES) AND user confirms
+     * - Key size changed (e.g., 128-bit -> 256-bit) AND user confirms
+     *
+     * @return true if new session key needed, false otherwise
+     */
+    private static boolean needNewSessionKey() throws Exception {
+        // If user explicitly set the flag, always regenerate
+        if (mRegenerateSessionKey) {
+            if (mSessionKeyDecisionMade == null) {
+                logger.info("User requested session key regeneration");
+                mSessionKeyDecisionMade = true;
+            }
+            return true;
+        }
+
+        // If we already made the decision (prompted user), return cached result
+        if (mSessionKeyDecisionMade != null) {
+            return mSessionKeyDecisionMade;
+        }
+
+        // First time checking - analyze algorithms
+        String sourceBase = getBaseAlgorithm(mSourcePayloadWrapAlgName);
+        String targetBase = getBaseAlgorithm(mTargetPayloadWrapAlgName);
+
+        // Use explicit key size parameters (default to 128 if not specified)
+        int sourceWrapKeySize = mSourcePayloadWrapKeySize;
+        int targetWrapKeySize = mTargetPayloadWrapKeySize;
+
+        // Determine the change type and prompt accordingly
+        boolean isRequired = false;
+        String message;
+
+        if (!sourceBase.equals(targetBase)) {
+            // Algorithm family changed - regeneration required
+            isRequired = true;
+            message = "Algorithm family is changing from " + sourceBase + " to " + targetBase + ".";
+        } else if (sourceWrapKeySize != targetWrapKeySize) {
+            // Key size changed - regeneration required
+            isRequired = true;
+            message = "Key size is changing from " + sourceWrapKeySize + "-bit to " + targetWrapKeySize + "-bit " + sourceBase + ".";
+        } else {
+            // Nothing changed - offer optional regeneration
+            message = "Key type and size remain the same: " + sourceWrapKeySize + "-bit " + sourceBase + ".";
+        }
+
+        boolean decision = promptUserForSessionKeyRegeneration(message, isRequired);
+        mSessionKeyDecisionMade = decision;  // Cache decision
+
+        if (decision) {
+            logger.info("User chose to regenerate session key");
+        } else {
+            logger.info("User chose to reuse existing session key");
+        }
+
+        return decision;
+    }
+
+    /**
+     * cross-scheme support: Prompts user to confirm session key regeneration.
+     *
+     * @param message The message explaining the situation
+     * @param isRequired Whether regeneration is required (true) or optional (false)
+     * @return true if user confirms, false otherwise
+     */
+    private static boolean promptUserForSessionKeyRegeneration(String message, boolean isRequired) throws Exception {
+        System.out.println();
+        System.out.println(message);
+
+        if (isRequired) {
+            System.out.println("Session key regeneration is REQUIRED.");
+            System.out.println();
+            System.out.print("Proceed with key regeneration for all session keys? (y/n): ");
+        } else {
+            System.out.println("Would you like to regenerate all session keys anyway (for security/compliance)?");
+            System.out.println();
+            System.out.print("Regenerate session keys? (y/n): ");
+        }
+        System.out.flush();
+
+        try {
+            java.io.BufferedReader reader = new java.io.BufferedReader(
+                new java.io.InputStreamReader(System.in));
+            String response = reader.readLine();
+
+            if (response != null && (response.equalsIgnoreCase("y") || response.equalsIgnoreCase("yes"))) {
+                return true;
+            }
+            return false;
+        } catch (Exception e) {
+            throw new Exception("Failed to read user input: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * cross-scheme support: Initializes the temporary RSA keypair for session key transfer.
+     *
+     * This implements the performance optimization suggested in JSS_KeyExchange (jssutil.c:1154-1156):
+     * "performance improvement can go here --- use a generated key at startup
+     *  to generate a per token wrapping key. If it exists, use it, otherwise
+     *  do a full key exchange."
+     *
+     * The temporary RSA keypair is generated ONCE at startup and reused across all LDIF entries,
+     * saving hours of processing time when migrating millions of records.
+     *
+     * Based on JSS_KeyExchange mechanism (jssutil.c:1146-1241):
+     * - Generates 2048-bit RSA keypair on target token
+     * - Marked as temporary (session-based) - auto-deleted when token closes
+     * - Used to wrap/unwrap session keys between source HSM and processing token
+     *
+     * @param processingToken Token where keypair will be generated (HSM or NSS DB)
+     */
+    private static void initTempRSAKeyPair(CryptoToken processingToken) throws Exception {
+        if (mTempRSAKeyPairInitialized) {
+            logger.info("Temporary RSA keypair already initialized");
+            return;
+        }
+
+        logger.info("Generating temporary 2048-bit RSA keypair on target token for session key transfer");
+        logger.info("This keypair will be reused across all LDIF entries (performance optimization)");
+
+        try {
+            KeyPairGenerator kpg = processingToken.getKeyPairGenerator(KeyPairAlgorithm.RSA);
+            kpg.initialize(2048);
+            kpg.temporaryPairs(true);  // Session-based, auto-deleted
+
+            mTempRSAKeyPair = kpg.genKeyPair();
+            mTempRSAKeyPairInitialized = true;
+
+            logger.info("Temporary RSA keypair generated successfully");
+        } catch (Exception e) {
+            logger.error("Failed to generate temporary RSA keypair: " + e.getMessage());
+            throw new Exception("Failed to initialize temporary RSA keypair for session key transfer", e);
+        }
+    }
+
+    /**
+     * cross-scheme support: Imports a session key from one token to another.
+     *
+     * This method implements the complete JSS_KeyExchange mechanism in pure Java using
+     * existing JSS APIs, avoiding the need to modify JSS or expose internal C functions.
+     *
+     * Two-stage approach:
+     * 1. First, attempt direct cloneKey() (requires extractable session key)
+     * 2. If that fails, use JSS_KeyExchange-style temporary RSA keypair approach
+     *
+     * JSS_KeyExchange mechanism (implemented in pure Java):
+     * 1. Generate temporary RSA keypair on target token (done once at startup)
+     * 2. Wrap session key with temp RSA public key on source token (using RSA-OAEP)
+     * 3. Unwrap session key with temp RSA private key on target token
+     * 4. Temp keypair auto-deleted (marked temporary/session-based)
+     *
+     * Reference: JSS_ExportEncryptedPrivKeyInfoV2 -> JSS_KeyExchange in jssutil.c:1146-1241
+     *
+     * @param sessionKey Source session key
+     * @param processingToken Token for processing (HSM or NSS DB)
+     * @return Session key in processing token
+     */
+    private static SymmetricKey importSessionKeyToToken(
+            SymmetricKey sessionKey,
+            CryptoToken processingToken) throws Exception {
+
+        if (mVerboseFlag) {
+            logger.info("Importing session key to target token");
+        }
+
+        // cross-scheme: If same token, just return the original key
+        if (sessionKey.getOwningToken() == processingToken) {
+            if (mVerboseFlag) {
+                logger.info("Session key already on target token");
+            }
+            return sessionKey;
+        }
+
+        // cross-scheme: Stage 1 - Try direct cloneKey() first (fast path)
+        // Performance optimization: Only attempt cloneKey if not already known to fail
+        if (mIsKeyClonable == null || mIsKeyClonable == true) {
+            try {
+                if (mVerboseFlag) {
+                    if (mIsKeyClonable == null) {
+                        logger.info("Stage 1: Testing cloneKey capability (first record)...");
+                    } else {
+                        logger.info("Stage 1: Using cloneKey (known to work)...");
+                    }
+                }
+                SymmetricKey importedKey = processingToken.cloneKey(sessionKey);
+
+                // Success! Cache this result for all future records
+                if (mIsKeyClonable == null) {
+                    mIsKeyClonable = true;
+                    if (mVerboseFlag) {
+                        logger.info("cloneKey works - will use direct clone for all subsequent records");
+                    }
+                }
+
+                if (mVerboseFlag) {
+                    logger.info("Session key successfully cloned to target token (direct method)");
+                }
+                return importedKey;
+
+            } catch (SymmetricKey.NotExtractableException e) {
+                // Cache the failure - don't try cloneKey again for remaining records
+                mIsKeyClonable = false;
+
+                if (mVerboseFlag) {
+                    logger.info("Direct clone failed - session key not extractable from source HSM");
+                    logger.info("HSM security policy prevents PK11_ExtractKeyValue");
+                    logger.info("Will use RSA keypair method for all subsequent records");
+                    logger.info("Stage 2: Falling back to JSS_KeyExchange-style temporary RSA keypair approach...");
+                } else {
+                    // Important: Log this once even without verbose, as it affects performance
+                    logger.info("Note: HSM does not support extractable session keys - using RSA keypair transfer method for all records");
+                }
+
+                // Fall through to Stage 2
+            } catch (Exception e) {
+                logger.error("Unexpected error during direct clone: " + e.getMessage());
+                throw new Exception("Failed to clone session key", e);
+            }
+        } else {
+            // mIsKeyClonable == false: Skip Stage 1 entirely for better performance
+            if (mVerboseFlag) {
+                logger.info("Skipping cloneKey attempt (known to fail) - using RSA keypair method");
+            }
+        }
+
+        // cross-scheme: Stage 2 - JSS_KeyExchange-style approach using temporary RSA keypair
+        try {
+            // Initialize temp RSA keypair if not already done (only happens once)
+            initTempRSAKeyPair(processingToken);
+
+            // Get session key parameters
+            int sessionKeyLength = sessionKey.getLength();  // Key length in bytes
+            if (mVerboseFlag) {
+                logger.info("Session key length: " + sessionKeyLength + " bytes");
             }
 
-            source_rsaWrap = mSourceToken.getKeyWrapper(
-                                 wrapAlg);
-            OAEPParameterSpec config =  null;
-            if(mUseOAEPKeyWrapAlg == true) {
+            // Step 1: Wrap session key with temporary RSA public key on source token
+            CryptoToken sourceToken = sessionKey.getOwningToken();
+            if (mVerboseFlag) {
+                logger.info("Wrapping session key with temporary RSA public key on source token...");
+            }
+
+            KeyWrapper sourceWrapper = sourceToken.getKeyWrapper(KeyWrapAlgorithm.RSA_OAEP);
+            OAEPParameterSpec oaepParams = new OAEPParameterSpec(
+                "SHA-256", "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT
+            );
+            sourceWrapper.initWrap(mTempRSAKeyPair.getPublic(), oaepParams);
+            byte[] wrappedSessionKey = sourceWrapper.wrap(sessionKey);
+
+            if (mVerboseFlag) {
+                logger.info("Session key wrapped with temporary RSA public key (" + wrappedSessionKey.length + " bytes)");
+            }
+
+            // Step 2: Unwrap session key with temporary RSA private key on target token
+            if (mVerboseFlag) {
+                logger.info("Unwrapping session key with temporary RSA private key on target token...");
+            }
+
+            KeyWrapper targetWrapper = processingToken.getKeyWrapper(KeyWrapAlgorithm.RSA_OAEP);
+            targetWrapper.initUnwrap((PrivateKey)mTempRSAKeyPair.getPrivate(), oaepParams);
+            SymmetricKey importedKey = targetWrapper.unwrapSymmetric(
+                wrappedSessionKey,
+                SymmetricKey.AES,
+                SymmetricKey.Usage.UNWRAP,
+                sessionKeyLength
+            );
+
+            if (mVerboseFlag) {
+                logger.info("Session key successfully transferred to target token using temporary RSA keypair");
+            }
+
+            return importedKey;
+
+        } catch (Exception e) {
+            logger.error("Failed to import session key using temporary RSA keypair: " + e.getMessage());
+            throw new Exception("Failed to import session key to target token (both direct and RSA keypair methods failed)", e);
+        }
+    }
+
+
+    /**
+     * cross-scheme support: Rewraps the private key data for cross-scheme migration.
+     *
+     * NOTE: This migration tool is designed to run in a secure, isolated environment.
+     *
+     * Migration flow (with payloadEncrypted:false - using key wrapping):
+     * 1. Unwrap session key from source HSM with source RSA algorithm
+     * 2. Import session key into target token (NSS DB when using -use_nss_for_payload_processing)
+     * 3. Unwrap private key using session key and publicKeyData
+     * 4. [Optional] Generate new session key based on algorithm compatibility
+     * 5. Wrap private key with session key using target payload wrap algorithm
+     * 6. Wrap session key with target storage cert public key using target RSA algorithm
+     *
+     * Input DER structure (from LDIF privateKeyData):
+     * SEQUENCE {
+     *   encryptedSession OCTET STRING  (session key wrapped with source storage private key)
+     *   encryptedPrivate OCTET STRING  (private key wrapped with session key)
+     * }
+     *
+     * Based on: com.netscape.kra.StorageKeyUnit.unwrap() and wrap()
+     *
+     * @param wrappedKeyData The wrapped private key data from LDIF
+     * @param publicKeyData The public key data from LDIF (needed for unwrapping)
+     * @param ivData The IV data for source payload unwrapping (null if not needed)
+     * @return rewrapped private key data for target LDIF
+     */
+    private static byte[] rewrap_wrapped_key_data(byte[] wrappedKeyData, byte[] publicKeyData, byte[] ivData)
+            throws Exception {
+
+        // cross-scheme: Step 1 - Parse Input DER Structure
+        byte[] wrappedSessionKey;
+        byte[] wrappedPrivateKey;
+
+        try {
+            DerValue val = new DerValue(wrappedKeyData);
+            DerInputStream in = val.data;
+
+            // Extract wrapped session key
+            DerValue dSession = in.getDerValue();
+            wrappedSessionKey = dSession.getOctetString();
+
+            // Extract wrapped private key
+            DerValue dPri = in.getDerValue();
+            wrappedPrivateKey = dPri.getOctetString();
+
+            if (mVerboseFlag) {
+                logger.info("Parsed DER structure: session key " + wrappedSessionKey.length +
+                           " bytes, private key " + wrappedPrivateKey.length + " bytes");
+            }
+        } catch (IOException e) {
+            logger.error("Failed to parse DER structure: " + e.getMessage());
+            throw new Exception("Failed to parse input DER structure", e);
+        }
+
+        // cross-scheme: Step 2 - Unwrap Session Key from Source HSM
+        // Note: We request the session key to be TEMPORARY and EXTRACTABLE so it can be
+        // cloned to the target token (software token when using -use_nss_for_payload_processing).
+        // If the HSM doesn't allow extractable session keys, this will fail and we'll need
+        // to use an alternative approach (TBD: wrap with temporary RSA keypair).
+        SymmetricKey sessionKey;
+
+        try {
+            CryptoToken sourceToken = mSourceToken;
+            if (mVerboseFlag) {
+                logger.info("Unwrapping session key from source HSM using " + mSourceRSAWrapAlgName);
+            }
+
+            KeyWrapper source_rsaWrap = sourceToken.getKeyWrapper(mSourceRSAWrapAlg);
+            OAEPParameterSpec config = null;
+            if (mSourceRSAWrapAlg == KeyWrapAlgorithm.RSA_OAEP) {
                 config = new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT);
             }
             source_rsaWrap.initUnwrap(mUnwrapPrivateKey, config);
-            sk = source_rsaWrap.unwrapSymmetric(source_session,
-                                                 keyUnwrapAlgorithm,
-                                                 SymmetricKey.Usage.DECRYPT,
-                                                 0);
-            if (mDebug) {
-                logger.debug("sk = '"
-                        + Utils.base64encode(sk.getEncoded(), true)
-                        + "' length = '"
-                        + sk.getEncoded().length
-                        + "'");
-                logger.debug("pri = '"
-                        + Utils.base64encode(pri, true)
-                        + "' length = '"
-                        + pri.length
-                        + "'");
+
+            // Unwrap as TEMPORARY (not permanent) to increase chances HSM allows extraction
+            sessionKey = source_rsaWrap.unwrapSymmetric(
+                wrappedSessionKey,
+                SymmetricKey.AES,
+                SymmetricKey.Usage.UNWRAP,
+                0  // key length (0 = determine from wrapped data)
+            );
+            // Note: JSS unwrapSymmetric marks keys as temporary by default for session keys
+
+            if (mVerboseFlag) {
+                logger.info("Session key unwrapped from source HSM");
             }
-        } catch (IOException exUnwrapIO) {
-            logger.error("Unwrapping key data: "
-                    + exUnwrapIO.getMessage(),
-                    exUnwrapIO);
-            System.exit(0);
-        } catch (NoSuchAlgorithmException exUnwrapAlgorithm) {
-            logger.error("Unwrapping key data: "
-                    + exUnwrapAlgorithm.getMessage(),
-                    exUnwrapAlgorithm);
-            System.exit(0);
-        } catch (TokenException exUnwrapToken) {
-            logger.error("Unwrapping key data: "
-                    + exUnwrapToken.getMessage(),
-                    exUnwrapToken);
-            System.exit(0);
-        } catch (InvalidKeyException exUnwrapInvalidKey) {
-            logger.error("Unwrapping key data: "
-                    + exUnwrapInvalidKey.getMessage(),
-                    exUnwrapInvalidKey);
-            System.exit(0);
-        } catch (InvalidAlgorithmParameterException exUnwrapInvalidAlgorithm) {
-            logger.error("Unwrapping key data: "
-                    + exUnwrapInvalidAlgorithm.getMessage(),
-                    exUnwrapInvalidAlgorithm);
-            System.exit(0);
-        } catch (IllegalStateException exUnwrapState) {
-            logger.error("Unwrapping key data: "
-                    + exUnwrapState.getMessage(),
-                    exUnwrapState);
-            System.exit(0);
+        } catch (TokenException | InvalidKeyException | InvalidAlgorithmParameterException e) {
+            logger.error("Failed to unwrap session key: " + e.getMessage());
+            throw new Exception("Failed to unwrap session key from source HSM", e);
         }
 
-        // public byte[]
-        // mStorageUnit.encryptInternalPrivate( byte priKey[] )
-        // throws EBaseException
-        KeyWrapAlgorithm wrapAlg = KeyWrapAlgorithm.RSA;
-        if(mUseOAEPKeyWrapAlg == true) {
-            wrapAlg = KeyWrapAlgorithm.RSA_OAEP;
-        }
-        try (DerOutputStream out = new DerOutputStream()) {
-            // Use "mSourceToken" to get "KeyWrapAlgorithm.RSA"
-            target_rsaWrap = mSourceToken.getKeyWrapper(
-                                 wrapAlg);
-            OAEPParameterSpec config = null;
-            if(mUseOAEPKeyWrapAlg == true) {
-                config = new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT);
+        // cross-scheme: Step 3 - Import Session Key to Target Token
+        CryptoToken processingToken;
+        SymmetricKey targetSessionKey;
+
+        try {
+            if (mUseNssForPayloadProcessing) {
+                // Use NSS DB (software token) for payload unwrap/rewrap operations
+                processingToken = CryptoManager.getInstance().getInternalKeyStorageToken();
+                if (mVerboseFlag) {
+                    logger.info("Using NSS DB (software token) for payload processing");
+                }
+            } else {
+                // Use same HSM for payload unwrap/rewrap operations
+                processingToken = mSourceToken;
+                if (mVerboseFlag) {
+                    logger.info("Using same HSM for payload processing");
+                }
             }
-            target_rsaWrap.initWrap(mWrapPublicKey, config);
-            target_session = target_rsaWrap.wrap(sk);
 
-            tmp = new DerOutputStream();
+            // Import session key to target token
+            targetSessionKey = importSessionKeyToToken(sessionKey, processingToken);
+            if (mVerboseFlag) {
+                logger.info("Session key imported to target token");
+            }
+        } catch (Exception e) {
+            logger.error("Failed to import session key to target token: " + e.getMessage());
+            throw new Exception("Failed to import session key to target token", e);
+        }
 
-            tmp.putOctetString(target_session);
-            tmp.putOctetString(pri);
-            out.write(DerValue.tag_Sequence, tmp);
+        // cross-scheme: Step 4 - Parse PublicKey from publicKeyData
+        PublicKey publicKey;
 
-            rewrappedKeyData = out.toByteArray();
-        } catch (NoSuchAlgorithmException exWrapAlgorithm) {
-            logger.error("Wrapping key data: "
-                    + exWrapAlgorithm.getMessage(),
-                    exWrapAlgorithm);
-            System.exit(0);
-        } catch (TokenException exWrapToken) {
-            logger.error("Wrapping key data: "
-                    + exWrapToken.getMessage(),
-                    exWrapToken);
-            System.exit(0);
-        } catch (InvalidKeyException exWrapInvalidKey) {
-            logger.error("Wrapping key data: "
-                    + exWrapInvalidKey.getMessage(),
-                    exWrapInvalidKey);
-            System.exit(0);
-        } catch (InvalidAlgorithmParameterException exWrapInvalidAlgorithm) {
-            logger.error("Wrapping key data: "
-                    + exWrapInvalidAlgorithm.getMessage(),
-                    exWrapInvalidAlgorithm);
-            System.exit(0);
-        } catch (IllegalStateException exWrapState) {
-            logger.error("Wrapping key data: "
-                    + exWrapState.getMessage(),
-                    exWrapState);
-            System.exit(0);
-        } catch (IOException exWrapIO) {
-            logger.error("Wrapping key data: "
-                    + exWrapIO.getMessage(),
-                    exWrapIO);
-            System.exit(0);
+        try {
+            publicKey = parsePublicKeyFromLDIF(publicKeyData);
+            if (mVerboseFlag) {
+                logger.info("Parsed public key from LDIF");
+            }
+        } catch (Exception e) {
+            logger.error("Failed to parse public key: " + e.getMessage());
+            throw new Exception("Failed to parse publicKeyData", e);
+        }
+
+        // cross-scheme: Step 5 - Unwrap Private Key in Target Token
+        PrivateKey privateKey;
+
+        try {
+            // Get source wrapping parameters
+            KeyWrapAlgorithm sourcePayloadWrapAlg = getPayloadWrapAlgorithm(mSourcePayloadWrapAlgName);
+            IVParameterSpec sourcePayloadWrapIV = null;
+            if (needsIV(mSourcePayloadWrapAlgName)) {
+                if (ivData != null) {
+                    sourcePayloadWrapIV = new IVParameterSpec(ivData);
+                } else {
+                    throw new Exception("IV required for " + mSourcePayloadWrapAlgName + " but not found in metaInfo");
+                }
+            }
+
+            if (mVerboseFlag) {
+                logger.info("Unwrapping private key using " + sourcePayloadWrapAlg +
+                           " (IV: " + (sourcePayloadWrapIV != null ? "present" : "null") + ")");
+            }
+
+            // Unwrap private key - stays in target token!
+            privateKey = CryptoUtil.unwrap(
+                processingToken,
+                publicKey,
+                true,  // temporary
+                targetSessionKey,
+                wrappedPrivateKey,
+                sourcePayloadWrapAlg,
+                sourcePayloadWrapIV
+            );
+
+            if (mVerboseFlag) {
+                logger.info("Private key unwrapped in target token");
+            }
+        } catch (Exception e) {
+            logger.error("Failed to unwrap private key: " + e.getMessage());
+            if (!mUseNssForPayloadProcessing) {
+                logger.error("");
+                logger.error("HSM may not support the source payload wrap algorithm: " + mSourcePayloadWrapAlgName);
+                logger.error("Suggestion: Try running with -use_nss_for_payload_processing flag");
+                logger.error("           to perform payload operations in NSS DB (software token)");
+            }
+            throw new Exception("Failed to unwrap private key in target token", e);
+        }
+
+        // cross-scheme: Step 6 - Generate New Session Key (if needed)
+        SymmetricKey newSessionKey;
+
+        try {
+            if (needNewSessionKey()) {
+                // Generate new session key in target token
+                KeyGenerator kg = processingToken.getKeyGenerator(KeyGenAlgorithm.AES);
+
+                int targetKeySize = getKeySizeFromAlgorithm(mTargetPayloadWrapAlgName);
+                if (targetKeySize == 0) {
+                    targetKeySize = 128;  // Default
+                }
+
+                kg.initialize(targetKeySize);
+                kg.setKeyUsages(new SymmetricKey.Usage[] { SymmetricKey.Usage.WRAP, SymmetricKey.Usage.UNWRAP });
+                kg.temporaryKeys(true);
+
+                newSessionKey = (SymmetricKey) kg.generate();
+
+                if (mVerboseFlag) {
+                    logger.info("Generated new " + targetKeySize + "-bit AES session key");
+                }
+            } else {
+                // Reuse existing session key
+                newSessionKey = targetSessionKey;
+                if (mVerboseFlag) {
+                    logger.info("Reusing existing session key");
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Failed to generate/prepare session key: " + e.getMessage());
+            if (!mUseNssForPayloadProcessing) {
+                logger.error("");
+                logger.error("HSM may not support AES session key generation");
+                logger.error("Suggestion: Try running with -use_nss_for_payload_processing flag");
+                logger.error("           to perform payload operations in NSS DB (software token)");
+            }
+            throw new Exception("Failed to prepare session key for target", e);
+        }
+
+        // cross-scheme: Step 7 - Wrap Private Key with Session Key
+        byte[] newWrappedPrivateKey;
+        IVParameterSpec targetPayloadWrapIV = null;
+
+        try {
+            // Get target wrapping parameters
+            KeyWrapAlgorithm targetPayloadWrapAlg = getPayloadWrapAlgorithm(mTargetPayloadWrapAlgName);
+
+            if (needsIV(mTargetPayloadWrapAlgName)) {
+                // Generate new random IV for CBC modes
+                targetPayloadWrapIV = generateIV(targetPayloadWrapAlg);
+                if (mVerboseFlag) {
+                    logger.info("Generated new IV for " + targetPayloadWrapAlg);
+                }
+            } else {
+                if (mVerboseFlag) {
+                    logger.info("No IV needed for " + targetPayloadWrapAlg);
+                }
+            }
+
+            if (mVerboseFlag) {
+                logger.info("Wrapping private key using " + targetPayloadWrapAlg);
+            }
+
+            // Wrap private key
+            newWrappedPrivateKey = CryptoUtil.wrapUsingSymmetricKey(
+                processingToken,
+                newSessionKey,
+                privateKey,
+                targetPayloadWrapIV,
+                targetPayloadWrapAlg
+            );
+
+            if (mVerboseFlag) {
+                logger.info("Private key wrapped with session key (" + newWrappedPrivateKey.length + " bytes)");
+            }
+        } catch (Exception e) {
+            logger.error("Failed to wrap private key: " + e.getMessage());
+            if (!mUseNssForPayloadProcessing) {
+                logger.error("");
+                logger.error("HSM may not support the target payload wrap algorithm: " + mTargetPayloadWrapAlgName);
+                logger.error("Suggestion: Try running with -use_nss_for_payload_processing flag");
+                logger.error("           to perform payload operations in NSS DB (software token)");
+            }
+            throw new Exception("Failed to wrap private key with session key", e);
+        }
+
+        // cross-scheme: Step 8 - Wrap Session Key with Target Storage Cert
+        byte[] newWrappedSessionKey;
+
+        try {
+            // Get target wrapping algorithm
+            KeyWrapAlgorithm targetSessionWrapAlg = getSessionKeyWrapAlgorithm(mTargetRSAWrapAlgName);
+
+            if (mVerboseFlag) {
+                logger.info("Wrapping session key using " + targetSessionWrapAlg);
+            }
+
+            // Wrap session key with target storage cert public key
+            // Use mWrapPublicKey (PK11PubKey format) instead of getPublicKey() (X509Key)
+            newWrappedSessionKey = CryptoUtil.wrapUsingPublicKey(
+                processingToken,
+                mWrapPublicKey,
+                newSessionKey,
+                targetSessionWrapAlg
+            );
+
+            if (mVerboseFlag) {
+                logger.info("Session key wrapped with target storage cert (" + newWrappedSessionKey.length + " bytes)");
+            }
+        } catch (Exception e) {
+            logger.error("Failed to wrap session key: " + e.getMessage());
+            throw new Exception("Failed to wrap session key with target storage cert", e);
+        }
+
+        // cross-scheme: Step 9 - Build Output DER Structure
+        byte[] rewrappedKeyData;
+
+        try {
+            DerOutputStream out = new DerOutputStream();
+
+            // Add wrapped session key
+            out.putOctetString(newWrappedSessionKey);
+
+            // Add wrapped private key
+            out.putOctetString(newWrappedPrivateKey);
+
+            // Wrap in SEQUENCE
+            DerOutputStream seq = new DerOutputStream();
+            seq.write(DerValue.tag_Sequence, out);
+
+            rewrappedKeyData = seq.toByteArray();
+
+            if (mVerboseFlag) {
+                logger.info("Built output DER structure: " + rewrappedKeyData.length + " bytes total");
+            }
+        } catch (IOException e) {
+            logger.error("Failed to build output DER structure: " + e.getMessage());
+            throw new Exception("Failed to build output DER structure", e);
         }
 
         return rewrappedKeyData;
@@ -3972,6 +5117,128 @@ public class KRATool {
     }
 
     /**
+     * cross-scheme: Helper method to extract privateKeyData from LDIF field.
+     * <P>
+     *
+     * @param line the string representation of the privateKeyData line
+     * @return the decoded binary privateKeyData
+     */
+    private static byte[] extract_private_key_data(String line) {
+        try {
+            StringBuffer data = new StringBuffer();
+
+            // Extract the data from the first line
+            data.append(line.substring(
+                    KRA_LDIF_PRIVATE_KEY_DATA.length() + 1
+                    ).trim());
+
+            // Read continuation lines
+            while ((line = ldif_record.next()) != null) {
+                if (line.startsWith(SPACE)) {
+                    data.append(line.trim());
+                } else {
+                    break;
+                }
+            }
+
+            // Decode base64 to binary
+            return Utils.base64decode(data.toString());
+        } catch (Exception e) {
+            logger.error("Failed to extract privateKeyData: " + e.getMessage(), e);
+            return null;
+        }
+    }
+
+    /**
+     * cross-scheme: Helper method to extract publicKeyData from LDIF field.
+     * <P>
+     *
+     * @param line the string representation of the publicKeyData line
+     * @return the decoded binary publicKeyData
+     */
+    private static byte[] extract_public_key_data(String line) {
+        try {
+            StringBuffer data = new StringBuffer();
+
+            // Extract the data from the first line
+            data.append(line.substring(
+                    KRA_LDIF_PUBLIC_KEY_DATA.length() + 1
+                    ).trim());
+
+            // Read continuation lines
+            while ((line = ldif_record.next()) != null) {
+                if (line.startsWith(SPACE)) {
+                    data.append(line.trim());
+                } else {
+                    break;
+                }
+            }
+
+            // Decode base64 to binary
+            return Utils.base64decode(data.toString());
+        } catch (Exception e) {
+            logger.error("Failed to extract publicKeyData: " + e.getMessage(), e);
+            return null;
+        }
+    }
+
+    /**
+     * cross-scheme: Helper method which composes the output line for rewrapped private key data.
+     * This method is called when both privateKeyData and publicKeyData have been extracted.
+     * <P>
+     *
+     * @param record_type the string representation of the input record type
+     * @param privateKeyData the extracted private key data bytes
+     * @param publicKeyData the extracted public key data bytes
+     * @return the composed output line with rewrapped private key
+     */
+    private static String output_private_public_key_data(String record_type,
+                                                          byte[] privateKeyData,
+                                                          byte[] publicKeyData) {
+        byte[] target_wrappedKeyData = null;
+        String revised_data = null;
+        String unformatted_data = null;
+        String formatted_data = null;
+        String output = null;
+
+        try {
+            // cross-scheme: rewrap the source wrapped private key data
+            target_wrappedKeyData = rewrap_wrapped_key_data(
+                                        privateKeyData,
+                                        publicKeyData,
+                                        null);  // No IV for baseline method
+
+            // Encode the BINARY BASE 64 byte[] object
+            // into an ASCII BASE 64 certificate
+            // enclosed in a String() object
+            revised_data = Utils.base64encode(target_wrappedKeyData, true);
+
+            // Unformat the ASCII BASE 64 certificate for the log file
+            unformatted_data = stripEOL(revised_data);
+
+            // Format the ASCII BASE 64 certificate to match the desired LDIF format
+            formatted_data = format_ldif_data(
+                    PRIVATE_KEY_DATA_FIRST_LINE_DATA_LENGTH,
+                    unformatted_data);
+
+            // construct a revised 'privateKeyData' line
+            output = KRA_LDIF_PRIVATE_KEY_DATA
+                    + SPACE
+                    + formatted_data
+                    + NEWLINE;
+
+            // log this information
+            logger.info("Rewrapped privateKeyData for " + record_type);
+
+        } catch (Exception e) {
+            logger.error("Failed to rewrap private key data: " + e.getMessage(), e);
+            return null;
+        }
+
+        return output;
+    }
+
+    /**
      * Helper method which composes the output line for
      * KRA_LDIF_PRIVATE_KEY_DATA.
      * <P>
@@ -4019,9 +5286,12 @@ public class KRATool {
                         source_wrappedKeyData =
                                 Utils.base64decode(data.toString());
 
-                        // rewrap the source wrapped private key data
+                        // cross-scheme: rewrap the source wrapped private key data
+                        // TODO: Parse publicKeyData from LDIF record before calling rewrap
                         target_wrappedKeyData = rewrap_wrapped_key_data(
-                                                    source_wrappedKeyData);
+                                                    source_wrappedKeyData,
+                                                    null,  // TODO: pass actual publicKeyData
+                                                    null);  // No IV for baseline method
 
                         // Encode the BINARY BASE 64 byte[] object
                         // into an ASCII BASE 64 certificate
@@ -4082,9 +5352,12 @@ public class KRATool {
                         source_wrappedKeyData =
                                 Utils.base64decode(data.toString());
 
-                        // rewrap the source wrapped private key data
+                        // cross-scheme: rewrap the source wrapped private key data
+                        // TODO: Parse publicKeyData from LDIF record before calling rewrap
                         target_wrappedKeyData = rewrap_wrapped_key_data(
-                                                    source_wrappedKeyData);
+                                                    source_wrappedKeyData,
+                                                    null,  // TODO: pass actual publicKeyData
+                                                    null);  // No IV for baseline method
 
                         // Encode the BINARY BASE 64 byte[] object
                         // into an ASCII BASE 64 certificate
@@ -4445,6 +5718,12 @@ public class KRATool {
 
                 ldif_record = record.iterator();
 
+                // cross-scheme: track privateKeyData and publicKeyData for rewrap
+                // Both must be present before calling output_private_public_key_data()
+                byte[] record_privateKeyData = null;
+                byte[] record_publicKeyData = null;
+                String pending_output = null;  // Store output when waiting for both keys
+
                 // Process each line of the record:
                 //   * If LDIF Record Type for this line is 'valid'
                 //     * If KRATOOL Configuration File Parameter is 'true'
@@ -4514,10 +5793,67 @@ public class KRATool {
                             return FAILURE;
                         }
                     } else if (line.startsWith(KRA_LDIF_PRIVATE_KEY_DATA)) {
-                        output = output_private_key_data(record_type,
-                                                          line);
-                        if (output == null) {
-                            return FAILURE;
+                        // cross-scheme: Extract and store privateKeyData
+                        if (mRewrapFlag && (record_type.equals(KRA_LDIF_CA_KEY_RECORD) ||
+                                             record_type.equals(KRA_LDIF_TPS_KEY_RECORD))) {
+                            record_privateKeyData = extract_private_key_data(line);
+                            if (record_privateKeyData == null) {
+                                logger.error("Failed to extract privateKeyData");
+                                return FAILURE;
+                            }
+                            logger.info("Extracted privateKeyData (" + record_privateKeyData.length + " bytes)");
+
+                            // Check if we have both keys now
+                            if (record_publicKeyData != null) {
+                                output = output_private_public_key_data(record_type,
+                                                                          record_privateKeyData,
+                                                                          record_publicKeyData);
+                                if (output == null) {
+                                    return FAILURE;
+                                }
+                                // Clear both after processing
+                                record_privateKeyData = null;
+                                record_publicKeyData = null;
+                            } else {
+                                // Wait for publicKeyData, pass through unchanged for now
+                                output = line;
+                            }
+                        } else {
+                            // No rewrap needed, use original method
+                            output = output_private_key_data(record_type, line);
+                            if (output == null) {
+                                return FAILURE;
+                            }
+                        }
+                    } else if (line.startsWith(KRA_LDIF_PUBLIC_KEY_DATA)) {
+                        // cross-scheme: Extract and store publicKeyData
+                        if (mRewrapFlag && (record_type.equals(KRA_LDIF_CA_KEY_RECORD) ||
+                                             record_type.equals(KRA_LDIF_TPS_KEY_RECORD))) {
+                            record_publicKeyData = extract_public_key_data(line);
+                            if (record_publicKeyData == null) {
+                                logger.error("Failed to extract publicKeyData");
+                                return FAILURE;
+                            }
+                            logger.info("Extracted publicKeyData (" + record_publicKeyData.length + " bytes)");
+
+                            // Check if we have both keys now
+                            if (record_privateKeyData != null) {
+                                output = output_private_public_key_data(record_type,
+                                                                          record_privateKeyData,
+                                                                          record_publicKeyData);
+                                if (output == null) {
+                                    return FAILURE;
+                                }
+                                // Clear both after processing
+                                record_privateKeyData = null;
+                                record_publicKeyData = null;
+                            } else {
+                                // Wait for privateKeyData, pass through unchanged for now
+                                output = line;
+                            }
+                        } else {
+                            // No rewrap needed, pass through
+                            output = line;
                         }
                     } else if (line.startsWith(KRA_LDIF_REQUEST_ID)) {
                         output = output_request_id(record_type, line);
@@ -4586,6 +5922,831 @@ public class KRATool {
 
         return SUCCESS;
     }
+
+    /**
+     * cross-scheme: Get the output filename for current file number (for split mode).
+     */
+    private static String getOutputFilename() {
+        if (mSplitTargetLdifPerRecords > 0) {
+            // Split mode: insert file number before extension
+            String baseName = mTargetLdifFilename;
+            int dotIndex = baseName.lastIndexOf('.');
+            if (dotIndex > 0) {
+                return baseName.substring(0, dotIndex) + "-" + mCurrentFileNumber + baseName.substring(dotIndex);
+            } else {
+                return baseName + "-" + mCurrentFileNumber;
+            }
+        } else {
+            // Normal mode: use target filename as-is
+            return mTargetLdifFilename;
+        }
+    }
+
+    /**
+     * cross-scheme: Roll over to a new output file (split mode).
+     * Closes current writer and opens a new one with incremented file number.
+     * NOTE: Caller should only call this when mRecordsInCurrentFile reaches the limit.
+     */
+    private static BufferedWriter rolloverToNextFile(BufferedWriter currentWriter) throws IOException {
+        // Close current file
+        currentWriter.close();
+        logger.info("Completed output file: " + getOutputFilename() + " (" + mRecordsInCurrentFile + " records)");
+
+        // Move to next file
+        mCurrentFileNumber++;
+        mRecordsInCurrentFile = 0;
+
+        // Open new file
+        BufferedWriter newWriter = new BufferedWriter(new FileWriter(getOutputFilename()));
+        logger.info("Created new output file: " + getOutputFilename());
+
+        // Write LDIF version header to new file (unless processing partial LDIF for concatenation)
+        if (!mProcessRequestsAndKeyRecordsOnlyFlag) {
+            newWriter.write("version: 1" + NEWLINE);
+            newWriter.write(NEWLINE);
+        }
+
+        return newWriter;
+    }
+
+    /**
+     * cross-scheme: Entry-based LDIF processing for cross-scheme algorithm migration.
+     * This method processes complete LDIF entries at once, allowing for interdependent
+     * field transformations when migrating between different wrapping algorithms.
+     * <P>
+     *
+     * @return true if the "target" LDIF file is successfully created
+     */
+    private static boolean use_cross_scheme_convert_source_ldif_to_target_ldif() {
+        boolean success = false;
+        BufferedReader reader = null;
+        BufferedWriter writer = null;
+
+        // Initialize crypto components for rewrapping
+        if (mRewrapFlag) {
+            success = obtain_RSA_rewrapping_keys();
+            if (!success) {
+                return FAILURE;
+            }
+        }
+
+        // Process LDIF file entry by entry
+        try {
+            reader = new BufferedReader(new FileReader(mSourceLdifFilename));
+            writer = new BufferedWriter(new FileWriter(getOutputFilename()));
+
+            if (mSplitTargetLdifPerRecords > 0) {
+                logger.info("Split mode enabled: creating new file every " + mSplitTargetLdifPerRecords + " records");
+            }
+
+            String line;
+            List<String> entryLines = new ArrayList<>();
+            boolean headerWritten = false;
+
+            System.out.print("PROCESSING: ");
+
+            while ((line = reader.readLine()) != null) {
+                // Handle LDIF version header (first non-blank line)
+                // Skip version header when -process_requests_and_key_records_only is used
+                // because output will be concatenated with target KRA's db2ldif
+                if (!headerWritten && line.startsWith("version:")) {
+                    if (!mProcessRequestsAndKeyRecordsOnlyFlag) {
+                        writer.write(line + NEWLINE);
+                        writer.write(NEWLINE);  // Blank line after version header
+                    }
+                    headerWritten = true;
+                    continue;
+                }
+
+                if (line.isEmpty()) {
+                    // Blank line signals end of entry
+                    if (!entryLines.isEmpty()) {
+                        // Track whether entry was written (vs filtered out)
+                        int entriesBeforeProcessing = mProcessedEntries;
+                        success = processEntry(entryLines, writer);
+                        if (!success) {
+                            return FAILURE;
+                        }
+                        entryLines.clear();
+                        // Write blank line only if an entry was actually written (not filtered)
+                        if (mProcessedEntries > entriesBeforeProcessing) {
+                            writer.write(NEWLINE);
+
+                            // Split mode: Track records in current file and rollover when limit reached.
+                            // PERFORMANCE NOTE: We only check for rollover when split mode is enabled
+                            // and only when we've actually written a record. This avoids function call
+                            // overhead for the common case (split mode disabled) and for filtered records.
+                            // Using equality check (==) instead of range check (>=) is slightly faster
+                            // and sufficient since we increment by 1 each time.
+                            if (mSplitTargetLdifPerRecords > 0) {
+                                mRecordsInCurrentFile++;
+                                if (mRecordsInCurrentFile == mSplitTargetLdifPerRecords) {
+                                    writer = rolloverToNextFile(writer);
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    // Accumulate lines for this entry
+                    entryLines.add(line);
+                }
+            }
+
+            // Process last entry if file doesn't end with blank line
+            if (!entryLines.isEmpty()) {
+                success = processEntry(entryLines, writer);
+                if (!success) {
+                    return FAILURE;
+                }
+            }
+
+            System.out.println(" FINISHED." + NEWLINE);
+
+        } catch (IOException e) {
+            logger.error("ERROR: IOException processing LDIF file: " + e.getMessage());
+            return FAILURE;
+        } catch (Exception e) {
+            logger.error("ERROR: Exception processing LDIF file: " + e.getMessage(), e);
+            return FAILURE;
+        } finally {
+            // Clean up resources
+            try {
+                if (reader != null) reader.close();
+            } catch (IOException e) {
+                logger.error("ERROR: Failed to close reader: " + e.getMessage());
+            }
+            try {
+                if (writer != null) writer.close();
+            } catch (IOException e) {
+                logger.error("ERROR: Failed to close writer: " + e.getMessage());
+            }
+        }
+
+        return SUCCESS;
+    }
+
+    // ========== processEntry ==========
+    /**
+     * cross-scheme: Process a single LDIF entry (key record).
+     * Parses the entry into attributes, applies transformations, and writes to target.
+     */
+    private static boolean processEntry(List<String> entryLines, BufferedWriter writer)
+            throws IOException, Exception {
+
+        // Parse entry into attribute map (preserves order via LinkedHashMap)
+        Map<String, List<String>> attributes = new LinkedHashMap<>();
+        List<String> entryComments = new ArrayList<>();  // Collect all comment lines before first attribute
+        boolean inCommentBlock = true;  // Track if we're still in the leading comment block
+        String currentAttr = null;
+        StringBuilder currentValue = new StringBuilder();
+
+        for (String line : entryLines) {
+            // Collect comment lines that appear before any attributes (leading comment block)
+            if (line.startsWith("#")) {
+                if (inCommentBlock) {
+                    entryComments.add(line);
+                }
+                // Skip comments in the middle of the record
+                continue;
+            }
+
+            // Once we see a non-comment line, we're past the leading comment block
+            inCommentBlock = false;
+
+            // Check if this is a continuation line (starts with space)
+            if (line.startsWith(" ")) {
+                if (currentAttr != null) {
+                    currentValue.append(line.substring(1)); // Remove leading space
+                }
+                continue;
+            }
+
+            // Save previous attribute if any
+            if (currentAttr != null) {
+                attributes.computeIfAbsent(currentAttr, k -> new ArrayList<>())
+                          .add(currentValue.toString());
+            }
+
+            // Parse new attribute (including dn/rdn)
+            int colonIndex = line.indexOf(':');
+            if (colonIndex > 0) {
+                currentAttr = line.substring(0, colonIndex);
+                String valueStart = line.substring(colonIndex + 1);
+                // Handle "::" for base64 encoded values
+                if (valueStart.startsWith(":")) {
+                    currentValue = new StringBuilder(valueStart.substring(1).trim());
+                } else {
+                    currentValue = new StringBuilder(valueStart.trim());
+                }
+            }
+        }
+
+        // Save last attribute
+        if (currentAttr != null) {
+            attributes.computeIfAbsent(currentAttr, k -> new ArrayList<>())
+                      .add(currentValue.toString());
+        }
+
+        // Determine record type
+        String recordType = determineRecordType(attributes);
+        if (recordType == null) {
+            logger.error("ERROR: Unable to determine record type for entry");
+            return FAILURE;
+        }
+
+        // Check if this record should be filtered out (process_requests_and_key_records_only)
+        if (mProcessRequestsAndKeyRecordsOnlyFlag) {
+            // Only include enrollment, recovery, keygen, keyrecovery requests, and key records
+            boolean isRequest = recordType.equals(KRA_LDIF_ENROLLMENT) ||
+                                recordType.equals(KRA_LDIF_RECOVERY) ||
+                                recordType.equals(KRA_LDIF_KEYGEN) ||
+                                recordType.equals(KRA_LDIF_KEYRECOVERY);
+            boolean isKeyRecord = recordType.equals(KRA_LDIF_CA_KEY_RECORD) ||
+                                  recordType.equals(KRA_LDIF_TPS_KEY_RECORD);
+
+            if (!isRequest && !isKeyRecord) {
+                // Mark each filtered record with an 'x'
+                System.out.print("x");
+                return true;  // Skip this record
+            }
+        }
+
+        // Apply transformations based on record type
+        // In cross-scheme mode, always process key records (rewrapping is the purpose)
+        if (recordType.equals(KRA_LDIF_CA_KEY_RECORD) ||
+            recordType.equals(KRA_LDIF_TPS_KEY_RECORD)) {
+            return processKeyRecord(attributes, recordType, entryComments, writer);
+        } else {
+            // For request records, update dateOfModify to match legacy behavior
+            boolean isRequestRecord = recordType.equals(KRA_LDIF_ENROLLMENT) ||
+                                      recordType.equals(KRA_LDIF_RECOVERY) ||
+                                      recordType.equals(KRA_LDIF_KEYGEN) ||
+                                      recordType.equals(KRA_LDIF_KEYRECOVERY);
+            if (isRequestRecord) {
+                String currentDate = new java.text.SimpleDateFormat("yyyyMMddHHmmss'Z'").format(new java.util.Date());
+                attributes.put("dateOfModify", Collections.singletonList(currentDate));
+            }
+
+            // Pass through unchanged for non-key records (after applying naming context and ID offset)
+            return writeEntryUnchanged(attributes, entryComments, writer);
+        }
+    }
+
+
+    // ========== determineRecordType ==========
+    /**
+     * cross-scheme: Determine the record type from attributes.
+     */
+    private static String determineRecordType(Map<String, List<String>> attributes) {
+        // Check requestType field (for enrollment/recovery/keygen requests)
+        List<String> requestType = attributes.get("requestType");
+        if (requestType != null && !requestType.isEmpty()) {
+            return requestType.get(0).trim();
+        }
+
+        // Check archivedBy field for key records
+        List<String> archivedBy = attributes.get("archivedBy");
+        if (archivedBy != null && !archivedBy.isEmpty()) {
+            String data = archivedBy.get(0).trim();
+            if (data.startsWith(KRA_LDIF_TPS_KEY_RECORD)) {
+                return KRA_LDIF_TPS_KEY_RECORD;
+            } else if (data.startsWith(KRA_LDIF_CA_KEY_RECORD)) {
+                return KRA_LDIF_CA_KEY_RECORD;
+            }
+        }
+
+        // Default: generic LDIF record (organizational entries, users, groups, etc.)
+        return KRA_LDIF_RECORD;
+    }
+
+
+    // ========== applyLdifTransformations ==========
+    /**
+     * cross-scheme: Apply ID offset and naming context transformations to attribute value.
+     * Handles:
+     * - ID offset (append/remove) for cn, dn, rdn, and request record reference fields
+     * - KRA naming context replacement
+     */
+    private static String applyLdifTransformations(String attr, String value) {
+        String result = value;
+
+        // Apply ID offset to cn attribute (if -append_id_offset or -remove_id_offset specified)
+        if ((mAppendIdOffsetFlag || mRemoveIdOffsetFlag) && attr.equals("cn")) {
+            // Skip non-numeric cn values
+            if (value.matches("[0-9]++")) {
+                try {
+                    BigInteger cnValue = new BigInteger(value);
+                    if (mAppendIdOffsetFlag) {
+                        if (mAppendIdOffset.compareTo(cnValue) == 1) {
+                            // Add the offset
+                            result = cnValue.add(mAppendIdOffset).toString();
+                            if (mVerboseFlag) {
+                                logger.info("Applied append ID offset to cn: " + value + " -> " + result);
+                            }
+                        } else {
+                            logger.error("ERROR: cn value '" + value + "' is greater than append_id_offset '"
+                                + mAppendIdOffset.toString() + "'!");
+                            System.exit(0);
+                        }
+                    } else if (mRemoveIdOffsetFlag) {
+                        if (mRemoveIdOffset.compareTo(cnValue) <= 0) {
+                            // Subtract the offset
+                            result = cnValue.subtract(mRemoveIdOffset).toString();
+                            if (mVerboseFlag) {
+                                logger.info("Applied remove ID offset to cn: " + value + " -> " + result);
+                            }
+                        } else {
+                            logger.error("ERROR: cn value '" + value + "' is less than remove_id_offset '"
+                                + mRemoveIdOffset.toString() + "'!");
+                            System.exit(0);
+                        }
+                    }
+                } catch (NumberFormatException e) {
+                    if (mVerboseFlag) {
+                        logger.info("Skipped non-numeric cn value: " + value);
+                    }
+                }
+            }
+        }
+
+        // Apply ID offset to embedded cn in dn/rdn (if -append_id_offset or -remove_id_offset specified)
+        if ((mAppendIdOffsetFlag || mRemoveIdOffsetFlag) && (attr.equals("dn") || attr.equals("rdn"))) {
+            // Look for cn=<number> pattern in dn
+            if (result.contains("cn=")) {
+                String[] parts = result.split(",");
+                StringBuilder newDn = new StringBuilder();
+                for (int i = 0; i < parts.length; i++) {
+                    String part = parts[i].trim();
+                    if (part.startsWith("cn=")) {
+                        String cnValue = part.substring(3);
+                        if (cnValue.matches("[0-9]++")) {
+                            try {
+                                BigInteger cn = new BigInteger(cnValue);
+                                if (mAppendIdOffsetFlag) {
+                                    if (mAppendIdOffset.compareTo(cn) == 1) {
+                                        String newCn = cn.add(mAppendIdOffset).toString();
+                                        newDn.append("cn=").append(newCn);
+                                        if (mVerboseFlag) {
+                                            logger.info("Applied append ID offset to " + attr + " cn: " + cnValue + " -> " + newCn);
+                                        }
+                                    } else {
+                                        logger.error("ERROR: " + attr + " cn value '" + cnValue + "' is greater than append_id_offset '"
+                                            + mAppendIdOffset.toString() + "'!");
+                                        System.exit(0);
+                                    }
+                                } else if (mRemoveIdOffsetFlag) {
+                                    if (mRemoveIdOffset.compareTo(cn) <= 0) {
+                                        String newCn = cn.subtract(mRemoveIdOffset).toString();
+                                        newDn.append("cn=").append(newCn);
+                                        if (mVerboseFlag) {
+                                            logger.info("Applied remove ID offset to " + attr + " cn: " + cnValue + " -> " + newCn);
+                                        }
+                                    } else {
+                                        logger.error("ERROR: " + attr + " cn value '" + cnValue + "' is less than remove_id_offset '"
+                                            + mRemoveIdOffset.toString() + "'!");
+                                        System.exit(0);
+                                    }
+                                }
+                            } catch (NumberFormatException e) {
+                                newDn.append(part);
+                            }
+                        } else {
+                            newDn.append(part);
+                        }
+                    } else {
+                        newDn.append(part);
+                    }
+                    if (i < parts.length - 1) {
+                        newDn.append(", ");
+                    }
+                }
+                result = newDn.toString();
+            }
+        }
+
+        // Apply ID offset to serialno and requestId (indexed format: LLVALUE where LL=digit count, VALUE=decimal)
+        // Reuses legacy BigIntegerFromDB/BigIntegerToDB functions for correct encoding
+        if ((mAppendIdOffsetFlag || mRemoveIdOffsetFlag) &&
+            (attr.equals("serialno") || attr.equals("requestId"))) {
+            if (result.matches("[0-9]++")) {
+                try {
+                    // Decode indexed value
+                    BigInteger idValue = BigIntegerFromDB(result);
+
+                    // Apply offset
+                    BigInteger newIdValue;
+                    if (mAppendIdOffsetFlag) {
+                        if (mAppendIdOffset.compareTo(idValue) == 1) {
+                            newIdValue = idValue.add(mAppendIdOffset);
+                        } else {
+                            logger.error("ERROR: " + attr + " value " + idValue + " >= append_id_offset " + mAppendIdOffset);
+                            System.exit(0);
+                            return result; // unreachable
+                        }
+                    } else { // mRemoveIdOffsetFlag
+                        if (mRemoveIdOffset.compareTo(idValue) <= 0) {
+                            newIdValue = idValue.subtract(mRemoveIdOffset);
+                        } else {
+                            logger.error("ERROR: " + attr + " value " + idValue + " < remove_id_offset " + mRemoveIdOffset);
+                            System.exit(0);
+                            return result; // unreachable
+                        }
+                    }
+
+                    // Re-encode to indexed format
+                    result = BigIntegerToDB(newIdValue);
+                    if (mVerboseFlag) {
+                    logger.info("Applied ID offset to " + attr + ": " + value + " -> " + result);
+                    }
+
+                } catch (Exception e) {
+                    if (mVerboseFlag) {
+                    logger.info("Skipped non-numeric " + attr + ": " + result);
+                    }
+                }
+            }
+        }
+
+        // Apply ID offset to extdata reference fields (plain decimal format, not indexed)
+        if ((mAppendIdOffsetFlag || mRemoveIdOffsetFlag) &&
+            (attr.equals("extdata-keyrecord") || attr.equals("extdata-requestid") ||
+             attr.equals("extdata-serialnumber"))) {
+            if (result.matches("[0-9]++")) {
+                try {
+                    BigInteger idValue = new BigInteger(result);
+
+                    // Apply offset
+                    if (mAppendIdOffsetFlag) {
+                        if (mAppendIdOffset.compareTo(idValue) == 1) {
+                            result = idValue.add(mAppendIdOffset).toString();
+                            if (mVerboseFlag) {
+                            logger.info("Applied ID offset to " + attr + ": " + value + " -> " + result);
+                            }
+                        } else {
+                            logger.error("ERROR: " + attr + " value " + idValue + " >= append_id_offset " + mAppendIdOffset);
+                            System.exit(0);
+                        }
+                    } else { // mRemoveIdOffsetFlag
+                        if (mRemoveIdOffset.compareTo(idValue) <= 0) {
+                            result = idValue.subtract(mRemoveIdOffset).toString();
+                            if (mVerboseFlag) {
+                            logger.info("Applied ID offset to " + attr + ": " + value + " -> " + result);
+                            }
+                        } else {
+                            logger.error("ERROR: " + attr + " value " + idValue + " < remove_id_offset " + mRemoveIdOffset);
+                            System.exit(0);
+                        }
+                    }
+                } catch (NumberFormatException e) {
+                    if (mVerboseFlag) {
+                    logger.info("Skipped non-numeric " + attr + ": " + result);
+                    }
+                }
+            }
+        }
+
+        // Apply naming context replacement (if -target_kra_naming_context specified)
+        if (mKraNamingContextsFlag) {
+            result = result.replace(mSourceKraNamingContext, mTargetKraNamingContext);
+        }
+
+        return result;
+    }
+
+    // ========== writeWrappedLdifAttribute ==========
+    /**
+     * cross-scheme: Write LDIF attribute with proper line wrapping.
+     * Uses the same line wrapping logic as legacy format_ldif_data():
+     * - First line: attribute name + separator + data (limited to keep total line ~77 chars)
+     * - Continuation lines: 76 chars of data with leading space
+     */
+    private static void writeWrappedLdifAttribute(String attr, String value, boolean isBase64, BufferedWriter writer) throws IOException {
+        String separator = isBase64 ? ":: " : ": ";
+        int prefixLength = attr.length() + separator.length();
+
+        // For first line, use a data length that keeps total line around 77 chars
+        int firstLineDataLength = 77 - prefixLength;
+
+        // If value fits on first line, write it as-is
+        if (value.length() <= firstLineDataLength) {
+            writer.write(attr + separator + value + NEWLINE);
+            return;
+        }
+
+        // Write first line with limited data
+        writer.write(attr + separator + value.substring(0, firstLineDataLength) + NEWLINE);
+
+        // Write continuation lines (76 chars of data each, with leading space)
+        int pos = firstLineDataLength;
+        while (pos < value.length()) {
+            int endPos = Math.min(pos + 76, value.length());
+            writer.write(" " + value.substring(pos, endPos) + NEWLINE);
+            pos = endPos;
+        }
+    }
+
+    // ========== writeEntryUnchanged ==========
+    /**
+     * cross-scheme: Write entry unchanged to target LDIF.
+     */
+    private static boolean writeEntryUnchanged(Map<String, List<String>> attributes,
+                                                List<String> entryComments, BufferedWriter writer) throws IOException {
+        // Write all leading comment lines
+        for (String comment : entryComments) {
+            writer.write(comment + NEWLINE);
+        }
+
+        // Write all attributes in order (including dn/rdn which will be first)
+        for (Map.Entry<String, List<String>> entry : attributes.entrySet()) {
+            String attr = entry.getKey();
+            for (String value : entry.getValue()) {
+                // Apply LDIF transformations (ID offset, naming context)
+                String transformedValue = applyLdifTransformations(attr, value);
+
+                // Determine if this was base64 encoded (has "::" marker)
+                boolean isBase64 = attr.equals("privateKeyData") || attr.equals("publicKeyData");
+
+                // Write with proper LDIF line wrapping
+                writeWrappedLdifAttribute(attr, transformedValue, isBase64, writer);
+            }
+        }
+
+        mProcessedEntries++;  // Track that we wrote an entry
+        System.out.print(".");
+        return SUCCESS;
+    }
+
+
+    // ========== extractBase64Attribute ==========
+    /**
+     * cross-scheme: Extract base64-encoded attribute value.
+     */
+    private static byte[] extractBase64Attribute(Map<String, List<String>> attributes, String attrName) {
+        List<String> values = attributes.get(attrName);
+        if (values == null || values.isEmpty()) {
+            return null;
+        }
+        try {
+            return Utils.base64decode(values.get(0));
+        } catch (Exception e) {
+            logger.error("ERROR: Failed to decode " + attrName + ": " + e.getMessage());
+            return null;
+        }
+    }
+
+
+    // ========== processKeyRecord ==========
+    /**
+     * cross-scheme: Process and transform a key record with algorithm migration.
+     */
+    private static boolean processKeyRecord(Map<String, List<String>> attributes,
+                                             String recordType, List<String> entryComments, BufferedWriter writer)
+            throws IOException, Exception {
+
+        System.out.print(".");
+
+        // Log record separator for debugging (counter will be incremented after successful processing)
+        if (mVerboseFlag) {
+            logger.info("==== Processing keyRecord: " + (mProcessedKeyRecords + 1) + " ====");
+        }
+
+        // TEST MODE: If -skip_rewrap is set, just copy key data as-is and skip crypto operations
+        if (mSkipRewrap) {
+            logger.info("SKIP_REWRAP: Copying key data as-is (no cryptographic operations)");
+            mProcessedKeyRecords++;
+
+            // Update dateOfModify to current time
+            String currentDate = new java.text.SimpleDateFormat("yyyyMMddHHmmss'Z'").format(new java.util.Date());
+            attributes.put("dateOfModify", Collections.singletonList(currentDate));
+
+            return writeEntryUnchanged(attributes, entryComments, writer);
+        }
+
+        // Extract required data for rewrapping
+        byte[] privateKeyData = extractBase64Attribute(attributes, "privateKeyData");
+        byte[] publicKeyData = extractBase64Attribute(attributes, "publicKeyData");
+        byte[] ivData = extractIVFromMetaInfo(attributes);
+
+        if (privateKeyData == null || publicKeyData == null) {
+            logger.error("ERROR: Missing privateKeyData or publicKeyData in key record");
+            mFailedKeyRecords++;
+            return FAILURE;
+        }
+
+        if (mVerboseFlag) {
+            logger.info("Extracted privateKeyData (" + privateKeyData.length + " bytes)");
+            logger.info("Extracted publicKeyData (" + publicKeyData.length + " bytes)");
+        }
+
+        // Check if IV is required and present
+        boolean ivRequired = needsIV(mSourcePayloadWrapAlgName);
+        if (ivRequired) {
+            if (ivData == null) {
+                logger.error("ERROR: IV required for " + mSourcePayloadWrapAlgName +
+                    " but not found in metaInfo");
+                mFailedKeyRecords++;
+                return FAILURE;
+            }
+            if (mVerboseFlag) {
+                logger.info("Extracted payload wrap IV (" + ivData.length + " bytes)");
+            }
+        }
+
+        // Perform rewrap operation
+        byte[] rewrappedData = rewrap_wrapped_key_data(privateKeyData, publicKeyData, ivData);
+        if (rewrappedData == null) {
+            logger.error("ERROR: Failed to rewrap key record");
+            mFailedKeyRecords++;
+            return FAILURE;
+        }
+
+        if (mVerboseFlag) {
+            logger.info("Rewrapped privateKeyData for " + recordType);
+        }
+        mProcessedKeyRecords++;
+
+        // Progress logging every 1000 records (only when not in verbose mode)
+        if (!mVerboseFlag && mProcessedKeyRecords % 1000 == 0) {
+            logger.info("Progress: " + mProcessedKeyRecords + " key records processed"
+                       + (mFailedKeyRecords > 0 ? " (" + mFailedKeyRecords + " failed)" : ""));
+        }
+
+        // Update attributes with rewrapped data
+        String rewrappedBase64 = Utils.base64encode(rewrappedData, true);
+        attributes.put("privateKeyData", Collections.singletonList(stripEOL(rewrappedBase64)));
+
+        // Update metaInfo fields for new algorithms
+        updateMetaInfoForNewAlgorithms(attributes);
+
+        // Update dateOfModify timestamp
+        String currentDate = new java.text.SimpleDateFormat("yyyyMMddHHmmss'Z'").format(new java.util.Date());
+        attributes.put("dateOfModify", Collections.singletonList(currentDate));
+
+        // Write transformed entry
+        return writeEntryUnchanged(attributes, entryComments, writer);
+    }
+
+
+    // ========== extractIVFromMetaInfo ==========
+    /**
+     * cross-scheme: Extract IV from metaInfo attributes.
+     * Checks both payloadWrapIV and payloadEncryptionIV for compatibility.
+     * TODO: Investigate why some keyRecords contain payloadEncryptionIV while others
+     * contain payloadWrapIV when using CBC-based algorithms.
+     */
+    private static byte[] extractIVFromMetaInfo(Map<String, List<String>> attributes) {
+        List<String> metaInfos = attributes.get("metaInfo");
+        if (metaInfos == null) {
+            return null;
+        }
+
+        for (String metaInfo : metaInfos) {
+            // Check for payloadWrapIV first (test server format)
+            if (metaInfo.contains("payloadWrapIV:")) {
+                try {
+                    int ivStart = metaInfo.indexOf("payloadWrapIV:") + "payloadWrapIV:".length();
+                    String ivBase64 = metaInfo.substring(ivStart).trim();
+                    return Utils.base64decode(ivBase64);
+                } catch (Exception e) {
+                    logger.info("WARNING: Failed to parse payloadWrapIV: " + e.getMessage());
+                    return null;
+                }
+            }
+            // Also check for payloadEncryptionIV (found in some LDIF exports)
+            if (metaInfo.contains("payloadEncryptionIV:")) {
+                try {
+                    int ivStart = metaInfo.indexOf("payloadEncryptionIV:") + "payloadEncryptionIV:".length();
+                    String ivBase64 = metaInfo.substring(ivStart).trim();
+                    return Utils.base64decode(ivBase64);
+                } catch (Exception e) {
+                    logger.info("WARNING: Failed to parse payloadEncryptionIV: " + e.getMessage());
+                    return null;
+                }
+            }
+        }
+        return null;
+    }
+
+
+    // ========== updateMetaInfoForNewAlgorithms ==========
+    /**
+     * cross-scheme: Update metaInfo attributes to reflect new wrapping algorithms.
+     */
+    private static void updateMetaInfoForNewAlgorithms(Map<String, List<String>> attributes) throws Exception {
+        List<String> metaInfos = attributes.get("metaInfo");
+        if (metaInfos == null) {
+            metaInfos = new ArrayList<>();
+            attributes.put("metaInfo", metaInfos);
+        }
+
+        // Process each metaInfo entry and update algorithm-related fields
+        List<String> updatedMetaInfos = new ArrayList<>();
+
+        for (String metaInfo : metaInfos) {
+            String updatedInfo = metaInfo;
+
+            // Update sessionKeyWrapAlgorithm if RSA wrap algorithm changed
+            if (metaInfo.startsWith("sessionKeyWrapAlgorithm:")) {
+                if (mTargetRSAWrapAlgName != null) {
+                    String targetAlg = mTargetRSAWrapAlgName.equalsIgnoreCase("RSA-OAEP") ?
+                                       "RSAES-OAEP" : "RSA";
+                    updatedInfo = "sessionKeyWrapAlgorithm:" + targetAlg;
+                    logger.info("Updated sessionKeyWrapAlgorithm: " + targetAlg);
+                }
+            }
+            // Update sessionKeyType if session key was regenerated
+            else if (metaInfo.startsWith("sessionKeyType:")) {
+                // Check if we regenerated the session key
+                if (mSessionKeyDecisionMade != null && mSessionKeyDecisionMade) {
+                    // For now, we always generate AES keys
+                    updatedInfo = "sessionKeyType:AES";
+                }
+            }
+            // Update sessionKeyLength if session key was regenerated
+            else if (metaInfo.startsWith("sessionKeyLength:")) {
+                // Check if we regenerated the session key
+                if (mSessionKeyDecisionMade != null && mSessionKeyDecisionMade) {
+                    int targetKeySize = getKeySizeFromAlgorithm(mTargetPayloadWrapAlgName);
+                    if (targetKeySize == 0) {
+                        targetKeySize = 128;  // Default
+                    }
+                    updatedInfo = "sessionKeyLength:" + targetKeySize;
+                    logger.info("Updated sessionKeyLength: " + targetKeySize);
+                }
+            }
+            // Update payloadWrapAlgorithm if payload algorithm changed
+            else if (metaInfo.startsWith("payloadWrapAlgorithm:")) {
+                if (mTargetPayloadWrapAlgName != null) {
+                    updatedInfo = "payloadWrapAlgorithm:" + mTargetPayloadWrapAlgName;
+                    logger.info("Updated payloadWrapAlgorithm: " + mTargetPayloadWrapAlgName);
+                }
+            }
+            // DO NOT update payloadEncryptionOID - it is not used during unwrapping and causes errors.
+            // The KRA uses payloadWrapAlgorithm for actual unwrapping operations.
+            // The payloadEncryptionOID field is a legacy artifact that, if changed to an OID
+            // not recognized by JSS (e.g., 2.16.840.1.101.3.4.1.45 for AES-256-KeyWrap),
+            // will cause NoSuchAlgorithmException in KeyRecord.getWrappingParams() during recovery.
+            // Keep the original value unchanged.
+            else if (metaInfo.startsWith("payloadEncryptionOID:")) {
+                // Keep original value - do not update
+            }
+            // Remove payloadWrapIV/payloadEncryptionIV if switching from CBC to KeyWrap
+            else if (metaInfo.startsWith("payloadWrapIV:") || metaInfo.startsWith("payloadEncryptionIV:")) {
+                if (mTargetPayloadWrapAlgName != null && !needsIV(mTargetPayloadWrapAlgName)) {
+                    logger.info("Removed " + metaInfo.substring(0, metaInfo.indexOf(':')) +
+                        " (not needed for " + mTargetPayloadWrapAlgName + ")");
+                    continue;  // Skip this metaInfo entry (don't add to updated list)
+                }
+            }
+
+            updatedMetaInfos.add(updatedInfo);
+        }
+
+        // Replace metaInfo list with updated version
+        attributes.put("metaInfo", updatedMetaInfos);
+    }
+
+
+    // ========== getOIDForAlgorithm ==========
+    /**
+     * cross-scheme: Get OID for a given payload wrap algorithm name and key size.
+     *
+     * @param algorithmName The algorithm name (e.g., "AES/CBC/PKCS5Padding", "AES KeyWrap/Padding")
+     * @param keySize The key size in bits (128, 192, or 256)
+     * @return The OID string
+     */
+    private static String getOIDForAlgorithm(String algorithmName, int keySize) {
+        // OID mappings based on observed LDIF data:
+        // 2.16.840.1.101.3.4.1.2 = AES-128-CBC
+        // 2.16.840.1.101.3.4.1.5 = AES-128-KW (KeyWrap)
+        // 2.16.840.1.101.3.4.1.22 = AES-192-CBC
+        // 2.16.840.1.101.3.4.1.25 = AES-192-KW
+        // 2.16.840.1.101.3.4.1.42 = AES-256-CBC
+        // 2.16.840.1.101.3.4.1.45 = AES-256-KW
+
+        boolean isCBC = algorithmName.contains("CBC");
+        boolean isKeyWrap = algorithmName.contains("KeyWrap") || algorithmName.contains("Wrap");
+
+        if (keySize == 128) {
+            return isCBC ? "2.16.840.1.101.3.4.1.2" : "2.16.840.1.101.3.4.1.5";
+        } else if (keySize == 192) {
+            return isCBC ? "2.16.840.1.101.3.4.1.22" : "2.16.840.1.101.3.4.1.25";
+        } else if (keySize == 256) {
+            return isCBC ? "2.16.840.1.101.3.4.1.42" : "2.16.840.1.101.3.4.1.45";
+        }
+
+        // Fallback for unexpected key sizes - default to 128-bit based on algorithm type
+        if (isCBC) {
+            return "2.16.840.1.101.3.4.1.2";  // AES-128-CBC
+        } else if (isKeyWrap) {
+            return "2.16.840.1.101.3.4.1.5";  // AES-128-KW
+        } else {
+            // Unknown algorithm type - default to AES-128-CBC
+            logger.info("WARNING: Unknown algorithm type '" + algorithmName + "' - defaulting to AES-128-CBC");
+            return "2.16.840.1.101.3.4.1.2";
+        }
+    }
+
 
     /**************************************/
     /* KRATOOL Config File Parser Methods */
@@ -4736,33 +6897,21 @@ public class KRATool {
         // Get current date and time
         mDateOfModify = now(DATE_OF_MODIFY_PATTERN);
 
+        // Check for help flag first
+        if (args.length > 0 && (args[0].equals("-h") || args[0].equals("--help"))) {
+            printUsage();
+            System.exit(0);
+        }
+
         // Check that the correct number of arguments were
         // submitted to the program
-        if ((args.length != ID_OFFSET_ARGS) &&
-                (args.length != (ID_OFFSET_ARGS + 1)) &&
-                (args.length != (ID_OFFSET_ARGS + 4)) &&
-                (args.length != (ID_OFFSET_ARGS + 5)) &&
-                (args.length != (ID_OFFSET_ARGS + 7)) &&
-                (args.length != REWRAP_ARGS) &&
-                (args.length != (REWRAP_ARGS + 1)) &&
-                (args.length != (REWRAP_ARGS + 2)) &&
-                (args.length != (REWRAP_ARGS + 3)) &&
-                (args.length != (REWRAP_ARGS + 4)) &&
-                (args.length != (REWRAP_ARGS + 5)) &&
-                (args.length != (REWRAP_ARGS + 6)) &&
-                (args.length != (REWRAP_ARGS + 7)) &&
-                (args.length != (REWRAP_ARGS + 9)) &&
-                (args.length != REWRAP_AND_ID_OFFSET_ARGS) &&
-                (args.length != (REWRAP_AND_ID_OFFSET_ARGS + 1)) &&
-                (args.length != (REWRAP_AND_ID_OFFSET_ARGS + 2)) &&
-                (args.length != (REWRAP_AND_ID_OFFSET_ARGS + 3)) &&
-                (args.length != (REWRAP_AND_ID_OFFSET_ARGS + 4)) &&
-                (args.length != (REWRAP_AND_ID_OFFSET_ARGS + 5)) &&
-                (args.length != (REWRAP_AND_ID_OFFSET_ARGS + 6)) &&
-                (args.length != (REWRAP_AND_ID_OFFSET_ARGS + 7)) &&
-                (args.length != (REWRAP_AND_ID_OFFSET_ARGS + 8)) &&
-                (args.length != (REWRAP_AND_ID_OFFSET_ARGS + 9))) {
-            logger.error("Incorrect number of arguments");
+        // Check minimum number of arguments
+        // With cross-scheme migration options and boolean flags, we can't use
+        // rigid argument counting. Instead, we'll validate mandatory arguments
+        // after parsing.
+        if (args.length < 2) {
+            System.err.println("ERROR:  Insufficient arguments!"
+                              + NEWLINE);
             printUsage();
             System.exit(0);
         }
@@ -4796,6 +6945,9 @@ public class KRATool {
             } else if (args[i].equals(SOURCE_NSS_DB_PWDFILE)) {
                 mSourcePKISecurityDatabasePwdfile = args[i + 1];
                 mPKISecurityDatabasePwdfileNameValuePairs++;
+            } else if (args[i].equals(SOURCE_HSM_TOKEN_PWDFILE)) {
+                mSourceHsmTokenPwdfile = args[i + 1];
+                mHsmPwdfileFlag = true;
             } else if (args[i].equals(APPEND_ID_OFFSET)) {
                 append_id_offset = args[i + 1];
                 mAppendIdOffsetNameValuePairs++;
@@ -4811,8 +6963,82 @@ public class KRATool {
             } else if (args[i].equals(PROCESS_REQUESTS_AND_KEY_RECORDS_ONLY)) {
                 mProcessRequestsAndKeyRecordsOnlyFlag = true;
                 i -= 1;
+            } else if (args[i].equals(VERBOSE)) {
+                mVerboseFlag = true;
+                i -= 1;
             } else if (args[i].contentEquals(KEY_UNWRAP_ALGORITHM)) {
                 keyUnwrapAlgorithmName = args[i + 1];
+            } else if (args[i].contentEquals(SOURCE_RSA_WRAP_ALGORITHM)) {
+                mSourceRSAWrapAlgName = args[i + 1];
+            } else if (args[i].contentEquals(TARGET_RSA_WRAP_ALGORITHM)) {
+                mTargetRSAWrapAlgName = args[i + 1];
+            } else if (args[i].contentEquals(SOURCE_PAYLOAD_WRAP_ALGORITHM)) {
+                mSourcePayloadWrapAlgName = args[i + 1];
+            } else if (args[i].contentEquals(TARGET_PAYLOAD_WRAP_ALGORITHM)) {
+                mTargetPayloadWrapAlgName = args[i + 1];
+            } else if (args[i].contentEquals(SOURCE_PAYLOAD_WRAP_KEYSIZE)) {
+                // cross-scheme
+                try {
+                    mSourcePayloadWrapKeySize = Integer.parseInt(args[i + 1]);
+                    if (mSourcePayloadWrapKeySize != 128 && mSourcePayloadWrapKeySize != 192 && mSourcePayloadWrapKeySize != 256) {
+                        System.err.println("ERROR:  Source payload wrapping key size must be 128, 192, or 256" + NEWLINE);
+                        printUsage();
+                        System.exit(0);
+                    }
+                } catch (NumberFormatException e) {
+                    System.err.println("ERROR:  Invalid source payload wrapping key size: " + args[i + 1] + NEWLINE);
+                    printUsage();
+                    System.exit(0);
+                }
+            } else if (args[i].contentEquals(TARGET_PAYLOAD_WRAP_KEYSIZE)) {
+                // cross-scheme
+                try {
+                    mTargetPayloadWrapKeySize = Integer.parseInt(args[i + 1]);
+                    if (mTargetPayloadWrapKeySize != 128 && mTargetPayloadWrapKeySize != 192 && mTargetPayloadWrapKeySize != 256) {
+                        System.err.println("ERROR:  Target payload wrapping key size must be 128, 192, or 256" + NEWLINE);
+                        printUsage();
+                        System.exit(0);
+                    }
+                } catch (NumberFormatException e) {
+                    System.err.println("ERROR:  Invalid target payload wrapping key size: " + args[i + 1] + NEWLINE);
+                    printUsage();
+                    System.exit(0);
+                }
+            } else if (args[i].contentEquals(USE_NSS_FOR_PAYLOAD_PROCESSING)) {
+                // cross-scheme
+                mUseNssForPayloadProcessing = true;
+                i -= 1;  // No argument, just a flag
+            } else if (args[i].contentEquals(REGENERATE_SESSION_KEY)) {
+                // cross-scheme
+                mRegenerateSessionKey = true;
+                i -= 1;  // No argument, just a flag
+            } else if (args[i].contentEquals(SKIP_REWRAP)) {
+                // cross-scheme: TEST ONLY
+                mSkipRewrap = true;
+                i -= 1;  // No argument, just a flag
+            } else if (args[i].contentEquals(SPLIT_TARGET_LDIF_PER_RECORDS)) {
+                // cross-scheme: split output into multiple files
+                if (i + 1 >= args.length || args[i + 1].startsWith("-")) {
+                    System.err.println("ERROR:  " + SPLIT_TARGET_LDIF_PER_RECORDS + " requires a numeric value");
+                    printUsage();
+                    System.exit(0);
+                }
+                try {
+                    mSplitTargetLdifPerRecords = Integer.parseInt(args[i + 1]);
+                    if (mSplitTargetLdifPerRecords <= 0) {
+                        System.err.println("ERROR:  Split records count must be greater than 0");
+                        printUsage();
+                        System.exit(0);
+                    }
+                } catch (NumberFormatException e) {
+                    System.err.println("ERROR:  Invalid split records count: " + args[i + 1]);
+                    printUsage();
+                    System.exit(0);
+                }
+            } else if (args[i].contentEquals(USE_CROSS_SCHEME)) {
+                // cross-scheme: boolean flag, compensate for loop's i+=2
+                mUseCrossSchemeFlag = true;
+                i -= 1;
             } else if (args[i].contentEquals(USE_OAEP_RSA_KEY_WRAP)) {
                 mUseOAEPKeyWrapAlg = true;
             } else {
@@ -4838,38 +7064,38 @@ public class KRATool {
             logger.error("Missing mandatory arguments");
             printUsage();
             System.exit(0);
-        } else {
-            // Check for a valid KRATOOL config file
-            cfgFile = new File(mKratoolCfgFilename);
-            if (!cfgFile.exists() ||
-                    !cfgFile.isFile() ||
-                    (cfgFile.length() == 0)) {
-                logger.error(mKratoolCfgFilename
-                                  + " does NOT exist, is NOT a file, "
-                                  + "or is empty");
-                printUsage();
-                System.exit(0);
-            }
+        }
 
-            // Check for a valid source LDIF file
-            sourceFile = new File(mSourceLdifFilename);
-            if (!sourceFile.exists() ||
-                    !sourceFile.isFile() ||
-                    (sourceFile.length() == 0)) {
-                logger.error(mSourceLdifFilename
-                                  + " does NOT exist, is NOT a file, "
-                                  + "or is empty");
-                printUsage();
-                System.exit(0);
-            }
+        // Check for a valid KRATOOL config file
+        cfgFile = new File(mKratoolCfgFilename);
+        if (!cfgFile.exists() ||
+                !cfgFile.isFile() ||
+                (cfgFile.length() == 0)) {
+            logger.error(mKratoolCfgFilename
+                              + " does NOT exist, is NOT a file, "
+                              + "or is empty");
+            printUsage();
+            System.exit(0);
+        }
 
-            // Check that the target LDIF file does NOT exist
-            targetFile = new File(mTargetLdifFilename);
-            if (targetFile.exists()) {
-                logger.error(mTargetLdifFilename + " ALREADY exists");
-                printUsage();
-                System.exit(0);
-            }
+        // Check for a valid source LDIF file
+        sourceFile = new File(mSourceLdifFilename);
+        if (!sourceFile.exists() ||
+                !sourceFile.isFile() ||
+                (sourceFile.length() == 0)) {
+            logger.error(mSourceLdifFilename
+                              + " does NOT exist, is NOT a file, "
+                              + "or is empty");
+            printUsage();
+            System.exit(0);
+        }
+
+        // Check that the target LDIF file does NOT exist
+        targetFile = new File(mTargetLdifFilename);
+        if (targetFile.exists()) {
+            logger.error(mTargetLdifFilename + " ALREADY exists");
+            printUsage();
+            System.exit(0);
         }
 
         // Check to see that if the 'Rewrap' command-line options were
@@ -5125,6 +7351,71 @@ public class KRATool {
                 logger.error("Unsupported key unwrap algorithm: " + keyUnwrapAlgorithmName);
                 System.exit(1);
             }
+            keyUnwrapAlgorithmName = SPACE + KEY_UNWRAP_ALGORITHM + SPACE + keyUnwrapAlgorithmName;
+        } else {
+            keyUnwrapAlgorithmName = "";
+        }
+
+        // Process RSA wrap algorithm flags with backward compatibility
+        // legacy flag: -use_rsa_oaep_keywrap sets BOTH source and target to RSA-OAEP
+        // cross-scheme flags: -source_rsa_wrap_algorithm and -target_rsa_wrap_algorithm allow separate control
+        if (mUseOAEPKeyWrapAlg) {
+            // Legacy flag - apply to both source and target if not explicitly overridden
+            if (mSourceRSAWrapAlgName == null) {
+                mSourceRSAWrapAlg = KeyWrapAlgorithm.RSA_OAEP;
+                logger.info("Using RSA-OAEP for source (from -use_rsa_oaep_keywrap)");
+            }
+            if (mTargetRSAWrapAlgName == null) {
+                mTargetRSAWrapAlg = KeyWrapAlgorithm.RSA_OAEP;
+                logger.info("Using RSA-OAEP for target (from -use_rsa_oaep_keywrap)");
+            }
+        }
+
+        // Process source RSA wrap algorithm
+        if (mSourceRSAWrapAlgName != null) {
+            if (mSourceRSAWrapAlgName.equalsIgnoreCase("RSA")) {
+                mSourceRSAWrapAlg = KeyWrapAlgorithm.RSA;
+            } else if (mSourceRSAWrapAlgName.equalsIgnoreCase("RSA_OAEP") ||
+                       mSourceRSAWrapAlgName.equalsIgnoreCase("RSA-OAEP") ||
+                       mSourceRSAWrapAlgName.equalsIgnoreCase("RSAES-OAEP")) {
+                mSourceRSAWrapAlg = KeyWrapAlgorithm.RSA_OAEP;
+            } else {
+                logger.error("Unsupported source RSA wrap algorithm: " + mSourceRSAWrapAlgName +
+                           " (must be RSA or RSA-OAEP)");
+                System.exit(1);
+            }
+            logger.info("Source RSA wrap algorithm: " + mSourceRSAWrapAlgName);
+        } else {
+            logger.info("Source RSA wrap algorithm: RSA (default)");
+        }
+
+        // Process target RSA wrap algorithm
+        if (mTargetRSAWrapAlgName != null) {
+            if (mTargetRSAWrapAlgName.equalsIgnoreCase("RSA")) {
+                mTargetRSAWrapAlg = KeyWrapAlgorithm.RSA;
+            } else if (mTargetRSAWrapAlgName.equalsIgnoreCase("RSA_OAEP") ||
+                       mTargetRSAWrapAlgName.equalsIgnoreCase("RSA-OAEP") ||
+                       mTargetRSAWrapAlgName.equalsIgnoreCase("RSAES-OAEP")) {
+                mTargetRSAWrapAlg = KeyWrapAlgorithm.RSA_OAEP;
+            } else {
+                logger.error("Unsupported target RSA wrap algorithm: " + mTargetRSAWrapAlgName +
+                           " (must be RSA or RSA-OAEP)");
+                System.exit(1);
+            }
+            logger.info("Target RSA wrap algorithm: " + mTargetRSAWrapAlgName);
+        } else {
+            logger.info("Target RSA wrap algorithm: RSA-OAEP (default)");
+        }
+
+        // cross-scheme: Validate payload wrap algorithms if provided
+        // Note: Full validation and usage will be implemented in later phases
+        if (mSourcePayloadWrapAlgName != null) {
+            logger.info("Source payload wrap algorithm: " + mSourcePayloadWrapAlgName);
+            // TODO: Add algorithm validation in Phase 3
+        }
+        if (mTargetPayloadWrapAlgName != null) {
+            logger.info("Target payload wrap algorithm: " + mTargetPayloadWrapAlgName);
+            // TODO: Add algorithm validation in Phase 3
         }
 
         // Check for OPTIONAL "Process Requests and Key Records ONLY" option
@@ -5136,6 +7427,39 @@ public class KRATool {
         } else {
             process_requests_and_key_records_only = "";
             mProcessRequestsAndKeyRecordsOnlyMessage = "";
+        }
+
+        // Build cross-scheme parameters string for logging
+        String use_cross_scheme_params = "";
+        if (mUseCrossSchemeFlag) {
+            use_cross_scheme_params = SPACE + USE_CROSS_SCHEME;
+            if (mSourceRSAWrapAlgName != null) {
+                use_cross_scheme_params += SPACE + SOURCE_RSA_WRAP_ALGORITHM + SPACE + mSourceRSAWrapAlgName;
+            }
+            if (mTargetRSAWrapAlgName != null) {
+                use_cross_scheme_params += SPACE + TARGET_RSA_WRAP_ALGORITHM + SPACE + mTargetRSAWrapAlgName;
+            }
+            if (mSourcePayloadWrapAlgName != null) {
+                use_cross_scheme_params += SPACE + SOURCE_PAYLOAD_WRAP_ALGORITHM + SPACE + TIC + mSourcePayloadWrapAlgName + TIC;
+            }
+            if (mSourcePayloadWrapKeySize != 128) {
+                use_cross_scheme_params += SPACE + SOURCE_PAYLOAD_WRAP_KEYSIZE + SPACE + mSourcePayloadWrapKeySize;
+            }
+            if (mTargetPayloadWrapAlgName != null) {
+                use_cross_scheme_params += SPACE + TARGET_PAYLOAD_WRAP_ALGORITHM + SPACE + TIC + mTargetPayloadWrapAlgName + TIC;
+            }
+            if (mTargetPayloadWrapKeySize != 128) {
+                use_cross_scheme_params += SPACE + TARGET_PAYLOAD_WRAP_KEYSIZE + SPACE + mTargetPayloadWrapKeySize;
+            }
+            if (mUseNssForPayloadProcessing) {
+                use_cross_scheme_params += SPACE + USE_NSS_FOR_PAYLOAD_PROCESSING;
+            }
+            if (mRegenerateSessionKey) {
+                use_cross_scheme_params += SPACE + REGENERATE_SESSION_KEY;
+            }
+            if (mSourceHsmTokenPwdfile != null) {
+                use_cross_scheme_params += SPACE + SOURCE_HSM_TOKEN_PWDFILE + SPACE + mSourceHsmTokenPwdfile;
+            }
         }
 
         // Begin logging progress . . .
@@ -5163,8 +7487,8 @@ public class KRATool {
                     + append_id_offset
                     + process_kra_naming_context_fields
                     + process_requests_and_key_records_only
-                    + SPACE + KEY_UNWRAP_ALGORITHM + SPACE
-                    + keyUnwrapAlgorithmName);
+                    + keyUnwrapAlgorithmName
+                    + use_cross_scheme_params);
         } else if (mRewrapFlag && mRemoveIdOffsetFlag) {
             logger.info("BEGIN "
                     + KRA_TOOL + SPACE
@@ -5189,8 +7513,8 @@ public class KRATool {
                     + remove_id_offset
                     + process_kra_naming_context_fields
                     + process_requests_and_key_records_only
-                    + SPACE + KEY_UNWRAP_ALGORITHM + SPACE
-                    + keyUnwrapAlgorithmName);
+                    + keyUnwrapAlgorithmName
+                    + use_cross_scheme_params);
         } else if (mRewrapFlag) {
             logger.info("BEGIN "
                     + KRA_TOOL + SPACE
@@ -5213,8 +7537,8 @@ public class KRATool {
                     + use_PKI_security_database_pwdfile
                     + process_kra_naming_context_fields
                     + process_requests_and_key_records_only
-                    + SPACE + KEY_UNWRAP_ALGORITHM + SPACE
-                    + keyUnwrapAlgorithmName);
+                    + keyUnwrapAlgorithmName
+                    + use_cross_scheme_params);
         } else if (mAppendIdOffsetFlag) {
             logger.info("BEGIN "
                     + KRA_TOOL + SPACE
@@ -5255,11 +7579,29 @@ public class KRATool {
             logger.info("Successfully processed kratool config file");
 
             // Convert the source LDIF file to a target LDIF file
-            success = convert_source_ldif_to_target_ldif();
+            // Use cross-scheme processing if flag is set
+            if (mUseCrossSchemeFlag) {
+                success = use_cross_scheme_convert_source_ldif_to_target_ldif();
+            } else {
+                success = convert_source_ldif_to_target_ldif();
+            }
             if (!success) {
                 logger.error("Unable to convert source LDIF file into target LDIF file");
             } else {
                 logger.info("Successfully converted source LDIF file into target LDIF file");
+
+                // Print summary for cross-scheme mode
+                if (mUseCrossSchemeFlag) {
+                    System.out.println();
+                    System.out.println("Summary: " + mProcessedKeyRecords + " key record(s) processed successfully, "
+                            + mFailedKeyRecords + " failed.");
+                    System.out.println();
+                    // Only print target LDIF filename if not in split mode (split mode already reported each file)
+                    if (mSplitTargetLdifPerRecords == 0) {
+                        System.out.println("Target LDIF file: " + mTargetLdifFilename);
+                    }
+                    System.out.println("Debug log file:   " + mLogFilename);
+                }
             }
         }
 
@@ -5288,8 +7630,8 @@ public class KRATool {
                     + append_id_offset
                     + process_kra_naming_context_fields
                     + process_requests_and_key_records_only
-                    + SPACE + KEY_UNWRAP_ALGORITHM + SPACE
-                    + keyUnwrapAlgorithmName);
+                    + keyUnwrapAlgorithmName
+                    + use_cross_scheme_params);
         } else if (mRewrapFlag && mRemoveIdOffsetFlag) {
             logger.info("FINISHED "
                     + KRA_TOOL + SPACE
@@ -5314,8 +7656,8 @@ public class KRATool {
                     + remove_id_offset
                     + process_kra_naming_context_fields
                     + process_requests_and_key_records_only
-                    + SPACE + KEY_UNWRAP_ALGORITHM + SPACE
-                    + keyUnwrapAlgorithmName);
+                    + keyUnwrapAlgorithmName
+                    + use_cross_scheme_params);
         } else if (mRewrapFlag) {
             logger.info("FINISHED "
                     + KRA_TOOL + SPACE
@@ -5338,8 +7680,8 @@ public class KRATool {
                     + use_PKI_security_database_pwdfile
                     + process_kra_naming_context_fields
                     + process_requests_and_key_records_only
-                    + SPACE + KEY_UNWRAP_ALGORITHM + SPACE
-                    + keyUnwrapAlgorithmName);
+                    + keyUnwrapAlgorithmName
+                    + use_cross_scheme_params);
         } else if (mAppendIdOffsetFlag) {
             logger.info("FINISHED "
                     + KRA_TOOL + SPACE
