@@ -93,6 +93,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/ca-nuxwdog-test.yml
 
+  ca-pruning-test:
+    name: CA database pruning
+    needs: build
+    uses: ./.github/workflows/ca-pruning-test.yml
+
   scep-test:
     name: SCEP responder
     needs: build
