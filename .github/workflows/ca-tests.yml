@@ -95,12 +95,12 @@ jobs:
     needs: build
     uses: ./.github/workflows/ca-ssnv2-test.yml
 
-  ca-pruning-test:
-    name: CA database pruning
-    needs: build
-    uses: ./.github/workflows/ca-pruning-test.yml
-
   ca-admin-user-test:
     name: CA admin user
     needs: build
     uses: ./.github/workflows/ca-admin-user-test.yml
+
+  ca-api-test:
+    name: CA API
+    needs: build
+    uses: ./.github/workflows/ca-api-test.yml
