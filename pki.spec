@@ -78,10 +78,10 @@ ExcludeArch: i686
 # Java
 ################################################################################
 
-# Use Java 21 before Fedora 43, otherwise use Java 25.
+# Use Java 21 before Fedora 44, otherwise use Java 25.
 # Use Java 17 before RHEL 9, otherwise use Java 21.
 
-%global           fedora_java21_cutoff 43
+%global           fedora_java21_cutoff 44
 %global           rhel_java17_cutoff 9
 
 # maven-local is a subpackage of javapackages-tools
