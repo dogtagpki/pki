@@ -120,7 +120,7 @@ class PKIDeployer:
         if not len(self.dns_domainname):
             self.dns_domainname = self.hostname
 
-        self.sd_connection = None
+        self.sd_client = None
 
         self.domain_info = None
         self.sd_host = None
@@ -2622,15 +2622,10 @@ class PKIDeployer:
 
     def sd_connect(self):
 
-        if self.sd_connection:
-            return self.sd_connection
+        if self.sd_client:
+            return self.sd_client
 
         sd_url = self.mdict['pki_security_domain_uri']
-
-        url = urllib.parse.urlparse(sd_url)
-        sd_hostname = url.hostname
-        sd_port = str(url.port)
-
         logger.info('Connecting to security domain at %s', sd_url)
 
         conf_dir = os.path.join(pki.server.PKIServer.CONFIG_DIR,
@@ -2651,14 +2646,12 @@ class PKIDeployer:
 
                 ca_cert = cert_chain_path
 
-        self.sd_connection = pki.client.PKIConnection(
-            protocol='https',
-            hostname=sd_hostname,
-            port=sd_port,
+        self.sd_client = pki.client.PKIClient(
+            url=sd_url,
             trust_env=False,
-            cert_paths=ca_cert)
+            ca_bundle=ca_cert)
 
-        return self.sd_connection
+        return self.sd_client
 
     def get_domain_info(self):
 
@@ -2666,8 +2659,9 @@ class PKIDeployer:
 
         self.sd_connect()
 
-        sd_client = pki.system.SecurityDomainClient(self.sd_connection)
-        domain_info = sd_client.get_domain_info()
+        ca_client = pki.ca.CAClient(self.sd_client)
+        domain_client = pki.system.SecurityDomainClient(ca_client)
+        domain_info = domain_client.get_domain_info()
 
         return domain_info
 
@@ -2675,14 +2669,15 @@ class PKIDeployer:
 
         sd_user = self.mdict['pki_security_domain_user']
         sd_password = self.mdict['pki_security_domain_password']
+        self.sd_client.authenticate(sd_user, sd_password)
 
-        self.sd_connection.authenticate(sd_user, sd_password)
-
-        account = pki.account.AccountClient(self.sd_connection, subsystem='ca')
+        ca_client = pki.ca.CAClient(self.sd_client)
+        account = pki.account.AccountClient(ca_client)
         account.login()
 
     def sd_logout(self):
-        account = pki.account.AccountClient(self.sd_connection, subsystem='ca')
+        ca_client = pki.ca.CAClient(self.sd_client)
+        account = pki.account.AccountClient(ca_client)
         account.logout()
 
     def get_install_token(self):
@@ -2692,8 +2687,9 @@ class PKIDeployer:
         hostname = self.mdict['pki_hostname']
         subsystem = self.subsystem_type
 
-        sd_client = pki.system.SecurityDomainClient(self.sd_connection)
-        install_token = sd_client.get_install_token(hostname, subsystem)
+        ca_client = pki.ca.CAClient(self.sd_client)
+        token_client = pki.system.SecurityDomainClient(ca_client)
+        install_token = token_client.get_install_token(hostname, subsystem)
 
         # Sleep for a bit to allow the install token to replicate to other clones.
         # In the future this can be replaced with signed tokens.

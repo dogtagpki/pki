@@ -416,6 +416,9 @@ class PKIClient:
 
         self.info_client = pki.info.InfoClient(self)
 
+    def authenticate(self, username=None, password=None):
+        self.connection.authenticate(username, password)
+
     def set_client_auth(self, client_cert, client_key=None):
         self.connection.set_authentication_cert(client_cert, client_key)
 
