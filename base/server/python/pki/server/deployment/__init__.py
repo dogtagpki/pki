@@ -126,7 +126,7 @@ class PKIDeployer:
         self.sd_host = None
         self.install_token = None
 
-        self.client = None
+        self.pki_client = None
         self.startup_timeout = None
         self.request_timeout = None
 
@@ -2893,17 +2893,12 @@ class PKIDeployer:
     def pki_connect(self):
 
         ca_cert = os.path.join(self.instance.nssdb_dir, "ca.crt")
+        url = 'https://%s:%s' % (self.mdict['pki_hostname'], self.mdict['pki_https_port'])
 
-        connection = pki.client.PKIConnection(
-            protocol='https',
-            hostname=self.mdict['pki_hostname'],
-            port=self.mdict['pki_https_port'],
+        self.pki_client = pki.client.PKIClient(
+            url=url,
             trust_env=False,
-            cert_paths=ca_cert)
-
-        self.client = pki.system.SystemConfigClient(
-            connection,
-            subsystem=self.mdict['pki_subsystem_type'])
+            ca_bundle=ca_cert)
 
     def import_cert_request(self, subsystem, tag, request):
 
@@ -2912,7 +2907,12 @@ class PKIDeployer:
         if request_id_generator != 'random':
             # call the server to generate legacy request ID
             logger.info('Creating request ID for %s cert', tag)
-            request.systemCert.requestID = self.client.createRequestID(request)
+
+            subsystem_client = pki.subsystem.SubsystemClient(
+                self.pki_client,
+                self.mdict['pki_subsystem_type'])
+            config_client = pki.system.SystemConfigClient(subsystem_client)
+            request.systemCert.requestID = config_client.createRequestID(request)
             logger.info('- request ID: %s', request.systemCert.requestID)
         else:
             # let pki-server ca-cert-request-import generate the request ID
@@ -3384,7 +3384,12 @@ class PKIDeployer:
         if cert_id_generator != 'random':
             # call the server to generate legacy cert ID
             logger.info('Creating cert ID for %s cert', tag)
-            cert_id = self.client.createCertID(request)
+
+            subsystem_client = pki.subsystem.SubsystemClient(
+                self.pki_client,
+                self.mdict['pki_subsystem_type'])
+            config_client = pki.system.SystemConfigClient(subsystem_client)
+            cert_id = config_client.createCertID(request)
             logger.info('- cert ID: %s', cert_id)
 
         else:
