@@ -60,6 +60,19 @@
                                 </excludes>
                             </configuration>
                         </plugin>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-javadoc-plugin</artifactId>
+                            <configuration>
+                                <sourceFileExcludes>
+                                    <!-- Exclude v2 servlet implementations -->
+                                    <sourceFileExclude>**/rest/v2/*.java</sourceFileExclude>
+                                    <sourceFileExclude>**/rest/v2/**/*.java</sourceFileExclude>
+                                    <!-- Exclude v2 base class -->
+                                    <sourceFileExclude>org/dogtagpki/server/rest/v2/PKIServlet.java</sourceFileExclude>
+                                </sourceFileExcludes>
+                            </configuration>
+                        </plugin>
                     </plugins>
                 </pluginManagement>
             </build>
@@ -91,6 +104,25 @@
                                     <!-- Exclude TPS v1 service outside v1 directory -->
                                     <exclude>org/dogtagpki/server/tps/TPSAccountService.java</exclude>
                                 </excludes>
+                            </configuration>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-javadoc-plugin</artifactId>
+                            <configuration combine.self="override">
+                                <sourceFileExcludes>
+                                    <!-- Exclude v1 service implementations -->
+                                    <sourceFileExclude>**/rest/v1/*.java</sourceFileExclude>
+                                    <sourceFileExclude>**/rest/v1/**/*.java</sourceFileExclude>
+                                    <!-- Exclude v1 base classes -->
+                                    <sourceFileExclude>com/netscape/cms/servlet/base/PKIService.java</sourceFileExclude>
+                                    <sourceFileExclude>org/dogtagpki/server/rest/v1/PKIApplication.java</sourceFileExclude>
+                                    <!-- Exclude v1 JAX-RS Resource interfaces -->
+                                    <sourceFileExclude>com/netscape/certsrv/**/*Resource.java</sourceFileExclude>
+                                    <sourceFileExclude>org/dogtagpki/common/ConfigResource.java</sourceFileExclude>
+                                    <!-- Exclude TPS v1 service outside v1 directory -->
+                                    <sourceFileExclude>org/dogtagpki/server/tps/TPSAccountService.java</sourceFileExclude>
+                                </sourceFileExcludes>
                             </configuration>
                         </plugin>
                     </plugins>

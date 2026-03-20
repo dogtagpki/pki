@@ -56,6 +56,30 @@ if(((${Javadoc_VERSION_MAJOR} EQUAL 1) AND (${Javadoc_VERSION_MINOR} EQUAL 8)) O
     set(doclintstr "-Xdoclint:none")
 endif()
 
+# Check if v1 API is being built
+set(REST_API_VERSIONS_TO_BUILD "v1,v2" CACHE STRING "REST API versions to build")
+string(FIND "${REST_API_VERSIONS_TO_BUILD}" "v1" v1_pos)
+if(${v1_pos} EQUAL -1)
+    # v1 not found - exclude v1-specific packages
+    set(exclude_packages
+        "com.netscape.certsrv.authority"
+        "com.netscape.certsrv.cert"
+        "com.netscape.certsrv.profile"
+        "com.netscape.certsrv.group"
+        "com.netscape.certsrv.key"
+        "com.netscape.certsrv.logging"
+        "com.netscape.certsrv.selftests"
+        "com.netscape.certsrv.system"
+        "com.netscape.certsrv.tps"
+        "com.netscape.certsrv.user"
+        "org.dogtagpki.common"
+    )
+    list(JOIN exclude_packages ":" exclude_str)
+    set(exclude_option "-exclude" "${exclude_str}")
+else()
+    set(exclude_option "")
+endif()
+
 javadoc(pki-javadoc
     SOURCEPATH
         ${CMAKE_SOURCE_DIR}/base/common/src/main/java
@@ -98,6 +122,7 @@ javadoc(pki-javadoc
         -version
         -quiet
         ${doclintstr}
+        ${exclude_option}
 )
 
 add_dependencies(javadoc pki-javadoc)
