@@ -9,7 +9,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -83,12 +82,6 @@ public class RESTMessage implements JSONSerializer {
     protected String className;
 
     public RESTMessage() {
-    }
-
-    public RESTMessage(MultivaluedMap<String, String> form) {
-        for (Map.Entry<String, List<String>> entry : form.entrySet()) {
-            attributes.put(entry.getKey(), entry.getValue().get(0));
-        }
     }
 
     public RESTMessage(Map<String, String[]> parameterMap) {

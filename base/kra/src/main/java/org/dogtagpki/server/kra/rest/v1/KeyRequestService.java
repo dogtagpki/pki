@@ -30,6 +30,7 @@ import javax.ws.rs.core.Response;
 
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.kra.KRAEngine;
+import org.dogtagpki.server.rest.v1.RESTMessageV1;
 import org.mozilla.jss.crypto.SymmetricKey;
 
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
@@ -438,7 +439,7 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
 
     @Override
     public Response submitRequest(MultivaluedMap<String, String> form) throws Exception {
-        RESTMessage data = new RESTMessage(form);
+        RESTMessageV1 data = new RESTMessageV1(form);
         return submitRequest(data);
     }
 
