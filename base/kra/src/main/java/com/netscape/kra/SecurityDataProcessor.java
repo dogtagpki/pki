@@ -13,7 +13,7 @@ import javax.crypto.spec.RC2ParameterSpec;
 
 import org.dogtagpki.server.kra.KRAEngine;
 import org.dogtagpki.server.kra.KRAEngineConfig;
-import org.dogtagpki.server.kra.rest.v1.KeyRequestService;
+import org.dogtagpki.server.kra.rest.base.KeyRequestProcessor;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.crypto.CryptoToken;
@@ -207,7 +207,7 @@ public class SecurityDataProcessor {
                             algStr,
                             sparams,
                             secdata,
-                            KeyRequestService.SYMKEY_TYPES.get(algorithm),
+                            KeyRequestProcessor.SYMKEY_TYPES.get(algorithm),
                             strength);
                 } catch (Exception e) {
                     throw new EBaseException("Unable to decrypt symmetric key: " + e.getMessage(), e);
@@ -791,7 +791,7 @@ public class SecurityDataProcessor {
             SymmetricKey symKey =
                     storageUnit.unwrap(
                             keyRecord.getPrivateKeyData(),
-                            KeyRequestService.SYMKEY_TYPES.get(keyRecord.getAlgorithm()),
+                            KeyRequestProcessor.SYMKEY_TYPES.get(keyRecord.getAlgorithm()),
                             keyRecord.getKeySize(),
                             keyRecord.getWrappingParams(storageUnit.getOldWrappingParams()));
             return symKey;

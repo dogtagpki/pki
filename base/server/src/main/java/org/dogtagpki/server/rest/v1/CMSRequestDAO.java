@@ -15,7 +15,7 @@
 // (C) 2011 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.cms.servlet.request;
+package org.dogtagpki.server.rest.v1;
 
 import java.util.Collection;
 import java.util.Iterator;

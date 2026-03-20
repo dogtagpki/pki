@@ -15,7 +15,7 @@
 // (C) 2011 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.cms.servlet.key;
+package org.dogtagpki.server.kra.rest.v1;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
@@ -36,6 +36,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.kra.KRAEngine;
 import org.dogtagpki.server.kra.KRAEngineConfig;
+import org.dogtagpki.server.rest.v1.CMSRequestDAO;
 import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyPairAlgorithm;
 import org.mozilla.jss.netscape.security.util.Utils;
@@ -64,7 +65,6 @@ import com.netscape.certsrv.request.CMSRequestInfo;
 import com.netscape.certsrv.request.CMSRequestInfos;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.servlet.request.CMSRequestDAO;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;

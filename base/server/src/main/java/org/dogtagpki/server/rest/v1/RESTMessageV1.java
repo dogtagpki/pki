@@ -12,43 +12,23 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-// (C) 2011 Red Hat, Inc.
+// (C) 2026 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
+package org.dogtagpki.server.rest.v1;
 
-/**
- *
- */
-package com.netscape.certsrv.profile;
+import java.util.List;
+import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonValue;
+import javax.ws.rs.core.MultivaluedMap;
 
-/**
- * @author alee
- *
- */
-public class ProfileRetrievalRequest {
+import com.netscape.certsrv.base.RESTMessage;
 
-    private static final String PROFILE_ID = "profileId";
+public class RESTMessageV1 extends RESTMessage {
 
-    @JsonValue
-    protected String profileId;
-
-    public ProfileRetrievalRequest() {
+    public RESTMessageV1(MultivaluedMap<String, String> form) {
+        for (Map.Entry<String, List<String>> entry : form.entrySet()) {
+            attributes.put(entry.getKey(), entry.getValue().get(0));
+        }
     }
-
-    /**
-     * @return the ProfileId
-     */
-    public String getProfileId() {
-        return profileId;
-    }
-
-    /**
-     * @param profileId the ProfileId to set
-     */
-    public void setProfileId(String profileId) {
-        this.profileId = profileId;
-    }
-
 }

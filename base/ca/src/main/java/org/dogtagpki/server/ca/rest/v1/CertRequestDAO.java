@@ -32,6 +32,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.rest.v1.CMSRequestDAO;
 
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.base.EBaseException;
@@ -56,7 +57,6 @@ import com.netscape.cms.servlet.cert.EnrollmentProcessor;
 import com.netscape.cms.servlet.cert.RenewalProcessor;
 import com.netscape.cms.servlet.cert.RequestProcessor;
 import com.netscape.cms.servlet.processors.CAProcessor;
-import com.netscape.cms.servlet.request.CMSRequestDAO;
 import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.security.JssSubsystem;
