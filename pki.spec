@@ -162,6 +162,31 @@ ExcludeArch: i686
 # Don't build console unless --with console is specified.
 %bcond_with console
 
+# REST API version control
+# The rest_api_versions_to_build, rest_api_deprecated and rest_api_disabled macros are provided by build.sh
+
+# Set defaults if not provided by build.sh
+%if ! %{defined rest_api_versions_to_build}
+%define rest_api_versions_to_build v1,v2
+%endif
+
+%if ! %{defined rest_api_deprecated}
+%define rest_api_deprecated v1
+%endif
+
+%if ! %{defined rest_api_disabled}
+%define rest_api_disabled ""
+%endif
+
+# Flag to indicate if v1 API is being built (RESTEasy is only needed for v1)
+%global build_v1_api %{lua:
+if string.find(rpm.expand("%{rest_api_versions_to_build}"), "v1") then
+    print("1")
+else
+    print("0")
+end
+}
+
 %if ! %{with debug}
 %define debug_package %{nil}
 %endif
@@ -270,13 +295,15 @@ BuildRequires:    mvn(com.fasterxml.jackson.module:jackson-module-jaxb-annotatio
 BuildRequires:    mvn(com.fasterxml.jackson.jaxrs:jackson-jaxrs-base)
 BuildRequires:    mvn(com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider)
 
+# JAX-RS API, jboss-logging and RESTEasy are only needed for v1 (JAX-RS), not v2 (@WebServlet)
+%if %{build_v1_api}
 BuildRequires:    mvn(org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.0_spec)
 BuildRequires:    mvn(org.jboss.logging:jboss-logging)
-
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-jaxrs)
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-client)
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-jackson2-provider)
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-servlet-initializer)
+%endif
 
 %endif
 
@@ -614,12 +641,13 @@ Requires:         mvn(com.fasterxml.jackson.core:jackson-databind)
 Requires:         mvn(com.fasterxml.jackson.jaxrs:jackson-jaxrs-base)
 Requires:         mvn(com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider)
 
+%if %{build_v1_api}
 Requires:         mvn(org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.0_spec)
 Requires:         mvn(org.jboss.logging:jboss-logging)
-
 Requires:         mvn(org.jboss.resteasy:resteasy-jaxrs)
 Requires:         mvn(org.jboss.resteasy:resteasy-client)
 Requires:         mvn(org.jboss.resteasy:resteasy-jackson2-provider)
+%endif
 %else
 Provides:         bundled(apache-commons-cli)
 Provides:         bundled(apache-commons-codec)
@@ -645,12 +673,13 @@ Provides:         bundled(jackson-modules-base)
 Provides:         bundled(jackson-jaxrs-providers)
 Provides:         bundled(jackson-jaxrs-json-provider)
 
+%if %{build_v1_api}
 Provides:         bundled(jboss-jaxrs-2.0-api)
 Provides:         bundled(jboss-logging)
-
 Provides:         bundled(resteasy-jaxrs)
 Provides:         bundled(resteasy-client)
 Provides:         bundled(resteasy-jackson2-provider)
+%endif
 %endif
 
 Requires:         mvn(org.dogtagpki.jss:jss-base) >= 5.10.0
@@ -722,10 +751,12 @@ Requires:         python3-policycoreutils
 
 Requires:         selinux-policy-targeted >= 3.13.1-159
 
+%if %{build_v1_api}
 %if %{with runtime_deps}
 Requires:         mvn(org.jboss.resteasy:resteasy-servlet-initializer)
 %else
 Provides:         bundled(resteasy-servlet-initializer)
+%endif
 %endif
 
 %if 0%{?fedora} && 0%{?fedora} < %{fedora_tomcat9_cutoff} || 0%{?rhel} && 0%{?rhel} < %{rhel_tomcat9_cutoff}
@@ -1142,9 +1173,11 @@ then
     JAKARTA_ANNOTATION_API_VERSION=$(ls jakarta.annotation-api-*.jar | sed 's/^jakarta\.annotation-api-\(.*\)\.jar$/\1/')
     JAXB_API_VERSION=$(ls jakarta.xml.bind-api-*.jar | sed 's/^jakarta\.xml\.bind-api-\(.*\)\.jar$/\1/')
     JACKSON_VERSION=$(ls jackson-annotations-*.jar | sed 's/^jackson-annotations-\(.*\)\.jar$/\1/')
+%if %{build_v1_api}
     JAXRS_VERSION=$(ls jboss-jaxrs-api_2.0_spec-*.jar | sed 's/^jboss-jaxrs-api_2\.0_spec-\(.*\)\.jar$/\1/')
     JBOSS_LOGGING_VERSION=$(ls jboss-logging-*.jar| sed 's/^jboss-logging-\(.*\)\.jar$/\1/')
     RESTEASY_VERSION=$(ls resteasy-jaxrs-*.jar | sed 's/^resteasy-jaxrs-\(.*\)\.jar$/\1/')
+%endif
 
     popd
 
@@ -1166,9 +1199,11 @@ else
     JAKARTA_ANNOTATION_API_VERSION=$(rpm -q jakarta-annotations | sed -n 's/^jakarta-annotations-\([^-]*\)-.*$/\1/p')
     JAXB_API_VERSION=$(rpm -q jaxb-api | sed -n 's/^jaxb-api-\([^-]*\)-.*$/\1/p')
     JACKSON_VERSION=$(rpm -q jackson-annotations | sed -n 's/^jackson-annotations-\([^-]*\)-.*$/\1/p')
+%if %{build_v1_api}
     JAXRS_VERSION=$(rpm -q jboss-jaxrs-2.0-api | sed -n 's/^jboss-jaxrs-2.0-api-\([^-]*\)-.*$/\1.Final/p')
     JBOSS_LOGGING_VERSION=$(rpm -q jboss-logging | sed -n 's/^jboss-logging-\([^-]*\)-.*$/\1.Final/p')
     RESTEASY_VERSION=$(rpm -q pki-resteasy-core | sed -n 's/^pki-resteasy-core-\([^-]*\)-.*$/\1.Final/p')
+%endif
 
     # import common libraries from RPMs
     cp /usr/share/java/commons-cli.jar commons-cli-$COMMONS_CLI_VERSION.jar
@@ -1198,15 +1233,18 @@ else
     cp /usr/share/java/jackson-jaxrs-providers/jackson-jaxrs-base.jar jackson-jaxrs-base-$JACKSON_VERSION.jar
     cp /usr/share/java/jackson-jaxrs-providers/jackson-jaxrs-json-provider.jar jackson-jaxrs-json-provider-$JACKSON_VERSION.jar
     cp /usr/share/java/jackson-modules/jackson-module-jaxb-annotations.jar jackson-module-jaxb-annotations-$JACKSON_VERSION.jar
+%if %{build_v1_api}
     cp /usr/share/java/jboss-jaxrs-2.0-api.jar jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar
     cp /usr/share/java/jboss-logging/jboss-logging.jar jboss-logging-$JBOSS_LOGGING_VERSION.jar
     cp /usr/share/java/resteasy/resteasy-jaxrs.jar resteasy-jaxrs-$RESTEASY_VERSION.jar
     cp /usr/share/java/resteasy/resteasy-client.jar resteasy-client-$RESTEASY_VERSION.jar
     cp /usr/share/java/resteasy/resteasy-jackson2-provider.jar resteasy-jackson2-provider-$RESTEASY_VERSION.jar
+%endif
 
     popd
 fi
 
+%if %{build_v1_api}
 if [ ! -d base/server/lib ]
 then
     mkdir -p base/server/lib
@@ -1217,6 +1255,7 @@ then
 
     popd
 fi
+%endif
 %endif
 
 %if 0%{?fedora} >= %{fedora_tomcat9_cutoff} || 0%{?rhel} >= %{rhel_tomcat9_cutoff}
@@ -1236,15 +1275,17 @@ then
     /usr/bin/javax2jakarta -profile=EE jackson-jaxrs-base-$JACKSON_VERSION.jar jackson-jaxrs-base-$JACKSON_VERSION.jar
     /usr/bin/javax2jakarta -profile=EE jackson-jaxrs-json-provider-$JACKSON_VERSION.jar jackson-jaxrs-json-provider-$JACKSON_VERSION.jar
 
+%if %{build_v1_api}
     /usr/bin/javax2jakarta -profile=EE jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar
-
     /usr/bin/javax2jakarta -profile=EE resteasy-client-$RESTEASY_VERSION.jar resteasy-client-$RESTEASY_VERSION.jar
     /usr/bin/javax2jakarta -profile=EE resteasy-jackson2-provider-$RESTEASY_VERSION.jar resteasy-jackson2-provider-$RESTEASY_VERSION.jar
     /usr/bin/javax2jakarta -profile=EE resteasy-jaxrs-$RESTEASY_VERSION.jar resteasy-jaxrs-$RESTEASY_VERSION.jar
+%endif
 
     popd
 fi
 
+%if %{build_v1_api}
 if [ -d base/server/lib ]
 then
     # migrate server libraries
@@ -1255,6 +1296,7 @@ then
     popd
 fi
 %endif
+%endif
 
 %if %{without runtime_deps}
 if [ -d base/common/lib ]
@@ -1262,8 +1304,10 @@ then
     # install migrated common libraries
     pushd base/common/lib
 
+%if %{build_v1_api}
     mkdir -p ~/.m2/repository/pki-local/jboss-jaxrs-api_2.0_spec/$JAXRS_VERSION
     cp jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar ~/.m2/repository/pki-local/jboss-jaxrs-api_2.0_spec/$JAXRS_VERSION
+%endif
 
     popd
 fi
@@ -1406,7 +1450,31 @@ export JAVA_HOME=%{java_home}
 %pom_remove_dep :pki-tomcat-9.0 base/server
 %endif
 
-%mvn_build %{!?with_test:-f} -j
+# Configure REST API version control
+%if %{defined rest_api_versions_to_build}
+%pom_xpath_set "pom:project/pom:properties/pom:rest_api_versions_to_build" "%{rest_api_versions_to_build}" base
+%pom_xpath_set "pom:project/pom:properties/pom:rest_api_versions_to_build" "%{rest_api_versions_to_build}" base/server
+%endif
+
+%if %{defined rest_api_deprecated}
+%pom_xpath_set "pom:project/pom:properties/pom:rest_api_deprecated_version" "%{rest_api_deprecated}" base/server
+%endif
+
+%if %{defined rest_api_disabled}
+%pom_xpath_set "pom:project/pom:properties/pom:rest_api_disabled_versions" "%{rest_api_disabled}" base/server
+%endif
+
+# Determine Maven profile for API version exclusion
+%if %{defined rest_api_versions_to_build}
+%if "%{rest_api_versions_to_build}" == "v1"
+%global mvn_profile -Papi-v1-only
+%endif
+%if "%{rest_api_versions_to_build}" == "v2"
+%global mvn_profile -Papi-v2-only
+%endif
+%endif
+
+%mvn_build %{!?with_test:-f} -j %{?mvn_profile:-- %{mvn_profile}}
 
 # create links to Maven-built JAR files for CMake
 mkdir -p %{_vpath_builddir}/dist
@@ -1513,6 +1581,9 @@ pkgs=base\
     --with-pkgs=$pkgs \
     %{?with_console:--with-console} \
     --without-test \
+    %{?rest_api_versions_to_build:--rest-api-versions=%{rest_api_versions_to_build}} \
+    %{?rest_api_deprecated:--rest-api-deprecated=%{rest_api_deprecated}} \
+    %{?rest_api_disabled:--rest-api-disabled=%{rest_api_disabled}} \
     dist
 
 ################################################################################
@@ -1569,9 +1640,11 @@ xmlstarlet edit --inplace \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.core']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.module']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.jaxrs']" \
+%if %{build_v1_api}
     -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
+%endif
     %{buildroot}%{_datadir}/maven-metadata/%{name}.xml
 %endif
 
@@ -1593,10 +1666,12 @@ xmlstarlet edit --inplace \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.core']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.module']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.jaxrs']" \
-    -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='pki-local']" \
+%if %{build_v1_api}
+    -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
+%endif
     %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-java.xml
 
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-tools.xml"
@@ -1616,9 +1691,11 @@ xmlstarlet edit --inplace \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.core']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.module']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.jaxrs']" \
+%if %{build_v1_api}
     -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
+%endif
     %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-tools.xml
 %endif
 
@@ -1640,9 +1717,11 @@ xmlstarlet edit --inplace \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.core']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.module']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.jaxrs']" \
+%if %{build_v1_api}
     -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
+%endif
     %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-server.xml
 %endif
 
@@ -1664,9 +1743,11 @@ xmlstarlet edit --inplace \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.core']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.module']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.jaxrs']" \
+%if %{build_v1_api}
     -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
+%endif
     %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-ca.xml
 %endif
 
@@ -1688,9 +1769,11 @@ xmlstarlet edit --inplace \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.core']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.module']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.jaxrs']" \
+%if %{build_v1_api}
     -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
+%endif
     %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-kra.xml
 %endif
 
@@ -1712,9 +1795,11 @@ xmlstarlet edit --inplace \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.core']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.module']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.jaxrs']" \
+%if %{build_v1_api}
     -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
+%endif
     %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-ocsp.xml
 %endif
 
@@ -1736,9 +1821,11 @@ xmlstarlet edit --inplace \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.core']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.module']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.jaxrs']" \
+%if %{build_v1_api}
     -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
+%endif
     %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-tks.xml
 %endif
 
@@ -1760,9 +1847,11 @@ xmlstarlet edit --inplace \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.core']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.module']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.jaxrs']" \
+%if %{build_v1_api}
     -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
+%endif
     %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-tps.xml
 %endif
 
@@ -1784,9 +1873,11 @@ xmlstarlet edit --inplace \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.core']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.module']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.jaxrs']" \
+%if %{build_v1_api}
     -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
+%endif
     %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-acme.xml
 %endif
 
@@ -1808,9 +1899,11 @@ xmlstarlet edit --inplace \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.core']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.module']" \
     -d "//_:dependency[_:groupId='com.fasterxml.jackson.jaxrs']" \
+%if %{build_v1_api}
     -d "//_:dependency[_:groupId='org.jboss.spec.javax.ws.rs']" \
     -d "//_:dependency[_:groupId='org.jboss.logging']" \
     -d "//_:dependency[_:groupId='org.jboss.resteasy']" \
+%endif
     %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-est.xml
 %endif
 
