@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -36,21 +35,6 @@ public class SymKeyGenerationRequest extends KeyGenerationRequest {
     public static final String ENCRYPT_USAGE = "encrypt";
 
     public SymKeyGenerationRequest() {
-        setClassName(getClass().getName());
-    }
-
-    public SymKeyGenerationRequest(MultivaluedMap<String, String> form) {
-        attributes.put(CLIENT_KEY_ID, form.getFirst(CLIENT_KEY_ID));
-        attributes.put(KEY_SIZE, form.getFirst(KEY_SIZE));
-        attributes.put(KEY_ALGORITHM, form.getFirst(KEY_ALGORITHM));
-        attributes.put(KEY_USAGE, form.getFirst(KEY_USAGE));
-        attributes.put(TRANS_WRAPPED_SESSION_KEY, form.getFirst(TRANS_WRAPPED_SESSION_KEY));
-        attributes.put(REALM, form.getFirst(REALM));
-
-        String usageString = attributes.get(KEY_USAGE);
-        if (!StringUtils.isBlank(usageString)) {
-            setUsages(new ArrayList<>(Arrays.asList(usageString.split(","))));
-        }
         setClassName(getClass().getName());
     }
 
