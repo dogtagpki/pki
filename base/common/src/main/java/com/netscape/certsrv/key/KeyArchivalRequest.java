@@ -23,7 +23,6 @@ package com.netscape.certsrv.key;
 
 import java.io.StringReader;
 
-import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -65,18 +64,6 @@ public class KeyArchivalRequest extends RESTMessage {
     private static final String REALM = "realm";
 
     public KeyArchivalRequest() {
-        setClassName(getClass().getName());
-    }
-
-    public KeyArchivalRequest(MultivaluedMap<String, String> form) {
-        attributes.put(CLIENT_KEY_ID, form.getFirst(CLIENT_KEY_ID));
-        attributes.put(DATA_TYPE, form.getFirst(DATA_TYPE));
-        attributes.put(WRAPPED_PRIVATE_DATA, form.getFirst(WRAPPED_PRIVATE_DATA));
-        attributes.put(KEY_ALGORITHM, form.getFirst(KEY_ALGORITHM));
-        attributes.put(KEY_SIZE, form.getFirst(KEY_SIZE));
-        attributes.put(PKI_ARCHIVE_OPTIONS, form.getFirst(PKI_ARCHIVE_OPTIONS));
-        attributes.put(TRANS_WRAPPED_SESSION_KEY, form.getFirst(TRANS_WRAPPED_SESSION_KEY));
-        attributes.put(REALM, form.getFirst(REALM));
         setClassName(getClass().getName());
     }
 

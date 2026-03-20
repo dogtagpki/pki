@@ -21,8 +21,6 @@
  */
 package com.netscape.certsrv.profile;
 
-import javax.ws.rs.core.MultivaluedMap;
-
 import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
@@ -37,12 +35,6 @@ public class ProfileRetrievalRequest {
     protected String profileId;
 
     public ProfileRetrievalRequest() {
-    }
-
-    public ProfileRetrievalRequest(MultivaluedMap<String, String> form) {
-        if (form.containsKey(PROFILE_ID)) {
-            profileId = form.getFirst(PROFILE_ID);
-        }
     }
 
     /**
