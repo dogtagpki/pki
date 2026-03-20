@@ -15,7 +15,7 @@
 // (C) 2011 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.cms.servlet.key;
+package org.dogtagpki.server.kra.rest.v1;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;

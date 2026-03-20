@@ -25,6 +25,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.server.kra.KRAEngine;
 import org.dogtagpki.server.kra.KRAEngineConfig;
+import org.dogtagpki.server.kra.rest.base.KeyRequestProcessor;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.SymmetricKey;
@@ -39,7 +40,6 @@ import com.netscape.certsrv.logging.event.SymKeyGenerationProcessedEvent;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
-import com.netscape.cms.servlet.key.KeyRequestDAO;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
@@ -132,7 +132,7 @@ public class SymKeyGenService implements IService {
         logger.info("SymKeyGenService: - allowEncDecrypt archival: " + allowEncDecrypt_archival);
 
         CryptoToken token = mStorageUnit.getToken();
-        KeyGenAlgorithm kgAlg = KeyRequestDAO.SYMKEY_GEN_ALGORITHMS.get(algorithm);
+        KeyGenAlgorithm kgAlg = KeyRequestProcessor.SYMKEY_GEN_ALGORITHMS.get(algorithm);
 
         if (kgAlg == null) {
             logger.error("SymKeyGenService: Invalid algorithm: " + algorithm);

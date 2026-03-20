@@ -59,7 +59,6 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestNotFoundException;
 import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.base.SubsystemService;
-import com.netscape.cms.servlet.key.KeyRequestDAO;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmsutil.ldap.LDAPUtil;

@@ -7,6 +7,7 @@ package org.dogtagpki.server.kra.rest.base;
 
 import java.math.BigInteger;
 import java.security.Principal;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -50,16 +51,18 @@ import com.netscape.certsrv.logging.event.SecurityDataStatusChangeEvent;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.realm.PKIPrincipal;
-import com.netscape.cms.servlet.key.KeyRequestDAO;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.cmscore.logging.Auditor;
+import com.netscape.cmscore.request.KeyRequestRepository;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestQueue;
 import com.netscape.cmscore.request.RequestRepository;
+import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 import com.netscape.kra.KeyRecoveryAuthority;
+
 /**
  * @author Marco Fargetta {@literal <mfargett@redhat.com>}
  * @author alee
@@ -76,6 +79,7 @@ public class KeyProcessor {
     private RequestQueue queue;
     private KeyRecoveryAuthority service;
     private Auditor auditor;
+    private AuthzSubsystem authz;
 
     public KeyProcessor(KRAEngine engine) {
         this.engine = engine;
@@ -85,6 +89,7 @@ public class KeyProcessor {
         queue = engine.getRequestQueue();
         service = kra;
         auditor = engine.getAuditor();
+        authz = engine.getAuthzSubsystem();
     }
 
     public KeyInfoCollection listKeys(Principal principal, String baseUrl, String clientKeyID, String status, int maxResults, int maxTime, int start,
@@ -348,10 +353,9 @@ public class KeyProcessor {
 
             logger.info("KeyProcessor: Creating recovery request");
 
-            KeyRequestDAO reqDAO = new KeyRequestDAO();
             try {
-                request = reqDAO.createRecoveryRequest(
-                        data, null, principal.getName(), getAuthToken(principal), ephemeral);
+                request = createRecoveryRequest(
+                        data,  principal.getName(), getAuthToken(principal), ephemeral);
             } catch (EBaseException e) {
                 auditRetrieveKeyError(principal, requestId, keyId, "Unable to create recovery request: " + e.getMessage(), auditInfo);
                 throw new PKIException("Unable to create recovery request: " + e.getMessage(), e);
@@ -546,9 +550,8 @@ public class KeyProcessor {
             throw new UnauthorizedException("Request not approved");
         }
 
-        KeyRequestDAO dao = new KeyRequestDAO();
         try {
-            dao.setTransientData(data, request);
+            setTransientData(data, request);
         } catch(EBaseException e) {
             throw new PKIException("Unable to set transient data: " + e.getMessage(), e);
         }
@@ -609,7 +612,6 @@ public class KeyProcessor {
             boolean synchronous, boolean ephemeral) throws EBaseException {
         String method = "KeyProcessor.getKey:";
         KeyData keyData;
-        KeyRequestDAO dao = new KeyRequestDAO();
         logger.debug("{} begins.", method);
 
         if (data == null) {
@@ -630,7 +632,7 @@ public class KeyProcessor {
         }
 
         // get data from IRequest
-        Hashtable<String, Object> requestParams = dao.getTransientData(request);
+        Hashtable<String, Object> requestParams = getTransientData(request);
 
         String sessWrappedKeyData = (String) requestParams.get(Request.SECURITY_DATA_SESS_WRAPPED_DATA);
         String passWrappedKeyData = (String) requestParams.get(Request.SECURITY_DATA_PASS_WRAPPED_DATA);
@@ -646,7 +648,7 @@ public class KeyProcessor {
             // the info now needed to process the recovery request.
 
             nonceData = data.getNonceData();
-            dao.setTransientData(data, request);
+            setTransientData(data, request);
 
             try {
                 if (!synchronous) {
@@ -791,5 +793,120 @@ public class KeyProcessor {
     private void auditRetrieveKeyError(Principal principal, RequestId requestId, KeyId keyId, String reason, String auditInfo) {
         logger.warn(reason);
         auditRetrieveKey(principal, ILogger.FAILURE, requestId, keyId, reason, auditInfo);
+    }
+
+    private Request createRecoveryRequest(KeyRecoveryRequest data, String requestor,
+            AuthToken authToken, boolean ephemeral) throws EBaseException {
+        if (data == null) {
+            throw new BadRequestException("Invalid request.");
+        }
+
+        /*if (data.getCertificate() == null &&
+            data.getTransWrappedSessionKey() == null &&
+            data.getSessionWrappedPassphrase() != null) {
+            throw new BadRequestException("No wrapped session key.");
+        }*/
+
+        if (requestor == null) {
+            throw new UnauthorizedException("Recovery must be initiated by an agent");
+        }
+
+        KeyId keyId = data.getKeyId();
+        KeyRecord rec = null;
+        try {
+            rec = repo.readKeyRecord(keyId.toBigInteger());
+        } catch (DBRecordNotFoundException e) {
+            throw new KeyNotFoundException(keyId, "key not found to recover", e);
+        }
+
+        try {
+            authz.checkRealm(rec.getRealm(), authToken, rec.getOwnerName(), "certServer.kra.key", "recover");
+        } catch (EAuthzUnknownRealm e) {
+            throw new UnauthorizedException("Invalid realm", e);
+        } catch (EBaseException e) {
+            throw new UnauthorizedException("Agent not authorized by realm", e);
+        }
+
+        KeyRequestRepository keyRequestRepository = this.engine.getKeyRequestRepository();
+
+        RequestId requestID;
+        if (ephemeral) {
+            requestID = createEphemeralRequestID();
+        } else {
+            requestID = keyRequestRepository.createRequestID();
+        }
+
+        Request request = keyRequestRepository.createRequest(requestID, Request.SECURITY_DATA_RECOVERY_REQUEST);
+
+        if (rec.getRealm() != null) {
+            request.setRealm(rec.getRealm());
+        }
+
+        request.setExtData(ATTR_SERIALNO, keyId.toString());
+        request.setExtData(Request.ATTR_REQUEST_OWNER, requestor);
+        request.setExtData(Request.ATTR_APPROVE_AGENTS, requestor);
+
+        String encryptOID = data.getPaylodEncryptionOID();
+        if (encryptOID != null)
+            request.setExtData(Request.SECURITY_DATA_PL_ENCRYPTION_OID, encryptOID);
+
+        String wrapName = data.getPayloadWrappingName();
+        if (wrapName != null)
+            request.setExtData(Request.SECURITY_DATA_PL_WRAPPING_NAME, wrapName);
+
+        return request;
+    }
+
+    private RequestId createEphemeralRequestID() throws EBaseException {
+
+        JssSubsystem jssSubsystem = this.engine.getJSSSubsystem();
+
+        SecureRandom random = jssSubsystem.getRandomNumberGenerator();
+        long id = System.currentTimeMillis() * 10000 + random.nextInt(10000);
+
+        return new RequestId(id);
+    }
+
+
+    private void setTransientData(KeyRecoveryRequest data, Request request) throws EBaseException {
+
+        Hashtable<String, Object> requestParams = getTransientData(request);
+
+        String wrappedSessionKeyStr = data.getTransWrappedSessionKey();
+        String wrappedPassPhraseStr = data.getSessionWrappedPassphrase();
+        String nonceDataStr = data.getNonceData();
+        String encryptOID = data.getPaylodEncryptionOID();
+        String wrapName = data.getPayloadWrappingName();
+
+        if (wrappedPassPhraseStr != null) {
+            requestParams.put(Request.SECURITY_DATA_SESS_PASS_PHRASE, wrappedPassPhraseStr);
+        }
+
+        if (wrappedSessionKeyStr != null) {
+            requestParams.put(Request.SECURITY_DATA_TRANS_SESS_KEY, wrappedSessionKeyStr);
+        }
+
+        if (nonceDataStr != null) {
+            requestParams.put(Request.SECURITY_DATA_IV_STRING_IN, nonceDataStr);
+        }
+
+        if (encryptOID != null) {
+            requestParams.put(Request.SECURITY_DATA_PL_ENCRYPTION_OID, encryptOID);
+        }
+
+        if (wrapName != null) {
+            requestParams.put(Request.SECURITY_DATA_PL_WRAPPING_NAME, wrapName);
+        }
+    }
+
+    private Hashtable<String, Object> getTransientData(Request request) throws EBaseException {
+        Hashtable<String, Object> requestParams = kra.getVolatileRequest(request.getRequestId());
+        if (requestParams == null) {
+            requestParams = kra.createVolatileRequest(request.getRequestId());
+            if (requestParams == null) {
+                throw new EBaseException("Can not create Volatile params in createRecoveryRequest!");
+            }
+        }
+        return requestParams;
     }
 }
