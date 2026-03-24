@@ -2,7 +2,7 @@ package com.netscape.certsrv.base;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import javax.ws.rs.core.Response;
+import org.apache.http.HttpStatus;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -17,7 +17,7 @@ public class DataTest {
     @BeforeAll
     public static void setUpBefore() {
         before.className = PKIException.class.getName();
-        before.code = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
+        before.code = HttpStatus.SC_INTERNAL_SERVER_ERROR;
         before.message = "An error has occured";
         before.setAttribute("attr1", "value1");
         before.setAttribute("attr2", "value2");

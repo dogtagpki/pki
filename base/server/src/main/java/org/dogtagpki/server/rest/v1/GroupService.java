@@ -346,7 +346,6 @@ public class GroupService extends SubsystemService implements GroupResource {
             processor.setCMSEngine(getCMSEngine());
             processor.init();
 
-            processor.setUriInfo(uriInfo);
             return createOKResponse(processor.findGroupMembers(groupID, filter, start, size));
 
         } catch (PKIException e) {
@@ -369,7 +368,6 @@ public class GroupService extends SubsystemService implements GroupResource {
             processor.setCMSEngine(getCMSEngine());
             processor.init();
 
-            processor.setUriInfo(uriInfo);
             return createOKResponse(processor.getGroupMember(groupID, memberID));
 
         } catch (PKIException e) {
@@ -392,7 +390,6 @@ public class GroupService extends SubsystemService implements GroupResource {
             processor.setCMSEngine(getCMSEngine());
             processor.init();
 
-            processor.setUriInfo(uriInfo);
             groupMemberData = processor.addGroupMember(groupMemberData);
 
             String encodedGroupID = URLEncoder.encode(groupID, "UTF-8");
@@ -423,7 +420,6 @@ public class GroupService extends SubsystemService implements GroupResource {
             processor.setCMSEngine(getCMSEngine());
             processor.init();
 
-            processor.setUriInfo(uriInfo);
             processor.removeGroupMember(groupID, memberID);
 
             return createNoContentResponse();

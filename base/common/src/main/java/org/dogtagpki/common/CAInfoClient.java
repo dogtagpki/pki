@@ -28,6 +28,7 @@ import com.netscape.certsrv.client.PKIClient;
  * @author Ade Lee
  */
 public class CAInfoClient extends Client {
+    public static final String KEYWRAP_MECHANISM = "keywrap";
 
     public CAInfoClient(PKIClient client, String subsystem) throws Exception {
         super(client, subsystem, "v2", "info");
@@ -39,7 +40,7 @@ public class CAInfoClient extends Client {
 
     public String getKeyWrapAlgotihm() throws Exception {
 
-        String archivalMechanism = KRAInfoResource.KEYWRAP_MECHANISM;
+        String archivalMechanism = KEYWRAP_MECHANISM;
         String kwAlg = null;
 
         try {
@@ -50,7 +51,7 @@ public class CAInfoClient extends Client {
         } catch (PKIException e) {
             if (e.getCode() == 404) {
                 // assume this is an older server
-                archivalMechanism = KRAInfoResource.KEYWRAP_MECHANISM;
+                archivalMechanism = KEYWRAP_MECHANISM;
                 kwAlg = KeyWrapAlgorithm.DES3_CBC_PAD.toString();
 
             } else {
@@ -61,7 +62,7 @@ public class CAInfoClient extends Client {
             throw new Exception("Failed to retrieve archive wrapping information from the CA: " + e, e);
         }
 
-        if (!archivalMechanism.equals(KRAInfoResource.KEYWRAP_MECHANISM)) {
+        if (!archivalMechanism.equals(KEYWRAP_MECHANISM)) {
             // new server with encryption set.  Use something we know will
             // work.  AES-128-CBC
             kwAlg = KeyWrapAlgorithm.AES_CBC_PAD.toString();

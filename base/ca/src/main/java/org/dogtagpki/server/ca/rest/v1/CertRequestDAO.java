@@ -165,7 +165,7 @@ public class CertRequestDAO extends CMSRequestDAO {
 
         CAEngine engine = CAEngine.getInstance();
         Profile profile = ps.getProfile(profileId);
-        CertReviewResponse info = CertReviewResponseFactory.create(request, profile, uriInfo, locale);
+        CertReviewResponse info = CertReviewResponseFactory.create(request, profile, locale);
 
         if (engine.getEnableNonces()) {
             // generate nonce

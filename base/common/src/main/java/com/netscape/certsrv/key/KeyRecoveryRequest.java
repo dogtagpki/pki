@@ -23,8 +23,6 @@ package com.netscape.certsrv.key;
 
 import java.util.Map;
 
-import javax.ws.rs.core.MultivaluedMap;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -52,21 +50,6 @@ public class KeyRecoveryRequest extends RESTMessage {
     private static final String PAYLOAD_WRAPPING_NAME = "payloadWrappingName";
 
     public KeyRecoveryRequest() {
-        setClassName(getClass().getName());
-    }
-
-    public KeyRecoveryRequest(MultivaluedMap<String, String> form) {
-        if (form.containsKey(KEY_ID)) {
-            attributes.put(KEY_ID, form.getFirst(KEY_ID));
-        }
-        if (form.containsKey(REQUEST_ID)) {
-            attributes.put(REQUEST_ID, form.getFirst(REQUEST_ID));
-        }
-        attributes.put(TRANS_WRAPPED_SESSION_KEY, form.getFirst(TRANS_WRAPPED_SESSION_KEY));
-        attributes.put(SESSION_WRAPPED_PASSPHRASE, form.getFirst(SESSION_WRAPPED_PASSPHRASE));
-        attributes.put(NONCE_DATA, form.getFirst(NONCE_DATA));
-        attributes.put(CERTIFICATE, form.getFirst(CERTIFICATE));
-        attributes.put(PASSPHRASE, form.getFirst(PASSPHRASE));
         setClassName(getClass().getName());
     }
 

@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.security.auth.x500.X500Principal;
-import javax.ws.rs.ServiceUnavailableException;
 
 import org.apache.catalina.Container;
 import org.apache.catalina.Context;
@@ -25,6 +24,7 @@ import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.netscape.certsrv.base.ServiceUnavailableException;
 import com.netscape.certsrv.dbs.certdb.CertId;
 
 /**

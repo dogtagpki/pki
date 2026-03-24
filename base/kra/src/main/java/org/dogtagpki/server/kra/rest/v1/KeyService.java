@@ -25,8 +25,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MultivaluedMap;
@@ -302,7 +304,17 @@ public class KeyService extends SubsystemService implements KeyResource {
     @Override
     public Response retrieveKey(MultivaluedMap<String, String> form) {
         logger.debug("KeyService.retrieveKey with form: begins.");
-        KeyRecoveryRequest data = new KeyRecoveryRequest(form);
+        if (form == null) {
+            throw new BadRequestException("Missing key recovery request");
+        }
+        Map<String, String[]> formMap = new HashMap<>(form.size());
+        form.forEach((k, v) -> {
+                String[] s = (v == null || v.isEmpty()) ?
+                    new String[] {null} :
+                    v.toArray(new String[0]);
+                formMap.put(k, s);
+            });
+        KeyRecoveryRequest data = new KeyRecoveryRequest(formMap);
         return retrieveKey(data);
     }
 

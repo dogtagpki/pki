@@ -36,14 +36,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.ProcessingException;
-import javax.ws.rs.core.Response;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.MissingArgumentException;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.UnrecognizedOptionException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpStatus;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CLIException;
 import org.dogtagpki.cli.CLIModule;
@@ -671,7 +669,7 @@ public class MainCLI extends CLI {
             }
 
         } catch (PKIException e) {
-            if (e.getCode() != Response.Status.NOT_FOUND.getStatusCode()) {
+            if (e.getCode() != HttpStatus.SC_NOT_FOUND) {
                 throw e;
             }
             logger.warn("Unable to get server info: " + e.getMessage());
@@ -779,7 +777,7 @@ public class MainCLI extends CLI {
             // display only the error message
             System.err.println(t.getMessage());
 
-        } else if (t instanceof ProcessingException || t instanceof ClientConnectionException) {
+        } else if (t instanceof ClientConnectionException) {
             // display the cause of the exception (if available)
             Throwable e = t.getCause();
             if (e == null) e = t;

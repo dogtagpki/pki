@@ -21,6 +21,8 @@ package com.netscape.cms.tomcat;
 import java.io.IOException;
 import java.security.cert.X509Certificate;
 
+import com.netscape.certsrv.base.PKIException;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletResponseWrapper;
@@ -90,8 +92,13 @@ public abstract class AbstractPKIAuthenticator extends AuthenticatorBase {
                     logger.debug("PKIAuthenticator: SSL auth return code: " + code);
                 }
             };
-            result = doSubAuthenticate(sslAuthenticator, request, wrapper);
-
+            try {
+                result = doSubAuthenticate(sslAuthenticator, request, wrapper);
+            } catch (PKIException e) {
+                response.sendError(e.getCode(), e.getMessage());
+                logger.error("Authentication service problem" + e.getMessage(), e);
+                return false;
+            }
         } else {
             logger.info("PKIAuthenticator: Authenticating with " + fallbackMethod + " authentication");
             HttpServletResponseWrapper wrapper = new HttpServletResponseWrapper(response) {
@@ -104,7 +111,13 @@ public abstract class AbstractPKIAuthenticator extends AuthenticatorBase {
                     logger.debug("PKIAuthenticator: Fallback auth return code: " + code);
                 }
             };
-            result = doSubAuthenticate(fallbackAuthenticator, request, wrapper);
+            try {
+                result = doSubAuthenticate(fallbackAuthenticator, request, wrapper);
+            } catch (PKIException e) {
+                response.sendError(e.getCode(), e.getMessage());
+                logger.error("Authentication service problem" + e.getMessage(), e);
+                return false;
+            }
         }
 
         if (result)

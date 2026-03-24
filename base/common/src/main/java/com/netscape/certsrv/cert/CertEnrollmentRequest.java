@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
-import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -92,15 +91,6 @@ public class CertEnrollmentRequest extends RESTMessage {
     protected Collection<ProfileOutput> outputs = new ArrayList<>();
 
     public CertEnrollmentRequest() {
-    }
-
-    public CertEnrollmentRequest(MultivaluedMap<String, String> form) {
-        profileId = form.getFirst(PROFILE_ID);
-        String renewalStr = form.getFirst(RENEWAL);
-        serialNum = new CertId(form.getFirst(SERIAL_NUM));
-        renewal = Boolean.valueOf(renewalStr);
-
-        serverSideKeygenP12Passwd = form.getFirst(SERVERSIDE_KEYGEN_P12_PASSWD);
     }
 
     /**

@@ -20,7 +20,7 @@ package org.dogtagpki.ca;
 import java.io.ByteArrayInputStream;
 import java.security.cert.X509Certificate;
 
-import javax.ws.rs.core.Response;
+import org.apache.http.HttpStatus;
 
 import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
@@ -57,7 +57,7 @@ public class CASystemCertClient extends Client {
             certData = get("signing", CertData.class);
 
         } catch (PKIException e) {
-            if (e.getCode() != Response.Status.NOT_FOUND.getStatusCode()) {
+            if (e.getCode() != HttpStatus.SC_NOT_FOUND) {
                 throw e;
             }
             logger.warn("Unable to get CA signing certificate: " + e.getMessage());

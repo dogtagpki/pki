@@ -221,7 +221,7 @@ public class AgentCertRequestServlet extends CAServlet {
         String profileId = request.getExtDataInString(Request.PROFILE_ID);
 
         Profile profile = ps.getProfile(profileId);
-        info = CertReviewResponseFactory.create(request, profile, null, servletRequest.getLocale());
+        info = CertReviewResponseFactory.create(request, profile, servletRequest.getLocale());
 
         if (random != null) {
             // generate nonce

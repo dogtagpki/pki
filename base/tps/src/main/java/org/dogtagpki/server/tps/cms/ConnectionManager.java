@@ -23,14 +23,13 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
 
-import javax.ws.rs.core.MediaType;
-
 import org.dogtagpki.server.tps.TPSConfig;
 import org.dogtagpki.server.tps.TPSEngine;
 import org.dogtagpki.server.tps.TPSSubsystem;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
+import com.netscape.certsrv.base.MimeType;
 import com.netscape.certsrv.connector.Connector;
 import com.netscape.certsrv.connector.ConnectorConfig;
 import com.netscape.certsrv.connector.ConnectorsConfig;
@@ -195,7 +194,7 @@ public class ConnectionManager
         int resendInterval = -1;
         int timeout = conf.getTimeout();
         RemoteAuthority remauthority =
-                new RemoteAuthority(host, port, uris, timeout, MediaType.APPLICATION_FORM_URLENCODED);
+                new RemoteAuthority(host, port, uris, timeout, MimeType.APPLICATION_FORM_URLENCODED);
 
         logger.debug("ConnectionManager: createConnector(): establishing HttpConnector");
         if (timeout == 0) {

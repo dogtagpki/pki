@@ -23,8 +23,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.ws.rs.core.UriInfo;
-
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.PKIException;
@@ -59,18 +57,8 @@ public class GroupMemberProcessor extends Processor {
 
     public static String[] multiRoleGroupEnforceList;
 
-    protected UriInfo uriInfo;
-
     public GroupMemberProcessor(Locale locale) {
         super("group", locale);
-    }
-
-    public UriInfo getUriInfo() {
-        return uriInfo;
-    }
-
-    public void setUriInfo(UriInfo uriInfo) {
-        this.uriInfo = uriInfo;
     }
 
     public GroupMemberData createGroupMemberData(String groupID, String memberID) throws Exception {

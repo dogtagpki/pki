@@ -5,9 +5,8 @@
 //
 package com.netscape.cmstools.acme;
 
-import javax.ws.rs.core.Response;
-
 import org.apache.commons.cli.CommandLine;
+import org.apache.http.HttpStatus;
 import org.dogtagpki.acme.ACMEClient;
 import org.dogtagpki.acme.ACMEDirectory;
 import org.dogtagpki.acme.ACMEMetadata;
@@ -53,7 +52,7 @@ public class ACMEInfoCLI extends CommandCLI {
             System.out.println("  External Account Required: " + metadata.getExternalAccountRequired());
 
         } catch (PKIException e) {
-            if (e.getCode() != Response.Status.SERVICE_UNAVAILABLE.getStatusCode()) {
+            if (e.getCode() != HttpStatus.SC_SERVICE_UNAVAILABLE) {
                 throw e;
             }
             System.out.println("  Status: Unavailable");

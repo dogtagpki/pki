@@ -21,8 +21,6 @@ import java.util.Enumeration;
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.UriInfo;
-
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.profile.EProfileException;
@@ -45,7 +43,7 @@ public class CertReviewResponseFactory {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertReviewResponseFactory.class);
 
-    public static CertReviewResponse create(Request request, Profile profile, UriInfo uriInfo, Locale locale) throws EBaseException {
+    public static CertReviewResponse create(Request request, Profile profile, Locale locale) throws EBaseException {
         CertReviewResponse ret = new CertReviewResponse();
 
         if (request.getRequestType().equals("renewal")) {

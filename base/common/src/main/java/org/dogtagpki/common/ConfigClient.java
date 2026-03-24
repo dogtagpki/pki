@@ -43,7 +43,10 @@ import com.netscape.cmsutil.xml.XMLObject;
  */
 public class ConfigClient extends Client {
 
-    public final static Logger logger = LoggerFactory.getLogger(ConfigClient.class);
+    public static final String SUCCESS = "0";
+    public static final String FAILURE = "1";
+    public static final String AUTH_FAILURE = "2";
+    public static final Logger logger = LoggerFactory.getLogger(ConfigClient.class);
 
     public ConfigClient(PKIClient client, String subsystem) throws Exception {
         super(client, subsystem, "config");
@@ -84,11 +87,11 @@ public class ConfigClient extends Client {
         String status = parser.getValue("Status");
         logger.debug("Status: " + status);
 
-        if (status.equals(ConfigResource.AUTH_FAILURE)) {
+        if (AUTH_FAILURE.equals(status)) {
             throw new EAuthException("Authentication failed");
         }
 
-        if (!status.equals(ConfigResource.SUCCESS)) {
+        if (!SUCCESS.equals(status)) {
             String error = parser.getValue("Error");
             throw new IOException(error);
         }

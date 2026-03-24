@@ -17,8 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.system;
 
-import javax.ws.rs.core.MultivaluedMap;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -52,18 +50,6 @@ public class KRAConnectorInfo implements JSONSerializer {
     String enable;
 
     public KRAConnectorInfo() {
-    }
-
-    public KRAConnectorInfo(MultivaluedMap<String, String> form) {
-        host = form.getFirst(HOST);
-        port = form.getFirst(PORT);
-        subsystemCert = form.getFirst(SUBSYSTEM_CERT);
-        transportCert = form.getFirst(TRANSPORT_CERT);
-        uri = form.getFirst(URI);
-        timeout = form.getFirst(TIMEOUT);
-        local = form.getFirst(LOCAL);
-        enable = form.getFirst(ENABLE);
-        transportCertNickname = form.getFirst(TRANSPORT_CERT_NICKNAME);
     }
 
     public String getHost() {

@@ -18,8 +18,6 @@
 
 package org.dogtagpki.server.cli;
 
-import javax.ws.rs.ProcessingException;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.UnrecognizedOptionException;
@@ -135,11 +133,6 @@ public class PKIServerCLI extends CLI {
         } else if (t instanceof UnrecognizedOptionException) {
             // display only the error message
             System.err.println(t.getMessage());
-
-        } else if (t instanceof ProcessingException) {
-            // display the cause of the exception
-            t = t.getCause();
-            System.err.println(t.getClass().getSimpleName() + ": " + t.getMessage());
 
         } else {
             // display the actual Exception

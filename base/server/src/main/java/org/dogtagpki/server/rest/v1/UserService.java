@@ -1072,7 +1072,6 @@ public class UserService extends SubsystemService implements UserResource {
             processor.setCMSEngine(engine);
             processor.init();
 
-            processor.setUriInfo(uriInfo);
             processor.addGroupMember(groupMemberData);
 
             UserMembershipData userMembershipData = createUserMembershipData(userID, groupID);
@@ -1105,7 +1104,6 @@ public class UserService extends SubsystemService implements UserResource {
             processor.setCMSEngine(getCMSEngine());
             processor.init();
 
-            processor.setUriInfo(uriInfo);
             processor.removeGroupMember(groupID, userID);
 
             return createNoContentResponse();
