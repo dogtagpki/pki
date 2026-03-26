@@ -38,6 +38,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/pki-nss-softhsm-test.yml
 
+  pki-nss-kryoptic-test:
+    name: PKI NSS CLI with Kryoptic
+    needs: build
+    uses: ./.github/workflows/pki-nss-kryoptic-test.yml
+
   pki-nss-exts-test:
     name: PKI NSS CLI with Extensions
     needs: build
