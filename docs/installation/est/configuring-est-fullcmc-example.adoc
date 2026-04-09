@@ -254,18 +254,18 @@ NOTE: The `pki` command uses `~/.dogtag/nssdb` as the default NSS database direc
 
 === Step 10: Verify EST fullcmc Profile
 
-Verify that the `estFullEnrollment` profile exists:
+Verify that the `estFullcmcDeviceCert` profile exists:
 
 [source,bash]
 ----
-pki -n caadmin ca-profile-show estFullEnrollment
+pki -n caadmin ca-profile-show estFullcmcDeviceCert
 ----
 
 This profile should have been created during CA installation or upgrade. If it doesn't exist, EST fullcmc will not function.
 
 [IMPORTANT]
 ====
-The `estFullEnrollment` profile uses the `RAHeaderClientCertSubjectNameConstraint` constraint, which is **mandatory** for the two-tier authorization model. This constraint enables:
+The `estFullcmcDeviceCert` profile uses the `RAHeaderClientCertSubjectNameConstraint` constraint, which is **mandatory** for the two-tier authorization model. This constraint enables:
 
 * **Non-agent enrollment**: The client's certificate subject must match the requested certificate subject
 * **Agent enrollment**: CA agents can request certificates with any subject name
@@ -283,10 +283,16 @@ You can verify the constraint is present:
 
 [source,bash]
 ----
-pki -n caadmin ca-profile-show estFullEnrollment | grep -A2 "constraint.class"
+grep constraint /var/lib/pki/pki-ca/ca/profiles/ca/estFullcmcDeviceCert.cfg"
 ----
 
-You should see `RAHeaderClientCertSubjectNameConstraint` in the output.
+You should see
+[source,bash]
+----
+policyset.cmcDeviceCertSet.1.constraint.class_id=raHeaderClientCertSubjectNameConstraintImpl
+policyset.cmcDeviceCertSet.1.constraint.name=RA Header Client Cert Subject Name Constraint
+----
+in the output
 
 === Step 11: Configure CA for EST CMC Responses
 
@@ -681,6 +687,20 @@ ldapmodify -x -H ldap://localhost:4389 -D "cn=Directory Manager" -w Secret.123 \
 ----
 
 == Part 5: Test EST fullcmc Enrollment
+[NOTE]
+====
+The examples below use PKCS#10, but CRMF can also be used. To generate a CRMF request instead:
+
+[source,bash]
+----
+CRMFPopClient -d nssdb-nonrole -p Secret.123 \
+    -o device1.crmf \
+    -n "UID=est-nonrole-user,CN=EST NonRole User" \
+    -a rsa -l 2048
+----
+
+Then in the CMCRequest configuration file, set `format=crmf` and `input=<input_file_name>.crmf`.
+====
 
 === Step 21: Test Non-Agent Enrollment (Matching Subject)
 
@@ -835,7 +855,31 @@ curl -k \
     -o device2-cmc-response.b64
 ----
 
+
+[source,bash]
+----
+# Decode base64 response to DER format
+AtoB device2-cmc-response.b64 device2-cmc-response.der
+
+# Extract certificate using CMCResponse tool
+CMCResponse -d nssdb-nonrole -i device2-cmc-response.der
+----
+
 This should fail with a subject name mismatch error because the CSR subject (`CN=Different Device`) does not match the client certificate subject (`CN=EST NonRole User`).
+
+e.g.
+[source,bash]
+----
+...
+Control #0: CMCStatusInfoV2
+   OID: {1 3 6 1 5 5 7 7 25}
+   BodyList: 0
+   Status String: Request Subject Name Not Matched CN=Different Device Rejected - {1}
+   OtherInfo type: FAIL
+     failInfo=internal ca error
+CMC Full Response.
+ERROR: CMC status for [0]: failed
+----
 
 === Step 23: Test Agent Enrollment (Any Subject - Should Succeed)
 
