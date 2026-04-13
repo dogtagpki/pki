@@ -1,5 +1,9 @@
 package com.netscape.cmstools.authority;
 
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
@@ -32,6 +36,19 @@ public class AuthorityCreateCLI extends SubsystemCommandCLI {
         Option optDesc = new Option(null, "desc", true, "Optional description");
         optDesc.setArgName("string");
         options.addOption(optDesc);
+
+        Option optCsrFile = new Option(null, "csr-file", true,
+                "PEM file containing a CSR for an externally-held CA key. " +
+                "When provided, Dogtag signs the CSR as a sub-CA certificate " +
+                "without generating a local key pair.");
+        optCsrFile.setArgName("path");
+        options.addOption(optCsrFile);
+
+        Option optProfile = new Option(null, "profile", true,
+                "Signing profile for the sub-CA certificate " +
+                "(default: caExternalKeyCACert with --csr-file, caCACert otherwise)");
+        optProfile.setArgName("id");
+        options.addOption(optProfile);
     }
 
     @Override
@@ -67,6 +84,16 @@ public class AuthorityCreateCLI extends SubsystemCommandCLI {
         if (cmd.hasOption("desc"))
             desc = cmd.getOptionValue("desc");
 
+        String csrData = null;
+        if (cmd.hasOption("csr-file")) {
+            String csrFile = cmd.getOptionValue("csr-file");
+            csrData = new String(Files.readAllBytes(Paths.get(csrFile)), StandardCharsets.UTF_8);
+        }
+
+        String profileId = null;
+        if (cmd.hasOption("profile"))
+            profileId = cmd.getOptionValue("profile");
+
         String dn = cmdArgs[0];
 
         MainCLI mainCLI = (MainCLI) getRoot();
@@ -74,6 +101,10 @@ public class AuthorityCreateCLI extends SubsystemCommandCLI {
 
         AuthorityData data = new AuthorityData(
             null, dn, null, parentAIDString, null, null, true /* enabled */, desc, null);
+        if (csrData != null)
+            data.setCsrData(csrData);
+        if (profileId != null)
+            data.setProfileId(profileId);
 
         PKIClient client = getPKIClient();
         SubsystemClient subsystemClient = getSubsystemClient(client);

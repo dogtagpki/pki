@@ -1269,12 +1269,13 @@ public class CAEngine extends CMSEngine {
             CertificateAuthority ca,
             X500Name subjectX500Name,
             AuthToken authToken,
-            CryptoToken token)
+            CryptoToken token,
+            String profileId)
             throws Exception {
 
         KeyPair keypair = ca.generateKeyPair(token);
         PKCS10 pkcs10 = ca.generateCertRequest(keypair, subjectX500Name);
-        return generateSigningCertFromCSR(ca, pkcs10, authToken, "caCACert");
+        return generateSigningCertFromCSR(ca, pkcs10, authToken, profileId);
     }
 
     /**
@@ -1491,8 +1492,16 @@ public class CAEngine extends CMSEngine {
 
                 CryptoToken token = CryptoUtil.getKeyStorageToken(tokenname);
 
-                logger.info("CAEngine: Generating signing certificate");
-                cert = generateSigningCert(parentCA, subjectX500Name, authToken, token);
+                // Use the caller-supplied profile or fall back to the
+                // established default for local-key sub-CA issuance.
+                String effectiveProfileId = (profileId != null && !profileId.isBlank())
+                        ? profileId
+                        : "caCACert";
+
+                logger.info("CAEngine: Generating signing certificate with profile '{}'",
+                        effectiveProfileId);
+                cert = generateSigningCert(parentCA, subjectX500Name, authToken, token,
+                        effectiveProfileId);
 
                 logger.info("CAEngine: Importing " + nickname + " cert into " + token.getName());
                 CryptoStore store = token.getCryptoStore();
