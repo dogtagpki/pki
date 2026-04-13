@@ -26,7 +26,9 @@ Both `csrData` and `profileId` are consumed at creation time and are not
 stored or returned in subsequent GET responses.
 
 See link:../../user/tools/Creating-Sub-CA-with-External-Key.adoc[Creating a
-Sub-CA with an Externally-Held Key] for usage details.
+Sub-CA with an Externally-Held Key] and
+link:../../user/tools/Creating-Sub-CA.adoc[Creating a Lightweight Sub-CA]
+for usage details.
 
 == Remove KeyClient.archive_key() ==
 

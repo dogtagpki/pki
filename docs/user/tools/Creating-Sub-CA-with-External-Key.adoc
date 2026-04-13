@@ -105,7 +105,9 @@ they are not stored or retrievable after the authority is created.
 
 NOTE: `--profile` is not exclusive to external-key creation.  It can also
 be used without `--csr-file` to select the signing profile for a
-local-key sub-CA, in which case the default is `caCACert`.
+local-key sub-CA, in which case the default is `caCACert`.  See
+link:Creating-Sub-CA.adoc[Creating a Lightweight Sub-CA] for the
+standard local-key workflow.
 
 == Step 4: Retrieve the Signed Sub-CA Certificate ==
 
@@ -178,5 +180,6 @@ Revoke the certificate separately if required before deleting the authority.
 
 == See Also ==
 
+* link:Creating-Sub-CA.adoc[Creating a Lightweight Sub-CA] (standard local-key workflow)
 * link:https://github.com/dogtagpki/pki/wiki/PKI-CA-Authority-CLI[PKI CA Authority CLI]
 * link:https://github.com/dogtagpki/pki/wiki/CA-Authority-REST-API[CA Authority REST API]
