@@ -5,11 +5,12 @@ name: CA authority with external key
 # then submitting only the CSR to Dogtag.
 #
 # Verifies:
-#   - POST /v2/authorities with csrData returns externalKey=true, ready=false
-#   - csrData is not stored or echoed back in subsequent GET responses
+#   - pki ca-authority-create --csr-file reports External key: true, Ready to sign: false
+#   - GET /v2/authorities/<id> returns externalKey=true, ready=false
+#   - csrData and profileId are not stored or returned in GET responses
 #   - The signed sub-CA certificate chains to the root CA
 #   - The signed certificate's public key matches the submitted CSR
-#   - The signed certificate has CA:TRUE in Basic Constraints
+#   - The signed certificate has CA:TRUE and pathLen:0 in Basic Constraints
 #   - The authority can be deleted with pki ca-authority-del
 
 on: workflow_call
@@ -87,11 +88,19 @@ jobs:
           # Simulate an ACME server generating its own CA key pair in an HSM.
           # In production the private key would never leave the HSM; here we
           # use a plain file to keep the test self-contained.
+          # Use X.500 attribute order (general→specific: O before CN) so that
+          # the DER RDN sequence matches what JSS produces when it parses the
+          # RFC 2253 string "CN=Test External Sub-CA,O=EXAMPLE" passed to
+          # ca-authority-create.  JSS treats the leftmost attribute in an
+          # RFC 2253 string as most-specific (last in DER), so the DER
+          # sequence becomes [O, CN].  OpenSSL encodes -subj left-to-right,
+          # so "/O=EXAMPLE/CN=..." also produces DER [O, CN].  The byte-level
+          # X500Name.equals() check in CAEngine therefore sees identical DER.
           docker exec pki openssl req \
               -newkey rsa:2048 \
               -nodes \
               -keyout /tmp/external-ca.key \
-              -subj "/CN=Test External Sub-CA/O=EXAMPLE" \
+              -subj "/O=EXAMPLE/CN=Test External Sub-CA" \
               -out /tmp/external-ca.csr
 
           docker exec pki openssl req -text -noout -in /tmp/external-ca.csr
@@ -113,54 +122,66 @@ jobs:
                       break
           " | tee /tmp/parent-id
 
-      - name: Build authority creation JSON payload
+      - name: Verify caExternalKeyCACert profile is loaded
         run: |
-          docker exec pki python3 -c "
-          import json
-          csr = open('/tmp/external-ca.csr').read()
-          parent_id = open('/tmp/parent-id').read()
-          payload = {
-              'dn':          'CN=Test External Sub-CA,O=EXAMPLE',
-              'parentID':    parent_id,
-              'description': 'Integration test external sub-CA',
-              'csrData':     csr,
-          }
-          open('/tmp/authority-req.json', 'w').write(json.dumps(payload))
+          # The profile must be in profile.list in CS.cfg and its .cfg file must
+          # be present in the instance profiles directory for CA startup to load it.
+          # If this step fails, check the CA debug log for "Unable to create profile".
+          docker exec pki grep -q "caExternalKeyCACert" \
+              /var/lib/pki/pki-tomcat/ca/conf/CS.cfg
+          docker exec pki test -f \
+              /var/lib/pki/pki-tomcat/ca/profiles/ca/caExternalKeyCACert.cfg
+          echo "OK: caExternalKeyCACert is registered in CS.cfg and profile file is present"
+
+          # Verify CA startup logged successful profile initialisation (not a silent failure).
+          docker exec pki bash -c "
+          if find /var/lib/pki/pki-tomcat/logs/ca -name 'debug.*' \
+                  -exec grep -l 'Unable to create profile.*caExternalKeyCACert' {} + 2>/dev/null \
+              | grep -q .; then
+              echo 'ERROR: CA debug log shows caExternalKeyCACert failed to initialize' >&2
+              find /var/lib/pki/pki-tomcat/logs/ca -name 'debug.*' \
+                  -exec grep 'caExternalKeyCACert' {} +
+              exit 1
+          fi
+          echo 'OK: no initialization failure logged for caExternalKeyCACert'
           "
 
-      - name: Create external-key authority via REST API
+      - name: Create external-key authority via pki CLI
         run: |
-          docker exec pki curl -sk -X POST \
-              --cert-type P12 \
-              --cert /root/.dogtag/pki-tomcat/ca_admin_cert.p12:Secret.123 \
-              -H "Content-Type: application/json" \
-              -H "Accept: application/json" \
-              -d @/tmp/authority-req.json \
-              -o /tmp/authority-resp.json \
-              https://pki.example.com:8443/ca/v2/authorities
+          PARENT_ID=$(docker exec pki cat /tmp/parent-id)
 
-          docker exec pki python3 -m json.tool /tmp/authority-resp.json
+          # pki CLI uses the NSS database (imported above) for TLS client cert
+          # auth; curl --cert-type P12 does not work for Tomcat cert auth.
+          docker exec pki bash -c "
+          pki -n caadmin ca-authority-create \
+              --parent ${PARENT_ID} \
+              --csr-file /tmp/external-ca.csr \
+              --desc 'Integration test external sub-CA' \
+              'CN=Test External Sub-CA,O=EXAMPLE' \
+              | tee /tmp/authority-create-output.txt
+          "
 
-      - name: Verify authority creation response
+      - name: Verify authority creation output and extract ID
         run: |
           docker exec pki python3 -c "
-          import json, sys
-          data = json.load(open('/tmp/authority-resp.json'))
+          import re, sys
+          text = open('/tmp/authority-create-output.txt').read()
+          print(text)
           errors = []
-          if data.get('externalKey') != True:
-              errors.append('Expected externalKey=true, got: {}'.format(data.get('externalKey')))
-          if data.get('ready') != False:
-              errors.append('Expected ready=false, got: {}'.format(data.get('ready')))
-          if 'csrData' in data:
-              errors.append('csrData must not be stored or returned in the response')
-          if 'profileId' in data:
-              errors.append('profileId must not be stored or returned in the response')
+          m = re.search(r'^\s+ID:\s+(\S+)', text, re.MULTILINE)
+          if not m:
+              print('ERROR: could not find authority ID in output', file=sys.stderr)
+              sys.exit(1)
+          open('/tmp/authority-id', 'w').write(m.group(1))
+          print('Authority ID:', m.group(1))
+          if not re.search(r'External key:\s+true', text):
+              errors.append('Expected \"External key: true\" in CLI output')
+          if not re.search(r'Ready to sign:\s+false', text):
+              errors.append('Expected \"Ready to sign: false\" in CLI output')
           if errors:
               print('FAILED:', errors, file=sys.stderr)
               sys.exit(1)
-          open('/tmp/authority-id', 'w').write(data['id'])
-          print('OK: externalKey=true, ready=false, csrData absent, profileId absent')
-          print('Authority ID:', data['id'])
+          print('OK: External key=true, Ready to sign=false')
           "
 
       - name: Retrieve signed sub-CA certificate
@@ -176,10 +197,13 @@ jobs:
 
       - name: Verify certificate subject DN
         run: |
-          docker exec pki openssl x509 -noout -subject -in /tmp/external-subca.crt \
-              | tee actual
+          # Use -nameopt RFC2253 for a consistent format across OpenSSL versions.
+          # RFC 2253 lists attributes most-specific first (CN before O), which
+          # matches the string passed to ca-authority-create.
+          docker exec pki openssl x509 -noout -subject -nameopt RFC2253 \
+              -in /tmp/external-subca.crt | tee actual
 
-          echo "subject=CN=Test External Sub-CA, O=EXAMPLE" > expected
+          echo "subject=CN=Test External Sub-CA,O=EXAMPLE" > expected
           diff expected actual
 
       - name: Verify certificate has CA:TRUE and pathLen=0 basic constraint
@@ -219,27 +243,33 @@ jobs:
               -CAfile ca_signing.crt \
               /tmp/external-subca.crt
 
-      - name: Verify GET reports externalKey=true, ready=false
+      - name: Verify GET reports externalKey=true, ready=false, no stored csrData/profileId
         run: |
           AID=$(docker exec pki cat /tmp/authority-id)
 
+          docker exec pki curl -sk \
+              -H "Accept: application/json" \
+              https://pki.example.com:8443/ca/v2/authorities/${AID} \
+              -o /tmp/authority-get-resp.json
+
+          docker exec pki python3 -m json.tool /tmp/authority-get-resp.json
+
           docker exec pki python3 -c "
-          import json, subprocess, sys
-          out = subprocess.check_output([
-              'curl', '-sk',
-              '-H', 'Accept: application/json',
-              'https://pki.example.com:8443/ca/v2/authorities/$AID',
-          ])
-          data = json.loads(out)
+          import json, sys
+          data = json.load(open('/tmp/authority-get-resp.json'))
           errors = []
           if data.get('externalKey') != True:
               errors.append('Expected externalKey=true, got: {}'.format(data.get('externalKey')))
           if data.get('ready') != False:
               errors.append('Expected ready=false, got: {}'.format(data.get('ready')))
+          if 'csrData' in data:
+              errors.append('csrData must not be stored or returned in GET response')
+          if 'profileId' in data:
+              errors.append('profileId must not be stored or returned in GET response')
           if errors:
               print('FAILED:', errors, file=sys.stderr)
               sys.exit(1)
-          print('OK: GET confirms externalKey=true, ready=false')
+          print('OK: GET confirms externalKey=true, ready=false, csrData absent, profileId absent')
           "
 
       - name: Delete external-key authority
