@@ -615,7 +615,9 @@ public class AuthorityRepository {
                     parentAID,
                     authToken,
                     data.getDN(),
-                    data.getDescription());
+                    data.getDescription(),
+                    data.getCsrData(),
+                    data.getProfileId());
             audit(ILogger.SUCCESS, OpDef.OP_ADD,
                     record.getAuthorityID().toString(), auditParams);
             return readAuthorityData(record);
@@ -777,7 +779,7 @@ public class AuthorityRepository {
         }
 
         AuthorityID parentAID = ca.getAuthorityParentID();
-        return new AuthorityData(
+        AuthorityData data = new AuthorityData(
             ca.isHostAuthority(),
             dn,
             ca.getAuthorityID().toString(),
@@ -788,6 +790,13 @@ public class AuthorityRepository {
             ca.getAuthorityDescription(),
             ca.isReady()
         );
+
+        String nickname = ca.getNickname();
+        if (nickname != null && nickname.startsWith(AuthorityRecord.EXTERNAL_KEY_NICKNAME_PREFIX)) {
+            data.setExternalKey(true);
+        }
+
+        return data;
     }
 
     private AuthorityData readAuthorityData(AuthorityRecord record) {
@@ -834,7 +843,7 @@ public class AuthorityRepository {
             }
         }
 
-        return new AuthorityData(
+        AuthorityData data = new AuthorityData(
                 isHostAuthority,
                 authorityDN.toString(),
                 authorityID.toString(),
@@ -845,6 +854,12 @@ public class AuthorityRepository {
                 description,
                 isReady
         );
+
+        if (record.isExternalKey()) {
+            data.setExternalKey(true);
+        }
+
+        return data;
     }
 
     private String toPem(String name, byte[] data) {

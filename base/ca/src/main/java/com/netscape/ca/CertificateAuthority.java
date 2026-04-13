@@ -38,6 +38,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Vector;
 
+import org.dogtagpki.server.ca.AuthorityRecord;
 import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
@@ -687,6 +688,17 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
     public void initSigningUnits() throws Exception {
 
         logger.info("CertificateAuthority: Initializing " + (authorityID == null ? "host CA" : "authority " + authorityID));
+
+        // External-key authorities have their private key held outside Dogtag
+        // (e.g. in an HSM attached to a remote ACME server).  The key nickname
+        // carries the #external#: sentinel instead of a real NSS token:nickname
+        // pair.  Skip signing unit initialisation: hasKeys stays false,
+        // isReady() returns false, and no key retrieval is attempted.
+        if (mNickname != null
+                && mNickname.startsWith(AuthorityRecord.EXTERNAL_KEY_NICKNAME_PREFIX)) {
+            logger.info("CertificateAuthority: external key — signing unit not initialized");
+            return;
+        }
 
         try {
             initCertSigningUnit();

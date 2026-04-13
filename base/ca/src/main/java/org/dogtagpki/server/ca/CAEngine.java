@@ -1305,6 +1305,9 @@ public class CAEngine extends CMSEngine {
 
         ProfileSubsystem ps = getProfileSubsystem();
         Profile profile = ps.getProfile(profileId);
+        if (profile == null) {
+            throw new BadRequestDataException("Unknown profile: " + profileId);
+        }
 
         ArgBlock argBlock = new ArgBlock();
         argBlock.set("cert_request_type", "pkcs10");
@@ -1358,7 +1361,7 @@ public class CAEngine extends CMSEngine {
             String subjectDN,
             String description)
             throws Exception {
-        return createAuthorityRecord(parentAID, authToken, subjectDN, description, null);
+        return createAuthorityRecord(parentAID, authToken, subjectDN, description, null, null);
     }
 
     /**
@@ -1383,7 +1386,8 @@ public class CAEngine extends CMSEngine {
             AuthToken authToken,
             String subjectDN,
             String description,
-            String csrData)
+            String csrData,
+            String profileId)
             throws Exception {
 
         CertificateAuthority parentCA = getCA(parentAID);
@@ -1429,9 +1433,12 @@ public class CAEngine extends CMSEngine {
             authorityRepository.addAuthorityRecord(record);
 
             try {
-                PKCS10 pkcs10 = CertUtil.decodePKCS10(csrData);
+                PKCS10 pkcs10 = parsePKCS10(Locale.getDefault(), csrData);
 
                 // Validate that the CSR subject matches the requested DN.
+                // Per RFC 5280 §4.1.2.6, CA subject DNs must be encoded
+                // identically to the issuer field in certificates they issue,
+                // so byte-level DER comparison is appropriate here.
                 X500Name csrSubject = pkcs10.getSubjectName();
                 if (!csrSubject.equals(subjectX500Name)) {
                     throw new BadRequestDataException(
@@ -1439,8 +1446,15 @@ public class CAEngine extends CMSEngine {
                             + "' does not match requested DN '" + subjectX500Name + "'");
                 }
 
-                logger.info("CAEngine: Signing external sub-CA CSR");
-                cert = generateSigningCertFromCSR(parentCA, pkcs10, authToken, "caCACert");
+                // Use the caller-supplied profile or fall back to the profile
+                // designed for external-key sub-CA issuance.
+                String effectiveProfileId = (profileId != null && !profileId.isBlank())
+                        ? profileId
+                        : "caExternalKeyCACert";
+
+                logger.info("CAEngine: Signing external sub-CA CSR with profile '{}'",
+                        effectiveProfileId);
+                cert = generateSigningCertFromCSR(parentCA, pkcs10, authToken, effectiveProfileId);
                 // No store.importCert(): the key is external; the certificate
                 // is tracked solely via the LDAP authority record serial number.
 
@@ -1773,7 +1787,11 @@ public class CAEngine extends CMSEngine {
             throw new ECAException("Unable to create CRL extensions", e);
         }
 
-        X509CertImpl caCertImpl = ca.getSigningUnit().getCertImpl();
+        // For external-key authorities the signing unit is not initialized;
+        // the certificate is already in the repository (fetched above).
+        X509CertImpl caCertImpl = ca.getSigningUnit() != null
+                ? ca.getSigningUnit().getCertImpl()
+                : certRecord.getCertificate();
         processor.addCertificateToRevoke(caCertImpl);
 
         processor.createRevocationRequest();
@@ -1789,6 +1807,13 @@ public class CAEngine extends CMSEngine {
         if (ca.isHostAuthority()) {
             String msg = "Attempt to delete host authority signing key; not proceeding";
             logger.warn(msg);
+            return;
+        }
+
+        if (ca.getSigningUnit() == null) {
+            // External-key authority: no cert or private key was ever stored in
+            // the local NSS database, so there is nothing to remove.
+            logger.info("CAEngine: external-key authority — skipping NSS DB cleanup");
             return;
         }
 

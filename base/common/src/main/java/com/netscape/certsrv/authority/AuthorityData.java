@@ -117,6 +117,62 @@ public class AuthorityData implements JSONSerializer {
     }
 
     /**
+     * PEM-encoded PKCS#10 CSR for an externally-held CA key.
+     *
+     * When provided at creation time, Dogtag signs this CSR as a sub-CA
+     * certificate without generating a local key pair.  The CA's private key
+     * stays on the caller's side (e.g. in an HSM attached to an ACME server).
+     * This field is consumed at creation and is not stored or returned
+     * in subsequent GET responses.
+     */
+    private String csrData;
+
+    public String getCsrData() {
+        return csrData;
+    }
+
+    public void setCsrData(String csrData) {
+        this.csrData = csrData;
+    }
+
+    /**
+     * Signing profile to use when signing the external CSR (input-only).
+     *
+     * When present, overrides the default profile used by
+     * {@link org.dogtagpki.server.ca.CAEngine#generateSigningCertFromCSR}.
+     * Ignored when {@link #csrData} is absent.  Not stored or returned in
+     * subsequent GET responses.
+     *
+     * <p>If absent, the engine defaults to {@code caExternalKeyCACert}.
+     */
+    private String profileId;
+
+    public String getProfileId() {
+        return profileId;
+    }
+
+    public void setProfileId(String profileId) {
+        this.profileId = profileId;
+    }
+
+    /**
+     * Whether this CA's private key is held externally (read-only).
+     *
+     * True when the authority was created with an external CSR.  Such a CA
+     * is tracked by Dogtag for certificate issuance and revocation but is
+     * never asked to perform signing operations locally.
+     */
+    private Boolean externalKey;
+
+    public Boolean getExternalKey() {
+        return externalKey;
+    }
+
+    public void setExternalKey(Boolean externalKey) {
+        this.externalKey = externalKey;
+    }
+
+    /**
      * Whether the CA is ready to perform signing operations.
      *
      * This is a read-only attribute; it cannot be set by the user.
@@ -153,7 +209,7 @@ public class AuthorityData implements JSONSerializer {
 
     @Override
     public int hashCode() {
-        return Objects.hash(description, dn, enabled, id, isHostAuthority, issuerDN, parentID, ready, serial);
+        return Objects.hash(description, dn, enabled, externalKey, id, isHostAuthority, issuerDN, parentID, ready, serial);
     }
 
     @Override
@@ -166,7 +222,8 @@ public class AuthorityData implements JSONSerializer {
             return false;
         AuthorityData other = (AuthorityData) obj;
         return Objects.equals(description, other.description) && Objects.equals(dn, other.dn)
-                && Objects.equals(enabled, other.enabled) && Objects.equals(id, other.id)
+                && Objects.equals(enabled, other.enabled) && Objects.equals(externalKey, other.externalKey)
+                && Objects.equals(id, other.id)
                 && Objects.equals(isHostAuthority, other.isHostAuthority) && Objects.equals(issuerDN, other.issuerDN)
                 && Objects.equals(ready, other.ready) && Objects.equals(serial, other.serial);
     }
