@@ -1,0 +1,273 @@
+name: CA authority with external key
+# Tests the full lifecycle of a lightweight CA authority whose private key
+# is held externally.  Simulates an ACME server that generates its own CA
+# key pair in an HSM by using OpenSSL to create the key and CSR locally,
+# then submitting only the CSR to Dogtag.
+#
+# Verifies:
+#   - POST /v2/authorities with csrData returns externalKey=true, ready=false
+#   - csrData is not stored or echoed back in subsequent GET responses
+#   - The signed sub-CA certificate chains to the root CA
+#   - The signed certificate's public key matches the submitted CSR
+#   - The signed certificate has CA:TRUE in Basic Constraints
+#   - The authority can be deleted with pki ca-authority-del
+
+on: workflow_call
+
+env:
+  DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Retrieve PKI images
+        uses: actions/cache@v4
+        with:
+          key: pki-images-${{ github.sha }}
+          path: pki-images.tar
+
+      - name: Load PKI images
+        run: docker load --input pki-images.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-create.sh \
+              --image=${{ env.DS_IMAGE }} \
+              --hostname=ds.example.com \
+              --network=example \
+              --network-alias=ds.example.com \
+              --password=Secret.123 \
+              ds
+
+      - name: Set up PKI container
+        run: |
+          tests/bin/runner-init.sh \
+              --hostname=pki.example.com \
+              --network=example \
+              --network-alias=pki.example.com \
+              pki
+
+      - name: Install CA
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
+              -v
+
+      - name: Install CA signing cert
+        run: |
+          docker exec pki pki-server cert-export \
+              --cert-file ca_signing.crt \
+              ca_signing
+
+          docker exec pki pki nss-cert-import \
+              --cert ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
+      - name: Install CA admin cert
+        run: |
+          docker exec pki pki pkcs12-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password Secret.123
+
+      - name: Generate external CA key pair and CSR with OpenSSL
+        run: |
+          # Simulate an ACME server generating its own CA key pair in an HSM.
+          # In production the private key would never leave the HSM; here we
+          # use a plain file to keep the test self-contained.
+          docker exec pki openssl req \
+              -newkey rsa:2048 \
+              -nodes \
+              -keyout /tmp/external-ca.key \
+              -subj "/CN=Test External Sub-CA/O=EXAMPLE" \
+              -out /tmp/external-ca.csr
+
+          docker exec pki openssl req -text -noout -in /tmp/external-ca.csr
+
+      - name: Get host CA parent ID
+        run: |
+          docker exec pki python3 -c "
+          import subprocess, re
+          out = subprocess.check_output(['pki', 'ca-authority-find']).decode()
+          host_auth = False
+          for line in out.splitlines():
+              if 'Host authority' in line:
+                  host_auth = True
+              if host_auth:
+                  m = re.search(r'ID:\s+(\S+)', line)
+                  if m:
+                      with open('/tmp/parent-id', 'w', encoding='utf-8') as f:
+                          f.write(m.group(1))
+                      break
+          " | tee /tmp/parent-id
+
+      - name: Build authority creation JSON payload
+        run: |
+          docker exec pki python3 -c "
+          import json
+          csr = open('/tmp/external-ca.csr').read()
+          parent_id = open('/tmp/parent-id').read()
+          payload = {
+              'dn':          'CN=Test External Sub-CA,O=EXAMPLE',
+              'parentID':    parent_id,
+              'description': 'Integration test external sub-CA',
+              'csrData':     csr,
+          }
+          open('/tmp/authority-req.json', 'w').write(json.dumps(payload))
+          "
+
+      - name: Create external-key authority via REST API
+        run: |
+          docker exec pki curl -sk -X POST \
+              --cert-type P12 \
+              --cert /root/.dogtag/pki-tomcat/ca_admin_cert.p12:Secret.123 \
+              -H "Content-Type: application/json" \
+              -H "Accept: application/json" \
+              -d @/tmp/authority-req.json \
+              -o /tmp/authority-resp.json \
+              https://pki.example.com:8443/ca/v2/authorities
+
+          docker exec pki python3 -m json.tool /tmp/authority-resp.json
+
+      - name: Verify authority creation response
+        run: |
+          docker exec pki python3 -c "
+          import json, sys
+          data = json.load(open('/tmp/authority-resp.json'))
+          errors = []
+          if data.get('externalKey') != True:
+              errors.append('Expected externalKey=true, got: {}'.format(data.get('externalKey')))
+          if data.get('ready') != False:
+              errors.append('Expected ready=false, got: {}'.format(data.get('ready')))
+          if 'csrData' in data:
+              errors.append('csrData must not be stored or returned in the response')
+          if 'profileId' in data:
+              errors.append('profileId must not be stored or returned in the response')
+          if errors:
+              print('FAILED:', errors, file=sys.stderr)
+              sys.exit(1)
+          open('/tmp/authority-id', 'w').write(data['id'])
+          print('OK: externalKey=true, ready=false, csrData absent, profileId absent')
+          print('Authority ID:', data['id'])
+          "
+
+      - name: Retrieve signed sub-CA certificate
+        run: |
+          AID=$(docker exec pki cat /tmp/authority-id)
+
+          docker exec pki curl -sk \
+              -H "Accept: application/x-pem-file" \
+              https://pki.example.com:8443/ca/v2/authorities/${AID}/cert \
+              -o /tmp/external-subca.crt
+
+          docker exec pki openssl x509 -text -noout -in /tmp/external-subca.crt
+
+      - name: Verify certificate subject DN
+        run: |
+          docker exec pki openssl x509 -noout -subject -in /tmp/external-subca.crt \
+              | tee actual
+
+          echo "subject=CN=Test External Sub-CA, O=EXAMPLE" > expected
+          diff expected actual
+
+      - name: Verify certificate has CA:TRUE and pathLen=0 basic constraint
+        run: |
+          docker exec pki openssl x509 -noout -text -in /tmp/external-subca.crt \
+              | grep -q "CA:TRUE"
+
+          docker exec pki openssl x509 -noout -text -in /tmp/external-subca.crt \
+              | grep -q "pathlen:0"
+
+      - name: Verify certificate public key matches the submitted CSR
+        run: |
+          docker exec pki python3 -c "
+          import subprocess, sys
+
+          def pubkey_sha256(cmd):
+              pub = subprocess.check_output(cmd)
+              der = subprocess.check_output(
+                  ['openssl', 'pkey', '-pubin', '-outform', 'DER'], input=pub)
+              return subprocess.check_output(['sha256sum'], input=der).split()[0]
+
+          cert_fp = pubkey_sha256(
+              ['openssl', 'x509', '-noout', '-pubkey', '-in', '/tmp/external-subca.crt'])
+          csr_fp = pubkey_sha256(
+              ['openssl', 'req', '-noout', '-pubkey', '-in', '/tmp/external-ca.csr'])
+
+          if cert_fp != csr_fp:
+              print('Public key mismatch: cert={} csr={}'.format(cert_fp, csr_fp),
+                    file=sys.stderr)
+              sys.exit(1)
+          print('OK: public key in certificate matches submitted CSR')
+          "
+
+      - name: Verify certificate chains to root CA
+        run: |
+          docker exec pki openssl verify \
+              -CAfile ca_signing.crt \
+              /tmp/external-subca.crt
+
+      - name: Verify GET reports externalKey=true, ready=false
+        run: |
+          AID=$(docker exec pki cat /tmp/authority-id)
+
+          docker exec pki python3 -c "
+          import json, subprocess, sys
+          out = subprocess.check_output([
+              'curl', '-sk',
+              '-H', 'Accept: application/json',
+              'https://pki.example.com:8443/ca/v2/authorities/$AID',
+          ])
+          data = json.loads(out)
+          errors = []
+          if data.get('externalKey') != True:
+              errors.append('Expected externalKey=true, got: {}'.format(data.get('externalKey')))
+          if data.get('ready') != False:
+              errors.append('Expected ready=false, got: {}'.format(data.get('ready')))
+          if errors:
+              print('FAILED:', errors, file=sys.stderr)
+              sys.exit(1)
+          print('OK: GET confirms externalKey=true, ready=false')
+          "
+
+      - name: Delete external-key authority
+        run: |
+          AID=$(docker exec pki cat /tmp/authority-id)
+          docker exec pki pki -n caadmin ca-authority-del ${AID}
+
+      - name: Verify authority no longer exists
+        run: |
+          AID=$(docker exec pki cat /tmp/authority-id)
+          docker exec pki pki ca-authority-show ${AID} && exit 1 || true
+
+      - name: Check DS server systemd journal
+        if: always()
+        run: |
+          docker exec ds journalctl -x --no-pager -u dirsrv@localhost.service
+
+      - name: Check DS container logs
+        if: always()
+        run: |
+          docker logs ds
+
+      - name: Check PKI server systemd journal
+        if: always()
+        run: |
+          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check CA debug log
+        if: always()
+        run: |
+          docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
