@@ -519,9 +519,32 @@ public class AuthorityRepository {
             throw new ResourceNotFoundException("CA \"" + authId + "\" not found");
 
         org.mozilla.jss.crypto.X509Certificate cert = ca.getCaX509Cert();
-        if (cert == null)
+        if (cert == null) {
+            // For external-key authorities the signing unit is not initialised
+            // (the private key lives outside Dogtag).  Fall back to the
+            // certificate repository using the serial number stored in the
+            // authority LDAP record.
+            BigInteger serial = ca.getAuthoritySerial();
+            if (serial != null) {
+                try {
+                    X509CertImpl certImpl = ca.getCertRepository()
+                            .getX509Certificate(serial);
+                    if (certImpl != null) {
+                        logger.info("AuthorityRepository: Returning cert for"
+                                + " external-key authority {} from repository"
+                                + " (serial 0x{})", authId,
+                                serial.toString(16));
+                        return certImpl.getEncoded();
+                    }
+                } catch (Exception e) {
+                    logger.warn("AuthorityRepository: Failed to retrieve cert"
+                            + " for authority {} from repository: {}",
+                            authId, e.getMessage());
+                }
+            }
             throw new ResourceNotFoundException(
                 "Certificate for CA \"" + authId + "\" not available");
+        }
 
         try {
             return cert.getEncoded();
