@@ -913,6 +913,28 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
      */
     public X509CertImpl getCACert() throws EBaseException {
 
+        // For external-key authorities mSigningUnit is not initialised
+        // (initSigningUnits() returns early for the #external#: sentinel).
+        // Fall back to the certificate repository using the serial number
+        // stored in the authority LDAP record.
+        if (mSigningUnit == null) {
+            if (authoritySerial != null && certRepository != null) {
+                try {
+                    X509CertImpl cert = certRepository.getX509Certificate(authoritySerial);
+                    if (cert != null) {
+                        return cert;
+                    }
+                } catch (Exception e) {
+                    logger.warn("CertificateAuthority: Failed to retrieve cert"
+                            + " from repository for serial 0x{}: {}",
+                            authoritySerial.toString(16), e.getMessage());
+                }
+            }
+            throw new EBaseException(
+                    "CA signing unit not initialised and no certificate available"
+                    + " in repository for authority " + authorityID);
+        }
+
         X509CertImpl caCertImpl = mSigningUnit.getCertImpl();
         if (caCertImpl != null) {
             return caCertImpl;
