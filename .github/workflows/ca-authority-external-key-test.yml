@@ -11,7 +11,7 @@ name: CA authority with external key
 #   - The signed sub-CA certificate chains to the root CA
 #   - The signed certificate's public key matches the submitted CSR
 #   - The signed certificate has CA:TRUE and pathLen:0 in Basic Constraints
-#   - The authority can be deleted with pki ca-authority-del
+#   - The authority can be disabled and then deleted with pki ca-authority-del
 
 on: workflow_call
 
@@ -271,6 +271,11 @@ jobs:
               sys.exit(1)
           print('OK: GET confirms externalKey=true, ready=false, csrData absent, profileId absent')
           "
+
+      - name: Disable external-key authority
+        run: |
+          AID=$(docker exec pki cat /tmp/authority-id)
+          docker exec pki pki -n caadmin ca-authority-disable ${AID}
 
       - name: Delete external-key authority
         run: |
