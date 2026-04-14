@@ -51,7 +51,7 @@ public class AuthorityRemoveCLI extends SubsystemCommandCLI {
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
             String line = reader.readLine();
-            if (!line.equalsIgnoreCase("Y")) {
+            if (line == null || !line.equalsIgnoreCase("Y")) {
                 return;
             }
         }
