@@ -275,7 +275,7 @@ jobs:
       - name: Delete external-key authority
         run: |
           AID=$(docker exec pki cat /tmp/authority-id)
-          docker exec pki pki -n caadmin ca-authority-del ${AID}
+          echo Y | docker exec -i pki pki -n caadmin ca-authority-del ${AID}
 
       - name: Verify authority no longer exists
         run: |
