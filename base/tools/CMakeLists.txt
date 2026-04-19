@@ -163,6 +163,32 @@ install(
         WORLD_READ WORLD_EXECUTE
 )
 
+install(
+    FILES
+        src/main/shell/hsmCompatVerifyServ.bash
+    DESTINATION
+        ${BIN_INSTALL_DIR}
+    RENAME
+        hsmCompatVerifyServ
+    PERMISSIONS
+        OWNER_READ OWNER_WRITE OWNER_EXECUTE
+        GROUP_READ GROUP_EXECUTE
+        WORLD_READ WORLD_EXECUTE
+)
+
+install(
+    FILES
+        src/main/shell/hsmCompatVerifyClnt.bash
+    DESTINATION
+        ${BIN_INSTALL_DIR}
+    RENAME
+        hsmCompatVerifyClnt
+    PERMISSIONS
+        OWNER_READ OWNER_WRITE OWNER_EXECUTE
+        GROUP_READ GROUP_EXECUTE
+        WORLD_READ WORLD_EXECUTE
+)
+
 if(WITH_TESTS)
     install(
         FILES

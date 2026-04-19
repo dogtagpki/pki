@@ -1995,6 +1995,8 @@ fi
 %{_bindir}/GenExtKeyUsage
 %{_bindir}/GenIssuerAltNameExt
 %{_bindir}/GenSubjectAltNameExt
+%{_bindir}/hsmCompatVerifyClnt
+%{_bindir}/hsmCompatVerifyServ
 %{_bindir}/HttpClient
 %{_bindir}/KRATool
 %{_bindir}/OCSPClient

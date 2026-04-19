@@ -1,0 +1,60 @@
+#!/bin/sh
+#
+# --- BEGIN COPYRIGHT BLOCK ---
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright (C) 2026 Red Hat, Inc.
+# All rights reserved.
+# --- END COPYRIGHT BLOCK ---
+#
+
+# load default, system-wide, and user-specific PKI configuration and
+# set NSS_DEFAULT_DB_TYPE.
+. /usr/share/pki/scripts/config
+
+###############################################################################
+##  (1) Specify variables used by this script.                               ##
+###############################################################################
+
+COMMAND=hsmCompatVerifyClnt
+
+###############################################################################
+##  (2) Check for valid usage of this command wrapper.                       ##
+###############################################################################
+
+###############################################################################
+##  (3) Define helper functions.                                             ##
+###############################################################################
+
+###############################################################################
+##  (4) Set the LD_LIBRARY_PATH environment variable to determine the        ##
+##      search order this command wrapper uses to find shared libraries.     ##
+###############################################################################
+
+JAVA="${JAVA_HOME}/bin/java"
+JAVA_OPTIONS=""
+
+###############################################################################
+##  (5) Execute the java command specified by this java command wrapper      ##
+##      based upon the LD_LIBRARY_PATH and PKI_LIB environment variables.    ##
+###############################################################################
+
+${JAVA} ${JAVA_OPTIONS} \
+  -cp "${PKI_LIB}/*" \
+  -Dcom.redhat.fips=false \
+  -Dredhat.crypto-policies=false \
+  -Djava.util.logging.config.file=${PKI_LOGGING_CONFIG} \
+  com.netscape.cmstools.${COMMAND} "$@"
+
+exit $?
