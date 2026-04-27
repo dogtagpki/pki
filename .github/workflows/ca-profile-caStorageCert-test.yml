@@ -1,0 +1,383 @@
+name: CA with caStorageCert profile
+# This test will perform the following operations:
+# - install CA
+# - enroll cert using PKCS10Client
+# - enroll cert using CRMFPopClient without POP
+# - enroll cert using CRMFPopClient with POP
+# - enroll cert using PKI CLI with PKCS #10 request
+# - enroll cert using PKI CLI with CRMF request without POP
+# - enroll cert using PKI CLI with CRMF request with POP
+# - remove CA
+
+on: workflow_call
+
+env:
+  DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Retrieve PKI images
+        uses: actions/cache@v4
+        with:
+          key: pki-images-${{ github.sha }}
+          path: pki-images.tar
+
+      - name: Load PKI images
+        run: docker load --input pki-images.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-create.sh \
+              --image=${{ env.DS_IMAGE }} \
+              --hostname=ds.example.com \
+              --network=example \
+              --network-alias=ds.example.com \
+              --password=Secret.123 \
+              ds
+
+      - name: Set up PKI container
+        run: |
+          tests/bin/runner-init.sh \
+              --hostname=pki.example.com \
+              --network=example \
+              --network-alias=pki.example.com \
+              pki
+
+          docker exec pki dnf install -y dumpasn1
+
+      - name: Install CA
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
+              -v
+
+      - name: Set up CA admin
+        run: |
+          docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
+
+          docker exec pki pki nss-cert-import \
+              --cert ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
+          docker exec pki pki pkcs12-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password Secret.123
+
+      - name: Enroll cert using PKCS10Client
+        run: |
+          # generate PKCS #10 request
+          docker exec pki PKCS10Client \
+              -d /root/.dogtag/nssdb \
+              -n "CN=test-PKCS10Client" \
+              -o test-PKCS10Client.csr
+
+          docker exec pki cat test-PKCS10Client.csr
+
+          docker exec pki AtoB test-PKCS10Client.csr test-PKCS10Client.der
+
+          # ignore invalid PKCS #10 data
+          docker exec pki dumpasn1 test-PKCS10Client.der || true
+
+          # issue cert
+          docker exec pki pki \
+              -n caadmin \
+              ca-cert-issue \
+              --profile caStorageCert \
+              --csr-file test-PKCS10Client.csr \
+              --output-file test-PKCS10Client.crt
+
+          # import cert
+          docker exec pki pki nss-cert-import \
+              --cert test-PKCS10Client.crt \
+              test-PKCS10Client
+
+          docker exec pki pki nss-cert-show test-PKCS10Client | tee output
+
+          # normalize output
+          sed \
+              -e '/^ *Serial Number:/d' \
+              -e '/^ *Not Valid Before:/d' \
+              -e '/^ *Not Valid After:/d' \
+              output > actual
+
+          # the cert should match the key (trust flags must be u,u,u)
+          cat > expected << EOF
+            Nickname: test-PKCS10Client
+            Subject DN: CN=test-PKCS10Client
+            Issuer DN: CN=CA Signing Certificate,OU=pki-tomcat,O=EXAMPLE
+            Trust Flags: u,u,u
+          EOF
+
+          diff expected actual
+
+      - name: Enroll cert using CRMFPopClient without POP
+        run: |
+          # generate CRMF request
+          docker exec pki CRMFPopClient \
+              -d /root/.dogtag/nssdb \
+              -p "" \
+              -n "CN=test-CRMFPopClient-without-POP" \
+              -q POP_NONE \
+              -o test-CRMFPopClient-without-POP.csr
+
+          docker exec pki cat test-CRMFPopClient-without-POP.csr
+
+          docker exec pki AtoB test-CRMFPopClient-without-POP.csr test-CRMFPopClient-without-POP.der
+          docker exec pki dumpasn1 test-CRMFPopClient-without-POP.der
+
+          # issue cert
+          docker exec pki pki \
+              -n caadmin \
+              ca-cert-issue \
+              --request-type crmf \
+              --profile caStorageCert \
+              --subject CN=test-CRMFPopClient-without-POP \
+              --csr-file test-CRMFPopClient-without-POP.csr \
+              --output-file test-CRMFPopClient-without-POP.crt
+
+          # import cert
+          docker exec pki pki nss-cert-import \
+              --cert test-CRMFPopClient-without-POP.crt \
+              test-CRMFPopClient-without-POP
+
+          docker exec pki pki nss-cert-show test-CRMFPopClient-without-POP | tee output
+
+          # normalize output
+          sed \
+              -e '/^ *Serial Number:/d' \
+              -e '/^ *Not Valid Before:/d' \
+              -e '/^ *Not Valid After:/d' \
+              output > actual
+
+          # the cert should match the key (trust flags must be u,u,u)
+          cat > expected << EOF
+            Nickname: test-CRMFPopClient-without-POP
+            Subject DN: CN=test-CRMFPopClient-without-POP
+            Issuer DN: CN=CA Signing Certificate,OU=pki-tomcat,O=EXAMPLE
+            Trust Flags: u,u,u
+          EOF
+
+          diff expected actual
+
+      - name: Enroll cert using CRMFPopClient with POP
+        run: |
+          # generate CRMF request
+          docker exec pki CRMFPopClient \
+              -d /root/.dogtag/nssdb \
+              -p "" \
+              -n "CN=test-CRMFPopClient-with-POP" \
+              -o test-CRMFPopClient-with-POP.csr
+
+          docker exec pki cat test-CRMFPopClient-with-POP.csr
+
+          docker exec pki AtoB test-CRMFPopClient-with-POP.csr test-CRMFPopClient-with-POP.der
+          docker exec pki dumpasn1 test-CRMFPopClient-with-POP.der
+
+          # issue cert
+          docker exec pki pki \
+              -n caadmin \
+              ca-cert-issue \
+              --request-type crmf \
+              --profile caStorageCert \
+              --subject CN=test-CRMFPopClient-with-POP \
+              --csr-file test-CRMFPopClient-with-POP.csr \
+              --output-file test-CRMFPopClient-with-POP.crt
+
+          # import cert
+          docker exec pki pki nss-cert-import \
+              --cert test-CRMFPopClient-with-POP.crt \
+              test-CRMFPopClient-with-POP
+
+          docker exec pki pki nss-cert-show test-CRMFPopClient-with-POP | tee output
+
+          # normalize output
+          sed \
+              -e '/^ *Serial Number:/d' \
+              -e '/^ *Not Valid Before:/d' \
+              -e '/^ *Not Valid After:/d' \
+              output > actual
+
+          # the cert should match the key (trust flags must be u,u,u)
+          cat > expected << EOF
+            Nickname: test-CRMFPopClient-with-POP
+            Subject DN: CN=test-CRMFPopClient-with-POP
+            Issuer DN: CN=CA Signing Certificate,OU=pki-tomcat,O=EXAMPLE
+            Trust Flags: u,u,u
+          EOF
+
+          diff expected actual
+
+      - name: "Enroll cert using PKI CLI with PKCS #10 request"
+        run: |
+          # generate PKCS #10 request
+          docker exec pki pki nss-cert-request \
+              --subject "CN=test-PKI-CLI-PKCS10" \
+              --csr test-PKI-CLI-PKCS10.csr
+
+          docker exec pki cat test-PKI-CLI-PKCS10.csr
+
+          docker exec pki AtoB test-PKI-CLI-PKCS10.csr test-PKI-CLI-PKCS10.der
+
+          # ignore invalid PKCS #10 data
+          docker exec pki dumpasn1 test-PKI-CLI-PKCS10.der || true
+
+          # issue cert
+          docker exec pki pki \
+              -n caadmin \
+              ca-cert-issue \
+              --profile caStorageCert \
+              --csr-file test-PKI-CLI-PKCS10.csr \
+              --output-file test-PKI-CLI-PKCS10.crt
+
+          # import cert
+          docker exec pki pki nss-cert-import \
+              --cert test-PKI-CLI-PKCS10.crt \
+              test-PKI-CLI-PKCS10
+
+          docker exec pki pki nss-cert-show test-PKI-CLI-PKCS10 | tee output
+
+          # normalize output
+          sed \
+              -e '/^ *Serial Number:/d' \
+              -e '/^ *Not Valid Before:/d' \
+              -e '/^ *Not Valid After:/d' \
+              output > actual
+
+          # the cert should match the key (trust flags must be u,u,u)
+          cat > expected << EOF
+            Nickname: test-PKI-CLI-PKCS10
+            Subject DN: CN=test-PKI-CLI-PKCS10
+            Issuer DN: CN=CA Signing Certificate,OU=pki-tomcat,O=EXAMPLE
+            Trust Flags: u,u,u
+          EOF
+
+          diff expected actual
+
+      - name: Enroll cert using PKI CLI with CRMF request without POP
+        run: |
+          # generate CRMF request
+          docker exec pki pki nss-cert-request \
+              --type crmf \
+              --subject "CN=test-PKI-CLI-CRMF-without-POP" \
+              --csr test-PKI-CLI-CRMF-without-POP.csr
+
+          docker exec pki cat test-PKI-CLI-CRMF-without-POP.csr
+
+          docker exec pki AtoB test-PKI-CLI-CRMF-without-POP.csr test-PKI-CLI-CRMF-without-POP.der
+          docker exec pki dumpasn1 test-PKI-CLI-CRMF-without-POP.der
+
+          # issue cert
+          docker exec pki pki \
+              -n caadmin \
+              ca-cert-issue \
+              --request-type crmf \
+              --profile caStorageCert \
+              --subject CN=test-PKI-CLI-CRMF-without-POP \
+              --csr-file test-PKI-CLI-CRMF-without-POP.csr \
+              --output-file test-PKI-CLI-CRMF-without-POP.crt
+
+          # import cert
+          docker exec pki pki nss-cert-import \
+              --cert test-PKI-CLI-CRMF-without-POP.crt \
+              test-PKI-CLI-CRMF-without-POP
+
+          docker exec pki pki nss-cert-show test-PKI-CLI-CRMF-without-POP | tee output
+
+          # normalize output
+          sed \
+              -e '/^ *Serial Number:/d' \
+              -e '/^ *Not Valid Before:/d' \
+              -e '/^ *Not Valid After:/d' \
+              output > actual
+
+          # the cert should match the key (trust flags must be u,u,u)
+          cat > expected << EOF
+            Nickname: test-PKI-CLI-CRMF-without-POP
+            Subject DN: CN=test-PKI-CLI-CRMF-without-POP
+            Issuer DN: CN=CA Signing Certificate,OU=pki-tomcat,O=EXAMPLE
+            Trust Flags: u,u,u
+          EOF
+
+          diff expected actual
+
+      - name: Enroll cert using PKI CLI with CRMF request with POP
+        run: |
+          # generate CRMF request
+          docker exec pki pki nss-cert-request \
+              --type crmf \
+              --pop \
+              --subject "CN=test-PKI-CLI-CRMF-with-POP" \
+              --csr test-PKI-CLI-CRMF-with-POP.csr
+
+          docker exec pki cat test-PKI-CLI-CRMF-with-POP.csr
+
+          docker exec pki AtoB test-PKI-CLI-CRMF-with-POP.csr test-PKI-CLI-CRMF-with-POP.der
+          docker exec pki dumpasn1 test-PKI-CLI-CRMF-with-POP.der
+
+          # issue cert
+          docker exec pki pki \
+              -n caadmin \
+              ca-cert-issue \
+              --request-type crmf \
+              --profile caStorageCert \
+              --subject CN=test-PKI-CLI-CRMF-with-POP \
+              --csr-file test-PKI-CLI-CRMF-with-POP.csr \
+              --output-file test-PKI-CLI-CRMF-with-POP.crt
+
+          # import cert
+          docker exec pki pki nss-cert-import \
+              --cert test-PKI-CLI-CRMF-with-POP.crt \
+              test-PKI-CLI-CRMF-with-POP
+
+          docker exec pki pki nss-cert-show test-PKI-CLI-CRMF-with-POP | tee output
+
+          # normalize output
+          sed \
+              -e '/^ *Serial Number:/d' \
+              -e '/^ *Not Valid Before:/d' \
+              -e '/^ *Not Valid After:/d' \
+              output > actual
+
+          # the cert should match the key (trust flags must be u,u,u)
+          cat > expected << EOF
+            Nickname: test-PKI-CLI-CRMF-with-POP
+            Subject DN: CN=test-PKI-CLI-CRMF-with-POP
+            Issuer DN: CN=CA Signing Certificate,OU=pki-tomcat,O=EXAMPLE
+            Trust Flags: u,u,u
+          EOF
+
+          diff expected actual
+
+      - name: Remove CA
+        run: |
+          docker exec pki pkidestroy -s CA -v
+
+      - name: Check for core dumps
+        if: failure()
+        run: |
+          docker exec pki ls -l
+          docker exec pki find / -path /proc -prune -o -name "hs_err_pid*.log" -exec cat {} \;
+
+      - name: Check PKI server systemd journal
+        if: always()
+        run: |
+          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check CA debug log
+        if: always()
+        run: |
+          docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;

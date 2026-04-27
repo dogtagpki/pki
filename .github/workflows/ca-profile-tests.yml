@@ -23,6 +23,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/ca-profile-caServerCert-test.yml
 
+  ca-profile-caStorageCert-test:
+    name: CA with caStorageCert profile
+    needs: build
+    uses: ./.github/workflows/ca-profile-caStorageCert-test.yml
+
   ca-profile-custom-test:
     name: CA with custom profile
     needs: build
