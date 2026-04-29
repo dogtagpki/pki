@@ -12,11 +12,14 @@ import java.util.Calendar;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.dogtagpki.cli.CLIException;
 import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.nss.NSSDatabase;
 import org.dogtagpki.nss.NSSExtensionGenerator;
+import org.dogtagpki.util.cert.CRMFUtil;
 import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.X500Name;
@@ -51,6 +54,10 @@ public class NSSCertIssueCLI extends CommandCLI {
         option.setArgName("path");
         options.addOption(option);
 
+        option = new Option(null, "csr-type", true, "CSR type: pkcs10 (default), crmf");
+        option.setArgName("type");
+        options.addOption(option);
+
         option = new Option(null, "ext", true, "Certificate extensions configuration");
         option.setArgName("path");
         options.addOption(option);
@@ -75,7 +82,7 @@ public class NSSCertIssueCLI extends CommandCLI {
         option.setArgName("unit");
         options.addOption(option);
 
-        option = new Option(null, "hash", true, "Hash algorithm (default is SHA256)");
+        option = new Option(null, "hash", true, "Hash function (default is SHA256 for RSA and EC key)");
         option.setArgName("hash");
         options.addOption(option);
 
@@ -93,13 +100,14 @@ public class NSSCertIssueCLI extends CommandCLI {
 
         String issuerNickname = cmd.getOptionValue("issuer");
         String csrFile = cmd.getOptionValue("csr");
+        String csrType = cmd.getOptionValue("csr-type", "pkcs10");
         String extConf = cmd.getOptionValue("ext");
         String subjectAltName = cmd.getOptionValue("subjectAltName");
         String serialNumber = cmd.getOptionValue("serial");
         String monthsValid = cmd.getOptionValue("months-valid");
         String validityLengthStr = cmd.getOptionValue("validity-length", "3");
         String validityUnitStr = cmd.getOptionValue("validity-unit", "month");
-        String hash = cmd.getOptionValue("hash", "SHA256");
+        String hash = cmd.getOptionValue("hash");
 
         if (csrFile == null) {
             throw new Exception("Missing certificate signing request");
@@ -122,9 +130,25 @@ public class NSSCertIssueCLI extends CommandCLI {
 
         String csrPEM = new String(Files.readAllBytes(Paths.get(csrFile)));
         byte[] csrBytes = CertUtil.parseCSR(csrPEM);
-        PKCS10 pkcs10 = new PKCS10(csrBytes);
-        X509Key subjectKey = pkcs10.getSubjectPublicKeyInfo();
-        X500Name subjectName = pkcs10.getSubjectName();
+
+        PKCS10 pkcs10 = null;
+        SEQUENCE crmfMsgs = null;
+        X509Key subjectKey = null;
+        X500Name subjectName = null;
+
+        if ("pkcs10".equals(csrType)) {
+            pkcs10 = new PKCS10(csrBytes);
+            subjectKey = pkcs10.getSubjectPublicKeyInfo();
+            subjectName = pkcs10.getSubjectName();
+
+        } else if ("crmf".equals(csrType)) {
+            crmfMsgs = CRMFUtil.parseCRMFMsgs(csrBytes);
+            subjectKey = CRMFUtil.getX509KeyFromCRMFMsgs(crmfMsgs);
+            subjectName = CRMFUtil.getSubjectName(crmfMsgs);
+
+        } else {
+            throw new CLIException("Invalid request type: " + csrType);
+        }
 
         NSSExtensionGenerator generator = new NSSExtensionGenerator();
         Extensions extensions = null;
@@ -153,6 +177,19 @@ public class NSSCertIssueCLI extends CommandCLI {
         }
 
         String tokenName = clientConfig.getTokenName();
+        String keyAlgorithm = subjectKey.getAlgorithm();
+
+        if (("RSA".equals(keyAlgorithm) || "EC".equals(keyAlgorithm))) {
+            if (hash == null) {
+                // by default use SHA256 for RSA and EC keys
+                hash = "SHA256";
+            }
+
+        } else { // ML-DSA and ML-KEM
+            if (hash != null) {
+                throw new CLIException("Hash function not supported for " + keyAlgorithm + " keys");
+            }
+        }
 
         X509Certificate cert = nssdb.createCertificate(
                 tokenName,

@@ -1075,6 +1075,48 @@ public class NSSDatabase {
                 usagesMask);
     }
 
+    public KeyPair createMLKEMKeyPair(
+            CryptoToken token,
+            int strength,
+            Boolean temporary,
+            Boolean sensitive,
+            Boolean extractable) throws Exception {
+
+        logger.debug("NSSDatabase: Creating ML-KEM key");
+        logger.debug("NSSDatabase: - strength: " + strength);
+
+        return CryptoUtil.generateMLKEMKeyPair(
+                token,
+                strength,
+                temporary,
+                sensitive,
+                extractable,
+                null,
+                null);
+    }
+
+    public KeyPair createMLKEMKeyPair(
+            CryptoToken token,
+            int strength,
+            Boolean temporary,
+            Boolean sensitive,
+            Boolean extractable,
+            Usage[] usages,
+            Usage[] usagesMask) throws Exception {
+
+        logger.debug("NSSDatabase: Creating ML-KEM key");
+        logger.debug("NSSDatabase: - strength: " + strength);
+
+        return CryptoUtil.generateMLKEMKeyPair(
+                token,
+                strength,
+                temporary,
+                sensitive,
+                extractable,
+                usages,
+                usagesMask);
+    }
+
     public KeyPair createECKeyPair(
             CryptoToken token,
             String curveName,
@@ -1386,7 +1428,10 @@ public class NSSDatabase {
         Date notAfterDate = calendar.getTime();
         logger.debug("NSSDatabase: - not after: " + notAfterDate);
 
-        String keyAlgorithm = hash + "with" + subjectKey.getAlgorithm();
+        String keyAlgorithm = subjectKey.getAlgorithm();
+        if (hash != null) {
+            keyAlgorithm = hash + "with" + keyAlgorithm;
+        }
         logger.debug("NSSDatabase: - key algorithm: " + keyAlgorithm);
 
         // convert Extensions into CertificateExtensions
@@ -1444,8 +1489,13 @@ public class NSSDatabase {
             logger.debug("NSSDatabase: - private key: " + Utils.HexEncode(privateKey.getUniqueID()));
         }
 
-        logger.debug("NSSDatabase: Private key algorithm: " + privateKey.getAlgorithm());
-        String signingAlgorithm = hash + "with" + privateKey.getAlgorithm();
+        String privateKeyAlgorithm = privateKey.getAlgorithm();
+        logger.debug("NSSDatabase: Private key algorithm: " + privateKeyAlgorithm);
+
+        String signingAlgorithm = privateKeyAlgorithm;
+        if (hash != null) {
+            signingAlgorithm = hash + "with" + privateKeyAlgorithm;
+        }
         logger.debug("NSSDatabase: Signing algorithm: " + signingAlgorithm);
 
         return CryptoUtil.signCert(privateKey, info, signingAlgorithm);

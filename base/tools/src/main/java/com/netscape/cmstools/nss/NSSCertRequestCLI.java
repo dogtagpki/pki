@@ -14,6 +14,7 @@ import java.security.KeyPair;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.codec.binary.Hex;
+import org.dogtagpki.cli.CLIException;
 import org.dogtagpki.cli.CommandCLI;
 import org.dogtagpki.nss.NSSDatabase;
 import org.dogtagpki.nss.NSSExtensionGenerator;
@@ -77,12 +78,16 @@ public class NSSCertRequestCLI extends CommandCLI {
         option.setArgName("path");
         options.addOption(option);
 
-        option = new Option(null, "key-type", true, "Key type: RSA (default), EC, MLDSA");
+        option = new Option(null, "key-type", true, "Key type: RSA (default), EC, MLDSA, MLKEM");
         option.setArgName("type");
         options.addOption(option);
 
-        option = new Option(null, "key-size", true, "Key size (RSA default: 2048, MLDSA default: 65)");
+        option = new Option(null, "key-size", true, "DEPRECATED: Key size");
         option.setArgName("size");
+        options.addOption(option);
+
+        option = new Option(null, "key-strength", true, "Key strength (RSA default: 2048, MLDSA default: 65, MLKEM default: 768)");
+        option.setArgName("strength");
         options.addOption(option);
 
         options.addOption(null, "key-wrap", false, "Generate RSA key for wrapping/unwrapping.");
@@ -110,7 +115,7 @@ public class NSSCertRequestCLI extends CommandCLI {
         option.setArgName("boolean");
         options.addOption(option);
 
-        option = new Option(null, "hash", true, "Hash algorithm (default: SHA256)");
+        option = new Option(null, "hash", true, "Hash function (default is SHA256 for RSA and EC key)");
         option.setArgName("name");
         options.addOption(option);
 
@@ -160,6 +165,15 @@ public class NSSCertRequestCLI extends CommandCLI {
         }
 
         String keyType = cmd.getOptionValue("key-type", "RSA");
+
+        String keyStrength = cmd.getOptionValue("key-strength");
+        String keySize = cmd.getOptionValue("key-size");
+
+        if (keyStrength == null && keySize != null) {
+            logger.warn("The --key-size option has been deprecated. Use --key-strength instead.");
+            keyStrength = keySize;
+        }
+
         boolean keyWrap = cmd.hasOption("key-wrap");
         String keyWrapAlg = cmd.getOptionValue(
                 "key-wrap-alg",
@@ -182,7 +196,7 @@ public class NSSCertRequestCLI extends CommandCLI {
             extractable = Boolean.parseBoolean(s);
         }
 
-        String hash = cmd.getOptionValue("hash", "SHA256");
+        String hash = cmd.getOptionValue("hash");
         String extConf = cmd.getOptionValue("ext");
         boolean skid = cmd.hasOption("skid");
         String subjectAltName = cmd.getOptionValue("subjectAltName");
@@ -211,18 +225,19 @@ public class NSSCertRequestCLI extends CommandCLI {
             keyType = keyPair.getPublic().getAlgorithm();
 
         } else if ("RSA".equalsIgnoreCase(keyType)) {
-            String keySize = cmd.getOptionValue("key-size", "2048");
+
+            if (keyStrength == null) keyStrength = "2048";
+
             keyPair = nssdb.createRSAKeyPair(
                     token,
-                    Integer.parseInt(keySize),
+                    Integer.parseInt(keyStrength),
                     keyWrap,
                     temporary,
                     sensitive,
                     extractable);
-            PK11PrivKey privateKey = (PK11PrivKey) keyPair.getPrivate();
-            keyID = "0x" + Utils.HexEncode(privateKey.getUniqueID());
 
         } else if ("EC".equalsIgnoreCase(keyType)) {
+
             keyPair = nssdb.createECKeyPair(
                     token,
                     curve,
@@ -230,22 +245,36 @@ public class NSSCertRequestCLI extends CommandCLI {
                     temporary,
                     sensitive,
                     extractable);
-            PK11PrivKey privateKey = (PK11PrivKey) keyPair.getPrivate();
-            keyID = "0x" + Utils.HexEncode(privateKey.getUniqueID());
 
         } else if ("MLDSA".equalsIgnoreCase(keyType)) {
-            String keySize = cmd.getOptionValue("key-size", "65");
+
+            if (keyStrength == null) keyStrength = "65";
+
             keyPair = nssdb.createMLDSAKeyPair(
                     token,
-                    Integer.parseInt(keySize),
+                    Integer.parseInt(keyStrength),
                     temporary,
                     sensitive,
                     extractable);
-            PK11PrivKey privateKey = (PK11PrivKey) keyPair.getPrivate();
-            keyID = "0x" + Utils.HexEncode(privateKey.getUniqueID());
+
+        } else if ("MLKEM".equalsIgnoreCase(keyType)) {
+
+            if (keyStrength == null) keyStrength = "768";
+
+            keyPair = nssdb.createMLKEMKeyPair(
+                    token,
+                    Integer.parseInt(keyStrength),
+                    temporary,
+                    sensitive,
+                    extractable);
 
         } else {
             throw new Exception("Unsupported key type: " + keyType);
+        }
+
+        if (keyID == null) {
+            PK11PrivKey privateKey = (PK11PrivKey) keyPair.getPrivate();
+            keyID = "0x" + Utils.HexEncode(privateKey.getUniqueID());
         }
 
         if (keyIDFile != null) {
@@ -275,6 +304,19 @@ public class NSSCertRequestCLI extends CommandCLI {
 
         X509Key subjectKey = CryptoUtil.createX509Key(keyPair.getPublic());
         extensions = generator.createExtensions(subjectKey);
+        String keyAlgorithm = subjectKey.getAlgorithm();
+
+        if (("RSA".equals(keyAlgorithm) || "EC".equals(keyAlgorithm))) {
+            if (hash == null) {
+                // by default use SHA256 for RSA and EC keys
+                hash = "SHA256";
+            }
+
+        } else { // ML-DSA and ML-KEM
+            if (hash != null) {
+                throw new CLIException("Hash function not supported for " + keyAlgorithm + " keys");
+            }
+        }
 
         byte[] bytes;
 
@@ -317,8 +359,24 @@ public class NSSCertRequestCLI extends CommandCLI {
             } else if ("EC".equalsIgnoreCase(keyType)) {
                 signatureAlgorithm = SignatureAlgorithm.ECSignatureWithSHA256Digest;
 
-            } else if ("MLDSA".equalsIgnoreCase(keyType)) {
-                signatureAlgorithm = SignatureAlgorithm.MLDSA;
+            } else if ("MLDSA".equalsIgnoreCase(keyType) || "ML-DSA".equalsIgnoreCase(keyType) || keyType.startsWith("ML-DSA-")) {
+                if ("44".equals(keyStrength)) {
+                    signatureAlgorithm = SignatureAlgorithm.MLDSA44;
+                } else if ("65".equals(keyStrength)) {
+                    signatureAlgorithm = SignatureAlgorithm.MLDSA65;
+                } else if ("87".equals(keyStrength)) {
+                    signatureAlgorithm = SignatureAlgorithm.MLDSA87;
+                } else {
+                    throw new CLIException("Unsupported ML-DSA key strength: " + keyStrength);
+                }
+
+            } else if ("MLKEM".equalsIgnoreCase(keyType) || "ML-KEM".equalsIgnoreCase(keyType) || keyType.startsWith("ML-KEM-")) {
+                if (pop != null) {
+                    throw new CLIException("ML-KEM does not support signature-based POP");
+                }
+
+                signatureAlgorithm = null;
+
             } else {
                 throw new Exception("Unknown algorithm: " + keyType);
             }

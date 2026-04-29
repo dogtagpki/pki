@@ -1,0 +1,18 @@
+= Tools Changes =
+
+== Changes in pki nss-key-create ==
+
+The `--key-type` option now accepts `MLKEM`.
+
+The `--key-size` option has been deprecated. Use `--key-strength` instead.
+
+== Changes in pki nss-cert-request ==
+
+The `--key-type` option now accepts `MLKEM`.
+
+The `--key-size` option has been deprecated. Use `--key-strength` instead.
+
+== Changes in pki nss-cert-issue ==
+
+The command now supports both PKCS #10 and CRMF requests.
+The CSR type can be specified with the `--csr-type` option.
