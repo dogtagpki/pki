@@ -24,16 +24,20 @@ import java.util.Set;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
-import org.dogtagpki.server.rest.v1.MessageFormatInterceptor;
-import org.dogtagpki.server.rest.v1.PKIExceptionMapper;
-
 @ApplicationPath("/v1")
 public class PKIApplication extends Application {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PKIApplication.class);
 
     private Set<Object> singletons = new LinkedHashSet<>();
     private Set<Class<?>> classes = new LinkedHashSet<>();
 
     public PKIApplication() {
+
+        // Check v1 API status
+        if (ApiStatusHelper.checkApiStatus("PKI", classes, logger, null)) {
+            return;
+        }
 
         // services
         classes.add(AppService.class);

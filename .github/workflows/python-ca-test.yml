@@ -427,6 +427,28 @@ jobs:
 
           diff expected output
 
+      ####################################################################################################
+      # Check API v1 status
+
+      - name: Check API v1 are deprecated
+        run: |
+          docker exec pki curl -v -k https://pki.example.com:8443/pki/v1/info 2>&1 |tee output
+          grep "< Deprecation: true" output
+          grep '< Link: <https://github.com/dogtagpki/pki/wiki/REST-API-v2>; rel="alternate"' output
+
+      - name: Make the API v1 disabled
+        run: |
+          docker exec pki sed -i \
+              's/-Dredhat.crypto-policies=false/-Dredhat.crypto-policies=false -Dapi.v1.status=disabled/' \
+              /etc/sysconfig/pki-tomcat
+
+          docker exec pki pki-server restart --wait
+
+      - name: Check API v1 are disabled
+        run: |
+          docker exec pki curl -k https://pki.example.com:8443/pki/v1/info | tee output
+          grep '"error":"REST API v1 have been disabled"' output
+
       - name: Check DS server systemd journal
         if: always()
         run: |

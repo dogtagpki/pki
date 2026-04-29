@@ -55,3 +55,90 @@ pki-server ca-db-vlv-reindex
 *Note:* The reindex operation may take significant time on databases with
 many certificates. For replicated environments, VLV indexes are not
 replicated, so each replica must run these commands independently.
+
+== REST API v1 Deprecation Control ==
+
+*Note:* This runtime control is only available when PKI was built with
+v1 REST API included (default build). If built with `--without-apiv1`,
+v1 code is not present and cannot be enabled at runtime. See Packaging
+Changes for build-time control.
+
+A runtime control mechanism allows administrators to manage the REST API v1
+lifecycle with three runtime states:
+
+=== enabled ===
+
+The REST API v1 is fully functional with no restrictions, maintaining backward
+compatibility.
+
+=== deprecated (default) ===
+
+The REST API v1 remains fully functional but logs prominent warning messages
+on each subsystem startup:
+
+----
+======================================================================
+WARNING: v1 REST API is DEPRECATED and will be removed in a future release.
+Please migrate to v2 API as soon as possible.
+======================================================================
+----
+
+All API v1 responses include standard deprecation headers for programmatic
+detection by clients and API tooling:
+
+----
+Deprecation: true
+Link: <https://github.com/dogtagpki/pki/wiki/REST-API-v2>; rel="alternate"
+----
+
+Use this state during a migration period to notify administrators and users
+that v1 API support will be removed in the future.
+
+=== disabled ===
+
+The REST API v1 endpoints exist but are not functional. All requests
+to v1 endpoints return HTTP 404 with a clean JSON error response:
+
+----
+{
+  "error": "REST API v1 have been disabled",
+  "message": "The REST API v1 has been disabled in this PKI instance. Please use the API v2 instead.",
+  "documentation": "https://github.com/dogtagpki/pki/wiki/REST-API-v2"
+}
+----
+
+Standard deprecation and sunset headers are included per IETF and RFC standards:
+
+----
+Deprecation: true
+Link: <https://github.com/dogtagpki/pki/wiki/REST-API-v2>; rel="alternate"
+----
+
+This enforces migration to v2 while maintaining the ability to roll back
+if needed.
+
+=== Runtime Configuration ===
+
+The default runtime state is `deprecated`. Administrators can override this
+by setting the `api.v1.status` system property in `/etc/pki/<instance>/tomcat.conf`
+or `/etc/sysconfig/<instance>`:
+
+----
+JAVA_OPTS="-Dapi.v1.status=enabled"
+----
+
+*Valid runtime values:*
+
+* `enabled` - v1 API fully functional
+* `deprecated` - v1 functional with deprecation warnings and headers
+* `disabled` - v1 returns HTTP 410 Gone
+
+*Value normalization:* The runtime property is normalized (trimmed, lowercased)
+before use. Invalid values are logged as warnings and fall back to `deprecated`.
+
+Additionally, it is possible to configure the behaviour at subsystem
+level by setting the parameter `api.v1.status` in the subsystem
+configuration file `CS.cfg`.
+
+*Note:* Runtime override only works when v1 code is present in the build
+(i.e., not built with `--without-apiv1`).

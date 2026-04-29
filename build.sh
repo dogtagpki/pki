@@ -54,6 +54,8 @@ WITH_JAVA=true
 WITH_CONSOLE=
 RUN_TESTS=true
 
+WITH_APIV1=true
+
 PKG_LIST="base, server, ca, kra, ocsp, tks, tps, acme, est, javadoc, theme, meta, tests, debug"
 ALL_PKGS=( $(echo "$PKG_LIST" | sed 's/ *, */ /g') )
 
@@ -97,6 +99,7 @@ usage() {
     echo "    --with-pkgs=<list>           Build packages specified in comma-separated list only."
     echo "    --without-pkgs=<list>        Build everything except packages specified in comma-separated list."
     echo "    --without-test               Do not run unit tests."
+    echo "    --without-apiv1              Do not build API V1 in any of the subpackages."
     echo " -v,--verbose                    Run in verbose mode."
     echo "    --debug                      Run in debug mode."
     echo "    --help                       Show help message."
@@ -417,6 +420,9 @@ while getopts v-: arg ; do
         without-test)
             RUN_TESTS=false
             ;;
+        without-apiv1)
+            WITH_APIV1=false
+            ;;
         verbose)
             VERBOSE=true
             ;;
@@ -435,7 +441,7 @@ while getopts v-: arg ; do
         prefix-dir* | include-dir* | lib-dir* | sysconf-dir* | share-dir* | \
         cmake* | c-flags* | java-home* | jni-dir* | \
         unit-dir* | python* | python-dir* | install-dir* | \
-        source-tag* | spec* | with-pkgs* | without-pkgs* | dist*)
+        source-tag* | spec* | with-pkgs* | without-pkgs* | dist* )
             echo "ERROR: Missing argument for --$OPTARG option" >&2
             exit 1
             ;;
@@ -778,6 +784,10 @@ if [ "$BUILD_TARGET" = "dist" ] ; then
         OPTIONS+=(-DRUN_TESTS:BOOL=OFF)
     fi
 
+    if [ "$WITH_APIV1" = false ] ; then
+        OPTIONS+=(-DWITH_APIV1:BOOL=OFF)
+    fi
+
     $CMAKE "${OPTIONS[@]}"
 
     OPTIONS=()
@@ -968,6 +978,10 @@ if [ "$RUN_TESTS" = false ] ; then
     OPTIONS+=(--without test)
 fi
 
+if [ "$WITH_APIV1" = false ] ; then
+    OPTIONS+=(--without apiv1)
+fi
+
 if [ "$DEBUG" = true ] ; then
     echo "rpmbuild -bs" "${OPTIONS[@]}" " $SPEC_FILE"
 fi
@@ -1002,6 +1016,10 @@ if [ "$VERBOSE" = true ] ; then
 fi
 
 OPTIONS+=(--define "_topdir ${WORK_DIR}")
+
+if [ "$WITH_APIV1" = false ] ; then
+    OPTIONS+=(--without apiv1)
+fi
 
 if [ "$DEBUG" = true ] ; then
     echo "rpmbuild --rebuild" "${OPTIONS[@]}" "$SRPM"
