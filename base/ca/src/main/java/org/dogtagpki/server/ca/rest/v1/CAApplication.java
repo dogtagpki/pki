@@ -1,10 +1,13 @@
 package org.dogtagpki.server.ca.rest.v1;
 
+import com.netscape.cmscore.apps.CMSEngine;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
+import org.dogtagpki.server.ca.CAEngine;
+import org.dogtagpki.server.ca.CAEngineConfig;
 
 import org.dogtagpki.server.rest.v1.ACLInterceptor;
 import org.dogtagpki.server.rest.v1.AccountService;
@@ -19,6 +22,7 @@ import org.dogtagpki.server.rest.v1.SecurityDomainService;
 import org.dogtagpki.server.rest.v1.SelfTestService;
 import org.dogtagpki.server.rest.v1.SessionContextInterceptor;
 import org.dogtagpki.server.rest.v1.UserService;
+import org.dogtagpki.server.rest.v1.ApiStatusHelper;
 
 @ApplicationPath("/v1")
 public class CAApplication extends Application {
@@ -29,6 +33,12 @@ public class CAApplication extends Application {
     private Set<Class<?>> classes = new LinkedHashSet<>();
 
     public CAApplication() {
+
+        CMSEngine engine = CAEngine.getInstance();
+        // Check v1 API status
+        if (ApiStatusHelper.checkApiStatus("CA", classes, logger, engine.getConfig())) {
+            return;
+        }
 
         // account
         classes.add(AccountService.class);

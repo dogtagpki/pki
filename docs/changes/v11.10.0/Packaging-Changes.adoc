@@ -1,0 +1,40 @@
+= Packaging Changes =
+
+== REST API v1 Build Control ==
+
+A new build-time flag `--without-apiv1` has been added to `build.sh`
+to control the inclusion of REST API v1 code. With this option it is
+possible to skip the API v1 code and all the related dependencies, like
+RESTEasy and Jackson JAX-RS providers.
+
+=== Build-time Control ===
+
+By default, v1 REST API are **included** in the build. To exclude them:
+
+----
+./build.sh --without-apiv1 rpm
+----
+
+When building with `--without-apiv1`:
+
+* v1 REST API source files are excluded from compilation
+* JAX-RS/RESTEasy dependencies are not included in BuildRequires or Requires
+* Jackson JAX-RS provider dependencies are excluded
+* Binary RPMs are approximately 2-3MB smaller
+* v1 packages are excluded from javadoc generation
+
+When building via rpmbuild directly:
+
+----
+rpmbuild --without apiv1 -ba pki.spec
+----
+
+=== Runtime Control ===
+
+When v1 REST API **are included** at build time (default), administrators
+can control the runtime behavior via system property. See Server Changes
+for details on runtime configuration.
+
+*Important:* Runtime control is only available when v1 code was included
+at build time. If built with `--without-apiv1`, v1 API cannot be enabled
+at runtime.
