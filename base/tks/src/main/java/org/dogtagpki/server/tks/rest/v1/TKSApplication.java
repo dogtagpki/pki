@@ -1,5 +1,6 @@
 package org.dogtagpki.server.tks.rest.v1;
 
+import com.netscape.cmscore.apps.CMSEngine;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -17,14 +18,24 @@ import org.dogtagpki.server.rest.v1.PKIExceptionMapper;
 import org.dogtagpki.server.rest.v1.SelfTestService;
 import org.dogtagpki.server.rest.v1.SessionContextInterceptor;
 import org.dogtagpki.server.rest.v1.UserService;
+import org.dogtagpki.server.tks.TKSEngine;
+import org.dogtagpki.server.rest.v1.ApiStatusHelper;
 
 @ApplicationPath("/v1")
 public class TKSApplication extends Application {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TKSApplication.class);
 
     private Set<Object> singletons = new LinkedHashSet<>();
     private Set<Class<?>> classes = new LinkedHashSet<>();
 
     public TKSApplication() {
+
+        CMSEngine engine = TKSEngine.getInstance();
+        // Check v1 API status
+        if (ApiStatusHelper.checkApiStatus("TKS", classes, logger, engine.getConfig())) {
+            return;
+        }
 
         // account
         classes.add(AccountService.class);

@@ -32,4 +32,44 @@
         <module>console</module>
     </modules>
 
+    <profiles>
+        <!-- Profile to drop v1 API completely (no compilation) -->
+        <profile>
+            <id>api-v1-dropped</id>
+            <activation>
+                <property>
+                    <name>api.v1</name>
+                    <value>false</value>
+                </property>
+            </activation>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-compiler-plugin</artifactId>
+                            <configuration>
+                                <excludes combine.children="append">
+                                    <!-- Exclude all v1 REST API files -->
+                                    <exclude>**/rest/v1/**</exclude>
+                                    <!-- Exclude v1 base classes -->
+                                    <exclude>**/PKIService.java</exclude>
+                                    <exclude>**/SubsystemService.java</exclude>
+                                    <exclude>**/v1/PKIApplication.java</exclude>
+                                    <!-- Exclude JAX-RS resource interfaces (v1 only) -->
+                                    <exclude>**/*Resource.java</exclude>
+                                    <!-- Exclude PATCH annotation -->
+                                    <exclude>**/PATCH.java</exclude>
+                                    <!-- Exclude TPS v1 services -->
+                                    <exclude>**/TPSAccountService.java</exclude>
+                                    <exclude>**/config/ConfigService.java</exclude>
+                                </excludes>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+    </profiles>
+
 </project>
