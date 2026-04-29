@@ -56,6 +56,45 @@ if(((${Javadoc_VERSION_MAJOR} EQUAL 1) AND (${Javadoc_VERSION_MINOR} EQUAL 8)) O
     set(doclintstr "-Xdoclint:none")
 endif()
 
+# Check v1 API status
+if(NOT DEFINED V1_API_STATUS)
+    set(V1_API_STATUS "deprecated")
+endif()
+# Always set as cache variable to make it available to all subdirectories
+set(V1_API_STATUS "${V1_API_STATUS}" CACHE STRING "v1 API status: enabled, deprecated, disabled, dropped" FORCE)
+message(STATUS "V1_API_STATUS = ${V1_API_STATUS}")
+
+if("${V1_API_STATUS}" STREQUAL "dropped")
+    # v1 dropped: exclude v1-specific packages from javadoc
+    message(STATUS "v1 API dropped: excluding v1 packages from javadoc")
+    # Don't include com.netscape.certsrv or org.dogtagpki (which are mostly v1 Resource interfaces)
+    set(v1_subpackages "org.dogtagpki")
+    # Exclude v1-specific packages (both client and server)
+    # Only exclude v1 REST packages, not entire subsystem packages
+    set(exclude_packages
+        "com.netscape.certsrv"
+        "com.netscape.cms.servlet"
+        "org.dogtagpki.server.rest.v1"
+        "org.dogtagpki.server.ca.rest.v1"
+        "org.dogtagpki.server.kra.rest.v1"
+        "org.dogtagpki.server.ocsp.rest.v1"
+        "org.dogtagpki.server.tks.rest.v1"
+        "org.dogtagpki.server.tps.rest.v1"
+    )
+    # Don't include JAX-RS jars - they're not available when v1 is dropped
+    # and javadoc will skip type checking for excluded packages
+    set(jaxrs_classpath "")
+    # Ignore source errors in excluded packages (transformed code references jakarta.ws.rs but jars have javax.ws.rs)
+    set(v1_javadoc_opts "--ignore-source-errors")
+else()
+    # v1 enabled/deprecated/disabled: include all packages
+    message(STATUS "v1 API ${V1_API_STATUS}: including all packages in javadoc")
+    set(v1_subpackages "com.netscape.certsrv" "org.dogtagpki")
+    set(exclude_packages "")
+    set(jaxrs_classpath ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR})
+    set(v1_javadoc_opts "")
+endif()
+
 javadoc(pki-javadoc
     SOURCEPATH
         ${CMAKE_SOURCE_DIR}/base/common/src/main/java
@@ -65,10 +104,11 @@ javadoc(pki-javadoc
         ${CMAKE_CURRENT_BINARY_DIR}/javadoc/pki
     SUBPACKAGES
         com.netscape.cmsutil
-        com.netscape.certsrv
         com.netscape.cmstools
-        org.dogtagpki
+        ${v1_subpackages}
         ${PKI_JAVADOC_SUBPACKAGES}
+    EXCLUDE
+        ${exclude_packages}
     CLASSPATH
         ${SLF4J_API_JAR} ${JAXB_API_JAR}
         ${COMMONS_CLI_JAR} ${COMMONS_LANG3_JAR}
@@ -76,13 +116,12 @@ javadoc(pki-javadoc
         ${LDAPJDK_JAR}
         ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_JAR}
         ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
-        ${JAXRS_API_JAR}
+        ${jaxrs_classpath}
         ${JACKSON_CORE_JAR}
         ${JACKSON_ANNOTATIONS_JAR}
         ${JACKSON_DATABIND_JAR}
         ${JACKSON_MODULE_JAXB_ANNOTATIONS_JAR}
         ${JAKARTA_ANNOTATION_API_JAR}
-        ${RESTEASY_JAXRS_JAR}
         ${JSS_JAR}
         ${JSS_TOMCAT_JAR}
         ${JSS_TOMCAT_9_0_JAR}
@@ -98,6 +137,7 @@ javadoc(pki-javadoc
         -version
         -quiet
         ${doclintstr}
+        ${v1_javadoc_opts}
 )
 
 add_dependencies(javadoc pki-javadoc)

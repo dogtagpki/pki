@@ -18,6 +18,7 @@ import org.dogtagpki.server.rest.v1.SecurityDomainService;
 import org.dogtagpki.server.rest.v1.SelfTestService;
 import org.dogtagpki.server.rest.v1.SessionContextInterceptor;
 import org.dogtagpki.server.rest.v1.UserService;
+import org.dogtagpki.server.rest.v1.V1ApiStatusHelper;
 
 @ApplicationPath("/v1")
 public class OCSPApplication extends Application {
@@ -28,6 +29,11 @@ public class OCSPApplication extends Application {
     private Set<Class<?>> classes = new LinkedHashSet<>();
 
     public OCSPApplication() {
+
+        // Check v1 API status
+        if (V1ApiStatusHelper.checkV1ApiStatus("OCSP", classes, logger)) {
+            return;
+        }
 
         // account
         classes.add(AccountService.class);

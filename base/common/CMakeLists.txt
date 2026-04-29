@@ -128,8 +128,6 @@ add_custom_command(
     COMMAND ln -sf ${JACKSON_ANNOTATIONS_LINK} lib/jackson-annotations.jar
     COMMAND ln -sf ${JACKSON_CORE_LINK} lib/jackson-core.jar
     COMMAND ln -sf ${JACKSON_DATABIND_LINK} lib/jackson-databind.jar
-    COMMAND ln -sf ${JACKSON_JAXRS_BASE_LINK} lib/jackson-jaxrs-base.jar
-    COMMAND ln -sf ${JACKSON_JAXRS_JSON_PROVIDER_LINK} lib/jackson-jaxrs-json-provider.jar
     COMMAND ln -sf ${JACKSON_MODULE_JAXB_ANNOTATIONS_LINK} lib/jackson-module-jaxb-annotations.jar
     COMMAND ln -sf ${JAKARTA_ACTIVATION_API_LINK} lib/jakarta.activation-api.jar
     COMMAND ln -sf ${JAKARTA_ANNOTATION_API_LINK} lib/jakarta.annotation-api.jar
@@ -141,12 +139,22 @@ add_custom_command(
     COMMAND ln -sf ../../../..${P11_KIT_TRUST} lib/p11-kit-trust.so
     COMMAND ln -sf ../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-common.jar lib/pki-common.jar
     COMMAND ln -sf ../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-tools.jar lib/pki-tools.jar
-    COMMAND ln -sf ${RESTEASY_JACKSON_PROVIDER_LINK} lib/resteasy-jackson2-provider.jar
-    COMMAND ln -sf ${RESTEASY_JAXRS_LINK} lib/resteasy-jaxrs.jar
     COMMAND ln -sf ../../../..${SERVLET_JAR} lib/servlet.jar
     COMMAND ln -sf ${SLF4J_API_LINK} lib/slf4j-api.jar
     COMMAND ln -sf ${SLF4J_JDK14_LINK} lib/slf4j-jdk14.jar
 )
+
+if(NOT "${V1_API_STATUS}" STREQUAL "dropped")
+add_custom_command(
+    TARGET pki-lib POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory lib
+    COMMAND test ! -d ${CMAKE_SOURCE_DIR}/base/common/lib || cp ${CMAKE_SOURCE_DIR}/base/common/lib/* lib
+    COMMAND ln -sf ${JACKSON_JAXRS_BASE_LINK} lib/jackson-jaxrs-base.jar
+    COMMAND ln -sf ${JACKSON_JAXRS_JSON_PROVIDER_LINK} lib/jackson-jaxrs-json-provider.jar
+    COMMAND ln -sf ${RESTEASY_JACKSON_PROVIDER_LINK} lib/resteasy-jackson2-provider.jar
+    COMMAND ln -sf ${RESTEASY_JAXRS_LINK} lib/resteasy-jaxrs.jar
+)
+endif()
 
 add_custom_target(pki-man ALL
     COMMENT "Creating PKI manuals")
