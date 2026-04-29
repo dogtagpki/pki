@@ -28,6 +28,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/pki-nss-ecc-test.yml
 
+  pki-nss-pqc-test:
+    name: PKI NSS CLI with PQC
+    needs: build
+    uses: ./.github/workflows/pki-nss-pqc-test.yml
+
   pki-nss-aes-test:
     name: PKI NSS CLI with AES
     needs: build

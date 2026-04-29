@@ -518,6 +518,51 @@ public class CryptoUtil {
         return keygen.genKeyPair();
     }
 
+    /**
+     * Generates an ML-KEM key pair.
+     */
+    public static KeyPair generateMLKEMKeyPair(
+            CryptoToken token,
+            int strength,
+            Boolean temporary,
+            Boolean sensitive,
+            Boolean extractable,
+            Usage[] usages,
+            Usage[] usagesMask) throws Exception {
+
+        logger.debug("CryptoUtil: Generating ML-KEM key pair");
+
+        KeyPairGenerator keygen = token.getKeyPairGenerator(KeyPairAlgorithm.MLKEM);
+
+        logger.debug("CryptoUtil: - temporary: " + temporary);
+        if (temporary != null) {
+            keygen.temporaryPairs(temporary);
+        }
+
+        logger.debug("CryptoUtil: - sensitive: " + sensitive);
+        if (sensitive != null) {
+            keygen.sensitivePairs(sensitive);
+        }
+
+        logger.debug("CryptoUtil: - extractable: " + extractable);
+        if (extractable != null) {
+            keygen.extractablePairs(extractable);
+        }
+
+        String usageList = usages != null ? String.join(",", Stream.of(usages).map(KeyPairGeneratorSpi.Usage::name).toArray(String[]::new)) : "";
+        logger.debug("CryptoUtil: - key usage: {}", usageList);
+
+        String usageMaskList = usagesMask != null ? String.join(",", Stream.of(usagesMask).map(KeyPairGeneratorSpi.Usage::name).toArray(String[]::new)) : "";
+        logger.debug("CryptoUtil: - key usage mask: {}", usageMaskList);
+
+        keygen.setKeyPairUsages(usages, usagesMask);
+
+        logger.debug("CryptoUtil: - key strength: " + strength);
+        keygen.initialize(strength);
+
+        return keygen.genKeyPair();
+    }
+
     public static boolean isECCKey(X509Key key) {
         String keyAlgo = key.getAlgorithm();
         if (keyAlgo.equals("EC") ||
