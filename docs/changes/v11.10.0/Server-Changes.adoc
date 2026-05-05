@@ -1,5 +1,38 @@
 = Server Changes =
 
+== AJP Connector Packet Size ==
+
+The AJP connector `packetSize` is now set to `65536` bytes (the AJP maximum)
+by default. This is required when the upstream reverse proxy forwards large TLS
+handshake data from clients using post-quantum certificates (ML-DSA or ML-KEM),
+which produce significantly larger certificate chains than classical algorithms.
+
+The default value is controlled by `pki_ajp_packet_size` in `default.cfg` and
+can be overridden per deployment in the user configuration file passed to
+`pkispawn`.
+
+The upstream httpd proxy must be configured with a matching buffer size.
+For `mod_proxy_ajp`, set `ProxyIOBufferSize` to the same value in the
+appropriate virtual host or global configuration:
+
+----
+ProxyIOBufferSize 65536
+----
+
+For new instances, the value is applied automatically during installation.
+
+For existing instances, the upgrade script sets `packetSize` on all AJP/1.3
+connectors in `server.xml`. Connectors that already carry a `packetSize`
+attribute are left unchanged.
+
+== Fix NullPointerException in LDAPSession.read() ==
+
+`LDAPSession.read()` now throws `DBRecordNotFoundException` when the LDAP
+search returns no entry, instead of dereferencing a null `LDAPEntry` and
+raising a `NullPointerException`. This aligns the null-result code path with
+the existing `LDAPException(NO_SUCH_OBJECT)` path handled by
+`LDAPExceptionConverter`.
+
 == VLV Index for CRL Generation ==
 
 VLV indexes are not enabled by default. However, if VLV is enabled during
