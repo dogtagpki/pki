@@ -881,14 +881,12 @@ public class CertificateRepository extends Repository {
      */
     public CertRecord readCertificateRecord(BigInteger serialNo)
             throws EBaseException {
-        CertRecord rec = null;
 
         try (DBSSession s = dbSubsystem.createSession()) {
             String name = "cn=" + serialNo + "," + mBaseDN;
 
-            rec = (CertRecord) s.read(name);
+            return (CertRecord) s.read(name);
         }
-        return rec;
     }
 
     public boolean checkCertificateRecord(BigInteger serialNo)

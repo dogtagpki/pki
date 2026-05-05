@@ -178,6 +178,9 @@ public class LDAPSession extends DBSSession {
                     LDAPv3.SCOPE_BASE, "(objectclass=*)",
                     ldapattrs, false);
             LDAPEntry entry = res.next();
+            if (entry == null) {
+                throw new DBRecordNotFoundException(CMS.getUserMessage("CMS_DBS_RECORD_NOT_FOUND"));
+            }
             LDAPAttributeSet attrSet = entry.getAttributeSet();
 
             for (Enumeration<LDAPAttribute> e = attrSet.getAttributes(); e.hasMoreElements(); ) {
