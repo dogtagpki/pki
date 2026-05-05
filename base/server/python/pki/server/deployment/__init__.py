@@ -505,6 +505,7 @@ class PKIDeployer:
         connector.set('redirectPort', self.mdict['pki_https_port'])
         connector.set('address', self.mdict['pki_ajp_host_ipv4'])
         connector.set('secret', self.mdict['pki_ajp_secret'])
+        connector.set('packetSize', self.mdict['pki_ajp_packet_size'])
 
         server_config.add_connector(connector)
 
@@ -516,6 +517,7 @@ class PKIDeployer:
         connector.set('redirectPort', self.mdict['pki_https_port'])
         connector.set('address', self.mdict['pki_ajp_host_ipv6'])
         connector.set('secret', self.mdict['pki_ajp_secret'])
+        connector.set('packetSize', self.mdict['pki_ajp_packet_size'])
 
         server_config.add_connector(connector)
 
