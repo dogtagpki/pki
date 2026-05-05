@@ -1087,6 +1087,12 @@ class PKIDeployer:
                     'kra.transportUnit.nickName',
                     transport_token + ':' + transport_nickname)
 
+            # Configure PKCS#12 MAC for key recovery operations
+            subsystem.set_config('kra.pkcs12.macType',
+                                self.mdict.get('pki_pkcs12_mac_type', 'classic'))
+            subsystem.set_config('kra.pkcs12.macDigest',
+                                self.mdict.get('pki_pkcs12_mac_digest', 'SHA256'))
+
         if subsystem.type == 'OCSP':
 
             signing_nickname = subsystem.config['ocsp.signing.nickname']

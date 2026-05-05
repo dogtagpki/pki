@@ -2772,7 +2772,9 @@ class NSSDatabase:
                       append=False,
                       include_trust_flags=True,
                       include_key=True,
-                      include_chain=True):
+                      include_chain=True,
+                      mac_type=None,
+                      mac_digest=None):
 
         tmpdir = self.create_tmpdir()
 
@@ -2824,6 +2826,12 @@ class NSSDatabase:
 
             if not include_chain:
                 cmd.extend(['--no-chain'])
+
+            if mac_type:
+                cmd.extend(['--mac-type', mac_type])
+
+            if mac_digest:
+                cmd.extend(['--mac-digest', mac_digest])
 
             if logger.isEnabledFor(logging.DEBUG):
                 cmd.append('--debug')
