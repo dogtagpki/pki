@@ -295,8 +295,8 @@ BuildRequires:    mvn(org.apache.tomcat:tomcat-util-scan) >= 10.0.36
 
 %endif
 
-BuildRequires:    mvn(org.dogtagpki.jss:jss-base) >= 5.10
-BuildRequires:    mvn(org.dogtagpki.jss:jss-tomcat) >= 5.10
+BuildRequires:    mvn(org.dogtagpki.jss:jss-base) >= 5.10.0
+BuildRequires:    mvn(org.dogtagpki.jss:jss-tomcat) >= 5.10.0
 BuildRequires:    mvn(org.dogtagpki.ldap-sdk:ldapjdk) >= 5.6.0
 
 # Python build dependencies

@@ -486,17 +486,27 @@ public class SecurityDataProcessor {
 
         byte[] iv = null;
         byte[] iv_wrap = null;
+        // Check if client provided IV in the request
+        String ivStr_in = null;
+
+        // Only generate IVs if client doesn't provide.
         try {
-            iv = generate_iv(
-                    payloadEncryptOID,
-                    transportUnit.getOldWrappingParams().getPayloadEncryptionAlgorithm());
+             ivStr_in = (String) params.get(Request.SECURITY_DATA_IV_STRING_IN);
+             iv = ivStr_in != null ? Utils.base64decode(ivStr_in) : null;
+
+            if (iv == null) {
+                iv = generate_iv(
+                        payloadEncryptOID,
+                        transportUnit.getOldWrappingParams().getPayloadEncryptionAlgorithm());
+            }
             iv_wrap = generate_wrap_iv(
-                    payloadWrapName,
-                    transportUnit.getOldWrappingParams().getPayloadWrapAlgorithm());
+                payloadWrapName,
+                transportUnit.getOldWrappingParams().getPayloadWrapAlgorithm());
         } catch (Exception e1) {
             jssSubsystem.obscureBytes(unwrappedSecData);
-            throw new EBaseException("Failed to generate IV when wrapping secret", e1);
+            throw new EBaseException("Failed to generate IV data when wrapping secret", e1);
         }
+
         String ivStr = iv != null? Utils.base64encode(iv, false): null;
         String ivStr_wrap = iv_wrap != null ? Utils.base64encode(iv_wrap, false): null;
 

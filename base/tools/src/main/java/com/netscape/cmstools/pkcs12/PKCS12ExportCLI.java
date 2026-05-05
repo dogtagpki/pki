@@ -24,8 +24,10 @@ import java.io.FileReader;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CommandCLI;
+import org.mozilla.jss.crypto.DigestAlgorithm;
 import org.mozilla.jss.crypto.PBEAlgorithm;
 import org.mozilla.jss.netscape.security.pkcs.PKCS12;
+import org.mozilla.jss.pkcs12.MacType;
 import org.mozilla.jss.netscape.security.pkcs.PKCS12Util;
 import org.mozilla.jss.util.Password;
 
@@ -72,6 +74,18 @@ public class PKCS12ExportCLI extends CommandCLI {
                 System.out.println(" - " + algorithm);
             }
         }
+
+        System.out.println();
+        System.out.println("Supported MAC types:");
+        System.out.println(" - classic (PKCS#12 v1.0 - default)");
+        System.out.println(" - PBMAC1 (RFC 9579)");
+
+        System.out.println();
+        System.out.println("Supported MAC digest algorithms (for PBMAC1):");
+        System.out.println(" - SHA256 (default)");
+        System.out.println(" - SHA384");
+        System.out.println(" - SHA512");
+
     }
 
     @Override
@@ -110,6 +124,16 @@ public class PKCS12ExportCLI extends CommandCLI {
 
         option = new Option(null, "key-encryption", true,
                 "Key encryption algorithm (default: " + PKCS12Util.DEFAULT_KEY_ENCRYPTION_NAME + ").");
+        option.setArgName("algorithm");
+        options.addOption(option);
+
+        option = new Option(null, "mac-type", true,
+                "MAC algorithm type: classic or PBMAC1 (default: classic).");
+        option.setArgName("type");
+        options.addOption(option);
+
+        option = new Option(null, "mac-digest", true,
+                "MAC digest algorithm for PBMAC1: SHA256, SHA384, SHA512 (default: SHA256).");
         option.setArgName("algorithm");
         options.addOption(option);
 
@@ -158,6 +182,8 @@ public class PKCS12ExportCLI extends CommandCLI {
 
         String certEncryption = cmd.getOptionValue("cert-encryption");
         String keyEncryption = cmd.getOptionValue("key-encryption");
+        String macTypeStr = cmd.getOptionValue("mac-type");
+        String macDigestStr = cmd.getOptionValue("mac-digest");
 
         boolean append = cmd.hasOption("append");
         boolean includeTrustFlags = !cmd.hasOption("no-trust-flags");
@@ -178,6 +204,28 @@ public class PKCS12ExportCLI extends CommandCLI {
                 util.setKeyEncryption(keyEncryption);
             }
             util.setTrustFlagsEnabled(includeTrustFlags);
+
+            if (macTypeStr != null) {
+                if ("classic".equalsIgnoreCase(macTypeStr)) {
+                    util.setMacType(MacType.CLASSIC);
+                } else if ("PBMAC1".equalsIgnoreCase(macTypeStr)) {
+                    util.setMacType(MacType.PBMAC1);
+                } else {
+                    throw new Exception("Unsupported MAC type: " + macTypeStr);
+                }
+            }
+
+            if (macDigestStr != null) {
+                if ("SHA256".equalsIgnoreCase(macDigestStr)) {
+                    util.setMacDigest(DigestAlgorithm.SHA256);
+                } else if ("SHA384".equalsIgnoreCase(macDigestStr)) {
+                    util.setMacDigest(DigestAlgorithm.SHA384);
+                } else if ("SHA512".equalsIgnoreCase(macDigestStr)) {
+                    util.setMacDigest(DigestAlgorithm.SHA512);
+                } else {
+                    throw new Exception("Unsupported MAC digest: " + macDigestStr);
+                }
+            }
 
             PKCS12 pkcs12;
 

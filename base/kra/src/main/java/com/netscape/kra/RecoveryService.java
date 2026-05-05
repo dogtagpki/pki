@@ -53,12 +53,14 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkcs12.AuthenticatedSafes;
 import org.mozilla.jss.pkcs12.CertBag;
+import org.mozilla.jss.pkcs12.MacType;
 import org.mozilla.jss.pkcs12.PFX;
 import org.mozilla.jss.pkcs12.PasswordConverter;
 import org.mozilla.jss.pkcs12.SafeBag;
 import org.mozilla.jss.pkix.primitive.EncryptedPrivateKeyInfo;
 import org.mozilla.jss.pkix.primitive.PrivateKeyInfo;
 import org.mozilla.jss.util.Password;
+import org.mozilla.jss.crypto.DigestAlgorithm;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
@@ -696,7 +698,8 @@ public class RecoveryService implements IService {
             //				encSafeContents);
             PFX pfx = new PFX(authSafes);
 
-            pfx.computeMacData(pass, null, 5); // ??
+            MacConfig macCfg = configurePFXMac(pfx);
+            pfx.computeMacData(pass, null, macCfg.iterations); // ??
             ByteArrayOutputStream fos = new
                     ByteArrayOutputStream();
 
@@ -876,7 +879,8 @@ public class RecoveryService implements IService {
             //				encSafeContents);
             PFX pfx = new PFX(authSafes);
 
-            pfx.computeMacData(pass, null, 5); // ??
+            MacConfig macCfg = configurePFXMac(pfx);
+            pfx.computeMacData(pass, null, macCfg.iterations); // ??
             ByteArrayOutputStream fos = new
                     ByteArrayOutputStream();
 
@@ -953,5 +957,72 @@ public class RecoveryService implements IService {
             logger.error(CMS.getLogMessage("CMSCORE_KRA_CREAT_KEY_BAG", e.toString()), e);
             throw new EKRAException(CMS.getUserMessage("CMS_KRA_KEYBAG_FAILED_1", e.toString()));
         }
+    }
+
+    /**
+    * Configuration for PKCS#12 MAC computation.
+    */
+    private static class MacConfig {
+        final String macType;
+        final String digest;
+        final int iterations;
+
+        /**
+         * @param macType The MAC type string
+         * @param digest The digest algorithm string
+         * @param iterations The iteration count
+         */
+        MacConfig(String macType, String digest, int iterations) {
+            this.macType = macType;
+            this.digest = digest;
+            this.iterations = iterations;
+        }
+    }
+
+    /**
+    * Configure PKCS#12 MAC type and digest algorithm based on KRA configuration.
+    *
+    * @throws EBaseException if configuration is invalid
+    */
+    private MacConfig configurePFXMac(PFX pfx) throws EBaseException {
+        KRAEngine engine = KRAEngine.getInstance();
+
+        // Check  macType config
+        String macTypeStr = engine.getConfig().getString("kra.pkcs12.macType", "classic");
+        // Get mac iterations, default 100000
+        int macIterations = engine.getConfig().getInteger("kra.pkcs12.macIterations", 100000);
+
+        String digestStr = "SHA256";
+
+        if ("pbmac1".equalsIgnoreCase(macTypeStr)) {
+            pfx.setMacType(MacType.PBMAC1);
+
+            digestStr = engine.getConfig().getString("kra.pkcs12.macDigest", "SHA256");
+            DigestAlgorithm digest;
+
+            if ("SHA256".equalsIgnoreCase(digestStr)) {
+                digest = DigestAlgorithm.SHA256;
+            } else if ("SHA384".equalsIgnoreCase(digestStr)) {
+                digest = DigestAlgorithm.SHA384;
+            } else if ("SHA512".equalsIgnoreCase(digestStr)) {
+                digest = DigestAlgorithm.SHA512;
+            } else {
+                throw new EKRAException(CMS.getUserMessage("CMS_KRA_PKCS12_FAILED_1",
+                    "Invalid kra.pkcs12.macDigest: " + digestStr +
+                    " (must be SHA256, SHA384, or SHA512)"));
+            }
+            pfx.setMacDigest(digest);
+            logger.debug("RecoveryService: Using PBMAC1 with " + digestStr);
+        } else if ("classic".equalsIgnoreCase(macTypeStr)) {
+            pfx.setMacType(MacType.CLASSIC);
+            logger.debug("RecoveryService: Using classic MAC");
+        } else {
+            //In case a bogus mac alg is selected, blow up.
+            throw new EKRAException(CMS.getUserMessage("CMS_KRA_PKCS12_FAILED_1",
+                "Invalid kra.pkcs12.macType: " + macTypeStr + " (must be 'classic' or 'pbmac1')"));
+        }
+
+        // return everything in case we need it all later, but mostly for iterations and future possibilities
+        return new MacConfig(macTypeStr, digestStr, macIterations);
     }
 }
