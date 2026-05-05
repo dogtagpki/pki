@@ -1,7 +1,9 @@
-name: CA with Kryoptic
+name: KRA with Kryoptic
 # This test will perform the following operations:
 # - create Kryoptic token
 # - install CA with PQC certs
+# - install KRA with PQC certs
+# - remove KRA
 # - remove CA
 # - remove Kryoptic token
 
@@ -11,7 +13,7 @@ env:
   DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
 
 jobs:
-  # docs/installation/ca/installing-ca-with-hsm.adoc
+  # docs/installation/kra/installing-kra-with-hsm.adoc
   test:
     name: Test
     runs-on: ubuntu-latest
@@ -155,6 +157,71 @@ jobs:
               -D pki_subsystem_token=HSM \
               -D pki_sslserver_token=HSM \
               -D pki_admin_nickname=admin \
+              -v
+
+      - name: Check system certs in internal token
+        run: |
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              nss-cert-find \
+              | tee output
+
+          # there should be 0 certs
+          echo "0" > expected
+          grep "Serial Number:" output | wc -l > actual
+
+          diff expected actual
+
+      - name: Check system certs in HSM
+        run: |
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              --token HSM \
+              nss-cert-find \
+              | tee output
+
+          # there should be 5 certs
+          echo "5" > expected
+          grep "Serial Number:" output | wc -l > actual
+
+          diff expected actual
+
+      - name: Configure profiles
+        run: |
+          # allow ML-KEM-768 in caInternalAuthDRMstorageCert
+          # NOTE: update this step after PR #5338 is merged
+          docker exec pki sed -i \
+              -e "s/^\(.*\.keyParameters\)=\(.*\)$/\1=\2,768/" \
+              /var/lib/pki/pki-tomcat/ca/profiles/ca/caInternalAuthDRMstorageCert.cfg
+
+          # allow ML-KEM-768 in caInternalAuthTransportCert
+          # NOTE: update this step after PR #5338 is merged
+          docker exec pki sed -i \
+              -e "s/^\(.*\.keyParameters\)=\(.*\)$/\1=\2,768/" \
+              /var/lib/pki/pki-tomcat/ca/profiles/ca/caInternalAuthTransportCert.cfg
+
+          # restart CA
+          docker exec pki pki-server ca-redeploy --wait
+
+      - name: Install KRA with HSM
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/kra-pqc.cfg \
+              -s KRA \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_hsm_enable=True \
+              -D pki_token_name=HSM \
+              -D pki_token_password=Secret.HSM \
+              -D pki_server_database_password=Secret.123 \
+              -D pki_storage_token=HSM \
+              -D pki_transport_token=HSM \
+              -D pki_audit_signing_token=HSM \
+              -D pki_subsystem_token=HSM \
+              -D pki_sslserver_token=HSM \
+              -D pki_admin_nickname=admin \
               --debug \
               > >(tee stdout) 2> >(tee stderr >&2)
 
@@ -194,67 +261,24 @@ jobs:
               nss-cert-find \
               | tee output
 
-          # there should be 5 certs
-          echo "5" > expected
+          # there should be 8 certs
+          echo "8" > expected
           grep "Serial Number:" output | wc -l > actual
+
           diff expected actual
 
-      - name: Check ca_signing cert in HSM
+      - name: Check kra_storage cert in HSM
         run: |
           docker exec pki runuser -u pkiuser -- \
               pki \
               -d /var/lib/pki/pki-tomcat/conf/alias \
               -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              --token HSM \
               nss-cert-show \
-              HSM:ca_signing \
+              HSM:kra_storage \
               | tee output
 
-          # trust attributes should be CTu,Cu,Cu but some are missing
-          # TODO: investigate missing trust attributes
-          echo "CTu,u,u" > expected
-          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
-
-          diff expected actual
-
-          docker exec pki runuser -u pkiuser -- \
-              pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
-              nss-key-find \
-              --nickname HSM:ca_signing \
-              | tee output
-
-          # key type and algorithm should be ML-DSA
-          cat > expected << EOF
-          Type: ML-DSA-65
-          Algorithm: ML-DSA
-          EOF
-
-          sed -n \
-              -e 's/\s*\(Type:\s*\S\+\)\s*$/\1/p' \
-              -e 's/\s*\(Algorithm:\s*\S\+\)\s*$/\1/p' \
-              output > actual
-
-          diff expected actual
-
-          docker exec pki runuser -u pkiuser -- \
-              pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
-              nss-cert-verify \
-              --cert-usage SSLCA \
-              HSM:ca_signing
-
-      - name: Check ca_ocsp_signing cert in HSM
-        run: |
-          docker exec pki runuser -u pkiuser -- \
-              pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
-              nss-cert-show \
-              HSM:ca_ocsp_signing \
-              | tee output
-
+          # trust attributes should be u,u,u
           echo "u,u,u" > expected
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
 
@@ -265,13 +289,13 @@ jobs:
               -d /var/lib/pki/pki-tomcat/conf/alias \
               -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-key-find \
-              --nickname HSM:ca_ocsp_signing \
+              --nickname HSM:kra_storage \
               | tee output
 
-          # key type and algorithm should be ML-DSA
+          # key type and algorithm should be ML-KEM
           cat > expected << EOF
-          Type: ML-DSA-65
-          Algorithm: ML-DSA
+          Type: ML-KEM-768
+          Algorithm: ML-KEM
           EOF
 
           sed -n \
@@ -286,19 +310,67 @@ jobs:
               -d /var/lib/pki/pki-tomcat/conf/alias \
               -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-cert-verify \
-              --cert-usage StatusResponder \
-              HSM:ca_ocsp_signing
+              --cert-usage SSLClient \
+              HSM:kra_storage
 
-      - name: Check ca_audit_signing cert in HSM
+      - name: Check kra_transport cert in HSM
         run: |
           docker exec pki runuser -u pkiuser -- \
               pki \
               -d /var/lib/pki/pki-tomcat/conf/alias \
               -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              --token HSM \
               nss-cert-show \
-              HSM:ca_audit_signing \
+              HSM:kra_transport \
               | tee output
 
+          # trust attributes should be u,u,u
+          echo "u,u,u" > expected
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+
+          diff expected actual
+
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              nss-key-find \
+              --nickname HSM:kra_transport \
+              | tee output
+
+          # key type and algorithm should be ML-KEM
+          cat > expected << EOF
+          Type: ML-KEM-768
+          Algorithm: ML-KEM
+          EOF
+
+          sed -n \
+              -e 's/\s*\(Type:\s*\S\+\)\s*$/\1/p' \
+              -e 's/\s*\(Algorithm:\s*\S\+\)\s*$/\1/p' \
+              output > actual
+
+          diff expected actual
+
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              nss-cert-verify \
+              --cert-usage SSLClient \
+              HSM:kra_transport
+
+      - name: Check kra_audit_signing cert in HSM
+        run: |
+          docker exec pki runuser -u pkiuser -- \
+              pki \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              --token HSM \
+              nss-cert-show \
+              HSM:kra_audit_signing \
+              | tee output
+
+          # trust attributes should be u,u,Pu
           echo "u,u,Pu" > expected
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
 
@@ -309,7 +381,7 @@ jobs:
               -d /var/lib/pki/pki-tomcat/conf/alias \
               -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-key-find \
-              --nickname HSM:ca_audit_signing \
+              --nickname HSM:kra_audit_signing \
               | tee output
 
           # key type and algorithm should be ML-DSA
@@ -331,95 +403,7 @@ jobs:
               -f /var/lib/pki/pki-tomcat/conf/password.conf \
               nss-cert-verify \
               --cert-usage ObjectSigner \
-              HSM:ca_audit_signing
-
-      - name: Check subsystem cert in HSM
-        run: |
-          docker exec pki runuser -u pkiuser -- \
-              pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
-              nss-cert-show \
-              HSM:subsystem \
-              | tee output
-
-          echo "u,u,u" > expected
-          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
-
-          diff expected actual
-
-          docker exec pki runuser -u pkiuser -- \
-              pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
-              nss-key-find \
-              --nickname HSM:subsystem \
-              | tee output
-
-          # key type and algorithm should be ML-DSA
-          cat > expected << EOF
-          Type: ML-DSA-65
-          Algorithm: ML-DSA
-          EOF
-
-          sed -n \
-              -e 's/\s*\(Type:\s*\S\+\)\s*$/\1/p' \
-              -e 's/\s*\(Algorithm:\s*\S\+\)\s*$/\1/p' \
-              output > actual
-
-          diff expected actual
-
-          docker exec pki runuser -u pkiuser -- \
-              pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
-              nss-cert-verify \
-              --cert-usage SSLClient \
-              HSM:subsystem
-
-      - name: Check sslserver cert in HSM
-        run: |
-          docker exec pki runuser -u pkiuser -- \
-              pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
-              nss-cert-show \
-              HSM:sslserver \
-              | tee output
-
-          echo "u,u,u" > expected
-          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
-
-          diff expected actual
-
-          docker exec pki runuser -u pkiuser -- \
-              pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
-              nss-key-find \
-              --nickname HSM:sslserver \
-              | tee output
-
-          # key type and algorithm should be ML-DSA
-          cat > expected << EOF
-          Type: ML-DSA-65
-          Algorithm: ML-DSA
-          EOF
-
-          sed -n \
-              -e 's/\s*\(Type:\s*\S\+\)\s*$/\1/p' \
-              -e 's/\s*\(Algorithm:\s*\S\+\)\s*$/\1/p' \
-              output > actual
-
-          diff expected actual
-
-          docker exec pki runuser -u pkiuser -- \
-              pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
-              nss-cert-verify \
-              --cert-usage SSLServer \
-              HSM:sslserver
+              HSM:kra_audit_signing
 
       - name: Run PKI healthcheck
         run: |
@@ -464,12 +448,12 @@ jobs:
               --cert-usage SSLClient \
               admin
 
-          docker exec pki pki -n admin ca-user-show caadmin
+          docker exec pki pki -n admin kra-user-show kraadmin
 
-      - name: Remove CA
+      - name: Remove KRA
         run: |
           docker exec pki pkidestroy \
-              -s CA \
+              -s KRA \
               --debug \
               > >(tee stdout) 2> >(tee stderr >&2)
 
@@ -485,20 +469,19 @@ jobs:
           sed -n '/^DEBUG: Command:/p' stderr | tee output
           wc -l output
 
+      - name: Remove CA
+        run: docker exec pki pkidestroy -s CA -v
+
       - name: Remove Kryoptic token
         run: |
           docker exec pki runuser -u pkiuser -- \
               rm -rf /home/pkiuser/.config/kryoptic
 
-      - name: Check DS server systemd journal
-        if: always()
+      - name: Check for PKI core dumps
+        if: failure()
         run: |
-          docker exec ds journalctl -x --no-pager -u dirsrv@localhost.service
-
-      - name: Check DS container logs
-        if: always()
-        run: |
-          docker logs ds
+          docker exec pki ls -l
+          docker exec pki find / -path /proc -prune -o -name "hs_err_pid*.log" -exec cat {} \;
 
       - name: Check PKI server systemd journal
         if: always()
@@ -509,3 +492,8 @@ jobs:
         if: always()
         run: |
           docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check KRA debug log
+        if: always()
+        run: |
+          docker exec pki find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;

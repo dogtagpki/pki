@@ -1,4 +1,4 @@
-name: KRA with HSM
+name: KRA with SoftHSM
 
 on: workflow_call
 

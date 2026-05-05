@@ -78,10 +78,15 @@ jobs:
     needs: build
     uses: ./.github/workflows/kra-sequential-test.yml
 
-  kra-hsm-test:
-    name: KRA with HSM
+  kra-kryoptic-test:
+    name: KRA with Kryoptic
     needs: build
-    uses: ./.github/workflows/kra-hsm-test.yml
+    uses: ./.github/workflows/kra-kryoptic-test.yml
+
+  kra-softhsm-test:
+    name: KRA with SoftHSM
+    needs: build
+    uses: ./.github/workflows/kra-softhsm-test.yml
 
   kra-sskg-test:
     name: KRA with server-side key generation
