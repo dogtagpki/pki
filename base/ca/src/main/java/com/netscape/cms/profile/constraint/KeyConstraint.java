@@ -90,7 +90,7 @@ public class KeyConstraint extends EnrollConstraint {
     @Override
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_KEY_TYPE)) {
-            return new Descriptor(IDescriptor.CHOICE, "-,RSA,EC,MLDSA",
+            return new Descriptor(IDescriptor.CHOICE, "-,RSA,EC,MLDSA,MLKEM",
                     "RSA",
                     CMS.getUserMessage(locale, "CMS_PROFILE_KEY_TYPE"));
         } else if (name.equals(CONFIG_KEY_PARAMETERS)) {
@@ -108,19 +108,29 @@ public class KeyConstraint extends EnrollConstraint {
     @Override
     public void validate(Request request, X509CertInfo info)
             throws ERejectException {
+
+        logger.info("KeyConstraint: Validating key constraint");
+
         try {
             CertificateX509Key infokey = (CertificateX509Key) info.get(X509CertInfo.KEY);
             X509Key key = (X509Key) infokey.get(CertificateX509Key.KEY);
             String alg = key.getAlgorithmId().getName().toUpperCase();
-            logger.info("KeyConstraint: Key algorithnm: " + alg);
+            logger.info("KeyConstraint: - key algorithm: {}", alg);
 
             String value = getConfig(CONFIG_KEY_TYPE);
-            logger.info("KeyConstraint: Key type: " + value);
+            logger.info("KeyConstraint: - key type: {}", value);
 
             String keyType = value;
 
             if (!isOptional(value)) {
-                String algKey = alg.startsWith("ML-DSA-") ? "MLDSA" : alg;
+                String algKey;
+                if (alg.startsWith("ML-DSA-")) {
+                    algKey = "MLDSA";
+                } else if (alg.startsWith("ML-KEM-")) {
+                    algKey = "MLKEM";
+                } else {
+                    algKey = alg;
+                }
                 if (!algKey.equals(value)) {
                     logger.error("Invalid key type: " + value);
                     throw new ERejectException(
@@ -139,6 +149,8 @@ public class KeyConstraint extends EnrollConstraint {
                 keySize = getDSAKeyLen(key);
             } else if (alg.startsWith("ML-DSA-")) {
                 keySize = Integer.parseInt(alg.replaceFirst("^ML-DSA-", ""));
+            } else if (alg.startsWith("ML-KEM-")) {
+                keySize = Integer.parseInt(alg.replaceFirst("^ML-KEM-", ""));
             } else if (alg.equals("EC")) {
                 //EC key case.
             } else {
@@ -196,7 +208,7 @@ public class KeyConstraint extends EnrollConstraint {
                 }
 
             } else {
-                logger.info("KeySize is {}", keySize);
+                logger.info("KeyConstraint: - key size: {}", keySize);
                 if (!arrayContainsString(keyParams, Integer.toString(keySize))) {
                     throw new ERejectException(
                             CMS.getUserMessage(
