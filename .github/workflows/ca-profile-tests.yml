@@ -18,6 +18,16 @@ jobs:
     needs: build
     uses: ./.github/workflows/ca-profile-caDirPinUserCert-test.yml
 
+  ca-profile-caInternalAuthDRMstorageCert-test:
+    name: CA with caInternalAuthDRMstorageCert profile
+    needs: build
+    uses: ./.github/workflows/ca-profile-caInternalAuthDRMstorageCert-test.yml
+
+  ca-profile-caInternalAuthTransportCert-test:
+    name: CA with caInternalAuthTransportCert profile
+    needs: build
+    uses: ./.github/workflows/ca-profile-caInternalAuthTransportCert-test.yml
+
   ca-profile-caServerCert-test:
     name: CA with caServerCert profile
     needs: build

@@ -16,3 +16,7 @@ The `--key-size` option has been deprecated. Use `--key-strength` instead.
 
 The command now supports both PKCS #10 and CRMF requests.
 The CSR type can be specified with the `--csr-type` option.
+
+== Changes in CRMFPopClient ==
+
+The command now supports both `ML-DSA` and `ML-KEM` keys.
