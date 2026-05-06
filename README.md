@@ -79,23 +79,27 @@ See also [Building PKI](docs/development/Building_PKI.md).
 
 ## Testing
 
-| Test           | Status                                                                                                                                                                        |
-| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| SonarCloud     | [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=dogtagpki_pki&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=dogtagpki_pki) |
-| CA Tests       | [![CA Tests](https://github.com/dogtagpki/pki/actions/workflows/ca-tests.yml/badge.svg)](https://github.com/dogtagpki/pki/actions/workflows/ca-tests.yml)                     |
-| CA Tests 2     | [![CA Tests 2](https://github.com/dogtagpki/pki/actions/workflows/ca-tests2.yml/badge.svg)](https://github.com/dogtagpki/pki/actions/workflows/ca-tests2.yml)                 |
-| CA Clone Tests | [![CA Clone Tests](https://github.com/dogtagpki/pki/actions/workflows/ca-clone-tests.yml/badge.svg)](https://github.com/dogtagpki/pki/actions/workflows/ca-clone-tests.yml)   |
-| SubCA Tests    | [![SubCA Tests](https://github.com/dogtagpki/pki/actions/workflows/subca-tests.yml/badge.svg)](https://github.com/dogtagpki/pki/actions/workflows/subca-tests.yml)            |
-| KRA Tests      | [![KRA Tests](https://github.com/dogtagpki/pki/actions/workflows/kra-tests.yml/badge.svg)](https://github.com/dogtagpki/pki/actions/workflows/kra-tests.yml)                  |
-| OCSP Tests     | [![OCSP Tests](https://github.com/dogtagpki/pki/actions/workflows/ocsp-tests.yml/badge.svg)](https://github.com/dogtagpki/pki/actions/workflows/ocsp-tests.yml)               |
-| TKS Tests      | [![TKS Tests](https://github.com/dogtagpki/pki/actions/workflows/tks-tests.yml/badge.svg)](https://github.com/dogtagpki/pki/actions/workflows/tks-tests.yml)                  |
-| TPS Tests      | [![TPS Tests](https://github.com/dogtagpki/pki/actions/workflows/tps-tests.yml/badge.svg)](https://github.com/dogtagpki/pki/actions/workflows/tps-tests.yml)                  |
-| ACME Tests     | [![ACME Tests](https://github.com/dogtagpki/pki/actions/workflows/acme-tests.yml/badge.svg)](https://github.com/dogtagpki/pki/actions/workflows/acme-tests.yml)               |
-| EST Tests      | [![EST Tests](https://github.com/dogtagpki/pki/actions/workflows/est-tests.yml/badge.svg)](https://github.com/dogtagpki/pki/actions/workflows/est-tests.yml)                  |
-| Server Tests   | [![Server Tests](https://github.com/dogtagpki/pki/actions/workflows/server-tests.yml/badge.svg)](https://github.com/dogtagpki/pki/actions/workflows/server-tests.yml)         |
-| Python Tests   | [![Python Tests](https://github.com/dogtagpki/pki/actions/workflows/python-tests.yml/badge.svg)](https://github.com/dogtagpki/pki/actions/workflows/python-tests.yml)         |
-| Tools Tests    | [![Tools Tests](https://github.com/dogtagpki/pki/actions/workflows/tools-tests.yml/badge.svg)](https://github.com/dogtagpki/pki/actions/workflows/tools-tests.yml)            |
-| IPA Tests      | [![IPA Tests](https://github.com/dogtagpki/pki/actions/workflows/ipa-tests.yml/badge.svg)](https://github.com/dogtagpki/pki/actions/workflows/ipa-tests.yml)                  |
+| Test               | Status                                                                                                                                                                                  |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SonarCloud         | [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=dogtagpki_pki&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=dogtagpki_pki)           |
+| CA Tests           | [![CA Tests](https://github.com/dogtagpki/pki/actions/workflows/ca-tests.yml/badge.svg)](https://github.com/dogtagpki/pki/actions/workflows/ca-tests.yml)                               |
+| CA Clone Tests     | [![CA Clone Tests](https://github.com/dogtagpki/pki/actions/workflows/ca-clone-tests.yml/badge.svg)](https://github.com/dogtagpki/pki/actions/workflows/ca-clone-tests.yml)             |
+| CA Container Tests | [![CA Container Tests](https://github.com/dogtagpki/pki/actions/workflows/ca-container-tests.yml/badge.svg)](https://github.com/dogtagpki/pki/actions/workflows/ca-container-tests.yml) |
+| CA Profile Tests   | [![CA Profile Tests](https://github.com/dogtagpki/pki/actions/workflows/ca-profile-tests.yml/badge.svg)](https://github.com/dogtagpki/pki/actions/workflows/ca-profile-tests.yml)       |
+| CA Extra Tests     | [![CA Extra Tests](https://github.com/dogtagpki/pki/actions/workflows/ca-extra-tests.yml/badge.svg)](https://github.com/dogtagpki/pki/actions/workflows/ca-extra-tests.yml)             |
+| SubCA Tests        | [![SubCA Tests](https://github.com/dogtagpki/pki/actions/workflows/subca-tests.yml/badge.svg)](https://github.com/dogtagpki/pki/actions/workflows/subca-tests.yml)                      |
+| KRA Tests          | [![KRA Tests](https://github.com/dogtagpki/pki/actions/workflows/kra-tests.yml/badge.svg)](https://github.com/dogtagpki/pki/actions/workflows/kra-tests.yml)                            |
+| KRA Clone Tests    | [![KRA Clone Tests](https://github.com/dogtagpki/pki/actions/workflows/kra-clone-tests.yml/badge.svg)](https://github.com/dogtagpki/pki/actions/workflows/kra-clone-tests.yml)          |
+| OCSP Tests         | [![OCSP Tests](https://github.com/dogtagpki/pki/actions/workflows/ocsp-tests.yml/badge.svg)](https://github.com/dogtagpki/pki/actions/workflows/ocsp-tests.yml)                         |
+| TKS Tests          | [![TKS Tests](https://github.com/dogtagpki/pki/actions/workflows/tks-tests.yml/badge.svg)](https://github.com/dogtagpki/pki/actions/workflows/tks-tests.yml)                            |
+| TPS Tests          | [![TPS Tests](https://github.com/dogtagpki/pki/actions/workflows/tps-tests.yml/badge.svg)](https://github.com/dogtagpki/pki/actions/workflows/tps-tests.yml)                            |
+| ACME Tests         | [![ACME Tests](https://github.com/dogtagpki/pki/actions/workflows/acme-tests.yml/badge.svg)](https://github.com/dogtagpki/pki/actions/workflows/acme-tests.yml)                         |
+| EST Tests          | [![EST Tests](https://github.com/dogtagpki/pki/actions/workflows/est-tests.yml/badge.svg)](https://github.com/dogtagpki/pki/actions/workflows/est-tests.yml)                            |
+| Server Tests       | [![Server Tests](https://github.com/dogtagpki/pki/actions/workflows/server-tests.yml/badge.svg)](https://github.com/dogtagpki/pki/actions/workflows/server-tests.yml)                   |
+| Java Tests         | [![Java Tests](https://github.com/dogtagpki/pki/actions/workflows/java-tests.yml/badge.svg)](https://github.com/dogtagpki/pki/actions/workflows/java-tests.yml)                         |
+| Python Tests       | [![Python Tests](https://github.com/dogtagpki/pki/actions/workflows/python-tests.yml/badge.svg)](https://github.com/dogtagpki/pki/actions/workflows/python-tests.yml)                   |
+| Tools Tests        | [![Tools Tests](https://github.com/dogtagpki/pki/actions/workflows/tools-tests.yml/badge.svg)](https://github.com/dogtagpki/pki/actions/workflows/tools-tests.yml)                      |
+| IPA Tests          | [![IPA Tests](https://github.com/dogtagpki/pki/actions/workflows/ipa-tests.yml/badge.svg)](https://github.com/dogtagpki/pki/actions/workflows/ipa-tests.yml)                            |
 
 ## Contributing
 

@@ -1,4 +1,4 @@
-name: CA Tests 2
+name: CA Extra Tests
 
 on: [push, pull_request]
 
