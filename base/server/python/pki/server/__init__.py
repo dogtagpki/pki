@@ -652,7 +652,7 @@ grant codeBase "file:%s" {
 
             # switch to systemd user if different from current user
             if current_user != self.user:
-                prefix.extend(['/usr/sbin/runuser', '-u', self.user, '--'])
+                prefix.extend(['runuser', '-u', self.user, '--'])
 
         java_home = self.config.get('JAVA_HOME')
         java_opts = self.config.get('JAVA_OPTS')

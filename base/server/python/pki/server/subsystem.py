@@ -510,6 +510,9 @@ class PKISubsystem(object):
 
             # export the certificate, key, and chain
             cmd = [
+                'runuser',
+                '-u', self.instance.user,
+                '--',
                 'pki',
                 '-d', self.instance.nssdb_dir,
                 '-f', self.instance.password_conf,
@@ -531,6 +534,9 @@ class PKISubsystem(object):
 
             # remove the certificate and key, but keep the chain
             cmd = [
+                'runuser',
+                '-u', self.instance.user,
+                '--',
                 'pki',
                 '-d', self.instance.nssdb_dir,
                 '-f', self.instance.password_conf,
@@ -1573,13 +1579,19 @@ class PKISubsystem(object):
     def request_range(self, master_url, range_type, session_id=None, install_token=None):
 
         tmpdir = tempfile.mkdtemp()
+        self.instance.chown(tmpdir)
+
         try:
             if not install_token:
                 install_token = os.path.join(tmpdir, 'install-token')
                 with open(install_token, 'w', encoding='utf-8') as f:
                     f.write(session_id)
+                self.instance.chown(install_token)
 
             cmd = [
+                'runuser',
+                '-u', self.instance.user,
+                '--',
                 'pki',
                 '-d', self.instance.nssdb_dir,
                 '-f', self.instance.password_conf,
@@ -1693,13 +1705,19 @@ class PKISubsystem(object):
     def retrieve_config(self, master_url, names, substores, session_id=None, install_token=None):
 
         tmpdir = tempfile.mkdtemp()
+        self.instance.chown(tmpdir)
+
         try:
             if not install_token:
                 install_token = os.path.join(tmpdir, 'install-token')
                 with open(install_token, 'w', encoding='utf-8') as f:
                     f.write(session_id)
+                self.instance.chown(install_token)
 
             cmd = [
+                'runuser',
+                '-u', self.instance.user,
+                '--',
                 'pki',
                 '-d', self.instance.nssdb_dir,
                 '-f', self.instance.password_conf,
@@ -1892,13 +1910,19 @@ class PKISubsystem(object):
             install_token=None):
 
         tmpdir = tempfile.mkdtemp()
+        self.instance.chown(tmpdir)
+
         try:
             if not install_token:
                 install_token = os.path.join(tmpdir, 'install-token')
                 with open(install_token, 'w', encoding='utf-8') as f:
                     f.write(session_id)
+                self.instance.chown(install_token)
 
             cmd = [
+                'runuser',
+                '-u', self.instance.user,
+                '--',
                 'pki',
                 '-d', self.instance.nssdb_dir,
                 '-f', self.instance.password_conf,
@@ -1945,6 +1969,9 @@ class PKISubsystem(object):
         nickname = self.config.get('%s.cert.subsystem.nickname' % self.name)
 
         cmd = [
+            'runuser',
+            '-u', self.instance.user,
+            '--',
             'pki',
             '-d', self.instance.nssdb_dir,
             '-f', self.instance.password_conf,
@@ -2481,7 +2508,7 @@ class PKISubsystem(object):
             # switch to systemd user if different from current user
             username = pwd.getpwuid(os.getuid()).pw_name
             if username != self.instance.user:
-                cmd.extend(['/usr/sbin/runuser', '-u', self.instance.user, '--'])
+                cmd.extend(['runuser', '-u', self.instance.user, '--'])
 
         cmd.extend([java_home + '/bin/java'])
 
