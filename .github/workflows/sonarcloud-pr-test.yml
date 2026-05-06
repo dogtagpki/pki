@@ -1,7 +1,8 @@
-name: Sonarcloud-Pull
+name: SonarCloud PR Test
+
 on:
   workflow_run:
-    workflows: ["Code Analysis"]
+    workflows: ["Java Tests"]
     types:
       - completed
 
@@ -155,7 +156,7 @@ jobs:
           path: pki-runner.tar
         
   sonarcloud:
-    name: Sonar Cloud code analysis
+    name: SonarCloud code analysis
     needs: [retrieve-pr, build]
     if: needs.retrieve-pr.outputs.pr-number != ''
     runs-on: ubuntu-latest

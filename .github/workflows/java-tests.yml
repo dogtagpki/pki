@@ -1,4 +1,5 @@
-name: Code Analysis
+name: Java Tests
+
 on: [push, pull_request]
 
 jobs:
