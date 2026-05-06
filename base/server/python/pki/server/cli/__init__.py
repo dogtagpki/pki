@@ -235,7 +235,7 @@ class PKIServerCLI(pki.cli.CLI):
 
             # switch to PKI user if it's different from the current user
             if current_user != instance.user:
-                cmd.extend(['/usr/sbin/runuser', '-u', instance.user, '--'])
+                cmd.extend(['runuser', '-u', instance.user, '--'])
 
         java_home = os.getenv('JAVA_HOME')
         cmd.extend([java_home + '/bin/java'])

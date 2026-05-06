@@ -205,7 +205,7 @@ class PKIInstance(pki.server.PKIServer):
 
                 # switch to systemd user if different from current user
                 if current_user != self.user:
-                    prefix.extend(['/usr/sbin/runuser', '-u', self.user, '--'])
+                    prefix.extend(['runuser', '-u', self.user, '--'])
 
             if not skip_upgrade:
                 # run pki-server upgrade <instance>
@@ -529,6 +529,9 @@ class PKIInstance(pki.server.PKIServer):
 
                 # add the certificate, key, and chain
                 cmd = [
+                    'runuser',
+                    '-u', self.user,
+                    '--',
                     'pki',
                     '-d', self.nssdb_dir,
                     '-f', self.password_conf
@@ -784,8 +787,9 @@ class PKIInstance(pki.server.PKIServer):
         csr_file = self.csr_file(cert_id)
 
         cmd = [
-            '/usr/sbin/runuser',
-            '-u', self.user, '--',
+            'runuser',
+            '-u', self.user,
+            '--',
             'pki',
             '-d', self.nssdb_dir,
             '-f', self.password_conf
@@ -878,8 +882,9 @@ class PKIInstance(pki.server.PKIServer):
             cert_file = self.cert_file(cert_id)
 
             cmd = [
-                '/usr/sbin/runuser',
-                '-u', self.user, '--',
+                'runuser',
+                '-u', self.user,
+                '--',
                 'pki',
                 '-d', self.nssdb_dir,
                 '-f', self.password_conf
