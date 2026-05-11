@@ -216,6 +216,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         }
 
         String content = resp.getContent();
+        logger.debug("CARemoveRequestHandler: Response:\n" + content);
 
         if (content == null || content.equals("")) {
             logger.error(method + ": no response content");
@@ -337,6 +338,8 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         }
 
         String content = resp.getContent();
+        logger.debug("CARemoveRequestHandler: Response:\n" + content);
+
         if (content == null || content.equals("")) {
             logger.error(method + ": no response content");
             throw new EBaseException(method + ": no response content.");
@@ -444,6 +447,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             throw new EBaseException(method + " to connid: " + connid + ": response null.");
         }
         String content = resp.getContent();
+        logger.debug("CARemoveRequestHandler: Response:\n" + content);
 
         if (content == null || content.equals("")) {
             logger.error(method + ": no response content");

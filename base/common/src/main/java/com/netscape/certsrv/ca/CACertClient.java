@@ -226,7 +226,7 @@ public class CACertClient extends Client {
         }
 
         String response = client.post("ca/ee/ca/profileSubmit", content, String.class);
-        logger.debug("CACertClient: Response: " + response);
+        logger.debug("CACertClient: Response:\n" + response);
 
         if (response == null) {
             logger.error("No response");

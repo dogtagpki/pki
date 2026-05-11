@@ -132,12 +132,14 @@ public class SecurityDomainJoinCLI extends CommandCLI {
         content.add(new BasicNameValuePair("eeclientauthsport", securePort));
         content.add(new BasicNameValuePair("dm", domainManager ? "true" : "false"));
         content.add(new BasicNameValuePair("clone", clone ? "true" : "false"));
+        logger.debug("Request:\n" + content);
 
         MainCLI mainCLI = (MainCLI) getRoot();
         mainCLI.init();
 
         PKIClient client = mainCLI.getPKIClient();
         String response = client.post("ca/admin/ca/updateDomainXML", content, String.class);
+        logger.debug("Response:\n" + response);
 
         if (StringUtils.isEmpty(response)) {
             logger.error("Missing response");

@@ -3841,8 +3841,10 @@ class PKIDeployer:
         that matches the CA signing key type.
         '''
 
+        logger.info('Getting signing algorithm for %s', subsystem.type)
+
         key_type = self.get_key_type(subsystem, 'signing')
-        logger.info('Key type: %s', key_type)
+        logger.debug('- key type: %s', key_type)
 
         algorithm = None
         allowed_algorithms = None
@@ -3864,7 +3866,7 @@ class PKIDeployer:
                 'SHA256withRSA,SHA256withEC')
             allowed_algorithms = default_allowed_algorithms.split(',')
 
-        logger.info('Allowed signing algorithms: %s', ','.join(allowed_algorithms))
+        logger.debug('- alowed signing algorithms: %s', ','.join(allowed_algorithms))
 
         if not allowed_algorithms:
             raise Exception('Unable to get allowed signing algorithms')

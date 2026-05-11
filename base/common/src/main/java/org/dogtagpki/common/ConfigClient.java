@@ -75,7 +75,7 @@ public class ConfigClient extends Client {
                 subsystem + "/admin/" + subsystem + "/getConfigEntries",
                 content,
                 String.class);
-        logger.debug("Response: " + response);
+        logger.debug("Response:\n" + response);
 
         if (response == null) {
             throw new IOException("Unable to get configuration properties");

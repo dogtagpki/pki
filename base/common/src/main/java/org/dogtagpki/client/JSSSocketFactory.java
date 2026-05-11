@@ -84,13 +84,13 @@ public class JSSSocketFactory implements LayeredConnectionSocketFactory {
 
         try {
             if (socket == null) {
-                logger.info("Creating new SSL socket");
+                logger.debug("JSSSocketFactory: Creating new SSL socket");
                 jssSocket = (JSSSocket) socketFactory.createSocket(
                         InetAddress.getByName(remoteHost),
                         port);
 
             } else {
-                logger.info("Creating SSL socket with existing socket");
+                logger.debug("JSSSocketFactory: Creating SSL socket with existing socket");
                 jssSocket = (JSSSocket) socketFactory.createSocket(
                         socket,
                         remoteHost,
@@ -106,7 +106,7 @@ public class JSSSocketFactory implements LayeredConnectionSocketFactory {
 
         String certNickname = connection.getConfig().getCertNickname();
         if (certNickname != null) {
-            logger.info("Client certificate: "+certNickname);
+            logger.debug("JSSSocketFactory: - client certificate: " + certNickname);
             jssSocket.setCertFromAlias(certNickname);
         }
 

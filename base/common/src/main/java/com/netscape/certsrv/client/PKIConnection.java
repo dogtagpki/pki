@@ -90,7 +90,7 @@ public class PKIConnection implements AutoCloseable {
         String className = System.getProperty(
                 "org.dogtagpki.client.socketFactory",
                 JSSSocketFactory.class.getName());
-        logger.info("PKIConnection: Socket factory: " + className);
+        logger.debug("PKIConnection: Creating connection with " + className);
 
         Class<? extends LayeredConnectionSocketFactory> clazz =
                 Class.forName(className).asSubclass(LayeredConnectionSocketFactory.class);

@@ -475,7 +475,7 @@ public class CACertIssueCLI extends SubsystemCommandCLI {
             request.setAttribute("pin", enrollmentPIN);
         }
 
-        logger.info("Request:\n" + request);
+        logger.debug("Request:\n" + request.toJSON());
 
         String list = cmd.getOptionValue("dns-names");
         logger.info("DNS names: " + list);
