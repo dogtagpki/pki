@@ -615,17 +615,6 @@ public class NSSExtensionGenerator {
     }
 
     /**
-     * Create extensions with the specified issuer and request.
-     */
-    public Extensions createExtensions(
-            org.mozilla.jss.crypto.X509Certificate issuer,
-            PKCS10 pkcs10) throws Exception {
-
-        X509Key subjectKey = pkcs10.getSubjectPublicKeyInfo();
-        return createExtensions(subjectKey, issuer, pkcs10);
-    }
-
-    /**
      * Create extensions with the specified subject key, issuer, and request.
      */
     public Extensions createExtensions(

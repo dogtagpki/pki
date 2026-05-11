@@ -1340,7 +1340,7 @@ public class NSSDatabase {
 
     public X509Certificate createCertificate(
             String tokenName,
-            X509Key x509Key,
+            X509Key subjectKey,
             X500Name subjectName,
             org.mozilla.jss.crypto.X509Certificate issuer,
             String serialNumber,
@@ -1367,8 +1367,6 @@ public class NSSDatabase {
         CertificateIssuerName certIssuerName = new CertificateIssuerName(issuerName);
         logger.debug("NSSDatabase: - issuer: " + certIssuerName);
 
-        logger.debug("NSSDatabase: - public key algorithm: " + x509Key.getAlgorithm());
-
         BigInteger serialNo;
         if (serialNumber == null) {
             byte[] bytes = new byte[16];
@@ -1388,9 +1386,7 @@ public class NSSDatabase {
         Date notAfterDate = calendar.getTime();
         logger.debug("NSSDatabase: - not after: " + notAfterDate);
 
-        logger.debug("NSSDatabase: - hash algorithm: " + hash);
-
-        String keyAlgorithm = hash + "with" + x509Key.getAlgorithm();
+        String keyAlgorithm = hash + "with" + subjectKey.getAlgorithm();
         logger.debug("NSSDatabase: - key algorithm: " + keyAlgorithm);
 
         // convert Extensions into CertificateExtensions
@@ -1406,7 +1402,7 @@ public class NSSDatabase {
         }
 
         X509CertInfo info = CryptoUtil.createX509CertInfo(
-                x509Key,
+                subjectKey,
                 serialNo,
                 certIssuerName,
                 subjectName,
@@ -1420,7 +1416,7 @@ public class NSSDatabase {
         if (issuer == null) {
 
             logger.debug("NSSDatabase: Finding request private key");
-            byte[] requestPublicKey = x509Key.getEncoded();
+            byte[] requestPublicKey = subjectKey.getEncoded();
 
             CryptoStore store = token.getCryptoStore();
 

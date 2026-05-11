@@ -131,16 +131,17 @@ public class NSSIssuer extends ACMEIssuer {
         ACMEEngine engine = ACMEEngine.getInstance();
         ACMEDatabase acmeDatabase = engine.getDatabase();
 
+        X509Key subjectKey = pkcs10.getSubjectPublicKeyInfo();
+
         Extensions extensions = null;
         if (extGenerator != null) {
-            extensions = extGenerator.createExtensions(issuer, pkcs10);
+            extensions = extGenerator.createExtensions(subjectKey, issuer, pkcs10);
         }
 
-        X509Key x509Key = pkcs10.getSubjectPublicKeyInfo();
         X500Name subjectName = pkcs10.getSubjectName();
 
         X509Certificate cert = nssDatabase.createCertificate(
-                x509Key,
+                subjectKey,
                 subjectName,
                 issuer,
                 validityLength,

@@ -123,7 +123,7 @@ public class NSSCertIssueCLI extends CommandCLI {
         String csrPEM = new String(Files.readAllBytes(Paths.get(csrFile)));
         byte[] csrBytes = CertUtil.parseCSR(csrPEM);
         PKCS10 pkcs10 = new PKCS10(csrBytes);
-        X509Key x509Key = pkcs10.getSubjectPublicKeyInfo();
+        X509Key subjectKey = pkcs10.getSubjectPublicKeyInfo();
         X500Name subjectName = pkcs10.getSubjectName();
 
         NSSExtensionGenerator generator = new NSSExtensionGenerator();
@@ -137,7 +137,7 @@ public class NSSCertIssueCLI extends CommandCLI {
             generator.setParameter("subjectAltName", subjectAltName);
         }
 
-        extensions = generator.createExtensions(issuer, pkcs10);
+        extensions = generator.createExtensions(subjectKey, issuer, pkcs10);
 
         int validityLength;
         int validityUnit;
@@ -156,7 +156,7 @@ public class NSSCertIssueCLI extends CommandCLI {
 
         X509Certificate cert = nssdb.createCertificate(
                 tokenName,
-                x509Key,
+                subjectKey,
                 subjectName,
                 issuer,
                 serialNumber,
