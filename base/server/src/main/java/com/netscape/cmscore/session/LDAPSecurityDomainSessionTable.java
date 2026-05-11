@@ -186,6 +186,12 @@ public class LDAPSecurityDomainSessionTable
             if (res.getCount() > 0)
                 ret = true;
 
+        } catch (LDAPException e) {
+
+            if (e.getLDAPResultCode() != LDAPException.NO_SUCH_OBJECT) {
+                throw new Exception("Unable to check security domain session: " + e.getMessage(), e);
+            }
+
         } finally {
             try {
                 mLdapConnFactory.returnConn(conn);

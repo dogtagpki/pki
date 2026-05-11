@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Vector;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.dogtagpki.server.authentication.AuthManager;
@@ -108,7 +109,21 @@ public class TokenAuthentication extends AuthManager {
     public AuthToken authenticate(AuthCredentials authCred)
             throws EMissingCredential, EInvalidCredentials, EBaseException {
 
-        logger.debug("TokenAuthentication: start");
+        String sessionId = (String) authCred.get(CRED_SESSION_ID);
+        logger.info("TokenAuthentication: Authenticating session " + sessionId);
+
+        if (StringUtils.isEmpty(sessionId)) {
+            logger.error("TokenAuthentication: Missing session ID");
+            throw new EBaseException("Missing session ID");
+        }
+
+        String givenHost = (String) authCred.get("clientHost");
+        logger.debug("TokenAuthentication: - client host: " + givenHost);
+
+        if (StringUtils.isEmpty(sessionId)) {
+            logger.error("TokenAuthentication: Missing client host");
+            throw new EBaseException("Missing client host");
+        }
 
         // force SSL handshake
         SessionContext context = SessionContext.getExistingContext();
@@ -119,23 +134,23 @@ public class TokenAuthentication extends AuthManager {
         // get group name from configuration file
         EngineConfig sconfig = engine.getConfig();
 
-        String sessionId = (String) authCred.get(CRED_SESSION_ID);
-        String givenHost = (String) authCred.get("clientHost");
         String authHost = sconfig.getString("securitydomain.host");
         int authAdminPort = sconfig.getInteger("securitydomain.httpsadminport");
         String authPath = "ca/admin/ca/tokenAuthenticate";
 
         String authURL = "https://" + authHost + ":" + authAdminPort + "/" + authPath;
-        logger.info("TokenAuthentication: Authenticating session ID against security domain at " + authURL);
+        logger.debug("TokenAuthentication: - security domain URL: " + authURL);
 
         List<NameValuePair> content = new ArrayList<>();
         content.add(new BasicNameValuePair(CRED_SESSION_ID, sessionId));
         content.add(new BasicNameValuePair("hostname", givenHost));
-        logger.debug("TokenAuthentication: content: " + content);
+        logger.debug("TokenAuthentication: Request:\n" + content);
 
         String c = null;
         try {
             c = sendAuthRequest(authHost, authAdminPort, authPath, content);
+            logger.debug("TokenAuthentication: Response:\n" + c);
+
             // in case where the new interface does not exist, EE will return a badly
             // formatted response which will throw an exception during parsing
             if (c != null) {

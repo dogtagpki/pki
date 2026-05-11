@@ -25,6 +25,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Node;
 
 import com.netscape.certsrv.base.SecurityDomainSessionTable;
@@ -70,9 +71,22 @@ public class TokenAuthenticate extends CMSServlet {
         EngineConfig config = engine.getConfig();
 
         String sessionId = httpReq.getParameter("sessionID");
-        logger.debug("TokenAuthentication: sessionId=" + sessionId);
+        logger.info("TokenAuthenticate: Authenticating session " + sessionId);
+
+        if (StringUtils.isEmpty(sessionId)) {
+            logger.error("TokenAuthenticate: Missing session ID");
+            outputError(httpResp, "Missing session ID");
+            return;
+        }
+
         String givenHost = httpReq.getParameter("hostname");
-        logger.debug("TokenAuthentication: givenHost=" + givenHost);
+        logger.debug("TokenAuthenticate: - client host: " + givenHost);
+
+        if (StringUtils.isEmpty(givenHost)) {
+            logger.error("TokenAuthenticate: Missing client host");
+            outputError(httpResp, "Missing client host");
+            return;
+        }
 
         boolean checkIP = false;
         try {
@@ -80,53 +94,47 @@ public class TokenAuthenticate extends CMSServlet {
         } catch (Exception e) {
         }
 
+        logger.debug("TokenAuthenticate: Checking session table for session " + sessionId);
         SecurityDomainSessionTable table = engine.getSecurityDomainSessionTable();
-        String uid = "";
-        String gid = "";
-        logger.debug("TokenAuthentication: checking session in the session table");
+
         if (table == null) {
-            logger.error("TokenAuthentication: session table is null");
-            outputError(httpResp, "Error: session table is null");
+            logger.error("TokenAuthenticate: Missing session table");
+            outputError(httpResp, "Internal error");
             return;
-        } else if (table.sessionExists(sessionId)) {
-            logger.debug("TokenAuthentication: found session");
-            if (checkIP) {
-                String hostname = table.getIP(sessionId);
-                if (!hostname.equals(givenHost)) {
-                    logger.error("TokenAuthentication: hostname=" + hostname + " and givenHost="
-                            + givenHost + " are different");
-                    logger.error("TokenAuthenticate authenticate failed, wrong hostname.");
-                    outputError(httpResp, "Error: Failed Authentication");
-                    return;
-                }
+        }
+
+        if (!table.sessionExists(sessionId)) {
+            logger.error("TokenAuthenticate: Session not found: " + sessionId);
+            outputError(httpResp, "Authentication failed");
+            return;
+        }
+
+        logger.debug("TokenAuthenticate: Found session " + sessionId);
+        if (checkIP) {
+            String hostname = table.getIP(sessionId);
+            logger.debug("TokenAuthenticate: - session host: " + hostname);
+
+            if (!hostname.equals(givenHost)) {
+                logger.error("TokenAuthenticate: Invalid client host: " + givenHost);
+                outputError(httpResp, "Authentication failed");
+                return;
             }
-
-            uid = table.getUID(sessionId);
-            gid = table.getGroup(sessionId);
-        } else {
-            logger.error("TokenAuthentication: session not found");
-            logger.error("TokenAuthentication authenticate failed, session id does not exist.");
-            outputError(httpResp, "Error: Failed Authentication");
-            return;
         }
 
-        logger.debug("TokenAuthenticate successfully authenticate");
-        try {
-            XMLObject xmlObj = null;
+        logger.debug("TokenAuthenticate: Session " + sessionId + " valid");
+        String uid = table.getUID(sessionId);
+        String gid = table.getGroup(sessionId);
 
-            xmlObj = new XMLObject();
+        XMLObject xmlObj = new XMLObject();
+        Node root = xmlObj.createRoot("XMLResponse");
 
-            Node root = xmlObj.createRoot("XMLResponse");
+        xmlObj.addItemToContainer(root, "Status", SUCCESS);
+        xmlObj.addItemToContainer(root, "uid", uid);
+        xmlObj.addItemToContainer(root, "gid", gid);
 
-            xmlObj.addItemToContainer(root, "Status", SUCCESS);
-            xmlObj.addItemToContainer(root, "uid", uid);
-            xmlObj.addItemToContainer(root, "gid", gid);
-            byte[] cb = xmlObj.toByteArray();
+        byte[] cb = xmlObj.toByteArray();
 
-            outputResult(httpResp, "application/xml", cb);
-        } catch (Exception e) {
-            logger.warn("Failed to send the XML output");
-        }
+        outputResult(httpResp, "application/xml", cb);
     }
 
     @Override
