@@ -105,10 +105,13 @@ public class NSSIssuer extends ACMEIssuer {
         logger.info("- validity unit: " + NSSDatabase.validityUnitToString(validityUnit));
 
         String hash = config.getParameter("hash");
-        if (hash != null) {
-            logger.info("- hash: " + hash);
-            this.hash = hash;
+
+        if (hash == null) {
+            hash = "SHA256";
         }
+
+        logger.info("- hash: " + hash);
+        this.hash = hash;
 
         String extensions = config.getParameter("extensions");
         if (extensions == null) extensions = "/usr/share/pki/acme/issuer/nss/sslserver.conf";

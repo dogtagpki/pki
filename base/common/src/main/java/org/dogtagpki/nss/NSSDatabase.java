@@ -99,6 +99,7 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
+import org.mozilla.jss.pkcs11.KeyType;
 import org.mozilla.jss.pkcs11.PK11Cert;
 import org.mozilla.jss.pkcs11.PK11ECPrivateKey;
 import org.mozilla.jss.pkcs11.PK11PrivKey;
@@ -110,7 +111,6 @@ import org.mozilla.jss.pkix.primitive.Name;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.password.PasswordStore;
-import org.mozilla.jss.pkcs11.KeyType;
 
 /**
  * @author Endi S. Dewata
@@ -1050,7 +1050,7 @@ public class NSSDatabase {
                 extractable,
                 null,
                 null);
-        
+
     }
 
     public KeyPair createMLDSAKeyPair(
@@ -1388,9 +1388,6 @@ public class NSSDatabase {
         Date notAfterDate = calendar.getTime();
         logger.debug("NSSDatabase: - not after: " + notAfterDate);
 
-        if (hash == null) {
-            hash = "SHA256";
-        }
         logger.debug("NSSDatabase: - hash algorithm: " + hash);
 
         String keyAlgorithm = hash + "with" + x509Key.getAlgorithm();
