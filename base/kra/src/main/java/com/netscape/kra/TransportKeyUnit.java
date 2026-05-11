@@ -423,6 +423,9 @@ public class TransportKeyUnit extends EncryptionUnit {
                 priKeyAlgo,
                 new IVParameterSpec(wrapIV));
 
+        //Favor KWP over WRAP PAD if supported
+        promoteIfWrapPadToKWP(token, params);
+
         // (1) unwrap the session key
 
 
@@ -443,13 +446,82 @@ public class TransportKeyUnit extends EncryptionUnit {
                 skWrapAlgorithm);
 
         // (2) unwrap the session-wrapped-private key
-        return CryptoUtil.unwrap(
-                token,
-                pubKey,
-                true,
-                sk,
-                encValue,
-                params.getPayloadWrapAlgorithm(),
-                params.getPayloadWrappingIV());
+
+        try {
+            return CryptoUtil.unwrap(
+                    token,
+                    pubKey,
+                    true,
+                    sk,
+                    encValue,
+                    params.getPayloadWrapAlgorithm(),
+                    params.getPayloadWrappingIV());
+        } catch (TokenException e) {
+
+            // Fallback strategy: If KWP unwrap fails, the client may have used the older
+            // NSS-specific mechanism (AES_KEY_WRAP_PAD) which some clients still use.
+            // Since both mechanisms share the same OID, we cannot determine which was used
+            // until we attempt the operation. Try the legacy mechanism as fallback.
+
+            KeyWrapAlgorithm currentAlg = params.getPayloadWrapAlgorithm();
+            if (currentAlg == KeyWrapAlgorithm.AES_KEY_WRAP_PAD_KWP) { 
+                logger.debug("TransportKeyUnit.unwrap: KWP unwrap failed, retrying with AES_KEY_WRAP_PAD: Original Failure: " + e.getMessage());
+                params.setPayloadWrapAlgorithm(KeyWrapAlgorithm.AES_KEY_WRAP_PAD);
+
+                try {
+                    PrivateKey result =  CryptoUtil.unwrap(
+                            token,
+                            pubKey,
+                            true,
+                            sk,
+                            encValue,
+                            params.getPayloadWrapAlgorithm(),
+                            params.getPayloadWrappingIV());
+                    logger.debug("TransportKeyUnit.unwrap: AES_KEY_WRAP_PAD fallback succeeded");
+                    return result;
+                } catch (TokenException e2) {
+                    e2.addSuppressed(e);
+                    throw e2;
+                }
+            }
+            throw e;
+        }
+    }
+
+    /**
+     * Promotes AES_KEY_WRAP_PAD to standard AES_KEY_WRAP_PAD_KWP if the token
+     * supports it.
+     * This addresses two issues:
+     *   Both PKCS#11 mechanisms (CKM_NSS_AES_KEY_WRAP_PAD = 0x210A and
+     *   CKM_AES_KEY_WRAP_KWP = 0x210B) implement RFC 5649 and share the same
+     *   ASN.1 OID
+     *   (2.16.840.1.101.3.4.1.8). When receiving wrapped keys, fromOID()
+     *   cannot distinguish
+     *   which mechanism was used, so it defaults to AES_KEY_WRAP_PAD.
+     *   Not all HSMs support the newer PKCS#11 v3.0 standard mechanism
+     *   (KWP).
+     *   This method detects HSM capability and promotes to the standard mechanism when
+     *   available, ensuring future compatibility while maintaining support for older HSM's.
+     * Note: Both AES_KEY_WRAP_PAD and AES_KEY_WRAP_PAD_KWP implement
+     * RFC 5649, which uses an internal Alternative Initial Value (AIV)
+     * rather than an external IV. The IV is set to null accordingly.
+     *   @param token The crypto token to check for KWP support
+     *   @param params The wrapping params to adjust
+     *
+     * No-op if the algorithm is not WrapPad or the token lacks KWP support.
+     *
+     */
+    private void promoteIfWrapPadToKWP(CryptoToken token, WrappingParams params) {
+        if (token == null || params == null) {
+            return;
+        }
+
+        if ((params.getPayloadWrapAlgorithm() == KeyWrapAlgorithm.AES_KEY_WRAP_PAD ||
+             params.getPayloadWrapAlgorithm() == KeyWrapAlgorithm.AES_KEY_WRAP_PAD_KWP) &&
+            token.doesAlgorithm(KeyWrapAlgorithm.AES_KEY_WRAP_PAD_KWP)) {
+            //If already KWP do anyway to simplify the conditional, consider no op.
+            params.setPayloadWrapAlgorithm(KeyWrapAlgorithm.AES_KEY_WRAP_PAD_KWP);
+            params.setPayloadWrappingIV(null);
+        }
     }
 }
