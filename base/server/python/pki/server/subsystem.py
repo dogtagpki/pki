@@ -452,7 +452,11 @@ class PKISubsystem(object):
             pkcs12_file,
             pkcs12_password_file,
             no_key=False,
-            append=False):
+            append=False,
+            mac_type='classic',
+            mac_digest='SHA256'):
+        # Note, hard code this for all subystems until we want to explicity change it to pbmac1 or
+        # create new pkispawn config settings to be used.
 
         cert = self.get_subsystem_cert(cert_tag)
 

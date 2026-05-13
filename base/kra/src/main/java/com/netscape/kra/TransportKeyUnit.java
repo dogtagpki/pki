@@ -442,6 +442,16 @@ public class TransportKeyUnit extends EncryptionUnit {
                 encSymmKey,
                 skWrapAlgorithm);
 
+        if (logger.isDebugEnabled()) {
+            logger.debug("TransportKeyUnit.unwrap: Session key successfully unwrapped");
+            logger.debug("TransportKeyUnit.unwrap: Session key type: " + sk.getType());
+            String tokenName = (sk.getOwningToken() != null) ? sk.getOwningToken().getName() : "unknown";
+            logger.debug("TransportKeyUnit.unwrap: Session key owning token: " + tokenName);
+            logger.debug("TransportKeyUnit.unwrap: Payload wrap algorithm: " + params.getPayloadWrapAlgorithm());
+            logger.debug("TransportKeyUnit.unwrap: Payload wrap IV: " + (params.getPayloadWrappingIV() != null ? "present" : "null"));
+            logger.debug("TransportKeyUnit.unwrap: About to unwrap private key with session key");
+        }
+
         // (2) unwrap the session-wrapped-private key
         return CryptoUtil.unwrap(
                 token,

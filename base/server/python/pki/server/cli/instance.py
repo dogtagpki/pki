@@ -102,6 +102,8 @@ class InstanceCertExportCLI(pki.cli.CLI):
         self.parser.add_argument(
             '--help',
             action='store_true')
+        self.parser.add_argument('--mac-type')
+        self.parser.add_argument('--mac-digest')
         self.parser.add_argument(
             'nicknames',
             nargs='*')
@@ -119,6 +121,11 @@ class InstanceCertExportCLI(pki.cli.CLI):
         print('      --no-trust-flags               Do not include trust flags')
         print('      --no-key                       Do not include private key')
         print('      --no-chain                     Do not include certificate chain')
+        print('      --mac-type <type>              MAC algorithm type:')
+        print('                                       classic - SHA256 with HMAC (default)')
+        print('                                       pbmac1 - PBMAC1 per RFC 9579')
+        print('      --mac-digest <digest>          MAC digest (for PBMAC1):')
+        print('                                       SHA256, SHA384, SHA512')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -147,6 +154,8 @@ class InstanceCertExportCLI(pki.cli.CLI):
         include_trust_flags = not args.no_trust_flags
         include_key = not args.no_key
         include_chain = not args.no_chain
+        mac_type = args.mac_type
+        mac_digest = args.mac_digest
 
         nicknames = args.nicknames
 
@@ -176,7 +185,9 @@ class InstanceCertExportCLI(pki.cli.CLI):
                 append=append,
                 include_trust_flags=include_trust_flags,
                 include_key=include_key,
-                include_chain=include_chain)
+                include_chain=include_chain,
+                mac_type=mac_type,
+                mac_digest=mac_digest)
         finally:
             nssdb.close()
 
