@@ -478,7 +478,9 @@ class PKISubsystem(object):
                 pkcs12_password_file=pkcs12_password_file,
                 nicknames=[nickname],
                 include_key=not no_key,
-                append=append)
+                append=append,
+                mac_type=mac_type,
+                mac_digest=mac_digest)
         finally:
             nssdb.close()
 
