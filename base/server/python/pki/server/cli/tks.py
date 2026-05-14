@@ -20,12 +20,8 @@
 
 import argparse
 import inspect
-import io
 import logging
-import os
-import shutil
 import sys
-import tempfile
 import textwrap
 import urllib.parse
 
@@ -133,10 +129,10 @@ class TKSClonePrepareCLI(pki.cli.CLI):
         pkcs12_password = None
 
         if args.pkcs12_password:
-            pkcs12_password = args.pkcs12_password.encode()
+            pkcs12_password = args.pkcs12_password
 
-        if args.pkcs12_password_file:
-            with io.open(args.pkcs12_password_file, 'rb') as f:
+        elif args.pkcs12_password_file:
+            with open(args.pkcs12_password_file, 'r', encoding='utf-8') as f:
                 pkcs12_password = f.read()
 
         no_key = args.no_key
@@ -181,18 +177,10 @@ class TKSClonePrepareCLI(pki.cli.CLI):
                 no_key=no_key,
                 append=True)
 
-        tmpdir = tempfile.mkdtemp()
-
-        try:
-            pkcs12_password_file = os.path.join(tmpdir, 'pkcs12_password.txt')
-            with open(pkcs12_password_file, 'wb') as f:
-                f.write(pkcs12_password)
-
-            instance.export_external_certs(
-                pkcs12_file, pkcs12_password_file, append=True)
-
-        finally:
-            shutil.rmtree(tmpdir)
+        instance.export_external_certs(
+            pkcs12_file,
+            pkcs12_password=pkcs12_password,
+            append=True)
 
 
 class TKSConnectorCLI(pki.cli.CLI):

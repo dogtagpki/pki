@@ -506,26 +506,32 @@ class PKIInstance(pki.server.PKIServer):
 
         PKIInstance.store_external_certs_conf(self.external_certs_conf, self.external_certs)
 
-    def export_external_certs(self, pkcs12_file, pkcs12_password_file,
-                              append=False):
+    def export_external_certs(
+            self,
+            pkcs12_file,
+            pkcs12_password_file=None,
+            append=False,
+            pkcs12_password=None):
+
         for cert in self.external_certs:
             nickname = cert.nickname
             token = pki.nssdb.normalize_token(cert.token)
 
-            nssdb_password = self.get_token_password(token)
-
             tmpdir = tempfile.mkdtemp()
+            self.chown(tmpdir)
 
             try:
-                nssdb_password_file = os.path.join(tmpdir, 'password.txt')
-                with open(nssdb_password_file, 'w', encoding='utf-8') as f:
-                    f.write(nssdb_password)
+                if pkcs12_password and not pkcs12_password_file:
+                    pkcs12_password_file = os.path.join(tmpdir, 'password.txt')
+                    with open(pkcs12_password_file, 'w', encoding='utf-8') as f:
+                        f.write(pkcs12_password)
+                    self.chown(pkcs12_password_file)
 
                 # add the certificate, key, and chain
                 cmd = [
                     'pki',
                     '-d', self.nssdb_dir,
-                    '-C', nssdb_password_file
+                    '-f', self.password_conf
                 ]
 
                 if token:
