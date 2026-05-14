@@ -344,27 +344,36 @@ class PKISubsystem(object):
 
         return None
 
-    def find_system_certs(self):
+    def get_system_cert_config(self, tag):
+
+        logger.debug('PKISubsystem.get_system_cert_config(%s)', tag)
+
+        cert_config = {}
+        cert_config['id'] = tag
+        cert_config['nickname'] = self.config.get('%s.%s.nickname' % (self.name, tag))
+        cert_config['token'] = self.config.get('%s.%s.tokenname' % (self.name, tag))
+        cert_config['certusage'] = self.config.get('%s.cert.%s.certusage' % (self.name, tag))
+
+        csr_file = self.csr_file(tag)
+        if os.path.isfile(csr_file):
+            with open(csr_file, 'r', encoding='utf-8') as f:
+                request = f.read()
+            cert_config['request'] = pki.nssdb.convert_csr(request, 'pem', 'base64')
+
+        return cert_config
+
+    def get_system_cert_configs(self):
+
+        cert_configs = []
 
         cert_list = self.config.get('%s.cert.list' % self.name)
         if not cert_list:
-            return []
+            return cert_configs
 
         for cert_tag in cert_list.split(','):
-            yield self.get_subsystem_cert(cert_tag)
+            cert_configs.append(self.get_system_cert_config(cert_tag))
 
-    def get_cert_infos(self):
-
-        cert_infos = []
-
-        cert_list = self.config.get('%s.cert.list' % self.name)
-        if not cert_list:
-            return cert_infos
-
-        for cert_tag in cert_list.split(','):
-            cert_infos.append(self.get_cert_info(cert_tag))
-
-        return cert_infos
+        return cert_configs
 
     def get_subsystem_certs(self):
         certs = self.config.get('%s.cert.list' % self.name)
@@ -376,7 +385,7 @@ class PKISubsystem(object):
 
         logger.debug('PKISubsystem.get_subsystem_cert(%s)', tag)
 
-        cert = self.get_cert_info(tag)
+        cert = self.get_system_cert_config(tag)
 
         if not cert['nickname']:
             return cert
@@ -386,24 +395,6 @@ class PKISubsystem(object):
 
         if cert_info:
             cert.update(cert_info)
-
-        return cert
-
-    def get_cert_info(self, tag):
-
-        logger.debug('PKISubsystem.get_cert_info(%s)', tag)
-
-        cert = {}
-        cert['id'] = tag
-        cert['nickname'] = self.config.get('%s.%s.nickname' % (self.name, tag))
-        cert['token'] = self.config.get('%s.%s.tokenname' % (self.name, tag))
-        cert['certusage'] = self.config.get('%s.cert.%s.certusage' % (self.name, tag))
-
-        csr_file = self.csr_file(tag)
-        if os.path.isfile(csr_file):
-            with open(csr_file, "r", encoding='utf-8') as f:
-                request = f.read()
-            cert['request'] = pki.nssdb.convert_csr(request, 'pem', 'base64')
 
         return cert
 
@@ -419,6 +410,15 @@ class PKISubsystem(object):
             return nssdb.get_cert_info(nickname, token=token)
         finally:
             nssdb.close()
+
+    def find_system_certs(self):
+
+        cert_list = self.config.get('%s.cert.list' % self.name)
+        if not cert_list:
+            return []
+
+        for cert_tag in cert_list.split(','):
+            yield self.get_subsystem_cert(cert_tag)
 
     def validate_system_cert(self, tag):
 

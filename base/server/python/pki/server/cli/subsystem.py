@@ -906,7 +906,7 @@ class SubsystemCertFindCLI(pki.cli.CLI):
         for cert_tag in cert_tags:
 
             # get cert config
-            cert = subsystem.get_cert_info(cert_tag)
+            cert = subsystem.get_system_cert_config(cert_tag)
             logger.info('  nickname: %s', cert['nickname'])
 
             # if nickname not available, skip
