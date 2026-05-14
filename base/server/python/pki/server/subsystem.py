@@ -452,13 +452,15 @@ class PKISubsystem(object):
             self,
             cert_tag,
             pkcs12_file,
-            pkcs12_password_file,
+            pkcs12_password_file=None,
             no_key=False,
             append=False,
             mac_type='classic',
-            mac_digest='SHA256'):
-        # Note, hard code this for all subystems until we want to explicity change it to pbmac1 or
-        # create new pkispawn config settings to be used.
+            mac_digest='SHA256',
+            pkcs12_password=None):
+
+        # Hardcode MAC type and digest for all subystems until we want to explicity
+        # change it to pbmac1 or create new pkispawn config settings to be used.
 
         cert = self.get_subsystem_cert(cert_tag)
 
@@ -475,6 +477,7 @@ class PKISubsystem(object):
         try:
             nssdb.export_pkcs12(
                 pkcs12_file=pkcs12_file,
+                pkcs12_password=pkcs12_password,
                 pkcs12_password_file=pkcs12_password_file,
                 nicknames=[nickname],
                 include_key=not no_key,

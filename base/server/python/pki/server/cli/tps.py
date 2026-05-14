@@ -162,27 +162,30 @@ class TPSClonePrepareCLI(pki.cli.CLI):
             logger.error('No TPS subsystem in instance %s.', instance_name)
             sys.exit(1)
 
+        subsystem.export_system_cert(
+            'subsystem',
+            pkcs12_file,
+            pkcs12_password=pkcs12_password,
+            no_key=no_key)
+
+        # audit signing cert is optional
+        cert = subsystem.get_subsystem_cert('audit_signing')
+
+        # export audit signing cert if available (i.e. has nickname)
+        if cert['nickname']:
+            subsystem.export_system_cert(
+                'audit_signing',
+                pkcs12_file,
+                pkcs12_password=pkcs12_password,
+                no_key=no_key,
+                append=True)
+
         tmpdir = tempfile.mkdtemp()
 
         try:
             pkcs12_password_file = os.path.join(tmpdir, 'pkcs12_password.txt')
             with open(pkcs12_password_file, 'wb') as f:
                 f.write(pkcs12_password)
-
-            subsystem.export_system_cert(
-                'subsystem', pkcs12_file, pkcs12_password_file, no_key=no_key)
-
-            # audit signing cert is optional
-            cert = subsystem.get_subsystem_cert('audit_signing')
-
-            # export audit signing cert if available (i.e. has nickname)
-            if cert['nickname']:
-                subsystem.export_system_cert(
-                    'audit_signing',
-                    pkcs12_file,
-                    pkcs12_password_file,
-                    no_key=no_key,
-                    append=True)
 
             instance.export_external_certs(
                 pkcs12_file, pkcs12_password_file, append=True)
