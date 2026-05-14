@@ -196,7 +196,7 @@ class CertFindCLI(pki.cli.CLI):
                     print()
 
                 # get cert info from NSS database
-                cert_info = subsystem.get_nssdb_cert_info(cert_tag)
+                cert_info = subsystem.get_system_cert_info(cert_tag)
                 if cert_info:
                     cert.update(cert_info)
 
