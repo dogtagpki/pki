@@ -362,10 +362,10 @@ class CACertChainExportCLI(pki.cli.CLI):
         pkcs12_password = None
 
         if args.pkcs12_password:
-            pkcs12_password = args.pkcs12_password.encode()
+            pkcs12_password = args.pkcs12_password
 
         if args.pkcs12_password_file:
-            with io.open(args.pkcs12_password_file, 'rb') as f:
+            with open(args.pkcs12_password_file, 'r', encoding='utf-8') as f:
                 pkcs12_password = f.read()
 
         if not pkcs12_file:
@@ -390,17 +390,9 @@ class CACertChainExportCLI(pki.cli.CLI):
             logger.error('No CA subsystem in instance %s', instance_name)
             sys.exit(1)
 
-        tmpdir = tempfile.mkdtemp()
-
-        try:
-            pkcs12_password_file = os.path.join(tmpdir, 'pkcs12_password.txt')
-            with open(pkcs12_password_file, 'wb') as f:
-                f.write(pkcs12_password)
-
-            subsystem.export_cert_chain(pkcs12_file, pkcs12_password_file)
-
-        finally:
-            shutil.rmtree(tmpdir)
+        subsystem.export_cert_chain(
+            pkcs12_file,
+            pkcs12_password=pkcs12_password)
 
 
 class CACertRequestCLI(pki.cli.CLI):

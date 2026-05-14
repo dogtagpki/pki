@@ -487,27 +487,29 @@ class PKISubsystem(object):
     def export_cert_chain(
             self,
             pkcs12_file,
-            pkcs12_password_file):
+            pkcs12_password_file=None,
+            pkcs12_password=None):
 
         # use subsystem certificate to get certificate chain
         cert = self.get_subsystem_cert('subsystem')
         nickname = cert['nickname']
         token = pki.nssdb.normalize_token(cert['token'])
 
-        nssdb_password = self.instance.get_token_password(token)
-
         tmpdir = tempfile.mkdtemp()
+        self.instance.chown(tmpdir)
 
         try:
-            nssdb_password_file = os.path.join(tmpdir, 'password.txt')
-            with open(nssdb_password_file, 'w', encoding='utf-8') as f:
-                f.write(nssdb_password)
+            if pkcs12_password and not pkcs12_password_file:
+                pkcs12_password_file = os.path.join(tmpdir, 'password.txt')
+                with open(pkcs12_password_file, 'w', encoding='utf-8') as f:
+                    f.write(pkcs12_password)
+                self.instance.chown(pkcs12_password_file)
 
             # export the certificate, key, and chain
             cmd = [
                 'pki',
                 '-d', self.instance.nssdb_dir,
-                '-C', nssdb_password_file
+                '-f', self.instance.password_conf,
             ]
 
             if token:
@@ -528,7 +530,7 @@ class PKISubsystem(object):
             cmd = [
                 'pki',
                 '-d', self.instance.nssdb_dir,
-                '-C', nssdb_password_file
+                '-f', self.instance.password_conf,
             ]
 
             if token:
