@@ -1,0 +1,315 @@
+name: KRA with PQC
+# This test will perform the following operations:
+# - install CA
+# - install KRA
+# - remove KRA
+# - remove CA
+
+on: workflow_call
+
+env:
+  DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
+
+jobs:
+  # docs/installation/kra/installing-kra.adoc
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Retrieve PKI images
+        uses: actions/cache@v4
+        with:
+          key: pki-images-${{ github.sha }}
+          path: pki-images.tar
+
+      - name: Load PKI images
+        run: docker load --input pki-images.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-create.sh \
+              --image=${{ env.DS_IMAGE }} \
+              --hostname=ds.example.com \
+              --network=example \
+              --network-alias=ds.example.com \
+              --password=Secret.123 \
+              ds
+
+      - name: Set up PKI container
+        run: |
+          tests/bin/runner-init.sh \
+              --hostname=pki.example.com \
+              --network=example \
+              --network-alias=pki.example.com \
+              pki
+
+          docker exec pki dnf install -y jq dumpasn1
+
+      - name: Install CA
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_ca_signing_key_type=mldsa \
+              -D pki_ca_signing_key_algorithm=ML-DSA-65 \
+              -D pki_ca_signing_key_size=65 \
+              -D pki_ca_signing_signing_algorithm=ML-DSA-65 \
+              -D pki_ocsp_signing_key_type=mldsa \
+              -D pki_ocsp_signing_key_algorithm=ML-DSA-65 \
+              -D pki_ocsp_signing_key_size=65 \
+              -D pki_ocsp_signing_signing_algorithm=ML-DSA-65 \
+              -D pki_audit_signing_key_type=mldsa \
+              -D pki_audit_signing_key_algorithm=ML-DSA-65 \
+              -D pki_audit_signing_key_size=65 \
+              -D pki_audit_signing_signing_algorithm=ML-DSA-65 \
+              -D pki_sslserver_key_type=mldsa \
+              -D pki_sslserver_key_algorithm=ML-DSA-65 \
+              -D pki_sslserver_key_size=65 \
+              -D pki_sslserver_signing_algorithm=ML-DSA-65 \
+              -D pki_subsystem_key_type=mldsa \
+              -D pki_subsystem_key_algorithm=ML-DSA-65 \
+              -D pki_subsystem_key_size=65 \
+              -D pki_subsystem_signing_algorithm=ML-DSA-65 \
+              -D pki_admin_key_type=mldsa \
+              -D pki_admin_key_size=65 \
+              -D pki_admin_key_algorithm=ML-DSA-65 \
+              -D pki_admin_nickname=admin \
+              -v
+
+      - name: Check CA admin user
+        run: |
+          docker exec pki pki-server cert-export \
+              --cert-file ca_signing.crt \
+              ca_signing
+
+          docker exec pki pki nss-cert-import \
+              --cert ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
+          docker exec pki pki pkcs12-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --password Secret.123
+
+          docker exec pki pki nss-cert-export \
+              --output-file admin.crt \
+              admin
+
+          docker exec pki openssl x509 -text -noout -in admin.crt | tee output
+
+          # public key algorithm should be "ML-DSA-65"
+          echo "ML-DSA-65" > expected
+          sed -n 's/^ *Public Key Algorithm: *\(.*\)$/\1/p' output > actual
+
+          docker exec pki pki nss-cert-verify \
+              --cert-usage SSLClient \
+              admin
+
+          # the admin cert created during CA installation
+          # can be used to authenticate as CA admin user
+          docker exec pki pki -n admin ca-user-show caadmin
+
+      - name: Configure profiles
+        run: |
+          # allow ML-KEM-768 in caInternalAuthDRMstorageCert
+          # NOTE: update this step after PR #5338 is merged
+          docker exec pki sed -i \
+              -e "s/^\(.*\.keyParameters\)=\(.*\)$/\1=\2,768/" \
+              /var/lib/pki/pki-tomcat/ca/profiles/ca/caInternalAuthDRMstorageCert.cfg
+
+          # allow ML-KEM-768 in caInternalAuthTransportCert
+          # NOTE: update this step after PR #5338 is merged
+          docker exec pki sed -i \
+              -e "s/^\(.*\.keyParameters\)=\(.*\)$/\1=\2,768/" \
+              /var/lib/pki/pki-tomcat/ca/profiles/ca/caInternalAuthTransportCert.cfg
+
+          # restart CA
+          docker exec pki pki-server ca-redeploy --wait
+
+      - name: Install KRA
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/kra.cfg \
+              -s KRA \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_storage_key_type=mlkem \
+              -D pki_storage_key_algorithm=ML-KEM-768 \
+              -D pki_storage_key_size=768 \
+              -D pki_storage_signing_algorithm= \
+              -D pki_transport_key_type=mlkem \
+              -D pki_transport_key_algorithm=ML-KEM-768 \
+              -D pki_transport_key_size=768 \
+              -D pki_transport_signing_algorithm= \
+              -D pki_audit_signing_key_type=mldsa \
+              -D pki_audit_signing_key_algorithm=ML-DSA-65 \
+              -D pki_audit_signing_key_size=65 \
+              -D pki_audit_signing_signing_algorithm=ML-DSA-65 \
+              -D pki_sslserver_key_type=mldsa \
+              -D pki_sslserver_key_algorithm=ML-DSA-65 \
+              -D pki_sslserver_key_size=65 \
+              -D pki_sslserver_signing_algorithm=ML-DSA-65 \
+              -D pki_subsystem_key_type=mldsa \
+              -D pki_subsystem_key_algorithm=ML-DSA-65 \
+              -D pki_subsystem_key_size=65 \
+              -D pki_subsystem_signing_algorithm=ML-DSA-65 \
+              -D pki_admin_key_type=mldsa \
+              -D pki_admin_key_size=65 \
+              -D pki_admin_key_algorithm=ML-DSA-65 \
+              --debug \
+              > >(tee stdout) 2> >(tee stderr >&2)
+
+      - name: Check for warnings
+        if: always()
+        run: |
+          sed -n '/^WARNING:/p' stderr | tee output
+          wc -l output
+
+      - name: Check external commands
+        if: always()
+        run: |
+          sed -n '/^DEBUG: Command:/p' stderr | tee output
+          wc -l output
+
+      - name: Check PKI server system certs
+        run: |
+          docker exec pki pki-server cert-find
+
+      - name: Check KRA storage cert
+        run: |
+          docker exec pki pki-server cert-export \
+              --cert-file kra_storage.crt \
+              kra_storage
+
+          docker exec pki AtoB /var/lib/pki/pki-tomcat/conf/certs/kra_storage.csr kra_storage.der
+          docker exec pki dumpasn1 kra_storage.der
+
+          docker exec pki openssl x509 -text -noout -in kra_storage.crt | tee output
+
+          # public key algorithm should be "ML-KEM-768"
+          echo "ML-KEM-768" > expected
+          sed -n 's/^ *Public Key Algorithm: *\(.*\)$/\1/p' output > actual
+
+          diff expected actual
+
+          docker exec pki pki-server cert-validate kra_storage
+
+      - name: Check KRA transport cert
+        run: |
+          docker exec pki pki-server cert-export \
+              --cert-file kra_transport.crt \
+              kra_transport
+
+          docker exec pki AtoB /var/lib/pki/pki-tomcat/conf/certs/kra_transport.csr kra_transport.der
+          docker exec pki dumpasn1 kra_transport.der
+
+          docker exec pki openssl x509 -text -noout -in kra_transport.crt | tee output
+
+          # public key algorithm should be "ML-KEM-768"
+          echo "ML-KEM-768" > expected
+          sed -n 's/^ *Public Key Algorithm: *\(.*\)$/\1/p' output > actual
+
+          diff expected actual
+
+          docker exec pki pki-server cert-validate kra_transport
+
+      - name: Check subsystem cert
+        run: |
+          docker exec pki pki-server cert-export \
+              --cert-file subsystem.crt \
+              subsystem
+
+          docker exec pki openssl req -text -noout \
+              -in /var/lib/pki/pki-tomcat/conf/certs/subsystem.csr
+
+          docker exec pki openssl x509 -text -noout -in subsystem.crt | tee output
+
+          # public key algorithm should be "ML-DSA-65"
+          echo "ML-DSA-65" > expected
+          sed -n 's/^ *Public Key Algorithm: *\(.*\)$/\1/p' output > actual
+
+          diff expected actual
+
+          docker exec pki pki-server cert-validate subsystem
+
+      - name: Check SSL server cert
+        run: |
+          docker exec pki pki-server cert-export \
+              --cert-file sslserver.crt \
+              sslserver
+
+          docker exec pki openssl req -text -noout \
+              -in /var/lib/pki/pki-tomcat/conf/certs/sslserver.csr
+
+          docker exec pki openssl x509 -text -noout -in sslserver.crt | tee output
+
+          # public key algorithm should be "ML-DSA-65"
+          echo "ML-DSA-65" > expected
+          sed -n 's/^ *Public Key Algorithm: *\(.*\)$/\1/p' output > actual
+
+          diff expected actual
+
+          docker exec pki pki-server cert-validate sslserver
+
+      - name: Run PKI healthcheck
+        run: |
+          docker exec pki pki-healthcheck \
+              --failures-only \
+              --debug \
+              > >(tee stdout) 2> >(tee stderr >&2)
+
+      - name: Check KRA admin user
+        run: |
+          # the admin cert created during CA installation
+          # can be used to authenticate as KRA admin user
+          docker exec pki pki -n admin kra-user-show kraadmin
+
+      - name: Remove KRA
+        run: |
+          docker exec pki pkidestroy \
+              -s KRA \
+              --debug \
+              > >(tee stdout) 2> >(tee stderr >&2)
+
+      - name: Check for warnings
+        if: always()
+        run: |
+          sed -n '/^WARNING:/p' stderr | tee output
+          wc -l output
+
+      - name: Check external commands
+        if: always()
+        run: |
+          sed -n '/^DEBUG: Command:/p' stderr | tee output
+          wc -l output
+
+      - name: Remove CA
+        run: docker exec pki pkidestroy -s CA -v
+
+      - name: Check PKI server systemd journal
+        if: always()
+        run: |
+          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check PKI server access log
+        if: always()
+        run: |
+          docker exec pki find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+
+      - name: Check CA debug log
+        if: always()
+        run: |
+          docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check KRA debug log
+        if: always()
+        run: |
+          docker exec pki find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;

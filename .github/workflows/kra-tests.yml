@@ -23,6 +23,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/kra-ecc-test.yml
 
+  kra-pqc-test:
+    name: KRA with PQC
+    needs: build
+    uses: ./.github/workflows/kra-pqc-test.yml
+
   kra-separate-test:
     name: KRA on separate instance
     needs: build
