@@ -632,6 +632,11 @@ class PKIDeployer:
             curve = None
             hash_alg = None
 
+        elif key_type == 'mlkem':
+            key_type = 'MLKEM'
+            curve = None
+            hash_alg = None
+
         else:
             raise Exception('Invalid key type: %s' % key_type)
 
@@ -1150,7 +1155,7 @@ class PKIDeployer:
         if key_type == 'ECC':
             key_type = 'EC'
 
-        if key_type not in ['RSA', 'EC', 'MLDSA']:
+        if key_type not in ['RSA', 'EC', 'MLDSA', 'MLKEM']:
             raise Exception('Unsupported key type: %s' % key_type)
 
         return key_type
@@ -3044,7 +3049,12 @@ class PKIDeployer:
                 csr_data = f.read()
             request.systemCert.request = pki.nssdb.convert_csr(csr_data, 'pem', 'base64')
 
-        request.systemCert.requestType = 'pkcs10'
+        # For ML-KEM certs use CRMF request without POP,
+        # otherwise use PKCS #10 request.
+        if key_type == 'MLKEM':
+            request.systemCert.requestType = 'crmf'
+        else:
+            request.systemCert.requestType = 'pkcs10'
 
         request.systemCert.cert = cert.get('data')
         request.systemCert.profile = self.get_cert_profile(subsystem, tag)
@@ -3111,6 +3121,11 @@ class PKIDeployer:
         elif request.systemCert.keyType == 'MLDSA':
             key_type = 'MLDSA'
             key_strength = request.systemCert.keySize
+
+        elif request.systemCert.keyType == 'MLKEM':
+            key_type = 'MLKEM'
+            key_strength = request.systemCert.keySize
+
         else:
             raise Exception('Unsupported key type: %s' % key_type)
 
@@ -3197,10 +3212,6 @@ class PKIDeployer:
         self.instance.copy(csr_path, new_csr_path, force=True)
 
     def create_cert_request(self, nssdb, tag, request):
-
-        if request.systemCert.requestType != 'pkcs10':
-            raise Exception(
-                'Certificate request type not supported: %s' % request.systemCert.requestType)
 
         # match <digest>with<encryption>
         match = re.fullmatch(r'(\S+)with(\S+)', request.systemCert.keyAlgorithm)
