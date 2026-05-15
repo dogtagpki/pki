@@ -3257,7 +3257,8 @@ class PKIDeployer:
                 basic_constraints_ext=basic_constraints_ext,
                 key_usage_ext=key_usage_ext,
                 generic_exts=generic_exts,
-                use_jss=True)
+                use_jss=True,
+                request_type=request.systemCert.requestType)
 
             with open(csr_file, encoding='utf-8') as f:
                 pem_csr = f.read()

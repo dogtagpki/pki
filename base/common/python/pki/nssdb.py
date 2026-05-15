@@ -961,7 +961,8 @@ class NSSDatabase:
             extended_key_usage_ext=None,
             subject_key_id=None,
             generic_exts=None,
-            use_jss=False):
+            use_jss=False,
+            request_type=None):
         """
         Generate a CSR.
 
@@ -1019,7 +1020,8 @@ class NSSDatabase:
                 key_usage_ext=key_usage_ext,
                 extended_key_usage_ext=extended_key_usage_ext,
                 subject_key_id=subject_key_id,
-                generic_exts=generic_exts)
+                generic_exts=generic_exts,
+                request_type=request_type)
             return
 
         if cka_id is None and key_id is not None:
@@ -1497,7 +1499,8 @@ class NSSDatabase:
             key_usage_ext=None,
             extended_key_usage_ext=None,
             subject_key_id=None,
-            generic_exts=None):
+            generic_exts=None,
+            request_type=None):
         '''
         Generate CSR using pki nss-cert-request command.
         In the future this will replace create_request().
@@ -1566,6 +1569,10 @@ class NSSDatabase:
                 cmd.extend(['-C', password_file])
 
             cmd.extend(['nss-cert-request'])
+
+            if request_type:
+                cmd.extend(['--type', request_type])
+
             cmd.extend(['--subject', subject_dn])
             cmd.extend(['--csr', request_file])
 
