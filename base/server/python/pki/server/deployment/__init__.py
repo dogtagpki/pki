@@ -3095,13 +3095,13 @@ class PKIDeployer:
         key_type = request.systemCert.keyType
         op_flags = request.systemCert.op_flags
         op_flags_mask = request.systemCert.op_flags_mask
-        key_size = None
+        key_strength = None
         key_wrap = False
         curve = None
         ssl_ecdh = False
 
         if request.systemCert.keyType == 'RSA':
-            key_size = request.systemCert.keySize
+            key_strength = request.systemCert.keySize
             key_wrap = request.systemCert.keyWrap
 
         elif request.systemCert.keyType == 'EC':
@@ -3110,7 +3110,7 @@ class PKIDeployer:
 
         elif request.systemCert.keyType == 'MLDSA':
             key_type = 'MLDSA'
-            key_size = request.systemCert.keySize
+            key_strength = request.systemCert.keySize
         else:
             raise Exception('Unsupported key type: %s' % key_type)
 
@@ -3119,7 +3119,7 @@ class PKIDeployer:
             result = nssdb.create_key(
                 token=token,
                 key_type=key_type,
-                key_size=key_size,
+                key_strength=key_strength,
                 key_wrap=key_wrap,
                 curve=curve,
                 ssl_ecdh=ssl_ecdh,

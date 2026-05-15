@@ -650,7 +650,8 @@ class NSSDatabase:
             curve=None,
             ssl_ecdh=False,
             op_flags=None,
-            op_flags_mask=None):
+            op_flags_mask=None,
+            key_strength=None):
 
         cmd = [
             'pki',
@@ -674,6 +675,9 @@ class NSSDatabase:
 
         if key_size:
             cmd.extend(['--key-size', key_size])
+
+        if key_strength:
+            cmd.extend(['--key-strength', key_strength])
 
         if key_wrap:
             cmd.append('--key-wrap')
