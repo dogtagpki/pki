@@ -81,31 +81,39 @@ public class TransportKeyUnit extends EncryptionUnit {
             logger.info("TransportKeyUnit: Loading " + nickname + " certificate");
 
             mManager = CryptoManager.getInstance();
+
             mCert = mManager.findCertByNickname(nickname);
+            logger.info("TransportKeyUnit: - subject: " + mCert.getSubjectX500Principal());
+
             chain = mManager.buildCertificateChain(mCert);
 
-            String algo = config.getString("signingAlgorithm", "SHA256withRSA");
-
+            String signingAlgorithm = config.getString("signingAlgorithm", "SHA256withRSA");
+            logger.info("TransportKeyUnit: - signing algorithm: " + signingAlgorithm);
 
             KRAEngine engine = KRAEngine.getInstance();
-            KRAEngineConfig kraCfg = null;
-            kraCfg  = engine.getConfig();
+            KRAEngineConfig kraCfg = engine.getConfig();
 
             boolean useOAEPKeyWrap = kraCfg.getUseOAEPKeyWrap();
-            logger.debug("TransportKeyUnit: keyWrap.useOAEP:  " + useOAEPKeyWrap);
-            if(useOAEPKeyWrap == true) {
+            logger.info("TransportKeyUnit: - use OAEP key wrap:  " + useOAEPKeyWrap);
+
+            if (useOAEPKeyWrap) {
                 this.rsaKeyWrapAlg = KeyWrapAlgorithm.RSA_OAEP;
             }
 
             // #613795 - initialize this; otherwise JSS is not happy
             CryptoToken token = getToken();
-            SignatureAlgorithm sigalg = Cert.mapAlgorithmToJss(algo);
-            Signature signer = token.getSignatureContext(sigalg);
-            signer.initSign(getPrivateKey());
+            SignatureAlgorithm signatureAlgorightm = Cert.mapAlgorithmToJss(signingAlgorithm);
+            logger.info("TransportKeyUnit: - signature algorithm: " + signatureAlgorightm);
+
+            if (signatureAlgorightm != null) {
+                Signature signer = token.getSignatureContext(signatureAlgorightm);
+                signer.initSign(getPrivateKey());
+            }
 
             String newNickName = getNewNickName();
             if (newNickName != null && newNickName.length() > 0) {
                 mNewCert = mManager.findCertByNickname(newNickName);
+                logger.info("TransportKeyUnit: - new subject: " + mNewCert.getSubjectX500Principal());
             }
 
         } catch (NotInitializedException e) {

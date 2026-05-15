@@ -1137,15 +1137,20 @@ public class CryptoUtil {
             String subjectName,
             boolean encodeSubj,
             KeyPair keyPair,
-            String alg,
+            String signatureAlgorithm,
             Extensions exts) throws Exception {
 
         logger.debug("CryptoUtil: Creating PKCS #10 request");
         X509Key key = createX509Key(keyPair.getPublic());
 
-        logger.debug("CryptoUtil: - algorithm: " + alg);
-        java.security.Signature sig = java.security.Signature.getInstance(alg, "Mozilla-JSS");
-        sig.initSign(keyPair.getPrivate());
+        logger.debug("CryptoUtil: - signature algorithm: " + signatureAlgorithm);
+
+        if (signatureAlgorithm == null) {
+            throw new Exception("Missing signature algorithm");
+        }
+
+        java.security.Signature signature = java.security.Signature.getInstance(signatureAlgorithm, "Mozilla-JSS");
+        signature.initSign(keyPair.getPrivate());
 
         logger.debug("CryptoUtil: - subject: " + subjectName);
 
@@ -1159,7 +1164,7 @@ public class CryptoUtil {
             byte[] b = subjectEncStream.toByteArray();
             name = new X500Name(b);
         }
-        X500Signer signer = new X500Signer(sig, name);
+        X500Signer signer = new X500Signer(signature, name);
 
         logger.debug("CryptoUtil: - attributes:");
         PKCS10Attributes attrs = new PKCS10Attributes();

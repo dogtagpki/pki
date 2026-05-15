@@ -2255,7 +2255,7 @@ class PKIDeployer:
             tag,
             trust_attributes=None):
 
-        logger.debug('import_system_cert')
+        logger.debug('PKIDeployer.import_system_cert(%s, %s)', subsystem.name, tag)
 
         cert_param_id = self.get_cert_param_id(subsystem, tag)
         param = 'pki_%s_cert_path' % cert_param_id
@@ -2540,7 +2540,7 @@ class PKIDeployer:
 
     def validate_system_certs(self, subsystem):
 
-        logger.info('Validate system certs')
+        logger.info('Validating system certs')
 
         if subsystem.name == 'ca':
             subsystem.validate_system_cert('signing')

@@ -424,7 +424,7 @@ class PKISubsystem(object):
 
     def validate_system_cert(self, tag):
 
-        logger.info('Validate %s cert', tag)
+        logger.info('Validating %s cert', tag)
 
         cert = self.get_subsystem_cert(tag)
 

@@ -1218,14 +1218,20 @@ public class NSSDatabase {
         logger.debug("NSSDatabase: - subject: " + subject);
 
         PK11PrivKey privateKey = (PK11PrivKey) keyPair.getPrivate();
-        String algorithm;
+        String signatureAlgorithm;
+
         if (privateKey.getKeyType() == KeyType.MLDSA) {
             // ignore hash for ML-DSA
             // Accepted signature are ML-DSA-44, ML-DSA-65 and ML-DSA-87
-            algorithm = privateKey.getType().toString();
+            signatureAlgorithm = privateKey.getType().toString();
+
+        } else if (privateKey.getKeyType() == KeyType.MLKEM) {
+            // ML-KEM does not support signature
+            signatureAlgorithm = null;
+
         } else {
             // Example of signature: SHA256withRSA or SHA256withEC
-            algorithm = hash + "with" + privateKey.getType();
+            signatureAlgorithm = hash + "with" + privateKey.getType();
         }
         /*
         PublicKey publicKey = keyPair.getPublic();
@@ -1243,13 +1249,13 @@ public class NSSDatabase {
         }
         */
 
-        logger.debug("NSSDatabase: - algorithm: " + algorithm);
+        logger.debug("NSSDatabase: - signature algorithm: " + signatureAlgorithm);
 
         return CryptoUtil.createPKCS10Request(
                 subject,
                 encodingEnabled,
                 keyPair,
-                algorithm,
+                signatureAlgorithm,
                 extensions);
     }
 
@@ -1275,6 +1281,11 @@ public class NSSDatabase {
 
         ProofOfPossession pop = null;
         if (withPop != null) { // !POP_NONE
+
+            if (signatureAlgorithm == null) {
+                throw new Exception("Missing signature algorithm");
+            }
+
             Signature signer = CryptoUtil.createSigner(token, signatureAlgorithm, keyPair);
 
             if (withPop) { // POP_SUCCESS
