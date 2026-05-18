@@ -91,9 +91,16 @@ jobs:
               nss-key-find \
               | tee output
 
-          # key type should be ML-DSA
-          echo "ML-DSA-65" > expected
-          sed -n 's/\s*Type:\s*\(\S\+\)\s*$/\1/p' output > actual
+          # key type and algorithm should be ML-DSA
+          cat > expected << EOF
+          Type: ML-DSA-65
+          Algorithm: ML-DSA
+          EOF
+
+          sed -n \
+              -e 's/\s*\(Type:\s*\S\+\)\s*$/\1/p' \
+              -e 's/\s*\(Algorithm:\s*\S\+\)\s*$/\1/p' \
+              output > actual
 
           diff expected actual
 
@@ -104,9 +111,10 @@ jobs:
               --key-id-file $SHARED/ca_signing.key-id \
               | tee output
 
-          # key type should be ML-DSA
-          echo "ML-DSA-65" > expected
-          sed -n 's/\s*Type:\s*\(\S\+\)\s*$/\1/p' output > actual
+          sed -n \
+              -e 's/\s*\(Type:\s*\S\+\)\s*$/\1/p' \
+              -e 's/\s*\(Algorithm:\s*\S\+\)\s*$/\1/p' \
+              output > actual
 
           diff expected actual
 
@@ -117,9 +125,10 @@ jobs:
               --key-id-file $SHARED/ca_signing.key-id \
               | tee output
 
-          # key type should be ML-DSA
-          echo "ML-DSA-65" > expected
-          sed -n 's/\s*Type:\s*\(\S\+\)\s*$/\1/p' output > actual
+          sed -n \
+              -e 's/\s*\(Type:\s*\S\+\)\s*$/\1/p' \
+              -e 's/\s*\(Algorithm:\s*\S\+\)\s*$/\1/p' \
+              output > actual
 
           diff expected actual
 
@@ -130,9 +139,10 @@ jobs:
               --key-id-file $SHARED/ca_signing.key-id \
               | tee output
 
-          # key type should be ML-DSA
-          echo "ML-DSA-65" > expected
-          sed -n 's/\s*Type:\s*\(\S\+\)\s*$/\1/p' output > actual
+          sed -n \
+              -e 's/\s*\(Type:\s*\S\+\)\s*$/\1/p' \
+              -e 's/\s*\(Algorithm:\s*\S\+\)\s*$/\1/p' \
+              output > actual
 
           diff expected actual
 
@@ -142,9 +152,10 @@ jobs:
               --key-id-file $SHARED/ca_signing.key-id \
               | tee output
 
-          # key type should be ML-DSA
-          echo "ML-DSA-65" > expected
-          sed -n 's/\s*Type:\s*\(\S\+\)\s*$/\1/p' output > actual
+          sed -n \
+              -e 's/\s*\(Type:\s*\S\+\)\s*$/\1/p' \
+              -e 's/\s*\(Algorithm:\s*\S\+\)\s*$/\1/p' \
+              output > actual
 
           diff expected actual
 
@@ -256,9 +267,16 @@ jobs:
               nss-key-find \
               --nickname sslserver | tee output
 
-          # key type should be ML-DSA
-          echo "ML-DSA-65" > expected
-          sed -n 's/\s*Type:\s*\(\S\+\)\s*$/\1/p' output > actual
+          # key type and algorithm should be ML-DSA
+          cat > expected << EOF
+          Type: ML-DSA-65
+          Algorithm: ML-DSA
+          EOF
+
+          sed -n \
+              -e 's/\s*\(Type:\s*\S\+\)\s*$/\1/p' \
+              -e 's/\s*\(Algorithm:\s*\S\+\)\s*$/\1/p' \
+              output > actual
 
           diff expected actual
 
@@ -390,9 +408,16 @@ jobs:
               nss-key-find \
               --nickname audit_signing | tee output
 
-          # key type should be ML-DSA
-          echo "ML-DSA-65" > expected
-          sed -n 's/\s*Type:\s*\(\S\+\)\s*$/\1/p' output > actual
+          # key type and algorithm should be ML-DSA
+          cat > expected << EOF
+          Type: ML-DSA-65
+          Algorithm: ML-DSA
+          EOF
+
+          sed -n \
+              -e 's/\s*\(Type:\s*\S\+\)\s*$/\1/p' \
+              -e 's/\s*\(Algorithm:\s*\S\+\)\s*$/\1/p' \
+              output > actual
 
           diff expected actual
 
@@ -537,9 +562,16 @@ jobs:
               nss-key-find \
               --nickname kra_storage | tee output
 
-          # key type should be ML-KEM
-          echo "ML-KEM-768" > expected
-          sed -n 's/\s*Type:\s*\(\S\+\)\s*$/\1/p' output > actual
+          # key type and algorithm should be ML-KEM
+          cat > expected << EOF
+          Type: ML-KEM-768
+          Algorithm: ML-KEM
+          EOF
+
+          sed -n \
+              -e 's/\s*\(Type:\s*\S\+\)\s*$/\1/p' \
+              -e 's/\s*\(Algorithm:\s*\S\+\)\s*$/\1/p' \
+              output > actual
 
           diff expected actual
 
