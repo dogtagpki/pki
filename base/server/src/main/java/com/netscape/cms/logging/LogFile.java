@@ -520,9 +520,7 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
             } else if (keyAlgorithm.equalsIgnoreCase("EC")) {
                 signatureAlgorithm = "SHA-256/EC";
 
-            } else if (keyAlgorithm.equalsIgnoreCase("ML-DSA-44")
-                    || keyAlgorithm.equalsIgnoreCase("ML-DSA-65")
-                    || keyAlgorithm.equalsIgnoreCase("ML-DSA-87")) {
+            } else if (keyAlgorithm.equalsIgnoreCase("ML-DSA")) {
                 signatureAlgorithm = keyAlgorithm;
 
             } else {
