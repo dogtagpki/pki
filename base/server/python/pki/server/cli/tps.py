@@ -21,7 +21,10 @@
 import argparse
 import inspect
 import logging
+import os
+import shutil
 import sys
+import tempfile
 import textwrap
 import urllib.parse
 
@@ -158,28 +161,40 @@ class TPSClonePrepareCLI(pki.cli.CLI):
             logger.error('No TPS subsystem in instance %s.', instance_name)
             sys.exit(1)
 
-        subsystem.export_system_cert(
-            'subsystem',
-            pkcs12_file,
-            pkcs12_password=pkcs12_password,
-            no_key=no_key)
+        tmpdir = tempfile.mkdtemp()
+        instance.chown(tmpdir)
 
-        # audit signing cert is optional
-        cert = subsystem.get_subsystem_cert('audit_signing')
+        try:
+            tmp_pkcs12_file = os.path.join(tmpdir, 'certs.p12')
 
-        # export audit signing cert if available (i.e. has nickname)
-        if cert['nickname']:
             subsystem.export_system_cert(
-                'audit_signing',
-                pkcs12_file,
+                'subsystem',
+                tmp_pkcs12_file,
                 pkcs12_password=pkcs12_password,
-                no_key=no_key,
+                no_key=no_key)
+
+            # audit signing cert is optional
+            cert = subsystem.get_subsystem_cert('audit_signing')
+
+            # export audit signing cert if available (i.e. has nickname)
+            if cert['nickname']:
+                subsystem.export_system_cert(
+                    'audit_signing',
+                    tmp_pkcs12_file,
+                    pkcs12_password=pkcs12_password,
+                    no_key=no_key,
+                    append=True)
+
+            instance.export_external_certs(
+                tmp_pkcs12_file,
+                pkcs12_password=pkcs12_password,
                 append=True)
 
-        instance.export_external_certs(
-            pkcs12_file,
-            pkcs12_password=pkcs12_password,
-            append=True)
+            shutil.move(tmp_pkcs12_file, pkcs12_file)
+            pki.util.chown(pkcs12_file, os.getuid(), os.getgid())
+
+        finally:
+            shutil.rmtree(tmpdir)
 
 
 class TPSConnectorCLI(pki.cli.CLI):
