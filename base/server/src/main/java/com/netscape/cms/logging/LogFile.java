@@ -39,6 +39,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.Provider;
+import java.security.Security;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.text.ParseException;
@@ -62,6 +63,7 @@ import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.pkcs11.PK11PrivKey;
 import org.mozilla.jss.util.Base64OutputStream;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -116,17 +118,17 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
     /**
      * The log file
      */
-    protected File mFile = null;
+    protected File mFile;
 
     /**
      * The log file name
      */
-    protected String mFileName = null;
+    protected String mFileName;
 
     /**
      * The log file output stream
      */
-    protected BufferedWriter mLogWriter = null;
+    protected BufferedWriter mLogWriter;
 
     /**
      * The log date entry format pattern
@@ -166,7 +168,7 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
     /**
      * The output buffer flush interval thread
      */
-    private Thread mFlushThread = null;
+    private Thread mFlushThread;
 
     /**
      * The mandatory log event types
@@ -186,7 +188,7 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
     /**
      * The eventType that this log is triggered
      */
-    protected String mType = null;
+    protected String mType;
 
     /**
      * The log is turned on/off
@@ -220,6 +222,9 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
      * Only logs with level greater or equal than this value will be written
      */
     protected long mLevel = 1;
+
+    private PrivateKey mSigningKey;
+    private Signature mSignature;
 
     /**
      * Constructor for a LogFile.
@@ -488,50 +493,47 @@ public class LogFile extends LogEventListener implements IExtendedPluginInfo {
         open();
     }
 
-    private PrivateKey mSigningKey = null;
-    private Signature mSignature = null;
-
     private void setupSigning() throws EBaseException {
         try {
 
-            Provider[] providers = java.security.Security.getProviders();
-            int ps = providers.length;
-            for (int i = 0; i < ps; i++) {
-                logger.debug("LogFile: provider " + i + "= " + providers[i].getName());
+            logger.debug("LogFile: Security providers:");
+            for (Provider provider : Security.getProviders()) {
+                logger.debug("LogFile: - " + provider.getName());
             }
 
             CryptoManager cm = CryptoManager.getInstance();
 
-            // find CertServer's private key
+            logger.debug("LogFile: Loading signing cert: " + mSAuditCertNickName);
             X509Certificate cert = cm.findCertByNickname(mSAuditCertNickName);
-            if (cert != null) {
-                logger.debug("LogFile: setupSignig(): found cert:" + mSAuditCertNickName);
-            } else {
-                logger.warn("LogFile: setupSignig(): cert not found:" + mSAuditCertNickName);
-            }
-            mSigningKey = cm.findPrivKeyByCert(cert);
 
-            String sigAlgorithm;
-            if (mSigningKey.getAlgorithm().equalsIgnoreCase("RSA")) {
-                sigAlgorithm = "SHA-256/RSA";
-            } else if (mSigningKey.getAlgorithm().equalsIgnoreCase("EC")) {
-                sigAlgorithm = "SHA-256/EC";
-            } else if (mSigningKey.getAlgorithm().equalsIgnoreCase("ML-DSA-44") ||
-                       mSigningKey.getAlgorithm().equalsIgnoreCase("ML-DSA-65") ||
-                       mSigningKey.getAlgorithm().equalsIgnoreCase("ML-DSA-87")) {
-                sigAlgorithm = mSigningKey.getAlgorithm();
+            if (cert == null) {
+                throw new ObjectNotFoundException("Certificate not found: " + mSAuditCertNickName);
+            }
+
+            mSigningKey = cm.findPrivKeyByCert(cert);
+            String keyAlgorithm = mSigningKey.getAlgorithm();
+            String signatureAlgorithm;
+
+            if (keyAlgorithm.equalsIgnoreCase("RSA")) {
+                signatureAlgorithm = "SHA-256/RSA";
+
+            } else if (keyAlgorithm.equalsIgnoreCase("EC")) {
+                signatureAlgorithm = "SHA-256/EC";
+
+            } else if (keyAlgorithm.equalsIgnoreCase("ML-DSA-44")
+                    || keyAlgorithm.equalsIgnoreCase("ML-DSA-65")
+                    || keyAlgorithm.equalsIgnoreCase("ML-DSA-87")) {
+                signatureAlgorithm = keyAlgorithm;
+
             } else {
-                throw new NoSuchAlgorithmException("Unknown private key type");
+                throw new NoSuchAlgorithmException("Unsupported signing key algorithm: " + keyAlgorithm);
             }
 
             CryptoToken savedToken = cm.getThreadToken();
             try {
-                CryptoToken keyToken =
-                        ((org.mozilla.jss.pkcs11.PK11PrivKey) mSigningKey)
-                                .getOwningToken();
+                CryptoToken keyToken = ((PK11PrivKey) mSigningKey).getOwningToken();
                 cm.setThreadToken(keyToken);
-                mSignature = java.security.Signature.getInstance(sigAlgorithm,
-                        CRYPTO_PROVIDER);
+                mSignature = Signature.getInstance(signatureAlgorithm, CRYPTO_PROVIDER);
             } finally {
                 cm.setThreadToken(savedToken);
             }
