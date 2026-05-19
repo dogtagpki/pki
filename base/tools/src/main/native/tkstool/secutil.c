@@ -124,7 +124,7 @@ SECU_PrintErrMsg(FILE *out, int level, const char *progName, const char *msg, ..
     va_end(args);
 }
 
-void 
+void __attribute__((format(printf, 2, 3)))
 SECU_PrintError(const char *progName, const char *msg, ...)
 {
     va_list args;
@@ -143,7 +143,7 @@ SECU_PrintError(const char *progName, const char *msg, ...)
     va_end(args);
 }
 
-void
+void __attribute__((format(printf, 2, 3)))
 SECU_PrintSystemError(char *progName, char *msg, ...)
 {
     va_list args;
@@ -525,6 +525,10 @@ SECU_GetClientAuthData(void *arg, PRFileDesc *fd,
     SECKEYPrivateKey *key;
     CERTCertificate *cert;
     int errsave;
+
+    /* Mark unused parameters to avoid compiler warnings */
+    (void) fd;
+    (void) caNames;
 
     if (arg == NULL) {
         fprintf(stderr, "no key/cert name specified for client auth\n");
@@ -1532,6 +1536,9 @@ secu_PrintSubjectPublicKeyInfo(FILE *out, PRArenaPool *arena,
 {
     SECKEYPublicKey *pk;
 
+    /* Mark unused parameter to avoid compiler warning */
+    (void) arena;
+
     SECU_Indent(out, level); fprintf(out, "%s:\n", msg);
     SECU_PrintAlgorithmID(out, &i->algorithm, "Public Key Algorithm", level+1);
 
@@ -2224,7 +2231,7 @@ SECU_PrintCertNickname(CERTCertListNode *node, void *data)
     return (SECSuccess);
 }
 
-int
+static int
 SECU_DecodeAndPrintExtensions(FILE *out, SECItem *any, const char *m, int level)
 {
     CERTCertExtension **extensions = NULL;
@@ -2245,7 +2252,7 @@ SECU_DecodeAndPrintExtensions(FILE *out, SECItem *any, const char *m, int level)
 }
 
 /* print a decoded SET OF or SEQUENCE OF Extensions */
-int
+static int
 SECU_PrintSetOfExtensions(FILE *out, SECItem **any, const char *m, int level)
 {
     int rv = 0;
@@ -2260,7 +2267,7 @@ SECU_PrintSetOfExtensions(FILE *out, SECItem **any, const char *m, int level)
 }
 
 /* print a decoded SET OF or SEQUENCE OF "ANY" */
-int
+static int
 SECU_PrintSetOfAny(FILE *out, SECItem **any, const char *m, int level)
 {
     int rv = 0;
@@ -2274,11 +2281,15 @@ SECU_PrintSetOfAny(FILE *out, SECItem **any, const char *m, int level)
     return rv;
 }
 
-int
+static int
 SECU_PrintCertAttribute(FILE *out, CERTAttribute *attr, const char *m, int level)
 {
     int rv = 0;
     SECOidTag tag;
+
+    /* Mark unused parameter to avoid compiler warning */
+    (void) m;
+
     tag = SECU_PrintObjectID(out, &attr->attrType, "Attribute Type", level);
     if (tag == SEC_OID_PKCS9_EXTENSION_REQUEST) {
 	rv = SECU_PrintSetOfExtensions(out, attr->attrValue, "Extensions", level);
@@ -2288,7 +2299,7 @@ SECU_PrintCertAttribute(FILE *out, CERTAttribute *attr, const char *m, int level
     return rv;
 }
 
-int
+static int
 SECU_PrintCertAttributes(FILE *out, CERTAttribute **attrs, const char *m, int level)
 {
     int rv = 0;
@@ -2963,7 +2974,7 @@ SECU_PrintPKCS7ContentInfo(FILE *out, SECItem *der, char *m, int level)
 ** End of PKCS7 functions
 */
 
-void
+static void
 printFlags(FILE *out, unsigned int flags, int level)
 {
     if ( flags & CERTDB_VALID_PEER ) {
@@ -3049,6 +3060,9 @@ SECU_ParseCommandLine(int argc, char **argv, char *progName, secuCommand *cmd)
     PLOptStatus status;
     char *optstring;
     int i, j;
+
+    /* Mark unused parameter to avoid compiler warning */
+    (void) progName;
 
     optstring = (char *)malloc(cmd->numCommands + 2*cmd->numOptions);
     j = 0;
