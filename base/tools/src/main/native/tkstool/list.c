@@ -135,6 +135,10 @@ TKS_ListKeys( char *progName,
 {
     SECStatus rv = SECSuccess;
 
+    /* Mark unused parameters to avoid compiler warnings */
+    (void) index;
+    (void) dopriv;
+
     if( slot == NULL ) {
         PK11SlotList        *list;
         PK11SlotListElement *le;
