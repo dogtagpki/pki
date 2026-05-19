@@ -132,11 +132,17 @@ public class hsmCompatVerifyClnt {
             String outputPrefix = cmd.getOptionValue("output", defaultOutput);
 
             // Optional parameters
-            String algorithm = cmd.getOptionValue("algorithm", DEFAULT_ALGORITHM);
+            boolean pqcMode = cmd.hasOption("pqc");
+            String pqcKemAlgorithm = cmd.getOptionValue("pqc-kem-algorithm", "mlkem768");
+
+            // User key type: controls what type of user key to generate (separate from transport)
+            String userKeyType = cmd.getOptionValue("user-key-type", pqcMode ? "ML-KEM" : DEFAULT_ALGORITHM);
+            String algorithm = userKeyType; // For backward compatibility with existing code
             int keyLength = Integer.parseInt(cmd.getOptionValue("l", String.valueOf(DEFAULT_KEY_LENGTH)));
             String curve = cmd.getOptionValue("c", "nistp256");
             boolean sslECDH = Boolean.parseBoolean(cmd.getOptionValue("x", "false"));
-            boolean temporary = Boolean.parseBoolean(cmd.getOptionValue("t", algorithm.equalsIgnoreCase("rsa") ? "false" : "true"));
+            boolean temporary = Boolean.parseBoolean(cmd.getOptionValue("t",
+                algorithm.equalsIgnoreCase("rsa") ? "false" : "true"));
             int sensitive = Integer.parseInt(cmd.getOptionValue("s", "-1"));
             int extractable = Integer.parseInt(cmd.getOptionValue("e", "-1"));
             String keywrapAlg = cmd.getOptionValue("w", DEFAULT_KEYWRAP_ALG);
@@ -149,31 +155,53 @@ public class hsmCompatVerifyClnt {
             System.out.println("  --client-db-path " + clientDB);
             System.out.println("  --transport-cert " + transportCertFile);
             System.out.println("  --output " + outputPrefix);
-            System.out.println("  --algorithm " + algorithm);
-            if (algorithm.equalsIgnoreCase("rsa")) {
+
+            if (pqcMode) {
+                System.out.println("  --pqc (PQC mode enabled - ML-KEM transport/storage)");
+                System.out.println("  --pqc-kem-algorithm " + pqcKemAlgorithm);
+            }
+
+            System.out.println("  --user-key-type " + userKeyType);
+            if (userKeyType.equalsIgnoreCase("ML-KEM")) {
+                System.out.println("    User key: ML-KEM-" + pqcKemAlgorithm.replace("mlkem", ""));
+            } else if (userKeyType.equalsIgnoreCase("rsa")) {
                 System.out.println("  --key-length " + keyLength);
-            } else {
+            } else if (userKeyType.equalsIgnoreCase("ec")) {
                 System.out.println("  --curve " + curve);
                 if (sslECDH) {
                     System.out.println("  --ssl-ecdh " + sslECDH);
                 }
             }
+
             System.out.println("  --temporary " + temporary);
             System.out.println("  --sensitive " + sensitive);
             System.out.println("  --extractable " + extractable);
-            System.out.println("  --keywrap-alg \"" + keywrapAlg + "\"");
-            System.out.println("  RSA session key wrap: " + (useOAEP ? "RSA-OAEP" : "RSA (PKCS#1 v1.5)"));
-            if (useOAEP) {
-                System.out.println("  --oaep");
+
+            if (!pqcMode) {
+                System.out.println("  --keywrap-alg \"" + keywrapAlg + "\"");
+                System.out.println("  RSA session key wrap: " + (useOAEP ? "RSA-OAEP" : "RSA (PKCS#1 v1.5)"));
+                if (useOAEP) {
+                    System.out.println("  --oaep");
+                }
+            } else {
+                System.out.println("  Key archival: ML-KEM encapsulation (no session key wrap)");
             }
+
             System.out.println("  --verbose " + (verbose ? "enabled" : "disabled"));
             System.out.println();
 
             hsmCompatVerifyClnt client = new hsmCompatVerifyClnt();
             client.autoYes = autoYes;
-            client.run(clientDB, clientPasswd, transportCertFile, outputPrefix,
-                      algorithm, keyLength, curve, sslECDH, temporary, sensitive, extractable,
-                      keywrapAlg, useOAEP, verbose);
+
+            if (pqcMode) {
+                client.runArchivalPQC(clientDB, clientPasswd, transportCertFile, outputPrefix,
+                                     userKeyType, pqcKemAlgorithm, keyLength, curve, sslECDH,
+                                     temporary, sensitive, extractable, verbose);
+            } else {
+                client.runArchival(clientDB, clientPasswd, transportCertFile, outputPrefix,
+                                  algorithm, keyLength, curve, sslECDH, temporary, sensitive, extractable,
+                                  keywrapAlg, useOAEP, verbose);
+            }
 
         } catch (Exception e) {
             System.err.println();
@@ -245,7 +273,27 @@ public class hsmCompatVerifyClnt {
         option.setArgName("boolean");
         options.addOption(option);
 
-        option = new Option("t", "temporary", true, "Temporary (default: true for EC, false for RSA)");
+        // PQC Options
+        options.addOption(Option.builder()
+                .longOpt("pqc")
+                .desc("Enable PQC mode (ML-KEM for transport/storage)")
+                .build());
+
+        options.addOption(Option.builder()
+                .longOpt("pqc-kem-algorithm")
+                .hasArg()
+                .argName("algorithm")
+                .desc("PQC KEM algorithm for transport/storage: mlkem512, mlkem768, mlkem1024 (default: mlkem768)")
+                .build());
+
+        options.addOption(Option.builder()
+                .longOpt("user-key-type")
+                .hasArg()
+                .argName("type")
+                .desc("User key type: RSA, EC, ML-KEM (default: ML-KEM if --pqc, RSA otherwise)")
+                .build());
+
+        option = new Option("t", "temporary", true, "Temporary (default: true for EC/ML-KEM, false for RSA)");
         option.setArgName("boolean");
         options.addOption(option);
 
@@ -317,15 +365,11 @@ public class hsmCompatVerifyClnt {
                 true);
     }
 
-    private void run(String clientDB, String clientPasswd, String transportCertFile,
-                     String outputPrefix, String algorithm, int keyLength, String curve,
-                     boolean sslECDH, boolean temporary, int sensitive, int extractable,
-                     String keywrapAlg, boolean useOAEP, boolean verbose) throws Exception {
-
-        log("=== KRA Compatibility Verification - Client Side ===", verbose);
-        log("Generating keys and creating wrapped output for KRA archival testing", verbose);
-        log("", verbose);
-
+    /**
+     * Helper method: Initialize NSS database and login
+     * @return CryptoToken (internal key storage token)
+     */
+    private CryptoToken initializeNSSDatabase(String clientDB, String clientPasswd, boolean verbose) throws Exception {
         // Check if client NSS database exists
         java.io.File clientDBDir = new java.io.File(clientDB);
         if (!clientDBDir.exists()) {
@@ -338,7 +382,6 @@ public class hsmCompatVerifyClnt {
         }
 
         // Step 1: Initialize NSS
-        // Adopted from: CRMFPopClient.java (NSS initialization)
         log("Step 1: Initializing client NSS database", verbose);
         log("  Client DB: " + clientDB, verbose);
         org.mozilla.jss.CryptoManager.initialize(clientDB);
@@ -368,7 +411,6 @@ public class hsmCompatVerifyClnt {
             log("", verbose);
 
             // Ask if user wants to delete existing and regenerate (default: No, keep existing)
-            // With --yes flag, promptYesNo automatically returns true (delete and regenerate)
             if (promptYesNo("Delete existing and regenerate? (y/n, 'n' keeps existing): ")) {
                 log("Deleting existing keys and certificates...", verbose);
 
@@ -402,8 +444,16 @@ public class hsmCompatVerifyClnt {
             }
         }
 
-        // Step 2: Load transport certificate
-        // Adopted from: CRMFPopClient.java (loading transport cert for key archival)
+        return token;
+    }
+
+    /**
+     * Helper method: Load transport certificate from PEM file
+     * @return X509Certificate (transport certificate)
+     */
+    private org.mozilla.jss.crypto.X509Certificate loadTransportCertificate(
+            String transportCertFile, boolean verbose) throws Exception {
+
         log("", verbose);
         log("Step 2: Loading KRA transport certificate", verbose);
         log("  Transport cert: " + transportCertFile, verbose);
@@ -431,9 +481,29 @@ public class hsmCompatVerifyClnt {
         } else {
             transportCertData = certBytes;
         }
+
+        org.mozilla.jss.CryptoManager manager = org.mozilla.jss.CryptoManager.getInstance();
         org.mozilla.jss.crypto.X509Certificate transportCert = manager.importCACertPackage(transportCertData);
-        log("  - Transport certificate loaded", verbose);
+        log("  - Transport certificate imported", verbose);
         log("    Subject: " + transportCert.getSubjectDN(), verbose);
+
+        return transportCert;
+    }
+
+    private void runArchival(String clientDB, String clientPasswd, String transportCertFile,
+                            String outputPrefix, String algorithm, int keyLength, String curve,
+                            boolean sslECDH, boolean temporary, int sensitive, int extractable,
+                            String keywrapAlg, boolean useOAEP, boolean verbose) throws Exception {
+
+        log("=== KRA Compatibility Verification - Client Side ===", verbose);
+        log("Generating keys and creating wrapped output for KRA archival testing", verbose);
+        log("", verbose);
+
+        // Step 1: Initialize NSS (using helper method)
+        CryptoToken token = initializeNSSDatabase(clientDB, clientPasswd, verbose);
+
+        // Step 2: Load transport certificate (using helper method)
+        org.mozilla.jss.crypto.X509Certificate transportCert = loadTransportCertificate(transportCertFile, verbose);
 
         // Step 3: Generate key pair
         // Adopted from: CRMFPopClient.java (key pair generation)
@@ -557,6 +627,165 @@ public class hsmCompatVerifyClnt {
         log("", verbose);
         log("Next step:", verbose);
         log("  Run hsmCompatVerifyServ to verify HSM archival/recovery with these files", verbose);
+    }
+
+    private void runArchivalPQC(String clientDB, String clientPasswd, String transportCertFile,
+                                String outputPrefix, String userKeyType, String kemAlgorithm,
+                                int keyLength, String curve, boolean sslECDH, boolean temporary,
+                                int sensitive, int extractable, boolean verbose) throws Exception {
+
+        log("=== KRA Compatibility Verification - Client Side (PQC) ===", verbose);
+        log("Transport/Storage: ML-KEM-" + kemAlgorithm.replace("mlkem", ""), verbose);
+        log("User key type: " + userKeyType, verbose);
+        log("Generating user keys with ML-KEM transport and creating wrapped output for KRA archival testing", verbose);
+        log("", verbose);
+
+        // Step 1: Initialize NSS (using helper method)
+        CryptoToken token = initializeNSSDatabase(clientDB, clientPasswd, verbose);
+
+        // Step 2: Load transport certificate (using helper method)
+        org.mozilla.jss.crypto.X509Certificate transportCert = loadTransportCertificate(transportCertFile, verbose);
+
+        // Import the transport public key into the token as a PKCS#11 object
+        // This is necessary for ML-KEM encapsulation to work properly
+        java.security.PublicKey transportPubKey = transportCert.getPublicKey();
+        token.importPublicKey(transportPubKey, false);  // false = not permanent
+        log("  - Transport public key imported into token", verbose);
+
+        // Step 3: Generate user key pair (RSA, EC, or ML-KEM)
+        log("", verbose);
+        log("Step 3: Generating user key pair", verbose);
+        log("  Algorithm: " + userKeyType, verbose);
+
+        KeyPair keyPair;
+        if ("RSA".equalsIgnoreCase(userKeyType)) {
+            log("  Key length: " + keyLength, verbose);
+            log("  Temporary: " + temporary, verbose);
+            log("  Sensitive: " + sensitive, verbose);
+            log("  Extractable: " + extractable, verbose);
+            keyPair = CryptoUtil.generateRSAKeyPair(
+                    token,
+                    keyLength,
+                    temporary,
+                    sensitive == -1 ? null : sensitive == 1,
+                    extractable == -1 ? null : extractable == 1,
+                    null,  // usages - let token decide
+                    null); // usagesMask - let token decide
+        } else if ("EC".equalsIgnoreCase(userKeyType)) {
+            log("  Curve: " + curve, verbose);
+            log("  SSL ECDH: " + sslECDH, verbose);
+            log("  Temporary: " + temporary, verbose);
+            log("  Sensitive: " + sensitive, verbose);
+            log("  Extractable: " + extractable, verbose);
+            keyPair = CryptoUtil.generateECCKeyPair(
+                    token,
+                    curve,
+                    temporary,
+                    sensitive == -1 ? null : sensitive == 1,
+                    extractable == -1 ? null : extractable == 1,
+                    null,  // usages - let token decide
+                    sslECDH ? CryptoUtil.ECDH_USAGES_MASK : CryptoUtil.ECDHE_USAGES_MASK); // usagesMask
+        } else if ("ML-KEM".equalsIgnoreCase(userKeyType)) {
+            log("  Algorithm: ML-KEM-" + kemAlgorithm.replace("mlkem", ""), verbose);
+
+            // Map algorithm to size
+            int kemParamSize;
+            switch (kemAlgorithm.toLowerCase()) {
+                case "mlkem512":
+                    kemParamSize = 512;
+                    break;
+                case "mlkem768":
+                    kemParamSize = 768;
+                    break;
+                case "mlkem1024":
+                    kemParamSize = 1024;
+                    break;
+                default:
+                    throw new Exception("Unsupported ML-KEM algorithm: " + kemAlgorithm);
+            }
+
+            log("  Temporary: " + temporary, verbose);
+            log("  Sensitive: " + sensitive, verbose);
+            log("  Extractable: " + extractable, verbose);
+
+            KeyPairGenerator keygen = token.getKeyPairGenerator(KeyPairAlgorithm.MLKEM);
+            keygen.initialize(kemParamSize);
+            if (temporary) {
+                keygen.temporaryPairs(true);
+            }
+            // TODO: Add sensitive/extractable flags when JSS supports them for ML-KEM
+            keyPair = keygen.genKeyPair();
+        } else {
+            throw new IllegalArgumentException(
+                    "Unsupported --user-key-type value: " + userKeyType + ". Valid values: RSA, EC, ML-KEM");
+        }
+        log("  - Key pair generated", verbose);
+
+        // Step 4: ML-KEM Encapsulation
+        log("", verbose);
+        log("Step 4: ML-KEM encapsulation for archival", verbose);
+        log("  Using transport public key for encapsulation", verbose);
+
+        javax.crypto.KEM kem = javax.crypto.KEM.getInstance("ML-KEM", "Mozilla-JSS");
+        javax.crypto.KEM.Encapsulator encapsulator = kem.newEncapsulator(transportPubKey);
+
+        // Encapsulate: generate 32-byte (256-bit) shared secret for AES-256 key wrapping
+        javax.crypto.KEM.Encapsulated encapsulated = encapsulator.encapsulate(0, 32, "AES-ECB");
+        org.mozilla.jss.crypto.SymmetricKey sharedSecret = (org.mozilla.jss.crypto.SymmetricKey) encapsulated.key();
+        byte[] kemCiphertext = encapsulated.encapsulation();
+
+        log("  - ML-KEM encapsulation completed", verbose);
+        log("    Shared secret size: 32 bytes (AES-256)", verbose);
+        log("    KEM ciphertext size: " + kemCiphertext.length + " bytes", verbose);
+
+        // Step 5: Wrap user's private key with shared secret using AES-KWP
+        log("", verbose);
+        log("Step 5: Wrapping private key with ML-KEM shared secret", verbose);
+        log("  Using AES-KWP (Key Wrap with Padding)", verbose);
+
+        byte[] wrappedPrivateKey = CryptoUtil.wrapUsingSymmetricKey(
+            token,
+            sharedSecret,
+            (org.mozilla.jss.crypto.PrivateKey) keyPair.getPrivate(),
+            null,  // No IV for AES-KWP
+            org.mozilla.jss.crypto.KeyWrapAlgorithm.AES_KEY_WRAP_PAD_KWP
+        );
+
+        log("  - Private key wrapped", verbose);
+        log("    Wrapped key size: " + wrappedPrivateKey.length + " bytes", verbose);
+
+        // Step 6: Write output files
+        log("", verbose);
+        log("Step 6: Writing output files", verbose);
+
+        String kemCiphertextFile = outputPrefix + "-kem-ciphertext.bin";
+        String wrappedPrivateFile = outputPrefix + "-wrapped-private.bin";
+        String publicKeyFile = outputPrefix + "-public.der";
+
+        try (FileOutputStream fos = new FileOutputStream(kemCiphertextFile)) {
+            fos.write(kemCiphertext);
+        }
+        log("  - Wrote: " + kemCiphertextFile + " (" + kemCiphertext.length + " bytes)", verbose);
+
+        try (FileOutputStream fos = new FileOutputStream(wrappedPrivateFile)) {
+            fos.write(wrappedPrivateKey);
+        }
+        log("  - Wrote: " + wrappedPrivateFile + " (" + wrappedPrivateKey.length + " bytes)", verbose);
+
+        PublicKey publicKey = keyPair.getPublic();
+        try (FileOutputStream fos = new FileOutputStream(publicKeyFile)) {
+            fos.write(publicKey.getEncoded());
+        }
+        log("  - Wrote: " + publicKeyFile + " (" + publicKey.getEncoded().length + " bytes)", verbose);
+
+        log("", verbose);
+        log("SUCCESS: Client-side ML-KEM key generation and archival completed!", verbose);
+        log("", verbose);
+        log("Next step:", verbose);
+        log("  Run hsmCompatVerifyServ --pqc to simulate KRA archival:", verbose);
+        log("    - Decapsulate using transport private key", verbose);
+        log("    - Re-encapsulate using storage public key", verbose);
+        log("    - Generate LDIF for archival verification", verbose);
     }
 
     private void log(String message, boolean verbose) {
