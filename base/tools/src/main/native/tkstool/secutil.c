@@ -557,7 +557,7 @@ SECU_GetClientAuthData(void *arg, PRFileDesc *fd,
     return 0;
 }
 
-SECStatus
+static SECStatus
 secu_StdinToItem(SECItem *dst)
 {
     unsigned char buf[1000];
@@ -888,7 +888,7 @@ SECU_PrintBuf(FILE *out, const char *msg, const void *vp, int len)
     }
 }
 
-SECStatus
+static SECStatus
 SECU_StripTagAndLength(SECItem *i)
 {
     unsigned int start;
@@ -1088,7 +1088,7 @@ SECU_PrintTimeChoice(FILE *out, SECItem *t, const char *m, int level)
 
 
 /* This prints a SET or SEQUENCE */
-void
+static void
 SECU_PrintSet(FILE *out, SECItem *t, const char *m, int level)
 {
     int            type        = t->data[0] & SEC_ASN1_TAGNUM_MASK;
@@ -1220,7 +1220,7 @@ secu_PrintDecodedBitString(FILE *out, SECItem *i, const char *m, int level)
 
 
 /* Print a DER encoded Boolean */
-void
+static void
 SECU_PrintEncodedBoolean(FILE *out, SECItem *i, const char *m, int level)
 {
     SECItem my    = *i;
@@ -1229,7 +1229,7 @@ SECU_PrintEncodedBoolean(FILE *out, SECItem *i, const char *m, int level)
 }
 
 /* Print a DER encoded integer */
-void
+static void
 SECU_PrintEncodedInteger(FILE *out, SECItem *i, const char *m, int level)
 {
     SECItem my    = *i;
@@ -1238,7 +1238,7 @@ SECU_PrintEncodedInteger(FILE *out, SECItem *i, const char *m, int level)
 }
 
 /* Print a DER encoded OID */
-void
+static void
 SECU_PrintEncodedObjectID(FILE *out, SECItem *i, const char *m, int level)
 {
     SECItem my    = *i;
