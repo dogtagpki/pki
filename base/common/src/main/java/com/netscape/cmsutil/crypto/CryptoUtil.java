@@ -563,6 +563,184 @@ public class CryptoUtil {
         return keygen.genKeyPair();
     }
 
+    /**
+     * Maps ML-DSA algorithm name to key strength parameter.
+     *
+     * @param algorithm Algorithm name (case-insensitive): "ml-dsa-44", "ml-dsa-65", or "ml-dsa-87"
+     * @return Key strength parameter (44, 65, or 87)
+     * @throws NoSuchAlgorithmException if algorithm is not supported
+     */
+    public static int getMLDSAStrength(String algorithm) throws NoSuchAlgorithmException {
+        String method = "CryptoUtil.getMLDSAStrength: ";
+        if (algorithm == null) {
+            throw new NoSuchAlgorithmException(method + "algorithm is null");
+        }
+
+        switch (algorithm.toLowerCase()) {
+            case "ml-dsa-44":
+                return 44;
+            case "ml-dsa-65":
+                return 65;
+            case "ml-dsa-87":
+                return 87;
+            default:
+                throw new NoSuchAlgorithmException(method + "Unsupported ML-DSA algorithm: " + algorithm);
+        }
+    }
+
+    /**
+     * Maps ML-DSA algorithm name to SignatureAlgorithm.
+     *
+     * @param algorithm Algorithm name (case-insensitive): "ml-dsa-44", "ml-dsa-65", or "ml-dsa-87"
+     * @return Corresponding SignatureAlgorithm
+     * @throws NoSuchAlgorithmException if algorithm is not supported
+     */
+    public static SignatureAlgorithm getMLDSASignatureAlgorithm(String algorithm) throws NoSuchAlgorithmException {
+        String method = "CryptoUtil.getMLDSASignatureAlgorithm: ";
+        if (algorithm == null) {
+            throw new NoSuchAlgorithmException(method + "algorithm is null");
+        }
+
+        switch (algorithm.toLowerCase()) {
+            case "ml-dsa-44":
+                return SignatureAlgorithm.MLDSA44;
+            case "ml-dsa-65":
+                return SignatureAlgorithm.MLDSA65;
+            case "ml-dsa-87":
+                return SignatureAlgorithm.MLDSA87;
+            default:
+                throw new NoSuchAlgorithmException(method + "Unsupported ML-DSA algorithm: " + algorithm);
+        }
+    }
+
+    /**
+     * Maps ML-KEM algorithm name to key strength parameter.
+     *
+     * @param algorithm Algorithm name (case-insensitive): "ml-kem-512", "ml-kem-768", or "ml-kem-1024"
+     * @return Key strength parameter (512, 768, or 1024)
+     * @throws NoSuchAlgorithmException if algorithm is not supported
+     */
+    public static int getMLKEMStrength(String algorithm) throws NoSuchAlgorithmException {
+        String method = "CryptoUtil.getMLKEMStrength: ";
+        if (algorithm == null) {
+            throw new NoSuchAlgorithmException(method + "algorithm is null");
+        }
+
+        switch (algorithm.toLowerCase()) {
+            case "ml-kem-512":
+                return 512;
+            case "ml-kem-768":
+                return 768;
+            case "ml-kem-1024":
+                return 1024;
+            default:
+                throw new NoSuchAlgorithmException(method + "Unsupported ML-KEM algorithm: " + algorithm);
+        }
+    }
+
+    /**
+     * Result of ML-KEM encapsulation containing shared secret and ciphertext.
+     *
+     * This structure holds intermediate values for PQC key wrapping. The final
+     * LDAP storage format remains compatible with non-PQC structure:
+     *
+     * <pre>
+     * SEQUENCE {
+     *     kemCiphertext OCTET STRING,     // ML-KEM ciphertext (analogous to wrapped session key)
+     *     wrappedPrivate OCTET STRING     // AES-KWP wrapped private key
+     * }
+     * </pre>
+     *
+     * Both PQC and non-PQC use the same privateKeyData attribute in KeyRecord LDAP entries.
+     */
+    public static class KEMEncapsulation {
+        public final SymmetricKey sharedSecret;
+        public final byte[] ciphertext;
+
+        public KEMEncapsulation(SymmetricKey sharedSecret, byte[] ciphertext) {
+            this.sharedSecret = sharedSecret;
+            this.ciphertext = ciphertext;
+        }
+    }
+
+    /**
+     * Performs ML-KEM encapsulation to generate a shared secret.
+     *
+     * @param publicKey ML-KEM public key
+     * @param keySize Derived key size in bytes (typically 32 for AES-256)
+     * @return KEMEncapsulation containing shared secret and ciphertext
+     * @throws Exception if encapsulation fails
+     */
+    public static KEMEncapsulation encapsulateMLKEM(PublicKey publicKey, int keySize) throws Exception {
+        if (publicKey == null) {
+            throw new IllegalArgumentException("publicKey is null");
+        }
+        if (keySize <= 0) {
+            throw new IllegalArgumentException("keySize must be positive");
+        }
+
+        logger.debug("CryptoUtil: ML-KEM encapsulation");
+        logger.debug("CryptoUtil: - Key size: " + keySize + " bytes");
+
+        javax.crypto.KEM kem = javax.crypto.KEM.getInstance("ML-KEM", "Mozilla-JSS");
+        javax.crypto.KEM.Encapsulator encapsulator = kem.newEncapsulator(publicKey);
+        javax.crypto.KEM.Encapsulated encapsulated = encapsulator.encapsulate(
+            0,          // offset
+            keySize,    // derived key size in bytes
+            "AES-ECB"   // algorithm for derived key
+        );
+
+        SymmetricKey sharedSecret = (SymmetricKey) encapsulated.key();
+        byte[] ciphertext = encapsulated.encapsulation();
+
+        logger.debug("CryptoUtil: - Shared secret size: " + keySize + " bytes");
+        logger.debug("CryptoUtil: - Ciphertext size: " + ciphertext.length + " bytes");
+
+        return new KEMEncapsulation(sharedSecret, ciphertext);
+    }
+
+    /**
+     * Performs ML-KEM decapsulation to recover a shared secret.
+     *
+     * @param privateKey ML-KEM private key
+     * @param ciphertext KEM ciphertext from encapsulation
+     * @param keySize Derived key size in bytes (must match encapsulation)
+     * @return Recovered shared secret (symmetric key)
+     * @throws Exception if decapsulation fails
+     */
+    public static SymmetricKey decapsulateMLKEM(
+            PrivateKey privateKey,
+            byte[] ciphertext,
+            int keySize) throws Exception {
+
+        if (privateKey == null) {
+            throw new IllegalArgumentException("privateKey is null");
+        }
+        if (ciphertext == null) {
+            throw new IllegalArgumentException("ciphertext is null");
+        }
+        if (keySize <= 0) {
+            throw new IllegalArgumentException("keySize must be positive");
+        }
+
+        logger.debug("CryptoUtil: ML-KEM decapsulation");
+        logger.debug("CryptoUtil: - Key size: " + keySize + " bytes");
+        logger.debug("CryptoUtil: - Ciphertext size: " + ciphertext.length + " bytes");
+
+        javax.crypto.KEM kem = javax.crypto.KEM.getInstance("ML-KEM", "Mozilla-JSS");
+        javax.crypto.KEM.Decapsulator decapsulator = kem.newDecapsulator(privateKey);
+        SymmetricKey sharedSecret = (SymmetricKey) decapsulator.decapsulate(
+            ciphertext,
+            0,          // offset
+            keySize,    // derived key size in bytes
+            "AES-ECB"   // algorithm for derived key
+        );
+
+        logger.debug("CryptoUtil: - Shared secret recovered");
+
+        return sharedSecret;
+    }
+
     public static boolean isECCKey(X509Key key) {
         String keyAlgo = key.getAlgorithm();
         if (keyAlgo.equals("EC") ||
@@ -2681,12 +2859,16 @@ public class CryptoUtil {
 
         // Get the key type for unwrapping the private key.
         PrivateKey.Type keyType = null;
-        if (pubKey.getAlgorithm().equalsIgnoreCase("RSA")) {
+        String algName = pubKey.getAlgorithm();
+        if (algName.equalsIgnoreCase("RSA")) {
             keyType = PrivateKey.RSA;
-        } else if (pubKey.getAlgorithm().equalsIgnoreCase("DSA")) {
+        } else if (algName.equalsIgnoreCase("DSA")) {
             keyType = PrivateKey.DSA;
-        } else if (pubKey.getAlgorithm().equalsIgnoreCase("EC")) {
+        } else if (algName.equalsIgnoreCase("EC")) {
             keyType = PrivateKey.EC;
+        } else if (algName.toUpperCase().startsWith("ML-KEM") || algName.equalsIgnoreCase("MLKEM")) {
+            // ML-KEM keys: use generic MLKEM type (JSS will determine specific variant)
+            keyType = PrivateKey.MLKEM;
         }
 
         PrivateKey pk = null;
