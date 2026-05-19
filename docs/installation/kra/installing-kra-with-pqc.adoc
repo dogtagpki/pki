@@ -1,0 +1,116 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="installing-kra-with-pqc"]
+= Installing KRA with PQC
+
+Follow this process to install a KRA subsystem with PQC certificates.
+
+Supported algorithms for storage and transport certificates:
+
+* ML-KEM-512
+* ML-KEM-768
+* ML-KEM-1024
+
+Supported algorithms for all other certificates:
+
+* ML-DSA-44
+* ML-DSA-65
+* ML-DSA-87
+
+Prior to installation, ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
+
+== Installing KRA subsystem
+
+Prepare a file, for example `kra-pqc.cfg`, to deploy KRA subsystem.
+By default the subsystem is deployed into a Tomcat instance called `pki-tomcat`.
+
+A sample deployment configuration is available at xref:../../../base/server/examples/installation/kra-pqc.cfg[/usr/share/pki/server/examples/installation/kra-pqc.cfg].
+
+To start the installation execute the following command:
+
+[literal]
+....
+$ pkispawn -f kra-pqc.cfg -s KRA
+....
+
+== KRA system certificates
+
+After installation the KRA system certificates and keys are stored in the server NSS database (i.e. `/var/lib/pki/pki-tomcat/conf/alias`):
+
+[literal]
+....
+$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
+
+Certificate Nickname                                         Trust Attributes
+                                                             SSL,S/MIME,JAR/XPI
+
+ca_signing                                                   CT,C,C
+kra_transport                                                u,u,u
+kra_storage                                                  u,u,u
+subsystem                                                    u,u,u
+kra_audit_signing                                            u,u,Pu
+sslserver                                                    u,u,u
+....
+
+If necessary, the certificates can be exported into PEM files with the following command:
+
+[literal]
+....
+$ pki-server cert-export --cert-file <filename> <cert ID>
+....
+
+The valid certificate IDs for KRA are:
+
+* `kra_transport`
+* `kra_storage`
+* `kra_audit_signing`
+* `subsystem`
+* `sslserver`
+
+Note that the `pki-server cert-export` command takes a certificate ID instead of a nickname.
+For simplicity the nicknames in this example are configured to be the same as the certificate ID.
+
+== Admin certificate
+
+KRA installation does not generate a new admin certificate.
+Instead, the admin certificate in `~/.dogtag/pki-tomcat/ca_admin_cert.p12` created during CA installation can be used to authenticate as KRA admin user.
+
+To install the admin certificate, execute the following commands:
+
+. Export the CA signing certificate from the server NSS database:
++
+[literal]
+....
+$ pki-server cert-export --cert-file ca_signing.crt ca_signing
+....
+
+. Import the CA signing certificate into the client NSS database:
++
+[literal]
+....
+$ pki nss-cert-import --cert ca_signing.crt --trust CT,C,C ca_signing
+....
+
+. Import admin certificate and key into the client NSS database (by default `~/.dogtag/nssdb`):
++
+[literal]
+....
+$ pki pkcs12-import \
+    --pkcs12 ~/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+    --password Secret.123
+....
+
+To verify that the admin certificate can be used to access the KRA subsystem, execute the following command:
+
+[literal]
+....
+$ pki -n caadmin kra-user-show kraadmin
+--------------
+User "kraadmin"
+--------------
+  User ID: kraadmin
+  Full name: kraadmin
+  Email: kraadmin@example.com
+  Type: adminType
+  State: 1
+....
