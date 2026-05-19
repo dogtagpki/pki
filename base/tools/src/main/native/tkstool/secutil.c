@@ -269,7 +269,7 @@ SECU_GetModulePassword(PK11SlotInfo *slot, PRBool retry, void *arg)
     char prompt[255];
     secuPWData *pwdata = (secuPWData *)arg;
     secuPWData pwnull = { PW_NONE, 0 };
-    secuPWData pwxtrn = { PW_EXTERNAL, "external" };
+    secuPWData pwxtrn = { PW_EXTERNAL, (char *)"external" };
     char *pw;
 
     if (pwdata == NULL)
@@ -489,7 +489,7 @@ SECU_ConfigDirectory(const char* base)
 {
     static PRBool initted = PR_FALSE;
     const char *dir = ".netscape";
-    char *home;
+    const char *home;
     static char buf[1000];
 
     if (initted) return buf;
@@ -2159,7 +2159,7 @@ void
 SECU_PrintName(FILE *out, CERTName *name, const char *msg, int level)
 {
     char *nameStr;
-    char *str;
+    const char *str;
     SECItem my;
 
     str = nameStr = CERT_NameToAscii(name);
@@ -2213,7 +2213,7 @@ SECU_PrintCertNickname(CERTCertListNode *node, void *data)
     CERTCertificate* cert;
     FILE *out;
     char trusts[30];
-    char *name;
+    const char *name;
 
     cert = node->cert;
 
@@ -3355,6 +3355,7 @@ SECU_printCertProblems(FILE *outfile, CERTCertDBHandle *handle,
 		    errstr = "[unknown usage].";
 		    break;
 		}
+		break;
 	    case SEC_ERROR_INADEQUATE_CERT_TYPE:
 		flags = (unsigned int)node->arg;
 		switch (flags) {
@@ -3381,6 +3382,7 @@ SECU_printCertProblems(FILE *outfile, CERTCertDBHandle *handle,
 		    errstr = "[unknown usage].";
 		    break;
 		}
+		break;
 	    case SEC_ERROR_UNKNOWN_ISSUER:
 	    case SEC_ERROR_UNTRUSTED_ISSUER:
 	    case SEC_ERROR_EXPIRED_ISSUER_CERTIFICATE:
