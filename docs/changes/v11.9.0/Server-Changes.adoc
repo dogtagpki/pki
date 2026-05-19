@@ -17,9 +17,9 @@ See also:
 
 The new algorithms `ML-DSA-44`, `ML-DSA-65` and `ML-DSA-87` are
 enabled for certificate key and signature. It is possible to deploy a
-CA using the `ML-DSA-44` algorithm using the example `pkispawn`
+CA using the `ML-DSA-65` algorithm using the example `pkispawn`
 configuration file provided in the
-link:../../..//base/server/examples/installation/ca-mldsa.cfg[installation examples].
+link:../../../base/server/examples/installation/ca-pqc.cfg[installation examples].
 
 == VLV Index for CRL Generation ==
 

@@ -1018,9 +1018,14 @@ class PKIDeployer:
             subsystem.set_config('%s.%s.tokenname' % (subsystem.name, cert_tag), tokenname)
             subsystem.set_config('%s.cert.%s.nickname' % (subsystem.name, cert_tag), fullname)
 
-            keyalgorithm = self.mdict['pki_%s_key_algorithm' % cert_param_id]
-            signingalgorithm = self.mdict.get(
-                'pki_%s_signing_algorithm' % cert_param_id, keyalgorithm)
+            key_type = self.get_key_type(subsystem, cert_tag)
+            key_algorithm = self.mdict['pki_%s_key_algorithm' % cert_param_id]
+
+            if key_type == 'MLKEM':
+                signingalgorithm = ''
+            else:
+                signingalgorithm = self.mdict.get(
+                    'pki_%s_signing_algorithm' % cert_param_id, key_algorithm)
 
             if subsystem.name == 'ca':
                 if cert_tag == 'signing':

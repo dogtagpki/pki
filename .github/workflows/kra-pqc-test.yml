@@ -11,7 +11,7 @@ env:
   DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
 
 jobs:
-  # docs/installation/kra/installing-kra.adoc
+  # docs/installation/kra/installing-kra-with-pqc.adoc
   test:
     name: Test
     runs-on: ubuntu-latest
@@ -53,35 +53,24 @@ jobs:
 
           docker exec pki dnf install -y jq dumpasn1
 
+          # get Fedora version
+          FEDORA_VERSION=$(docker exec pki sed -n 's/^VERSION_ID=//p' /etc/os-release)
+          echo "FEDORA_VERSION=$FEDORA_VERSION" >> $GITHUB_ENV
+
+      - name: Enable ML-DSA in default crypto-policies
+        if: ${{ fromJSON(env.FEDORA_VERSION) < 44 }}
+        # ML-DSA algorithms for NSS are enabled as default in rawhide (Fedora 44)
+        run: |
+          docker exec pki sed -i \
+              's/smime-key-exchange:ECDSA/smime-key-exchange:ML-DSA-65:ECDSA/' \
+              /etc/crypto-policies/back-ends/nss.config
+
       - name: Install CA
         run: |
           docker exec pki pkispawn \
-              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -f /usr/share/pki/server/examples/installation/ca-pqc.cfg \
               -s CA \
               -D pki_ds_url=ldap://ds.example.com:3389 \
-              -D pki_ca_signing_key_type=mldsa \
-              -D pki_ca_signing_key_algorithm=ML-DSA-65 \
-              -D pki_ca_signing_key_size=65 \
-              -D pki_ca_signing_signing_algorithm=ML-DSA-65 \
-              -D pki_ocsp_signing_key_type=mldsa \
-              -D pki_ocsp_signing_key_algorithm=ML-DSA-65 \
-              -D pki_ocsp_signing_key_size=65 \
-              -D pki_ocsp_signing_signing_algorithm=ML-DSA-65 \
-              -D pki_audit_signing_key_type=mldsa \
-              -D pki_audit_signing_key_algorithm=ML-DSA-65 \
-              -D pki_audit_signing_key_size=65 \
-              -D pki_audit_signing_signing_algorithm=ML-DSA-65 \
-              -D pki_sslserver_key_type=mldsa \
-              -D pki_sslserver_key_algorithm=ML-DSA-65 \
-              -D pki_sslserver_key_size=65 \
-              -D pki_sslserver_signing_algorithm=ML-DSA-65 \
-              -D pki_subsystem_key_type=mldsa \
-              -D pki_subsystem_key_algorithm=ML-DSA-65 \
-              -D pki_subsystem_key_size=65 \
-              -D pki_subsystem_signing_algorithm=ML-DSA-65 \
-              -D pki_admin_key_type=mldsa \
-              -D pki_admin_key_size=65 \
-              -D pki_admin_key_algorithm=ML-DSA-65 \
               -D pki_admin_nickname=admin \
               -v
 
@@ -138,32 +127,9 @@ jobs:
       - name: Install KRA
         run: |
           docker exec pki pkispawn \
-              -f /usr/share/pki/server/examples/installation/kra.cfg \
+              -f /usr/share/pki/server/examples/installation/kra-pqc.cfg \
               -s KRA \
               -D pki_ds_url=ldap://ds.example.com:3389 \
-              -D pki_storage_key_type=mlkem \
-              -D pki_storage_key_algorithm=ML-KEM-768 \
-              -D pki_storage_key_size=768 \
-              -D pki_storage_signing_algorithm= \
-              -D pki_transport_key_type=mlkem \
-              -D pki_transport_key_algorithm=ML-KEM-768 \
-              -D pki_transport_key_size=768 \
-              -D pki_transport_signing_algorithm= \
-              -D pki_audit_signing_key_type=mldsa \
-              -D pki_audit_signing_key_algorithm=ML-DSA-65 \
-              -D pki_audit_signing_key_size=65 \
-              -D pki_audit_signing_signing_algorithm=ML-DSA-65 \
-              -D pki_sslserver_key_type=mldsa \
-              -D pki_sslserver_key_algorithm=ML-DSA-65 \
-              -D pki_sslserver_key_size=65 \
-              -D pki_sslserver_signing_algorithm=ML-DSA-65 \
-              -D pki_subsystem_key_type=mldsa \
-              -D pki_subsystem_key_algorithm=ML-DSA-65 \
-              -D pki_subsystem_key_size=65 \
-              -D pki_subsystem_signing_algorithm=ML-DSA-65 \
-              -D pki_admin_key_type=mldsa \
-              -D pki_admin_key_size=65 \
-              -D pki_admin_key_algorithm=ML-DSA-65 \
               --debug \
               > >(tee stdout) 2> >(tee stderr >&2)
 

@@ -1,17 +1,11 @@
 :_mod-docs-content-type: PROCEDURE
 
-[id="installing-ca-with-mldsa"]
-= Installing CA with ML-DSA
+[id="installing-ca-with-pqc"]
+= Installing CA with PQC
 
-Follow this process to install a CA subsystem with ML-DSA self-signed CA signing certificate.
+Follow this process to install a CA subsystem with PQC certificates.
 
-Supported ML-DSA strength:
-
-* 44
-* 65
-* 87
-
-Supported ML-DSA key algorithms:
+Supported algorithms for all certificates:
 
 * ML-DSA-44 
 * ML-DSA-65
@@ -19,21 +13,23 @@ Supported ML-DSA key algorithms:
 
 Prior to installation, ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
 
-== Installing a CA subsystem
+== Installing CA subsystem
 
-Prepare a deployment configuration, for example `ca-mldsa.cfg`, to deploy CA subsystem. By default the subsystem is deployed into a Tomcat instance called `pki-tomcat`.
+Prepare a deployment configuration, for example `ca-pqc.cfg`, to deploy CA subsystem. By default the subsystem is deployed into a Tomcat instance called `pki-tomcat`.
 
-A sample deployment configuration, using ML-DSA-44 key type, is available at xref:../../../base/server/examples/installation/ca-mldsa.cfg[/usr/share/pki/server/examples/installation/ca-mldsa.cfg].
+A sample deployment configuration is available at xref:../../../base/server/examples/installation/ca-pqc.cfg[/usr/share/pki/server/examples/installation/ca-pqc.cfg].
 
 To start the installation execute the following command:
+
 [literal]
 ....
-$ pkispawn -f ca-mldsa.cfg -s CA
+$ pkispawn -f ca-pqc.cfg -s CA
 ....
 
 == CA system certificates 
 
 After installation the CA system certificates and keys are stored in the server NSS database (i.e. `/var/lib/pki/pki-tomcat/conf/alias`):
+
 [literal]
 ....
 $ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
@@ -49,9 +45,10 @@ sslserver                                                    u,u,u
 ....
 
 If necessary, the certificates can be exported into PEM files with the following command:
+
 [literal]
 ....
-$ pki-server cert-export <cert ID> --cert-file <filename>
+$ pki-server cert-export --cert-file <filename> <cert ID>
 ....
 
 The valid certificate IDs for CA are:
@@ -62,19 +59,21 @@ The valid certificate IDs for CA are:
 * `subsystem`
 * `sslserver`
 
-Note that the `pki-server cert-export` command takes a certificate ID instead of a nickname. For simplicity the nicknames in this example are configured to be the same as the certificate ID.
+Note that the `pki-server cert-export` command takes a certificate ID instead of a nickname.
+For simplicity the nicknames in this example are configured to be the same as the certificate ID.
 
 == Admin certificate 
 
-After installation, the admin certificate and key are stored in `~/.dogtag/pki-tomcat/ca_admin_cert.p12`. The PKCS #12 password is specified in the `pki_client_pkcs12_password` parameter.
+After installation, the admin certificate and key are stored in `~/.dogtag/pki-tomcat/ca_admin_cert.p12`.
+The PKCS #12 password is specified in the `pki_client_pkcs12_password` parameter.
 
-To use the admin certificate, do the following.
+To install the admin certificate, execute the following commands:
 
 . Export the CA signing certificate from the server NSS database:
 +
 [literal]
 ....
-$ pki-server cert-export ca_signing --cert-file ca_signing.crt
+$ pki-server cert-export --cert-file ca_signing.crt ca_signing
 ....
 
 . Import the CA signing certificate into the client NSS database:
@@ -84,17 +83,17 @@ $ pki-server cert-export ca_signing --cert-file ca_signing.crt
 $ pki nss-cert-import --cert ca_signing.crt --trust CT,C,C ca_signing
 ....
 
-. Import admin certificate and key into the client NSS database (by default ~/.dogtag/nssdb) with the following command:
+. Import admin certificate and key into the client NSS database (by default `~/.dogtag/nssdb`):
 +
 [literal]
 ....
 $ pki pkcs12-import \
     --pkcs12 ~/.dogtag/pki-tomcat/ca_admin_cert.p12 \
-    --pkcs12-password Secret.123
+    --password Secret.123
 ....
 
-. To verify that the admin certificate can be used to access the CA subsystem, execute the following command:
-+
+To verify that the admin certificate can be used to access the CA subsystem, execute the following command:
+
 [literal]
 ....
 $ pki -n caadmin ca-user-show caadmin
