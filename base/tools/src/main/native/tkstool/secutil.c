@@ -1709,13 +1709,16 @@ static const char * const usageBits[] = {
 
 /* X509KeyUsage is merely a bit string whose bits are displayed symbolically */
 static void
-secu_PrintX509KeyUsage(FILE *out, SECItem *value, char *msg, int level) 
+secu_PrintX509KeyUsage(FILE *out, SECItem *value, char *msg, int level)
 {
     int     unused;
     int     usage;
     int     i;
     int     found   = 0;
     SECItem my      = *value;
+
+    /* Mark unused parameter to avoid compiler warning */
+    (void) msg;
 
     if ((my.data[0] != SEC_ASN1_BIT_STRING) || 
         SECSuccess != SECU_StripTagAndLength(&my)) {
@@ -1823,10 +1826,13 @@ secu_PrintGeneralName(FILE *out, CERTGeneralName *gname, const char *msg, int le
 }
 
 static void
-secu_PrintAuthKeyIDExtension(FILE *out, SECItem *value, char *msg, int level) 
+secu_PrintAuthKeyIDExtension(FILE *out, SECItem *value, char *msg, int level)
 {
     CERTAuthKeyID *kid  = NULL;
     PLArenaPool   *pool = PORT_NewArena(DER_DEFAULT_CHUNKSIZE);
+
+    /* Mark unused parameter to avoid compiler warning */
+    (void) msg;
 
     if (!pool) {
 	SECU_PrintError("Error", "Allocating new ArenaPool");
@@ -1896,6 +1902,9 @@ secu_PrintCRLDistPtsExtension(FILE *out, SECItem *value, char *msg, int level)
     CERTCrlDistributionPoints * dPoints;
     PLArenaPool * pool = PORT_NewArena(DER_DEFAULT_CHUNKSIZE);
 
+    /* Mark unused parameter to avoid compiler warning */
+    (void) msg;
+
     if (!pool) {
 	SECU_PrintError("Error", "Allocating new ArenaPool");
 	return;
@@ -1955,6 +1964,9 @@ secu_PrintNameConstraintsExtension(FILE *out, SECItem *value, char *msg, int lev
     CERTNameConstraints * cnstrnts;
     PLArenaPool * pool = PORT_NewArena(DER_DEFAULT_CHUNKSIZE);
 
+    /* Mark unused parameter to avoid compiler warning */
+    (void) msg;
+
     if (!pool) {
 	SECU_PrintError("Error", "Allocating new ArenaPool");
 	return;
@@ -1980,6 +1992,9 @@ secu_PrintAuthorityInfoAcess(FILE *out, SECItem *value, char *msg, int level)
 {
     CERTAuthInfoAccess **infos = NULL;
     PLArenaPool * pool = PORT_NewArena(DER_DEFAULT_CHUNKSIZE);
+
+    /* Mark unused parameter to avoid compiler warning */
+    (void) msg;
 
     if (!pool) {
 	SECU_PrintError("Error", "Allocating new ArenaPool");
@@ -3643,6 +3658,9 @@ SECU_FindCrlIssuer(CERTCertDBHandle *dbhandle, SECItem* subject,
 {
     CERTCertificate *issuerCert = NULL;
     CERTCertList *certList = NULL;
+
+    /* Mark unused parameter to avoid compiler warning */
+    (void) authorityKeyID;
 
     if (!subject) {
         PORT_SetError(SEC_ERROR_INVALID_ARGS);
