@@ -64,8 +64,9 @@ jobs:
       - name: Install admin cert in primary PKI container
         run: |
           # install CA signing cert
-          docker exec primary pki-server cert-export ca_signing \
-              --cert-file ${SHARED}/ca_signing.crt
+          docker exec primary pki-server cert-export \
+              --cert-file $SHARED/ca_signing.crt \
+              ca_signing
 
           docker exec primary pki nss-cert-import \
               --cert $SHARED/ca_signing.crt \
@@ -75,19 +76,20 @@ jobs:
           # install admin cert
           docker exec primary cp \
               /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
-              ${SHARED}/ca_admin_cert.p12
+              $SHARED/ca_admin_cert.p12
+
           docker exec primary pki pkcs12-import \
-              --pkcs12 ${SHARED}/ca_admin_cert.p12 \
-              --pkcs12-password Secret.123
+              --pkcs12 $SHARED/ca_admin_cert.p12 \
+              --password Secret.123
 
       - name: Export certs and keys from primary PKI container
         run: |
           docker exec primary pki-server ca-clone-prepare \
-              --pkcs12-file ${SHARED}/ca-certs.p12 \
+              --pkcs12-file $SHARED/ca-certs.p12 \
               --pkcs12-password Secret.123
 
           docker exec primary pki-server kra-clone-prepare \
-              --pkcs12-file ${SHARED}/kra-certs.p12 \
+              --pkcs12-file $SHARED/kra-certs.p12 \
               --pkcs12-password Secret.123
 
       - name: Set up secondary PKI container
@@ -103,8 +105,8 @@ jobs:
           docker exec secondary pkispawn \
               -f /usr/share/pki/server/examples/installation/ca-clone.cfg \
               -s CA \
-              -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
-              -D pki_clone_pkcs12_path=${SHARED}/ca-certs.p12 \
+              -D pki_cert_chain_path=$SHARED/ca_signing.crt \
+              -D pki_clone_pkcs12_path=$SHARED/ca-certs.p12 \
               -D pki_clone_pkcs12_password=Secret.123 \
               -D pki_ds_url=ldap://ds.example.com:3389 \
               -D pki_ds_setup=False \
@@ -118,8 +120,8 @@ jobs:
           docker exec secondary pkispawn \
               -f /usr/share/pki/server/examples/installation/kra-clone.cfg \
               -s KRA \
-              -D pki_cert_chain_path=${SHARED}/ca_signing.crt \
-              -D pki_clone_pkcs12_path=${SHARED}/kra-certs.p12 \
+              -D pki_cert_chain_path=$SHARED/ca_signing.crt \
+              -D pki_clone_pkcs12_path=$SHARED/kra-certs.p12 \
               -D pki_clone_pkcs12_password=Secret.123 \
               -D pki_ds_url=ldap://ds.example.com:3389 \
               -D pki_ds_setup=False \
@@ -218,8 +220,8 @@ jobs:
 
           # install admin cert
           docker exec secondary pki pkcs12-import \
-              --pkcs12 ${SHARED}/ca_admin_cert.p12 \
-              --pkcs12-password Secret.123
+              --pkcs12 $SHARED/ca_admin_cert.p12 \
+              --password Secret.123
 
       - name: Check users in primary KRA and secondary KRA
         run: |

@@ -57,8 +57,9 @@ jobs:
       - name: Check primary CA admin user
         run: |
           # install CA signing cert
-          docker exec primary pki-server cert-export ca_signing \
-              --cert-file $SHARED/ca_signing.crt
+          docker exec primary pki-server cert-export \
+              --cert-file $SHARED/ca_signing.crt \
+              ca_signing
 
           docker exec primary pki nss-cert-import \
               --cert $SHARED/ca_signing.crt \
@@ -69,9 +70,10 @@ jobs:
           docker exec primary cp \
               /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
               $SHARED/ca_admin_cert.p12
+
           docker exec primary pki pkcs12-import \
               --pkcs12 $SHARED/ca_admin_cert.p12 \
-              --pkcs12-password Secret.123
+              --password Secret.123
 
           docker exec primary pki -n caadmin ca-user-show caadmin
 
