@@ -95,7 +95,7 @@ static char consoleName[] =  {
 };
 
 
-char *
+static char *
 SECU_GetString(int16 error_number)
 {
 
@@ -104,7 +104,7 @@ SECU_GetString(int16 error_number)
     return errString;
 }
 
-void 
+static void __attribute__((format(printf, 4, 5)))
 SECU_PrintErrMsg(FILE *out, int level, const char *progName, const char *msg, ...)
 {
     va_list args;
@@ -175,6 +175,9 @@ SECU_GetPasswordString(void *arg, char *prompt)
     char *p = NULL;
     FILE *input, *output;
 
+    /* Mark unused parameter to avoid compiler warning */
+    (void) arg;
+
     /* open terminal */
     input = fopen(consoleName, "r");
     if (input == NULL) {
@@ -203,6 +206,9 @@ SECU_GetPasswordString(void *arg, char *prompt)
 
     char *p = NULL;
 
+    /* Mark unused parameter to avoid compiler warning */
+    (void) arg;
+
     p = SEC_GetPassword (stdin, stdout, prompt, SEC_BlindCheckPassword);
     return p;
 
@@ -226,6 +232,9 @@ SECU_FilePasswd(PK11SlotInfo *slot, PRBool retry, void *arg)
     PRInt32 nb;
     char *pwFile = arg;
     int i;
+
+    /* Mark unused parameter to avoid compiler warning */
+    (void) slot;
 
     if (!pwFile)
 	return 0;
@@ -304,7 +313,7 @@ SECU_GetModulePassword(PK11SlotInfo *slot, PRBool retry, void *arg)
     return NULL;
 }
 
-char *
+static char *
 secu_InitSlotPassword(PK11SlotInfo *slot, PRBool retry, void *arg)
 {
     char *p0 = NULL;
@@ -391,6 +400,12 @@ SECU_ChangePW(PK11SlotInfo *slot, char *passwd, char *pwFile)
     if (PK11_NeedUserInit(slot)) {
 	newpw = secu_InitSlotPassword(slot, PR_FALSE, &pwdata);
 	rv = PK11_InitPin(slot, (char*)NULL, newpw);
+	if (rv != SECSuccess) {
+	    PR_fprintf(PR_STDERR, "Failed to initialize PIN.\n");
+	    PORT_Memset(newpw, 0, PL_strlen(newpw));
+	    PORT_Free(newpw);
+	    return SECFailure;
+	}
 	goto done;
     }
 
@@ -668,7 +683,7 @@ SECU_ReadDERFromFile(SECItem *der, PRFileDesc *inFile, PRBool ascii)
     SECStatus rv;
     if (ascii) {
 	/* First convert ascii to binary */
-	SECItem filedata = {siBuffer,0};
+	SECItem filedata = {siBuffer, NULL, 0};
 	char *asc, *body;
 
 	/* Read in ascii data */
