@@ -34,8 +34,8 @@ InputHexSessionKey( const char *sessionKeyShareName,
                     SECItem *hexSessionKeyShare )
 {
     int             fd;
-    int             i;
-    int             count;
+    PRUint32        i;
+    PRUint32        count;
     int             c;
     int             rv = 0;
 #ifdef XP_UNIX
@@ -821,8 +821,8 @@ SECStatus
 TKS_GenerateSessionKeyShare( const char *sessionKeyShareName,
                              SECItem *sessionKeyShare )
 {
-    PRIntn       count                 = 0;
-    PRIntn       i                     = 0;
+    PRUint32     count                 = 0;
+    PRUint32     i                     = 0;
     PRIntn       KCVLen                = KCV_LENGTH;
     PRUint8     *KCV                   = NULL;
     SECItem      hexSessionKeyShare    = { siBuffer,
@@ -1077,9 +1077,8 @@ TKS_ImportSymmetricKey( const char        *symmetricKeyName,
                         CK_MECHANISM_TYPE  mechanism,
                         CK_ATTRIBUTE_TYPE  operation,
                         SECItem           *sessionKeyShare,
-                        secuPWData        *pwdata, PRBool isPerm )
+                        secuPWData        *pwdataParam, PRBool isPerm )
 {
-    PK11Origin  origin = PK11_OriginGenerated;
     PK11SymKey *symKey = NULL;
     PK11SymKey *sessKey = NULL;
     PK11Context *context = NULL;
@@ -1089,6 +1088,11 @@ TKS_ImportSymmetricKey( const char        *symmetricKeyName,
     int len = 0;
     unsigned char wrappedkey[DES_LENGTH * 3];
     SECStatus s = SECSuccess;
+
+    /* Mark unused parameters to avoid compiler warnings */
+    (void) mechanism;
+    (void) operation;
+    (void) pwdataParam;
 
     if( slot == NULL ) {
         return NULL;
