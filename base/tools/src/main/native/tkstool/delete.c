@@ -54,7 +54,6 @@ TKS_DeleteKeys( char *progName,
                 char *keyname,
                 secuPWData *pwdata )
 {
-    int         count        = 0;
     int         keys_deleted = 0;
     PK11SymKey *symKey       = NULL;
     PK11SymKey *nextSymKey   = NULL;
@@ -85,8 +84,6 @@ TKS_DeleteKeys( char *progName,
 		nextSymKey = PK11_GetNextSymKey( /* symmetric key */  symKey );
         PK11_FreeSymKey( /* symmetric key */  symKey );
         symKey = nextSymKey;
-		
-        count++;
     }
 
     if( keys_deleted == 0 ) {
