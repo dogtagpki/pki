@@ -143,6 +143,10 @@ public class TPSProcessor {
     protected String selectedKeySet;
     protected String selectedKeyWrapAlg;   // ** Applet and Alg Selection by Token Range Support **
     protected String selectedAppletVer;    // ** Applet and Alg Selection by Token Range Support **
+
+    protected String selectedKeyGenUsages;
+
+
     AuthToken authToken;
     List<String> ldapStringAttrs;
 
@@ -5543,7 +5547,15 @@ logger.debug("defaultAID: " + defaultAID);
     public String getSelectedKeyWrapAlg() {
         return selectedKeyWrapAlg;
     }
-    
+
+    protected void setSelectedKeyGenUsages(String usages) {
+        selectedKeyGenUsages = usages;
+    }
+
+    public String getSelectedKeyGenUsages() {
+        return selectedKeyGenUsages;
+    }
+
     protected void setSelectedAppletVer(String theAppletVer) {
         selectedAppletVer = theAppletVer;
     }

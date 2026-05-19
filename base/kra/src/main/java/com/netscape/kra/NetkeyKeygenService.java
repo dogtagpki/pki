@@ -37,6 +37,7 @@ import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.KeyPairAlgorithm;
+import org.mozilla.jss.crypto.KeyPairGeneratorSpi;
 import org.mozilla.jss.pkcs11.PK11SymKey;
 import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
 import org.mozilla.jss.util.Base64OutputStream;
@@ -332,11 +333,21 @@ public class NetkeyKeygenService implements IService {
 
             logger.debug("NetkeyKeygenService: about to generate key pair");
 
+            String keyGenUsages = request.getExtDataInString(Request.KEY_GEN_USAGES);
+            KeyPairGeneratorSpi.Usage[] usageList = null;
+
+            if (keyGenUsages != null && !keyGenUsages.isEmpty()) {
+                logger.debug("NetkeyKeygenService: keyGenUsages received: " + keyGenUsages);
+                usageList = CryptoUtil.generateUsage(keyGenUsages);
+            } else {
+                logger.debug("NetkeyKeygenService: no keyGenUsages, using NSS defaults");
+            }
+
             keypair = mKRA.generateKeyPair(rKeytype /* rKeytype: "RSA" or "EC" */,
                 keysize /*Integer.parseInt(len)*/,
                 rKeycurve /* for "EC" only */,
                 null /*pqgParams*/,
-                null /* usageList*/);
+                usageList /* usageList*/);
 
             if (keypair == null) {
                 logger.debug("NetkeyKeygenService: failed generating key pair for " + rCUID + ":" + rUserid);
