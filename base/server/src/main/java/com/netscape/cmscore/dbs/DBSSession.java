@@ -260,7 +260,7 @@ public class DBSSession implements AutoCloseable {
      *
      * @param base starting point of the search
      * @param filter search filter
-     * @param sortKey key used to sort the list
+     * @param sortKeys keys used to sort the list
      * @param start index of the first element
      * @param size max number of element in the page
      * @param timeLimit timeout limit

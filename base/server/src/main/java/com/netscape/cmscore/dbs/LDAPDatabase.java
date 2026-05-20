@@ -187,7 +187,7 @@ public abstract class LDAPDatabase<E extends IDBObj> extends Database<E> {
     }
 
     /**
-    * @deprecated As of release 11.6.0, replaced by {@link #findPagedCertRecords(String, String[], String)}
+    * @deprecated As of release 11.6.0, replaced by findRecords methods with paging support
     */
    @Deprecated(since = "11.6.0", forRemoval = true)
     public DBVirtualList<E> findRecords(String keyword, Map<String, String> attributes,

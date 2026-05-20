@@ -43,7 +43,7 @@ public class CRMFParser {
      *
      * @param crmfBlob CRMF request
      * @return PKIArchiveOptions
-     * @exception failed to extrace option
+     * @exception IOException if failed to extract option
      */
     public static PKIArchiveOptionsContainer[]
             getPKIArchiveOptions(String crmfBlob) throws IOException {

@@ -84,7 +84,7 @@ public abstract class LogEventListener implements EventListener {
      *
      * @param owner The subsystem.
      * @param config Configuration store for this log listener.
-     * @exception initialization error.
+     * @exception EBaseException initialization error.
      */
     public abstract void init(Subsystem owner, LoggerConfig config) throws EBaseException;
 

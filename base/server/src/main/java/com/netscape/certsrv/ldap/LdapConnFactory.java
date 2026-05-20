@@ -86,7 +86,7 @@ public abstract class LdapConnFactory {
      * Used just before a subsystem
      * shutdown or process exit.
      *
-     * @exception EldapException on Ldap failure when closing connections.
+     * @exception ELdapException on Ldap failure when closing connections.
      */
     public abstract void reset() throws ELdapException;
 

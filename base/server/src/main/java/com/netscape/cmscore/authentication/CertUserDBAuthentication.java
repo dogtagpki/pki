@@ -150,8 +150,9 @@ public class CertUserDBAuthentication extends AuthManager {
      *            an usrgrp.Certificates of the user (agent)
      * @return the authentication token that contains the following
      *
-     * @exception com.netscape.certsrv.base.EAuthsException any
-     *                authentication failure or insufficient credentials
+     * @exception EMissingCredential if credentials are missing
+     * @exception EInvalidCredentials if credentials are invalid
+     * @exception EBaseException for any other authentication failure
      * @see org.dogtagpki.server.authentication.AuthToken
      * @see com.netscape.certsrv.usrgrp.Certificates
      */

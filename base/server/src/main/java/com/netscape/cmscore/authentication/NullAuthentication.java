@@ -85,11 +85,11 @@ public class NullAuthentication extends AuthManager {
      * @return the authentication token (authToken) that contains the following
      *         userdn = [userdn, in case of success]<br>
      *         authMgrName = [authMgrName]<br>
-     * @exception com.netscape.certsrv.base.MissingCredential If either
+     * @exception EMissingCredential If either
      *                "uid" or "pwd" is missing from the given credentials.
-     * @exception com.netscape.certsrv.base.InvalidCredentials If the
+     * @exception EInvalidCredentials If the
      *                the credentials failed to authenticate.
-     * @exception com.netscape.certsrv.base.EBaseException If an internal
+     * @exception EBaseException If an internal
      *                error occurred.
      */
     @Override
