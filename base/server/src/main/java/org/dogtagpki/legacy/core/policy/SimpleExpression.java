@@ -29,7 +29,7 @@ import com.netscape.cmscore.util.AssertionException;
 
 /**
  * This class represents an expression of the form var = val,
- * var {@Code !=} val, var {@Code <} val, var {@Code >} val, var {@Code <=} val, var {@Code >=} val.
+ * var {@code !=} val, var {@code <} val, var {@code >} val, var {@code <=} val, var {@code >=} val.
  *
  * Expressions are used as predicates for policy selection.
  *

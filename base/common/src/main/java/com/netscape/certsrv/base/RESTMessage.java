@@ -45,7 +45,7 @@ import com.netscape.certsrv.util.JSONSerializer;
  *
  * JSON mapping:
  *
- * <pre>{@Code
+ * <pre>{@code
  * {
  *     "Attributes": {
  *         "Attribute": [
@@ -62,7 +62,7 @@ import com.netscape.certsrv.util.JSONSerializer;
  *
  * XML mapping:
  *
- * <pre>{@Code
+ * <pre>{@code
  * <ResourceMessage>
  *     <Attributes>
  *         <Attribute name="...">...</Attribute>

@@ -88,7 +88,7 @@ public abstract class AuthzManager {
      * The accessInfo format is determined by each individual authzmgr. For example, for BasicAclAuthz, The accessInfo
      * is the resACLs, whose format should conform to the following:
      *
-     * {@Code <resource ID>:right-1[,right-n]:[allow,deny](right(s))<evaluatorType>=<value>:<comment for this resource acl>}
+     * {@code <resource ID>:right-1[,right-n]:[allow,deny](right(s))<evaluatorType>=<value>:<comment for this resource acl>}
      *
      * Example: resTurnKnob:left,right:allow(left) group="lefties":door knobs for lefties
      *

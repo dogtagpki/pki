@@ -27,8 +27,8 @@ import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.util.AssertionException;
 
 /**
- * This class represents an expression of the form {@Code var = val},
- * {@Code var != val}, {@Code var < val}, {@Code var > val}, {@Code var <= val}, {@Code var >= val}.
+ * This class represents an expression of the form {@code var = val},
+ * {@code var != val}, {@code var < val}, {@code var > val}, {@code var <= val}, {@code var >= val}.
  *
  * Expressions are used as predicates for publishing rule selection.
  *

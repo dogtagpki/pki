@@ -42,7 +42,7 @@ public class ExtendedPluginInfo implements IExtendedPluginInfo {
      * meta-info (such as help-token)
      *
      * there is an entry indexed on that parameter name
-     * {@Code <param-name>;<type_info>[,required];<description>;...}
+     * {@code <param-name>;<type_info>[,required];<description>;...}
      *
      * Where:
      *

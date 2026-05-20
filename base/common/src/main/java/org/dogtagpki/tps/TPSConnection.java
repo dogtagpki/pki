@@ -151,9 +151,9 @@ public class TPSConnection {
     /**
      * Setter for static variable maxMessageSize. This variable places a limit on the value
      * (and thus, length) of the first parameter of an incoming stream of data. For example,
-     * incoming data conforms to the following format: {@Code s=(message length here)&}.
-     * TPSConnection will read one character (typically {@Code s}, but can be any char), and will
-     * expect the second character to be an {@Code =}. The following characters until the {@Code &} are
+     * incoming data conforms to the following format: {@code s=(message length here)&}.
+     * TPSConnection will read one character (typically {@code s}, but can be any char), and will
+     * expect the second character to be an {@code =}. The following characters until the {@code &} are
      * interpreted as the messageSize. This number cannot be larger than maxMessageSize.
      * @param maxSize
      */

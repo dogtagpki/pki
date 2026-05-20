@@ -138,7 +138,7 @@ public class RemoteAuthConfig extends CMSServlet {
 
     /**
      * Serves HTTPS request. The format of this request is as follows:
-     * <pre>{@Code
+     * <pre>{@code
      * https://host:ee-port/remoteAuthConfig?
      * op="add"|"delete"&
      * instance=<instanceName>&

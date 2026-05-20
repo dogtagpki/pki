@@ -235,7 +235,7 @@ public class TPSBuffer {
     /**
      * Returns a new Buffer that is a substring of this Buffer, starting
      * from offset 'start' and continuing for 'len' bytes. This Buffer
-     * must have {@Code size() >= (start + len)}.
+     * must have {@code size() >= (start + len)}.
      */
     public TPSBuffer substr(int start, int theLen) {
 

@@ -136,7 +136,7 @@ public class ACL implements java.io.Serializable {
      *
      * @return the string representation of the ACL entries in the
      *         following format:
-     *         {@Code <resource name>[<ACLEntry 1>,<ACLEntry 2>,...<ACLEntry N>]}
+     *         {@code <resource name>[<ACLEntry 1>,<ACLEntry 2>,...<ACLEntry N>]}
      */
     @Override
     public String toString() {
@@ -177,7 +177,7 @@ public class ACL implements java.io.Serializable {
      *
      * @param resACLs same format as the resourceACLs attribute:
      *
-     * <PRE>{@Code
+     * <PRE>{@code
      *     <resource name>:<permission1,permission2,...permissionN>:
      *     <allow|deny> (<subset of the permission set>) <evaluator expression>
      * }</PRE>

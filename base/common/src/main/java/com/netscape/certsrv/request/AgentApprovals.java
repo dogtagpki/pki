@@ -24,7 +24,7 @@ import java.util.Vector;
 
 /**
  * A collection of AgentApproval objects.
- * {@Code <single-threaded>}
+ * {@code <single-threaded>}
  *
  * @version $Revision$, $Date$
  */

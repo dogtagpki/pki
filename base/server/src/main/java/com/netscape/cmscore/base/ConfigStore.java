@@ -52,7 +52,7 @@ import com.netscape.cmscore.apps.CMS;
  *
  * In the following example:
  *
- * <pre>{@Code
+ * <pre>{@code
  * param1=value1
  * configStore1.param11=value11
  * configStore1.param12=value12
@@ -64,7 +64,7 @@ import com.netscape.cmscore.apps.CMS;
  * The top config store has parameters <i>param1</i> and sub-stores <i>configStore1</i> and <i>configStore2</i>. <br>
  * The following illustrates how a config store is used.
  *
- * <pre>{@Code
+ * <pre>{@code
  * // the top config store is passed to the following method.
  * public void init(ConfigStore config) throws EBaseException {
  *     ConfigStore store = config;
@@ -86,7 +86,7 @@ import com.netscape.cmscore.apps.CMS;
  * mStoreName and the mSource usually points back to another
  * occurance of the same ConfigStore, with longer mStoreName. IE
  *
- * <pre>{@Code
+ * <pre>{@code
  * 	cms.ca0.http.service0 -> mSource=ConfigStore ->
  * 		cms.ca0.http -> mSource=ConfigStore ->
  * 			cms.ca0 -> mSource=ConfigStore ->
@@ -696,7 +696,7 @@ public class ConfigStore implements Cloneable {
      * Retrieves a sub store. A substore contains a list
      * of properties and substores. For example,
      *
-     * <pre>{@Code
+     * <pre>{@code
      * cms.ldap.host=ds.netscape.com
      * cms.ldap.port=389
      * }</pre>
@@ -705,7 +705,7 @@ public class ConfigStore implements Cloneable {
      * substore property itself is set, this method
      * will treat the value as a reference. For example,
      *
-     * <pre>{@Code
+     * <pre>{@code
      * cms.ldap = kms.ldap
      * }</pre>
      *

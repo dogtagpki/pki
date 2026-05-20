@@ -189,7 +189,7 @@ public class LDAPRegistry extends DBRegistry {
      * registered mappers.
      * Parses filter from filter string specified in RFC1558.
      *
-     * <pre>{@Code
+     * <pre>{@code
      * <filter> ::= '(' <filtercomp> ')'
      * <filtercomp> ::= <and> | <or> | <not> | <item>
      * <and> ::= '&' <filterlist>

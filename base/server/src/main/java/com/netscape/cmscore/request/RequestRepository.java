@@ -478,7 +478,7 @@ public class RequestRepository extends Repository {
      * The filter should follow RFC1558 LDAP filter syntax.
      * For example,
      *
-     * {@Code (&(certRecordId=5)(x509Cert.notBefore=934398398))}
+     * {@code (&(certRecordId=5)(x509Cert.notBefore=934398398))}
      *
      * @param filter search filter
      * @param timeLimit timeout value
