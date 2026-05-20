@@ -313,13 +313,12 @@ class NSSDatabase:
         logger.debug('Command: %s', ' '.join(cmd))
 
         if runas and self.user is not None:
-            runuser = [
-                'runuser',
-                '-u',
-                self.user,
-                '--',
-            ]
-            cmd = runuser + cmd
+
+            current_user = pwd.getpwuid(os.getuid()).pw_name
+
+            # switch to NSS database owner if different from current user
+            if current_user != self.user:
+                cmd = ['runuser', '-u', self.user, '--'] + cmd
 
         if capture_output:
             stdout = subprocess.PIPE
