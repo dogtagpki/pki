@@ -148,6 +148,10 @@ public class UserKeyDefault extends EnrollDefault {
                     return vect == null ? null : vect.toString();
                 } else if (k.getAlgorithm().startsWith("ML-DSA-")) {
                     return k.getAlgorithm().replaceFirst("^ML-DSA-", "");
+                } else if (CryptoUtil.isAlgorithmMLKEM(k.getAlgorithm())) {
+                    return k.getAlgorithm().toUpperCase()   //Check for both ML-KEM variants
+                        .replaceFirst("^ML-KEM-", "")
+                        .replaceFirst("^MLKEM", "");
                 } else {
                     return Integer.toString(getDSAKeyLen(k));
                 }

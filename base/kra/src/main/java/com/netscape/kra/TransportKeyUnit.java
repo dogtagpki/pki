@@ -342,7 +342,8 @@ public class TransportKeyUnit extends EncryptionUnit {
                 new IVParameterSpec(wrapIV));
 
         KeyWrapAlgorithm skWrapAlgorithm = null;
-        if(priKeyAlgo == "RSA") {
+
+        if ("RSA".equals(priKeyAlgo)) {
             skWrapAlgorithm = rsaKeyWrapAlg;
         } else {
             skWrapAlgorithm = params.getSkWrapAlgorithm();
@@ -426,25 +427,38 @@ public class TransportKeyUnit extends EncryptionUnit {
         CryptoToken token = getToken(transCert);
         PrivateKey wrappingKey = getPrivateKey(transCert);
         String priKeyAlgo = wrappingKey.getAlgorithm();
-        WrappingParams params = WrappingParams.getWrappingParamsFromArchiveOptions(
+
+        WrappingParams params = null;
+        SymmetricKey sk = null;
+
+        if (CryptoUtil.isAlgorithmMLKEM(priKeyAlgo)) {
+            logger.debug("TransportKeyUnit.unwrap: Using ML-KEM decapsulation");
+            params = CryptoUtil.getWrappingParams(priKeyAlgo);
+            sk = CryptoUtil.decapsulateMLKEM(wrappingKey,
+                     encSymmKey,
+                     params.getPayloadEncryptionAlgorithm());
+            logger.debug("TransportKeyUnit.unwrap: Using ML-KEM decapsulation successful");
+
+        } else {
+
+            params = WrappingParams.getWrappingParamsFromArchiveOptions(
                 wrapOID,
                 priKeyAlgo,
                 new IVParameterSpec(wrapIV));
 
-        //Favor KWP over WRAP PAD if supported
-        promoteIfWrapPadToKWP(token, params);
+            //Favor KWP over WRAP PAD if supported
+            promoteIfWrapPadToKWP(token, params);
 
-        // (1) unwrap the session key
+            // (1) unwrap the session key
 
+            KeyWrapAlgorithm skWrapAlgorithm = null;
+            if ("RSA".equals(priKeyAlgo)) {
+                skWrapAlgorithm = rsaKeyWrapAlg;
+            } else {
+                skWrapAlgorithm = params.getSkWrapAlgorithm();
+            }
 
-        KeyWrapAlgorithm skWrapAlgorithm = null;
-        if(priKeyAlgo == "RSA") {
-            skWrapAlgorithm = rsaKeyWrapAlg;
-        } else {
-            skWrapAlgorithm = params.getSkWrapAlgorithm();
-        }
-
-        SymmetricKey sk = CryptoUtil.unwrap(
+            sk = CryptoUtil.unwrap(
                 token,
                 params.getSkType(),
                 params.getSkType().equals(SymmetricKey.DES3)? 0: params.getSkLength(),
@@ -452,9 +466,10 @@ public class TransportKeyUnit extends EncryptionUnit {
                 wrappingKey,
                 encSymmKey,
                 skWrapAlgorithm);
+        }
 
         if (logger.isDebugEnabled()) {
-            logger.debug("TransportKeyUnit.unwrap: Session key successfully unwrapped");
+            logger.debug("TransportKeyUnit.unwrap: Session key successfully unwrapped or decapsulated");
             logger.debug("TransportKeyUnit.unwrap: Session key type: " + sk.getType());
             String tokenName = (sk.getOwningToken() != null) ? sk.getOwningToken().getName() : "unknown";
             logger.debug("TransportKeyUnit.unwrap: Session key owning token: " + tokenName);

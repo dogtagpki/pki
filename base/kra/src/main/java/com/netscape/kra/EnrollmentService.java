@@ -51,6 +51,7 @@ import org.mozilla.jss.pkix.crmf.CertRequest;
 import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
 import org.mozilla.jss.pkix.primitive.AVA;
 
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
@@ -228,16 +229,27 @@ public class EnrollmentService implements IService {
             request.setExtData("dbStatus", "NOT_UPDATED");
         }
 
+        //This doesn't need to be inside the loop, twice...
+        if (tCert == null) {
+            logger.error("EnrollmentService: Invalid transport certificate: " + transportCert);
+            throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_TRANSPORT_CERT"));
+        }
+
+        if (allowEncDecrypt_archival == true) {
+            //Disallow for the ML-KEM case
+            if (CryptoUtil.isAlgorithmMLKEM(tCert.getPublicKey().getAlgorithm())) {
+                String msg = "allowEncDecrypt_archival not supported with ML-KEM transport";
+                logger.error("EnrollmentService: " + msg);
+                throw new EKRAException(msg);
+            }
+        }
+
         for (int i = 0; i < aOpts.length; i++) {
             ArchiveOptions opts = new ArchiveOptions(aOpts[i].mAO);
 
             if (allowEncDecrypt_archival == true) {
                 logger.info("EnrollmentService: Decrypting external private key");
 
-                if (tCert == null) {
-                    logger.error("EnrollmentService: Invalid transport certificate: " + transportCert);
-                    throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_TRANSPORT_CERT"));
-                }
                 if (statsSub != null) {
                     statsSub.startTiming("decrypt_user_key");
                 }
@@ -311,11 +323,6 @@ public class EnrollmentService implements IService {
             org.mozilla.jss.crypto.PrivateKey entityPrivKey = null;
             if ( allowEncDecrypt_archival == false) {
                 logger.info("EnrollmentService: Unwrapping external private key");
-
-                if (tCert == null) {
-                    logger.error("EnrollmentService: Invalid transport certificate: " + transportCert);
-                    throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_TRANSPORT_CERT"));
-                }
                 try {
                     pubkey = X509Key.parsePublicKey(new DerValue(publicKeyData));
                 } catch (Exception e) {
