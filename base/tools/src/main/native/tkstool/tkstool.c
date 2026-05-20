@@ -152,13 +152,13 @@ main( int argc, char **argv )
     SECStatus                      status                      = PR_FALSE;
     char                           commandToRun                = '\0';
     char                          *DBDir                       = NULL;
-    char                          *DBPrefix                    = "";
+    const char                    *DBPrefix                    = "";
     char                          *input                       = NULL;
     char                          *keyname                     = NULL;
     char                          *new_keyname                 = NULL;
     char                          *output                      = NULL;
     char                          *SeedNoise                   = NULL;
-    char                          *slotname                    = "internal";
+    const char                    *slotname                    = "internal";
     char                          *transport_keyname           = NULL;
     int                            commandsEntered             = 0;
     int                            i                           = 0;
@@ -875,7 +875,7 @@ main( int argc, char **argv )
         char    buffer[513];
         PRInt32 errLen = PR_GetErrorTextLength();
 
-        if( errLen > 0 && errLen < sizeof buffer ) {
+        if( errLen > 0 && errLen < (PRInt32)sizeof buffer ) {
             PR_GetErrorText( buffer );
         }
 
@@ -885,7 +885,7 @@ main( int argc, char **argv )
                     commandToRun,
                     "NSS_Initialize() failed" );
 
-        if( errLen > 0 && errLen < sizeof buffer ) {
+        if( errLen > 0 && errLen < (PRInt32)sizeof buffer ) {
             PR_fprintf( PR_STDERR, "\t%s\n", buffer );
         } else {
             PR_fprintf( PR_STDERR, "\n" );
@@ -916,7 +916,7 @@ main( int argc, char **argv )
             char    buffer[513];
             PRInt32 errLen = PR_GetErrorTextLength();
 
-            if( errLen > 0 && errLen < sizeof buffer ) {
+            if( errLen > 0 && errLen < (PRInt32)sizeof buffer ) {
                 PR_GetErrorText( buffer );
             }
 
@@ -928,7 +928,7 @@ main( int argc, char **argv )
                         slotname,
                         "\" exists!" );
 
-            if( errLen > 0 && errLen < sizeof buffer ) {
+            if( errLen > 0 && errLen < (PRInt32)sizeof buffer ) {
                 PR_fprintf( PR_STDERR, "\t%s\n", buffer );
             } else {
                 PR_fprintf( PR_STDERR, "\n" );
