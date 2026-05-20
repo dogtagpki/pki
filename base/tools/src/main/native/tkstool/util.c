@@ -347,11 +347,14 @@ InsertLowerFourBits( char* byte, char bits )
 PR_IMPLEMENT( void )
 TKS_ClearScreen()
 {
+    int result;
 #if defined(XP_UNIX) && !defined(VMS)
-    system( "tput clear" );
+    result = system( "tput clear" );
 #else
-    system( "cls" );
+    result = system( "cls" );
 #endif
+    /* Mark unused to avoid compiler warning */
+    (void) result;
 }
 
 
@@ -387,7 +390,7 @@ TKS_TypeProceedToContinue()
     tcflag_t       orig_lflag;
     struct termios tio;
 #endif
-    char           keystrokes[KEYSTROKES_TO_PROCEED + 1] = "\0\0\0\0\0\0\0\0\0";
+    char           keystrokes[KEYSTROKES_TO_PROCEED + 1] = {0};
 
     /* display the continuation message */
     PR_fprintf( PR_STDOUT, "\n\n" );
@@ -546,6 +549,17 @@ TKS_TypeProceedToContinue()
                         keystrokes[i] );
         }
     }
+
+#if defined( XP_UNIX ) && !defined( VMS )
+    /* restore original terminal settings */
+    tio.c_lflag = orig_lflag;
+    tio.c_cc[VMIN] = orig_cc_min;
+    tio.c_cc[VTIME] = orig_cc_time;
+    tcsetattr( fd, TCSAFLUSH, &tio );
+#endif
+
+    /* Mark unused variable to avoid compiler warning */
+    (void) rv;
 }
 
 
