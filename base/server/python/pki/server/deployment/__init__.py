@@ -3520,8 +3520,7 @@ class PKIDeployer:
             else:
                 cert_id = tag
 
-            logger.info('Storing %s cert request', tag)
-            self.instance.store_cert_request(cert_id, system_cert)
+            self.instance.store_csr(cert_id, system_cert['request'])
 
         if request.systemCert.type == 'remote':
 

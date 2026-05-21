@@ -525,7 +525,7 @@ class CertUpdateCLI(pki.cli.CLI):
         else:
             logger.warning('Certificate request not found')
 
-        instance.store_cert_request(cert_id, subsystem_cert)
+        instance.store_csr(cert_id, subsystem_cert['request'])
 
         self.print_message('Updated "%s" system certificate' % cert_id)
 

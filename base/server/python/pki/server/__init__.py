@@ -1512,14 +1512,14 @@ grant codeBase "file:%s" {
         logger.info('Removing %s', self.password_conf)
         pki.util.remove(self.password_conf, force=force)
 
-    def store_cert_request(self, cert_id, cert):
-
-        self.makedirs(self.certs_dir, exist_ok=True)
-
-        csr_data = cert.get('request')
-        csr_pem = pki.nssdb.convert_csr(csr_data, 'base64', 'pem')
+    def store_csr(self, cert_id, csr_data):
 
         csr_file = self.csr_file(cert_id)
+        logger.info('Storing %s CSR into %s', cert_id, csr_file)
+
+        csr_pem = pki.nssdb.convert_csr(csr_data, 'base64', 'pem')
+        self.makedirs(self.certs_dir, exist_ok=True)
+
         with open(csr_file, 'w', encoding='utf-8') as f:
             f.write(csr_pem)
 

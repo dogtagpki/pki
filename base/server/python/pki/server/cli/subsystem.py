@@ -1364,8 +1364,7 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
         else:
             cert_id = cert_tag
 
-        # store cert request
-        instance.store_cert_request(cert_id, system_cert)
+        instance.store_csr(cert_id, system_cert['request'])
 
         self.print_message('Updated "%s" subsystem certificate' % cert_tag)
 
