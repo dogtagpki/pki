@@ -3619,11 +3619,32 @@ class PKIDeployer:
 
             return
 
-        # selfsign or local
+        # request.systemCert.type is selfsign or local
 
         if config.str2bool(self.mdict['pki_ds_setup']):
             # import request into CA database and get a request ID
             self.import_cert_request(subsystem, tag, request)
+
+        self.setup_local_system_cert(
+            nssdb,
+            subsystem,
+            tag,
+            request,
+            cert_info,
+            system_cert)
+
+        if config.str2bool(self.mdict['pki_ds_setup']):
+            # import cert into CA database
+            self.import_cert(subsystem, tag, request, system_cert['data'])
+
+    def setup_local_system_cert(
+            self,
+            nssdb,
+            subsystem,
+            tag,
+            request,
+            cert_info,
+            system_cert):
 
         if cert_info:
             logger.info('Reusing %s cert in NSS database', tag)
@@ -3632,31 +3653,27 @@ class PKIDeployer:
             logger.info('- subject: %s', cert_info['subject'])
             logger.info('- issuer: %s', cert_info['issuer'])
             logger.info('- trust flags: %s', cert_info['trust_flags'])
+            return
 
-        else:
-            request.systemCert.certID = self.create_cert_id(subsystem, tag, request)
+        logger.info('Creating %s cert', tag)
 
-            logger.info('Creating %s cert', tag)
-            system_cert['data'] = self.create_cert(subsystem, request)
+        request.systemCert.certID = self.create_cert_id(subsystem, tag, request)
+        system_cert['data'] = self.create_cert(subsystem, request)
 
-            cert_pem = pki.nssdb.convert_cert(system_cert['data'], 'base64', 'pem').encode()
-            cert_obj = x509.load_pem_x509_certificate(cert_pem, backend=default_backend())
-            logger.info('- serial: %s', hex(cert_obj.serial_number))
-            logger.info('- subject: %s', cert_obj.subject.rfc4514_string())
-            logger.info('- issuer: %s', cert_obj.issuer.rfc4514_string())
+        cert_pem = pki.nssdb.convert_cert(system_cert['data'], 'base64', 'pem').encode()
+        cert_obj = x509.load_pem_x509_certificate(cert_pem, backend=default_backend())
+        logger.info('- serial: %s', hex(cert_obj.serial_number))
+        logger.info('- subject: %s', cert_obj.subject.rfc4514_string())
+        logger.info('- issuer: %s', cert_obj.issuer.rfc4514_string())
 
-            logger.info('Importing %s cert into NSS database', tag)
-            logger.info('- nickname: %s', request.systemCert.nickname)
+        logger.info('Importing %s cert into NSS database', tag)
+        logger.info('- nickname: %s', request.systemCert.nickname)
 
-            nssdb.add_cert(
-                nickname=request.systemCert.nickname,
-                cert_data=system_cert['data'],
-                cert_format='base64',
-                token=request.systemCert.token)
-
-        if config.str2bool(self.mdict['pki_ds_setup']):
-            # import cert into CA database
-            self.import_cert(subsystem, tag, request, system_cert['data'])
+        nssdb.add_cert(
+            nickname=request.systemCert.nickname,
+            cert_data=system_cert['data'],
+            cert_format='base64',
+            token=request.systemCert.token)
 
     def setup_system_certs(self, nssdb, subsystem):
 
