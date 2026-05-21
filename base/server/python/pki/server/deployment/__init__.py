@@ -3549,73 +3549,13 @@ class PKIDeployer:
 
         if request.systemCert.type == 'remote':
 
-            if cert_info:
-                logger.info('Reusing %s cert in NSS database', tag)
-                logger.info('- nickname: %s', request.systemCert.nickname)
-                logger.info('- serial: %s', hex(cert_info['serial_number']))
-                logger.info('- subject: %s', cert_info['subject'])
-                logger.info('- issuer: %s', cert_info['issuer'])
-                logger.info('- trust flags: %s', cert_info['trust_flags'])
-                return
-
-            # Issue subordinate CA signing cert using remote CA signing cert.
-
-            if subsystem.type == 'CA' and \
-                    config.str2bool(self.mdict['pki_clone']) \
-                    and tag == 'sslserver':
-
-                # For CA clone always use the master CA to generate the SSL
-                # server certificate to avoid any changes which may have
-                # been made to the X500Name directory string encoding order.
-                ca_url = self.mdict['pki_clone_uri']
-
-            elif tag == 'subsystem':
-
-                sd_hostname = subsystem.config['securitydomain.host']
-                sd_port = subsystem.config['securitydomain.httpsadminport']
-                ca_url = 'https://%s:%s' % (sd_hostname, sd_port)
-
-            else:
-
-                ca_url = self.mdict['pki_issuing_ca']
-
-            hostname = self.mdict['pki_hostname']
-
-            server_config = self.instance.get_server_config()
-            https_port = server_config.get_https_port()
-
-            requestor = '%s-%s-%s' % (subsystem.type, hostname, https_port)
-
-            logger.info('Issuing %s cert from %s', tag, ca_url)
-
-            cert_pem = self.issue_cert(
-                url=ca_url,
-                request_type=request.systemCert.requestType,
-                request_data=request.systemCert.request,
-                request_format='base64',
-                profile=request.systemCert.profile,
-                subject=request.systemCert.subjectDN,
-                dns_names=request.systemCert.dnsNames,
-                requestor=requestor)
-
-            system_cert['data'] = pki.nssdb.convert_cert(cert_pem, 'pem', 'base64')
-
-            cert_obj = x509.load_pem_x509_certificate(
-                bytes(cert_pem, 'utf-8'),
-                backend=default_backend())
-
-            logger.info('- serial: %s', hex(cert_obj.serial_number))
-            logger.info('- subject: %s', cert_obj.subject.rfc4514_string())
-            logger.info('- issuer: %s', cert_obj.issuer.rfc4514_string())
-
-            logger.info('Importing %s cert into NSS database', tag)
-            logger.info('- nickname: %s', request.systemCert.nickname)
-
-            nssdb.add_cert(
-                nickname=request.systemCert.nickname,
-                cert_data=system_cert['data'],
-                cert_format='base64',
-                token=request.systemCert.token)
+            self.setup_remote_system_cert(
+                nssdb,
+                subsystem,
+                tag,
+                request,
+                cert_info,
+                system_cert)
 
             return
 
@@ -3636,6 +3576,82 @@ class PKIDeployer:
         if config.str2bool(self.mdict['pki_ds_setup']):
             # import cert into CA database
             self.import_cert(subsystem, tag, request, system_cert['data'])
+
+    def setup_remote_system_cert(
+            self,
+            nssdb,
+            subsystem,
+            tag,
+            request,
+            cert_info,
+            system_cert):
+
+        if cert_info:
+            logger.info('Reusing %s cert in NSS database', tag)
+            logger.info('- nickname: %s', request.systemCert.nickname)
+            logger.info('- serial: %s', hex(cert_info['serial_number']))
+            logger.info('- subject: %s', cert_info['subject'])
+            logger.info('- issuer: %s', cert_info['issuer'])
+            logger.info('- trust flags: %s', cert_info['trust_flags'])
+            return
+
+        if subsystem.type == 'CA' and \
+                self.configuration_file.clone \
+                and tag == 'sslserver':
+
+            # for SSL server cert for CA clone use the master CA to issue
+            # the cert to avoid encoding mismatch
+            ca_url = self.mdict['pki_clone_uri']
+
+        elif tag == 'subsystem':
+
+            # for subsystem cert use the security domain CA to issue the cert
+            sd_hostname = subsystem.config['securitydomain.host']
+            sd_port = subsystem.config['securitydomain.httpsadminport']
+            ca_url = 'https://%s:%s' % (sd_hostname, sd_port)
+
+        else:
+
+            # for other certs use the issuing CA to issue the cert
+            ca_url = self.mdict['pki_issuing_ca']
+
+        hostname = self.mdict['pki_hostname']
+
+        server_config = self.instance.get_server_config()
+        https_port = server_config.get_https_port()
+
+        requestor = '%s-%s-%s' % (subsystem.type, hostname, https_port)
+
+        logger.info('Issuing %s cert from %s', tag, ca_url)
+
+        cert_pem = self.issue_cert(
+            url=ca_url,
+            request_type=request.systemCert.requestType,
+            request_data=request.systemCert.request,
+            request_format='base64',
+            profile=request.systemCert.profile,
+            subject=request.systemCert.subjectDN,
+            dns_names=request.systemCert.dnsNames,
+            requestor=requestor)
+
+        system_cert['data'] = pki.nssdb.convert_cert(cert_pem, 'pem', 'base64')
+
+        cert_obj = x509.load_pem_x509_certificate(
+            bytes(cert_pem, 'utf-8'),
+            backend=default_backend())
+
+        logger.info('- serial: %s', hex(cert_obj.serial_number))
+        logger.info('- subject: %s', cert_obj.subject.rfc4514_string())
+        logger.info('- issuer: %s', cert_obj.issuer.rfc4514_string())
+
+        logger.info('Importing %s cert into NSS database', tag)
+        logger.info('- nickname: %s', request.systemCert.nickname)
+
+        nssdb.add_cert(
+            nickname=request.systemCert.nickname,
+            cert_data=system_cert['data'],
+            cert_format='base64',
+            token=request.systemCert.token)
 
     def setup_local_system_cert(
             self,
