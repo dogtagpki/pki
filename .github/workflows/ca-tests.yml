@@ -85,6 +85,13 @@ jobs:
     needs: build
     uses: ./.github/workflows/ca-secure-ds-test.yml
 
+  ca-secure-ds-pqc-test:
+    # disable PQC test on Fedora 42 since it's failing with SSLV3_ALERT_HANDSHAKE_FAILURE
+    if: ${{ vars.BASE_IMAGE != 'registry.fedoraproject.org/fedora:42' }}
+    name: CA with secure DS (PQC)
+    needs: build
+    uses: ./.github/workflows/ca-secure-ds-pqc-test.yml
+
   ca-rsnv1-test:
     name: CA with RSNv1
     needs: build
