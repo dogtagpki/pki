@@ -3437,12 +3437,37 @@ class PKIDeployer:
             profile_path=request.systemCert.profile,
             request_id=request.systemCert.requestID)
 
-    def setup_system_cert(self, nssdb, subsystem, tag, system_cert, request):
+    def setup_system_cert(self, nssdb, subsystem, tag):
 
-        logger.debug('PKIDeployer.setup_system_cert()')
+        logger.info('Setting up %s cert', tag)
 
+        # if it's a clone, don't create cert again except sslserver cert
+        if self.configuration_file.clone and tag != 'sslserver':
+            logger.info('%s cert is already set up', tag)
+            return
+
+        # if it's not the first subsystem, don't create sslserver/subsystem cert again
+        num_subsystems = len(self.instance.get_subsystems())
+        if num_subsystems > 1:
+            if tag == 'sslserver' or tag == 'subsystem':
+                logger.info('%s cert is already set up', tag)
+                return
+
+        # for external/standalone KRA/OCSP/TKS/TPS/EST, don't create any cert
+        if self.configuration_file.external or self.configuration_file.standalone:
+            if subsystem.type in ['KRA', 'OCSP', 'TKS', 'TPS', 'EST']:
+                logger.info('%s cert is already set up', tag)
+                return
+
+        # get cert config and info from CS.cfg and NSS database
+        system_cert = subsystem.get_subsystem_cert(tag)
+
+        # get cert params from pkispawn config
+        request = self.create_cert_setup_request(subsystem, tag, system_cert)
+
+        # if nickname is not provided, don't create the cert
         if not request.systemCert.nickname:
-            # skip cert setup
+            logger.info('%s cert is disabled', tag)
             return
 
         # Check whether the cert already exists in NSS database
@@ -3635,49 +3660,10 @@ class PKIDeployer:
 
     def setup_system_certs(self, nssdb, subsystem):
 
-        logger.debug('PKIDeployer.setup_system_certs()')
+        logger.info('Setting up system certs')
 
-        clone = self.configuration_file.clone
-        num_subsystems = len(self.instance.get_subsystems())
-
-        external = config.str2bool(self.mdict['pki_external']) or \
-            config.str2bool(self.mdict['pki_standalone'])
-
-        audit_signing_nickname = self.mdict.get('pki_audit_signing_nickname')
-
-        tags = subsystem.get_subsystem_certs()
-
-        for tag in tags:
-
-            logger.info('Setting up %s cert', tag)
-
-            system_cert = subsystem.get_subsystem_cert(tag)
-
-            if tag != 'sslserver' and clone:
-                logger.info('%s cert is already set up', tag)
-                continue
-
-            if tag == 'sslserver' and num_subsystems > 1:
-                logger.info('sslserver cert is already set up')
-                continue
-
-            if tag == 'subsystem' and num_subsystems > 1:
-                logger.info('subsystem cert is already set up')
-                continue
-
-            # if audit signing nickname not configured, skip
-            if tag == 'audit_signing' and not audit_signing_nickname:
-                continue
-
-            # For external/standalone KRA/OCSP/TKS/TPS/EST case, all system certs will be provided.
-            # No system certs will be generated including the SSL server cert.
-
-            if subsystem.type in ['KRA', 'OCSP', 'TKS', 'TPS', 'EST'] and external:
-                continue
-
-            request = self.create_cert_setup_request(subsystem, tag, system_cert)
-
-            self.setup_system_cert(nssdb, subsystem, tag, system_cert, request)
+        for tag in subsystem.get_subsystem_certs():
+            self.setup_system_cert(nssdb, subsystem, tag)
 
         if subsystem.type == 'CA':
 
@@ -3693,6 +3679,7 @@ class PKIDeployer:
                 nickname=full_name,
                 trust_attributes='CTu,Cu,Cu')
 
+        audit_signing_nickname = self.mdict.get('pki_audit_signing_nickname')
         if audit_signing_nickname:
 
             logger.info('Setting up %s audit signing cert trust flags', subsystem.type)
