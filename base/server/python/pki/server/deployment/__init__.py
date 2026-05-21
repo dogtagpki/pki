@@ -3518,34 +3518,13 @@ class PKIDeployer:
 
             return
 
-        csr_file = subsystem.csr_file(tag)
-        if os.path.exists(csr_file):
-            logger.info('Reusing %s cert request in %s', tag, csr_file)
-
-        else:
-            if cert_info:
-                request.systemCert.keyID = self.find_cert_key(tag, request)
-
-            if request.systemCert.keyID:
-                logger.info('Reusing %s key in NSS database', tag)
-            else:
-                logger.info('Creating new %s key in NSS database', tag)
-                request.systemCert.keyID = self.create_cert_key(tag, request)
-
-            logger.info('- key ID: %s', request.systemCert.keyID)
-
-            logger.info('Creating %s cert request', tag)
-            request.systemCert.request = self.create_cert_request(nssdb, tag, request)
-            logger.debug('- request: %s', request.systemCert.request)
-
-            system_cert['request'] = request.systemCert.request
-
-            if tag != 'sslserver' and tag != 'subsystem':
-                cert_id = subsystem.name + '_' + tag
-            else:
-                cert_id = tag
-
-            self.instance.store_csr(cert_id, system_cert['request'])
+        self.setup_system_csr(
+            nssdb,
+            subsystem,
+            tag,
+            request,
+            cert_info,
+            system_cert)
 
         if request.systemCert.type == 'remote':
 
@@ -3576,6 +3555,46 @@ class PKIDeployer:
         if config.str2bool(self.mdict['pki_ds_setup']):
             # import cert into CA database
             self.import_cert(subsystem, tag, request, system_cert['data'])
+
+    def setup_system_csr(
+            self,
+            nssdb,
+            subsystem,
+            tag,
+            request,
+            cert_info,
+            system_cert):
+
+        csr_file = subsystem.csr_file(tag)
+
+        if os.path.exists(csr_file):
+            logger.info('Reusing %s cert request in %s', tag, csr_file)
+            return
+
+        # look for existing key
+        if cert_info:
+            request.systemCert.keyID = self.find_cert_key(tag, request)
+
+        if request.systemCert.keyID:
+            logger.info('Reusing %s key in NSS database', tag)
+        else:
+            logger.info('Creating new %s key in NSS database', tag)
+            request.systemCert.keyID = self.create_cert_key(tag, request)
+
+        logger.info('- key ID: %s', request.systemCert.keyID)
+
+        logger.info('Creating %s cert request', tag)
+        request.systemCert.request = self.create_cert_request(nssdb, tag, request)
+
+        logger.debug('- request: %s', request.systemCert.request)
+        system_cert['request'] = request.systemCert.request
+
+        if tag != 'sslserver' and tag != 'subsystem':
+            cert_id = subsystem.name + '_' + tag
+        else:
+            cert_id = tag
+
+        self.instance.store_csr(cert_id, system_cert['request'])
 
     def setup_remote_system_cert(
             self,
