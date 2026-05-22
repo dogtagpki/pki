@@ -2592,7 +2592,7 @@ public class hsmCompatVerifyServ {
             log("Step 5: ML-KEM decapsulation with transport private key");
             log("  Decapsulating transport KEM ciphertext to recover shared secret");
 
-            recoveredSharedSecret = CryptoUtil.decapsulateMLKEM(transportPrivateKey, kemCiphertext, 32);
+            recoveredSharedSecret = CryptoUtil.decapsulateMLKEM(transportPrivateKey, kemCiphertext, 256);
             log("  - Shared secret recovered via ML-KEM decapsulation (transport)");
             log("    Shared secret size: 32 bytes (AES-256)");
         } else {
@@ -2600,7 +2600,7 @@ public class hsmCompatVerifyServ {
             log("Step 5: ML-KEM decapsulation with storage private key");
             log("  Decapsulating storage KEM ciphertext to recover shared secret");
 
-            recoveredSharedSecret = CryptoUtil.decapsulateMLKEM(storagePrivateKey, kemCiphertext, 32);
+            recoveredSharedSecret = CryptoUtil.decapsulateMLKEM(storagePrivateKey, kemCiphertext, 256);
             log("  - Shared secret recovered via ML-KEM decapsulation (storage)");
             log("    Shared secret size: 32 bytes (AES-256)");
         }
@@ -2689,7 +2689,7 @@ public class hsmCompatVerifyServ {
         log("  - Storage public key imported into token");
 
         // Encapsulate with storage public key using CryptoUtil
-        CryptoUtil.KEMEncapsulation storageEncapsulation = CryptoUtil.encapsulateMLKEM(storagePubKey, 32);
+        CryptoUtil.KEMEncapsulation storageEncapsulation = CryptoUtil.encapsulateMLKEM(storagePubKey, 256);
         SymmetricKey storageSharedSecret = storageEncapsulation.sharedSecret;
         byte[] storageKemCiphertext = storageEncapsulation.ciphertext;
 
@@ -2741,7 +2741,7 @@ public class hsmCompatVerifyServ {
         log("Step 7: KRA recovery - ML-KEM decapsulation with storage key");
 
         // Decapsulate storage KEM ciphertext with storage private key using CryptoUtil
-        SymmetricKey recoveredStorageSharedSecret = CryptoUtil.decapsulateMLKEM(storagePrivateKey, storageKemCiphertext, 32);
+        SymmetricKey recoveredStorageSharedSecret = CryptoUtil.decapsulateMLKEM(storagePrivateKey, storageKemCiphertext, 256);
 
         log("  - Storage shared secret recovered via ML-KEM decapsulation");
         log("    Shared secret size: " + recoveredStorageSharedSecret.getLength() + " bytes (AES-256)");
