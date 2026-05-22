@@ -667,7 +667,7 @@ public class CryptoUtil {
      * Performs ML-KEM encapsulation to generate a shared secret.
      *
      * @param publicKey ML-KEM public key
-     * @param keySize Derived key size in bytes (typically 32 for AES-256)
+     * @param keySize Derived key size in bits (e.g., 128 or 256 for AES)
      * @return KEMEncapsulation containing shared secret and ciphertext
      * @throws Exception if encapsulation fails
      */
@@ -675,25 +675,30 @@ public class CryptoUtil {
         if (publicKey == null) {
             throw new IllegalArgumentException("publicKey is null");
         }
-        if (keySize <= 0) {
-            throw new IllegalArgumentException("keySize must be positive");
+        // Max 512 bits for future-proofing (current max usage is AES-256)
+        if (keySize <= 0 || keySize > 512) {
+            throw new IllegalArgumentException("keySize must be between 1 and 512 bits");
+        }
+        if (keySize % 8 != 0) {
+            throw new IllegalArgumentException("keySize must be a multiple of 8");
         }
 
         logger.debug("CryptoUtil: ML-KEM encapsulation");
-        logger.debug("CryptoUtil: - Key size: " + keySize + " bytes");
+        logger.debug("CryptoUtil: - Key size: " + keySize + " bits");
 
+        int keySizeBytes = keySize / 8;
         javax.crypto.KEM kem = javax.crypto.KEM.getInstance("ML-KEM", "Mozilla-JSS");
         javax.crypto.KEM.Encapsulator encapsulator = kem.newEncapsulator(publicKey);
         javax.crypto.KEM.Encapsulated encapsulated = encapsulator.encapsulate(
-            0,          // offset
-            keySize,    // derived key size in bytes
-            "AES-ECB"   // algorithm for derived key
+            0,              // offset
+            keySizeBytes,   // derived key size in bytes
+            "AES-ECB"       // algorithm for derived key
         );
 
         SymmetricKey sharedSecret = (SymmetricKey) encapsulated.key();
         byte[] ciphertext = encapsulated.encapsulation();
 
-        logger.debug("CryptoUtil: - Shared secret size: " + keySize + " bytes");
+        logger.debug("CryptoUtil: - Shared secret size: " + keySizeBytes + " bytes");
         logger.debug("CryptoUtil: - Ciphertext size: " + ciphertext.length + " bytes");
 
         return new KEMEncapsulation(sharedSecret, ciphertext);
@@ -704,7 +709,7 @@ public class CryptoUtil {
      *
      * @param privateKey ML-KEM private key
      * @param ciphertext KEM ciphertext from encapsulation
-     * @param keySize Derived key size in bytes (must match encapsulation)
+     * @param keySize Derived key size in bits (must match encapsulation, e.g., 128 or 256)
      * @return Recovered shared secret (symmetric key)
      * @throws Exception if decapsulation fails
      */
@@ -719,21 +724,26 @@ public class CryptoUtil {
         if (ciphertext == null) {
             throw new IllegalArgumentException("ciphertext is null");
         }
-        if (keySize <= 0) {
-            throw new IllegalArgumentException("keySize must be positive");
+        // Max 512 bits for future-proofing (current max usage is AES-256)
+        if (keySize <= 0 || keySize > 512) {
+            throw new IllegalArgumentException("keySize must be between 1 and 512 bits");
+        }
+        if (keySize % 8 != 0) {
+            throw new IllegalArgumentException("keySize must be a multiple of 8");
         }
 
         logger.debug("CryptoUtil: ML-KEM decapsulation");
-        logger.debug("CryptoUtil: - Key size: " + keySize + " bytes");
+        logger.debug("CryptoUtil: - Key size: " + keySize + " bits");
         logger.debug("CryptoUtil: - Ciphertext size: " + ciphertext.length + " bytes");
 
+        int keySizeBytes = keySize / 8;
         javax.crypto.KEM kem = javax.crypto.KEM.getInstance("ML-KEM", "Mozilla-JSS");
         javax.crypto.KEM.Decapsulator decapsulator = kem.newDecapsulator(privateKey);
         SymmetricKey sharedSecret = (SymmetricKey) decapsulator.decapsulate(
             ciphertext,
-            0,          // offset
-            keySize,    // derived key size in bytes
-            "AES-ECB"   // algorithm for derived key
+            0,              // offset
+            keySizeBytes,   // derived key size in bytes
+            "AES-ECB"       // algorithm for derived key
         );
 
         logger.debug("CryptoUtil: - Shared secret recovered");
