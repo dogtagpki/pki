@@ -1,0 +1,597 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="configuring-est-fullcmc"]
+= Configuring and testing EST fullcmc enrollment
+
+This procedure configures test users and verifies EST fullcmc enrollment with two-tier authentication.
+
+== Overview
+
+EST fullcmc enrollment uses a two-tier authentication model:
+
+* **Tier 1**: EST subsystem authenticates to CA using its subsystem certificate
+* **Tier 2**: CA validates the end-user's certificate passed via HTTP header
+
+The client manually creates the CMC request using the `CMCRequest` tool. EST does not wrap the CSR - it simply forwards the pre-wrapped CMC request to the CA.
+
+== Prerequisites
+
+* CA subsystem installed and configured for EST fullcmc support. See xref:../ca/installing-ca-for-est-fullcmc.adoc[Installing CA for EST fullcmc support].
+* EST subsystem installed for fullcmc support. See xref:installing-est-for-fullcmc.adoc[Installing EST for fullcmc support].
+* CMC tools (`CMCRequest`, `CMCResponse`) available in pki-tools package:
++
+....
+# dnf install pki-tools
+....
+
+== Understanding fullcmc enrollment scenarios
+
+The EST fullcmc endpoint supports two enrollment scenarios:
+
+1. **Non-agent enrollment**: The client's certificate subject must match the requested certificate subject.
+2. **Agent enrollment**: A CA agent can request certificates with any subject name.
+
+The `estFullEnrollment` profile uses the `RAHeaderClientCertSubjectNameConstraint` constraint, which is mandatory for the two-tier authorization model. This constraint enables:
+
+* **Non-agent enrollment**: The client's certificate subject must match the requested certificate subject
+* **Agent enrollment**: CA agents can request certificates with any subject name
+
+The constraint automatically detects the user's role by checking membership in the CA's "Certificate Manager Agents" group.
+
+== Creating test users
+
+=== Creating non-agent test user
+
+As regular user, create the working directory:
+
+....
+$ mkdir -p ~/dogtag/fullcmc-test
+$ cd ~/dogtag/fullcmc-test
+....
+
+Generate key and CSR:
+
+....
+$ openssl req -newkey rsa:2048 -nodes \
+    -keyout est-nonrole-user.key \
+    -out est-nonrole-user.csr \
+    -subj "/UID=est-nonrole-user/CN=EST NonRole User"
+....
+
+Submit to CA:
+
+....
+$ pki ca-cert-request-submit \
+    --profile caUserCert \
+    --csr-file est-nonrole-user.csr \
+    --subject "UID=est-nonrole-user,CN=EST NonRole User"
+....
+
+Note the request ID from the output, then as CA admin, approve and export:
+
+....
+$ cd ~/dogtag/fullcmc-test
+$ NONROLE_REQ_ID=<request_id_from_above>
+$ pki -d ~/.dogtag/nssdb -n caadmin ca-cert-request-approve $NONROLE_REQ_ID
+....
+
+Note the Certificate ID from the approval output above, then export:
+
+....
+$ NONROLE_CERT_ID=<certificate_id_from_approval_output>
+$ pki -d ~/.dogtag/nssdb -n caadmin ca-cert-export $NONROLE_CERT_ID --output-file est-nonrole-user.crt
+....
+
+NOTE: You may see `WARNING: BAD_CERT_DOMAIN encountered on 'CN=pki.example.com,...'` warnings when running pki commands. This occurs because the CA certificate's common name is `pki.example.com` but you may be connecting via a different hostname (like `localhost`). This is expected in test/development environments and can be safely ignored.
+
+=== Adding non-agent user to EST LDAP
+
+As root or LDAP administrator:
+
+....
+$ cd ~/dogtag/fullcmc-test
+
+# Import certificate into temporary NSS database for processing
+$ mkdir -p ~/dogtag/fullcmc-test/nssdb-temp
+$ certutil -N -d ~/dogtag/fullcmc-test/nssdb-temp -f <(echo "Secret.123")
+$ certutil -A -d ~/dogtag/fullcmc-test/nssdb-temp -n "est-nonrole-user" \
+    -t ",," -i est-nonrole-user.crt -f <(echo "Secret.123")
+
+# Get certificate details using certutil for correct formatting
+$ CERT_SERIAL_HEX=$(certutil -L -d ~/dogtag/fullcmc-test/nssdb-temp -n "est-nonrole-user" | \
+    grep -A1 "Serial Number:" | tail -1 | tr -d ' :' | tr -d '\n')
+$ CERT_SERIAL_DEC=$(python3 -c "print(int('${CERT_SERIAL_HEX}', 16))")
+$ CERT_ISSUER=$(certutil -L -d ~/dogtag/fullcmc-test/nssdb-temp -n "est-nonrole-user" | \
+    grep "Issuer:" | sed 's/.*Issuer: "\(.*\)"/\1/')
+$ CERT_SUBJECT=$(certutil -L -d ~/dogtag/fullcmc-test/nssdb-temp -n "est-nonrole-user" | \
+    grep "Subject:" | sed 's/.*Subject: "\(.*\)"/\1/')
+
+# Convert certificate to DER and base64
+$ openssl x509 -in est-nonrole-user.crt -outform DER -out est-nonrole-user.der
+$ CERT_B64=$(base64 -w 0 est-nonrole-user.der)
+
+$ echo "CERT_SERIAL_DEC: $CERT_SERIAL_DEC"
+$ echo "CERT_ISSUER: $CERT_ISSUER"
+$ echo "CERT_SUBJECT: $CERT_SUBJECT"
+$ echo "CERT_B64: $CERT_B64"
+
+# Clean up temporary NSS database
+$ rm -rf ~/dogtag/fullcmc-test/nssdb-temp
+....
+
+Create `~/dogtag/fullcmc-test/est-nonrole-user.ldif` with the certificate details from above:
+
+----
+dn: uid=est-nonrole-user,ou=people,dc=est,dc=pki,dc=example,dc=com
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+uid: est-nonrole-user
+cn: EST NonRole User
+sn: User
+userPassword: Secret.123
+description: 2;<CERT_SERIAL_DEC>;<CERT_ISSUER>;<CERT_SUBJECT>
+userCertificate:: <CERT_B64>
+----
+
+Add the entry to LDAP:
+
+....
+# ldapadd -x -H ldap://localhost:4389 -D "cn=Directory Manager" -w Secret.123 \
+    -f ~/dogtag/fullcmc-test/est-nonrole-user.ldif
+....
+
+Create `~/dogtag/fullcmc-test/est-nonrole-user-group-add.ldif`:
+
+----
+dn: cn=EST Users,ou=groups,dc=est,dc=pki,dc=example,dc=com
+changetype: modify
+add: uniqueMember
+uniqueMember: uid=est-nonrole-user,ou=people,dc=est,dc=pki,dc=example,dc=com
+----
+
+Add to EST Users group:
+
+....
+# ldapmodify -x -H ldap://localhost:4389 -D "cn=Directory Manager" -w Secret.123 \
+    -f ~/dogtag/fullcmc-test/est-nonrole-user-group-add.ldif
+....
+
+Verify the user was created and added to the group:
+
+....
+# Verify user exists
+# ldapsearch -x -H ldap://localhost:4389 -D "cn=Directory Manager" -w Secret.123 \
+    -b "uid=est-nonrole-user,ou=people,dc=est,dc=pki,dc=example,dc=com" -LLL dn
+
+# Verify user is in EST Users group
+# ldapsearch -x -H ldap://localhost:4389 -D "cn=Directory Manager" -w Secret.123 \
+    -b "cn=EST Users,ou=groups,dc=est,dc=pki,dc=example,dc=com" -LLL uniqueMember
+....
+
+You should see:
+
+....
+dn: uid=est-nonrole-user,ou=people,dc=est,dc=pki,dc=example,dc=com
+
+uniqueMember: uid=est-nonrole-user,ou=people,dc=est,dc=pki,dc=example,dc=com
+....
+
+=== Creating CA agent test user
+
+As regular user:
+
+....
+$ cd ~/dogtag/fullcmc-test
+
+# Generate key and CSR
+$ openssl req -newkey rsa:2048 -nodes \
+    -keyout est-ca-agent.key \
+    -out est-ca-agent.csr \
+    -subj "/UID=est-ca-agent/CN=EST CA Agent User"
+
+# Submit to CA
+$ pki ca-cert-request-submit \
+    --profile caUserCert \
+    --csr-file est-ca-agent.csr \
+    --subject "UID=est-ca-agent,CN=EST CA Agent User"
+....
+
+Note the request ID from the output, then as CA admin, approve and export:
+
+....
+$ AGENT_REQ_ID=<request_id_from_above>
+$ pki -d ~/.dogtag/nssdb -n caadmin ca-cert-request-approve $AGENT_REQ_ID
+
+# Note the Certificate ID from the approval output above, then export:
+$ AGENT_CERT_ID=<certificate_id_from_approval_output>
+$ pki -d ~/.dogtag/nssdb -n caadmin ca-cert-export $AGENT_CERT_ID --output-file est-ca-agent.crt
+....
+
+=== Adding agent certificate to CA user and agent group
+
+As CA admin:
+
+....
+# Create user in CA
+$ pki -d ~/.dogtag/nssdb -n caadmin ca-user-add est-ca-agent --fullName "EST CA Agent User"
+
+# Add cert to CA user
+$ pki -d ~/.dogtag/nssdb -n caadmin ca-user-cert-add est-ca-agent --input est-ca-agent.crt
+
+# Add to Certificate Manager Agents group
+$ pki -d ~/.dogtag/nssdb -n caadmin ca-group-member-add "Certificate Manager Agents" est-ca-agent
+....
+
+=== Adding agent user to EST LDAP
+
+As root or LDAP administrator:
+
+....
+$ cd ~/dogtag/fullcmc-test
+
+# Import certificate into temporary NSS database for processing
+$ mkdir -p ~/dogtag/fullcmc-test/nssdb-temp
+$ certutil -N -d ~/dogtag/fullcmc-test/nssdb-temp -f <(echo "Secret.123")
+$ certutil -A -d ~/dogtag/fullcmc-test/nssdb-temp -n "est-ca-agent" \
+    -t ",," -i est-ca-agent.crt -f <(echo "Secret.123")
+
+# Get certificate details using certutil for correct formatting
+$ CERT_SERIAL_HEX=$(certutil -L -d ~/dogtag/fullcmc-test/nssdb-temp -n "est-ca-agent" | \
+    grep -A1 "Serial Number:" | tail -1 | tr -d ' :' | tr -d '\n')
+$ CERT_SERIAL_DEC=$(python3 -c "print(int('${CERT_SERIAL_HEX}', 16))")
+$ CERT_ISSUER=$(certutil -L -d ~/dogtag/fullcmc-test/nssdb-temp -n "est-ca-agent" | \
+    grep "Issuer:" | sed 's/.*Issuer: "\(.*\)"/\1/')
+$ CERT_SUBJECT=$(certutil -L -d ~/dogtag/fullcmc-test/nssdb-temp -n "est-ca-agent" | \
+    grep "Subject:" | sed 's/.*Subject: "\(.*\)"/\1/')
+
+# Convert certificate to DER and base64
+$ openssl x509 -in est-ca-agent.crt -outform DER -out est-ca-agent.der
+$ CERT_B64=$(base64 -w 0 est-ca-agent.der)
+
+$ echo "CERT_SERIAL_DEC: $CERT_SERIAL_DEC"
+$ echo "CERT_ISSUER: $CERT_ISSUER"
+$ echo "CERT_SUBJECT: $CERT_SUBJECT"
+$ echo "CERT_B64: $CERT_B64"
+
+# Clean up temporary NSS database
+$ rm -rf ~/dogtag/fullcmc-test/nssdb-temp
+....
+
+Create `~/dogtag/fullcmc-test/est-ca-agent.ldif` with the certificate details from above:
+
+----
+dn: uid=est-ca-agent,ou=people,dc=est,dc=pki,dc=example,dc=com
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+uid: est-ca-agent
+cn: EST CA Agent User
+sn: User
+userPassword: Secret.123
+description: 2;<CERT_SERIAL_DEC>;<CERT_ISSUER>;<CERT_SUBJECT>
+userCertificate:: <CERT_B64>
+----
+
+Add the entry to LDAP:
+
+....
+# ldapadd -x -H ldap://localhost:4389 -D "cn=Directory Manager" -w Secret.123 \
+    -f ~/dogtag/fullcmc-test/est-ca-agent.ldif
+....
+
+Create `~/dogtag/fullcmc-test/est-ca-agent-group-add.ldif`:
+
+----
+dn: cn=EST Users,ou=groups,dc=est,dc=pki,dc=example,dc=com
+changetype: modify
+add: uniqueMember
+uniqueMember: uid=est-ca-agent,ou=people,dc=est,dc=pki,dc=example,dc=com
+----
+
+Add to EST Users group:
+
+....
+# ldapmodify -x -H ldap://localhost:4389 -D "cn=Directory Manager" -w Secret.123 \
+    -f ~/dogtag/fullcmc-test/est-ca-agent-group-add.ldif
+....
+
+== Testing EST fullcmc enrollment
+
+=== Testing non-agent enrollment (matching subject)
+
+As regular user:
+
+....
+$ cd ~/dogtag/fullcmc-test
+
+# Create CSR with SAME subject as est-nonrole-user cert
+$ pki nss-cert-request --csr device1.csr \
+    --ext /usr/share/pki/tools/examples/certs/device.conf \
+    --subject 'UID=est-nonrole-user,CN=EST NonRole User'
+
+# Convert to base64-encoded DER format (without PEM headers)
+$ openssl req -in device1.csr -outform der | openssl base64 -out device1.p10
+....
+
+Create NSS database with test user certificate:
+
+....
+$ mkdir -p ~/dogtag/fullcmc-test/nssdb-nonrole
+$ certutil -N -d ~/dogtag/fullcmc-test/nssdb-nonrole -f <(echo "Secret.123")
+
+# Import CA cert (exported during CA installation)
+$ certutil -A -d ~/dogtag/fullcmc-test/nssdb-nonrole -n "CA Signing" -t "CT,C,C" \
+    -i ~/.dogtag/pki-ca/ca_signing.crt -f <(echo "Secret.123")
+
+# Import est-nonrole-user cert
+$ openssl pkcs12 -export -in est-nonrole-user.crt -inkey est-nonrole-user.key \
+    -out est-nonrole-user.p12 -name est-nonrole-user -passout pass:Secret.123
+$ pk12util -i est-nonrole-user.p12 -d ~/dogtag/fullcmc-test/nssdb-nonrole -W Secret.123 -K Secret.123
+....
+
+Create `est-nonrole-user-cmc-req.cfg`:
+
+----
+# NSS database directory where user certificate is stored
+dbdir=nssdb-nonrole
+
+# NSS database password
+password=Secret.123
+
+# Token name (default is internal)
+tokenname=internal
+
+# Nickname for signing certificate
+nickname=est-nonrole-user
+
+# Request format: pkcs10 or crmf
+format=pkcs10
+
+# Total number of PKCS10 requests
+numRequests=1
+
+# Path to the PKCS10 request (base64 encoded)
+input=device1.p10
+
+# Path for the CMC request output
+output=device1-cmc.req
+----
+
+Generate CMC request:
+
+....
+$ CMCRequest est-nonrole-user-cmc-req.cfg
+....
+
+Submit to EST fullcmc endpoint:
+
+....
+$ curl -k \
+    --cacert ~/.dogtag/pki-ca/ca_signing.crt \
+    --cert est-nonrole-user.crt \
+    --key est-nonrole-user.key \
+    -H "Content-Type: application/pkcs7-mime; smime-type=CMC-request" \
+    --data-binary @device1-cmc.req \
+    https://pki.example.com:15443/.well-known/est/fullcmc \
+    -o device1-cmc-response.b64
+....
+
+Extract certificate:
+
+....
+# Decode base64 response to DER format
+$ AtoB device1-cmc-response.b64 device1-cmc-response.der
+
+# Extract certificate using CMCResponse tool
+$ CMCResponse -d nssdb-nonrole -i device1-cmc-response.der
+
+# Or manually extract using openssl
+$ openssl pkcs7 -inform DER -in device1-cmc-response.der -print_certs -out device1-cert.pem
+$ openssl x509 -in device1-cert.pem -noout -text
+....
+
+This should succeed because the CSR subject matches the client certificate subject.
+
+=== Testing non-agent enrollment (mismatched subject - expected failure)
+
+As regular user:
+
+....
+$ cd ~/dogtag/fullcmc-test
+
+# Create CSR with DIFFERENT subject than est-nonrole-user cert
+$ pki nss-cert-request --csr device2.csr \
+    --ext /usr/share/pki/tools/examples/certs/device.conf \
+    --subject 'CN=Different Device'
+
+# Convert to base64-encoded DER format (without PEM headers)
+$ openssl req -in device2.csr -outform der | openssl base64 -out device2.p10
+....
+
+Create `est-nonrole-user-cmc-req-mismatch.cfg`:
+
+----
+dbdir=nssdb-nonrole
+password=Secret.123
+tokenname=internal
+nickname=est-nonrole-user
+format=pkcs10
+numRequests=1
+input=device2.p10
+output=device2-cmc.req
+----
+
+Generate CMC request:
+
+....
+$ CMCRequest est-nonrole-user-cmc-req-mismatch.cfg
+....
+
+Submit to EST:
+
+....
+$ curl -k \
+    --cacert ~/.dogtag/pki-ca/ca_signing.crt \
+    --cert est-nonrole-user.crt \
+    --key est-nonrole-user.key \
+    -H "Content-Type: application/pkcs7-mime; smime-type=CMC-request" \
+    --data-binary @device2-cmc.req \
+    https://pki.example.com:15443/.well-known/est/fullcmc \
+    -o device2-cmc-response.b64
+....
+
+This should fail with a subject name mismatch error because the CSR subject does not match the client certificate subject.
+
+=== Testing agent enrollment (any subject - should succeed)
+
+As regular user:
+
+....
+$ cd ~/dogtag/fullcmc-test
+
+# Create CSR with ANY subject (different from agent cert)
+$ pki nss-cert-request --csr device3.csr \
+    --ext /usr/share/pki/tools/examples/certs/device.conf \
+    --subject 'CN=Any Device Name'
+
+# Convert to base64-encoded DER format (without PEM headers)
+$ openssl req -in device3.csr -outform der | openssl base64 -out device3.p10
+....
+
+Create NSS database with agent certificate:
+
+....
+$ mkdir -p ~/dogtag/fullcmc-test/nssdb-agent
+$ certutil -N -d ~/dogtag/fullcmc-test/nssdb-agent -f <(echo "Secret.123")
+
+# Import CA cert
+$ certutil -A -d ~/dogtag/fullcmc-test/nssdb-agent -n "CA Signing" -t "CT,C,C" \
+    -i ~/.dogtag/pki-ca/ca_signing.crt -f <(echo "Secret.123")
+
+# Import est-ca-agent cert
+$ openssl pkcs12 -export -in est-ca-agent.crt -inkey est-ca-agent.key \
+    -out est-ca-agent.p12 -name est-ca-agent -passout pass:Secret.123
+$ pk12util -i est-ca-agent.p12 -d ~/dogtag/fullcmc-test/nssdb-agent -W Secret.123 -K Secret.123
+....
+
+Create `est-ca-agent-cmc-req.cfg`:
+
+----
+dbdir=nssdb-agent
+password=Secret.123
+tokenname=internal
+nickname=est-ca-agent
+format=pkcs10
+numRequests=1
+input=device3.p10
+output=device3-cmc.req
+----
+
+Generate CMC request:
+
+....
+$ CMCRequest est-ca-agent-cmc-req.cfg
+....
+
+Submit to EST:
+
+....
+$ curl -k \
+    --cacert ~/.dogtag/pki-ca/ca_signing.crt \
+    --cert est-ca-agent.crt \
+    --key est-ca-agent.key \
+    -H "Content-Type: application/pkcs7-mime; smime-type=CMC-request" \
+    --data-binary @device3-cmc.req \
+    https://pki.example.com:15443/.well-known/est/fullcmc \
+    -o device3-cmc-response.b64
+....
+
+Extract certificate:
+
+....
+# Decode base64 response to DER format
+$ AtoB device3-cmc-response.b64 device3-cmc-response.der
+
+# Extract certificate using CMCResponse tool
+$ CMCResponse -d nssdb-agent -i device3-cmc-response.der
+
+# Or manually extract using openssl
+$ openssl pkcs7 -inform DER -in device3-cmc-response.der -print_certs -out device3-cert.pem
+$ openssl x509 -in device3-cert.pem -noout -text
+....
+
+This should succeed even though the CSR subject does not match the client certificate subject, because the client is a CA agent and can request certificates with any subject name.
+
+== Verification
+
+=== Verifying two-tier authentication in CA logs
+
+As root:
+
+....
+# tail -100 /var/lib/pki/pki-ca/logs/ca/debug.* | grep -i "CMCAuthForEST"
+....
+
+Look for:
+
+1. EST subsystem certificate authentication (tier 1)
+2. Client certificate extraction from header (tier 2)
+
+=== Verifying certificate details
+
+As regular user:
+
+....
+# Get serial number
+$ DEVICE_SERIAL=$(openssl x509 -in device1-cert.pem -noout -serial | cut -d= -f2 | python3 -c "print(int(input(), 16))")
+
+# Check in CA
+$ pki -d ~/.dogtag/nssdb -n caadmin ca-cert-show $DEVICE_SERIAL
+....
+
+Verify the certificate was issued using the `estFullEnrollment` profile.
+
+== Troubleshooting
+
+=== EST cannot connect to CA
+
+Check that the EST subsystem certificate is properly configured:
+
+....
+# List certificates in EST NSS database
+# certutil -L -d /var/lib/pki/pki-est/alias
+
+# Verify subsystem certificate is present
+# certutil -L -d /var/lib/pki/pki-est/alias -n "subsystem"
+....
+
+=== Client certificate not found in EST LDAP
+
+....
+# ldapsearch -x -H ldap://localhost:4389 \
+    -D "cn=Directory Manager" -w Secret.123 \
+    -b "uid=est-nonrole-user,ou=people,dc=est,dc=pki,dc=example,dc=com" \
+    userCertificate description
+....
+
+Verify the certificate description format matches exactly (no spaces after commas in DNs).
+
+=== CMC authentication fails
+
+Check CA logs:
+
+....
+# grep "CMCAuthForEST" /var/lib/pki/pki-ca/logs/ca/debug.*
+....
+
+Verify both authentication tiers are passing.
+
+=== Authorization failures
+
+Check that:
+
+1. EST agent (`est-ca-agent`) is member of "Certificate Manager Agents" group in CA
+2. Test users are members of "EST Users" group in EST LDAP
