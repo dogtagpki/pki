@@ -1,0 +1,128 @@
+= Creating a Lightweight Sub-CA =
+
+== Overview ==
+
+Dogtag supports _lightweight CAs_ (also called authorities or sub-CAs): CA
+instances that share a single Tomcat process with the host CA but each hold
+their own signing key and certificate.  Each lightweight CA can issue
+end-entity certificates independently; the host CA signs the sub-CA
+certificate at creation time.
+
+This document covers the standard case where Dogtag generates the CA key pair
+on the same PKCS#11 token as the host CA.  If you need the signing key to
+remain in a remote HSM, see
+link:Creating-Sub-CA-with-External-Key.adoc[Creating a Sub-CA with an
+Externally-Held Key] instead.
+
+== Prerequisites ==
+
+* A running Dogtag CA instance.
+* An account with CA administrator privileges (`caadmin` or equivalent).
+
+== Step 1: Obtain the Parent CA ID ==
+
+[source,bash]
+----
+$ pki -n caadmin ca-authority-find
+----
+
+Note the `ID` of the authority that will be the parent of the new sub-CA.
+For a typical single-CA deployment this is the host authority, whose
+`isHostAuthority` field is `true`.
+
+== Step 2: Create the Sub-CA ==
+
+[source,bash]
+----
+PARENT_ID="<parent-ca-uuid>"
+
+pki -n caadmin ca-authority-create \
+    --parent "${PARENT_ID}" \
+    --desc "My application sub-CA" \
+    "CN=App Sub-CA,O=EXAMPLE.COM"
+----
+
+On success the command prints the new authority's details:
+
+[source]
+----
+  Authority DN:   CN=App Sub-CA,O=EXAMPLE.COM
+  ID:             3f4a9c21-1b2e-4d57-a891-0c3e7b5d9f10
+  Parent ID:      00000000-0000-0000-0000-000000000001
+  Issuer DN:      CN=Certificate Authority,O=EXAMPLE.COM
+  Serial no:      0xD
+  Enabled:        true
+  Ready to sign:  true
+----
+
+=== Selecting a Signing Profile ===
+
+By default Dogtag signs the new sub-CA certificate using the `caCACert`
+profile.  Use `--profile` to choose a different profile:
+
+[source,bash]
+----
+pki -n caadmin ca-authority-create \
+    --parent "${PARENT_ID}" \
+    --profile myCustomSubCAProfile \
+    --desc "My application sub-CA" \
+    "CN=App Sub-CA,O=EXAMPLE.COM"
+----
+
+The profile must be registered in the Dogtag instance.  Use
+`pki -n caadmin ca-profile-find` to list available profiles.  The
+`--profile` option and its argument are creation-time inputs only; they are
+not stored or returned in subsequent `ca-authority-show` responses.
+
+NOTE: The `--profile` option applies to both local-key and external-key
+sub-CA creation.  For the external-key path the default profile is
+`caExternalKeyCACert`; for local-key creation (this document) the default is
+`caCACert`.
+
+== Step 3: Retrieve the Signed Sub-CA Certificate ==
+
+[source,bash]
+----
+AID="3f4a9c21-1b2e-4d57-a891-0c3e7b5d9f10"
+
+# PEM certificate only
+pki -n caadmin ca-authority-show --output-format PEM "${AID}"
+
+# Alternatively, fetch the full chain via the REST API:
+curl -s -H "Accept: application/x-pem-file" \
+    https://ca.example.com:8443/ca/v2/authorities/${AID}/chain \
+    -o /tmp/app-subca-chain.pem
+----
+
+== Managing Lightweight CAs ==
+
+[cols="1,2",options="header"]
+|===
+|Operation
+|Command
+
+|List all authorities
+|`pki -n caadmin ca-authority-find`
+
+|Show a specific authority
+|`pki -n caadmin ca-authority-show <id>`
+
+|Enable an authority
+|`pki -n caadmin ca-authority-enable <id>`
+
+|Disable an authority
+|`pki -n caadmin ca-authority-disable <id>`
+
+|Delete an authority
+|`pki -n caadmin ca-authority-del <id>`
+|===
+
+Deleting an authority record does not revoke its certificate.  Revoke the
+sub-CA certificate separately before deleting the record if you want to
+prevent further trust in the CA.
+
+== See Also ==
+
+* link:Creating-Sub-CA-with-External-Key.adoc[Creating a Sub-CA with an Externally-Held Key]
+* link:https://github.com/dogtagpki/pki/wiki/PKI-CA-Authority-CLI[PKI CA Authority CLI]
+* link:https://github.com/dogtagpki/pki/wiki/CA-Authority-REST-API[CA Authority REST API]

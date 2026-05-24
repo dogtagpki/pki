@@ -29,6 +29,19 @@ public class AuthorityRecord {
     Boolean enabled;
     CertId serialNumber;
 
+    /**
+     * Sentinel prefix stored in authorityKeyNickname for externally-keyed CAs.
+     *
+     * An externally-keyed CA has its private key held outside Dogtag — for
+     * example in an HSM attached to a remote ACME server.  Dogtag signs the
+     * sub-CA certificate from a caller-supplied CSR and tracks the authority
+     * for revocation purposes, but never performs signing operations for it.
+     *
+     * The sentinel is prefixed with '#' which is not a valid NSS token-name
+     * character, so it cannot be mistaken for a real token:nickname pair.
+     */
+    public static final String EXTERNAL_KEY_NICKNAME_PREFIX = "#external#:";
+
     String keyNickname;
     Collection<String> keyHosts = new ArrayList<>();
 
@@ -97,6 +110,18 @@ public class AuthorityRecord {
 
     public void setKeyNickname(String keyNickname) {
         this.keyNickname = keyNickname;
+    }
+
+    /**
+     * Return true if this authority's private key is held externally.
+     *
+     * Externally-keyed authorities have a sentinel value in authorityKeyNickname
+     * rather than a real NSS token:nickname pair.  Dogtag tracks them for
+     * certificate issuance and revocation but does not perform signing for them.
+     */
+    public boolean isExternalKey() {
+        return keyNickname != null
+                && keyNickname.startsWith(EXTERNAL_KEY_NICKNAME_PREFIX);
     }
 
     public Collection<String> getKeyHosts() {

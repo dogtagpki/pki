@@ -52,3 +52,8 @@ jobs:
     name: LWCA clone with HSM
     needs: build
     uses: ./.github/workflows/lwca-clone-hsm-test.yml
+
+  lwca-authority-external-key-test:
+    name: LWCA authority with external key
+    needs: build
+    uses: ./.github/workflows/ca-authority-external-key-test.yml

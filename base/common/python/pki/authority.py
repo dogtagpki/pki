@@ -44,12 +44,18 @@ class AuthorityData:
         'enabled': 'enabled',
         'isHostAuthority': 'is_host_authority',
         'link': 'link',
-        'parentID': 'parent_aid'
+        'parentID': 'parent_aid',
+        'csrData': 'csr_data',
+        'profileId': 'profile_id',
+        'externalKey': 'external_key',
+        'ready': 'ready',
     }
 
     def __init__(self, dn=None, aid=None, parent_aid=None,
                  description=None, enabled="False",
-                 is_host_authority="False", link=None):
+                 is_host_authority="False", link=None,
+                 csr_data=None, profile_id=None,
+                 external_key=None, ready=None):
         self.dn = dn
         self.aid = aid
         self.parent_aid = parent_aid
@@ -57,6 +63,10 @@ class AuthorityData:
         self.enabled = (enabled.lower() == "true")
         self.is_host_authority = (is_host_authority.lower() == "true")
         self.link = link
+        self.csr_data = csr_data
+        self.profile_id = profile_id
+        self.external_key = external_key
+        self.ready = ready
 
     def __repr__(self):
         attributes = {
@@ -66,7 +76,9 @@ class AuthorityData:
                 "description": self.description,
                 "is_host_authority": self.is_host_authority,
                 "parent_aid": self.parent_aid,
-                "enabled": self.enabled
+                "enabled": self.enabled,
+                "external_key": self.external_key,
+                "ready": self.ready,
             }
         }
         return str(attributes)

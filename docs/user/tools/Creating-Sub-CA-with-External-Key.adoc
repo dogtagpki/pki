@@ -1,0 +1,185 @@
+= Creating a Sub-CA with an Externally-Held Key =
+
+== Overview ==
+
+By default, when a lightweight CA (authority) is created in Dogtag, the CA key
+pair is generated on the same PKCS#11 token as the parent CA.  This is
+unsuitable when a remote service (such as an ACME server) must hold the signing
+key in its own HSM to satisfy local security policy, because that policy
+requires the key never to leave the device where it was generated.
+
+In this case the caller generates the CA key pair on the remote system, submits
+a PKCS#10 CSR to Dogtag, and receives a signed sub-CA certificate in return.
+Dogtag tracks the resulting authority for certificate chain and revocation
+purposes but never holds the private key.  Such an authority reports
+`externalKey: true` and `ready: false` in its metadata because Dogtag cannot
+perform signing operations on its behalf.
+
+== Step 1: Generate the CA Key Pair and CSR ==
+
+Perform this step on the system that will hold the private key (e.g., the
+ACME server with its own HSM).
+
+=== Software token (testing) ===
+
+[source,bash]
+----
+openssl genrsa -out /tmp/acme-ca.key 3072
+
+openssl req -new \
+    -key /tmp/acme-ca.key \
+    -subj "CN=ACME Sub-CA,O=EXAMPLE.COM" \
+    -out /tmp/acme-ca.csr
+----
+
+=== HSM (production) ===
+
+Use the HSM vendor's tools or `pkcs11-tool` to generate the key pair and
+produce a CSR on the token.  The private key must never leave the HSM.
+
+The subject DN in the CSR must exactly match the `dn` field you will send in
+the creation request; Dogtag rejects requests where the two differ.
+
+== Step 2: Obtain the Parent CA ID ==
+
+[source,bash]
+----
+$ pki ca-authority-find
+----
+
+Note the `ID` of the authority that will be the parent of the new sub-CA.  For
+a typical single-CA deployment this is the host authority.
+
+== Step 3: Submit the CSR to Dogtag ==
+
+Use the `pki ca-authority-create` command with `--csr-file`:
+
+[source,bash]
+----
+PARENT_ID="<parent-ca-uuid>"
+
+pki -n caadmin ca-authority-create \
+    --parent "${PARENT_ID}" \
+    --csr-file /tmp/acme-ca.csr \
+    --desc "ACME server HSM-backed sub-CA" \
+    "CN=ACME Sub-CA,O=EXAMPLE.COM"
+----
+
+By default the `caExternalKeyCACert` profile is used to sign the sub-CA
+certificate.  This profile enforces `pathLen=0` (the sub-CA cannot itself
+issue further sub-CAs), rejects RSA keys shorter than 2048 bits, and copies
+any extensions present in the submitted CSR (such as `NameConstraints`)
+verbatim into the issued certificate.
+
+To use a different profile — for example one that restricts the sub-CA to a
+specific DNS domain via `NameConstraints` — add `--profile`:
+
+[source,bash]
+----
+pki -n caadmin ca-authority-create \
+    --parent "${PARENT_ID}" \
+    --csr-file /tmp/acme-ca.csr \
+    --profile myCustomSubCAProfile \
+    --desc "ACME server HSM-backed sub-CA" \
+    "CN=ACME Sub-CA,O=EXAMPLE.COM"
+----
+
+On success the command prints the new authority's ID and confirms the
+`External key` flag:
+
+[source]
+----
+  Authority DN:   CN=ACME Sub-CA,O=EXAMPLE.COM
+  ID:             3f4a9c21-1b2e-4d57-a891-0c3e7b5d9f10
+  Parent ID:      00000000-0000-0000-0000-000000000001
+  Issuer DN:      CN=Certificate Authority,O=EXAMPLE.COM
+  Serial no:      0xD
+  Enabled:        true
+  Ready to sign:  false
+  External key:   true
+  Description:    ACME server HSM-backed sub-CA
+----
+
+The `--csr-file` and `--profile` options are creation-time inputs only;
+they are not stored or retrievable after the authority is created.
+
+NOTE: `--profile` is not exclusive to external-key creation.  It can also
+be used without `--csr-file` to select the signing profile for a
+local-key sub-CA, in which case the default is `caCACert`.  See
+link:Creating-Sub-CA.adoc[Creating a Lightweight Sub-CA] for the
+standard local-key workflow.
+
+== Step 4: Retrieve the Signed Sub-CA Certificate ==
+
+[source,bash]
+----
+AID="3f4a9c21-1b2e-4d57-a891-0c3e7b5d9f10"
+
+# PEM certificate only
+curl -s -H "Accept: application/x-pem-file" \
+    https://ca.example.com:8443/ca/v2/authorities/${AID}/cert \
+    -o /tmp/acme-subca.pem
+
+# Full PEM chain (sub-CA + issuer chain up to root)
+curl -s -H "Accept: application/x-pem-file" \
+    https://ca.example.com:8443/ca/v2/authorities/${AID}/chain \
+    -o /tmp/acme-subca-chain.pem
+----
+
+Verify the certificate chains to the root CA:
+
+[source,bash]
+----
+openssl verify -CAfile /etc/pki/ca-trust/source/anchors/ipa.crt /tmp/acme-subca.pem
+----
+
+Install the signed certificate on the external system alongside the private
+key.  The system can now issue certificates signed by the sub-CA without any
+further involvement from Dogtag.
+
+== Behaviour Differences from a Local-Key Sub-CA ==
+
+[cols="1,1,1",options="header"]
+|===
+|Property
+|Local-key authority
+|External-key authority
+
+|`externalKey` in GET response
+|not present (false)
+|`true`
+
+|`ready` in GET response
+|`true`
+|`false`
+
+|Dogtag can issue certs via this CA
+|yes
+|no
+
+|`authorityKeyNickname` in LDAP
+|`<token>:<nickname>`
+|`#external#:<uuid>` (sentinel)
+
+|Key retriever / replication
+|enabled
+|not started
+|===
+
+== Deleting an External-Key Authority ==
+
+External-key authorities are deleted the same way as local-key authorities:
+
+[source,bash]
+----
+$ pki -n caadmin ca-authority-del <id>
+----
+
+Deleting the Dogtag authority record does not revoke the sub-CA certificate.
+Revoke the certificate separately if required before deleting the authority.
+
+== See Also ==
+
+* link:Creating-Sub-CA.adoc[Creating a Lightweight Sub-CA] (standard local-key workflow)
+* link:https://github.com/dogtagpki/pki/wiki/PKI-CA-Authority-CLI[PKI CA Authority CLI]
+* link:https://github.com/dogtagpki/pki/wiki/CA-Authority-REST-API[CA Authority REST API]

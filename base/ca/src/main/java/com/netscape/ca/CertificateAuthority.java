@@ -38,6 +38,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Vector;
 
+import org.dogtagpki.server.ca.AuthorityRecord;
 import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
@@ -688,6 +689,17 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
 
         logger.info("CertificateAuthority: Initializing " + (authorityID == null ? "host CA" : "authority " + authorityID));
 
+        // External-key authorities have their private key held outside Dogtag
+        // (e.g. in an HSM attached to a remote ACME server).  The key nickname
+        // carries the #external#: sentinel instead of a real NSS token:nickname
+        // pair.  Skip signing unit initialisation: hasKeys stays false,
+        // isReady() returns false, and no key retrieval is attempted.
+        if (mNickname != null
+                && mNickname.startsWith(AuthorityRecord.EXTERNAL_KEY_NICKNAME_PREFIX)) {
+            logger.info("CertificateAuthority: external key — signing unit not initialized");
+            return;
+        }
+
         try {
             initCertSigningUnit();
             initCRLSigningUnit();
@@ -900,6 +912,28 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
      * @return the CA certificate
      */
     public X509CertImpl getCACert() throws EBaseException {
+
+        // For external-key authorities mSigningUnit is not initialised
+        // (initSigningUnits() returns early for the #external#: sentinel).
+        // Fall back to the certificate repository using the serial number
+        // stored in the authority LDAP record.
+        if (mSigningUnit == null) {
+            if (authoritySerial != null && certRepository != null) {
+                try {
+                    X509CertImpl cert = certRepository.getX509Certificate(authoritySerial);
+                    if (cert != null) {
+                        return cert;
+                    }
+                } catch (Exception e) {
+                    logger.warn("CertificateAuthority: Failed to retrieve cert"
+                            + " from repository for serial 0x{}: {}",
+                            authoritySerial.toString(16), e.getMessage());
+                }
+            }
+            throw new EBaseException(
+                    "CA signing unit not initialised and no certificate available"
+                    + " in repository for authority " + authorityID);
+        }
 
         X509CertImpl caCertImpl = mSigningUnit.getCertImpl();
         if (caCertImpl != null) {

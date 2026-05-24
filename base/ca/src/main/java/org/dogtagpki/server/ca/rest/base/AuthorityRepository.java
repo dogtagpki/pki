@@ -519,9 +519,32 @@ public class AuthorityRepository {
             throw new ResourceNotFoundException("CA \"" + authId + "\" not found");
 
         org.mozilla.jss.crypto.X509Certificate cert = ca.getCaX509Cert();
-        if (cert == null)
+        if (cert == null) {
+            // For external-key authorities the signing unit is not initialised
+            // (the private key lives outside Dogtag).  Fall back to the
+            // certificate repository using the serial number stored in the
+            // authority LDAP record.
+            BigInteger serial = ca.getAuthoritySerial();
+            if (serial != null) {
+                try {
+                    X509CertImpl certImpl = ca.getCertRepository()
+                            .getX509Certificate(serial);
+                    if (certImpl != null) {
+                        logger.info("AuthorityRepository: Returning cert for"
+                                + " external-key authority {} from repository"
+                                + " (serial 0x{})", authId,
+                                serial.toString(16));
+                        return certImpl.getEncoded();
+                    }
+                } catch (Exception e) {
+                    logger.warn("AuthorityRepository: Failed to retrieve cert"
+                            + " for authority {} from repository: {}",
+                            authId, e.getMessage());
+                }
+            }
             throw new ResourceNotFoundException(
                 "Certificate for CA \"" + authId + "\" not available");
+        }
 
         try {
             return cert.getEncoded();
@@ -615,7 +638,9 @@ public class AuthorityRepository {
                     parentAID,
                     authToken,
                     data.getDN(),
-                    data.getDescription());
+                    data.getDescription(),
+                    data.getCsrData(),
+                    data.getProfileId());
             audit(ILogger.SUCCESS, OpDef.OP_ADD,
                     record.getAuthorityID().toString(), auditParams);
             return readAuthorityData(record);
@@ -777,7 +802,7 @@ public class AuthorityRepository {
         }
 
         AuthorityID parentAID = ca.getAuthorityParentID();
-        return new AuthorityData(
+        AuthorityData data = new AuthorityData(
             ca.isHostAuthority(),
             dn,
             ca.getAuthorityID().toString(),
@@ -788,6 +813,13 @@ public class AuthorityRepository {
             ca.getAuthorityDescription(),
             ca.isReady()
         );
+
+        String nickname = ca.getNickname();
+        if (nickname != null && nickname.startsWith(AuthorityRecord.EXTERNAL_KEY_NICKNAME_PREFIX)) {
+            data.setExternalKey(true);
+        }
+
+        return data;
     }
 
     private AuthorityData readAuthorityData(AuthorityRecord record) {
@@ -834,7 +866,7 @@ public class AuthorityRepository {
             }
         }
 
-        return new AuthorityData(
+        AuthorityData data = new AuthorityData(
                 isHostAuthority,
                 authorityDN.toString(),
                 authorityID.toString(),
@@ -845,6 +877,12 @@ public class AuthorityRepository {
                 description,
                 isReady
         );
+
+        if (record.isExternalKey()) {
+            data.setExternalKey(true);
+        }
+
+        return data;
     }
 
     private String toPem(String name, byte[] data) {

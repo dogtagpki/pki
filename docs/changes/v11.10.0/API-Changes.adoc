@@ -1,5 +1,35 @@
 = API Changes =
 
+== Signing Profile Selection and External Key Support in CA Authority Creation ==
+
+`POST /ca/v2/authorities` now accepts two optional fields:
+
+* `csrData` — a PEM-encoded PKCS#10 CSR.  When present, Dogtag signs the CSR
+  as a sub-CA certificate without generating a local key pair.  The authority's
+  private key remains with the caller (for example in an HSM attached to an
+  ACME server).
+
+* `profileId` — the name of the signing profile to use when issuing the sub-CA
+  certificate.  Accepted for both local-key and external-key creation:
+  ** Without `csrData`: defaults to `caCACert` (existing behaviour).
+  ** With `csrData`: defaults to `caExternalKeyCACert`, which enforces
+     `pathLen=0`, rejects RSA keys shorter than 2048 bits, and copies
+     CSR-embedded extensions (e.g. `NameConstraints`) into the issued
+     certificate.
+
+`GET /ca/v2/authorities/<id>` now returns a boolean `externalKey` field for
+authorities created with `csrData`.  Such authorities also return `ready: false`
+because Dogtag does not hold their signing key and cannot issue certificates
+on their behalf.
+
+Both `csrData` and `profileId` are consumed at creation time and are not
+stored or returned in subsequent GET responses.
+
+See link:../../user/tools/Creating-Sub-CA-with-External-Key.adoc[Creating a
+Sub-CA with an Externally-Held Key] and
+link:../../user/tools/Creating-Sub-CA.adoc[Creating a Lightweight Sub-CA]
+for usage details.
+
 == Remove KeyClient.archive_key() ==
 
 The `KeyClient.archive_key()` has been removed.

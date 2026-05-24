@@ -55,6 +55,9 @@ public class AuthorityCLI extends CLI {
 
         System.out.println("  Enabled:        " + data.getEnabled());
         System.out.println("  Ready to sign:  " + data.getReady());
+        Boolean externalKey = data.getExternalKey();
+        if (externalKey != null && externalKey)
+            System.out.println("  External key:   true");
         String desc = data.getDescription();
         if (desc != null)
             System.out.println("  Description:    " + desc);

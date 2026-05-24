@@ -1269,17 +1269,46 @@ public class CAEngine extends CMSEngine {
             CertificateAuthority ca,
             X500Name subjectX500Name,
             AuthToken authToken,
-            CryptoToken token)
+            CryptoToken token,
+            String profileId)
             throws Exception {
 
         KeyPair keypair = ca.generateKeyPair(token);
         PKCS10 pkcs10 = ca.generateCertRequest(keypair, subjectX500Name);
+        return generateSigningCertFromCSR(ca, pkcs10, authToken, profileId);
+    }
 
-        logger.info("CAEngine: signing certificate");
+    /**
+     * Sign a PKCS#10 CSR as a sub-CA certificate using the specified profile.
+     *
+     * This is the common signing path shared by both sub-CA creation modes:
+     * <ul>
+     *   <li>{@link #generateSigningCert} — key pair generated locally, CSR
+     *       produced internally, profile {@code caCACert}.</li>
+     *   <li>{@link #createAuthorityRecord} with external CSR — key pair held
+     *       by the caller (e.g. in an HSM), CSR supplied by the caller.</li>
+     * </ul>
+     *
+     * @param parentCA  the CA that will sign the sub-CA certificate
+     * @param pkcs10    the PKCS#10 CSR containing the public key to certify
+     * @param authToken authentication token for the request
+     * @param profileId Dogtag profile ID to use for signing (e.g. {@code caCACert})
+     * @return the signed sub-CA certificate
+     */
+    public X509CertImpl generateSigningCertFromCSR(
+            CertificateAuthority parentCA,
+            PKCS10 pkcs10,
+            AuthToken authToken,
+            String profileId)
+            throws Exception {
+
+        logger.info("CAEngine: signing sub-CA CSR with profile {}", profileId);
 
         ProfileSubsystem ps = getProfileSubsystem();
-        String profileId = "caCACert";
         Profile profile = ps.getProfile(profileId);
+        if (profile == null) {
+            throw new BadRequestDataException("Unknown profile: " + profileId);
+        }
 
         ArgBlock argBlock = new ArgBlock();
         argBlock.set("cert_request_type", "pkcs10");
@@ -1295,7 +1324,7 @@ public class CAEngine extends CMSEngine {
         processor.init();
 
         Map<String, Object> resultMap = processor.processEnrollment(
-            certRequest, null, ca.getAuthorityID(), null, authToken);
+            certRequest, null, parentCA.getAuthorityID(), null, authToken);
 
         com.netscape.cmscore.request.Request[] requests =
                 (com.netscape.cmscore.request.Request[]) resultMap.get(CAProcessor.ARG_REQUESTS);
@@ -1303,15 +1332,14 @@ public class CAEngine extends CMSEngine {
 
         Integer result = request.getExtDataInInteger(com.netscape.cmscore.request.Request.RESULT);
         if (result != null && !result.equals(com.netscape.cmscore.request.Request.RES_SUCCESS)) {
-            throw new EBaseException("Unable to generate signing certificate: " + result);
+            throw new EBaseException("Unable to sign sub-CA CSR: " + result);
         }
 
         RequestStatus requestStatus = request.getRequestStatus();
         if (requestStatus != RequestStatus.COMPLETE) {
             // The request did not complete.  Inference: something
-            // incorrect in the request (e.g. profile constraint
-            // violated).
-            String msg = "Unable to generate signing certificate: " + requestStatus;
+            // incorrect in the request (e.g. profile constraint violated).
+            String msg = "Unable to sign sub-CA CSR: " + requestStatus;
             String errorMsg = request.getExtDataInString(com.netscape.cmscore.request.Request.ERROR);
             if (errorMsg != null) {
                 msg += ": " + errorMsg;
@@ -1333,6 +1361,34 @@ public class CAEngine extends CMSEngine {
             AuthToken authToken,
             String subjectDN,
             String description)
+            throws Exception {
+        return createAuthorityRecord(parentAID, authToken, subjectDN, description, null, null);
+    }
+
+    /**
+     * Create a CA signed by a parent CA, optionally using an external CSR.
+     *
+     * When {@code csrData} is non-null, no key pair is generated locally.
+     * Dogtag signs the provided PEM-encoded PKCS#10 CSR as a sub-CA
+     * certificate. The authority's private key stays on the caller's side
+     * (e.g. in an HSM attached to an ACME server). The authority record is
+     * stored with the {@link AuthorityRecord#EXTERNAL_KEY_NICKNAME_PREFIX}
+     * sentinel in {@code authorityKeyNickname}; Dogtag will not attempt
+     * signing operations for it.
+     *
+     * When {@code csrData} is null, existing behaviour is preserved: a key
+     * pair is generated in the local NSS database (or configured HSM token).
+     *
+     * This method DOES NOT add the new CA to CAEngine; it is the
+     * caller's responsibility.
+     */
+    public AuthorityRecord createAuthorityRecord(
+            AuthorityID parentAID,
+            AuthToken authToken,
+            String subjectDN,
+            String description,
+            String csrData,
+            String profileId)
             throws Exception {
 
         CertificateAuthority parentCA = getCA(parentAID);
@@ -1365,47 +1421,98 @@ public class CAEngine extends CMSEngine {
         record.setDescription(description);
         record.setEnabled(true);
 
-        CertificateAuthority hostCA = getCA();
-
-        String keyNickname = hostCA.getNickname() + " " + authorityID;
-        record.setKeyNickname(keyNickname);
-
-        record.addKeyHost(mConfig.getHostname() + ":" + getEESSLPort());
-
-        authorityRepository.addAuthorityRecord(record);
-
         X509CertImpl cert = null;
 
-        try {
-            int i = keyNickname.indexOf(':');
-            String tokenname;
-            String nickname;
+        if (csrData != null) {
+            // External key path: the caller holds the private key (e.g. in an
+            // HSM). Store a sentinel nickname so Dogtag knows not to try to
+            // load a signing unit for this authority.
+            record.setKeyNickname(
+                    AuthorityRecord.EXTERNAL_KEY_NICKNAME_PREFIX + authorityID);
+            // keyHosts intentionally left empty: no IPA server holds the key.
 
-            if (i >= 0) {
-                tokenname = keyNickname.substring(0, i);
-                nickname = keyNickname.substring(i + 1);
-            } else {
-                tokenname = null;
-                nickname = keyNickname;
+            authorityRepository.addAuthorityRecord(record);
+
+            try {
+                PKCS10 pkcs10 = parsePKCS10(Locale.getDefault(), csrData);
+
+                // Validate that the CSR subject matches the requested DN.
+                // Per RFC 5280 §4.1.2.6, CA subject DNs must be encoded
+                // identically to the issuer field in certificates they issue,
+                // so byte-level DER comparison is appropriate here.
+                X500Name csrSubject = pkcs10.getSubjectName();
+                if (!csrSubject.equals(subjectX500Name)) {
+                    throw new BadRequestDataException(
+                            "CSR subject DN '" + csrSubject
+                            + "' does not match requested DN '" + subjectX500Name + "'");
+                }
+
+                // Use the caller-supplied profile or fall back to the profile
+                // designed for external-key sub-CA issuance.
+                String effectiveProfileId = (profileId != null && !profileId.isBlank())
+                        ? profileId
+                        : "caExternalKeyCACert";
+
+                logger.info("CAEngine: Signing external sub-CA CSR with profile '{}'",
+                        effectiveProfileId);
+                cert = generateSigningCertFromCSR(parentCA, pkcs10, authToken, effectiveProfileId);
+                // No store.importCert(): the key is external; the certificate
+                // is tracked solely via the LDAP authority record serial number.
+
+            } catch (Exception e) {
+                logger.error("Unable to sign external sub-CA CSR: " + e.getMessage(), e);
+                authorityRepository.deleteAuthorityRecord(authorityID);
+                deleteAuthorityEntry(authorityID);
+                throw e;
             }
 
-            CryptoToken token = CryptoUtil.getKeyStorageToken(tokenname);
+        } else {
+            // Local key path: generate a key pair in the local NSS database
+            // (or the configured HSM token) and sign the sub-CA certificate.
+            CertificateAuthority hostCA = getCA();
 
-            logger.info("CAEngine: Generating signing certificate");
-            cert = generateSigningCert(parentCA, subjectX500Name, authToken, token);
+            String keyNickname = hostCA.getNickname() + " " + authorityID;
+            record.setKeyNickname(keyNickname);
+            record.addKeyHost(mConfig.getHostname() + ":" + getEESSLPort());
 
-            logger.info("CAEngine: Importing " + nickname + " cert into " + token.getName());
-            CryptoStore store = token.getCryptoStore();
-            store.importCert(cert.getEncoded(), nickname);
+            authorityRepository.addAuthorityRecord(record);
 
-        } catch (Exception e) {
-            logger.error("Unable to generate signing certificate: " + e.getMessage(), e);
+            try {
+                int i = keyNickname.indexOf(':');
+                String tokenname;
+                String nickname;
 
-            // something went wrong; delete just-added entry
-            authorityRepository.deleteAuthorityRecord(authorityID);
-            deleteAuthorityEntry(authorityID);
+                if (i >= 0) {
+                    tokenname = keyNickname.substring(0, i);
+                    nickname = keyNickname.substring(i + 1);
+                } else {
+                    tokenname = null;
+                    nickname = keyNickname;
+                }
 
-            throw e;
+                CryptoToken token = CryptoUtil.getKeyStorageToken(tokenname);
+
+                // Use the caller-supplied profile or fall back to the
+                // established default for local-key sub-CA issuance.
+                String effectiveProfileId = (profileId != null && !profileId.isBlank())
+                        ? profileId
+                        : "caCACert";
+
+                logger.info("CAEngine: Generating signing certificate with profile '{}'",
+                        effectiveProfileId);
+                cert = generateSigningCert(parentCA, subjectX500Name, authToken, token,
+                        effectiveProfileId);
+
+                logger.info("CAEngine: Importing " + nickname + " cert into " + token.getName());
+                CryptoStore store = token.getCryptoStore();
+                store.importCert(cert.getEncoded(), nickname);
+
+            } catch (Exception e) {
+                logger.error("Unable to generate signing certificate: " + e.getMessage(), e);
+                authorityRepository.deleteAuthorityRecord(authorityID);
+                deleteAuthorityEntry(authorityID);
+                throw e;
+            }
         }
 
         CertId certID = new CertId(cert.getSerialNumber());
@@ -1689,7 +1796,11 @@ public class CAEngine extends CMSEngine {
             throw new ECAException("Unable to create CRL extensions", e);
         }
 
-        X509CertImpl caCertImpl = ca.getSigningUnit().getCertImpl();
+        // For external-key authorities the signing unit is not initialized;
+        // the certificate is already in the repository (fetched above).
+        X509CertImpl caCertImpl = ca.getSigningUnit() != null
+                ? ca.getSigningUnit().getCertImpl()
+                : certRecord.getCertificate();
         processor.addCertificateToRevoke(caCertImpl);
 
         processor.createRevocationRequest();
@@ -1705,6 +1816,13 @@ public class CAEngine extends CMSEngine {
         if (ca.isHostAuthority()) {
             String msg = "Attempt to delete host authority signing key; not proceeding";
             logger.warn(msg);
+            return;
+        }
+
+        if (ca.getSigningUnit() == null) {
+            // External-key authority: no cert or private key was ever stored in
+            // the local NSS database, so there is nothing to remove.
+            logger.info("CAEngine: external-key authority — skipping NSS DB cleanup");
             return;
         }
 
