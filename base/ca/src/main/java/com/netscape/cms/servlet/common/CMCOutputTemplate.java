@@ -687,7 +687,14 @@ public class CMCOutputTemplate {
                             return null;
                         }
             */
-            DigestAlgorithm digestAlg = signAlg.getDigestAlg();
+            DigestAlgorithm digestAlg;
+            if (signAlg.equals(SignatureAlgorithm.MLDSA44) ||
+                    signAlg.equals(SignatureAlgorithm.MLDSA65) ||
+                    signAlg.equals(SignatureAlgorithm.MLDSA87)) {
+            digestAlg = DigestAlgorithm.SHA512;
+            } else {
+                digestAlg = signAlg.getDigestAlg();
+            }
             MessageDigest msgDigest = null;
             byte[] digest = null;
 

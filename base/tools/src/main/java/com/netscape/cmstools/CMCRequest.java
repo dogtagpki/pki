@@ -117,6 +117,7 @@ import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.cmsutil.crypto.CryptoUtil;
+import java.security.spec.NamedParameterSpec;
 
 /**
  * Tool for creating CMC full request
@@ -194,7 +195,18 @@ public class CMCRequest {
             signAlg = SignatureAlgorithm.RSASignatureWithSHA256Digest;
         } else if (signingKeyType.equalsIgnoreCase("EC")) {
             signAlg = SignatureAlgorithm.ECSignatureWithSHA256Digest;
-        } else {
+        } else if (signingKeyType.equalsIgnoreCase("ML-DSA")) {
+            if (privKey instanceof PrivateKey pKey &&
+                    pKey.getParams() instanceof NamedParameterSpec paramName) {
+                signAlg = switch(paramName.getName()) {
+                    case "ML-DSA-44" -> SignatureAlgorithm.MLDSA44;
+                    case "ML-DSA-65" -> SignatureAlgorithm.MLDSA65;
+                    case "ML-DSA-87" -> SignatureAlgorithm.MLDSA87;
+                    default -> null;
+                };
+            }
+        }
+        if (signAlg == null) {
             System.out.println(method + "Algorithm not supported:" +
                     signingKeyType);
             return null;
@@ -341,9 +353,15 @@ public class CMCRequest {
 
             byte[] digest = null;
             try {
-                SHADigest = MessageDigest.getInstance("SHA256");
-                digestAlg = DigestAlgorithm.SHA256;
-
+                if (signAlg.equals(SignatureAlgorithm.MLDSA44) ||
+                        signAlg.equals(SignatureAlgorithm.MLDSA65) ||
+                        signAlg.equals(SignatureAlgorithm.MLDSA87)) {
+                    SHADigest = MessageDigest.getInstance("SHA512");
+                    digestAlg = DigestAlgorithm.SHA512;
+                } else {
+                    SHADigest = MessageDigest.getInstance("SHA256");
+                    digestAlg = DigestAlgorithm.SHA256;
+                }
                 ByteArrayOutputStream ostream = new ByteArrayOutputStream();
 
                 pkidata.encode(ostream);
