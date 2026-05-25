@@ -332,6 +332,36 @@ jobs:
           docker exec pki cat /var/log/pki/pki-tomcat/ca/signedAudit/ca_audit | grep AuditEvent=AUDIT_LOG_SIGNING | tee output
           grep -q . output
 
+      - name: Generating new sslserver certificate with CMC
+        run: |
+          # check cert request
+          docker exec pki openssl req -text -noout -in /etc/pki/pki-tomcat/certs/sslserver.csr
+
+          # create CMC request
+          docker exec pki cp /etc/pki/pki-tomcat/certs/sslserver.csr sslserver.csr
+          docker exec pki CMCRequest \
+              /usr/share/pki/server/examples/cmc/sslserver-cmc-request.cfg
+
+          # copy the submit and update the profile to use
+          docker exec pki \
+              cp /usr/share/pki/server/examples/cmc/sslserver-cmc-submit.cfg \
+              /tmp/sslserver-cmc-submit.cfg
+          docker exec pki sed -i 's/profileId=caCMCserverCert/profileId=caCMCMLDSAserverCert/' /tmp/sslserver-cmc-submit.cfg
+          docker exec pki sed -i 's/host=ca.example.com/host=pki.example.com/' /tmp/sslserver-cmc-submit.cfg
+          
+          # submit CMC request
+          docker exec pki HttpClient \
+              /tmp/sslserver-cmc-submit.cfg
+
+          # convert CMC response (DER PKCS #7) into PEM PKCS #7 cert chain
+          docker exec pki CMCResponse \
+              -d /root/.dogtag/nssdb \
+              -i sslserver.cmc-response \
+              -o $SHARED/sslserver.p7b
+
+          # check issued cert chain
+          docker exec pki openssl pkcs7 -print_certs -in $SHARED/sslserver.p7b
+
       - name: Remove CA and cleanup home
         run: |
           docker exec pki pkidestroy -s CA --remove-logs --remove-conf --force -v
