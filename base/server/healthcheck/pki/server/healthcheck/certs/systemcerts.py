@@ -17,14 +17,19 @@ from ipahealthcheck.core import constants
 logger = logging.getLogger(__name__)
 
 
-def check_cert_expiry_date(plugin, cert):
+def check_cert_expiry_date(
+        plugin,
+        cert_config,
+        cert_info):
     '''
     Calculate the expiry status of the given cert
 
     :param plugin: Healthcheck plugin
     :type plugin: Plugin
-    :param cert: Certificate to validate
-    :type cert: dict
+    :param cert_config: Certificate config to validate
+    :type cert_config: dict
+    :param cert_info: Certificate info to validate
+    :type cert_info: dict
     :return: Result object with prefilled args
     :rtype: Result
     '''
@@ -33,12 +38,12 @@ def check_cert_expiry_date(plugin, cert):
     current_time = int(round(time.time()))
 
     # Get the cert's expiry date in Milli seconds
-    cert_expiry_time = cert.get('not_after')
+    cert_expiry_time = cert_info.get('not_after')
 
     if cert_expiry_time is None:
-        logger.error('Unable to retrieve cert: %s', cert['nickname'])
+        logger.error('Unable to retrieve cert: %s', cert_config['nickname'])
         return Result(plugin, constants.ERROR,
-                      cert_id=cert['id'],
+                      cert_id=cert_config['id'],
                       msg='Unable to get cert\'s expiry date')
 
     # Convert to seconds
@@ -55,34 +60,34 @@ def check_cert_expiry_date(plugin, cert):
     expiry_date_human = cert_expiry_date.strftime('%b %d %Y')
 
     if delta_sec <= 0:
-        logger.error('Expired Cert: %s', cert['id'])
+        logger.error('Expired Cert: %s', cert_config['id'])
         return Result(plugin, constants.ERROR,
-                      cert_id=cert['id'],
+                      cert_id=cert_config['id'],
                       expiry_date=expiry_date_human,
                       msg='Certificate has ALREADY EXPIRED')
 
     elif delta_days == 0 and delta_sec <= 86400:
         # Expiring in less than a day
-        logger.warning('Expiring in a day: %s', cert['id'])
+        logger.warning('Expiring in a day: %s', cert_config['id'])
         return Result(plugin, constants.WARNING,
-                      cert_id=cert['id'],
+                      cert_id=cert_config['id'],
                       msg='Expiring within next 24 hours')
 
     elif delta_days < int(plugin.config.cert_expiration_days):
         # Expiring in a month
         logger.warning('Expiring in less than %s days: %s',
                        plugin.config.cert_expiration_days,
-                       cert['id'])
+                       cert_config['id'])
         return Result(plugin, constants.WARNING,
-                      cert_id=cert['id'],
+                      cert_id=cert_config['id'],
                       expiry_date=expiry_date_human,
                       msg='Your certificate expires within %s days.' %
                           plugin.config.cert_expiration_days)
     else:
         # Valid certificate
-        logger.info('VALID certificate: %s', cert['id'])
+        logger.info('VALID certificate: %s', cert_config['id'])
         return Result(plugin, constants.SUCCESS,
-                      cert_id=cert['id'],
+                      cert_id=cert_config['id'],
                       expiry_date=expiry_date_human)
 
 
@@ -134,17 +139,18 @@ class CASystemCertCheck(CertsPlugin):
         with nssdb_connection(self.instance) as nssdb:
 
             for cert_id in subsystem.get_subsystem_certs():
-                cert = subsystem.get_subsystem_cert(cert_id)
+                cert_config = subsystem.get_system_cert_config(cert_id)
 
                 # if audit signing nickname not configured, skip
                 if cert_id == 'audit_signing' and not audit_signing_nickname:
                     continue
 
                 # check trust attributes
+                cert_info = subsystem.get_system_cert_info(cert_id)
                 try:
                     cert_trust = nssdb.get_trust(
-                        nickname=cert['nickname'],
-                        token=cert['token']
+                        nickname=cert_config['nickname'],
+                        token=cert_config['token']
                     )
                 except Exception as e:  # pylint: disable=broad-except
                     logger.debug('Unable to load cert from NSS database: %s', str(e))
@@ -152,7 +158,7 @@ class CASystemCertCheck(CertsPlugin):
                                  key=cert_id,
                                  nssdbDir=self.instance.nssdb_dir,
                                  msg='Unable to load cert from NSS database: %s' % str(e))
-                    yield check_cert_expiry_date(plugin=self, cert=cert)
+                    yield check_cert_expiry_date(self, cert_config, cert_info)
                     continue
 
                 if cert_trust != expected_trust[cert_id]:
@@ -160,20 +166,20 @@ class CASystemCertCheck(CertsPlugin):
                         self,
                         constants.ERROR,
                         cert_id=cert_id,
-                        nickname=cert['nickname'],
-                        token=cert['token'],
+                        nickname=cert_config['nickname'],
+                        token=cert_config['token'],
                         cert_trust=cert_trust,
                         msg='Incorrect trust attributes for %s. Got %s expected %s'
-                            % (cert['nickname'], cert_trust, expected_trust[cert_id]))
+                            % (cert_config['nickname'], cert_trust, expected_trust[cert_id]))
                 else:
                     yield Result(
                         self,
                         constants.SUCCESS,
                         cert_id=cert_id,
-                        nickname=cert['nickname'])
+                        nickname=cert_config['nickname'])
 
                 # check expiration
-                yield check_cert_expiry_date(plugin=self, cert=cert)
+                yield check_cert_expiry_date(self, cert_config, cert_info)
 
 
 @registry
@@ -212,17 +218,18 @@ class KRASystemCertCheck(CertsPlugin):
         with nssdb_connection(self.instance) as nssdb:
 
             for cert_id in subsystem.get_subsystem_certs():
-                cert = subsystem.get_subsystem_cert(cert_id)
+                cert_config = subsystem.get_system_cert_config(cert_id)
 
                 # if audit signing nickname not configured, skip
                 if cert_id == 'audit_signing' and not audit_signing_nickname:
                     continue
 
                 # check trust attributes
+                cert_info = subsystem.get_system_cert_info(cert_id)
                 try:
                     cert_trust = nssdb.get_trust(
-                        nickname=cert['nickname'],
-                        token=cert['token']
+                        nickname=cert_config['nickname'],
+                        token=cert_config['token']
                     )
                 except Exception as e:  # pylint: disable=broad-except
                     logger.debug('Unable to load cert from NSS database: %s', str(e))
@@ -230,7 +237,7 @@ class KRASystemCertCheck(CertsPlugin):
                                  key=cert_id,
                                  nssdbDir=self.instance.nssdb_dir,
                                  msg='Unable to load cert from NSS database: %s' % str(e))
-                    yield check_cert_expiry_date(plugin=self, cert=cert)
+                    yield check_cert_expiry_date(self, cert_config, cert_info)
                     continue
 
                 if cert_trust != expected_trust[cert_id]:
@@ -238,20 +245,20 @@ class KRASystemCertCheck(CertsPlugin):
                         self,
                         constants.ERROR,
                         cert_id=cert_id,
-                        nickname=cert['nickname'],
-                        token=cert['token'],
+                        nickname=cert_config['nickname'],
+                        token=cert_config['token'],
                         cert_trust=cert_trust,
                         msg='Incorrect trust attributes for %s. Got %s expected %s'
-                            % (cert['nickname'], cert_trust, expected_trust[cert_id]))
+                            % (cert_config['nickname'], cert_trust, expected_trust[cert_id]))
                 else:
                     yield Result(
                         self,
                         constants.SUCCESS,
                         cert_id=cert_id,
-                        nickname=cert['nickname'])
+                        nickname=cert_config['nickname'])
 
                 # check expiration
-                yield check_cert_expiry_date(plugin=self, cert=cert)
+                yield check_cert_expiry_date(self, cert_config, cert_info)
 
 
 @registry
@@ -289,17 +296,18 @@ class OCSPSystemCertCheck(CertsPlugin):
         with nssdb_connection(self.instance) as nssdb:
 
             for cert_id in subsystem.get_subsystem_certs():
-                cert = subsystem.get_subsystem_cert(cert_id)
+                cert_config = subsystem.get_system_cert_config(cert_id)
 
                 # if audit signing nickname not configured, skip
                 if cert_id == 'audit_signing' and not audit_signing_nickname:
                     continue
 
                 # check trust attributes
+                cert_info = subsystem.get_system_cert_info(cert_id)
                 try:
                     cert_trust = nssdb.get_trust(
-                        nickname=cert['nickname'],
-                        token=cert['token']
+                        nickname=cert_config['nickname'],
+                        token=cert_config['token']
                     )
                 except Exception as e:  # pylint: disable=broad-except
                     logger.debug('Unable to load cert from NSS database: %s', str(e))
@@ -307,7 +315,7 @@ class OCSPSystemCertCheck(CertsPlugin):
                                  key=cert_id,
                                  nssdbDir=self.instance.nssdb_dir,
                                  msg='Unable to load cert from NSS database: %s' % str(e))
-                    yield check_cert_expiry_date(plugin=self, cert=cert)
+                    yield check_cert_expiry_date(self, cert_config, cert_info)
                     continue
 
                 if cert_trust != expected_trust[cert_id]:
@@ -315,20 +323,20 @@ class OCSPSystemCertCheck(CertsPlugin):
                         self,
                         constants.ERROR,
                         cert_id=cert_id,
-                        nickname=cert['nickname'],
-                        token=cert['token'],
+                        nickname=cert_config['nickname'],
+                        token=cert_config['token'],
                         cert_trust=cert_trust,
                         msg='Incorrect trust attributes for %s. Got %s expected %s'
-                            % (cert['nickname'], cert_trust, expected_trust[cert_id]))
+                            % (cert_config['nickname'], cert_trust, expected_trust[cert_id]))
                 else:
                     yield Result(
                         self,
                         constants.SUCCESS,
                         cert_id=cert_id,
-                        nickname=cert['nickname'])
+                        nickname=cert_config['nickname'])
 
                 # check expiration
-                yield check_cert_expiry_date(plugin=self, cert=cert)
+                yield check_cert_expiry_date(self, cert_config, cert_info)
 
 
 @registry
@@ -365,17 +373,18 @@ class TKSSystemCertCheck(CertsPlugin):
         with nssdb_connection(self.instance) as nssdb:
 
             for cert_id in subsystem.get_subsystem_certs():
-                cert = subsystem.get_subsystem_cert(cert_id)
+                cert_config = subsystem.get_system_cert_config(cert_id)
 
                 # if audit signing nickname not configured, skip
                 if cert_id == 'audit_signing' and not audit_signing_nickname:
                     continue
 
                 # check trust attributes
+                cert_info = subsystem.get_system_cert_info(cert_id)
                 try:
                     cert_trust = nssdb.get_trust(
-                        nickname=cert['nickname'],
-                        token=cert['token']
+                        nickname=cert_config['nickname'],
+                        token=cert_config['token']
                     )
                 except Exception as e:  # pylint: disable=broad-except
                     logger.debug('Unable to load cert from NSS database: %s', str(e))
@@ -383,7 +392,7 @@ class TKSSystemCertCheck(CertsPlugin):
                                  key=cert_id,
                                  nssdbDir=self.instance.nssdb_dir,
                                  msg='Unable to load cert from NSS database: %s' % str(e))
-                    yield check_cert_expiry_date(plugin=self, cert=cert)
+                    yield check_cert_expiry_date(self, cert_config, cert_info)
                     continue
 
                 if cert_trust != expected_trust[cert_id]:
@@ -391,20 +400,20 @@ class TKSSystemCertCheck(CertsPlugin):
                         self,
                         constants.ERROR,
                         cert_id=cert_id,
-                        nickname=cert['nickname'],
-                        token=cert['token'],
+                        nickname=cert_config['nickname'],
+                        token=cert_config['token'],
                         cert_trust=cert_trust,
                         msg='Incorrect trust attributes for %s. Got %s expected %s'
-                            % (cert['nickname'], cert_trust, expected_trust[cert_id]))
+                            % (cert_config['nickname'], cert_trust, expected_trust[cert_id]))
                 else:
                     yield Result(
                         self,
                         constants.SUCCESS,
                         cert_id=cert_id,
-                        nickname=cert['nickname'])
+                        nickname=cert_config['nickname'])
 
                 # check expiration
-                yield check_cert_expiry_date(plugin=self, cert=cert)
+                yield check_cert_expiry_date(self, cert_config, cert_info)
 
 
 @registry
@@ -441,17 +450,18 @@ class TPSSystemCertCheck(CertsPlugin):
         with nssdb_connection(self.instance) as nssdb:
 
             for cert_id in subsystem.get_subsystem_certs():
-                cert = subsystem.get_subsystem_cert(cert_id)
+                cert_config = subsystem.get_system_cert_config(cert_id)
 
                 # if audit signing nickname not configured, skip
                 if cert_id == 'audit_signing' and not audit_signing_nickname:
                     continue
 
                 # check trust attributes
+                cert_info = subsystem.get_system_cert_info(cert_id)
                 try:
                     cert_trust = nssdb.get_trust(
-                        nickname=cert['nickname'],
-                        token=cert['token']
+                        nickname=cert_config['nickname'],
+                        token=cert_config['token']
                     )
                 except Exception as e:  # pylint: disable=broad-except
                     logger.debug('Unable to load cert from NSS database: %s', str(e))
@@ -459,7 +469,7 @@ class TPSSystemCertCheck(CertsPlugin):
                                  key=cert_id,
                                  nssdbDir=self.instance.nssdb_dir,
                                  msg='Unable to load cert from NSS database: %s' % str(e))
-                    yield check_cert_expiry_date(plugin=self, cert=cert)
+                    yield check_cert_expiry_date(self, cert_config, cert_info)
                     continue
 
                 if cert_trust != expected_trust[cert_id]:
@@ -467,17 +477,17 @@ class TPSSystemCertCheck(CertsPlugin):
                         self,
                         constants.ERROR,
                         cert_id=cert_id,
-                        nickname=cert['nickname'],
-                        token=cert['token'],
+                        nickname=cert_config['nickname'],
+                        token=cert_config['token'],
                         cert_trust=cert_trust,
                         msg='Incorrect trust attributes for %s. Got %s expected %s'
-                            % (cert['nickname'], cert_trust, expected_trust[cert_id]))
+                            % (cert_config['nickname'], cert_trust, expected_trust[cert_id]))
                 else:
                     yield Result(
                         self,
                         constants.SUCCESS,
                         cert_id=cert_id,
-                        nickname=cert['nickname'])
+                        nickname=cert_config['nickname'])
 
                 # check expiration
-                yield check_cert_expiry_date(plugin=self, cert=cert)
+                yield check_cert_expiry_date(self, cert_config, cert_info)
