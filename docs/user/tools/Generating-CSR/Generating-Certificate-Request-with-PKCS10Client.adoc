@@ -1,6 +1,8 @@
 = Generating Certificate Request with PKCS10Client =
 
-The `PKCS10Client` command can be used to generate a PKCS #10 request. For example:
+The `PKCS10Client` command can be used to generate a PKCS #10 request.
+
+== Generating RSA Certificate Request ==
 
 ----
 $ PKCS10Client \
@@ -38,4 +40,22 @@ The key ID will be stored in `testuser.csr.keyId`:
 ----
 15d1047e2bb988e75a8c66cd75d3fec430fe1f4c
 ----
+
+== Generating ML-DSA Certificate Request ==
+
+To generate a PKCS #10 request with ML-DSA key pair:
+
+----
+$ PKCS10Client \
+    -d ~/.dogtag/nssdb \
+    -p Secret.123 \
+    -a mldsa \
+    -l 65 \
+    -o testuser-mldsa.csr \
+    -n "uid=testuser,ou=people,dc=example,dc=com"
+PKCS10Client: Certificate request written into testuser-mldsa.csr
+PKCS10Client: PKCS#10 request key id written into testuser-mldsa.csr.keyId
+----
+
+The `-l` parameter specifies the ML-DSA strength (44, 65, or 87). The default is 65.
 
