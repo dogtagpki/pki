@@ -269,12 +269,20 @@ jobs:
         run: |
           # this command doesn't prompt for a password but it requires
           # the HSM password in order to import the cert
+          #
+          # currently Kryoptic can't modify trust attributes after
+          # import (https://github.com/latchset/kryoptic/issues/450)
+          # so the attributes must be specified during import
+          #
+          # for consistency with the audit signing cert import below
+          # this command specifies the u attributes, but they don't
+          # seem to affect the outcome of the test
           docker exec pki pki \
               -C $SHARED/password.hsm \
               --token HSM \
               nss-cert-import \
               --cert ca_signing.crt \
-              --trust "CT,C,C" \
+              --trust "CTu,Cu,Cu" \
               HSM:ca_signing
 
       - name: Check CA signing cert in internal token
@@ -486,6 +494,7 @@ jobs:
           # cert should be removed
           echo "HSM:ca_signing CTu,u,u" > expected
           sed -n -e '1,4d' -e 's/^\(.*\S\)\s\+\(\S\+\)\s*$/\1 \2/p' output > actual
+
           diff expected actual
 
           docker exec pki certutil -K \
@@ -552,11 +561,19 @@ jobs:
         run: |
           # this command doesn't prompt for a password but it requires
           # the HSM password in order to import the cert
+          #
+          # currently Kryoptic can't modify trust attributes after
+          # import (https://github.com/latchset/kryoptic/issues/450)
+          # so the attributes must be specified during import
+          #
+          # in this command the u attributes must be specified in order
+          # to set the trust attributes properly
           docker exec pki pki \
               -C $SHARED/password.hsm \
               --token HSM \
               nss-cert-import \
               --cert audit_signing.crt \
+              --trust "u,u,Pu" \
               HSM:audit_signing
 
       - name: Check audit signing key
@@ -592,8 +609,8 @@ jobs:
               -h HSM \
               | tee output
 
-          # trust attributes should be u,u,u
-          echo "u,u,u" > expected
+          # trust attributes should be u,u,Pu
+          echo "u,u,Pu" > expected
           sed -n 's/^HSM:audit_signing\s*\(\S\+\)\s*$/\1/p' output > actual
 
           diff expected actual
@@ -603,19 +620,20 @@ jobs:
               nss-cert-show \
               HSM:audit_signing | tee output
 
-          # trust attributes should be u,u,u
-          echo "u,u,u" > expected
+          # trust attributes should be u,u,Pu
+          echo "u,u,Pu" > expected
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
 
           diff expected actual
 
       - name: Modify audit signing cert trust attributes
         run: |
+          # this command tries to modify the trust attributes but
           # currently Kryoptic can't modify trust attributes
           # https://github.com/latchset/kryoptic/issues/450
           cat password.hsm | docker exec -i pki pki \
               nss-cert-mod \
-              --trust-flags "u,u,P" \
+              --trust-flags "u,u,u" \
               HSM:audit_signing
 
       - name: Check audit signing cert trust attributes in internal token
@@ -649,10 +667,10 @@ jobs:
               -h HSM \
               | tee output
 
-          # trust attributes should be u,u,Pu
+          # trust attributes should be u,u,u
           # but currently Kryoptic can't modify trust attributes
           # https://github.com/latchset/kryoptic/issues/450
-          echo "u,u,u" > expected
+          echo "u,u,Pu" > expected
           sed -n 's/^HSM:audit_signing\s*\(\S\+\)\s*$/\1/p' output > actual
 
           diff expected actual
@@ -663,10 +681,10 @@ jobs:
               HSM:audit_signing \
               | tee output
 
-          # trust attributes should be u,u,Pu
+          # trust attributes should be u,u,u
           # but currently Kryoptic can't modify trust attributes
           # https://github.com/latchset/kryoptic/issues/450
-          echo "u,u,u" > expected
+          echo "u,u,Pu" > expected
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
 
           diff expected actual

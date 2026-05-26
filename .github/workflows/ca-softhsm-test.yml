@@ -1,0 +1,346 @@
+name: CA with SoftHSM
+
+on: workflow_call
+
+env:
+  DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
+
+jobs:
+  # docs/installation/ca/Installing_CA_with_HSM.md
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Retrieve PKI images
+        uses: actions/cache@v4
+        with:
+          key: pki-images-${{ github.sha }}
+          path: pki-images.tar
+
+      - name: Load PKI images
+        run: docker load --input pki-images.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-create.sh \
+              --image=${{ env.DS_IMAGE }} \
+              --hostname=ds.example.com \
+              --network=example \
+              --network-alias=ds.example.com \
+              --password=Secret.123 \
+              ds
+
+      - name: Set up PKI container
+        run: |
+          tests/bin/runner-init.sh \
+              --hostname=pki.example.com \
+              --network=example \
+              --network-alias=pki.example.com \
+              pki
+
+      - name: Install dependencies
+        run: |
+          docker exec pki dnf install -y softhsm
+
+      - name: Create SoftHSM token
+        run: |
+          # allow PKI user to access SoftHSM files
+          docker exec pki usermod pkiuser -a -G ods
+
+          # create SoftHSM token for PKI server
+          docker exec pki runuser -u pkiuser -- \
+              softhsm2-util \
+              --init-token \
+              --label HSM \
+              --so-pin Secret.HSM \
+              --pin Secret.HSM \
+              --free
+
+          docker exec pki ls -laR /var/lib/softhsm/tokens
+
+      - name: Install CA with HSM
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_hsm_enable=True \
+              -D pki_token_name=HSM \
+              -D pki_token_password=Secret.HSM \
+              -D pki_server_database_password=Secret.123 \
+              -D pki_ca_signing_token=HSM \
+              -D pki_ocsp_signing_token=HSM \
+              -D pki_audit_signing_token=HSM \
+              -D pki_subsystem_token=HSM \
+              -D pki_sslserver_token=internal \
+              --debug \
+              > >(tee stdout) 2> >(tee stderr >&2)
+
+      - name: Check for warnings
+        if: always()
+        run: |
+          sed -n '/^WARNING:/p' stderr | tee output
+          wc -l output
+
+      - name: Check external commands
+        if: always()
+        run: |
+          sed -n '/^DEBUG: Command:/p' stderr | tee output
+          wc -l output
+
+      - name: Check system certs in internal token
+        run: |
+          # there should be 5 certs
+          echo "5" > expected
+          docker exec pki pki \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              nss-cert-find | tee output
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check ca_signing cert in internal token
+        run: |
+          echo "CT,C,C" > expected
+          docker exec pki pki \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              nss-cert-show \
+              ca_signing | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+          docker exec pki pki \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              nss-cert-verify \
+              --cert-usage SSLCA \
+              ca_signing
+
+      - name: Check ca_ocsp_signing cert in internal token
+        run: |
+          echo ",," > expected
+          docker exec pki pki \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              nss-cert-show \
+              ca_ocsp_signing | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+          docker exec pki pki \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              nss-cert-verify \
+              --cert-usage StatusResponder \
+              ca_ocsp_signing
+
+      - name: Check ca_audit_signing cert in internal token
+        run: |
+          echo ",,P" > expected
+          docker exec pki pki \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              nss-cert-show \
+              ca_audit_signing | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+          docker exec pki pki \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              nss-cert-verify \
+              --cert-usage ObjectSigner \
+              ca_audit_signing
+
+      - name: Check subsystem cert in internal token
+        run: |
+          echo ",," > expected
+          docker exec pki pki \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              nss-cert-show \
+              subsystem | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+          docker exec pki pki \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              nss-cert-verify \
+              --cert-usage SSLClient \
+              subsystem
+
+      - name: Check sslserver cert in internal token
+        run: |
+          echo "u,u,u" > expected
+          docker exec pki pki \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              nss-cert-show \
+              sslserver | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+          docker exec pki pki \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              nss-cert-verify \
+              --cert-usage SSLServer \
+              sslserver
+
+      - name: Check system certs in HSM
+        run: |
+          echo Secret.HSM > password.txt
+          echo "4" > expected
+          docker exec pki pki \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -C ${SHARED}/password.txt \
+              --token HSM \
+              nss-cert-find | tee output
+          grep "Serial Number:" output | wc -l > actual
+          diff expected actual
+
+      - name: Check ca_signing cert in HSM
+        run: |
+          echo "CTu,Cu,Cu" > expected
+          docker exec pki pki \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -C ${SHARED}/password.txt \
+              --token HSM \
+              nss-cert-show \
+              HSM:ca_signing | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+          docker exec pki pki \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              nss-cert-verify \
+              --cert-usage SSLCA \
+              HSM:ca_signing
+
+      - name: Check ca_ocsp_signing cert in HSM
+        run: |
+          echo "u,u,u" > expected
+          docker exec pki pki \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -C ${SHARED}/password.txt \
+              --token HSM \
+              nss-cert-show \
+              HSM:ca_ocsp_signing | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+          docker exec pki pki \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              nss-cert-verify \
+              --cert-usage StatusResponder \
+              HSM:ca_ocsp_signing
+
+      - name: Check ca_audit_signing cert in HSM
+        run: |
+          echo "u,u,Pu" > expected
+          docker exec pki pki \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -C ${SHARED}/password.txt \
+              --token HSM \
+              nss-cert-show \
+              HSM:ca_audit_signing | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+          docker exec pki pki \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              nss-cert-verify \
+              --cert-usage ObjectSigner \
+              HSM:ca_audit_signing
+
+      - name: Check subsystem cert in HSM
+        run: |
+          echo "u,u,u" > expected
+          docker exec pki pki \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -C ${SHARED}/password.txt \
+              --token HSM \
+              nss-cert-show \
+              HSM:subsystem | tee output
+          sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
+          diff expected actual
+
+          docker exec pki pki \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              nss-cert-verify \
+              --cert-usage SSLClient \
+              HSM:subsystem
+
+      - name: Run PKI healthcheck
+        run: docker exec pki pki-healthcheck --failures-only
+
+      - name: Check admin cert
+        run: |
+          docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
+
+          docker exec pki pki nss-cert-import \
+              --cert ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
+          docker exec pki pki pkcs12-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12-password Secret.123
+
+          docker exec pki pki nss-cert-verify \
+              --cert-usage SSLClient \
+              caadmin
+
+          docker exec pki pki -n caadmin ca-user-show caadmin
+
+      - name: Remove CA
+        run: |
+          docker exec pki pkidestroy \
+              -s CA \
+              --debug \
+              > >(tee stdout) 2> >(tee stderr >&2)
+
+      - name: Check for warnings
+        if: always()
+        run: |
+          sed -n '/^WARNING:/p' stderr | tee output
+          wc -l output
+
+      - name: Check external commands
+        if: always()
+        run: |
+          sed -n '/^DEBUG: Command:/p' stderr | tee output
+          wc -l output
+
+      - name: Remove SoftHSM token
+        run: |
+          docker exec pki ls -laR /var/lib/softhsm/tokens
+          docker exec pki runuser -u pkiuser -- softhsm2-util --delete-token --token HSM
+
+      - name: Check DS server systemd journal
+        if: always()
+        run: |
+          docker exec ds journalctl -x --no-pager -u dirsrv@localhost.service
+
+      - name: Check DS container logs
+        if: always()
+        run: |
+          docker logs ds
+
+      - name: Check PKI server systemd journal
+        if: always()
+        run: |
+          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check CA debug log
+        if: always()
+        run: |
+          docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
