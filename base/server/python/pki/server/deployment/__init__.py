@@ -993,10 +993,8 @@ class PKIDeployer:
         # Store system cert parameters in installation step to guarantee the
         # parameters exist during configuration step and to allow customization.
 
-        certs = subsystem.find_system_certs()
-        for cert in certs:
+        for cert_tag in subsystem.get_subsystem_certs():
 
-            cert_tag = cert['id']
             cert_param_id = cert_tag
 
             if cert_tag == 'signing':  # for CA and OCSP

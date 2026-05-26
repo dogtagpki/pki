@@ -1189,10 +1189,10 @@ class SubsystemCertExportCLI(pki.cli.CLI):
                 nicknames.append(subsystem_cert['nickname'])
 
             else:
-                subsystem_certs = subsystem.find_system_certs()
-                for subsystem_cert in subsystem_certs:
-                    if (subsystem_cert['nickname']):
-                        nicknames.append(subsystem_cert['nickname'])
+                for tag in subsystem.get_subsystem_certs():
+                    cc = subsystem.get_system_cert_config(tag)
+                    if (cc['nickname']):
+                        nicknames.append(cc['nickname'])
 
             nssdb = instance.open_nssdb()
             try:
@@ -1452,7 +1452,10 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
         if cert_tag is not None:
             certs = [subsystem.get_subsystem_cert(cert_tag)]
         else:
-            certs = subsystem.find_system_certs()
+            certs = []
+            for tag in subsystem.get_subsystem_certs():
+                cert = subsystem.get_subsystem_cert(tag)
+                certs.append(cert)
 
         first = True
         certs_valid = True

@@ -1375,21 +1375,20 @@ class CertFixCLI(pki.cli.CLI):
         if all_certs:
             # TODO: Identify only certs that are EXPIRED or ALMOST EXPIRED
             for subsystem in instance.get_subsystems():
-                # Retrieve the subsystem's system certificate
-                certs = subsystem.find_system_certs()
 
                 # Iterate on all subsystem's system certificate to prepend
                 # subsystem name to the ID
-                for cert in certs:
-                    if cert['id'] != 'sslserver' and cert['id'] != 'subsystem':
-                        cert['id'] = subsystem.name + '_' + cert['id']
+                for cert_id in subsystem.get_subsystem_certs():
+
+                    if cert_id != 'sslserver' and cert_id != 'subsystem':
+                        cert_id = subsystem.name + '_' + cert_id
 
                     # Append only unique certificates to other subsystem certificate list
                     # ca_signing isn't supported yet
-                    if cert['id'] in fix_certs or cert['id'] == 'ca_signing':
+                    if cert_id in fix_certs or cert_id == 'ca_signing':
                         continue
 
-                    fix_certs.append(cert['id'])
+                    fix_certs.append(cert_id)
 
         logger.info('Fixing certs: %s', ', '.join(fix_certs))
         logger.info('Additional certs: %s', ', '.join(extra_certs))

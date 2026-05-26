@@ -413,15 +413,6 @@ class PKISubsystem(object):
 
         return cert_list.split(',')
 
-    def find_system_certs(self):
-
-        cert_list = self.config.get('%s.cert.list' % self.name)
-        if not cert_list:
-            return []
-
-        for cert_tag in cert_list.split(','):
-            yield self.get_subsystem_cert(cert_tag)
-
     def validate_system_cert(self, tag):
 
         logger.info('Validating %s cert', tag)

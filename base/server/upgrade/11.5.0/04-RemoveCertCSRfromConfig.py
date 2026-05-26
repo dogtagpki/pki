@@ -24,9 +24,9 @@ class RemoveCertCSRfromConfig(pki.server.upgrade.PKIServerUpgradeScriptlet):
         instance.makedirs(instance.certs_dir, exist_ok=True)
 
         logger.info('Removing certs data')
-        certs = subsystem.find_system_certs()
-        for cert in certs:
-            self.clean_cert_csr(cert['id'], subsystem)
+
+        for tag in subsystem.get_subsystem_certs():
+            self.clean_cert_csr(tag, subsystem)
 
         subsystem.save()
 

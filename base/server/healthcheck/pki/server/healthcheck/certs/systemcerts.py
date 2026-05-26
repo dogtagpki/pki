@@ -133,9 +133,8 @@ class CASystemCertCheck(CertsPlugin):
 
         with nssdb_connection(self.instance) as nssdb:
 
-            certs = subsystem.find_system_certs()
-            for cert in certs:
-                cert_id = cert['id']
+            for cert_id in subsystem.get_subsystem_certs():
+                cert = subsystem.get_subsystem_cert(cert_id)
 
                 # if audit signing nickname not configured, skip
                 if cert_id == 'audit_signing' and not audit_signing_nickname:
@@ -212,9 +211,8 @@ class KRASystemCertCheck(CertsPlugin):
 
         with nssdb_connection(self.instance) as nssdb:
 
-            certs = subsystem.find_system_certs()
-            for cert in certs:
-                cert_id = cert['id']
+            for cert_id in subsystem.get_subsystem_certs():
+                cert = subsystem.get_subsystem_cert(cert_id)
 
                 # if audit signing nickname not configured, skip
                 if cert_id == 'audit_signing' and not audit_signing_nickname:
@@ -290,9 +288,8 @@ class OCSPSystemCertCheck(CertsPlugin):
 
         with nssdb_connection(self.instance) as nssdb:
 
-            certs = subsystem.find_system_certs()
-            for cert in certs:
-                cert_id = cert['id']
+            for cert_id in subsystem.get_subsystem_certs():
+                cert = subsystem.get_subsystem_cert(cert_id)
 
                 # if audit signing nickname not configured, skip
                 if cert_id == 'audit_signing' and not audit_signing_nickname:
@@ -367,9 +364,8 @@ class TKSSystemCertCheck(CertsPlugin):
 
         with nssdb_connection(self.instance) as nssdb:
 
-            certs = subsystem.find_system_certs()
-            for cert in certs:
-                cert_id = cert['id']
+            for cert_id in subsystem.get_subsystem_certs():
+                cert = subsystem.get_subsystem_cert(cert_id)
 
                 # if audit signing nickname not configured, skip
                 if cert_id == 'audit_signing' and not audit_signing_nickname:
@@ -444,9 +440,8 @@ class TPSSystemCertCheck(CertsPlugin):
 
         with nssdb_connection(self.instance) as nssdb:
 
-            certs = subsystem.find_system_certs()
-            for cert in certs:
-                cert_id = cert['id']
+            for cert_id in subsystem.get_subsystem_certs():
+                cert = subsystem.get_subsystem_cert(cert_id)
 
                 # if audit signing nickname not configured, skip
                 if cert_id == 'audit_signing' and not audit_signing_nickname:
