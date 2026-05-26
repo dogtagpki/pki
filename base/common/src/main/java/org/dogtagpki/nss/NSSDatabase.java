@@ -39,9 +39,12 @@ import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.SecureRandom;
+import java.security.SignatureException;
 import java.security.cert.X509Certificate;
 import java.security.spec.ECParameterSpec;
+import java.security.spec.NamedParameterSpec;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -61,6 +64,7 @@ import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyGenAlgorithm;
+import org.mozilla.jss.crypto.KeyPairAlgorithm;
 import org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
@@ -1504,6 +1508,14 @@ public class NSSDatabase {
         logger.debug("NSSDatabase: Private key algorithm: " + privateKeyAlgorithm);
 
         String signingAlgorithm = privateKeyAlgorithm;
+        if (signingAlgorithm.equals(KeyPairAlgorithm.MLKEM.toString())) {
+            throw new SignatureException("Impossible to create a signature with an ML-KEM key.");
+        }
+        if (signingAlgorithm.equals(KeyPairAlgorithm.MLDSA.toString()) &&
+            privateKey.getParams() instanceof NamedParameterSpec name) {
+            signingAlgorithm = name.getName();
+            hash = null;
+        }
         if (hash != null) {
             signingAlgorithm = hash + "with" + privateKeyAlgorithm;
         }
