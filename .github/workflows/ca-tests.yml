@@ -65,10 +65,15 @@ jobs:
     needs: build
     uses: ./.github/workflows/ca-cmc-shared-token-test.yml
 
-  ca-hsm-test:
-    name: CA with HSM
+  ca-kryoptic-test:
+    name: CA with Kryoptic
     needs: build
-    uses: ./.github/workflows/ca-hsm-test.yml
+    uses: ./.github/workflows/ca-kryoptic-test.yml
+
+  ca-softhsm-test:
+    name: CA with SoftHSM
+    needs: build
+    uses: ./.github/workflows/ca-softhsm-test.yml
 
   ca-ds-connection-test:
     name: CA connection with DS
