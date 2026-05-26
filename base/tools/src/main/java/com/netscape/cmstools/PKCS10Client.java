@@ -40,7 +40,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.password.PlainPasswordFile;
 
 /**
- * Generates an ECC or RSA key pair in the security database, constructs a
+ * Generates an RSA, ECC, or ML-DSA key pair in the security database, constructs a
  * PKCS#10 certificate request with the public key, and outputs the request
  * to a file.
  * <p>
@@ -58,7 +58,7 @@ public class PKCS10Client {
 
     private static void printUsage() {
         System.out.println(
-                "\nUsage: PKCS10Client -d <location of certdb> -h <token name> -P <token password file> -a <algorithm: 'rsa' or 'ec'> -l <rsa key length> -c <ec curve name> -o <output file which saves the base64 PKCS10> -n <subjectDN>\n");
+                "\nUsage: PKCS10Client -d <location of certdb> -h <token name> -P <token password file> -a <algorithm: 'rsa', 'ec', or 'mldsa'> -l <key strength> -c <ec curve name> -o <output file which saves the base64 PKCS10> -n <subjectDN>\n");
         System.out.println(
                 "    Optionally, for ECC key generation per definition in JSS pkcs11.PK11KeyPairGenerator:\n");
         System.out.println(
@@ -75,6 +75,10 @@ public class PKCS10Client {
                 "    -x <true for SSL cert that does ECDH ECDSA; false otherwise; default false>\n");
         System.out.println(
                 "   available ECC curve names (if provided by the crypto module): nistp256 (secp256r1),nistp384 (secp384r1),nistp521 (secp521r1),nistk163 (sect163k1),sect163r1,nistb163 (sect163r2),sect193r1,sect193r2,nistk233 (sect233k1),nistb233 (sect233r1),sect239k1,nistk283 (sect283k1),nistb283 (sect283r1),nistk409 (sect409k1),nistb409 (sect409r1),nistk571 (sect571k1),nistb571 (sect571r1),secp160k1,secp160r1,secp160r2,secp192k1,nistp192 (secp192r1, prime192v1),secp224k1,nistp224 (secp224r1),secp256k1,prime192v2,prime192v3,prime239v1,prime239v2,prime239v3,c2pnb163v1,c2pnb163v2,c2pnb163v3,c2pnb176v1,c2tnb191v1,c2tnb191v2,c2tnb191v3,c2pnb208w1,c2tnb239v1,c2tnb239v2,c2tnb239v3,c2pnb272w1,c2pnb304w1,c2tnb359w1,c2pnb368w1,c2tnb431r1,secp112r1,secp112r2,secp128r1,secp128r2,sect113r1,sect113r2,sect131r1,sect131r2\n");
+        System.out.println(
+                "    Key strength options:\n");
+        System.out.println(
+                "    -l <RSA key length (default: 2048) or ML-DSA strength (44, 65, or 87; default: 65)>\n");
         System.out.println(
                 "    -v Verbose mode\n");
         System.out.println(
@@ -96,7 +100,7 @@ public class PKCS10Client {
         int ec_extractable = -1; /* -1, 0, or 1 */
         boolean ec_ssl_ecdh = false;
         boolean rsa_keygen_wrap_unwrap_ops = false;
-        int rsa_keylen = 2048;
+        int keyStrength = -1;
 
         boolean use_shared_secret = false;
 
@@ -116,7 +120,7 @@ public class PKCS10Client {
                 dbdir = args[i+1];
             } else if (name.equals("-a")) {
                 alg = args[i+1];
-                if (!alg.equals("rsa") && !alg.equals("ec")) {
+                if (!alg.equals("rsa") && !alg.equals("ec") && !alg.equals("mldsa")) {
                     System.out.println("PKCS10Client: ERROR: invalid algorithm: " + alg);
                     System.exit(1);
                 }
@@ -165,7 +169,7 @@ public class PKCS10Client {
             } else if (name.equals("-c")) {
                 ecc_curve = args[i+1];
             } else if (name.equals("-l")) {
-                rsa_keylen = Integer.parseInt(args[i+1]);
+                keyStrength = Integer.parseInt(args[i+1]);
             } else if (name.equals("-o")) {
                 ofilename = args[i+1];
                 kid_ofilename = ofilename + ".keyId";
@@ -274,6 +278,9 @@ public class PKCS10Client {
             KeyPair pair = null;
 
             if (alg.equals("rsa")) {
+                if (keyStrength == -1) {
+                    keyStrength = 2048;
+                }
 
                 if (verbose) {
                     System.out.println("PKCS10Client: rsa_keygen_wrap_unwrap_ops: " + rsa_keygen_wrap_unwrap_ops);
@@ -281,11 +288,10 @@ public class PKCS10Client {
 
                 pair = nssdb.createRSAKeyPair(
                         token,
-                        rsa_keylen,
+                        keyStrength,
                         rsa_keygen_wrap_unwrap_ops);
 
             }  else if (alg.equals("ec")) {
-
                 pair = nssdb.createECKeyPair(
                         token,
                         ecc_curve,
@@ -294,10 +300,21 @@ public class PKCS10Client {
                         ec_sensitive == -1 ? null : ec_sensitive == 1,
                         ec_extractable == -1 ? null : ec_extractable == 1);
 
-                if (pair == null) {
-                    System.out.println("PKCS10Client: pair null.");
-                    System.exit(1);
+            } else if (alg.equals("mldsa")) {
+                if (keyStrength == -1) {
+                    keyStrength = 65;
                 }
+
+                pair = nssdb.createMLDSAKeyPair(
+                        token,
+                        keyStrength,
+                        ec_temporary,
+                        ec_sensitive == -1 ? null : ec_sensitive == 1,
+                        ec_extractable == -1 ? null : ec_extractable == 1);
+            }
+            if (pair == null) {
+                System.out.println("PKCS10Client: Unable to generate key pair.");
+                System.exit(1);
             }
             if(verbose) {
                 System.out.println("PKCS10Client: key pair generated."); //key pair generated");

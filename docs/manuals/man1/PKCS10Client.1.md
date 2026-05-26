@@ -2,7 +2,7 @@
 
 ## NAME
 
-PKCS10Client - Used to generate 1024-bit RSA key pair in the security database.
+PKCS10Client - Used to generate RSA, EC, or ML-DSA key pair in the security database.
 
 ## SYNOPSIS
 
@@ -14,7 +14,7 @@ are populated according to certificate profiles.
 
 ## DESCRIPTION
 
-The PKCS #10 utility, **PKCS10Client**, generates a RSA or EC key pair in the security database,
+The PKCS #10 utility, **PKCS10Client**, generates an RSA, EC, or ML-DSA key pair in the security database,
 constructs a PKCS #10 certificate request with the public key, and outputs the request to a file.
 
 **PKCS #10** is a certification request syntax standard defined by RSA.
@@ -35,10 +35,12 @@ The Certificate System CA supports KEYGEN, PKCS #10, CRMF, and CMC.
     The password to the token.
 
 **-a** *algorithm*  
-    The algorithm type either **rsa** or **ec**. By default it takes **rsa**.
+    The algorithm type: **rsa**, **ec**, or **mldsa**. By default it takes **rsa**.
 
-**-l** *rsa-key-length*  
-    The RSA key bit length when **-a** **rsa** is specified. By default it is **1024**.
+**-l** *key-strength*  
+    The key strength:
+    - For **rsa**: RSA key bit length (default: 2048)
+    - For **mldsa**: ML-DSA strength parameter: 44, 65, or 87 (default: 65)
 
 **-c** *ec-curve-name*  
     Eleptic Curve cryptography curve name.
