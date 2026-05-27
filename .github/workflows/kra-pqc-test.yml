@@ -109,16 +109,18 @@ jobs:
 
       - name: Configure profiles
         run: |
-          # allow ML-KEM-768 in caInternalAuthDRMstorageCert
-          # NOTE: update this step after PR #5338 is merged
+          # allow ML-KEM-768 in caInternalAuthDRMstorageCert (after RSA allowedKeys block)
           docker exec pki sed -i \
-              -e "s/^\(.*\.keyParameters\)=\(.*\)$/\1=\2,768/" \
+              -e '/^policyset\.drmStorageCertSet\.3\.constraint\.params\.allowedKeys\.RSA\.1024=true/,/^policyset\.drmStorageCertSet\.3\.constraint\.params\.allowedKeys\.RSA\.4096=true/{
+                  /^policyset\.drmStorageCertSet\.3\.constraint\.params\.allowedKeys\.RSA\.4096=true/a policyset.drmStorageCertSet.3.constraint.params.allowedKeys.MLKEM.768=true
+              }' \
               /var/lib/pki/pki-tomcat/ca/profiles/ca/caInternalAuthDRMstorageCert.cfg
 
-          # allow ML-KEM-768 in caInternalAuthTransportCert
-          # NOTE: update this step after PR #5338 is merged
+          # allow ML-KEM-768 in caInternalAuthTransportCert (after RSA allowedKeys block)
           docker exec pki sed -i \
-              -e "s/^\(.*\.keyParameters\)=\(.*\)$/\1=\2,768/" \
+              -e '/^policyset\.transportCertSet\.3\.constraint\.params\.allowedKeys\.RSA\.1024=true/,/^policyset\.transportCertSet\.3\.constraint\.params\.allowedKeys\.RSA\.4096=true/{
+                  /^policyset\.transportCertSet\.3\.constraint\.params\.allowedKeys\.RSA\.4096=true/a policyset.transportCertSet.3.constraint.params.allowedKeys.MLKEM.768=true
+              }' \
               /var/lib/pki/pki-tomcat/ca/profiles/ca/caInternalAuthTransportCert.cfg
 
           # restart CA
