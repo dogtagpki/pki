@@ -801,20 +801,20 @@ class SubsystemCertCLI(pki.cli.CLI):
         self.add_module(SubsystemCertValidateCLI())
 
     @staticmethod
-    def print_subsystem_cert(cert, show_all=False):
-        print('  Serial No: %s' % cert['serial_number'])
-        print('  Cert ID: %s' % cert['id'])
-        print('  Nickname: %s' % cert['nickname'])
+    def print_subsystem_cert(cert_config, cert_info, show_all=False):
+        print('  Serial No: %s' % cert_info['serial_number'])
+        print('  Cert ID: %s' % cert_config['id'])
+        print('  Nickname: %s' % cert_config['nickname'])
 
-        token = cert['token']
+        token = cert_config['token']
         if not token:
             token = pki.nssdb.INTERNAL_TOKEN_FULL_NAME
 
         print('  Token: %s' % token)
 
         if show_all:
-            print('  Certificate: %s' % cert['data'])
-            print('  Request: %s' % cert['request'])
+            print('  Certificate: %s' % cert_info['data'])
+            print('  Request: %s' % cert_config['request'])
 
 
 class SubsystemCertFindCLI(pki.cli.CLI):
@@ -906,11 +906,11 @@ class SubsystemCertFindCLI(pki.cli.CLI):
         for cert_tag in cert_tags:
 
             # get cert config
-            cert = subsystem.get_system_cert_config(cert_tag)
-            logger.info('  nickname: %s', cert['nickname'])
+            cert_config = subsystem.get_system_cert_config(cert_tag)
+            logger.info('  nickname: %s', cert_config['nickname'])
 
             # if nickname not available, skip
-            if not cert['nickname']:
+            if not cert_config['nickname']:
                 continue
 
             if first:
@@ -920,10 +920,8 @@ class SubsystemCertFindCLI(pki.cli.CLI):
 
             # get cert info from NSS database
             cert_info = subsystem.get_system_cert_info(cert_tag)
-            if cert_info:
-                cert.update(cert_info)
 
-            SubsystemCertCLI.print_subsystem_cert(cert, show_all)
+            SubsystemCertCLI.print_subsystem_cert(cert_config, cert_info, show_all)
 
 
 class SubsystemCertShowCLI(pki.cli.CLI):
@@ -1014,9 +1012,13 @@ class SubsystemCertShowCLI(pki.cli.CLI):
             logger.error('No %s subsystem in instance %s.',
                          subsystem_name, instance_name)
             sys.exit(1)
-        cert = subsystem.get_subsystem_cert(cert_tag)
+
         self.print_message('"{}" subsystem "{}" certificate'.format(subsystem_name, cert_tag))
-        SubsystemCertCLI.print_subsystem_cert(cert, show_all)
+
+        cert_config = subsystem.get_system_cert_config(cert_tag)
+        cert_info = subsystem.get_system_cert_info(cert_tag)
+
+        SubsystemCertCLI.print_subsystem_cert(cert_config, cert_info, show_all)
 
 
 class SubsystemCertExportCLI(pki.cli.CLI):
@@ -1148,18 +1150,21 @@ class SubsystemCertExportCLI(pki.cli.CLI):
             logger.error('No %s subsystem in instance %s.',
                          subsystem_name, instance_name)
             sys.exit(1)
-        subsystem_cert = None
+
+        cert_config = None
+        cert_info = None
 
         if cert_tag:
-            subsystem_cert = subsystem.get_subsystem_cert(cert_tag)
+            cert_config = subsystem.get_system_cert_config(cert_tag)
+            cert_info = subsystem.get_system_cert_info(cert_tag)
 
-        if (cert_file or csr_file) and not subsystem_cert:
+        if (cert_file or csr_file) and not cert_config:
             logger.error('Missing cert ID')
             self.print_help()
             sys.exit(1)
 
         if cert_file:
-            cert_data = subsystem_cert.get('data')
+            cert_data = cert_info.get('data')
             if cert_data is None:
                 logger.error("Unable to find certificate data for %s", cert_tag)
                 sys.exit(1)
@@ -1169,7 +1174,7 @@ class SubsystemCertExportCLI(pki.cli.CLI):
                 f.write(cert_data)
 
         if csr_file:
-            cert_request = subsystem_cert.get('request')
+            cert_request = cert_config.get('request')
             if cert_request is None:
                 logger.error('Unable to find certificate request for %s', cert_tag)
                 sys.exit(1)
@@ -1185,8 +1190,8 @@ class SubsystemCertExportCLI(pki.cli.CLI):
 
             nicknames = []
 
-            if subsystem_cert:
-                nicknames.append(subsystem_cert['nickname'])
+            if cert_config:
+                nicknames.append(cert_config['nickname'])
 
             else:
                 for tag in subsystem.get_subsystem_certs():
@@ -1294,12 +1299,13 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
             logger.error('No %s subsystem in instance %s.',
                          subsystem_name, instance_name)
             sys.exit(1)
-        system_cert = subsystem.get_subsystem_cert(cert_tag)
+
+        cert_config = subsystem.get_system_cert_config(cert_tag)
 
         logger.info('Retrieving certificate %s from %s',
-                    system_cert['nickname'], system_cert['token'])
+                    cert_config['nickname'], cert_config['token'])
 
-        token = system_cert['token']
+        token = cert_config['token']
         nssdb = instance.open_nssdb(token)
 
         if cert_file:
@@ -1309,25 +1315,23 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
                 sys.exit(1)
 
             data = nssdb.get_cert(
-                nickname=system_cert['nickname'],
+                nickname=cert_config['nickname'],
                 output_format='base64')
 
             if data:
                 logger.info('Removing old %s certificate from database.',
-                            system_cert['nickname'])
-                nssdb.remove_cert(nickname=system_cert['nickname'])
+                            cert_config['nickname'])
+                nssdb.remove_cert(nickname=cert_config['nickname'])
 
-            logger.info('Adding new %s certificate into database.', system_cert['nickname'])
+            logger.info('Adding new %s certificate into database.', cert_config['nickname'])
             nssdb.add_cert(
-                nickname=system_cert['nickname'],
+                nickname=cert_config['nickname'],
                 cert_file=cert_file)
 
         # Retrieve the cert info from NSSDB
         # Note: This reloads `data` object if --cert option is provided
-        data = nssdb.get_cert(
-            nickname=system_cert['nickname'],
-            output_format='base64')
-        system_cert['data'] = data
+        cert_info = subsystem.get_system_cert_info(cert_tag)
+        data = cert_info['data']
 
         # format cert data for LDAP database
         lines = [data[i:i + 64] for i in range(0, len(data), 64)]
@@ -1354,7 +1358,7 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
             if lines[-1] == '-----END CERTIFICATE REQUEST-----':
                 lines = lines[:-1]
             request = ''.join(lines)
-            system_cert['request'] = request
+            cert_config['request'] = request
 
         else:
             logger.warning('Certificate request not found')
@@ -1364,7 +1368,7 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
         else:
             cert_id = cert_tag
 
-        instance.store_csr(cert_id, system_cert['request'])
+        instance.store_csr(cert_id, cert_config['request'])
 
         self.print_message('Updated "%s" subsystem certificate' % cert_tag)
 
@@ -1450,24 +1454,26 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
             sys.exit(1)
 
         if cert_tag is not None:
-            certs = [subsystem.get_subsystem_cert(cert_tag)]
+            cert_tags = [cert_tag]
         else:
-            certs = []
+            cert_tags = []
             for tag in subsystem.get_subsystem_certs():
-                cert = subsystem.get_subsystem_cert(tag)
-                certs.append(cert)
+                cert_tags.append(tag)
 
         first = True
         certs_valid = True
 
-        for cert in certs:
+        for tag in cert_tags:
 
             if first:
                 first = False
             else:
                 print()
 
-            certs_valid &= self.validate_certificate(subsystem, cert)
+            cert_config = subsystem.get_system_cert_config(tag)
+            cert_info = subsystem.get_system_cert_info(tag)
+
+            certs_valid &= self.validate_certificate(subsystem, cert_config, cert_info)
 
         if certs_valid:
             self.print_message("Validation succeeded")
@@ -1476,38 +1482,36 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
             self.print_message("Validation failed")
             sys.exit(1)
 
-    def validate_certificate(self, subsystem, cert):
+    def validate_certificate(self, subsystem, cert_config, cert_info):
 
-        logger.info(cert)
+        print('  Cert ID: %s' % cert_config['id'])
 
-        print('  Cert ID: %s' % cert['id'])
-
-        if not cert['data']:
+        if not cert_info['data']:
             print('  Status: ERROR: missing certificate data')
             return False
 
-        nickname = cert['nickname']
+        nickname = cert_config['nickname']
         if not nickname:
             print('  Status: ERROR: missing nickname')
             return False
 
         print('  Nickname: %s' % nickname)
 
-        usage = cert['certusage']
+        usage = cert_config['certusage']
         if not usage:
             print('  Status: ERROR: missing usage')
             return False
 
         print('  Usage: %s' % usage)
 
-        token = cert['token']
+        token = cert_config['token']
         if not token:
             token = pki.nssdb.INTERNAL_TOKEN_FULL_NAME
 
         print('  Token: %s' % token)
 
         try:
-            subsystem.validate_system_cert(cert['id'])
+            subsystem.validate_system_cert(cert_config['id'])
             print('  Status: VALID')
 
             return True

@@ -1268,10 +1268,10 @@ class CAClonePrepareCLI(pki.cli.CLI):
                 append=True)
 
             # audit signing cert is optional
-            cert = subsystem.get_subsystem_cert('audit_signing')
+            cert_config = subsystem.get_system_cert_config('audit_signing')
 
             # export audit signing cert if available (i.e. has nickname)
-            if cert['nickname']:
+            if cert_config['nickname']:
                 subsystem.export_system_cert(
                     'audit_signing',
                     tmp_pkcs12_file,

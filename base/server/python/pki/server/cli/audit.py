@@ -920,7 +920,7 @@ class AuditFileVerifyCLI(pki.cli.CLI):
 
         log_dir = subsystem.get_audit_log_dir()
         log_files = subsystem.get_audit_log_files()
-        signing_cert = subsystem.get_subsystem_cert('audit_signing')
+        cert_config = subsystem.get_system_cert_config('audit_signing')
 
         tmpdir = tempfile.mkdtemp()
 
@@ -938,7 +938,7 @@ class AuditFileVerifyCLI(pki.cli.CLI):
 
             cmd.extend([
                 '-d', instance.nssdb_dir,
-                '-n', signing_cert['nickname'],
+                '-n', cert_config['nickname'],
                 '-a', file_list])
 
             logger.debug('Command: %s', ' '.join(cmd))
