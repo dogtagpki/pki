@@ -1959,8 +1959,8 @@ class PKIDeployer:
             generic_exts = [generic_ext]
 
         tag = 'signing'
-        cert = subsystem.get_subsystem_cert(tag)
-        token = pki.nssdb.normalize_token(cert['token'])
+        cert_config = subsystem.get_system_cert_config(tag)
+        token = pki.nssdb.normalize_token(cert_config['token'])
 
         self.generate_csr(
             nssdb=nssdb,
@@ -1993,8 +1993,8 @@ class PKIDeployer:
         }
 
         tag = 'storage'
-        cert = subsystem.get_subsystem_cert(tag)
-        token = pki.nssdb.normalize_token(cert['token'])
+        cert_config = subsystem.get_system_cert_config(tag)
+        token = pki.nssdb.normalize_token(cert_config['token'])
 
         self.generate_csr(
             nssdb=nssdb,
@@ -2025,8 +2025,8 @@ class PKIDeployer:
         }
 
         tag = 'transport'
-        cert = subsystem.get_subsystem_cert(tag)
-        token = pki.nssdb.normalize_token(cert['token'])
+        cert_config = subsystem.get_system_cert_config(tag)
+        token = pki.nssdb.normalize_token(cert_config['token'])
 
         self.generate_csr(
             nssdb=nssdb,
@@ -2045,8 +2045,8 @@ class PKIDeployer:
             return
 
         tag = 'signing'
-        cert = subsystem.get_subsystem_cert(tag)
-        token = pki.nssdb.normalize_token(cert['token'])
+        cert_config = subsystem.get_system_cert_config(tag)
+        token = pki.nssdb.normalize_token(cert_config['token'])
 
         self.generate_csr(
             nssdb=nssdb,
@@ -2075,8 +2075,8 @@ class PKIDeployer:
         }
 
         tag = 'sslserver'
-        cert = subsystem.get_subsystem_cert(tag)
-        token = pki.nssdb.normalize_token(cert['token'])
+        cert_config = subsystem.get_system_cert_config(tag)
+        token = pki.nssdb.normalize_token(cert_config['token'])
 
         self.generate_csr(
             nssdb=nssdb,
@@ -2108,8 +2108,8 @@ class PKIDeployer:
         }
 
         tag = 'subsystem'
-        cert = subsystem.get_subsystem_cert(tag)
-        token = pki.nssdb.normalize_token(cert['token'])
+        cert_config = subsystem.get_system_cert_config(tag)
+        token = pki.nssdb.normalize_token(cert_config['token'])
 
         self.generate_csr(
             nssdb=nssdb,
@@ -2134,8 +2134,8 @@ class PKIDeployer:
         }
 
         tag = 'audit_signing'
-        cert = subsystem.get_subsystem_cert(tag)
-        token = pki.nssdb.normalize_token(cert['token'])
+        cert_config = subsystem.get_system_cert_config(tag)
+        token = pki.nssdb.normalize_token(cert_config['token'])
 
         self.generate_csr(
             nssdb=nssdb,
@@ -2276,9 +2276,9 @@ class PKIDeployer:
         if not os.path.exists(cert_file):
             raise Exception('Invalid path in %s: %s' % (param, cert_file))
 
-        cert = subsystem.get_subsystem_cert(tag)
-        nickname = cert['nickname']
-        token = pki.nssdb.normalize_token(cert['token'])
+        cert_config = subsystem.get_system_cert_config(tag)
+        nickname = cert_config['nickname']
+        token = pki.nssdb.normalize_token(cert_config['token'])
 
         nssdb.import_cert_chain(
             nickname=nickname,
@@ -2977,7 +2977,7 @@ class PKIDeployer:
 
         return system_cert
 
-    def create_cert_setup_request(self, subsystem, tag, cert):
+    def create_cert_setup_request(self, subsystem, tag):
 
         cert_param_id = tag
         if tag == 'signing':  # for CA and OCSP
@@ -3057,7 +3057,6 @@ class PKIDeployer:
         else:
             request.systemCert.requestType = 'pkcs10'
 
-        request.systemCert.cert = cert.get('data')
         request.systemCert.profile = self.get_cert_profile(subsystem, tag)
         request.systemCert.req_ext_oid = subsystem.config.get('preop.cert.%s.ext.oid' % tag)
         request.systemCert.req_ext_data = subsystem.config.get('preop.cert.%s.ext.data' % tag)
@@ -3389,10 +3388,10 @@ class PKIDeployer:
 
     def update_sslserver_cert_nickname(self, subsystem):
 
-        sslserver = subsystem.get_subsystem_cert('sslserver')
-        if sslserver:
-            nickname = sslserver['nickname']
-            token = sslserver['token']
+        cert_config = subsystem.get_system_cert_config('sslserver')
+        if cert_config:
+            nickname = cert_config['nickname']
+            token = cert_config['token']
         else:
             nickname = self.mdict['pki_sslserver_nickname']
             token = self.mdict['pki_sslserver_token']
@@ -3434,12 +3433,12 @@ class PKIDeployer:
 
         return base64.b64encode(cert_data).decode('ascii')
 
-    def import_cert(self, subsystem, tag, request, cert_data):
+    def import_cert(self, subsystem, tag, request):
 
         logger.info('Importing %s cert into CA database', tag)
-        logger.debug('- cert: %s', cert_data)
+        logger.debug('- cert: %s', request.systemCert.cert)
 
-        pem_cert = pki.nssdb.convert_cert(cert_data, 'base64', 'pem')
+        pem_cert = pki.nssdb.convert_cert(request.systemCert.cert, 'base64', 'pem')
 
         subsystem.import_cert(
             cert_data=pem_cert.encode('utf-8'),
@@ -3469,11 +3468,8 @@ class PKIDeployer:
                 logger.info('%s cert is already set up', tag)
                 return
 
-        # get cert config and info from CS.cfg and NSS database
-        system_cert = subsystem.get_subsystem_cert(tag)
-
         # get cert params from pkispawn config
-        request = self.create_cert_setup_request(subsystem, tag, system_cert)
+        request = self.create_cert_setup_request(subsystem, tag)
 
         # if nickname is not provided, don't create the cert
         if not request.systemCert.nickname:
@@ -3481,13 +3477,12 @@ class PKIDeployer:
             return
 
         # Check whether the cert already exists in NSS database
-
-        cert_info = nssdb.get_cert_info(
-            nickname=request.systemCert.nickname,
-            token=request.systemCert.token)
+        cert_info = subsystem.get_system_cert_info(tag)
 
         if cert_info:
             logger.info('%s cert already exists in NSS database', tag)
+            request.systemCert.cert = cert_info.get('data')
+
         else:
             logger.info('%s cert does not exist in NSS database', tag)
 
@@ -3524,7 +3519,7 @@ class PKIDeployer:
             if config.str2bool(self.mdict['pki_import_system_certs']) and \
                     config.str2bool(self.mdict['pki_ds_setup']):
                 self.import_cert_request(subsystem, tag, request)
-                self.import_cert(subsystem, tag, request, system_cert['data'])
+                self.import_cert(subsystem, tag, request)
 
             return
 
@@ -3533,8 +3528,7 @@ class PKIDeployer:
             subsystem,
             tag,
             request,
-            cert_info,
-            system_cert)
+            cert_info)
 
         if request.systemCert.type == 'remote':
 
@@ -3543,8 +3537,7 @@ class PKIDeployer:
                 subsystem,
                 tag,
                 request,
-                cert_info,
-                system_cert)
+                cert_info)
 
             return
 
@@ -3559,12 +3552,11 @@ class PKIDeployer:
             subsystem,
             tag,
             request,
-            cert_info,
-            system_cert)
+            cert_info)
 
         if config.str2bool(self.mdict['pki_ds_setup']):
             # import cert into CA database
-            self.import_cert(subsystem, tag, request, system_cert['data'])
+            self.import_cert(subsystem, tag, request)
 
     def setup_system_csr(
             self,
@@ -3572,8 +3564,7 @@ class PKIDeployer:
             subsystem,
             tag,
             request,
-            cert_info,
-            system_cert):
+            cert_info):
 
         csr_file = subsystem.csr_file(tag)
 
@@ -3597,14 +3588,13 @@ class PKIDeployer:
         request.systemCert.request = self.create_cert_request(nssdb, tag, request)
 
         logger.debug('- request: %s', request.systemCert.request)
-        system_cert['request'] = request.systemCert.request
 
         if tag != 'sslserver' and tag != 'subsystem':
             cert_id = subsystem.name + '_' + tag
         else:
             cert_id = tag
 
-        self.instance.store_csr(cert_id, system_cert['request'])
+        self.instance.store_csr(cert_id, request.systemCert.request)
 
     def setup_remote_system_cert(
             self,
@@ -3612,8 +3602,7 @@ class PKIDeployer:
             subsystem,
             tag,
             request,
-            cert_info,
-            system_cert):
+            cert_info):
 
         if cert_info:
             logger.info('Reusing %s cert in NSS database', tag)
@@ -3663,7 +3652,7 @@ class PKIDeployer:
             dns_names=request.systemCert.dnsNames,
             requestor=requestor)
 
-        system_cert['data'] = pki.nssdb.convert_cert(cert_pem, 'pem', 'base64')
+        request.systemCert.cert = pki.nssdb.convert_cert(cert_pem, 'pem', 'base64')
 
         cert_obj = x509.load_pem_x509_certificate(
             bytes(cert_pem, 'utf-8'),
@@ -3681,7 +3670,7 @@ class PKIDeployer:
         # https://github.com/latchset/kryoptic/issues/450
         nssdb.add_cert(
             nickname=request.systemCert.nickname,
-            cert_data=system_cert['data'],
+            cert_data=request.systemCert.cert,
             cert_format='base64',
             token=request.systemCert.token,
             trust_attributes=request.systemCert.trustAttributes)
@@ -3692,8 +3681,7 @@ class PKIDeployer:
             subsystem,
             tag,
             request,
-            cert_info,
-            system_cert):
+            cert_info):
 
         if cert_info:
             logger.info('Reusing %s cert in NSS database', tag)
@@ -3707,9 +3695,10 @@ class PKIDeployer:
         logger.info('Creating %s cert', tag)
 
         request.systemCert.certID = self.create_cert_id(subsystem, tag, request)
-        system_cert['data'] = self.create_cert(subsystem, request)
+        request.systemCert.cert = self.create_cert(subsystem, request)
 
-        cert_pem = pki.nssdb.convert_cert(system_cert['data'], 'base64', 'pem').encode()
+        cert_pem = pki.nssdb.convert_cert(request.systemCert.cert, 'base64', 'pem').encode()
+
         cert_obj = x509.load_pem_x509_certificate(cert_pem, backend=default_backend())
         logger.info('- serial: %s', hex(cert_obj.serial_number))
         logger.info('- subject: %s', cert_obj.subject.rfc4514_string())
@@ -3723,7 +3712,7 @@ class PKIDeployer:
         # https://github.com/latchset/kryoptic/issues/450
         nssdb.add_cert(
             nickname=request.systemCert.nickname,
-            cert_data=system_cert['data'],
+            cert_data=request.systemCert.cert,
             cert_format='base64',
             token=request.systemCert.token,
             trust_attributes=request.systemCert.trustAttributes)
@@ -4027,14 +4016,14 @@ class PKIDeployer:
         request.systemCert.certID = self.create_cert_id(subsystem, 'admin', request)
 
         logger.info('Creating admin cert')
-        cert_data = self.create_cert(subsystem, request)
+        request.systemCert.cert = self.create_cert(subsystem, request)
 
-        cert_pem = pki.nssdb.convert_cert(cert_data, 'base64', 'pem')
+        cert_pem = pki.nssdb.convert_cert(request.systemCert.cert, 'base64', 'pem')
         cert_obj = x509.load_pem_x509_certificate(cert_pem.encode(), backend=default_backend())
         logger.info('- serial: %s', hex(cert_obj.serial_number))
 
         if config.str2bool(self.mdict['pki_ds_setup']):
-            self.import_cert(subsystem, 'admin', request, cert_data)
+            self.import_cert(subsystem, 'admin', request)
 
         return cert_pem
 
@@ -4409,21 +4398,14 @@ class PKIDeployer:
             },
             ignore_duplicate=True)
 
-        subsystem_cert = subsystem.get_subsystem_cert('subsystem')
-        subject = subsystem_cert['subject']
-
-        nssdb = self.instance.open_nssdb()
-        try:
-            cert_data = nssdb.get_cert(
-                nickname=subsystem_cert['nickname'],
-                token=subsystem_cert['token'])
-        finally:
-            nssdb.close()
+        cert_info = subsystem.get_system_cert_info('subsystem')
+        subject = cert_info['subject']
+        cert_data = pki.nssdb.convert_cert(cert_info['data'], 'base64', 'pem')
 
         logger.info('Adding subsystem cert into %s', dbuser_uid)
         subsystem.add_user_cert(
             dbuser_uid,
-            cert_data=cert_data,
+            cert_data=cert_data.encode('utf-8'),
             cert_format='PEM',
             ignore_duplicate=True)
 
@@ -4580,10 +4562,14 @@ class PKIDeployer:
 
         kra_url = 'https://%s:%s/kra/agent/kra/connector' % (hostname, https_port)
 
-        subsystem_cert = subsystem.get_subsystem_cert('subsystem').get('data')
-        transport_cert_info = subsystem.get_subsystem_cert('transport')
-        transport_cert = transport_cert_info.get('data')
-        transport_nickname = transport_cert_info.get('nickname')
+        subsystem_cert_info = subsystem.get_system_cert_info('subsystem')
+        subsystem_cert = subsystem_cert_info['data']
+
+        transport_cert_info = subsystem.get_system_cert_info('transport')
+        transport_cert = transport_cert_info['data']
+
+        transport_cert_config = subsystem.get_system_cert_config('transport')
+        transport_nickname = transport_cert_config['nickname']
 
         tmpdir = tempfile.mkdtemp()
         self.instance.chown(tmpdir)
@@ -4733,7 +4719,8 @@ class PKIDeployer:
 
         ocsp_url = 'https://%s:%s' % (hostname, https_port)
 
-        subsystem_cert = subsystem.get_subsystem_cert('subsystem').get('data')
+        subsystem_cert_info = subsystem.get_system_cert_info('subsystem')
+        subsystem_cert = subsystem_cert_info['data']
 
         tmpdir = tempfile.mkdtemp()
         self.instance.chown(tmpdir)
@@ -4865,10 +4852,10 @@ class PKIDeployer:
     def get_tps_connector(self, subsystem):
 
         tks_uri = self.mdict['pki_tks_uri']
-        subsystem_cert = subsystem.get_subsystem_cert('subsystem')
+        cert_config = subsystem.get_system_cert_config('subsystem')
 
-        nickname = subsystem_cert['nickname']
-        token = subsystem_cert['token']
+        nickname = cert_config['nickname']
+        token = cert_config['token']
 
         if not pki.nssdb.internal_token(token):
             nickname = token + ':' + nickname
@@ -4909,10 +4896,10 @@ class PKIDeployer:
     def create_tps_connector(self, subsystem):
 
         tks_uri = self.mdict['pki_tks_uri']
-        subsystem_cert = subsystem.get_subsystem_cert('subsystem')
+        cert_config = subsystem.get_system_cert_config('subsystem')
 
-        nickname = subsystem_cert['nickname']
-        token = subsystem_cert['token']
+        nickname = cert_config['nickname']
+        token = cert_config['token']
 
         if not pki.nssdb.internal_token(token):
             nickname = token + ':' + nickname
@@ -5010,10 +4997,10 @@ class PKIDeployer:
     def get_shared_secret(self, subsystem, tps_connector_id):
 
         tks_uri = self.mdict['pki_tks_uri']
-        subsystem_cert = subsystem.get_subsystem_cert('subsystem')
+        cert_config = subsystem.get_system_cert_config('subsystem')
 
-        nickname = subsystem_cert['nickname']
-        token = subsystem_cert['token']
+        nickname = cert_config['nickname']
+        token = cert_config['token']
 
         if not pki.nssdb.internal_token(token):
             nickname = token + ':' + nickname
@@ -5044,10 +5031,10 @@ class PKIDeployer:
     def create_shared_secret(self, subsystem, tps_connector_id):
 
         tks_uri = self.mdict['pki_tks_uri']
-        subsystem_cert = subsystem.get_subsystem_cert('subsystem')
+        cert_config = subsystem.get_system_cert_config('subsystem')
 
-        nickname = subsystem_cert['nickname']
-        token = subsystem_cert['token']
+        nickname = cert_config['nickname']
+        token = cert_config['token']
 
         if not pki.nssdb.internal_token(token):
             nickname = token + ':' + nickname
@@ -5079,10 +5066,10 @@ class PKIDeployer:
     def replace_shared_secret(self, subsystem, tps_connector_id):
 
         tks_uri = self.mdict['pki_tks_uri']
-        subsystem_cert = subsystem.get_subsystem_cert('subsystem')
+        cert_config = subsystem.get_system_cert_config('subsystem')
 
-        nickname = subsystem_cert['nickname']
-        token = subsystem_cert['token']
+        nickname = cert_config['nickname']
+        token = cert_config['token']
 
         if not pki.nssdb.internal_token(token):
             nickname = token + ':' + nickname
@@ -5113,10 +5100,10 @@ class PKIDeployer:
 
     def import_shared_secret(self, subsystem, secret_nickname, shared_secret):
 
-        subsystem_cert = subsystem.get_subsystem_cert('subsystem')
+        cert_config = subsystem.get_system_cert_config('subsystem')
 
-        nickname = subsystem_cert['nickname']
-        token = subsystem_cert['token']
+        nickname = cert_config['nickname']
+        token = cert_config['token']
 
         if not pki.nssdb.internal_token(token):
             nickname = token + ':' + nickname
@@ -5382,7 +5369,9 @@ class PKIDeployer:
 
         tps_uid = 'TPS-%s-%s' % (self.mdict['pki_hostname'], self.mdict['pki_https_port'])
         full_name = self.mdict['pki_subsystem_name']
-        subsystem_cert = subsystem.get_subsystem_cert('subsystem').get('data')
+
+        subsystem_cert_info = subsystem.get_system_cert_info('subsystem')
+        subsystem_cert = subsystem_cert_info['data']
 
         if self.mdict['pki_ca_uri']:
 
@@ -5445,7 +5434,10 @@ class PKIDeployer:
 
         est_uid = 'EST-%s-%s' % (self.mdict['pki_hostname'], self.mdict['pki_https_port'])
         full_name = self.mdict['pki_subsystem_name']
-        subsystem_cert = subsystem.get_subsystem_cert('subsystem').get('data')
+
+        subsystem_cert_info = subsystem.get_system_cert_info('subsystem')
+        subsystem_cert = subsystem_cert_info['data']
+
         if self.mdict['pki_ca_uri']:
             logger.info('Registering EST user %s in CA', est_uid)
             self.add_subsystem_user(
