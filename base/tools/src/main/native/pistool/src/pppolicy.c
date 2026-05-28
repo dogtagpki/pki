@@ -73,9 +73,9 @@ static const SEC_ASN1Template secu_PolicyQualifierTemplate[] = {
     { SEC_ASN1_SEQUENCE,
 	  0, NULL, sizeof(CERTPolicyQualifier) },
     { SEC_ASN1_OBJECT_ID,
-	  offsetof(CERTPolicyQualifier, qualifierID) },
+	  offsetof(CERTPolicyQualifier, qualifierID), NULL, 0 },
     { SEC_ASN1_ANY | SEC_ASN1_OPTIONAL,
-	  offsetof(CERTPolicyQualifier, qualifierValue) },
+	  offsetof(CERTPolicyQualifier, qualifierValue), NULL, 0 },
     { 0 }
 };
 
@@ -83,10 +83,10 @@ static const SEC_ASN1Template secu_PolicyInfoTemplate[] = {
     { SEC_ASN1_SEQUENCE,
 	  0, NULL, sizeof(CERTPolicyInfo) },
     { SEC_ASN1_OBJECT_ID,
-	  offsetof(CERTPolicyInfo, policyID) },
+	  offsetof(CERTPolicyInfo, policyID), NULL, 0 },
     { SEC_ASN1_SEQUENCE_OF | SEC_ASN1_OPTIONAL,
 	  offsetof(CERTPolicyInfo, policyQualifiers),
-	  secu_PolicyQualifierTemplate },
+	  secu_PolicyQualifierTemplate, 0 },
     { 0 }
 };
 
@@ -178,9 +178,13 @@ itemToString(SECItem *item)
 
 static SECStatus
 secu_PrintUserNoticeQualifier(FILE *out, SECItem * qualifierValue,
-                              char *msg, int level)
+                              const char *msg, int level)
 {
     CERTUserNotice *userNotice = NULL;
+
+    /* Mark unused to avoid compiler warning */
+    (void) msg;
+
     if (qualifierValue)
 	userNotice = CERT_DecodeUserNotice(qualifierValue);
     if (userNotice) {
@@ -207,7 +211,7 @@ secu_PrintUserNoticeQualifier(FILE *out, SECItem * qualifierValue,
 
 static SECStatus
 secu_PrintPolicyQualifier(FILE *out,CERTPolicyQualifier *policyQualifier,
-			  char *msg,int level)
+			  const char *msg,int level)
 {
    SECStatus rv;
    SECItem * qualifierValue = &policyQualifier->qualifierValue;
@@ -223,7 +227,7 @@ secu_PrintPolicyQualifier(FILE *out,CERTPolicyQualifier *policyQualifier,
        rv = secu_PrintUserNoticeQualifier(out, qualifierValue, msg, level);
        if (SECSuccess == rv)
 	   break;
-       /* fall through on error */
+       /* FALLTHROUGH - fall through on error */
    case SEC_OID_PKIX_CPS_POINTER_QUALIFIER:
    default:
 	SECU_PrintAny(out, qualifierValue, "Policy Qualifier Data", level);
@@ -233,9 +237,12 @@ secu_PrintPolicyQualifier(FILE *out,CERTPolicyQualifier *policyQualifier,
 }
 
 static SECStatus
-secu_PrintPolicyInfo(FILE *out,CERTPolicyInfo *policyInfo,char *msg,int level)
+secu_PrintPolicyInfo(FILE *out,CERTPolicyInfo *policyInfo,const char *msg,int level)
 {
    CERTPolicyQualifier **policyQualifiers;
+
+   /* Mark unused to avoid compiler warning */
+   (void) msg;
 
    policyQualifiers = policyInfo->policyQualifiers;
    SECU_PrintObjectID(out, &policyInfo->policyID , "Policy Name", level);

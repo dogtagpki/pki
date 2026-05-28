@@ -951,7 +951,7 @@ secu_PrintRawString(FILE *out, SECItem *si, char *m, int level)
 }
 
 void
-SECU_PrintString(FILE *out, SECItem *si, char *m, int level)
+SECU_PrintString(FILE *out, SECItem *si, const char *m, int level)
 {
     SECItem my = *si;
 
@@ -1033,7 +1033,7 @@ SECU_PrintUTCTime(FILE *out, SECItem *t, char *m, int level)
  * afterward; otherwise just print the formatted time string only.
  */
 void
-SECU_PrintGeneralizedTime(FILE *out, SECItem *t, char *m, int level)
+SECU_PrintGeneralizedTime(FILE *out, SECItem *t, const char *m, int level)
 {
     int64 time;
     SECStatus rv;
@@ -1355,7 +1355,7 @@ secu_PrintUniversal(FILE *out, SECItem *i, char *m, int level)
 }
 
 void
-SECU_PrintAny(FILE *out, SECItem *i, char *m, int level)
+SECU_PrintAny(FILE *out, SECItem *i, const char *m, int level)
 {
     if ( i && i->len && i->data ) {
 	switch (i->data[0] & SEC_ASN1_CLASS_MASK) {
@@ -1383,7 +1383,7 @@ secu_PrintValidity(FILE *out, CERTValidity *v, char *m, int level)
 
 /* This function does NOT expect a DER type and length. */
 SECOidTag
-SECU_PrintObjectID(FILE *out, SECItem *oid, char *m, int level)
+SECU_PrintObjectID(FILE *out, SECItem *oid, const char *m, int level)
 {
     SECOidData *oiddata;
     char *      oidString = NULL;

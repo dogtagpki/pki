@@ -197,7 +197,7 @@ extern void SECU_Indent(FILE *out, int level);
 extern void SECU_PrintInteger(FILE *out, SECItem *i, char *m, int level);
 
 /* Print ObjectIdentifier symbolically */
-extern SECOidTag SECU_PrintObjectID(FILE *out, SECItem *oid, char *m, int level);
+extern SECOidTag SECU_PrintObjectID(FILE *out, SECItem *oid, const char *m, int level);
 
 /* Print AlgorithmIdentifier symbolically */
 extern void SECU_PrintAlgorithmID(FILE *out, SECAlgorithmID *a, char *m,
@@ -221,7 +221,7 @@ extern void SECU_PrintUTCTime(FILE *out, SECItem *t, char *m, int level);
  * is not NULL, * do indent formatting based on "level" and add a newline
  * afterward; otherwise just print the formatted time string only.
  */
-extern void SECU_PrintGeneralizedTime(FILE *out, SECItem *t, char *m,
+extern void SECU_PrintGeneralizedTime(FILE *out, SECItem *t, const char *m,
 				      int level);
 
 /*
@@ -280,8 +280,8 @@ extern int SECU_PrintCrl(FILE *out, SECItem *der, char *m, int level);
 extern void
 SECU_PrintCRLInfo(FILE *out, CERTCrl *crl, char *m, int level);
 
-extern void SECU_PrintString(FILE *out, SECItem *si, char *m, int level);
-extern void SECU_PrintAny(FILE *out, SECItem *i, char *m, int level);
+extern void SECU_PrintString(FILE *out, SECItem *si, const char *m, int level);
+extern void SECU_PrintAny(FILE *out, SECItem *i, const char *m, int level);
 
 extern void SECU_PrintPolicy(FILE *out, SECItem *value, char *msg, int level);
 extern void SECU_PrintPrivKeyUsagePeriodExtension(FILE *out, SECItem *value,
