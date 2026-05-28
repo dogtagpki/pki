@@ -150,11 +150,15 @@ SECStatus
 TKS_ListKeys( char *progName,
               PK11SlotInfo *slot,
               char *keyname,
-              int index, 
+              int index,
               PRBool dopriv,
               secuPWData *pwdata )
 {
     SECStatus rv = SECSuccess;
+
+    /* Mark unused to avoid compiler warning */
+    (void) index;
+    (void) dopriv;
 
     if( slot == NULL ) {
         PK11SlotList        *list;
