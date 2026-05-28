@@ -24,8 +24,8 @@ ExecStartPre=/usr/sbin/pki-server migrate %i
 ExecStartPre=/usr/bin/pkidaemon start %i
 
 # Use abstraction wrappers - work for both old and new Tomcat
-ExecStart=/usr/bin/pki-tomcat-start
-ExecStop=/usr/bin/pki-tomcat-stop
+ExecStart=/usr/sbin/pki-tomcat-start
+ExecStop=/usr/sbin/pki-tomcat-stop
 
 ExecStopPost=+/usr/bin/pki-server-nuxwdog --clear
 
