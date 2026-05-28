@@ -40,6 +40,9 @@ TKS_ReadInputFileIntoSECItem( char    *input,
                                      0 };
     SECStatus   status           = SECFailure;
 
+    /* Mark unused to avoid compiler warning */
+    (void) wrappedKeyName;
+
     /* Create a clean new hex display buffer for this wrapped key */
     hexWrappedKey.type = ( SECItemType ) siBuffer;
     hexWrappedKey.len  = ( ( wrappedKey->len * 2 ) + 1 );
@@ -331,6 +334,9 @@ TKS_WriteSECItemIntoOutputFile( SECItem *wrappedKey,
                                      NULL,
                                      0 };
     SECStatus   status           = SECFailure;
+
+    /* Mark unused to avoid compiler warning */
+    (void) wrappedKeyName;
 
     /* Create a clean new hex display buffer for this wrapped key */
     hexWrappedKey.type = ( SECItemType ) siBuffer;
