@@ -558,7 +558,8 @@ public class EnrollmentService implements IService {
             }
 
             try {
-                rec.setWrappingParams(params, allowEncDecrypt_archival);
+                String storageKeyAlg = mStorageUnit.getPublicKey().getAlgorithm();
+                rec.setWrappingParams(params, allowEncDecrypt_archival, storageKeyAlg);
             } catch (Exception e) {
                 logger.error("EnrollmentService: Unable to store wrapping parameters: " + e.getMessage(), e);
                 // TODO(alee) Set correct audit message here

@@ -33,6 +33,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.dbs.keydb.KeyState;
 import com.netscape.cms.servlet.key.KeyRecordParser;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * A class represents a Key record. It maintains the key
@@ -457,26 +458,67 @@ public class KeyRecord extends DBRecord {
         return realm;
     }
 
+    /**
+     * Sets wrapping parameters for key record metadata.
+     * Backwards compatibility method - calls overloaded version with storageKeyAlg=null.
+     */
     public void setWrappingParams(WrappingParams params, boolean doEncrypt) throws Exception {
+        setWrappingParams(params, doEncrypt, null);
+    }
+
+    /**
+     * Sets wrapping parameters for key record metadata.
+     *
+     * There are two archival paths:
+     * 1. Normal wrapping path (doEncrypt=false):
+     *    - Uses StorageKeyUnit.wrap() → wrapUsingSymmetricKey()
+     *    - Records: sessionKey*, payloadWrapAlgorithm, payloadWrappingIV
+     *    - For ML-KEM: skips sessionKeyWrapAlgorithm, sessionKeyKeyGenAlgorithm
+     *
+     * 2. Encryption path (doEncrypt=true, allowEncDecrypt_archival=true):
+     *    - Uses StorageKeyUnit.encryptInternalPrivate() → encryptUsingSymmetricKey()
+     *    - Records: sessionKey*, payloadEncryptionOID, payloadEncryptionIV
+     *    - Note: ML-KEM does NOT support this path (blocked in EnrollmentService)
+     *
+     * @param params Wrapping parameters from storage unit
+     * @param doEncrypt Whether encryption was used (vs wrapping)
+     * @param storageKeyAlg Storage cert public key algorithm (e.g., "RSA", "EC", "ML-KEM-1024")
+     */
+    public void setWrappingParams(WrappingParams params, boolean doEncrypt, String storageKeyAlg) throws Exception {
         if (mMetaInfo == null) {
             mMetaInfo = new MetaInfo();
         }
+
+        // Detect if ML-KEM is used
+        boolean isMLKEM = CryptoUtil.isAlgorithmMLKEM(storageKeyAlg);
+
+        // Record the storage key algorithm for clarity
+        if (storageKeyAlg != null) {
+            mMetaInfo.set(KeyRecordParser.OUT_STORAGE_KEY_ALGORITHM, storageKeyAlg);
+        }
+
         // set session key parameters
         mMetaInfo.set(KeyRecordParser.OUT_SK_LENGTH, String.valueOf(params.getSkLength()));
         if (params.getSkType() != null) {
             mMetaInfo.set(KeyRecordParser.OUT_SK_TYPE, params.getSkType().toString());
         }
-        if (params.getSkKeyGenAlgorithm() != null) {
+
+        // For ML-KEM, skip sessionKeyKeyGenAlgorithm (key is derived via KEM, not generated)
+        if (!isMLKEM && params.getSkKeyGenAlgorithm() != null) {
             // JSS doesn't have a name map or a functional OID map
             // for now, save the "name"
             mMetaInfo.set(KeyRecordParser.OUT_SK_KEYGEN_ALGORITHM, params.getSkKeyGenAlgorithm().toString());
         }
-        if (params.getSkWrapAlgorithm() != null) {
+
+        // For ML-KEM, skip sessionKeyWrapAlgorithm (uses encapsulation, not wrapping)
+        if (!isMLKEM && params.getSkWrapAlgorithm() != null) {
             mMetaInfo.set(KeyRecordParser.OUT_SK_WRAP_ALGORITHM, params.getSkWrapAlgorithm().toString());
         }
 
         // set payload parameters
-        if (params.getPayloadEncryptionAlgorithm() != null) {
+        // Only set encryption parameters if doEncrypt=true (allowEncDecrypt_archival path)
+        // Normal wrapping path uses payloadWrapAlgorithm instead
+        if (doEncrypt && params.getPayloadEncryptionAlgorithm() != null) {
             EncryptionAlgorithm encrypt = params.getPayloadEncryptionAlgorithm();
             try {
                 OBJECT_IDENTIFIER oid = encrypt.toOID();
@@ -488,17 +530,19 @@ public class KeyRecord extends DBRecord {
                 mMetaInfo.set(KeyRecordParser.OUT_PL_ENCRYPTION_PADDING, encrypt.getPadding().toString());
             }
         }
-        if (params.getPayloadWrapAlgorithm() != null) {
+        // Wrapping parameters are used in normal path (doEncrypt=false)
+        if (!doEncrypt && params.getPayloadWrapAlgorithm() != null) {
             mMetaInfo.set(KeyRecordParser.OUT_PL_WRAP_ALGORITHM, params.getPayloadWrapAlgorithm().toString());
         }
-        if (params.getPayloadWrappingIV() != null) {
+        if (!doEncrypt && params.getPayloadWrappingIV() != null) {
             // store as base64 encoded string
             mMetaInfo.set(
                 KeyRecordParser.OUT_PL_WRAP_IV,
                 Base64.encodeBase64String(params.getPayloadWrappingIV().getIV())
             );
         }
-        if (params.getPayloadEncryptionIV() != null) {
+        // Only set encryption IV if doEncrypt=true (allowEncDecrypt_archival path)
+        if (doEncrypt && params.getPayloadEncryptionIV() != null) {
             // store as base 64 encoded string
             mMetaInfo.set(
                 KeyRecordParser.OUT_PL_ENCRYPTION_IV,
@@ -529,10 +573,11 @@ public class KeyRecord extends DBRecord {
         data = mMetaInfo.get(KeyRecordParser.OUT_PL_WRAP_ALGORITHM);
         if (data != null) params.setPayloadWrapAlgorithm(data.toString());
 
+        // Only set encryption algorithm if present (only stored when doEncrypt=true)
         if (mMetaInfo.get(KeyRecordParser.OUT_PL_ENCRYPTION_OID) != null) {
             String oidString = mMetaInfo.get(KeyRecordParser.OUT_PL_ENCRYPTION_OID).toString();
             params.setPayloadEncryptionAlgorithm(EncryptionAlgorithm.fromOID(new OBJECT_IDENTIFIER(oidString)));
-        } else {
+        } else if (mMetaInfo.get(KeyRecordParser.OUT_PL_ENCRYPTION_ALGORITHM) != null) {
             params.setPayloadEncryptionAlgorithm(
                 mMetaInfo.get(KeyRecordParser.OUT_PL_ENCRYPTION_ALGORITHM).toString(),
                 mMetaInfo.get(KeyRecordParser.OUT_PL_ENCRYPTION_MODE).toString(),

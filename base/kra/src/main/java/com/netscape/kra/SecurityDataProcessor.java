@@ -335,7 +335,8 @@ public class SecurityDataProcessor {
         }
 
         try {
-            rec.setWrappingParams(params, doEncrypt);
+            String storageKeyAlg = storageUnit.getPublicKey().getAlgorithm();
+            rec.setWrappingParams(params, doEncrypt, storageKeyAlg);
         } catch (Exception e) {
             logger.error("Unable to store wrapping parameters: " + e.getMessage(), e);
 

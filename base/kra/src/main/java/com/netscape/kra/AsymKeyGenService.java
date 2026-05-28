@@ -325,7 +325,8 @@ public class AsymKeyGenService implements IService {
         }
 
         try {
-            record.setWrappingParams(params, allowEncDecrypt_archival);
+            String storageKeyAlg = storageUnit.getPublicKey().getAlgorithm();
+            record.setWrappingParams(params, allowEncDecrypt_archival, storageKeyAlg);
         } catch (Exception e) {
             errmsg = "Unable to store wrapping parameters: " + e.getMessage();
             logger.error("AsymKeyGenService: " + errmsg);
