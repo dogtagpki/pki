@@ -668,15 +668,15 @@ class PKIInstance(pki.server.PKIServer):
 
         subsystem = self.get_subsystem(subsystem_name)
 
-        cert = subsystem.get_subsystem_cert(cert_tag)
+        cert_config = subsystem.get_system_cert_config(cert_tag)
         nssdb = self.open_nssdb()
 
         try:
             logger.debug('Removing %s certificate from NSS database from '
                          'subsystem %s in instance %s', cert_tag, subsystem.name, self.name)
             nssdb.remove_cert(
-                nickname=cert['nickname'],
-                token=cert['token'],
+                nickname=cert_config['nickname'],
+                token=cert_config['token'],
                 remove_key=remove_key)
         finally:
             nssdb.close()
@@ -740,9 +740,9 @@ class PKIInstance(pki.server.PKIServer):
         if subsystem and cert_tag:
             # if the subsystem exists, use the nickname and token
             # specified in CS.cfg
-            cert_info = subsystem.get_subsystem_cert(cert_tag)
-            nickname = cert_info['nickname']
-            token = cert_info['token']
+            cert_config = subsystem.get_system_cert_config(cert_tag)
+            nickname = cert_config['nickname']
+            token = cert_config['token']
         else:
             # if the subsystem does not exist, use the specified
             # nickname and token
@@ -938,7 +938,8 @@ class PKIInstance(pki.server.PKIServer):
                 if serial is None:
                     # If admin doesn't provide a serial number, set the serial to
                     # the same serial number available in the nssdb
-                    serial = subsystem.get_subsystem_cert(cert_tag)["serial_number"]
+                    cert_info = subsystem.get_system_cert_info(cert_tag)
+                    serial = cert_info["serial_number"]
 
             else:
                 if serial is None:

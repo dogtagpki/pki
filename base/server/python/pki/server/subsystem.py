@@ -388,23 +388,6 @@ class PKISubsystem(object):
         finally:
             nssdb.close()
 
-    def get_subsystem_cert(self, tag):
-
-        logger.debug('PKISubsystem.get_subsystem_cert(%s)', tag)
-
-        cert = self.get_system_cert_config(tag)
-
-        if not cert['nickname']:
-            return cert
-
-        # get cert info from NSS database
-        cert_info = self.get_system_cert_info(tag)
-
-        if cert_info:
-            cert.update(cert_info)
-
-        return cert
-
     def get_subsystem_certs(self):
 
         cert_list = self.config.get('%s.cert.list' % self.name)
@@ -417,11 +400,11 @@ class PKISubsystem(object):
 
         logger.info('Validating %s cert', tag)
 
-        cert = self.get_subsystem_cert(tag)
+        cert_config = self.get_system_cert_config(tag)
 
-        nickname = cert['nickname']
-        token = pki.nssdb.normalize_token(cert['token'])
-        cert_usage = cert['certusage']
+        nickname = cert_config['nickname']
+        token = pki.nssdb.normalize_token(cert_config['token'])
+        cert_usage = cert_config['certusage']
 
         nssdb = self.instance.open_nssdb()
         try:
@@ -453,13 +436,13 @@ class PKISubsystem(object):
         # Hardcode MAC type and digest for all subystems until we want to explicity
         # change it to pbmac1 or create new pkispawn config settings to be used.
 
-        cert = self.get_subsystem_cert(cert_tag)
+        cert_config = self.get_system_cert_config(cert_tag)
 
-        nickname = cert['nickname']
+        nickname = cert_config['nickname']
         if not nickname:
             raise pki.cli.CLIException('Missing nickname for %s certificate' % cert_tag)
 
-        token = pki.nssdb.normalize_token(cert['token'])
+        token = pki.nssdb.normalize_token(cert_config['token'])
 
         if token:
             nickname = token + ':' + nickname
@@ -485,9 +468,9 @@ class PKISubsystem(object):
             pkcs12_password=None):
 
         # use subsystem certificate to get certificate chain
-        cert = self.get_subsystem_cert('subsystem')
-        nickname = cert['nickname']
-        token = pki.nssdb.normalize_token(cert['token'])
+        cert_config = self.get_system_cert_config('subsystem')
+        nickname = cert_config['nickname']
+        token = pki.nssdb.normalize_token(cert_config['token'])
 
         tmpdir = tempfile.mkdtemp()
         self.instance.chown(tmpdir)
@@ -1043,10 +1026,13 @@ class PKISubsystem(object):
             raise pki.server.PKIServerException(
                 'Temp cert for %s is not supported yet.' % cert_tag)
 
-        ca_signing_cert = self.instance.get_subsystem('ca').get_subsystem_cert('signing')
-        # TODO: Support remote CA.
+        # TODO: support remote CA
+        ca_subsystem = self.instance.get_subsystem('ca')
 
-        ca_cert_data = ca_signing_cert.get('data')
+        cert_config = ca_subsystem.get_system_cert_config('signing')
+        cert_info = ca_subsystem.get_system_cert_info('signing')
+
+        ca_cert_data = cert_info.get('data')
         logger.debug('CA signing cert: %s', ca_cert_data)
 
         if ca_cert_data is None:
@@ -1054,8 +1040,8 @@ class PKISubsystem(object):
 
         aki = self.get_cert_ski(ca_cert_data)
 
-        nickname = ca_signing_cert['nickname']
-        token = ca_signing_cert['token']
+        nickname = cert_config['nickname']
+        token = cert_config['token']
 
         if not pki.nssdb.internal_token(token):
             nickname = token + ':' + nickname
