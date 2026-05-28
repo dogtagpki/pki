@@ -114,7 +114,12 @@ char *SEC_GetPassword(FILE *input, FILE *output, char *prompt,
 	    echoOff(infd);
 	}
 
-	QUIET_FGETS ( phrase, sizeof(phrase), input);
+	if (QUIET_FGETS ( phrase, sizeof(phrase), input) == NULL) {
+	    if (isTTY) {
+		echoOn(infd);
+	    }
+	    return NULL;
+	}
 
 	if (isTTY) {
 	    fprintf(output, "\n");
@@ -122,7 +127,9 @@ char *SEC_GetPassword(FILE *input, FILE *output, char *prompt,
 	}
 
 	/* stomp on newline */
-	phrase[PORT_Strlen(phrase)-1] = 0;
+	if (PORT_Strlen(phrase) > 0) {
+	    phrase[PORT_Strlen(phrase)-1] = 0;
+	}
 
 	/* Validate password */
 	if (!(*ok)(phrase)) {
