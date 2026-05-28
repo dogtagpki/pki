@@ -25,7 +25,7 @@
 
 /* returns 0 for success, -1 for failure (EOF encountered) */
 static int
-InputHexSessionKey( char    *sessionKeyShareName,
+InputHexSessionKey( const char *sessionKeyShareName,
                     SECItem *hexSessionKeyShare )
 {
     int             fd;
@@ -221,12 +221,12 @@ InputHexSessionKey( char    *sessionKeyShareName,
 
     /* Print appropriate key share padding length */
     PR_fprintf( PR_STDOUT, "\n                             " );
-    for( i = 0; i < PL_strlen( sessionKeyShareName ); i++ ) {
+    for( i = 0; i < (int)PL_strlen( sessionKeyShareName ); i++ ) {
         PR_fprintf( PR_STDOUT, " " );
     }
 
     /* Print second DES_LENGTH bytes */
-    for( i = count; i < hexSessionKeyShare->len; i += 4 ) {
+    for( i = count; i < (int)hexSessionKeyShare->len; i += 4 ) {
         PR_fprintf( PR_STDOUT,
                     "%c%c%c%c ",
                     hexSessionKeyShare->data[i],
@@ -252,7 +252,7 @@ InputHexSessionKey( char    *sessionKeyShareName,
 
 /* returns 0 for success, -1 for failure (EOF encountered) */
 static int
-InputHexKCV( char    *sessionKeyShareName,
+InputHexKCV( const char *sessionKeyShareName,
              PRUint8 *hexKCV )
 {
     int             fd;
@@ -483,8 +483,8 @@ TKS_ComputeAndDisplayKCV( PRUint8       *newKey,
                           PRUint8       *KCV,
                           PRIntn        KCVLen,
                           PK11SymKey    *symKey,
-                          char          *keyName,
-                          char          *keyType,
+                          const char    *keyName,
+                          const char    *keyType,
                           KeyAlgorithm  keyAlg,
                           PRBool        displayKCV,
                           PRUint8       *expectedHexKCV )
@@ -893,7 +893,7 @@ TKS_GenerateSessionKeyShare( char           *sessionKeyShareName,
     PRIntn       i                     = 0;
     PRIntn       KCVLen                = KCV_LENGTH;
     PRUint8     *KCV                   = NULL;
-    SECItem      hexSessionKeyShare;
+    SECItem      hexSessionKeyShare    = { siBuffer, NULL, 0 };
     SECStatus    rvKCV                 = SECFailure;
     SECStatus    sessionKeyShareStatus = SECFailure;
     SECStatus    status                = SECFailure;
@@ -971,12 +971,12 @@ TKS_GenerateSessionKeyShare( char           *sessionKeyShareName,
 
         /* Print appropriate key share padding length */
         PR_fprintf( PR_STDOUT, "\n                             " );
-        for( i = 0; i < PL_strlen( sessionKeyShareName ); i++ ) {
+        for( i = 0; i < (PRIntn)PL_strlen( sessionKeyShareName ); i++ ) {
             PR_fprintf( PR_STDOUT, " " );
         }
 
         /* Print second DES_LENGTH bytes */
-        for( i = count; i < hexSessionKeyShare.len; i += 4 ) {
+        for( i = count; i < (PRIntn)hexSessionKeyShare.len; i += 4 ) {
             PR_fprintf( PR_STDOUT,
                         "%c%c%c%c ",
                         hexSessionKeyShare.data[i],
@@ -1476,10 +1476,12 @@ destroyHexSymmetricKey:
 KeyAlgorithm
 TKS_DetectKeyAlgorithm(PK11SymKey *key)
 {
+    CK_MECHANISM_TYPE mechanism;
+
     if(key == NULL)
         return KEY_ALG_UNKNOWN;
 
-    CK_MECHANISM_TYPE mechanism = PK11_GetMechanism(key);
+    mechanism = PK11_GetMechanism(key);
     return TKS_DetectKeyAlgorithmFromMechanism(mechanism);
 }
 
