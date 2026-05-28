@@ -85,6 +85,9 @@ TKS_Usage( char *progName )
 void
 TKS_PrintHelp( char *progName )
 {
+    /* Mark unused to avoid compiler warning */
+    (void) progName;
+
     /**********************/
     /* -D command options */
     /**********************/
