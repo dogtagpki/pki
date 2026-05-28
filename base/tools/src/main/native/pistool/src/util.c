@@ -347,11 +347,14 @@ InsertLowerFourBits( char* byte, char bits )
 PR_IMPLEMENT( void )
 TKS_ClearScreen()
 {
+    int ret;
 #if defined(XP_UNIX) && !defined(VMS)
-    system( "tput clear" );
+    ret = system( "tput clear" );
 #else
-    system( "cls" );
+    ret = system( "cls" );
 #endif
+    /* Mark unused to avoid compiler warning */
+    (void) ret;
 }
 
 
@@ -380,14 +383,10 @@ TKS_TypeProceedToContinue()
     int            i;
     int            count;
     int            c;
-    int            rv = 0;
 #ifdef XP_UNIX
-    cc_t           orig_cc_min;
-    cc_t           orig_cc_time;
-    tcflag_t       orig_lflag;
     struct termios tio;
 #endif
-    char           keystrokes[KEYSTROKES_TO_PROCEED + 1] = "\0\0\0\0\0\0\0\0\0";
+    char           keystrokes[KEYSTROKES_TO_PROCEED + 1] = {0};
 
     /* display the continuation message */
     PR_fprintf( PR_STDOUT, "\n\n" );
@@ -398,9 +397,6 @@ TKS_TypeProceedToContinue()
 
 #if defined( XP_UNIX ) && !defined( VMS )
     tcgetattr( fd, &tio );
-    orig_lflag       = tio.c_lflag;
-    orig_cc_min      = tio.c_cc[VMIN];
-    orig_cc_time     = tio.c_cc[VTIME];
     tio.c_lflag     &= ~ECHO;
     tio.c_lflag     &= ~ICANON;
     tio.c_cc[VMIN]   = 1;
@@ -420,13 +416,11 @@ TKS_TypeProceedToContinue()
 #endif
         /* break on EOF */
         if( c == EOF ) {
-            rv = -1;
             break;
         }
 
         /* break on ^C */
         if( c == CTRL_C ) {
-            rv = -1;
             break;
         }
 
