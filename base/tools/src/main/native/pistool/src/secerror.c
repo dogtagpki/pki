@@ -36,12 +36,13 @@
  * END COPYRIGHT BLOCK **/
 
 /* Originally obtained from:
- * 
+ *
  *     CVSROOT=:pserver:anonymous@cvs-mirror.mozilla.org:/cvsroot
  *     cvs export -r NSS_3_11_3_RTM -N mozilla/security/nss/cmd/lib/secerror.c
  */
 
 #include "nspr.h"
+#include "secutil.h"
 
 struct tuple_str {
     PRErrorCode	 errNum;
