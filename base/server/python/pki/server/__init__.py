@@ -104,7 +104,7 @@ class Tomcat(object):
     CONF_DIR = '/etc/tomcat'
     LIB_DIR = '/usr/share/java/tomcat'
     SHARE_DIR = '/usr/share/tomcat'
-    OLD_EXECUTABLE = '/usr/bin/tomcat'
+    OLD_EXECUTABLE = '/usr/sbin/tomcat'
     EXECUTABLE = '/usr/share/tomcat/bin/catalina.sh'
     UNIT_FILE = '/lib/systemd/system/tomcat@.service'
     SERVER_XML = CONF_DIR + '/server.xml'
