@@ -63,10 +63,14 @@ class UpdateMLDSAProfiles(pki.server.upgrade.PKIServerUpgradeScriptlet):
             keys = [key for key, val in instance_profile.items()
                     if '.constraint.params.signingAlgsAllowed' in key]
             for key in keys:
-                new_profile_signing = set(new_profile[key].split(','))
-                instance_profile_signing = set(instance_profile[key].split(','))
-                if new_signing_algs == new_profile_signing.difference(instance_profile_signing):
-                    instance_profile[key] = new_profile[key]
+                if key in new_profile:
+                    new_profile_signing = set(new_profile[key].split(','))
+                    instance_profile_signing = set(instance_profile[key].split(','))
+                    if (
+                        new_signing_algs == new_profile_signing.difference(
+                            instance_profile_signing)
+                    ):
+                        instance_profile[key] = new_profile[key]
             self.backup(path)
             logger.info('Storing %s', path)
             pki.util.store_properties(path, instance_profile)
