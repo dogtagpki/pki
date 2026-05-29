@@ -132,7 +132,8 @@ jobs:
               -p "" \
               -n "CN=test-CRMFPopClient-without-POP" \
               -q POP_NONE \
-              -o test-CRMFPopClient-without-POP.csr
+              -o test-CRMFPopClient-without-POP.csr \
+              -v
 
           docker exec pki cat test-CRMFPopClient-without-POP.csr
 
@@ -180,7 +181,8 @@ jobs:
               -d /root/.dogtag/nssdb \
               -p "" \
               -n "CN=test-CRMFPopClient-with-POP" \
-              -o test-CRMFPopClient-with-POP.csr
+              -o test-CRMFPopClient-with-POP.csr \
+              -v
 
           docker exec pki cat test-CRMFPopClient-with-POP.csr
 

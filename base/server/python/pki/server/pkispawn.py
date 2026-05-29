@@ -598,7 +598,7 @@ def main(argv):
         print()
         print("Installation failed: Command failed: %s" % ' '.join(e.cmd))
         if e.output:
-            print(e.output)
+            print(e.output.decode('UTF-8'))
 
         if args.log_file:
             print()

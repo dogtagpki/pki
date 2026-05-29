@@ -27,15 +27,16 @@ jobs:
               --hostname=pki.example.com \
               pki
 
+          docker exec pki dnf -y install python3-pylint python3-flake8
+          docker exec pki pylint-3 --version
+          docker exec pki python3-flake8 --version
+
       - name: Run Python lint
         if: always()
         run: |
-          docker exec pki dnf -y install python3-pylint 
-          docker exec pki pylint-3 --version
           docker exec pki /usr/share/pki/tests/bin/python-lint.py
 
       - name: Run Python flake8
         if: always()
         run: |
-          docker exec pki python3-flake8 --version
           docker exec pki /usr/share/pki/tests/bin/python-flake8.py

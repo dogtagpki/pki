@@ -242,7 +242,7 @@ def main(argv):
         print()
         print("Uninstallation failed: Command failed: %s" % ' '.join(e.cmd))
         if e.output:
-            print(e.output)
+            print(e.output.decode('UTF-8'))
         print()
         sys.exit(1)
 
