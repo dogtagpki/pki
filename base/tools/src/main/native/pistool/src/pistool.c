@@ -158,13 +158,13 @@ main( int argc, char **argv )
     SECStatus                      status                      = PR_FALSE;
     char                           commandToRun                = '\0';
     char                          *DBDir                       = NULL;
-    char                          *DBPrefix                    = "";
+    const char                    *DBPrefix                    = "";
     char                          *input                       = NULL;
     char                          *keyname                     = NULL;
     char                          *new_keyname                 = NULL;
     char                          *output                      = NULL;
     char                          *SeedNoise                   = NULL;
-    char                          *slotname                    = "internal";
+    const char                    *slotname                    = "internal";
     char                          *transport_keyname           = NULL;
     int                            keyAlg                      = 0;
     unsigned int                   keyLength                   = 0;
@@ -179,13 +179,16 @@ main( int argc, char **argv )
     unsigned char                   ivZerosData[AES_CBC_IV_LENGTH];
     SECItem                         ivZerosItem;
     SECItem                        *ivZerosParam = NULL;
+    secuCommand                     pistool;
+
+    /* Mark unused to avoid compiler warning */
+    (void) DBDir;
 
 
     /**************************/
     /* Parse the command line */
     /**************************/
 
-    secuCommand pistool;
     pistool.numCommands = sizeof( tkstool_commands ) /
                           sizeof( secuCommandFlag );
     pistool.numOptions  = sizeof( tkstool_options ) /
@@ -993,7 +996,7 @@ main( int argc, char **argv )
         char    buffer[513];
         PRInt32 errLen = PR_GetErrorTextLength();
 
-        if( errLen > 0 && errLen < sizeof buffer ) {
+        if( errLen > 0 && errLen < (PRInt32)sizeof buffer ) {
             PR_GetErrorText( buffer );
         }
 
@@ -1003,7 +1006,7 @@ main( int argc, char **argv )
                     commandToRun,
                     "NSS_Initialize() failed" );
 
-        if( errLen > 0 && errLen < sizeof buffer ) {
+        if( errLen > 0 && errLen < (PRInt32)sizeof buffer ) {
             PR_fprintf( PR_STDERR, "\t%s\n", buffer );
         } else {
             PR_fprintf( PR_STDERR, "\n" );
@@ -1034,7 +1037,7 @@ main( int argc, char **argv )
             char    buffer[513];
             PRInt32 errLen = PR_GetErrorTextLength();
 
-            if( errLen > 0 && errLen < sizeof buffer ) {
+            if( errLen > 0 && errLen < (PRInt32)sizeof buffer ) {
                 PR_GetErrorText( buffer );
             }
 
@@ -1046,7 +1049,7 @@ main( int argc, char **argv )
                         slotname,
                         "\" exists!" );
 
-            if( errLen > 0 && errLen < sizeof buffer ) {
+            if( errLen > 0 && errLen < (PRInt32)sizeof buffer ) {
                 PR_fprintf( PR_STDERR, "\t%s\n", buffer );
             } else {
                 PR_fprintf( PR_STDERR, "\n" );
@@ -1808,27 +1811,31 @@ main( int argc, char **argv )
         /* Compute and display this symmetric key's KCV. */
         /*************************************************/
 
-        PR_fprintf( PR_STDOUT,
-                    "\nComputing and displaying KCV of the symmetric key "
-                    "on the specified token . . .\n\n" );
-
-        /* Detect the key type (AES or DES) */
-        KeyAlgorithm detectedAlg = TKS_DetectKeyAlgorithm(symmetricKey);
-        if(detectedAlg == KEY_ALG_UNKNOWN)
         {
-            PR_fprintf( PR_STDERR,
-                        "ERROR:  Unable to detect the algorithm of "
-                        "this symmetric key!\n\n" );
-            rv = SECFailure;
-            goto shutdown;
-        }
+            KeyAlgorithm detectedAlg;
 
-        PR_fprintf(PR_STDOUT, "This key is of type: ");
-        switch(detectedAlg)
-        {
-        case KEY_ALG_AES: PR_fprintf(PR_STDOUT, ALG_AES" . . .\n\n"); break;
-        case KEY_ALG_DES: PR_fprintf(PR_STDOUT, ALG_DES" . . .\n\n"); break;
-        }
+            PR_fprintf( PR_STDOUT,
+                        "\nComputing and displaying KCV of the symmetric key "
+                        "on the specified token . . .\n\n" );
+
+            /* Detect the key type (AES or DES) */
+            detectedAlg = TKS_DetectKeyAlgorithm(symmetricKey);
+            if(detectedAlg == KEY_ALG_UNKNOWN)
+            {
+                PR_fprintf( PR_STDERR,
+                            "ERROR:  Unable to detect the algorithm of "
+                            "this symmetric key!\n\n" );
+                rv = SECFailure;
+                goto shutdown;
+            }
+
+            PR_fprintf(PR_STDOUT, "This key is of type: ");
+            switch(detectedAlg)
+            {
+            case KEY_ALG_AES: PR_fprintf(PR_STDOUT, ALG_AES" . . .\n\n"); break;
+            case KEY_ALG_DES: PR_fprintf(PR_STDOUT, ALG_DES" . . .\n\n"); break;
+            case KEY_ALG_UNKNOWN: break; /* Already checked above */
+            }
 
         /* Calculate this symmetric key's KCV */
         rvKCV = TKS_ComputeAndDisplayKCV( ( PRUint8 * ) NULL,
@@ -1847,6 +1854,7 @@ main( int argc, char **argv )
                         "this symmetric key!\n\n" );
             rv = SECFailure;
             goto shutdown;
+        }
         }
 
 
@@ -2174,22 +2182,27 @@ main( int argc, char **argv )
             goto shutdown;
         }
 
-        /* Detect the key type (AES or DES) */
-        KeyAlgorithm detectedAlg = TKS_DetectKeyAlgorithm(symmetricKey);
-        if(detectedAlg == KEY_ALG_UNKNOWN)
         {
-            PR_fprintf( PR_STDERR,
-                        "ERROR:  Unable to detect the algorithm of "
-                        "this symmetric key!\n\n" );
-            rv = SECFailure;
-            goto shutdown;
-        }
+            KeyAlgorithm detectedAlg;
 
-        PR_fprintf(PR_STDOUT, "This key is of type: ");
-        switch(detectedAlg)
+            /* Detect the key type (AES or DES) */
+            detectedAlg = TKS_DetectKeyAlgorithm(symmetricKey);
+            if(detectedAlg == KEY_ALG_UNKNOWN)
+            {
+                PR_fprintf( PR_STDERR,
+                            "ERROR:  Unable to detect the algorithm of "
+                            "this symmetric key!\n\n" );
+                rv = SECFailure;
+                goto shutdown;
+            }
+
+            PR_fprintf(PR_STDOUT, "This key is of type: ");
+            switch(detectedAlg)
         {
         case KEY_ALG_AES: PR_fprintf(PR_STDOUT, ALG_AES" . . .\n\n"); break;
         case KEY_ALG_DES: PR_fprintf(PR_STDOUT, ALG_DES" . . .\n\n"); break;
+        case KEY_ALG_UNKNOWN: break; /* Already checked above */
+        }
         }
 
 #if defined(DEBUG)
@@ -2371,25 +2384,30 @@ main( int argc, char **argv )
             goto shutdown;
         }
 
-        /*
-         * Make sure the transport key's mechanism (algorithm) matches the
-         * algorithm given on the command line
-         */
-        KeyAlgorithm detectedAlg = TKS_DetectKeyAlgorithm(transportKey);
-        if(detectedAlg == KEY_ALG_UNKNOWN)
         {
-            PR_fprintf( PR_STDERR,
-                        "ERROR:  Unable to detect the algorithm of "
-                        "this transport key!\n\n" );
-            rv = SECFailure;
-            goto shutdown;
-        }
+            KeyAlgorithm detectedAlg;
 
-        PR_fprintf(PR_STDOUT, "The transport key is of type: ");
-        switch(detectedAlg)
+            /*
+             * Make sure the transport key's mechanism (algorithm) matches the
+             * algorithm given on the command line
+             */
+            detectedAlg = TKS_DetectKeyAlgorithm(transportKey);
+            if(detectedAlg == KEY_ALG_UNKNOWN)
+            {
+                PR_fprintf( PR_STDERR,
+                            "ERROR:  Unable to detect the algorithm of "
+                            "this transport key!\n\n" );
+                rv = SECFailure;
+                goto shutdown;
+            }
+
+            PR_fprintf(PR_STDOUT, "The transport key is of type: ");
+            switch(detectedAlg)
         {
         case KEY_ALG_AES: PR_fprintf(PR_STDOUT, ALG_AES" . . .\n\n"); break;
         case KEY_ALG_DES: PR_fprintf(PR_STDOUT, ALG_DES" . . .\n\n"); break;
+        case KEY_ALG_UNKNOWN: break; /* Already checked above */
+        }
         }
 
         /*****************************************************************/
@@ -2558,13 +2576,14 @@ main( int argc, char **argv )
             goto shutdown;
         }
 
+        {
+            SECItem seciCKAExtractable;
+            CK_BBOOL f = CK_FALSE;
 
-        //PAS MOD FE4
-        //This code flips the CKA_Extractible bit from true to false.
-        SECItem seciCKAExtractable;
-        CK_BBOOL f = CK_FALSE;
+            //PAS MOD FE4
+            //This code flips the CKA_Extractible bit from true to false.
 
-        seciCKAExtractable.data = (unsigned char *)PR_Malloc(sizeof(CK_BBOOL));
+            seciCKAExtractable.data = (unsigned char *)PR_Malloc(sizeof(CK_BBOOL));
 
         PORT_Memcpy(seciCKAExtractable.data, (void *)&f, sizeof(CK_BBOOL));
 
@@ -2585,6 +2604,7 @@ main( int argc, char **argv )
         if(seciCKAExtractable.data != NULL){
         	PR_Free(seciCKAExtractable.data);
         	seciCKAExtractable.data = NULL;
+        }
         }
 
 
@@ -2695,23 +2715,27 @@ main( int argc, char **argv )
          * The transport key type and the requested master key type
          * must match.
          */
-        KeyAlgorithm detectedAlg = TKS_DetectKeyAlgorithm(transportKey);
-        if(detectedAlg == KEY_ALG_UNKNOWN)
         {
-            PR_fprintf( PR_STDERR,
-                        "ERROR:  Unable to detect the algorithm of "
-                        "this transport key!\n\n" );
-            rv = SECFailure;
-            goto shutdown;
-        }
-        else if(detectedAlg != keyAlg)
-        {
-            char *detectedAlgString;
-            switch(detectedAlg)
+            KeyAlgorithm detectedAlg;
+            const char *detectedAlgString = NULL;
+
+            detectedAlg = TKS_DetectKeyAlgorithm(transportKey);
+            if(detectedAlg == KEY_ALG_UNKNOWN)
             {
-            case KEY_ALG_AES: detectedAlgString = ALG_AES; break;
-            case KEY_ALG_DES: detectedAlgString = ALG_DES; break;
+                PR_fprintf( PR_STDERR,
+                            "ERROR:  Unable to detect the algorithm of "
+                            "this transport key!\n\n" );
+                rv = SECFailure;
+                goto shutdown;
             }
+            else if(detectedAlg != (KeyAlgorithm)keyAlg)
+            {
+                switch(detectedAlg)
+                {
+                case KEY_ALG_AES: detectedAlgString = ALG_AES; break;
+                case KEY_ALG_DES: detectedAlgString = ALG_DES; break;
+                case KEY_ALG_UNKNOWN: break; /* Already handled above */
+                }
 
             PR_fprintf(PR_STDERR,
                     "The transport key type (%s) does not match the -a algorithm"
@@ -2719,6 +2743,7 @@ main( int argc, char **argv )
 
             rv = SECFailure;
             goto shutdown;
+        }
         }
 
         /*****************************************************************/
@@ -2956,12 +2981,13 @@ main( int argc, char **argv )
             goto shutdown;
         }
 
+        {
+            SECItem seciCKAExtractable;
+            CK_BBOOL f = CK_FALSE;
 
-        //PAS MOD FE4
-        //This code flips the CKA_Extractible bit from true to false.
-        SECItem seciCKAExtractable;
-        CK_BBOOL f = CK_FALSE;
-        seciCKAExtractable.data = (unsigned char *)PR_Malloc(sizeof(CK_BBOOL));
+            //PAS MOD FE4
+            //This code flips the CKA_Extractible bit from true to false.
+            seciCKAExtractable.data = (unsigned char *)PR_Malloc(sizeof(CK_BBOOL));
 
         PORT_Memcpy(seciCKAExtractable.data, (void *)&f, sizeof(CK_BBOOL));
 
@@ -2981,6 +3007,7 @@ main( int argc, char **argv )
         if(seciCKAExtractable.data != NULL){
         	PR_Free(seciCKAExtractable.data);
         	seciCKAExtractable.data = NULL;
+        }
         }
 
 

@@ -233,17 +233,17 @@ TKS_ComputeAndDisplayKCV( PRUint8       *newKey,
                           PRUint8       *expectedHexKCV );
 
 SECStatus
-TKS_GenerateSessionKeyShare( char           *sessionKeyShareName,
+TKS_GenerateSessionKeyShare( const char     *sessionKeyShareName,
                              SECItem        *sessionKeyShare,
                              KeyAlgorithm   keyAlg );
 
 SECStatus
-TKS_InputSessionKeyShare( char          *sessionKeyShareName,
+TKS_InputSessionKeyShare( const char    *sessionKeyShareName,
                           SECItem       *sessionKeyShare,
                           KeyAlgorithm  keyAlg );
 
 PK11SymKey *
-TKS_ImportSymmetricKey( char              *symmetricKeyName,
+TKS_ImportSymmetricKey( const char        *symmetricKeyName,
                         PK11SlotInfo      *slot,
                         CK_MECHANISM_TYPE  mechanism,
                         CK_ATTRIBUTE_TYPE  operation,
@@ -251,7 +251,7 @@ TKS_ImportSymmetricKey( char              *symmetricKeyName,
                         secuPWData        *pwdata );
 
 PK11SymKey *
-TKS_DeriveSymmetricKey( char              *symmetricKeyName,
+TKS_DeriveSymmetricKey( const char        *symmetricKeyName,
                         PK11SymKey        *symKey,
                         CK_MECHANISM_TYPE  derive,
                         SECItem           *sessionKeyShare,
@@ -260,7 +260,7 @@ TKS_DeriveSymmetricKey( char              *symmetricKeyName,
                         int                keysize );
 
 SECStatus
-TKS_StoreSymmetricKeyAndNameIt( char              *symmetricKeyName,
+TKS_StoreSymmetricKeyAndNameIt( const char        *symmetricKeyName,
                                 char              *keyname,
                                 PK11SlotInfo      *slot,
                                 CK_ATTRIBUTE_TYPE  operation,
