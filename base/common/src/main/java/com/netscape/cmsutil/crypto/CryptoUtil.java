@@ -176,6 +176,11 @@ public class CryptoUtil {
 
     public static final int LINE_COUNT = 76;
 
+    //ML-KEM Constants
+    public static final String ML_KEM_ALGORITHM = "ML-KEM";
+    public static final String ML_KEM_ALGORITHM_ALT = "MLKEM";
+
+
     private static SymmetricKey.Usage[] sess_key_usages = {
             SymmetricKey.Usage.WRAP,
             SymmetricKey.Usage.UNWRAP,
@@ -357,6 +362,18 @@ public class CryptoUtil {
             }
         }
         return true;
+    }
+
+    /**
+     * Checks if the given algorithm name is an ML-KEM variant.
+     *
+     * @param algorithm Algorithm name to check
+     * @return true if the algorithm is ML-KEM
+     */
+    public static boolean isAlgorithmMLKEM(String algorithm) {
+        if (algorithm == null) return false;
+        String upper = algorithm.toUpperCase();
+        return upper.startsWith(ML_KEM_ALGORITHM) || upper.equals(ML_KEM_ALGORITHM_ALT);
     }
 
     public static boolean isInternalToken(String name) {
@@ -749,6 +766,44 @@ public class CryptoUtil {
         logger.debug("CryptoUtil: - Shared secret recovered");
 
         return sharedSecret;
+    }
+
+    /**
+     * Performs ML-KEM encapsulation using an EncryptionAlgorithm to
+     * determine the derived key size.
+     *
+     * @param publicKey ML-KEM public key
+     * @param encAlg Encryption algorithm (e.g. AES_256_CBC_PAD)
+     * @return KEMEncapsulation containing shared secret and ciphertext
+     * @throws Exception if encapsulation fails
+    */
+    public static KEMEncapsulation encapsulateMLKEM(
+            PublicKey publicKey,
+            EncryptionAlgorithm encAlg) throws Exception {
+        if (encAlg == null) {
+            throw new IllegalArgumentException("encAlg is null");
+        }
+        return encapsulateMLKEM(publicKey, encAlg.getKeyStrength());
+    }
+
+    /**
+     * Performs ML-KEM decapsulation using an EncryptionAlgorithm to
+     * determine the derived key size.
+     *
+     * @param privateKey ML-KEM private key
+     * @param ciphertext KEM ciphertext from encapsulation
+     * @param encAlg Encryption algorithm (e.g. AES_256_CBC_PAD)
+     * @return Recovered shared secret (symmetric key)
+     * @throws Exception if decapsulation fails
+    */
+    public static SymmetricKey decapsulateMLKEM(
+            PrivateKey privateKey,
+            byte[] ciphertext,
+            EncryptionAlgorithm encAlg) throws Exception {
+        if (encAlg == null) {
+            throw new IllegalArgumentException("encAlg is null");
+        }
+        return decapsulateMLKEM(privateKey, ciphertext, encAlg.getKeyStrength());
     }
 
     public static boolean isECCKey(X509Key key) {
@@ -2287,13 +2342,47 @@ public class CryptoUtil {
 
         CryptoManager cm = CryptoManager.getInstance();
 
-        SymmetricKey sessionKey = CryptoUtil.generateKey(
+        // Add a bit of insurance
+        if (wrappingKey == null) {
+              throw new IllegalArgumentException("wrappingKey is null");
+        }
+
+        String wrappingAlg = wrappingKey.getAlgorithm();
+        SymmetricKey sessionKey = null;
+        byte[] kemCipherText = null;
+
+        if (wrappingAlg == null) {
+            throw new NoSuchAlgorithmException("Unable to determine transport key algorithm");
+        }
+
+        if (CryptoUtil.isAlgorithmMLKEM(wrappingAlg)) {
+
+             // ML-KEM requires the public key to be imported as a
+             // PKCS#11 object on the token for PK11_Encapsulate
+
+             token.importPublicKey(wrappingKey, false);
+
+            // Do ML-KEM encapsulate to derive shared secret + ciphertext
+            logger.debug("CryptoUtil: Using ML-KEM encapsulation for key archival");
+            KEMEncapsulation keyResult = encapsulateMLKEM(wrappingKey,  params.getPayloadEncryptionAlgorithm());
+
+            sessionKey = keyResult.sharedSecret;
+            kemCipherText = keyResult.ciphertext;
+
+        }  else {
+            // RSA/EC: generate session key and wrap with transport key
+            sessionKey = CryptoUtil.generateKey(
                 token,
                 params.getSkKeyGenAlgorithm(),
                 params.getSkLength(),
                 sess_key_usages,
                 false, cm.FIPSEnabled() /* sensitive */);
+        }
+
         byte[] key_data;
+
+        // Wrap the actual key/data with session key (or KEM shared secret)
+        // Same for both ML-KEM and RSA/EC
 
         if (passphraseData != null) {
 
@@ -2327,11 +2416,18 @@ public class CryptoUtil {
             throw new IOException("No data to package in PKIArchiveOptions!");
         }
 
-        byte[] session_data = wrapUsingPublicKey(
+        byte[] session_data;
+
+        // ML-KEM use cipher text, otherwise wrap up session key
+        if (isAlgorithmMLKEM(wrappingAlg)) {
+            session_data = kemCipherText;
+        } else {
+            session_data = wrapUsingPublicKey(
                 token,
                 wrappingKey,
                 sessionKey,
                 params.getSkWrapAlgorithm());
+        }
 
         return createPKIArchiveOptions(session_data, key_data, aid);
     }
@@ -2802,6 +2898,34 @@ public class CryptoUtil {
         }
 
         throw new Exception("Invalid encryption algorithm: " + kwAlg);
+    }
+
+    /**
+     * Returns wrapping parameters for post-quantum (ML-KEM) transport algorithms.
+     *
+     * <p>For ML-KEM, returns AES-256-CBC-PAD for payload encryption and
+     * AES-KWP for key wrapping since KEM encapsulation replaces the
+     * traditional session key wrapping step.
+     *
+     * @param transportAlg transport key algorithm name (e.g. "ML-KEM-768")
+     * @return WrappingParams configured for the given PQC algorithm
+     * @throws NoSuchAlgorithmException if the algorithm is not a supported PQC type
+     */
+    public static WrappingParams getWrappingParams(String transportAlg)
+            throws NoSuchAlgorithmException {
+        if (isAlgorithmMLKEM(transportAlg)) {
+            return new WrappingParams(
+                SymmetricKey.AES,
+                KeyGenAlgorithm.AES,
+                256,
+                null,
+                EncryptionAlgorithm.AES_256_CBC_PAD,
+                KeyWrapAlgorithm.AES_KEY_WRAP_PAD_KWP,
+                null,
+                null
+            );
+        }
+        throw new NoSuchAlgorithmException("Unsupported PQC transport algorithm: " + transportAlg);
     }
 
     public static byte[] wrapUsingSymmetricKey(CryptoToken token, SymmetricKey wrappingKey, SymmetricKey data,

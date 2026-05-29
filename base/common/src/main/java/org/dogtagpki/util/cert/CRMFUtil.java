@@ -258,7 +258,14 @@ public class CRMFUtil {
             if (iv_classes == null || iv_classes.length == 0)
                 iv = null;
 
-            WrappingParams params = CryptoUtil.getWrappingParams(keyWrapAlgorithm, iv, useOAEP);
+            WrappingParams params = null;
+            String transportAlg = transportCert.getPublicKey().getAlgorithm();
+
+            if (CryptoUtil.isAlgorithmMLKEM(transportAlg)) {
+                params = CryptoUtil.getWrappingParams(transportAlg);
+            } else {
+                params = CryptoUtil.getWrappingParams(keyWrapAlgorithm, iv, useOAEP);
+            }
 
             PKIArchiveOptions opts = CryptoUtil.createPKIArchiveOptions(
                     token,

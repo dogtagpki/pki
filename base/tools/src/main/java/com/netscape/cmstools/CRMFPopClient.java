@@ -200,6 +200,8 @@ public class CRMFPopClient {
         System.out.println("  -f <profile>                 Certificate profile");
         System.out.println("                               - RSA default: caEncUserCert");
         System.out.println("                               - ECC default: caEncECUserCert");
+        System.out.println("                               - ML-DSA default: caMLDSAUserCert");
+        System.out.println("                               - ML-KEM default: caMLKEMUserCert");
         System.out.println("  -q <POP option>              POP option");
         System.out.println("                               - POP_NONE: without POP (default for ML-KEM)");
         System.out.println("                               - POP_SUCCESS: with valid POP (default for other algorithms)");
@@ -420,10 +422,12 @@ public class CRMFPopClient {
         if (profileID == null) {
             if (algorithm.equals("rsa")) {
                 profileID = "caEncUserCert";
-
             } else if (algorithm.equals("ec")) {
                 profileID = "caEncECUserCert";
-
+            } else if (algorithm.equals("mldsa")) {
+                profileID = "caMLDSAUserCert";
+            } else if (algorithm.equals("mlkem")) {
+                profileID = "caMLKEMUserCert";
             } else {
                 throw new Exception("Unknown algorithm: " + algorithm);
             }
