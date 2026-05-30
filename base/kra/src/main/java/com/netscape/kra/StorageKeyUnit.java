@@ -1115,15 +1115,50 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
             logger.debug("StorageKeyUnit.encryptInternalPrivate");
             CryptoToken internalToken = getInternalToken();
 
-            // (1) generate session key
-            SymmetricKey sk = CryptoUtil.generateKey(
-                    internalToken,
-                    params.getSkKeyGenAlgorithm(),
-                    params.getSkLength(),
-                    null,
-                    false);
+            PublicKey storagePubKey = getPublicKey();
+            String storageAlg = storagePubKey.getAlgorithm();
 
-            // (2) wrap private key with session key
+            SymmetricKey sk;
+            byte[] session;
+
+            // Check if storage cert is ML-KEM (PQC)
+            if (CryptoUtil.isAlgorithmMLKEM(storageAlg)) {
+                logger.debug("StorageKeyUnit.encryptInternalPrivate: Using ML-KEM storage cert");
+
+                // ML-KEM requires the public key to be imported as a
+                // PKCS#11 object on the token for PK11_Encapsulate
+                internalToken.importPublicKey(storagePubKey, false);
+
+                // (1) ML-KEM encapsulation to generate shared secret
+                CryptoUtil.KEMEncapsulation kemResult = CryptoUtil.encapsulateMLKEM(
+                        storagePubKey,
+                        params.getSkLength());
+
+                sk = kemResult.sharedSecret;
+                session = kemResult.ciphertext;
+
+                logger.debug("StorageKeyUnit.encryptInternalPrivate: ML-KEM encapsulation complete");
+
+            } else {
+                // (1) RSA/EC: generate session key
+                logger.debug("StorageKeyUnit.encryptInternalPrivate: Using RSA/EC storage cert");
+
+                sk = CryptoUtil.generateKey(
+                        internalToken,
+                        params.getSkKeyGenAlgorithm(),
+                        params.getSkLength(),
+                        null,
+                        false);
+
+                // (3) wrap session with storage public
+                session = CryptoUtil.wrapUsingPublicKey(
+                        internalToken,
+                        storagePubKey,
+                        sk,
+                        params.getSkWrapAlgorithm());
+            }
+
+            // (2) wrap private key with session key (or shared secret for ML-KEM)
             byte[] pri = CryptoUtil.encryptUsingSymmetricKey(
                     internalToken,
                     sk,
@@ -1131,17 +1166,11 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
                     params.getPayloadEncryptionAlgorithm(),
                     params.getPayloadEncryptionIV());
 
-            // (3) wrap session with storage public
-            byte[] session = CryptoUtil.wrapUsingPublicKey(
-                    internalToken,
-                    getPublicKey(),
-                    sk,
-                    params.getSkWrapAlgorithm());
-
             // use MY own structure for now:
             // SEQUENCE {
-            //     encryptedSession OCTET STRING,
-            //     encryptedPrivate OCTET STRING
+            //     encryptedSession OCTET STRING,  // RSA/EC: wrapped session key
+            //                                     // ML-KEM: KEM ciphertext
+            //     encryptedPrivate OCTET STRING   // Private key wrapped with session key/shared secret
             // }
 
             DerOutputStream tmp = new DerOutputStream();
@@ -1176,21 +1205,57 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
             logger.debug("StorageKeyUnit.wrap interal.");
             CryptoToken token = getToken();
 
-            SymmetricKey.Usage usages[] = new SymmetricKey.Usage[2];
-            usages[0] = SymmetricKey.Usage.WRAP;
-            usages[1] = SymmetricKey.Usage.UNWRAP;
+            PublicKey storagePubKey = getPublicKey();
+            String storageAlg = storagePubKey.getAlgorithm();
 
-            // (1) generate session key
-            SymmetricKey sk = CryptoUtil.generateKey(
-                    token,
-                    params.getSkKeyGenAlgorithm(),
-                    params.getSkLength(),
-                    usages,
-                    true);
+            SymmetricKey sk;
+            byte[] session;
 
-            // (2) wrap private key with session key
-            // KeyWrapper wrapper = internalToken.getKeyWrapper(
+            // Check if storage cert is ML-KEM (PQC)
+            if (CryptoUtil.isAlgorithmMLKEM(storageAlg)) {
+                logger.debug("StorageKeyUnit:wrap() Using ML-KEM storage cert");
 
+                // ML-KEM requires the public key to be imported as a
+                // PKCS#11 object on the token for PK11_Encapsulate
+                token.importPublicKey(storagePubKey, false);
+
+                // (1) ML-KEM encapsulation to generate shared secret
+                CryptoUtil.KEMEncapsulation kemResult = CryptoUtil.encapsulateMLKEM(
+                        storagePubKey,
+                        params.getSkLength());
+
+                sk = kemResult.sharedSecret;
+                session = kemResult.ciphertext;
+
+                logger.debug("StorageKeyUnit:wrap() ML-KEM encapsulation complete - ciphertext size: "
+                        + session.length + " bytes");
+
+            } else {
+                // (1) RSA/EC: generate session key
+                logger.debug("StorageKeyUnit:wrap() Using RSA/EC storage cert");
+
+                SymmetricKey.Usage usages[] = new SymmetricKey.Usage[2];
+                usages[0] = SymmetricKey.Usage.WRAP;
+                usages[1] = SymmetricKey.Usage.UNWRAP;
+
+                sk = CryptoUtil.generateKey(
+                        token,
+                        params.getSkKeyGenAlgorithm(),
+                        params.getSkLength(),
+                        usages,
+                        true);
+
+                // (3) wrap session key with storage public key
+                session = CryptoUtil.wrapUsingPublicKey(
+                        token,
+                        storagePubKey,
+                        sk,
+                        params.getSkWrapAlgorithm());
+
+                logger.debug("StorageKeyUnit:wrap() session key wrapped");
+            }
+
+            // (2) wrap private key with session key (or shared secret for ML-KEM)
             byte pri[] = null;
 
             if (priKey != null) {
@@ -1211,17 +1276,11 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
 
             logger.debug("StorageKeyUnit:wrap() privKey wrapped");
 
-            byte[] session = CryptoUtil.wrapUsingPublicKey(
-                    token,
-                    getPublicKey(),
-                    sk,
-                    params.getSkWrapAlgorithm());
-            logger.debug("StorageKeyUnit:wrap() session key wrapped");
-
             // use MY own structure for now:
             // SEQUENCE {
-            //     encryptedSession OCTET STRING,
-            //     encryptedPrivate OCTET STRING
+            //     encryptedSession OCTET STRING,  // RSA/EC: wrapped session key
+            //                                     // ML-KEM: KEM ciphertext
+            //     encryptedPrivate OCTET STRING   // User private key wrapped with session key/shared secret
             // }
 
             DerOutputStream tmp = new DerOutputStream();

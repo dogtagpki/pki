@@ -276,7 +276,8 @@ public class SymKeyGenService implements IService {
         }
 
         try {
-            rec.setWrappingParams(params, allowEncDecrypt_archival);
+            String storageKeyAlg = mStorageUnit.getPublicKey().getAlgorithm();
+            rec.setWrappingParams(params, allowEncDecrypt_archival, storageKeyAlg);
         } catch (Exception e) {
             String message = "Unable to store wrapping parameters: " + e.getMessage();
             logger.error("SymKeyGenService: " + message, e);

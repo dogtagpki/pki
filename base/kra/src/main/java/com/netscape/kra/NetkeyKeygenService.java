@@ -606,7 +606,8 @@ public class NetkeyKeygenService implements IService {
                         throw new Exception("Unable to generate next serial number");
                     }
 
-                    rec.setWrappingParams(params, allowEncDecrypt_archival);
+                    String storageKeyAlg = mStorageUnit.getPublicKey().getAlgorithm();
+                    rec.setWrappingParams(params, allowEncDecrypt_archival, storageKeyAlg);
 
                     logger.debug("NetkeyKeygenService: before addKeyRecord");
                     rec.set(KeyRecord.ATTR_ID, serialNo);

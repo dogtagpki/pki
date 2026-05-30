@@ -21,6 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.cert.CertificateException;
 import java.util.Arrays;
@@ -73,6 +74,7 @@ import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.util.StatsSubsystem;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * A class represents archival request processor. It
@@ -414,9 +416,12 @@ public class EnrollmentService implements IService {
 
             //
             // privateKeyData ::= SEQUENCE {
-            //                       sessionKey OCTET_STRING,
-            //                       encKey OCTET_STRING,
-            //                    }
+            //     sessionKey OCTET_STRING,  // RSA/EC storage: wrapped session key
+            //                               // ML-KEM storage: KEM ciphertext
+            //     encKey OCTET_STRING,      // User private key wrapped with session key/shared secret
+            // }
+            //
+            // Note: allowEncDecrypt_archival is not supported for ML-KEM storage at this time.
             //
             if (statsSub != null) {
                 statsSub.startTiming("encrypt_user_key");
@@ -428,6 +433,12 @@ public class EnrollmentService implements IService {
                 params = mStorageUnit.getWrappingParams(allowEncDecrypt_archival);
 
                 if (allowEncDecrypt_archival == true) {
+                    String storageAlg = mStorageUnit.getPublicKey().getAlgorithm();
+                    if (CryptoUtil.isAlgorithmMLKEM(storageAlg)) {
+                        String msg = "allowEncDecrypt_archival not supported with ML-KEM storage certificate";
+                        logger.error("EnrollmentService: " + msg);
+                        throw new EKRAException(msg);
+                    }
                     logger.info("EnrollmentService: Encrypting internal private key");
                     privateKeyData = mStorageUnit.encryptInternalPrivate(unwrapped, params);
                 } else {
@@ -515,6 +526,18 @@ public class EnrollmentService implements IService {
                 rec.set(KeyRecord.ATTR_META_INFO, metaInfo);
                 // key size does not apply to EC
                 rec.setKeySize(-1);
+            } else if (CryptoUtil.isAlgorithmMLKEM(keyAlg)) {
+                // ML-KEM keys: extract strength parameter
+                try {
+                    int strength = CryptoUtil.getMLKEMStrength(keyAlg);
+                    rec.setKeySize(Integer.valueOf(strength));
+
+                    logger.debug("EnrollmentService: ML-KEM key archived - algorithm: " + keyAlg + ", strength: " + strength);
+
+                } catch (NoSuchAlgorithmException e) {
+                    logger.warn("EnrollmentService: Unable to determine ML-KEM strength: " + e.getMessage(), e);
+                    rec.setKeySize(-1);
+                }
             }
 
             // if record already has a serial number, yell out.
@@ -542,7 +565,8 @@ public class EnrollmentService implements IService {
             }
 
             try {
-                rec.setWrappingParams(params, allowEncDecrypt_archival);
+                String storageKeyAlg = mStorageUnit.getPublicKey().getAlgorithm();
+                rec.setWrappingParams(params, allowEncDecrypt_archival, storageKeyAlg);
             } catch (Exception e) {
                 logger.error("EnrollmentService: Unable to store wrapping parameters: " + e.getMessage(), e);
                 // TODO(alee) Set correct audit message here

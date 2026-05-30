@@ -47,6 +47,7 @@ public class KeyRecordParser {
     public final static String OUT_RECOVERED_ON = "recoveredOn";
 
     /* parameters to populate WrappingParams */
+    public final static String OUT_STORAGE_KEY_ALGORITHM = "storageKeyAlgorithm";
     public final static String OUT_SK_TYPE = "sessionKeyType";
     public final static String OUT_SK_KEYGEN_ALGORITHM = "sessionKeyKeyGenAlgorithm";
     public final static String OUT_SK_LENGTH = "sessionKeyLength";
