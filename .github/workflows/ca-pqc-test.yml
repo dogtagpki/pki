@@ -332,6 +332,10 @@ jobs:
           docker exec pki cat /var/log/pki/pki-tomcat/ca/signedAudit/ca_audit | grep AuditEvent=AUDIT_LOG_SIGNING | tee output
           grep -q . output
 
+      - name: Enable caMLDSAUserCert profile
+        run: |
+          docker exec pki pki -n caadmin ca-profile-enable caMLDSAUserCert
+
       - name: Enroll OCSP test cert
         run: |
           docker exec pki pki nss-cert-request \
