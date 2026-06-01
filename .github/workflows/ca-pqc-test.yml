@@ -332,6 +332,76 @@ jobs:
           docker exec pki cat /var/log/pki/pki-tomcat/ca/signedAudit/ca_audit | grep AuditEvent=AUDIT_LOG_SIGNING | tee output
           grep -q . output
 
+      - name: Enroll OCSP test cert
+        run: |
+          docker exec pki pki nss-cert-request \
+              --subject "UID=ocsp-test" \
+              --csr ocsp_test.csr \
+              --key-type MLDSA \
+              --key-size 65
+
+          docker exec pki pki -n caadmin ca-cert-issue \
+              --profile caMLDSAUserCert \
+              --csr-file ocsp_test.csr \
+              --output-file ocsp_test.crt
+
+          docker exec pki openssl x509 -in ocsp_test.crt -noout -serial | tee output
+          CERT_SERIAL="0x$(sed 's/serial=//i' output)"
+          echo "$CERT_SERIAL" > ocsp_cert.id
+          echo "Issued OCSP test cert with serial: $CERT_SERIAL"
+
+      - name: Check good cert OCSP response signed with ML-DSA
+        run: |
+          CERT_SERIAL=$(cat ocsp_cert.id)
+
+          docker exec pki openssl ocsp \
+              -url http://pki.example.com:8080/ca/ocsp \
+              -CAfile ca_signing.crt \
+              -issuer ca_signing.crt \
+              -serial $CERT_SERIAL \
+              -resp_text \
+              | tee output
+
+          # cert status should be good
+          sed -n "/^$CERT_SERIAL:/p" output > actual
+          echo "$CERT_SERIAL: good" > expected
+          diff expected actual
+
+          # OCSP response signature algorithm should be ML-DSA-65
+          echo "ML-DSA-65" > expected
+          sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
+          diff expected actual
+
+      - name: Revoke OCSP test cert
+        run: |
+          CERT_SERIAL=$(cat ocsp_cert.id)
+
+          docker exec pki pki -n caadmin ca-cert-hold \
+              --force \
+              $CERT_SERIAL
+
+      - name: Check revoked cert OCSP response signed with ML-DSA
+        run: |
+          CERT_SERIAL=$(cat ocsp_cert.id)
+
+          docker exec pki openssl ocsp \
+              -url http://pki.example.com:8080/ca/ocsp \
+              -CAfile ca_signing.crt \
+              -issuer ca_signing.crt \
+              -serial $CERT_SERIAL \
+              -resp_text \
+              | tee output
+
+          # cert status should be revoked
+          sed -n "/^$CERT_SERIAL:/p" output > actual
+          echo "$CERT_SERIAL: revoked" > expected
+          diff expected actual
+
+          # OCSP response signature algorithm should be ML-DSA-65
+          echo "ML-DSA-65" > expected
+          sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
+          diff expected actual
+
       - name: Generating new sslserver certificate with CMC
         run: |
           # check cert request
