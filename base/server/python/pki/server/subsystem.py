@@ -2061,6 +2061,32 @@ class PKISubsystem(object):
         logger.debug('Command: %s', ' '.join(cmd))
         subprocess.check_call(cmd)
 
+    def add_group_members(self, group_ids, member_id, as_current_user=False):
+        """
+        Add a member to multiple groups in one pki-server JVM invocation.
+        """
+
+        if not group_ids:
+            return
+
+        cmd = [
+            'pki-server',
+            '-i', self.instance.name,
+            self.name + '-group-member-add-batch'
+        ]
+
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.append('--debug')
+
+        elif logger.isEnabledFor(logging.INFO):
+            cmd.append('--verbose')
+
+        cmd.append(member_id)
+        cmd.extend(group_ids)
+
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
+
     def remove_group_member(self, group_id, member_id, as_current_user=False):
 
         cmd = [
@@ -2660,7 +2686,13 @@ class CASubsystem(PKISubsystem):
             key_algorithm=None,
             signing_algorithm=None,
             serial=None,
-            cert_format=None):
+            cert_format=None,
+            csr_path=None,
+            csr_format=None,
+            request_type=None,
+            dns_names=None,
+            adjust_validity=None,
+            import_cert=False):
 
         cmd = [
             'pki-server',
@@ -2676,6 +2708,21 @@ class CASubsystem(PKISubsystem):
 
         if request_id:
             cmd.extend(['--request', request_id])
+
+        if csr_path:
+            cmd.extend(['--csr', csr_path])
+
+        if csr_format:
+            cmd.extend(['--csr-format', csr_format])
+
+        if request_type:
+            cmd.extend(['--request-type', request_type])
+
+        if dns_names:
+            cmd.extend(['--dns-names', ','.join(dns_names)])
+
+        if adjust_validity:
+            cmd.append('--adjust-validity')
 
         if profile_path:
             cmd.extend(['--profile', profile_path])
@@ -2700,6 +2747,9 @@ class CASubsystem(PKISubsystem):
 
         if cert_format:
             cmd.extend(['--format', cert_format])
+
+        if import_cert:
+            cmd.append('--import-cert')
 
         logger.debug('Command: %s', ' '.join(cmd))
         result = subprocess.run(

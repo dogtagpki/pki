@@ -146,8 +146,9 @@ public class CLI {
             String moduleName = null;
             CLIModule module = null;
             int j = i;
+            int matchedJ = i - 1;
 
-            // find module that matches the shortest sequence of names
+            // find module that matches the longest sequence of names
             while (j < names.length) {
 
                 // construct module name
@@ -158,11 +159,12 @@ public class CLI {
                 }
 
                 // find module with name <names[i]>-...-<names[j]>
-                module = current.getModule(moduleName);
+                CLIModule m = current.getModule(moduleName);
 
-                if (module != null) {
-                    // module found, stop
-                    break;
+                if (m != null) {
+                    // keep matching to prefer longer module names (e.g. add-batch over add)
+                    module = m;
+                    matchedJ = j;
                 }
 
                 // try again with longer sequence
@@ -177,7 +179,7 @@ public class CLI {
 
             // repeat for the remaining parts
             current = module.getCLI();
-            i = j + 1;
+            i = matchedJ + 1;
         }
 
         return results;

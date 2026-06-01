@@ -17,6 +17,7 @@ public class SubsystemGroupMemberCLI extends CLI {
 
         addModule(new SubsystemGroupMemberFindCLI(this));
         addModule(new SubsystemGroupMemberAddCLI(this));
+        addModule(new SubsystemGroupMemberAddBatchCLI(this));
         addModule(new SubsystemGroupMemberRemoveCLI(this));
     }
 }

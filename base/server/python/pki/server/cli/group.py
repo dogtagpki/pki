@@ -118,6 +118,7 @@ class GroupMemberCLI(pki.cli.CLI):
         self.parent = parent
         self.add_module(GroupMemberFindCLI(self))
         self.add_module(GroupMemberAddCLI(self))
+        self.add_module(GroupMemberAddBatchCLI(self))
         self.add_module(GroupMemberRemoveCLI(self))
 
 
@@ -201,6 +202,53 @@ class GroupMemberAddCLI(pki.cli.CLI):
 
     def print_help(self):
         print('Usage: pki-server %s-group-member-add [OPTIONS] <group ID> <member ID>'
+              % self.parent.parent.parent.name)
+        print()
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
+        print('      --help                         Show help message.')
+        print()
+
+
+class GroupMemberAddBatchCLI(pki.cli.CLI):
+
+    def __init__(self, parent):
+        super().__init__(
+            'add-batch',
+            'Add %s group member to multiple groups'
+            % parent.parent.parent.name.upper())
+
+        self.parent = parent
+
+    def create_parser(self, subparsers=None):
+
+        self.parser = argparse.ArgumentParser(
+            self.get_full_name(),
+            add_help=False)
+        self.parser.add_argument(
+            '-i',
+            '--instance',
+            default='pki-tomcat')
+        self.parser.add_argument(
+            '-v',
+            '--verbose',
+            action='store_true')
+        self.parser.add_argument(
+            '--debug',
+            action='store_true')
+        self.parser.add_argument(
+            '--help',
+            action='store_true')
+        self.parser.add_argument(
+            'member_id',
+            nargs='?')
+        self.parser.add_argument(
+            'group_ids',
+            nargs='*')
+
+    def print_help(self):
+        print('Usage: pki-server %s-group-member-add-batch [OPTIONS] <member ID> <group ID>...'
               % self.parent.parent.parent.name)
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')

@@ -1,0 +1,74 @@
+Log: benchmarks/spawn-debug-timestamped-optimized.log
+Wall clock: 109.0s
+DEBUG Command: lines: 81
+
+=== Command counts by type ===
+  pki CLI                     28
+  filesystem                  27
+  pki-server                  20
+  systemctl                    3
+  certutil                     2
+  other                        1
+  TOTAL                       81
+
+=== pki CLI (DEBUG: Command: pki ...) ===
+  pki other                   10
+  nss-cert-export              8
+  nss-cert-request             5
+  nss-key-create               4
+  nss-cert-show                1
+  TOTAL pki CLI               28
+
+=== pki-server subcommand counts ===
+  ca-cert-create                      count=  5
+  ca-user-add                         count=  2
+  ca-user-cert-add                    count=  2
+  ca-db-remove                        count=  1
+  ca-db-create                        count=  1
+  ca-db-init                          count=  1
+  ca-db-index-add                     count=  1
+  ca-db-index-rebuild                 count=  1
+  ca-profile-import                   count=  1
+  ca-group-member-add                 count=  1
+  ca-sd-create                        count=  1
+  ca-sd-subsystem-add                 count=  1
+  ca-group-member-add-batch           count=  1
+  ca-range-update                     count=  1
+  (all pki-server)                    count= 20
+
+=== Phase timeline (INFO markers, 1s resolution from ts) ===
+  1_instance_start          1.0s  (Preparing pki-tomcat instance)
+  2_ca_subsystem            0.0s  (Creating CA subsystem)
+  3_system_keys             0.0s  (Generating system keys)
+  4_configure_db            4.0s  (Configuring CA database)
+  5_create_db               2.0s  (Creating database)
+  6_init_db                17.0s  (Initializing database)
+  8_deploy_ca               0.0s  (Deploying ca web application)
+  9_system_certs            0.0s  (Setting up system certs)
+  10_signing_cert          48.0s  (Setting up signing cert)
+  11_admin_cert             9.0s  (Setting up admin cert)
+  12_admin_user            16.0s  (Setting up admin user)
+  13_ca_done                0.0s  (CA configuration complete)
+  14_tomcat_start          11.0s  (Starting PKI server)
+  15_tomcat_up              1.0s  (PKI server started)
+  16_subsystem_up           0.0s  (Subsystem status: running -> end)
+
+pki-server cert/admin/LDAP ops (listed types): 11 invocations
+
+=== pki-server per-invocation duration (ts delta to next Command:) ===
+  ca-cert-create                      n=  5  total=  41.0s  avg= 8.20s  med= 8.00s
+  ca-range-update                     n=  1  total=  13.0s  avg=13.00s  med=13.00s
+  ca-group-member-add-batch           n=  1  total=  12.0s  avg=12.00s  med=12.00s
+  ca-db-init                          n=  1  total=  10.0s  avg=10.00s  med=10.00s
+  ca-profile-import                   n=  1  total=   5.0s  avg= 5.00s  med= 5.00s
+  ca-user-add                         n=  2  total=   4.0s  avg= 2.00s  med= 3.00s
+  ca-user-cert-add                    n=  2  total=   4.0s  avg= 2.00s  med= 2.00s
+  ca-sd-subsystem-add                 n=  1  total=   4.0s  avg= 4.00s  med= 4.00s
+  ca-db-remove                        n=  1  total=   3.0s  avg= 3.00s  med= 3.00s
+  ca-db-index-rebuild                 n=  1  total=   3.0s  avg= 3.00s  med= 3.00s
+  ca-db-create                        n=  1  total=   2.0s  avg= 2.00s  med= 2.00s
+  ca-db-index-add                     n=  1  total=   2.0s  avg= 2.00s  med= 2.00s
+  ca-group-member-add                 n=  1  total=   2.0s  avg= 2.00s  med= 2.00s
+  ca-sd-create                        n=  1  total=   2.0s  avg= 2.00s  med= 2.00s
+  SUM (overlapping gaps)                   total= 107.0s
+  (Durations are gaps until next pki-server call; includes work between calls.)
