@@ -469,19 +469,17 @@ public class KeyRecord extends DBRecord {
     /**
      * Sets wrapping parameters for key record metadata.
      *
-     * There are two archival paths:
-     * 1. Normal wrapping path (doEncrypt=false):
-     *    - Uses StorageKeyUnit.wrap() → wrapUsingSymmetricKey()
-     *    - Records: sessionKey*, payloadWrapAlgorithm, payloadWrappingIV
-     *    - For ML-KEM: skips sessionKeyWrapAlgorithm, sessionKeyKeyGenAlgorithm
+     * Stores all wrapping/encryption parameters that are present in the params object.
+     * For RSA/EC storage certs, the config typically populates both encryption and wrapping
+     * parameters. For ML-KEM storage certs, only wrapping parameters are relevant (ML-KEM
+     * does not support the allowEncDecrypt_archival encryption path).
      *
-     * 2. Encryption path (doEncrypt=true, allowEncDecrypt_archival=true):
-     *    - Uses StorageKeyUnit.encryptInternalPrivate() → encryptUsingSymmetricKey()
-     *    - Records: sessionKey*, payloadEncryptionOID, payloadEncryptionIV
-     *    - Note: ML-KEM does NOT support this path (blocked in EnrollmentService)
+     * ML-KEM-specific handling:
+     * - Skips sessionKeyWrapAlgorithm (ML-KEM uses encapsulation, not RSA wrapping)
+     * - Skips sessionKeyKeyGenAlgorithm (shared secret is derived via KEM, not generated)
      *
      * @param params Wrapping parameters from storage unit
-     * @param doEncrypt Whether encryption was used (vs wrapping)
+     * @param doEncrypt Whether encryption was used (vs wrapping) - stored in payloadEncrypted field
      * @param storageKeyAlg Storage cert public key algorithm (e.g., "RSA", "EC", "ML-KEM-1024")
      */
     public void setWrappingParams(WrappingParams params, boolean doEncrypt, String storageKeyAlg) throws Exception {
@@ -492,8 +490,8 @@ public class KeyRecord extends DBRecord {
         // Detect if ML-KEM is used
         boolean isMLKEM = CryptoUtil.isAlgorithmMLKEM(storageKeyAlg);
 
-        // Record the storage key algorithm for clarity
-        if (storageKeyAlg != null) {
+        // Record the storage key algorithm for ML-KEM only (to distinguish from RSA/EC)
+        if (isMLKEM && storageKeyAlg != null) {
             mMetaInfo.set(KeyRecordParser.OUT_STORAGE_KEY_ALGORITHM, storageKeyAlg);
         }
 
@@ -516,9 +514,10 @@ public class KeyRecord extends DBRecord {
         }
 
         // set payload parameters
-        // Only set encryption parameters if doEncrypt=true (allowEncDecrypt_archival path)
-        // Normal wrapping path uses payloadWrapAlgorithm instead
-        if (doEncrypt && params.getPayloadEncryptionAlgorithm() != null) {
+        // Store all payload parameters that are present in params.
+        // For RSA/EC: both encryption and wrapping params are set from config
+        // For ML-KEM: only wrapping params are relevant (no encryption path supported)
+        if (params.getPayloadEncryptionAlgorithm() != null) {
             EncryptionAlgorithm encrypt = params.getPayloadEncryptionAlgorithm();
             try {
                 OBJECT_IDENTIFIER oid = encrypt.toOID();
@@ -530,19 +529,17 @@ public class KeyRecord extends DBRecord {
                 mMetaInfo.set(KeyRecordParser.OUT_PL_ENCRYPTION_PADDING, encrypt.getPadding().toString());
             }
         }
-        // Wrapping parameters are used in normal path (doEncrypt=false)
-        if (!doEncrypt && params.getPayloadWrapAlgorithm() != null) {
+        if (params.getPayloadWrapAlgorithm() != null) {
             mMetaInfo.set(KeyRecordParser.OUT_PL_WRAP_ALGORITHM, params.getPayloadWrapAlgorithm().toString());
         }
-        if (!doEncrypt && params.getPayloadWrappingIV() != null) {
+        if (params.getPayloadWrappingIV() != null) {
             // store as base64 encoded string
             mMetaInfo.set(
                 KeyRecordParser.OUT_PL_WRAP_IV,
                 Base64.encodeBase64String(params.getPayloadWrappingIV().getIV())
             );
         }
-        // Only set encryption IV if doEncrypt=true (allowEncDecrypt_archival path)
-        if (doEncrypt && params.getPayloadEncryptionIV() != null) {
+        if (params.getPayloadEncryptionIV() != null) {
             // store as base 64 encoded string
             mMetaInfo.set(
                 KeyRecordParser.OUT_PL_ENCRYPTION_IV,
