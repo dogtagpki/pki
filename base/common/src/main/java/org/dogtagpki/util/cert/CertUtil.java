@@ -473,6 +473,19 @@ public class CertUtil {
         CryptoManager cm = CryptoManager.getInstance();
         CertificateUsage cu = CertUtil.toCertificateUsage(certUsage);
 
+        // ML-KEM transport and storage certificates have only keyEncipherment usage
+        // and do not support SSLClient validation. Skip validation for ML-KEM certs
+        // when SSLClient usage is requested.
+        if (cu == CertificateUsage.SSLClient) {
+            org.mozilla.jss.crypto.X509Certificate cert = cm.findCertByNickname(nickname);
+            String algorithm = cert.getPublicKey().getAlgorithm();
+            if (CryptoUtil.isAlgorithmMLKEM(algorithm)) {
+                logger.info("CertUtil: Skipping SSLClient validation for ML-KEM certificate: " + nickname);
+                logger.debug("CertUtil: ML-KEM certificates use keyEncipherment only, not SSLClient");
+                return;
+            }
+        }
+
         if (cu.getUsage() == CertificateUsage.CheckAllUsages.getUsage()) {
             // check all possible usages
             int currentUsages = cm.isCertValid(nickname, true);

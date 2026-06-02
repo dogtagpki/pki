@@ -1222,6 +1222,22 @@ class PKIDeployer:
                 elif key_type == 'MLDSA':
                     return 'caMLDSAInternalAuthSubsystemCert'
 
+        elif cert_id == 'storage':
+
+            key_type = self.get_key_type(subsystem, cert_id)
+            if key_type == 'MLKEM':
+                return 'caMLKEMInternalAuthDRMstorageCert'
+            else:
+                return 'caInternalAuthDRMstorageCert'
+
+        elif cert_id == 'transport':
+
+            key_type = self.get_key_type(subsystem, cert_id)
+            if key_type == 'MLKEM':
+                return 'caMLKEMInternalAuthTransportCert'
+            else:
+                return 'caInternalAuthTransportCert'
+
         elif cert_id == 'admin':
             return 'adminCert.profile'
 
@@ -1980,17 +1996,24 @@ class PKIDeployer:
         if not csr_path:
             return
 
-        key_usage_ext = {
-            'digitalSignature': True,
-            'nonRepudiation': True,
-            'keyEncipherment': True,
-            'dataEncipherment': True,
-            'critical': True
-        }
-
-        extended_key_usage_ext = {
-            'clientAuth': True
-        }
+        key_type = self.get_key_type(subsystem, 'storage')
+        if key_type == 'MLKEM':
+            key_usage_ext = {
+                'keyEncipherment': True,
+                'critical': True
+            }
+            extended_key_usage_ext = None
+        else:
+            key_usage_ext = {
+                'digitalSignature': True,
+                'nonRepudiation': True,
+                'keyEncipherment': True,
+                'dataEncipherment': True,
+                'critical': True
+            }
+            extended_key_usage_ext = {
+                'clientAuth': True
+            }
 
         tag = 'storage'
         cert_config = subsystem.get_system_cert_config(tag)
@@ -2012,17 +2035,24 @@ class PKIDeployer:
         if not csr_path:
             return
 
-        key_usage_ext = {
-            'digitalSignature': True,
-            'nonRepudiation': True,
-            'keyEncipherment': True,
-            'dataEncipherment': True,
-            'critical': True
-        }
-
-        extended_key_usage_ext = {
-            'clientAuth': True
-        }
+        key_type = self.get_key_type(subsystem, 'transport')
+        if key_type == 'MLKEM':
+            key_usage_ext = {
+                'keyEncipherment': True,
+                'critical': True
+            }
+            extended_key_usage_ext = None
+        else:
+            key_usage_ext = {
+                'digitalSignature': True,
+                'nonRepudiation': True,
+                'keyEncipherment': True,
+                'dataEncipherment': True,
+                'critical': True
+            }
+            extended_key_usage_ext = {
+                'clientAuth': True
+            }
 
         tag = 'transport'
         cert_config = subsystem.get_system_cert_config(tag)
@@ -3186,6 +3216,9 @@ class PKIDeployer:
         Here we use the pkispawn config param to determine if it's HSM to trigger:
             pki_hsm_enable = True
 
+        Note: ML-KEM keys use encapsulation, not traditional key wrapping,
+        so key_wrap should not be set for ML-KEM even in HSM mode.
+
         """
 
         logger.debug('generate_csr: pki_hsm_enable: %s', self.mdict['pki_hsm_enable'])
@@ -3193,7 +3226,8 @@ class PKIDeployer:
 
         if (subsystem.type == 'KRA' and
                 config.str2bool(self.mdict['pki_hsm_enable']) and
-                (cert_param_id in ['storage', 'transport'])):
+                (cert_param_id in ['storage', 'transport']) and
+                key_type != 'MLKEM'):
             key_wrap = True
             csr_pathname = csr_path
 
