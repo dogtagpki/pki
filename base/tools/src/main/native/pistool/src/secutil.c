@@ -104,8 +104,8 @@ SECU_GetString(int16 error_number)
     return errString;
 }
 
-void 
-SECU_PrintErrMsg(FILE *out, int level, char *progName, char *msg, ...)
+void
+SECU_PrintErrMsg(FILE *out, int level, const char *progName, const char *msg, ...)
 {
     va_list args;
     PRErrorCode err = PORT_GetError();
@@ -124,8 +124,8 @@ SECU_PrintErrMsg(FILE *out, int level, char *progName, char *msg, ...)
     va_end(args);
 }
 
-void 
-SECU_PrintError(char *progName, char *msg, ...)
+void
+SECU_PrintError(const char *progName, const char *msg, ...)
 {
     va_list args;
     PRErrorCode err = PORT_GetError();
@@ -144,7 +144,7 @@ SECU_PrintError(char *progName, char *msg, ...)
 }
 
 void
-SECU_PrintSystemError(char *progName, char *msg, ...)
+SECU_PrintSystemError(const char *progName, const char *msg, ...)
 {
     va_list args;
 
@@ -894,7 +894,7 @@ SECU_StripTagAndLength(SECItem *i)
 ** call SECU_PrintEncodedInteger();
 */
 void
-SECU_PrintInteger(FILE *out, SECItem *i, char *m, int level)
+SECU_PrintInteger(FILE *out, SECItem *i, const char *m, int level)
 {
     int iv;
 
@@ -1015,7 +1015,7 @@ secu_PrintTime(FILE *out, int64 time, char *m, int level)
  * otherwise just print the formatted time string only.
  */
 void
-SECU_PrintUTCTime(FILE *out, SECItem *t, char *m, int level)
+SECU_PrintUTCTime(FILE *out, SECItem *t, const char *m, int level)
 {
     int64 time;
     SECStatus rv;
@@ -1052,7 +1052,7 @@ SECU_PrintGeneralizedTime(FILE *out, SECItem *t, const char *m, int level)
  * afterward; otherwise just print the formatted time string only.
  */
 void
-SECU_PrintTimeChoice(FILE *out, SECItem *t, char *m, int level)
+SECU_PrintTimeChoice(FILE *out, SECItem *t, const char *m, int level)
 {
     switch (t->type) {
         case siUTCTime:
@@ -1072,7 +1072,7 @@ SECU_PrintTimeChoice(FILE *out, SECItem *t, char *m, int level)
 
 /* This prints a SET or SEQUENCE */
 void
-SECU_PrintSet(FILE *out, SECItem *t, char *m, int level)
+SECU_PrintSet(FILE *out, SECItem *t, const char *m, int level)
 {
     int            type        = t->data[0] & SEC_ASN1_TAGNUM_MASK;
     int            constructed = t->data[0] & SEC_ASN1_CONSTRUCTED;
@@ -1204,7 +1204,7 @@ secu_PrintDecodedBitString(FILE *out, SECItem *i, char *m, int level)
 
 /* Print a DER encoded Boolean */
 void
-SECU_PrintEncodedBoolean(FILE *out, SECItem *i, char *m, int level)
+SECU_PrintEncodedBoolean(FILE *out, SECItem *i, const char *m, int level)
 {
     SECItem my    = *i;
     if (SECSuccess == SECU_StripTagAndLength(&my))
@@ -1213,7 +1213,7 @@ SECU_PrintEncodedBoolean(FILE *out, SECItem *i, char *m, int level)
 
 /* Print a DER encoded integer */
 void
-SECU_PrintEncodedInteger(FILE *out, SECItem *i, char *m, int level)
+SECU_PrintEncodedInteger(FILE *out, SECItem *i, const char *m, int level)
 {
     SECItem my    = *i;
     if (SECSuccess == SECU_StripTagAndLength(&my))
@@ -1222,7 +1222,7 @@ SECU_PrintEncodedInteger(FILE *out, SECItem *i, char *m, int level)
 
 /* Print a DER encoded OID */
 void
-SECU_PrintEncodedObjectID(FILE *out, SECItem *i, char *m, int level)
+SECU_PrintEncodedObjectID(FILE *out, SECItem *i, const char *m, int level)
 {
     SECItem my    = *i;
     if (SECSuccess == SECU_StripTagAndLength(&my))
@@ -1413,7 +1413,7 @@ SECU_PrintObjectID(FILE *out, SECItem *oid, const char *m, int level)
 
 /* This function does NOT expect a DER type and length. */
 void
-SECU_PrintAlgorithmID(FILE *out, SECAlgorithmID *a, char *m, int level)
+SECU_PrintAlgorithmID(FILE *out, SECAlgorithmID *a, const char *m, int level)
 {
     SECU_PrintObjectID(out, &a->algorithm, m, level);
 
@@ -2207,8 +2207,8 @@ SECU_PrintCertNickname(CERTCertListNode *node, void *data)
     return (SECSuccess);
 }
 
-int
-SECU_DecodeAndPrintExtensions(FILE *out, SECItem *any, char *m, int level)
+SECStatus
+SECU_DecodeAndPrintExtensions(FILE *out, SECItem *any, const char *m, int level)
 {
     CERTCertExtension **extensions = NULL;
     PRArenaPool *arena = PORT_NewArena(DER_DEFAULT_CHUNKSIZE);
@@ -2228,8 +2228,8 @@ SECU_DecodeAndPrintExtensions(FILE *out, SECItem *any, char *m, int level)
 }
 
 /* print a decoded SET OF or SEQUENCE OF Extensions */
-int
-SECU_PrintSetOfExtensions(FILE *out, SECItem **any, char *m, int level)
+SECStatus
+SECU_PrintSetOfExtensions(FILE *out, SECItem **any, const char *m, int level)
 {
     int rv = 0;
     if (m && *m) {
@@ -2243,8 +2243,8 @@ SECU_PrintSetOfExtensions(FILE *out, SECItem **any, char *m, int level)
 }
 
 /* print a decoded SET OF or SEQUENCE OF "ANY" */
-int
-SECU_PrintSetOfAny(FILE *out, SECItem **any, char *m, int level)
+SECStatus
+SECU_PrintSetOfAny(FILE *out, SECItem **any, const char *m, int level)
 {
     int rv = 0;
     if (m && *m) {
@@ -2257,8 +2257,8 @@ SECU_PrintSetOfAny(FILE *out, SECItem **any, char *m, int level)
     return rv;
 }
 
-int
-SECU_PrintCertAttribute(FILE *out, CERTAttribute *attr, char *m, int level)
+SECStatus
+SECU_PrintCertAttribute(FILE *out, CERTAttribute *attr, const char *m, int level)
 {
     int rv = 0;
     SECOidTag tag;
@@ -2271,8 +2271,8 @@ SECU_PrintCertAttribute(FILE *out, CERTAttribute *attr, char *m, int level)
     return rv;
 }
 
-int
-SECU_PrintCertAttributes(FILE *out, CERTAttribute **attrs, char *m, int level)
+SECStatus
+SECU_PrintCertAttributes(FILE *out, CERTAttribute **attrs, const char *m, int level)
 {
     int rv = 0;
     while (attrs[0]) {

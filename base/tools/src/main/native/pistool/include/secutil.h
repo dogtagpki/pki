@@ -168,10 +168,12 @@ SECU_GetClientAuthData(void *arg, PRFileDesc *fd,
 		       struct SECKEYPrivateKeyStr **pRetKey);
 
 /* print out an error message */
-extern void SECU_PrintError(char *progName, char *msg, ...);
+extern void SECU_PrintError(const char *progName, const char *msg, ...)
+    __attribute__((format(printf, 2, 3)));
 
 /* print out a system error message */
-extern void SECU_PrintSystemError(char *progName, char *msg, ...);
+extern void SECU_PrintSystemError(const char *progName, const char *msg, ...)
+    __attribute__((format(printf, 2, 3)));
 
 /* Return informative error string */
 extern const char * SECU_Strerror(PRErrorCode errNum);
@@ -194,13 +196,13 @@ SECU_ReadDERFromFile(SECItem *der, PRFileDesc *inFile, PRBool ascii);
 extern void SECU_Indent(FILE *out, int level);
 
 /* Print integer value and hex */
-extern void SECU_PrintInteger(FILE *out, SECItem *i, char *m, int level);
+extern void SECU_PrintInteger(FILE *out, SECItem *i, const char *m, int level);
 
 /* Print ObjectIdentifier symbolically */
 extern SECOidTag SECU_PrintObjectID(FILE *out, SECItem *oid, const char *m, int level);
 
 /* Print AlgorithmIdentifier symbolically */
-extern void SECU_PrintAlgorithmID(FILE *out, SECAlgorithmID *a, char *m,
+extern void SECU_PrintAlgorithmID(FILE *out, SECAlgorithmID *a, const char *m,
 				  int level);
 
 /* Print SECItem as hex */
@@ -214,7 +216,7 @@ extern void SECU_PrintBuf(FILE *out, const char *msg, const void *vp, int len);
  * do indent formatting based on "level" and add a newline afterward;
  * otherwise just print the formatted time string only.
  */
-extern void SECU_PrintUTCTime(FILE *out, SECItem *t, char *m, int level);
+extern void SECU_PrintUTCTime(FILE *out, SECItem *t, const char *m, int level);
 
 /*
  * Format and print the Generalized Time "t".  If the tag message "m"
@@ -229,7 +231,7 @@ extern void SECU_PrintGeneralizedTime(FILE *out, SECItem *t, const char *m,
  * "m" is not NULL, do indent formatting based on "level" and add a newline
  * afterward; otherwise just print the formatted time string only.
  */
-extern void SECU_PrintTimeChoice(FILE *out, SECItem *t, char *m, int level);
+extern void SECU_PrintTimeChoice(FILE *out, SECItem *t, const char *m, int level);
 
 /* callback for listing certs through pkcs11 */
 extern SECStatus SECU_PrintCertNickname(CERTCertListNode* cert, void *data);
@@ -307,6 +309,24 @@ extern char *SECU_SECModDBName(void);
 extern void SECU_PrintPRandOSError(char *progName);
 
 extern SECStatus SECU_RegisterDynamicOids(void);
+
+/* Additional function prototypes for pistool */
+extern char *SECU_GetString(int16 error_number);
+extern void SECU_PrintErrMsg(FILE *out, int level, const char *progName, const char *msg, ...)
+    __attribute__((format(printf, 4, 5)));
+extern char *secu_InitSlotPassword(PK11SlotInfo *slot, PRBool retry, void *arg);
+extern SECStatus secu_StdinToItem(SECItem *dst);
+extern SECStatus SECU_StripTagAndLength(SECItem *i);
+extern void SECU_PrintSet(FILE *out, SECItem *t, const char *m, int level);
+extern void SECU_PrintEncodedBoolean(FILE *out, SECItem *i, const char *m, int level);
+extern void SECU_PrintEncodedInteger(FILE *out, SECItem *i, const char *m, int level);
+extern void SECU_PrintEncodedObjectID(FILE *out, SECItem *i, const char *m, int level);
+extern SECStatus SECU_DecodeAndPrintExtensions(FILE *out, SECItem *any, const char *m, int level);
+extern SECStatus SECU_PrintSetOfExtensions(FILE *out, SECItem **any, const char *m, int level);
+extern SECStatus SECU_PrintSetOfAny(FILE *out, SECItem **any, const char *m, int level);
+extern SECStatus SECU_PrintCertAttribute(FILE *out, CERTAttribute *attr, const char *m, int level);
+extern SECStatus SECU_PrintCertAttributes(FILE *out, CERTAttribute **attrs, const char *m, int level);
+extern void printFlags(FILE *out, unsigned int flags, int level);
 
 /* Identifies hash algorithm tag by its string representation. */
 extern SECOidTag SECU_StringToSignatureAlgTag(const char *alg);
