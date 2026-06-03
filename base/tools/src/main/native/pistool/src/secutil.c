@@ -169,7 +169,7 @@ secu_ClearPassword(char *p)
 }
 
 char *
-SECU_GetPasswordString(void *arg, char *prompt)
+SECU_GetPasswordString(void *arg __attribute__((unused)), char *prompt)
 {
 #ifndef _WINDOWS
     char *p = NULL;
@@ -218,7 +218,7 @@ SECU_GetPasswordString(void *arg, char *prompt)
  *
  */
 char *
-SECU_FilePasswd(PK11SlotInfo *slot, PRBool retry, void *arg)
+SECU_FilePasswd(PK11SlotInfo *slot __attribute__((unused)), PRBool retry, void *arg)
 {
     unsigned char phrase[200];
     PRFileDesc *fd;
@@ -371,7 +371,7 @@ secu_InitSlotPassword(PK11SlotInfo *slot, PRBool retry, void *arg)
 SECStatus
 SECU_ChangePW(PK11SlotInfo *slot, char *passwd, char *pwFile)
 {
-    SECStatus rv;
+    SECStatus rv __attribute__((unused));
     secuPWData pwdata, newpwdata;
     char *oldpw = NULL, *newpw = NULL;
 
@@ -500,8 +500,8 @@ SECU_ConfigDirectory(const char* base)
 /*Turn off SSL for now */
 /* This gets called by SSL when server wants our cert & key */
 int
-SECU_GetClientAuthData(void *arg, PRFileDesc *fd,
-		       struct CERTDistNamesStr *caNames,
+SECU_GetClientAuthData(void *arg, PRFileDesc *fd __attribute__((unused)),
+		       struct CERTDistNamesStr *caNames __attribute__((unused)),
                       struct CERTCertificateStr **pRetCert,
                       struct SECKEYPrivateKeyStr **pRetKey)
 {
@@ -2214,8 +2214,8 @@ SECU_DecodeAndPrintExtensions(FILE *out, SECItem *any, const char *m, int level)
     PRArenaPool *arena = PORT_NewArena(DER_DEFAULT_CHUNKSIZE);
     int rv = 0;
 
-    if (!arena) 
-	return SEC_ERROR_NO_MEMORY;
+    if (!arena)
+	return SECFailure;
 
     rv = SEC_QuickDERDecodeItem(arena, &extensions, 
 		   SEC_ASN1_GET(CERT_SequenceOfCertExtensionTemplate), any);
@@ -3300,6 +3300,7 @@ SECU_printCertProblems(FILE *outfile, CERTCertDBHandle *handle,
 		    errstr = "[unknown usage].";
 		    break;
 		}
+		break;
 	    case SEC_ERROR_INADEQUATE_CERT_TYPE:
 		flags = (unsigned int)node->arg;
 		switch (flags) {
