@@ -331,6 +331,18 @@ public class RecoveryService implements IService {
                 encrypted = allowEncDecrypt_recovery;
             }
 
+            // Check if allowEncDecrypt_recovery is configured with ML-KEM storage
+            // ML-KEM uses KEM decapsulation, not traditional private key decryption
+            if (allowEncDecrypt_recovery && keyRecord.getMetaInfo() != null) {
+                String storageKeyAlg = (String) keyRecord.getMetaInfo().get(
+                    com.netscape.cms.servlet.key.KeyRecordParser.OUT_STORAGE_KEY_ALGORITHM);
+                if (storageKeyAlg != null && CryptoUtil.isAlgorithmMLKEM(storageKeyAlg)) {
+                    throw new EBaseException(
+                        "allowEncDecrypt_recovery is not supported with ML-KEM storage certificates. " +
+                        "ML-KEM uses KEM decapsulation and cannot decrypt private keys directly.");
+                }
+            }
+
             PrivateKey privKey = null;
             if (encrypted) {
                 privateKeyData = recoverKey(params, keyRecord);

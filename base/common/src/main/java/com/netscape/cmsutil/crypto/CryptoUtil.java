@@ -2273,6 +2273,19 @@ public class CryptoUtil {
             CryptoToken token,
             PublicKey wrappingKey,
             SymmetricKey sk) throws Exception {
+
+        String wrappingAlg = wrappingKey.getAlgorithm();
+
+        if (wrappingAlg == null) {
+            throw new Exception("Unable to determine transport key algorithm");
+        }
+
+        if (isAlgorithmMLKEM(wrappingAlg)) {
+            throw new Exception("ML-KEM cannot wrap existing symmetric keys. " +
+                    "Use encapsulateMLKEM() instead - ML-KEM encapsulation generates a new shared secret.");
+        }
+
+        // RSA/EC: Use traditional key wrapping
         return wrapUsingPublicKey(token, wrappingKey, sk, KeyWrapAlgorithm.RSA);
     }
 
@@ -2945,6 +2958,19 @@ public class CryptoUtil {
     public static byte[] wrapUsingPublicKey(CryptoToken token, PublicKey wrappingKey, SymmetricKey data,
             KeyWrapAlgorithm alg) throws Exception {
         String method = "CryptoUtil.wrapUsingPublicKey ";
+
+        String wrappingAlg = wrappingKey.getAlgorithm();
+
+        if (wrappingAlg == null) {
+            throw new Exception("Unable to determine wrapping key algorithm");
+        }
+
+        if (isAlgorithmMLKEM(wrappingAlg)) {
+            throw new Exception("ML-KEM cannot wrap existing symmetric keys. " +
+                    "Use encapsulateMLKEM() instead - ML-KEM encapsulation generates a new shared secret.");
+        }
+
+        // RSA/EC: Use traditional key wrapping
         KeyWrapper rsaWrap = token.getKeyWrapper(alg);
         logger.debug(method + " KeyWrapAlg: " + alg);
         if (alg.equals(KeyWrapAlgorithm.RSA_OAEP)) {
