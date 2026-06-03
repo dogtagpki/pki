@@ -152,34 +152,6 @@ Output (const char *fmt, ...)
   va_end (ap);
 }
 
-static void
-printBuf (Buffer * buf)
-{
-  int sum = 0;
-
-  BYTE *data = *buf;
-  int i = 0;
-  if (buf->size () > 255)
-    {
-      Output ("printBuf: TOO BIG to print");
-      return;
-    }
-  Output ("Begin printing buffer =====");
-  for (i = 0; i < (int) buf->size (); i++)
-    {
-      printf ("%02x ", (unsigned char) data[i]);
-      sum++;
-      if (sum == 10)
-        {
-          printf ("\n");
-          sum = 0;
-        }
-    }
-  Output ("End printing buffer =====");
-}
-
-
-
 #ifdef VERBOSE
 static void
 printBuf (Buffer * buf)
@@ -207,28 +179,6 @@ printBuf (Buffer * buf)
   Output ("End printing buffer =====");
 }
 #endif
-
-
-static PRUint32
-GetIPAddress (const char *hostName)
-{
-  const unsigned char *p;
-  char buf[PR_NETDB_BUF_SIZE];
-  PRStatus prStatus;
-  PRUint32 rv = 0;
-  PRHostEnt prHostEnt;
-
-  prStatus = PR_GetHostByName (hostName, buf, sizeof buf, &prHostEnt);
-  if (prStatus != PR_SUCCESS)
-    return rv;
-
-#undef  h_addr
-#define h_addr  h_addr_list[0]	/* address, for backward compatibility */
-
-  p = (const unsigned char *) (prHostEnt.h_addr);	/* in Network Byte order */
-  rv = (p[0] << 24) | (p[1] << 16) | (p[2] << 8) | p[3];
-  return rv;
-}
 
 char*
 RA_Conn::GetHostname ()
@@ -454,7 +404,6 @@ static int
 ReadResponseHeader (PRFileDesc * fd)
 {
   char buf[1024];
-  PRInt32 rc;
   char *cur = buf;
   int i;
 
@@ -464,7 +413,7 @@ ReadResponseHeader (PRFileDesc * fd)
     }
   while (1)
     {
-      rc = PR_Recv (fd, cur, 1, 0, 1000000);
+      PR_Recv (fd, cur, 1, 0, 1000000);
       if (buf[0] == '\r' &&
 	  buf[1] == '\n' && buf[2] == '\r' && buf[3] == '\n')
 	{
