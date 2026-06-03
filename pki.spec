@@ -22,7 +22,7 @@ License:          GPL-2.0-only AND LGPL-2.0-only
 # - development (unsupported): alpha<n> where n >= 1
 # - stabilization (supported): beta<n> where n >= 1
 # - GA/update (supported): <none>
-%global           phase alpha1
+%global           phase beta2
 
 %undefine         timestamp
 %undefine         commit_id
@@ -238,7 +238,7 @@ BuildRequires:    tomcat-lib >= 1:10.1.36
 BuildRequires:    tomcat-jakartaee-migration
 %endif
 
-BuildRequires:    %{vendor_id}-jss >= 5.10
+BuildRequires:    %{vendor_id}-jss >= 5.10.0~beta2
 
 BuildRequires:    mvn(xml-apis:xml-apis)
 BuildRequires:    mvn(xml-resolver:xml-resolver)
@@ -295,9 +295,9 @@ BuildRequires:    mvn(org.apache.tomcat:tomcat-util-scan) >= 10.0.36
 
 %endif
 
-BuildRequires:    mvn(org.dogtagpki.jss:jss-base) >= 5.10.0
-BuildRequires:    mvn(org.dogtagpki.jss:jss-tomcat) >= 5.10.0
-BuildRequires:    mvn(org.dogtagpki.ldap-sdk:ldapjdk) >= 5.6.0
+BuildRequires:    %{vendor_id}-jss >= 5.10.0~beta2
+BuildRequires:    %{vendor_id}-jss-tomcat >= 5.10.0~beta2
+BuildRequires:    %{vendor_id}-ldapjdk >= 5.7.0~beta2
 
 # Python build dependencies
 BuildRequires:    python3 >= 3.6
@@ -641,8 +641,8 @@ Provides:         bundled(resteasy-client)
 Provides:         bundled(resteasy-jackson2-provider)
 %endif
 
-Requires:         mvn(org.dogtagpki.jss:jss-base) >= 5.10.0
-Requires:         mvn(org.dogtagpki.ldap-sdk:ldapjdk) >= 5.6.0
+Requires:         %{vendor_id}-jss >= 5.10.0~beta2
+Requires:         %{vendor_id}-ldapjdk >= 5.7.0~beta2
 Requires:         %{product_id}-base = %{version}-%{release}
 
 %description -n   %{product_id}-java
@@ -722,7 +722,7 @@ Requires:         tomcat >= 9.0
 Requires:         tomcat >= 1:10.1.36
 %endif
 
-Requires:         mvn(org.dogtagpki.jss:jss-tomcat) >= 5.10.0
+Requires:         %{vendor_id}-jss-tomcat >= 5.10.0~beta2
 
 Requires:         systemd
 Requires(post):   systemd-units
@@ -1956,7 +1956,7 @@ fi
 %{_datadir}/pki/lib/*.jar
 
 %if %{without maven}
-%{_datadir}/java/pki/pki-common.jar
+%{_javadir}/pki/pki-common.jar
 %endif
 
 ################################################################################
@@ -2039,7 +2039,11 @@ fi
 %{_mandir}/man1/PKCS10Client.1.gz
 %{_mandir}/man1/PKICertImport.1.gz
 %{_mandir}/man1/tpsclient.1.gz
+
+%if %{without maven}
 %{_javadir}/pki/pki-tools.jar
+%endif
+
 %{_jnidir}/pki/pki-tools.jar
 
 # with base
@@ -2107,14 +2111,14 @@ fi
 %{_sysusersdir}/%{product_id}.conf
 %endif
 %if %{without maven}
-%{_datadir}/java/pki/pki-server.jar
-%{_datadir}/java/pki/pki-server-webapp.jar
-%{_datadir}/java/pki/pki-tomcat.jar
+%{_javadir}/pki/pki-server.jar
+%{_javadir}/pki/pki-server-webapp.jar
+%{_javadir}/pki/pki-tomcat.jar
 
 %if 0%{?fedora} && 0%{?fedora} < %{fedora_tomcat9_cutoff} || 0%{?rhel} && 0%{?rhel} < %{rhel_tomcat9_cutoff}
-%{_datadir}/java/pki/pki-tomcat-9.0.jar
+%{_javadir}/pki/pki-tomcat-9.0.jar
 %else
-%{_datadir}/java/pki/pki-tomcat-10.1.jar
+%{_javadir}/pki/pki-tomcat-10.1.jar
 %endif
 
 #without maven
@@ -2131,7 +2135,7 @@ fi
 %{_datadir}/pki/acme/
 
 %if %{without maven}
-%{_datadir}/java/pki/pki-acme.jar
+%{_javadir}/pki/pki-acme.jar
 %endif
 
 # with acme
@@ -2146,7 +2150,7 @@ fi
 %{_datadir}/pki/ca/
 
 %if %{without maven}
-%{_datadir}/java/pki/pki-ca.jar
+%{_javadir}/pki/pki-ca.jar
 %endif
 
 # with ca
@@ -2160,7 +2164,7 @@ fi
 %{_datadir}/pki/est/
 
 %if %{without maven}
-%{_datadir}/java/pki/pki-est.jar
+%{_javadir}/pki/pki-est.jar
 %endif
 
 # with est
@@ -2175,7 +2179,7 @@ fi
 %{_datadir}/pki/kra/
 
 %if %{without maven}
-%{_datadir}/java/pki/pki-kra.jar
+%{_javadir}/pki/pki-kra.jar
 %endif
 
 # with kra
@@ -2190,7 +2194,7 @@ fi
 %{_datadir}/pki/ocsp/
 
 %if %{without maven}
-%{_datadir}/java/pki/pki-ocsp.jar
+%{_javadir}/pki/pki-ocsp.jar
 %endif
 
 # with ocsp
@@ -2205,7 +2209,7 @@ fi
 %{_datadir}/pki/tks/
 
 %if %{without maven}
-%{_datadir}/java/pki/pki-tks.jar
+%{_javadir}/pki/pki-tks.jar
 %endif
 
 # with tks
@@ -2222,7 +2226,7 @@ fi
 %{_mandir}/man5/pki-tps-profile.5.gz
 
 %if %{without maven}
-%{_datadir}/java/pki/pki-tps.jar
+%{_javadir}/pki/pki-tps.jar
 %endif
 
 # with tps
@@ -2246,7 +2250,7 @@ fi
 %license base/console/LICENSE
 %{_bindir}/pkiconsole
 %if %{without maven}
-%{_datadir}/java/pki/pki-console.jar
+%{_javadir}/pki/pki-console.jar
 %endif
 
 # with console
