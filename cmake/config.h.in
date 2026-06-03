@@ -39,7 +39,9 @@
 
 /**************************** PLATTFORM ****************************/
 
+#ifndef XP_UNIX
 #cmakedefine XP_UNIX 1
+#endif
 #cmakedefine VMS 1
 
 /*************************** ENDIAN *****************************/
