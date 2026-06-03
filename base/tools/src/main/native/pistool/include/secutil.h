@@ -120,7 +120,7 @@ extern PRBool SEC_BlindCheckPassword(char *password);
 ** First prompt with "msg" on "out", then read the password from "in".
 ** The password is then checked using "chkpw".
 */
-extern char *SEC_GetPassword(FILE *in, FILE *out, char *msg,
+extern char *SEC_GetPassword(FILE *in, FILE *out, const char *msg,
 				      PRBool (*chkpw)(char *));
 
 char *SECU_FilePasswd(PK11SlotInfo *slot, PRBool retry, void *arg);
@@ -263,7 +263,7 @@ extern int SECU_PrintPrivateKey(FILE *out, SECItem *der, char *m, int level);
 #endif
 
 /* Print the MD5 and SHA1 fingerprints of a cert */
-extern int SECU_PrintFingerprints(FILE *out, SECItem *derCert, char *m,
+extern int SECU_PrintFingerprints(FILE *out, SECItem *derCert, const char *m,
                                   int level);
 
 /* Pretty-print any PKCS7 thing */
@@ -280,19 +280,19 @@ extern int SECU_PrintSignedData(FILE *out, SECItem *der, char *m, int level,
 extern int SECU_PrintCrl(FILE *out, SECItem *der, char *m, int level);
 
 extern void
-SECU_PrintCRLInfo(FILE *out, CERTCrl *crl, char *m, int level);
+SECU_PrintCRLInfo(FILE *out, CERTCrl *crl, const char *m, int level);
 
 extern void SECU_PrintString(FILE *out, SECItem *si, const char *m, int level);
 extern void SECU_PrintAny(FILE *out, SECItem *i, const char *m, int level);
 
-extern void SECU_PrintPolicy(FILE *out, SECItem *value, char *msg, int level);
+extern void SECU_PrintPolicy(FILE *out, SECItem *value, const char *msg, int level);
 extern void SECU_PrintPrivKeyUsagePeriodExtension(FILE *out, SECItem *value,
                                  char *msg, int level);
 
 extern void SECU_PrintExtensions(FILE *out, CERTCertExtension **extensions,
-				 char *msg, int level);
+				 const char *msg, int level);
 
-extern void SECU_PrintName(FILE *out, CERTName *name, char *msg, int level);
+extern void SECU_PrintName(FILE *out, CERTName *name, const char *msg, int level);
 
 #ifdef SECU_GetPassword
 /* Convert a High public Key to a Low public Key */

@@ -255,7 +255,7 @@ secu_PrintPolicyInfo(FILE *out,CERTPolicyInfo *policyInfo,const char *msg,int le
 }
 
 void
-SECU_PrintPolicy(FILE *out, SECItem *value, char *msg, int level)
+SECU_PrintPolicy(FILE *out, SECItem *value, const char *msg, int level)
 {
    CERTCertificatePolicies *policies = NULL;
    CERTPolicyInfo **policyInfos;

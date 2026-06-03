@@ -259,7 +259,7 @@ SECU_GetModulePassword(PK11SlotInfo *slot, PRBool retry, void *arg)
     char prompt[255];
     secuPWData *pwdata = (secuPWData *)arg;
     secuPWData pwnull = { PW_NONE, 0 };
-    secuPWData pwxtrn = { PW_EXTERNAL, "external" };
+    secuPWData pwxtrn = { PW_EXTERNAL, (char *)"external" };
     char *pw;
 
     if (pwdata == NULL)
@@ -480,7 +480,7 @@ SECU_ConfigDirectory(const char* base)
 
     if (base == NULL || *base == 0) {
 	home = PR_GetEnv("HOME");
-	if (!home) home = "";
+	if (!home) home = (char *)"";
 
 	if (*home && home[strlen(home) - 1] == '/')
 	    sprintf (buf, "%.900s%s", home, dir);
@@ -919,7 +919,7 @@ SECU_PrintInteger(FILE *out, SECItem *i, const char *m, int level)
 }
 
 static void
-secu_PrintRawString(FILE *out, SECItem *si, char *m, int level)
+secu_PrintRawString(FILE *out, SECItem *si, const char *m, int level)
 {
     int column;
     unsigned int i;
@@ -983,7 +983,7 @@ secu_PrintBoolean(FILE *out, SECItem *i, const char *m, int level)
  * otherwise just print the formatted time string only.
  */
 static void
-secu_PrintTime(FILE *out, int64 time, char *m, int level)
+secu_PrintTime(FILE *out, int64 time, const char *m, int level)
 {
     PRExplodedTime printableTime; 
     char *timeString;
@@ -1126,7 +1126,7 @@ SECU_PrintSet(FILE *out, SECItem *t, const char *m, int level)
 }
 
 static void
-secu_PrintContextSpecific(FILE *out, SECItem *i, char *m, int level)
+secu_PrintContextSpecific(FILE *out, SECItem *i, const char *m, int level)
 {
     int type        = i->data[0] & SEC_ASN1_TAGNUM_MASK;
     int constructed = i->data[0] & SEC_ASN1_CONSTRUCTED;
@@ -1157,7 +1157,7 @@ secu_PrintContextSpecific(FILE *out, SECItem *i, char *m, int level)
 }
 
 static void
-secu_PrintOctetString(FILE *out, SECItem *i, char *m, int level)
+secu_PrintOctetString(FILE *out, SECItem *i, const char *m, int level)
 {
     SECItem tmp = *i;
     if (SECSuccess == SECU_StripTagAndLength(&tmp))
@@ -1165,7 +1165,7 @@ secu_PrintOctetString(FILE *out, SECItem *i, char *m, int level)
 }
 
 static void
-secu_PrintBitString(FILE *out, SECItem *i, char *m, int level)
+secu_PrintBitString(FILE *out, SECItem *i, const char *m, int level)
 {
     int unused_bits;
     SECItem tmp = *i;
@@ -1185,7 +1185,7 @@ secu_PrintBitString(FILE *out, SECItem *i, char *m, int level)
 
 /* in a decoded bit string, the len member is a bit length. */
 static void
-secu_PrintDecodedBitString(FILE *out, SECItem *i, char *m, int level)
+secu_PrintDecodedBitString(FILE *out, SECItem *i, const char *m, int level)
 {
     int unused_bits;
     SECItem tmp = *i;
@@ -1230,7 +1230,7 @@ SECU_PrintEncodedObjectID(FILE *out, SECItem *i, const char *m, int level)
 }
 
 static void
-secu_PrintBMPString(FILE *out, SECItem *i, char *m, int level)
+secu_PrintBMPString(FILE *out, SECItem *i, const char *m, int level)
 {
     unsigned char * s;
     unsigned char * d;
@@ -1264,7 +1264,7 @@ loser:
 }
 
 static void
-secu_PrintUniversalString(FILE *out, SECItem *i, char *m, int level)
+secu_PrintUniversalString(FILE *out, SECItem *i, const char *m, int level)
 {
     unsigned char * s;
     unsigned char * d;
@@ -1299,7 +1299,7 @@ loser:
 }
 
 static void
-secu_PrintUniversal(FILE *out, SECItem *i, char *m, int level)
+secu_PrintUniversal(FILE *out, SECItem *i, const char *m, int level)
 {
 	switch (i->data[0] & SEC_ASN1_TAGNUM_MASK) {
 	  case SEC_ASN1_ENUMERATED:
@@ -1373,7 +1373,7 @@ SECU_PrintAny(FILE *out, SECItem *i, const char *m, int level)
 }
 
 static int
-secu_PrintValidity(FILE *out, CERTValidity *v, char *m, int level)
+secu_PrintValidity(FILE *out, CERTValidity *v, const char *m, int level)
 {
     SECU_Indent(out, level);  fprintf(out, "%s:\n", m);
     SECU_PrintTimeChoice(out, &v->notBefore, "Not Before", level+1);
@@ -1428,7 +1428,7 @@ SECU_PrintAlgorithmID(FILE *out, SECAlgorithmID *a, const char *m, int level)
 }
 
 static void
-secu_PrintAttribute(FILE *out, SEC_PKCS7Attribute *attr, char *m, int level)
+secu_PrintAttribute(FILE *out, SEC_PKCS7Attribute *attr, const char *m, int level)
 {
     SECItem *value;
     int i;
@@ -1467,7 +1467,7 @@ secu_PrintAttribute(FILE *out, SEC_PKCS7Attribute *attr, char *m, int level)
 }
 
 static void
-secu_PrintRSAPublicKey(FILE *out, SECKEYPublicKey *pk, char *m, int level)
+secu_PrintRSAPublicKey(FILE *out, SECKEYPublicKey *pk, const char *m, int level)
 {
 
     SECU_Indent(out, level); fprintf(out, "%s:\n", m);
@@ -1480,7 +1480,7 @@ secu_PrintRSAPublicKey(FILE *out, SECKEYPublicKey *pk, char *m, int level)
 }
 
 static void
-secu_PrintDSAPublicKey(FILE *out, SECKEYPublicKey *pk, char *m, int level)
+secu_PrintDSAPublicKey(FILE *out, SECKEYPublicKey *pk, const char *m, int level)
 {
     SECU_Indent(out, level); fprintf(out, "%s:\n", m);
     SECU_PrintInteger(out, &pk->u.dsa.params.prime, "Prime", level+1);
@@ -1510,8 +1510,8 @@ secu_PrintECPublicKey(FILE *out, SECKEYPublicKey *pk, char *m, int level)
 #endif /* NSS_ENABLE_ECC */
 
 static void
-secu_PrintSubjectPublicKeyInfo(FILE *out, PRArenaPool *arena,
-		       CERTSubjectPublicKeyInfo *i,  char *msg, int level)
+secu_PrintSubjectPublicKeyInfo(FILE *out, PRArenaPool *arena __attribute__((unused)),
+		       CERTSubjectPublicKeyInfo *i,  const char *msg, int level)
 {
     SECKEYPublicKey *pk;
 
@@ -1557,7 +1557,7 @@ loser:
 }
 
 static SECStatus
-secu_PrintX509InvalidDate(FILE *out, SECItem *value, char *msg, int level)
+secu_PrintX509InvalidDate(FILE *out, SECItem *value, const char *msg, int level)
 {
     SECItem decodedValue;
     SECStatus rv;
@@ -1572,7 +1572,7 @@ secu_PrintX509InvalidDate(FILE *out, SECItem *value, char *msg, int level)
 	rv = DER_GeneralizedTimeToTime(&invalidTime, &decodedValue);
 	if (rv == SECSuccess) {
 	    formattedTime = CERT_GenTime2FormattedAscii
-			    (invalidTime, "%a %b %d %H:%M:%S %Y");
+			    (invalidTime, (char *)"%a %b %d %H:%M:%S %Y");
 	    SECU_Indent(out, level +1);
 	    fprintf (out, "%s: %s\n", msg, formattedTime);
 	    PORT_Free (formattedTime);
@@ -1601,7 +1601,7 @@ PrintExtKeyUsageExtension  (FILE *out, SECItem *value, char *msg, int level)
 }
 
 static SECStatus
-secu_PrintBasicConstraints(FILE *out, SECItem *value, char *msg, int level) {
+secu_PrintBasicConstraints(FILE *out, SECItem *value, const char *msg, int level) {
     CERTBasicConstraints constraints;
     SECStatus rv;
 
@@ -1636,7 +1636,7 @@ static const char * const nsTypeBits[] = {
 
 /* NSCertType is merely a bit string whose bits are displayed symbolically */
 static SECStatus
-secu_PrintNSCertType(FILE *out, SECItem *value, char *msg, int level) 
+secu_PrintNSCertType(FILE *out, SECItem *value, const char *msg, int level) 
 {
     int     unused;
     int     NS_Type;
@@ -1685,7 +1685,7 @@ static const char * const usageBits[] = {
 
 /* X509KeyUsage is merely a bit string whose bits are displayed symbolically */
 static void
-secu_PrintX509KeyUsage(FILE *out, SECItem *value, char *msg, int level) 
+secu_PrintX509KeyUsage(FILE *out, SECItem *value, const char *msg __attribute__((unused)), int level) 
 {
     int     unused;
     int     usage;
@@ -1720,7 +1720,7 @@ secu_PrintX509KeyUsage(FILE *out, SECItem *value, char *msg, int level)
 }
 
 static void
-secu_PrintIPAddress(FILE *out, SECItem *value, char *msg, int level)
+secu_PrintIPAddress(FILE *out, SECItem *value, const char *msg, int level)
 {
     PRStatus   st;
     PRNetAddr  addr;
@@ -1755,7 +1755,7 @@ loser:
 
 
 static void
-secu_PrintGeneralName(FILE *out, CERTGeneralName *gname, char *msg, int level) 
+secu_PrintGeneralName(FILE *out, CERTGeneralName *gname, const char *msg, int level) 
 {
     char label[40];
     if (msg && msg[0]) {
@@ -1799,7 +1799,7 @@ secu_PrintGeneralName(FILE *out, CERTGeneralName *gname, char *msg, int level)
 }
 
 static void
-secu_PrintAuthKeyIDExtension(FILE *out, SECItem *value, char *msg, int level) 
+secu_PrintAuthKeyIDExtension(FILE *out, SECItem *value, const char *msg __attribute__((unused)), int level) 
 {
     CERTAuthKeyID *kid  = NULL;
     PLArenaPool   *pool = PORT_NewArena(DER_DEFAULT_CHUNKSIZE);
@@ -1867,7 +1867,7 @@ secu_PrintAltNameExtension(FILE *out, SECItem *value, char *msg, int level)
 }
 
 static void
-secu_PrintCRLDistPtsExtension(FILE *out, SECItem *value, char *msg, int level)
+secu_PrintCRLDistPtsExtension(FILE *out, SECItem *value, const char *msg __attribute__((unused)), int level)
 {
     CERTCrlDistributionPoints * dPoints;
     PLArenaPool * pool = PORT_NewArena(DER_DEFAULT_CHUNKSIZE);
@@ -1909,8 +1909,8 @@ secu_PrintCRLDistPtsExtension(FILE *out, SECItem *value, char *msg, int level)
 
 
 static void
-secu_PrintNameConstraintSubtree(FILE *out, CERTNameConstraint *value, 
-                                char *msg, int level)
+secu_PrintNameConstraintSubtree(FILE *out, CERTNameConstraint *value,
+                                const char *msg, int level)
 {
     CERTNameConstraint *head = value;
     SECU_Indent(out, level); fprintf(out, "%s Subtree:\n", msg);
@@ -1926,7 +1926,7 @@ secu_PrintNameConstraintSubtree(FILE *out, CERTNameConstraint *value,
 }
 
 static void
-secu_PrintNameConstraintsExtension(FILE *out, SECItem *value, char *msg, int level)
+secu_PrintNameConstraintsExtension(FILE *out, SECItem *value, const char *msg __attribute__((unused)), int level)
 {
     CERTNameConstraints * cnstrnts;
     PLArenaPool * pool = PORT_NewArena(DER_DEFAULT_CHUNKSIZE);
@@ -1952,7 +1952,7 @@ secu_PrintNameConstraintsExtension(FILE *out, SECItem *value, char *msg, int lev
 
 
 static void
-secu_PrintAuthorityInfoAcess(FILE *out, SECItem *value, char *msg, int level)
+secu_PrintAuthorityInfoAcess(FILE *out, SECItem *value, const char *msg __attribute__((unused)), int level)
 {
     CERTAuthInfoAccess **infos = NULL;
     PLArenaPool * pool = PORT_NewArena(DER_DEFAULT_CHUNKSIZE);
@@ -1987,7 +1987,7 @@ secu_PrintAuthorityInfoAcess(FILE *out, SECItem *value, char *msg, int level)
 
 void
 SECU_PrintExtensions(FILE *out, CERTCertExtension **extensions,
-		     char *msg, int level)
+		     const char *msg, int level)
 {
     SECOidTag oidTag;
     
@@ -2117,10 +2117,10 @@ SECU_PrintExtensions(FILE *out, CERTCertExtension **extensions,
 
 
 void
-SECU_PrintName(FILE *out, CERTName *name, char *msg, int level)
+SECU_PrintName(FILE *out, CERTName *name, const char *msg, int level)
 {
     char *nameStr;
-    char *str;
+    const char *str;
     SECItem my;
 
     str = nameStr = CERT_NameToAscii(name);
@@ -2189,7 +2189,7 @@ SECU_PrintCertNickname(CERTCertListNode *node, void *data)
         name = cert->emailAddr;
     }
     if (!name || !name[0]) {
-        name = "(NULL)";
+        name = (char *)"(NULL)";
     }
 
     trust = cert->trust;
@@ -2258,7 +2258,7 @@ SECU_PrintSetOfAny(FILE *out, SECItem **any, const char *m, int level)
 }
 
 SECStatus
-SECU_PrintCertAttribute(FILE *out, CERTAttribute *attr, const char *m, int level)
+SECU_PrintCertAttribute(FILE *out, CERTAttribute *attr, const char *m __attribute__((unused)), int level)
 {
     int rv = 0;
     SECOidTag tag;
@@ -2413,7 +2413,7 @@ loser:
 #endif
 
 int
-SECU_PrintFingerprints(FILE *out, SECItem *derCert, char *m, int level)
+SECU_PrintFingerprints(FILE *out, SECItem *derCert, const char *m, int level)
 {
     unsigned char fingerprint[20];
     char *fpStr = NULL;
@@ -2459,15 +2459,15 @@ SECU_PrintFingerprints(FILE *out, SECItem *derCert, char *m, int level)
 
 /* forward declaration */
 static int
-secu_PrintPKCS7ContentInfo(FILE *, SEC_PKCS7ContentInfo *, char *, int);
+secu_PrintPKCS7ContentInfo(FILE *, SEC_PKCS7ContentInfo *, const char *, int);
 
 /*
 ** secu_PrintPKCS7EncContent
 **   Prints a SEC_PKCS7EncryptedContentInfo (without decrypting it)
 */
 static void
-secu_PrintPKCS7EncContent(FILE *out, SEC_PKCS7EncryptedContentInfo *src, 
-			  char *m, int level)
+secu_PrintPKCS7EncContent(FILE *out, SEC_PKCS7EncryptedContentInfo *src,
+			  const char *m, int level)
 {
     if (src->contentTypeTag == NULL)
 	src->contentTypeTag = SECOID_FindOID(&(src->contentType));
@@ -2489,7 +2489,7 @@ secu_PrintPKCS7EncContent(FILE *out, SEC_PKCS7EncryptedContentInfo *src,
 **   Prints a PKCS7RecipientInfo type
 */
 static void
-secu_PrintRecipientInfo(FILE *out, SEC_PKCS7RecipientInfo *info, char *m, 
+secu_PrintRecipientInfo(FILE *out, SEC_PKCS7RecipientInfo *info, const char *m,
 			int level)
 {
     SECU_Indent(out, level); fprintf(out, "%s:\n", m);
@@ -2511,7 +2511,7 @@ secu_PrintRecipientInfo(FILE *out, SEC_PKCS7RecipientInfo *info, char *m,
 **   Prints a PKCS7SingerInfo type
 */
 static void
-secu_PrintSignerInfo(FILE *out, SEC_PKCS7SignerInfo *info, char *m, int level)
+secu_PrintSignerInfo(FILE *out, SEC_PKCS7SignerInfo *info, const char *m, int level)
 {
     SEC_PKCS7Attribute *attr;
     int iv;
@@ -2560,7 +2560,7 @@ secu_PrintSignerInfo(FILE *out, SEC_PKCS7SignerInfo *info, char *m, int level)
    some */
 
 void
-SECU_PrintCRLInfo(FILE *out, CERTCrl *crl, char *m, int level)
+SECU_PrintCRLInfo(FILE *out, CERTCrl *crl, const char *m, int level)
 {
     CERTCrlEntry *entry;
     int iv;
@@ -2857,7 +2857,7 @@ secu_PrintPKCS7Digested(FILE *out, SEC_PKCS7DigestedData *src,
 */
 static int
 secu_PrintPKCS7ContentInfo(FILE *out, SEC_PKCS7ContentInfo *src,
-			   char *m, int level)
+			   const char *m, int level)
 {
     const char *desc;
     SECOidTag kind;
@@ -3021,7 +3021,7 @@ loser:
 }
 
 SECStatus
-SECU_ParseCommandLine(int argc, char **argv, char *progName, secuCommand *cmd)
+SECU_ParseCommandLine(int argc, char **argv, char *progName __attribute__((unused)), secuCommand *cmd)
 {
     PRBool found;
     PLOptState *optstate;
@@ -3251,7 +3251,7 @@ SECU_printCertProblems(FILE *outfile, CERTCertDBHandle *handle,
     CERTVerifyLogNode *node   = NULL;
     unsigned int       depth  = (unsigned int)-1;
     unsigned int       flags  = 0;
-    char *             errstr = NULL;
+    const char *       errstr = NULL;
     PRErrorCode	       err    = PORT_GetError();
 
     log.arena = PORT_NewArena(512);
@@ -3327,6 +3327,7 @@ SECU_printCertProblems(FILE *outfile, CERTCertDBHandle *handle,
 		    errstr = "[unknown usage].";
 		    break;
 		}
+		break;
 	    case SEC_ERROR_UNKNOWN_ISSUER:
 	    case SEC_ERROR_UNTRUSTED_ISSUER:
 	    case SEC_ERROR_EXPIRED_ISSUER_CERTIFICATE:
@@ -3602,7 +3603,7 @@ SECU_FindCRLAuthKeyIDExten (PRArenaPool *arena, CERTSignedCrl *scrl)
  */
 CERTCertificate *
 SECU_FindCrlIssuer(CERTCertDBHandle *dbhandle, SECItem* subject,
-                   CERTAuthKeyID* authorityKeyID, PRTime validTime)
+                   CERTAuthKeyID* authorityKeyID __attribute__((unused)), PRTime validTime)
 {
     CERTCertificate *issuerCert = NULL;
     CERTCertList *certList = NULL;
