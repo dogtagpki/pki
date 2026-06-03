@@ -44,6 +44,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
+#include <stdint.h>
 
 #include <ldap.h>
 
@@ -78,6 +79,12 @@ extern SECStatus PK11_GenerateRandom(unsigned char *data,
 void exitError(const char *errstring);
 void exitLDAPError(const char *errstring);
 void doLDAPBind();
+static char *trim_strdup(char *s);
+static void readInputFile(void);
+static int isstring(char *s);
+static void buildCharpool(void);
+static unsigned short getRandomShort(void);
+static unsigned short getRandomInRange(unsigned short max);
 void doLDAPSearch(LDAPMessage **result);
 void doLDAPUnbind();
 void processSearchResults(LDAPMessage *r);
@@ -135,7 +142,7 @@ void exitLDAPError(const char *errstring) {
 /* This returns an allocated string, like strdup does, except that
   the duplicate string begins with the first non-whitespace character */
 
-char * trim_strdup(char *s)
+static char *trim_strdup(char *s)
 {
     while (*s == ' ' || *s == '\t') {
         s++;
@@ -144,7 +151,7 @@ char * trim_strdup(char *s)
     return strdup(s);
 }
 
-void readInputFile() {
+static void readInputFile(void) {
     int more_to_read=1;
     char *thedn = NULL;
     char *thepin = NULL;
@@ -240,12 +247,16 @@ int main(int ac, char **av) {
     char *error;
     LDAPMessage *search_results;
 
-    programName = av[0];
     if (strlen(av[0]) == 0) {
-        strcpy(programName, "setpin");
+        programName = (char *)"setpin";
     }
     else {
-        strcpy(programName, av[0]);
+        programName = strrchr(av[0], '/');
+        if (programName != NULL) {
+            programName++;
+        } else {
+            programName = av[0];
+        }
     }
 
     if (ac == 1) {
@@ -381,7 +392,7 @@ void do_setup() {
         fprintf(stderr,"Adding attribute: %s\n",x_values[0]);
         x_values[1] = NULL;
         x.mod_op = LDAP_MOD_ADD;
-        x.mod_type = "attributetypes";
+        x.mod_type = (char *)"attributetypes";
         x.mod_values = x_values;
         mods[0] = &x;
         mods[1] = NULL;
@@ -405,7 +416,7 @@ void do_setup() {
 
         x_values[1] = NULL;
         x.mod_op = LDAP_MOD_ADD;
-        x.mod_type = "objectclasses";
+        x.mod_type = (char *)"objectclasses";
         x.mod_values = x_values;
         mods[0] = &x;
         mods[1] = NULL;
@@ -436,28 +447,28 @@ void do_setup() {
         
         fprintf(stderr,"Adding user: %s\n",o_pinmanager);
 
-        a1_values[0] = "pinmanager";
+        a1_values[0] = (char *)"pinmanager";
         a1_values[1] = NULL;
         a1.mod_op = 0;
-        a1.mod_type = "sn";
+        a1.mod_type = (char *)"sn";
         a1.mod_values = a1_values;
 
-        a2_values[0] = "pinmanager";
+        a2_values[0] = (char *)"pinmanager";
         a2_values[1] = NULL;
         a2.mod_op = 0;
-        a2.mod_type = "cn";
+        a2.mod_type = (char *)"cn";
         a2.mod_values = a2_values;
 
         a3_values[0] = password;
         a3_values[1] = NULL;
         a3.mod_op = 0;
-        a3.mod_type = "userPassword";
+        a3.mod_type = (char *)"userPassword";
         a3.mod_values = a3_values;
 
-        a4_values[0] = "person";
+        a4_values[0] = (char *)"person";
         a4_values[1] = NULL;
         a4.mod_op = 0;
-        a4.mod_type = "objectclass";
+        a4.mod_type = (char *)"objectclass";
         a4.mod_values = a4_values;
 
         mods[0] = &a1;
@@ -503,7 +514,7 @@ void do_setup() {
 
         x_values[2] = NULL;
         x.mod_op = LDAP_MOD_ADD;
-        x.mod_type = "aci";
+        x.mod_type = (char *)"aci";
         x.mod_values = x_values;
 
         mods[0] = &x;
@@ -541,7 +552,7 @@ sha256_pw_enc( char *pwd )
     char        *enc;
 
     /* SHA246 hash the user's key */
-    PK11_HashBuf(SEC_OID_SHA256,hash,pwd,strlen(pwd));
+    PK11_HashBuf(SEC_OID_SHA256,hash,(const unsigned char *)pwd,strlen(pwd));
     enc = malloc(256);
 
     sprintf( enc, "{SHA256}");
@@ -554,7 +565,7 @@ sha256_pw_enc( char *pwd )
 
 /* check the first 8 characters to see if this is a string */
 
-int isstring(char *s) {
+static int isstring(char *s) {
     int i=0;
 
     for (i=0;i<8;i++) {
@@ -572,6 +583,7 @@ void doLDAPBind() {
     int port=389;
     int r;
     int status;
+    struct berval credential;
 
     if (o_port == NULL) {
         if (o_ssl) {
@@ -605,8 +617,7 @@ void doLDAPBind() {
     if (o_debug) {
         fprintf(stderr,"# ldap_init completed\n");
     }
-   
-    struct berval credential; 
+
     credential.bv_val = o_bindpw;
     credential.bv_len= strlen(o_bindpw);
 
@@ -660,7 +671,6 @@ void processSearchResults(LDAPMessage *r) {
     int i;
     BerElement *ber;
     char *objectclass_values[]={NULL,NULL};
-    int change=0;
     int pin_objectclass_exists=0;
     LDAPMod objectclass, pinattribute;
     LDAPMod *mods[3];
@@ -711,7 +721,6 @@ void processSearchResults(LDAPMessage *r) {
         */
 
         pin_objectclass_exists = 0;
-        change = 0;
 
 #define ACTION_NONE    0
 #define ACTION_REPLACE 1
@@ -729,7 +738,7 @@ void processSearchResults(LDAPMessage *r) {
                 if (o_debug && (! strcasecmp(o_debug,"attrs"))) {
                     for ( i = 0; vals[i] != NULL; i++ ) {
                         char *bin;
-                        bin = "<binary>";
+                        bin = (char *)"<binary>";
                         if (isstring(vals[i]->bv_val)) {
                             bin = vals[i]->bv_val;
                         }
@@ -805,7 +814,7 @@ void processSearchResults(LDAPMessage *r) {
             objectclass_values[0] = o_objectclass;
             objectclass_values[1] = NULL;
             objectclass.mod_op = LDAP_MOD_ADD;
-            objectclass.mod_type = "objectclass";
+            objectclass.mod_type = (char *)"objectclass";
             objectclass.mod_values = objectclass_values;
             mods[0] = &objectclass;
             mods[1] = NULL;
@@ -956,7 +965,7 @@ void processSearchResults(LDAPMessage *r) {
         fprintf(output,"dn:%s\n",dn);
         fprintf(output,"%s:%s\n",o_attribute,generatedPassword);
         if (o_debug) {
-            fprintf(stderr,"o_write = %0x\n",(unsigned int)o_write);
+            fprintf(stderr,"o_write = %0x\n",(unsigned int)(uintptr_t)o_write);
         }
         if (! o_write) {
             fprintf(output,"status:notwritten\n");
@@ -1012,7 +1021,7 @@ static const char *RNG_ALPHANUM = "RNG-alphanum";
 
 /* build the pool of characters we can use for the password */
 
-void buildCharpool() {
+static void buildCharpool(void) {
     char err_buf[1024];
     charpool = (char*) malloc(256);
 
@@ -1073,8 +1082,8 @@ void initrandom() {
 
 }
 
-  
-unsigned short getRandomShort() {
+
+static unsigned short getRandomShort(void) {
   unsigned short r;
 #ifdef USE_NSS_RANDOM
     PK11_GenerateRandom( ( unsigned char * ) &r, sizeof( r ) );
@@ -1116,7 +1125,7 @@ unsigned short getRandomShort() {
 
 */
 
-unsigned short getRandomInRange(unsigned short max) {
+static unsigned short getRandomInRange(unsigned short max) {
     unsigned short rno;
     unsigned short result;
 
