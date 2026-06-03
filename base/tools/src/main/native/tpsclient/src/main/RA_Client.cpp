@@ -140,11 +140,13 @@ static void
 GetBuffer (Buffer & buf, char *output, int len)
 {
   int i;
+  char *ptr = output;
 
   output[0] = '\0';
   for (i = 0; i < (int) buf.size (); ++i)
     {
-      sprintf (output, "%s%02x", output, ((BYTE *) buf)[i]);
+      sprintf (ptr, "%02x", ((BYTE *) buf)[i]);
+      ptr += 2;
     }
 }
 
