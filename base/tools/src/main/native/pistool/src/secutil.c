@@ -2146,7 +2146,7 @@ printflags(char *trusts, unsigned int flags)
 	if (!(flags & CERTDB_TRUSTED_CA) &&
 	    !(flags & CERTDB_TRUSTED_CLIENT_CA))
 	    PORT_Strcat(trusts, "c");
-    if (flags & CERTDB_VALID_PEER)
+    if (flags & CERTDB_TERMINAL_RECORD)
 	if (!(flags & CERTDB_TRUSTED))
 	    PORT_Strcat(trusts, "p");
     if (flags & CERTDB_TRUSTED_CA)
@@ -2317,7 +2317,7 @@ loser:
 }
 
 int
-SECU_PrintCertificate(FILE *out, SECItem *der, char *m, int level)
+SECU_PrintCertificate(FILE *out, SECItem *der, const char *m, int level)
 {
     PRArenaPool *arena = PORT_NewArena(DER_DEFAULT_CHUNKSIZE);
     CERTCertificate *c;
@@ -2945,7 +2945,7 @@ SECU_PrintPKCS7ContentInfo(FILE *out, SECItem *der, char *m, int level)
 void
 printFlags(FILE *out, unsigned int flags, int level)
 {
-    if ( flags & CERTDB_VALID_PEER ) {
+    if ( flags & CERTDB_TERMINAL_RECORD ) {
 	SECU_Indent(out, level); fprintf(out, "Valid Peer\n");
     }
     if ( flags & CERTDB_TRUSTED ) {
@@ -3221,11 +3221,11 @@ SECU_PrintPRandOSError(char *progName)
 {
     char buffer[513];
     PRInt32     errLen = PR_GetErrorTextLength();
-    if (errLen > 0 && errLen < sizeof buffer) {
+    if (errLen > 0 && (size_t)errLen < sizeof buffer) {
         PR_GetErrorText(buffer);
     }
     SECU_PrintError(progName, "function failed");
-    if (errLen > 0 && errLen < sizeof buffer) {
+    if (errLen > 0 && (size_t)errLen < sizeof buffer) {
         PR_fprintf(PR_STDERR, "\t%s\n", buffer);
     }
 }
@@ -3285,7 +3285,7 @@ SECU_printCertProblems(FILE *outfile, CERTCertDBHandle *handle,
 	    errstr = NULL;
 	    switch (node->error) {
 	    case SEC_ERROR_INADEQUATE_KEY_USAGE:
-		flags = (unsigned int)node->arg;
+		flags = (unsigned int)(uintptr_t)node->arg;
 		switch (flags) {
 		case KU_DIGITAL_SIGNATURE:
 		    errstr = "Cert cannot sign.";
@@ -3302,7 +3302,7 @@ SECU_printCertProblems(FILE *outfile, CERTCertDBHandle *handle,
 		}
 		break;
 	    case SEC_ERROR_INADEQUATE_CERT_TYPE:
-		flags = (unsigned int)node->arg;
+		flags = (unsigned int)(uintptr_t)node->arg;
 		switch (flags) {
 		case NS_CERT_TYPE_SSL_CLIENT:
 		case NS_CERT_TYPE_SSL_SERVER:
@@ -3387,7 +3387,7 @@ SECU_StoreCRL(PK11SlotInfo *slot, SECItem *derCrl, PRFileDesc *outFile,
                        BTOA_DataToAscii(derCrl->data, derCrl->len), 
                        NS_CRL_TRAILER);
         } else {
-            if (PR_Write(outFile, derCrl->data, derCrl->len) != derCrl->len) {
+            if ((unsigned int)PR_Write(outFile, derCrl->data, derCrl->len) != derCrl->len) {
                 return SECFailure;
             }
         }
@@ -3543,7 +3543,7 @@ SECU_DerSignDataCRL(PRArenaPool *arena, CERTSignedData *sd,
     if (rv) goto loser;
 
     /* Fill out SignedData object */
-    PORT_Memset(sd, 0, sizeof(sd));
+    PORT_Memset(sd, 0, sizeof(*sd));
     sd->data.data = buf;
     sd->data.len = len;
     sd->signature.data = it.data;

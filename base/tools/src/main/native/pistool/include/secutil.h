@@ -79,7 +79,7 @@ extern SECStatus SEC_AddPermCertificate(CERTCertDBHandle *handle,
 typedef int (*SECU_PPFunc)(PRFileDesc *out, SECItem *item, 
                            char *msg, int level);
 #else
-typedef int (*SECU_PPFunc)(FILE *out, SECItem *item, char *msg, int level);
+typedef int (*SECU_PPFunc)(FILE *out, SECItem *item, const char *msg, int level);
 #endif
 
 typedef struct {
@@ -249,7 +249,7 @@ extern int SECU_PrintCertificateRequest(FILE *out, SECItem *der, char *m,
 	int level);
 
 /* Dump contents of certificate */
-extern int SECU_PrintCertificate(FILE *out, SECItem *der, char *m, int level);
+extern int SECU_PrintCertificate(FILE *out, SECItem *der, const char *m, int level);
 
 /* print trust flags on a cert */
 extern void SECU_PrintTrustFlags(FILE *out, CERTCertTrust *trust, char *m, int level);
