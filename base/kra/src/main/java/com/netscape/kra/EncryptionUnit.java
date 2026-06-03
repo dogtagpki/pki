@@ -81,6 +81,16 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
             WrappingParams params) throws Exception {
         PrivateKey wrappingKey = getPrivateKey();
         String priKeyAlgo = wrappingKey.getAlgorithm();
+
+        // For ML-KEM transport keys, use decapsulation instead of traditional key unwrapping
+        // The encSymmKey contains the KEM ciphertext, not a wrapped key
+        if (CryptoUtil.isAlgorithmMLKEM(priKeyAlgo)) {
+            logger.debug("EncryptionUnit.unwrap_session_key: Using ML-KEM decapsulation");
+            return CryptoUtil.decapsulateMLKEM(wrappingKey,
+                     encSymmKey,
+                     params.getPayloadEncryptionAlgorithm());
+        }
+
         if (priKeyAlgo.equals("EC"))
             params.setSkWrapAlgorithm(KeyWrapAlgorithm.AES_ECB);
 

@@ -6,6 +6,8 @@ import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.SymmetricKey;
 
+import com.netscape.cmsutil.crypto.CryptoUtil;
+
 /**
  * An abstract class defining the functionality to be provided by
  * sub classes to perform cryptographic operations.
@@ -54,6 +56,18 @@ public abstract class CryptoProvider {
 
     public abstract byte[] unwrapAsymmetricKeyWithSessionKey(byte[] wrappedRecoveredKey, SymmetricKey recoveryKey,
             KeyWrapAlgorithm wrapAlgorithm, byte[] nonceData, PublicKey pubKey)
+            throws Exception;
+
+    /**
+     * Performs ML-KEM encapsulation to generate a shared secret.
+     * Imports the public key to the token before performing encapsulation.
+     *
+     * @param publicKey ML-KEM public key
+     * @param encAlg Encryption algorithm (determines derived key size)
+     * @return KEMEncapsulation containing shared secret and ciphertext
+     * @throws Exception if encapsulation fails
+     */
+    public abstract CryptoUtil.KEMEncapsulation encapsulateMLKEM(PublicKey publicKey, EncryptionAlgorithm encAlg)
             throws Exception;
 
 }

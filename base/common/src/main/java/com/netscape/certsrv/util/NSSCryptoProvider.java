@@ -81,9 +81,41 @@ public class NSSCryptoProvider extends CryptoProvider {
             Password password = new Password(certDBPassword.toCharArray());
             try {
                 token.login(password);
+
+                // Check if login actually succeeded - token.login() can return without error
+                // even when the token has no password set
+                if (!token.isLoggedIn()) {
+                    System.err.println("WARNING: NSS token login succeeded but token is not logged in.");
+                    System.err.println("         The NSS database may not have a password set.");
+                    System.err.println("         Attempting to initialize password automatically.");
+                    System.err.println("         To avoid this warning, set a password manually using:");
+                    System.err.println("           certutil -W -d <path-to-nssdb>");
+                    try {
+                        token.initPassword(password, password);
+                        token.login(password);
+                    } catch (AlreadyInitializedException e2) {
+                        // Password already initialized but login still failed - this shouldn't happen
+                        System.err.println("ERROR: Token password already initialized but login failed.");
+                        System.err.println("       Check that the NSS database is not corrupted.");
+                        throw new TokenException("Token password already initialized but login failed - NSS database may be corrupted");
+                    }
+                }
             } catch (IncorrectPasswordException | TokenException e) {
                 if (!token.isLoggedIn()) {
-                    token.initPassword(password, password);
+                    // Login failed - check if database was never initialized with a password
+                    // If so, initialize it now and retry login
+                    try {
+                        System.err.println("WARNING: NSS token login failed. Database may be uninitialized.");
+                        System.err.println("         Attempting to initialize password automatically.");
+                        System.err.println("         To avoid this, initialize the database password manually using:");
+                        System.err.println("           certutil -W -d <path-to-nssdb>");
+                        token.initPassword(password, password);
+                        token.login(password);
+                    } catch (AlreadyInitializedException e2) {
+                        // Password was already set, so original exception was due to wrong password
+                        // or other issue - rethrow original exception
+                        throw e;
+                    }
                 }
             } finally {
                 password.clear();
@@ -293,5 +325,22 @@ public class NSSCryptoProvider extends CryptoProvider {
                 secret,
                 ivps,
                 wrapAlg);
+    }
+
+    @Override
+    public CryptoUtil.KEMEncapsulation encapsulateMLKEM(PublicKey publicKey, EncryptionAlgorithm encAlg)
+            throws Exception {
+        if (token == null) {
+            throw new NotInitializedException();
+        }
+        if (publicKey == null) {
+            throw new IllegalArgumentException("publicKey cannot be null");
+        }
+        if (encAlg == null) {
+            throw new IllegalArgumentException("encAlg cannot be null");
+        }
+        // ML-KEM requires the public key to be imported to the token
+        token.importPublicKey(publicKey, false);
+        return CryptoUtil.encapsulateMLKEM(publicKey, encAlg.getKeyStrength());
     }
 }

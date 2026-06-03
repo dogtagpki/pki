@@ -565,16 +565,31 @@ public class KeyClient extends Client {
         if (passphrase == null) {
             throw new IllegalArgumentException("Passphrase must be specified.");
         }
-        KeyWrapAlgorithm alg = KeyWrapAlgorithm.RSA;
 
-        if(this.useOAEP == true) {
-            alg = KeyWrapAlgorithm.RSA_OAEP;
+        SymmetricKey sessionKey;
+        byte[] transWrappedSessionKey;
+
+        // Check if transport key is ML-KEM
+        if (CryptoUtil.isAlgorithmMLKEM(transportCert.getPublicKey().getAlgorithm())) {
+            // ML-KEM: Encapsulate to get shared secret + ciphertext
+            CryptoUtil.KEMEncapsulation kemResult = crypto.encapsulateMLKEM(
+                transportCert.getPublicKey(),
+                encryptAlgorithm
+            );
+            sessionKey = kemResult.sharedSecret;
+            transWrappedSessionKey = kemResult.ciphertext;
+        } else {
+            // RSA/EC: Generate session key and wrap it
+            KeyWrapAlgorithm alg = KeyWrapAlgorithm.RSA;
+            if (this.useOAEP == true) {
+                alg = KeyWrapAlgorithm.RSA_OAEP;
+            }
+            sessionKey = generateSessionKey();
+            transWrappedSessionKey = crypto.wrapSymmetricKey(sessionKey, transportCert.getPublicKey(), alg);
         }
 
-        SymmetricKey sessionKey = generateSessionKey();
-        byte[] transWrappedSessionKey = crypto.wrapSymmetricKey(sessionKey, transportCert.getPublicKey(),alg);
+        // Encrypt passphrase with session key (works for both ML-KEM and RSA/EC)
         byte[] nonceData = CryptoUtil.getNonceData(encryptAlgorithm.getIVLength());
-
         byte[] secret = passphrase.getBytes("UTF-8");
         byte[] sessionWrappedPassphrase = crypto.encryptSecret(secret, nonceData, sessionKey,
                 encryptAlgorithm);
@@ -589,16 +604,31 @@ public class KeyClient extends Client {
         if (passphrase == null) {
             throw new IllegalArgumentException("Passphrase must be specified.");
         }
-        KeyWrapAlgorithm alg = KeyWrapAlgorithm.RSA;
 
-        if(this.useOAEP == true) {
-            alg = KeyWrapAlgorithm.RSA_OAEP;
+        SymmetricKey sessionKey;
+        byte[] transWrappedSessionKey;
+
+        // Check if transport key is ML-KEM
+        if (CryptoUtil.isAlgorithmMLKEM(transportCert.getPublicKey().getAlgorithm())) {
+            // ML-KEM: Encapsulate to get shared secret + ciphertext
+            CryptoUtil.KEMEncapsulation kemResult = crypto.encapsulateMLKEM(
+                transportCert.getPublicKey(),
+                encryptAlgorithm
+            );
+            sessionKey = kemResult.sharedSecret;
+            transWrappedSessionKey = kemResult.ciphertext;
+        } else {
+            // RSA/EC: Generate session key and wrap it
+            KeyWrapAlgorithm alg = KeyWrapAlgorithm.RSA;
+            if (this.useOAEP == true) {
+                alg = KeyWrapAlgorithm.RSA_OAEP;
+            }
+            sessionKey = generateSessionKey();
+            transWrappedSessionKey = crypto.wrapSymmetricKey(sessionKey, transportCert.getPublicKey(), alg);
         }
 
-        SymmetricKey sessionKey = generateSessionKey();
-        byte[] transWrappedSessionKey = crypto.wrapSymmetricKey(sessionKey, transportCert.getPublicKey(),alg);
+        // Encrypt passphrase with session key (works for both ML-KEM and RSA/EC)
         byte[] nonceData = CryptoUtil.getNonceData(encryptAlgorithm.getIVLength());
-
         byte[] secret = passphrase.getBytes("UTF-8");
         byte[] sessionWrappedPassphrase = crypto.encryptSecret(secret, nonceData, sessionKey,
                 encryptAlgorithm);

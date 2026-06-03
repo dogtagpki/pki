@@ -1327,6 +1327,13 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
     @Override
     public SymmetricKey unwrap(byte wrappedKeyData[], SymmetricKey.Type algorithm, int keySize,
             WrappingParams params) throws Exception {
+        // SEQUENCE structure (same for RSA/EC and ML-KEM):
+        // SEQUENCE {
+        //     encryptedSession OCTET STRING,  // RSA/EC: wrapped session key
+        //                                     // ML-KEM: KEM ciphertext
+        //     encryptedPrivate OCTET STRING   // User symmetric key wrapped with session key/shared secret
+        // }
+
         DerValue val = new DerValue(wrappedKeyData);
         // val.tag == DerValue.tag_Sequence
         DerInputStream in = val.data;
@@ -1336,10 +1343,32 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
         byte pri[] = dPri.getOctetString();
 
         CryptoToken token = getToken();
-        // (1) unwrap the session key
-        SymmetricKey sk = unwrap_session_key(token, session, SymmetricKey.Usage.UNWRAP, params);
+        PublicKey storagePubKey = getPublicKey();
+        String storageAlg = storagePubKey.getAlgorithm();
 
-        // (2) unwrap the session-wrapped-symmetric key
+        SymmetricKey sk;
+
+        // Check if storage cert is ML-KEM (PQC)
+        if (CryptoUtil.isAlgorithmMLKEM(storageAlg)) {
+            logger.debug("StorageKeyUnit:unwrap() Using ML-KEM storage cert for symmetric key");
+
+            // (1) ML-KEM decapsulation to recover shared secret
+            PrivateKey storagePrivKey = getPrivateKey();
+            sk = CryptoUtil.decapsulateMLKEM(
+                    storagePrivKey,
+                    session,
+                    params.getSkLength());
+
+            logger.debug("StorageKeyUnit:unwrap() ML-KEM decapsulation complete - recovered shared secret");
+
+        } else {
+            // (1) RSA/EC: unwrap the session key
+            logger.debug("StorageKeyUnit:unwrap() Using RSA/EC storage cert for symmetric key");
+            sk = unwrap_session_key(token, session, SymmetricKey.Usage.UNWRAP, params);
+            logger.debug("StorageKeyUnit:unwrap() session key unwrapped");
+        }
+
+        // (2) unwrap the session-wrapped-symmetric key (same for both RSA/EC and ML-KEM)
         return CryptoUtil.unwrap(
                 token,
                 algorithm,
@@ -1354,6 +1383,13 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
     @Override
     public PrivateKey unwrap(byte wrappedKeyData[], PublicKey pubKey, boolean temporary, WrappingParams params)
             throws Exception {
+        // SEQUENCE structure (same for RSA/EC and ML-KEM):
+        // SEQUENCE {
+        //     encryptedSession OCTET STRING,  // RSA/EC: wrapped session key
+        //                                     // ML-KEM: KEM ciphertext
+        //     encryptedPrivate OCTET STRING   // User private key wrapped with session key/shared secret
+        // }
+
         DerValue val = new DerValue(wrappedKeyData);
         // val.tag == DerValue.tag_Sequence
         DerInputStream in = val.data;
@@ -1363,10 +1399,32 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
         byte pri[] = dPri.getOctetString();
 
         CryptoToken token = getToken();
-        // (1) unwrap the session key
-        SymmetricKey sk = unwrap_session_key(token, session, SymmetricKey.Usage.UNWRAP, params);
+        PublicKey storagePubKey = getPublicKey();
+        String storageAlg = storagePubKey.getAlgorithm();
 
-        // (2) unwrap the private key
+        SymmetricKey sk;
+
+        // Check if storage cert is ML-KEM (PQC)
+        if (CryptoUtil.isAlgorithmMLKEM(storageAlg)) {
+            logger.debug("StorageKeyUnit:unwrap() Using ML-KEM storage cert");
+
+            // (1) ML-KEM decapsulation to recover shared secret
+            PrivateKey storagePrivKey = getPrivateKey();
+            sk = CryptoUtil.decapsulateMLKEM(
+                    storagePrivKey,
+                    session,
+                    params.getSkLength());
+
+            logger.debug("StorageKeyUnit:unwrap() ML-KEM decapsulation complete - recovered shared secret");
+
+        } else {
+            // (1) RSA/EC: unwrap the session key
+            logger.debug("StorageKeyUnit:unwrap() Using RSA/EC storage cert");
+            sk = unwrap_session_key(token, session, SymmetricKey.Usage.UNWRAP, params);
+            logger.debug("StorageKeyUnit:unwrap() session key unwrapped");
+        }
+
+        // (2) unwrap the user private key (same for both RSA/EC and ML-KEM)
         return CryptoUtil.unwrap(
                 token,
                 pubKey,
