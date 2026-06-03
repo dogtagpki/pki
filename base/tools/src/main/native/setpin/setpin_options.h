@@ -42,12 +42,13 @@ extern char *o_certdb,*o_nickname,*o_binddn,*o_bindpw,*o_bindpwfile,*o_filter,*o
   *o_retry,*o_debug,*o_write,*o_clobber,*o_saltattribute,*o_testpingen,*o_setup,
   *o_pinmanager,*o_pinmanagerpwd,*o_schemachange;
 
-extern char *valid_args[];
+extern const char *valid_args[];
 extern int valid_args_len;
 
-extern void setDefaultOptions();
-extern void getOptions();
-extern void validateOptions();
+extern void setDefaultOptions(void);
+extern void getOptions(void);
+extern void validateOptions(void);
+extern int equals(const char *s, const char *t);
 
 extern int i_length, i_minlength, i_maxlength;
 

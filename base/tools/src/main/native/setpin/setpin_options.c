@@ -25,6 +25,7 @@
 #include <errno.h>
 #include <ctype.h>
 #include <stdlib.h>
+#include "setpin_options.h"
 
 extern int OPT_getValue(const char *option, char **output);
 extern void exitError(char *errstring);
@@ -79,9 +80,9 @@ char *o_certdb,*o_nickname,*o_binddn,*o_bindpw,*o_filter,*o_ssl,
   *o_retry,*o_debug, *o_write, *o_clobber, *o_saltattribute, *o_testpingen,
   *o_setup,*o_pinmanager,*o_pinmanagerpwd,*o_schemachange;
 
-void setDefaultOptions() {
- o_certdb=   ".";
- o_nickname= NULL; 
+void setDefaultOptions(void) {
+ o_certdb=   (char *)".";
+ o_nickname= NULL;
  o_binddn=   NULL;
  o_bindpw=   NULL;
  o_filter=   NULL;
@@ -93,13 +94,13 @@ void setDefaultOptions() {
  o_length=   NULL;   /* default set later */
  o_minlength=NULL;
  o_maxlength=NULL;
- o_gen=      "RNG-alphanum";
+ o_gen=      (char *)"RNG-alphanum";
  o_case=     NULL;
- o_attribute="pin";
- o_hash=     "sha256";
- o_objectclass="pinPerson";
+ o_attribute=(char *)"pin";
+ o_hash=     (char *)"sha256";
+ o_objectclass=(char *)"pinPerson";
  o_output=   NULL;
- o_retry=    "5";
+ o_retry=    (char *)"5";
  o_debug=    NULL;
  o_write=    NULL;
  o_clobber=  NULL;
@@ -111,7 +112,7 @@ void setDefaultOptions() {
  o_schemachange= NULL;
 }
 
-void getOptions() {
+void getOptions(void) {
   int i;
   char *c;
 
@@ -125,7 +126,7 @@ void getOptions() {
   OPT_getValue("bindpw",   &o_bindpw);
   OPT_getValue("filter",   &o_filter);
   i = OPT_getValue("ssl",      &o_ssl);
-  if (i)   o_ssl = "yes";
+  if (i)   o_ssl = (char *)"yes";
   OPT_getValue("basedn",   &o_basedn);
   OPT_getValue("input",    &o_input);
   OPT_getValue("host",     &o_host);
@@ -149,32 +150,32 @@ void getOptions() {
 		c++;
 		}
      }
-     
+
   OPT_getValue("objectclass",&o_objectclass);
   OPT_getValue("output",   &o_output);
   OPT_getValue("retry",    &o_retry);
   i = OPT_getValue("debug",    &o_debug);
   if (i) {
-    if (! o_debug) { 
-      o_debug = "yes";
-    } 
+    if (! o_debug) {
+      o_debug = (char *)"yes";
+    }
   }
   i = OPT_getValue("write",    &o_write);
-  if (i)   o_write = "yes";
+  if (i)   o_write = (char *)"yes";
   i = OPT_getValue("clobber",    &o_clobber);
-  if (i) o_clobber = "yes";
+  if (i) o_clobber = (char *)"yes";
   OPT_getValue("saltattribute",    &o_saltattribute);
   i = OPT_getValue("testpingen",    &o_testpingen);
   if (i) {
 	if (!o_testpingen) {
-		o_testpingen = "25";
+		o_testpingen = (char *)"25";
 	}
   }
   OPT_getValue("setup",   &o_setup);
   OPT_getValue("pinmanager",   &o_pinmanager);
   OPT_getValue("pinmanagerpwd",   &o_pinmanagerpwd);
   OPT_getValue("schemachange",   &o_schemachange);
-  
+
 
 }
 
@@ -182,7 +183,7 @@ int equals(const char *s, const char *t) {
   return !(strcmp(s,t));
 }
 
-void validateOptions() {
+void validateOptions(void) {
   char errbuf[ERR_BUF_LENGTH];
 
   if (o_nickname  && equals(o_ssl,"no")) {

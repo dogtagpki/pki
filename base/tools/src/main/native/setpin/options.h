@@ -78,6 +78,6 @@ extern int OPT_getValue(const char *option, char **output);
 
 */
 
-extern char * OPT_parseOptions(int ac, char **av, char**valid);
+extern char * OPT_parseOptions(int ac, char **av, const char **valid);
 
 #endif

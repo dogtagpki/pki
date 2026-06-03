@@ -42,7 +42,7 @@
 static OPTION *option_list = NULL;
 static OPTION *last_option = NULL;
 
-static char* OPT_parseArgument(char *arg,char**valid);
+static char* OPT_parseArgument(char *arg, const char **valid);
 
 
 /* OPT_getValue(const char *option, char** output)
@@ -69,17 +69,17 @@ int OPT_getValue(const char *option, char **output) {
 }
 
 
-static const char* OPT_parseOptFile(char *filename, char*validlist[])
+static char* OPT_parseOptFile(char *filename, const char *validlist[])
 {
   FILE *fp;
   char buffer[1024];
 
   if (filename == NULL || filename[0] == '\0') {
-     return ("Bad syntax for 'optfile'\n");
+     return strdup("Bad syntax for 'optfile'\n");
   }
   fp = fopen(filename,"r");
   if (fp == NULL) {
-     return ("Options file could not be opened for reading\n");
+     return strdup("Options file could not be opened for reading\n");
   }
   while (fgets(buffer,1024,fp)) {
      if (buffer[strlen(buffer)-1] == '\n') buffer[strlen(buffer)-1] = '\0';
@@ -93,7 +93,7 @@ static const char* OPT_parseOptFile(char *filename, char*validlist[])
 
 
 
-static char *OPT_parseArgument(char *arg, char* validlist[]) {
+static char *OPT_parseArgument(char *arg, const char *validlist[]) {
   char *error;
   const char *INV_ARG = "invalid argument: %s";
   char *eq;
@@ -163,7 +163,7 @@ static char *OPT_parseArgument(char *arg, char* validlist[]) {
    
 */
 
-char * OPT_parseOptions(int ac, char **av, char *valid[]) {
+char * OPT_parseOptions(int ac, char **av, const char *valid[]) {
   int i=0;
   char *r=NULL;
 
