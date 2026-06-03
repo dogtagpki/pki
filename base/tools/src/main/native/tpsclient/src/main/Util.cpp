@@ -525,7 +525,6 @@ loser:
 TPS_PUBLIC PK11SymKey *Util::DiversifyKey(PK11SymKey *masterKey, Buffer &data, PK11SlotInfo *slot)
 {
     PK11SymKey *key = NULL;
-    PRStatus status = PR_FAILURE ;
     PK11Context *context = NULL;
 #ifdef DES2_WORKAROUND
     unsigned char keyData[24];
@@ -567,13 +566,11 @@ TPS_PUBLIC PK11SymKey *Util::DiversifyKey(PK11SymKey *masterKey, Buffer &data, P
 
     key = PK11_ImportSymKeyWithFlags(
                 slot,
-                CKM_DES3_ECB, 
+                CKM_DES3_ECB,
                 PK11_OriginGenerated,
-                CKA_ENCRYPT, 
+                CKA_ENCRYPT,
                 &keyItem, CKF_SIGN | CKF_ENCRYPT, PR_FALSE, 0);
 
-    status = PR_SUCCESS;
-    
 done:
 
     return key;
