@@ -361,7 +361,6 @@ Java_com_netscape_cmstools_tps_TPSClientCLI_handleSecureIdRequest
 
     NameValueSet* set = convertParams(env, params);
     RA_Conn* conn = (RA_Conn*) connection;
-    RA_SecureId_Request_Msg* msg = (RA_SecureId_Request_Msg*) message;
 
     RA_SecureId_Response_Msg* resp = new RA_SecureId_Response_Msg(
         set->GetValue("secureid_value"),
