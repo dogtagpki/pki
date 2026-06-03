@@ -26,7 +26,7 @@
 static char nib2b64[0x40f] =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-
+int ldif_base64_encode(unsigned char *src, char *dst, int srclen, int lenused);
 
 static int
 ldif_base64_encode_internal( unsigned char *src, char *dst, int srclen, int lenused, int wraplen )
@@ -35,9 +35,8 @@ ldif_base64_encode_internal( unsigned char *src, char *dst, int srclen, int lenu
     unsigned char   buf[3];
     char        *out;
     unsigned long   bits;
-    int     i, pad, len;
+    int     i, pad;
 
-    len = 0;
     out = dst;
     stop = src + srclen;
 
