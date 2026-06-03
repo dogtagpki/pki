@@ -484,7 +484,7 @@ int EnrollToken (
   conn->SendMsg (&beginOp);
 
   /* handle secure ID (optional) */
-  int status;
+  int status = 0;
   while (1)
     {
   RA_Msg *msg = (RA_Msg *) conn->ReadMsg (token);
