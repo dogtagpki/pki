@@ -839,16 +839,29 @@ public class MainCLI extends CLI {
 
     public static void main(String args[]) throws Exception {
         MainCLI cli = new MainCLI();
+        int exitCode = 0;
         try {
             cli.execute(args);
 
         } catch (CLIException e) {
             cli.handleException(e);
-            System.exit(e.getCode());
-
+            exitCode = e.getCode();
         } catch (Throwable t) {
             cli.handleException(t);
-            System.exit(-1);
+            exitCode = -1;
+        } finally {
+            if (cli.client != null) {
+                try {
+                    logger.debug("MainCLI: closing PKI client connection");
+                    cli.client.close();
+                } catch (Exception e) {
+                    logger.warn("MainCLI: failed to close PKI client connection:" + e);
+                }
+            }
+        }
+
+        if (exitCode != 0) {
+            System.exit(exitCode);
         }
     }
 }
