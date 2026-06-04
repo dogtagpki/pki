@@ -6,10 +6,14 @@ import java.util.Date;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.util.JSONSerializer;
 
 public class ActivityDataTest {
+
+    public static Logger logger = LoggerFactory.getLogger(ActivityDataTest.class);
 
     private static ActivityData before = new ActivityData();
 
@@ -29,10 +33,10 @@ public class ActivityDataTest {
     public void testJSON() throws Exception {
         // Act
         String json = before.toJSON();
-        System.out.println("JSON (before): " + json);
+        logger.debug("JSON (before): " + json);
 
         ActivityData afterJSON = JSONSerializer.fromJSON(json, ActivityData.class);
-        System.out.println("JSON (after): " + afterJSON.toJSON());
+        logger.debug("JSON (after): " + afterJSON.toJSON());
 
         // Assert
         assertEquals(before, afterJSON);

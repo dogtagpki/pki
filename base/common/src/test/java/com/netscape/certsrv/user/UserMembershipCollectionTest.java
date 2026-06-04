@@ -4,10 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.util.JSONSerializer;
 
 public class UserMembershipCollectionTest {
+
+    public static Logger logger = LoggerFactory.getLogger(UserMembershipCollectionTest.class);
 
     private static UserMembershipCollection before = new UserMembershipCollection();
     private static UserMembershipData membership1 = new UserMembershipData();
@@ -28,10 +32,10 @@ public class UserMembershipCollectionTest {
     public void testJSON() throws Exception {
         // Act
         String json = before.toJSON();
-        System.out.println("JSON (before): " + json);
+        logger.debug("JSON (before): " + json);
 
         UserMembershipCollection afterJSON = JSONSerializer.fromJSON(json, UserMembershipCollection.class);
-        System.out.println("JSON (after): " + afterJSON.toJSON());
+        logger.debug("JSON (after): " + afterJSON.toJSON());
 
         // Assert
         assertEquals(before, afterJSON);

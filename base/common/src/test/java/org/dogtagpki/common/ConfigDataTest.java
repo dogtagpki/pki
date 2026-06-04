@@ -7,10 +7,14 @@ import java.util.TreeMap;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.util.JSONSerializer;
 
 public class ConfigDataTest {
+
+    public static Logger logger = LoggerFactory.getLogger(ConfigDataTest.class);
 
     private static ConfigData before = new ConfigData();
     private static Map<String, String> properties = new TreeMap<>();
@@ -28,10 +32,10 @@ public class ConfigDataTest {
     public void testJSON() throws Exception {
         // Act
         String json = before.toJSON();
-        System.out.println("JSON (before): " + json);
+        logger.debug("JSON (before): " + json);
 
         ConfigData afterJSON = JSONSerializer.fromJSON(json, ConfigData.class);
-        System.out.println("JSON (after): " + afterJSON.toJSON());
+        logger.debug("JSON (after): " + afterJSON.toJSON());
 
         // Assert
         assertEquals(before, afterJSON);

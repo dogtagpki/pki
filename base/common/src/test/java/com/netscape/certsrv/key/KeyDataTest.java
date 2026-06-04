@@ -4,10 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.util.JSONSerializer;
 
 public class KeyDataTest {
+
+    public static Logger logger = LoggerFactory.getLogger(KeyDataTest.class);
 
     private static KeyData before = new KeyData();
 
@@ -20,10 +24,10 @@ public class KeyDataTest {
     public void testJSON() throws Exception {
         // Act
         String json = before.toJSON();
-        System.out.println("JSON (before): " + json);
+        logger.debug("JSON (before): " + json);
 
         KeyData afterJSON = JSONSerializer.fromJSON(json, KeyData.class);
-        System.out.println("JSON (after): " + afterJSON.toJSON());
+        logger.debug("JSON (after): " + afterJSON.toJSON());
 
         // Assert
         assertEquals(before, afterJSON);

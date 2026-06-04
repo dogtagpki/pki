@@ -7,10 +7,14 @@ import java.net.MalformedURLException;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.util.JSONSerializer;
 
 public class ClientConfigTest {
+
+    public static Logger logger = LoggerFactory.getLogger(ClientConfigTest.class);
 
     private static ClientConfig before = new ClientConfig();
 
@@ -30,10 +34,10 @@ public class ClientConfigTest {
     public void testJSON() throws Exception {
         // Act
         String json = before.toJSON();
-        System.out.println("JSON (before): " + json);
+        logger.debug("JSON (before): " + json);
 
         ClientConfig afterJSON = JSONSerializer.fromJSON(json, ClientConfig.class);
-        System.out.println("JSON (after): " + afterJSON.toJSON());
+        logger.debug("JSON (after): " + afterJSON.toJSON());
 
         // Assert
         assertEquals(before, afterJSON);

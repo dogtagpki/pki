@@ -4,11 +4,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.util.JSONSerializer;
 
 public class KeyRequestResponseTest {
+
+    public static Logger logger = LoggerFactory.getLogger(KeyRequestResponseTest.class);
 
     private static KeyRequestResponse before = new KeyRequestResponse();
     private static KeyRequestInfo requestInfo = new KeyRequestInfo();
@@ -28,10 +32,10 @@ public class KeyRequestResponseTest {
     public void testJSON() throws Exception {
         // Act
         String json = before.toJSON();
-        System.out.println("JSON (before): " + json);
+        logger.debug("JSON (before): " + json);
 
         KeyRequestResponse afterJSON = JSONSerializer.fromJSON(json, KeyRequestResponse.class);
-        System.out.println("JSON (after): " + afterJSON.toJSON());
+        logger.debug("JSON (after): " + afterJSON.toJSON());
 
         // Assert
         assertEquals(before, afterJSON);

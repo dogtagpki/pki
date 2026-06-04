@@ -40,12 +40,16 @@ import org.mozilla.jss.pkix.crmf.POPOPrivKey;
 import org.mozilla.jss.pkix.crmf.ProofOfPossession;
 import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author alee
  *
  */
 public class ConfigurationTest {
+
+    public static Logger logger = LoggerFactory.getLogger(ConfigurationTest.class);
 
     private ConfigurationTest() {
     }
@@ -95,7 +99,7 @@ public class ConfigurationTest {
         // 2nd : Signing Key
 
         if (dualkey) {
-            System.out.println("dualkey = true");
+            logger.debug("dualkey = true");
             SEQUENCE seq1 = new SEQUENCE();
             CertRequest certReqSigning = new CertRequest(new INTEGER(1),
                     certTemplate, seq1);

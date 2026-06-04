@@ -7,10 +7,14 @@ import java.util.List;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.util.JSONSerializer;
 
 public class AsymKeyGenerationRequestTest {
+
+    public static Logger logger = LoggerFactory.getLogger(AsymKeyGenerationRequestTest.class);
 
     private static AsymKeyGenerationRequest before = new AsymKeyGenerationRequest();
 
@@ -30,10 +34,10 @@ public class AsymKeyGenerationRequestTest {
     public void testJSON() throws Exception {
         // Act
         String json = before.toJSON();
-        System.out.println("JSON (before): " + json);
+        logger.debug("JSON (before): " + json);
 
         AsymKeyGenerationRequest afterJSON = JSONSerializer.fromJSON(json, AsymKeyGenerationRequest.class);
-        System.out.println("JSON (after): " + afterJSON.toJSON());
+        logger.debug("JSON (after): " + afterJSON.toJSON());
 
         // Assert
         assertEquals(before, afterJSON);

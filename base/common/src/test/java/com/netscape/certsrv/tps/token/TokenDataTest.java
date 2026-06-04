@@ -6,11 +6,15 @@ import java.util.Date;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.tps.token.TokenData.TokenStatusData;
 import com.netscape.certsrv.util.JSONSerializer;
 
 public class TokenDataTest {
+
+    public static Logger logger = LoggerFactory.getLogger(TokenDataTest.class);
 
     private static TokenData before = new TokenData();
     private static TokenStatusData statusData = new TokenStatusData();
@@ -35,10 +39,10 @@ public class TokenDataTest {
     public void testJSON() throws Exception {
         // Act
         String json = before.toJSON();
-        System.out.println("JSON (before): " + json);
+        logger.debug("JSON (before): " + json);
 
         TokenData afterJSON = JSONSerializer.fromJSON(json, TokenData.class);
-        System.out.println("JSON (after): " + afterJSON.toJSON());
+        logger.debug("JSON (after): " + afterJSON.toJSON());
 
         // Assert
         assertEquals(before, afterJSON);

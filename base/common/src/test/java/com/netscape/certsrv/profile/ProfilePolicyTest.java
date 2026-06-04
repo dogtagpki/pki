@@ -7,12 +7,16 @@ import java.util.List;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.util.JSONSerializer;
 
 public class ProfilePolicyTest {
+
+    public static Logger logger = LoggerFactory.getLogger(ProfilePolicyTest.class);
 
     private static ProfilePolicy before = new ProfilePolicy();
     private static PolicyDefault pd = new PolicyDefault();
@@ -78,10 +82,10 @@ public class ProfilePolicyTest {
     public void testJSON() throws Exception {
         // Act
         String json = before.toJSON();
-        System.out.println("JSON (before): " + json);
+        logger.debug("JSON (before): " + json);
 
         ProfilePolicy afterJSON = JSONSerializer.fromJSON(json, ProfilePolicy.class);
-        System.out.println("JSON (after): " + afterJSON.toJSON());
+        logger.debug("JSON (after): " + afterJSON.toJSON());
 
         // Assert
         assertEquals(before, afterJSON);

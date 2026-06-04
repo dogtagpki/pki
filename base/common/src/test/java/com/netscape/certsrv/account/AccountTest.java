@@ -6,10 +6,14 @@ import java.util.Arrays;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.util.JSONSerializer;
 
 public class AccountTest {
+
+    public static Logger logger = LoggerFactory.getLogger(AccountTest.class);
 
     private static Account before = new Account();
 
@@ -26,10 +30,10 @@ public class AccountTest {
     public void testXML() throws Exception {
         // Act
         String xml = before.toXML();
-        System.out.println("XML (before): " + xml);
+        logger.debug("XML (before): " + xml);
 
         Account afterXML = Account.fromXML(xml);
-        System.out.println("XML (after): " + afterXML.toXML());
+        logger.debug("XML (after): " + afterXML.toXML());
 
         // Assert
         assertEquals(before, afterXML);
@@ -39,10 +43,10 @@ public class AccountTest {
     public void testJSON() throws Exception {
         // Act
         String json = before.toJSON();
-        System.out.println("JSON (before): " + json);
+        logger.debug("JSON (before): " + json);
 
         Account afterJSON = JSONSerializer.fromJSON(json, Account.class);
-        System.out.println("JSON (after): " + afterJSON.toJSON());
+        logger.debug("JSON (after): " + afterJSON.toJSON());
 
         // Assert
         assertEquals(before, afterJSON);

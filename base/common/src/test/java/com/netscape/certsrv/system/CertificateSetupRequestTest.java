@@ -6,10 +6,14 @@ import java.net.MalformedURLException;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.util.JSONSerializer;
 
 public class CertificateSetupRequestTest {
+
+    public static Logger logger = LoggerFactory.getLogger(CertificateSetupRequestTest.class);
 
     private static CertificateSetupRequest before = new CertificateSetupRequest();
 
@@ -24,11 +28,11 @@ public class CertificateSetupRequestTest {
     public void testJSON() throws Exception {
         // Act
         String json = before.toJSON();
-        System.out.println("JSON (before): " + json);
+        logger.debug("JSON (before): " + json);
 
         CertificateSetupRequest afterJSON =
                 JSONSerializer.fromJSON(json, CertificateSetupRequest.class);
-        System.out.println("JSON (after): " + afterJSON.toJSON());
+        logger.debug("JSON (after): " + afterJSON.toJSON());
 
         // Assert
         assertEquals(before, afterJSON);

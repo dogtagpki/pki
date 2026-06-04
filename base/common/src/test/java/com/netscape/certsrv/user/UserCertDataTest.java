@@ -12,11 +12,15 @@ import java.io.StringWriter;
 
 import org.junit.jupiter.api.Test;
 import org.mozilla.jss.netscape.security.util.Cert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.util.JSONSerializer;
 
 public class UserCertDataTest {
+
+    public static Logger logger = LoggerFactory.getLogger(UserCertDataTest.class);
 
     UserCertData userCertData;
 
@@ -51,10 +55,10 @@ public class UserCertDataTest {
     public void testJSON() throws Exception {
 
         String json = userCertData.toJSON();
-        System.out.println("Before: " + json);
+        logger.debug("Before: " + json);
 
         UserCertData after = JSONSerializer.fromJSON(json, UserCertData.class);
-        System.out.println("After: " + after.toJSON());
+        logger.debug("After: " + after.toJSON());
 
         assertEquals(userCertData, after);
     }

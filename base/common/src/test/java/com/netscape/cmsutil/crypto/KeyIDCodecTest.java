@@ -22,6 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Key ID encoder and decoder validation.
@@ -40,6 +42,8 @@ import org.junit.jupiter.api.Test;
  * data as well.
  */
 public class KeyIDCodecTest {
+
+    public static Logger logger = LoggerFactory.getLogger(KeyIDCodecTest.class);
 
     // data #1: zero
     String DATA1_HEX = "0";
@@ -151,10 +155,10 @@ public class KeyIDCodecTest {
     @Test
     public void testEncoder() throws Exception {
 
-        System.out.println("Testing Key ID encoder with valid data:");
+        logger.debug("Testing Key ID encoder with valid data:");
 
         for (int i = 0; i < TEST_DATA.length; i++) {
-            System.out.println(" - data #" + (i + 1));
+            logger.debug(" - data #" + (i + 1));
 
             byte[] bytes = (byte[])TEST_DATA[i][0];
             String hex = (String)TEST_DATA[i][1];
@@ -163,17 +167,17 @@ public class KeyIDCodecTest {
             assertEquals(hex, result);
         }
 
-        System.out.println("Testing Key ID encoder with invalid data:");
+        logger.debug("Testing Key ID encoder with invalid data:");
 
-        System.out.println(" - null data");
+        logger.debug(" - null data");
         assertThrows(NullPointerException.class,
                 () ->  CryptoUtil.encodeKeyID(null));
 
-        System.out.println(" - empty data");
+        logger.debug(" - empty data");
         assertThrows(IllegalArgumentException.class,
                 () ->  CryptoUtil.encodeKeyID(new byte[] {}));
 
-        System.out.println(" - incorrect length data");
+        logger.debug(" - incorrect length data");
         assertThrows(IllegalArgumentException.class,
                 () ->  CryptoUtil.encodeKeyID(new byte[] { (byte)0x24, (byte)0xac }));
     }
@@ -181,10 +185,10 @@ public class KeyIDCodecTest {
     @Test
     public void testDecoder() throws Exception {
 
-        System.out.println("Testing Key ID decoder with valid data:");
+        logger.debug("Testing Key ID decoder with valid data:");
 
         for (int i = 0; i < TEST_DATA.length; i++) {
-            System.out.println(" - data #" + (i + 1));
+            logger.debug(" - data #" + (i + 1));
 
             byte[] bytes = (byte[])TEST_DATA[i][0];
             String hex = (String)TEST_DATA[i][1];
@@ -193,21 +197,21 @@ public class KeyIDCodecTest {
             assertArrayEquals(bytes, result);
         }
 
-        System.out.println("Testing Key ID decoder with invalid data:");
+        logger.debug("Testing Key ID decoder with invalid data:");
 
-        System.out.println(" - null data");
+        logger.debug(" - null data");
         assertThrows(NullPointerException.class,
                 () ->  CryptoUtil.decodeKeyID(null));
 
-        System.out.println(" - empty data");
+        logger.debug(" - empty data");
         assertThrows(IllegalArgumentException.class,
                 () ->  CryptoUtil.decodeKeyID(""));
 
-        System.out.println(" - incorrect length data");
+        logger.debug(" - incorrect length data");
         assertThrows(IllegalArgumentException.class,
                 () ->  CryptoUtil.decodeKeyID("ffffffffffffffffffffffffffffffffffffffffff"));
 
-        System.out.println(" - garbage data");
+        logger.debug(" - garbage data");
         assertThrows(NumberFormatException.class,
                 () ->  CryptoUtil.decodeKeyID("garbage"));
     }

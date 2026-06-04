@@ -4,10 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.util.JSONSerializer;
 
 public class KeyIdTest {
+
+    public static Logger logger = LoggerFactory.getLogger(KeyIdTest.class);
 
     // data #1: zero
     String DATA1_HEX = "0x00";
@@ -63,7 +67,7 @@ public class KeyIdTest {
     public void run() throws Exception {
 
         for (int i = 0; i < TEST_DATA.length; i++) {
-            System.out.println("Testing data #" + (i + 1));
+            logger.debug("Testing data #" + (i + 1));
 
             // convert hex string into KeyId
             String hex = (String) TEST_DATA[i][0];

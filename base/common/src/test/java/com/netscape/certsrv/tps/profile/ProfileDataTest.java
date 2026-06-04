@@ -7,10 +7,14 @@ import java.util.Map;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.util.JSONSerializer;
 
 public class ProfileDataTest {
+
+    public static Logger logger = LoggerFactory.getLogger(ProfileDataTest.class);
 
     private static ProfileData before = new ProfileData();
     private static Map<String, String> properties = new LinkedHashMap<>();
@@ -28,10 +32,10 @@ public class ProfileDataTest {
     public void testJSON() throws Exception {
         // Act
         String json = before.toJSON();
-        System.out.println("JSON (before): " + json);
+        logger.debug("JSON (before): " + json);
 
         ProfileData afterJSON = JSONSerializer.fromJSON(json, ProfileData.class);
-        System.out.println("JSON (after): " + afterJSON.toJSON());
+        logger.debug("JSON (after): " + afterJSON.toJSON());
 
         // Assert
         assertEquals(before, afterJSON);

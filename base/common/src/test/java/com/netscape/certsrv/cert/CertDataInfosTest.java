@@ -6,10 +6,14 @@ import java.util.Date;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.dbs.certdb.CertId;
 
 public class CertDataInfosTest {
+
+    public static Logger logger = LoggerFactory.getLogger(CertDataInfosTest.class);
 
     private static CertDataInfo info = new CertDataInfo();
     private static CertDataInfos before = new CertDataInfos();
@@ -40,10 +44,10 @@ public class CertDataInfosTest {
     public void testXML() throws Exception {
         // Act
         String xml = before.toXML();
-        System.out.println("XML (before): " + xml);
+        logger.debug("XML (before): " + xml);
 
         CertDataInfos afterXML = CertDataInfos.fromXML(xml);
-        System.out.println("XML (after): " + afterXML.toXML());
+        logger.debug("XML (after): " + afterXML.toXML());
 
         // Assert
         assertEquals(before, afterXML);

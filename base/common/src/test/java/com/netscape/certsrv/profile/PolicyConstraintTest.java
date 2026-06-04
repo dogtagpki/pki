@@ -7,12 +7,16 @@ import java.util.List;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.util.JSONSerializer;
 
 public class PolicyConstraintTest {
+
+    public static Logger logger = LoggerFactory.getLogger(PolicyConstraintTest.class);
 
     private static PolicyConstraint before = new PolicyConstraint();
     private static PolicyConstraintValue pcv1 = new PolicyConstraintValue();
@@ -44,10 +48,10 @@ public class PolicyConstraintTest {
     public void testXML() throws Exception {
         // Act
         String xml = before.toXML();
-        System.out.println("XML (before): " + xml);
+        logger.debug("XML (before): " + xml);
 
         PolicyConstraint afterXML = PolicyConstraint.fromXML(xml);
-        System.out.println("XML (after): " + afterXML.toXML());
+        logger.debug("XML (after): " + afterXML.toXML());
 
         // Assert
         assertEquals(before, afterXML);
@@ -57,10 +61,10 @@ public class PolicyConstraintTest {
     public void testJSON() throws Exception {
         // Act
         String json = before.toJSON();
-        System.out.println("JSON (before): " + json);
+        logger.debug("JSON (before): " + json);
 
         PolicyConstraint afterJSON = JSONSerializer.fromJSON(json, PolicyConstraint.class);
-        System.out.println("JSON (after): " + afterJSON.toJSON());
+        logger.debug("JSON (after): " + afterJSON.toJSON());
 
         // Assert
         assertEquals(before, afterJSON);

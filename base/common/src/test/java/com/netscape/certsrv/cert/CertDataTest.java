@@ -8,11 +8,15 @@ import java.io.StringWriter;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mozilla.jss.netscape.security.util.Cert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.util.JSONSerializer;
 
 public class CertDataTest {
+
+    public static Logger logger = LoggerFactory.getLogger(CertDataTest.class);
 
     private static CertData before = new CertData();
     private static StringWriter sw = new StringWriter();
@@ -45,10 +49,10 @@ public class CertDataTest {
     public void testXML() throws Exception {
         // Act
         String xml = before.toXML();
-        System.out.println("XML (before): " + xml);
+        logger.debug("XML (before): " + xml);
 
         CertData afterXML = CertData.fromXML(xml);
-        System.out.println("XML (after): " + afterXML.toXML());
+        logger.debug("XML (after): " + afterXML.toXML());
 
         // Assert
         assertEquals(before, afterXML);
@@ -58,10 +62,10 @@ public class CertDataTest {
     public void testJSON() throws Exception {
         // Act
         String json = before.toJSON();
-        System.out.println("JSON (before): " + json);
+        logger.debug("JSON (before): " + json);
 
         CertData afterJSON = JSONSerializer.fromJSON(json, CertData.class);
-        System.out.println("JSON (after): " + afterJSON.toJSON());
+        logger.debug("JSON (after): " + afterJSON.toJSON());
 
         // Assert
         assertEquals(before, afterJSON);

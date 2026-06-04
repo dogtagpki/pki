@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.profile.ProfileAttribute;
@@ -12,6 +14,8 @@ import com.netscape.certsrv.profile.ProfileOutput;
 import com.netscape.certsrv.util.JSONSerializer;
 
 public class CertEnrollmentRequestTest {
+
+    public static Logger logger = LoggerFactory.getLogger(CertEnrollmentRequestTest.class);
 
     private static CertEnrollmentRequest before = new CertEnrollmentRequest();
     private static ProfileInput certReq = new ProfileInput();
@@ -62,10 +66,10 @@ public class CertEnrollmentRequestTest {
     public void testXML() throws Exception {
         // Act
         String xml = before.toXML();
-        System.out.println("XML (before): " + xml);
+        logger.debug("XML (before): " + xml);
 
         CertEnrollmentRequest afterXML = CertEnrollmentRequest.fromXML(xml);
-        System.out.println("XML (after): " + afterXML.toXML());
+        logger.debug("XML (after): " + afterXML.toXML());
 
         // Assert
         assertEquals(before, afterXML);
@@ -75,10 +79,10 @@ public class CertEnrollmentRequestTest {
     public void testJSON() throws Exception {
         // Act
         String json = before.toJSON();
-        System.out.println("JSON (before): " + json);
+        logger.debug("JSON (before): " + json);
 
         CertEnrollmentRequest afterJSON = JSONSerializer.fromJSON(json, CertEnrollmentRequest.class);
-        System.out.println("JSON (after): " + afterJSON.toJSON());
+        logger.debug("JSON (after): " + afterJSON.toJSON());
 
         // Assert
         assertEquals(before, afterJSON);

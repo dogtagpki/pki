@@ -4,10 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.util.JSONSerializer;
 
 public class SystemCertDataTest {
+
+    public static Logger logger = LoggerFactory.getLogger(SystemCertDataTest.class);
 
     private static SystemCertData before = new SystemCertData();
     private static String[] dnsNames = {"lorem, ipsum"};
@@ -24,10 +28,10 @@ public class SystemCertDataTest {
     public void testJSON() throws Exception {
         // Act
         String json = before.toJSON();
-        System.out.println("JSON (before): " + json);
+        logger.debug("JSON (before): " + json);
 
         SystemCertData afterJSON = JSONSerializer.fromJSON(json, SystemCertData.class);
-        System.out.println("JSON (after): " + afterJSON.toJSON());
+        logger.debug("JSON (after): " + afterJSON.toJSON());
 
         // Assert
         assertEquals(before, afterJSON);

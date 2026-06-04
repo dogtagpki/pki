@@ -4,10 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.util.JSONSerializer;
 
 public class DomainInfoTest {
+
+    public static Logger logger = LoggerFactory.getLogger(DomainInfoTest.class);
 
     private static DomainInfo before = new DomainInfo();
     private static SecurityDomainHost host = new SecurityDomainHost();
@@ -28,10 +32,10 @@ public class DomainInfoTest {
     public void testJSON() throws Exception {
         // Act
         String json = before.toJSON();
-        System.out.println("JSON (before): " + json);
+        logger.debug("JSON (before): " + json);
 
         DomainInfo afterJSON = JSONSerializer.fromJSON(json, DomainInfo.class);
-        System.out.println("JSON (after): " + afterJSON.toJSON());
+        logger.debug("JSON (after): " + afterJSON.toJSON());
 
         // Assert
         assertEquals(before, afterJSON);

@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.profile.ProfileAttribute;
@@ -13,6 +15,8 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.util.JSONSerializer;
 
 public class CertReviewResponseTest {
+
+    public static Logger logger = LoggerFactory.getLogger(CertReviewResponseTest.class);
 
     private static CertReviewResponse before = new CertReviewResponse();
     private static ProfileInput certReq = before.createInput("KeyGenInput");
@@ -76,10 +80,10 @@ public class CertReviewResponseTest {
     public void testJSON() throws Exception {
         // Act
         String json = before.toJSON();
-        System.out.println("JSON (before): " + json);
+        logger.debug("JSON (before): " + json);
 
         CertReviewResponse afterJSON = JSONSerializer.fromJSON(json, CertReviewResponse.class);
-        System.out.println("JSON (after): " + afterJSON.toJSON());
+        logger.debug("JSON (after): " + afterJSON.toJSON());
 
         // Assert
         assertEquals(before, afterJSON);
