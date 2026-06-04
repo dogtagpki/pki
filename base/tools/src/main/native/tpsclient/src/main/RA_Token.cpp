@@ -50,7 +50,7 @@
 
 /* curveNameTagPair is borrowed from certutil */
 typedef struct curveNameTagPairStr {
-    char *curveName;
+    const char *curveName;
     SECOidTag curveOidTag;
 } CurveNameTagPair;
 
@@ -345,7 +345,8 @@ RA_Token::SetMSN (Buffer & msn)
   if (msn != NULL && msn.size() < 4) {
     // Supply a default value of 'FFFFFFFF' for 'msn'
     printf ("RA_Token::SetMSN - Use 'FFFFFFFF' instead of specified 'msn'!\n");
-    m_msn = *(ToBuffer ("FFFFFFFF"));
+    const char *default_msn = "FFFFFFFF";
+    m_msn = *(ToBuffer (const_cast<char*>(default_msn)));
   } else {
     m_msn = msn;
   }
@@ -758,8 +759,6 @@ RA_Token::CreateSessionKey (keyType keytype, Buffer & card_challenge,
 			    Buffer & host_challenge)
 {
   BYTE *key = NULL;
-  char input[16];
-  int i;
   BYTE *cc = (BYTE *) card_challenge;
   int cc_len = card_challenge.size ();
   BYTE *hc = (BYTE *) host_challenge;
@@ -771,16 +770,6 @@ RA_Token::CreateSessionKey (keyType keytype, Buffer & card_challenge,
     key = (BYTE *) m_auth_key;
   else
     key = (BYTE *) m_mac_key;	// for now
-
-  /* copy card and host challenge into input buffer */
-  for (i = 0; i < 8; i++)
-    {
-      input[i] = cc[i];
-    }
-  for (i = 0; i < 8; i++)
-    {
-      input[8 + i] = hc[i];
-    }
 
   PK11SymKey *session_key =
     Util::DeriveKey (Buffer (key, 16), Buffer (hc, hc_len),
@@ -1073,7 +1062,6 @@ RA_Token::ProcessGenerateKey (Generate_Key_APDU * apdu,
 			      NameValueSet * vars, NameValueSet * params)
 {
   CK_MECHANISM_TYPE mechanism;
-  SECOidTag algtag;
   PK11RSAGenParams rsaparams;
   void *x_params;
   SECKEYPrivateKey *privKey;
@@ -1081,6 +1069,7 @@ RA_Token::ProcessGenerateKey (Generate_Key_APDU * apdu,
   PK11SlotInfo *slot = PK11_GetInternalKeySlot ();
   int publicExponent = 0x010001;
   int buffer_size;
+  SECOidTag algtag;
   // Debug( LL_PER_PDU,
   //            "RA_Token::ProcessGenerateKey: ",
   //            "=====ProcessGenerateKey():in ProcessGenerateKey====" );
@@ -1120,6 +1109,7 @@ RA_Token::ProcessGenerateKey (Generate_Key_APDU * apdu,
   rsaparams.pe = publicExponent;
   mechanism = CKM_RSA_PKCS_KEY_PAIR_GEN;
   algtag = SEC_OID_PKCS1_MD5_WITH_RSA_ENCRYPTION;
+  (void)algtag; // Suppress unused variable warning
   x_params = &rsaparams;
 
   /* generate key pair */
@@ -1374,7 +1364,7 @@ RA_Token::ProcessGenerateKeyECC (Generate_Key_ECC_APDU * apdu,
 #ifdef VERBOSE
     Output("Requested key size: %d", keysize);
 #endif
-    char *keycurve = NULL;
+    const char *keycurve = NULL;
     /* only three curves are supported by token */
     if (keysize == 256) {
         keycurve = "nistp256";
@@ -1394,11 +1384,9 @@ RA_Token::ProcessGenerateKeyECC (Generate_Key_ECC_APDU * apdu,
     Buffer wrapped_challenge = Buffer ((BYTE *) & raw[6],
         wrapped_challenge_len);
 
-    PK11AttrFlags attrFlags = 0;
-
     /* generate key pair */
     char *keygen_param = params->GetValue ("keygen");
- 
+
     if (keygen_param == NULL || (strcmp (keygen_param, "true") == 0)) {
 #ifdef VERBOSE
         Output("EC keygen is true");
@@ -1415,7 +1403,7 @@ RA_Token::ProcessGenerateKeyECC (Generate_Key_ECC_APDU * apdu,
             slot = PK11_GetInternalKeySlot();
         } else {
             fd_slotname = PR_Open(slotnamefile, PR_RDWR, 00400|00200);
-            int n = ReadLine(fd_slotname, slotname, 500, &removed_return);
+            ReadLine(fd_slotname, slotname, 500, &removed_return);
             slot = PK11_FindSlotByName(slotname);
         }
 
@@ -1518,11 +1506,12 @@ Output("privKey not NULL");
 #ifdef VERBOSE
             printf("begin verifying proof");
 #endif
-            unsigned char *pkeyb = (unsigned char *) (BYTE *) data_blob;
-            int pkeyb_len = data_blob.size ();
 
 Output("skipping VerifyProof");
 #ifdef VERIFY_PROOF
+            unsigned char *pkeyb = (unsigned char *) (BYTE *) data_blob;
+            int pkeyb_len = data_blob.size ();
+
             SECItem siProof;
             siProof.type = (SECItemType) 0;
             siProof.data = (unsigned char *) proof;
