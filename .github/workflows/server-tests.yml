@@ -49,6 +49,12 @@ jobs:
     needs: build
     uses: ./.github/workflows/server-https-nss-pqc-test.yml
 
+  server-https-kryoptic-pqc-test:
+    if: ${{ vars.BASE_IMAGE != 'registry.fedoraproject.org/fedora:42' }}
+    name: HTTPS connector with Kryoptic HSM (PQC)
+    needs: build
+    uses: ./.github/workflows/server-https-kryoptic-pqc-test.yml
+
   server-backup-test:
     name: Server backup
     needs: build
