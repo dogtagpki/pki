@@ -1411,7 +1411,7 @@ jobs:
 
           # the CLI should complete successfully, but currently it's failing
           cat > expected << EOF
-          PKIException: Server Internal Error: Unable to add certificate record: Record already exists: Already exists
+          PKIException: Server Internal Error: Unable to add certificate record: Record already exists
           EOF
 
           diff expected stderr

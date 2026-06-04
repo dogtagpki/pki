@@ -34,36 +34,38 @@ import netscape.ldap.LDAPException;
 public class LDAPExceptionConverter {
 
     public static DBException toDBException(LDAPException e) {
+        String ldapErrorMessage = e.getLDAPErrorMessage() != null ? ": " + e.getLDAPErrorMessage() : "";
         switch (e.getLDAPResultCode()) {
         case LDAPException.ATTRIBUTE_OR_VALUE_EXISTS:
-            return new DBRecordAlreadyExistsException("Record already exists: " + e.getMessage(), e);
+            return new DBRecordAlreadyExistsException("Record already exists" + ldapErrorMessage, e);
         case LDAPException.NO_SUCH_OBJECT:
-            return new DBRecordNotFoundException("Record not found: " + e.getMessage(), e);
+            return new DBRecordNotFoundException("Record not found" + ldapErrorMessage, e);
         case LDAPException.UNAVAILABLE:
-            return new DBNotAvailableException("Database not available: " + e.getMessage(), e);
+            return new DBNotAvailableException("Database not available" + ldapErrorMessage, e);
         case LDAPException.ENTRY_ALREADY_EXISTS:
-            return new DBRecordAlreadyExistsException("Record already exists: " + e.getMessage(), e);
+            return new DBRecordAlreadyExistsException("Record already exists" + ldapErrorMessage, e);
         default:
-            return new DBException("Database error: " + e.getMessage(), e);
+            return new DBException("Database error" + ldapErrorMessage, e);
         }
     }
 
     public static PKIException toPKIException(LDAPException e) {
+        String ldapErrorMessage = e.getLDAPErrorMessage() != null ? ": " + e.getLDAPErrorMessage() : "";
         switch (e.getLDAPResultCode()) {
         case LDAPException.ATTRIBUTE_OR_VALUE_EXISTS:
-            return new ConflictingOperationException("Attribute or value exists: " + e.getMessage(), e);
+            return new ConflictingOperationException("Attribute or value exists" + ldapErrorMessage, e);
         case LDAPException.NO_SUCH_OBJECT:
-            return new ResourceNotFoundException("No such object: " + e.getMessage(), e);
+            return new ResourceNotFoundException("No such object" + ldapErrorMessage, e);
         case LDAPException.NO_SUCH_ATTRIBUTE:
-            return new ResourceNotFoundException("No such attribute: " + e.getMessage(), e);
+            return new ResourceNotFoundException("No such attribute" + ldapErrorMessage, e);
         case LDAPException.INVALID_DN_SYNTAX:
-            return new BadRequestException("Invalid DN syntax: " + e.getMessage(), e);
+            return new BadRequestException("Invalid DN syntax" + ldapErrorMessage, e);
         case LDAPException.INVALID_ATTRIBUTE_SYNTAX:
-            return new BadRequestException("Invalid attribute syntax: " + e.getMessage(), e);
+            return new BadRequestException("Invalid attribute syntax" + ldapErrorMessage, e);
         case LDAPException.ENTRY_ALREADY_EXISTS:
-            return new ConflictingOperationException("Entry already exists: " + e.getMessage(), e);
+            return new ConflictingOperationException("Entry already exists" + ldapErrorMessage, e);
         default:
-            return new PKIException("LDAP error ("+e.getLDAPResultCode()+"): "+e.getMessage(), e);
+            return new PKIException("LDAP error ("+e.getLDAPResultCode()+")"+ ldapErrorMessage, e);
         }
     }
 }
