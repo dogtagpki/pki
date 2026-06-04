@@ -105,6 +105,7 @@ jobs:
           slot = 1
           dbtype = "sqlite"
           dbargs = "/home/pkiuser/.config/kryoptic/token.sql"
+          objects_dedup = "TrustOnly"
           EOF
 
           # check with OpenSC

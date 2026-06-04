@@ -103,6 +103,7 @@ jobs:
           slot = 1
           dbtype = "sqlite"
           dbargs = "/home/pkiuser/.config/kryoptic/token.sql"
+          objects_dedup = "TrustOnly"
           EOF
 
           # check with OpenSC
@@ -209,9 +210,7 @@ jobs:
               HSM:ca_signing \
               | tee output
 
-          # trust attributes should be CTu,Cu,Cu but some are missing
-          # TODO: investigate missing trust attributes
-          echo "CTu,u,u" > expected
+          echo "CTu,Cu,Cu" > expected
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
 
           diff expected actual
