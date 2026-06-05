@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/usr/bin/bash -e
 #
 # Authors:
 #     Dinesh Prasanth M K <dmoluguw@redhat.com>

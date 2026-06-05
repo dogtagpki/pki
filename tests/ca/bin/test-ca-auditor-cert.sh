@@ -1,4 +1,4 @@
-#!/bin/bash -ex
+#!/usr/bin/bash -ex
 
 # submit a cert request and capture the request ID
 pki client-cert-request uid=caauditor | sed -n "s/^\s*Request ID:\s*\(\S*\)$/\1/p" > /tmp/request_id

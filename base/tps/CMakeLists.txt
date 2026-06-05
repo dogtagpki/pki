@@ -75,7 +75,7 @@ add_custom_target(pki-tps-man ALL
     COMMENT "Creating TPS manuals")
 
 add_custom_command(
-    TARGET pki-tps-man
+    TARGET pki-tps-man POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory man/man5
     COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man5/pki-tps-connector.5.md -out man/man5/pki-tps-connector.5
     COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man5/pki-tps-profile.5.md -out man/man5/pki-tps-profile.5

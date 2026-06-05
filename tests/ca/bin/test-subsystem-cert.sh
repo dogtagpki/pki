@@ -1,4 +1,4 @@
-#!/bin/bash -ex
+#!/usr/bin/bash -ex
 
 # get subsystem cert using certutil
 certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -n subsystem -r > /tmp/subsystem.crt

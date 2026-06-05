@@ -1,4 +1,4 @@
-#!/bin/bash -ex
+#!/usr/bin/bash -ex
 
 # create a user
 pki -u caadmin -w Secret.123 ca-user-add caagent --fullName "CA Agent" --password Secret.123

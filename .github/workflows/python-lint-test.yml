@@ -34,9 +34,9 @@ jobs:
       - name: Run Python lint
         if: always()
         run: |
-          docker exec pki /usr/share/pki/tests/bin/python-lint.py
+          docker exec pki /usr/share/pki/tests/bin/python-lint.sh
 
       - name: Run Python flake8
         if: always()
         run: |
-          docker exec pki /usr/share/pki/tests/bin/python-flake8.py
+          docker exec pki /usr/share/pki/tests/bin/python-flake8.sh

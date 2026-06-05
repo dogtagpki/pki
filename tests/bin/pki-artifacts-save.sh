@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 INSTANCE=pki-tomcat
 OUTPUT=

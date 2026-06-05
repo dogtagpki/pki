@@ -50,7 +50,7 @@ install -d -m 755 %{buildroot}%{_bindir}
 
 # hsmCompatVerifyServ wrapper
 cat > %{buildroot}%{_bindir}/hsmCompatVerifyServ <<'EOF'
-#!/bin/sh
+#!/usr/bin/sh
 # PKI Token Compatibility Verification Tool - Server Side
 
 # load default, system-wide, and user-specific PKI configuration
@@ -72,7 +72,7 @@ chmod 755 %{buildroot}%{_bindir}/hsmCompatVerifyServ
 
 # hsmCompatVerifyClnt wrapper
 cat > %{buildroot}%{_bindir}/hsmCompatVerifyClnt <<'EOF'
-#!/bin/sh
+#!/usr/bin/sh
 # PKI Token Compatibility Verification Tool - Client Side
 
 # load default, system-wide, and user-specific PKI configuration
