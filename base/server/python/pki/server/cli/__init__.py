@@ -90,6 +90,7 @@ JAVA_COMMANDS = [
     r'[^-]*-group-add$',
     r'[^-]*-group-member-find$',
     r'[^-]*-group-member-add$',
+    r'[^-]*-group-member-add-batch$',
     r'[^-]*-group-member-del$',
     r'[^-]*-acl-find$',
     r'[^-]*-acl-add$',
