@@ -207,6 +207,15 @@ function getKeyTypesOptionsForKeyGen() {
     }
 
     var keyTypesRet = keyTypes.split(",");
+    var keyTypesTrimmed = [];
+    for (var kt = 0; kt < keyTypesRet.length; kt++) {
+      var tok = String(keyTypesRet[kt]).trim();
+      if (tok) {
+        keyTypesTrimmed.push(tok);
+      }
+    }
+    keyTypesTrimmed.sort(function(a, b) { return a.localeCompare(b); });
+    keyTypesRet = keyTypesTrimmed;
     var options = "";
     var optionLabel = "";
     var selected = "";
@@ -299,12 +308,90 @@ function translateCurveName (name)
   return translated;
 }
 
+// Mirrors KeyConstraint.getAllowedKeysForAlgorithm: start from keyParameters tokens,
+// then apply constraint.params.allowedKeys.* overrides (leaf split on first '.').
+function applyAllowedKeysOverrides(baseTokens, allowedKeysMap, algName) {
+  var allowed = [];
+  var inSet = {};
+  var b = 0;
+  if (baseTokens) {
+    for (b = 0; b < baseTokens.length; b++) {
+      var tok = String(baseTokens[b]).trim();
+      if (tok && !inSet[tok]) {
+        inSet[tok] = true;
+        allowed.push(tok);
+      }
+    }
+  }
+  if (!algName || !allowedKeysMap) {
+    return allowed;
+  }
+  var algType = String(algName).toUpperCase();
+  var overrides = allowedKeysMap[algType];
+  if (!overrides) {
+    return allowed;
+  }
+  for (var keyValue in overrides) {
+    if (!overrides.hasOwnProperty(keyValue)) {
+      continue;
+    }
+    var propertyValue = overrides[keyValue];
+    var pv = (propertyValue == null) ? "" : String(propertyValue).trim();
+    if (pv.toLowerCase() == "true") {
+      if (!inSet[keyValue]) {
+        inSet[keyValue] = true;
+        allowed.push(keyValue);
+      }
+    } else if (pv.toLowerCase() == "false") {
+      if (inSet[keyValue]) {
+        inSet[keyValue] = false;
+        var na = [];
+        for (var x = 0; x < allowed.length; x++) {
+          if (allowed[x] != keyValue) {
+            na.push(allowed[x]);
+          }
+        }
+        allowed = na;
+      }
+    }
+  }
+  return allowed;
+}
+
+// Order key sizes / ML-DSA parameter sets numerically; EC curves alphabetically.
+function sortLengthsOrCurvesList(keyType, arr) {
+  if (!arr || arr.length < 2) {
+    return arr;
+  }
+  var out = arr.slice();
+  if (keyType == "EC") {
+    out.sort(function(a, b) {
+      return String(a).trim().localeCompare(String(b).trim());
+    });
+  } else {
+    out.sort(function(a, b) {
+      var sa = String(a).trim();
+      var sb = String(b).trim();
+      var na = parseInt(sa, 10);
+      var nb = parseInt(sb, 10);
+      if (!isNaN(na) && !isNaN(nb)) {
+        return na - nb;
+      }
+      return sa.localeCompare(sb);
+    });
+  }
+  return out;
+}
+
 function keyLengthsCurvesOptions (keyPurpose)
 {
   var keyType = "RSA";
   var options = "";
   var lengthsOrCurves = null;
   var keyLengthsCurves = "";
+  var MLDSA_VALID = { "44": true, "65": true, "87": true };
+  var ALLOWED_KEYS_PREFIX = "allowedKeys.";
+  var allowedKeysMap = {};
 
   for (var i = 0; i < policySetListSet.length; i++) {
     for (var j = 0; j < policySetListSet[i].policySet.length; j++) {
@@ -325,7 +412,25 @@ function keyLengthsCurvesOptions (keyPurpose)
           if (keyPurpose.length == 0 || (keyPurpose.length > 0 && policySetListSet[i].setId.indexOf(keyPurpose) > -1)) {
               if (policySetListSet[i].policySet[j].constraintSet[k].name == "keyParameters") {
                   keyLengthsCurves = policySetListSet[i].policySet[j].constraintSet[k].value;
-                  lengthsOrCurves = keyLengthsCurves.split(",");
+                  if (keyLengthsCurves) {
+                    lengthsOrCurves = keyLengthsCurves.split(",");
+                  } else {
+                    lengthsOrCurves = [];
+                  }
+              }
+              var cname = policySetListSet[i].policySet[j].constraintSet[k].name;
+              if (cname && cname.length >= ALLOWED_KEYS_PREFIX.length
+                  && cname.substring(0, ALLOWED_KEYS_PREFIX.length).toLowerCase() == ALLOWED_KEYS_PREFIX.toLowerCase()) {
+                var leaf = cname.substring(ALLOWED_KEYS_PREFIX.length);
+                var us = leaf.indexOf(".");
+                if (us > 0 && us < leaf.length - 1) {
+                  var algType = leaf.substring(0, us).toUpperCase();
+                  var keyValue = leaf.substring(us + 1);
+                  if (!allowedKeysMap[algType]) {
+                    allowedKeysMap[algType] = {};
+                  }
+                  allowedKeysMap[algType][keyValue] = policySetListSet[i].policySet[j].constraintSet[k].value;
+                }
               }
           }
         }
@@ -335,6 +440,24 @@ function keyLengthsCurvesOptions (keyPurpose)
   if (isIE()) {
     keyType = "RSA";
   }
+
+  if (lengthsOrCurves == null) {
+    lengthsOrCurves = [];
+  }
+
+  if (keyType == "MLDSA") {
+    var mldsaFiltered = [];
+    for (var mf = 0; mf < lengthsOrCurves.length; mf++) {
+      var mv = String(lengthsOrCurves[mf]).trim();
+      if (MLDSA_VALID[mv]) {
+        mldsaFiltered.push(mv);
+      }
+    }
+    lengthsOrCurves = mldsaFiltered;
+  }
+
+  lengthsOrCurves = applyAllowedKeysOverrides(lengthsOrCurves, allowedKeysMap, keyType);
+  lengthsOrCurves = sortLengthsOrCurvesList(keyType, lengthsOrCurves);
 
   var value = 0;
   var l = 0;
@@ -360,7 +483,7 @@ function keyLengthsCurvesOptions (keyPurpose)
           } else {
               options += '<OPTION VALUE="' + value + '"';
           }
-          if (i == 0) {
+          if (l == 0) {
               options += ' SELECTED';
           }
           options += '>' + value;
@@ -368,7 +491,9 @@ function keyLengthsCurvesOptions (keyPurpose)
   }
 
   if (options.length == 0) {
-     if (keyType != "EC") {
+     if (keyType == "MLDSA") {
+         options = '<OPTION VALUE=44 SELECTED>44';
+     } else if (keyType != "EC") {
          options = '<OPTION VALUE=1024 SELECTED>1024';
      } else {
          if (isIE()) {
