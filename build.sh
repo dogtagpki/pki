@@ -12,6 +12,7 @@ SRC_DIR=$(dirname "$SCRIPT_PATH")
 NAME=pki
 PRODUCT_NAME=
 PRODUCT_ID=
+PRODUCT_VERSION=
 THEME=
 
 WORK_DIR=
@@ -66,38 +67,39 @@ usage() {
     echo "Usage: $SCRIPT_NAME [OPTIONS] <target>"
     echo
     echo "Options:"
-    echo "    --name=<name>          Package name (default: $NAME)."
-    echo "    --product-name=<name>  Use the specified product name."
-    echo "    --product-id=<ID>      Use the specified product ID."
-    echo "    --theme=<name>         Use the specified theme."
-    echo "    --work-dir=<path>      Working directory (default: ~/build/$NAME)."
-    echo "    --prefix-dir=<path>    Prefix directory (default: $PREFIX_DIR)"
-    echo "    --include-dir=<path>   Include directory (default: $INCLUDE_DIR)"
-    echo "    --lib-dir=<path>       Library directory (default: $LIB_DIR)"
-    echo "    --sbin-dir=<path>      Superuser binary directory (default: $SBIN_DIR)"
-    echo "    --sysconf-dir=<path>   System configuration directory (default: $SYSCONF_DIR)"
-    echo "    --share-dir=<path>     Share directory (default: $SHARE_DIR)"
-    echo "    --cmake=<path>         Path to CMake executable"
-    echo "    --c-flags=<flags>      C compiler flags"
-    echo "    --java-home=<path>     Java home directory"
-    echo "    --jni-dir=<path>       JNI directory (default: $JNI_DIR)"
-    echo "    --unit-dir=<path>      Systemd unit directory (default: $UNIT_DIR)"
-    echo "    --python=<path>        Path to Python executable (default: $PYTHON)"
-    echo "    --python-dir=<path>    Path to Python modules"
-    echo "    --install-dir=<path>   Installation directory"
-    echo "    --source-tag=<tag>     Generate RPM sources from a source tag."
-    echo "    --spec=<file>          Use the specified RPM spec (default: $SPEC_TEMPLATE)."
-    echo "    --with-timestamp       Append timestamp to RPM version number."
-    echo "    --with-commit-id       Append commit ID to RPM version number."
-    echo "    --dist=<name>          Distribution name (e.g. fc28)."
-    echo "    --without-java         Do not build Java binaries."
-    echo "    --with-console         Build console package."
-    echo "    --with-pkgs=<list>     Build packages specified in comma-separated list only."
-    echo "    --without-pkgs=<list>  Build everything except packages specified in comma-separated list."
-    echo "    --without-test         Do not run unit tests."
-    echo " -v,--verbose              Run in verbose mode."
-    echo "    --debug                Run in debug mode."
-    echo "    --help                 Show help message."
+    echo "    --name=<name>                Package name (default: $NAME)."
+    echo "    --product-name=<name>        Use the specified product name."
+    echo "    --product-id=<ID>            Use the specified product ID."
+    echo "    --product-version=<version>  Use the specified product version."
+    echo "    --theme=<name>               Use the specified theme."
+    echo "    --work-dir=<path>            Working directory (default: ~/build/$NAME)."
+    echo "    --prefix-dir=<path>          Prefix directory (default: $PREFIX_DIR)"
+    echo "    --include-dir=<path>         Include directory (default: $INCLUDE_DIR)"
+    echo "    --lib-dir=<path>             Library directory (default: $LIB_DIR)"
+    echo "    --sbin-dir=<path>            Superuser binary directory (default: $SBIN_DIR)"
+    echo "    --sysconf-dir=<path>         System configuration directory (default: $SYSCONF_DIR)"
+    echo "    --share-dir=<path>           Share directory (default: $SHARE_DIR)"
+    echo "    --cmake=<path>               Path to CMake executable"
+    echo "    --c-flags=<flags>            C compiler flags"
+    echo "    --java-home=<path>           Java home directory"
+    echo "    --jni-dir=<path>             JNI directory (default: $JNI_DIR)"
+    echo "    --unit-dir=<path>            Systemd unit directory (default: $UNIT_DIR)"
+    echo "    --python=<path>              Path to Python executable (default: $PYTHON)"
+    echo "    --python-dir=<path>          Path to Python modules"
+    echo "    --install-dir=<path>         Installation directory"
+    echo "    --source-tag=<tag>           Generate RPM sources from a source tag."
+    echo "    --spec=<file>                Use the specified RPM spec (default: $SPEC_TEMPLATE)."
+    echo "    --with-timestamp             Append timestamp to RPM version number."
+    echo "    --with-commit-id             Append commit ID to RPM version number."
+    echo "    --dist=<name>                Distribution name (e.g. fc28)."
+    echo "    --without-java               Do not build Java binaries."
+    echo "    --with-console               Build console package."
+    echo "    --with-pkgs=<list>           Build packages specified in comma-separated list only."
+    echo "    --without-pkgs=<list>        Build everything except packages specified in comma-separated list."
+    echo "    --without-test               Do not run unit tests."
+    echo " -v,--verbose                    Run in verbose mode."
+    echo "    --debug                      Run in debug mode."
+    echo "    --help                       Show help message."
     echo
     echo "Packages:"
     echo "    $PKG_LIST"
@@ -257,6 +259,10 @@ generate_rpm_spec() {
     # hard-code product ID
     sed -i "s/^\(%global *product_id *\).*\$/\1$PRODUCT_ID/g" "$SPEC_FILE"
 
+    # hard-code product version
+    sed -i "s/^\(%global *product_version *\).*\$/\1$PRODUCT_VERSION/g" "$SPEC_FILE"
+    sed -i "s/%undefine *product_version/%global product_version $PRODUCT_VERSION/g" "$SPEC_FILE"
+
     # hard-code theme
     sed -i "s/^\(%global *theme *\).*\$/\1$THEME/g" "$SPEC_FILE"
 
@@ -312,6 +318,9 @@ while getopts v-: arg ; do
             ;;
         product-id=?*)
             PRODUCT_ID="$LONG_OPTARG"
+            ;;
+        product-version=?*)
+            PRODUCT_VERSION="$LONG_OPTARG"
             ;;
         theme=?*)
             THEME="$LONG_OPTARG"
@@ -418,7 +427,7 @@ while getopts v-: arg ; do
         '')
             break # "--" terminates argument processing
             ;;
-        name* | product-name* | product-id* | theme* | work-dir* | \
+        name* | product-name* | product-id* | product-version* | theme* | work-dir* | \
         prefix-dir* | include-dir* | lib-dir* | sysconf-dir* | share-dir* | \
         cmake* | c-flags* | java-home* | jni-dir* | \
         unit-dir* | python* | python-dir* | install-dir* | \
@@ -599,6 +608,21 @@ if [ "$DEBUG" = true ] ; then
     echo "VERSION: $VERSION"
 fi
 
+if [ "$PRODUCT_VERSION" = "" ] ; then
+    # if product version not specified, get from spec template
+
+    regex=$'%global *product_version *([^\n]+)'
+    if [[ $spec =~ $regex ]] ; then
+        PRODUCT_VERSION="${BASH_REMATCH[1]}"
+    else
+        PRODUCT_VERSION="$VERSION"
+    fi
+fi
+
+if [ "$DEBUG" = true ] ; then
+    echo "PRODUCT_VERSION: $PRODUCT_VERSION"
+fi
+
 regex=$'%global *phase *([^\n]+)'
 if [[ $spec =~ $regex ]] ; then
     PHASE="${BASH_REMATCH[1]}"
@@ -698,6 +722,7 @@ if [ "$BUILD_TARGET" = "dist" ] ; then
 
     OPTIONS+=(--no-warn-unused-cli)
     OPTIONS+=(-DPRODUCT_NAME="$PRODUCT_NAME")
+    OPTIONS+=(-DPRODUCT_VERSION="$PRODUCT_VERSION")
     OPTIONS+=(-DTHEME=$THEME)
     OPTIONS+=(-DVERSION=$VERSION)
 

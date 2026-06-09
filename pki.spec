@@ -6,6 +6,7 @@ Name:             pki
 %global           vendor_id dogtag
 %global           product_name Dogtag PKI
 %global           product_id dogtag-pki
+%undefine         product_version
 %global           theme dogtag
 
 Summary:          %{product_name} Package
@@ -1417,7 +1418,7 @@ fi
 # without runtime_deps
 %endif
 
-# fedora} >= fedora_tomcat9_cutoff || rhel} >= rhel_tomcat9_cutoff
+# fedora >= fedora_tomcat9_cutoff || rhel >= rhel_tomcat9_cutoff
 %endif
 
 %if ! %{with base}
@@ -1642,9 +1643,8 @@ pkgs=base\
     %{?_verbose:-v} \
     --product-name="%{product_name}" \
     --product-id=%{product_id} \
-%if %{with theme}
-    --theme=%{theme} \
-%endif
+    --product-version=%{?product_version:%{product_version}}%{!?product_version:%{version}} \
+    %{?with_theme:--theme=%{theme}} \
     --work-dir=%{_vpath_builddir} \
     --prefix-dir=%{_prefix} \
     --include-dir=%{_includedir} \
