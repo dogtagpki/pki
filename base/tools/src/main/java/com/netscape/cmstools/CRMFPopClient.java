@@ -309,7 +309,7 @@ public class CRMFPopClient {
 
         String curve = cmd.getOptionValue("c", "nistp256");
         boolean sslECDH = Boolean.parseBoolean(cmd.getOptionValue("x", "false"));
-        boolean temporary = Boolean.parseBoolean(cmd.getOptionValue("t", (algorithm.equals("rsa"))? "false":"true"));
+        boolean temporary = Boolean.parseBoolean(cmd.getOptionValue("t", algorithm.equals("ec") ? "true" : "false"));
         int sensitive = Integer.parseInt(cmd.getOptionValue("s", "-1"));
         int extractable = Integer.parseInt(cmd.getOptionValue("e", "-1"));
 
