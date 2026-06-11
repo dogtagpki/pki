@@ -518,6 +518,7 @@ jobs:
       - name: Remove CA
         run: |
           docker exec pki pkidestroy -s CA --remove-logs --remove-conf --force -v
+          docker exec pki rm -rf /root/.dogtag
 
       - name: Install CA with ML-DSA-87 with legacy buffer size
         # pkispawn with ML-DSA-87 certificate will fail because the buffer is too small
@@ -540,7 +541,6 @@ jobs:
       - name: Remove CA
         run: |
           docker exec pki pkidestroy -s CA -v
-          docker exec pki rm -rf /root/.dogtag
 
       - name: Check DS server systemd journal
         if: always()
