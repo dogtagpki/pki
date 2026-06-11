@@ -280,18 +280,18 @@ jobs:
           echo pki.example.com > expected
           diff expected actual
 
-      - name: Configure KRA for ML-KEM archival
+      - name: Verify KRA ML-KEM archival auto-configuration
         run: |
-          # Configure CS.cfg for ML-KEM archival
-          docker exec pki pki-server kra-config-set kra.storageUnit.wrapping.1.sessionKeyLength 256
-          docker exec pki pki-server kra-config-set kra.storageUnit.wrapping.1.payloadWrapAlgorithm "AES KeyWrap/Padding"
-          docker exec pki pki-server kra-config-set kra.storageUnit.wrapping.1.sessionKeyType AES
-          docker exec pki pki-server kra-config-set kra.storageUnit.wrapping.choice 1
-          docker exec pki pki-server kra-config-set kra.legacyPKCS12 false
-          docker exec pki pki-server kra-config-set kra.nonLegacyAlg "AES/None/PKCS5Padding/Kwp/256"
+          # ML-KEM archival should be configured automatically by pkispawn for PQC installations
+          docker exec pki pki-server kra-config-find | tee output
 
-          # Restart KRA
-          docker exec pki pki-server kra-redeploy --wait
+          # Verify the key archival settings were configured
+          grep "kra.storageUnit.wrapping.1.sessionKeyLength=256" output
+          grep 'kra.storageUnit.wrapping.1.payloadWrapAlgorithm=AES KeyWrap/Padding' output
+          grep "kra.storageUnit.wrapping.1.sessionKeyType=AES" output
+          grep "kra.storageUnit.wrapping.choice=1" output
+          grep "kra.legacyPKCS12=false" output
+          grep 'kra.nonLegacyAlg=AES/None/PKCS5Padding/Kwp/256' output
 
       - name: Import transport cert
         run: |
@@ -356,7 +356,6 @@ jobs:
               -a mlkem \
               -l 768 \
               -w "AES KeyWrap/Wrapped" \
-              -t false \
               -v \
               -o $SHARED/testuser.csr
 
