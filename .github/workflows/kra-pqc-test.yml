@@ -6,7 +6,11 @@ name: KRA with PQC and ML-KEM
 # - enroll cert with ML-KEM key archival
 # - retrieve ML-KEM archived key
 
-on: workflow_call
+on:
+  workflow_call:
+  push:
+    branches:
+      - pqc-mlkem-kra-ci-2
 
 env:
   DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
