@@ -2,9 +2,9 @@ name: CA with PQC
 # This test will perform the following operations:
 # - install CA with ML-DSA-65
 # - remove CA
-# - install CA with ML-DSA-87
+# - install CA with ML-DSA-87 and default buffer (for PQC is 65536)
 # - remove CA
-# - install CA with ML-DSA-87 and increased buffer
+# - install CA with ML-DSA-87 and buffer size forced to the legacy value (18713)
 # - remove CA
 
 on: workflow_call
@@ -447,31 +447,8 @@ jobs:
           docker exec pki cp /usr/share/pki/server/examples/installation/ca-pqc.cfg ca-pqc.cfg
           docker exec pki sed -i 's/65$/87/' ca-pqc.cfg
 
-      - name: Install CA with ML-DSA-87 with default buffer
-        # pkispawn with ML-DSA-87 certificate will fail because the buffer is too small
+      - name: Install CA with ML-DSA-87 and default buffer (65536 for PQC)
         run: |
-          docker exec pki pkispawn \
-              -f ca-pqc.cfg \
-              -s CA \
-              -D pki_ds_url=ldap://ds.example.com:3389 \
-              -D pki_enable_access_log=False \
-              -v || echo "Failed" | tee output
-
-          echo "Failed" > expected
-          tail -n 1 output > actual
-          diff expected actual
-
-      - name: Remove CA
-        run: |
-          docker exec pki pkidestroy -s CA --remove-logs --remove-conf --force -v
-          docker exec pki rm -rf /root/.dogtag
-
-      - name: Install CA with ML-DSA-87 and increased buffer
-        run: |
-          docker exec pki sed -i \
-              's/-Dredhat.crypto-policies=false/-Dredhat.crypto-policies=false -Djdk.tls.maxHandshakeMessageSize=64000/' \
-              /usr/share/pki/server/conf/tomcat.conf
-
           docker exec pki pkispawn \
               -f ca-pqc.cfg \
               -s CA \
@@ -540,7 +517,30 @@ jobs:
 
       - name: Remove CA
         run: |
+          docker exec pki pkidestroy -s CA --remove-logs --remove-conf --force -v
+
+      - name: Install CA with ML-DSA-87 with legacy buffer size
+        # pkispawn with ML-DSA-87 certificate will fail because the buffer is too small
+        run: |
+          docker exec pki sed -i \
+              's/-Dredhat.crypto-policies=false/-Dredhat.crypto-policies=false -Djdk.tls.maxHandshakeMessageSize=18713/' \
+              /usr/share/pki/server/conf/tomcat.conf
+
+          docker exec pki pkispawn \
+              -f ca-pqc.cfg \
+              -s CA \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_enable_access_log=False \
+              -v || echo "Failed" | tee output
+
+          echo "Failed" > expected
+          tail -n 1 output > actual
+          diff expected actual
+
+      - name: Remove CA
+        run: |
           docker exec pki pkidestroy -s CA -v
+          docker exec pki rm -rf /root/.dogtag
 
       - name: Check DS server systemd journal
         if: always()
