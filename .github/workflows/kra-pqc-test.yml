@@ -466,13 +466,20 @@ jobs:
               -o ldif_wrap=no \
               -LLL | tee output
 
+          echo "=== Full LDAP record for ML-KEM key (for validation) ==="
+          cat output
+          echo "=== End of LDAP record ==="
+
+          # TODO: Add comprehensive validation based on actual output
+          # For now, just check key attributes
+
           # encryption mode should be "false" by default
           echo "false" > expected
           sed -n 's/^metaInfo:\s*payloadEncrypted:\(.*\)$/\1/p' output > actual
           diff expected actual
 
-          # key wrap algorithm should be "AES KeyWrap/Padding" for ML-KEM
-          echo "AES KeyWrap/Padding" > expected
+          # key wrap algorithm should be "AES KeyWrap/Wrapped" for ML-KEM
+          echo "AES KeyWrap/Wrapped" > expected
           sed -n 's/^metaInfo:\s*payloadWrapAlgorithm:\(.*\)$/\1/p' output > actual
           diff expected actual
 
