@@ -805,15 +805,19 @@ class PKIDeployer:
             # no cert chain to import
             return
 
+        logger.debug('Checking cert chain in %s', cert_chain_path)
+
         if not os.path.exists(cert_chain_path):
             raise Exception('Certificate chain not found: %s' % cert_chain_path)
 
-        logger.info('Importing cert chain from %s', cert_chain_path)
-
         destination = os.path.join(self.instance.nssdb_dir, 'ca.crt')
+        logger.debug('Checking cert chain in %s', destination)
 
         if os.path.exists(destination):
+            # cert chain already exists
             return
+
+        logger.info('Importing cert chain from %s', cert_chain_path)
 
         # When we're passed a CA certificate file and we don't already
         # have a CA file for some reason, we need to copy the passed
@@ -2270,14 +2274,15 @@ class PKIDeployer:
             # no CA signing cert file to import
             return
 
-        logger.info('Importing CA signing cert from %s', cert_file)
+        logger.debug('Checking ca_signing cert in %s', cert_file)
 
         if not os.path.exists(cert_file):
             raise Exception('Invalid path in %s: %s' % (param, cert_file))
 
-        nickname = self.mdict['pki_ca_signing_nickname']
-
         logger.info('Importing ca_signing certificate from %s', cert_file)
+
+        nickname = self.mdict['pki_ca_signing_nickname']
+        logger.debug('- nickname: %s', nickname)
 
         nssdb.import_cert_chain(
             nickname=nickname,
@@ -2301,14 +2306,19 @@ class PKIDeployer:
             # no system cert to import
             return
 
-        logger.info('Importing %s cert from %s', cert_param_id, cert_file)
+        logger.debug('Checking %s cert in %s', cert_param_id, cert_file)
 
         if not os.path.exists(cert_file):
             raise Exception('Invalid path in %s: %s' % (param, cert_file))
 
+        logger.info('Importing %s cert from %s', cert_param_id, cert_file)
         cert_config = subsystem.get_system_cert_config(tag)
+
         nickname = cert_config['nickname']
+        logger.debug('- nickname: %s', nickname)
+
         token = pki.nssdb.normalize_token(cert_config['token'])
+        logger.debug('- token: %s', token)
 
         nssdb.import_cert_chain(
             nickname=nickname,
@@ -2431,7 +2441,7 @@ class PKIDeployer:
     def import_cert_chain(self, nssdb, subsystem):
 
         nickname = self.mdict['pki_cert_chain_nickname']
-        logger.info('Checking existing cert chain: %s', nickname)
+        logger.debug('Checking existing cert chain: %s', nickname)
 
         cert_chain = nssdb.get_cert(nickname)
         if cert_chain:
@@ -3532,6 +3542,7 @@ class PKIDeployer:
 
             logger.info('Reusing %s cert in NSS database', tag)
             logger.info('- nickname: %s', request.systemCert.nickname)
+            logger.info('- token: %s', request.systemCert.token)
             logger.info('- serial: %s', hex(cert_info['serial_number']))
             logger.info('- subject: %s', cert_info['subject'])
             logger.info('- issuer: %s', cert_info['issuer'])
@@ -3641,6 +3652,7 @@ class PKIDeployer:
         if cert_info:
             logger.info('Reusing %s cert in NSS database', tag)
             logger.info('- nickname: %s', request.systemCert.nickname)
+            logger.info('- token: %s', request.systemCert.token)
             logger.info('- serial: %s', hex(cert_info['serial_number']))
             logger.info('- subject: %s', cert_info['subject'])
             logger.info('- issuer: %s', cert_info['issuer'])
@@ -3720,6 +3732,7 @@ class PKIDeployer:
         if cert_info:
             logger.info('Reusing %s cert in NSS database', tag)
             logger.info('- nickname: %s', request.systemCert.nickname)
+            logger.info('- token: %s', request.systemCert.token)
             logger.info('- serial: %s', hex(cert_info['serial_number']))
             logger.info('- subject: %s', cert_info['subject'])
             logger.info('- issuer: %s', cert_info['issuer'])
