@@ -28,8 +28,14 @@ class EnableEST(pki.server.upgrade.PKIServerUpgradeScriptlet):
             logger.debug("Impossible to access CA DB. Update aborted")
             return
 
-        logger.info('Make est profile available')
-        self.enable_est_profile(instance, subsystem)
+        manageprofiles = (
+            str(subsystem.config.get('profile.configuration.managed', 'false')).lower() == 'true'
+        )
+        if not manageprofiles:
+            logger.info('Make est profile available')
+            self.enable_est_profile(instance, subsystem)
+        else:
+            logger.info('Skipped est profile install')
         logger.info('Update internal profile to accept EST administrator')
         self.update_internal_profiles(subsystem)
         logger.info('Update registry to accept est profile')
@@ -97,19 +103,21 @@ class EnableEST(pki.server.upgrade.PKIServerUpgradeScriptlet):
             file_name = '{}.cfg'.format(profile)
             path = os.path.join(subsystem.base_dir, 'profiles', 'ca', file_name)
 
-            config = {}
-            logger.info('Loading %s', path)
-            pki.util.load_properties(path, config)
+            if os.path.isfile(path):
+                config = {}
+                logger.info('Loading %s', path)
+                pki.util.load_properties(path, config)
 
-            if 'group="Enterprise EST Administrators"' in config['authz.acl']:
-                logger.info('Internal profile ACLs already updated.')
-                return
+                if 'group="Enterprise EST Administrators"' in config['authz.acl']:
+                    logger.info('Internal profile ACLs already updated.')
+                    continue
 
-            self.backup(path)
-            config['authz.acl'] = config['authz.acl'] + ' || group="Enterprise EST Administrators"'
+                self.backup(path)
+                config['authz.acl'] = config['authz.acl'] + \
+                    ' || group="Enterprise EST Administrators"'
 
-            logger.info('Storing %s', path)
-            pki.util.store_properties(path, config)
+                logger.info('Storing %s', path)
+                pki.util.store_properties(path, config)
 
     def update_registry(self, subsystem):
         self.backup(subsystem.registry_conf)
