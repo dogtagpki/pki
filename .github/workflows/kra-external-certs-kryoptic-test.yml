@@ -1,0 +1,519 @@
+name: KRA with external certs on Kryoptic
+# This test will perform the following operations:
+# - create CA Kryoptic token
+# - create root CA
+# - create sub CA (step 1)
+# - issue sub CA cert
+# - create sub CA (step 2)
+# - create KRA Kryoptic token
+# - create KRA (step 1)
+# - issue KRA certs
+# - create KRA (step 2)
+# - remove KRA
+# - remove KRA Kryoptic token
+# - remove sub CA
+# - remove root CA
+# - remove CA Kryoptic token
+
+on: workflow_call
+
+env:
+  DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
+
+jobs:
+  # docs/installation/kra/installing-kra-with-external-certificates.adoc
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Retrieve PKI images
+        uses: actions/cache@v4
+        with:
+          key: pki-images-${{ github.sha }}
+          path: pki-images.tar
+
+      - name: Load PKI images
+        run: docker load --input pki-images.tar
+
+      - name: Create network
+        run: docker network create example
+
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-create.sh \
+              --image=${{ env.DS_IMAGE }} \
+              --hostname=ds.example.com \
+              --network=example \
+              --network-alias=ds.example.com \
+              --password=Secret.123 \
+              ds
+
+      - name: Set up CA container
+        run: |
+          tests/bin/runner-init.sh \
+              --hostname=ca.example.com \
+              --network=example \
+              --network-alias=ca.example.com \
+              ca
+
+      - name: Install Kryoptic
+        run: |
+          # install OpenDNSSEC to ensure no conflicts
+          # https://github.com/dogtagpki/pki/issues/5045
+          docker exec ca dnf install -y kryoptic opensc opendnssec
+
+          docker exec ca rpm -ql kryoptic
+          docker exec ca cat /usr/share/p11-kit/modules/kryoptic.module
+
+          # check with OpenSC
+          # NOTE: the command fails if there's no token
+          docker exec ca pkcs11-tool \
+              --module /usr/lib64/pkcs11/libkryoptic_pkcs11.so \
+              --show-info || true
+
+          # check with OpenSC
+          # NOTE: the command fails if there's no token
+          docker exec ca pkcs11-tool \
+              --module /usr/lib64/pkcs11/libkryoptic_pkcs11.so \
+              --list-slots || true
+
+          # check with NSS
+          docker exec ca modutil -nocertdb -list
+
+      # https://github.com/dogtagpki/pki/wiki/Kryoptic
+      - name: Create CA Kryoptic token
+        run: |
+          # create password file for HSM
+          echo "Secret.HSM" > password.hsm
+
+          # configure token
+          docker exec ca runuser -u pkiuser -- \
+              mkdir -p /home/pkiuser/.config/kryoptic
+
+          docker exec -i ca runuser -u pkiuser -- \
+              tee /home/pkiuser/.config/kryoptic/token.conf << EOF
+          [[slots]]
+          slot = 1
+          dbtype = "sqlite"
+          dbargs = "/home/pkiuser/.config/kryoptic/token.sql"
+          objects_dedup = "TrustOnly"
+          EOF
+
+          # check with OpenSC
+          docker exec ca runuser -u pkiuser -- \
+              pkcs11-tool \
+              --module /usr/lib64/pkcs11/libkryoptic_pkcs11.so \
+              --list-slots
+
+          # initialize token and SO PIN
+          docker exec ca runuser -u pkiuser -- \
+              pkcs11-tool \
+              --module /usr/lib64/pkcs11/libkryoptic_pkcs11.so \
+              --label HSM \
+              --so-pin $(cat password.hsm) \
+              --init-token
+
+          # initialize user PIN
+          docker exec ca runuser -u pkiuser -- \
+              pkcs11-tool \
+              --module /usr/lib64/pkcs11/libkryoptic_pkcs11.so \
+              --login \
+              --login-type so \
+              --so-pin $(cat password.hsm) \
+              --pin $(cat password.hsm) \
+              --init-pin
+
+          # check with OpenSC
+          docker exec ca runuser -u pkiuser -- \
+              pkcs11-tool \
+              --module /usr/lib64/pkcs11/libkryoptic_pkcs11.so \
+              --list-slots
+
+          # check with NSS
+          docker exec ca runuser -u pkiuser -- \
+              modutil -nocertdb -list
+
+      - name: Create root CA
+        run: |
+          docker exec ca pki \
+              -d rootca \
+              nss-cert-request \
+              --subject "CN=Root CA Signing Certificate" \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --csr $SHARED/root-ca_signing.csr
+
+          docker exec ca pki \
+              -d rootca \
+              nss-cert-issue \
+              --csr $SHARED/root-ca_signing.csr \
+              --ext /usr/share/pki/server/certs/ca_signing.conf \
+              --cert $SHARED/root-ca_signing.crt
+
+          docker exec ca openssl x509 -text -noout -in $SHARED/root-ca_signing.crt
+
+          docker exec ca pki \
+              -d rootca \
+              nss-cert-import \
+              --cert $SHARED/root-ca_signing.crt \
+              --trust CT,C,C \
+              root-ca_signing
+
+      - name: Install sub CA (step 1)
+        run: |
+          docker exec ca pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca-external-cert-step1.cfg \
+              -s CA \
+              -D pki_cert_chain_nickname=root-ca_signing \
+              -D pki_cert_chain_path=$SHARED/root-ca_signing.crt \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_hsm_enable=True \
+              -D pki_token_name=HSM \
+              -D pki_token_password=Secret.HSM \
+              -D pki_ca_signing_token=HSM \
+              -D pki_ocsp_signing_token=HSM \
+              -D pki_audit_signing_token=HSM \
+              -D pki_subsystem_token=HSM \
+              -D pki_sslserver_token=HSM \
+              -D pki_ca_signing_csr_path=$SHARED/ca_signing.csr \
+              -v
+
+      - name: Issue sub CA signing cert
+        run: |
+          docker exec ca pki \
+              -d rootca \
+              nss-cert-issue \
+              --issuer root-ca_signing \
+              --csr $SHARED/ca_signing.csr \
+              --ext /usr/share/pki/server/certs/subca_signing.conf \
+              --cert $SHARED/ca_signing.crt
+
+          docker exec ca openssl x509 -text -noout -in $SHARED/ca_signing.crt
+
+      - name: Install sub CA (step 2)
+        run: |
+          docker exec ca pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca-external-cert-step2.cfg \
+              -s CA \
+              -D pki_cert_chain_nickname=root-ca_signing \
+              -D pki_cert_chain_path=$SHARED/root-ca_signing.crt \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_hsm_enable=True \
+              -D pki_token_name=HSM \
+              -D pki_token_password=Secret.HSM \
+              -D pki_ca_signing_token=HSM \
+              -D pki_ocsp_signing_token=HSM \
+              -D pki_audit_signing_token=HSM \
+              -D pki_subsystem_token=HSM \
+              -D pki_sslserver_token=HSM \
+              -D pki_ca_signing_csr_path=$SHARED/ca_signing.csr \
+              -D pki_ca_signing_cert_path=$SHARED/ca_signing.crt \
+              -v
+
+      - name: Check CA admin
+        run: |
+          docker exec ca pki nss-cert-import \
+              --cert $SHARED/root-ca_signing.crt \
+              --trust CT,C,C \
+              root-ca_signing
+
+          docker exec ca pki nss-cert-import \
+              --cert $SHARED/ca_signing.crt \
+              ca_signing
+
+          docker exec ca pki pkcs12-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --password Secret.123
+
+          docker exec ca pki -n caadmin ca-user-show caadmin
+
+      - name: Set up KRA container
+        run: |
+          tests/bin/runner-init.sh \
+              --hostname=kra.example.com \
+              --network=example \
+              --network-alias=kra.example.com \
+              kra
+
+      - name: Install Kryoptic
+        run: |
+          # install OpenDNSSEC to ensure no conflicts
+          # https://github.com/dogtagpki/pki/issues/5045
+          docker exec kra dnf install -y kryoptic opensc opendnssec
+
+          docker exec kra rpm -ql kryoptic
+          docker exec kra cat /usr/share/p11-kit/modules/kryoptic.module
+
+          # check with OpenSC
+          # NOTE: the command fails if there's no token
+          docker exec kra pkcs11-tool \
+              --module /usr/lib64/pkcs11/libkryoptic_pkcs11.so \
+              --show-info || true
+
+          # check with OpenSC
+          # NOTE: the command fails if there's no token
+          docker exec kra pkcs11-tool \
+              --module /usr/lib64/pkcs11/libkryoptic_pkcs11.so \
+              --list-slots || true
+
+          # check with NSS
+          docker exec kra modutil -nocertdb -list
+
+      # https://github.com/dogtagpki/pki/wiki/Kryoptic
+      - name: Create KRA Kryoptic token
+        run: |
+          # create password file for HSM
+          echo "Secret.HSM" > password.hsm
+
+          # configure token
+          docker exec kra runuser -u pkiuser -- \
+              mkdir -p /home/pkiuser/.config/kryoptic
+
+          docker exec -i kra runuser -u pkiuser -- \
+              tee /home/pkiuser/.config/kryoptic/token.conf << EOF
+          [[slots]]
+          slot = 1
+          dbtype = "sqlite"
+          dbargs = "/home/pkiuser/.config/kryoptic/token.sql"
+          objects_dedup = "TrustOnly"
+          EOF
+
+          # check with OpenSC
+          docker exec kra runuser -u pkiuser -- \
+              pkcs11-tool \
+              --module /usr/lib64/pkcs11/libkryoptic_pkcs11.so \
+              --list-slots
+
+          # initialize token and SO PIN
+          docker exec kra runuser -u pkiuser -- \
+              pkcs11-tool \
+              --module /usr/lib64/pkcs11/libkryoptic_pkcs11.so \
+              --label HSM \
+              --so-pin $(cat password.hsm) \
+              --init-token
+
+          # initialize user PIN
+          docker exec kra runuser -u pkiuser -- \
+              pkcs11-tool \
+              --module /usr/lib64/pkcs11/libkryoptic_pkcs11.so \
+              --login \
+              --login-type so \
+              --so-pin $(cat password.hsm) \
+              --pin $(cat password.hsm) \
+              --init-pin
+
+          # check with OpenSC
+          docker exec kra runuser -u pkiuser -- \
+              pkcs11-tool \
+              --module /usr/lib64/pkcs11/libkryoptic_pkcs11.so \
+              --list-slots
+
+          # check with NSS
+          docker exec kra runuser -u pkiuser -- \
+              modutil -nocertdb -list
+
+      - name: Install KRA (step 1)
+        run: |
+          cat root-ca_signing.crt ca_signing.crt > cert_chain.crt
+
+          docker exec kra pkispawn \
+              -f /usr/share/pki/server/examples/installation/kra-external-certs-step1.cfg \
+              -s KRA \
+              -D pki_cert_chain_path=$SHARED/cert_chain.crt \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_hsm_enable=True \
+              -D pki_token_name=HSM \
+              -D pki_token_password=Secret.HSM \
+              -D pki_ca_signing_token=HSM \
+              -D pki_ocsp_signing_token=HSM \
+              -D pki_audit_signing_token=HSM \
+              -D pki_subsystem_token=HSM \
+              -D pki_sslserver_token=HSM \
+              -D pki_storage_csr_path=$SHARED/kra_storage.csr \
+              -D pki_transport_csr_path=$SHARED/kra_transport.csr \
+              -D pki_subsystem_csr_path=$SHARED/subsystem.csr \
+              -D pki_sslserver_csr_path=$SHARED/sslserver.csr \
+              -D pki_audit_signing_csr_path=$SHARED/kra_audit_signing.csr \
+              -D pki_admin_csr_path=$SHARED/kra_admin.csr \
+              --debug \
+              > >(tee stdout) 2> >(tee stderr >&2)
+
+      - name: Issue KRA storage cert
+        run: |
+          docker exec ca openssl req -text -noout -in $SHARED/kra_storage.csr
+
+          docker exec ca pki \
+              -n caadmin \
+              ca-cert-issue \
+              --profile caStorageCert \
+              --csr-file $SHARED/kra_storage.csr \
+              --output-file $SHARED/kra_storage.crt
+
+          docker exec ca openssl x509 -text -noout -in $SHARED/kra_storage.crt
+
+      - name: Issue KRA transport cert
+        run: |
+          docker exec ca openssl req -text -noout -in $SHARED/kra_transport.csr
+
+          docker exec ca pki \
+              -n caadmin \
+              ca-cert-issue \
+              --profile caTransportCert \
+              --csr-file $SHARED/kra_transport.csr \
+              --output-file $SHARED/kra_transport.crt
+
+          docker exec ca openssl x509 -text -noout -in $SHARED/kra_transport.crt
+
+      - name: Issue subsystem cert
+        run: |
+          docker exec ca openssl req -text -noout -in $SHARED/subsystem.csr
+
+          docker exec ca pki \
+              -n caadmin \
+              ca-cert-issue \
+              --profile caSubsystemCert \
+              --csr-file $SHARED/subsystem.csr \
+              --output-file $SHARED/subsystem.crt
+
+          docker exec ca openssl x509 -text -noout -in $SHARED/subsystem.crt
+
+      - name: Issue SSL server cert
+        run: |
+          docker exec ca openssl req -text -noout -in $SHARED/sslserver.csr
+
+          docker exec ca pki \
+              -n caadmin \
+              ca-cert-issue \
+              --profile caServerCert \
+              --csr-file $SHARED/sslserver.csr \
+              --output-file $SHARED/sslserver.crt
+
+          docker exec ca openssl x509 -text -noout -in $SHARED/sslserver.crt
+
+      - name: Issue KRA audit signing cert
+        run: |
+          docker exec ca openssl req -text -noout -in $SHARED/kra_audit_signing.csr
+
+          docker exec ca pki \
+              -n caadmin \
+              ca-cert-issue \
+              --profile caAuditSigningCert \
+              --csr-file $SHARED/kra_audit_signing.csr \
+              --output-file $SHARED/kra_audit_signing.crt
+
+          docker exec ca openssl x509 -text -noout -in $SHARED/kra_audit_signing.crt
+
+      - name: Issue KRA admin cert
+        run: |
+          docker exec ca openssl req -text -noout -in $SHARED/kra_admin.csr
+
+          docker exec ca pki \
+              -n caadmin \
+              ca-cert-issue \
+              --profile AdminCert \
+              --csr-file $SHARED/kra_admin.csr \
+              --output-file $SHARED/kra_admin.crt
+
+          docker exec ca openssl x509 -text -noout -in $SHARED/kra_admin.crt
+
+      - name: Install KRA (step 2)
+        run: |
+          docker exec kra pkispawn \
+              -f /usr/share/pki/server/examples/installation/kra-external-certs-step2.cfg \
+              -s KRA \
+              -D pki_cert_chain_path=$SHARED/cert_chain.crt \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_hsm_enable=True \
+              -D pki_token_name=HSM \
+              -D pki_token_password=Secret.HSM \
+              -D pki_ca_signing_token=HSM \
+              -D pki_ocsp_signing_token=HSM \
+              -D pki_audit_signing_token=HSM \
+              -D pki_subsystem_token=HSM \
+              -D pki_sslserver_token=HSM \
+              -D pki_storage_csr_path=$SHARED/kra_storage.csr \
+              -D pki_transport_csr_path=$SHARED/kra_transport.csr \
+              -D pki_subsystem_csr_path=$SHARED/subsystem.csr \
+              -D pki_sslserver_csr_path=$SHARED/sslserver.csr \
+              -D pki_audit_signing_csr_path=$SHARED/kra_audit_signing.csr \
+              -D pki_admin_csr_path=$SHARED/kra_admin.csr \
+              -D pki_storage_cert_path=$SHARED/kra_storage.crt \
+              -D pki_transport_cert_path=$SHARED/kra_transport.crt \
+              -D pki_subsystem_cert_path=$SHARED/subsystem.crt \
+              -D pki_sslserver_cert_path=$SHARED/sslserver.crt \
+              -D pki_audit_signing_cert_path=$SHARED/kra_audit_signing.crt \
+              -D pki_admin_cert_path=$SHARED/kra_admin.crt \
+              --debug \
+              > >(tee stdout) 2> >(tee stderr >&2)
+
+          docker exec kra pki-server cert-find
+
+      - name: Check KRA admin
+        run: |
+          docker exec kra pki nss-cert-import \
+              --cert $SHARED/root-ca_signing.crt \
+              --trust CT,C,C \
+              root-ca_signing
+
+          docker exec kra pki nss-cert-import \
+              --cert $SHARED/ca_signing.crt \
+              ca_signing
+
+          docker exec kra pki pkcs12-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/kra_admin_cert.p12 \
+              --password Secret.123
+
+          docker exec kra pki nss-cert-find
+
+          docker exec kra pki -n kraadmin kra-user-show kraadmin
+
+      - name: Remove KRA
+        run: |
+          docker exec kra pkidestroy -s KRA -v
+
+      - name: Remove KRA Kryoptic token
+        run: |
+          docker exec kra runuser -u pkiuser -- \
+              rm -rf /home/pkiuser/.config/kryoptic
+
+      - name: Remove sub CA
+        run: |
+          docker exec ca pkidestroy -s CA -v
+
+      - name: Remove root CA
+        run: |
+          docker exec ca rm -rf rootca
+
+      - name: Remove CA Kryoptic token
+        run: |
+          docker exec ca runuser -u pkiuser -- \
+              rm -rf /home/pkiuser/.config/kryoptic
+
+      - name: Check DS server systemd journal
+        if: always()
+        run: |
+          docker exec ds journalctl -x --no-pager -u dirsrv@localhost.service
+
+      - name: Check sub CA server systemd journal
+        if: always()
+        run: |
+          docker exec ca journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check sub CA debug log
+        if: always()
+        run: |
+          docker exec ca find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check KRA server systemd journal
+        if: always()
+        run: |
+          docker exec kra journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check KRA debug log
+        if: always()
+        run: |
+          docker exec kra find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;

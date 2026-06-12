@@ -3239,15 +3239,13 @@ class PKIDeployer:
                 (cert_param_id in ['storage', 'transport']) and
                 key_type != 'MLKEM'):
             key_wrap = True
-            csr_pathname = csr_path
 
         else:
             key_wrap = False
-            csr_pathname = os.path.join(nssdb.tmpdir, os.path.basename(csr_path))
 
-        nssdb.create_request(
-            subject_dn=subject_dn,
-            request_file=csr_pathname,
+        pem_csr = self.create_cert_request(
+            nssdb,
+            subject_dn,
             token=token,
             key_type=key_type,
             key_size=key_size,
@@ -3258,11 +3256,10 @@ class PKIDeployer:
             key_usage_ext=key_usage_ext,
             extended_key_usage_ext=extended_key_usage_ext,
             subject_key_id=subject_key_id,
-            generic_exts=generic_exts,
-            use_jss=True)
+            generic_exts=generic_exts)
 
-        if not key_wrap:
-            shutil.move(csr_pathname, csr_path)
+        with open(csr_path, 'w', encoding='utf-8') as f:
+            f.write(pem_csr)
 
         new_csr_path = subsystem.csr_file(tag)
         self.instance.copy(csr_path, new_csr_path, force=True)
@@ -3531,8 +3528,9 @@ class PKIDeployer:
             logger.info('- issuer: %s', cert_info['issuer'])
             logger.info('- trust flags: %s', cert_info['trust_flags'])
 
-            signing_cert_info = nssdb.get_cert_info(
-                nickname=subsystem.config["ca.signing.nickname"])
+            signing_cert_info = subsystem.get_system_cert_info('signing')
+            if not signing_cert_info:
+                raise Exception("CA signing certificate not found")
             logger.info('CA subject: %s', signing_cert_info['subject'])
 
             if cert_info['object'].issuer != signing_cert_info['object'].subject:
