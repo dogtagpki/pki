@@ -25,18 +25,18 @@ class UpdateMLDSAProfiles(pki.server.upgrade.PKIServerUpgradeScriptlet):
         if subsystem.name != 'ca':
             return
 
-        # New ML-DSA profiles to add
-        new_profiles = [
-            'caMLDSAUserCert',
-            'caMLDSAServerCert',
-            'caMLDSASubsystemCert',
-            'caMLDSAAdminCert',
-            'caMLDSAInternalAuthServerCert',
-            'caMLDSAInternalAuthSubsystemCert'
-        ]
+        manageprofiles = subsystem.config.get('profile.configuration.managed', False)
+        if not manageprofiles:
+            logger.info('Update existing profiles for ML-DSA Support')
+            self.update_existing_profiles(instance, subsystem)
+            logger.info('Adding new ML-DSA Profiles')
+            self.add_mldsa_profiles(instance, subsystem)
+        else:
+            logger.info('Skipping update of existing profiles for MLD-SA')
+            logger.info('Skipping adding new ML-DSA Profiles')
+        self.config_updates(instance, subsystem)
 
-        # Read the available profile list
-        profile_list = subsystem.config.get('profile.list').split(',')
+    def update_existing_profiles(self, instance, subsystem):
 
         # Update all profiles
         # If the signature algorithms have been modified in the instance
@@ -75,6 +75,19 @@ class UpdateMLDSAProfiles(pki.server.upgrade.PKIServerUpgradeScriptlet):
             logger.info('Storing %s', path)
             pki.util.store_properties(path, instance_profile)
 
+    def add_mldsa_profiles(self, instance, subsystem):
+        # New ML-DSA profiles to add
+        new_profiles = [
+            'caMLDSAUserCert',
+            'caMLDSAServerCert',
+            'caMLDSASubsystemCert',
+            'caMLDSAAdminCert',
+            'caMLDSAInternalAuthServerCert',
+            'caMLDSAInternalAuthSubsystemCert'
+        ]
+        # Read the available profile list
+        profile_list = subsystem.config.get('profile.list').split(',')
+
         # Add new profiles
         for profile in new_profiles:
             file_name = '{}.cfg'.format(profile)
@@ -100,6 +113,7 @@ class UpdateMLDSAProfiles(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
         subsystem.set_config('profile.list', ','.join(profile_list))
 
+    def config_updates(self, instance, subsystem):
         subsystem.set_config('keys.mldsa.keysize.default', '65')
 
         # Make a backup of existing CS.cfg before writing modified values
