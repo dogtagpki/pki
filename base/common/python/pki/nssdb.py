@@ -898,7 +898,7 @@ class NSSDatabase:
         else:
             data = None
 
-        self.run(cmd, input=data, check=True)
+        self.run(cmd, input=data, check=True, runas=True)
 
     def modify_cert(self, nickname, trust_attributes):
 
