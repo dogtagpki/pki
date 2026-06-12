@@ -1506,6 +1506,37 @@ class PKIDeployer:
             logger.debug('Setting ephemeral requests to true')
             subsystem.set_config('kra.ephemeralRequests', 'true')
 
+        # Auto-configure ML-KEM archival for PQC installations
+        storage_key_type = self.mdict.get('pki_storage_key_type', 'RSA')
+        transport_key_type = self.mdict.get('pki_transport_key_type', 'RSA')
+        if storage_key_type.upper() == 'MLKEM' or transport_key_type.upper() == 'MLKEM':
+            logger.info('ML-KEM storage/transport cert detected, configuring ML-KEM archival')
+
+            # Use values from default.cfg or user overrides
+            subsystem.set_config(
+                'kra.storageUnit.wrapping.1.sessionKeyLength',
+                self.mdict.get('pki_kra_wrapping_session_key_length', '256'))
+
+            subsystem.set_config(
+                'kra.storageUnit.wrapping.1.payloadWrapAlgorithm',
+                self.mdict.get('pki_kra_wrapping_payload_wrap_algorithm', 'AES KeyWrap/Padding'))
+
+            subsystem.set_config(
+                'kra.storageUnit.wrapping.1.sessionKeyType',
+                self.mdict.get('pki_kra_wrapping_session_key_type', 'AES'))
+
+            subsystem.set_config(
+                'kra.storageUnit.wrapping.choice',
+                self.mdict.get('pki_kra_wrapping_choice', '1'))
+
+            subsystem.set_config(
+                'kra.legacyPKCS12',
+                self.mdict.get('pki_kra_legacy_pkcs12', 'false'))
+
+            subsystem.set_config(
+                'kra.nonLegacyAlg',
+                self.mdict.get('pki_kra_non_legacy_algorithm', 'AES/None/PKCS5Padding/Kwp/256'))
+
     def configure_tps(self, subsystem):
 
         baseDN = subsystem.config['internaldb.basedn']
