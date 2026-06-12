@@ -3267,70 +3267,53 @@ class PKIDeployer:
         new_csr_path = subsystem.csr_file(tag)
         self.instance.copy(csr_path, new_csr_path, force=True)
 
-    def create_cert_request(self, nssdb, tag, request):
-
-        # match <digest>with<encryption>
-        match = re.fullmatch(r'(\S+)with(\S+)', request.systemCert.keyAlgorithm)
-        hash_alg = None
-        if match:
-            hash_alg = match.group(1)
-
-        basic_constraints_ext = None
-        key_usage_ext = None
-        generic_exts = None
-
-        if tag == 'signing':
-
-            basic_constraints_ext = {
-                'ca': True,
-                'path_length': None,
-                'critical': True
-            }
-
-            key_usage_ext = {
-                'digitalSignature': True,
-                'nonRepudiation': True,
-                'certSigning': True,
-                'crlSigning': True,
-                'critical': True
-            }
-
-            # NSCertTypeExtension (unsupported)
-            # ns_cert_type_ext = {
-            #     'nsCertType': True,
-            #     'ssl_ca': True
-            # }
-
-        if request.systemCert.req_ext_oid and request.systemCert.req_ext_data:
-
-            generic_ext = {
-                'oid': request.systemCert.req_ext_oid,
-                'data': binascii.unhexlify(request.systemCert.req_ext_data),
-                'critical': config.str2bool(request.systemCert.req_ext_critical)
-            }
-
-            generic_exts = [generic_ext]
+    def create_cert_request(
+            self,
+            nssdb,
+            subject_dn,
+            token=None,
+            key_id=None,
+            key_type=None,
+            key_size=None,
+            key_wrap=None,
+            curve=None,
+            hash_alg=None,
+            basic_constraints_ext=None,
+            key_usage_ext=None,
+            extended_key_usage_ext=None,
+            subject_key_id=None,
+            generic_exts=None,
+            request_type=None,
+            request_format='pem'):
 
         tmpdir = tempfile.mkdtemp()
+        self.instance.chown(tmpdir)
+
         try:
             csr_file = os.path.join(tmpdir, 'request.csr')
 
             nssdb.create_request(
-                subject_dn=request.systemCert.subjectDN,
+                subject_dn=subject_dn,
                 request_file=csr_file,
-                token=request.systemCert.token,
-                key_id=request.systemCert.keyID,
+                token=token,
+                key_id=key_id,
+                key_type=key_type,
+                key_size=key_size,
+                key_wrap=key_wrap,
+                curve=curve,
                 hash_alg=hash_alg,
                 basic_constraints_ext=basic_constraints_ext,
                 key_usage_ext=key_usage_ext,
+                extended_key_usage_ext=extended_key_usage_ext,
+                subject_key_id=subject_key_id,
                 generic_exts=generic_exts,
                 use_jss=True,
-                request_type=request.systemCert.requestType)
+                request_type=request_type)
 
             with open(csr_file, encoding='utf-8') as f:
                 pem_csr = f.read()
 
-            return pki.nssdb.convert_csr(pem_csr, 'pem', 'base64')
+            return pki.nssdb.convert_csr(pem_csr, 'pem', request_format)
 
         finally:
             shutil.rmtree(tmpdir)
@@ -3630,7 +3613,60 @@ class PKIDeployer:
         logger.info('- key ID: %s', request.systemCert.keyID)
 
         logger.info('Creating %s cert request', tag)
-        request.systemCert.request = self.create_cert_request(nssdb, tag, request)
+
+        # match <digest>with<encryption>
+        match = re.fullmatch(r'(\S+)with(\S+)', request.systemCert.keyAlgorithm)
+        hash_alg = None
+        if match:
+            hash_alg = match.group(1)
+
+        basic_constraints_ext = None
+        key_usage_ext = None
+        generic_exts = None
+
+        if tag == 'signing':
+
+            basic_constraints_ext = {
+                'ca': True,
+                'path_length': None,
+                'critical': True
+            }
+
+            key_usage_ext = {
+                'digitalSignature': True,
+                'nonRepudiation': True,
+                'certSigning': True,
+                'crlSigning': True,
+                'critical': True
+            }
+
+            # NSCertTypeExtension (unsupported)
+            # ns_cert_type_ext = {
+            #     'nsCertType': True,
+            #     'ssl_ca': True
+            # }
+
+        if request.systemCert.req_ext_oid and request.systemCert.req_ext_data:
+
+            generic_ext = {
+                'oid': request.systemCert.req_ext_oid,
+                'data': binascii.unhexlify(request.systemCert.req_ext_data),
+                'critical': config.str2bool(request.systemCert.req_ext_critical)
+            }
+
+            generic_exts = [generic_ext]
+
+        request.systemCert.request = self.create_cert_request(
+            nssdb,
+            subject_dn=request.systemCert.subjectDN,
+            token=request.systemCert.token,
+            key_id=request.systemCert.keyID,
+            hash_alg=hash_alg,
+            basic_constraints_ext=basic_constraints_ext,
+            key_usage_ext=key_usage_ext,
+            generic_exts=generic_exts,
+            request_type=request.systemCert.requestType,
+            request_format='base64')
 
         logger.debug('- request: %s', request.systemCert.request)
 
