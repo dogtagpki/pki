@@ -33,6 +33,7 @@ import org.dogtagpki.server.rest.v1.PKIExceptionMapper;
 import org.dogtagpki.server.rest.v1.SelfTestService;
 import org.dogtagpki.server.rest.v1.SessionContextInterceptor;
 import org.dogtagpki.server.rest.v1.UserService;
+import org.dogtagpki.server.rest.v1.V1ApiStatusHelper;
 import org.dogtagpki.server.tps.TPSAccountService;
 import org.dogtagpki.server.tps.config.ConfigService;
 
@@ -42,10 +43,17 @@ import org.dogtagpki.server.tps.config.ConfigService;
 @ApplicationPath("/v1")
 public class TPSApplication extends Application {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSApplication.class);
+
     private Set<Object> singletons = new LinkedHashSet<>();
     private Set<Class<?>> classes = new LinkedHashSet<>();
 
     public TPSApplication() {
+
+        // Check v1 API status
+        if (V1ApiStatusHelper.checkV1ApiStatus("TPS", classes, logger)) {
+            return;
+        }
 
         // account
         classes.add(TPSAccountService.class);

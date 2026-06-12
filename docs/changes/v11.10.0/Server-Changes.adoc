@@ -55,3 +55,85 @@ pki-server ca-db-vlv-reindex
 *Note:* The reindex operation may take significant time on databases with
 many certificates. For replicated environments, VLV indexes are not
 replicated, so each replica must run these commands independently.
+
+== v1 REST API Deprecation Control ==
+
+A new runtime control mechanism allows administrators to manage the v1 REST API
+lifecycle with three runtime states:
+
+=== enabled ===
+
+The v1 REST API is fully functional with no restrictions, maintaining backward
+compatibility.
+
+=== deprecated ===
+
+The v1 REST API remains fully functional but logs prominent warning messages
+on each subsystem startup:
+
+----
+======================================================================
+WARNING: v1 REST API is DEPRECATED and will be removed in a future release.
+Please migrate to v2 API as soon as possible.
+======================================================================
+----
+
+All v1 API responses include standard deprecation headers for programmatic
+detection by clients and API tooling:
+
+----
+Deprecation: true
+Link: <https://github.com/dogtagpki/pki/wiki/REST-API-v2>; rel="alternate"
+----
+
+Use this state during a migration period to notify administrators and users
+that v1 API support will be removed in the future.
+
+=== disabled (default) ===
+
+The v1 REST API endpoints exist but are not functional. This is the default
+behavior. All requests to v1 endpoints return HTTP 410 Gone with a clean JSON
+error response:
+
+----
+{
+  "error": "v1 REST API has been disabled",
+  "message": "The v1 REST API has been disabled in this PKI instance. Please use the v2 API instead.",
+  "documentation": "https://github.com/dogtagpki/pki/wiki/REST-API-v2"
+}
+----
+
+Standard deprecation and sunset headers are included per IETF and RFC standards:
+
+----
+Deprecation: true
+Sunset: Sat, 01 Jan 2000 00:00:00 GMT
+Link: <https://github.com/dogtagpki/pki/wiki/REST-API-v2>; rel="alternate"
+----
+
+This enforces migration to v2 while maintaining the ability to roll back
+if needed.
+
+=== Runtime Configuration ===
+
+The runtime behavior is determined by the build-time `--v1-api-status` flag
+(see Packaging Changes). Administrators can override the default by setting
+the `v1.api.status` system property in `/etc/pki/<instance>/tomcat.conf`
+of `/etc/sysconfig/<instance>`:
+
+----
+JAVA_OPTS="-Dv1.api.status=enabled"
+----
+
+*Valid runtime values:*
+
+* `enabled` - v1 API fully functional
+* `deprecated` - v1 functional with deprecation warnings and headers
+* `disabled` - v1 returns HTTP 410 Gone
+* `dropped` - mapped to `disabled` at runtime (cannot drop code dynamically)
+
+*Value normalization:* The runtime property is normalized (trimmed, lowercased)
+before use. Invalid values are logged as warnings and fall back to `enabled`.
+
+*Note:* Runtime override only works when v1 code is present in the build
+(i.e., not built with `--v1-api-status=dropped`).

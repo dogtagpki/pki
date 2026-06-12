@@ -30,10 +30,17 @@ import org.dogtagpki.server.rest.v1.PKIExceptionMapper;
 @ApplicationPath("/v1")
 public class PKIApplication extends Application {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PKIApplication.class);
+
     private Set<Object> singletons = new LinkedHashSet<>();
     private Set<Class<?>> classes = new LinkedHashSet<>();
 
     public PKIApplication() {
+
+        // Check v1 API status
+        if (V1ApiStatusHelper.checkV1ApiStatus("PKI", classes, logger)) {
+            return;
+        }
 
         // services
         classes.add(AppService.class);

@@ -18,6 +18,7 @@ import org.dogtagpki.server.rest.v1.SecurityDomainService;
 import org.dogtagpki.server.rest.v1.SelfTestService;
 import org.dogtagpki.server.rest.v1.SessionContextInterceptor;
 import org.dogtagpki.server.rest.v1.UserService;
+import org.dogtagpki.server.rest.v1.V1ApiStatusHelper;
 
 @ApplicationPath("/v1")
 public class KRAApplication extends Application {
@@ -28,6 +29,11 @@ public class KRAApplication extends Application {
     private Set<Class<?>> classes = new LinkedHashSet<>();
 
     public KRAApplication() {
+
+        // Check v1 API status
+        if (V1ApiStatusHelper.checkV1ApiStatus("KRA", classes, logger)) {
+            return;
+        }
 
         // account
         classes.add(AccountService.class);

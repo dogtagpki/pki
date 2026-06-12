@@ -17,14 +17,22 @@ import org.dogtagpki.server.rest.v1.PKIExceptionMapper;
 import org.dogtagpki.server.rest.v1.SelfTestService;
 import org.dogtagpki.server.rest.v1.SessionContextInterceptor;
 import org.dogtagpki.server.rest.v1.UserService;
+import org.dogtagpki.server.rest.v1.V1ApiStatusHelper;
 
 @ApplicationPath("/v1")
 public class TKSApplication extends Application {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TKSApplication.class);
 
     private Set<Object> singletons = new LinkedHashSet<>();
     private Set<Class<?>> classes = new LinkedHashSet<>();
 
     public TKSApplication() {
+
+        // Check v1 API status
+        if (V1ApiStatusHelper.checkV1ApiStatus("TKS", classes, logger)) {
+            return;
+        }
 
         // account
         classes.add(AccountService.class);

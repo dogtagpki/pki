@@ -1,0 +1,95 @@
+= Packaging Changes =
+
+== v1 REST API Build Control ==
+
+A new build-time flag `--v1-api-status` has been added to `build.sh` to control
+the inclusion and behavior of v1 REST API code. This flag supports four values:
+
+=== --v1-api-status=enabled ===
+
+Builds with full v1 REST API support, maintaining complete backward compatibility
+with previous releases.
+
+Example:
+
+----
+./build.sh --v1-api-status=enabled rpm
+----
+
+=== --v1-api-status=deprecated ===
+
+Builds with full v1 REST API support but configures runtime warnings to notify
+administrators that v1 is deprecated. The v1 code is fully functional.
+
+Example:
+
+----
+./build.sh --v1-api-status=deprecated rpm
+----
+
+=== --v1-api-status=disabled (default) ===
+
+Builds with v1 REST API code included but configured to return HTTP 410 Gone
+errors at runtime. This is the default behavior. This enforces migration to v2
+while keeping v1 code available for emergency rollback.
+
+Example:
+
+----
+./build.sh --v1-api-status=disabled rpm
+----
+
+=== --v1-api-status=dropped ===
+
+Builds without v1 REST API code. The v1 source files are excluded from compilation,
+JAX-RS/RESTEasy dependencies are not included, and binary RPMs are approximately
+2-3MB smaller.
+
+*Important:* Once deployed with `dropped` status, v1 API cannot be re-enabled
+without rebuilding and reinstalling RPMs.
+
+Example:
+
+----
+./build.sh --v1-api-status=dropped rpm
+----
+
+When building with `dropped`:
+
+* Maven excludes all v1 source files via the `v1-api-dropped` profile
+* JAX-RS/RESTEasy dependencies are not included in BuildRequires or Requires
+* JAX-RS/RESTEasy JARs are not installed to `/usr/share/pki/server/common/lib/`
+* Javadoc generation excludes v1 packages
+* RPM %post scriptlet removes old JAX-RS JARs from existing instances
+
+=== Migration Path ===
+
+The recommended migration strategy is:
+
+1. Build and deploy with `--v1-api-status=deprecated`
++
+This allows the v1 API to function normally while warning administrators.
+Monitor logs and notify users to begin migration.
+
+2. Build and deploy with `--v1-api-status=disabled`
++
+This enforces migration by returning errors for v1 requests. Users must
+migrate to v2 API. Can still roll back via runtime configuration if needed.
+
+3. Build and deploy with `--v1-api-status=dropped`
++
+This permanently removes v1 code from the deployment, reducing binary size
+and eliminating maintenance burden.
+
+=== Implementation Details ===
+
+The build system changes include:
+
+* `build.sh`: New `--v1-api-status` flag validation and propagation
+* `pki.spec`: Conditional dependencies and JAR installation
+* `base/pom.xml`: Maven profiles for dependency and compilation control
+* `base/server/pom.xml`: Resource filtering to embed build-time configuration
+* `base/javadoc/CMakeLists.txt`: Conditional package exclusion from javadoc
+
+The build-time status is embedded in a `build.properties` resource file that
+is read at runtime to determine default behavior (see Server Changes).
