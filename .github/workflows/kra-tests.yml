@@ -38,6 +38,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/kra-external-certs-test.yml
 
+  kra-external-certs-kryoptic-test:
+    name: KRA with external certs on Kryoptic
+    needs: build
+    uses: ./.github/workflows/kra-external-certs-kryoptic-test.yml
+
   kra-existing-certs-test:
     name: KRA with existing certs
     needs: build
