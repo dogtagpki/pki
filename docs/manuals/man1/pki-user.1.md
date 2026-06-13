@@ -71,7 +71,7 @@ $ pki <CA admin authentication> ca-user-show testuser
 To add a new CA user, specify the user ID and at least the full name in the following command:
 
 ```
-$ pki <CA admin authentication> ca-user-add testuser --fullName "Test User"
+$ pki <CA admin authentication> ca-user-add testuser --full-name "Test User"
 ```
 
 To modify a CA user, specify the user ID and the attributes to be changed in the following command:

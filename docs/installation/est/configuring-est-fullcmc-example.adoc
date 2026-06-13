@@ -598,7 +598,7 @@ As CA admin:
 [source,bash]
 ----
 # Create user in CA
-pki -d ~/.dogtag/nssdb -n caadmin ca-user-add est-ca-agent --fullName "EST CA Agent User"
+pki -d ~/.dogtag/nssdb -n caadmin ca-user-add est-ca-agent --full-name "EST CA Agent User"
 
 # Add cert to CA user
 pki -d ~/.dogtag/nssdb -n caadmin ca-user-cert-add est-ca-agent --input est-ca-agent.crt

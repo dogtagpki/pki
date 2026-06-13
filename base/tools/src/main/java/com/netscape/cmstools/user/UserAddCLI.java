@@ -52,7 +52,7 @@ public class UserAddCLI extends SubsystemCommandCLI {
 
     @Override
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <User ID> --fullName <fullname> [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " <User ID> --full-name <fullname> [OPTIONS...]", options);
     }
 
     @Override

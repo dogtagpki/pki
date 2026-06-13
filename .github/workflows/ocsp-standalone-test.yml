@@ -389,7 +389,7 @@ jobs:
               -U https://ocsp.example.com:8443 \
               -n ocspadmin \
               ocsp-user-add \
-              --fullName "CA" \
+              --full-name "CA" \
               --type agentType \
               --cert-file $SHARED/ca_subsystem.crt \
               CA

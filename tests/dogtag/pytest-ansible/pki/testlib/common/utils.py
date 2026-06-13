@@ -272,7 +272,7 @@ class UserOperations(object):
                                       port=port,
                                       protocol=self.protocol,
                                       certnick='"{}"'.format(nick),
-                                      extra_args=' {} --fullName "{}" '
+                                      extra_args=' {} --full-name "{}" '
                                                  '{}'.format(userid, user_name, user_params))
         for result in user_add.values():
             try:

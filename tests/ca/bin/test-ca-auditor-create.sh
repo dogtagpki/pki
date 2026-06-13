@@ -1,7 +1,7 @@
 #!/usr/bin/bash -ex
 
 # create a user
-pki -u caadmin -w Secret.123 ca-user-add caauditor --fullName "CA Auditor" --password Secret.123
+pki -u caadmin -w Secret.123 ca-user-add caauditor --full-name "CA Auditor" --password Secret.123
 
 # add the user to Auditors group
 pki -u caadmin -w Secret.123 ca-user-membership-add caauditor "Auditors"

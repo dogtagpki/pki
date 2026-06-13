@@ -381,7 +381,7 @@ jobs:
               -U https://kra.example.com:8443 \
               -n kraadmin \
               kra-user-add \
-              --fullName "CA" \
+              --full-name "CA" \
               --type agentType \
               --cert-file $SHARED/ca_subsystem.crt \
               CA

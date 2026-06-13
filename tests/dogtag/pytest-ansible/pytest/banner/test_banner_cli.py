@@ -295,7 +295,7 @@ def test_banner_reject_pki_command(create_delete_banner, import_admin_certs, ans
     """
     rand = random.randint(0, 100)
     output = ansible_module.expect(
-        command='pki -d /opt/tmp_nssdb -c %s -h pki1.example.com -p %s -n "%s" user-add tuser-%s --fullName testuser-%s' % (
+        command='pki -d /opt/tmp_nssdb -c %s -h pki1.example.com -p %s -n "%s" user-add tuser-%s --full-name testuser-%s' % (
         constants.CA_PASSWORD, constants.CA_HTTP_PORT, constants.CA_ADMIN_NICK, rand, rand),
         responses={"\(y\/N\)\?":"N"})
     output2 = ansible_module.expect(
@@ -327,7 +327,7 @@ def test_banner_accept_pki_command(create_delete_banner, import_admin_certs, ans
     """
     rand = random.randint(0, 100)
     output = ansible_module.expect(
-        command='pki -d /opt/tmp_nssdb -c %s -h pki1.example.com -p %s -n "%s" user-add tuser-%s --fullName testuser-%s' % (
+        command='pki -d /opt/tmp_nssdb -c %s -h pki1.example.com -p %s -n "%s" user-add tuser-%s --full-name testuser-%s' % (
         constants.CA_PASSWORD, constants.CA_HTTP_PORT, constants.CA_ADMIN_NICK, rand, rand),
         responses={"\(y\/N\)\?": "y",
                    "Import CA certificate \(Y\/n\)\? ": "Y",
@@ -352,7 +352,7 @@ def test_ignore_banner_pki_command(create_delete_banner, import_admin_certs, ans
     """
     rand = random.randint(0, 100)
     output = ansible_module.expect(
-        command='pki -d /opt/tmp_nssdb -c %s -h pki1.example.com -p %s --ignore-banner -n "%s" user-add tuser-%s --fullName testuser-%s' % (
+        command='pki -d /opt/tmp_nssdb -c %s -h pki1.example.com -p %s --ignore-banner -n "%s" user-add tuser-%s --full-name testuser-%s' % (
         constants.CA_PASSWORD, constants.CA_HTTP_PORT, constants.CA_ADMIN_NICK, rand, rand),
         responses={"Import CA certificate \(Y\/n\)\? ": "Y",
                    "CA server URL \[http:\/\/pki1.example.com\:8080\/ca\]\: ": "http:\/\/pki1.example.com\:%s\/ca" % constants.CA_HTTP_PORT})
@@ -380,7 +380,7 @@ def test_ignore_banner_specified_in_userspace_pki_command(create_delete_banner, 
     ansible_module.file(path="~/.dogtag/pki.conf", state="touch")
     ansible_module.copy(content=clioption, dest="~/.dogtag/pki.conf")
     output = ansible_module.expect(
-        command='pki -d /opt/tmp_nssdb -c %s -h pki1.example.com -p %s -n "%s" user-add tuser-%s --fullName testuser-%s' % (
+        command='pki -d /opt/tmp_nssdb -c %s -h pki1.example.com -p %s -n "%s" user-add tuser-%s --full-name testuser-%s' % (
             constants.CA_PASSWORD, constants.CA_HTTP_PORT, constants.CA_ADMIN_NICK, rand, rand),
         responses={"Import CA certificate \(Y\/n\)\? ": "Y",
                    "CA server URL \[http:\/\/pki1.example.com\:8080\/ca\]\: ": "http:\/\/pki1.example.com\:%s\/ca" % constants.CA_HTTP_PORT})
