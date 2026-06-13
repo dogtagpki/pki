@@ -232,7 +232,7 @@ jobs:
         if: always()
         run: |
           sed -n '/^WARNING:/p' stderr | tee output
-          wc -l output
+          diff /dev/null output
 
       - name: Check external commands
         if: always()
@@ -1077,7 +1077,7 @@ jobs:
         if: always()
         run: |
           sed -n '/^WARNING:/p' stderr | tee output
-          wc -l output
+          diff /dev/null output
 
       - name: Check external commands
         if: always()
