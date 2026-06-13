@@ -731,7 +731,7 @@ class PKIDeployer:
             # no PKCS #12 file to import
             return
 
-        logger.info('Importing certs and keys from %s', pki_clone_pkcs12_path)
+        logger.debug('Checking certs and keys in %s', pki_clone_pkcs12_path)
 
         if not os.path.exists(pki_clone_pkcs12_path):
             raise Exception('Invalid path in %s: %s' % (param, pki_clone_pkcs12_path))
@@ -740,6 +740,7 @@ class PKIDeployer:
         if not pki_clone_pkcs12_password:
             raise Exception('Missing pki_clone_pkcs12_password property')
 
+        logger.info('Importing certs and keys from %s', pki_clone_pkcs12_path)
         nssdb = self.instance.open_nssdb()
 
         try:
@@ -767,13 +768,13 @@ class PKIDeployer:
             # PKIServer.setup_cert_authentication().
             # openssl pkcs12 -in <p12_file_path> -out /tmp/auth.pem -nodes -nokeys
 
-            pki_ca_crt_path = os.path.join(self.instance.nssdb_dir, 'ca.crt')
+            ca_cert = self.instance.ca_cert
 
             cmd = [
                 'openssl', 'pkcs12',
                 '-nomacver',
                 '-in', pki_clone_pkcs12_path,
-                '-out', pki_ca_crt_path,
+                '-out', ca_cert,
                 '-nodes',
                 '-nokeys',
                 '-passin', 'pass:' + pki_clone_pkcs12_password
@@ -790,8 +791,8 @@ class PKIDeployer:
             # will eventually start up as non-root and will attempt to do a
             # migration. If we don't fix the permissions now, migration will
             # fail and subsystem won't start up.
-            pki.util.chmod(pki_ca_crt_path, 0o644)
-            self.instance.chown(pki_ca_crt_path)
+            pki.util.chmod(ca_cert, 0o644)
+            self.instance.chown(ca_cert)
 
         finally:
             nssdb.close()
@@ -810,10 +811,10 @@ class PKIDeployer:
         if not os.path.exists(cert_chain_path):
             raise Exception('Certificate chain not found: %s' % cert_chain_path)
 
-        destination = os.path.join(self.instance.nssdb_dir, 'ca.crt')
-        logger.debug('Checking cert chain in %s', destination)
+        ca_cert = self.instance.ca_cert
+        logger.debug('Checking cert chain in %s', ca_cert)
 
-        if os.path.exists(destination):
+        if os.path.exists(ca_cert):
             # cert chain already exists
             return
 
@@ -829,7 +830,7 @@ class PKIDeployer:
 
         self.instance.copyfile(
             cert_chain_path,
-            destination,
+            ca_cert,
             exist_ok=True)
 
     def import_ds_ca_cert(self):
@@ -2934,13 +2935,18 @@ class PKIDeployer:
 
     def pki_connect(self):
 
-        ca_cert = os.path.join(self.instance.nssdb_dir, "ca.crt")
         url = 'https://%s:%s' % (self.mdict['pki_hostname'], self.mdict['pki_https_port'])
+
+        ca_cert = self.instance.ca_cert
+
+        ca_bundle = None
+        if os.path.exists(ca_cert):
+            ca_bundle = [ca_cert]
 
         self.pki_client = pki.client.PKIClient(
             url=url,
             trust_env=False,
-            ca_bundle=ca_cert)
+            ca_bundle=ca_bundle)
 
     def import_cert_request(self, subsystem, tag, request):
 
