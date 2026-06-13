@@ -636,7 +636,7 @@ public class TPSEngine extends CMSEngine {
     public KRAServerSideKeyGenResponse serverSideKeyGen(int keySize, String cuid, String userid, String drmConnId,
             TPSBuffer wrappedDesKey, TPSBuffer drmWrappedAesKey,
             boolean archive,
-            boolean isECC,String aesKeyWrapAlg) throws TPSException {
+            boolean isECC,String aesKeyWrapAlg, String keyGenUsages) throws TPSException {
 
 /*
         logger.debug("TPSEngine.serverSideKeyGen entering... keySize: " + keySize + " cuid: " + cuid + " userid: "
@@ -658,7 +658,7 @@ public class TPSEngine extends CMSEngine {
             resp = kra.serverSideKeyGen(isECC, keySize, cuid, userid,
                     (wrappedDesKey != null) ? Util.specialURLEncode(wrappedDesKey) :  "",
                     (drmWrappedAesKey != null) ? Util.specialURLEncode(drmWrappedAesKey) : "",
-                    archive,aesKeyWrapAlg);
+                    archive,aesKeyWrapAlg, keyGenUsages);
 
         } catch (EBaseException e) {
             throw new TPSException("TPSEngine.serverSideKeyGen: Problem creating  or using KRARemoteRequestHandler! "

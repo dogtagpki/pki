@@ -69,10 +69,12 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
             String sDesKey,
             String sAesKey,
             boolean archive,
-            String aesKeyWrapAlg)
+            String aesKeyWrapAlg,
+            String keyGenUsages)
             throws EBaseException {
 
         logger.debug("KRARemoteRequestHandler: serverSideKeyGen(): begins.");
+        logger.debug("KRARemoteRequestHandler: serverSideKeyGen(): keyGenUsages: " + keyGenUsages); 
         if (cuid == null || userid == null || sDesKey == null) {
             throw new EBaseException("KRARemoteRequestHandler: serverSideKeyGen(): input parameter null.");
         }
@@ -125,6 +127,10 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
 
             //logger.debug("KRARemoteRequestHandler: outgoing request for ECC: " + request);
 
+            if (keyGenUsages != null && !keyGenUsages.isEmpty()) {
+                request += "&" + IRemoteRequest.KRA_KEYGEN_Usages + "=" + keyGenUsages;
+            }
+
             resp =
                     conn.send("GenerateKeyPair",
                             request);
@@ -147,6 +153,9 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
                     "&" + IRemoteRequest.KRA_Aes_Wrap_Alg + "=" +
                     aesWrapAlg;
 
+            if (keyGenUsages != null && !keyGenUsages.isEmpty()) {
+                request += "&" + IRemoteRequest.KRA_KEYGEN_Usages + "=" + keyGenUsages;
+            }
 
             //logger.debug("KRARemoteRequestHandler: outgoing request for RSA: " + request);
 
