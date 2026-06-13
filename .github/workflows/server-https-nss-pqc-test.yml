@@ -80,7 +80,7 @@ jobs:
               -d /var/lib/pki/pki-tomcat/alias \
               nss-cert-request \
               --key-type MLDSA \
-              --key-size 65 \
+              --key-strength 65 \
               --subject "CN=CA Signing Certificate" \
               --ext /usr/share/pki/server/certs/ca_signing.conf \
               --csr $SHARED/ca_signing.csr
@@ -119,7 +119,7 @@ jobs:
               -d /var/lib/pki/pki-tomcat/alias \
               nss-cert-request \
               --key-type MLDSA \
-              --key-size 65 \
+              --key-strength 65 \
               --subject "CN=pki.example.com" \
               --ext /usr/share/pki/server/certs/sslserver.conf \
               --csr $SHARED/sslserver.csr

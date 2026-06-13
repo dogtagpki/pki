@@ -318,7 +318,7 @@ function create_certificate(){
     local password=$6
     local issuer=$7
 
-    __exec pki -d "$db" nss-cert-request --ext "$ext" --key-size 4096 --csr "$filename.$REQ" --subject "$subject" || __d "Cannot create $name csr"
+    __exec pki -d "$db" nss-cert-request --ext "$ext" --key-strength 4096 --csr "$filename.$REQ" --subject "$subject" || __d "Cannot create $name csr"
 
     if [ -n "$issuer" ]; then
     __exec pki -d "$db" nss-cert-issue --ext "$ext" --csr "$filename.$REQ" --cert "$filename.$CERT" --issuer "$issuer" || __d "Cannot issue $name"

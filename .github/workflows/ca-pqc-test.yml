@@ -298,7 +298,7 @@ jobs:
                   --ext /usr/share/pki/server/certs/sslserver.conf \
                   --csr sslserver_mldsa.csr \
                   --key-type MLDSA \
-                  --key-size 65
+                  --key-strength 65
 
           docker exec pki  pki -n caadmin ca-cert-issue \
                   --profile caMLDSAServerCert \
@@ -342,7 +342,7 @@ jobs:
               --subject "UID=ocsp-test" \
               --csr ocsp_test.csr \
               --key-type MLDSA \
-              --key-size 65
+              --key-strength 65
 
           docker exec pki pki -n caadmin ca-cert-issue \
               --profile caMLDSAUserCert \

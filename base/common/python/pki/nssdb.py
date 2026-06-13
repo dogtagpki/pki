@@ -1591,7 +1591,7 @@ class NSSDatabase:
                 cmd.extend(['--key-type', key_type])
 
             if key_size:
-                cmd.extend(['--key-size', str(key_size)])
+                cmd.extend(['--key-strength', str(key_size)])
 
             if key_wrap:
                 cmd.append('--key-wrap')
