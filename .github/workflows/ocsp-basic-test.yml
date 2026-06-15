@@ -591,7 +591,7 @@ jobs:
 
           # responder should fail since there's no CRLs
           cat > expected << EOF
-          ERROR: Unable to submit OCSP request: Incorrect tag: expected [UNIVERSAL 16], found [UNIVERSAL 28]
+          ERROR: OCSPResponseStatus: INTERNAL_ERROR
           EOF
 
           diff expected stderr
@@ -613,7 +613,7 @@ jobs:
 
           # responder should fail since there's no CRLs
           cat > expected << EOF
-          SEVERE: InvalidBERException: Incorrect tag: expected [UNIVERSAL 16], found [UNIVERSAL 28]
+          SEVERE: CLIException: OCSPResponseStatus: INTERNAL_ERROR
           EOF
 
           diff expected actual
@@ -627,22 +627,14 @@ jobs:
               -CAfile ca_signing.crt \
               -issuer ca_signing.crt \
               -serial $CERT_ID \
-              > >(tee stdout) 2> >(tee stderr >&2) || true
-
-          # remove the random parts of stderr so it can be compared
-          sed -i "s/^[^:]*:error:/error:/g" stderr
-
-          # remove file names and line numbers so it can be compared
-          sed -i "s/^\([^:]*:[^:]*:[^:]*:[^:]*:[^:]*:\)[^:]*:[^:]*:/\1/" stderr
+              | tee output
 
           # responder should fail since there's no CRLs
           cat > expected << EOF
-          Error querying OCSP responder
-          error:1E800076:HTTP routines:OSSL_HTTP_REQ_CTX_nbio:unexpected content type:expected=application/ocsp-response, actual=text/html
-          error:1E800067:HTTP routines:OSSL_HTTP_REQ_CTX_exchange:error receiving:server=http://pki.example.com:8080
+          Responder Error: internalerror (2)
           EOF
 
-          diff expected stderr
+          diff expected output
 
       - name: Prepare revoked cert
         run: |

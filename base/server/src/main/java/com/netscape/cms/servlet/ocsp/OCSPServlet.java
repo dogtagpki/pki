@@ -45,6 +45,7 @@ import com.netscape.cmscore.util.StatsSubsystem;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
 import com.netscape.cmsutil.ocsp.OCSPRequest;
 import com.netscape.cmsutil.ocsp.OCSPResponse;
+import com.netscape.cmsutil.ocsp.OCSPResponseStatus;
 import com.netscape.cmsutil.ocsp.ResponseBytes;
 import com.netscape.cmsutil.ocsp.ResponseData;
 import com.netscape.cmsutil.ocsp.SingleResponse;
@@ -250,8 +251,9 @@ public class OCSPServlet extends CMSServlet {
                 }
 
             } catch (Exception e) {
-                logger.warn("OCSPServlet: " + e.getMessage(), e);
+                logger.error("OCSPServlet: " + e.getMessage(), e);
                 auditor.log(OCSPGenerationEvent.createFailureEvent(auditSubjectID(), e.getMessage()));
+                response = new OCSPResponse(OCSPResponseStatus.INTERNAL_ERROR, null);
             }
 
             if (response != null) {
