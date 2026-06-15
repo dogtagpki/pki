@@ -26,6 +26,7 @@ import com.netscape.cmsutil.ocsp.CertStatus;
 import com.netscape.cmsutil.ocsp.OCSPProcessor;
 import com.netscape.cmsutil.ocsp.OCSPRequest;
 import com.netscape.cmsutil.ocsp.OCSPResponse;
+import com.netscape.cmsutil.ocsp.OCSPResponseStatus;
 import com.netscape.cmsutil.ocsp.ResponseData;
 import com.netscape.cmsutil.ocsp.RevokedInfo;
 import com.netscape.cmsutil.ocsp.SingleResponse;
@@ -136,6 +137,11 @@ public class OCSPCertVerifyCLI extends SubsystemCommandCLI {
             response = processor.submitRequest(request);
         } catch (Exception e) {
             throw new CLIException("Unable to submit OCSP request: " + e.getMessage());
+        }
+
+        OCSPResponseStatus status = response.getResponseStatus();
+        if (status.getValue() != 0) {
+            throw new CLIException("OCSPResponseStatus: " + status.getName());
         }
 
         logger.info("Parsing OCSP response");

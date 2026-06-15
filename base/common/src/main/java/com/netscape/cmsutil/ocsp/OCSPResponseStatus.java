@@ -63,12 +63,34 @@ public class OCSPResponseStatus implements ASN1Value {
 
     private ENUMERATED responseStatus;
 
+    public OCSPResponseStatus(long val) {
+        responseStatus = new ENUMERATED(val);
+    }
+
     public long getValue() {
         return responseStatus.getValue();
     }
 
-    public OCSPResponseStatus(long val) {
-        responseStatus = new ENUMERATED(val);
+    public String getName() throws IllegalArgumentException, IllegalAccessException {
+
+        int value = (int) getValue();
+
+        switch (value) {
+        case 0:
+            return "SUCCESSFUL";
+        case 1:
+            return "MALFORMED_REQUEST";
+        case 2:
+            return "INTERNAL_ERROR";
+        case 3:
+            return "TRY_LATER";
+        case 5:
+            return "SIG_REQUIRED";
+        case 6:
+            return "UNAUTHORIZED";
+        default:
+            return "UNKNOWN (" + value + ")";
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////

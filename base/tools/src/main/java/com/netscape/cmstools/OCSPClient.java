@@ -30,6 +30,7 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.dogtagpki.cli.CLIException;
 import org.dogtagpki.util.logging.PKILogger;
 import org.mozilla.jss.CryptoManager;
 
@@ -39,6 +40,7 @@ import com.netscape.cmsutil.ocsp.CertStatus;
 import com.netscape.cmsutil.ocsp.OCSPProcessor;
 import com.netscape.cmsutil.ocsp.OCSPRequest;
 import com.netscape.cmsutil.ocsp.OCSPResponse;
+import com.netscape.cmsutil.ocsp.OCSPResponseStatus;
 import com.netscape.cmsutil.ocsp.ResponseBytes;
 import com.netscape.cmsutil.ocsp.ResponseData;
 import com.netscape.cmsutil.ocsp.SingleResponse;
@@ -196,6 +198,11 @@ public class OCSPClient {
 
                 logger.info("Submitting OCSP request");
                 response = processor.submitRequest(url, request);
+
+                OCSPResponseStatus status = response.getResponseStatus();
+                if (status.getValue() != 0) {
+                    throw new CLIException("OCSPResponseStatus: " + status.getName());
+                }
 
                 ResponseBytes bytes = response.getResponseBytes();
                 BasicOCSPResponse basic = (BasicOCSPResponse)BasicOCSPResponse.getTemplate().decode(
