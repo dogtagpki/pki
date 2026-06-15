@@ -38,6 +38,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.dogtagpki.nss.NSSDatabase;
 import org.dogtagpki.nss.NSSExtensionGenerator;
+import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.ASN1Value;
@@ -56,6 +57,7 @@ import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
@@ -135,6 +137,9 @@ public class hsmCompatVerifyServ {
 
     public static final String TOOL_NAME = "hsmCompatVerifyServ";
 
+    // Hidden test flag: decrypt wrapped user private key to raw bytes (for debugging)
+    private static boolean testDecryptUser = false;
+
     // Default key usage flags for transport and storage keys (matches standard KRA behavior)
     // Based on: base/common/src/main/java/com/netscape/cmsutil/crypto/CryptoUtil.java:RSA_KEYPAIR_USAGES
     private static final String DEFAULT_OPFLAGS = "encrypt,decrypt,wrap,unwrap,sign,sign_recover";
@@ -190,9 +195,55 @@ public class hsmCompatVerifyServ {
         option.setArgName("file");
         options.addOption(option);
 
+        // Per-subsystem token options (for multi-token deployments)
+        option = new Option(null, "ca-token", true, "Token for CA signing cert (default: --hsm-token value)");
+        option.setArgName("token");
+        options.addOption(option);
+
+        option = new Option(null, "ca-token-passwd", true, "Password for CA token");
+        option.setArgName("password");
+        options.addOption(option);
+
+        option = new Option(null, "ca-token-passwd-file", true, "File containing CA token password");
+        option.setArgName("file");
+        options.addOption(option);
+
+        option = new Option(null, "kra-token", true, "Token for KRA transport and storage certs (default: --hsm-token value)");
+        option.setArgName("token");
+        options.addOption(option);
+
+        option = new Option(null, "kra-token-passwd", true, "Password for KRA token");
+        option.setArgName("password");
+        options.addOption(option);
+
+        option = new Option(null, "kra-token-passwd-file", true, "File containing KRA token password");
+        option.setArgName("file");
+        options.addOption(option);
+
         // Setup Control
         options.addOption(null, "setup-only", false, "Only run setup, don't test");
+        options.addOption(null, "ca-only", false, "Setup CA only (no KRA, no user cert) - use with --setup-only");
         options.addOption(null, "yes", false, "Automatically regenerate existing certificates without prompting (non-interactive)");
+
+        // CSR Issuance Mode
+        option = new Option(null, "issue-csr", true, "Sign a CSR using existing CA (PEM format input/output)");
+        option.setArgName("csr-file");
+        options.addOption(option);
+
+        // PQC Options
+        options.addOption(null, "pqc", false, "Enable PQC mode (ML-DSA for CA, ML-KEM for KRA)");
+
+        option = new Option(null, "pqc-ca-algorithm", true, "PQC CA algorithm: ml-dsa-44, ml-dsa-65, ml-dsa-87 (default: ml-dsa-65)");
+        option.setArgName("algorithm");
+        options.addOption(option);
+
+        option = new Option(null, "pqc-kem-algorithm", true, "PQC KEM algorithm: ml-kem-512, ml-kem-768, ml-kem-1024 (default: ml-kem-768)");
+        option.setArgName("algorithm");
+        options.addOption(option);
+
+        option = new Option(null, "user-key-type", true, "User key type: RSA, EC, ML-KEM (default: ML-KEM if --pqc, RSA otherwise)");
+        option.setArgName("type");
+        options.addOption(option);
 
         // CA Options
         option = new Option(null, "ca-key-algorithm", true, "CA key algorithm: rsa or ec (default: rsa)");
@@ -268,6 +319,10 @@ public class hsmCompatVerifyServ {
         option.setArgName("file");
         options.addOption(option);
 
+        option = new Option(null, "kem-ciphertext", true, "KEM ciphertext file (from hsmCompatVerifyClnt --pqc)");
+        option.setArgName("file");
+        options.addOption(option);
+
         option = new Option(null, "wrapped-private", true, "Wrapped private key file (from hsmCompatVerifyClnt)");
         option.setArgName("file");
         options.addOption(option);
@@ -340,7 +395,9 @@ public class hsmCompatVerifyServ {
         option.setArgName("type");
         options.addOption(option);
 
-        options.addOption(null, "legacyPKCS12", false, "Use legacy PKCS#12 format (PBE_SHA1_DES3_CBC). Default: non-legacy (AES-256-KWP)");
+        option = new Option(null, "pkcs12-mode", true, "PKCS#12 encryption mode: kwp (AES-KWP, default), cbc (AES-256-CBC), or legacy (3DES-CBC)");
+        option.setArgName("mode");
+        options.addOption(option);
 
         options.addOption("v", "verbose", false, "Run in verbose mode");
         options.addOption(null, "help", false, "Show help message");
@@ -362,10 +419,25 @@ public class hsmCompatVerifyServ {
         System.out.println("HSM Options:");
         System.out.println("  -H, --hsm-token <name>        HSM token name (required)");
         System.out.println("  -P, --hsm-token-passwd <pass> HSM token password (required)");
+        System.out.println("      --hsm-token-passwd-file <file> File containing HSM token password");
+        System.out.println();
+        System.out.println("Multi-Token Options (optional, for CA/KRA on separate tokens):");
+        System.out.println("      --ca-token <name>         Token for CA signing cert (default: --hsm-token value)");
+        System.out.println("      --ca-token-passwd <pass>  Password for CA token");
+        System.out.println("      --ca-token-passwd-file <file> File containing CA token password");
+        System.out.println("      --kra-token <name>        Token for KRA transport/storage certs (default: --hsm-token value)");
+        System.out.println("      --kra-token-passwd <pass> Password for KRA token");
+        System.out.println("      --kra-token-passwd-file <file> File containing KRA token password");
         System.out.println();
         System.out.println("Setup Control:");
         System.out.println("      --setup-only              Only run setup, don't verify");
         System.out.println("      --yes                     Automatically regenerate existing certificates (non-interactive)");
+        System.out.println();
+        System.out.println("PQC Options:");
+        System.out.println("      --pqc                     Enable PQC mode (ML-DSA for CA, ML-KEM for transport/storage)");
+        System.out.println("      --pqc-ca-algorithm <alg>  PQC CA algorithm: ml-dsa-44, ml-dsa-65, ml-dsa-87 (default: ml-dsa-65)");
+        System.out.println("      --pqc-kem-algorithm <alg> PQC KEM algorithm for transport/storage: ml-kem-512, ml-kem-768, ml-kem-1024 (default: ml-kem-768)");
+        System.out.println("      --user-key-type <type>    User key type: RSA, EC, ML-KEM (default: ML-KEM if --pqc, RSA otherwise)");
         System.out.println();
         System.out.println("CA Certificate Options:");
         System.out.println("      --ca-key-algorithm <alg>  CA key algorithm: rsa or ec (default: rsa)");
@@ -485,6 +557,14 @@ public class hsmCompatVerifyServ {
     }
 
     public static void main(String args[]) throws Exception {
+        // Check for hidden test flag (not shown in --help)
+        for (String arg : args) {
+            if ("--test-decrypt-user".equals(arg)) {
+                testDecryptUser = true;
+                break;
+            }
+        }
+
         Options options = createOptions();
         CommandLine cmd = null;
 
@@ -502,13 +582,48 @@ public class hsmCompatVerifyServ {
         }
 
         boolean setupOnly = cmd.hasOption("setup-only");
+        boolean caOnly = cmd.hasOption("ca-only");
+        String issueCsrFile = cmd.getOptionValue("issue-csr");
         String rsaKeywrap = cmd.getOptionValue("rsa-keywrap", "RSA-OAEP");
         boolean useOAEP = rsaKeywrap.equals("RSA-OAEP");
         boolean verbose = cmd.hasOption("v");
         boolean autoYes = cmd.hasOption("yes");
         boolean archiveOnly = cmd.hasOption("archive-only");
         boolean recoverOnly = cmd.hasOption("recover-only");
-        boolean legacyPKCS12 = cmd.hasOption("legacyPKCS12");
+
+        // PKCS#12 mode: kwp (default), cbc, or legacy
+        String pkcs12Mode = cmd.getOptionValue("pkcs12-mode", "kwp").toLowerCase();
+        if (!pkcs12Mode.equals("kwp") && !pkcs12Mode.equals("cbc") && !pkcs12Mode.equals("legacy")) {
+            System.err.println("ERROR: Invalid --pkcs12-mode value: " + pkcs12Mode);
+            System.err.println("Valid values: kwp, cbc, legacy");
+            return;
+        }
+
+        // PQC options
+        boolean pqcMode = cmd.hasOption("pqc");
+        String pqcCaAlgorithm = cmd.getOptionValue("pqc-ca-algorithm", "ml-dsa-65");
+        String pqcKemAlgorithm = cmd.getOptionValue("pqc-kem-algorithm", "ml-kem-768");
+
+        // User key type: controls what type of user key to expect (separate from transport)
+        String userKeyType = cmd.getOptionValue("user-key-type", pqcMode ? "ML-KEM" : "RSA");
+
+        // Validate PQC algorithm values
+        if (pqcMode) {
+            if (!pqcCaAlgorithm.equals("ml-dsa-44") &&
+                !pqcCaAlgorithm.equals("ml-dsa-65") &&
+                !pqcCaAlgorithm.equals("ml-dsa-87")) {
+                printError("Invalid --pqc-ca-algorithm value: " + pqcCaAlgorithm);
+                System.err.println("       Valid values: ml-dsa-44, ml-dsa-65, ml-dsa-87");
+                System.exit(1);
+            }
+            if (!pqcKemAlgorithm.equals("ml-kem-512") &&
+                !pqcKemAlgorithm.equals("ml-kem-768") &&
+                !pqcKemAlgorithm.equals("ml-kem-1024")) {
+                printError("Invalid --pqc-kem-algorithm value: " + pqcKemAlgorithm);
+                System.err.println("       Valid values: ml-kem-512, ml-kem-768, ml-kem-1024");
+                System.exit(1);
+            }
+        }
 
         // Validate rsa-keywrap value
         if (!rsaKeywrap.equals("RSA") && !rsaKeywrap.equals("RSA-OAEP")) {
@@ -551,22 +666,72 @@ public class hsmCompatVerifyServ {
             }
         }
 
+        // Per-subsystem token options (with fallback to hsm-token)
+        // CA token
+        String caToken = cmd.getOptionValue("ca-token");
+        if (caToken == null) {
+            caToken = hsmToken;  // Default to hsm-token
+        }
+        String caTokenPasswd = cmd.getOptionValue("ca-token-passwd");
+        String caTokenPasswdFile = cmd.getOptionValue("ca-token-passwd-file");
+
+        // Read CA token password from file if specified, otherwise use passwd, otherwise default to hsm-token-passwd
+        if (caTokenPasswd == null && caTokenPasswdFile != null) {
+            try {
+                caTokenPasswd = new String(java.nio.file.Files.readAllBytes(
+                    java.nio.file.Paths.get(caTokenPasswdFile))).trim();
+            } catch (Exception e) {
+                printError("Failed to read password from file: " + caTokenPasswdFile);
+                System.err.println("       " + e.getMessage());
+                System.exit(1);
+            }
+        }
+        if (caTokenPasswd == null) {
+            caTokenPasswd = hsmTokenPasswd;  // Default to hsm-token-passwd
+        }
+
+        // KRA token (for transport and storage)
+        String kraToken = cmd.getOptionValue("kra-token");
+        if (kraToken == null) {
+            kraToken = hsmToken;  // Default to hsm-token
+        }
+        String kraTokenPasswd = cmd.getOptionValue("kra-token-passwd");
+        String kraTokenPasswdFile = cmd.getOptionValue("kra-token-passwd-file");
+
+        // Read KRA token password from file if specified, otherwise use passwd, otherwise default to hsm-token-passwd
+        if (kraTokenPasswd == null && kraTokenPasswdFile != null) {
+            try {
+                kraTokenPasswd = new String(java.nio.file.Files.readAllBytes(
+                    java.nio.file.Paths.get(kraTokenPasswdFile))).trim();
+            } catch (Exception e) {
+                printError("Failed to read password from file: " + kraTokenPasswdFile);
+                System.err.println("       " + e.getMessage());
+                System.exit(1);
+            }
+        }
+        if (kraTokenPasswd == null) {
+            kraTokenPasswd = hsmTokenPasswd;  // Default to hsm-token-passwd
+        }
+
         // CA options
         String caKeyAlgorithm = cmd.getOptionValue("ca-key-algorithm", "rsa");
         String caKeySize = cmd.getOptionValue("ca-key-size");
         String caSubject = cmd.getOptionValue("ca-subject", "CN=Test CA,O=Dogtag");
         int caValidity = Integer.parseInt(cmd.getOptionValue("ca-validity", "3650"));
-        String caNickname = cmd.getOptionValue("ca-nickname", "test CA Signing Certificate");
+        String caNickname = cmd.getOptionValue("ca-nickname",
+            pqcMode ? "test PQC CA Signing Certificate" : "test CA Signing Certificate");
 
         // Transport options
         String transportSubject = cmd.getOptionValue("transport-subject", "CN=test KRA Transport,O=Dogtag");
         int transportValidity = Integer.parseInt(cmd.getOptionValue("transport-validity", "365"));
-        String transportNickname = cmd.getOptionValue("transport-nickname", "test KRA Transport Certificate");
+        String transportNickname = cmd.getOptionValue("transport-nickname",
+            pqcMode ? "test PQC KRA Transport Certificate" : "test KRA Transport Certificate");
 
         // Storage options
         String storageSubject = cmd.getOptionValue("storage-subject", "CN=test KRA Storage,O=Dogtag");
         int storageValidity = Integer.parseInt(cmd.getOptionValue("storage-validity", "365"));
-        String storageNickname = cmd.getOptionValue("storage-nickname", "test KRA Storage Certificate");
+        String storageNickname = cmd.getOptionValue("storage-nickname",
+            pqcMode ? "test PQC KRA Storage Certificate" : "test KRA Storage Certificate");
 
         // Key usage options (for HSM-specific requirements)
         String transportOpFlagsStr = cmd.getOptionValue("transport-opflags", DEFAULT_OPFLAGS);
@@ -581,7 +746,9 @@ public class hsmCompatVerifyServ {
         String ldifFile = cmd.getOptionValue("ldif-file", clientDB + "/kra-archived-key.ldif");
 
         // Test input files (from hsmCompatVerifyClnt)
+        // For PQC mode: uses kem-ciphertext instead of wrapped-session
         String wrappedSessionFile = cmd.getOptionValue("wrapped-session", clientDB + "/kra-test-wrapped-session.bin");
+        String kemCiphertextFile = cmd.getOptionValue("kem-ciphertext", clientDB + "/kra-test-kem-ciphertext.bin");
         String wrappedPrivateFile = cmd.getOptionValue("wrapped-private", clientDB + "/kra-test-wrapped-private.bin");
         String publicKeyFile = cmd.getOptionValue("public-key", clientDB + "/kra-test-public.der");
         String ivFile = cmd.getOptionValue("iv-file", clientDB + "/kra-test-iv.bin");
@@ -599,12 +766,6 @@ public class hsmCompatVerifyServ {
         String outputFile = cmd.getOptionValue("o");
         if (outputFile == null) {
             outputFile = clientDB + "/kra-recovered.p12";
-        } else {
-            // If relative path, resolve it relative to client-db-path
-            java.io.File outputFileObj = new java.io.File(outputFile);
-            if (!outputFileObj.isAbsolute()) {
-                outputFile = clientDB + "/" + outputFile;
-            }
         }
         String recoveryPasswd = cmd.getOptionValue("r");
         String recoveryPasswdFile = cmd.getOptionValue("recovery-passwd-file");
@@ -637,7 +798,27 @@ public class hsmCompatVerifyServ {
             System.exit(1);
         }
 
-        if (setupOnly) {
+        // Validate mode combinations
+        if (caOnly && !setupOnly) {
+            printError("--ca-only can only be used with --setup-only");
+            System.exit(1);
+        }
+        if (issueCsrFile != null && (setupOnly || archiveOnly || recoverOnly)) {
+            printError("--issue-csr cannot be used with --setup-only, --archive-only, or --recover-only");
+            System.exit(1);
+        }
+        if (issueCsrFile != null && !new java.io.File(issueCsrFile).exists()) {
+            printError("CSR file not found: " + issueCsrFile);
+            System.exit(1);
+        }
+
+        if (issueCsrFile != null) {
+            // Issue CSR mode validation
+            if (pkiservPasswd == null) {
+                printError("Missing PKI server password (--pkiserv-passwd) - required for CSR issuance");
+                System.exit(1);
+            }
+        } else if (setupOnly) {
             // Setup mode validation
             if (pkiservPasswd == null) {
                 printError("Missing PKI server password (--pkiserv-passwd) - required for setup");
@@ -657,10 +838,20 @@ public class hsmCompatVerifyServ {
                 }
             } else {
                 // Archive mode (with or without recovery) - check that wrapped key files exist
-                if (!new java.io.File(wrappedSessionFile).exists()) {
-                    printError("Wrapped session key file not found: " + wrappedSessionFile + "\n" +
-                              "Run hsmCompatVerifyClnt first to generate test keys.");
-                    System.exit(1);
+                if (pqcMode) {
+                    // PQC mode: check for KEM ciphertext instead of wrapped session key
+                    if (!new java.io.File(kemCiphertextFile).exists()) {
+                        printError("KEM ciphertext file not found: " + kemCiphertextFile + "\n" +
+                                  "Run hsmCompatVerifyClnt --pqc first to generate test keys.");
+                        System.exit(1);
+                    }
+                } else {
+                    // Non-PQC mode: check for wrapped session key
+                    if (!new java.io.File(wrappedSessionFile).exists()) {
+                        printError("Wrapped session key file not found: " + wrappedSessionFile + "\n" +
+                                  "Run hsmCompatVerifyClnt first to generate test keys.");
+                        System.exit(1);
+                    }
                 }
                 if (!new java.io.File(wrappedPrivateFile).exists()) {
                     printError("Wrapped private key file not found: " + wrappedPrivateFile + "\n" +
@@ -689,47 +880,125 @@ public class hsmCompatVerifyServ {
             tool.setUseOAEP(useOAEP);
             tool.setAutoYes(autoYes);
 
-            if (setupOnly) {
-                // Print setup configuration
-                System.out.println("=== hsmCompatVerifyServ Setup Configuration ===");
-                System.out.println("Parameters (including defaults):");
-                System.out.println("  --setup-only");
+            if (issueCsrFile != null) {
+                // Issue CSR mode
+                System.out.println("=== hsmCompatVerifyServ CSR Issuance Configuration ===");
+                System.out.println("Parameters:");
+                System.out.println("  --issue-csr " + issueCsrFile);
                 System.out.println("  --pkiserv-db-path " + pkiservDB);
-                System.out.println("  --hsm-token \"" + hsmToken + "\"");
-                System.out.println("  --ca-key-algorithm " + caKeyAlgorithm);
-                if (caKeySize != null) {
-                    System.out.println("  --ca-key-size " + caKeySize);
-                } else {
-                    System.out.println("  --ca-key-size " + (caKeyAlgorithm.equalsIgnoreCase("ec") ? "nistp256" : "4096") + " (default)");
+                if (hsmToken != null) {
+                    System.out.println("  --hsm-token \"" + hsmToken + "\"");
                 }
-                System.out.println("  --ca-subject \"" + caSubject + "\"");
-                System.out.println("  --ca-validity " + caValidity);
                 System.out.println("  --ca-nickname \"" + caNickname + "\"");
-                System.out.println("  --transport-subject \"" + transportSubject + "\"");
-                System.out.println("  --transport-validity " + transportValidity);
-                System.out.println("  --transport-nickname \"" + transportNickname + "\"");
-                System.out.println("  --transport-opflags \"" + transportOpFlagsStr + "\"");
-                System.out.println("  --storage-subject \"" + storageSubject + "\"");
-                System.out.println("  --storage-validity " + storageValidity);
-                System.out.println("  --storage-nickname \"" + storageNickname + "\"");
-                System.out.println("  --storage-opflags \"" + storageOpFlagsStr + "\"");
-                if (autoYes) {
-                    System.out.println("  --yes");
+                if (pqcMode) {
+                    System.out.println("  --pqc");
                 }
-                System.out.println("  --verbose " + (verbose ? "enabled" : "disabled"));
                 System.out.println();
 
-                tool.runSetup(
+                tool.runIssueCsr(
                     pkiservDB, pkiservPasswd,
                     hsmToken, hsmTokenPasswd,
-                    caKeyAlgorithm, caKeySize, caSubject, caValidity, caNickname,
-                    transportSubject, transportValidity, transportNickname,
-                    transportOpFlagsStr, transportOpFlagsMaskStr,
-                    storageSubject, storageValidity, storageNickname,
-                    storageOpFlagsStr, storageOpFlagsMaskStr
+                    caNickname,
+                    issueCsrFile,
+                    pqcMode
                 );
                 System.out.println();
-                System.out.println("SUCCESS: Setup completed!");
+                System.out.println("SUCCESS: Certificate issued!");
+
+            } else if (setupOnly) {
+                if (pqcMode) {
+                    // PQC Setup
+                    System.out.println("=== hsmCompatVerifyServ PQC Setup Configuration ===");
+                    System.out.println("Parameters (including defaults):");
+                    System.out.println("  --setup-only");
+                    if (caOnly) {
+                        System.out.println("  --ca-only");
+                    }
+                    System.out.println("  --pqc");
+                    System.out.println("  --pkiserv-db-path " + pkiservDB);
+                    System.out.println("  --hsm-token \"" + hsmToken + "\"");
+                    System.out.println("  --pqc-ca-algorithm " + pqcCaAlgorithm);
+                    System.out.println("  --pqc-kem-algorithm " + pqcKemAlgorithm);
+                    System.out.println("  --ca-subject \"" + caSubject + "\"");
+                    System.out.println("  --ca-validity " + caValidity);
+                    System.out.println("  --ca-nickname \"" + caNickname + "\"");
+                    if (!caOnly) {
+                        System.out.println("  --transport-subject \"" + transportSubject + "\"");
+                        System.out.println("  --transport-validity " + transportValidity);
+                        System.out.println("  --transport-nickname \"" + transportNickname + "\"");
+                        System.out.println("  --storage-subject \"" + storageSubject + "\"");
+                        System.out.println("  --storage-validity " + storageValidity);
+                        System.out.println("  --storage-nickname \"" + storageNickname + "\"");
+                    }
+                    if (autoYes) {
+                        System.out.println("  --yes");
+                    }
+                    System.out.println("  --verbose " + (verbose ? "enabled" : "disabled"));
+                    System.out.println();
+
+                    tool.runSetupPQC(
+                        pkiservDB, pkiservPasswd,
+                        hsmToken, hsmTokenPasswd,
+                        caToken, caTokenPasswd,
+                        kraToken, kraTokenPasswd,
+                        pqcCaAlgorithm, pqcKemAlgorithm,
+                        caSubject, caValidity, caNickname,
+                        transportSubject, transportValidity, transportNickname,
+                        storageSubject, storageValidity, storageNickname,
+                        caOnly
+                    );
+                    System.out.println();
+                    System.out.println("SUCCESS: PQC Setup completed!");
+                } else {
+                    // Traditional RSA/EC Setup
+                    System.out.println("=== hsmCompatVerifyServ Setup Configuration ===");
+                    System.out.println("Parameters (including defaults):");
+                    System.out.println("  --setup-only");
+                    if (caOnly) {
+                        System.out.println("  --ca-only");
+                    }
+                    System.out.println("  --pkiserv-db-path " + pkiservDB);
+                    System.out.println("  --hsm-token \"" + hsmToken + "\"");
+                    System.out.println("  --ca-key-algorithm " + caKeyAlgorithm);
+                    if (caKeySize != null) {
+                        System.out.println("  --ca-key-size " + caKeySize);
+                    } else {
+                        System.out.println("  --ca-key-size " + (caKeyAlgorithm.equalsIgnoreCase("ec") ? "nistp256" : "4096") + " (default)");
+                    }
+                    System.out.println("  --ca-subject \"" + caSubject + "\"");
+                    System.out.println("  --ca-validity " + caValidity);
+                    System.out.println("  --ca-nickname \"" + caNickname + "\"");
+                    if (!caOnly) {
+                        System.out.println("  --transport-subject \"" + transportSubject + "\"");
+                        System.out.println("  --transport-validity " + transportValidity);
+                        System.out.println("  --transport-nickname \"" + transportNickname + "\"");
+                        System.out.println("  --transport-opflags \"" + transportOpFlagsStr + "\"");
+                        System.out.println("  --storage-subject \"" + storageSubject + "\"");
+                        System.out.println("  --storage-validity " + storageValidity);
+                        System.out.println("  --storage-nickname \"" + storageNickname + "\"");
+                        System.out.println("  --storage-opflags \"" + storageOpFlagsStr + "\"");
+                    }
+                    if (autoYes) {
+                        System.out.println("  --yes");
+                    }
+                    System.out.println("  --verbose " + (verbose ? "enabled" : "disabled"));
+                    System.out.println();
+
+                    tool.runSetup(
+                        pkiservDB, pkiservPasswd,
+                        hsmToken, hsmTokenPasswd,
+                        caToken, caTokenPasswd,
+                        kraToken, kraTokenPasswd,
+                        caKeyAlgorithm, caKeySize, caSubject, caValidity, caNickname,
+                        transportSubject, transportValidity, transportNickname,
+                        transportOpFlagsStr, transportOpFlagsMaskStr,
+                        storageSubject, storageValidity, storageNickname,
+                        storageOpFlagsStr, storageOpFlagsMaskStr,
+                        caOnly
+                    );
+                    System.out.println();
+                    System.out.println("SUCCESS: Setup completed!");
+                }
             } else {
                 // Print test configuration
                 System.out.println("=== hsmCompatVerifyServ Verification Configuration ===");
@@ -757,28 +1026,64 @@ public class hsmCompatVerifyServ {
                     System.out.println("  --p12-output " + outputFile);
                 }
                 System.out.println("  --keywrap-alg \"" + keywrapAlg + "\"");
-                System.out.println("  --rsa-keywrap " + rsaKeywrap);
+                if (!pqcMode) {
+                    System.out.println("  --rsa-keywrap " + rsaKeywrap);
+                }
+                if (pqcMode) {
+                    System.out.println("  --pqc");
+                    System.out.println("  --pqc-ca-algorithm " + pqcCaAlgorithm);
+                    System.out.println("  --pqc-kem-algorithm " + pqcKemAlgorithm);
+                    System.out.println("  --user-key-type " + userKeyType);
+                }
                 System.out.println("  --verbose " + (verbose ? "enabled" : "disabled"));
+                if (autoYes) {
+                    System.out.println("  --yes");
+                }
+                System.out.println("  --pkcs12-mode " + pkcs12Mode);
                 System.out.println();
 
-                tool.runTest(
-                    pkiservDB,
-                    clientDB,
-                    wrappedSessionFile, wrappedPrivateFile, publicKeyFile, ivFile,
-                    hsmToken, hsmTokenPasswd,
-                    caNickname, transportNickname, storageNickname,
-                    subjectDN,
-                    outputFile, recoveryPasswd,
-                    keywrapAlg,
-                    archiveOnly,
-                    recoverOnly,
-                    ldifFile,
-                    legacyPKCS12
-                );
+                if (pqcMode) {
+                    // PQC mode: use ML-KEM transport/storage
+                    tool.runTestPQC(
+                        pkiservDB,
+                        clientDB,
+                        kemCiphertextFile, wrappedPrivateFile, publicKeyFile,
+                        hsmToken, hsmTokenPasswd,
+                        caNickname, transportNickname, storageNickname,
+                        subjectDN,
+                        outputFile, recoveryPasswd,
+                        keywrapAlg,
+                        archiveOnly,
+                        recoverOnly,
+                        ldifFile,
+                        pkcs12Mode,
+                        userKeyType,
+                        pqcKemAlgorithm
+                    );
+                } else {
+                    // Non-PQC mode: traditional RSA session key wrapping
+                    tool.runTest(
+                        pkiservDB,
+                        clientDB,
+                        wrappedSessionFile, wrappedPrivateFile, publicKeyFile, ivFile,
+                        hsmToken, hsmTokenPasswd,
+                        caNickname, transportNickname, storageNickname,
+                        subjectDN,
+                        outputFile, recoveryPasswd,
+                        keywrapAlg,
+                        archiveOnly,
+                        recoverOnly,
+                        ldifFile,
+                        pkcs12Mode
+                    );
+                }
                 System.out.println();
                 if (archiveOnly) {
                     System.out.println("SUCCESS: Archival completed - LDIF file created!");
                     System.out.println("LDIF file: " + ldifFile);
+                    if (pqcMode) {
+                        System.out.println("Mode: PQC (ML-KEM)");
+                    }
                     System.out.println("Next: Run hsmCompatVerifyServ with --recover-only to verify recovery");
                 } else {
                     System.out.println("SUCCESS: KRA compatibility verification completed!");
@@ -826,6 +1131,10 @@ public class hsmCompatVerifyServ {
         String pkiservPasswd,
         String hsmToken,
         String hsmTokenPasswd,
+        String caToken,
+        String caTokenPasswd,
+        String kraToken,
+        String kraTokenPasswd,
         String caKeyAlgorithm,
         String caKeySize,
         String caSubject,
@@ -840,7 +1149,8 @@ public class hsmCompatVerifyServ {
         int storageValidity,
         String storageNickname,
         String storageOpFlagsStr,
-        String storageOpFlagsMaskStr
+        String storageOpFlagsMaskStr,
+        boolean caOnly
     ) throws Exception {
 
         log("=== KRA HSM Compatibility Verification - Setup Phase ===");
@@ -853,27 +1163,56 @@ public class hsmCompatVerifyServ {
         org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] storageUsages = parseUsageFlags(storageOpFlagsStr);
         org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] storageUsagesMask = parseUsageFlags(storageOpFlagsMaskStr);
 
-        // Initialize HSM
-        log("Step 1: Initializing HSM");
-        log("  HSM Token: " + hsmToken);
-
-        // We need to initialize with pkisystem DB to have a place to store public certs
+        // Initialize CryptoManager
+        log("Step 1: Initializing CryptoManager");
         CryptoManager.initialize(pkiservDB);
         CryptoManager manager = CryptoManager.getInstance();
 
-        CryptoToken hsmTokenObj = CryptoUtil.getKeyStorageToken(hsmToken);
-        if (hsmTokenObj == null) {
-            throw new Exception("HSM token not found: " + hsmToken);
+        // Initialize CA token
+        log("");
+        log("Step 1a: Initializing CA token");
+        log("  CA Token: " + caToken);
+
+        CryptoToken caTokenObj = CryptoUtil.getKeyStorageToken(caToken);
+        if (caTokenObj == null) {
+            throw new Exception("CA token not found: " + caToken);
         }
 
-        Password hsmPassword = new Password(hsmTokenPasswd.toCharArray());
+        Password caPassword = new Password(caTokenPasswd.toCharArray());
         try {
-            hsmTokenObj.login(hsmPassword);
-            log("  - HSM token login successful");
+            caTokenObj.login(caPassword);
+            log("  - CA token login successful");
         } catch (Exception e) {
-            throw new Exception("Unable to login to HSM token: " + e.getMessage(), e);
+            throw new Exception("Unable to login to CA token: " + e.getMessage(), e);
         } finally {
-            hsmPassword.clear();
+            caPassword.clear();
+        }
+
+        // Initialize KRA token
+        CryptoToken kraTokenObj;
+        if (kraToken.equals(caToken)) {
+            // Same token, reuse object (already logged in)
+            log("  - KRA token is same as CA token, reusing");
+            kraTokenObj = caTokenObj;
+        } else {
+            log("");
+            log("Step 1b: Initializing KRA token");
+            log("  KRA Token: " + kraToken);
+
+            kraTokenObj = CryptoUtil.getKeyStorageToken(kraToken);
+            if (kraTokenObj == null) {
+                throw new Exception("KRA token not found: " + kraToken);
+            }
+
+            Password kraPassword = new Password(kraTokenPasswd.toCharArray());
+            try {
+                kraTokenObj.login(kraPassword);
+                log("  - KRA token login successful");
+            } catch (Exception e) {
+                throw new Exception("Unable to login to KRA token: " + e.getMessage(), e);
+            } finally {
+                kraPassword.clear();
+            }
         }
 
         // Initialize PKI server NSS DB
@@ -898,73 +1237,480 @@ public class hsmCompatVerifyServ {
         }
 
         // Check for and clean up existing certificates from previous runs
-        cleanupExistingCerts(manager, hsmTokenObj, caNickname, transportNickname, storageNickname);
+        cleanupExistingCerts(manager, caTokenObj, kraTokenObj, caNickname, transportNickname, storageNickname, caOnly);
 
         // Create CA signing certificate
         log("");
-        log("Step 3: Creating CA signing certificate on HSM");
+        log("Step 3: Creating CA signing certificate");
+        log("  Token: " + caToken);
         log("  Algorithm: " + caKeyAlgorithm.toUpperCase());
         X509Certificate caCert = handleCertificateCreation(
-            manager, hsmTokenObj, caNickname, caSubject, caValidity,
+            manager, caTokenObj, caNickname, caSubject, caValidity,
             null, null, caKeyAlgorithm, caKeySize, "CA Signing Certificate",
             null, null  // CA cert doesn't need special usage flags
         );
 
-        // Create transport certificate (always RSA-2048 for key wrapping)
+        if (!caOnly) {
+            // Create transport certificate (always RSA-2048 for key wrapping)
+            log("");
+            log("Step 4: Creating KRA transport certificate");
+            log("  Token: " + kraToken);
+            log("  Algorithm: RSA-2048 (required for key wrapping)");
+            log("  Key Usage: " + transportOpFlagsStr);
+            X509Certificate transportCert = handleCertificateCreation(
+                manager, kraTokenObj, transportNickname, transportSubject, transportValidity,
+                caCert, caNickname, "rsa", "2048", "Transport Certificate",
+                transportUsages, transportUsagesMask
+            );
+
+            // Create storage certificate (always RSA-2048 for key wrapping)
+            log("");
+            log("Step 5: Creating KRA storage certificate");
+            log("  Token: " + kraToken);
+            log("  Algorithm: RSA-2048 (required for key wrapping)");
+            log("  Key Usage: " + storageOpFlagsStr);
+            X509Certificate storageCert = handleCertificateCreation(
+                manager, kraTokenObj, storageNickname, storageSubject, storageValidity,
+                caCert, caNickname, "rsa", "2048", "Storage Certificate",
+                storageUsages, storageUsagesMask
+            );
+
+            log("");
+            log("=== Setup Summary ===");
+            log("+ CA certificate: " + caNickname + " (on token: " + caToken + ")");
+            log("+ Transport certificate: " + transportNickname + " (on token: " + kraToken + ")");
+            log("+ Storage certificate: " + storageNickname + " (on token: " + kraToken + ")");
+
+            // Export transport certificate for use by hsmCompatVerifyClnt
+            log("");
+            log("Step 6: Exporting transport certificate for client use");
+            String transportCertFile = pkiservDB + "/kra_transport.pem";
+            byte[] transportCertBytes = transportCert.getEncoded();
+            String transportCertPEM = org.mozilla.jss.netscape.security.util.Cert.HEADER + "\n" +
+                    java.util.Base64.getMimeEncoder(64, "\n".getBytes()).encodeToString(transportCertBytes) + "\n" +
+                    org.mozilla.jss.netscape.security.util.Cert.FOOTER;
+            java.nio.file.Files.write(java.nio.file.Paths.get(transportCertFile), transportCertPEM.getBytes());
+            log("  - Transport certificate exported to: " + transportCertFile);
+            log("");
+            log("NOTE: If running hsmCompatVerifyClnt as a different user (e.g. non-root),");
+            log("      copy the transport certificate to a location accessible by that user:");
+            log("      sudo cp " + transportCertFile + " ~otheruser/.dogtag-kra-compat/pkiserv-nssdb/");
+            log("      sudo chown otheruser:otheruser ~otheruser/.dogtag-kra-compat/pkiserv-nssdb/kra_transport.pem");
+
+            // Export storage certificate for other use
+            log("");
+            log("Step 7: Exporting storage certificate for other use");
+            String storageCertFile = pkiservDB + "/kra_storage.pem";
+            byte[] storageCertBytes = storageCert.getEncoded();
+            String storageCertPEM = org.mozilla.jss.netscape.security.util.Cert.HEADER + "\n" +
+                    java.util.Base64.getMimeEncoder(64, "\n".getBytes()).encodeToString(storageCertBytes) + "\n" +
+                    org.mozilla.jss.netscape.security.util.Cert.FOOTER;
+            java.nio.file.Files.write(java.nio.file.Paths.get(storageCertFile), storageCertPEM.getBytes());
+            log("  - Storage certificate exported to: " + storageCertFile);
+        } else {
+            log("");
+            log("=== Setup Summary ===");
+            log("+ CA certificate: " + caNickname);
+            log("+ CA-only mode: KRA certificates skipped");
+            log("+ Use --issue-csr to sign CSRs with this CA");
+        }
+    }
+
+    /**
+     * PQC Setup Phase - Creates ML-DSA CA and ML-KEM KRA certificates
+     *
+     * Creates three certificate/key pairs on the HSM:
+     * 1. CA signing certificate with ML-DSA (self-signed)
+     * 2. KRA transport certificate with ML-KEM (signed by CA)
+     * 3. KRA storage certificate with ML-KEM (signed by CA)
+     *
+     * Also stores public certificates in PKI server NSS DB for reference.
+     */
+    public void runSetupPQC(
+        String pkiservDB,
+        String pkiservPasswd,
+        String hsmToken,
+        String hsmTokenPasswd,
+        String caToken,
+        String caTokenPasswd,
+        String kraToken,
+        String kraTokenPasswd,
+        String pqcCaAlgorithm,
+        String pqcKemAlgorithm,
+        String caSubject,
+        int caValidity,
+        String caNickname,
+        String transportSubject,
+        int transportValidity,
+        String transportNickname,
+        String storageSubject,
+        int storageValidity,
+        String storageNickname,
+        boolean caOnly
+    ) throws Exception {
+
+        log("=== KRA HSM Compatibility Verification - PQC Setup Phase ===");
+        log("Creating PQC PKI infrastructure on HSM");
         log("");
-        log("Step 4: Creating KRA transport certificate on HSM");
-        log("  Algorithm: RSA-2048 (required for key wrapping)");
-        log("  Key Usage: " + transportOpFlagsStr);
-        X509Certificate transportCert = handleCertificateCreation(
-            manager, hsmTokenObj, transportNickname, transportSubject, transportValidity,
-            caCert, caNickname, "rsa", "2048", "Transport Certificate",
-            transportUsages, transportUsagesMask
+
+        // Check if NSS DB exists
+        log("Step 1: Checking NSS database");
+        log("  Path: " + pkiservDB);
+
+        java.io.File dbDir = new java.io.File(pkiservDB);
+        if (!dbDir.exists()) {
+            log("  - Creating NSS database directory");
+            dbDir.mkdirs();
+        }
+
+        boolean dbExists = new java.io.File(pkiservDB + "/cert9.db").exists() &&
+                          new java.io.File(pkiservDB + "/key4.db").exists();
+
+        if (!dbExists) {
+            log("  - Initializing new NSS database");
+            // Create new database with password
+            // Write password to temporary file for certutil
+            java.io.File tmpPwdFile = java.io.File.createTempFile("nsspwd", ".txt");
+            tmpPwdFile.deleteOnExit();
+            java.nio.file.Files.write(tmpPwdFile.toPath(), pkiservPasswd.getBytes());
+
+            try {
+                ProcessBuilder pb = new ProcessBuilder(
+                    "certutil", "-N", "-d", "sql:" + pkiservDB, "-f", tmpPwdFile.getAbsolutePath()
+                );
+                pb.redirectErrorStream(true);
+                Process p = pb.start();
+                int exitCode = p.waitFor();
+                if (exitCode != 0) {
+                    java.io.BufferedReader reader = new java.io.BufferedReader(
+                        new java.io.InputStreamReader(p.getInputStream()));
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        log("    certutil: " + line);
+                    }
+                    throw new Exception("Failed to create NSS database (exit code: " + exitCode + ")");
+                }
+                log("  - New NSS database created with password");
+            } finally {
+                tmpPwdFile.delete();
+            }
+        } else {
+            log("  - Using existing NSS database");
+        }
+
+        // Initialize CryptoManager
+        log("");
+        log("Step 2: Initializing CryptoManager");
+        CryptoManager.initialize(pkiservDB);
+        CryptoManager manager = CryptoManager.getInstance();
+
+        // Initialize CA token
+        log("");
+        log("Step 3a: Initializing CA token");
+        log("  CA Token: " + caToken);
+
+        CryptoToken caTokenObj = CryptoUtil.getKeyStorageToken(caToken);
+        if (caTokenObj == null) {
+            throw new Exception("CA token not found: " + caToken);
+        }
+
+        Password caPassword = new Password(caTokenPasswd.toCharArray());
+        try {
+            caTokenObj.login(caPassword);
+            log("  - CA token login successful");
+        } catch (Exception e) {
+            throw new Exception("Unable to login to CA token: " + e.getMessage(), e);
+        } finally {
+            caPassword.clear();
+        }
+
+        // Initialize KRA token
+        CryptoToken kraTokenObj;
+        if (kraToken.equals(caToken)) {
+            // Same token, reuse object (already logged in)
+            log("  - KRA token is same as CA token, reusing");
+            kraTokenObj = caTokenObj;
+        } else {
+            log("");
+            log("Step 3b: Initializing KRA token");
+            log("  KRA Token: " + kraToken);
+
+            kraTokenObj = CryptoUtil.getKeyStorageToken(kraToken);
+            if (kraTokenObj == null) {
+                throw new Exception("KRA token not found: " + kraToken);
+            }
+
+            Password kraPassword = new Password(kraTokenPasswd.toCharArray());
+            try {
+                kraTokenObj.login(kraPassword);
+                log("  - KRA token login successful");
+            } catch (Exception e) {
+                throw new Exception("Unable to login to KRA token: " + e.getMessage(), e);
+            } finally {
+                kraPassword.clear();
+            }
+        }
+
+        // Check for and clean up existing certificates from previous runs
+        cleanupExistingCerts(manager, caTokenObj, kraTokenObj, caNickname, transportNickname, storageNickname, caOnly);
+
+        // Create CA certificate with ML-DSA
+        log("");
+        log("Step 4: Creating CA signing certificate");
+        log("  Token: " + caToken);
+        log("  Algorithm: " + pqcCaAlgorithm.toUpperCase());
+        X509Certificate caCert = createSelfSignedCertPQC(
+            caTokenObj, manager, caNickname, caSubject, caValidity,
+            pqcCaAlgorithm
+        );
+        log("  - CA Signing Certificate created: " + caNickname);
+
+        if (!caOnly) {
+            // Create KRA transport certificate with ML-KEM
+            log("");
+            log("Step 5: Creating KRA transport certificate");
+            log("  Token: " + kraToken);
+            log("  Algorithm: " + pqcKemAlgorithm.toUpperCase());
+            X509Certificate transportCert = createSignedCertPQC(
+                kraTokenObj, manager, transportNickname, transportSubject, transportValidity,
+                caCert, caNickname, pqcCaAlgorithm, pqcKemAlgorithm, "Transport Certificate"
+            );
+            log("  - KRA Transport Certificate created: " + transportNickname);
+
+            // Create KRA storage certificate with ML-KEM
+            log("");
+            log("Step 6: Creating KRA storage certificate");
+            log("  Token: " + kraToken);
+            log("  Algorithm: " + pqcKemAlgorithm.toUpperCase());
+            X509Certificate storageCert = createSignedCertPQC(
+                kraTokenObj, manager, storageNickname, storageSubject, storageValidity,
+                caCert, caNickname, pqcCaAlgorithm, pqcKemAlgorithm, "Storage Certificate"
+            );
+            log("  - KRA Storage Certificate created: " + storageNickname);
+
+            log("");
+            log("=== Setup Summary ===");
+            log("+ CA certificate: " + caNickname + " (" + pqcCaAlgorithm.toUpperCase() + ") on token: " + caToken);
+            log("+ Transport certificate: " + transportNickname + " (" + pqcKemAlgorithm.toUpperCase() + ") on token: " + kraToken);
+            log("+ Storage certificate: " + storageNickname + " (" + pqcKemAlgorithm.toUpperCase() + ") on token: " + kraToken);
+
+            // Export transport certificate for use by client
+            log("");
+            log("Step 7: Exporting transport certificate for client use");
+            String transportCertFile = pkiservDB + "/kra_transport.pem";
+            byte[] transportCertBytes = transportCert.getEncoded();
+            String transportCertPEM = org.mozilla.jss.netscape.security.util.Cert.HEADER + "\n" +
+                    java.util.Base64.getMimeEncoder(64, "\n".getBytes()).encodeToString(transportCertBytes) + "\n" +
+                    org.mozilla.jss.netscape.security.util.Cert.FOOTER;
+            java.nio.file.Files.write(java.nio.file.Paths.get(transportCertFile), transportCertPEM.getBytes());
+            log("  - Transport certificate exported to: " + transportCertFile);
+
+            // Export storage certificate
+            log("");
+            log("Step 8: Exporting storage certificate for other use");
+            String storageCertFile = pkiservDB + "/kra_storage.pem";
+            byte[] storageCertBytes = storageCert.getEncoded();
+            String storageCertPEM = org.mozilla.jss.netscape.security.util.Cert.HEADER + "\n" +
+                    java.util.Base64.getMimeEncoder(64, "\n".getBytes()).encodeToString(storageCertBytes) + "\n" +
+                    org.mozilla.jss.netscape.security.util.Cert.FOOTER;
+            java.nio.file.Files.write(java.nio.file.Paths.get(storageCertFile), storageCertPEM.getBytes());
+            log("  - Storage certificate exported to: " + storageCertFile);
+        } else {
+            log("");
+            log("=== Setup Summary ===");
+            log("+ CA certificate: " + caNickname + " (" + pqcCaAlgorithm.toUpperCase() + ")");
+            log("+ CA-only mode: KRA certificates skipped");
+            log("+ Use --issue-csr to sign CSRs with this CA");
+        }
+    }
+
+    /**
+     * Issue CSR Mode - Sign a CSR using existing CA on HSM
+     *
+     * Loads the CA certificate and private key from the HSM, reads a CSR from file,
+     * signs it, and writes the signed certificate to an output file.
+     *
+     * @param pkiservDB Path to PKI server NSS database
+     * @param pkiservPasswd Password for PKI server NSS database
+     * @param hsmToken HSM token name
+     * @param hsmTokenPasswd HSM token password
+     * @param caNickname CA certificate nickname on HSM
+     * @param csrFile Path to CSR file (PEM format)
+     * @param pqcMode Whether CA uses PQC (ML-DSA) or traditional (RSA/EC)
+     */
+    public void runIssueCsr(
+        String pkiservDB,
+        String pkiservPasswd,
+        String hsmToken,
+        String hsmTokenPasswd,
+        String caNickname,
+        String csrFile,
+        boolean pqcMode
+    ) throws Exception {
+
+        log("=== KRA HSM Compatibility Verification - Issue CSR Mode ===");
+        log("Signing CSR using existing CA on HSM");
+        log("");
+
+        // Initialize CryptoManager
+        log("Step 1: Initializing CryptoManager");
+        log("  NSS DB: " + pkiservDB);
+        CryptoManager.initialize(pkiservDB);
+        CryptoManager manager = CryptoManager.getInstance();
+
+        // Initialize HSM token
+        log("");
+        log("Step 2: Initializing HSM token");
+        log("  HSM Token: " + hsmToken);
+        CryptoToken hsmTokenObj = CryptoUtil.getKeyStorageToken(hsmToken);
+        if (hsmTokenObj == null) {
+            throw new Exception("HSM token not found: " + hsmToken);
+        }
+
+        Password hsmPassword = new Password(hsmTokenPasswd.toCharArray());
+        try {
+            hsmTokenObj.login(hsmPassword);
+            log("  - HSM token login successful");
+        } finally {
+            hsmPassword.clear();
+        }
+
+        // Load CA certificate and private key
+        log("");
+        log("Step 3: Loading CA certificate and private key");
+        log("  CA Nickname: " + caNickname);
+
+        X509Certificate caCert = manager.findCertByNickname(caNickname);
+        if (caCert == null) {
+            throw new Exception("CA certificate not found: " + caNickname);
+        }
+        log("  - CA certificate loaded");
+
+        // Find CA private key by matching public key
+        PrivateKey caPrivateKey = null;
+        byte[] caPublicKeyBytes = caCert.getPublicKey().getEncoded();
+        org.mozilla.jss.crypto.CryptoStore store = hsmTokenObj.getCryptoStore();
+        for (PrivateKey privKey : store.getPrivateKeys()) {
+            try {
+                org.mozilla.jss.pkcs11.PK11PrivKey pk11PrivKey = (org.mozilla.jss.pkcs11.PK11PrivKey) privKey;
+                org.mozilla.jss.pkcs11.PK11PubKey pk11PubKey = pk11PrivKey.getPublicKey();
+                if (pk11PubKey == null) {
+                    continue;
+                }
+                byte[] pubKeyBytes = pk11PubKey.getEncoded();
+                if (java.util.Arrays.equals(caPublicKeyBytes, pubKeyBytes)) {
+                    caPrivateKey = privKey;
+                    break;
+                }
+            } catch (Exception e) {
+                continue;
+            }
+        }
+
+        if (caPrivateKey == null) {
+            throw new Exception("CA private key not found for certificate: " + caNickname);
+        }
+        log("  - CA private key loaded");
+
+        // Read and parse CSR
+        log("");
+        log("Step 4: Reading CSR from file");
+        log("  CSR File: " + csrFile);
+
+        String csrPEM = new String(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(csrFile)));
+        byte[] csrBytes = CertUtil.parseCSR(csrPEM);
+
+        PKCS10 pkcs10 = new PKCS10(csrBytes);
+        X500Name subjectName = pkcs10.getSubjectName();
+        X509Key subjectKey = pkcs10.getSubjectPublicKeyInfo();
+
+        log("  - CSR loaded successfully");
+        log("  - Subject: " + subjectName);
+
+        // Determine signature algorithm based on CA key type
+        log("");
+        log("Step 5: Signing CSR with CA");
+
+        String caKeyAlg = caCert.getPublicKey().getAlgorithm();
+        String sigAlgName;
+        if (pqcMode || caKeyAlg.contains("DILITHIUM") || caKeyAlg.contains("ML-DSA")) {
+            // PQC mode - CA uses ML-DSA, detect which variant from CA cert's signature algorithm
+            String caSigAlg = caCert.getSigAlgName();
+            log("  - CA Signature Algorithm: " + caSigAlg);
+
+            // Map CA's signature algorithm to signing algorithm name
+            if (caSigAlg.contains("44") || caSigAlg.contains("ML-DSA-44")) {
+                sigAlgName = "ML-DSA-44";
+            } else if (caSigAlg.contains("87") || caSigAlg.contains("ML-DSA-87")) {
+                sigAlgName = "ML-DSA-87";
+            } else {
+                // Default to ML-DSA-65
+                sigAlgName = "ML-DSA-65";
+            }
+        } else if (caKeyAlg.equals("RSA")) {
+            sigAlgName = "SHA256withRSA";
+        } else if (caKeyAlg.equals("EC")) {
+            sigAlgName = "SHA256withEC";
+        } else {
+            throw new Exception("Unsupported CA key algorithm: " + caKeyAlg);
+        }
+
+        log("  - Signature Algorithm: " + sigAlgName);
+
+        // Create certificate (valid for 1 year by default)
+        int validityDays = 365;
+        Date notBefore = new Date();
+        Date notAfter = new Date(notBefore.getTime() + (validityDays * 24L * 60 * 60 * 1000));
+
+        SecureRandom random = new SecureRandom();
+        BigInteger serialNumber = new BigInteger(128, random);
+        X500Name issuerName = new X500Name(caCert.getSubjectDN().toString());
+
+        // Create user certificate extensions (key usage, extended key usage, etc.)
+        CertificateExtensions extensions = createUserCertExtensions(subjectKey, caCert);
+
+        // Create certificate info using CryptoUtil
+        X509CertInfo certInfo = CryptoUtil.createX509CertInfo(
+            subjectKey,
+            serialNumber,
+            new CertificateIssuerName(issuerName),
+            subjectName,
+            notBefore,
+            notAfter,
+            sigAlgName,
+            extensions
         );
 
-        // Create storage certificate (always RSA-2048 for key wrapping)
-        log("");
-        log("Step 5: Creating KRA storage certificate on HSM");
-        log("  Algorithm: RSA-2048 (required for key wrapping)");
-        log("  Key Usage: " + storageOpFlagsStr);
-        X509Certificate storageCert = handleCertificateCreation(
-            manager, hsmTokenObj, storageNickname, storageSubject, storageValidity,
-            caCert, caNickname, "rsa", "2048", "Storage Certificate",
-            storageUsages, storageUsagesMask
-        );
+        // Sign with CA private key using CryptoUtil
+        X509CertImpl cert = CryptoUtil.signCert(caPrivateKey, certInfo, sigAlgName);
+
+        log("  - Certificate signed successfully");
+
+        // Write signed certificate to file
+        String outputFile = csrFile.replaceAll("\\.csr$", ".crt").replaceAll("\\.pem$", ".crt");
+        if (outputFile.equals(csrFile)) {
+            outputFile = csrFile + ".crt";
+        }
 
         log("");
-        log("=== Setup Summary ===");
-        log("+ CA certificate: " + caNickname);
-        log("+ Transport certificate: " + transportNickname);
-        log("+ Storage certificate: " + storageNickname);
-        log("+ All certificates created on HSM token: " + hsmToken);
+        log("Step 6: Writing signed certificate to file");
+        log("  Output File: " + outputFile);
 
-        // Export transport certificate for use by hsmCompatVerifyClnt
-        log("");
-        log("Step 6: Exporting transport certificate for client use");
-        String transportCertFile = pkiservDB + "/kra_transport.pem";
-        byte[] transportCertBytes = transportCert.getEncoded();
-        String transportCertPEM = org.mozilla.jss.netscape.security.util.Cert.HEADER + "\n" +
-                java.util.Base64.getMimeEncoder(64, "\n".getBytes()).encodeToString(transportCertBytes) + "\n" +
+        byte[] certBytes = cert.getEncoded();
+        String certPEM = org.mozilla.jss.netscape.security.util.Cert.HEADER + "\n" +
+                java.util.Base64.getMimeEncoder(64, "\n".getBytes()).encodeToString(certBytes) + "\n" +
                 org.mozilla.jss.netscape.security.util.Cert.FOOTER;
-        java.nio.file.Files.write(java.nio.file.Paths.get(transportCertFile), transportCertPEM.getBytes());
-        log("  - Transport certificate exported to: " + transportCertFile);
-        log("");
-        log("NOTE: If running hsmCompatVerifyClnt as a different user (e.g. non-root),");
-        log("      copy the transport certificate to a location accessible by that user:");
-        log("      sudo cp " + transportCertFile + " ~otheruser/.dogtag-kra-compat/pkiserv-nssdb/");
-        log("      sudo chown otheruser:otheruser ~otheruser/.dogtag-kra-compat/pkiserv-nssdb/kra_transport.pem");
+        java.nio.file.Files.write(java.nio.file.Paths.get(outputFile), certPEM.getBytes());
 
-        // Export storage certificate for other use
+        log("  - Signed certificate written");
         log("");
-        log("Step 7: Exporting storage certificate for other use");
-        String storageCertFile = pkiservDB + "/kra_storage.pem";
-        byte[] storageCertBytes = storageCert.getEncoded();
-        String storageCertPEM = org.mozilla.jss.netscape.security.util.Cert.HEADER + "\n" +
-                java.util.Base64.getMimeEncoder(64, "\n".getBytes()).encodeToString(storageCertBytes) + "\n" +
-                org.mozilla.jss.netscape.security.util.Cert.FOOTER;
-        java.nio.file.Files.write(java.nio.file.Paths.get(storageCertFile), storageCertPEM.getBytes());
-        log("  - Storage certificate exported to: " + storageCertFile);
+        log("=== Certificate Details ===");
+        log("+ Subject: " + subjectName);
+        log("+ Issuer: " + issuerName);
+        log("+ Serial: " + cert.getSerialNumber());
+        log("+ Not Before: " + notBefore);
+        log("+ Not After: " + notAfter);
+        log("+ Signature Algorithm: " + sigAlgName);
     }
 
     /**
@@ -1103,7 +1849,15 @@ public class hsmCompatVerifyServ {
 
         // Import certificate with nickname - it will be associated with the private key on the HSM
         org.mozilla.jss.crypto.X509Certificate jssCert =
-            manager.importCertPackage(cert.getEncoded(), nickname);
+            manager.importUserCACertPackage(cert.getEncoded(), nickname);
+
+        // Set trust flags for CA certificate
+        org.mozilla.jss.pkcs11.PK11Cert pkcs11Cert = (org.mozilla.jss.pkcs11.PK11Cert) jssCert;
+        pkcs11Cert.setSSLTrust(
+            org.mozilla.jss.pkcs11.PK11Cert.TRUSTED_CA |
+            org.mozilla.jss.pkcs11.PK11Cert.TRUSTED_CLIENT_CA |
+            org.mozilla.jss.pkcs11.PK11Cert.VALID_CA
+        );
 
         return jssCert;
     }
@@ -1219,6 +1973,164 @@ public class hsmCompatVerifyServ {
     }
 
     /**
+     * Creates a self-signed PQC certificate on the HSM (ML-DSA CA).
+     * Uses CryptoUtil for ML-DSA key generation and signing.
+     *
+     * @param token The crypto token (HSM or internal)
+     * @param manager The CryptoManager instance
+     * @param nickname Certificate nickname
+     * @param subject Certificate subject DN
+     * @param validityDays Validity period in days
+     * @param mldsaAlgorithm ML-DSA algorithm: ml-dsa-44, ml-dsa-65, or ml-dsa-87
+     */
+    private X509Certificate createSelfSignedCertPQC(
+        CryptoToken token,
+        CryptoManager manager,
+        String nickname,
+        String subject,
+        int validityDays,
+        String mldsaAlgorithm
+    ) throws Exception {
+
+        // Map algorithm name to parameter strength and signature algorithm using CryptoUtil
+        int paramStrength = CryptoUtil.getMLDSAStrength(mldsaAlgorithm);
+        SignatureAlgorithm sigAlg = CryptoUtil.getMLDSASignatureAlgorithm(mldsaAlgorithm);
+
+        // Generate ML-DSA key pair using CryptoUtil
+        KeyPair keyPair = CryptoUtil.generateMLDSAKeyPair(token, paramStrength, null, null, null, null, null);
+        PublicKey publicKey = keyPair.getPublic();
+        org.mozilla.jss.crypto.PrivateKey privateKey = (org.mozilla.jss.crypto.PrivateKey) keyPair.getPrivate();
+
+        // Prepare certificate parameters
+        SecureRandom random = new SecureRandom();
+        BigInteger serialNumber = new BigInteger(128, random);
+        X500Name subjectName = new X500Name(subject);
+        Date notBefore = new Date();
+        Date notAfter = new Date(notBefore.getTime() + (validityDays * 24L * 60 * 60 * 1000));
+        X509Key x509Key = CryptoUtil.createX509Key(publicKey);
+
+        // Create CA certificate extensions (includes SKID, AKID, Basic Constraints, Key Usage)
+        CertificateExtensions extensions = createCACertExtensions(x509Key);
+
+        // Create certificate info with extensions
+        X509CertInfo certInfo = CryptoUtil.createX509CertInfo(
+            x509Key,
+            serialNumber,
+            new CertificateIssuerName(subjectName),
+            subjectName,
+            notBefore,
+            notAfter,
+            sigAlg.toString(),
+            extensions
+        );
+
+        // Sign with ML-DSA private key using CryptoUtil
+        X509CertImpl cert = CryptoUtil.signCert(privateKey, certInfo, sigAlg);
+
+        // Import certificate
+        org.mozilla.jss.crypto.X509Certificate jssCert =
+            manager.importUserCACertPackage(cert.getEncoded(), nickname);
+
+        // Set trust flags for CA certificate
+        org.mozilla.jss.pkcs11.PK11Cert pkcs11Cert = (org.mozilla.jss.pkcs11.PK11Cert) jssCert;
+        pkcs11Cert.setSSLTrust(
+            org.mozilla.jss.pkcs11.PK11Cert.TRUSTED_CA |
+            org.mozilla.jss.pkcs11.PK11Cert.TRUSTED_CLIENT_CA |
+            org.mozilla.jss.pkcs11.PK11Cert.VALID_CA
+        );
+
+        return jssCert;
+    }
+
+    /**
+     * Creates a signed PQC certificate on the HSM (ML-KEM transport/storage).
+     * Uses CryptoUtil for ML-KEM key generation and ML-DSA signing.
+     *
+     * @param token The crypto token (HSM or internal)
+     * @param manager The CryptoManager instance
+     * @param nickname Certificate nickname
+     * @param subject Certificate subject DN
+     * @param validityDays Validity period in days
+     * @param issuerCert CA certificate
+     * @param issuerNickname CA certificate nickname
+     * @param mldsaAlgorithm ML-DSA algorithm used by CA
+     * @param mlkemAlgorithm ML-KEM algorithm: ml-kem-512, ml-kem-768, or ml-kem-1024
+     * @param certType Description of certificate type (for logging)
+     */
+    private X509Certificate createSignedCertPQC(
+        CryptoToken token,
+        CryptoManager manager,
+        String nickname,
+        String subject,
+        int validityDays,
+        X509Certificate issuerCert,
+        String issuerNickname,
+        String mldsaAlgorithm,
+        String mlkemAlgorithm,
+        String certType
+    ) throws Exception {
+
+        // Map ML-KEM algorithm name to parameter strength using CryptoUtil
+        int kemStrength = CryptoUtil.getMLKEMStrength(mlkemAlgorithm);
+
+        // Generate ML-KEM key pair using CryptoUtil
+        KeyPair keyPair = CryptoUtil.generateMLKEMKeyPair(token, kemStrength, null, null, null, null, null);
+        PublicKey publicKey = keyPair.getPublic();
+
+        // Prepare certificate parameters
+        SecureRandom random = new SecureRandom();
+        BigInteger serialNumber = new BigInteger(128, random);
+        X500Name subjectName = new X500Name(subject);
+        X500Name issuerName = new X500Name(issuerCert.getSubjectDN().toString());
+        Date notBefore = new Date();
+        Date notAfter = new Date(notBefore.getTime() + (validityDays * 24L * 60 * 60 * 1000));
+
+        // Determine CA signature algorithm using CryptoUtil
+        SignatureAlgorithm sigAlg = CryptoUtil.getMLDSASignatureAlgorithm(mldsaAlgorithm);
+
+        // Add extensions
+        CertificateExtensions extensions = new CertificateExtensions();
+
+        // Basic Constraints: CA=false
+        extensions.set(
+            BasicConstraintsExtension.NAME,
+            new BasicConstraintsExtension(false, false, -1)
+        );
+
+        // Key Usage: For ML-KEM, we need keyAgreement (for KEM operations)
+        // Note: Exact usage bits may need adjustment based on final NIST/IETF standards
+        boolean[] keyUsageBits = new boolean[9];
+        keyUsageBits[4] = true;  // keyAgreement (for KEM/key establishment)
+        extensions.set(
+            KeyUsageExtension.NAME,
+            new KeyUsageExtension(keyUsageBits)
+        );
+
+        // Create certificate info with extensions
+        X509Key x509Key = CryptoUtil.createX509Key(publicKey);
+        X509CertInfo certInfo = CryptoUtil.createX509CertInfo(
+            x509Key,
+            serialNumber,
+            new CertificateIssuerName(issuerName),
+            subjectName,
+            notBefore,
+            notAfter,
+            sigAlg.toString(),
+            extensions
+        );
+
+        // Find CA private key and sign using CryptoUtil
+        PrivateKey caPrivateKey = manager.findPrivKeyByCert(issuerCert);
+        X509CertImpl cert = CryptoUtil.signCert(caPrivateKey, certInfo, sigAlg);
+
+        // Import certificate
+        org.mozilla.jss.crypto.X509Certificate jssCert =
+            manager.importCertPackage(cert.getEncoded(), nickname);
+
+        return jssCert;
+    }
+
+    /**
      * Displays certificate information for user review.
      */
     private void displayCertInfo(X509Certificate cert) {
@@ -1269,37 +2181,25 @@ public class hsmCompatVerifyServ {
      */
     private void cleanupExistingCerts(
         CryptoManager manager,
-        CryptoToken token,
+        CryptoToken caToken,
+        CryptoToken kraToken,
         String caNickname,
         String transportNickname,
-        String storageNickname
+        String storageNickname,
+        boolean caOnly
     ) throws Exception {
 
-        java.util.Map<String, X509Certificate> foundCerts = new java.util.LinkedHashMap<>();
+        java.util.Map<String, CertAndToken> foundCerts = new java.util.LinkedHashMap<>();
 
-        // Check for existing certificates (with and without token prefix)
-        String tokenName = token.getName();
-        String[] nicknamesToCheck = {caNickname, transportNickname, storageNickname};
+        // Check for existing CA certificate on CA token
+        String caTokenName = caToken.getName();
+        checkCertOnToken(manager, caTokenName, caNickname, foundCerts, caToken);
 
-        for (String nickname : nicknamesToCheck) {
-            // Try with token prefix first (for HSM certs)
-            String fullNickname = tokenName + ":" + nickname;
-            try {
-                X509Certificate cert = manager.findCertByNickname(fullNickname);
-                if (cert != null) {
-                    foundCerts.put(fullNickname, cert);
-                }
-            } catch (ObjectNotFoundException e) {
-                // Try without token prefix (for internal token certs)
-                try {
-                    X509Certificate cert = manager.findCertByNickname(nickname);
-                    if (cert != null) {
-                        foundCerts.put(nickname, cert);
-                    }
-                } catch (ObjectNotFoundException e2) {
-                    // Certificate doesn't exist in either location, skip
-                }
-            }
+        // Check for existing KRA certificates on KRA token (unless caOnly)
+        if (!caOnly) {
+            String kraTokenName = kraToken.getName();
+            checkCertOnToken(manager, kraTokenName, transportNickname, foundCerts, kraToken);
+            checkCertOnToken(manager, kraTokenName, storageNickname, foundCerts, kraToken);
         }
 
         if (foundCerts.isEmpty()) {
@@ -1312,9 +2212,9 @@ public class hsmCompatVerifyServ {
         log("=== Existing Certificates Found ===");
         log("The following certificates from previous test runs were found:");
         log("");
-        for (java.util.Map.Entry<String, X509Certificate> entry : foundCerts.entrySet()) {
+        for (java.util.Map.Entry<String, CertAndToken> entry : foundCerts.entrySet()) {
             String nickname = entry.getKey();
-            X509Certificate cert = entry.getValue();
+            X509Certificate cert = entry.getValue().cert;
             log("  Certificate: " + nickname);
             log("    Subject: " + cert.getSubjectDN());
             log("    Serial: 0x" + cert.getSerialNumber().toString(16));
@@ -1333,8 +2233,9 @@ public class hsmCompatVerifyServ {
         }
 
         // Delete certificates and keys (handle duplicates by deleting repeatedly)
-        for (java.util.Map.Entry<String, X509Certificate> entry : foundCerts.entrySet()) {
+        for (java.util.Map.Entry<String, CertAndToken> entry : foundCerts.entrySet()) {
             String nickname = entry.getKey();
+            CryptoToken token = entry.getValue().token;
 
             // Delete all certificates with this nickname (handles duplicates)
             int deleteCount = 0;
@@ -1360,6 +2261,49 @@ public class hsmCompatVerifyServ {
     }
 
     /**
+     * Helper class to store certificate and its token together.
+     */
+    private static class CertAndToken {
+        X509Certificate cert;
+        CryptoToken token;
+
+        CertAndToken(X509Certificate cert, CryptoToken token) {
+            this.cert = cert;
+            this.token = token;
+        }
+    }
+
+    /**
+     * Checks for an existing certificate on a specific token and adds it to the found certs map.
+     */
+    private void checkCertOnToken(
+        CryptoManager manager,
+        String tokenName,
+        String nickname,
+        java.util.Map<String, CertAndToken> foundCerts,
+        CryptoToken token
+    ) throws Exception {
+        // Try with token prefix first (for HSM certs)
+        String fullNickname = tokenName + ":" + nickname;
+        try {
+            X509Certificate cert = manager.findCertByNickname(fullNickname);
+            if (cert != null) {
+                foundCerts.put(fullNickname, new CertAndToken(cert, token));
+            }
+        } catch (ObjectNotFoundException e) {
+            // Try without token prefix (for internal token certs)
+            try {
+                X509Certificate cert = manager.findCertByNickname(nickname);
+                if (cert != null) {
+                    foundCerts.put(nickname, new CertAndToken(cert, token));
+                }
+            } catch (ObjectNotFoundException e2) {
+                // Certificate doesn't exist in either location, skip
+            }
+        }
+    }
+
+    /**
      * Prompts user for yes/no confirmation.
      * Returns true if --yes flag is set (non-interactive mode).
      */
@@ -1377,6 +2321,103 @@ public class hsmCompatVerifyServ {
         }
         response = response.trim().toLowerCase();
         return response.equals("y") || response.equals("yes");
+    }
+
+    /**
+     * Helper method: Initialize NSS database
+     * @return CryptoManager instance
+     */
+    private CryptoManager initializeNSS(String pkiservDB) throws Exception {
+        log("Step 1: Initializing NSS database");
+        log("  PKI Server DB: " + pkiservDB + " (for HSM access)");
+
+        // Initialize with PKI server DB so HSM module is loaded
+        CryptoManager.initialize(pkiservDB);
+        CryptoManager manager = CryptoManager.getInstance();
+
+        return manager;
+    }
+
+    /**
+     * Helper method: Initialize and login to HSM token
+     * @return CryptoToken (HSM token object)
+     */
+    private CryptoToken initializeHSM(String hsmToken, String hsmTokenPasswd) throws Exception {
+        log("");
+        log("Step 2: Initializing HSM");
+        log("  HSM Token: " + hsmToken);
+
+        CryptoToken hsmTokenObj = CryptoUtil.getKeyStorageToken(hsmToken);
+        if (hsmTokenObj == null) {
+            throw new Exception("HSM token not found: " + hsmToken);
+        }
+
+        Password hsmPassword = new Password(hsmTokenPasswd.toCharArray());
+        try {
+            hsmTokenObj.login(hsmPassword);
+            log("  - HSM token login successful");
+        } catch (Exception e) {
+            throw new Exception("Unable to login to HSM token: " + e.getMessage(), e);
+        } finally {
+            hsmPassword.clear();
+        }
+
+        return hsmTokenObj;
+    }
+
+    /**
+     * Helper method: Load certificates and private keys from HSM
+     * @return Object array: [X509Certificate caCert, X509Certificate transportCert,
+     *                        X509Certificate storageCert, PrivateKey transportPrivateKey,
+     *                        PrivateKey storagePrivateKey]
+     */
+    private Object[] loadCertificatesAndKeys(CryptoManager manager, CryptoToken hsmTokenObj,
+                                             String caNickname, String transportNickname,
+                                             String storageNickname) throws Exception {
+        log("");
+        log("Step 3: Loading CA and KRA certificates from HSM");
+        log("  CA cert: " + caNickname);
+        log("  Transport cert: " + transportNickname);
+        log("  Storage cert: " + storageNickname);
+
+        // Certificates on HSM are stored with token prefix
+        String hsmTokenName = hsmTokenObj.getName();
+        String caCertNickname = hsmTokenName + ":" + caNickname;
+        String transportCertNickname = hsmTokenName + ":" + transportNickname;
+        String storageCertNickname = hsmTokenName + ":" + storageNickname;
+
+        X509Certificate caCert = manager.findCertByNickname(caCertNickname);
+        if (caCert == null) {
+            throw new Exception("CA certificate not found: " + caCertNickname);
+        }
+        log("  - CA certificate loaded");
+
+        X509Certificate transportCert = manager.findCertByNickname(transportCertNickname);
+        if (transportCert == null) {
+            throw new Exception("Transport certificate not found: " + transportCertNickname);
+        }
+        log("  - Transport certificate loaded");
+
+        X509Certificate storageCert = manager.findCertByNickname(storageCertNickname);
+        if (storageCert == null) {
+            throw new Exception("Storage certificate not found: " + storageCertNickname);
+        }
+        log("  - Storage certificate loaded");
+
+        // Find private keys on HSM
+        PrivateKey transportPrivateKey = manager.findPrivKeyByCert(transportCert);
+        if (transportPrivateKey == null) {
+            throw new Exception("Transport private key not found on HSM");
+        }
+        log("  - Transport private key found on HSM");
+
+        PrivateKey storagePrivateKey = manager.findPrivKeyByCert(storageCert);
+        if (storagePrivateKey == null) {
+            throw new Exception("Storage private key not found on HSM");
+        }
+        log("  - Storage private key found on HSM");
+
+        return new Object[] {caCert, transportCert, storageCert, transportPrivateKey, storagePrivateKey};
     }
 
     /**
@@ -1421,7 +2462,7 @@ public class hsmCompatVerifyServ {
         boolean archiveOnly,
         boolean recoverOnly,
         String ldifFile,
-        boolean legacyPKCS12
+        String pkcs12Mode
     ) throws Exception {
 
         log("=== KRA HSM Compatibility Verification - Verification Phase ===");
@@ -1434,81 +2475,16 @@ public class hsmCompatVerifyServ {
         }
         log("");
 
-        // Step 1: Initialize NSS with PKI server DB (for HSM access via modutil)
-        // The PKI server DB has HSM module configured via modutil, allowing access to HSM
-        // Adopted from: base/tools/src/main/java/com/netscape/cmstools/CRMFPopClient.java:410-428
-        log("Step 1: Initializing NSS database");
-        log("  PKI Server DB: " + pkiservDB + " (for HSM access)");
+        // Step 1-3: Initialize NSS, HSM, and load certificates (using helper methods)
+        CryptoManager manager = initializeNSS(pkiservDB);
+        CryptoToken hsmTokenObj = initializeHSM(hsmToken, hsmTokenPasswd);
+        Object[] certsAndKeys = loadCertificatesAndKeys(manager, hsmTokenObj, caNickname, transportNickname, storageNickname);
 
-        // Initialize with PKI server DB so HSM module is loaded
-        CryptoManager.initialize(pkiservDB);
-        CryptoManager manager = CryptoManager.getInstance();
-
-        // Step 2: Initialize HSM
-        // Adopted from: base/kra/src/main/java/com/netscape/kra/StorageKeyUnit.java:248-253
-        log("");
-        log("Step 2: Initializing HSM");
-        log("  HSM Token: " + hsmToken);
-
-        CryptoToken hsmTokenObj = CryptoUtil.getKeyStorageToken(hsmToken);
-        if (hsmTokenObj == null) {
-            throw new Exception("HSM token not found: " + hsmToken);
-        }
-
-        Password hsmPassword = new Password(hsmTokenPasswd.toCharArray());
-        try {
-            hsmTokenObj.login(hsmPassword);
-            log("  - HSM token login successful");
-        } catch (Exception e) {
-            throw new Exception("Unable to login to HSM token: " + e.getMessage(), e);
-        } finally {
-            hsmPassword.clear();
-        }
-
-        // Step 3: Load CA, transport, and storage certificates from HSM
-        // Adopted from: base/kra/src/main/java/com/netscape/kra/TransportKeyUnit.java:80-109
-        log("");
-        log("Step 3: Loading CA and KRA certificates from HSM");
-        log("  CA cert: " + caNickname);
-        log("  Transport cert: " + transportNickname);
-        log("  Storage cert: " + storageNickname);
-
-        // Certificates on HSM are stored with token prefix
-        String hsmTokenName = hsmTokenObj.getName();
-        String caCertNickname = hsmTokenName + ":" + caNickname;
-        String transportCertNickname = hsmTokenName + ":" + transportNickname;
-        String storageCertNickname = hsmTokenName + ":" + storageNickname;
-
-        X509Certificate caCert = manager.findCertByNickname(caCertNickname);
-        if (caCert == null) {
-            throw new Exception("CA certificate not found: " + caCertNickname);
-        }
-        log("  - CA certificate loaded");
-
-        X509Certificate transportCert = manager.findCertByNickname(transportCertNickname);
-        if (transportCert == null) {
-            throw new Exception("Transport certificate not found: " + transportCertNickname);
-        }
-        log("  - Transport certificate loaded");
-
-        X509Certificate storageCert = manager.findCertByNickname(storageCertNickname);
-        if (storageCert == null) {
-            throw new Exception("Storage certificate not found: " + storageCertNickname);
-        }
-        log("  - Storage certificate loaded");
-
-        // Find private keys on HSM
-        PrivateKey transportPrivateKey = manager.findPrivKeyByCert(transportCert);
-        if (transportPrivateKey == null) {
-            throw new Exception("Transport private key not found on HSM");
-        }
-        log("  - Transport private key found on HSM");
-
-        PrivateKey storagePrivateKey = manager.findPrivKeyByCert(storageCert);
-        if (storagePrivateKey == null) {
-            throw new Exception("Storage private key not found on HSM");
-        }
-        log("  - Storage private key found on HSM");
+        X509Certificate caCert = (X509Certificate) certsAndKeys[0];
+        X509Certificate transportCert = (X509Certificate) certsAndKeys[1];
+        X509Certificate storageCert = (X509Certificate) certsAndKeys[2];
+        PrivateKey transportPrivateKey = (PrivateKey) certsAndKeys[3];
+        PrivateKey storagePrivateKey = (PrivateKey) certsAndKeys[4];
 
         // Determine RSA wrap algorithm (based on --oaep flag)
         KeyWrapAlgorithm rsaWrapAlg = useOAEP ? KeyWrapAlgorithm.RSA_OAEP : KeyWrapAlgorithm.RSA;
@@ -1549,23 +2525,16 @@ public class hsmCompatVerifyServ {
                     storageIvSpec = new org.mozilla.jss.crypto.IVParameterSpec(ivBytes);
                 }
 
-                // Create user certificate using owner name from LDIF (or use provided subjectDN)
-                String certSubjectDN = (String) ldifData.get("ownerName");
-                if (certSubjectDN == null || certSubjectDN.isEmpty()) {
-                    certSubjectDN = subjectDN != null ? subjectDN : "CN=Recovered User";
-                }
-
+                // Get user certificate from LDIF
                 log("");
-                log("Step 4a: Creating user certificate signed by CA");
-                userCert = createUserCert(
-                    hsmTokenObj,
-                    manager,
-                    caCert,
-                    caNickname,
-                    certSubjectDN,
-                    userPublicKey
-                );
-                log("  - User certificate created and signed by CA");
+                log("Step 4a: Loading user certificate from LDIF");
+                userCert = (X509CertImpl) ldifData.get("certificate");
+                if (userCert == null) {
+                    throw new Exception("Certificate not found in LDIF - cannot recover key without certificate");
+                }
+                log("  - User certificate loaded from LDIF");
+                log("    Subject: " + userCert.getSubjectDN());
+                log("    Serial: " + userCert.getSerialNumber());
 
                 // Step 7: KRA recovery - unwrap from storage on HSM
                 log("");
@@ -1574,7 +2543,7 @@ public class hsmCompatVerifyServ {
                 SymmetricKey recoveredStorageSessionKey = CryptoUtil.unwrap(
                     hsmTokenObj,
                     SymmetricKey.AES,
-                    128,
+                    256,
                     SymmetricKey.Usage.UNWRAP,
                     storagePrivateKey,
                     wrappedStorageSessionKey,
@@ -1623,11 +2592,11 @@ public class hsmCompatVerifyServ {
                     hsmTokenObj,
                     recoveryPasswd,
                     recordOutputFile,
-                    legacyPKCS12
+                    pkcs12Mode
                 );
 
                 log("  - PKCS#12 file created: " + recordOutputFile);
-                log("  - PKCS#12 format: " + (legacyPKCS12 ? "Legacy (PBE_SHA1_DES3_CBC)" : "Non-legacy (AES-KWP)"));
+                log("  - PKCS#12 format: " + getPKCS12ModeDescription(pkcs12Mode));
                 log("  - Using token: " + hsmTokenObj.getName());
 
                 outputFiles.add(recordOutputFile);
@@ -1710,11 +2679,11 @@ public class hsmCompatVerifyServ {
 
             SymmetricKey unwrappedSessionKey = null;
                 try {
-                    log("  Attempting: Unwrap AES-128 session key using " + rsaWrapAlg + " with RSA transport private key");
+                    log("  Attempting: Unwrap AES-256 session key using " + rsaWrapAlg + " with RSA transport private key");
                 unwrappedSessionKey = CryptoUtil.unwrap(
                     hsmTokenObj,
                     SymmetricKey.AES,
-                    128,
+                    256,
                     SymmetricKey.Usage.UNWRAP,
                     transportPrivateKey,
                     wrappedSessionKey,
@@ -1723,7 +2692,7 @@ public class hsmCompatVerifyServ {
                 log("  - Session key unwrapped using transport private key on HSM");
             } catch (Exception e) {
                 logError("Failed to unwrap session key on HSM", rsaWrapAlg.toString(),
-                        "Unwrap AES-128 symmetric key using RSA private key", e);
+                        "Unwrap AES-256 symmetric key using RSA private key", e);
                 throw e;
             }
 
@@ -1755,17 +2724,17 @@ public class hsmCompatVerifyServ {
             // Generate storage session key with WRAP/UNWRAP usages (matches StorageKeyUnit)
             SymmetricKey storageSessionKey = null;
             try {
-                log("  Attempting: Generate AES-128 storage session key on HSM");
+                log("  Attempting: Generate AES-256 storage session key on HSM");
                 storageSessionKey = CryptoUtil.generateKey(
                     hsmTokenObj,
                     KeyGenAlgorithm.AES,
-                    128,
+                    256,
                     STORAGE_KEY_USAGES,
                     true
                 );
                 log("  - Storage session key generated on HSM");
             } catch (Exception e) {
-                logError("Failed to generate storage session key", "AES-128 KeyGen",
+                logError("Failed to generate storage session key", "AES-256 KeyGen",
                         "Generate temporary AES key with WRAP/UNWRAP usage", e);
                 throw e;
             }
@@ -1822,7 +2791,7 @@ public class hsmCompatVerifyServ {
                 rsaWrapAlg,
                 keyWrapAlgorithm,
                 storageIvSpec,
-                subjectDN
+                false  // isPQC
             );
 
             log("  - LDIF file created: " + ldifFile);
@@ -1850,7 +2819,7 @@ public class hsmCompatVerifyServ {
             SymmetricKey recoveredStorageSessionKey = CryptoUtil.unwrap(
                 hsmTokenObj,
                 SymmetricKey.AES,
-                128,
+                256,
                 SymmetricKey.Usage.UNWRAP,
                 storagePrivateKey,
                 wrappedStorageSessionKey,
@@ -1882,11 +2851,11 @@ public class hsmCompatVerifyServ {
                 hsmTokenObj,
                 recoveryPasswd,
                 outputFile,
-                legacyPKCS12
+                pkcs12Mode
             );
 
             log("  - PKCS#12 file created: " + outputFile);
-            log("  - PKCS#12 format: " + (legacyPKCS12 ? "Legacy (PBE_SHA1_DES3_CBC)" : "Non-legacy (AES-KWP)"));
+            log("  - PKCS#12 format: " + getPKCS12ModeDescription(pkcs12Mode));
             log("  - Using token: " + hsmTokenObj.getName());
 
             // Verification Summary
@@ -1912,6 +2881,380 @@ public class hsmCompatVerifyServ {
             }
             log("+ PKCS#12 file: " + outputFile);
         }
+    }
+
+    /**
+     * Test phase for PQC (ML-KEM): Runs archival workflow with ML-KEM encapsulation
+     *
+     * This method performs ML-KEM-based key archival:
+     * 1. Decapsulate KEM ciphertext with transport private key → recover shared secret
+     * 2. Unwrap user private key with shared secret
+     * 3. Re-encapsulate with storage public key → new shared secret
+     * 4. Wrap user private key with new shared secret
+     * 5. Generate LDIF for archival
+     *
+     * @param pkiservDB PKI system NSS database path (for HSM access)
+     * @param clientDB Client NSS database directory (base path for wrapped key files)
+     * @param kemCiphertextFile KEM ciphertext file (from hsmCompatVerifyClnt --pqc)
+     * @param wrappedPrivateFile Wrapped private key file (from hsmCompatVerifyClnt --pqc)
+     * @param publicKeyFile Public key file in DER format (ML-KEM public key)
+     * @param hsmToken HSM token name
+     * @param hsmTokenPasswd HSM token password
+     * @param caNickname CA certificate nickname
+     * @param transportNickname Transport certificate nickname
+     * @param storageNickname Storage certificate nickname
+     * @param subjectDN Subject DN for user certificate
+     * @param outputFile Output PKCS#12 file (for future recovery testing)
+     * @param recoveryPasswd PKCS#12 password
+     * @param keywrapAlg Key wrap algorithm (AES-KWP)
+     * @param archiveOnly If true, create LDIF and stop (archival only mode)
+     * @param ldifFile LDIF file path for archival output
+     * @param pkcs12Mode PKCS#12 encryption mode (kwp, pbes2, or legacy)
+     * @param kemAlgorithm ML-KEM algorithm (ml-kem-512/768/1024)
+     */
+    public void runTestPQC(
+        String pkiservDB,
+        String clientDB,
+        String kemCiphertextFile,
+        String wrappedPrivateFile,
+        String publicKeyFile,
+        String hsmToken,
+        String hsmTokenPasswd,
+        String caNickname,
+        String transportNickname,
+        String storageNickname,
+        String subjectDN,
+        String outputFile,
+        String recoveryPasswd,
+        String keywrapAlg,
+        boolean archiveOnly,
+        boolean recoverOnly,
+        String ldifFile,
+        String pkcs12Mode,
+        String userKeyType,
+        String kemAlgorithm
+    ) throws Exception {
+
+        log("=== KRA HSM Compatibility Verification - PQC Mode (ML-KEM Transport) ===");
+        log("Transport/Storage: ML-KEM-" + kemAlgorithm.replace("mlkem", ""));
+        log("User key type: " + userKeyType);
+        if (archiveOnly) {
+            log("Mode: Archival to LDIF file (no recovery)");
+        } else if (recoverOnly) {
+            log("Mode: Recovery from LDIF file (no archival)");
+        } else {
+            log("Mode: Full archival and recovery workflow");
+        }
+        log("");
+
+        // Step 1-3: Initialize NSS, HSM, and load certificates (using helper methods)
+        CryptoManager manager = initializeNSS(pkiservDB);
+        CryptoToken hsmTokenObj = initializeHSM(hsmToken, hsmTokenPasswd);
+        Object[] certsAndKeys = loadCertificatesAndKeys(manager, hsmTokenObj, caNickname, transportNickname, storageNickname);
+
+        X509Certificate caCert = (X509Certificate) certsAndKeys[0];
+        X509Certificate transportCert = (X509Certificate) certsAndKeys[1];
+        X509Certificate storageCert = (X509Certificate) certsAndKeys[2];
+        PrivateKey transportPrivateKey = (PrivateKey) certsAndKeys[3];
+        PrivateKey storagePrivateKey = (PrivateKey) certsAndKeys[4];
+
+        KeyWrapAlgorithm keyWrapAlgorithm = KeyWrapAlgorithm.fromString(keywrapAlg);
+
+        // Step 4: Load wrapped keys and ML-KEM public key
+        byte[] kemCiphertext;
+        byte[] wrappedUserPrivate;
+        PublicKey userPublicKey;
+        X509CertImpl userCert;
+
+        log("");
+        if (archiveOnly) {
+            // Archive mode: Load from client-generated .bin/.der files
+            log("Step 4: Loading wrapped keys from files (generated by hsmCompatVerifyClnt --pqc)");
+            log("  KEM ciphertext: " + kemCiphertextFile);
+            log("  Wrapped private key: " + wrappedPrivateFile);
+            log("  Public key: " + publicKeyFile);
+
+            kemCiphertext = java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(kemCiphertextFile));
+            log("  - KEM ciphertext loaded (" + kemCiphertext.length + " bytes)");
+
+            wrappedUserPrivate = java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(wrappedPrivateFile));
+            log("  - Wrapped private key loaded (" + wrappedUserPrivate.length + " bytes)");
+
+            byte[] publicKeyBytes = java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(publicKeyFile));
+
+            // Load public key using appropriate KeyFactory based on user key type
+            java.security.KeyFactory keyFactory;
+            if ("RSA".equalsIgnoreCase(userKeyType)) {
+                keyFactory = java.security.KeyFactory.getInstance("RSA");
+            } else if ("EC".equalsIgnoreCase(userKeyType)) {
+                keyFactory = java.security.KeyFactory.getInstance("EC");
+            } else if ("ML-KEM".equalsIgnoreCase(userKeyType)) {
+                keyFactory = java.security.KeyFactory.getInstance("ML-KEM", "Mozilla-JSS");
+            } else {
+                throw new Exception("Unsupported user key type: " + userKeyType);
+            }
+
+            userPublicKey = keyFactory.generatePublic(
+                new java.security.spec.X509EncodedKeySpec(publicKeyBytes)
+            );
+            log("  - " + userKeyType + " public key loaded (" + publicKeyBytes.length + " bytes)");
+
+            // Step 4a: Create user certificate signed by CA
+            log("");
+            log("Step 4a: Creating user certificate signed by CA");
+            log("  Subject DN: " + subjectDN);
+
+            userCert = createUserCert(
+                hsmTokenObj,
+                manager,
+                caCert,
+                caNickname,
+                subjectDN,
+                userPublicKey
+            );
+            log("  - User certificate created and signed by CA");
+        } else {
+            // Recovery mode: Load from LDIF file
+            log("Step 4: Reading archived key data from LDIF file");
+            log("  LDIF file: " + ldifFile);
+
+            java.util.List<Map<String, Object>> keyRecords = readLDIFFile(ldifFile);
+            if (keyRecords.isEmpty()) {
+                throw new Exception("No key records found in LDIF file");
+            }
+
+            // For now, process first record (could be extended for multiple records)
+            Map<String, Object> ldifData = keyRecords.get(0);
+
+            log("  Serial: " + ldifData.get("serialno"));
+            log("  Owner: " + ldifData.get("ownerName"));
+
+            // Extract data from LDIF
+            // For PQC: wrappedSessionKey contains KEM ciphertext (not wrapped session key)
+            kemCiphertext = (byte[]) ldifData.get("wrappedSessionKey");
+            wrappedUserPrivate = (byte[]) ldifData.get("wrappedPrivateKey");
+            userPublicKey = (PublicKey) ldifData.get("publicKey");
+
+            log("  - KEM ciphertext loaded from LDIF (" + kemCiphertext.length + " bytes)");
+            log("  - Wrapped private key loaded from LDIF (" + wrappedUserPrivate.length + " bytes)");
+            log("  - " + userKeyType + " public key loaded from LDIF");
+            log("    Public key algorithm: " + userPublicKey.getAlgorithm());
+
+            // Step 4a: Get user certificate from LDIF
+            log("");
+            log("Step 4a: Loading user certificate from LDIF");
+            userCert = (X509CertImpl) ldifData.get("certificate");
+            if (userCert == null) {
+                throw new Exception("Certificate not found in LDIF - cannot recover key without certificate");
+            }
+            log("  - User certificate loaded from LDIF");
+            log("    Subject: " + userCert.getSubjectDN());
+            log("    Serial: " + userCert.getSerialNumber());
+        }
+
+        // Step 5: ML-KEM Decapsulation - recover shared secret
+        log("");
+        SymmetricKey recoveredSharedSecret;
+
+        if (archiveOnly) {
+            // Archive mode: Decapsulate transport KEM ciphertext (from client)
+            log("Step 5: ML-KEM decapsulation with transport private key");
+            log("  Decapsulating transport KEM ciphertext to recover shared secret");
+
+            recoveredSharedSecret = CryptoUtil.decapsulateMLKEM(transportPrivateKey, kemCiphertext, 256);
+            log("  - Shared secret recovered via ML-KEM decapsulation (transport)");
+            log("    Shared secret size: 32 bytes (AES-256)");
+        } else {
+            // Recovery mode: Decapsulate storage KEM ciphertext (from LDIF)
+            log("Step 5: ML-KEM decapsulation with storage private key");
+            log("  Decapsulating storage KEM ciphertext to recover shared secret");
+
+            recoveredSharedSecret = CryptoUtil.decapsulateMLKEM(storagePrivateKey, kemCiphertext, 256);
+            log("  - Shared secret recovered via ML-KEM decapsulation (storage)");
+            log("    Shared secret size: 32 bytes (AES-256)");
+        }
+
+        // Step 5a: Unwrap user private key with recovered shared secret
+        log("");
+        log("Step 5a: Unwrapping user private key");
+        log("  Using recovered shared secret with " + keyWrapAlgorithm);
+
+        // TEST: Try DECRYPT instead of UNWRAP (for Bob's investigation)
+        // Hidden flag: --test-decrypt-user
+        if (testDecryptUser) {
+            // Decrypt just reverses the encryption and returns raw bytes
+            // Unwrap tries to import the result as a PrivateKey object
+            log("");
+            log("TEST: Attempting DECRYPT instead of UNWRAP");
+            try {
+                // Use AES_256_ECB like Marco's TestKeyEncDec.java
+                org.mozilla.jss.crypto.Cipher cipher = hsmTokenObj.getCipherContext(
+                    org.mozilla.jss.crypto.EncryptionAlgorithm.AES_256_ECB);
+                cipher.initDecrypt(recoveredSharedSecret);  // initDecrypt, not initUnwrap!
+                byte[] decryptedBytes = cipher.doFinal(wrappedUserPrivate);
+                log("  - Decrypt succeeded! Decrypted data size: " + decryptedBytes.length + " bytes");
+                // Show all bytes in hex for Bob
+                StringBuilder hex = new StringBuilder();
+                for (int i = 0; i < decryptedBytes.length; i++) {
+                    hex.append(String.format("%02x", decryptedBytes[i]));
+                    if (i % 16 == 15) hex.append("\n    ");
+                    else if (i % 4 == 3) hex.append(" ");
+                }
+                log("  - All decrypted bytes (hex):");
+                log("    " + hex.toString());
+            } catch (Exception e) {
+                log("  - Decrypt failed: " + e.getMessage());
+                e.printStackTrace();
+            }
+            log("");
+        }
+
+        PrivateKey unwrappedUserPrivate = CryptoUtil.unwrap(
+            hsmTokenObj,
+            userPublicKey,
+            false,  // permanent - try permanent keys for ML-KEM PKCS#12 export
+            recoveredSharedSecret,
+            wrappedUserPrivate,
+            keyWrapAlgorithm,
+            null   // No IV for AES-KWP
+        );
+        log("  - User private key unwrapped on HSM (permanent)");
+
+        // If recovery-only mode, skip archival and jump to PKCS#12 creation
+        if (recoverOnly) {
+            log("");
+            log("Step 6: Creating PKCS#12 file with recovered key");
+
+            createPKCS12(
+                userCert,
+                unwrappedUserPrivate,
+                hsmTokenObj,
+                recoveryPasswd,
+                outputFile,
+                pkcs12Mode
+            );
+            log("  - PKCS#12 file created: " + outputFile);
+            log("  - PKCS#12 format: " + getPKCS12ModeDescription(pkcs12Mode));
+
+            log("");
+            log("=== Recovery Summary (PQC Mode) ===");
+            log("+ ML-KEM decapsulation: Recovered storage shared secret");
+            log("+ User private key: Unwrapped from archive");
+            log("+ PKCS#12 file created with recovered key and certificate");
+            log("");
+            log("SUCCESS: Recovery completed - PKCS#12 file created!");
+            log("PKCS#12 file: " + outputFile);
+            log("Password: " + recoveryPasswd);
+            return;  // Done with recovery
+        }
+
+        // Step 6: KRA archival - re-encapsulate with storage key
+        log("");
+        log("Step 6: KRA archival - ML-KEM encapsulation with storage key");
+
+        // Import storage public key into token for ML-KEM encapsulation
+        java.security.PublicKey storagePubKey = storageCert.getPublicKey();
+        hsmTokenObj.importPublicKey(storagePubKey, false);
+        log("  - Storage public key imported into token");
+
+        // Encapsulate with storage public key using CryptoUtil
+        CryptoUtil.KEMEncapsulation storageEncapsulation = CryptoUtil.encapsulateMLKEM(storagePubKey, 256);
+        SymmetricKey storageSharedSecret = storageEncapsulation.sharedSecret;
+        byte[] storageKemCiphertext = storageEncapsulation.ciphertext;
+
+        log("  - ML-KEM encapsulation completed with storage public key");
+        log("    Storage shared secret size: 32 bytes (AES-256)");
+        log("    Storage KEM ciphertext size: " + storageKemCiphertext.length + " bytes");
+
+        // Wrap user private key with storage shared secret
+        byte[] archivedUserPrivate = CryptoUtil.wrapUsingSymmetricKey(
+            hsmTokenObj,
+            storageSharedSecret,
+            unwrappedUserPrivate,
+            null,  // No IV for AES-KWP
+            keyWrapAlgorithm
+        );
+        log("  - User private key wrapped with storage shared secret");
+        log("  (User key is now 'archived')");
+
+        // Step 6a: Create LDIF file with archived data
+        log("");
+        log("Step 6a: Creating LDIF file with archived key data (PQC mode)");
+
+        createLDIFFile(
+            ldifFile,
+            userCert,
+            userPublicKey,
+            archivedUserPrivate,
+            storageKemCiphertext,  // KEM ciphertext instead of wrapped session key
+            null,  // No RSA wrap algorithm for PQC
+            keyWrapAlgorithm,
+            null,  // No IV for AES-KWP
+            true   // isPQC flag
+        );
+
+        log("  - LDIF file created: " + ldifFile);
+        log("");
+        log("=== Archival Summary (PQC Mode) ===");
+        log("+ ML-KEM decapsulation: Recovered shared secret from transport");
+        log("+ ML-KEM encapsulation: Generated new shared secret for storage");
+        log("+ User private key: Unwrapped and re-wrapped for archival");
+        log("+ LDIF file created with archived key data");
+
+        if (archiveOnly) {
+            return;  // Stop here in archival-only mode
+        }
+
+        // Step 7: KRA recovery - ML-KEM decapsulation with storage key
+        log("");
+        log("Step 7: KRA recovery - ML-KEM decapsulation with storage key");
+
+        // Decapsulate storage KEM ciphertext with storage private key using CryptoUtil
+        SymmetricKey recoveredStorageSharedSecret = CryptoUtil.decapsulateMLKEM(storagePrivateKey, storageKemCiphertext, 256);
+
+        log("  - Storage shared secret recovered via ML-KEM decapsulation");
+        log("    Shared secret size: " + recoveredStorageSharedSecret.getLength() + " bytes (AES-256)");
+
+        // Step 7a: Unwrap user private key with recovered storage shared secret
+        log("");
+        log("Step 7a: Unwrapping user private key from archive");
+        log("  Using recovered storage shared secret with " + keyWrapAlgorithm);
+
+        PrivateKey recoveredUserPrivate = CryptoUtil.unwrap(
+            hsmTokenObj,
+            userPublicKey,
+            true,  // temporary
+            recoveredStorageSharedSecret,
+            archivedUserPrivate,
+            keyWrapAlgorithm,
+            null   // No IV for AES-KWP
+        );
+        log("  - User private key recovered from archive on HSM");
+
+        // Step 8: Create PKCS#12 file with recovered key and CA-signed certificate
+        log("");
+        log("Step 8: Creating PKCS#12 file");
+
+        createPKCS12(
+            userCert,
+            recoveredUserPrivate,
+            hsmTokenObj,
+            recoveryPasswd,
+            outputFile,
+            pkcs12Mode
+        );
+        log("  - PKCS#12 file created: " + outputFile);
+        log("  - PKCS#12 format: " + getPKCS12ModeDescription(pkcs12Mode));
+
+        log("");
+        log("=== Recovery Summary (PQC Mode) ===");
+        log("+ ML-KEM decapsulation: Recovered storage shared secret");
+        log("+ User private key: Unwrapped from archive");
+        log("+ PKCS#12 file created with recovered key and certificate");
+        log("");
+        log("SUCCESS: Recovery completed - PKCS#12 file created!");
+        log("PKCS#12 file: " + outputFile);
+        log("Password: " + recoveryPasswd);
     }
 
     /**
@@ -1952,14 +3295,21 @@ public class hsmCompatVerifyServ {
         Date notAfter = new Date(notBefore.getTime() + (365L * 24L * 60L * 60L * 1000L));  // 1 year validity
         X509Key x509key = CryptoUtil.createX509Key(userPublicKey);
 
-        // Determine signature algorithm based on CA cert's key type
+        // Determine signature algorithm based on CA cert's signature algorithm
+        // For PQC, the public key algorithm is generic (e.g., "ML-DSA"), but we need
+        // the specific variant (e.g., "ML-DSA-65") which is stored in the cert's sigAlgName
+        String algName = caCert.getSigAlgName();
+
+        // For RSA/EC CAs, we might need to map to specific algorithm names
         String caKeyType = caCert.getPublicKey().getAlgorithm();
-        String algName;
-        if (caKeyType.equalsIgnoreCase("EC")) {
-            algName = "SHA256withEC";
-        } else {
+        if (caKeyType.equalsIgnoreCase("RSA") && !algName.contains("RSA")) {
             algName = "SHA256withRSA";
+        } else if (caKeyType.equalsIgnoreCase("EC") && !algName.contains("EC")) {
+            algName = "SHA256withEC";
         }
+        // For ML-DSA, use the signature algorithm directly from the CA cert
+
+        log("  Signature algorithm: " + algName + " (CA key type: " + caKeyType + ")");
 
         // Create certificate extensions for user cert
         CertificateExtensions extensions = createUserCertExtensions(x509key, caCert);
@@ -2040,7 +3390,12 @@ public class hsmCompatVerifyServ {
      * Adopted from: base/kra/src/main/java/com/netscape/kra/RecoveryService.java:564-724
      * (createPFX method with PrivateKey parameter)
      *
-     * Differences: Simplified, no request object, no audit logging, always legacy PKCS#12
+     * Differences: Simplified, no request object, no audit logging
+     *
+     * @param pkcs12Mode PKCS#12 encryption mode:
+     *   - "kwp": AES-KWP (fails for ML-KEM keys currently)
+     *   - "pbes2": PKCS#5 v2 PBKDF2+AES-256-CBC (FIPS-compliant, like pk12util)
+     *   - "legacy": PBE_SHA1_DES3_CBC (not recommended for FIPS HSMs)
      */
     private void createPKCS12(
         X509CertImpl cert,
@@ -2048,7 +3403,7 @@ public class hsmCompatVerifyServ {
         CryptoToken token,
         String password,
         String outputFile,
-        boolean legacyPKCS12
+        String pkcs12Mode
     ) throws Exception {
 
         Password pass = new Password(password.toCharArray());
@@ -2072,7 +3427,7 @@ public class hsmCompatVerifyServ {
             SEQUENCE safeContents = new SEQUENCE();
 
             ASN1Value key;
-            if (legacyPKCS12) {
+            if (pkcs12Mode.equals("legacy")) {
                 // Legacy PKCS#12: PBE_SHA1_DES3_CBC
                 // Compatible with older systems but may fail on some HSMs (e.g., Thales FIPS 140-3)
                 PasswordConverter passConverter = new PasswordConverter();
@@ -2089,20 +3444,51 @@ public class hsmCompatVerifyServ {
                     privateKey,
                     token
                 );
-            } else {
-                // Non-legacy PKCS#12: AES Key Wrap with Padding (AES-KWP)
+            } else if (pkcs12Mode.equals("cbc")) {
+                // AES-256-CBC with PBKDF2
+                // This matches KRA's default non-legacy algorithm (kra.nonLegacyAlg="AES/CBC/NoPadding")
+                // Uses getCryptoStore().getEncryptedPrivateKeyInfo() which automatically applies PBKDF2
+                // FIPS-compliant, works with ML-KEM keys
+                String nonLegacyAlg = "AES/CBC/NoPadding";
+                EncryptionAlgorithm encAlg = EncryptionAlgorithm.fromString(nonLegacyAlg);
+                if (encAlg == null) {
+                    encAlg = EncryptionAlgorithm.AES_256_CBC;
+                }
+
+                byte[] epkiBytes = token.getCryptoStore().getEncryptedPrivateKeyInfo(
+                    null, // No password converter for non-legacy (PBKDF2 mode)
+                    pass,
+                    encAlg,
+                    0, // Use default iterations (2000 for PBKDF2)
+                    privateKey
+                );
+                key = new ANY(epkiBytes);
+            } else {  // pkcs12Mode.equals("kwp")
+                // AES Key Wrap with Padding (AES-KWP)
                 // This matches the recommended KRA settings for HSM compatibility:
                 //   keyWrap.useOAEP=true
                 //   kra.legacyPKCS12=false
                 //   kra.nonLegacyAlg=AES/None/PKCS5Padding/Kwp/256
                 // AES-KWP is secure, modern, and compatible with HSMs in FIPS mode
                 // Unlike AES-CBC, KWP doesn't require an IV, avoiding HSM compatibility issues
+                // Note: Currently fails for ML-KEM keys (NSS limitation)
                 String nonLegacyAlg = "AES/None/PKCS5Padding/Kwp/256";
                 EncryptionAlgorithm encAlg = EncryptionAlgorithm.fromString(nonLegacyAlg);
                 if (encAlg == null) {
                     // Fallback to AES-256-CBC if KWP is not available
                     encAlg = EncryptionAlgorithm.AES_256_CBC;
                 }
+
+                // Debug: Check key properties before export
+                System.out.println("DEBUG: About to export key to PKCS#12");
+                System.out.println("  Key algorithm: " + privateKey.getAlgorithm());
+                System.out.println("  Key format: " + privateKey.getFormat());
+                if (privateKey instanceof org.mozilla.jss.pkcs11.PK11PrivKey) {
+                    org.mozilla.jss.pkcs11.PK11PrivKey pk11Key = (org.mozilla.jss.pkcs11.PK11PrivKey) privateKey;
+                    System.out.println("  Owning token: " + pk11Key.getOwningToken().getName());
+                }
+                System.out.println("  Encryption algorithm: " + encAlg);
+
                 byte[] epkiBytes = token.getCryptoStore().getEncryptedPrivateKeyInfo(
                     null, // No password converter for non-legacy
                     pass,
@@ -2134,6 +3520,25 @@ public class hsmCompatVerifyServ {
 
         } finally {
             pass.clear();
+        }
+    }
+
+    /**
+     * Returns a human-readable description of the PKCS#12 encryption mode.
+     *
+     * @param pkcs12Mode The PKCS#12 mode ("kwp", "cbc", or "legacy")
+     * @return User-friendly description of the encryption mode
+     */
+    private String getPKCS12ModeDescription(String pkcs12Mode) {
+        switch (pkcs12Mode) {
+            case "kwp":
+                return "AES-256-KWP";
+            case "cbc":
+                return "AES-256-CBC (PBKDF2)";
+            case "legacy":
+                return "Legacy (PBE_SHA1_DES3_CBC)";
+            default:
+                return "Unknown (" + pkcs12Mode + ")";
         }
     }
 
@@ -2373,12 +3778,13 @@ public class hsmCompatVerifyServ {
         X509CertImpl cert,
         PublicKey publicKey,
         byte[] wrappedPrivateKey,
-        byte[] wrappedSessionKey,
-        KeyWrapAlgorithm sessionKeyWrapAlg,
+        byte[] wrappedSessionKey,  // For PQC: KEM ciphertext
+        KeyWrapAlgorithm sessionKeyWrapAlg,  // For PQC: null
         KeyWrapAlgorithm payloadWrapAlg,
         org.mozilla.jss.crypto.IVParameterSpec ivSpec,
-        String ownerName
+        boolean isPQC
     ) throws Exception {
+        String ownerName = cert.getSubjectDN().toString();
 
         java.text.SimpleDateFormat ldapDateFormat = new java.text.SimpleDateFormat("yyyyMMddHHmmss'Z'");
         ldapDateFormat.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
@@ -2432,25 +3838,37 @@ public class hsmCompatVerifyServ {
         // Public key data (base64-encoded)
         ldif.append("publicKeyData:: ").append(java.util.Base64.getEncoder().encodeToString(publicKeyData)).append("\n");
 
+        // Certificate data (base64-encoded DER)
+        byte[] certData = cert.getEncoded();
+        ldif.append("archivedUserCert:: ").append(java.util.Base64.getEncoder().encodeToString(certData)).append("\n");
+
         // Request type - required by KRATool to identify record type
         // "enrollment" starts with "CA" which matches KRA_LDIF_CA_KEY_RECORD
         ldif.append("extdata-requesttype: enrollment\n");
 
         // Metadata - wrapping algorithms and parameters
         // These match what KRA stores in the metaInfo field
-        ldif.append("metaInfo: sessionKeyWrapAlgorithm:").append(sessionKeyWrapAlg.toString()).append("\n");
-        ldif.append("metaInfo: payloadEncrypted:false\n");
-        ldif.append("metaInfo: sessionKeyKeyGenAlgorithm:AES\n");
-        ldif.append("metaInfo: sessionKeyType:AES\n");
-        ldif.append("metaInfo: sessionKeyLength:128\n");
+        if (isPQC) {
+            // PQC mode: use KEM instead of session key wrapping
+            ldif.append("metaInfo: kemAlgorithm:ML-KEM\n");
+            ldif.append("metaInfo: kemMode:encapsulate\n");
+            ldif.append("metaInfo: payloadEncrypted:false\n");
+        } else {
+            // Non-PQC mode: traditional RSA session key wrapping
+            ldif.append("metaInfo: sessionKeyWrapAlgorithm:").append(sessionKeyWrapAlg.toString()).append("\n");
+            ldif.append("metaInfo: payloadEncrypted:false\n");
+            ldif.append("metaInfo: sessionKeyKeyGenAlgorithm:AES\n");
+            ldif.append("metaInfo: sessionKeyType:AES\n");
+            ldif.append("metaInfo: sessionKeyLength:256\n");
+        }
         // Payload wrap algorithm OID (AES KeyWrap OIDs from NIST)
         String payloadWrapOID;
         if (payloadWrapAlg.toString().contains("KeyWrap/Padding")) {
-            payloadWrapOID = "2.16.840.1.101.3.4.1.8";  // AES-128 Key Wrap with Padding
+            payloadWrapOID = "2.16.840.1.101.3.4.1.48";  // AES-256 Key Wrap with Padding
         } else if (payloadWrapAlg.toString().contains("KeyWrap")) {
-            payloadWrapOID = "2.16.840.1.101.3.4.1.5";  // AES-128 Key Wrap
+            payloadWrapOID = "2.16.840.1.101.3.4.1.45";  // AES-256 Key Wrap
         } else if (payloadWrapAlg.toString().contains("CBC")) {
-            payloadWrapOID = "2.16.840.1.101.3.4.1.2";  // AES-128 CBC
+            payloadWrapOID = "2.16.840.1.101.3.4.1.42";  // AES-256 CBC
         } else {
             payloadWrapOID = "unknown";
         }
@@ -2502,6 +3920,7 @@ public class hsmCompatVerifyServ {
         Map<String, Object> currentRecord = null;
         String privateKeyDataB64 = null;
         String publicKeyDataB64 = null;
+        String archivedUserCertB64 = null;
         String sessionKeyWrapAlg = null;
         String payloadWrapAlg = null;
         String payloadWrapIV = null;
@@ -2536,6 +3955,13 @@ public class hsmCompatVerifyServ {
                         new java.security.spec.X509EncodedKeySpec(publicKeyData)
                     );
 
+                    // Decode certificate if present
+                    X509CertImpl cert = null;
+                    if (archivedUserCertB64 != null) {
+                        byte[] certData = java.util.Base64.getDecoder().decode(archivedUserCertB64);
+                        cert = new X509CertImpl(certData);
+                    }
+
                     // Parse IV if present
                     byte[] iv = null;
                     if (payloadWrapIV != null) {
@@ -2546,6 +3972,7 @@ public class hsmCompatVerifyServ {
                     currentRecord.put("wrappedPrivateKey", wrappedPrivateKey);
                     currentRecord.put("wrappedSessionKey", wrappedSessionKey);
                     currentRecord.put("publicKey", publicKey);
+                    currentRecord.put("certificate", cert);
                     currentRecord.put("sessionKeyWrapAlg", sessionKeyWrapAlg);
                     currentRecord.put("payloadWrapAlg", payloadWrapAlg);
                     currentRecord.put("payloadWrapIV", iv);
@@ -2558,6 +3985,7 @@ public class hsmCompatVerifyServ {
                 // Reset for next record
                 privateKeyDataB64 = null;
                 publicKeyDataB64 = null;
+                archivedUserCertB64 = null;
                 sessionKeyWrapAlg = null;
                 payloadWrapAlg = null;
                 payloadWrapIV = null;
@@ -2579,6 +4007,8 @@ public class hsmCompatVerifyServ {
                 privateKeyDataB64 = line.substring("privateKeyData:: ".length());
             } else if (line.startsWith("publicKeyData:: ")) {
                 publicKeyDataB64 = line.substring("publicKeyData:: ".length());
+            } else if (line.startsWith("archivedUserCert:: ")) {
+                archivedUserCertB64 = line.substring("archivedUserCert:: ".length());
             } else if (line.startsWith("metaInfo: sessionKeyWrapAlgorithm:")) {
                 sessionKeyWrapAlg = line.substring("metaInfo: sessionKeyWrapAlgorithm:".length());
             } else if (line.startsWith("metaInfo: payloadWrapAlgorithm:")) {
