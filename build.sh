@@ -202,6 +202,10 @@ get_tomcat_app_server() {
              distro="rhel"
              ver=$VERSION_ID
              ;;
+         "eln")
+             distro="rhel"
+             ver=$VERSION_ID
+             ;;
          *)
              echo $app_server_9
              return
