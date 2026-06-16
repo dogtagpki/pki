@@ -1,4 +1,4 @@
-#pp###############################################################################
+################################################################################
 Name:             pki
 ################################################################################
 
@@ -23,7 +23,7 @@ License:          GPL-2.0-only AND LGPL-2.0-only
 # - development (unsupported): alpha<n> where n >= 1
 # - stabilization (supported): beta<n> where n >= 1
 # - GA/update (supported): <none>
-%global           phase beta2
+%undefine         phase
 
 %undefine         timestamp
 %undefine         commit_id
@@ -239,7 +239,7 @@ BuildRequires:    tomcat-lib >= 1:10.1.36
 BuildRequires:    tomcat-jakartaee-migration
 %endif
 
-BuildRequires:    %{vendor_id}-jss >= 5.10.0~beta2
+BuildRequires:    %{vendor_id}-jss >= 5.10.0
 
 BuildRequires:    mvn(xml-apis:xml-apis)
 BuildRequires:    mvn(xml-resolver:xml-resolver)
@@ -296,9 +296,9 @@ BuildRequires:    mvn(org.apache.tomcat:tomcat-util-scan) >= 10.0.36
 
 %endif
 
-BuildRequires:    %{vendor_id}-jss >= 5.10.0~beta2
-BuildRequires:    %{vendor_id}-jss-tomcat >= 5.10.0~beta2
-BuildRequires:    %{vendor_id}-ldapjdk >= 5.7.0~beta2
+BuildRequires:    %{vendor_id}-jss >= 5.10.0
+BuildRequires:    %{vendor_id}-jss-tomcat >= 5.10.0
+BuildRequires:    %{vendor_id}-ldapjdk >= 5.7.0
 
 # Python build dependencies
 BuildRequires:    python3 >= 3.6
@@ -642,8 +642,8 @@ Provides:         bundled(resteasy-client)
 Provides:         bundled(resteasy-jackson2-provider)
 %endif
 
-Requires:         %{vendor_id}-jss >= 5.10.0~beta2
-Requires:         %{vendor_id}-ldapjdk >= 5.7.0~beta2
+Requires:         %{vendor_id}-jss >= 5.10.0
+Requires:         %{vendor_id}-ldapjdk >= 5.7.0
 Requires:         %{product_id}-base = %{version}-%{release}
 
 %description -n   %{product_id}-java
@@ -723,7 +723,7 @@ Requires:         tomcat >= 9.0
 Requires:         tomcat >= 1:10.1.36
 %endif
 
-Requires:         %{vendor_id}-jss-tomcat >= 5.10.0~beta2
+Requires:         %{vendor_id}-jss-tomcat >= 5.10.0
 
 Requires:         systemd
 Requires(post):   systemd-units
