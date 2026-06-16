@@ -1507,6 +1507,50 @@ class PKIDeployer:
             logger.debug('Setting ephemeral requests to true')
             subsystem.set_config('kra.ephemeralRequests', 'true')
 
+        # Auto-configure key wrapping based on storage cert type
+        # Defaults for wrapping.0, wrapping.1, and wrapping.2 are in CS.cfg
+        storage_key_type = self.get_key_type(subsystem, 'storage')
+
+        # Auto-select wrapping profile based on storage key type
+        if storage_key_type == 'MLKEM':
+            wrapping_choice = '2'
+            logger.info('ML-KEM storage cert detected, using wrapping.2')
+        else:
+            # RSA, ECC, or other traditional algorithms use wrapping.1
+            wrapping_choice = '1'
+            logger.info('Traditional storage cert detected, using wrapping.1')
+
+        # Set the wrapping choice
+        subsystem.set_config('kra.storageUnit.wrapping.choice', wrapping_choice)
+
+        # Allow user overrides of individual wrapping parameters for the selected profile
+        wrapping_prefix = 'kra.storageUnit.wrapping.%s' % wrapping_choice
+
+        if self.mdict.get('pki_kra_wrapping_session_key_length'):
+            subsystem.set_config(
+                '%s.sessionKeyLength' % wrapping_prefix,
+                self.mdict['pki_kra_wrapping_session_key_length'])
+
+        if self.mdict.get('pki_kra_wrapping_session_key_type'):
+            subsystem.set_config(
+                '%s.sessionKeyType' % wrapping_prefix,
+                self.mdict['pki_kra_wrapping_session_key_type'])
+
+        if self.mdict.get('pki_kra_wrapping_payload_wrap_algorithm'):
+            subsystem.set_config(
+                '%s.payloadWrapAlgorithm' % wrapping_prefix,
+                self.mdict['pki_kra_wrapping_payload_wrap_algorithm'])
+
+        # ML-KEM specific: configure secure PKCS#12 settings by default
+        if storage_key_type.upper() == 'MLKEM':
+            subsystem.set_config(
+                'kra.legacyPKCS12',
+                self.mdict.get('pki_kra_legacy_pkcs12') or 'false')
+
+            subsystem.set_config(
+                'kra.nonLegacyAlg',
+                self.mdict.get('pki_kra_non_legacy_algorithm') or 'AES/None/PKCS5Padding/Kwp/256')
+
     def configure_tps(self, subsystem):
 
         baseDN = subsystem.config['internaldb.basedn']

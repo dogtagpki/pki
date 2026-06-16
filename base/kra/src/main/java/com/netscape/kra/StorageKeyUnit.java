@@ -153,12 +153,22 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
         WrappingParams params = new WrappingParams();
         params.setSkType(config.getString(KeyRecordParser.OUT_SK_TYPE));
         params.setSkLength(config.getInteger(KeyRecordParser.OUT_SK_LENGTH, 0));
-        String keyWrapAlg = config.getString(KeyRecordParser.OUT_SK_WRAP_ALGORITHM);
-        if("RSA".equals(keyWrapAlg) && useOAEPKeyWrap == true) {
-            keyWrapAlg = "RSAES-OAEP";
+
+        // sessionKeyWrapAlgorithm is optional (not used for ML-KEM)
+        String keyWrapAlg = config.getString(KeyRecordParser.OUT_SK_WRAP_ALGORITHM, null);
+        if (keyWrapAlg != null) {
+            if("RSA".equals(keyWrapAlg) && useOAEPKeyWrap == true) {
+                keyWrapAlg = "RSAES-OAEP";
+            }
+            params.setSkWrapAlgorithm(keyWrapAlg);
         }
-        params.setSkWrapAlgorithm(keyWrapAlg);
-        params.setSkKeyGenAlgorithm(config.getString(KeyRecordParser.OUT_SK_KEYGEN_ALGORITHM));
+
+        // sessionKeyKeyGenAlgorithm is optional (not used for ML-KEM)
+        String keyGenAlg = config.getString(KeyRecordParser.OUT_SK_KEYGEN_ALGORITHM, null);
+        if (keyGenAlg != null) {
+            params.setSkKeyGenAlgorithm(keyGenAlg);
+        }
+
         params.setPayloadWrapAlgorithm(config.getString(KeyRecordParser.OUT_PL_WRAP_ALGORITHM));
 
         if (config.getString(KeyRecordParser.OUT_PL_ENCRYPTION_OID, null) != null) {

@@ -280,18 +280,23 @@ jobs:
           echo pki.example.com > expected
           diff expected actual
 
-      - name: Configure KRA for ML-KEM archival
+      - name: Verify KRA ML-KEM archival auto-configuration
         run: |
-          # Configure CS.cfg for ML-KEM archival
-          docker exec pki pki-server kra-config-set kra.storageUnit.wrapping.1.sessionKeyLength 256
-          docker exec pki pki-server kra-config-set kra.storageUnit.wrapping.1.payloadWrapAlgorithm "AES KeyWrap/Padding"
-          docker exec pki pki-server kra-config-set kra.storageUnit.wrapping.1.sessionKeyType AES
-          docker exec pki pki-server kra-config-set kra.storageUnit.wrapping.choice 1
-          docker exec pki pki-server kra-config-set kra.legacyPKCS12 false
-          docker exec pki pki-server kra-config-set kra.nonLegacyAlg "AES/None/PKCS5Padding/Kwp/256"
+          # ML-KEM archival should be configured automatically by pkispawn for PQC installations
+          docker exec pki pki-server kra-config-find | tee output
 
-          # Restart KRA
-          docker exec pki pki-server kra-redeploy --wait
+          # Verify the ML-KEM wrapping settings (wrapping.2) were configured
+          grep "kra.storageUnit.wrapping.2.sessionKeyLength=256" output
+          grep "kra.storageUnit.wrapping.2.sessionKeyType=AES" output
+          # Note: sessionKeyWrapAlgorithm and sessionKeyKeyGenAlgorithm are not set for ML-KEM
+          grep "kra.storageUnit.wrapping.2.payloadEncryptionAlgorithm=AES" output
+          grep "kra.storageUnit.wrapping.2.payloadEncryptionMode=CBC" output
+          grep "kra.storageUnit.wrapping.2.payloadEncryptionPadding=PKCS5Padding" output
+          grep "kra.storageUnit.wrapping.2.payloadEncryptionIVLen=16" output
+          grep 'kra.storageUnit.wrapping.2.payloadWrapAlgorithm=AES KeyWrap/Padding' output
+          grep "kra.storageUnit.wrapping.choice=2" output
+          grep "kra.legacyPKCS12=false" output
+          grep 'kra.nonLegacyAlg=AES/None/PKCS5Padding/Kwp/256' output
 
       - name: Import transport cert
         run: |
@@ -356,7 +361,6 @@ jobs:
               -a mlkem \
               -l 768 \
               -w "AES KeyWrap/Wrapped" \
-              -t false \
               -v \
               -o $SHARED/testuser.csr
 
@@ -467,14 +471,43 @@ jobs:
               -o ldif_wrap=no \
               -LLL | tee output
 
-          # encryption mode should be "false" by default
-          echo "false" > expected
-          sed -n 's/^metaInfo:\s*payloadEncrypted:\(.*\)$/\1/p' output > actual
-          diff expected actual
+          # Normalize LDAP output for validation
+          sed \
+              -e '/^$/d' \
+              -e 's/^\(serialno\): .*$/\1: XXXXX/' \
+              -e 's/^\(privateKeyData\):: .*$/\1:: XXXXX/' \
+              -e 's/^\(publicKeyData\):: .*$/\1:: XXXXX/' \
+              -e 's/^\(metaInfo: payloadEncryptionIV\):.*/\1:XXXXX/' \
+              -e 's/^\(dateOfCreate\): .*$/\1: XXXXX/' \
+              -e 's/^\(dateOfModify\): .*$/\1: XXXXX/' \
+              output > actual
 
-          # key wrap algorithm should be "AES KeyWrap/Padding" for ML-KEM
-          echo "AES KeyWrap/Padding" > expected
-          sed -n 's/^metaInfo:\s*payloadWrapAlgorithm:\(.*\)$/\1/p' output > actual
+          cat > expected << EOF
+          dn: cn=$DEC_KEY_ID,ou=keyRepository,ou=kra,dc=kra,dc=pki,dc=example,dc=com
+          objectClass: top
+          objectClass: keyRecord
+          keyState: VALID
+          serialno: XXXXX
+          ownerName: UID=testuser,CN=Test User,OU=noPOP
+          keySize: 768
+          algorithm: 2.16.840.1.101.3.4.4.2
+          privateKeyData:: XXXXX
+          publicKeyData:: XXXXX
+          metaInfo: storageKeyAlgorithm:ML-KEM
+          metaInfo: payloadEncrypted:false
+          metaInfo: sessionKeyLength:256
+          metaInfo: payloadEncryptionPadding:PKCS5Padding
+          metaInfo: payloadEncryptionAlgorithm:AES
+          metaInfo: payloadEncryptionIV:XXXXX
+          metaInfo: payloadEncryptionMode:CBC
+          metaInfo: payloadWrapAlgorithm:AES KeyWrap/Padding
+          metaInfo: sessionKeyType:AES
+          dateOfCreate: XXXXX
+          dateOfModify: XXXXX
+          archivedBy: CA-pki.example.com-8443
+          cn: $DEC_KEY_ID
+          EOF
+
           diff expected actual
 
       - name: Retrieve ML-KEM key
