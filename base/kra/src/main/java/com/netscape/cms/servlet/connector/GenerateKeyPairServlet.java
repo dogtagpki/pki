@@ -250,6 +250,12 @@ public class GenerateKeyPairServlet extends CMSServlet {
                 thisreq.setExtData(Request.NETKEY_ATTR_SSKEYGEN_AES_KEY_WRAP_ALG,rAesWrapAlg);
             }
 
+            String rKeyGenUsages = req.getParameter(IRemoteRequest.KRA_KEYGEN_Usages);
+            if (rKeyGenUsages != null && !rKeyGenUsages.isEmpty()) {
+                logger.debug("GenerateKeyPairServlet: processServerSideKeygen(): keyGenUsages: " + rKeyGenUsages);
+                thisreq.setExtData(Request.KEY_GEN_USAGES, rKeyGenUsages);
+            }
+
             queue.processRequest(thisreq);
             Integer result = thisreq.getExtDataInInteger(Request.RESULT);
             if (result != null) {

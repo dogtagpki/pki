@@ -305,6 +305,18 @@ public class TPSEnrollProcessor extends TPSProcessor {
                         logger.debug(method + " OK not to have appletVer target in token range mapping");
                     }
                     // ** Applet and Alg Selection by Token Range Support end **
+
+                    // ** Get key gen Usages  **
+
+                     try {
+                         String keyGenUsages = resolverInst.getResolvedMapping(
+                                 mappingParams, "keyGenUsages", symKeySize);
+                         setSelectedKeyGenUsages(keyGenUsages);
+                         logger.debug(method + " resolved keyGenUsages: " + keyGenUsages);
+                     } catch (TPSException e) {
+                         logger.debug(method + " OK not to have keyGenUsages target in token range mapping");
+                     }
+
                 }
             } catch (TPSException e) {
                 logMsg = e.toString();
@@ -2549,6 +2561,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     "TPSEnrollProcessor.enrollOneCertificate: either generate private key on the server, or preform recovery or perform renewal.");
             boolean archive = checkForServerKeyArchival(cEnrollInfo);
             String kraConnId = getDRMConnectorID(cEnrollInfo.getKeyType());
+            // Get any configured SSKG key generation usages..
+            String keyGenUsages = establishKeyGenUsagesSSKeyGen(cEnrollInfo);
 
             String publicKeyStr = null;
             //Do this for JUST server side keygen
@@ -2559,7 +2573,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 ssKeyGenResponse = engine
                         .serverSideKeyGen(cEnrollInfo.getKeySize(),
                                 aInfo.getCUIDhexStringPlain(), userid, kraConnId, drmDesKey,drmAesKey,
-                                archive, isECC, aesKeyWrapAlg);
+                                archive, isECC, aesKeyWrapAlg, keyGenUsages);
 
                 publicKeyStr = ssKeyGenResponse.getPublicKey();
                 //logger.debug("TPSEnrollProcessor.enrollOneCertificate: public key string from server: " + publicKeyStr);
@@ -3572,6 +3586,47 @@ public class TPSEnrollProcessor extends TPSProcessor {
         logger.debug(method + " returning: " + aesKeyWrapAlg); 
         return aesKeyWrapAlg;
 
+    }
+
+    public String establishKeyGenUsagesSSKeyGen(CertEnrollInfo cInfo) throws TPSException {
+        String method = "TPSEnrollProcessor::establishKeyGenUsagesSSKeyGen: ";
+
+        // Check resolver result first
+        String selectedUsages = getSelectedKeyGenUsages();
+
+        if (selectedUsages != null) {
+            selectedUsages = selectedUsages.trim();
+        }
+
+        if (selectedUsages != null && !selectedUsages.isEmpty()) {
+            logger.debug(method + " using keyGenUsages from resolver: " + selectedUsages);
+            return selectedUsages;
+        }
+
+        // Fall back to static profile config
+        if (cInfo == null) {
+            logger.debug(method + " cInfo is null, cannot check static profile config");
+            return null;
+        }
+
+        TPSEngineConfig configStore = this.getConfigStore();
+        try {
+            String configValue = cInfo.getKeyTypePrefix() + ".serverKeygen.keyGenUsages";
+            logger.debug(method + " configValue: " + configValue);
+            selectedUsages = configStore.getString(configValue, null);
+            if (selectedUsages != null) {
+                selectedUsages = selectedUsages.trim();
+                if (selectedUsages.isEmpty()) {
+                    selectedUsages = null;
+                }
+            }
+        } catch (EBaseException e) {
+            throw new TPSException(method + " error reading config " + e.getMessage(),
+                   TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+        }
+
+        logger.debug(method + " returning: " + selectedUsages);
+        return selectedUsages;
     }
 
     private boolean checkForServerSideKeyGen(CertEnrollInfo cInfo) throws TPSException {

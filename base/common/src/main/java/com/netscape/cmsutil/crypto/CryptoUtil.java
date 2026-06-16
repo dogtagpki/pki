@@ -3432,6 +3432,40 @@ public class CryptoUtil {
                 .map(SymmetricKey.Usage::valueOf).toArray(SymmetricKey.Usage[]::new);
 
     }
+
+    /**
+       * Enforces PKCS#11 attribute pairing in the usage list.
+       * Some HSMs require that paired attributes
+       * (e.g. CKA_SIGN/CKA_VERIFY, CKA_SIGN_RECOVER/CKA_VERIFY_RECOVER)
+       * are both present in the key generation template. Per PKCS#11 spec,
+       * these are paired operations across public and private keys.
+       *
+       * @param usages The usage list to enforce pairing on
+       */
+    public static void enforcePairedUsages(List<String> usages) {
+        ensureUsagePair(usages, "sign", "verify");
+        ensureUsagePair(usages, "sign_recover", "verify_recover");
+        ensureUsagePair(usages, "encrypt", "decrypt");
+        ensureUsagePair(usages, "wrap", "unwrap");
+    }
+
+    /**
+     * Ensures both members of a PKCS#11 attribute pair are present.
+     * If one is present without the other, adds the missing one.
+     *
+     * @param usages The usage list to check
+     * @param a First member of the pair
+     * @param b Second member of the pair
+     */
+    private static void ensureUsagePair(List<String> usages, String a, String b) {
+        if (usages.contains(a) && !usages.contains(b)) {
+            logger.debug("CryptoUtil: Adding missing paired usage: " + b);
+            usages.add(b);
+        } else if  (usages.contains(b) && !usages.contains(a)) {
+            logger.debug("CryptoUtil: Adding missing paired usage: " + a);
+            usages.add(a);
+        }
+    }
 }
 
 // START ENABLE_ECC
