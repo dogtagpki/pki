@@ -20,3 +20,20 @@ The CSR type can be specified with the `--csr-type` option.
 == Changes in CRMFPopClient ==
 
 The command now supports both `ML-DSA` and `ML-KEM` keys.
+
+== Changes in KRATool ==
+
+The `KRATool` command now supports cross-scheme migration, allowing migration
+of archived keys between different key wrapping schemes (e.g., DES3 to AES,
+RSA to RSA-OAEP). This includes a standalone build mechanism for pki-kratool RPM.
+
+== New Tool: hsmCompatVerify ==
+
+Two new tools for HSM compatibility verification:
+
+* `hsmCompatVerifyServ` - Server-side simulator for CA and KRA operations
+* `hsmCompatVerifyClnt` - Client-side simulator for certificate enrollment
+
+These tools verify basic HSM compatibility with Dogtag Certificate System
+without requiring a full Certificate System installation, supporting RSA/ECC key operations,
+key archival/recovery workflows, and PKCS#12 export.
