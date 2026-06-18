@@ -462,7 +462,7 @@ jobs:
           EOF
 
       - name: Build PKI CA 11.4 image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           tags: pki-ca:11.4
