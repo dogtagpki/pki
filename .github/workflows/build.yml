@@ -36,7 +36,7 @@ jobs:
           path: /tmp/.buildx-cache
 
       - name: Build pki-deps image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: .
           build-args: |
@@ -48,7 +48,7 @@ jobs:
         if: steps.cache-buildx.outputs.cache-hit != 'true'
 
       - name: Build pki-builder-deps image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: .
           build-args: |
@@ -60,7 +60,7 @@ jobs:
         if: steps.cache-buildx.outputs.cache-hit != 'true'
 
       - name: Build pki-builder image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: .
           build-args: |
@@ -72,7 +72,7 @@ jobs:
           outputs: type=docker
 
       - name: Build pki-dist image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: .
           build-args: |
@@ -84,7 +84,7 @@ jobs:
           outputs: type=docker
 
       - name: Build pki-runner image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: .
           build-args: |
@@ -96,7 +96,7 @@ jobs:
           outputs: type=docker
 
       - name: Build pki-server image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: .
           build-args: |
@@ -108,7 +108,7 @@ jobs:
           outputs: type=docker
 
       - name: Build pki-ca image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: .
           build-args: |
@@ -120,7 +120,7 @@ jobs:
           outputs: type=docker
 
       - name: Build pki-kra image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: .
           build-args: |
@@ -132,7 +132,7 @@ jobs:
           outputs: type=docker
 
       - name: Build pki-ocsp image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: .
           build-args: |
@@ -144,7 +144,7 @@ jobs:
           outputs: type=docker
 
       - name: Build pki-tks image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: .
           build-args: |
@@ -156,7 +156,7 @@ jobs:
           outputs: type=docker
 
       - name: Build pki-tps image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: .
           build-args: |
