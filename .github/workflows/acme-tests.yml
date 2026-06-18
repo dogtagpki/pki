@@ -15,7 +15,7 @@ jobs:
       NAMESPACE: ${{ vars.REGISTRY_NAMESPACE || 'dogtagpki' }}
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Initialization
         run: tests/bin/test-init.sh

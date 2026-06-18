@@ -13,7 +13,7 @@ jobs:
       SHARED: /tmp/workdir/pki
     steps:
       - name: Clone PKI repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Retrieve PKI images
         uses: actions/cache@v5
