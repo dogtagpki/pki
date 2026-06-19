@@ -27,12 +27,15 @@ import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
 import java.security.interfaces.RSAKey;
+import java.security.spec.ECGenParameterSpec;
+import java.security.spec.NamedParameterSpec;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -57,6 +60,7 @@ import org.mozilla.jss.crypto.KeyPairAlgorithm;
 import org.mozilla.jss.crypto.KeyPairGenerator;
 import org.mozilla.jss.crypto.NoSuchItemOnTokenException;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
+import org.mozilla.jss.crypto.PrivateKey.Type;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
@@ -73,8 +77,11 @@ import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
+import org.mozilla.jss.pkcs11.PK11PrivKey;
 import org.mozilla.jss.pkix.cert.Extension;
 import org.mozilla.jss.pkix.primitive.Name;
+import org.mozilla.jss.util.ECCurve;
+import org.mozilla.jss.util.ECOIDs;
 
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -1442,19 +1449,62 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
 
     public KeyPair generateKeyPair(CryptoToken token) throws Exception {
 
+        KeyPairGenerator gen = null;
+
+        PrivateKey thisPriv = mSigningUnit.getPrivateKey();
+
+        if (thisPriv instanceof PK11PrivKey pKey) {
+            if (pKey.getType() == Type.RSA) {
+                logger.info("CertificateAuthority: generating RSA key");
+                gen = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);
+                gen.initialize(pKey.getStrength());
+                return gen.genKeyPair();
+            }
+            if (pKey.getType() == Type.EC) {
+                logger.info("CertificateAuthority: generating EC key");
+                gen = token.getKeyPairGenerator(KeyPairAlgorithm.EC);
+                String curveName = null;
+                try {
+                    X509CertImpl caCertImpl = mSigningUnit.getCertImpl();
+                    if (caCertImpl != null) {
+                        X509Key caPubKey = (X509Key) caCertImpl.get(X509CertImpl.PUBLIC_KEY);
+                        java.util.Vector<String> curves = CryptoUtil.getECKeyCurve(caPubKey);
+                        if (curves != null && !curves.isEmpty()) {
+                            curveName = curves.firstElement();
+                        }
+                    }
+                } catch (Exception e) {
+                    logger.warn("CertificateAuthority: failed to get EC curve name from parent certificate: " + e.getMessage());
+                }
+                if (curveName != null) {
+                    gen.initialize(gen.getCurveCodeByName(curveName));
+                } else {
+                    gen.initialize(new ECGenParameterSpec(ECCurve.P384.getNames()[0]));
+                }
+                return gen.genKeyPair();
+            }
+            if (pKey.getType() == Type.MLDSA44 ||
+                    pKey.getType() == Type.MLDSA65 ||
+                    pKey.getType() == Type.MLDSA87) {
+                logger.info("CertificateAuthority: generating MLDSA key");
+                gen = token.getKeyPairGenerator(KeyPairAlgorithm.MLDSA);
+                gen.initialize(new NamedParameterSpec(pKey.getType().toString()));
+                return gen.genKeyPair();
+            }
+        }
+
+        PublicKey thisPub = mSigningUnit.getPublicKey();
         logger.info("CertificateAuthority: generating RSA key");
 
         // Key size of sub-CA shall be key size of this CA.
         // If the key is not RSA (e.g. EC) default to 3072 bits.
         // TODO: key generation parameters
-        KeyPairGenerator gen = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);
+        gen = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);
         int keySize = 3072;
-        PublicKey thisPub = mSigningUnit.getPublicKey();
         if (thisPub instanceof RSAKey) {
             keySize = ((RSAKey) thisPub).getModulus().bitLength();
         }
         gen.initialize(keySize);
-
         return gen.genKeyPair();
     }
 
@@ -1466,9 +1516,22 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
 
         PublicKey pub = keypair.getPublic();
         X509Key x509key = CryptoUtil.createX509Key(pub);
-
         PKCS10 pkcs10 = new PKCS10(x509key);
-        Signature signature = Signature.getInstance("SHA256withRSA");
+        PrivateKey priv = keypair.getPrivate();
+        Signature signature = switch (priv.getAlgorithm()) {
+            case "RSA" -> Signature.getInstance("SHA256withRSA");
+            case "EC" -> Signature.getInstance("SHA256withECDSA");
+            case "ML-DSA" -> {
+                if (priv instanceof PK11PrivKey pKey) {
+                    yield Signature.getInstance(pKey.getType().toString());
+                }
+                throw new ECAException("ML-DSA key not handled by JSS");
+            }
+            default -> {
+                logger.warn("Private key type not recognised. Try with SHA256withRSA signature");
+                yield Signature.getInstance("SHA256withRSA");
+            }
+        };
         signature.initSign(keypair.getPrivate());
         pkcs10.encodeAndSign(new X500Signer(signature, subjectX500Name));
 
