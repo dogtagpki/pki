@@ -158,7 +158,7 @@ jobs:
       NAMESPACE: ${{ vars.REGISTRY_NAMESPACE || github.repository_owner }}
     steps:
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ vars.REGISTRY }}
           username: ${{ github.actor }}
@@ -166,7 +166,7 @@ jobs:
         if: vars.REGISTRY == 'ghcr.io'
 
       - name: Log in to other container registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ vars.REGISTRY }}
           username: ${{ secrets.REGISTRY_USERNAME }}
