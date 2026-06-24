@@ -1,0 +1,106 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="installing-subordinate-ca-with-new-security-domain"]
+= Installing a subordinate CA 
+
+Follow this process to install a subordinate CA subsystem with a new security domain with a signing certificate issued by a root CA.
+
+This example demonstrates:
+
+* how to use the extra pkispawn configuration parameters `pki_subordinate_create_new_security_domain` and `pki_subordinate_security_domain_name` along with the `pki_security_domain_*`
+ 
+* how a root CA can then be turned off line while the subordinate CA and eventual clones are created
+
+Prior to installation, ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
+
+In the example that follows, it is assumed that the root CA and the subordinate CA are installed on two separate hosts.
+
+== Installing a Root CA subsystem
+
+To install a root CA, follow the example, xref:installing-ca.adoc[Installing CA].
+ 
+* Get root CA signing cert for trust chain, and verify the trust chain:
+ 
+[literal]
+....
+$ pki-server cert-export ca_signing --cert-file > /root/ca.chain.crt
+$ openssl x509 -text -in /root/ca.chain.crt | less
+....
+ 
+== Installing a subordinate CA subsystem
+
+. Prepare a file, for example `subca-w-new-sd.cfg`, that contains the deployment configuration.
++
+A sample deployment configuration is available at xref:../../../base/server/examples/installation/subca-w-new-sd.cfg[/usr/share/pki/server/examples/installation/subca-w-new-sd.cfg].
++
+It assumes that the root CA is already running at https://root.example.com:8443 and the root CA signing certificate has been exported into `root-ca_signing.crt`.
+
+. Execute the following command as step 1 of pkispawn:
++
+[literal]
+....
+$ pkispawn -f subca.cfg -s CA --skip-configuration
+....
++
+. Add optional customization.
++
+. Execute the following command as step 2 of pkispawn:
++
+[literal]
+....
+$ pkispawn -f subca.cfg -s CA --skip-installation
+....
+
+It installs a CA subsystem in a Tomcat instance (default is pki-tomcat) and creates the following NSS databases:
+
+* server NSS database: /var/lib/pki/pki-tomcat/conf/alias
+
+* admin NSS database: ~/.dogtag/pki-RSA-SubCA/ca/alias
+
+== Verification
+
+[literal]
+....
+$ pki-server instance find
+$ pki -p 8443 securitydomain-show
+$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
+$ certutil -O -d /var/lib/pki/pki-tomcat/conf/alias -n "Server-Cert cert-pki-tomcat"
+$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -n "CA Signing Cert - pki-tomcat"
+$ pki -p 8443 info
+$ pki -p 8443 ca-cert-find
+....
+
+== Verifying admin certificate 
+
+
+. Import the root CA and subCA signing certificates:
++
+[literal]
+....
+$ pki nss-cert-import --cert root-ca_signing.crt --trust CT,C,C root-ca_signing
+$ pki nss-cert-import --cert ca_signing.crt --trust CT,C,C ca_signing
+....
+
+. Import admin certificate and key into the client NSS database (by default ~/.dogtag/nssdb) with the following command:
++
+[literal]
+....
+$ pki pkcs12-import \
+    --pkcs12 /root/.dogtag/pki-RSA-SubCA/ca_admin_cert.p12 \
+    --pkcs12-password Secret.123
+....
+
+. Verify that the admin certificate can be used to access the subordinate CA subsystem by executing the following command:
++
+[literal]
+....
+$ pki -n caadmin ca-user-show caadmin
+--------------
+User "caadmin"
+--------------
+  User ID: caadmin
+  Full name: caadmin
+  Email: caadmin@example.com
+  Type: adminType
+  State: 1
+....
