@@ -5,9 +5,19 @@ on:
 
 jobs:
   waiting-for-build:
-    name: Waiting For Build
+    name: Waiting for build
     runs-on: ubuntu-latest
     steps:
+      - name: Clone repository
+        uses: actions/checkout@v7
+
+      - name: Initialization
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WORKFLOW_REF: ${{ github.workflow_ref }}
+          TESTS: ${{ vars.TESTS }}
+        run: tests/bin/test-init.sh
+
       - name: Wait for build
         uses: lewagon/wait-on-check-action@v1.8.0
         with:
