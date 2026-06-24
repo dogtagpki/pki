@@ -35,3 +35,34 @@ if [ "$COPR_REPO" = "" ]; then
         echo "COPR_REPO=$COPR_REPO" | tee -a $GITHUB_ENV
     fi
 fi
+
+# <owner>/<project>/.github/workflows/<name>-tests.yml@refs/heads/<branch>
+echo "WORKFLOW_REF=$WORKFLOW_REF"
+
+# get test suite name from workflow reference path
+if [[ "$WORKFLOW_REF" =~ /([^/]+)-tests\.yml@ ]]; then
+    TEST_SUITE="${BASH_REMATCH[1]}"
+else
+    TEST_SUITE=""
+fi
+echo "TEST_SUITE=$TEST_SUITE"
+
+# check list of test suites
+echo "TESTS=$TESTS"
+
+if [ "$TESTS" != "" ]; then
+
+    # check whether test suite is enabled
+    ENABLED=false
+    for item in $TESTS; do
+        if [ "$item" = "$TEST_SUITE" ]; then
+            ENABLED=true
+            break
+        fi
+    done
+
+    # if not enabled, cancel test suite
+    if [ "$ENABLED" = "false" ]; then
+        gh run cancel $GITHUB_RUN_ID
+    fi
+fi

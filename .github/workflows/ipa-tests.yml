@@ -18,6 +18,10 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Initialization
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WORKFLOW_REF: ${{ github.workflow_ref }}
+          TESTS: ${{ vars.TESTS }}
         run: tests/bin/test-init.sh
 
       - name: Update Dockerfile
