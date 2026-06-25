@@ -13,6 +13,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/subca-basic-test.yml
 
+  subca-pqc-test:
+    name: SubCA with PQC
+    needs: build
+    uses: ./.github/workflows/subca-pqc-test.yml
+
   subca-cmc-test:
     name: SubCA with CMC
     needs: build
