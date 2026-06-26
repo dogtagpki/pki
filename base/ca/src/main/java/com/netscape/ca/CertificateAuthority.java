@@ -81,7 +81,6 @@ import org.mozilla.jss.pkcs11.PK11PrivKey;
 import org.mozilla.jss.pkix.cert.Extension;
 import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.util.ECCurve;
-import org.mozilla.jss.util.ECOIDs;
 
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -1128,10 +1127,12 @@ public class CertificateAuthority extends Subsystem implements IAuthority, IOCSP
 
             for (int i = 0; i < tbsReq.getRequestCount(); i++) {
                 Request req = tbsReq.getRequestAt(i);
+
                 CertID certID = req.getCertID();
                 logger.info("CertificateAuthority: Checking cert 0x{} status", certID.getSerialNumber().toString(16));
 
                 SingleResponse sr = processRequest(req);
+                logger.info("CertificateAuthority: - status: {}", sr.getCertStatus());
 
                 singleResponses.addElement(sr);
             }

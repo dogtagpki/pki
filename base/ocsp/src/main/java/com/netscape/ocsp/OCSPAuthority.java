@@ -406,10 +406,14 @@ public class OCSPAuthority extends Subsystem implements IAuthority, IOCSPService
             long lookupStartTime = new Date().getTime();
 
             for (int i = 0; i < tbsReq.getRequestCount(); i++) {
-                logger.info("OCSPAuthority: Processing request #" + i);
-
                 Request req = tbsReq.getRequestAt(i);
+
+                CertID certID = req.getCertID();
+                logger.info("OCSPAuthority: Checking cert 0x{} status", certID.getSerialNumber().toString(16));
+
                 SingleResponse sr = mDefStore.processRequest(req);
+                logger.info("CertificateAuthority: - status: {}", sr.getCertStatus());
+
                 singleResponses.addElement(sr);
             }
 

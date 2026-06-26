@@ -398,13 +398,12 @@ class PKISubsystem(object):
 
     def validate_system_cert(self, tag):
 
-        logger.info('Validating %s cert', tag)
-
         cert_config = self.get_system_cert_config(tag)
 
         nickname = cert_config['nickname']
         token = pki.nssdb.normalize_token(cert_config['token'])
         cert_usage = cert_config['certusage']
+        logger.info('Validating %s cert for %s usage', tag, cert_usage)
 
         nssdb = self.instance.open_nssdb()
         try:
@@ -2160,7 +2159,7 @@ class PKISubsystem(object):
                  ignore_duplicate=False,
                  as_current_user=False):
 
-        logger.info('Adding user %s', user_id)
+        logger.info('Adding %s user', user_id)
 
         tmpdir = tempfile.mkdtemp()
         self.instance.chown(tmpdir)

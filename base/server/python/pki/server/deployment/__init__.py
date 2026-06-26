@@ -4418,10 +4418,10 @@ class PKIDeployer:
                 ])
 
         for group in groups:
-            logger.info('Adding %s into %s', uid, group)
+            logger.info('Adding %s user into %s', uid, group)
             subsystem.add_group_member(group, uid)
 
-        logger.info('Adding certificate for %s', uid)
+        logger.info('Adding cert for %s user', uid)
         subsystem.add_user_cert(
             uid,
             cert_data=cert_data.encode(),
@@ -4448,7 +4448,7 @@ class PKIDeployer:
             'base64',
             'pem')
 
-        logger.info('Adding certificate for %s', uid)
+        logger.info('Adding cert for %s user', uid)
 
         try:
             subsystem.add_user_cert(
@@ -4458,15 +4458,15 @@ class PKIDeployer:
                 ignore_duplicate=True)
 
         except Exception:    # pylint: disable=W0703
-            logger.warning('Unable to add certificate for %s', uid)
+            logger.warning('Unable to add cert for %s user', uid)
             # TODO: ignore error only if user cert already exists
 
-        logger.info('Adding %s into Subsystem Group', uid)
+        logger.info('Adding %s user into Subsystem Group', uid)
 
         try:
             subsystem.add_group_member('Subsystem Group', uid)
         except Exception:    # pylint: disable=W0703
-            logger.warning('Unable to add %s into Subsystem Group', uid)
+            logger.warning('Unable to add %s user into Subsystem Group', uid)
             # TODO: ignore failure only if user already exists in the group
 
     def backup_keys(self, subsystem):
