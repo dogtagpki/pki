@@ -19,15 +19,11 @@ jobs:
     uses: ./.github/workflows/ca-ecc-test.yml
 
   ca-pqc-test:
-    # disable PQC test on Fedora 42 since it's failing with SSLV3_ALERT_HANDSHAKE_FAILURE
-    if: ${{ vars.BASE_IMAGE != 'registry.fedoraproject.org/fedora:42' }}
     name: CA with PQC
     needs: build
     uses: ./.github/workflows/ca-pqc-test.yml
 
   ca-mldsa-CRMFPopClient-test:
-    # disable PQC test on Fedora 42 since it's failing with SSLV3_ALERT_HANDSHAKE_FAILURE
-    if: ${{ vars.BASE_IMAGE != 'registry.fedoraproject.org/fedora:42' }}
     name: CA with ML-DSA CRMFPopClient
     needs: build
     permissions:
@@ -95,8 +91,6 @@ jobs:
     uses: ./.github/workflows/ca-secure-ds-test.yml
 
   ca-secure-ds-pqc-test:
-    # disable PQC test on Fedora 42 since it's failing with SSLV3_ALERT_HANDSHAKE_FAILURE
-    if: ${{ vars.BASE_IMAGE != 'registry.fedoraproject.org/fedora:42' }}
     name: CA with secure DS (PQC)
     needs: build
     uses: ./.github/workflows/ca-secure-ds-pqc-test.yml
