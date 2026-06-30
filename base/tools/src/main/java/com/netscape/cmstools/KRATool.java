@@ -2397,26 +2397,6 @@ public class KRATool {
     }
 
     /**
-     * cross-scheme support: Get key size for payload wrap algorithm.
-     * For source/target algorithms, uses the explicit size parameters.
-     * For other algorithms, returns default of 128 for AES.
-     */
-    private static int getKeySizeFromAlgorithm(String algorithm) {
-        if (algorithm == null) return 128;
-
-        // For source/target payload algorithms, use explicit size parameters
-        if (algorithm.equals(mSourcePayloadWrapAlgName)) {
-            return mSourcePayloadWrapKeySize;
-        }
-        if (algorithm.equals(mTargetPayloadWrapAlgName)) {
-            return mTargetPayloadWrapKeySize;
-        }
-
-        // Default to 128 for AES (all algorithms are just names like "AES KeyWrap/Wrapped", no embedded sizes)
-        return 128;
-    }
-
-    /**
      * cross-scheme support: Convert payload algorithm string to JSS KeyWrapAlgorithm.
      * E.g., "AES/CBC/PKCS5Padding" -> KeyWrapAlgorithm.AES_CBC_PAD
      *       "AES KeyWrap/Wrapped" -> KeyWrapAlgorithm.AES_KEY_WRAP_PAD_KWP
@@ -3240,10 +3220,8 @@ public class KRATool {
                 // Generate new session key in processing token
                 KeyGenerator kg = processingToken.getKeyGenerator(KeyGenAlgorithm.AES);
 
-                int targetKeySize = getKeySizeFromAlgorithm(mTargetPayloadWrapAlgName);
-                if (targetKeySize == 0) {
-                    targetKeySize = 128;  // Default
-                }
+                // Use target key size from command-line parameter
+                int targetKeySize = mTargetPayloadWrapKeySize;
 
                 kg.initialize(targetKeySize);
                 kg.setKeyUsages(new SymmetricKey.Usage[] { SymmetricKey.Usage.WRAP, SymmetricKey.Usage.UNWRAP });
@@ -6911,10 +6889,8 @@ public class KRATool {
             else if (metaInfo.startsWith("sessionKeyLength:")) {
                 // Check if we regenerated the session key
                 if (mSessionKeyDecisionMade != null && mSessionKeyDecisionMade) {
-                    int targetKeySize = getKeySizeFromAlgorithm(mTargetPayloadWrapAlgName);
-                    if (targetKeySize == 0) {
-                        targetKeySize = 128;  // Default
-                    }
+                    // Use target key size from command-line parameter
+                    int targetKeySize = mTargetPayloadWrapKeySize;
                     updatedInfo = "sessionKeyLength:" + targetKeySize;
                     logger.info("Updated sessionKeyLength: " + targetKeySize);
                 }
@@ -7159,7 +7135,6 @@ public class KRATool {
         if (args.length < 2) {
             System.err.println("ERROR:  Insufficient arguments!"
                               + NEWLINE);
-            printUsage();
             System.exit(0);
         }
 
@@ -7235,12 +7210,10 @@ public class KRATool {
                     mSourcePayloadWrapKeySize = Integer.parseInt(args[i + 1]);
                     if (mSourcePayloadWrapKeySize != 128 && mSourcePayloadWrapKeySize != 192 && mSourcePayloadWrapKeySize != 256) {
                         System.err.println("ERROR:  Source payload wrapping key size must be 128, 192, or 256" + NEWLINE);
-                        printUsage();
                         System.exit(0);
                     }
                 } catch (NumberFormatException e) {
                     System.err.println("ERROR:  Invalid source payload wrapping key size: " + args[i + 1] + NEWLINE);
-                    printUsage();
                     System.exit(0);
                 }
             } else if (args[i].contentEquals(TARGET_PAYLOAD_WRAP_KEYSIZE)) {
@@ -7249,12 +7222,10 @@ public class KRATool {
                     mTargetPayloadWrapKeySize = Integer.parseInt(args[i + 1]);
                     if (mTargetPayloadWrapKeySize != 128 && mTargetPayloadWrapKeySize != 192 && mTargetPayloadWrapKeySize != 256) {
                         System.err.println("ERROR:  Target payload wrapping key size must be 128, 192, or 256" + NEWLINE);
-                        printUsage();
                         System.exit(0);
                     }
                 } catch (NumberFormatException e) {
                     System.err.println("ERROR:  Invalid target payload wrapping key size: " + args[i + 1] + NEWLINE);
-                    printUsage();
                     System.exit(0);
                 }
             } else if (args[i].contentEquals(USE_NSS_FOR_PAYLOAD_PROCESSING)) {
@@ -7277,19 +7248,16 @@ public class KRATool {
                 // cross-scheme: split output into multiple files
                 if (i + 1 >= args.length || args[i + 1].startsWith("-")) {
                     System.err.println("ERROR:  " + SPLIT_TARGET_LDIF_PER_RECORDS + " requires a numeric value" + NEWLINE);
-                    printUsage();
                     System.exit(0);
                 }
                 try {
                     mSplitTargetLdifPerRecords = Integer.parseInt(args[i + 1]);
                     if (mSplitTargetLdifPerRecords <= 0) {
                         System.err.println("ERROR:  Split records count must be greater than 0" + NEWLINE);
-                        printUsage();
                         System.exit(0);
                     }
                 } catch (NumberFormatException e) {
                     System.err.println("ERROR:  Invalid split records count: " + args[i + 1] + NEWLINE);
-                    printUsage();
                     System.exit(0);
                 }
             } else if (args[i].contentEquals(USE_CROSS_SCHEME)) {
@@ -7298,7 +7266,6 @@ public class KRATool {
                 i -= 1;
             } else {
                 logger.error("Unknown argument: " + args[i]);
-                printUsage();
                 System.exit(0);
             }
         }
@@ -7315,7 +7282,6 @@ public class KRATool {
                 mLogFilename == null ||
                 mLogFilename.length() == 0) {
             System.err.println("ERROR: Missing mandatory arguments");
-            printUsage();
             System.exit(0);
         } else {
             // Check for a valid KRATOOL config file
@@ -7326,7 +7292,6 @@ public class KRATool {
                 System.err.println("ERROR: " + mKratoolCfgFilename
                                   + " does NOT exist, is NOT a file, "
                                   + "or is empty");
-                printUsage();
                 System.exit(0);
             }
 
@@ -7338,7 +7303,6 @@ public class KRATool {
                 System.err.println("ERROR: " + mSourceLdifFilename
                                   + " does NOT exist, is NOT a file, "
                                   + "or is empty");
-                printUsage();
                 System.exit(0);
             }
 
@@ -7346,7 +7310,6 @@ public class KRATool {
             targetFile = new File(mTargetLdifFilename);
             if (targetFile.exists()) {
                 System.err.println("ERROR: " + mTargetLdifFilename + " ALREADY exists");
-                printUsage();
                 System.exit(0);
             }
 
@@ -7354,7 +7317,6 @@ public class KRATool {
             logFile = new File(mLogFilename);
             if (logFile.exists()) {
                 System.err.println("ERROR: " + mLogFilename + " ALREADY exists");
-                printUsage();
                 System.exit(0);
             }
         }
@@ -7380,7 +7342,6 @@ public class KRATool {
                     mTargetStorageCertificateFilename == null ||
                     mTargetStorageCertificateFilename.length() == 0) {
                 logger.error("Missing 'Rewrap' arguments");
-                printUsage();
                 System.exit(0);
             } else {
                 // Check for a valid path to the PKI security databases
@@ -7390,7 +7351,6 @@ public class KRATool {
                     logger.error(mSourcePKISecurityDatabasePath
                                       + " does NOT exist or "
                                       + "is NOT a directory");
-                    printUsage();
                     System.exit(0);
                 }
 
@@ -7403,7 +7363,6 @@ public class KRATool {
                     logger.error(mTargetStorageCertificateFilename
                                       + " does NOT exist, is NOT a file, "
                                       + "or is empty");
-                    printUsage();
                     System.exit(0);
                 }
 
@@ -7420,7 +7379,6 @@ public class KRATool {
             logger.error("The 'append ID Offset' option "
                                   + "and the 'remove ID Offset' option are "
                                   + "mutually exclusive");
-            printUsage();
             System.exit(0);
         }
 
@@ -7435,7 +7393,6 @@ public class KRATool {
                         logger.error(append_id_offset
                                           + " contains non-numeric "
                                           + "characters");
-                        printUsage();
                         System.exit(0);
                     } else {
                         mAppendIdOffset = new BigInteger(
@@ -7454,7 +7411,6 @@ public class KRATool {
                 }
             } else {
                 logger.error("Missing 'append ID Offset' arguments");
-                printUsage();
                 System.exit(0);
             }
         }
@@ -7470,7 +7426,6 @@ public class KRATool {
                         logger.error(remove_id_offset
                                           + " contains non-numeric "
                                           + "characters");
-                        printUsage();
                         System.exit(0);
                     } else {
                         mRemoveIdOffset = new BigInteger(
@@ -7489,7 +7444,6 @@ public class KRATool {
                 }
             } else {
                 logger.error("Missing 'remove ID Offset' arguments");
-                printUsage();
                 System.exit(0);
             }
         }
@@ -7502,7 +7456,6 @@ public class KRATool {
             logger.error("At least one of the 'rewrap', "
                               + "'append ID Offset', or 'remove ID Offset' "
                               + "options MUST be specified");
-            printUsage();
             System.exit(0);
         }
 
@@ -7516,7 +7469,6 @@ public class KRATool {
                     mSourcePKISecurityDatabasePwdfile == null ||
                     mSourcePKISecurityDatabasePwdfile.length() == 0) {
                 logger.error("Missing 'Password File' arguments");
-                printUsage();
                 System.exit(0);
             } else {
                 if (mRewrapFlag) {
@@ -7530,7 +7482,6 @@ public class KRATool {
                         logger.error(mSourcePKISecurityDatabasePwdfile
                                           + " does NOT exist, is NOT a file, "
                                           + "or is empty");
-                        printUsage();
                         System.exit(0);
                     }
 
@@ -7555,7 +7506,6 @@ public class KRATool {
                                       + TIC
                                       + " option is ONLY valid when "
                                       + "performing rewrapping");
-                    printUsage();
                     System.exit(0);
                 }
             }
@@ -7576,7 +7526,6 @@ public class KRATool {
                 logger.error("Both 'source KRA naming context' "
                                   + "and 'target KRA naming context' "
                                   + "options MUST be specified");
-                printUsage();
                 System.exit(0);
             } else {
                 process_kra_naming_context_fields = SPACE
