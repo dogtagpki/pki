@@ -176,10 +176,18 @@ add_custom_command(
     COMMAND ln -sf ../../../lib/pki-common.jar common/lib/pki-common.jar
     COMMAND ln -sf ../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-tomcat.jar common/lib/pki-tomcat.jar
     COMMAND ln -sf ../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/${pkiTomcatJar} common/lib/${pkiTomcatJar}
+)
+
+if(WITH_APIV1)
+add_custom_command(
+    TARGET pki-server-common-lib POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory common/lib
+    COMMAND test ! -d ${CMAKE_SOURCE_DIR}/base/server/lib || cp ${CMAKE_SOURCE_DIR}/base/server/lib/* common/lib
     COMMAND ln -sf ../../../lib/resteasy-jackson2-provider.jar common/lib/resteasy-jackson2-provider.jar
     COMMAND ln -sf ../../../lib/resteasy-jaxrs.jar common/lib/resteasy-jaxrs.jar
     COMMAND ln -sf ${RESTEASY_SERVLET_INITIALIZER_LINK} common/lib/resteasy-servlet-initializer.jar
 )
+endif()
 
 add_custom_target(pki-server-man ALL
     COMMENT "Creating PKI server manuals")

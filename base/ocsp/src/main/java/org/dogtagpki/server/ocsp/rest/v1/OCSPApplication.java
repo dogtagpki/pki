@@ -1,11 +1,13 @@
 package org.dogtagpki.server.ocsp.rest.v1;
 
+import com.netscape.cmscore.apps.CMSEngine;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
+import org.dogtagpki.server.ocsp.OCSPEngine;
 import org.dogtagpki.server.rest.v1.ACLInterceptor;
 import org.dogtagpki.server.rest.v1.AccountService;
 import org.dogtagpki.server.rest.v1.AuditService;
@@ -18,6 +20,7 @@ import org.dogtagpki.server.rest.v1.SecurityDomainService;
 import org.dogtagpki.server.rest.v1.SelfTestService;
 import org.dogtagpki.server.rest.v1.SessionContextInterceptor;
 import org.dogtagpki.server.rest.v1.UserService;
+import org.dogtagpki.server.rest.v1.ApiStatusHelper;
 
 @ApplicationPath("/v1")
 public class OCSPApplication extends Application {
@@ -28,6 +31,12 @@ public class OCSPApplication extends Application {
     private Set<Class<?>> classes = new LinkedHashSet<>();
 
     public OCSPApplication() {
+
+        CMSEngine engine = OCSPEngine.getInstance();
+        // Check v1 API status
+        if (ApiStatusHelper.checkApiStatus("OCSP", classes, logger, engine.getConfig())) {
+            return;
+        }
 
         // account
         classes.add(AccountService.class);

@@ -64,6 +64,7 @@ option(WITH_THEME "Build theme package" ON)
 option(WITH_META "Build meta package" ON)
 option(WITH_TESTS "Build tests package" ON)
 option(RUN_TESTS "Run unit tests" ON)
+option(WITH_APIV1 "Build API V1" ON)
 
 set(APPLICATION_VERSION "${APPLICATION_VERSION_MAJOR}.${APPLICATION_VERSION_MINOR}.${APPLICATION_VERSION_PATCH}")
 

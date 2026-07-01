@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.tps.rest.v1;
 
+import com.netscape.cmscore.apps.CMSEngine;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -33,7 +34,9 @@ import org.dogtagpki.server.rest.v1.PKIExceptionMapper;
 import org.dogtagpki.server.rest.v1.SelfTestService;
 import org.dogtagpki.server.rest.v1.SessionContextInterceptor;
 import org.dogtagpki.server.rest.v1.UserService;
+import org.dogtagpki.server.rest.v1.ApiStatusHelper;
 import org.dogtagpki.server.tps.TPSAccountService;
+import org.dogtagpki.server.tps.TPSEngine;
 import org.dogtagpki.server.tps.config.ConfigService;
 
 /**
@@ -42,10 +45,18 @@ import org.dogtagpki.server.tps.config.ConfigService;
 @ApplicationPath("/v1")
 public class TPSApplication extends Application {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSApplication.class);
+
     private Set<Object> singletons = new LinkedHashSet<>();
     private Set<Class<?>> classes = new LinkedHashSet<>();
 
     public TPSApplication() {
+
+        CMSEngine engine = TPSEngine.getInstance();
+        // Check v1 API status
+        if (ApiStatusHelper.checkApiStatus("TPS", classes, logger, engine.getConfig())) {
+            return;
+        }
 
         // account
         classes.add(TPSAccountService.class);
