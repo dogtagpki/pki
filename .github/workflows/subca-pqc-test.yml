@@ -501,6 +501,7 @@ jobs:
               output > actual
 
           # cert should be issued by root CA
+          # TODO: investigate inconsistent key usage
           cat > expected << EOF
           Certificate:
               Data:
@@ -550,6 +551,7 @@ jobs:
               output > actual
 
           # cert should be issued by sub CA
+          # TODO: investigate inconsistent key usage
           cat > expected << EOF
           Certificate:
               Data:
@@ -597,6 +599,7 @@ jobs:
               output > actual
 
           # cert should be issued by sub CA
+          # TODO: investigate inconsistent key usage
           cat > expected << EOF
           Certificate:
               Data:
@@ -821,6 +824,8 @@ jobs:
 
           diff expected stderr
 
+          docker exec subca pki-server cert-validate ca_signing
+
       - name: Check sub CA OCSP signing cert usage
         run: |
           # cert should be usable as OCSP responder (10)
@@ -849,6 +854,8 @@ jobs:
           EOF
 
           diff expected stderr
+
+          docker exec subca pki-server cert-validate ca_ocsp_signing
 
       - name: Check sub CA audit signing cert usage
         run: |
@@ -879,6 +886,8 @@ jobs:
 
           diff expected stderr
 
+          docker exec subca pki-server cert-show ca_audit_signing
+
       - name: Check sub CA subsystem cert usage
         run: |
           # cert should be usable as SSL client (0)
@@ -908,6 +917,8 @@ jobs:
 
           diff expected stderr
 
+          docker exec subca pki-server cert-validate subsystem
+
       - name: Check sub CA SSL server cert usage
         run: |
           # cert should be usable as SSL server (1)
@@ -936,6 +947,8 @@ jobs:
           EOF
 
           diff expected stderr
+
+          docker exec subca pki-server cert-validate sslserver
 
       - name: Check sub CA admin cert usage
         run: |
@@ -967,6 +980,10 @@ jobs:
           EOF
 
           diff expected stderr
+
+          docker exec subca pki nss-cert-verify \
+              --cert-usage SSLClient \
+              caadmin
 
       - name: Remove sub CA
         run: docker exec subca pkidestroy -s CA -v
