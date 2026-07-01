@@ -45,6 +45,7 @@ import org.mozilla.jss.util.Base64OutputStream;
 
 
 import org.mozilla.jss.crypto.KeyPairAlgorithm;
+import org.mozilla.jss.crypto.KeyPairGeneratorSpi;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
@@ -324,11 +325,21 @@ public class NetkeyKeygenService implements IService {
 
             logger.debug("NetkeyKeygenService: about to generate key pair");
 
+            String keyGenUsages = request.getExtDataInString(IRequest.KEY_GEN_USAGES);
+            KeyPairGeneratorSpi.Usage[] usageList = null;
+
+            if (keyGenUsages != null && !keyGenUsages.isEmpty()) {
+                logger.debug("NetkeyKeygenService: keyGenUsages received: " + keyGenUsages);
+                usageList = CryptoUtil.generateUsage(keyGenUsages);
+            } else {
+                logger.debug("NetkeyKeygenService: no keyGenUsages, using NSS defaults");
+            }
+
             keypair = mKRA.generateKeyPair(rKeytype /* rKeytype: "RSA" or "EC" */,
                 keysize /*Integer.parseInt(len)*/,
                 rKeycurve /* for "EC" only */,
                 null /*pqgParams*/,
-                null /* usageList*/);
+                usageList /* usageList*/);
 
             if (keypair == null) {
                 logger.warn("NetkeyKeygenService: failed generating key pair for " + rCUID + ":" + rUserid);

@@ -145,6 +145,9 @@ public class TPSProcessor {
     //protected TokenRecord tokenRecord;
     protected String selectedTokenType;
     protected String selectedKeySet;
+
+    protected String selectedKeyGenUsages;
+
     IAuthToken authToken;
     List<String> ldapStringAttrs;
 
@@ -222,6 +225,13 @@ public class TPSProcessor {
         return selectedKeySet;
     }
 
+    protected void setSelectedKeyGenUsages(String usages) {
+        selectedKeyGenUsages = usages;
+    }
+
+    public String getSelectedKeyGenUsages() {
+        return selectedKeyGenUsages;
+    }
 
     protected TPSBuffer extractTokenMSN(TPSBuffer cplc_data) throws TPSException {
         //Just make sure no one is inputing bogus cplc_data

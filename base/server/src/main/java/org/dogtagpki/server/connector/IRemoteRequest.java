@@ -112,6 +112,7 @@ public interface IRemoteRequest {
     public static final String KRA_KEYGEN_KeyType = "keytype";
     public static final String KRA_KEYGEN_EC_KeyCurve = "eckeycurve";
     public static final String KRA_KEYGEN_KeySize = "keysize";
+    public static final String KRA_KEYGEN_Usages = "keyGenUsages";
     public static final String KRA_RECOVERY_CERT = "cert";
     public static final String KRA_RECOVERY_KEYID = "keyid";
 

@@ -134,6 +134,8 @@ public class AsymKeyGenService implements IService {
 
         KeyPairGeneratorSpi.Usage[] usageList = null;
         String usageStr = request.getExtDataInString(IRequest.KEY_GEN_USAGES);
+        logger.debug("AsymKeyGenService: KEY_GEN_USAGES from request: " + usageStr);
+
         if (usageStr != null) {
             String[] usages = usageStr.split(",");
 

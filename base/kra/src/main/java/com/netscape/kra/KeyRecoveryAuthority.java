@@ -27,8 +27,10 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -1797,6 +1799,42 @@ public KeyPair generateKeyPair(String alg, int keySize, String keyCurve,
             kpAlg = KeyPairAlgorithm.EC;
         else
             kpAlg = KeyPairAlgorithm.DSA;
+
+        // Enforce PKCS#11 attribute pairing for HSM compatibility.
+        // (e.g. CKA_SIGN with CKA_VERIFY, CKA_SIGN_RECOVER with
+        // CKA_VERIFY_RECOVER) to both be present.
+        if (usageList != null) {
+            if (logger.isDebugEnabled()) {
+                for (KeyPairGeneratorSpi.Usage u : usageList) {
+                    if (u != null) {
+                        logger.debug("KeyRecoveryAuthority: incoming usage: "
+                            + u.name());
+                    }
+                }
+            }
+
+            List<String> usageCheck = new ArrayList<>();
+            for (KeyPairGeneratorSpi.Usage u : usageList) {
+                if (u != null) {
+                    usageCheck.add(u.name().toLowerCase());
+                }
+            }
+            int originalSize = usageCheck.size();
+            CryptoUtil.enforcePairedUsages(usageCheck);
+            if (usageCheck.size() != originalSize) {
+                logger.debug("KeyRecoveryAuthority: Rebuilt usage"
+                    + " list after pairing enforcement");
+                usageList = CryptoUtil.generateUsage(
+                    String.join(",", usageCheck));
+                if (logger.isDebugEnabled()) {
+                    for (KeyPairGeneratorSpi.Usage u : usageList) {
+                        if (u != null) {
+                            logger.debug("KeyRecoveryAuthority: enforced usage: " + u.name());
+                        }
+                    }
+                }
+            }
+        }
 
         try {
             KeyPair kp = generateKeyPair(kpAlg, keySize, keyCurve, pqg, usageList, temp);

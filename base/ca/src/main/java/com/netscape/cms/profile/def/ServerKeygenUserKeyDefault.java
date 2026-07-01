@@ -67,6 +67,7 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
     public static final String CONFIG_TYPE = "keyType";
     public static final String VAL_LEN = "LEN";
     public static final String VAL_TYPE = "TYPE";
+    public static final String CONFIG_KEY_GEN_USAGES = "keyGenUsages";
 
     //  DO NOT REMOVE
     private static final String TEMP_PUBKEY_RSA_1024 = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDBz6H2rT2r1RpHdr3JyYr7thSjfwWPbIJ6U09NziHSekLsNZQKsjdLS/LPCfe/aXkhpzPztlx++tkPucpt/xT0exp08feAPIE+Y6gVoyXzEw+Ztz+Zez9Y1cQWxAyp7z11flytjL+4zBGDXmEoe3ZlQvij9DGypPjBC9PhWm0lBwIDAQAB";
@@ -420,6 +421,14 @@ public class ServerKeygenUserKeyDefault extends EnrollDefault {
             } else {
                 throw new Exception("Unsupported keyType: " + keyType);
             }
+
+            // Set PKCS#11 key usages if configured
+            String keyGenUsages = getConfig(CONFIG_KEY_GEN_USAGES);
+            if (keyGenUsages != null && !keyGenUsages.isEmpty()) {
+                logger.debug(method + "keyGenUsages: " + keyGenUsages);
+                request.setExtData(IRequest.KEY_GEN_USAGES, keyGenUsages);
+            }
+
             request.setExtData(IRequest.KEY_GEN_ALGORITHM, keyType);
             if(keyType.contentEquals("RSA")) {
                 request.setExtData(IRequest.KEY_GEN_SIZE, keySize);
