@@ -172,15 +172,8 @@ jobs:
               
       - name: Calculate Tomcat flavor
         run: |
-          TOMCAT_FLAVOR=$(docker exec pki bash -c '
-          if [ -f /usr/libexec/tomcat/tomcat-run.sh ]; then
-            printf "new"
-          else
-            printf "old"
-          fi
-          ')
-          echo "TOMCAT_FLAVOR=$TOMCAT_FLAVOR" >> $GITHUB_ENV
-          echo "Detected Tomcat flavor: $TOMCAT_FLAVOR"
+          TOMCAT_FLAVOR=$(docker exec pki test -f /usr/libexec/tomcat/tomcat-run.sh && echo "new" || echo "old")
+          echo "TOMCAT_FLAVOR=$TOMCAT_FLAVOR" | tee -a $GITHUB_ENV
 
       - name: Check conf dir
         if: always()
@@ -193,7 +186,7 @@ jobs:
 
           # everything should be owned by pkiuser group
           # TODO: review owners/permissions
-          cat > expected << EOF
+          cat > expected_old << EOF
           drwxrwxrwx pkiuser Catalina
           drwxrwxrwx pkiuser alias
           drwxrwxrwx pkiuser ca
@@ -210,7 +203,7 @@ jobs:
           lrwxrwxrwx pkiuser web.xml -> /etc/tomcat/web.xml
           EOF
 
-          cat > expected_new_tomcat10 << EOF
+          cat > expected_new << EOF
           drwxrwxrwx pkiuser Catalina
           drwxrwxrwx pkiuser alias
           drwxrwxrwx pkiuser ca
@@ -227,13 +220,7 @@ jobs:
           lrwxrwxrwx pkiuser web.xml -> /etc/tomcat/web.xml
           EOF
 
-          if [ $TOMCAT_FLAVOR == 'new' ]; then
-              echo "New tomcat 10!"
-              diff expected_new_tomcat10 output
-          else
-              echo "Old tomcat 10!"
-              diff expected output
-          fi
+          diff expected_$TOMCAT_FLAVOR output
 
       - name: Check conf/alias dir
         if: always()
@@ -246,27 +233,21 @@ jobs:
 
           # everything should be owned by pkiuser group
           # TODO: review owners/permissions
-          cat > expected << EOF
+          cat > expected_old << EOF
           -rw-rw-rw- pkiuser ca.crt
           -rw-rw---- pkiuser cert9.db
           -rw-rw---- pkiuser key4.db
           -rw-rw---- pkiuser pkcs11.txt
           EOF
 
-          cat > expected_new_tomcat10 << EOF
+          cat > expected_new << EOF
           -rw-rw-rw- pkiuser ca.crt
           -rw-rw-rw- pkiuser cert9.db
           -rw-rw-rw- pkiuser key4.db
           -rw-rw-rw- pkiuser pkcs11.txt
           EOF
 
-          if [ $TOMCAT_FLAVOR == 'new' ]; then
-              echo "New tomcat 10!"
-              diff expected_new_tomcat10 output
-          else
-              echo "Old tomcat 10!"
-              diff expected output
-          fi
+          diff expected_$TOMCAT_FLAVOR output
 
       - name: Check conf/ca dir
         if: always()
@@ -280,7 +261,7 @@ jobs:
 
           # everything should be owned by pkiuser group
           # TODO: review owners/permissions
-          cat > expected << EOF
+          cat > expected_old << EOF
           -rw-rw---- pkiuser CS.cfg
           -rw-rw---- pkiuser adminCert.profile
           drwxrwxrwx pkiuser archives
@@ -296,7 +277,7 @@ jobs:
           -rw-rw---- pkiuser subsystemCert.profile
           EOF
 
-          cat > expected_new_tomcat10 << EOF
+          cat > expected_new << EOF
           -rw-rw-rw- pkiuser CS.cfg
           -rw-rw-rw- pkiuser adminCert.profile
           drwxrwxrwx pkiuser archives
@@ -312,13 +293,7 @@ jobs:
           -rw-rw-rw- pkiuser subsystemCert.profile
           EOF
 
-          if [ $TOMCAT_FLAVOR == 'new' ]; then
-              echo "New tomcat 10!"
-              diff expected_new_tomcat10 output
-          else
-              echo "Old tomcat 10!"
-              diff expected output
-          fi
+          diff expected_$TOMCAT_FLAVOR output
 
       - name: Check logs dir
         if: ${{ fromJSON(env.FEDORA_VERSION) < 43 }}
@@ -356,25 +331,19 @@ jobs:
 
           # everything should be owned by pkiuser group
           # TODO: review owners/permissions
-          cat > expected << EOF
+          cat > expected_old << EOF
           drwxrwxrwx pkiuser backup
           drwxrwxrwx pkiuser ca
           -rw-rw-rw- pkiuser localhost_access_log.$DATE.txt
           EOF
 
-          cat > expected_new_tomcat10 << EOF
+          cat > expected_new << EOF
           drwxrwxrwx pkiuser backup
           drwxrwxrwx pkiuser ca
           -rw-rw-rw- pkiuser localhost_access_log.$DATE.txt
           EOF
 
-          if [ $TOMCAT_FLAVOR == 'new' ]; then
-              echo "New tomcat 10!"
-              diff expected_new_tomcat10 output
-          else
-              echo "Old tomcat 10!"
-              diff expected output
-          fi
+          diff expected_$TOMCAT_FLAVOR output
 
       - name: Check CA info
         run: |

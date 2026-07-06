@@ -83,15 +83,8 @@ jobs:
 
       - name: Calculate Tomcat flavor
         run: |
-          TOMCAT_FLAVOR=$(docker exec pki bash -c '
-          if [ -f /usr/libexec/tomcat/tomcat-run.sh ]; then
-            printf "new"
-          else
-            printf "old"
-          fi
-          ')
-          echo "TOMCAT_FLAVOR=$TOMCAT_FLAVOR" >> $GITHUB_ENV
-          echo "Detected Tomcat flavor: $TOMCAT_FLAVOR"
+          TOMCAT_FLAVOR=$(docker exec pki test -f /usr/libexec/tomcat/tomcat-run.sh && echo "new" || echo "old")
+          echo "TOMCAT_FLAVOR=$TOMCAT_FLAVOR" | tee -a $GITHUB_ENV
 
       - name: Install CA
         run: |
@@ -125,7 +118,7 @@ jobs:
               | tee output
 
           # TODO: review permissions
-          cat > expected << EOF
+          cat > expected_old << EOF
           lrwxrwxrwx pkiuser pkiuser alias -> /var/lib/pki/pki-tomcat/conf/alias
           lrwxrwxrwx pkiuser pkiuser bin -> /usr/share/tomcat/bin
           drwxrwx--- pkiuser pkiuser ca
@@ -138,7 +131,7 @@ jobs:
           drwxrwx--- pkiuser pkiuser work
           EOF
 
-          cat > expected_new_tomcat10 << EOF
+          cat > expected_new << EOF
           lrwxrwxrwx pkiuser pkiuser alias -> /var/lib/pki/pki-tomcat/conf/alias
           lrwxrwxrwx pkiuser pkiuser bin -> /usr/share/tomcat/bin
           drwxrwx--- pkiuser pkiuser ca
@@ -151,13 +144,7 @@ jobs:
           drwxrwx--- pkiuser pkiuser work
           EOF
 
-          if [ "$TOMCAT_FLAVOR" == "new" ]; then
-              echo "New tomcat 10!"
-              diff expected_new_tomcat10 output
-          else
-              echo "Old tomcat 10!"
-              diff expected output
-          fi
+          diff expected_$TOMCAT_FLAVOR output
 
       - name: Check PKI server conf dir after installation
         run: |
@@ -169,7 +156,7 @@ jobs:
               | tee output
 
           # TODO: review permissions
-          cat > expected << EOF
+          cat > expected_old << EOF
           drwxrwx--- pkiuser pkiuser Catalina
           drwxrwx--- pkiuser pkiuser alias
           drwxrwx--- pkiuser pkiuser ca
@@ -185,7 +172,7 @@ jobs:
           lrwxrwxrwx pkiuser pkiuser web.xml -> /etc/tomcat/web.xml
           EOF
 
-          cat > expected_new_tomcat10 << EOF
+          cat > expected_new << EOF
           drwxrwx--- pkiuser pkiuser Catalina
           drwxrwx--- pkiuser pkiuser alias
           drwxrwx--- pkiuser pkiuser ca
@@ -201,13 +188,7 @@ jobs:
           lrwxrwxrwx pkiuser pkiuser web.xml -> /etc/tomcat/web.xml
           EOF
 
-          if [ "$TOMCAT_FLAVOR" == "new" ]; then
-              echo "New tomcat 10!"
-              diff expected_new_tomcat10 output
-          else
-              echo "Old tomcat 10!"
-              diff expected output
-          fi
+          diff expected_$TOMCAT_FLAVOR output
 
       - name: Check server.xml
         if: always()
@@ -298,25 +279,19 @@ jobs:
           DATE=$(date +'%Y-%m-%d')
 
           # TODO: review permissions
-          cat > expected << EOF
+          cat > expected_old << EOF
           drwxrwx--- pkiuser pkiuser backup
           drwxrwx--- pkiuser pkiuser ca
           -rw-r--r-- pkiuser pkiuser localhost_access_log.$DATE.txt
           EOF
 
-          cat > expected_new_tomcat10 << EOF
+          cat > expected_new << EOF
           drwxrwx--- pkiuser pkiuser backup
           drwxrwx--- pkiuser pkiuser ca
           -rw-r----- pkiuser pkiuser localhost_access_log.$DATE.txt
           EOF
 
-          if [ "$TOMCAT_FLAVOR" == "new" ]; then
-              echo "New tomcat 10!"
-              diff expected_new_tomcat10 output
-          else
-              echo "Old tomcat 10!"
-              diff expected output
-          fi
+          diff expected_$TOMCAT_FLAVOR output
 
       - name: Check CA base dir
         run: |
@@ -328,7 +303,7 @@ jobs:
               | tee output
 
           # TODO: review permissions
-          cat > expected << EOF
+          cat > expected_old << EOF
           lrwxrwxrwx pkiuser pkiuser alias -> /var/lib/pki/pki-tomcat/alias
           lrwxrwxrwx pkiuser pkiuser conf -> /var/lib/pki/pki-tomcat/conf/ca
           lrwxrwxrwx pkiuser pkiuser emails -> /var/lib/pki/pki-tomcat/conf/ca/emails
@@ -337,7 +312,7 @@ jobs:
           lrwxrwxrwx pkiuser pkiuser registry -> /etc/sysconfig/pki/tomcat/pki-tomcat
           EOF
 
-          cat > expected_new_tomcat10 << EOF
+          cat > expected_new << EOF
           lrwxrwxrwx pkiuser pkiuser alias -> /var/lib/pki/pki-tomcat/alias
           lrwxrwxrwx pkiuser pkiuser conf -> /var/lib/pki/pki-tomcat/conf/ca
           lrwxrwxrwx pkiuser pkiuser emails -> /var/lib/pki/pki-tomcat/conf/ca/emails
@@ -346,13 +321,7 @@ jobs:
           lrwxrwxrwx pkiuser pkiuser registry -> /etc/sysconfig/pki/tomcat/pki-tomcat
           EOF
 
-          if [ "$TOMCAT_FLAVOR" == "new" ]; then
-              echo "New tomcat 10!"
-              diff expected_new_tomcat10 output
-          else
-              echo "Old tomcat 10!"
-              diff expected output
-          fi
+          diff expected_$TOMCAT_FLAVOR output
 
       - name: Check CA conf dir
         run: |
@@ -365,7 +334,7 @@ jobs:
               | tee output
 
           # TODO: review permissions
-          cat > expected << EOF
+          cat > expected_old << EOF
           -rw-rw---- pkiuser pkiuser CS.cfg
           -rw-rw---- pkiuser pkiuser adminCert.profile
           drwxr-xr-x pkiuser pkiuser archives
@@ -381,7 +350,7 @@ jobs:
           -rw-rw---- pkiuser pkiuser subsystemCert.profile
           EOF
 
-          cat > expected_new_tomcat10 << EOF
+          cat > expected_new << EOF
           -rw-rw---- pkiuser pkiuser CS.cfg
           -rw-rw---- pkiuser pkiuser adminCert.profile
           drwxr-xr-x pkiuser pkiuser archives
@@ -397,13 +366,7 @@ jobs:
           -rw-rw---- pkiuser pkiuser subsystemCert.profile
           EOF
 
-          if [ "$TOMCAT_FLAVOR" == "new" ]; then
-              echo "New tomcat 10!"
-              diff expected_new_tomcat10 output
-          else
-              echo "Old tomcat 10!"
-              diff expected output
-          fi
+          diff expected_$TOMCAT_FLAVOR output
 
       - name: Check CA server status
         run: |
@@ -680,23 +643,17 @@ jobs:
               | tee output
 
           # TODO: review permissions
-          cat > expected << EOF
+          cat > expected_old << EOF
           lrwxrwxrwx pkiuser pkiuser conf -> /etc/pki/pki-tomcat
           lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-tomcat
           EOF
 
-          cat > expected_new_tomcat10 << EOF
+          cat > expected_new << EOF
           lrwxrwxrwx pkiuser pkiuser conf -> /etc/pki/pki-tomcat
           lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-tomcat
           EOF
 
-          if [ "$TOMCAT_FLAVOR" == "new" ]; then
-              echo "New tomcat 10!"
-              diff expected_new_tomcat10 output
-          else
-              echo "Old tomcat 10!"
-              diff expected output
-          fi
+          diff expected_$TOMCAT_FLAVOR output
 
       - name: Check PKI server conf dir after removal
         run: |
@@ -708,7 +665,7 @@ jobs:
               | tee output
 
           # TODO: review permissions
-          cat > expected << EOF
+          cat > expected_old << EOF
           drwxrwx--- pkiuser pkiuser Catalina
           drwxrwx--- pkiuser pkiuser alias
           drwxrwx--- pkiuser pkiuser ca
@@ -724,7 +681,7 @@ jobs:
           lrwxrwxrwx pkiuser pkiuser web.xml -> /etc/tomcat/web.xml
           EOF
 
-          cat > expected_new_tomcat10 << EOF
+          cat > expected_new << EOF
           drwxrwx--- pkiuser pkiuser Catalina
           drwxrwx--- pkiuser pkiuser alias
           drwxrwx--- pkiuser pkiuser ca
@@ -740,13 +697,7 @@ jobs:
           lrwxrwxrwx pkiuser pkiuser web.xml -> /etc/tomcat/web.xml
           EOF
 
-          if [ "$TOMCAT_FLAVOR" == "new" ]; then
-              echo "New tomcat 10!"
-              diff expected_new_tomcat10 output
-          else
-              echo "Old tomcat 10!"
-              diff expected output
-          fi
+          diff expected_$TOMCAT_FLAVOR output
 
       - name: Check PKI server logs dir after removal
         if: ${{ fromJSON(env.FEDORA_VERSION) < 43 }}
@@ -784,25 +735,19 @@ jobs:
           DATE=$(date +'%Y-%m-%d')
 
           # TODO: review permissions
-          cat > expected << EOF
+          cat > expected_old << EOF
           drwxrwx--- pkiuser pkiuser backup
           drwxrwx--- pkiuser pkiuser ca
           -rw-r--r-- pkiuser pkiuser localhost_access_log.$DATE.txt
           EOF
 
-          cat > expected_new_tomcat10 << EOF
+          cat > expected_new << EOF
           drwxrwx--- pkiuser pkiuser backup
           drwxrwx--- pkiuser pkiuser ca
           -rw-r----- pkiuser pkiuser localhost_access_log.$DATE.txt
           EOF
 
-          if [ "$TOMCAT_FLAVOR" == "new" ]; then
-              echo "New tomcat 10!"
-              diff expected_new_tomcat10 output
-          else
-              echo "Old tomcat 10!"
-              diff expected output
-          fi
+          diff expected_$TOMCAT_FLAVOR output
 
       - name: Check DS server systemd journal
         if: always()

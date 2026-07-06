@@ -47,15 +47,8 @@ jobs:
 
       - name: Calculate Tomcat flavor
         run: |
-          TOMCAT_FLAVOR=$(docker exec pki bash -c '
-          if [ -f /usr/libexec/tomcat/tomcat-run.sh ]; then
-            printf "new"
-          else
-            printf "old"
-          fi
-          ')
-          echo "TOMCAT_FLAVOR=$TOMCAT_FLAVOR" >> $GITHUB_ENV
-          echo "Detected Tomcat flavor: $TOMCAT_FLAVOR"
+          TOMCAT_FLAVOR=$(docker exec pki test -f /usr/libexec/tomcat/tomcat-run.sh && echo "new" || echo "old")
+          echo "TOMCAT_FLAVOR=$TOMCAT_FLAVOR" | tee -a $GITHUB_ENV
 
       - name: Create custom user and group
         run: |

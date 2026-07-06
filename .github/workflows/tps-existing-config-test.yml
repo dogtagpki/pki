@@ -51,15 +51,8 @@ jobs:
           
       - name: Calculate Tomcat flavor
         run: |
-          TOMCAT_FLAVOR=$(docker exec pki bash -c '
-          if [ -f /usr/libexec/tomcat/tomcat-run.sh ]; then
-            printf "new"
-          else
-            printf "old"
-          fi
-          ')
-          echo "TOMCAT_FLAVOR=$TOMCAT_FLAVOR" >> $GITHUB_ENV
-          echo "Detected Tomcat flavor: $TOMCAT_FLAVOR"
+          TOMCAT_FLAVOR=$(docker exec pki test -f /usr/libexec/tomcat/tomcat-run.sh && echo "new" || echo "old")
+          echo "TOMCAT_FLAVOR=$TOMCAT_FLAVOR" | tee -a $GITHUB_ENV
 
       - name: Install CA
         run: |
@@ -132,7 +125,7 @@ jobs:
 
           # TPS subsystem should be removed
           # TODO: review permissions
-          cat > expected << EOF
+          cat > expected_old << EOF
           lrwxrwxrwx pkiuser pkiuser alias -> /var/lib/pki/pki-tomcat/conf/alias
           lrwxrwxrwx pkiuser pkiuser bin -> /usr/share/tomcat/bin
           drwxrwx--- pkiuser pkiuser ca
@@ -147,7 +140,7 @@ jobs:
           drwxrwx--- pkiuser pkiuser work
           EOF
 
-          cat > expected_new_tomcat10 << EOF
+          cat > expected_new << EOF
           lrwxrwxrwx pkiuser pkiuser alias -> /var/lib/pki/pki-tomcat/conf/alias
           lrwxrwxrwx pkiuser pkiuser bin -> /usr/share/tomcat/bin
           drwxrwx--- pkiuser pkiuser ca
@@ -162,13 +155,7 @@ jobs:
           drwxrwx--- pkiuser pkiuser work
           EOF
 
-          if [ $TOMCAT_FLAVOR == 'new' ]; then
-              echo "New tomcat 10!"
-              diff expected_new_tomcat10 output
-          else
-              echo "Old tomcat 10!"
-              diff expected output
-          fi
+          diff expected_$TOMCAT_FLAVOR output
 
       - name: Check PKI server conf dir after removal
         run: |
@@ -181,7 +168,7 @@ jobs:
 
           # all config files should be retained
           # TODO: review permissions
-          cat > expected << EOF
+          cat > expected_old << EOF
           drwxrwx--- pkiuser pkiuser Catalina
           drwxrwx--- pkiuser pkiuser alias
           drwxrwx--- pkiuser pkiuser ca
@@ -200,7 +187,7 @@ jobs:
           lrwxrwxrwx pkiuser pkiuser web.xml -> /etc/tomcat/web.xml
           EOF
 
-          cat > expected_new_tomcat10 << EOF
+          cat > expected_new << EOF
           drwxrwx--- pkiuser pkiuser Catalina
           drwxrwx--- pkiuser pkiuser alias
           drwxrwx--- pkiuser pkiuser ca
@@ -219,13 +206,7 @@ jobs:
           lrwxrwxrwx pkiuser pkiuser web.xml -> /etc/tomcat/web.xml
           EOF
 
-          if [ $TOMCAT_FLAVOR == 'new' ]; then
-              echo "New tomcat 10!"
-              diff expected_new_tomcat10 output
-          else
-              echo "Old tomcat 10!"
-              diff expected output
-          fi
+          diff expected_$TOMCAT_FLAVOR output
 
           # save the original config
           docker exec pki cp -r /etc/pki/pki-tomcat /etc/pki/pki-tomcat.orig
@@ -271,7 +252,7 @@ jobs:
 
           # all log files should be retained
           # TODO: review permissions
-          cat > expected << EOF
+          cat > expected_old << EOF
           drwxrwx--- pkiuser pkiuser backup
           drwxrwx--- pkiuser pkiuser ca
           drwxrwx--- pkiuser pkiuser kra
@@ -280,7 +261,7 @@ jobs:
           drwxrwx--- pkiuser pkiuser tps
           EOF
 
-          cat > expected_new_tomcat10 << EOF
+          cat > expected_new << EOF
           drwxrwx--- pkiuser pkiuser backup
           drwxrwx--- pkiuser pkiuser ca
           drwxrwx--- pkiuser pkiuser kra
@@ -289,13 +270,7 @@ jobs:
           drwxrwx--- pkiuser pkiuser tps
           EOF
 
-          if [ $TOMCAT_FLAVOR == 'new' ]; then
-              echo "New tomcat 10!"
-              diff expected_new_tomcat10 output
-          else
-              echo "Old tomcat 10!"
-              diff expected output
-          fi
+          diff expected_$TOMCAT_FLAVOR output
 
       - name: Install TPS again
         run: |
