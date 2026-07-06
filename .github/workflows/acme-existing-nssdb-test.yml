@@ -49,7 +49,7 @@ jobs:
 
           # get Fedora version
           FEDORA_VERSION=$(docker exec ca sed -n 's/^VERSION_ID=//p' /etc/os-release)
-          echo "FEDORA_VERSION=$FEDORA_VERSION" >> $GITHUB_ENV
+          echo "FEDORA_VERSION=$FEDORA_VERSION" | tee -a $GITHUB_ENV
           
       - name: Calculate Tomcat flavor
         run: |
