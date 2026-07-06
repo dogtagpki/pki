@@ -44,8 +44,13 @@ jobs:
               --network=example \
               client
 
+          # get Fedora version
+          FEDORA_VERSION=$(docker exec client sed -n 's/^VERSION_ID=//p' /etc/os-release)
+          echo "FEDORA_VERSION=$FEDORA_VERSION" | tee -a $GITHUB_ENV
+
       - name: Enable ML-DSA-44 in default crypto-policies for client
-        # ML-DSA algorithms for nss are enabled as default in rawhide (Fedora 44)
+        if: ${{ fromJSON(env.FEDORA_VERSION) < 44 }}
+        # ML-DSA algorithms for NSS are enabled as default in rawhide (Fedora 44)
         run: |
           docker exec client sed -i 's/smime-key-exchange:ECDSA/smime-key-exchange:ML-DSA-44:ECDSA/' \
               /etc/crypto-policies/back-ends/nss.config

@@ -48,7 +48,7 @@ jobs:
 
           # get Fedora version
           FEDORA_VERSION=$(docker exec pki sed -n 's/^VERSION_ID=//p' /etc/os-release)
-          echo "FEDORA_VERSION=$FEDORA_VERSION" >> $GITHUB_ENV
+          echo "FEDORA_VERSION=$FEDORA_VERSION" | tee -a $GITHUB_ENV
 
       - name: Enable ML-DSA-44 in default crypto-policies
         if: ${{ fromJSON(env.FEDORA_VERSION) < 44 }}
