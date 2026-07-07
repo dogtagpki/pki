@@ -41,6 +41,7 @@ import org.mozilla.jss.netscape.security.x509.CertificateSerialNumber;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
 import org.mozilla.jss.netscape.security.x509.CertificateValidity;
 import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.LdapDNStrConverter;
 import org.mozilla.jss.netscape.security.x509.LdapV3DNStrConverter;
 import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
 import org.mozilla.jss.netscape.security.x509.RevocationReason;
@@ -602,8 +603,11 @@ public class CAService implements IService {
         CertificateAuthority hostCA = engine.getCA();
         CertificateAuthority ca = engine.getCA(aid);
 
-        if (ca == null)
+        if (ca == null) {
             throw new CANotFoundException("No such CA: " + aid);
+        }
+
+        logger.info("CAService: Issuing cert using " + (aid == null ? "host CA" : "CA " + aid));
 
         String algname = null;
         X509CertImpl cert = null;
@@ -611,20 +615,14 @@ public class CAService implements IService {
         // NOTE:  In this implementation, the "oldSerialNo"
         //        parameter is NOT used!
 
-        boolean doUTF8 = connectorsConfig.getBoolean("dnUTF8Encoding", false);
-
-        logger.debug("dnUTF8Encoding " + doUTF8);
-
         CertificateExtensions exts = null;
         try {
             // check required fields in certinfo.
-            if (certi.get(X509CertInfo.SUBJECT) == null ||
-                    certi.get(X509CertInfo.KEY) == null) {
+            if (certi.get(X509CertInfo.SUBJECT) == null || certi.get(X509CertInfo.KEY) == null) {
 
                 logger.error(CMS.getLogMessage("CMSCORE_CA_MISSING_ATTR"));
                 // XXX how do you reject a request in the service object ?
-                throw new ECAException(
-                        CMS.getUserMessage("CMS_CA_MISSING_REQD_FIELDS_IN_CERTISSUE"));
+                throw new ECAException(CMS.getUserMessage("CMS_CA_MISSING_REQD_FIELDS_IN_CERTISSUE"));
             }
 
             // set default cert version. If policies added a extensions
@@ -640,20 +638,20 @@ public class CAService implements IService {
             Date begin = null, end = null;
 
             if (validity != null) {
-                logger.info("CAService: Using provided cert validity");
+                logger.info("CAService: - using provided cert validity:");
                 begin = (Date) validity.get(CertificateValidity.NOT_BEFORE);
                 end = (Date) validity.get(CertificateValidity.NOT_AFTER);
             }
 
             if (validity == null || begin.getTime() == 0 && end.getTime() == 0) {
-                logger.info("CAService: Using default cert validity");
+                logger.info("CAService: - using default cert validity:");
                 begin = new Date();
                 end = new Date(begin.getTime() + engine.getDefaultCertValidity());
                 certi.set(CertificateValidity.NAME, new CertificateValidity(begin, end));
             }
 
-            logger.info("CAService: - not before: " + begin);
-            logger.info("CAService: - not after: " + end);
+            logger.info("CAService:   - not before: " + begin);
+            logger.info("CAService:   - not after: " + end);
 
             /*
              * For non-CA certs, check if validity exceeds CA time.
@@ -666,8 +664,7 @@ public class CAService implements IService {
             BasicConstraintsExtension bc_ext = null;
 
             try {
-                exts = (CertificateExtensions)
-                        certi.get(X509CertInfo.EXTENSIONS);
+                exts = (CertificateExtensions) certi.get(X509CertInfo.EXTENSIONS);
                 if (exts != null) {
                     Enumeration<Extension> e = exts.getAttributes();
 
@@ -684,12 +681,14 @@ public class CAService implements IService {
                         is_ca = isCA.booleanValue();
                     }
                 } // exts != null
+
             } catch (Exception e) {
-                logger.warn("EnrollDefault: getExtension " + e.toString());
+                logger.warn("CAService: Unable to process cert extensions: " + e.getMessage(), e);
             }
 
-            Date caNotAfter =
-                    ca.getSigningUnit().getCertImpl().getNotAfter();
+            logger.info("CAService: - CA cert: " + is_ca);
+
+            Date caNotAfter = ca.getSigningUnit().getCertImpl().getNotAfter();
 
             if (begin.after(caNotAfter)) {
                 logger.error(CMS.getLogMessage("CMSCORE_CA_PAST_VALIDITY"));
@@ -697,12 +696,11 @@ public class CAService implements IService {
             }
 
             if (end.after(caNotAfter)) {
-                logger.debug("CAService: issueX509Cert: notAfter past CA's NOT_AFTER");
+                logger.info("CAService: issueX509Cert: notAfter past CA's NOT_AFTER");
                 if (!is_ca) {
                     if (!engine.getEnablePastCATime()) {
                         end = caNotAfter;
-                        certi.set(CertificateValidity.NAME,
-                                new CertificateValidity(begin, caNotAfter));
+                        certi.set(CertificateValidity.NAME, new CertificateValidity(begin, caNotAfter));
                         logger.debug("CAService: issueX509Cert: ca.enablePastCATime != true...resetting to match CA's notAfter");
                     } else {
                         logger.debug("CAService: issueX509Cert: ca.enablePastCATime = true...not resetting");
@@ -711,8 +709,7 @@ public class CAService implements IService {
                     logger.debug("CAService: issueX509Cert: request issuance of a ca signing cert");
                     if (!engine.getEnablePastCATime_caCert()) {
                         end = caNotAfter;
-                        certi.set(CertificateValidity.NAME,
-                                new CertificateValidity(begin, caNotAfter));
+                        certi.set(CertificateValidity.NAME, new CertificateValidity(begin, caNotAfter));
                         logger.debug("CAService: issueX509Cert: ca.enablePastCATime_caCert != true...resetting to match CA's notAfter");
                     } else {
                         logger.debug("CAService: issueX509Cert: ca.enablePastCATime_caCert = true...not resetting");
@@ -723,76 +720,72 @@ public class CAService implements IService {
             }
 
             // check algorithm in certinfo.
+            CertificateAlgorithmId algor = (CertificateAlgorithmId) certi.get(X509CertInfo.ALGORITHM_ID);
             AlgorithmId algid = null;
-            CertificateAlgorithmId algor = (CertificateAlgorithmId)
-                    certi.get(X509CertInfo.ALGORITHM_ID);
 
             if (algor == null || algor.toString().equals(CertInfo.SERIALIZE_ALGOR.toString())) {
                 algname = ca.getSigningUnit().getDefaultAlgorithm();
                 algid = AlgorithmId.get(algname);
-                certi.set(X509CertInfo.ALGORITHM_ID,
-                        new CertificateAlgorithmId(algid));
+                certi.set(X509CertInfo.ALGORITHM_ID, new CertificateAlgorithmId(algid));
+
             } else {
-                algid = (AlgorithmId)
-                        algor.get(CertificateAlgorithmId.ALGORITHM);
+                algid = (AlgorithmId) algor.get(CertificateAlgorithmId.ALGORITHM);
                 algname = algid.getName();
             }
+
+            logger.info("CAService: - signing algorithm: " + algname);
 
         } catch (CertificateException e) {
             String message = CMS.getLogMessage("CMSCORE_CA_BAD_FIELD", e.toString());
             logger.error(message, e);
-            throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_ERROR_GETTING_FIELDS_IN_ISSUE"));
+            throw new ECAException(CMS.getUserMessage("CMS_CA_ERROR_GETTING_FIELDS_IN_ISSUE"));
 
         } catch (IOException e) {
             String message = CMS.getLogMessage("CMSCORE_CA_BAD_FIELD", e.toString());
             logger.error(message, e);
-            throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_ERROR_GETTING_FIELDS_IN_ISSUE"));
+            throw new ECAException(CMS.getUserMessage("CMS_CA_ERROR_GETTING_FIELDS_IN_ISSUE"));
 
         } catch (NoSuchAlgorithmException e) {
             String message = CMS.getLogMessage("CMSCORE_CA_SIGNING_ALG_NOT_SUPPORTED", algname);
             logger.error(message, e);
-            throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_SIGNING_ALGOR_NOT_SUPPORTED", algname));
+            throw new ECAException(CMS.getUserMessage("CMS_CA_SIGNING_ALGOR_NOT_SUPPORTED", algname));
         }
 
         // get old cert serial number if renewal
-        if (renewal) {
-            try {
-                CertificateSerialNumber serialno = (CertificateSerialNumber)
-                        certi.get(X509CertInfo.SERIAL_NUMBER);
+        try {
+            if (renewal) {
+                CertificateSerialNumber serialno = (CertificateSerialNumber) certi.get(X509CertInfo.SERIAL_NUMBER);
 
                 if (serialno == null) {
                     logger.error(CMS.getLogMessage("CMSCORE_CA_NULL_SERIAL_NUMBER"));
-                    throw new ECAException(
-                            CMS.getUserMessage("CMS_CA_MISSING_INFO_IN_RENEWREQ"));
+                    throw new ECAException(CMS.getUserMessage("CMS_CA_MISSING_INFO_IN_RENEWREQ"));
                 }
-                SerialNumber serialnum = (SerialNumber)
-                        serialno.get(CertificateSerialNumber.NUMBER);
+
+                SerialNumber serialnum = (SerialNumber) serialno.get(CertificateSerialNumber.NUMBER);
 
                 if (serialnum == null) {
                     logger.error(CMS.getLogMessage("CMSCORE_CA_NULL_SERIAL_NUMBER"));
-                    throw new ECAException(
-                            CMS.getUserMessage("CMS_CA_MISSING_INFO_IN_RENEWREQ"));
+                    throw new ECAException(CMS.getUserMessage("CMS_CA_MISSING_INFO_IN_RENEWREQ"));
                 }
-            } catch (CertificateException e) {
-                // not possible
-                logger.error(CMS.getLogMessage("CMSCORE_CA_NO_ORG_SERIAL", e.getMessage()));
-                throw new ECAException(
-                        CMS.getUserMessage("CMS_CA_MISSING_INFO_IN_RENEWREQ"));
-            } catch (IOException e) {
-                // not possible.
-                logger.error(CMS.getLogMessage("CMSCORE_CA_NO_ORG_SERIAL", e.getMessage()));
-                throw new ECAException(
-                        CMS.getUserMessage("CMS_CA_MISSING_INFO_IN_RENEWREQ"));
+
+                logger.info("CAService: - old serial: " + serialnum.getNumber());
             }
+
+        } catch (CertificateException e) {
+            // not possible
+            logger.error(CMS.getLogMessage("CMSCORE_CA_NO_ORG_SERIAL", e.getMessage()));
+            throw new ECAException(CMS.getUserMessage("CMS_CA_MISSING_INFO_IN_RENEWREQ"));
+
+        } catch (IOException e) {
+            // not possible.
+            logger.error(CMS.getLogMessage("CMSCORE_CA_NO_ORG_SERIAL", e.getMessage()));
+            throw new ECAException(CMS.getUserMessage("CMS_CA_MISSING_INFO_IN_RENEWREQ"));
         }
 
-        // set issuer, serial number
+        BigInteger serialNo;
         try {
-            BigInteger serialNo = cr.getNextSerialNumber();
-            logger.info("CAService: Signing cert 0x" + serialNo.toString(16));
+            serialNo = cr.getNextSerialNumber();
+            logger.info("CAService: - serial: 0x" + serialNo.toString(16));
 
             certi.set(X509CertInfo.SERIAL_NUMBER, new CertificateSerialNumber(serialNo));
 
@@ -802,65 +795,70 @@ public class CAService implements IService {
 
         } catch (CertificateException e) {
             logger.error(CMS.getLogMessage("CMSCORE_CA_SET_SERIAL", e.toString()), e);
-            throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_SET_SERIALNO_FAILED", rid), e);
+            throw new ECAException(CMS.getUserMessage("CMS_CA_SET_SERIALNO_FAILED", rid), e);
 
         } catch (IOException e) {
             logger.error(CMS.getLogMessage("CMSCORE_CA_SET_SERIAL", e.toString()), e);
-            throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_SET_SERIALNO_FAILED", rid), e);
+            throw new ECAException(CMS.getUserMessage("CMS_CA_SET_SERIALNO_FAILED", rid), e);
         }
 
         try {
-            if (ca.getIssuerObj() != null) {
+            CertificateIssuerName issuer = ca.getIssuerObj();
+            if (issuer != null) {
                 // this ensures the isserDN has the same encoding as the
                 // subjectDN of the CA signing cert
-                logger.debug("CAService: issueX509Cert: setting issuerDN using exact CA signing cert subjectDN encoding");
-                certi.set(X509CertInfo.ISSUER,
-                        ca.getIssuerObj());
+                // TODO: should this be ca.getSubjectObj() instead?
+                logger.info("CAService: - issuer: " + issuer);
+                certi.set(X509CertInfo.ISSUER, issuer);
+
             } else {
-                logger.debug("CAService: issueX509Cert: ca.getIssuerObj() is null, creating new CertificateIssuerName");
-                certi.set(X509CertInfo.ISSUER,
-                        new CertificateIssuerName(ca.getX500Name()));
+                issuer = new CertificateIssuerName(ca.getX500Name());
+                logger.info("CAService: - new issuer: " + issuer);
+                certi.set(X509CertInfo.ISSUER, issuer);
             }
+
         } catch (CertificateException e) {
             logger.error(CMS.getLogMessage("CMSCORE_CA_SET_ISSUER", e.toString()), e);
             throw new ECAException(CMS.getUserMessage("CMS_CA_SET_ISSUER_FAILED", rid), e);
+
         } catch (IOException e) {
             logger.error(CMS.getLogMessage("CMSCORE_CA_SET_ISSUER", e.toString()), e);
             throw new ECAException(CMS.getUserMessage("CMS_CA_SET_ISSUER_FAILED", rid), e);
         }
 
-        byte[] utf8_encodingOrder = { DerValue.tag_UTF8String };
+        try {
+            String subject = certi.get(X509CertInfo.SUBJECT).toString();
+            logger.info("CAService: - subject: " + subject);
 
-        if (doUTF8) {
-            try {
+            boolean doUTF8 = connectorsConfig.getBoolean("dnUTF8Encoding", false);
+            logger.info("CAService: - UTF-8 encoding: " + doUTF8);
 
-                logger.debug("doUTF8 true, updating subject.");
+            if (doUTF8) {
+                LdapDNStrConverter converter = new LdapV3DNStrConverter(X500NameAttrMap.getDirDefault(), true);
+                byte[] utf8_encodingOrder = { DerValue.tag_UTF8String };
 
-                String subject = certi.get(X509CertInfo.SUBJECT).toString();
+                X500Name subjectName = new X500Name(subject, converter, utf8_encodingOrder);
+                logger.info("CAService:   - updated subject: " + subjectName);
 
-                certi.set(X509CertInfo.SUBJECT, new CertificateSubjectName(
-                        new X500Name(subject,
-                                new LdapV3DNStrConverter(X500NameAttrMap.getDirDefault(), true), utf8_encodingOrder)));
-
-            } catch (CertificateException e) {
-                logger.error(CMS.getLogMessage("CMSCORE_CA_SET_SUBJECT", e.toString()), e);
-                throw new ECAException(CMS.getUserMessage("CMS_CA_SET_ISSUER_FAILED", rid), e);
-            } catch (IOException e) {
-                logger.error(CMS.getLogMessage("CMSCORE_CA_SET_SUBJECT", e.toString()), e);
-                throw new ECAException(CMS.getUserMessage("CMS_CA_SET_ISSUER_FAILED", rid), e);
+                certi.set(X509CertInfo.SUBJECT, new CertificateSubjectName(subjectName));
             }
+
+        } catch (CertificateException e) {
+            logger.error(CMS.getLogMessage("CMSCORE_CA_SET_SUBJECT", e.toString()), e);
+            throw new ECAException(CMS.getUserMessage("CMS_CA_SET_ISSUER_FAILED", rid), e);
+
+        } catch (IOException e) {
+            logger.error(CMS.getLogMessage("CMSCORE_CA_SET_SUBJECT", e.toString()), e);
+            throw new ECAException(CMS.getUserMessage("CMS_CA_SET_ISSUER_FAILED", rid), e);
         }
 
-        /*
-         * handle possible Certificate Transparency processing
-         */
+        logger.info("CAService: Processing CT for cert 0x" + serialNo.toString(16));
         CTEngine ctEngine = new CTEngine();
         ctEngine.process(certi, hostCA, aid, algname);
 
-        logger.debug("CAService: issueX509Cert: About to ca.sign cert.");
+        logger.info("CAService: Signing cert 0x" + serialNo.toString(16));
         cert = engine.sign(ca, certi, algname);
+
         return cert;
     }
 
