@@ -1091,7 +1091,11 @@ BuildArch:        noarch
 Obsoletes:        pki-tests < %{version}-%{release}
 Provides:         pki-tests = %{version}-%{release}
 
+%if 0%{?fedora}
+# python3-flake8 is only available on Fedora
+# https://koji.fedoraproject.org/koji/packageinfo?packageID=17348
 Requires:         python3-flake8
+%endif
 
 %description -n   %{product_id}-tests
 This package provides test suite for %{product_name}.
