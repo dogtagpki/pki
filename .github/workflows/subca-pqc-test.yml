@@ -516,7 +516,7 @@ jobs:
                       Authority Information Access:
                           OCSP - URI:http://rootca.example.com:8080/ca/ocsp
                       X509v3 Key Usage: critical
-                          Digital Signature, Key Agreement
+                          Digital Signature
                       X509v3 Extended Key Usage:
                           TLS Web Client Authentication
               Signature Algorithm: ML-DSA-65
@@ -565,7 +565,7 @@ jobs:
                       Authority Information Access:
                           OCSP - URI:http://subca.example.com:8080/ca/ocsp
                       X509v3 Key Usage: critical
-                          Digital Signature, Data Encipherment, Key Agreement
+                          Digital Signature
                       X509v3 Extended Key Usage:
                           TLS Web Server Authentication
                       X509v3 Subject Alternative Name:
@@ -612,7 +612,7 @@ jobs:
                       Authority Information Access:
                           OCSP - URI:http://subca.example.com:8080/ca/ocsp
                       X509v3 Key Usage: critical
-                          Digital Signature, Non Repudiation, Key Agreement
+                          Digital Signature, Non Repudiation
                       X509v3 Extended Key Usage:
                           TLS Web Client Authentication, E-mail Protection
               Signature Algorithm: ML-DSA-65
