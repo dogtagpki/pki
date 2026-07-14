@@ -11,14 +11,14 @@ Source0:        %{name}-%{version}.tar.gz
 
 BuildArch:      noarch
 
-BuildRequires:  java-17-openjdk-devel
+BuildRequires:  java-devel >= 1:17
 BuildRequires:  maven
 BuildRequires:  dogtag-jss >= 5.10
 BuildRequires:  apache-commons-cli
 BuildRequires:  dogtag-pki-base >= 11.0.0
 
 # Runtime dependencies
-Requires:       java-17-openjdk-headless
+Requires:       java-headless >= 1:17
 Requires:       dogtag-jss >= 5.10
 Requires:       apache-commons-cli
 Requires:       dogtag-pki-base >= 11.0.0
