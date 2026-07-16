@@ -1143,7 +1143,8 @@ then
     JAKARTA_ACTIVATION_API_VERSION=$(ls jakarta.activation-api-*.jar | sed 's/^jakarta\.activation-api-\(.*\)\.jar$/\1/')
     JAKARTA_ANNOTATION_API_VERSION=$(ls jakarta.annotation-api-*.jar | sed 's/^jakarta\.annotation-api-\(.*\)\.jar$/\1/')
     JAXB_API_VERSION=$(ls jakarta.xml.bind-api-*.jar | sed 's/^jakarta\.xml\.bind-api-\(.*\)\.jar$/\1/')
-    JACKSON_VERSION=$(ls jackson-annotations-*.jar | sed 's/^jackson-annotations-\(.*\)\.jar$/\1/')
+    JACKSON_ANNOTATIONS_VERSION=$(ls jackson-annotations-*.jar | sed 's/^jackson-annotations-\(.*\)\.jar$/\1/')
+    JACKSON_CORE_VERSION=$(ls jackson-core-*.jar | sed 's/^jackson-core-\(.*\)\.jar$/\1/')
     JAXRS_VERSION=$(ls jboss-jaxrs-api_2.0_spec-*.jar | sed 's/^jboss-jaxrs-api_2\.0_spec-\(.*\)\.jar$/\1/')
     JBOSS_LOGGING_VERSION=$(ls jboss-logging-*.jar| sed 's/^jboss-logging-\(.*\)\.jar$/\1/')
     RESTEASY_VERSION=$(ls resteasy-jaxrs-*.jar | sed 's/^resteasy-jaxrs-\(.*\)\.jar$/\1/')
@@ -1167,7 +1168,8 @@ else
     JAKARTA_ACTIVATION_API_VERSION=$(rpm -q jakarta-activation | sed -n 's/^jakarta-activation-\([^-]*\)-.*$/\1/p')
     JAKARTA_ANNOTATION_API_VERSION=$(rpm -q jakarta-annotations | sed -n 's/^jakarta-annotations-\([^-]*\)-.*$/\1/p')
     JAXB_API_VERSION=$(rpm -q jaxb-api | sed -n 's/^jaxb-api-\([^-]*\)-.*$/\1/p')
-    JACKSON_VERSION=$(rpm -q jackson-annotations | sed -n 's/^jackson-annotations-\([^-]*\)-.*$/\1/p')
+    JACKSON_ANNOTATIONS_VERSION=$(rpm -q jackson-annotations | sed -n 's/^jackson-annotations-\([^-]*\)-.*$/\1/p')
+    JACKSON_CORE_VERSION=$(rpm -q jackson-core | sed -n 's/^jackson-core-\([^-]*\)-.*$/\1/p')
     JAXRS_VERSION=$(rpm -q jboss-jaxrs-2.0-api | sed -n 's/^jboss-jaxrs-2.0-api-\([^-]*\)-.*$/\1.Final/p')
     JBOSS_LOGGING_VERSION=$(rpm -q jboss-logging | sed -n 's/^jboss-logging-\([^-]*\)-.*$/\1.Final/p')
     RESTEASY_VERSION=$(rpm -q pki-resteasy-core | sed -n 's/^pki-resteasy-core-\([^-]*\)-.*$/\1.Final/p')
@@ -1194,12 +1196,12 @@ else
         cp /usr/share/java/jaxb-api/jakarta.xml.bind-api.jar jakarta.xml.bind-api-$JAXB_API_VERSION.jar
     fi
 
-    cp /usr/share/java/jackson-annotations.jar jackson-annotations-$JACKSON_VERSION.jar
-    cp /usr/share/java/jackson-core.jar jackson-core-$JACKSON_VERSION.jar
-    cp /usr/share/java/jackson-databind.jar jackson-databind-$JACKSON_VERSION.jar
-    cp /usr/share/java/jackson-jaxrs-providers/jackson-jaxrs-base.jar jackson-jaxrs-base-$JACKSON_VERSION.jar
-    cp /usr/share/java/jackson-jaxrs-providers/jackson-jaxrs-json-provider.jar jackson-jaxrs-json-provider-$JACKSON_VERSION.jar
-    cp /usr/share/java/jackson-modules/jackson-module-jaxb-annotations.jar jackson-module-jaxb-annotations-$JACKSON_VERSION.jar
+    cp /usr/share/java/jackson-annotations.jar jackson-annotations-$JACKSON_ANNOTATIONS_VERSION.jar
+    cp /usr/share/java/jackson-core.jar jackson-core-$JACKSON_CORE_VERSION.jar
+    cp /usr/share/java/jackson-databind.jar jackson-databind-$JACKSON_CORE_VERSION.jar
+    cp /usr/share/java/jackson-modules/jackson-module-jaxb-annotations.jar jackson-module-jaxb-annotations-$JACKSON_CORE_VERSION.jar
+    cp /usr/share/java/jackson-jaxrs-providers/jackson-jaxrs-base.jar jackson-jaxrs-base-$JACKSON_CORE_VERSION.jar
+    cp /usr/share/java/jackson-jaxrs-providers/jackson-jaxrs-json-provider.jar jackson-jaxrs-json-provider-$JACKSON_CORE_VERSION.jar
     cp /usr/share/java/jboss-jaxrs-2.0-api.jar jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar
     cp /usr/share/java/jboss-logging/jboss-logging.jar jboss-logging-$JBOSS_LOGGING_VERSION.jar
     cp /usr/share/java/resteasy/resteasy-jaxrs.jar resteasy-jaxrs-$RESTEASY_VERSION.jar
@@ -1240,9 +1242,144 @@ then
 
     /usr/bin/javax2jakarta -profile=EE jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar
 
-    /usr/bin/javax2jakarta -profile=EE resteasy-client-$RESTEASY_VERSION.jar resteasy-client-$RESTEASY_VERSION.jar
-    /usr/bin/javax2jakarta -profile=EE resteasy-jackson2-provider-$RESTEASY_VERSION.jar resteasy-jackson2-provider-$RESTEASY_VERSION.jar
-    /usr/bin/javax2jakarta -profile=EE resteasy-jaxrs-$RESTEASY_VERSION.jar resteasy-jaxrs-$RESTEASY_VERSION.jar
+    javax2jakarta \
+        -logLevel=FINE \
+        -profile=EE \
+        jakarta.annotation-api-$JAKARTA_ANNOTATION_API_VERSION.jar \
+        jakarta.annotation-api-$JAKARTA_ANNOTATION_API_VERSION.jar
+
+    # migrate jakarta.xml.bind
+    jar tvf jakarta.xml.bind-api-$JAXB_API_VERSION.jar \
+        | sed -n 's/.* \([^ ]\+\)\/[^\/]*\.class$/\1/p' \
+        | sort \
+        | uniq
+
+    javax2jakarta \
+        -logLevel=FINE \
+        -profile=EE \
+        jakarta.xml.bind-api-$JAXB_API_VERSION.jar \
+        jakarta.xml.bind-api-$JAXB_API_VERSION.jar
+
+    # migrate com.fasterxml.jackson.annotation
+    jar tvf jackson-annotations-$JACKSON_ANNOTATIONS_VERSION.jar \
+        | sed -n 's/.* \([^ ]\+\)\/[^\/]*\.class$/\1/p' \
+        | sort \
+        | uniq
+
+    javax2jakarta \
+        -logLevel=FINE \
+        -profile=EE \
+        jackson-annotations-$JACKSON_ANNOTATIONS_VERSION.jar \
+        jackson-annotations-$JACKSON_ANNOTATIONS_VERSION.jar
+
+    # migrate com.fasterxml.jackson.core
+    jar tvf jackson-core-$JACKSON_CORE_VERSION.jar \
+        | sed -n 's/.* \([^ ]\+\)\/[^\/]*\.class$/\1/p' \
+        | sort \
+        | uniq
+
+    javax2jakarta \
+        -logLevel=FINE \
+        -profile=EE \
+        jackson-core-$JACKSON_CORE_VERSION.jar \
+        jackson-core-$JACKSON_CORE_VERSION.jar
+
+    # migrate com.fasterxml.jackson.databind
+    jar tvf jackson-databind-$JACKSON_CORE_VERSION.jar \
+        | sed -n 's/.* \([^ ]\+\)\/[^\/]*\.class$/\1/p' \
+        | sort \
+        | uniq
+
+    javax2jakarta \
+        -logLevel=FINE \
+        -profile=EE \
+        jackson-databind-$JACKSON_CORE_VERSION.jar \
+        jackson-databind-$JACKSON_CORE_VERSION.jar
+
+    # migrate com.fasterxml.jackson.module.jaxb
+    jar tvf jackson-module-jaxb-annotations-$JACKSON_CORE_VERSION.jar \
+        | sed -n 's/.* \([^ ]\+\)\/[^\/]*\.class$/\1/p' \
+        | sort \
+        | uniq
+
+    javax2jakarta \
+        -logLevel=FINE \
+        -profile=EE \
+        jackson-module-jaxb-annotations-$JACKSON_CORE_VERSION.jar \
+        jackson-module-jaxb-annotations-$JACKSON_CORE_VERSION.jar
+
+    # migrate javax.ws.rs to jakarta.ws.rs
+    # this also renames org.jboss.spec.javax.ws.r into org.jboss.spec.jakarta.ws.rs
+    jar tvf jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar \
+        | sed -n 's/.* \([^ ]\+\)\/[^\/]*\.class$/\1/p' \
+        | sort \
+        | uniq
+
+    javax2jakarta \
+        -logLevel=FINE \
+        -profile=EE \
+        jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar \
+        jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar
+
+    # migrate com.fasterxml.jackson.jaxrs
+    jar tvf jackson-jaxrs-base-$JACKSON_CORE_VERSION.jar \
+        | sed -n 's/.* \([^ ]\+\)\/[^\/]*\.class$/\1/p' \
+        | sort \
+        | uniq
+
+    javax2jakarta \
+        -logLevel=FINE \
+        -profile=EE \
+        jackson-jaxrs-base-$JACKSON_CORE_VERSION.jar \
+        jackson-jaxrs-base-$JACKSON_CORE_VERSION.jar
+
+    # migrate com.fasterxml.jackson.jaxrs.json
+    jar tvf jackson-jaxrs-json-provider-$JACKSON_CORE_VERSION.jar \
+        | sed -n 's/.* \([^ ]\+\)\/[^\/]*\.class$/\1/p' \
+        | sort \
+        | uniq
+
+    javax2jakarta \
+        -logLevel=FINE \
+        -profile=EE \
+        jackson-jaxrs-json-provider-$JACKSON_CORE_VERSION.jar \
+        jackson-jaxrs-json-provider-$JACKSON_CORE_VERSION.jar
+
+    # migrate org.jboss.resteasy.client.jaxrs
+    jar tvf resteasy-client-$RESTEASY_VERSION.jar \
+        | sed -n 's/.* \([^ ]\+\)\/[^\/]*\.class$/\1/p' \
+        | sort \
+        | uniq
+
+    javax2jakarta \
+        -logLevel=FINE \
+        -profile=EE \
+        resteasy-client-$RESTEASY_VERSION.jar \
+        resteasy-client-$RESTEASY_VERSION.jar
+
+    # migrate org.jboss.resteasy.annotations.providers
+    jar tvf resteasy-jackson2-provider-$RESTEASY_VERSION.jar \
+        | sed -n 's/.* \([^ ]\+\)\/[^\/]*\.class$/\1/p' \
+        | sort \
+        | uniq
+
+    javax2jakarta \
+        -logLevel=FINE \
+        -profile=EE \
+        resteasy-jackson2-provider-$RESTEASY_VERSION.jar \
+        resteasy-jackson2-provider-$RESTEASY_VERSION.jar
+
+    # migrate org.jboss.resteasy
+    jar tvf resteasy-jaxrs-$RESTEASY_VERSION.jar \
+        | sed -n 's/.* \([^ ]\+\)\/[^\/]*\.class$/\1/p' \
+        | sort \
+        | uniq
+
+    javax2jakarta \
+        -logLevel=FINE \
+        -profile=EE \
+        resteasy-jaxrs-$RESTEASY_VERSION.jar \
+        resteasy-jaxrs-$RESTEASY_VERSION.jar
 
     popd
 fi

@@ -404,30 +404,15 @@ if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
         COMMAND ls ${CMAKE_SOURCE_DIR}/base/common/lib
         COMMAND sed -n "s/^jackson-annotations-\\(.*\\)\\.jar\$/\\1/p"
         OUTPUT_STRIP_TRAILING_WHITESPACE
-        OUTPUT_VARIABLE JACKSON_VERSION
+        OUTPUT_VARIABLE JACKSON_ANNOTATIONS_VERSION
     )
 endif (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
 
-if (JACKSON_VERSION)
+if (JACKSON_ANNOTATIONS_VERSION)
     # use imported JARs
 
-    set(JACKSON_ANNOTATIONS_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/jackson-annotations-${JACKSON_VERSION}.jar")
-    set(JACKSON_ANNOTATIONS_LINK "jackson-annotations-${JACKSON_VERSION}.jar")
-
-    set(JACKSON_CORE_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/jackson-core-${JACKSON_VERSION}.jar")
-    set(JACKSON_CORE_LINK "jackson-core-${JACKSON_VERSION}.jar")
-
-    set(JACKSON_DATABIND_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/jackson-databind-${JACKSON_VERSION}.jar")
-    set(JACKSON_DATABIND_LINK "jackson-databind-${JACKSON_VERSION}.jar")
-
-    set(JACKSON_JAXRS_BASE_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/jackson-jaxrs-base-${JACKSON_VERSION}.jar")
-    set(JACKSON_JAXRS_BASE_LINK "jackson-jaxrs-base-${JACKSON_VERSION}.jar")
-
-    set(JACKSON_JAXRS_JSON_PROVIDER_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/jackson-jaxrs-json-provider-${JACKSON_VERSION}.jar")
-    set(JACKSON_JAXRS_JSON_PROVIDER_LINK "jackson-jaxrs-json-provider-${JACKSON_VERSION}.jar")
-
-    set(JACKSON_MODULE_JAXB_ANNOTATIONS_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/jackson-module-jaxb-annotations-${JACKSON_VERSION}.jar")
-    set(JACKSON_MODULE_JAXB_ANNOTATIONS_LINK "jackson-module-jaxb-annotations-${JACKSON_VERSION}.jar")
+    set(JACKSON_ANNOTATIONS_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/jackson-annotations-${JACKSON_ANNOTATIONS_VERSION}.jar")
+    set(JACKSON_ANNOTATIONS_LINK "jackson-annotations-${JACKSON_ANNOTATIONS_VERSION}.jar")
 
 else()
     # use system JARs
@@ -439,6 +424,38 @@ else()
             /usr/share/java
     )
     set(JACKSON_ANNOTATIONS_LINK "../../../..${JACKSON_ANNOTATIONS_JAR}")
+
+endif (JACKSON_ANNOTATIONS_VERSION)
+
+if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+    execute_process(
+        COMMAND ls ${CMAKE_SOURCE_DIR}/base/common/lib
+        COMMAND sed -n "s/^jackson-core-\\(.*\\)\\.jar\$/\\1/p"
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        OUTPUT_VARIABLE JACKSON_CORE_VERSION
+    )
+endif (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+
+if (JACKSON_CORE_VERSION)
+    # use imported JARs
+
+    set(JACKSON_CORE_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/jackson-core-${JACKSON_CORE_VERSION}.jar")
+    set(JACKSON_CORE_LINK "jackson-core-${JACKSON_CORE_VERSION}.jar")
+
+    set(JACKSON_DATABIND_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/jackson-databind-${JACKSON_CORE_VERSION}.jar")
+    set(JACKSON_DATABIND_LINK "jackson-databind-${JACKSON_CORE_VERSION}.jar")
+
+    set(JACKSON_JAXRS_BASE_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/jackson-jaxrs-base-${JACKSON_CORE_VERSION}.jar")
+    set(JACKSON_JAXRS_BASE_LINK "jackson-jaxrs-base-${JACKSON_CORE_VERSION}.jar")
+
+    set(JACKSON_JAXRS_JSON_PROVIDER_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/jackson-jaxrs-json-provider-${JACKSON_CORE_VERSION}.jar")
+    set(JACKSON_JAXRS_JSON_PROVIDER_LINK "jackson-jaxrs-json-provider-${JACKSON_CORE_VERSION}.jar")
+
+    set(JACKSON_MODULE_JAXB_ANNOTATIONS_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/jackson-module-jaxb-annotations-${JACKSON_CORE_VERSION}.jar")
+    set(JACKSON_MODULE_JAXB_ANNOTATIONS_LINK "jackson-module-jaxb-annotations-${JACKSON_CORE_VERSION}.jar")
+
+else()
+    # use system JARs
 
     find_file(JACKSON_CORE_JAR
         NAMES
@@ -483,7 +500,7 @@ else()
     )
     set(JACKSON_MODULE_JAXB_ANNOTATIONS_LINK "../../../..${JACKSON_MODULE_JAXB_ANNOTATIONS_JAR}")
 
-endif (JACKSON_VERSION)
+endif (JACKSON_CORE_VERSION)
 
 if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
     execute_process(
