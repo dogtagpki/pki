@@ -10,7 +10,7 @@ Source0:        %{name}-%{version}.tar.gz
 BuildArch:      noarch
 
 BuildRequires:  maven
-BuildRequires:  java-17-openjdk-devel
+BuildRequires:  java-devel >= 1:17
 BuildRequires:  jss >= 5.5.0
 BuildRequires:  pki-base >= 11.6.0
 BuildRequires:  slf4j
@@ -19,7 +19,7 @@ BuildRequires:  apache-commons-lang3
 BuildRequires:  ldapjdk
 
 # Runtime dependencies - use file paths instead of package names to avoid forcing upgrades
-Requires:       java-17-openjdk-headless
+Requires:       java-headless >= 1:17
 #Requires:       jss >= 5.5.0
 #Requires:       pki-base >= 11.6.0
 #Requires:       slf4j
