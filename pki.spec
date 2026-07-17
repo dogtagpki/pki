@@ -1233,12 +1233,12 @@ then
     /usr/bin/javax2jakarta -profile=EE jakarta.annotation-api-$JAKARTA_ANNOTATION_API_VERSION.jar jakarta.annotation-api-$JAKARTA_ANNOTATION_API_VERSION.jar
     /usr/bin/javax2jakarta -profile=EE jakarta.xml.bind-api-$JAXB_API_VERSION.jar jakarta.xml.bind-api-$JAXB_API_VERSION.jar
 
-    /usr/bin/javax2jakarta -profile=EE jackson-annotations-$JACKSON_VERSION.jar jackson-annotations-$JACKSON_VERSION.jar
-    /usr/bin/javax2jakarta -profile=EE jackson-core-$JACKSON_VERSION.jar jackson-core-$JACKSON_VERSION.jar
-    /usr/bin/javax2jakarta -profile=EE jackson-databind-$JACKSON_VERSION.jar jackson-databind-$JACKSON_VERSION.jar
-    /usr/bin/javax2jakarta -profile=EE jackson-module-jaxb-annotations-$JACKSON_VERSION.jar jackson-module-jaxb-annotations-$JACKSON_VERSION.jar
-    /usr/bin/javax2jakarta -profile=EE jackson-jaxrs-base-$JACKSON_VERSION.jar jackson-jaxrs-base-$JACKSON_VERSION.jar
-    /usr/bin/javax2jakarta -profile=EE jackson-jaxrs-json-provider-$JACKSON_VERSION.jar jackson-jaxrs-json-provider-$JACKSON_VERSION.jar
+    /usr/bin/javax2jakarta -profile=EE jackson-annotations-$JACKSON_ANNOTATIONS_VERSION.jar jackson-annotations-$JACKSON_ANNOTATIONS_VERSION.jar
+    /usr/bin/javax2jakarta -profile=EE jackson-core-$JACKSON_CORE_VERSION.jar jackson-core-$JACKSON_CORE_VERSION.jar
+    /usr/bin/javax2jakarta -profile=EE jackson-databind-$JACKSON_CORE_VERSION.jar jackson-databind-$JACKSON_CORE_VERSION.jar
+    /usr/bin/javax2jakarta -profile=EE jackson-module-jaxb-annotations-$JACKSON_CORE_VERSION.jar jackson-module-jaxb-annotations-$JACKSON_CORE_VERSION.jar
+    /usr/bin/javax2jakarta -profile=EE jackson-jaxrs-base-$JACKSON_CORE_VERSION.jar jackson-jaxrs-base-$JACKSON_CORE_VERSION.jar
+    /usr/bin/javax2jakarta -profile=EE jackson-jaxrs-json-provider-$JACKSON_CORE_VERSION.jar jackson-jaxrs-json-provider-$JACKSON_CORE_VERSION.jar
 
     /usr/bin/javax2jakarta -profile=EE jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar
 
