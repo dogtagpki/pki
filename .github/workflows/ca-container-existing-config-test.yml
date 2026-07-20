@@ -203,7 +203,7 @@ jobs:
       - name: Check conf dir
         if: always()
         run: |
-          ls -l conf \
+          docker exec ca ls -l /conf \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
@@ -212,12 +212,12 @@ jobs:
           # everything should be owned by root group
           # TODO: review owners/permissions
           cat > expected_old << EOF
-          drwxrwxrwx root Catalina
-          drwxrwxrwx root alias
-          drwxrwxrwx root ca
-          -rw-rw---- root catalina.policy
+          drwxrwx--- root Catalina
+          drwxrwx--- root alias
+          drwxrwx--- root ca
+          -rw-r--r-- root catalina.policy
           lrwxrwxrwx root catalina.properties -> /usr/share/pki/server/conf/catalina.properties
-          drwxrwxrwx root certs
+          drwxrwx--- root certs
           lrwxrwxrwx root context.xml -> /etc/tomcat/context.xml
           lrwxrwxrwx root logging.properties -> /usr/share/pki/server/conf/logging.properties
           -rw-rw---- root password.conf
@@ -228,12 +228,12 @@ jobs:
           EOF
 
           cat > expected_new << EOF
-          drwxrwxrwx root Catalina
-          drwxrwxrwx root alias
-          drwxrwxrwx root ca
-          -rw-rw---- root catalina.policy
+          drwxrwx--- root Catalina
+          drwxrwx--- root alias
+          drwxrwx--- root ca
+          -rw-r--r-- root catalina.policy
           lrwxrwxrwx root catalina.properties -> /usr/share/pki/server/conf/catalina.properties
-          drwxrwxrwx root certs
+          drwxrwx--- root certs
           lrwxrwxrwx root context.xml -> /etc/tomcat/context.xml
           lrwxrwxrwx root logging.properties -> /usr/share/pki/server/conf/logging.properties
           -rw-rw---- root password.conf
@@ -248,7 +248,7 @@ jobs:
       - name: Check conf/ca dir
         if: always()
         run: |
-          ls -l conf/ca \
+          docker exec ca ls -l /conf/ca \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
@@ -260,13 +260,13 @@ jobs:
           cat > expected_old << EOF
           -rw-rw---- root CS.cfg
           -rw-rw---- root adminCert.profile
-          drwxrwxrwx root archives
+          drwxr-xr-x root archives
           -rw-rw---- root caAuditSigningCert.profile
           -rw-rw---- root caCert.profile
           -rw-rw---- root caOCSPCert.profile
-          drwxrwxrwx root emails
+          drwxrwx--- root emails
           -rw-rw---- root flatfile.txt
-          drwxrwxrwx root profiles
+          drwxrwx--- root profiles
           -rw-rw---- root proxy.conf
           -rw-rw---- root registry.cfg
           -rw-rw---- root serverCert.profile
@@ -276,13 +276,13 @@ jobs:
           cat > expected_new << EOF
           -rw-rw---- root CS.cfg
           -rw-rw---- root adminCert.profile
-          drwxrwxrwx root archives
+          drwxr-xr-x root archives
           -rw-rw---- root caAuditSigningCert.profile
           -rw-rw---- root caCert.profile
           -rw-rw---- root caOCSPCert.profile
-          drwxrwxrwx root emails
+          drwxrwx--- root emails
           -rw-rw---- root flatfile.txt
-          drwxrwxrwx root profiles
+          drwxrwx--- root profiles
           -rw-rw---- root proxy.conf
           -rw-rw---- root registry.cfg
           -rw-rw---- root serverCert.profile
@@ -294,7 +294,7 @@ jobs:
       - name: Check logs dir
         if: ${{ fromJSON(env.FEDORA_VERSION) < 43 }}
         run: |
-          ls -l logs \
+          docker exec ca ls -l /logs \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
@@ -305,11 +305,11 @@ jobs:
           # everything should be owned by root group
           # TODO: review owners/permissions
           cat > expected << EOF
-          drwxrwxrwx root backup
-          drwxrwxrwx root ca
-          -rw-rw-rw- root localhost.$DATE.log
-          -rw-rw-rw- root localhost_access_log.$DATE.txt
-          drwxrwxrwx root pki
+          drwxrwx--- root backup
+          drwxrwx--- root ca
+          -rw-rw---- root localhost.$DATE.log
+          -rw-r--r-- root localhost_access_log.$DATE.txt
+          drwxrwx--- root pki
           EOF
 
           diff expected output
@@ -317,7 +317,7 @@ jobs:
       - name: Check logs dir
         if: ${{ fromJSON(env.FEDORA_VERSION) >= 43 }}
         run: |
-          ls -l logs \
+          docker exec ca ls -l /logs \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
@@ -328,15 +328,15 @@ jobs:
           # everything should be owned by root group
           # TODO: review owners/permissions
           cat > expected_old << EOF
-          drwxrwxrwx root backup
-          drwxrwxrwx root ca
-          -rw-rw-rw- root localhost_access_log.$DATE.txt
+          drwxrwx--- root backup
+          drwxrwx--- root ca
+          -rw-r--r-- root localhost_access_log.$DATE.txt
           EOF
 
           cat > expected_new << EOF
-          drwxrwxrwx root backup
-          drwxrwxrwx root ca
-          -rw-rw-rw- root localhost_access_log.$DATE.txt
+          drwxrwx--- root backup
+          drwxrwx--- root ca
+          -rw-r----- root localhost_access_log.$DATE.txt
           EOF
 
           diff expected_$TOMCAT_FLAVOR output

@@ -355,14 +355,14 @@ jobs:
           # everything should be owned by runner group
           # TODO: review owners/permissions
           cat > expected_old << EOF
-          drwxrwxrwx runner Catalina
-          drwxrwxrwx runner alias
+          drwxrwx--- runner Catalina
+          drwxrwx--- runner alias
           -rw-rw---- runner catalina.policy
           lrwxrwxrwx runner catalina.properties -> /usr/share/pki/server/conf/catalina.properties
-          drwxrwxrwx runner certs
+          drwxrwx--- runner certs
           lrwxrwxrwx runner context.xml -> /etc/tomcat/context.xml
           -rw-rw---- runner jss.conf
-          drwxrwxrwx runner kra
+          drwxrwx--- runner kra
           lrwxrwxrwx runner logging.properties -> /usr/share/pki/server/conf/logging.properties
           -rw-rw---- runner password.conf
           -rw-rw---- runner server.xml
@@ -372,14 +372,14 @@ jobs:
           EOF
 
           cat > expected_new << EOF
-          drwxrwxrwx runner Catalina
-          drwxrwxrwx runner alias
+          drwxrwx--- runner Catalina
+          drwxrwx--- runner alias
           -rw-rw---- runner catalina.policy
           lrwxrwxrwx runner catalina.properties -> /usr/share/pki/server/conf/catalina.properties
-          drwxrwxrwx runner certs
+          drwxrwx--- runner certs
           lrwxrwxrwx runner context.xml -> /etc/tomcat/context.xml
           -rw-rw---- runner jss.conf
-          drwxrwxrwx runner kra
+          drwxrwx--- runner kra
           lrwxrwxrwx runner logging.properties -> /usr/share/pki/server/conf/logging.properties
           -rw-rw---- runner password.conf
           -rw-rw---- runner server.xml
@@ -430,11 +430,11 @@ jobs:
           # everything should be owned by runner group
           # TODO: review owners/permissions
           cat > expected << EOF
-          drwxrwxrwx runner backup
-          drwxrwxrwx runner kra
-          -rw-rw-rw- runner localhost.$DATE.log
+          drwxrwx--- runner backup
+          drwxrwx--- runner kra
+          -rw-rw---- runner localhost.$DATE.log
           -rw-rw-rw- runner localhost_access_log.$DATE.txt
-          drwxrwxrwx runner pki
+          drwxrwx--- runner pki
           EOF
 
           diff expected output
@@ -453,14 +453,14 @@ jobs:
           # everything should be owned by runner group
           # TODO: review owners/permissions
           cat > expected_old << EOF
-          drwxrwxrwx runner backup
-          drwxrwxrwx runner kra
+          drwxrwx--- runner backup
+          drwxrwx--- runner kra
           -rw-rw-rw- runner localhost_access_log.$DATE.txt
           EOF
 
           cat > expected_new << EOF
-          drwxrwxrwx runner backup
-          drwxrwxrwx runner kra
+          drwxrwx--- runner backup
+          drwxrwx--- runner kra
           -rw-rw-rw- runner localhost_access_log.$DATE.txt
           EOF
 
