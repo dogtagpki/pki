@@ -148,10 +148,3 @@ jobs:
           tests/bin/ds-artifacts-save.sh ds
           tests/bin/pki-artifacts-save.sh pki
         continue-on-error: true
-
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: scep
-          path: /tmp/artifacts

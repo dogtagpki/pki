@@ -319,10 +319,3 @@ jobs:
         if: always()
         run: |
           docker exec tertiary find /var/lib/pki/pki-tomcat/logs/tks -name "debug.*" -exec cat {} \;
-
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: tks-clone
-          path: /tmp/artifacts

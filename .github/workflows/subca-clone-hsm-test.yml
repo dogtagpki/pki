@@ -606,19 +606,3 @@ jobs:
 
       - name: Remove primary sub-CA
         run: docker exec primary-subca pkidestroy -s CA -v
-
-      - name: Upload artifacts from primary sub-CA
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: subca-clone-hsm-primary
-          path: |
-            /tmp/artifacts/primary-subca
-
-      - name: Upload artifacts from secondary sub-CA
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: subca-clone-hsm-secondary
-          path: |
-            /tmp/artifacts/secondary-subca

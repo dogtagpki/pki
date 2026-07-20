@@ -106,11 +106,3 @@ jobs:
         run: |
           tests/bin/pki-artifacts-save.sh pki
         continue-on-error: true
-
-      - name: Upload artifacts from server container
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: server-https-pem-test
-          path: |
-            /tmp/artifacts/pki

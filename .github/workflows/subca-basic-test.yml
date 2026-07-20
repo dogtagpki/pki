@@ -225,19 +225,3 @@ jobs:
 
       - name: Remove root CA from root container
         run: docker exec root pkidestroy -s CA -v
-
-      - name: Upload artifacts from root container
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: subca-basic-root
-          path: |
-            /tmp/artifacts/root
-
-      - name: Upload artifacts from subordinate container
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: subca-basic-subordinate
-          path: |
-            /tmp/artifacts/subordinate

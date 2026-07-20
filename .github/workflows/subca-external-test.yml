@@ -142,11 +142,3 @@ jobs:
 
       - name: Remove subordinate CA
         run: docker exec pki pkidestroy -s CA -v
-
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: subca-external
-          path: |
-            /tmp/artifacts/pki

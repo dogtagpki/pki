@@ -412,10 +412,3 @@ jobs:
         run: |
           docker exec pki ls -laR /var/lib/softhsm/tokens
           docker exec pki runuser -u pkiuser -- softhsm2-util --delete-token --token HSM
-
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: ca-lightweight-hsm
-          path: /tmp/artifacts

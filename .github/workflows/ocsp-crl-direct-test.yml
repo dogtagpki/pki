@@ -473,10 +473,3 @@ jobs:
         if: always()
         run: |
           docker exec ocsp find /var/lib/pki/pki-tomcat/logs/ocsp -name "debug.*" -exec cat {} \;
-
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: ocsp-crl-direct
-          path: /tmp/artifacts

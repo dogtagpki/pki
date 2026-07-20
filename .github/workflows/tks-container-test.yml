@@ -589,10 +589,3 @@ jobs:
 
           mkdir -p /tmp/artifacts/client
           docker logs client > /tmp/artifacts/client/container.out 2> /tmp/artifacts/client/container.err
-
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: tks-container
-          path: /tmp/artifacts

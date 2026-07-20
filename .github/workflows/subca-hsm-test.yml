@@ -295,11 +295,3 @@ jobs:
       - name: Remove SoftHSM token
         run: |
           docker exec pki runuser -u pkiuser -- softhsm2-util --delete-token --token HSM
-
-      - name: Upload artifacts from container
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: subca-hsm
-          path: |
-            /tmp/artifacts/pki
