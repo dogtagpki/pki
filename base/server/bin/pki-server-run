@@ -37,11 +37,6 @@ then
     chown -Rf pkiuser:root /logs
 fi
 
-find /conf -type f -exec chmod +rw -- {} +
-find /conf -type d -exec chmod +rwx -- {} +
-find /logs -type f -exec chmod +rw -- {} +
-find /logs -type d -exec chmod +rwx -- {} +
-
 echo "################################################################################"
 
 if [ -f /certs/ca_signing.csr ]
@@ -222,11 +217,6 @@ then
     chown -Rf pkiuser:root /conf
     chown -Rf pkiuser:root /logs
 fi
-
-find /conf -type f -exec chmod +rw -- {} +
-find /conf -type d -exec chmod +rwx -- {} +
-find /logs -type f -exec chmod +rw -- {} +
-find /logs -type d -exec chmod +rwx -- {} +
 
 echo "################################################################################"
 echo "INFO: Removing temporary files"

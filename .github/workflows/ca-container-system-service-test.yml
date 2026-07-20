@@ -155,36 +155,36 @@ jobs:
           # everything should be owned by pkiuser group
           # TODO: review owners/permissions
           cat > expected_old << EOF
-          drwxrwxrwx pkiuser Catalina
-          drwxrwxrwx pkiuser alias
-          drwxrwxrwx pkiuser ca
-          -rw-rw-rw- pkiuser catalina.policy
+          drwxrwx--- pkiuser Catalina
+          drwxrwx--- pkiuser alias
+          drwxrwx--- pkiuser ca
+          -rw-rw---- pkiuser catalina.policy
           lrwxrwxrwx pkiuser catalina.properties -> /usr/share/pki/server/conf/catalina.properties
-          drwxrwxrwx pkiuser certs
+          drwxrwx--- pkiuser certs
           lrwxrwxrwx pkiuser context.xml -> /etc/tomcat/context.xml
-          -rw-rw-rw- pkiuser jss.conf
+          -rw-rw---- pkiuser jss.conf
           lrwxrwxrwx pkiuser logging.properties -> /usr/share/pki/server/conf/logging.properties
-          -rw-rw-rw- pkiuser password.conf
-          -rw-rw-rw- pkiuser server.xml
-          -rw-rw-rw- pkiuser serverCertNick.conf
-          -rw-rw-rw- pkiuser tomcat.conf
+          -rw-rw---- pkiuser password.conf
+          -rw-rw---- pkiuser server.xml
+          -rw-rw---- pkiuser serverCertNick.conf
+          -rw-rw---- pkiuser tomcat.conf
           lrwxrwxrwx pkiuser web.xml -> /etc/tomcat/web.xml
           EOF
 
           cat > expected_new << EOF
-          drwxrwxrwx pkiuser Catalina
-          drwxrwxrwx pkiuser alias
-          drwxrwxrwx pkiuser ca
-          -rw-rw-rw- pkiuser catalina.policy
+          drwxrwx--- pkiuser Catalina
+          drwxrwx--- pkiuser alias
+          drwxrwx--- pkiuser ca
+          -rw-rw---- pkiuser catalina.policy
           lrwxrwxrwx pkiuser catalina.properties -> /usr/share/pki/server/conf/catalina.properties
-          drwxrwxrwx pkiuser certs
+          drwxrwx--- pkiuser certs
           lrwxrwxrwx pkiuser context.xml -> /etc/tomcat/context.xml
-          -rw-rw-rw- pkiuser jss.conf
+          -rw-rw---- pkiuser jss.conf
           lrwxrwxrwx pkiuser logging.properties -> /usr/share/pki/server/conf/logging.properties
-          -rw-rw-rw- pkiuser password.conf
-          -rw-rw-rw- pkiuser server.xml
-          -rw-rw-rw- pkiuser serverCertNick.conf
-          -rw-rw-rw- pkiuser tomcat.conf
+          -rw-rw---- pkiuser password.conf
+          -rw-rw---- pkiuser server.xml
+          -rw-rw---- pkiuser serverCertNick.conf
+          -rw-rw---- pkiuser tomcat.conf
           lrwxrwxrwx pkiuser web.xml -> /etc/tomcat/web.xml
           EOF
 
@@ -203,16 +203,16 @@ jobs:
           # TODO: review owners/permissions
           cat > expected_old << EOF
           -rw-rw-rw- pkiuser ca.crt
-          -rw-rw-rw- pkiuser cert9.db
-          -rw-rw-rw- pkiuser key4.db
-          -rw-rw-rw- pkiuser pkcs11.txt
+          -rw------- pkiuser cert9.db
+          -rw------- pkiuser key4.db
+          -rw------- pkiuser pkcs11.txt
           EOF
 
           cat > expected_new << EOF
           -rw-rw-rw- pkiuser ca.crt
-          -rw-rw-rw- pkiuser cert9.db
-          -rw-rw-rw- pkiuser key4.db
-          -rw-rw-rw- pkiuser pkcs11.txt
+          -rw------- pkiuser cert9.db
+          -rw------- pkiuser key4.db
+          -rw------- pkiuser pkcs11.txt
           EOF
 
           diff expected_$TOMCAT_FLAVOR output
@@ -231,34 +231,34 @@ jobs:
           # TODO: review owners/permissions
           cat > expected_old << EOF
           -rw-rw---- pkiuser CS.cfg
-          -rw-rw-rw- pkiuser adminCert.profile
+          -rw-rw---- pkiuser adminCert.profile
           drwxrwxrwx pkiuser archives
-          -rw-rw-rw- pkiuser caAuditSigningCert.profile
-          -rw-rw-rw- pkiuser caCert.profile
-          -rw-rw-rw- pkiuser caOCSPCert.profile
-          drwxrwxrwx pkiuser emails
-          -rw-rw-rw- pkiuser flatfile.txt
-          drwxrwxrwx pkiuser profiles
-          -rw-rw-rw- pkiuser proxy.conf
+          -rw-rw---- pkiuser caAuditSigningCert.profile
+          -rw-rw---- pkiuser caCert.profile
+          -rw-rw---- pkiuser caOCSPCert.profile
+          drwxrwx--- pkiuser emails
+          -rw-rw---- pkiuser flatfile.txt
+          drwxrwx--- pkiuser profiles
+          -rw-rw---- pkiuser proxy.conf
           -rw-rw---- pkiuser registry.cfg
-          -rw-rw-rw- pkiuser serverCert.profile
-          -rw-rw-rw- pkiuser subsystemCert.profile
+          -rw-rw---- pkiuser serverCert.profile
+          -rw-rw---- pkiuser subsystemCert.profile
           EOF
 
           cat > expected_new << EOF
-          -rw-rw-rw- pkiuser CS.cfg
-          -rw-rw-rw- pkiuser adminCert.profile
+          -rw-rw---- pkiuser CS.cfg
+          -rw-rw---- pkiuser adminCert.profile
           drwxrwxrwx pkiuser archives
-          -rw-rw-rw- pkiuser caAuditSigningCert.profile
-          -rw-rw-rw- pkiuser caCert.profile
-          -rw-rw-rw- pkiuser caOCSPCert.profile
-          drwxrwxrwx pkiuser emails
-          -rw-rw-rw- pkiuser flatfile.txt
-          drwxrwxrwx pkiuser profiles
-          -rw-rw-rw- pkiuser proxy.conf
-          -rw-rw-rw- pkiuser registry.cfg
-          -rw-rw-rw- pkiuser serverCert.profile
-          -rw-rw-rw- pkiuser subsystemCert.profile
+          -rw-rw---- pkiuser caAuditSigningCert.profile
+          -rw-rw---- pkiuser caCert.profile
+          -rw-rw---- pkiuser caOCSPCert.profile
+          drwxrwx--- pkiuser emails
+          -rw-rw---- pkiuser flatfile.txt
+          drwxrwx--- pkiuser profiles
+          -rw-rw---- pkiuser proxy.conf
+          -rw-rw---- pkiuser registry.cfg
+          -rw-rw---- pkiuser serverCert.profile
+          -rw-rw---- pkiuser subsystemCert.profile
           EOF
 
           diff expected_$TOMCAT_FLAVOR output
@@ -277,11 +277,11 @@ jobs:
           # everything should be owned by pkiuser group
           # TODO: review owners/permissions
           cat > expected << EOF
-          drwxrwxrwx pkiuser backup
-          drwxrwxrwx pkiuser ca
-          -rw-rw-rw- pkiuser localhost.$DATE.log
+          drwxrwx--- pkiuser backup
+          drwxrwx--- pkiuser ca
+          -rw-rw---- pkiuser localhost.$DATE.log
           -rw-rw-rw- pkiuser localhost_access_log.$DATE.txt
-          drwxrwxrwx pkiuser pki
+          drwxrwx--- pkiuser pki
           EOF
 
           diff expected output
@@ -300,14 +300,14 @@ jobs:
           # everything should be owned by pkiuser group
           # TODO: review owners/permissions
           cat > expected_old << EOF
-          drwxrwxrwx pkiuser backup
-          drwxrwxrwx pkiuser ca
+          drwxrwx--- pkiuser backup
+          drwxrwx--- pkiuser ca
           -rw-rw-rw- pkiuser localhost_access_log.$DATE.txt
           EOF
 
           cat > expected_new << EOF
-          drwxrwxrwx pkiuser backup
-          drwxrwxrwx pkiuser ca
+          drwxrwx--- pkiuser backup
+          drwxrwx--- pkiuser ca
           -rw-rw-rw- pkiuser localhost_access_log.$DATE.txt
           EOF
 

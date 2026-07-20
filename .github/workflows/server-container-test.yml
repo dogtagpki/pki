@@ -94,32 +94,32 @@ jobs:
           # everything should be owned by runner group
           # TODO: review owners/permissions
           cat > expected_old << EOF
-          drwxrwxrwx runner Catalina
-          drwxrwxrwx runner alias
-          -rw-rw-rw- runner catalina.policy
+          drwxrwx--- runner Catalina
+          drwxrwx--- runner alias
+          -rw-rw---- runner catalina.policy
           lrwxrwxrwx runner catalina.properties -> /usr/share/pki/server/conf/catalina.properties
-          drwxrwxrwx runner certs
+          drwxrwx--- runner certs
           lrwxrwxrwx runner context.xml -> /etc/tomcat/context.xml
-          -rw-rw-rw- runner jss.conf
+          -rw-rw---- runner jss.conf
           lrwxrwxrwx runner logging.properties -> /usr/share/pki/server/conf/logging.properties
-          -rw-rw-rw- runner password.conf
-          -rw-rw-rw- runner server.xml
-          -rw-rw-rw- runner tomcat.conf
+          -rw-rw---- runner password.conf
+          -rw-rw---- runner server.xml
+          -rw-rw---- runner tomcat.conf
           lrwxrwxrwx runner web.xml -> /etc/tomcat/web.xml
           EOF
 
           cat > expected_new << EOF
-          drwxrwxrwx runner Catalina
-          drwxrwxrwx runner alias
-          -rw-rw-rw- runner catalina.policy
+          drwxrwx--- runner Catalina
+          drwxrwx--- runner alias
+          -rw-rw---- runner catalina.policy
           lrwxrwxrwx runner catalina.properties -> /usr/share/pki/server/conf/catalina.properties
-          drwxrwxrwx runner certs
+          drwxrwx--- runner certs
           lrwxrwxrwx runner context.xml -> /etc/tomcat/context.xml
-          -rw-rw-rw- runner jss.conf
+          -rw-rw---- runner jss.conf
           lrwxrwxrwx runner logging.properties -> /usr/share/pki/server/conf/logging.properties
-          -rw-rw-rw- runner password.conf
-          -rw-rw-rw- runner server.xml
-          -rw-rw-rw- runner tomcat.conf
+          -rw-rw---- runner password.conf
+          -rw-rw---- runner server.xml
+          -rw-rw---- runner tomcat.conf
           lrwxrwxrwx runner web.xml -> /etc/tomcat/web.xml
           EOF
 

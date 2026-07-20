@@ -98,7 +98,7 @@ jobs:
       - name: Check conf dir
         if: always()
         run: |
-          ls -l conf \
+          docker exec acme ls -l conf \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
@@ -107,34 +107,34 @@ jobs:
           # everything should be owned by root group (GID=0)
           # TODO: review owners/permissions
           cat > expected_old << EOF
-          drwxrwxrwx root Catalina
-          drwxrwxrwx root acme
-          drwxrwxrwx root alias
-          -rw-rw-rw- root catalina.policy
+          drwxrwx--- root Catalina
+          drwxrwx--- root acme
+          drwxrwx--- root alias
+          -rw-rw---- root catalina.policy
           lrwxrwxrwx root catalina.properties -> /usr/share/pki/server/conf/catalina.properties
-          drwxrwxrwx root certs
+          drwxrwx--- root certs
           lrwxrwxrwx root context.xml -> /etc/tomcat/context.xml
-          -rw-rw-rw- root jss.conf
+          -rw-rw---- root jss.conf
           lrwxrwxrwx root logging.properties -> /usr/share/pki/server/conf/logging.properties
-          -rw-rw-rw- root password.conf
-          -rw-rw-rw- root server.xml
-          -rw-rw-rw- root tomcat.conf
+          -rw-rw---- root password.conf
+          -rw-rw---- root server.xml
+          -rw-rw---- root tomcat.conf
           lrwxrwxrwx root web.xml -> /etc/tomcat/web.xml
           EOF
 
           cat > expected_new << EOF
-          drwxrwxrwx root Catalina
-          drwxrwxrwx root acme
-          drwxrwxrwx root alias
-          -rw-rw-rw- root catalina.policy
+          drwxrwx--- root Catalina
+          drwxrwx--- root acme
+          drwxrwx--- root alias
+          -rw-rw---- root catalina.policy
           lrwxrwxrwx root catalina.properties -> /usr/share/pki/server/conf/catalina.properties
-          drwxrwxrwx root certs
+          drwxrwx--- root certs
           lrwxrwxrwx root context.xml -> /etc/tomcat/context.xml
-          -rw-rw-rw- root jss.conf
+          -rw-rw---- root jss.conf
           lrwxrwxrwx root logging.properties -> /usr/share/pki/server/conf/logging.properties
-          -rw-rw-rw- root password.conf
-          -rw-rw-rw- root server.xml
-          -rw-rw-rw- root tomcat.conf
+          -rw-rw---- root password.conf
+          -rw-rw---- root server.xml
+          -rw-rw---- root tomcat.conf
           lrwxrwxrwx root web.xml -> /etc/tomcat/web.xml
           EOF
 
@@ -143,7 +143,7 @@ jobs:
       - name: Check conf/acme dir
         if: always()
         run: |
-          ls -l conf/acme \
+          docker exec acme ls -l conf/acme \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
@@ -152,15 +152,15 @@ jobs:
           # everything should be owned by root group (GID=0)
           # TODO: review owners/permissions
           cat > expected_old << EOF
-          -rw-rw-rw- root database.conf
-          -rw-rw-rw- root issuer.conf
-          -rw-rw-rw- root realm.conf
+          -rw-rw---- root database.conf
+          -rw-rw---- root issuer.conf
+          -rw-rw---- root realm.conf
           EOF
 
           cat > expected_new << EOF
-          -rw-rw-rw- root database.conf
-          -rw-rw-rw- root issuer.conf
-          -rw-rw-rw- root realm.conf
+          -rw-rw---- root database.conf
+          -rw-rw---- root issuer.conf
+          -rw-rw---- root realm.conf
           EOF
 
           diff expected_$TOMCAT_FLAVOR output
