@@ -270,15 +270,6 @@ jobs:
               --pkcs12-password Secret.123
           docker exec ocsp pki -n ocspadmin ocsp-user-show ocspadmin
 
-      - name: Gather artifacts
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh cads
-          tests/bin/pki-artifacts-save.sh ca
-          tests/bin/ds-artifacts-save.sh ocspds
-          tests/bin/pki-artifacts-save.sh ocsp
-        continue-on-error: true
-
       - name: Remove OCSP from OCSP container
         run: docker exec ocsp pkidestroy -s OCSP -v
 

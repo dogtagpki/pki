@@ -781,27 +781,3 @@ jobs:
         if: always()
         run: |
           docker logs client
-
-      - name: Gather artifacts
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh cads
-
-          mkdir -p /tmp/artifacts/ca
-          cp -r ca/certs /tmp/artifacts/ca
-          cp -r ca/conf /tmp/artifacts/ca
-          cp -r ca/logs /tmp/artifacts/ca
-
-          docker logs ca > /tmp/artifacts/ca/container.out 2> /tmp/artifacts/ca/container.err
-
-          tests/bin/ds-artifacts-save.sh ocspds
-
-          mkdir -p /tmp/artifacts/ocsp
-          cp -r ocsp/certs /tmp/artifacts/ocsp
-          cp -r ocsp/conf /tmp/artifacts/ocsp
-          cp -r ocsp/logs /tmp/artifacts/ocsp
-
-          docker logs ocsp > /tmp/artifacts/ocsp/container.out 2> /tmp/artifacts/ocsp/container.err
-
-          mkdir -p /tmp/artifacts/client
-          docker logs client > /tmp/artifacts/client/container.out 2> /tmp/artifacts/client/container.err

@@ -419,15 +419,6 @@ jobs:
           echo good > expected
           diff expected actual
 
-      - name: Gather artifacts from CA containers
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh cads
-          tests/bin/pki-artifacts-save.sh ca
-          tests/bin/ds-artifacts-save.sh ocspds
-          tests/bin/pki-artifacts-save.sh ocsp
-        continue-on-error: true
-
       - name: Remove OCSP from OCSP container
         run: docker exec ocsp pkidestroy -s OCSP -v
 

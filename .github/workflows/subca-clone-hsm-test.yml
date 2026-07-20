@@ -587,20 +587,6 @@ jobs:
 
           diff subca-certs.primary subca-certs.secondary
 
-      - name: Gather artifacts from primary sub-CA
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki primary-ds
-          tests/bin/pki-artifacts-save.sh primary-subca
-        continue-on-error: true
-
-      - name: Gather artifacts from secondary sub-CA
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki secondary-ds
-          tests/bin/pki-artifacts-save.sh secondary-subca
-        continue-on-error: true
-
       - name: Remove secondary sub-CA
         run: docker exec secondary-subca pkidestroy -s CA -v
 

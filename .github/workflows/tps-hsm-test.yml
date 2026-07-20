@@ -261,13 +261,6 @@ jobs:
               --pkcs12-password Secret.123
           docker exec pki pki -n caadmin tps-user-show tpsadmin
 
-      - name: Gather artifacts
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh ds
-          tests/bin/pki-artifacts-save.sh pki
-        continue-on-error: true
-
       - name: Remove TPS
         run: docker exec pki pkidestroy -s TPS -v
 

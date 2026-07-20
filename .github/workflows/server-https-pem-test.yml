@@ -100,9 +100,3 @@ jobs:
       - name: Remove PKI server
         run: |
           docker exec pki pki-server remove -v
-
-      - name: Gather artifacts from server container
-        if: always()
-        run: |
-          tests/bin/pki-artifacts-save.sh pki
-        continue-on-error: true

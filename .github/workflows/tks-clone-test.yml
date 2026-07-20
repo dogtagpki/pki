@@ -217,16 +217,6 @@ jobs:
               --pkcs12-password Secret.123
           docker exec tertiary pki -n caadmin tks-user-show tksadmin
 
-      - name: Gather artifacts
-        run: |
-          tests/bin/ds-artifacts-save.sh primaryds
-          tests/bin/pki-artifacts-save.sh primary
-          tests/bin/ds-artifacts-save.sh secondaryds
-          tests/bin/pki-artifacts-save.sh secondary
-          tests/bin/ds-artifacts-save.sh tertiaryds
-          tests/bin/pki-artifacts-save.sh tertiary
-        continue-on-error: true
-
       - name: Remove TKS from tertiary PKI container
         run: docker exec tertiary pkidestroy -s TKS -v
 

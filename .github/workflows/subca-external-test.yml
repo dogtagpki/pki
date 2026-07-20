@@ -133,12 +133,5 @@ jobs:
         run: |
           docker exec pki pki -n caadmin ca-cert-request-find
 
-      - name: Gather artifacts
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki ds
-          tests/bin/pki-artifacts-save.sh pki
-        continue-on-error: true
-
       - name: Remove subordinate CA
         run: docker exec pki pkidestroy -s CA -v

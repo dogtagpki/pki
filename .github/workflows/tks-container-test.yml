@@ -571,21 +571,3 @@ jobs:
         if: always()
         run: |
           docker logs client
-
-      - name: Gather artifacts
-        if: always()
-        run: |
-          mkdir -p /tmp/artifacts
-
-          tests/bin/ds-artifacts-save.sh cads
-
-          cp -r ca /tmp/artifacts
-          docker logs ca > /tmp/artifacts/ca/container.out 2> /tmp/artifacts/ca/container.err
-
-          tests/bin/ds-artifacts-save.sh tksds
-
-          cp -r tks /tmp/artifacts
-          docker logs tks > /tmp/artifacts/tks/container.out 2> /tmp/artifacts/tks/container.err
-
-          mkdir -p /tmp/artifacts/client
-          docker logs client > /tmp/artifacts/client/container.out 2> /tmp/artifacts/client/container.err

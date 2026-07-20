@@ -206,20 +206,6 @@ jobs:
         run: |
           docker exec subordinate pki -n caadmin ca-cert-request-find
 
-      - name: Gather artifacts from root containers
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/root rootds
-          tests/bin/pki-artifacts-save.sh root
-        continue-on-error: true
-
-      - name: Gather artifacts from subordinate containers
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/subordinate subds
-          tests/bin/pki-artifacts-save.sh subordinate
-        continue-on-error: true
-
       - name: Remove subordinate CA from subordinate container
         run: docker exec subordinate pkidestroy -s CA -v
 

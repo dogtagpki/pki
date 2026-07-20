@@ -169,12 +169,5 @@ jobs:
               | tee users.after
           diff users.before users.after
 
-      - name: Gather artifacts
-        if: always()
-        run: |
-          tests/bin/ds-artifacts-save.sh --output=/tmp/artifacts/pki ds
-          tests/bin/pki-artifacts-save.sh pki
-        continue-on-error: true
-
       - name: Remove CA
         run: docker exec pki pkidestroy -s CA -v

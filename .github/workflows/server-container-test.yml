@@ -234,17 +234,3 @@ jobs:
         if: always()
         run: |
           docker logs server 2>&1
-
-      - name: Gather artifacts
-        if: always()
-        run: |
-          mkdir -p /tmp/artifacts/server
-          cp -r certs /tmp/artifacts/server
-          cp -r conf /tmp/artifacts/server
-          cp -r logs /tmp/artifacts/server
-
-          docker logs server > /tmp/artifacts/server/container.out 2> /tmp/artifacts/server/container.err
-
-          mkdir -p /tmp/artifacts/client
-          docker logs client > /tmp/artifacts/client/container.out 2> /tmp/artifacts/client/container.err
-        continue-on-error: true
