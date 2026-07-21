@@ -2422,18 +2422,21 @@ public class KRATool {
 
     /**
      * cross-scheme support: Determines the appropriate key strength in bits
-     * for a given algorithm.
+     * for a given algorithm for PKCS#11 operations.
      *
      * @param algName Algorithm name (e.g., "DES3/CBC/Padding", "AES/CBC/PKCS5Padding")
      * @param userSpecifiedSize User-specified key size from command-line parameter
-     * @return Key strength in bits (168 for DES3, or userSpecifiedSize for AES)
+     * @return Key strength in bits (192 for DES3, or userSpecifiedSize for AES)
      */
     private static int getKeyStrength(String algName, int userSpecifiedSize) {
         String baseAlg = getBaseAlgorithm(algName);
 
         if (baseAlg != null && (baseAlg.equalsIgnoreCase("DES3") || baseAlg.equalsIgnoreCase("DESede"))) {
-            // DES3 always uses 168-bit keys (3 * 56-bit keys with parity)
-            return 168;
+            // DES3 PKCS#11 key length must be 192 bits (24 bytes: 3 * 64-bit keys with parity)
+            // Note: User may specify 168 (effective security strength) but we must use 192
+            // for C_UnwrapKey. NSS pk11mech.c expects: len==16 for DES2, len==24 for DES3.
+            // Passing 21 bytes (168/8) causes error -8152 "key does not support operation"
+            return 192;
         } else {
             // For AES and other algorithms, use user-specified size
             return userSpecifiedSize;
@@ -2605,7 +2608,7 @@ public class KRATool {
         String sourceBase = getBaseAlgorithm(mSourcePayloadWrapAlgName);
         String targetBase = getBaseAlgorithm(mTargetPayloadWrapAlgName);
 
-        // Determine actual key strengths (DES3 is always 168, AES uses user-specified size)
+        // Determine actual key strengths (DES3 is always 192 for PKCS#11, AES uses user-specified size)
         int sourceWrapKeySize = getKeyStrength(mSourcePayloadWrapAlgName, mSourcePayloadWrapKeySize);
         int targetWrapKeySize = mTargetPayloadWrapKeySize;  // Target is always AES (user-specified)
 
