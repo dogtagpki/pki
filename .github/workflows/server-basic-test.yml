@@ -37,11 +37,12 @@ jobs:
               --network-alias=pki.example.com \
               pki
 
-          # get Fedora version
+      - name: Get Fedora version
+        run: |
           FEDORA_VERSION=$(docker exec pki sed -n 's/^VERSION_ID=//p' /etc/os-release)
           echo "FEDORA_VERSION=$FEDORA_VERSION" | tee -a $GITHUB_ENV
           
-      - name: Calculate Tomcat flavor
+      - name: Get Tomcat flavor
         run: |
           TOMCAT_FLAVOR=$(docker exec pki test -f /usr/libexec/tomcat/tomcat-run.sh && echo "new" || echo "old")
           echo "TOMCAT_FLAVOR=$TOMCAT_FLAVOR" | tee -a $GITHUB_ENV
@@ -56,6 +57,8 @@ jobs:
               | tee output
 
       - name: Check PKI lib dir
+        if: ${{ fromJSON(env.FEDORA_VERSION) <= 44 }}
+        # Fedora 44 or older uses jackson-annotations-x.y.z.jar
         run: |
           # check file types, owners, and permissions
           docker exec pki ls -l /usr/share/pki/lib \
@@ -149,6 +152,109 @@ jobs:
           # - replace version number with x.y.z
           # - replace servlet.jar with tomcat-servlet-api.jar
           sed -e 's/-[0-9]*\.[0-9]*\.[0-9]*\.jar$/-x.y.z.jar/' \
+              -e 's/-[0-9]*\.[0-9]*\.[0-9]*\.Final\.jar$/-x.y.z.Final.jar/' \
+              -e 's/\/servlet.jar$/\/tomcat-servlet-api.jar/' \
+              output > actual
+
+          diff expected actual
+
+      - name: Check PKI lib dir
+        if: ${{ fromJSON(env.FEDORA_VERSION) >= 45 }}
+        # Fedora 45 or newer uses jackson-annotations-x.y.jar
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /usr/share/pki/lib \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          # the following libraries should be bundled:
+          # - commons-cli
+          # - commons-codec
+          # - commons-io
+          # - commons-lang3
+          # - commons-logging
+          # - commons-net
+          # - httpclient
+          # - httpcore
+          # - jackson-annotations
+          # - jackson-core
+          # - jackson-databind
+          # - jackson-jaxrs-base
+          # - jackson-jaxrs-json-provider
+          # - jackson-module-jaxb-annotations
+          # - jakarta.activation-api
+          # - jakarta.annotation-api
+          # - jakarta.xml.bind-api
+          # - jboss-jaxrs-api_2.0_spec
+          # - jboss-logging
+          # - resteasy-client
+          # - resteasy-jackson2-provider
+          # - resteasy-jaxrs
+          # - slf4j-api
+          # - slf4j-jdk14
+          cat > expected << EOF
+          -rw-r--r-- root root commons-cli-x.y.z.jar
+          lrwxrwxrwx root root commons-cli.jar -> commons-cli-x.y.z.jar
+          -rw-r--r-- root root commons-codec-x.y.z.jar
+          lrwxrwxrwx root root commons-codec.jar -> commons-codec-x.y.z.jar
+          -rw-r--r-- root root commons-io-x.y.z.jar
+          lrwxrwxrwx root root commons-io.jar -> commons-io-x.y.z.jar
+          -rw-r--r-- root root commons-lang3-x.y.z.jar
+          lrwxrwxrwx root root commons-lang3.jar -> commons-lang3-x.y.z.jar
+          -rw-r--r-- root root commons-logging-x.y.z.jar
+          lrwxrwxrwx root root commons-logging.jar -> commons-logging-x.y.z.jar
+          -rw-r--r-- root root commons-net-x.y.z.jar
+          lrwxrwxrwx root root commons-net.jar -> commons-net-x.y.z.jar
+          -rw-r--r-- root root httpclient-x.y.z.jar
+          lrwxrwxrwx root root httpclient.jar -> httpclient-x.y.z.jar
+          -rw-r--r-- root root httpcore-x.y.z.jar
+          lrwxrwxrwx root root httpcore.jar -> httpcore-x.y.z.jar
+          -rw-r--r-- root root jackson-annotations-x.y.jar
+          lrwxrwxrwx root root jackson-annotations.jar -> jackson-annotations-x.y.jar
+          -rw-r--r-- root root jackson-core-x.y.z.jar
+          lrwxrwxrwx root root jackson-core.jar -> jackson-core-x.y.z.jar
+          -rw-r--r-- root root jackson-databind-x.y.z.jar
+          lrwxrwxrwx root root jackson-databind.jar -> jackson-databind-x.y.z.jar
+          -rw-r--r-- root root jackson-jaxrs-base-x.y.z.jar
+          lrwxrwxrwx root root jackson-jaxrs-base.jar -> jackson-jaxrs-base-x.y.z.jar
+          -rw-r--r-- root root jackson-jaxrs-json-provider-x.y.z.jar
+          lrwxrwxrwx root root jackson-jaxrs-json-provider.jar -> jackson-jaxrs-json-provider-x.y.z.jar
+          -rw-r--r-- root root jackson-module-jaxb-annotations-x.y.z.jar
+          lrwxrwxrwx root root jackson-module-jaxb-annotations.jar -> jackson-module-jaxb-annotations-x.y.z.jar
+          -rw-r--r-- root root jakarta.activation-api-x.y.z.jar
+          lrwxrwxrwx root root jakarta.activation-api.jar -> jakarta.activation-api-x.y.z.jar
+          -rw-r--r-- root root jakarta.annotation-api-x.y.z.jar
+          lrwxrwxrwx root root jakarta.annotation-api.jar -> jakarta.annotation-api-x.y.z.jar
+          -rw-r--r-- root root jakarta.xml.bind-api-x.y.z.jar
+          lrwxrwxrwx root root jakarta.xml.bind-api.jar -> jakarta.xml.bind-api-x.y.z.jar
+          -rw-r--r-- root root jboss-jaxrs-api_2.0_spec-x.y.z.Final.jar
+          lrwxrwxrwx root root jboss-jaxrs-api_2.0_spec.jar -> jboss-jaxrs-api_2.0_spec-x.y.z.Final.jar
+          -rw-r--r-- root root jboss-logging-x.y.z.Final.jar
+          lrwxrwxrwx root root jboss-logging.jar -> jboss-logging-x.y.z.Final.jar
+          lrwxrwxrwx root root jss.jar -> ../../../../usr/lib/java/jss.jar
+          lrwxrwxrwx root root ldapjdk.jar -> ../../../../usr/share/java/ldapjdk.jar
+          lrwxrwxrwx root root p11-kit-trust.so -> ../../../../usr/lib64/pkcs11/p11-kit-trust.so
+          lrwxrwxrwx root root pki-common.jar -> ../../../../usr/share/java/pki/pki-common.jar
+          lrwxrwxrwx root root pki-tools.jar -> ../../../../usr/share/java/pki/pki-tools.jar
+          -rw-r--r-- root root resteasy-client-x.y.z.Final.jar
+          -rw-r--r-- root root resteasy-jackson2-provider-x.y.z.Final.jar
+          lrwxrwxrwx root root resteasy-jackson2-provider.jar -> resteasy-jackson2-provider-x.y.z.Final.jar
+          -rw-r--r-- root root resteasy-jaxrs-x.y.z.Final.jar
+          lrwxrwxrwx root root resteasy-jaxrs.jar -> resteasy-jaxrs-x.y.z.Final.jar
+          lrwxrwxrwx root root servlet.jar -> ../../../../usr/share/java/tomcat-servlet-api.jar
+          -rw-r--r-- root root slf4j-api-x.y.z.jar
+          lrwxrwxrwx root root slf4j-api.jar -> slf4j-api-x.y.z.jar
+          -rw-r--r-- root root slf4j-jdk14-x.y.z.jar
+          lrwxrwxrwx root root slf4j-jdk14.jar -> slf4j-jdk14-x.y.z.jar
+          EOF
+
+          # normalize actual result:
+          # - replace version number with x.y or x.y.z
+          # - replace servlet.jar with tomcat-servlet-api.jar
+          sed -e 's/-[0-9]*\.[0-9]*\.jar$/-x.y.jar/' \
+              -e 's/-[0-9]*\.[0-9]*\.[0-9]*\.jar$/-x.y.z.jar/' \
               -e 's/-[0-9]*\.[0-9]*\.[0-9]*\.Final\.jar$/-x.y.z.Final.jar/' \
               -e 's/\/servlet.jar$/\/tomcat-servlet-api.jar/' \
               output > actual
@@ -708,8 +814,6 @@ jobs:
 
           cat > expected_new << EOF
           drwxr-x--- tomcat tomcat backup
-          -rw-r--r-- tomcat tomcat catalina.$DATE.log
-          -rw-r----- tomcat tomcat localhost_access_log.$DATE.txt
           EOF
 
           diff expected_$TOMCAT_FLAVOR output
@@ -848,8 +952,6 @@ jobs:
 
           cat > expected_new << EOF
           drwxr-x--- tomcat tomcat backup
-          -rw-r--r-- tomcat tomcat catalina.$DATE.log
-          -rw-r----- tomcat tomcat localhost_access_log.$DATE.txt
           EOF
 
           diff expected_$TOMCAT_FLAVOR output

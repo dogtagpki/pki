@@ -45,7 +45,7 @@ jobs:
               --network-alias=pki.example.com \
               pki
 
-      - name: Calculate Tomcat flavor
+      - name: Get Tomcat flavor
         run: |
           TOMCAT_FLAVOR=$(docker exec pki test -f /usr/libexec/tomcat/tomcat-run.sh && echo "new" || echo "old")
           echo "TOMCAT_FLAVOR=$TOMCAT_FLAVOR" | tee -a $GITHUB_ENV
