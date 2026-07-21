@@ -54,7 +54,8 @@ jobs:
               --network-alias=ca.example.com \
               pki
 
-          # get Fedora version
+      - name: Get Fedora version
+        run: |
           FEDORA_VERSION=$(docker exec pki sed -n 's/^VERSION_ID=//p' /etc/os-release)
           echo "FEDORA_VERSION=$FEDORA_VERSION" | tee -a $GITHUB_ENV
 
