@@ -541,15 +541,47 @@ public class LDAPSession extends DBSSession {
     @Override
     public <T extends IDBObj> int countEntries(Class<T> classResults, String base, String filter, int timeLimit)
             throws EBaseException {
-        String[] attrs = {"objectclass"};
-        DBPagedSearch<T> search = createPagedSearch(classResults,  base, filter, attrs, (String) null);
-        RecordPagedList<T> list = new RecordPagedList<>(search);
-        int count = 0;
-        for(T c: list) {
-            count++;
-        }
+        try {
+            String ldapfilter = dbSubsystem.getRegistry().getFilter(filter);
+            logger.info("LDAPSession.countEntries(): Searching {} for {}", base, ldapfilter);
 
-        return count;
+            LDAPSearchConstraints cons = new LDAPSearchConstraints();
+            if (timeLimit > 0) {
+                cons.setServerTimeLimit(timeLimit);
+            }
+
+            String[] attrs = {"objectclass"};
+            LDAPPagedResultsControl pagecon = new LDAPPagedResultsControl(false, MAX_PAGED_SEARCH_SIZE);
+            int count = 0;
+            byte[] cookie;
+
+            do {
+                cons.setServerControls(pagecon);
+                LDAPSearchResults res = mConn.search(base,
+                        LDAPv3.SCOPE_ONE, ldapfilter, attrs, false, cons);
+                while (res.hasMoreElements()) {
+                    res.next();
+                    count++;
+                }
+                cookie = null;
+                for (LDAPControl c : res.getResponseControls()) {
+                    if (c instanceof LDAPPagedResultsControl resC) {
+                        cookie = resC.getCookie();
+                    }
+                }
+                if (cookie != null) {
+                    pagecon = new LDAPPagedResultsControl(false, MAX_PAGED_SEARCH_SIZE, cookie);
+                }
+            } while (cookie != null);
+
+            return count;
+
+        } catch (LDAPException e) {
+            if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE)
+                throw new DBNotAvailableException(
+                        CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
+            throw new DBException("Unable to search LDAP record: " + e.getMessage(), e);
+        }
     }
 
     @Override
