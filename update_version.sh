@@ -53,10 +53,10 @@ change_spec_version() {
     if [[ "$CURRENT_PHASE" != "$NEXT_PHASE" ]] ; then
         if [ -z "$NEXT_PHASE" ] ; then
             echo "Remove phase"
-            sed -i "/phase /c\#global           phase" pki.spec
+            sed -i "/phase /c\%undefine         phase" pki.spec
         elif [ -z "$CURRENT_PHASE" ] ; then
             echo "Add phase, set to $NEXT_PHASE"
-            sed -i "/#global           phase/c\%global           phase $NEXT_PHASE" pki.spec
+            sed -i "/\%undefine *phase/c\%global           phase $NEXT_PHASE" pki.spec
         else
             echo "Update phase to $NEXT_PHASE"
             sed -i "/phase /c\%global           phase $NEXT_PHASE" pki.spec
@@ -66,7 +66,7 @@ change_spec_version() {
 
 commit_version_change() {
     git add pki.spec
-    git commit -m "Updating version to v$NEXT_VERSION"
+    git commit -m "Update version number to $NEXT_VERSION"
  }
 
 create_tag() {
