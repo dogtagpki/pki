@@ -87,6 +87,21 @@ jobs:
           sed -n 's/^ *Public Key Algorithm: *\(.*\)$/\1/p' output > actual
           diff expected actual
 
+      - name: Configure profiles
+        run: |
+          # allow ML-KEM-768 in caInternalAuthDRMstorageCert (after RSA allowedKeys block)
+          docker exec pki sed -i \
+              -e '/^policyset\.drmStorageCertSet\.3\.constraint\.params\.allowedKeys\.RSA\.4096=true/a policyset.drmStorageCertSet.3.constraint.params.allowedKeys.MLKEM.768=true' \
+              /var/lib/pki/pki-tomcat/ca/profiles/ca/caInternalAuthDRMstorageCert.cfg
+
+          # allow ML-KEM-768 in caInternalAuthTransportCert (after RSA allowedKeys block)
+          docker exec pki sed -i \
+              -e '/^policyset\.transportCertSet\.3\.constraint\.params\.allowedKeys\.RSA\.4096=true/a policyset.transportCertSet.3.constraint.params.allowedKeys.MLKEM.768=true' \
+              /var/lib/pki/pki-tomcat/ca/profiles/ca/caInternalAuthTransportCert.cfg
+
+          # restart CA
+          docker exec pki pki-server ca-redeploy --wait
+
       - name: Install KRA
         run: |
           docker exec pki pkispawn \
