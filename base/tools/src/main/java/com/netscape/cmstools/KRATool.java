@@ -821,7 +821,7 @@ public class KRATool {
                                                                              "        " + "   (must match target KRA's configured algorithm)";
 
     private static final String SOURCE_PAYLOAD_WRAP_KEYSIZE = "-source_payload_wrap_keysize";
-    private static final String SOURCE_PAYLOAD_WRAP_KEYSIZE_DESCRIPTION = "  <128|168|192|256> Source payload wrapping key size in bits (default: 128, use 168 for DES3)";
+    private static final String SOURCE_PAYLOAD_WRAP_KEYSIZE_DESCRIPTION = "  <128|192|256> Source payload wrapping key size in bits (default: 128, use 192 for DES3)";
 
     private static final String TARGET_PAYLOAD_WRAP_KEYSIZE = "-target_payload_wrap_keysize";
     private static final String TARGET_PAYLOAD_WRAP_KEYSIZE_DESCRIPTION = "  <128|192|256> Target payload wrapping key size in bits (default: 128, AES only)";
@@ -2742,7 +2742,8 @@ public class KRATool {
      *
      * Reference: JSS_ExportEncryptedPrivKeyInfoV2 -> JSS_KeyExchange in jssutil.c:1146-1241
      *
-     * @param sessionKey Source session key
+     * @param sessionKey Session key to import (from source token)
+     * @param keyType Type of the session key (SymmetricKey.Type - DES3 or AES)
      * @param processingToken Token for processing (HSM or NSS DB)
      * @return Session key in processing token
      */
@@ -7274,7 +7275,7 @@ public class KRATool {
                     mSourcePayloadWrapKeySize = Integer.parseInt(args[i + 1]);
                     if (mSourcePayloadWrapKeySize != 128 && mSourcePayloadWrapKeySize != 168 &&
                         mSourcePayloadWrapKeySize != 192 && mSourcePayloadWrapKeySize != 256) {
-                        System.err.println("ERROR:  Source payload wrapping key size must be 128, 168, 192, or 256" + NEWLINE);
+                        System.err.println("ERROR:  Source payload wrapping key size must be 128, 192, or 256" + NEWLINE);
                         System.exit(1);
                     }
                 } catch (NumberFormatException e) {
