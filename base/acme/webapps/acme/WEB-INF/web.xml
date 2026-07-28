@@ -47,7 +47,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
     <security-constraint>
         <display-name>Allow administrators to enable ACME services</display-name>
         <web-resource-collection>
-            <url-pattern>/enable</url-pattern>
+            <url-pattern>/enable/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>Administrators</role-name>
@@ -61,7 +61,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
     <security-constraint>
         <display-name>Allow administrators to disable ACME services</display-name>
         <web-resource-collection>
-            <url-pattern>/disable</url-pattern>
+            <url-pattern>/disable/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>Administrators</role-name>
