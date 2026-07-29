@@ -90,7 +90,10 @@ class EnableEST(pki.server.upgrade.PKIServerUpgradeScriptlet):
         profiles_to_update = [
             'caECInternalAuthSubsystemCert',
             'caInternalAuthServerCert',
-            'caInternalAuthSubsystemCert'
+            'caInternalAuthSubsystemCert',
+            'caECInternalAuthServerCert',        # Add EC Server profile (Fixes 403 Forbidden on EC EST)
+            'caMLDSAInternalAuthServerCert',     # Add ML-DSA Server profile
+            'caMLDSAInternalAuthSubsystemCert'   # Add ML-DSA Subsystem profile
         ]
 
         for profile in profiles_to_update:
