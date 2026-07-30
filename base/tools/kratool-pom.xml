@@ -8,7 +8,7 @@
     <groupId>org.dogtagpki.pki</groupId>
     <artifactId>pki-kratool</artifactId>
     <!-- IMPORTANT: Keep this version in sync with pki-kratool.spec -->
-    <version>11.10.0</version>
+    <version>11.10.1</version>
     <packaging>jar</packaging>
 
     <name>PKI KRATool</name>
@@ -58,7 +58,7 @@
         <dependency>
             <groupId>org.dogtagpki.pki</groupId>
             <artifactId>pki-common</artifactId>
-            <version>11.10.0</version>
+            <version>11.10.1</version>
             <scope>system</scope>
             <systemPath>/usr/share/java/pki/pki-common.jar</systemPath>
         </dependency>
