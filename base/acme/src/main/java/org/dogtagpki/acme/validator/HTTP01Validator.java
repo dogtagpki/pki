@@ -92,13 +92,15 @@ public class HTTP01Validator extends ACMEValidator {
 
         if (response == null || !response.equals(keyAuthorization)) {
 
+            // Log the body for operators; never return it to the ACME client
+            // (SSRF response disclosure — dogtagpki/pki#5407).
             logger.error("Invalid response: " + response);
 
             ACMEError error = new ACMEError();
             error.setType("urn:ietf:params:acme:error:incorrectResponse");
             error.setDetail(
-                    "Unable to validate HTTP-01 challenge at " + validationURL + "\n" +
-                    "Incorrect response: " + response);
+                    "Unable to validate HTTP-01 challenge at " + validationURL + ": "
+                    + "response did not match the expected key authorization");
 
             return ValidationResult.fail(error);
         }
@@ -110,22 +112,19 @@ public class HTTP01Validator extends ACMEValidator {
 
         logger.info("Retrieving " + validationURL);
 
-        CloseableHttpClient httpClient = HttpClients.createDefault();
-        HttpGet httpGet = new HttpGet(validationURL);
-        CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
-
-        String response;
-        try {
-            HttpEntity entity = httpResponse.getEntity();
-            response = IOUtils.toString(entity.getContent(), "UTF-8").trim();
-            EntityUtils.consume(entity);
-
-        } finally {
-            httpResponse.close();
+        // Do not follow redirects: a controlled first hop can otherwise
+        // redirect validation to internal HTTP targets (dogtagpki/pki#5407).
+        try (CloseableHttpClient httpClient = HttpClients.custom()
+                .disableRedirectHandling()
+                .build()) {
+            HttpGet httpGet = new HttpGet(validationURL);
+            try (CloseableHttpResponse httpResponse = httpClient.execute(httpGet)) {
+                HttpEntity entity = httpResponse.getEntity();
+                String response = IOUtils.toString(entity.getContent(), "UTF-8").trim();
+                EntityUtils.consume(entity);
+                logger.info("Response: " + response);
+                return response;
+            }
         }
-
-        logger.info("Response: " + response);
-
-        return response;
     }
 }
