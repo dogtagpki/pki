@@ -33,6 +33,8 @@ To start the installation execute the following command:
 $ pkispawn -f kra-pqc.cfg -s KRA
 ....
 
+NOTE: For ML-KEM configuration and recommended security settings, see xref:post-installation-configuration[].
+
 == KRA system certificates
 
 After installation the KRA system certificates and keys are stored in the server NSS database (i.e. `/var/lib/pki/pki-tomcat/conf/alias`):
@@ -113,4 +115,35 @@ User "kraadmin"
   Email: kraadmin@example.com
   Type: adminType
   State: 1
+....
+
+[id="post-installation-configuration"]
+== Post-installation Configuration
+
+=== ML-KEM Configuration
+
+When installing a KRA with ML-KEM storage certificates, pkispawn automatically selects wrapping.2 configuration (instead of wrapping.1 for RSA/EC). This is reflected in `/var/lib/pki/pki-tomcat/conf/kra/CS.cfg` with `kra.storageUnit.wrapping.choice=2`.
+
+Key differences from RSA/EC storage:
+
+* ML-KEM uses key encapsulation instead of key wrapping (parameters `sessionKeyWrapAlgorithm` and `sessionKeyKeyGenAlgorithm` are unused)
+* ML-KEM currently does *not* support `kra.allowEncDecrypt.archival=true`
+
+=== Recommended Security Settings
+
+For improved PKCS#12 security (applies to all storage cert types), edit `/var/lib/pki/pki-tomcat/conf/kra/CS.cfg` and uncomment:
+
+[literal]
+....
+kra.legacyPKCS12=false
+kra.nonLegacyAlg=AES/None/PKCS5Padding/Kwp/256
+....
+
+This replaces legacy DES3-CBC PKCS#12 encryption with AES-256-KWP.
+
+After making changes, restart the instance:
+
+[literal]
+....
+$ systemctl restart pki-tomcatd@<pki_instance_name>.service
 ....
