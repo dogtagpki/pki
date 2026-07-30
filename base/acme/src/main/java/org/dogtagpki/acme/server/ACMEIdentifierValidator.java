@@ -49,6 +49,16 @@ public class ACMEIdentifierValidator {
      * _policy_ is checked elsewhere.
      */
     private static ValidationResult validateSyntaxDNS(String value) {
+
+        // dns identifiers must be hostnames, not IP literals (RFC 8555).
+        // Accepting IPs enables SSRF via HTTP-01 (see dogtagpki/pki#5407).
+        if (isIpLiteral(value)) {
+            ACMEError error = new ACMEError();
+            error.setType("urn:ietf:params:acme:error:malformed");
+            error.setDetail("DNS identifier must not be an IP address: " + value);
+            return ValidationResult.fail(error);
+        }
+
         String[] labels = value.split("\\.");
 
         if (labels.length < 1) {
@@ -107,6 +117,113 @@ public class ACMEIdentifierValidator {
         }
 
         return ValidationResult.ok();
+    }
+
+    /**
+     * True if value is an IPv4/IPv6 literal (optional [], optional leading "*.").
+     * Wildcard is stripped because newOrder removes "*." before HTTP-01.
+     * Parsing is lexical only (no InetAddress/DNS) and covers the decimal IPv4
+     * forms Java accepts (d, d.d, d.d.d, d.d.d.d).
+     */
+    static boolean isIpLiteral(String value) {
+        String host = value.startsWith("*.") ? value.substring(2) : value;
+        if (host.startsWith("[") && host.endsWith("]") && host.length() > 2) {
+            host = host.substring(1, host.length() - 1);
+        }
+        if (host.indexOf(':') >= 0) {
+            return isIpv6Literal(host);
+        }
+        return isIpv4Literal(host);
+    }
+
+    /**
+     * Match Java Inet4Address decimal IPv4 text forms (historical inet_aton style):
+     * d (32-bit), d.d (8+24), d.d.d (8+8+16), or d.d.d.d (four bytes).
+     * Digits only; leading zeros allowed. See java.net.Inet4Address.
+     */
+    private static boolean isIpv4Literal(String host) {
+        if (host.isEmpty()) {
+            return false;
+        }
+        for (int i = 0; i < host.length(); i++) {
+            char c = host.charAt(i);
+            if (c != '.' && (c < '0' || c > '9')) {
+                return false;
+            }
+        }
+        String[] parts = host.split("\\.", -1);
+        if (parts.length < 1 || parts.length > 4) {
+            return false;
+        }
+        for (String part : parts) {
+            if (part.isEmpty()) {
+                return false;
+            }
+        }
+        switch (parts.length) {
+            case 1: // d -> 32-bit value (e.g. 2130706433)
+                return inRange(parts[0], 0xFFFFFFFFL);
+            case 2: // d.d -> 8-bit + 24-bit (e.g. 127.1)
+                return inRange(parts[0], 255) && inRange(parts[1], 0xFFFFFFL);
+            case 3: // d.d.d -> 8-bit + 8-bit + 16-bit (e.g. 127.0.1)
+                return inRange(parts[0], 255) && inRange(parts[1], 255)
+                        && inRange(parts[2], 0xFFFFL);
+            case 4: // d.d.d.d -> four 8-bit octets (e.g. 127.0.0.1)
+                return inRange(parts[0], 255) && inRange(parts[1], 255)
+                        && inRange(parts[2], 255) && inRange(parts[3], 255);
+            default:
+                return false;
+        }
+    }
+
+    private static boolean inRange(String part, long max) {
+        try {
+            long value = Long.parseLong(part);
+            return value >= 0 && value <= max;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Simplified lexical IPv6 text check (RFC 4291 / RFC 5952 style):
+     * hex digits and ':', at most one "::" compression, optional dotted IPv4
+     * tail for mapped forms (e.g. ::ffff:127.0.0.1). Not a full RFC parser.
+     */
+    private static boolean isIpv6Literal(String host) {
+        int colons = 0;
+        int doubleColon = 0;
+        for (int i = 0; i < host.length(); i++) {
+            char c = host.charAt(i);
+            if (c == ':') {
+                colons++;
+                // "::" may appear at most once
+                if (i + 1 < host.length() && host.charAt(i + 1) == ':') {
+                    doubleColon++;
+                    i++;
+                    colons++;
+                }
+            } else if (!isHex(c) && c != '.') {
+                // '.' only for IPv4-mapped / IPv4-compatible tails
+                return false;
+            }
+        }
+        // At least one ":" pair worth of colons; reject multiple "::"
+        if (colons < 2 || doubleColon > 1) {
+            return false;
+        }
+        // If an IPv4 tail is present after the last ':', validate it as IPv4
+        int lastColon = host.lastIndexOf(':');
+        if (lastColon >= 0 && host.indexOf('.', lastColon) >= 0) {
+            return isIpv4Literal(host.substring(lastColon + 1));
+        }
+        return true;
+    }
+
+    private static boolean isHex(char c) {
+        return c >= '0' && c <= '9'
+                || c >= 'a' && c <= 'f'
+                || c >= 'A' && c <= 'F';
     }
 
     /* helper predicates for "dns" identifier validity */
