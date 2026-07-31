@@ -1,4 +1,4 @@
-#!/usr/bin/bash -e
+#!/bin/bash -e
 
 release_branch='^v[0-9]+\.[0-9]+$'
 release_branch_with_suffix='^v[0-9]+\.[0-9]+-.*$'

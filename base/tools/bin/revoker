@@ -1,4 +1,4 @@
-#!/usr/bin/bash -e
+#!/bin/bash -e
 #
 # Copyright Red Hat, Inc.
 #

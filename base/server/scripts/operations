@@ -1,4 +1,4 @@
-#!/usr/bin/bash -X
+#!/bin/bash -X
 
 # From "http://fedoraproject.org/wiki/FCNewInit/Initscripts":
 #

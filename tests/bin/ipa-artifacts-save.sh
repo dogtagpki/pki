@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 CONTAINER=$1
 ARTIFACTS=/tmp/artifacts/$CONTAINER

@@ -1,4 +1,4 @@
-#!/usr/bin/bash -ex
+#!/bin/bash -ex
 
 # https://github.com/dogtagpki/pki/wiki/Generating-SSL-Server-CSR-with-PKI-NSS
 # https://github.com/dogtagpki/pki/wiki/Issuing-SSL-Server-Certificate-with-PKI-CA

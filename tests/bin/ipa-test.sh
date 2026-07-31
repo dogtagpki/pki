@@ -1,4 +1,4 @@
-#!/usr/bin/bash -eEx
+#!/bin/bash -eEx
 #
 # Authors:
 #     Dinesh Prasanth M K <dmoluguw@redhat.com>

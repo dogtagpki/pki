@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 TPS_CLIENT="pki tps-client"
 TPS_HOSTNAME=$HOSTNAME

@@ -1,4 +1,4 @@
-#!/usr/bin/bash -ex
+#!/bin/bash -ex
 
 # create a user
 pki -u caadmin -w Secret.123 ca-user-add caauditor --full-name "CA Auditor" --password Secret.123

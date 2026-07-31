@@ -1,4 +1,4 @@
-#!/usr/bin/bash -e
+#!/bin/bash -e
 
 # https://github.com/dogtagpki/pki/wiki/Getting-KRA-Transport-Certificate
 pki kra-cert-transport-export --output-file kra_transport.crt

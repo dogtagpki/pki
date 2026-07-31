@@ -1,4 +1,4 @@
-#!/usr/bin/bash -e
+#!/bin/bash -e
 
 # list certs in CA
 pki ca-cert-find | tee /tmp/certs.txt

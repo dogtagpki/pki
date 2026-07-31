@@ -1,4 +1,4 @@
-#!/usr/bin/bash -ex
+#!/bin/bash -ex
 
 CERT_ID=$(cat /tmp/cert_id)
 

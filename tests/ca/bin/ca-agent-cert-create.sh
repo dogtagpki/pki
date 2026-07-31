@@ -1,4 +1,4 @@
-#!/usr/bin/bash -ex
+#!/bin/bash -ex
 
 # submit a cert request and capture the request ID
 pki client-cert-request uid=caagent | tee /tmp/output

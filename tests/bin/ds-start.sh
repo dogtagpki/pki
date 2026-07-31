@@ -1,4 +1,4 @@
-#!/usr/bin/bash -e
+#!/bin/bash -e
 
 # https://fy.blackhats.net.au/blog/html/2020/03/28/389ds_in_containers.html
 

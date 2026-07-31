@@ -1,4 +1,4 @@
-#!/usr/bin/bash -ex
+#!/bin/bash -ex
 
 # get CA signing cert using certutil
 certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -n ca_signing -r > /tmp/ca_signing.crt
