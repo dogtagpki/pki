@@ -30,15 +30,15 @@ class UpdateMLDSAProfiles(pki.server.upgrade.PKIServerUpgradeScriptlet):
         )
         if not manageprofiles:
             logger.info('Update existing profiles for ML-DSA Support')
-            self.update_existing_profiles(instance, subsystem)
+            self.update_existing_profiles(subsystem)
             logger.info('Adding new ML-DSA Profiles')
             self.add_mldsa_profiles(instance, subsystem)
         else:
             logger.info('Skipping update of existing profiles for MLD-SA')
             logger.info('Skipping adding new ML-DSA Profiles')
-        self.config_updates(instance, subsystem)
+        self.config_updates(subsystem)
 
-    def update_existing_profiles(self, instance, subsystem):
+    def update_existing_profiles(self, subsystem):
 
         # Update all profiles
         # If the signature algorithms have been modified in the instance
@@ -115,7 +115,7 @@ class UpdateMLDSAProfiles(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
         subsystem.set_config('profile.list', ','.join(profile_list))
 
-    def config_updates(self, instance, subsystem):
+    def config_updates(self, subsystem):
         subsystem.set_config('keys.mldsa.keysize.default', '65')
 
         # Make a backup of existing CS.cfg before writing modified values
