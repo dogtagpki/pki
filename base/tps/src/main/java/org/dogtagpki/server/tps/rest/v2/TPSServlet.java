@@ -51,7 +51,11 @@ public class TPSServlet extends PKIServlet {
         if (user == null) {
             return Collections.emptyList();
         }
-        return user.getTpsProfiles();
+        List<String> profiles = user.getTpsProfiles();
+        if (profiles == null) {
+            return Collections.emptyList();
+        }
+        return profiles;
     }
 
     protected void audit(String message, String scope, String type, String id, Map<String, String> params, String status) {
