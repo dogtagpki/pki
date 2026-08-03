@@ -73,6 +73,6 @@ jobs:
     needs: build
     uses: ./.github/workflows/rpminspect-test.yml
 
-  update-version-test:
-    name: Update Version
-    uses: ./.github/workflows/update-version-test.yml
+  version-number-test:
+    name: Version number
+    uses: ./.github/workflows/version-number-test.yml

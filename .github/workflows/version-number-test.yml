@@ -1,0 +1,93 @@
+name: Version number
+
+on:
+  workflow_call:
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install xmlstarlet git
+
+      - name: Clone repository
+        uses: actions/checkout@v7
+
+      - name: Get version number from RPM spec
+        run: |
+          MAJOR_VERSION=$(sed -n 's/^%global *major_version *\(.*\)$/\1/p' pki.spec)
+          echo "MAJOR_VERSION=$MAJOR_VERSION" | tee -a $GITHUB_ENV
+
+          MINOR_VERSION=$(sed -n 's/^%global *minor_version *\(.*\)$/\1/p' pki.spec)
+          echo "MINOR_VERSION=$MINOR_VERSION" | tee -a $GITHUB_ENV
+
+          UPDATE_VERSION=$(sed -n 's/^%global *update_version *\(.*\)$/\1/p' pki.spec)
+          echo "UPDATE_VERSION=$UPDATE_VERSION" | tee -a $GITHUB_ENV
+
+          VERSION=$MAJOR_VERSION.$MINOR_VERSION.$UPDATE_VERSION
+          echo "VERSION=$VERSION" | tee -a $GITHUB_ENV
+
+      - name: Check version numbers in pom.xml
+        run: |
+          echo -n "$VERSION-SNAPSHOT" > expected
+
+          for filename in $(find . -name pom.xml); do
+              echo "Checking version number in $filename"
+
+              if [ "$filename" == "./pom.xml" ]; then
+                  xmlstarlet sel -t -v '/_:project/_:version' $filename > actual
+              else
+                  xmlstarlet sel -t -v '/_:project/_:parent/_:version' $filename > actual
+              fi
+
+              diff expected actual
+          done
+
+      - name: Setup git
+        run: |
+          git config --global user.name "Dr. John Doe"
+          git config --global user.email jdoe@example.com
+
+      - name: Update to version with a phase
+        run: |
+          NEXT_MAJOR_VERSION=$((MAJOR_VERSION + 1))
+
+          ./update_version.sh $NEXT_MAJOR_VERSION 0 0 beta1
+
+          git show
+
+          git tag --points-at HEAD  > actual
+          echo v$NEXT_MAJOR_VERSION.0.0-beta1 > expected
+
+          diff expected actual
+
+      - name: Update to version without a phase
+        run: |
+          NEXT_MAJOR_VERSION=$((MAJOR_VERSION + 1))
+
+          ./update_version.sh $NEXT_MAJOR_VERSION 0 0
+
+          git show
+
+          git tag --points-at HEAD  > actual
+          echo v$NEXT_MAJOR_VERSION.0.0 > expected
+
+          diff expected actual
+
+      - name: Update to version with a phase again
+        run: |
+          NEXT_MAJOR_VERSION=$((MAJOR_VERSION + 1))
+
+          ./update_version.sh  $NEXT_MAJOR_VERSION 1 0 alpha1
+
+          git show
+
+          git tag --points-at HEAD  > actual
+          echo v$NEXT_MAJOR_VERSION.1.0-alpha1 > expected
+
+          diff expected actual
