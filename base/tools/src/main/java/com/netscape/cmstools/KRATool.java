@@ -7461,7 +7461,8 @@ public class KRATool {
                     mSourcePayloadWrapKeySize = Integer.parseInt(args[i + 1]);
                     if (mSourcePayloadWrapKeySize != 128 && mSourcePayloadWrapKeySize != 168 &&
                         mSourcePayloadWrapKeySize != 192 && mSourcePayloadWrapKeySize != 256) {
-                        System.err.println("ERROR:  Source payload wrapping key size must be 128, 192, or 256" + NEWLINE);
+                        System.err.println("ERROR:  Source payload wrapping key size must be 128, 168, 192, or 256" + NEWLINE);
+                        System.err.println("        Note: 168 is only valid for DES3/DESede algorithms (use 192 for better PKCS#11 compatibility)" + NEWLINE);
 
                         System.exit(1);
                     }
