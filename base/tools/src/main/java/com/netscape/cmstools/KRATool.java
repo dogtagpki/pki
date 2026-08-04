@@ -2872,8 +2872,20 @@ public class KRATool {
 
                 // Fall through to Stage 2
             } catch (Exception e) {
-                log("ERROR: Unexpected error during direct clone: " + e.getMessage() + NEWLINE, true);
-                throw new Exception("Failed to clone session key", e);
+                // Generic exception during cloneKey (e.g., FIPS restrictions, token limitations)
+                // Cache the failure and fall through to Stage 2 RSA keypair method
+                mCloneKeyCapability = CloneKeyCapability.UNSUPPORTED;
+
+                if (mVerboseFlag) {
+                    log("Direct clone failed: " + e.getMessage() + NEWLINE, false);
+                    log("Will use RSA keypair method for all subsequent records" + NEWLINE, false);
+                    log("Stage 2: Falling back to JSS_KeyExchange-style temporary RSA keypair approach..." + NEWLINE, false);
+                } else {
+                    // Important: Log this once even without verbose
+                    log("Note: Direct clone not supported (" + e.getMessage() + ") - using RSA keypair transfer method for all records" + NEWLINE, false);
+                }
+
+                // Fall through to Stage 2
             }
         } else {
             // mCloneKeyCapability == UNSUPPORTED OR mForceRSAKeypairTransfer == true: Skip Stage 1 entirely
@@ -3239,40 +3251,9 @@ public class KRATool {
         try {
             if (mUseNssForPayloadProcessing) {
                 // Use NSS DB (software token) for payload unwrap/rewrap operations
+                // Note: In FIPS mode, the token is already logged in from CryptoManager initialization.
+                // In non-FIPS mode, explicit login is not required for key operations.
                 processingToken = CryptoManager.getInstance().getInternalKeyStorageToken();
-
-                // Login to Internal Key Storage Token if not already logged in
-                if (processingToken.isLoggedIn() == false && processingToken.passwordIsInitialized()) {
-                    BufferedReader in = null;
-                    String pwd = null;
-                    try {
-                        in = new BufferedReader(new FileReader(mSourcePKISecurityDatabasePwdfile));
-                        pwd = in.readLine();
-                        if (pwd == null) {
-                            pwd = "";
-                        }
-                    } catch (IOException exReadPwd) {
-                        log("ERROR: Failed to read NSS DB password from file '" + mSourcePKISecurityDatabasePwdfile + "': " + exReadPwd.getMessage() + NEWLINE, true);
-                        throw exReadPwd;
-                    } finally {
-                        if (in != null) {
-                            try {
-                                in.close();
-                            } catch (IOException exClosePwd) {
-                            }
-                        }
-                    }
-
-                    Password mPwd = new Password(pwd.toCharArray());
-                    try {
-                        processingToken.login(mPwd);
-                        if (mVerboseFlag) {
-                            log("Logged in to Internal Key Storage Token" + NEWLINE, false);
-                        }
-                    } finally {
-                        mPwd.clear();
-                    }
-                }
 
                 if (mVerboseFlag) {
                     log("Using NSS DB (software token) for payload processing" + NEWLINE, false);
@@ -3282,6 +3263,15 @@ public class KRATool {
                 processingToken = mSourceToken;
                 if (mVerboseFlag) {
                     log("Using same HSM for payload processing" + NEWLINE, false);
+                }
+            }
+
+            // Verify token is logged in (required in FIPS mode)
+            if (CryptoManager.getInstance().FIPSEnabled()) {
+                if (processingToken.needsLogin() && !processingToken.isLoggedIn()) {
+                    log("ERROR: FIPS mode requires processing token to be logged in, but it is not." + NEWLINE +
+                        "       Token state may be inconsistent." + NEWLINE, true);
+                    throw new Exception("FIPS mode: Processing token requires login but is not logged in");
                 }
             }
 
@@ -7962,6 +7952,19 @@ public class KRATool {
         }
         if (mTargetPayloadWrapAlgName != null) {
             System.out.println("Target payload wrap algorithm: " + mTargetPayloadWrapAlgName);
+        }
+
+        // Validate source keysize 168 is only used with DES3
+        if (mSourcePayloadWrapKeySize == 168) {
+            if (mSourcePayloadWrapAlgName == null) {
+                System.err.println("ERROR: Source payload wrap algorithm must be specified when using keysize 168" + NEWLINE);
+                System.exit(1);
+            }
+            String sourceBase = getBaseAlgorithm(mSourcePayloadWrapAlgName);
+            if (sourceBase == null || (!sourceBase.equalsIgnoreCase("DES3") && !sourceBase.equalsIgnoreCase("DESede"))) {
+                System.err.println("ERROR: Keysize 168 is only valid for DES3/DESede algorithms" + NEWLINE);
+                System.exit(1);
+            }
         }
 
         // Build cross-scheme parameters string for logging
