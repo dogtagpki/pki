@@ -2807,8 +2807,20 @@ public class KRATool {
 
                 // Fall through to Stage 2
             } catch (Exception e) {
-                logger.error("Unexpected error during direct clone: " + e.getMessage());
-                throw new Exception("Failed to clone session key", e);
+                // Generic exception during cloneKey (e.g., FIPS restrictions, token limitations)
+                // Cache the failure and fall through to Stage 2 RSA keypair method
+                mCloneKeyCapability = CloneKeyCapability.UNSUPPORTED;
+
+                if (mVerboseFlag) {
+                    logger.info("Direct clone failed: " + e.getMessage());
+                    logger.info("Will use RSA keypair method for all subsequent records");
+                    logger.info("Stage 2: Falling back to JSS_KeyExchange-style temporary RSA keypair approach...");
+                } else {
+                    // Important: Log this once even without verbose
+                    logger.info("Note: Direct clone not supported (" + e.getMessage() + ") - using RSA keypair transfer method for all records");
+                }
+
+                // Fall through to Stage 2
             }
         } else {
             // mCloneKeyCapability == UNSUPPORTED OR mForceRSAKeypairTransfer == true: Skip Stage 1 entirely
@@ -3196,6 +3208,15 @@ public class KRATool {
                 processingToken = mSourceToken;
                 if (mVerboseFlag) {
                     logger.info("Using same HSM for payload processing");
+                }
+            }
+
+            // Verify token is logged in (required in FIPS mode)
+            if (CryptoManager.getInstance().FIPSEnabled()) {
+                if (processingToken.needsLogin() && !processingToken.isLoggedIn()) {
+                    logger.error("FIPS mode requires processing token to be logged in, but it is not.");
+                    logger.error("Token state may be inconsistent.");
+                    throw new Exception("FIPS mode: Processing token requires login but is not logged in");
                 }
             }
 
@@ -7275,7 +7296,8 @@ public class KRATool {
                     mSourcePayloadWrapKeySize = Integer.parseInt(args[i + 1]);
                     if (mSourcePayloadWrapKeySize != 128 && mSourcePayloadWrapKeySize != 168 &&
                         mSourcePayloadWrapKeySize != 192 && mSourcePayloadWrapKeySize != 256) {
-                        System.err.println("ERROR:  Source payload wrapping key size must be 128, 192, or 256" + NEWLINE);
+                        System.err.println("ERROR:  Source payload wrapping key size must be 128, 168, 192, or 256" + NEWLINE);
+                        System.err.println("        Note: 168 is only valid for DES3/DESede algorithms (use 192 for better PKCS#11 compatibility)" + NEWLINE);
                         System.exit(1);
                     }
                 } catch (NumberFormatException e) {
@@ -7709,6 +7731,19 @@ public class KRATool {
         }
         if (mTargetPayloadWrapAlgName != null) {
             System.out.println("Target payload wrap algorithm: " + mTargetPayloadWrapAlgName);
+        }
+
+        // Validate source keysize 168 is only used with DES3
+        if (mSourcePayloadWrapKeySize == 168) {
+            if (mSourcePayloadWrapAlgName == null) {
+                System.err.println("ERROR: Source payload wrap algorithm must be specified when using keysize 168" + NEWLINE);
+                System.exit(1);
+            }
+            String sourceBase = getBaseAlgorithm(mSourcePayloadWrapAlgName);
+            if (sourceBase == null || (!sourceBase.equalsIgnoreCase("DES3") && !sourceBase.equalsIgnoreCase("DESede"))) {
+                System.err.println("ERROR: Keysize 168 is only valid for DES3/DESede algorithms" + NEWLINE);
+                System.exit(1);
+            }
         }
 
         // Build cross-scheme parameters string for logging
