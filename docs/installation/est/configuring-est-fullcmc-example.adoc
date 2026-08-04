@@ -170,6 +170,7 @@ Create `/root/dogtag/pki-ca/ca.cfg`:
 [source,ini]
 ----
 [DEFAULT]
+pki_hostname=pki.example.com
 pki_instance_name=pki-ca
 pki_https_port=8443
 pki_http_port=8080
@@ -283,7 +284,7 @@ You can verify the constraint is present:
 
 [source,bash]
 ----
-grep constraint /var/lib/pki/pki-ca/ca/profiles/ca/estFullcmcDeviceCert.cfg"
+grep constraint /var/lib/pki/pki-ca/ca/profiles/ca/estFullcmcDeviceCert.cfg
 ----
 
 You should see
@@ -700,6 +701,18 @@ CRMFPopClient -d nssdb-nonrole -p Secret.123 \
 ----
 
 Then in the CMCRequest configuration file, set `format=crmf` and `input=<input_file_name>.crmf`.
+====
+
+[NOTE]
+====
+The examples below use `pk12util` to import PKCS#12 files into NSS databases. `p12tool` can be used as a drop-in replacement, as `pk12util` does not properly handle AES Key Wrap (aes-kwp). To use `p12tool` instead:
+
+[source,bash]
+----
+p12tool -i <file>.p12 -d <nssdb_path> -K <nssdb_password> -W <p12_password>
+----
+
+Ensure the `dogtag-jss-tools` package is installed (`dnf install -y dogtag-jss-tools`).
 ====
 
 === Step 21: Test Non-Agent Enrollment (Matching Subject)
