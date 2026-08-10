@@ -375,7 +375,7 @@ jobs:
 
       - name: Upload artifacts from primary DS
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v7
         with:
           name: subca-clone-primary-ds
           path: |
@@ -383,7 +383,7 @@ jobs:
 
       - name: Upload artifacts from primary sub-CA
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v7
         with:
           name: subca-clone-primary-subca
           path: |
@@ -391,7 +391,7 @@ jobs:
 
       - name: Upload artifacts from secondary DS
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v7
         with:
           name: subca-clone-secondary-ds
           path: |
@@ -399,7 +399,7 @@ jobs:
 
       - name: Upload artifacts from secondary sub-CA
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v7
         with:
           name: subca-clone-secondary-subca
           path: |

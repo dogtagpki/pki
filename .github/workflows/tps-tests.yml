@@ -163,7 +163,7 @@ jobs:
 
       - name: Upload artifacts
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v7
         with:
           name: tps
           path: |
@@ -368,7 +368,7 @@ jobs:
 
       - name: Upload artifacts from CA container
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v7
         with:
           name: tps-separate-ca
           path: |
@@ -376,7 +376,7 @@ jobs:
 
       - name: Upload artifacts from KRA container
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v7
         with:
           name: tps-separate-kra
           path: |
@@ -384,7 +384,7 @@ jobs:
 
       - name: Upload artifacts from TKS container
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v7
         with:
           name: tps-separate-tks
           path: |
@@ -392,7 +392,7 @@ jobs:
 
       - name: Upload artifacts from TPS container
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v7
         with:
           name: tps-separate-tps
           path: |
@@ -556,7 +556,7 @@ jobs:
 
       - name: Upload artifacts from primary container
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v7
         with:
           name: tps-clone-primary
           path: |
@@ -564,7 +564,7 @@ jobs:
 
       - name: Upload artifacts from secondary container
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v7
         with:
           name: tps-clone-secondary
           path: |

@@ -99,7 +99,7 @@ jobs:
 
       - name: Upload artifacts
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v7
         with:
           name: tks
           path: |
@@ -224,7 +224,7 @@ jobs:
 
       - name: Upload artifacts from CA container
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v7
         with:
           name: tks-separate-ca
           path: |
@@ -232,7 +232,7 @@ jobs:
 
       - name: Upload artifacts from TKS container
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v7
         with:
           name: tks-separate-tks
           path: |
@@ -421,7 +421,7 @@ jobs:
 
       - name: Upload artifacts from primary container
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v7
         with:
           name: tks-clone-primary
           path: |
@@ -429,7 +429,7 @@ jobs:
 
       - name: Upload artifacts from secondary container
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v7
         with:
           name: tks-clone-secondary
           path: |
@@ -437,7 +437,7 @@ jobs:
 
       - name: Upload artifacts from tertiary container
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v7
         with:
           name: tks-clone-tertiary
           path: |
