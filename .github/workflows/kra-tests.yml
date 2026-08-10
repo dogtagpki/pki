@@ -40,7 +40,7 @@ jobs:
       PKIDIR: /tmp/workdir/pki
     steps:
       - name: Clone repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       - name: Retrieve pki-runner image
         uses: actions/cache@v3
@@ -120,7 +120,7 @@ jobs:
       PKIDIR: /tmp/workdir/pki
     steps:
       - name: Clone repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       - name: Retrieve pki-runner image
         uses: actions/cache@v3
@@ -267,7 +267,7 @@ jobs:
       PKIDIR: /tmp/workdir/pki
     steps:
       - name: Clone repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       - name: Retrieve pki-runner image
         uses: actions/cache@v3
@@ -457,7 +457,7 @@ jobs:
       PKIDIR: /tmp/workdir/pki
     steps:
       - name: Clone repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       - name: Retrieve pki-runner image
         uses: actions/cache@v3
@@ -669,7 +669,7 @@ jobs:
       PKIDIR: /tmp/workdir/pki
     steps:
       - name: Clone repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       - name: Retrieve pki-runner image
         uses: actions/cache@v3

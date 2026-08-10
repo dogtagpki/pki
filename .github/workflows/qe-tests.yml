@@ -42,7 +42,7 @@ jobs:
       PKIDIR: /tmp/workdir/pki
     steps:
       - name: Clone the repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       - name: Install dependencies
         run: |
