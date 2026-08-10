@@ -13,10 +13,10 @@ jobs:
     needs: build
     uses: ./.github/workflows/kra-basic-test.yml
 
-  kra-oaep-test:
-    name: KRA with RSA OAEP padding
+  kra-rsa-oaep-test:
+    name: KRA with RSA-OAEP
     needs: build
-    uses: ./.github/workflows/kra-oaep-test.yml
+    uses: ./.github/workflows/kra-rsa-oaep-test.yml
 
   kra-ecc-test:
     name: KRA with ECC

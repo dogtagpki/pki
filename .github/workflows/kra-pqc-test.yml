@@ -108,6 +108,81 @@ jobs:
           sed -n '/^DEBUG: Command:/p' stderr | tee output
           wc -l output
 
+      - name: Check transport unit config in KRA
+        run: |
+          docker exec pki pki-server kra-config-find \
+              | sed -n \
+                  -e '/^kra\.transportUnit\./p' \
+              | sort \
+              | tee output
+
+          cat > expected << EOF
+          kra.transportUnit.nickName=kra_transport
+          kra.transportUnit.signingAlgorithm=
+          EOF
+
+          diff expected output
+
+      - name: Check storage unit config in KRA
+        run: |
+          # ML-KEM wrapping (wrapping.2) should be configured
+          docker exec pki pki-server kra-config-find \
+              | sed -n \
+                  -e '/^kra\.storageUnit\.wrapping\._/d' \
+                  -e '/^kra\.storageUnit\./p' \
+              | sort \
+              | tee output
+
+          cat > expected << EOF
+          kra.storageUnit.nickName=kra_storage
+          kra.storageUnit.wrapping.0.payloadEncryptionAlgorithm=DESede
+          kra.storageUnit.wrapping.0.payloadEncryptionIV=AQEBAQEBAQE=
+          kra.storageUnit.wrapping.0.payloadEncryptionMode=CBC
+          kra.storageUnit.wrapping.0.payloadEncryptionPadding=PKCS5Padding
+          kra.storageUnit.wrapping.0.payloadWrapAlgorithm=DES3/CBC/Pad
+          kra.storageUnit.wrapping.0.payloadWrapIV=AQEBAQEBAQE=
+          kra.storageUnit.wrapping.0.sessionKeyKeyGenAlgorithm=DESede
+          kra.storageUnit.wrapping.0.sessionKeyLength=168
+          kra.storageUnit.wrapping.0.sessionKeyType=DESede
+          kra.storageUnit.wrapping.0.sessionKeyWrapAlgorithm=RSA
+          kra.storageUnit.wrapping.1.payloadEncryptionAlgorithm=AES
+          kra.storageUnit.wrapping.1.payloadEncryptionIVLen=16
+          kra.storageUnit.wrapping.1.payloadEncryptionMode=CBC
+          kra.storageUnit.wrapping.1.payloadEncryptionPadding=PKCS5Padding
+          kra.storageUnit.wrapping.1.payloadWrapAlgorithm=AES KeyWrap/Padding
+          kra.storageUnit.wrapping.1.sessionKeyKeyGenAlgorithm=AES
+          kra.storageUnit.wrapping.1.sessionKeyLength=128
+          kra.storageUnit.wrapping.1.sessionKeyType=AES
+          kra.storageUnit.wrapping.1.sessionKeyWrapAlgorithm=RSA
+          kra.storageUnit.wrapping.2.payloadEncryptionAlgorithm=AES
+          kra.storageUnit.wrapping.2.payloadEncryptionIVLen=16
+          kra.storageUnit.wrapping.2.payloadEncryptionMode=CBC
+          kra.storageUnit.wrapping.2.payloadEncryptionPadding=PKCS5Padding
+          kra.storageUnit.wrapping.2.payloadWrapAlgorithm=AES KeyWrap/Padding
+          kra.storageUnit.wrapping.2.sessionKeyLength=256
+          kra.storageUnit.wrapping.2.sessionKeyType=AES
+          kra.storageUnit.wrapping.choice=2
+          EOF
+
+          diff expected output
+
+      - name: "Check PKCS #12 encryption config in KRA"
+        run: |
+          # PKCS #12 encryption should be configured
+          docker exec pki pki-server kra-config-find \
+              | sed -n \
+                  -e '/^kra\.legacyPKCS12=/p' \
+                  -e '/^kra\.nonLegacyAlg=/p' \
+              | sort \
+              | tee output
+
+          cat > expected << EOF
+          kra.legacyPKCS12=false
+          kra.nonLegacyAlg=AES/None/PKCS5Padding/Kwp/256
+          EOF
+
+          diff expected output
+
       - name: Check PKI server system certs
         run: |
           docker exec pki pki-server cert-find
@@ -206,6 +281,48 @@ jobs:
           docker exec pki openssl x509 -text -noout \
               -in /root/.dogtag/pki-tomcat/ca_admin.cert
 
+      - name: Check CA info
+        run: |
+          cat > expected << EOF
+          {
+              "ArchivalMechanism": "keywrap",
+              "EncryptionAlgorithm": "AES/CBC/PKCS5Padding",
+              "KeyWrapAlgorithm": "AES KeyWrap/Padding",
+              "RsaPublicKeyWrapAlgorithm": "RSA",
+              "CaRsaPublicKeyWrapAlgorithm": "RSA",
+              "Attributes": {
+                  "Attribute": []
+              }
+          }
+          EOF
+
+          docker exec pki curl -ks https://pki.example.com:8443/ca/v2/info \
+              | python -m json.tool \
+              | tee actual
+
+          diff expected actual
+
+      - name: Check KRA info
+        run: |
+          cat > expected << EOF
+          {
+              "ArchivalMechanism": "keywrap",
+              "RecoveryMechanism": "keywrap",
+              "EncryptionAlgorithm": "AES/CBC/PKCS5Padding",
+              "WrapAlgorithm": "AES KeyWrap/Padding",
+              "RsaPublicKeyWrapAlgorithm": "RSA",
+              "Attributes": {
+                  "Attribute": []
+              }
+          }
+          EOF
+
+          docker exec pki curl -ks https://pki.example.com:8443/kra/v2/info \
+              | python -m json.tool \
+              | tee actual
+
+          diff expected actual
+
       - name: Run PKI healthcheck
         run: |
           docker exec pki pki-healthcheck \
@@ -280,24 +397,6 @@ jobs:
           sed -n 's/\s*Host:\s\+\(\S\+\):.*/\1/p' output > actual
           echo pki.example.com > expected
           diff expected actual
-
-      - name: Verify KRA ML-KEM archival auto-configuration
-        run: |
-          # ML-KEM archival should be configured automatically by pkispawn for PQC installations
-          docker exec pki pki-server kra-config-find | tee output
-
-          # Verify the ML-KEM wrapping settings (wrapping.2) were configured
-          grep "kra.storageUnit.wrapping.2.sessionKeyLength=256" output
-          grep "kra.storageUnit.wrapping.2.sessionKeyType=AES" output
-          # Note: sessionKeyWrapAlgorithm and sessionKeyKeyGenAlgorithm are not set for ML-KEM
-          grep "kra.storageUnit.wrapping.2.payloadEncryptionAlgorithm=AES" output
-          grep "kra.storageUnit.wrapping.2.payloadEncryptionMode=CBC" output
-          grep "kra.storageUnit.wrapping.2.payloadEncryptionPadding=PKCS5Padding" output
-          grep "kra.storageUnit.wrapping.2.payloadEncryptionIVLen=16" output
-          grep 'kra.storageUnit.wrapping.2.payloadWrapAlgorithm=AES KeyWrap/Padding' output
-          grep "kra.storageUnit.wrapping.choice=2" output
-          grep "kra.legacyPKCS12=false" output
-          grep 'kra.nonLegacyAlg=AES/None/PKCS5Padding/Kwp/256' output
 
       - name: Import transport cert
         run: |

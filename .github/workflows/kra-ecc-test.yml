@@ -67,6 +67,63 @@ jobs:
               -D pki_ds_url=ldap://ds.example.com:3389 \
               -v
 
+      - name: Check transport unit config in KRA
+        run: |
+          docker exec pki pki-server kra-config-find \
+              | sed -n \
+                  -e '/^kra\.transportUnit\./p' \
+              | sort \
+              | tee output
+
+          cat > expected << EOF
+          kra.transportUnit.nickName=kra_transport
+          kra.transportUnit.signingAlgorithm=SHA384withRSA
+          EOF
+
+          diff expected output
+
+      - name: Check storage unit config in KRA
+        run: |
+          docker exec pki pki-server kra-config-find \
+              | sed -n \
+                  -e '/^kra\.storageUnit\.wrapping\._/d' \
+                  -e '/^kra\.storageUnit\./p' \
+              | sort \
+              | tee output
+
+          cat > expected << EOF
+          kra.storageUnit.nickName=kra_storage
+          kra.storageUnit.wrapping.0.payloadEncryptionAlgorithm=DESede
+          kra.storageUnit.wrapping.0.payloadEncryptionIV=AQEBAQEBAQE=
+          kra.storageUnit.wrapping.0.payloadEncryptionMode=CBC
+          kra.storageUnit.wrapping.0.payloadEncryptionPadding=PKCS5Padding
+          kra.storageUnit.wrapping.0.payloadWrapAlgorithm=DES3/CBC/Pad
+          kra.storageUnit.wrapping.0.payloadWrapIV=AQEBAQEBAQE=
+          kra.storageUnit.wrapping.0.sessionKeyKeyGenAlgorithm=DESede
+          kra.storageUnit.wrapping.0.sessionKeyLength=168
+          kra.storageUnit.wrapping.0.sessionKeyType=DESede
+          kra.storageUnit.wrapping.0.sessionKeyWrapAlgorithm=RSA
+          kra.storageUnit.wrapping.1.payloadEncryptionAlgorithm=AES
+          kra.storageUnit.wrapping.1.payloadEncryptionIVLen=16
+          kra.storageUnit.wrapping.1.payloadEncryptionMode=CBC
+          kra.storageUnit.wrapping.1.payloadEncryptionPadding=PKCS5Padding
+          kra.storageUnit.wrapping.1.payloadWrapAlgorithm=AES KeyWrap/Padding
+          kra.storageUnit.wrapping.1.sessionKeyKeyGenAlgorithm=AES
+          kra.storageUnit.wrapping.1.sessionKeyLength=128
+          kra.storageUnit.wrapping.1.sessionKeyType=AES
+          kra.storageUnit.wrapping.1.sessionKeyWrapAlgorithm=RSA
+          kra.storageUnit.wrapping.2.payloadEncryptionAlgorithm=AES
+          kra.storageUnit.wrapping.2.payloadEncryptionIVLen=16
+          kra.storageUnit.wrapping.2.payloadEncryptionMode=CBC
+          kra.storageUnit.wrapping.2.payloadEncryptionPadding=PKCS5Padding
+          kra.storageUnit.wrapping.2.payloadWrapAlgorithm=AES KeyWrap/Padding
+          kra.storageUnit.wrapping.2.sessionKeyLength=256
+          kra.storageUnit.wrapping.2.sessionKeyType=AES
+          kra.storageUnit.wrapping.choice=1
+          EOF
+
+          diff expected output
+
       - name: Check KRA storage cert
         run: |
           docker exec pki openssl req -text -noout \
@@ -204,6 +261,48 @@ jobs:
           # signing algorithm should be "ecdsa-with-SHA512"
           echo "ecdsa-with-SHA512" > expected
           sed -n -e "s/\s*$//" -e "s/^\s*Signature Algorithm:\s*\(.*\)$/\1/p" output | uniq > actual
+          diff expected actual
+
+      - name: Check CA info
+        run: |
+          cat > expected << EOF
+          {
+              "ArchivalMechanism": "keywrap",
+              "EncryptionAlgorithm": "AES/CBC/PKCS5Padding",
+              "KeyWrapAlgorithm": "AES KeyWrap/Padding",
+              "RsaPublicKeyWrapAlgorithm": "RSA",
+              "CaRsaPublicKeyWrapAlgorithm": "RSA",
+              "Attributes": {
+                  "Attribute": []
+              }
+          }
+          EOF
+
+          docker exec pki curl -ks https://pki.example.com:8443/ca/v2/info \
+              | python -m json.tool \
+              | tee actual
+
+          diff expected actual
+
+      - name: Check KRA info
+        run: |
+          cat > expected << EOF
+          {
+              "ArchivalMechanism": "keywrap",
+              "RecoveryMechanism": "keywrap",
+              "EncryptionAlgorithm": "AES/CBC/PKCS5Padding",
+              "WrapAlgorithm": "AES KeyWrap/Padding",
+              "RsaPublicKeyWrapAlgorithm": "RSA",
+              "Attributes": {
+                  "Attribute": []
+              }
+          }
+          EOF
+
+          docker exec pki curl -ks https://pki.example.com:8443/kra/v2/info \
+              | python -m json.tool \
+              | tee actual
+
           diff expected actual
 
       - name: Run PKI healthcheck
