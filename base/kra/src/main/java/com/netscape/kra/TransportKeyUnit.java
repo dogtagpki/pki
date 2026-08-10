@@ -237,10 +237,10 @@ public class TransportKeyUnit extends EncryptionUnit {
             if (mCert != null) {
                 try {
                     certB64 = Utils.base64encode(mCert.getEncoded(), true).replaceAll("\n", "").replaceAll("\r", "");
-                    logger.info("TransportKeyUnitServlet: transport cert: " + certB64);
+                    logger.debug("TransportKeyUnitServlet: transport cert: " + certB64);
                     if (transportCert.equals(certB64)) {
                         cert = mCert;
-                        logger.debug("TransportKeyUnit:  Transport certificate verified");
+                        logger.debug("TransportKeyUnit: Transport certificate verified");
                     }
                 } catch (Exception e) {
                     logger.warn("Unable to check transport cert: " + e.getMessage(), e);
@@ -252,7 +252,7 @@ public class TransportKeyUnit extends EncryptionUnit {
                     logger.info("TransportKeyUnit: new transport cert: " + certB64);
                     if (transportCert.equals(certB64)) {
                         cert = mNewCert;
-                        logger.debug("TransportKeyUnit:  New transport certificate verified");
+                        logger.debug("TransportKeyUnit: New transport certificate verified");
                     }
                 } catch (Exception e) {
                     logger.warn("Unable to check new transport cert: " + e.getMessage(), e);
@@ -497,7 +497,7 @@ public class TransportKeyUnit extends EncryptionUnit {
             // until we attempt the operation. Try the legacy mechanism as fallback.
 
             KeyWrapAlgorithm currentAlg = params.getPayloadWrapAlgorithm();
-            if (currentAlg == KeyWrapAlgorithm.AES_KEY_WRAP_PAD_KWP) { 
+            if (currentAlg == KeyWrapAlgorithm.AES_KEY_WRAP_PAD_KWP) {
                 logger.debug("TransportKeyUnit.unwrap: KWP unwrap failed, retrying with AES_KEY_WRAP_PAD: Original Failure: " + e.getMessage());
                 params.setPayloadWrapAlgorithm(KeyWrapAlgorithm.AES_KEY_WRAP_PAD);
 
