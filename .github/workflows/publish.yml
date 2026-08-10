@@ -50,7 +50,7 @@ jobs:
         if: vars.REGISTRY != 'ghcr.io'
 
       - name: Retrieve pki-dist image
-        uses: actions/cache@v3
+        uses: actions/cache@v5
         with:
           key: pki-dist-${{ github.sha }}
           path: pki-dist.tar
@@ -62,7 +62,7 @@ jobs:
           docker push ${{ vars.REGISTRY }}/$NAMESPACE/pki-dist:10.13
 
       - name: Retrieve pki-acme image
-        uses: actions/cache@v3
+        uses: actions/cache@v5
         with:
           key: pki-acme-${{ github.sha }}
           path: pki-acme.tar

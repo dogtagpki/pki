@@ -21,7 +21,7 @@ jobs:
 
       - name: Cache Docker layers
         id: cache-buildx
-        uses: actions/cache@v3
+        uses: actions/cache@v5
         with:
           key: buildx-${{ hashFiles('pki.spec') }}
           path: /tmp/.buildx-cache
@@ -63,7 +63,7 @@ jobs:
           outputs: type=docker,dest=pki-builder.tar
 
       - name: Store pki-builder image
-        uses: actions/cache@v3
+        uses: actions/cache@v5
         with:
           key: pki-builder-${{ github.sha }}
           path: pki-builder.tar
@@ -81,7 +81,7 @@ jobs:
           outputs: type=docker,dest=pki-dist.tar
 
       - name: Store pki-dist image
-        uses: actions/cache@v3
+        uses: actions/cache@v5
         with:
           key: pki-dist-${{ github.sha }}
           path: pki-dist.tar
@@ -99,7 +99,7 @@ jobs:
           outputs: type=docker,dest=pki-runner.tar
 
       - name: Store pki-runner image
-        uses: actions/cache@v3
+        uses: actions/cache@v5
         with:
           key: pki-runner-${{ github.sha }}
           path: pki-runner.tar
@@ -117,7 +117,7 @@ jobs:
           outputs: type=docker,dest=pki-acme.tar
 
       - name: Store pki-acme image
-        uses: actions/cache@v3
+        uses: actions/cache@v5
         with:
           key: pki-acme-${{ github.sha }}
           path: pki-acme.tar
