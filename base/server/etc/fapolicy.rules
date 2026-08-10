@@ -1,1 +1,2 @@
 allow perm=open dir=/usr/lib/jvm/ : dir=[WORK_DIR]/
+allow perm=open dir=/usr/lib/jvm/ uid=[USER] : dir=/usr/share/pki/

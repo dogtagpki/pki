@@ -2104,6 +2104,7 @@ do
     target="/etc/fapolicyd/rules.d/61-pki-$instance.rules"
 
     sed -e "s/\[WORK_DIR\]/\/var\/lib\/pki\/$instance\/work/g" \
+        -e "s/\[USER\]/%{pki_username}/g" \
         /usr/share/pki/server/etc/fapolicy.rules \
         > $target
 
