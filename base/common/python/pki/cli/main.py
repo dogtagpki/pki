@@ -274,7 +274,7 @@ class PKICLI(pki.cli.CLI):
         if self.nss_password_conf:
             cmd.extend(['-f', self.nss_password_conf])
 
-        if not pki.nssdb.internal_token(self.token):
+        if self.token is not None:
             cmd.extend(['--token', self.token])
 
         if self.nickname:
