@@ -197,10 +197,9 @@ public class RecoveryService implements IService {
                 if(useOAEPKeyWrap == true) {
                     wrapAlg = KeyWrapAlgorithm.RSA_OAEP;
                 }
-
                 SymmetricKey unwrappedSessionKey =
                         CryptoUtil.unwrap(token,  SymmetricKey.AES, 128,
-                        SymmetricKey.Usage.UNWRAP,
+                        SymmetricKey.Usage.DECRYPT,
                         transPrivateKey,
                         transWrappedSessionKey,
                         wrapAlg);
