@@ -23,7 +23,6 @@ import org.apache.http.HttpHost;
 import org.apache.http.conn.socket.LayeredConnectionSocketFactory;
 import org.apache.http.protocol.HttpContext;
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.provider.javax.crypto.JSSTrustManager;
 import org.mozilla.jss.ssl.SSLAlertDescription;
 import org.mozilla.jss.ssl.SSLAlertEvent;
 import org.mozilla.jss.ssl.SSLAlertLevel;
@@ -66,7 +65,8 @@ public class JSSSocketFactory implements LayeredConnectionSocketFactory {
             KeyManagerFactory kmf = KeyManagerFactory.getInstance("NssX509", "Mozilla-JSS");
             KeyManager[] kms = kmf.getKeyManagers();
 
-            JSSTrustManager trustManager = new JSSTrustManager();
+            ClientJSSTrustManager trustManager = new ClientJSSTrustManager();
+            trustManager.setClientConfig(connection.getConfig());
             trustManager.setHostname(remoteHost);
             trustManager.setCallback(connection.getCallback());
             trustManager.setEnableCertRevokeVerify(connection.getConfig().isCertRevocationVerify());
@@ -104,7 +104,7 @@ public class JSSSocketFactory implements LayeredConnectionSocketFactory {
 
         jssSocket.setUseClientMode(true);
 
-        String certNickname = connection.getConfig().getCertNickname();
+        String certNickname = connection.getConfig().getQualifiedCertNickname();
         if (certNickname != null) {
             logger.debug("JSSSocketFactory: - client certificate: " + certNickname);
             jssSocket.setCertFromAlias(certNickname);
