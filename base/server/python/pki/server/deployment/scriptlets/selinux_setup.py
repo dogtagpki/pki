@@ -52,10 +52,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # The restocon API is not working in RHEL
         # (see https://issues.redhat.com/browse/RHEL-73348).
         #
-        #selinux.restorecon(mdict['pki_instance_path'], True)
-        #selinux.restorecon(config.PKI_DEPLOYMENT_LOG_ROOT, True)
-        #selinux.restorecon(mdict['pki_instance_log_path'], True)
-        #selinux.restorecon(mdict['pki_instance_configuration_path'], True)
+        # selinux.restorecon(mdict['pki_instance_path'], True)
+        # selinux.restorecon(config.PKI_DEPLOYMENT_LOG_ROOT, True)
+        # selinux.restorecon(mdict['pki_instance_log_path'], True)
+        # selinux.restorecon(mdict['pki_instance_configuration_path'], True)
         folders = [
             mdict['pki_instance_path'],
             config.PKI_DEPLOYMENT_LOG_ROOT,

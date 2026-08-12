@@ -1172,7 +1172,7 @@ class PKISubsystem(object):
         cmd.append(generator_object)
 
         self.run(cmd, as_current_user=as_current_user)
-        
+
     def retrieve_config(self, master_url, names, substores, session_id=None, install_token=None):
 
         tmpdir = tempfile.mkdtemp()

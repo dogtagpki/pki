@@ -100,8 +100,11 @@ class IdGeneratorShowCLI(pki.cli.CLI):
                          subsystem_name.upper(), instance_name)
             sys.exit(1)
 
-        print('  Request ID generator: %s' % subsystem.config.get('dbs.request.id.generator', 'legacy'))
-        print('  Cert ID generator: %s' % subsystem.config.get('dbs.cert.id.generator', 'legacy'))
+        request_id_generator = subsystem.config.get('dbs.request.id.generator', 'legacy')
+        print('  Request ID generator: %s' % request_id_generator)
+
+        cert_id_generator = subsystem.config.get('dbs.cert.id.generator', 'legacy')
+        print('  Cert ID generator: %s' % cert_id_generator)
 
 
 class IdGeneratorUpdateCLI(pki.cli.CLI):
