@@ -67,6 +67,7 @@ public class JSSSocketFactory implements LayeredConnectionSocketFactory {
             KeyManager[] kms = kmf.getKeyManagers();
 
             JSSTrustManager trustManager = new JSSTrustManager();
+            trustManager.setTokenName(connection.getConfig().getTokenName());
             trustManager.setHostname(remoteHost);
             trustManager.setCallback(connection.getCallback());
             trustManager.setEnableCertRevokeVerify(connection.getConfig().isCertRevocationVerify());
@@ -81,6 +82,8 @@ public class JSSSocketFactory implements LayeredConnectionSocketFactory {
         } catch (Exception e) {
             throw new IOException("Unable to create SSL socket factory: " + e.getMessage(), e);
         }
+
+        String certNickname = connection.getConfig().getQualifiedCertNickname();
 
         try {
             if (socket == null) {
@@ -104,7 +107,6 @@ public class JSSSocketFactory implements LayeredConnectionSocketFactory {
 
         jssSocket.setUseClientMode(true);
 
-        String certNickname = connection.getConfig().getCertNickname();
         if (certNickname != null) {
             logger.debug("JSSSocketFactory: - client certificate: " + certNickname);
             jssSocket.setCertFromAlias(certNickname);
