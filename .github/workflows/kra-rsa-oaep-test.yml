@@ -51,8 +51,6 @@ jobs:
               --network-alias=pki.example.com \
               pki
 
-          #docker exec pki dnf install -y jq dumpasn1
-
       - name: Install CA
         run: |
           docker exec pki pkispawn \

@@ -367,7 +367,7 @@ jobs:
               testuser3-request.json | sponge testuser3-request.json
 
           # insert CSR
-          jq --rawfile cert_request testuser2.csr '( .Input[].Attribute[] | select(.name=="cert_request") ).Value |= $cert_request' \
+          jq --rawfile cert_request testuser3.csr '( .Input[].Attribute[] | select(.name=="cert_request") ).Value |= $cert_request' \
               testuser3-request.json | sponge testuser3-request.json
 
           cat testuser3-request.json
