@@ -94,7 +94,7 @@ jobs:
     uses: ./.github/workflows/kra-softhsm-test.yml
 
   kra-sskg-test:
-    name: KRA with server-side key generation
+    name: KRA with SSKG
     needs: build
     uses: ./.github/workflows/kra-sskg-test.yml
 
