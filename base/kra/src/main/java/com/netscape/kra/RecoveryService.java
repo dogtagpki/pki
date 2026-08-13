@@ -40,6 +40,7 @@ import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.DigestAlgorithm;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.IVParameterSpec;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
@@ -60,7 +61,6 @@ import org.mozilla.jss.pkcs12.SafeBag;
 import org.mozilla.jss.pkix.primitive.EncryptedPrivateKeyInfo;
 import org.mozilla.jss.pkix.primitive.PrivateKeyInfo;
 import org.mozilla.jss.util.Password;
-import org.mozilla.jss.crypto.DigestAlgorithm;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
@@ -69,7 +69,6 @@ import com.netscape.certsrv.kra.EKRAException;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.security.Credential;
-import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
@@ -113,7 +112,7 @@ public class RecoveryService implements IService {
 
     private KeyRecoveryAuthority mKRA;
     private KeyRepository mStorage;
-    private IStorageKeyUnit mStorageUnit = null;
+    private StorageKeyUnit mStorageUnit;
     // must match with EnrollProfile.REQUEST_ISSUED_CERT
     public static final String REQUEST_ISSED_CERT = "req_issued_cert";
 

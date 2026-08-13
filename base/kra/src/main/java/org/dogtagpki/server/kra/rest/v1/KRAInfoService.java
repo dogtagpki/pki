@@ -30,9 +30,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.kra.KeyRecoveryAuthority;
+import com.netscape.kra.StorageKeyUnit;
 
 /**
  * @author Ade Lee
@@ -42,7 +42,7 @@ public class KRAInfoService extends PKIService implements KRAInfoResource {
     private static Logger logger = LoggerFactory.getLogger(KRAInfoService.class);
 
     private KeyRecoveryAuthority kra;
-    private IStorageKeyUnit storageUnit;
+    private StorageKeyUnit storageUnit;
 
     public KRAInfoService() {
         KRAEngine engine = KRAEngine.getInstance();

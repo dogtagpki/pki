@@ -28,12 +28,12 @@ import java.security.SecureRandom;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.Vector;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.dogtagpki.legacy.kra.KRAPolicy;
 import org.dogtagpki.legacy.kra.KRAPolicyConfig;
@@ -73,7 +73,6 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestListener;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.security.Credential;
-import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.cms.listeners.KRARequestInQListener;
 import com.netscape.cms.request.RequestScheduler;
 import com.netscape.cmscore.apps.CMS;
@@ -1452,7 +1451,7 @@ public class KeyRecoveryAuthority extends Subsystem implements IAuthority {
      *
      * @return storage key unit.
      */
-    public IStorageKeyUnit getStorageKeyUnit() {
+    public StorageKeyUnit getStorageKeyUnit() {
         return mStorageKeyUnit;
     }
 

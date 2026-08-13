@@ -66,7 +66,6 @@ import com.netscape.certsrv.kra.EKRAException;
 import com.netscape.certsrv.kra.IJoinShares;
 import com.netscape.certsrv.kra.IShare;
 import com.netscape.certsrv.security.Credential;
-import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.cms.servlet.key.KeyRecordParser;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
@@ -79,9 +78,8 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  * should be built on JSS/HCL.
  *
  * @author thomask
- * @version $Revision$, $Date$
  */
-public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
+public class StorageKeyUnit extends EncryptionUnit {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(StorageKeyUnit.class);
     private ConfigStore mConfig;
@@ -133,7 +131,9 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
         throw new EBaseException(CMS.getUserMessage("CMS_INVALID_OPERATION"));
     }
 
-    @Override
+    /**
+     * Get the wrapping parameters for this storage unit
+     */
     public WrappingParams getWrappingParams(boolean encrypt) throws Exception {
         String choice = null;
         try {
@@ -597,9 +597,11 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
     }
 
     /**
-     * Logins to this token.
+     * Logins to this unit.
+     *
+     * @param creds agent's credentials
+     * @exception EBaseException failed to login
      */
-    @Override
     public void login(Credential creds[])
             throws EBaseException {
         String pwd = constructPassword(creds);
@@ -626,9 +628,10 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
     }
 
     /**
-     * Returns a list of recovery agent identifiers.
+     * Retrieves a list of agents in this unit.
+     *
+     * @return a list of string-based agent identifiers
      */
-    @Override
     public Enumeration<String> getAgentIdentifiers() {
         Vector<String> v = new Vector<>();
 
@@ -649,8 +652,13 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
 
     /**
      * Changes agent password.
+     *
+     * @param id agent id
+     * @param oldpwd old password
+     * @param newpwd new password
+     * @return true if operation successful
+     * @exception EBaseException failed to change password
      */
-    @Override
     public boolean changeAgentPassword(String id, String oldpwd,
             String newpwd) throws EBaseException {
 
@@ -685,9 +693,15 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
     }
 
     /**
-     * Changes the m out of n recovery schema.
+     * Changes M-N recovery scheme.
+     *
+     * @param new_n total number of agents
+     * @param new_m required number of agents for recovery operation
+     * @param oldcreds all old credentials
+     * @param newcreds all new credentials
+     * @return true if operation successful
+     * @exception EBaseException failed to change schema
      */
-    @Override
     public boolean changeAgentMN(int new_n, int new_m,
             Credential oldcreds[],
             Credential newcreds[])
@@ -757,23 +771,29 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
     }
 
     /**
-     * Returns number of recovery agents.
+     * Retrieves total number of recovery agents.
+     *
+     * @return total number of recovery agents
      */
-    @Override
     public int getNoOfAgents() throws EBaseException {
         return mStorageConfig.getInteger(PROP_N);
     }
 
     /**
-     * Returns number of recovery agents required for
-     * recovery operation.
+     * Retrieves number of recovery agents required to
+     * perform recovery operation.
+     *
+     * @return required number of recovery agents for recovery operation
      */
-    @Override
     public int getNoOfRequiredAgents() throws EBaseException {
         return mStorageConfig.getInteger(PROP_M);
     }
 
-    @Override
+    /**
+     * Sets the numer of required recovery agents
+     *
+     * @param number number of required agents
+     */
     public void setNoOfRequiredAgents(int number) {
         mStorageConfig.putInteger(PROP_M, number);
     }
@@ -1119,7 +1139,15 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
      * Methods to encrypt and store secrets in the database
      ***************************************************************************************/
 
-    @Override
+    /**
+     * Encrypts the internal private key (private key to the KRA's
+     * internal storage).
+     *
+     * @param priKey user's private key (key to be archived)
+     * @param params wrapping parameters
+     * @return encrypted data
+     * @exception EBaseException failed to encrypt
+     */
     public byte[] encryptInternalPrivate(byte priKey[], WrappingParams params) throws Exception {
         try (DerOutputStream out = new DerOutputStream()) {
             logger.debug("StorageKeyUnit.encryptInternalPrivate");
@@ -1193,12 +1221,28 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
         }
     }
 
-    @Override
+    /**
+     * Wraps data. The given key will be wrapped by the
+     * private key in this unit.
+     *
+     * @param privKey private key to be wrapped
+     * @param params wrapping parameters
+     * @return wrapped data
+     * @exception EBaseException failed to wrap
+     */
     public byte[] wrap(PrivateKey privKey, WrappingParams params) throws Exception {
         return _wrap(privKey,null, params);
     }
 
-    @Override
+    /**
+     * Wraps data. The given key will be wrapped by the
+     * private key in this unit.
+     *
+     * @param symmKey symmetric key to be wrapped
+     * @param params wrapping parameters
+     * @return wrapped data
+     * @exception EBaseException failed to wrap
+     */
     public byte[] wrap(SymmetricKey symmKey, WrappingParams params) throws Exception {
         return _wrap(null,symmKey, params);
     }
@@ -1307,7 +1351,15 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
      * Methods to decrypt and retrieve secrets from the database
      ***************************************************************************************/
 
-    @Override
+    /**
+     * Decrypts the internal private key (private key from the KRA's
+     * internal storage).
+     *
+     * @param wrappedPrivateData unwrapped private key data (key to be recovered)
+     * @param params - wrapping parameters
+     * @return raw private key
+     * @throws Exception
+     */
     public byte[] decryptInternalPrivate(byte wrappedKeyData[], WrappingParams params)
             throws Exception {
         logger.debug("StorageKeyUnit.decryptInternalPrivate");
@@ -1334,7 +1386,14 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
                 params.getPayloadEncryptionAlgorithm());
     }
 
-    @Override
+    /**
+     * Unwraps symmetric key data. This method rebuilds the symmetric key by
+     * unwrapping the private data blob.
+     *
+     * @param wrappedKeyData symmetric key data wrapped up with session key
+     * @return Symmetric key object
+     * @exception Exception failed to unwrap
+     */
     public SymmetricKey unwrap(byte wrappedKeyData[], SymmetricKey.Type algorithm, int keySize,
             WrappingParams params) throws Exception {
         // SEQUENCE structure (same for RSA/EC and ML-KEM):
@@ -1390,7 +1449,17 @@ public class StorageKeyUnit extends EncryptionUnit implements IStorageKeyUnit {
                 params.getPayloadWrappingIV());
     }
 
-    @Override
+    /**
+     * Unwraps data. This method rebuilds the private key by
+     * unwrapping the private key data.
+     *
+     * @param wrappedKeyData private key data
+     * @param pubKey public key object
+     * @param temporary - temporary key?
+     * @param params - wrapping parameters
+     * @return private key object
+     * @throws Exception
+     */
     public PrivateKey unwrap(byte wrappedKeyData[], PublicKey pubKey, boolean temporary, WrappingParams params)
             throws Exception {
         // SEQUENCE structure (same for RSA/EC and ML-KEM):

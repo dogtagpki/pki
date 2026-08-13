@@ -39,7 +39,6 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.SymKeyGenerationProcessedEvent;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
@@ -61,7 +60,7 @@ public class SymKeyGenService implements IService {
     private final static String STATUS_ACTIVE = "active";
 
     private KeyRecoveryAuthority mKRA;
-    private IStorageKeyUnit mStorageUnit = null;
+    private StorageKeyUnit mStorageUnit;
 
     public SymKeyGenService(KeyRecoveryAuthority kra) {
         mKRA = kra;

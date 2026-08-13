@@ -42,7 +42,6 @@ import com.netscape.certsrv.key.KeyParameters;
 import com.netscape.certsrv.kra.EKRAException;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalProcessedEvent;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
@@ -61,7 +60,7 @@ public class SecurityDataProcessor {
 
     private KeyRecoveryAuthority kra;
     private TransportKeyUnit transportUnit;
-    private IStorageKeyUnit storageUnit = null;
+    private StorageKeyUnit storageUnit;
     private KeyRepository keyRepository = null;
 
     private boolean useOAEPKeyWrap = false;

@@ -27,6 +27,8 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.util.Hashtable;
 
+import org.dogtagpki.server.kra.KRAEngine;
+import org.dogtagpki.server.kra.KRAEngineConfig;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.IVParameterSpec;
@@ -35,39 +37,31 @@ import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.PrivateKey.Type;
 import org.mozilla.jss.crypto.SymmetricKey;
-import org.mozilla.jss.pkcs11.PK11SymKey;
-import org.mozilla.jss.util.Base64OutputStream;
-
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.certsrv.base.EBaseException;
-import org.dogtagpki.server.kra.KRAEngine;
-import org.dogtagpki.server.kra.KRAEngineConfig;
-import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.dbs.keydb.KeyId;
-import com.netscape.certsrv.kra.EKRAException;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.LogEvent;
-import com.netscape.certsrv.logging.event.SecurityDataRecoveryEvent;
-import com.netscape.certsrv.logging.event.SecurityDataRecoveryProcessedEvent;
-import com.netscape.cmscore.request.Request;
-import com.netscape.certsrv.request.IService;
-import com.netscape.certsrv.request.RequestId;
-import com.netscape.certsrv.security.IStorageKeyUnit;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cms.logging.SignedAuditLogger;
-import com.netscape.cmscore.dbs.KeyRecord;
-import com.netscape.cmscore.dbs.KeyRepository;
-import com.netscape.cmscore.logging.Auditor;
-import com.netscape.cmscore.security.JssSubsystem;
-import com.netscape.cmsutil.crypto.CryptoUtil;
-
 import org.mozilla.jss.netscape.security.util.BigInt;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.DerInputStream;
 import org.mozilla.jss.netscape.security.util.DerValue;
 import org.mozilla.jss.netscape.security.util.WrappingParams;
-
 import org.mozilla.jss.netscape.security.x509.X509Key;
+import org.mozilla.jss.pkcs11.PK11SymKey;
+import org.mozilla.jss.util.Base64OutputStream;
+
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.dbs.keydb.KeyId;
+import com.netscape.certsrv.kra.EKRAException;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.SecurityDataRecoveryEvent;
+import com.netscape.certsrv.logging.event.SecurityDataRecoveryProcessedEvent;
+import com.netscape.certsrv.request.IService;
+import com.netscape.certsrv.request.RequestId;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.dbs.KeyRecord;
+import com.netscape.cmscore.dbs.KeyRepository;
+import com.netscape.cmscore.logging.Auditor;
+import com.netscape.cmscore.request.Request;
+import com.netscape.cmscore.security.JssSubsystem;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * A class represents recovery request processor.
@@ -97,7 +91,7 @@ public class TokenKeyRecoveryService implements IService {
 
     private KeyRecoveryAuthority mKRA = null;
     private KeyRepository mStorage = null;
-    private IStorageKeyUnit mStorageUnit = null;
+    private StorageKeyUnit mStorageUnit;
     private TransportKeyUnit mTransportUnit = null;
 
     /**
@@ -308,7 +302,7 @@ public class TokenKeyRecoveryService implements IService {
                      KeyWrapAlgorithm.AES_KEY_WRAP_PAD,EncryptionUnit.IV, EncryptionUnit.IV);
 
          //Attempt legacy DES, if DES key not present or AES key present , drop down to AES processing.
-         
+
         if ((wrapped_des_key != null) &&
                 (wrapped_des_key.length > 0)) {
 
@@ -435,10 +429,10 @@ public class TokenKeyRecoveryService implements IService {
             try {
                 if (keyid != null) {
                     logger.debug("TokenKeyRecoveryService: recover by keyid");
-                    keyRecord = (KeyRecord) mStorage.readKeyRecord(keyid);
+                    keyRecord = mStorage.readKeyRecord(keyid);
                 } else {
                     logger.debug("TokenKeyRecoveryService: recover by cert");
-                    keyRecord = (KeyRecord) mStorage.readKeyRecord(cert);
+                    keyRecord = mStorage.readKeyRecord(cert);
                 }
 
                 if (keyRecord != null)

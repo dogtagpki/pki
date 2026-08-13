@@ -12,8 +12,8 @@ import org.dogtagpki.server.kra.KRAEngine;
 import org.dogtagpki.server.kra.KRAEngineConfig;
 import org.dogtagpki.server.rest.v2.PKIServlet;
 
-import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.kra.KeyRecoveryAuthority;
+import com.netscape.kra.StorageKeyUnit;
 import com.netscape.kra.TransportKeyUnit;
 
 /**
@@ -26,7 +26,7 @@ public class KRAServlet extends PKIServlet {
 
     protected KRAEngine engine;
     protected KRAEngineConfig config;
-    protected IStorageKeyUnit storageUnit;
+    protected StorageKeyUnit storageUnit;
     protected TransportKeyUnit transportUnit;
 
     @Override
