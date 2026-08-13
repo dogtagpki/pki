@@ -255,7 +255,7 @@ jobs:
               -s \
               -H "Content-Type: application/xml" \
               -H "Accept: application/xml" \
-              https://pki.example.com:8443/ca/rest/certrequests/profiles/caDirPinUserCert \
+              https://pki.example.com:8443/ca/v2/certrequests/profiles/caDirPinUserCert \
               | xmllint --format - \
               | tee testuser2-request.xml
 
@@ -299,7 +299,7 @@ jobs:
               -d @$SHARED/testuser2-request.xml \
               -H "Content-Type: application/xml" \
               -H "Accept: application/xml" \
-              https://pki.example.com:8443/ca/rest/certrequests \
+              https://pki.example.com:8443/ca/v2/certrequests \
               | xmllint --format - \
               | tee testuser2-response.xml
           CERT_ID=$(xmlstarlet sel -t -v '/CertRequestInfos/CertRequestInfo/certID' testuser2-response.xml)
@@ -310,7 +310,7 @@ jobs:
               -s \
               -H "Content-Type: application/xml" \
               -H "Accept: application/xml" \
-              https://pki.example.com:8443/ca/rest/certs/$CERT_ID \
+              https://pki.example.com:8443/ca/v2/certs/$CERT_ID \
               | xmllint --format - \
               | tee testuser2-cert.xml
 
@@ -346,7 +346,7 @@ jobs:
               -s \
               -H "Content-Type: application/json" \
               -H "Accept: application/json" \
-              https://pki.example.com:8443/ca/rest/certrequests/profiles/caDirPinUserCert \
+              https://pki.example.com:8443/ca/v2/certrequests/profiles/caDirPinUserCert \
               | python -m json.tool \
               | tee testuser3-request.json
 
@@ -380,7 +380,7 @@ jobs:
               -d @$SHARED/testuser3-request.json \
               -H "Content-Type: application/json" \
               -H "Accept: application/json" \
-              https://pki.example.com:8443/ca/rest/certrequests \
+              https://pki.example.com:8443/ca/v2/certrequests \
               | python -m json.tool \
               | tee testuser3-response.json
           CERT_ID=$(jq -j '.entries[].certId' testuser3-response.json)
@@ -391,7 +391,7 @@ jobs:
               -s \
               -H "Content-Type: application/json" \
               -H "Accept: application/json" \
-              https://pki.example.com:8443/ca/rest/certs/$CERT_ID \
+              https://pki.example.com:8443/ca/v2/certs/$CERT_ID \
               | python -m json.tool \
               | tee testuser3-cert.json
           jq -j '.Encoded' testuser3-cert.json | tee testuser3.crt
