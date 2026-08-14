@@ -113,15 +113,19 @@ def keyUsageExtConstraintImpl(Policy_Value,keylist):
 def keyConstraintImpl(Policy_Value):
 
     constraint_definition = etree.SubElement(Policy_Value, 'constraint', id='Key Constraint')
-    s1 = 'This constraint accepts the key only if Key Type=-, Key Parameters =1024,2048,3072,4096,nistp256,nistp384,nistp521'
+    s1 = 'This constraint accepts keys allowed by params.allowedKeys.<alg>.<strength>=true/false'
     constraint_description = etree.SubElement(constraint_definition, 'description').text = s1
     constraint_classid = etree.SubElement(constraint_definition, 'classId').text = 'keyConstraintImpl'
-    s2 = 'Key Lengths or Curves. For EC use comma separated list of curves, otherise use list of key sizes. Ex: 1024,2048,4096,8192 or:'
-    s3 = 'nistp256,nistp384,nistp521,sect163k1,nistk163 for EC.'
+    s2 = 'Allow or deny a key algorithm strength (or EC curve) with a boolean value.'
 
     keyConstraintImpl_attributes = [
-            ('keyType', 'choice','-,RSA,EC', 'Key Type', 'RSA', '-'),
-            ('keyParameters', 'string', 'NULL', s2 + s3, 'NULL', '1024,2048,3072,4096,nistp256,nistp384,nistp521')]
+            ('allowedKeys.RSA.1024', 'boolean', 'NULL', s2, 'true', 'true'),
+            ('allowedKeys.RSA.2048', 'boolean', 'NULL', s2, 'true', 'true'),
+            ('allowedKeys.RSA.3072', 'boolean', 'NULL', s2, 'true', 'true'),
+            ('allowedKeys.RSA.4096', 'boolean', 'NULL', s2, 'true', 'true'),
+            ('allowedKeys.EC.nistp256', 'boolean', 'NULL', s2, 'true', 'true'),
+            ('allowedKeys.EC.nistp384', 'boolean', 'NULL', s2, 'true', 'true'),
+            ('allowedKeys.EC.nistp521', 'boolean', 'NULL', s2, 'true', 'true')]
 
     common.constraint_attributes(constraint_definition, keyConstraintImpl_attributes)
 
