@@ -167,16 +167,21 @@ jobs:
               https://pki.example.com:8443/ca/v2/certrequests/profiles/caServerKeygen_UserCert \
               | tee caServerKeygen_UserCert.json
 
-          # configure request template
+          # configure request to create 2048-bit RSA key
           cat caServerKeygen_UserCert.json \
-              | jq '.Input[0].Attribute[1].Value|="RSA" | .Input[0].Attribute[2].Value|="2048" | .Input[1].Attribute[0].Value|="test1"' \
+              | jq '.Input[0].Attribute[1].Value|="RSA" | .Input[0].Attribute[2].Value|="2048"' \
               | tee template.json
 
       - name: Submit request with good password
         run: |
-          # create request with good password
+          # create request with good password for user test1
+          #
+          # by default the password must be at least 20 characters,
+          # contain at least 2 upper case letters, and contain at
+          # least 1 special character.
           cat template.json \
               | jq '.Input[0].Attribute[0].Value|="k342r09cmIJmklOLIJ,lwerkln234lik-[df"' \
+              | jq '.Input[1].Attribute[0].Value|="test1"' \
               | tee request.json
 
           # submit request
@@ -206,27 +211,30 @@ jobs:
               $REQUEST_ID \
               | tee output
 
+          # export cert
           CERT_ID=$(sed -n 's/^\s*Certificate ID:\s*\(\S*\)$/\1/p' output)
           docker exec pki pki ca-cert-export \
               --output-file $SHARED/test1.crt \
               $CERT_ID
+          echo "Cert ID: $CERT_ID"
+          echo $CERT_ID > test1.cert_id
 
-      - name: Check archived cert key
+      - name: Find generated key
         run: |
-          # find archived key by owner
+          # find generated key by owner
           docker exec pki pki \
               -n admin \
               kra-key-find \
               --owner UID=test1 \
               | tee output
 
-          KEY_ID=$(sed -n "s/^\s*Key ID:\s*\(\S*\)$/\1/p" output)
+          KEY_ID=$(sed -n 's/^\s*Key ID:\s*\(\S*\)$/\1/p' output)
           echo "Key ID: $KEY_ID"
-          echo $KEY_ID > cert.key_id
+          echo $KEY_ID > test1.key_id
 
-      - name: Retrieve cert key
+      - name: Retrieve generated key
         run: |
-          KEY_ID=$(cat cert.key_id)
+          KEY_ID=$(cat test1.key_id)
           echo "Key ID: $KEY_ID"
 
           # export cert into Base64-encoded format
@@ -252,30 +260,65 @@ jobs:
           }
           EOF
 
-          # retrieve archived cert and key into PKCS #12 file
-          # https://github.com/dogtagpki/pki/wiki/Retrieving-Archived-Key
+          # retrieve cert and key into PKCS #12 file
           docker exec pki pki \
               -n admin \
               kra-key-retrieve \
               --input $SHARED/request.json \
               --transport kra_transport \
-              --output-data archived.p12
+              --output-data test1.p12
 
-          # import PKCS #12 file into NSS database with the passphrase
-          docker exec pki pki \
-              pkcs12-import \
-              --pkcs12 archived.p12 \
+          docker exec pki pki pkcs12-cert-find \
+              --pkcs12 test1.p12 \
               --password Secret.123
 
-          docker exec pki pki nss-cert-find
+          docker exec pki pki pkcs12-key-find \
+              --pkcs12 test1.p12 \
+              --password Secret.123
 
-          docker exec pki pki nss-key-find
+      - name: Import retrieved key
+        run: |
+          # import PKCS #12 file into NSS database with the passphrase
+          docker exec pki pki \
+              -d nssdb \
+              pkcs12-import \
+              --pkcs12 test1.p12 \
+              --password Secret.123
+
+          # remove retrieved cert from NSS database
+          docker exec pki pki \
+              -d nssdb \
+              nss-cert-del \
+              UID=test1
+
+          # import original cert into NSS database
+          docker exec pki pki \
+              -d nssdb \
+              nss-cert-import \
+              --cert $SHARED/test1.crt \
+              test1
+
+          # the original cert should match the retrieved key (trust flags must be u,u,u)
+          docker exec pki pki \
+              -d nssdb \
+              nss-cert-show \
+              test1 \
+              | tee output
+
+          cat > expected << EOF
+          u,u,u
+          EOF
+
+          sed -n 's/^\s*Trust Flags:\s*\(\S\+\)$/\1/p' output > actual
+
+          diff expected actual
 
       - name: Submit request with short password
         run: |
-          # create request with short password
+          # create request with short password for user test2
           cat template.json \
               | jq '.Input[0].Attribute[0].Value|="k342r0"' \
+              | jq '.Input[1].Attribute[0].Value|="test2"' \
               | tee request.json
 
           # submit request
@@ -299,9 +342,10 @@ jobs:
 
       - name: Submit request with numeric password
         run: |
-          # create request with numeric password
+          # create request with numeric password for user test3
           cat template.json \
               | jq '.Input[0].Attribute[0].Value|="1234567890246801357938"' \
+              | jq '.Input[1].Attribute[0].Value|="test3"' \
               | tee request.json
 
           # submit request
@@ -323,8 +367,9 @@ jobs:
 
           diff expected actual
 
-      - name: Disable password policy
+      - name: "Disable PKCS #12 password constraint"
         run: |
+          # disable p12ExportPasswordConstraintImpl
           docker exec pki sed -i \
               's/^policyset.userCertSet.list=1,10,2,3,4,5,6,7,8,9,11/policyset.userCertSet.list=1,10,2,3,4,5,6,7,8,9/' \
               /etc/pki/pki-tomcat/ca/profiles/ca/caServerKeygen_UserCert.cfg
@@ -333,9 +378,10 @@ jobs:
 
       - name: Submit request with minimal password
         run: |
-          # create request with minimal password
+          # create request with minimal password for user test4
           cat template.json \
               | jq '.Input[0].Attribute[0].Value|="1"' \
+              | jq '.Input[1].Attribute[0].Value|="test4"' \
               | tee request.json
 
           # submit request
@@ -362,7 +408,110 @@ jobs:
               -n admin \
               ca-cert-request-approve \
               --force \
-              $REQUEST_ID
+              $REQUEST_ID \
+              | tee output
+
+          # export cert
+          CERT_ID=$(sed -n 's/^\s*Certificate ID:\s*\(\S*\)$/\1/p' output)
+          docker exec pki pki ca-cert-export \
+              --output-file $SHARED/test4.crt \
+              $CERT_ID
+          echo "Cert ID: $CERT_ID"
+          echo $CERT_ID > test4.cert_id
+
+      - name: Find generated key
+        run: |
+          # find generated key by owner
+          docker exec pki pki \
+              -n admin \
+              kra-key-find \
+              --owner UID=test4 \
+              | tee output
+
+          KEY_ID=$(sed -n 's/^\s*Key ID:\s*\(\S*\)$/\1/p' output)
+          echo "Key ID: $KEY_ID"
+          echo $KEY_ID > test4.key_id
+
+      - name: Retrieve generated key
+        run: |
+          KEY_ID=$(cat test4.key_id)
+          echo "Key ID: $KEY_ID"
+
+          # export cert into Base64-encoded format
+          BASE64_CERT=$(openssl x509 -in test4.crt -outform DER | base64 --wrap=0)
+          echo "Cert: $BASE64_CERT"
+
+          # create retrieval request with key ID, cert, and passphrase
+          cat > request.json <<EOF
+          {
+            "ClassName" : "com.netscape.certsrv.key.KeyRecoveryRequest",
+            "Attributes" : {
+              "Attribute" : [ {
+                "name" : "keyId",
+                "value" : "$KEY_ID"
+              }, {
+                "name" : "certificate",
+                "value" : "$BASE64_CERT"
+              }, {
+                "name" : "passphrase",
+                "value" : "Secret.123"
+              } ]
+            }
+          }
+          EOF
+
+          # retrieve cert and key into PKCS #12 file
+          docker exec pki pki \
+              -n admin \
+              kra-key-retrieve \
+              --input $SHARED/request.json \
+              --transport kra_transport \
+              --output-data test4.p12
+
+          docker exec pki pki pkcs12-cert-find \
+              --pkcs12 test4.p12 \
+              --password Secret.123
+
+          docker exec pki pki pkcs12-key-find \
+              --pkcs12 test4.p12 \
+              --password Secret.123
+
+      - name: Import generated key
+        run: |
+          # import PKCS #12 file into NSS database with the passphrase
+          docker exec pki pki \
+              -d nssdb \
+              pkcs12-import \
+              --pkcs12 test4.p12 \
+              --password Secret.123
+
+          # remove retrieved cert from NSS database
+          docker exec pki pki \
+              -d nssdb \
+              nss-cert-del \
+              UID=test4
+
+          # import original cert into NSS database
+          docker exec pki pki \
+              -d nssdb \
+              nss-cert-import \
+              --cert $SHARED/test4.crt \
+              test4
+
+          # the original cert should match the retrieved key (trust flags must be u,u,u)
+          docker exec pki pki \
+              -d nssdb \
+              nss-cert-show \
+              test4 \
+              | tee output
+
+          cat > expected << EOF
+          u,u,u
+          EOF
+
+          sed -n 's/^\s*Trust Flags:\s*\(\S\+\)$/\1/p' output > actual
+
+          diff expected actual
 
       - name: Remove KRA
         run: docker exec pki pkidestroy -s KRA -v
