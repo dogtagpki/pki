@@ -191,23 +191,6 @@ jobs:
 
           diff expected actual
 
-      - name: Configure profiles
-        run: |
-          # allow ML-KEM-768 in caInternalAuthDRMstorageCert
-          # NOTE: update this step after PR #5338 is merged
-          docker exec pki sed -i \
-              -e "s/^\(.*\.keyParameters\)=\(.*\)$/\1=\2,768/" \
-              /var/lib/pki/pki-tomcat/ca/profiles/ca/caInternalAuthDRMstorageCert.cfg
-
-          # allow ML-KEM-768 in caInternalAuthTransportCert
-          # NOTE: update this step after PR #5338 is merged
-          docker exec pki sed -i \
-              -e "s/^\(.*\.keyParameters\)=\(.*\)$/\1=\2,768/" \
-              /var/lib/pki/pki-tomcat/ca/profiles/ca/caInternalAuthTransportCert.cfg
-
-          # restart CA
-          docker exec pki pki-server ca-redeploy --wait
-
       - name: Install KRA with HSM
         run: |
           docker exec pki pkispawn \
