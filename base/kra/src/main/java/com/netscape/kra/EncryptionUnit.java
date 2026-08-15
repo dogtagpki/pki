@@ -29,7 +29,6 @@ import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.netscape.security.util.WrappingParams;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.security.IToken;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -38,7 +37,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  *
  * @author thomask
  */
-public abstract class EncryptionUnit implements IToken {
+public abstract class EncryptionUnit {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EncryptionUnit.class);
 
@@ -59,6 +58,19 @@ public abstract class EncryptionUnit implements IToken {
     public abstract CryptoToken getToken(org.mozilla.jss.crypto.X509Certificate cert);
 
     public abstract CryptoToken getInternalToken();
+
+    /**
+     * Logins to the token unit.
+     *
+     * @param pin password to access the token
+     * @exception EBaseException failed to login to this token
+     */
+    public abstract void login(String pin) throws EBaseException;
+
+    /**
+     * Logouts token.
+     */
+    public abstract void logout();
 
     /**
      * Retrieves the public key in this unit.
