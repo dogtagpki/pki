@@ -99,7 +99,6 @@ import org.mozilla.jss.util.Password;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
-import com.netscape.certsrv.security.ICryptoSubsystem;
 import com.netscape.certsrv.security.KeyCertData;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -113,11 +112,8 @@ import netscape.ldap.util.DN;
 
 /**
  * Subsystem for initializing JSS
- * <P>
- *
- * @version $Revision$ $Date$
  */
-public final class JssSubsystem implements ICryptoSubsystem {
+public final class JssSubsystem {
 
     public static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(JssSubsystem.class);
 
@@ -233,8 +229,19 @@ public final class JssSubsystem implements ICryptoSubsystem {
         this.engine = engine;
     }
 
-    // Add entropy to the 'default' RNG token
-    @Override
+    /**
+     * Adds the specified number of bits of entropy from the system
+     * entropy generator to the RNG of the default PKCS#11 RNG token.
+     * The default token is set using the modutil command.
+     * Note that the system entropy generator (usually /dev/random)
+     * will block until sufficient entropy is collected.
+     *
+     * @param bits number of bits of entropy
+     * @exception org.mozilla.jss.util.NotImplementedException If the Crypto device does not support
+     *                adding entropy
+     * @exception TokenException If there was some other problem with the Crypto device
+     * @exception IOException If there was a problem reading from the /dev/random
+     */
     public void addEntropy(int bits)
             throws org.mozilla.jss.util.NotImplementedException,
             IOException,
@@ -394,12 +401,20 @@ public final class JssSubsystem implements ICryptoSubsystem {
         Arrays.fill(memory, (char) 0);
     }
 
-    @Override
+    /**
+     * Retrieves the SSL cipher version.
+     *
+     * @return cipher version (i.e. "cipherdomestic")
+     */
     public String getCipherVersion() throws EBaseException {
         return "cipherdomestic";
     }
 
-    @Override
+    /**
+     * Retrieves the cipher preferences.
+     *
+     * @return cipher preferences (i.e. "rc4export,rc2export,...")
+     */
     public String getCipherPreferences() throws EBaseException {
         String cipherpref = "";
 
@@ -417,7 +432,11 @@ public final class JssSubsystem implements ICryptoSubsystem {
         return sslConfig == null ? "ECDHE" : sslConfig.getECType(certType);
     }
 
-    @Override
+    /**
+     * Checks if fortezza is enabled.
+     *
+     * @return "true" if fortezza is enabled
+     */
     public String isCipherFortezza() throws EBaseException {
         // we always display fortezza suites.
         // too much work to display tokens/certs corresponding to the
@@ -435,7 +454,12 @@ public final class JssSubsystem implements ICryptoSubsystem {
         }
     }
 
-    @Override
+    /**
+     * Sets the current SSL cipher preferences.
+     *
+     * @param cipherPrefs cipher preferences (i.e. "rc4export,rc2export,...")
+     * @exception EBaseException failed to set cipher preferences
+     */
     public void setCipherPreferences(String cipherPrefs)
             throws EBaseException {
         if (sslConfig != null) {
@@ -532,7 +556,12 @@ public final class JssSubsystem implements ICryptoSubsystem {
         }
     }
 
-    @Override
+    /**
+     * Retrieves the token name of the internal (software) token.
+     *
+     * @return the token name
+     * @exception EBaseException failed to retrieve token name
+     */
     public String getInternalTokenName() throws EBaseException {
         CryptoToken c = mCryptoManager.getInternalKeyStorageToken();
         String name = "";
@@ -551,7 +580,12 @@ public final class JssSubsystem implements ICryptoSubsystem {
         return name;
     }
 
-    @Override
+    /**
+     * Retrieves a list of currently registered token names.
+     *
+     * @return list of token names
+     * @exception EBaseException failed to retrieve token list
+     */
     public String getTokenList() throws EBaseException {
         StringBuffer tokenList = new StringBuffer();
 
@@ -585,7 +619,13 @@ public final class JssSubsystem implements ICryptoSubsystem {
         return tokenList.append("," + CryptoUtil.INTERNAL_TOKEN_NAME).toString();
     }
 
-    @Override
+    /**
+     * Checks if the given token is logged in.
+     *
+     * @param name token name
+     * @return true if token is logged in
+     * @exception EBaseException failed to login
+     */
     public boolean isTokenLoggedIn(String name) throws EBaseException {
         try {
             CryptoToken ctoken = CryptoUtil.getKeyStorageToken(name);
@@ -597,7 +637,13 @@ public final class JssSubsystem implements ICryptoSubsystem {
         }
     }
 
-    @Override
+    /**
+     * Logs into token.
+     *
+     * @param tokenName name of the token
+     * @param pwd token password
+     * @exception EBaseException failed to login
+     */
     public void loggedInToken(String tokenName, String pwd) throws EBaseException {
         Password clk = new Password(pwd.toCharArray());
         try {
@@ -611,7 +657,15 @@ public final class JssSubsystem implements ICryptoSubsystem {
         }
     }
 
-    @Override
+    /**
+     * Retrieves subject name of the certificate that is identified by
+     * the given nickname.
+     *
+     * @param tokenname name of token where the nickname is valid
+     * @param nickname nickname of the certificate
+     * @return subject name
+     * @exception EBaseException failed to get subject name
+     */
     public String getCertSubjectName(String tokenname, String nickname)
             throws EBaseException {
         try {
@@ -628,7 +682,13 @@ public final class JssSubsystem implements ICryptoSubsystem {
         }
     }
 
-    @Override
+    /**
+     * Retrieves a list of nicknames of certificates that are
+     * in the installed tokens.
+     *
+     * @return a list of comma-separated nicknames
+     * @exception EBaseException failed to retrieve nicknames
+     */
     public String getAllCerts() throws EBaseException {
         StringBuffer certNames = new StringBuffer();
 
@@ -662,7 +722,14 @@ public final class JssSubsystem implements ICryptoSubsystem {
         return certNames.toString();
     }
 
-    @Override
+    /**
+     * Retrieves all certificates. The result list will not
+     * contain the token tag.
+     *
+     * @param name token name
+     * @return list of certificates without token tag
+     * @exception EBaseException failed to retrieve
+     */
     public String getCertListWithoutTokenName(String name) throws EBaseException {
 
         CryptoToken c = null;
@@ -737,7 +804,16 @@ public final class JssSubsystem implements ICryptoSubsystem {
         }
     }
 
-    @Override
+    /**
+     * Retrieves CA's signing algorithm id. If it is DSA algorithm,
+     * algorithm is constructed by reading the parameters
+     * ca.dsaP, ca.dsaQ, ca.dsaG.
+     *
+     * @param algname DSA or RSA
+     * @param store configuration store.
+     * @return algorithm id
+     * @exception EBaseException failed to retrieve algorithm id
+     */
     public AlgorithmId getAlgorithmId(String algname, ConfigStore store)
             throws EBaseException {
         try {
@@ -760,7 +836,14 @@ public final class JssSubsystem implements ICryptoSubsystem {
         }
     }
 
-    @Override
+    /**
+     * Retrieves the signature algorithm of the certificate named
+     * by the given nickname.
+     *
+     * @param nickname nickname of the certificate
+     * @return signature algorithm
+     * @exception EBaseException failed to retrieve signature
+     */
     public String getSignatureAlgorithm(String nickname) throws EBaseException {
         try {
             X509Certificate cert = CryptoManager.getInstance().findCertByNickname(nickname);
@@ -782,7 +865,12 @@ public final class JssSubsystem implements ICryptoSubsystem {
         }
     }
 
-    @Override
+    /**
+     * Retrieves the key pair based on the given nickname.
+     *
+     * @param nickname nickname of the public key
+     * @exception EBaseException failed to retrieve key pair
+     */
     public KeyPair getKeyPair(String nickname) throws EBaseException {
         try {
             X509Certificate cert = CryptoManager.getInstance().findCertByNickname(nickname);
@@ -802,13 +890,30 @@ public final class JssSubsystem implements ICryptoSubsystem {
         }
     }
 
-    @Override
+    /**
+     * Generates a key pair based on the given parameters.
+     *
+     * @param token token where key is generated
+     * @param alg key algorithm
+     * @param keySize key size
+     * @return key pair
+     * @exception EBaseException failed to generate key pair
+     */
     public KeyPair getKeyPair(CryptoToken token, String alg,
             int keySize) throws EBaseException {
         return getKeyPair(token, alg, keySize, null);
     }
 
-    @Override
+    /**
+     * Generates a key pair based on the given parameters.
+     *
+     * @param token token where key is generated
+     * @param alg key algorithm
+     * @param keySize key size
+     * @param pqg pqg parameters if DSA key, otherwise null
+     * @return key pair
+     * @exception EBaseException failed to generate key pair
+     */
     public KeyPair getKeyPair(CryptoToken token, String alg,
             int keySize, PQGParams pqg) throws EBaseException {
 
@@ -842,7 +947,12 @@ public final class JssSubsystem implements ICryptoSubsystem {
         }
     }
 
-    @Override
+    /**
+     * Checks if the given dn is a valid distinguished name.
+     *
+     * @param dn distinguished name
+     * @exception EBaseException failed to check
+     */
     public void isX500DN(String dn) throws EBaseException {
         try {
             new X500Name(dn); // check for errors
@@ -852,7 +962,14 @@ public final class JssSubsystem implements ICryptoSubsystem {
         }
     }
 
-    @Override
+    /**
+     * Generates certificate request from the given key pair.
+     *
+     * @param subjectName subject name to use in the request
+     * @param kp key pair that contains public key material
+     * @return certificate request in base-64 encoded format
+     * @exception EBaseException failed to generate request
+     */
     public String getCertRequest(String subjectName, KeyPair kp)
             throws EBaseException {
         try {
@@ -881,7 +998,14 @@ public final class JssSubsystem implements ICryptoSubsystem {
         }
     }
 
-    @Override
+    /**
+     * Imports certificate into the server.
+     *
+     * @param b64E certificate in mime-64 encoded format
+     * @param nickname nickname for the importing certificate
+     * @param certType certificate type
+     * @exception EBaseException failed to import certificate
+     */
     public void importCert(String b64E, String nickname, String certType)
             throws EBaseException {
         try {
@@ -911,7 +1035,13 @@ public final class JssSubsystem implements ICryptoSubsystem {
         }
     }
 
-    @Override
+    /**
+     * Generates a key pair based on the given parameters.
+     *
+     * @param properties key parameters
+     * @return key pair
+     * @exception EBaseException failed to generate key pair
+     */
     public KeyPair getKeyPair(KeyCertData properties) throws EBaseException {
         String tokenName = CryptoUtil.INTERNAL_TOKEN_NAME;
         String keyType = "RSA";
@@ -937,7 +1067,13 @@ public final class JssSubsystem implements ICryptoSubsystem {
         return getKeyPair(token, keyType, keyLength);
     }
 
-    @Override
+    /**
+     * Generates an ECC key pair based on the given parameters.
+     *
+     * @param properties key parameters
+     * @return key pair
+     * @exception EBaseException failed to generate key pair
+     */
     public KeyPair getECCKeyPair(KeyCertData properties) throws EBaseException {
         String tokenName = CryptoUtil.INTERNAL_TOKEN_NAME;
         String keyCurve = "nistp521";
@@ -961,12 +1097,20 @@ public final class JssSubsystem implements ICryptoSubsystem {
         return getECCKeyPair(token, keyCurve, certType);
     }
 
-    @Override
-    public KeyPair getECCKeyPair(CryptoToken token, String keyCurve, String certType) throws EBaseException {
+    /**
+     * Generates an ECC key pair based on the given parameters.
+     *
+     * @param token token name
+     * @param curveName curve name
+     * @param certType type of cert(sslserver etc..)
+     * @return key pair
+     * @exception EBaseException failed to generate key pair
+     */
+    public KeyPair getECCKeyPair(CryptoToken token, String curveName, String certType) throws EBaseException {
         KeyPair pair = null;
 
-        if ((keyCurve == null) || (keyCurve.equals("")))
-            keyCurve = "nistp521";
+        if ((curveName == null) || (curveName.equals("")))
+            curveName = "nistp521";
 
         String ectype = getECType(certType);
 
@@ -976,7 +1120,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
             pair = CryptoUtil.generateECCKeyPair(
                     token,
-                    keyCurve,
+                    curveName,
                     usages,
                     usagesMask);
 
@@ -999,7 +1143,14 @@ public final class JssSubsystem implements ICryptoSubsystem {
         return pair;
     }
 
-    @Override
+    /**
+     * Imports certificate into the server.
+     *
+     * @param signedCert certificate
+     * @param nickname nickname for the importing certificate
+     * @param certType certificate type
+     * @exception EBaseException failed to import certificate
+     */
     public void importCert(X509CertImpl signedCert, String nickname,
             String certType) throws EBaseException {
 
@@ -1047,7 +1198,6 @@ public final class JssSubsystem implements ICryptoSubsystem {
         }
     }
 
-    @Override
     public void deleteUserCert(String nickname, String serialno, String issuername)
             throws EBaseException {
         try {
@@ -1076,7 +1226,6 @@ public final class JssSubsystem implements ICryptoSubsystem {
         }
     }
 
-    @Override
     public void deleteRootCert(String nickname, String serialno,
             String issuername) throws EBaseException {
         int index = nickname.indexOf(":");
@@ -1134,7 +1283,6 @@ public final class JssSubsystem implements ICryptoSubsystem {
         }
     }
 
-    @Override
     public NameValuePairs getRootCerts() throws EBaseException {
         NameValuePairs nvps = new NameValuePairs();
         try {
@@ -1208,7 +1356,6 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
     }
 
-    @Override
     public NameValuePairs getUserCerts() throws EBaseException {
         NameValuePairs nvps = new NameValuePairs();
         try {
@@ -1260,10 +1407,12 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
     }
 
-    /*
-     * get all certificates on all tokens for Certificate Database Management
+    /**
+     * Gets all certificates on all tokens for Certificate Database Management.
+     *
+     * @return all certificates
+     * @exception EBaseException failed to retrieve certificates
      */
-    @Override
     public NameValuePairs getAllCertsManage() throws EBaseException {
 
         /*
@@ -1327,7 +1476,12 @@ public final class JssSubsystem implements ICryptoSubsystem {
         return pairs;
     }
 
-    @Override
+    /**
+     * Gets all CA certificates on all tokens.
+     *
+     * @return all CA certificates
+     * @exception EBaseException failed to retrieve certificates
+     */
     public NameValuePairs getCACerts() throws EBaseException {
         NameValuePairs pairs = new NameValuePairs();
 
@@ -1415,7 +1569,14 @@ public final class JssSubsystem implements ICryptoSubsystem {
         return pairs;
     }
 
-    @Override
+    /**
+     * Trusts a certificate for all available purposes.
+     *
+     * @param nickname nickname of the certificate
+     * @param date certificate's not before
+     * @param trust "Trust" or other
+     * @exception EBaseException failed to trust certificate
+     */
     public void trustCert(String nickname, String date, String trust) throws
             EBaseException {
         try {
@@ -1510,15 +1671,15 @@ public final class JssSubsystem implements ICryptoSubsystem {
     }
 
     /**
-     * Delete any certificate from the any token.
+     * Delete certificate of the given nickname.
      *
      * @param nickname The nickname of the certificate.
      * @param notAfterTime The notAfter of the certificate. It is possible to get multiple
      *            certificates under the same nickname. If one of the certificates match the notAfterTime,
      *            then the certificate will get deleted. The format of the notAfterTime has to be
      *            in "MMMMM dd, yyyy HH:mm:ss" format.
+     * @exception EBaseException failed to delete certificate
      */
-    @Override
     public void deleteCert(String nickname, String notAfterTime) throws EBaseException {
         boolean isUserCert = false;
         X509Certificate[] certs = null;
@@ -1579,7 +1740,13 @@ public final class JssSubsystem implements ICryptoSubsystem {
         }
     }
 
-    @Override
+    /**
+     * Deletes certificate of the given nickname.
+     *
+     * @param nickname nickname of the certificate
+     * @param pathname path where a copy of the deleted certificate is stored
+     * @exception EBaseException failed to delete certificate
+     */
     public void deleteTokenCertificate(String nickname, String pathname) throws EBaseException {
         String suffix = "." + System.currentTimeMillis();
 
@@ -1638,7 +1805,14 @@ public final class JssSubsystem implements ICryptoSubsystem {
         }
     }
 
-    @Override
+    /**
+     * Retrieves the subject DN of the certificate identified by
+     * the nickname.
+     *
+     * @param nickname nickname of the certificate
+     * @return subject distinguished name
+     * @exception EBaseException failed to retrieve subject DN
+     */
     public String getSubjectDN(String nickname) throws EBaseException {
         try {
             X509Certificate cert = CryptoManager.getInstance().findCertByNickname(nickname);
@@ -1660,7 +1834,6 @@ public final class JssSubsystem implements ICryptoSubsystem {
         }
     }
 
-    @Override
     public void setRootCertTrust(String nickname, String serialno,
             String issuerName, String trust) throws EBaseException {
 
@@ -1717,7 +1890,6 @@ public final class JssSubsystem implements ICryptoSubsystem {
         return null;
     }
 
-    @Override
     public String getRootCertTrustBit(String nickname, String serialno,
             String issuerName) throws EBaseException {
         int index = nickname.indexOf(":");
@@ -1763,7 +1935,6 @@ public final class JssSubsystem implements ICryptoSubsystem {
         }
     }
 
-    @Override
     public String getCertPrettyPrint(String nickname, String serialno,
             String issuerName, Locale locale) throws EBaseException {
         int index = nickname.indexOf(":");
@@ -1805,7 +1976,6 @@ public final class JssSubsystem implements ICryptoSubsystem {
         }
     }
 
-    @Override
     public String getCertPrettyPrintAndFingerPrint(String nickname, String serialno,
             String issuerName, Locale locale) throws EBaseException {
         int index = nickname.indexOf(":");
@@ -1856,7 +2026,15 @@ public final class JssSubsystem implements ICryptoSubsystem {
         }
     }
 
-    @Override
+    /**
+     * Retrieves certificate in pretty-print format by the nickname.
+     *
+     * @param nickname nickname of certificate
+     * @param date not after of the returned certificate must be date
+     * @param locale user locale
+     * @return certificate in pretty-print format
+     * @exception EBaseException failed to retrieve certificate
+     */
     public String getCertPrettyPrint(String nickname, String date,
             Locale locale) throws EBaseException {
         try {
@@ -1899,7 +2077,14 @@ public final class JssSubsystem implements ICryptoSubsystem {
         }
     }
 
-    @Override
+    /**
+     * Retrieves the certificate in the pretty print format.
+     *
+     * @param b64E certificate in mime-64 encoded format
+     * @param locale end user locale
+     * @return certificate in pretty-print format
+     * @exception EBaseException failed to retrieve certificate
+     */
     public String getCertPrettyPrint(String b64E, Locale locale) throws EBaseException {
         try {
             try {
@@ -2034,7 +2219,16 @@ public final class JssSubsystem implements ICryptoSubsystem {
         ext.set(AuthInfoAccessExtension.NAME, aiaExt);
     }
 
-    @Override
+    /**
+     * Signs the certificate template into the given data and returns
+     * a signed certificate.
+     *
+     * @param data data that contains certificate template
+     * @param certType certificate type
+     * @param priKey CA signing key
+     * @return certificate
+     * @exception EBaseException failed to sign certificate template
+     */
     public X509CertImpl getSignedCert(KeyCertData data, String certType, java.security.PrivateKey priKey)
             throws EBaseException {
         CertificateInfo cert = null;
@@ -2087,7 +2281,14 @@ public final class JssSubsystem implements ICryptoSubsystem {
         return signedCert;
     }
 
-    @Override
+    /**
+     * Checks to see if the certificate of the given nickname is a
+     * CA certificate.
+     *
+     * @param fullNickname nickname of the certificate to check
+     * @return true if it is a CA certificate
+     * @exception EBaseException failed to check
+     */
     public boolean isCACert(String fullNickname) throws EBaseException {
         try {
             X509Certificate cert = mCryptoManager.findCertByNickname(fullNickname);
@@ -2128,7 +2329,15 @@ public final class JssSubsystem implements ICryptoSubsystem {
         }
     }
 
-    @Override
+    /**
+     * Retrieves extensions of the certificate that is identified by
+     * the given nickname.
+     *
+     * @param tokenname name of token where the nickname is valid
+     * @param nickname nickname of the certificate
+     * @return certificate extensions
+     * @exception EBaseException failed to get extensions
+     */
     public CertificateExtensions getExtensions(String tokenname, String nickname)
             throws EBaseException {
         try {
@@ -2151,7 +2360,13 @@ public final class JssSubsystem implements ICryptoSubsystem {
         }
     }
 
-    @Override
+    /**
+     * Checks if the given base-64 encoded string contains an extension
+     * or a sequence of extensions.
+     *
+     * @param ext extension or sequence of extension encoded in base-64
+     * @exception EBaseException failed to check encoding
+     */
     public void checkCertificateExt(String ext) throws EBaseException {
         KeyCertUtil.checkCertificateExt(ext);
     }
@@ -2159,18 +2374,36 @@ public final class JssSubsystem implements ICryptoSubsystem {
     public void checkKeyLength(String keyType, int keyLength, String certType, int minRSAKeyLen) throws EBaseException {
     }
 
-    @Override
+    /**
+     * Retrieves PQG parameters based on key size.
+     *
+     * @param keysize key size
+     * @return pqg parameters
+     */
     public PQGParams getPQG(int keysize) {
         return KeyCertUtil.getPQG(keysize);
     }
 
-    @Override
+    /**
+     * Retrieves PQG parameters based on key size.
+     *
+     * @param keysize key size
+     * @param store configuration store
+     * @return pqg parameters
+     */
     public PQGParams getCAPQG(int keysize, ConfigStore store)
             throws EBaseException {
         return KeyCertUtil.getCAPQG(keysize, store);
     }
 
-    @Override
+    /**
+     * Retrieves extensions of the certificate that is identified by
+     * the given nickname.
+     *
+     * @param tokenname token name
+     * @param nickname nickname
+     * @return certificate extensions
+     */
     public CertificateExtensions getCertExtensions(String tokenname, String nickname)
             throws NotInitializedException, TokenException, ObjectNotFoundException,
 
