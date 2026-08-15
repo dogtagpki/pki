@@ -29,7 +29,7 @@ import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.netscape.security.util.WrappingParams;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.security.IEncryptionUnit;
+import com.netscape.certsrv.security.IToken;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -37,9 +37,8 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  * is used to protected EE's private key in transit.
  *
  * @author thomask
- * @version $Revision$, $Date$
  */
-public abstract class EncryptionUnit implements IEncryptionUnit {
+public abstract class EncryptionUnit implements IToken {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EncryptionUnit.class);
 
@@ -61,14 +60,17 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
 
     public abstract CryptoToken getInternalToken();
 
-    @Override
+    /**
+     * Retrieves the public key in this unit.
+     *
+     * @return public key
+     */
     public abstract PublicKey getPublicKey();
 
     public abstract PrivateKey getPrivateKey();
 
     public abstract PrivateKey getPrivateKey(org.mozilla.jss.crypto.X509Certificate cert);
 
-    @Override
     public WrappingParams getOldWrappingParams() {
         return new WrappingParams(
                 SymmetricKey.DES3, KeyGenAlgorithm.DES3, 168,
@@ -76,7 +78,14 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
                 KeyWrapAlgorithm.DES3_CBC_PAD, IV, IV);
     }
 
-    @Override
+    /**
+     * Unwraps symmetric key . This method
+     * unwraps the symmetric key.
+     *
+     * @param encSymmKey wrapped symmetric key to be unwrapped
+     * @return Symmetric key object
+     * @throws Exception
+     */
     public SymmetricKey unwrap_session_key(CryptoToken token, byte encSymmKey[], SymmetricKey.Usage usage,
             WrappingParams params) throws Exception {
         PrivateKey wrappingKey = getPrivateKey();
@@ -105,8 +114,10 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
 
     /**
      * Verify the given key pair.
+     *
+     * @param publicKey public key
+     * @param privateKey private key
      */
-    @Override
     public void verify(PublicKey publicKey, PrivateKey privateKey) throws
             EBaseException {
     }
