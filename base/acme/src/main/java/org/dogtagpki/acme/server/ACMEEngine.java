@@ -602,16 +602,14 @@ public class ACMEEngine extends CMSEngine {
         }
 
         if (nonce == null) {
-            // TODO: generate proper exception
-            throw new Exception("Invalid nonce: " + value);
+            throw createBadNonceException("Invalid nonce: " + value);
         }
 
         long currentTime = System.currentTimeMillis();
         long expirationTime = nonce.getExpirationTime().getTime();
 
         if (expirationTime <= currentTime) {
-            // TODO: generate proper exception
-            throw new Exception("Expired nonce: " + value);
+            throw createBadNonceException("Expired nonce: "+ value);
         }
 
         logger.info("Valid nonce: " + value);
@@ -793,6 +791,14 @@ public class ACMEEngine extends CMSEngine {
         error.setDetail("Malformed request: " + desc);
 
         throw new ACMEException(HttpServletResponse.SC_BAD_REQUEST, error);
+    }
+    
+    public Exception createBadNonceException(String detail) {
+        ACMEError error = new ACMEError();
+        error.setType("urn:ietf:params:acme:error:badNonce");
+        error.setDetail(detail);
+        
+        throw new ACMEException(HttpServletResponse.SC_BAD_REQUEST,error);
     }
 
     public void updateAccount(ACMEAccount account) throws Exception {
