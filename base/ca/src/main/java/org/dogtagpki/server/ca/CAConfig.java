@@ -5,6 +5,10 @@
 //
 package org.dogtagpki.server.ca;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.dogtagpki.legacy.ca.CAPolicyConfig;
 
 import com.netscape.ca.CRLConfig;
@@ -164,6 +168,39 @@ public class CAConfig extends ConfigStore {
             }
         }
         return false;
+    }
+
+    /**
+     * Returns the list of executable paths allowed for use by
+     * ExternalProcessConstraint, from
+     * ca.externalProcessConstraint.allowedExecutables in CS.cfg.
+     *
+     * Each entry must be an absolute path.  If the parameter is
+     * absent or empty, an empty list is returned (no executables
+     * are allowed).
+     *
+     * @return list of allowed absolute paths (may be empty, never null)
+     * @throws EBaseException if a value is empty or not an absolute path
+     */
+    public List<String> getExternalProcessConstraintAllowedExecutables() throws EBaseException {
+        String value = getString("externalProcessConstraint.allowedExecutables", "");
+        if (value == null || value.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<String> result = Arrays.asList(value.split(","));
+        for (String path : result) {
+            if (path.isEmpty()) {
+                throw new EBaseException(
+                    "ca.externalProcessConstraint.allowedExecutables:"
+                    + " empty value in list");
+            }
+            if (!path.startsWith("/")) {
+                throw new EBaseException(
+                    "ca.externalProcessConstraint.allowedExecutables:"
+                    + " not an absolute path: " + path);
+            }
+        }
+        return result;
     }
 
 }

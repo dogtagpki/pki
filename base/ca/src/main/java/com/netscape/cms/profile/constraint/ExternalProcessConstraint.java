@@ -19,6 +19,7 @@
 package com.netscape.cms.profile.constraint;
 
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
@@ -26,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.IOUtils;
 import org.dogtagpki.server.authentication.AuthToken;
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -39,6 +41,52 @@ import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.request.Request;
 
 
+/**
+ * Profile policy constraint that validates a certificate request
+ * by executing an external process.  The process receives
+ * request data via environment variables and indicates approval
+ * by exiting with status 0 (non-zero rejects the request).
+ *
+ * <h2>Profile configuration parameters</h2>
+ * <dl>
+ *   <dt>{@code executable}</dt>
+ *   <dd>Absolute path of the program to execute.  Required.</dd>
+ *   <dt>{@code timeout}</dt>
+ *   <dd>Maximum execution time in seconds (default&nbsp;10).
+ *       The process is killed if the timeout expires and the
+ *       request is rejected.</dd>
+ * </dl>
+ *
+ * <h2>Security: executable allowlist</h2>
+ *
+ * Because certificate profiles can be created and modified via
+ * the REST API, the {@code executable} parameter is checked
+ * against an allowlist in CS.cfg at profile load time:
+ *
+ * <pre>
+ * ca.externalProcessConstraint.allowedExecutables=/usr/libexec/pki/ipa-cert-check,/usr/libexec/pki/other-hook
+ * </pre>
+ *
+ * Only exact, complete absolute paths are matched (no globs or
+ * directory prefixes).  If the parameter is absent or empty, no
+ * executables are permitted and any profile that uses this
+ * constraint will fail to load.
+ *
+ * <h2>Environment variables</h2>
+ *
+ * The following variables are set in the process environment
+ * (values come from the certificate request):
+ * <ul>
+ *   <li>{@code DOGTAG_CERT_REQUEST} &ndash; the PEM certificate request</li>
+ *   <li>{@code DOGTAG_USER} &ndash; authenticated user ID</li>
+ *   <li>{@code DOGTAG_PROFILE_ID} &ndash; profile that is being used</li>
+ *   <li>{@code DOGTAG_AUTHORITY_ID} &ndash; issuing authority ID</li>
+ *   <li>{@code DOGTAG_USER_DATA} &ndash; opaque user-supplied data</li>
+ * </ul>
+ *
+ * Additional environment variables can be configured via
+ * {@code params.env.*} sub-keys in the constraint configuration.
+ */
 public class ExternalProcessConstraint extends EnrollConstraint {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ExternalProcessConstraint.class);
@@ -81,6 +129,21 @@ public class ExternalProcessConstraint extends EnrollConstraint {
         if (this.executable == null || this.executable.isEmpty()) {
             throw new EProfileException(
                 "Missing required config param 'executable'");
+        }
+
+        List<String> allowed;
+        try {
+            allowed = CAEngine.getInstance().getConfig().getCAConfig()
+                .getExternalProcessConstraintAllowedExecutables();
+        } catch (EBaseException e) {
+            throw new EProfileException(
+                "Failed to check executable allowlist: " + e.getMessage(), e);
+        }
+        if (!allowed.contains(this.executable)) {
+            throw new EProfileException(
+                "Executable not in"
+                + " ca.externalProcessConstraint.allowedExecutables:"
+                + " " + this.executable);
         }
 
         timeout = DEFAULT_TIMEOUT;
