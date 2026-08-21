@@ -41,12 +41,12 @@ $ sudo dnf install dogtag-pki-theme
 
 After successful installation of the packages, follow the below steps to deploy intended subsystems:
 
-- [Deploy CA](docs/installation/ca/Installing_CA.md)
-- [Deploy KRA](docs/installation/kra/Installing_KRA.md)
-- [Deploy OCSP](docs/installation/ocsp/Installing_OCSP.md)
-- [Deploy TKS](docs/installation/tks/Installing_TKS.md)
-- [Deploy TPS](docs/installation/tps/Installing_TPS.md)
-- [Deploy ACME](docs/installation/acme/Installing_PKI_ACME_Responder.md)
+- [Deploy CA](docs/installation/ca/installing-ca.adoc)
+- [Deploy KRA](docs/installation/kra/installing-kra.adoc)
+- [Deploy OCSP](docs/installation/ocsp/installing-ocsp.adoc)
+- [Deploy TKS](docs/installation/tks/installing-tks.adoc)
+- [Deploy TPS](docs/installation/tps/installing-tps.adoc)
+- [Deploy ACME](docs/installation/acme/installing-acme-responder.adoc)
 
 For other types of deployments (Sub-CA, Clones, HSMs, etc) please see the [Installation Guide](https://github.com/dogtagpki/pki/wiki/Installation-Guide).
 
