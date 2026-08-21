@@ -2116,6 +2116,14 @@ do
     chmod 644 $target
 done
 
+# Add JSP and template files to fapolicy trust database
+find /usr/share/pki -name '*.jsp' -o -name '*.template' | while read file; do
+    fapolicyd-cli --file add "$file" 2>/dev/null
+done
+fapolicyd-cli --update 2>/dev/null
+
+fagenrules --load
+
 # Restart fapolicy daemon if it's active
 status=$(systemctl is-active fapolicyd)
 if [ "$status" = "active" ]
