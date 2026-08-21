@@ -47,6 +47,7 @@ After successful installation of the packages, follow the below steps to deploy 
 - [Deploy TKS](docs/installation/tks/installing-tks.adoc)
 - [Deploy TPS](docs/installation/tps/installing-tps.adoc)
 - [Deploy ACME](docs/installation/acme/installing-acme-responder.adoc)
+- [Deploy EST](docs/installation/est/installing-est.adoc)
 
 For other types of deployments (Sub-CA, Clones, HSMs, etc) please see the [Installation Guide](https://github.com/dogtagpki/pki/wiki/Installation-Guide).
 
