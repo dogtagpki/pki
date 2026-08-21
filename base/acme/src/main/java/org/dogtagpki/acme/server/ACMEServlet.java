@@ -52,6 +52,11 @@ public class ACMEServlet extends PKIServlet {
 
         } catch (Exception e) {
             logger.error("Unable to create nonce: " + e.getMessage(), e);
+            
+            response.sendError(
+                HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                "Unable to generate replacement nonce"
+            );
         }
 
         super.handlePKIException(request, response, exception);
