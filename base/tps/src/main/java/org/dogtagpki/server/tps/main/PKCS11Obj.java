@@ -502,21 +502,30 @@ public class PKCS11Obj {
         byte[] data = compressedData.toBytesArray();
 
         Inflater inflater = new Inflater();
-        inflater.setInput(data);
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length);
-        byte[] buffer = new byte[1024];
-        while (!inflater.finished()) {
-            int count = inflater.inflate(buffer);
-            outputStream.write(buffer, 0, count);
+
+        try {
+            inflater.setInput(data);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length);
+            byte[] buffer = new byte[1024];
+            while (!inflater.finished()) {
+                int count = inflater.inflate(buffer);
+                //Prevent possible spinning on corrupted data.
+                if (count == 0 && !inflater.finished()) {
+                    throw new TPSException("PKCS11Obj.uncompress: incomplete or corrupted compressed data");
+                }
+                outputStream.write(buffer, 0, count);
+            }
+            outputStream.close();
+            byte[] output = outputStream.toByteArray();
+            logger.debug("Original: " + data.length);
+            logger.debug("Uncompressed: " + output.length);
+
+            TPSBuffer result = new TPSBuffer(output);
+
+            return result;
+        } finally {
+            inflater.end();
         }
-        outputStream.close();
-        byte[] output = outputStream.toByteArray();
-        logger.debug("Original: " + data.length);
-        logger.debug("Uncompressed: " + output.length);
-
-        TPSBuffer result = new TPSBuffer(output);
-
-        return result;
     }
 
     public static void main(String[] args) throws TPSException, DataFormatException, IOException {
