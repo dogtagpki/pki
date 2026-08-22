@@ -1,0 +1,470 @@
+name: EST with fullcmc
+
+on: workflow_call
+
+env:
+  DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
+
+jobs:
+  # docs/installation/est/configuring-est-fullcmc-example.adoc
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      SHARED: /tmp/workdir/pki
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v7
+
+      - name: Retrieve PKI images
+        uses: actions/cache@v5
+        with:
+          key: pki-images-${{ github.sha }}
+          path: pki-images.tar
+
+      - name: Load PKI images
+        run: docker load --input pki-images.tar
+
+      - name: Create network
+        run: docker network create example
+
+      # Part 1: Install 389 Directory Server (Guide Steps 1-5)
+      - name: Set up DS container
+        run: |
+          tests/bin/ds-create.sh \
+              --image=${{ env.DS_IMAGE }} \
+              --hostname=ds.example.com \
+              --password=Secret.123 \
+              --network=example \
+              --network-alias=ds.example.com \
+              ds
+
+      - name: Set up PKI container
+        run: |
+          tests/bin/runner-init.sh \
+          --hostname=pki.example.com \
+          --network=example \
+          --network-alias=pki.example.com \
+          pki
+
+      # Part 2: Install PKI CA Subsystem (Guide Steps 6-11)
+      - name: Install CA
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_url=ldap://ds.example.com:3389 \
+              -v
+
+      - name: Initialize PKI client
+        run: |
+          docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
+
+          docker exec pki pki nss-cert-import \
+              --cert ca_signing.crt \
+              --trust CT,C,C \
+              ca_signing
+
+          docker exec pki pki pkcs12-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --password Secret.123
+
+      - name: Verify estFullcmcDeviceCert profile
+        run: |
+          docker exec pki pki -n caadmin ca-profile-show estFullcmcDeviceCert
+
+      - name: Configure CA for EST CMC responses
+        run: |
+          docker exec pki bash -c \
+              'echo "cmc.response.useSimpleOnSuccess=true" >> /etc/pki/pki-tomcat/ca/CS.cfg'
+
+          docker exec pki pki-server restart --wait
+
+      # Part 3: Install EST Subsystem (Guide Steps 12-15)
+      - name: Set up EST user DB
+        run: |
+          docker exec -i pki ldapadd -x -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" -w Secret.123 \
+              -f /usr/share/pki/est/conf/realm/ds/create.ldif
+
+      - name: Install EST
+        run: |
+          docker exec pki pkispawn \
+              -f /usr/share/pki/server/examples/installation/est.cfg \
+              -s EST \
+              -D est_realm_url=ldap://ds.example.com:3389 \
+              -v
+
+      - name: Configure EST backend for fullcmc
+        run: |
+          docker exec pki bash -c \
+              'echo "fullcmc.profile=estFullcmcDeviceCert" >> /etc/pki/pki-tomcat/est/backend.conf'
+
+      - name: Verify TLS client certificate authentication
+        run: |
+          docker exec pki grep -q 'certificateVerification="optional"' \
+              /etc/pki/pki-tomcat/server.xml
+
+      - name: Restart PKI server
+        run: |
+          docker exec pki pki-server restart --wait
+
+      - name: Check EST backend config
+        if: always()
+        run: |
+          docker exec pki cat /etc/pki/pki-tomcat/est/backend.conf
+
+      - name: Verify EST fullcmc endpoint
+        run: |
+          # Verify EST is running
+          docker exec pki curl -s -o /dev/null -w '%{http_code}' \
+              --cacert ca_signing.crt \
+              https://pki.example.com:8443/.well-known/est/cacerts | tee output
+          grep -q 200 output
+
+          # Verify fullcmc endpoint exists (should not return 404)
+          docker exec pki curl -s -o /dev/null -w '%{http_code}' \
+              --cacert ca_signing.crt \
+              -X POST https://pki.example.com:8443/.well-known/est/fullcmc | tee output
+          ! grep -q 404 output
+
+      # Part 4: Create Test Users for fullcmc (Guide Steps 16-20)
+      - name: Create fullcmc test directory
+        run: |
+          docker exec pki mkdir -p /tmp/fullcmc
+
+      - name: Create non-agent user certificate
+        run: |
+          docker exec pki openssl req -newkey rsa:2048 -nodes \
+              -keyout /tmp/fullcmc/user.key \
+              -out /tmp/fullcmc/user.csr \
+              -subj "/CN=EST NonAgent User"
+
+          docker exec pki pki -n caadmin ca-cert-issue \
+              --csr-file /tmp/fullcmc/user.csr \
+              --profile caServerCert \
+              --subject "CN=EST NonAgent User" \
+              --output-file /tmp/fullcmc/user.crt
+
+          # Create NSS database for CMCRequest signing
+          docker exec pki mkdir -p /tmp/fullcmc/nssdb-user
+          docker exec pki bash -c 'echo "Secret.123" > /tmp/fullcmc/nssdb-user/password.txt'
+          docker exec pki certutil -N -d /tmp/fullcmc/nssdb-user \
+              -f /tmp/fullcmc/nssdb-user/password.txt
+
+          docker exec pki certutil -A -d /tmp/fullcmc/nssdb-user \
+              -n "CA" -t "CT,C,C" \
+              -i ca_signing.crt \
+              -f /tmp/fullcmc/nssdb-user/password.txt
+
+          docker exec pki openssl pkcs12 -export \
+              -in /tmp/fullcmc/user.crt \
+              -inkey /tmp/fullcmc/user.key \
+              -out /tmp/fullcmc/user.p12 \
+              -name "user" \
+              -passout pass:Secret.123
+
+          docker exec pki pk12util -i /tmp/fullcmc/user.p12 \
+              -d /tmp/fullcmc/nssdb-user \
+              -W Secret.123 -K Secret.123
+
+      - name: Add non-agent user to EST LDAP
+        run: |
+          VERSION=$(docker exec pki PrettyPrintCert /tmp/fullcmc/user.crt | \
+              sed -n 's/\s*Version:\s*v3/2/p')
+          SERIAL_HEX=$(docker exec pki PrettyPrintCert /tmp/fullcmc/user.crt | \
+              sed -n 's/\s*Serial Number:\s*0x\(.*\)/\1/p')
+          SERIAL=$(python3 -c "print(int('$SERIAL_HEX', 16))")
+          ISSUER=$(docker exec pki PrettyPrintCert /tmp/fullcmc/user.crt | \
+              sed -n 's/\s*Issuer:\s*\(.*\)/\1/p' | sed 's/, /,/g')
+          SUBJECT=$(docker exec pki PrettyPrintCert /tmp/fullcmc/user.crt | \
+              sed -n 's/\s*Subject:\s*\(.*\)/\1/p' | sed 's/, /,/g')
+
+          docker exec pki openssl x509 -in /tmp/fullcmc/user.crt -outform DER \
+              -out /tmp/fullcmc/user.der
+          CERTIFICATE=$(docker exec pki openssl base64 -in /tmp/fullcmc/user.der | sed 's/^/ /')
+
+          docker exec -i pki ldapadd -x -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" -w Secret.123 <<EOF
+          dn: uid=est-user,ou=people,dc=est,dc=pki,dc=example,dc=com
+          objectClass: top
+          objectClass: person
+          objectClass: organizationalPerson
+          objectClass: inetOrgPerson
+          uid: est-user
+          sn: User
+          cn: EST NonAgent User
+          userPassword: Secret.123
+          description: $VERSION;$SERIAL;$ISSUER;$SUBJECT
+          userCertificate::$CERTIFICATE
+          EOF
+
+          docker exec -i pki ldapmodify -x -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" -w Secret.123 <<EOF
+          dn: cn=EST Users,ou=groups,dc=est,dc=pki,dc=example,dc=com
+          changetype: modify
+          add: uniqueMember
+          uniqueMember: uid=est-user,ou=people,dc=est,dc=pki,dc=example,dc=com
+          EOF
+
+      - name: Create agent user certificate
+        run: |
+          docker exec pki openssl req -newkey rsa:2048 -nodes \
+              -keyout /tmp/fullcmc/agent.key \
+              -out /tmp/fullcmc/agent.csr \
+              -subj "/CN=EST CA Agent"
+
+          docker exec pki pki -n caadmin ca-cert-issue \
+              --csr-file /tmp/fullcmc/agent.csr \
+              --profile caServerCert \
+              --subject "CN=EST CA Agent" \
+              --output-file /tmp/fullcmc/agent.crt
+
+          # Create NSS database for CMCRequest signing
+          docker exec pki mkdir -p /tmp/fullcmc/nssdb-agent
+          docker exec pki bash -c 'echo "Secret.123" > /tmp/fullcmc/nssdb-agent/password.txt'
+          docker exec pki certutil -N -d /tmp/fullcmc/nssdb-agent \
+              -f /tmp/fullcmc/nssdb-agent/password.txt
+
+          docker exec pki certutil -A -d /tmp/fullcmc/nssdb-agent \
+              -n "CA" -t "CT,C,C" \
+              -i ca_signing.crt \
+              -f /tmp/fullcmc/nssdb-agent/password.txt
+
+          docker exec pki openssl pkcs12 -export \
+              -in /tmp/fullcmc/agent.crt \
+              -inkey /tmp/fullcmc/agent.key \
+              -out /tmp/fullcmc/agent.p12 \
+              -name "agent" \
+              -passout pass:Secret.123
+
+          docker exec pki pk12util -i /tmp/fullcmc/agent.p12 \
+              -d /tmp/fullcmc/nssdb-agent \
+              -W Secret.123 -K Secret.123
+
+      - name: Add agent to CA Certificate Manager Agents
+        run: |
+          docker exec pki pki -n caadmin ca-user-add est-agent \
+              --fullName "EST CA Agent"
+
+          docker exec pki pki -n caadmin ca-user-cert-add est-agent \
+              --input /tmp/fullcmc/agent.crt
+
+          docker exec pki pki -n caadmin ca-group-member-add \
+              "Certificate Manager Agents" est-agent
+
+      - name: Add agent user to EST LDAP
+        run: |
+          VERSION=$(docker exec pki PrettyPrintCert /tmp/fullcmc/agent.crt | \
+              sed -n 's/\s*Version:\s*v3/2/p')
+          SERIAL_HEX=$(docker exec pki PrettyPrintCert /tmp/fullcmc/agent.crt | \
+              sed -n 's/\s*Serial Number:\s*0x\(.*\)/\1/p')
+          SERIAL=$(python3 -c "print(int('$SERIAL_HEX', 16))")
+          ISSUER=$(docker exec pki PrettyPrintCert /tmp/fullcmc/agent.crt | \
+              sed -n 's/\s*Issuer:\s*\(.*\)/\1/p' | sed 's/, /,/g')
+          SUBJECT=$(docker exec pki PrettyPrintCert /tmp/fullcmc/agent.crt | \
+              sed -n 's/\s*Subject:\s*\(.*\)/\1/p' | sed 's/, /,/g')
+
+          docker exec pki openssl x509 -in /tmp/fullcmc/agent.crt -outform DER \
+              -out /tmp/fullcmc/agent.der
+          CERTIFICATE=$(docker exec pki openssl base64 -in /tmp/fullcmc/agent.der | sed 's/^/ /')
+
+          docker exec -i pki ldapadd -x -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" -w Secret.123 <<EOF
+          dn: uid=est-agent,ou=people,dc=est,dc=pki,dc=example,dc=com
+          objectClass: top
+          objectClass: person
+          objectClass: organizationalPerson
+          objectClass: inetOrgPerson
+          uid: est-agent
+          sn: Agent
+          cn: EST CA Agent
+          userPassword: Secret.123
+          description: $VERSION;$SERIAL;$ISSUER;$SUBJECT
+          userCertificate::$CERTIFICATE
+          EOF
+
+          docker exec -i pki ldapmodify -x -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" -w Secret.123 <<EOF
+          dn: cn=EST Users,ou=groups,dc=est,dc=pki,dc=example,dc=com
+          changetype: modify
+          add: uniqueMember
+          uniqueMember: uid=est-agent,ou=people,dc=est,dc=pki,dc=example,dc=com
+          EOF
+
+      # Part 5: Test EST fullcmc Enrollment (Guide Steps 21-23)
+      - name: Test non-agent enrollment with matching subject
+        run: |
+          # Create CSR with same subject as user cert (Guide Step 21)
+          docker exec pki openssl req -newkey rsa:2048 -nodes \
+              -keyout /tmp/fullcmc/device1.key \
+              -out /tmp/fullcmc/device1.csr \
+              -subj "/CN=EST NonAgent User"
+
+          # Convert CSR to base64-encoded DER for CMCRequest
+          docker exec pki bash -c \
+              'openssl req -in /tmp/fullcmc/device1.csr -outform der | \
+               openssl base64 -out /tmp/fullcmc/device1.p10'
+
+          # Create CMCRequest config
+          docker exec pki bash -c 'cat > /tmp/fullcmc/user-cmc.cfg << CMCEOF
+          dbdir=/tmp/fullcmc/nssdb-user
+          password=Secret.123
+          tokenname=internal
+          nickname=user
+          format=pkcs10
+          numRequests=1
+          input=/tmp/fullcmc/device1.p10
+          output=/tmp/fullcmc/device1-cmc.req
+          CMCEOF'
+
+          # Generate signed CMC request
+          docker exec pki CMCRequest /tmp/fullcmc/user-cmc.cfg
+
+          # Submit to fullcmc endpoint
+          docker exec pki curl --cacert ca_signing.crt \
+              --cert /tmp/fullcmc/user.crt \
+              --key /tmp/fullcmc/user.key \
+              -H "Content-Type: application/pkcs7-mime; smime-type=CMC-request" \
+              --data-binary @/tmp/fullcmc/device1-cmc.req \
+              -s -o /tmp/fullcmc/device1-resp.b64 \
+              -w '%{http_code}' \
+              https://pki.example.com:8443/.well-known/est/fullcmc | tee output
+
+          # Verify HTTP 200
+          grep -q 200 output
+
+          # Verify issued certificate
+          docker exec pki openssl base64 -d \
+              -in /tmp/fullcmc/device1-resp.b64 \
+              -out /tmp/fullcmc/device1-resp.der
+          docker exec pki openssl pkcs7 -inform DER \
+              -in /tmp/fullcmc/device1-resp.der \
+              -print_certs -quiet \
+              -out /tmp/fullcmc/device1-cert.pem
+          docker exec pki openssl x509 \
+              -in /tmp/fullcmc/device1-cert.pem -subject -noout | tee actual
+
+          echo "subject=CN=EST NonAgent User" > expected
+          diff expected actual
+
+      - name: Test non-agent enrollment with mismatched subject
+        run: |
+          # Create CSR with DIFFERENT subject (Guide Step 22)
+          docker exec pki openssl req -newkey rsa:2048 -nodes \
+              -keyout /tmp/fullcmc/device2.key \
+              -out /tmp/fullcmc/device2.csr \
+              -subj "/CN=Different Subject Not Allowed"
+
+          docker exec pki bash -c \
+              'openssl req -in /tmp/fullcmc/device2.csr -outform der | \
+               openssl base64 -out /tmp/fullcmc/device2.p10'
+
+          docker exec pki bash -c 'cat > /tmp/fullcmc/user-mismatch-cmc.cfg << CMCEOF
+          dbdir=/tmp/fullcmc/nssdb-user
+          password=Secret.123
+          tokenname=internal
+          nickname=user
+          format=pkcs10
+          numRequests=1
+          input=/tmp/fullcmc/device2.p10
+          output=/tmp/fullcmc/device2-cmc.req
+          CMCEOF'
+
+          docker exec pki CMCRequest /tmp/fullcmc/user-mismatch-cmc.cfg
+
+          docker exec pki curl --cacert ca_signing.crt \
+              --cert /tmp/fullcmc/user.crt \
+              --key /tmp/fullcmc/user.key \
+              -H "Content-Type: application/pkcs7-mime; smime-type=CMC-request" \
+              --data-binary @/tmp/fullcmc/device2-cmc.req \
+              -s -o /tmp/fullcmc/device2-resp.b64 \
+              -w '%{http_code}' \
+              https://pki.example.com:8443/.well-known/est/fullcmc | tee output
+
+          # Should NOT return 200 - non-agent cannot request mismatched subject
+          ! grep -q 200 output
+
+      - name: Test agent enrollment with any subject
+        run: |
+          # Create CSR with arbitrary subject (Guide Step 23)
+          docker exec pki openssl req -newkey rsa:2048 -nodes \
+              -keyout /tmp/fullcmc/device3.key \
+              -out /tmp/fullcmc/device3.csr \
+              -subj "/CN=Any Device Name"
+
+          docker exec pki bash -c \
+              'openssl req -in /tmp/fullcmc/device3.csr -outform der | \
+               openssl base64 -out /tmp/fullcmc/device3.p10'
+
+          docker exec pki bash -c 'cat > /tmp/fullcmc/agent-cmc.cfg << CMCEOF
+          dbdir=/tmp/fullcmc/nssdb-agent
+          password=Secret.123
+          tokenname=internal
+          nickname=agent
+          format=pkcs10
+          numRequests=1
+          input=/tmp/fullcmc/device3.p10
+          output=/tmp/fullcmc/device3-cmc.req
+          CMCEOF'
+
+          docker exec pki CMCRequest /tmp/fullcmc/agent-cmc.cfg
+
+          docker exec pki curl --cacert ca_signing.crt \
+              --cert /tmp/fullcmc/agent.crt \
+              --key /tmp/fullcmc/agent.key \
+              -H "Content-Type: application/pkcs7-mime; smime-type=CMC-request" \
+              --data-binary @/tmp/fullcmc/device3-cmc.req \
+              -s -o /tmp/fullcmc/device3-resp.b64 \
+              -w '%{http_code}' \
+              https://pki.example.com:8443/.well-known/est/fullcmc | tee output
+
+          # Should succeed - agent can request any subject
+          grep -q 200 output
+
+          # Verify issued certificate subject
+          docker exec pki openssl base64 -d \
+              -in /tmp/fullcmc/device3-resp.b64 \
+              -out /tmp/fullcmc/device3-resp.der
+          docker exec pki openssl pkcs7 -inform DER \
+              -in /tmp/fullcmc/device3-resp.der \
+              -print_certs -quiet \
+              -out /tmp/fullcmc/device3-cert.pem
+          docker exec pki openssl x509 \
+              -in /tmp/fullcmc/device3-cert.pem -subject -noout | tee actual
+
+          echo "subject=CN=Any Device Name" > expected
+          diff expected actual
+
+      # Teardown
+      - name: Remove EST
+        run: docker exec pki pkidestroy -i pki-tomcat -s EST -v
+
+      - name: Remove CA
+        run: docker exec pki pkidestroy -i pki-tomcat -s CA -v
+
+      # Diagnostics (always run)
+      - name: Check DS server systemd journal
+        if: always()
+        run: |
+          docker exec ds journalctl -x --no-pager -u dirsrv@localhost.service
+
+      - name: Check DS container logs
+        if: always()
+        run: |
+          docker logs ds
+
+      - name: Check PKI server systemd journal
+        if: always()
+        run: |
+          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check CA debug log
+        if: always()
+        run: |
+          docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check EST debug log
+        if: always()
+        run: |
+          docker exec pki find /var/lib/pki/pki-tomcat/logs/est -name "debug.*" -exec cat {} \;
