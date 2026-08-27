@@ -100,7 +100,7 @@ public abstract class ACLFilter extends HttpFilter {
                             String keyRegex = key.replace("{}", "([^/]+)");
                             return aclSearch.matches(keyRegex);
                         } ).
-                        sorted(Comparator.reverseOrder()).
+                        sorted(Comparator.naturalOrder()).
                         findFirst().
                         orElse(null);
                 if (aclKey != null) {
