@@ -23,14 +23,14 @@ grant codeBase "file:${catalina.home}/bin/tomcat-juli.jar" {
         permission java.io.FilePermission "/usr/share/pki/-", "read";
 
         // Allow Tomcat JULI to generate subsystem log files.
-        permission java.io.FilePermission "${catalina.base}/logs/-", "read,write";
+        permission java.io.FilePermission "${catalina.base}/logs/-", "read,write,delete";
 };
 
 // If log rotate is initiated by a log call using slf4j-impl
 // the library need to have read/write access to log folder or
 // the policy will denied access and the rotation fails
 grant codeBase "file:/usr/share/java/slf4j/-" {
-        permission java.io.FilePermission "${catalina.base}/logs/-", "read,write";
+        permission java.io.FilePermission "${catalina.base}/logs/-", "read,write,delete";
 };
 
 // According to /etc/tomcat/catalina.policy:
