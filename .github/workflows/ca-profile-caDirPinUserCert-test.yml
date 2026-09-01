@@ -249,13 +249,13 @@ jobs:
               --subject "UID=testuser2" \
               --csr $SHARED/testuser2.csr
 
-          # retrieve request template
+          # retrieve request template using REST API v1
           docker exec pki curl \
               -k \
               -s \
               -H "Content-Type: application/xml" \
               -H "Accept: application/xml" \
-              https://pki.example.com:8443/ca/v2/certrequests/profiles/caDirPinUserCert \
+              https://pki.example.com:8443/ca/v1/certrequests/profiles/caDirPinUserCert \
               | xmllint --format - \
               | tee testuser2-request.xml
 
@@ -291,7 +291,7 @@ jobs:
 
           cat testuser2-request.xml
 
-          # submit request
+          # submit request using REST API v1
           docker exec pki curl \
               -k \
               -s \
@@ -299,18 +299,18 @@ jobs:
               -d @$SHARED/testuser2-request.xml \
               -H "Content-Type: application/xml" \
               -H "Accept: application/xml" \
-              https://pki.example.com:8443/ca/v2/certrequests \
+              https://pki.example.com:8443/ca/v1/certrequests \
               | xmllint --format - \
               | tee testuser2-response.xml
           CERT_ID=$(xmlstarlet sel -t -v '/CertRequestInfos/CertRequestInfo/certID' testuser2-response.xml)
 
-          # retrieve cert
+          # retrieve cert using REST API v1
           docker exec pki curl \
               -k \
               -s \
               -H "Content-Type: application/xml" \
               -H "Accept: application/xml" \
-              https://pki.example.com:8443/ca/v2/certs/$CERT_ID \
+              https://pki.example.com:8443/ca/v1/certs/$CERT_ID \
               | xmllint --format - \
               | tee testuser2-cert.xml
 
@@ -340,7 +340,7 @@ jobs:
               --subject "UID=testuser3" \
               --csr $SHARED/testuser3.csr
 
-          # retrieve request template
+          # retrieve request template using REST API v2
           docker exec pki curl \
               -k \
               -s \
@@ -372,7 +372,7 @@ jobs:
 
           cat testuser3-request.json
 
-          # submit request
+          # submit request using REST API v2
           docker exec pki curl \
               -k \
               -s \
@@ -385,7 +385,7 @@ jobs:
               | tee testuser3-response.json
           CERT_ID=$(jq -j '.entries[].certId' testuser3-response.json)
 
-          # retrieve cert
+          # retrieve cert using REST API v2
           docker exec pki curl \
               -k \
               -s \
