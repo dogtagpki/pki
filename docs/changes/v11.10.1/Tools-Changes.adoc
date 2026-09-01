@@ -1,0 +1,8 @@
+= Tools Changes =
+
+== Changes in hsmCompatVerify ==
+
+The `hsmCompatVerifyServ` and `hsmCompatVerifyClnt` tools now support
+post-quantum cryptography (PQC). Both tools accept the `--pqc` flag to
+enable ML-DSA (FIPS 204) and ML-KEM (FIPS 203) workflows for HSM
+compatibility verification of key archival and recovery operations.
