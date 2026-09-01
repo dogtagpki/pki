@@ -13,6 +13,23 @@ jobs:
     env:
       SHARED: /tmp/workdir/pki
     steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+
+          # Docker is required for build-push-action.
+          # TODO: Enable SSL without build-push-action.
+          # sudo apt-get -y purge --auto-remove docker-ce-cli
+          # sudo apt-get -y install podman-docker
+
+          # use json-file log driver to avoid the following issue:
+          # https://github.com/containers/conmon/issues/348
+          mkdir -p ~/.config/containers
+          cat > ~/.config/containers/containers.conf << EOF
+          [containers]
+          log_driver = "json-file"
+          EOF
+
       - name: Clone repository
         uses: actions/checkout@v7
 
@@ -127,11 +144,14 @@ jobs:
 
       - name: Deploy postgresql
         run: |
-          docker run -d --name postgresql \
+          docker run \
+              --name postgresql \
               --hostname postgresql.example.com \
               -e POSTGRES_PASSWORD=mysecretpassword \
               -e POSTGRES_USER=est \
-              postgres-ssl -c ssl=on \
+              --detach \
+              postgres-ssl \
+              -c ssl=on \
               -c ssl_cert_file=/var/lib/postgresql/server.crt \
               -c ssl_key_file=/var/lib/postgresql/server.key
 

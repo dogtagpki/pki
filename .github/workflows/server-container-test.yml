@@ -21,6 +21,14 @@ jobs:
           sudo apt-get -y purge --auto-remove docker-ce-cli
           sudo apt-get -y install podman-docker
 
+          # use json-file log driver to avoid the following issue:
+          # https://github.com/containers/conmon/issues/348
+          mkdir -p ~/.config/containers
+          cat > ~/.config/containers/containers.conf << EOF
+          [containers]
+          log_driver = "json-file"
+          EOF
+
       - name: Clone repository
         uses: actions/checkout@v7
 
@@ -211,6 +219,11 @@ jobs:
           docker exec client pki \
               -U https://pki.example.com:8443 \
               info
+
+      - name: Check client container logs
+        if: always()
+        run: |
+          docker logs client 2>&1
 
       - name: Check server container logs
         if: always()

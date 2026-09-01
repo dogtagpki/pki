@@ -13,6 +13,23 @@ jobs:
     env:
       SHARED: /tmp/workdir/pki
     steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+
+          # Docker is required for build-push-action.
+          # TODO: Create old PKI CA container without build-push-action.
+          # sudo apt-get -y purge --auto-remove docker-ce-cli
+          # sudo apt-get -y install podman-docker
+
+          # use json-file log driver to avoid the following issue:
+          # https://github.com/containers/conmon/issues/348
+          mkdir -p ~/.config/containers
+          cat > ~/.config/containers/containers.conf << EOF
+          [containers]
+          log_driver = "json-file"
+          EOF
+
       - name: Clone repository
         uses: actions/checkout@v7
 
@@ -462,7 +479,7 @@ jobs:
           EOF
 
       - name: Build PKI CA 11.4 image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           tags: pki-ca:11.4
