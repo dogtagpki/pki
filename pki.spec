@@ -158,17 +158,12 @@ ExcludeArch: i686
 %bcond_without meta
 %bcond_without tests
 %bcond_without debug
+
+# Build API v1 unless --without apiv1 is specified.
 %bcond_without apiv1
 
 # Don't build console unless --with console is specified.
 %bcond_with console
-
-# Build API v1 if not excluded
-%if %{with apiv1}
-%global build_api_v1 1
-%else
-%global build_api_v1 0
-%endif
 
 %if ! %{with debug}
 %define debug_package %{nil}
@@ -276,7 +271,7 @@ BuildRequires:    mvn(com.fasterxml.jackson.core:jackson-core)
 BuildRequires:    mvn(com.fasterxml.jackson.core:jackson-databind)
 BuildRequires:    mvn(com.fasterxml.jackson.module:jackson-module-jaxb-annotations)
 
-%if %{build_api_v1}
+%if %{with apiv1}
 BuildRequires:    mvn(com.fasterxml.jackson.jaxrs:jackson-jaxrs-base)
 BuildRequires:    mvn(com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider)
 BuildRequires:    mvn(org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.0_spec)
@@ -611,7 +606,7 @@ Requires:         mvn(com.fasterxml.jackson.core:jackson-annotations)
 Requires:         mvn(com.fasterxml.jackson.core:jackson-core)
 Requires:         mvn(com.fasterxml.jackson.core:jackson-databind)
 
-%if %{build_api_v1}
+%if %{with apiv1}
 Requires:         mvn(com.fasterxml.jackson.jaxrs:jackson-jaxrs-base)
 Requires:         mvn(com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider)
 Requires:         mvn(org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.0_spec)
@@ -644,7 +639,7 @@ Provides:         bundled(jackson-core)
 Provides:         bundled(jackson-databind)
 Provides:         bundled(jackson-modules-base)
 
-%if %{build_api_v1}
+%if %{with apiv1}
 Provides:         bundled(jackson-jaxrs-providers)
 Provides:         bundled(jackson-jaxrs-json-provider)
 Provides:         bundled(jboss-jaxrs-2.0-api)
@@ -725,7 +720,7 @@ Requires:         python3-policycoreutils
 
 Requires:         selinux-policy-targeted >= 3.13.1-159
 
-%if %{build_api_v1}
+%if %{with apiv1}
 %if %{with runtime_deps}
 Requires:         mvn(org.jboss.resteasy:resteasy-servlet-initializer)
 %else
@@ -1146,7 +1141,7 @@ then
     JAXB_API_VERSION=$(ls jakarta.xml.bind-api-*.jar | sed 's/^jakarta\.xml\.bind-api-\(.*\)\.jar$/\1/')
     JACKSON_ANNOTATIONS_VERSION=$(ls jackson-annotations-*.jar | sed 's/^jackson-annotations-\(.*\)\.jar$/\1/')
     JACKSON_CORE_VERSION=$(ls jackson-core-*.jar | sed 's/^jackson-core-\(.*\)\.jar$/\1/')
-%if %{build_api_v1}
+%if %{with apiv1}
     JAXRS_VERSION=$(ls jboss-jaxrs-api_2.0_spec-*.jar | sed 's/^jboss-jaxrs-api_2\.0_spec-\(.*\)\.jar$/\1/')
     JBOSS_LOGGING_VERSION=$(ls jboss-logging-*.jar| sed 's/^jboss-logging-\(.*\)\.jar$/\1/')
     RESTEASY_VERSION=$(ls resteasy-jaxrs-*.jar | sed 's/^resteasy-jaxrs-\(.*\)\.jar$/\1/')
@@ -1173,7 +1168,7 @@ else
     JAXB_API_VERSION=$(rpm -q jaxb-api | sed -n 's/^jaxb-api-\([^-]*\)-.*$/\1/p')
     JACKSON_ANNOTATIONS_VERSION=$(rpm -q jackson-annotations | sed -n 's/^jackson-annotations-\([^-]*\)-.*$/\1/p')
     JACKSON_CORE_VERSION=$(rpm -q jackson-core | sed -n 's/^jackson-core-\([^-]*\)-.*$/\1/p')
-%if %{build_api_v1}
+%if %{with apiv1}
     JAXRS_VERSION=$(rpm -q jboss-jaxrs-2.0-api | sed -n 's/^jboss-jaxrs-2.0-api-\([^-]*\)-.*$/\1.Final/p')
     JBOSS_LOGGING_VERSION=$(rpm -q jboss-logging | sed -n 's/^jboss-logging-\([^-]*\)-.*$/\1.Final/p')
     RESTEASY_VERSION=$(rpm -q pki-resteasy-core | sed -n 's/^pki-resteasy-core-\([^-]*\)-.*$/\1.Final/p')
@@ -1205,7 +1200,7 @@ else
     cp /usr/share/java/jackson-core.jar jackson-core-$JACKSON_CORE_VERSION.jar
     cp /usr/share/java/jackson-databind.jar jackson-databind-$JACKSON_CORE_VERSION.jar
     cp /usr/share/java/jackson-modules/jackson-module-jaxb-annotations.jar jackson-module-jaxb-annotations-$JACKSON_CORE_VERSION.jar
-%if %{build_api_v1}
+%if %{with apiv1}
     cp /usr/share/java/jackson-jaxrs-providers/jackson-jaxrs-base.jar jackson-jaxrs-base-$JACKSON_CORE_VERSION.jar
     cp /usr/share/java/jackson-jaxrs-providers/jackson-jaxrs-json-provider.jar jackson-jaxrs-json-provider-$JACKSON_CORE_VERSION.jar
     cp /usr/share/java/jboss-jaxrs-2.0-api.jar jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar
@@ -1218,7 +1213,7 @@ else
     popd
 fi
 
-%if %{build_api_v1}
+%if %{with apiv1}
 if [ ! -d base/server/lib ]
 then
     mkdir -p base/server/lib
@@ -1331,7 +1326,7 @@ then
         jackson-module-jaxb-annotations-$JACKSON_CORE_VERSION.jar \
         jackson-module-jaxb-annotations-$JACKSON_CORE_VERSION.jar
 
-%if %{build_api_v1}
+%if %{with apiv1}
     # migrate javax.ws.rs to jakarta.ws.rs
     # this also renames org.jboss.spec.javax.ws.r into org.jboss.spec.jakarta.ws.rs
     jar tvf jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar \
@@ -1409,7 +1404,7 @@ then
     popd
 fi
 
-%if %{build_api_v1}
+%if %{with apiv1}
 if [ -d base/server/lib ]
 then
     # migrate server libraries
@@ -1432,7 +1427,7 @@ fi
 %endif
 
 %if %{without runtime_deps}
-%if %{build_api_v1}
+%if %{with apiv1}
 if [ -d base/common/lib ]
 then
     # install migrated common libraries
@@ -2075,7 +2070,7 @@ fi
 # Remove world access from existing installation logs
 find /var/log/pki -maxdepth 1 -type f -exec chmod o-rwx {} \;
 
-%if ! %{build_api_v1}
+%if ! %{with apiv1}
 # Remove v1 API JAX-RS/RESTEasy JARs from existing instances when v1 API is dropped
 if [ -d %{_datadir}/pki/server/common/lib ]; then
     rm -f %{_datadir}/pki/server/common/lib/jackson-jaxrs-base-*.jar
