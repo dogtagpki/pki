@@ -1,5 +1,5 @@
 name: CA with caDirUserCert profile
-# https://github.com/dogtagpki/pki/wiki/Certificate-Enrollment-with-Directory-Authenticated-Profile
+# https://github.com/dogtagpki/pki/wiki/Setting-Up-Certificate-Enrollment-with-Directory-Authentication
 
 on: workflow_call
 
@@ -43,8 +43,7 @@ jobs:
               --password=Secret.123 \
               ds
 
-      # https://github.com/dogtagpki/pki/wiki/Configuring-Directory-Authenticated-Certificate-Profiles
-      - name: Prepare LDAP user
+      - name: Add LDAP users
         run: |
           docker exec -i ds ldapadd \
               -H ldap://ds.example.com:3389 \
@@ -116,12 +115,14 @@ jobs:
           docker exec pki pki-server ca-config-set auths.instance.UserDirEnrollment.ldap.ldapconn.port 3389
           docker exec pki pki-server ca-config-set auths.instance.UserDirEnrollment.ldap.ldapconn.secureConn false
 
-          # enable caDirUserCert profile
+      - name: Enable caDirUserCert profile
+        run: |
           docker exec pki sed -i \
               -e "s/^\(enable\)=.*/\1=true/" \
               /var/lib/pki/pki-tomcat/ca/profiles/ca/caDirUserCert.cfg
 
-          # restart CA subsystem
+      - name: Restart CA subsystem
+        run: |
           docker exec pki pki-server ca-redeploy --wait
 
       - name: Set up CA admin

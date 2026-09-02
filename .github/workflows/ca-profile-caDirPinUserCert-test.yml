@@ -1,5 +1,5 @@
 name: CA with caDirPinUserCert profile
-# https://github.com/dogtagpki/pki/wiki/Certificate-Enrollment-with-PIN-Authenticated-Profile
+# https://github.com/dogtagpki/pki/wiki/Setting-Up-Certificate-Enrollment-with-PIN-Authentication
 
 on: workflow_call
 
@@ -105,7 +105,7 @@ jobs:
               --network-alias=pki.example.com \
               pki
 
-      - name: Set up LDAP schema and ACI attrs
+      - name: Set up LDAP schema and ACI attributes
         run: |
           # configure setpin.conf
           docker exec pki sed \
@@ -118,10 +118,51 @@ jobs:
               -e "s/^basedn=.*$/basedn=ou=people,dc=example,dc=com/" \
               /usr/share/pki/tools/setpin.conf | tee setpin.conf
 
-          # run setpin to set up LDAP schema and ACI attrs
+          # run setpin to set up LDAP schema and ACI attributes
           docker exec pki setpin optfile=$SHARED/setpin.conf
 
-          # get ACI attrs
+      - name: Check pin attribute type
+        run: |
+          docker exec pki ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b cn=schema \
+              -o ldif_wrap=no \
+              -LLL \
+              attributeTypes \
+              | tee output
+
+          sed -n "/^attributeTypes:\s*(\s*\S\+\s*NAME\s*'pin'/p" output > actual
+
+          cat > expected << EOF
+          attributeTypes: ( pin-oid NAME 'pin' DESC 'User Defined Attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 SINGLE-VALUE X-ORIGIN ( 'custom for setpin' 'user defined' ) )
+          EOF
+
+          diff expected actual
+
+      - name: Check pinPerson object class
+        run: |
+          docker exec pki ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b cn=schema \
+              -o ldif_wrap=no \
+              -LLL \
+              objectClasses \
+              | tee output
+
+          sed -n "/^objectClasses:\s*(\s*\S\+\s*NAME\s*'pinPerson'/p" output > actual
+
+          cat > expected << EOF
+          objectClasses: ( 2.16.840.1.117370.999.1.2.10 NAME 'pinPerson' DESC 'User Defined ObjectClass' SUP top STRUCTURAL MAY ( aci $ pin ) X-ORIGIN 'user defined' )
+          EOF
+
+          diff expected actual
+
+      - name: Check ACI attributes
+        run: |
           docker exec pki ldapsearch \
               -H ldap://ds.example.com:3389 \
               -D "cn=Directory Manager" \
@@ -131,7 +172,8 @@ jobs:
               -t \
               -o ldif_wrap=no \
               -LLL \
-              aci | tee output
+              aci \
+              | tee output
 
           # there should be 2 old ACI attrs and 2 new ones
           cat > expected << EOF
@@ -142,6 +184,40 @@ jobs:
           EOF
 
           grep '^aci:' output > actual
+
+          diff expected actual
+
+      - name: Check PIN manager
+        run: |
+          docker exec pki ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b "uid=pinmanager,dc=example,dc=com" \
+              -s base \
+              -t \
+              -o ldif_wrap=no \
+              -LLL \
+              | tee output
+
+          cat > expected << EOF
+          dn: uid=pinmanager,dc=example,dc=com
+          objectClass: person
+          objectClass: organizationalPerson
+          objectClass: inetOrgPerson
+          objectClass: top
+          uid: pinmanager
+          cn: PIN Manager
+          sn: Manager
+          userPassword:: XXXXX
+          EOF
+
+          # normalize output
+          sed \
+              -e '/^$/d' \
+              -e 's/^\(userPassword\):: .*$/\1:: XXXXX/' \
+              output > actual
+
           diff expected actual
 
       - name: Generate user PINs
@@ -176,21 +252,22 @@ jobs:
               -D pki_ds_url=ldap://ds.example.com:3389 \
               -v
 
-      - name: Configure caDirPinUserCert profile
+      - name: Configure PinDirEnrollment
         run: |
-          # configure PIN-based authentication
           docker exec pki pki-server ca-config-set auths.instance.PinDirEnrollment.pluginName UidPwdPinDirAuth
           docker exec pki pki-server ca-config-set auths.instance.PinDirEnrollment.ldap.basedn ou=people,dc=example,dc=com
           docker exec pki pki-server ca-config-set auths.instance.PinDirEnrollment.ldap.ldapauth.authtype BasicAuth
           docker exec pki pki-server ca-config-set auths.instance.PinDirEnrollment.ldap.ldapconn.host ds.example.com
           docker exec pki pki-server ca-config-set auths.instance.PinDirEnrollment.ldap.ldapconn.port 3389
 
-          # enable caDirPinUserCert profile
+      - name: Enable caDirPinUserCert profile
+        run: |
           docker exec pki sed -i \
               -e "s/^\(enable\)=.*/\1=true/" \
               /var/lib/pki/pki-tomcat/ca/profiles/ca/caDirPinUserCert.cfg
 
-          # restart CA subsystem
+      - name: Restart CA subsystem
+        run: |
           docker exec pki pki-server ca-redeploy --wait
 
       - name: Check CA admin
