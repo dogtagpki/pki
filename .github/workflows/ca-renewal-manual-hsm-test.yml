@@ -150,18 +150,22 @@ jobs:
 
           # get keys in internal token
           echo "Secret.123" > password.internal
-          docker exec pki certutil \
-              -K \
+          docker exec pki certutil -K \
               -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f $SHARED/password.internal | tee keys.internal.orig
+              -f $SHARED/password.internal \
+              | sed -n 's/<.*> \+\(\S\+\) \+\(\S\+\) \+\(.*\)/\1 \2 \3/p' \
+              | sort \
+              | tee keys.internal.orig
 
           # get keys in HSM
           echo "Secret.HSM" > password.HSM
-          docker exec pki certutil \
-              -K \
+          docker exec pki certutil -K \
               -d /var/lib/pki/pki-tomcat/conf/alias \
               -f $SHARED/password.HSM \
-              -h HSM | tee keys.HSM.orig
+              -h HSM \
+              | sed -n 's/<.*> \+\(\S\+\) \+\(\S\+\) \+\(.*\)/\1 \2 \3/p' \
+              | sort \
+              | tee keys.HSM.orig
 
       - name: Run PKI healthcheck
         run: |
@@ -445,18 +449,24 @@ jobs:
           docker exec pki pki-server cert-find
 
           # get keys in internal token
-          docker exec pki certutil \
-              -K -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f $SHARED/password.internal | tee keys.internal.after
+          docker exec pki certutil -K \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f $SHARED/password.internal \
+              | sed -n 's/<.*> \+\(\S\+\) \+\(\S\+\) \+\(.*\)/\1 \2 \3/p' \
+              | sort \
+              | tee keys.internal.after
 
           # the keys should not change
           diff keys.internal.orig keys.internal.after
 
           # get keys in HSM
-          docker exec pki certutil \
-              -K -d /var/lib/pki/pki-tomcat/conf/alias \
+          docker exec pki certutil -K \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
               -f $SHARED/password.HSM \
-              -h HSM | tee keys.HSM.after
+              -h HSM \
+              | sed -n 's/<.*> \+\(\S\+\) \+\(\S\+\) \+\(.*\)/\1 \2 \3/p' \
+              | sort \
+              | tee keys.HSM.after
 
           # the keys should not change
           diff keys.HSM.orig keys.HSM.after

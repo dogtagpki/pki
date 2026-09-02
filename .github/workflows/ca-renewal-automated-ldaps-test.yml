@@ -197,9 +197,12 @@ jobs:
         run: |
           # get keys in internal token
           echo "Secret.123" > password.txt
-          docker exec pki certutil \
-              -K -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f $SHARED/password.txt | tee keys.orig
+          docker exec pki certutil -K \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f $SHARED/password.txt \
+              | sed -n 's/<.*> \+\(\S\+\) \+\(\S\+\) \+\(.*\)/\1 \2 \3/p' \
+              | sort \
+              | tee keys.orig
 
       - name: Check system certs
         run: |
@@ -345,9 +348,12 @@ jobs:
       - name: Check cert keys after renewal
         run: |
           # get keys
-          docker exec pki certutil \
-              -K -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f $SHARED/password.txt | tee keys.after
+          docker exec pki certutil -K \
+              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -f $SHARED/password.txt \
+              | sed -n 's/<.*> \+\(\S\+\) \+\(\S\+\) \+\(.*\)/\1 \2 \3/p' \
+              | sort \
+              | tee keys.after
 
           # the keys should not change
           diff keys.orig keys.after
