@@ -1,0 +1,18 @@
+= Server Changes =
+
+== ML-KEM Key Archival and Recovery in KRA ==
+
+The KRA now supports ML-KEM (FIPS 203) key archival and recovery.
+Transport and storage certificates may use ML-KEM-512, ML-KEM-768,
+or ML-KEM-1024. Other KRA system certificates (signing, audit signing,
+subsystem, SSL server) use ML-DSA (FIPS 204).
+
+=== Installation via pkispawn ===
+
+A new sample deployment configuration is provided at
+`/usr/share/pki/server/examples/installation/kra-pqc.cfg`.
+
+=== Key Enrollment with Archival ===
+
+The `CRMFPopClient` tool can be used to generate an ML-KEM certificate
+enrollment request with the key archival option.
