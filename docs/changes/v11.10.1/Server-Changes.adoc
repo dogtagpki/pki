@@ -16,3 +16,6 @@ A new sample deployment configuration is provided at
 
 The `CRMFPopClient` tool can be used to generate an ML-KEM certificate
 enrollment request with the key archival option.
+
+See the CRMFPopClient section in the Tools Changes document for important
+information about Proof of Possession for ML-KEM enrollment requests.
