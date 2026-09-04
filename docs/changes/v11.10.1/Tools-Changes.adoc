@@ -6,3 +6,18 @@ The `hsmCompatVerifyServ` and `hsmCompatVerifyClnt` tools now support
 post-quantum cryptography (PQC). Both tools accept the `--pqc` flag to
 enable ML-DSA (FIPS 204) and ML-KEM (FIPS 203) workflows for HSM
 compatibility verification of key archival and recovery operations.
+
+== ML-KEM Support in CRMFPopClient ==
+
+The `CRMFPopClient` tool can now generate ML-KEM (FIPS 203) certificate
+enrollment requests, including requests that use the key archival option.
+
+NOTE: ML-KEM keys cannot sign, so `CRMFPopClient` automatically uses
+`POP_NONE` when generating an ML-KEM request (including requests used for
+KRA key archival). The request therefore includes no Proof of Possession,
+and the CA cannot verify that the requester owns the ML-KEM private key.
+Run `CRMFPopClient` and submit these requests only from a trusted,
+authenticated environment (for example, a secure enrollment portal or an
+operator-controlled host on a trusted network). Support for Proof of
+Possession with ML-KEM keys is planned and will be added in a future
+release.
