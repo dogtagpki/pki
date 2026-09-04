@@ -32,3 +32,8 @@ jobs:
     name: EST on standalone instance with provided certificates
     needs: build
     uses: ./.github/workflows/est-standalone-test.yml
+
+  est-fullcmc-test:
+    name: EST with fullcmc
+    needs: build
+    uses: ./.github/workflows/est-fullcmc-test.yml
