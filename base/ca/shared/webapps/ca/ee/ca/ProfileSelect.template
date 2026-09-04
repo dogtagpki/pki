@@ -111,6 +111,15 @@ if (isNaN(majorVersion)) {
 
 function passwdValidate()
 {
+    var keySizeSelect = document.getElementById("keySizeId");
+    if (keySizeSelect) {
+        var idx = keySizeSelect.selectedIndex;
+        var opt = (idx >= 0) ? keySizeSelect.options[idx] : null;
+        if (!opt || opt.disabled || !String(opt.value).trim()) {
+            alert("No allowed key size is configured for this profile.");
+            return false;
+        }
+    }
 
     if (document.forms[0].serverSideKeygenP12Passwd.value != document.forms[0].p12PasswordAgain.value) {
         alert("Passwords do not match");
@@ -207,6 +216,15 @@ function getKeyTypesOptionsForKeyGen() {
     }
 
     var keyTypesRet = keyTypes.split(",");
+    var keyTypesTrimmed = [];
+    for (var kt = 0; kt < keyTypesRet.length; kt++) {
+      var tok = String(keyTypesRet[kt]).trim();
+      if (tok) {
+        keyTypesTrimmed.push(tok);
+      }
+    }
+    keyTypesTrimmed.sort(function(a, b) { return a.localeCompare(b); });
+    keyTypesRet = keyTypesTrimmed;
     var options = "";
     var optionLabel = "";
     var selected = "";
@@ -299,12 +317,137 @@ function translateCurveName (name)
   return translated;
 }
 
+// Known strengths used when allowedKeys.<alg>.ALL=true (UI cannot offer "any" size).
+function knownKeyStrengthsForAlgorithm(algType) {
+  if (algType == "RSA") {
+    return ["1024", "2048", "3072", "4096"];
+  }
+  if (algType == "EC") {
+    return ["nistp256", "nistp384", "nistp521"];
+  }
+  if (algType == "MLDSA") {
+    return ["44", "65", "87"];
+  }
+  if (algType == "MLKEM") {
+    return ["512", "768", "1024"];
+  }
+  return [];
+}
+
+// Mirrors KeyConstraint.isAllowedKeyStrengthForAlgorithm: start from keyParameters
+// tokens, then apply constraint.params.allowedKeys.* overrides (leaf split on first '.').
+// allowedKeys.<alg>.ALL=true is a wildcard (expand to known strengths); specific
+// true/false still add/remove individual strengths. "ALL" is never rendered as a size.
+function applyAllowedKeysOverrides(baseTokens, allowedKeysMap, algName) {
+  var allowed = [];
+  var inSet = {};
+
+  function addToken(tok) {
+    if (tok && !inSet[tok]) {
+      inSet[tok] = true;
+      allowed.push(tok);
+    }
+  }
+  function removeToken(tok) {
+    if (inSet[tok]) {
+      inSet[tok] = false;
+      var na = [];
+      for (var x = 0; x < allowed.length; x++) {
+        if (allowed[x] != tok) {
+          na.push(allowed[x]);
+        }
+      }
+      allowed = na;
+    }
+  }
+
+  var b = 0;
+  if (baseTokens) {
+    for (b = 0; b < baseTokens.length; b++) {
+      addToken(String(baseTokens[b]).trim());
+    }
+  }
+  if (!algName || !allowedKeysMap) {
+    return allowed;
+  }
+  var algType = String(algName).toUpperCase();
+  var overrides = allowedKeysMap[algType];
+  if (!overrides) {
+    return allowed;
+  }
+
+  var allTrue = false;
+  for (var allKey in overrides) {
+    if (!overrides.hasOwnProperty(allKey)) {
+      continue;
+    }
+    if (String(allKey).toUpperCase() != "ALL") {
+      continue;
+    }
+    var allPv = (overrides[allKey] == null) ? "" : String(overrides[allKey]).trim();
+    if (allPv.toLowerCase() == "true") {
+      allTrue = true;
+    }
+  }
+  if (allTrue) {
+    var known = knownKeyStrengthsForAlgorithm(algType);
+    for (var k = 0; k < known.length; k++) {
+      addToken(known[k]);
+    }
+  }
+
+  for (var keyValue in overrides) {
+    if (!overrides.hasOwnProperty(keyValue)) {
+      continue;
+    }
+    if (String(keyValue).toUpperCase() == "ALL") {
+      continue;
+    }
+    var propertyValue = overrides[keyValue];
+    var pv = (propertyValue == null) ? "" : String(propertyValue).trim();
+    if (pv.toLowerCase() == "true") {
+      addToken(keyValue);
+    } else if (pv.toLowerCase() == "false") {
+      removeToken(keyValue);
+    }
+  }
+  return allowed;
+}
+
+// Order key sizes / ML-DSA parameter sets numerically; EC curves alphabetically.
+function sortLengthsOrCurvesList(keyType, arr) {
+  if (!arr || arr.length < 2) {
+    return arr;
+  }
+  var out = arr.slice();
+  if (keyType == "EC") {
+    out.sort(function(a, b) {
+      return String(a).trim().localeCompare(String(b).trim());
+    });
+  } else {
+    out.sort(function(a, b) {
+      var sa = String(a).trim();
+      var sb = String(b).trim();
+      var na = parseInt(sa, 10);
+      var nb = parseInt(sb, 10);
+      if (!isNaN(na) && !isNaN(nb)) {
+        return na - nb;
+      }
+      return sa.localeCompare(sb);
+    });
+  }
+  return out;
+}
+
 function keyLengthsCurvesOptions (keyPurpose)
 {
   var keyType = "RSA";
   var options = "";
   var lengthsOrCurves = null;
   var keyLengthsCurves = "";
+  var MLDSA_VALID = { "44": true, "65": true, "87": true };
+  var ALLOWED_KEYS_PREFIX = "allowedKeys.";
+  var allowedKeysMap = {};
 
   for (var i = 0; i < policySetListSet.length; i++) {
     for (var j = 0; j < policySetListSet[i].policySet.length; j++) {
@@ -325,7 +468,25 @@ function keyLengthsCurvesOptions (keyPurpose)
           if (keyPurpose.length == 0 || (keyPurpose.length > 0 && policySetListSet[i].setId.indexOf(keyPurpose) > -1)) {
               if (policySetListSet[i].policySet[j].constraintSet[k].name == "keyParameters") {
                   keyLengthsCurves = policySetListSet[i].policySet[j].constraintSet[k].value;
-                  lengthsOrCurves = keyLengthsCurves.split(",");
+                  if (keyLengthsCurves) {
+                    lengthsOrCurves = keyLengthsCurves.split(",");
+                  } else {
+                    lengthsOrCurves = [];
+                  }
+              }
+              var cname = policySetListSet[i].policySet[j].constraintSet[k].name;
+              if (cname && cname.length >= ALLOWED_KEYS_PREFIX.length
+                  && cname.substring(0, ALLOWED_KEYS_PREFIX.length).toLowerCase() == ALLOWED_KEYS_PREFIX.toLowerCase()) {
+                var leaf = cname.substring(ALLOWED_KEYS_PREFIX.length);
+                var us = leaf.indexOf(".");
+                if (us > 0 && us < leaf.length - 1) {
+                  var algType = leaf.substring(0, us).toUpperCase();
+                  var keyValue = leaf.substring(us + 1);
+                  if (!allowedKeysMap[algType]) {
+                    allowedKeysMap[algType] = {};
+                  }
+                  allowedKeysMap[algType][keyValue] = policySetListSet[i].policySet[j].constraintSet[k].value;
+                }
               }
           }
         }
@@ -335,6 +496,25 @@ function keyLengthsCurvesOptions (keyPurpose)
   if (isIE()) {
     keyType = "RSA";
   }
+
+  if (lengthsOrCurves == null) {
+    lengthsOrCurves = [];
+  }
+
+  lengthsOrCurves = applyAllowedKeysOverrides(lengthsOrCurves, allowedKeysMap, keyType);
+
+  if (keyType == "MLDSA") {
+    var mldsaFiltered = [];
+    for (var mf = 0; mf < lengthsOrCurves.length; mf++) {
+      var mv = String(lengthsOrCurves[mf]).trim();
+      if (MLDSA_VALID[mv]) {
+        mldsaFiltered.push(mv);
+      }
+    }
+    lengthsOrCurves = mldsaFiltered;
+  }
+
+  lengthsOrCurves = sortLengthsOrCurvesList(keyType, lengthsOrCurves);
 
   var value = 0;
   var l = 0;
@@ -360,7 +540,7 @@ function keyLengthsCurvesOptions (keyPurpose)
           } else {
               options += '<OPTION VALUE="' + value + '"';
           }
-          if (i == 0) {
+          if (l == 0) {
               options += ' SELECTED';
           }
           options += '>' + value;
@@ -368,15 +548,13 @@ function keyLengthsCurvesOptions (keyPurpose)
   }
 
   if (options.length == 0) {
-     if (keyType != "EC") {
-         options = '<OPTION VALUE=1024 SELECTED>1024';
-     } else {
-         if (isIE()) {
-             options = '<OPTION VALUE="ECDSA_P256">nistp256';
-         } else {
-             options = '<OPTION VALUE="nistp256">nistp256';
-         }
+     var placeholder = "No allowed key size";
+     if (keyType == "MLDSA") {
+         placeholder = "No allowed ML-DSA parameter";
+     } else if (keyType == "EC") {
+         placeholder = "No allowed curve";
      }
+     options = '<OPTION VALUE="" DISABLED SELECTED>' + placeholder + '</OPTION>';
   }
   //alert("options="+options);
 

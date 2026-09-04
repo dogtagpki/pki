@@ -77,10 +77,9 @@ jobs:
 
       - name: Configure caInternalAuthDRMstorageCert profile
         run: |
-          # allow ML-KEM-768
-          # NOTE: update this step once PR #5338 is merged
+          # allow ML-KEM-768 via allowedKeys (after RSA allowedKeys block)
           docker exec pki sed -i \
-              -e "s/^\(.*\.keyParameters\)=.*$/\1=1024,2048,3072,4096,768/" \
+              -e '/^policyset\.drmStorageCertSet\.3\.constraint\.params\.allowedKeys\.RSA\.4096=true/a policyset.drmStorageCertSet.3.constraint.params.allowedKeys.MLKEM.768=true' \
               /var/lib/pki/pki-tomcat/ca/profiles/ca/caInternalAuthDRMstorageCert.cfg
 
           # restart CA
