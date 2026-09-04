@@ -1,0 +1,38 @@
+= Server Changes =
+
+== KeyConstraint allowedKeys Parameters ==
+
+The `keyType` / `keyParameters` pair stores allowed strengths in a single
+shared list. That is ambiguous when more than one algorithm is allowed
+(`keyType=-`), because values such as ML-DSA or ML-KEM parameter IDs can
+collide with RSA key sizes. KeyConstraint therefore uses explicit
+per-algorithm entries instead.
+
+Allowed keys are configured as
+`params.allowedKeys.<alg>.<strength>=true/false`
+(for EC, `<strength>` is the curve name). For example:
+
+----
+params.allowedKeys.RSA.1024=true
+params.allowedKeys.RSA.2048=true
+params.allowedKeys.RSA.3072=true
+params.allowedKeys.RSA.4096=true
+----
+
+`params.allowedKeys.<alg>.ALL=true` allows all strengths for that
+algorithm. An explicit `false` for the same strength takes precedence:
+
+----
+params.allowedKeys.RSA.ALL=true
+params.allowedKeys.RSA.1024=false
+----
+
+The legacy `params.keyType` and `params.keyParameters` parameters remain
+supported for backward compatibility but are deprecated. Mixing them with
+`allowedKeys` is rejected. Unknown algorithm names in `allowedKeys` are
+also rejected.
+
+New CA instances ship profiles that use `allowedKeys`. Existing instances
+migrate on-disk CA profile files via the upgrade script
+`01-UpdateKeyParameters.py`. Profiles stored only in LDAP keep the legacy
+parameters until they are updated to `allowedKeys`.

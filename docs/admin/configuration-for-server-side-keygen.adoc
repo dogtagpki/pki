@@ -139,8 +139,13 @@ Key type and key size parameters can be configured as exemplified below:
 [literal]
 policyset.userCertSet.3.constraint.class_id=keyConstraintImpl
 policyset.userCertSet.3.constraint.name=Key Constraint
-policyset.userCertSet.3.constraint.params.keyType=-
-policyset.userCertSet.3.constraint.params.keyParameters=1024,2048,3072,4096,nistp256,nistp384,nistp521
+policyset.userCertSet.3.constraint.params.allowedKeys.RSA.1024=true
+policyset.userCertSet.3.constraint.params.allowedKeys.RSA.2048=true
+policyset.userCertSet.3.constraint.params.allowedKeys.RSA.3072=true
+policyset.userCertSet.3.constraint.params.allowedKeys.RSA.4096=true
+policyset.userCertSet.3.constraint.params.allowedKeys.EC.nistp256=true
+policyset.userCertSet.3.constraint.params.allowedKeys.EC.nistp384=true
+policyset.userCertSet.3.constraint.params.allowedKeys.EC.nistp521=true
 policyset.userCertSet.3.default.class_id=serverKeygenUserKeyDefaultImpl
 policyset.userCertSet.3.default.name=Server-Side Keygen Default
 policyset.userCertSet.3.default.params.keyType=RSA
