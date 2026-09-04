@@ -330,7 +330,7 @@ class Constraints(object):
         s2 = "Allow or deny a key algorithm strength (or EC curve) with a boolean value."
 
         keyConstraintImpl_attributes = [
-            ('allowedKeys.RSA.1024', 'boolean', 'NULL', s2, 'true', 'true'),
+            ('allowedKeys.RSA.1024', 'boolean', 'NULL', s2, 'false', 'false'),
             ('allowedKeys.RSA.2048', 'boolean', 'NULL', s2, 'true', 'true'),
             ('allowedKeys.RSA.3072', 'boolean', 'NULL', s2, 'true', 'true'),
             ('allowedKeys.RSA.4096', 'boolean', 'NULL', s2, 'true', 'true'),
