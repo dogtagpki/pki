@@ -43,21 +43,12 @@ jobs:
               --password=Secret.123 \
               ds
 
-      - name: Add LDAP users and PIN manager
+      - name: Add LDAP users
         run: |
           docker exec -i ds ldapadd \
               -H ldap://ds.example.com:3389 \
               -D "cn=Directory Manager" \
               -w Secret.123 << EOF
-          dn: uid=pinmanager,dc=example,dc=com
-          objectClass: person
-          objectClass: organizationalPerson
-          objectClass: inetOrgPerson
-          uid: pinmanager
-          cn: PIN Manager
-          sn: Manager
-          userPassword: Secret.123
-
           dn: ou=people,dc=example,dc=com
           objectclass: top
           objectclass: organizationalUnit
@@ -105,9 +96,9 @@ jobs:
               --network-alias=pki.example.com \
               pki
 
-      - name: Set up LDAP schema and ACI attributes
+      - name: Set up PIN database
         run: |
-          # configure setpin.conf
+          # configure setpin
           docker exec pki sed \
               -e "s/^host=.*$/host=ds.example.com/" \
               -e "s/^port=.*$/port=3389/" \
@@ -118,11 +109,60 @@ jobs:
               -e "s/^basedn=.*$/basedn=ou=people,dc=example,dc=com/" \
               /usr/share/pki/tools/setpin.conf | tee setpin.conf
 
-          # run setpin to set up LDAP schema and ACI attributes
-          docker exec pki setpin optfile=$SHARED/setpin.conf
+          # run setpin
+          # NOTE: currently setpin will crash due to buffer overflow
+          # so the operations need to be executed manually instead
+          # docker exec pki setpin optfile=$SHARED/setpin.conf
 
-      - name: Check pin attribute type
+      - name: Add PIN schema
         run: |
+          docker exec -i ds ldapmodify \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 << EOF
+          dn: cn=schema
+          changeType: modify
+          add: attributeTypes
+          attributeTypes: ( pin-oid NAME 'pin' DESC 'User Defined Attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 SINGLE-VALUE X-ORIGIN ( 'custom for setpin' 'user defined' ) )
+          -
+          add: objectClasses
+          objectClasses: ( 2.16.840.1.117370.999.1.2.10 NAME 'pinPerson' DESC 'User Defined ObjectClass' SUP top STRUCTURAL MAY ( aci $ pin ) X-ORIGIN 'user defined' )
+          -
+          EOF
+
+      - name: Add PIN manager
+        run: |
+          docker exec -i ds ldapadd \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 << EOF
+          dn: uid=pinmanager,dc=example,dc=com
+          objectClass: person
+          objectClass: organizationalPerson
+          objectClass: inetOrgPerson
+          uid: pinmanager
+          cn: PIN Manager
+          sn: Manager
+          userPassword: Secret.123
+          EOF
+
+      - name: Add PIN access control
+        run: |
+          docker exec -i ds ldapmodify \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 << EOF
+          dn: ou=people,dc=example,dc=com
+          changeType: modify
+          add: aci
+          aci: (target="ldap:///ou=people,dc=example,dc=com")(targetattr="pin")(version 3.0; acl "Pin attribute"; allow (all) userdn = "ldap:///uid=pinmanager,dc=example,dc=com"; deny(proxy,selfwrite,compare,add,write,delete,search) userdn = "ldap:///self";)
+          aci: (target="ldap:///ou=people,dc=example,dc=com")(targetattr="objectclass")(version 3.0; acl "Pin Objectclass"; allow (all) userdn = "ldap:///uid=pinmanager,dc=example,dc=com";)
+          -
+          EOF
+
+      - name: Check PIN schema
+        run: |
+          # check pin attribute type
           docker exec pki ldapsearch \
               -H ldap://ds.example.com:3389 \
               -D "cn=Directory Manager" \
@@ -141,8 +181,7 @@ jobs:
 
           diff expected actual
 
-      - name: Check pinPerson object class
-        run: |
+          # check pinPerson object class
           docker exec pki ldapsearch \
               -H ldap://ds.example.com:3389 \
               -D "cn=Directory Manager" \
@@ -158,32 +197,6 @@ jobs:
           cat > expected << EOF
           objectClasses: ( 2.16.840.1.117370.999.1.2.10 NAME 'pinPerson' DESC 'User Defined ObjectClass' SUP top STRUCTURAL MAY ( aci $ pin ) X-ORIGIN 'user defined' )
           EOF
-
-          diff expected actual
-
-      - name: Check ACI attributes
-        run: |
-          docker exec pki ldapsearch \
-              -H ldap://ds.example.com:3389 \
-              -D "cn=Directory Manager" \
-              -w Secret.123 \
-              -b "ou=people,dc=example,dc=com" \
-              -s base \
-              -t \
-              -o ldif_wrap=no \
-              -LLL \
-              aci \
-              | tee output
-
-          # there should be 2 old ACI attrs and 2 new ones
-          cat > expected << EOF
-          aci: (target="ldap:///ou=people,dc=example,dc=com")(targetattr=objectClass||dc||ou||uid||cn||sn||givenName)(version 3.0; acl "Allow anyone to read and search basic attributes"; allow (search, read) userdn = "ldap:///anyone";)
-          aci: (target="ldap:///ou=people,dc=example,dc=com")(targetattr=*)(version 3.0; acl "Allow anyone to read and search itself"; allow (search, read) userdn = "ldap:///self";)
-          aci: (target="ldap:///ou=people,dc=example,dc=com")(targetattr="pin")(version 3.0; acl "Pin attribute"; allow (all) userdn = "ldap:///uid=pinmanager,dc=example,dc=com"; deny(proxy,selfwrite,compare,add,write,delete,search) userdn = "ldap:///self";)
-          aci: (target="ldap:///ou=people,dc=example,dc=com")(targetattr="objectclass")(version 3.0; acl "Pin Objectclass"; allow (all) userdn = "ldap:///uid=pinmanager,dc=example,dc=com";)
-          EOF
-
-          grep '^aci:' output > actual
 
           diff expected actual
 
@@ -217,6 +230,32 @@ jobs:
               -e '/^$/d' \
               -e 's/^\(userPassword\):: .*$/\1:: XXXXX/' \
               output > actual
+
+          diff expected actual
+
+      - name: Check PIN access control
+        run: |
+          docker exec pki ldapsearch \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 \
+              -b "ou=people,dc=example,dc=com" \
+              -s base \
+              -t \
+              -o ldif_wrap=no \
+              -LLL \
+              aci \
+              | tee output
+
+          # there should be 2 old ACI attrs and 2 new ones
+          cat > expected << EOF
+          aci: (target="ldap:///ou=people,dc=example,dc=com")(targetattr=objectClass||dc||ou||uid||cn||sn||givenName)(version 3.0; acl "Allow anyone to read and search basic attributes"; allow (search, read) userdn = "ldap:///anyone";)
+          aci: (target="ldap:///ou=people,dc=example,dc=com")(targetattr=*)(version 3.0; acl "Allow anyone to read and search itself"; allow (search, read) userdn = "ldap:///self";)
+          aci: (target="ldap:///ou=people,dc=example,dc=com")(targetattr="pin")(version 3.0; acl "Pin attribute"; allow (all) userdn = "ldap:///uid=pinmanager,dc=example,dc=com"; deny(proxy,selfwrite,compare,add,write,delete,search) userdn = "ldap:///self";)
+          aci: (target="ldap:///ou=people,dc=example,dc=com")(targetattr="objectclass")(version 3.0; acl "Pin Objectclass"; allow (all) userdn = "ldap:///uid=pinmanager,dc=example,dc=com";)
+          EOF
+
+          grep '^aci:' output > actual
 
           diff expected actual
 
