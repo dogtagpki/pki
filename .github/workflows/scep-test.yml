@@ -1,4 +1,5 @@
 name: SCEP responder
+# https://github.com/dogtagpki/sscep
 
 on: workflow_call
 
@@ -61,7 +62,7 @@ jobs:
               --network-alias=pki.example.com \
               pki
 
-      - name: Install CA in PKI container
+      - name: Install CA
         run: |
           docker exec pki pkispawn \
               -f /usr/share/pki/server/examples/installation/ca.cfg \
@@ -69,7 +70,63 @@ jobs:
               -D pki_ds_url=ldap://ds.example.com:3389 \
               -v
 
-          docker exec pki pki-server cert-find
+          docker exec pki dnf install -y xmlstarlet
+
+          # disable access log buffer
+          docker exec pki xmlstarlet edit --inplace \
+              -u "//Valve[@className='org.apache.catalina.valves.AccessLogValve']/@buffered" \
+              -v "false" \
+              -i "//Valve[@className='org.apache.catalina.valves.AccessLogValve' and not(@buffered)]" \
+              -t attr \
+              -n "buffered" \
+              -v "false" \
+              /etc/pki/pki-tomcat/server.xml
+
+          docker exec pki pki-server restart --wait
+
+      - name: Check default FlatFileAuth config
+        run: |
+          docker exec pki pki-server ca-config-find \
+              | sed -n \
+                  -e '/^auths\.impl\.FlatFileAuth\./p' \
+                  -e '/^auths\.instance\.flatFileAuth\./p' \
+              | sort \
+              | tee output
+
+          cat > expected << EOF
+          auths.impl.FlatFileAuth.class=com.netscape.cms.authentication.FlatFileAuth
+          auths.instance.flatFileAuth.fileName=/var/lib/pki/pki-tomcat/conf/ca/flatfile.txt
+          auths.instance.flatFileAuth.pluginName=FlatFileAuth
+          EOF
+
+          diff expected output
+
+          docker exec pki cat /var/lib/pki/pki-tomcat/conf/ca/flatfile.txt
+
+      - name: Check default SCEP responder config
+        run: |
+          docker exec pki pki-server ca-config-find \
+              | sed -n \
+                  -e '/^ca\.scep\._/d' \
+                  -e '/^ca\.scep\./p' \
+              | sort \
+              | tee output
+
+          cat > expected << EOF
+          ca.scep.allowedEncryptionAlgorithms=DES3
+          ca.scep.allowedHashAlgorithms=SHA256,SHA512
+          ca.scep.enable=false
+          ca.scep.encryptionAlgorithm=DES3
+          ca.scep.hashAlgorithm=SHA256
+          ca.scep.nonceSizeLimit=16
+          EOF
+
+          diff expected output
+
+      - name: Enable SCEP responder
+        run: |
+          docker exec pki pki-server ca-config-set ca.scep.enable true
+          docker exec pki pki-server ca-redeploy --wait
 
       - name: Set up client container
         run: |
@@ -78,78 +135,355 @@ jobs:
               --hostname client.example.com \
               --network example \
               --network-alias client.example.com \
-              -it \
               --detach \
+              -it \
               quay.io/dogtagpki/sscep
 
-      - name: Get client's IP address
+      - name: Get client IP address
         run: |
-          docker inspect -f '{{ .NetworkSettings.Networks.example.IPAddress }}' client > client.ip
-          echo "Client's IP: `cat client.ip`"
+          CLIENT_IP=$(docker inspect -f '{{ .NetworkSettings.Networks.example.IPAddress }}' client)
+          echo "$CLIENT_IP" > client.ip
+          echo "Client IP: $CLIENT_IP"
 
       # https://github.com/dogtagpki/pki/wiki/Configuring-SCEP-Responder
-      - name: Configure SCEP in CA
+      - name: Register client
         run: |
-          docker exec pki pki-server ca-config-set ca.scep.enable true
+          CLIENT_IP=$(cat client.ip)
 
-          docker exec pki bash -c "echo UID:$(cat client.ip) > /var/lib/pki/pki-tomcat/conf/ca/flatfile.txt"
-          docker exec pki bash -c "echo PWD:Secret.123 >> /var/lib/pki/pki-tomcat/conf/ca/flatfile.txt"
-
-          # restart CA subsystem
-          docker exec pki pki-server ca-redeploy --wait
+          docker exec -i pki tee /var/lib/pki/pki-tomcat/conf/ca/flatfile.txt << EOF
+          UID:$CLIENT_IP
+          PWD:Secret.123
+          EOF
 
       # https://github.com/dogtagpki/pki/wiki/Certificate-Enrollment-with-SSCEP
-      - name: Get CA certificate using SSCEP
+      - name: Get CA certificate
         run: |
           docker exec client sscep getca \
               -u http://pki.example.com:8080/ca/cgi-bin/pkiclient.exe \
-              -c ca.crt
-          docker exec client openssl x509 -text -noout -in ca.crt
+              -c ca_signing.crt
 
-      - name: Enroll certificate with IP address using SSCEP and DES3
+          docker exec client openssl x509 -text -noout -in ca_signing.crt
+
+      - name: Generate cert request
         run: |
-          docker exec client mkrequest -ip $(cat client.ip) Secret.123
-          docker exec client openssl req -text -noout -in local.csr
+          CLIENT_IP=$(cat client.ip)
+
+          docker exec client mkrequest -ip $CLIENT_IP Secret.123
+
+          docker exec client openssl req -text -noout -in local.csr \
+              | tee output
+
+          # normalize output
+          # - remove hex string
+          sed -E \
+              -e '/^ *[0-9A-Fa-f]{2}(:[0-9A-Fa-f]{2})+:?$/d' \
+              -e '/^ *Modulus:$/d' \
+              -e '/^ *Signature Value:$/d' \
+              output > actual
+
+          cat > expected << EOF
+          Certificate Request:
+              Data:
+                  Version: 1 (0x0)
+                  Subject: CN=$CLIENT_IP
+                  Subject Public Key Info:
+                      Public Key Algorithm: rsaEncryption
+                          Public-Key: (2048 bit)
+                          Exponent: 65537 (0x10001)
+                  Attributes:
+                      challengePassword        :Secret.123
+                      Requested Extensions:
+                          X509v3 Subject Alternative Name: critical
+                              IP Address:$CLIENT_IP
+              Signature Algorithm: sha256WithRSAEncryption
+          EOF
+
+          diff expected actual
+
+      - name: Enroll cert with DES3
+        run: |
           docker exec client sscep enroll \
               -u http://pki.example.com:8080/ca/cgi-bin/pkiclient.exe \
-              -c ca.crt \
+              -c ca_signing.crt \
               -k local.key \
               -r local.csr \
-              -l local.crt \
+              -l 3des.crt \
               -E 3des \
               -S sha256
-          docker exec client openssl x509 -text -noout -in local.crt
 
-      - name: Configure SCEP in CA with AES
+      - name: Check issued cert
+        run: |
+          CLIENT_IP=$(cat client.ip)
+
+          docker exec client openssl x509 -text -noout -in 3des.crt \
+              | tee output
+
+          # normalize output
+          # - remove hex string
+          # - remove date and time
+          sed -E \
+              -e '/^ *[0-9A-Fa-f]{2}(:[0-9A-Fa-f]{2})+:?$/d' \
+              -e '/^ *Serial Number:$/d' \
+              -e '/^ *Validity$/d' \
+              -e '/^ *Not Before:/d' \
+              -e '/^ *Not After :/d' \
+              -e '/^ *Modulus:$/d' \
+              -e '/^ *Signature Value:$/d' \
+              -e '/^$/d' \
+              -e 's/ *$//' \
+              output > actual
+
+          cat > expected << EOF
+          Certificate:
+              Data:
+                  Version: 3 (0x2)
+                  Signature Algorithm: sha256WithRSAEncryption
+                  Issuer: O=EXAMPLE, OU=pki-tomcat, CN=CA Signing Certificate
+                  Subject: CN=$CLIENT_IP
+                  Subject Public Key Info:
+                      Public Key Algorithm: rsaEncryption
+                          Public-Key: (2048 bit)
+                          Exponent: 65537 (0x10001)
+                  X509v3 extensions:
+                      X509v3 Authority Key Identifier:
+                      Authority Information Access:
+                          OCSP - URI:http://pki.example.com:8080/ca/ocsp
+                      X509v3 Key Usage: critical
+                          Digital Signature, Non Repudiation, Key Encipherment
+                      X509v3 Extended Key Usage:
+                          TLS Web Client Authentication, E-mail Protection
+              Signature Algorithm: sha256WithRSAEncryption
+          EOF
+
+          diff expected actual
+
+      - name: Check cert key
+        run: |
+          CLIENT_IP=$(cat client.ip)
+
+          docker exec client openssl pkcs12 \
+              -export \
+              -certfile ca_signing.crt \
+              -inkey local.key \
+              -in 3des.crt \
+              -out 3des.p12 \
+              -passout pass:Secret.123
+
+          docker cp client:3des.p12 .
+          docker cp 3des.p12 pki:.
+
+          docker exec pki pki \
+              -d 3des \
+              pkcs12-import \
+              --pkcs12 3des.p12 \
+              --password Secret.123
+
+          docker exec pki pki \
+              -d 3des \
+              nss-cert-show \
+              $CLIENT_IP \
+              | tee output
+
+          sed -n 's/^ *\(Trust Flags: .*\)$/\1/p' output > actual
+
+          # the cert should match the key (trust flags must be u,u,u)
+          cat > expected << EOF
+          Trust Flags: u,u,u
+          EOF
+
+          diff expected actual
+
+      - name: Check client registration
+        run: |
+          CLIENT_IP=$(cat client.ip)
+
+          docker exec pki cat /var/lib/pki/pki-tomcat/conf/ca/flatfile.txt \
+              | tee output
+
+          # enrolled client should be commented out
+          cat > expected << EOF
+          #UID:$CLIENT_IP
+          #PWD:Secret.123
+          EOF
+
+          diff expected output
+
+      - name: Configure SCEP responder with AES
         run: |
           docker exec pki pki-server ca-config-set ca.scep.encryptionAlgorithm AES 
-          docker exec pki pki-server ca-config-set ca.scep.allowedEncryptionAlgorithms DES3,AES 
-          docker exec pki bash -c "echo UID:$(cat client.ip) > /var/lib/pki/pki-tomcat/conf/ca/flatfile.txt"
-          docker exec pki bash -c "echo PWD:Secret.123 >> /var/lib/pki/pki-tomcat/conf/ca/flatfile.txt"
+          docker exec pki pki-server ca-config-set ca.scep.allowedEncryptionAlgorithms AES
+
           # restart CA subsystem
           docker exec pki pki-server ca-redeploy --wait
 
-      - name: Enroll certificate with IP address using SSCEP and AES
+      - name: Register client
         run: |
-          docker exec client mkrequest -ip $(cat client.ip) Secret.123
-          docker exec client openssl req -text -noout -in local.csr
+          CLIENT_IP=$(cat client.ip)
+
+          docker exec -i pki tee /var/lib/pki/pki-tomcat/conf/ca/flatfile.txt << EOF
+          UID:$CLIENT_IP
+          PWD:Secret.123
+          EOF
+
+      - name: Generate cert request
+        run: |
+          CLIENT_IP=$(cat client.ip)
+
+          docker exec client mkrequest -ip $CLIENT_IP Secret.123
+
+          docker exec client openssl req -text -noout -in local.csr \
+              | tee output
+
+          # normalize output
+          # - remove hex string
+          sed -E \
+              -e '/^ *[0-9A-Fa-f]{2}(:[0-9A-Fa-f]{2})+:?$/d' \
+              -e '/^ *Modulus:$/d' \
+              -e '/^ *Signature Value:$/d' \
+              output > actual
+
+          cat > expected << EOF
+          Certificate Request:
+              Data:
+                  Version: 1 (0x0)
+                  Subject: CN=$CLIENT_IP
+                  Subject Public Key Info:
+                      Public Key Algorithm: rsaEncryption
+                          Public-Key: (2048 bit)
+                          Exponent: 65537 (0x10001)
+                  Attributes:
+                      challengePassword        :Secret.123
+                      Requested Extensions:
+                          X509v3 Subject Alternative Name: critical
+                              IP Address:$CLIENT_IP
+              Signature Algorithm: sha256WithRSAEncryption
+          EOF
+
+          diff expected actual
+
+      - name: Enroll cert with AES
+        run: |
+          CLIENT_IP=$(cat client.ip)
+
           docker exec client sscep enroll \
               -u http://pki.example.com:8080/ca/cgi-bin/pkiclient.exe \
-              -c ca.crt \
+              -c ca_signing.crt \
               -k local.key \
               -r local.csr \
-              -l local.crt \
+              -l aes.crt \
               -E aes \
               -S sha256
-          docker exec client openssl x509 -text -noout -in local.crt
+
+      - name: Check issued cert
+        run: |
+          CLIENT_IP=$(cat client.ip)
+
+          docker exec client openssl x509 -text -noout -in aes.crt \
+              | tee output
+
+          # normalize output
+          # - remove hex string
+          # - remove date and time
+          sed -E \
+              -e '/^ *[0-9A-Fa-f]{2}(:[0-9A-Fa-f]{2})+:?$/d' \
+              -e '/^ *Serial Number:$/d' \
+              -e '/^ *Validity$/d' \
+              -e '/^ *Not Before:/d' \
+              -e '/^ *Not After :/d' \
+              -e '/^ *Modulus:$/d' \
+              -e '/^ *Signature Value:$/d' \
+              -e '/^$/d' \
+              -e 's/ *$//' \
+              output > actual
+
+          cat > expected << EOF
+          Certificate:
+              Data:
+                  Version: 3 (0x2)
+                  Signature Algorithm: sha256WithRSAEncryption
+                  Issuer: O=EXAMPLE, OU=pki-tomcat, CN=CA Signing Certificate
+                  Subject: CN=$CLIENT_IP
+                  Subject Public Key Info:
+                      Public Key Algorithm: rsaEncryption
+                          Public-Key: (2048 bit)
+                          Exponent: 65537 (0x10001)
+                  X509v3 extensions:
+                      X509v3 Authority Key Identifier:
+                      Authority Information Access:
+                          OCSP - URI:http://pki.example.com:8080/ca/ocsp
+                      X509v3 Key Usage: critical
+                          Digital Signature, Non Repudiation, Key Encipherment
+                      X509v3 Extended Key Usage:
+                          TLS Web Client Authentication, E-mail Protection
+              Signature Algorithm: sha256WithRSAEncryption
+          EOF
+
+          diff expected actual
+
+      - name: Check cert key
+        run: |
+          CLIENT_IP=$(cat client.ip)
+
+          docker exec client openssl pkcs12 \
+              -export \
+              -certfile ca_signing.crt \
+              -inkey local.key \
+              -in aes.crt \
+              -out aes.p12 \
+              -passout pass:Secret.123
+
+          docker cp client:aes.p12 .
+          docker cp aes.p12 pki:.
+
+          docker exec pki pki \
+              -d aes \
+              pkcs12-import \
+              --pkcs12 aes.p12 \
+              --password Secret.123
+
+          docker exec pki pki \
+              -d aes \
+              nss-cert-show \
+              $CLIENT_IP \
+              | tee output
+
+          sed -n 's/^ *\(Trust Flags: .*\)$/\1/p' output > actual
+
+          # the cert should match the key (trust flags must be u,u,u)
+          cat > expected << EOF
+          Trust Flags: u,u,u
+          EOF
+
+          diff expected actual
+
+      - name: Check client registration
+        run: |
+          CLIENT_IP=$(cat client.ip)
+
+          docker exec pki cat /var/lib/pki/pki-tomcat/conf/ca/flatfile.txt \
+              | tee output
+
+          # enrolled client should be commented out
+          cat > expected << EOF
+          #UID:$CLIENT_IP
+          #PWD:Secret.123
+          EOF
+
+          diff expected output
 
       - name: Remove CA from PKI container
-        run: docker exec pki pkidestroy -s CA -v
+        run: |
+          docker exec pki pkidestroy -s CA -v
 
       - name: Check PKI server systemd journal
         if: always()
         run: |
           docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check PKI server access log
+        if: always()
+        run: |
+          docker exec pki find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
 
       - name: Check CA debug log
         if: always()
