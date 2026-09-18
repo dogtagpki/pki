@@ -1846,7 +1846,8 @@ grant codeBase "file:%s" {
             'fapolicy.rules')
 
         params = {
-            'WORK_DIR': self.work_dir
+            'WORK_DIR': self.work_dir,
+            'USER': self.user
         }
 
         uid = pwd.getpwnam('root').pw_uid
