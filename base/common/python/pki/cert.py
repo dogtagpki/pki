@@ -176,12 +176,13 @@ class CertDataInfoCollection(object):
                 ret.cert_data_info_list.append(
                     CertDataInfo.from_json(cert_info))
 
-        links = json_value['Link']
-        if not isinstance(links, list):
-            ret.links.append(pki.Link.from_json(links))
-        else:
-            for link in links:
-                ret.links.append(pki.Link.from_json(link))
+        if 'Link' in json_value:
+            links = json_value['Link']
+            if not isinstance(links, list):
+                ret.links.append(pki.Link.from_json(links))
+            else:
+                for link in links:
+                    ret.links.append(pki.Link.from_json(link))
 
         return ret
 
@@ -294,12 +295,13 @@ class CertRequestInfoCollection(object):
                 ret.cert_request_info_list.append(
                     CertRequestInfo.from_json(cert_info))
 
-        links = json_value['Link']
-        if not isinstance(links, list):
-            ret.links.append(pki.Link.from_json(links))
-        else:
-            for link in links:
-                ret.links.append(pki.Link.from_json(link))
+        if 'Link' in json_value:
+            links = json_value['Link']
+            if not isinstance(links, list):
+                ret.links.append(pki.Link.from_json(links))
+            else:
+                for link in links:
+                    ret.links.append(pki.Link.from_json(link))
 
         return ret
 
