@@ -100,46 +100,51 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication {
      */
     private ArrayList<String> listGroups(LDAPConnection ldapconn, String uid, String userdn)
             throws EUsrGrpException, LDAPException {
-        String method = "UidPwdDirAuthentication: listGroups: ";
-        logger.debug(method + " begins");
-        String[] attrs = {};
 
+        String method = "UidPwdDirAuthentication: listGroups: ";
+        logger.info("UidPwdDirAuthentication: Listing groups");
+        String[] attrs = {};
         String k = null;
-        if (mGroupObjectClass.equalsIgnoreCase("groupOfUniqueNames"))
+
+        if (mGroupObjectClass.equalsIgnoreCase("groupOfUniqueNames")) {
             k = "uniquemember";
-        else if (mGroupObjectClass.equalsIgnoreCase("groupOfNames"))
+        } else if (mGroupObjectClass.equalsIgnoreCase("groupOfNames")) {
             k = "member";
-        else {
-            logger.warn("UidPwdDirAuthentication: isMemberOfLdapGroup: unrecognized mGroupObjectClass: " + mGroupObjectClass);
+        } else {
+            logger.warn("UidPwdDirAuthentication: Unsupported group object class: " + mGroupObjectClass);
             return null;
         }
 
         String filter = null;
-        if (mSearchGroupUserByUserdn)
+        if (mSearchGroupUserByUserdn) {
             filter = k + "=" + LDAPUtil.escapeFilter(userdn);
-        else
+        } else {
             filter = k + "=" + mGroupUserIDName + "=" + LDAPUtil.escapeFilter(uid);
+        }
 
-        logger.debug(method + "searching " + getGroupBaseDN() + " for (&(objectclass=" + mGroupObjectClass + ")(" + filter + "))");
+        String ldapFilter = "(&(objectclass=" + mGroupObjectClass + ")(" + filter + "))";
+        logger.info("UidPwdDirAuthentication: Searching " + getGroupBaseDN() + " for " + ldapFilter);
         LDAPSearchResults res = ldapconn.search(
             getGroupBaseDN(),
             LDAPv3.SCOPE_SUB,
-            "(&(objectclass=" + mGroupObjectClass + ")(" + filter + "))",
+            ldapFilter,
             attrs, true /* attrsOnly */ );
 
-        logger.debug(method + " ends");
         return buildGroups(res);
     }
 
     private ArrayList<String> buildGroups(LDAPSearchResults res) throws LDAPException {
-        ArrayList<String> v = new ArrayList<>();
 
+        logger.debug("UidPwdDirAuthentication: Groups:");
+
+        ArrayList<String> v = new ArrayList<>();
         while (res.hasMoreElements()) {
             LDAPEntry entry = res.next();
             String groupDN = entry.getDN();
-            logger.debug("UidPwdDirAuthentication: Authenticate: Found group membership: " + groupDN);
+            logger.debug("UidPwdDirAuthentication: - " + groupDN);
             v.add(groupDN);
         }
+
         return v;
     }
 
@@ -163,7 +168,7 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication {
         try {
             // get the uid.
             uid = (String) authCreds.get(CRED_UID);
-            logger.info("Authenticating UID " + uid);
+            logger.info("UidPwdDirAuthentication: Authenticating UID " + uid);
 
             if (uid == null) {
                 throw new EMissingCredential(CMS.getUserMessage("CMS_AUTHENTICATION_NULL_CREDENTIAL", CRED_UID));
@@ -192,15 +197,15 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication {
             // get user dn.
             logger.info("UidPwdDirAuthentication: Searching for user " + uid);
 
-            logger.info("UidPwdDirAuthentication: - base DN: " + mBaseDN);
+            logger.debug("UidPwdDirAuthentication: - base DN: " + mBaseDN);
 
             String filter = "(" + mUserIDName + "=" + LDAPUtil.escapeFilter(uid) + ")";
-            logger.info("UidPwdDirAuthentication: - filter: " + filter);
+            logger.debug("UidPwdDirAuthentication: - filter: " + filter);
 
             String[] attrs = mGroupsEnable ? groupAttrs : emptyAttrs;
-            logger.info("DirBasedAuthentication: - attributes:");
+            logger.debug("UidPwdDirAuthentication: - attributes:");
             for (String attr : attrs) {
-                logger.info("DirBasedAuthentication:   - " + attr);
+                logger.debug("UidPwdDirAuthentication:   - " + attr);
             }
 
             LDAPSearchResults results = conn.search(
@@ -217,26 +222,29 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication {
 
             LDAPEntry entry = results.next();
             String userdn = entry.getDN();
-            logger.debug("UidPwdDirAuthentication: Found user " + userdn);
+            logger.info("UidPwdDirAuthentication: Found user " + userdn);
 
             // bind as user dn and pwd - authenticates user with pwd.
             conn.authenticate(userdn, pwd);
 
             LDAPAttribute attribute = entry.getAttribute("memberOf");
+            String[] groups = null;
 
             if (attribute != null) {
-                logger.debug("UidPwdDirAuthentication: Authenticate: Found memberOf attribute");
-                String[] groups = attribute.getStringValueArray();
-                token.set(AuthToken.GROUPS, groups);
+                logger.info("UidPwdDirAuthentication: Found memberOf attribute");
+                groups = attribute.getStringValueArray();
 
             } else if (mGroupsEnable) {
-                logger.debug("UidPwdDirAuthentication: Authenticate: memberOf attribute not found.");
-                ArrayList<String> groups = null;
-                groups = listGroups(conn, uid, userdn);
-                if (groups != null) {
-                    String[] groupsArray = new String[groups.size()];
-                    token.set(AuthToken.GROUPS, groups.toArray(groupsArray));
+                logger.info("UidPwdDirAuthentication: memberOf attribute not found");
+                ArrayList<String> groupList = listGroups(conn, uid, userdn);
+                if (groupList != null) {
+                    groups = new String[groupList.size()];
+                    groups = groupList.toArray(groups);
                 }
+            }
+
+            if (groups != null) {
+                token.set(AuthToken.GROUPS, groups);
             }
 
             // set uid in the token.
@@ -246,12 +254,11 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication {
             return userdn;
 
         } catch (LDAPException e) {
-            logger.error("Authenticating: User authentication failure: " + e.getMessage(), e);
-            logger.debug("Authenticating: closing bad connection");
+            logger.error("UidPwdDirAuthentication: Unable to authenticate user: " + e.getMessage(), e);
             try {
                 conn.disconnect();
             } catch (Exception f) {
-                logger.warn("Authenticating: conn.disconnect() exception =" + f.getMessage(), e);
+                logger.warn("UidPwdDirAuthentication: Unable to close LDAP connection: " + f.getMessage(), f);
             }
             switch (e.getLDAPResultCode()) {
             case LDAPException.NO_SUCH_OBJECT:
@@ -326,10 +333,11 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication {
      */
     @Override
     public Enumeration<String> getValueNames() {
-        Vector<String> v = new Vector<>();
 
+        Vector<String> v = new Vector<>();
         v.addElement(CRED_UID);
         v.addElement(CRED_PWD);
+
         return v.elements();
     }
 
@@ -363,8 +371,13 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication {
     @Override
     public void populate(AuthToken token, Request request)
             throws EProfileException {
-        request.setExtData(AuthManager.AUTHENTICATED_NAME,
-                token.getInString(USER_DN));
+
+        logger.info("UidPwdDirAuthentication: Populating request");
+
+        String userDN = token.getInString(USER_DN);
+        logger.debug("UidPwdDirAuthentication: - user DN: " + userDN);
+
+        request.setExtData(AuthManager.AUTHENTICATED_NAME, userDN);
     }
 
     @Override
