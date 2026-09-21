@@ -262,11 +262,12 @@ public abstract class DirBasedAuthentication extends AuthManager implements IExt
             throws EBaseException {
 
         logger.info("DirBasedAuthentication: Initializing " + name);
+        logger.debug("DirBasedAuthentication: - plugin: " + implName);
 
         this.authenticationConfig = authenticationConfig;
-        mName = name;
-        mImplName = implName;
-        mConfig = config;
+        this.mName = name;
+        this.mImplName = implName;
+        this.mConfig = config;
 
         /* initialize ldap server configuration */
         mLdapConfig = mConfig.getLDAPConfig();
@@ -277,34 +278,34 @@ public abstract class DirBasedAuthentication extends AuthManager implements IExt
                 throw new EPropertyNotFound(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED", "basedn"));
 
             mGroupsEnable = mLdapConfig.getBoolean(PROP_GROUPS_ENABLE, false);
-            logger.info("DirBasedAuthentication: Groups enable: " + mGroupsEnable);
+            logger.debug("DirBasedAuthentication: - groups enable: " + mGroupsEnable);
 
             mGroupsBaseDN = mLdapConfig.getString(PROP_GROUPS_BASEDN, mBaseDN);
-            logger.info("DirBasedAuthentication: Groups base DN: " + mGroupsBaseDN);
+            logger.debug("DirBasedAuthentication: - groups base DN: " + mGroupsBaseDN);
 
             mGroups= mLdapConfig.getString(PROP_GROUPS, "ou=groups");
-            logger.info("DirBasedAuthentication: Groups: " + mGroups);
+            logger.debug("DirBasedAuthentication: - groups: " + mGroups);
 
             mGroupObjectClass = mLdapConfig.getString(PROP_GROUP_OBJECT_CLASS, "groupofuniquenames");
-            logger.info("DirBasedAuthentication: Group object class: " + mGroupObjectClass);
+            logger.debug("DirBasedAuthentication: - group object class: " + mGroupObjectClass);
 
             mUserIDName = mLdapConfig.getString(PROP_USERID_NAME, "uid");
-            logger.info("DirBasedAuthentication: User ID name: " + mUserIDName);
+            logger.debug("DirBasedAuthentication: - user ID name: " + mUserIDName);
 
             mSearchGroupUserByUserdn = mLdapConfig.getBoolean(PROP_SEARCH_GROUP_USER_BY_USERDN, true);
-            logger.info("DirBasedAuthentication: Search group user by user DN: " + mSearchGroupUserByUserdn);
+            logger.debug("DirBasedAuthentication: - search group user by user DN: " + mSearchGroupUserByUserdn);
 
             mGroupUserIDName = mLdapConfig.getString(PROP_GROUP_USERID_NAME, "cn");
-            logger.info("DirBasedAuthentication: Group user ID name: " + mGroupUserIDName);
+            logger.debug("DirBasedAuthentication: - group user ID name: " + mGroupUserIDName);
         }
 
         mBoundConnEnable = mLdapConfig.getBoolean(PROP_LDAP_BOUND_CONN, false);
-        logger.info("DirBasedAuthentication: Bound connection enable: " + mBoundConnEnable);
+        logger.debug("DirBasedAuthentication: - bound connection enabled: " + mBoundConnEnable);
 
         if (mBoundConnEnable) {
             LDAPAuthenticationConfig authConfig = mLdapConfig.getAuthenticationConfig();
             mTag = mLdapConfig.getString("bindPWPrompt");
-            logger.info("DirBasedAuthentication: Bind password prompt: " + mTag);
+            logger.debug("DirBasedAuthentication: - bind password prompt: " + mTag);
 
             mConnFactory = engine.createLdapBoundConnFactory(mTag, mLdapConfig);
 
@@ -318,7 +319,7 @@ public abstract class DirBasedAuthentication extends AuthManager implements IExt
         if (pattern == null || pattern.length() == 0)
             pattern = DEFAULT_DNPATTERN;
 
-        logger.info("DirBasedAuthentication: DN pattern: " + pattern);
+        logger.debug("DirBasedAuthentication: - DN pattern: " + pattern);
 
         mPattern = new DNPattern(pattern);
         String[] patternLdapAttrs = mPattern.getLdapAttrs();
@@ -346,9 +347,9 @@ public abstract class DirBasedAuthentication extends AuthManager implements IExt
             }
         }
 
-        logger.debug("DirBasedAuthentication: String attributes:");
+        logger.debug("DirBasedAuthentication: - string attributes:");
         for (String attr : mLdapStringAttrs) {
-            logger.debug("DirBasedAuthentication: - " + attr);
+            logger.debug("DirBasedAuthentication:   - " + attr);
         }
 
         /* initialize ldap byte[] attribute list */
@@ -365,17 +366,15 @@ public abstract class DirBasedAuthentication extends AuthManager implements IExt
             }
         }
 
-        logger.debug("DirBasedAuthentication: Byte attributes:");
+        logger.debug("DirBasedAuthentication: - byte attributes:");
         for (String attr : mLdapByteAttrs) {
-            logger.debug("DirBasedAuthentication: - " + attr);
+            logger.debug("DirBasedAuthentication:   - " + attr);
         }
 
         /* make the combined list */
         mLdapAttrs = new String[mLdapStringAttrs.length + mLdapByteAttrs.length];
         System.arraycopy(mLdapStringAttrs, 0, mLdapAttrs, 0, mLdapStringAttrs.length);
         System.arraycopy(mLdapByteAttrs, 0, mLdapAttrs, mLdapStringAttrs.length, mLdapByteAttrs.length);
-
-        logger.info("DirBasedAuthentication: Initialization complete");
     }
 
     @Override
@@ -427,37 +426,29 @@ public abstract class DirBasedAuthentication extends AuthManager implements IExt
         AuthToken authToken = new AuthToken(this);
         String method = "DirBasedAuthentication: authenticate:";
 
-        logger.debug(method + " begins...mBoundConnEnable=" + mBoundConnEnable);
+        logger.info("DirBasedAuthentication: Processing authentication");
 
         try {
             if (mConnFactory == null) {
-                logger.debug(method + " mConnFactory null, getting conn factory");
-
                 if (mBoundConnEnable) {
                     LDAPAuthenticationConfig authConfig = mLdapConfig.getAuthenticationConfig();
                     mTag = authConfig.getString("bindPWPrompt");
-                    logger.debug(method + " getting ldap bound conn factory using id= " + mTag);
+                    logger.debug("DirBasedAuthentication: - bind password prompt: " + mTag);
 
                     mConnFactory = engine.createLdapBoundConnFactory(mTag, mLdapConfig);
 
                 } else {
                     mConnFactory = engine.createLdapAnonConnFactory("DirBasedAuthentication", mLdapConfig);
                 }
-
-                if (mConnFactory != null) {
-                    logger.debug(method + " mConnFactory gotten, calling getConn");
-                    conn = mConnFactory.getConn();
-                }
-            } else {
-                logger.debug(method + " mConnFactory class name = " + mConnFactory.getClass().getName());
-                logger.debug(method + " mConnFactory not null, calling getConn");
-                conn = mConnFactory.getConn();
             }
 
+            logger.debug("DirBasedAuthentication: - connection factory: " + mConnFactory.getClass().getName());
+            conn = mConnFactory.getConn();
+
             // authenticate the user and get a user entry.
-            logger.debug(method + " before authenticate() call");
             userdn = authenticate(conn, authCred, authToken);
-            logger.debug(method + " after authenticate() call");
+            logger.debug("DirBasedAuthentication: - user DN: " + userdn);
+
             authToken.set(USER_DN, userdn);
 
             // formulate the cert info.
@@ -469,45 +460,41 @@ public abstract class DirBasedAuthentication extends AuthManager implements IExt
 
             // set subject name.
             try {
-                CertificateSubjectName subjectname = (CertificateSubjectName)
-                        certInfo.get(X509CertInfo.SUBJECT);
+                CertificateSubjectName subjectname = (CertificateSubjectName) certInfo.get(X509CertInfo.SUBJECT);
 
-                if (subjectname != null)
-                    authToken.set(AuthToken.TOKEN_CERT_SUBJECT,
-                            subjectname.toString());
-            } // error means it's not set.
-            catch (CertificateException e) {
-            } catch (IOException e) {
+                if (subjectname != null) {
+                    authToken.set(AuthToken.TOKEN_CERT_SUBJECT, subjectname.toString());
+                }
+
+            } catch (CertificateException | IOException e) {
+                // error means it's not set
             }
 
             // set validity if any
             try {
-                CertificateValidity validity = (CertificateValidity)
-                        certInfo.get(X509CertInfo.VALIDITY);
+                CertificateValidity validity = (CertificateValidity) certInfo.get(X509CertInfo.VALIDITY);
 
                 if (validity != null) {
                     // the gets throws IOException but only if attribute
                     // not recognized. In these cases they are always.
-                    authToken.set(AuthToken.TOKEN_CERT_NOTBEFORE,
-                            (Date) validity.get(CertificateValidity.NOT_BEFORE));
-                    authToken.set(AuthToken.TOKEN_CERT_NOTAFTER,
-                            (Date) validity.get(CertificateValidity.NOT_AFTER));
+                    authToken.set(AuthToken.TOKEN_CERT_NOTBEFORE, (Date) validity.get(CertificateValidity.NOT_BEFORE));
+                    authToken.set(AuthToken.TOKEN_CERT_NOTAFTER, (Date) validity.get(CertificateValidity.NOT_AFTER));
                 }
-            } // error means it's not set.
-            catch (CertificateException e) {
-            } catch (IOException e) {
+
+            }  catch (CertificateException | IOException e) {
+                // error means it's not set
             }
 
             // set extensions if any.
             try {
-                CertificateExtensions extensions = (CertificateExtensions)
-                        certInfo.get(X509CertInfo.EXTENSIONS);
+                CertificateExtensions extensions = (CertificateExtensions) certInfo.get(X509CertInfo.EXTENSIONS);
 
-                if (extensions != null)
+                if (extensions != null) {
                     authToken.set(AuthToken.TOKEN_CERT_EXTENSIONS, extensions);
-            } // error means it's not set.
-            catch (CertificateException e) {
-            } catch (IOException e) {
+                }
+
+            }  catch (CertificateException | IOException e) {
+                // error means it's not set
             }
 
         } finally {
@@ -581,11 +568,11 @@ public abstract class DirBasedAuthentication extends AuthManager implements IExt
 
                 String[] attrs = getLdapAttrs();
                 if (attrs == null) {
-                    logger.info("DirBasedAuthentication: - no attributes found");
+                    logger.debug("DirBasedAuthentication: - no attributes found");
                 } else {
-                    logger.info("DirBasedAuthentication: - attributes:");
+                    logger.debug("DirBasedAuthentication: - attributes:");
                     for (String attr : attrs) {
-                        logger.info("DirBasedAuthentication:   - " + attr);
+                        logger.debug("DirBasedAuthentication:   - " + attr);
                     }
                 }
 
@@ -605,7 +592,7 @@ public abstract class DirBasedAuthentication extends AuthManager implements IExt
 
                 // formulate the subject dn
                 dn = formSubjectName(entry);
-                logger.info("DirBasedAuthentication: DN: " + dn);
+                logger.debug("DirBasedAuthentication: - subject DN: " + dn);
 
                 // Put selected values from the entry into the token
                 setAuthTokenValues(entry, token);
@@ -662,10 +649,13 @@ public abstract class DirBasedAuthentication extends AuthManager implements IExt
      * a the ldapAttributes configuration parameter.
      */
     protected void setAuthTokenValues(LDAPEntry e, AuthToken tok) {
-        for (int i = 0; i < mLdapStringAttrs.length; i++)
+        for (int i = 0; i < mLdapStringAttrs.length; i++) {
             setAuthTokenStringValue(mLdapStringAttrs[i], e, tok);
-        for (int j = 0; j < mLdapByteAttrs.length; j++)
+        }
+
+        for (int j = 0; j < mLdapByteAttrs.length; j++) {
             setAuthTokenByteValue(mLdapByteAttrs[j], e, tok);
+        }
     }
 
     protected void setAuthTokenStringValue(
