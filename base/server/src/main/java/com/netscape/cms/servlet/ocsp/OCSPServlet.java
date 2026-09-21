@@ -293,10 +293,11 @@ public class OCSPServlet extends CMSServlet {
                             ResponseData data = basicRes.getResponseData();
                             for (int i = 0; i < data.getResponseCount(); i++) {
                                 SingleResponse res = data.getResponseAt(i);
+                                CertId certID = new CertId(res.getCertID().getSerialNumber());
                                 logger.debug("OCSPServlet: Serial Number: " +
-                                          res.getCertID().getSerialNumber());
+                                        certID.toHexString());
                                 logger.debug("OCSPServlet: Status: " +
-                                          res.getCertStatus().getClass().getName());
+                                        res.getCertStatus().getClass().getName());
                             }
                         }
                     }
