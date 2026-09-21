@@ -1930,6 +1930,17 @@ public class KRATool {
                           + "        "
                           + "      regeneration with user confirmation."
                           + NEWLINE);
+
+        System.out.println("NOTE: When using an nShield Connect XC HSM, a warning about"
+                          + NEWLINE
+                          + "      CKA_DECRYPT being set in an unwrapping key may appear."
+                          + NEWLINE
+                          + "      This is expected -- KRA session keys are generated with"
+                          + NEWLINE
+                          + "      both encrypt/decrypt and wrap/unwrap attributes, which is"
+                          + NEWLINE
+                          + "      standard KRA behavior. The operation completes successfully."
+                          + NEWLINE);
     }
 
     /*******************/
@@ -2821,8 +2832,11 @@ public class KRATool {
             log("Importing session key to processing token" + NEWLINE, false);
         }
 
-        // cross-scheme: If same token, just return the original key
-        if (sessionKey.getOwningToken() == processingToken) {
+        // cross-scheme: If same token, just return the original key.
+        // Use equals() rather than == because different Java objects can wrap
+        // the same PKCS#11 slot; PK11Token.equals() compares the underlying
+        // native token proxy, correctly handling duplicate label edge cases.
+        if (sessionKey.getOwningToken().equals(processingToken)) {
             if (mVerboseFlag) {
                 log("Session key already on processing token" + NEWLINE, false);
             }
@@ -3250,9 +3264,9 @@ public class KRATool {
 
         try {
             if (mUseNssForPayloadProcessing) {
-                // Use NSS DB (software token) for payload unwrap/rewrap operations
-                // Note: In FIPS mode, the token is already logged in from CryptoManager initialization.
-                // In non-FIPS mode, explicit login is not required for key operations.
+                // Use NSS DB (software token) for payload unwrap/rewrap operations.
+                // In FIPS mode the internal token is logged in during initialization.
+                // In non-FIPS mode explicit login is not required for key operations.
                 processingToken = CryptoManager.getInstance().getInternalKeyStorageToken();
 
                 if (mVerboseFlag) {
@@ -3263,15 +3277,6 @@ public class KRATool {
                 processingToken = mSourceToken;
                 if (mVerboseFlag) {
                     log("Using same HSM for payload processing" + NEWLINE, false);
-                }
-            }
-
-            // Verify token is logged in (required in FIPS mode)
-            if (CryptoManager.getInstance().FIPSEnabled()) {
-                if (processingToken.needsLogin() && !processingToken.isLoggedIn()) {
-                    log("ERROR: FIPS mode requires processing token to be logged in, but it is not." + NEWLINE +
-                        "       Token state may be inconsistent." + NEWLINE, true);
-                    throw new Exception("FIPS mode: Processing token requires login but is not logged in");
                 }
             }
 
