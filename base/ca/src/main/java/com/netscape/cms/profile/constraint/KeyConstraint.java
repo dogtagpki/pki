@@ -351,18 +351,13 @@ public class KeyConstraint extends EnrollConstraint {
                 if (vect != null) {
                     logger.debug("vect: " + vect);
 
-                    if (!isOptional(keyType)) {
-                        //Check the curve parameters only if explicit ECC or not optional
-                        for (String ecCurve : vect) {
-                            logger.debug("EC key parameter: " + ecCurve);
-                            if (isAllowedKeyStrengthForAlgorithm(keyParams, allowedKeysMap, "EC", ecCurve)) {
-                                curveFound = true;
-                                logger.debug("KeyConstraint.validate: EC key constrainst passed.");
-                                break;
-                            }
+                    for (String ecCurve : vect) {
+                        logger.debug("EC key parameter: " + ecCurve);
+                        if (isAllowedKeyStrengthForAlgorithm(keyParams, allowedKeysMap, "EC", ecCurve)) {
+                            curveFound = true;
+                            logger.debug("KeyConstraint.validate: EC key constrainst passed.");
+                            break;
                         }
-                    } else {
-                        curveFound = true;
                     }
                 }
 
