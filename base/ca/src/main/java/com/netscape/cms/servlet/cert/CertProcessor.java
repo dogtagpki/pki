@@ -235,7 +235,7 @@ public class CertProcessor extends CAProcessor {
                 // reset the "auditRequesterID"
                 auditRequesterID = auditRequesterID(req);
 
-                logger.info("CertProcessor: Processing certificate request:");
+                logger.info("CertProcessor: Processing certificate request " + req.getRequestId());
 
                 if (req != null) {
                     Enumeration<String> reqKeys = req.getExtDataKeys();
@@ -243,7 +243,7 @@ public class CertProcessor extends CAProcessor {
                         String reqKey = reqKeys.nextElement();
                         String reqVal = req.getExtDataInString(reqKey);
                         if (reqVal != null) {
-                            logger.info("CertProcessor: - " + reqKey + ": " + reqVal);
+                            logger.debug("CertProcessor: - " + reqKey + ": " + reqVal);
                         }
                     }
                 }
@@ -337,7 +337,11 @@ public class CertProcessor extends CAProcessor {
             Profile profile, Map<String, String> ctx, AuthManager authenticator, AuthToken authToken,
             Request[] reqs) throws Exception {
 
+        int i = 0;
         for (Request req : reqs) {
+
+            logger.info("CertProcessor: Populating request #" + i);
+
             // adding parameters to request
             if (isRenewal) {
                 setInputsIntoRequest(origReq, profile, req, locale);
@@ -357,7 +361,7 @@ public class CertProcessor extends CAProcessor {
                     String uid = authToken.getInString(AuthToken.UID);
                     if (uid == null)
                         uid = "";
-                    logger.debug("CertProcessor: request from RA: " + uid);
+                    logger.debug("CertProcessor: - request from RA: " + uid);
                     req.setExtData(ARG_REQUEST_OWNER, uid);
                 }
             }
@@ -372,24 +376,33 @@ public class CertProcessor extends CAProcessor {
 
             if (setId == null) {
                 // no profile set found
-                logger.error("CertProcessor: no profile policy set found");
+                logger.error("CertProcessor: Missing policy set");
                 throw new EBaseException(CMS.getUserMessage(locale, "CMS_PROFILE_NO_POLICY_SET_FOUND"));
             }
 
-            logger.debug("CertProcessor: profileSetid=" + setId);
+            logger.debug("CertProcessor: - profile set: " + setId);
             req.setExtData(ARG_PROFILE_SET_ID, setId);
             req.setExtData(ARG_PROFILE_REMOTE_HOST, data.getRemoteHost());
             req.setExtData(ARG_PROFILE_REMOTE_ADDR, data.getRemoteAddr());
 
-            logger.debug("CertProcessor: request " + req.getRequestId());
+            logger.debug("CertProcessor: - request: " + req.getRequestId());
 
-            logger.debug("CertProcessor: populating request inputs");
+            logger.debug("CertProcessor: Populating request inputs");
             // give authenticator a chance to populate the request
             if (authenticator != null) {
                 authenticator.populate(authToken, req);
             }
             profile.populateInput(ctx, req);
             profile.populate(req);
+
+            logger.debug("CertProcessor: Request #" + i + ":");
+            for (Enumeration<String> e = req.getExtDataKeys(); e.hasMoreElements(); ) {
+                String name = e.nextElement();
+                String value = req.getExtDataInString(name);
+                logger.debug("CertProcessor: - " + name + ": " + value);
+            }
+
+            i++;
         }
     }
 
