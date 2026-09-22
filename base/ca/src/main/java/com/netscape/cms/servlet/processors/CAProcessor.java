@@ -403,6 +403,7 @@ public class CAProcessor extends Processor {
             SessionContext context,
             AuthCredentials credentials) throws EBaseException
     {
+
         AuthToken authToken = authenticate(authenticator, request, credentials);
         // For renewal, fill in necessary params
         if (authToken != null) {
@@ -464,6 +465,8 @@ public class CAProcessor extends Processor {
             HttpServletRequest request,
             AuthCredentials credentials) throws EBaseException {
 
+        logger.info("CAProcessor: Processing authentication");
+
         if (credentials == null) {
             credentials = new AuthCredentials();
 
@@ -473,8 +476,8 @@ public class CAProcessor extends Processor {
             if (authNames != null) {
                 while (authNames.hasMoreElements()) {
                     String authName = authNames.nextElement();
-
-                    credentials.set(authName, request.getParameter(authName));
+                    String value = request.getParameter(authName);
+                    credentials.set(authName, value);
                 }
             }
         }
@@ -482,7 +485,13 @@ public class CAProcessor extends Processor {
         credentials.set("clientHost", request.getRemoteHost());
 
         AuthToken authToken = authenticator.authenticate(credentials);
-        logger.debug("CAProcessor: Token: " + authToken);
+
+        // logger.debug("CAProcessor: AuthToken:");
+        for (Enumeration<String> e = authToken.getElements(); e.hasMoreElements(); ) {
+            String name = e.nextElement();
+            Object value = authToken.get(name);
+            // logger.debug("CAProcessor: - " + name + ": " + value);
+        }
 
         SessionContext sc = SessionContext.getContext();
         if (sc != null) {
@@ -504,9 +513,14 @@ public class CAProcessor extends Processor {
             boolean isRenewal,
             AuthCredentials credentials) throws EBaseException {
 
+        if (isRenewal) {
+            logger.info("CAProcessor: Authenticating renewal request");
+        } else {
+            logger.info("CAProcessor: Authenticating enrollment request");
+        }
+
         startTiming("profile_authentication");
 
-        logger.debug("authenticate: authentication required.");
         String uid_cred = "Unidentified";
         String uid_attempted_cred = "Unidentified";
 
@@ -516,6 +530,8 @@ public class CAProcessor extends Processor {
             while (authIds.hasMoreElements()) {
                 String authName = authIds.nextElement();
                 String value = request.getParameter(authName);
+                logger.debug("CAProcessor: - " + authName + ": " + value);
+
                 if (value != null) {
                     if (authName.equals("uid")) {
                         uid_attempted_cred = value;
