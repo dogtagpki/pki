@@ -54,11 +54,16 @@ public class EnrollmentProcessor extends CertProcessor {
     }
 
     private void setInputsIntoContext(CertEnrollmentRequest data, Profile profile, Map<String, String> ctx) {
+
         // put profile inputs into a local map
         HashMap<String, String> dataInputs = new HashMap<>();
         for (ProfileInput input : data.getInputs()) {
+            // logger.debug("EnrollmentProcessor: Request input " + input.getId() + ":");
             for (ProfileAttribute attr : input.getAttributes()) {
-                dataInputs.put(attr.getName(), attr.getValue());
+                String name = attr.getName();
+                String value = attr.getValue();
+                // logger.debug("EnrollmentProcessor: - " + name + ": " + value);
+                dataInputs.put(name, value);
             }
         }
 
@@ -67,17 +72,22 @@ public class EnrollmentProcessor extends CertProcessor {
         if (inputIds != null) {
             while (inputIds.hasMoreElements()) {
                 String inputId = inputIds.nextElement();
+                // logger.debug("EnrollmentProcessor: Profile input " + inputId + ":");
+
                 com.netscape.cms.profile.common.ProfileInput profileInput = profile.getProfileInput(inputId);
                 Enumeration<String> inputNames = profileInput.getValueNames();
 
                 while (inputNames.hasMoreElements()) {
                     String inputName = inputNames.nextElement();
+                    String value = dataInputs.get(inputName);
+                    // logger.debug("EnrollmentProcessor: - " + inputName + ": " + value);
+
                     if (dataInputs.containsKey(inputName)) {
                         // all subject name parameters start with sn_, no other input parameters do
                         if (inputName.matches("^sn_.*")) {
-                            ctx.put(inputName, LDAPUtil.escapeRDNValue(dataInputs.get(inputName)));
+                            ctx.put(inputName, LDAPUtil.escapeRDNValue(value));
                         } else {
-                            ctx.put(inputName, dataInputs.get(inputName));
+                            ctx.put(inputName, value);
                         }
                     }
                 }
@@ -119,19 +129,20 @@ public class EnrollmentProcessor extends CertProcessor {
             AuthToken authToken)
         throws Exception {
 
+        logger.info("EnrollmentProcessor: Processing enrollment");
+
         try {
             if (logger.isDebugEnabled()) {
                 HashMap<String,String> params = data.toParams();
                 printParameterValues(params);
             }
 
-            logger.debug("EnrollmentProcessor: isRenewal false");
             startTiming("enrollment");
 
             // if we did not configure profileId in xml file,
             // then accept the user-provided one
             String profileId = (this.profileID == null) ? data.getProfileId() : this.profileID;
-            logger.debug("EnrollmentProcessor: profileId " + profileId);
+            logger.debug("EnrollmentProcessor: - profile: " + profileId);
 
             Profile profile = ps.getProfile(profileId);
             if (profile == null) {
@@ -147,15 +158,18 @@ public class EnrollmentProcessor extends CertProcessor {
 
             // set arbitrary user data into request, if any
             String userData = null;
-            if (request != null)
+            if (request != null) {
                 userData = request.getParameter("user-data");
-            if (userData != null)
+            }
+
+            if (userData != null) {
                 ctx.put(EnrollProfile.REQUEST_USER_DATA, userData);
+            }
 
-            if (aid != null)
+            if (aid != null) {
                 ctx.put(EnrollProfile.REQUEST_AUTHORITY_ID, aid.toString());
+            }
 
-            logger.debug("EnrollmentProcessor: set Inputs into profile Context");
             setInputsIntoContext(data, profile, ctx);
 
             AuthManager authenticator = ps.getProfileAuthenticator(profile);
