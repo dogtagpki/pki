@@ -78,38 +78,41 @@ public class SubjectNameConstraint extends EnrollConstraint {
     @Override
     public void validate(Request request, X509CertInfo info)
             throws ERejectException {
-        logger.debug("SubjectNameConstraint: validate start");
-        CertificateSubjectName sn = null;
 
+        logger.info("SubjectNameConstraint: Validating subject name");
+
+        CertificateSubjectName sn = null;
         try {
             sn = (CertificateSubjectName) info.get(X509CertInfo.SUBJECT);
-            logger.debug("SubjectNameConstraint: validate cert subject =" +
-                         sn.toString());
+            logger.debug("SubjectNameConstraint: - subject: " + sn);
         } catch (Exception e) {
             throw new ERejectException(
                     CMS.getUserMessage(getLocale(request),
                             "CMS_PROFILE_SUBJECT_NAME_NOT_FOUND"));
         }
-        X500Name sn500 = null;
 
+        X500Name sn500 = null;
         try {
             sn500 = (X500Name) sn.get(CertificateSubjectName.DN_NAME);
+            logger.debug("SubjectNameConstraint: - X.500 name: " + sn500);
         } catch (IOException e) {
             throw new ERejectException(
                     CMS.getUserMessage(getLocale(request),
                             "CMS_PROFILE_SUBJECT_NAME_NOT_FOUND"));
         }
+
         if (sn500 == null) {
-            logger.error("SubjectNameConstraint: validate() - sn500 is null");
+            logger.error("SubjectNameConstraint: Missing X.500 name");
             throw new ERejectException(
                     CMS.getUserMessage(getLocale(request),
                             "CMS_PROFILE_SUBJECT_NAME_NOT_FOUND"));
         }
-        logger.debug("SubjectNameConstraint: validate() - sn500 " +
-                CertificateSubjectName.DN_NAME + " = " +
-                sn500.toString());
-        if (!sn500.toString().matches(getConfig(CONFIG_PATTERN))) {
-            logger.error("SubjectNameConstraint: validate() - sn500 not matching pattern " + getConfig(CONFIG_PATTERN));
+
+        String pattern = getConfig(CONFIG_PATTERN);
+        logger.debug("SubjectNameConstraint: - pattern: " + pattern);
+
+        if (!sn500.toString().matches(pattern)) {
+            logger.error("SubjectNameConstraint: Invalid X.500 name: " + sn500);
             throw new ERejectException(
                     CMS.getUserMessage(getLocale(request),
                             "CMS_PROFILE_SUBJECT_NAME_NOT_MATCHED",
