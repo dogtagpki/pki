@@ -226,8 +226,9 @@ public abstract class EnrollProfile extends Profile {
     @Override
     public Request[] createRequests(Map<String, String> ctx, Locale locale) throws Exception {
 
+        logger.info("EnrollProfile: Creating requests");
+
         String method = "EnrollProfile: createRequests: ";
-        logger.debug(method + "begins");
 
         // determine how many requests should be created
         String cert_request_type = ctx.get(CTX_CERT_REQUEST_TYPE);
@@ -237,14 +238,14 @@ public abstract class EnrollProfile extends Profile {
 
         /* cert_request_type can be null for the case of CMC */
         if (cert_request_type == null) {
-            logger.debug(method + " request type is null");
+            logger.warn("EnrollProfile: Missing request type");
         }
 
         int num_requests = 1; // default to 1 request
 
         if (cert_request_type != null && cert_request_type.startsWith("pkcs10")) {
 
-            logger.info("EnrollProfile: Parsing PKCS #10 request:");
+            logger.debug("EnrollProfile: Parsing PKCS #10 request:");
 
             CAEngine engine = CAEngine.getInstance();
             PKCS10 pkcs10 = engine.parsePKCS10(locale, cert_request);
@@ -255,7 +256,7 @@ public abstract class EnrollProfile extends Profile {
                 ObjectIdentifier attrID = attribute.getAttributeId();
                 CertAttrSet attrValues = attribute.getAttributeValue();
                 String attrName = attrValues.getName();
-                logger.info("EnrollProfile: - " + attrID + ": " + attrName);
+                logger.debug("EnrollProfile: - " + attrID + ": " + attrName);
             }
         }
 
@@ -305,6 +306,7 @@ public abstract class EnrollProfile extends Profile {
             renewal_seq_num = renewal_seq_num_str == null ? 0 : Integer.parseInt(renewal_seq_num_str);
         }
 
+        logger.debug("EnrollProfile: Creating " + num_requests + " request(s)");
         // populate requests with appropriate content
         Request result[] = new Request[num_requests];
 
@@ -2396,10 +2398,10 @@ public abstract class EnrollProfile extends Profile {
     public void fillPKCS10(Locale locale, PKCS10 pkcs10, X509CertInfo info, Request req)
             throws EProfileException, ECMCUnsupportedExtException {
 
-        logger.info("EnrollProfile: Processing PKCS #10 request:");
+        logger.info("EnrollProfile: Processing PKCS #10 request");
 
         X509Key key = pkcs10.getSubjectPublicKeyInfo();
-        logger.info("EnrollProfile: - key algorithm: " + key.getAlgorithm());
+        logger.debug("EnrollProfile: - key algorithm: " + key.getAlgorithm());
 
         try {
             CertificateX509Key certKey = new CertificateX509Key(key);
@@ -2409,7 +2411,7 @@ public abstract class EnrollProfile extends Profile {
             req.setExtData(Request.REQUEST_KEY, certKeyOut.toByteArray());
 
             X500Name subjectName = pkcs10.getSubjectName();
-            logger.info("EnrollProfile: - subject: " + subjectName);
+            logger.debug("EnrollProfile: - subject: " + subjectName);
 
             req.setExtData(Request.REQUEST_SUBJECT_NAME, new CertificateSubjectName(subjectName));
 
@@ -2423,7 +2425,7 @@ public abstract class EnrollProfile extends Profile {
                 subjectCN = "";
             }
 
-            logger.info("EnrollProfile: - subject CN: " + subjectCN);
+            logger.debug("EnrollProfile: - subject CN: " + subjectCN);
             req.setExtData(Request.REQUEST_SUBJECT_NAME + ".cn", subjectCN);
 
             String subjectUID;
@@ -2436,7 +2438,7 @@ public abstract class EnrollProfile extends Profile {
                 subjectUID = "";
             }
 
-            logger.info("EnrollProfile: - subject UID: " + subjectUID);
+            logger.debug("EnrollProfile: - subject UID: " + subjectUID);
             req.setExtData(Request.REQUEST_SUBJECT_NAME + ".uid", subjectUID);
 
             info.set(X509CertInfo.KEY, certKey);
@@ -2444,11 +2446,11 @@ public abstract class EnrollProfile extends Profile {
             PKCS10Attributes p10Attrs = pkcs10.getAttributes();
             if (p10Attrs != null) {
 
-                logger.info("EnrollProfile: - attributes:");
+                logger.debug("EnrollProfile: - attributes:");
 
                 for (Enumeration<PKCS10Attribute> e = p10Attrs.getElements(); e.hasMoreElements(); ) {
                     PKCS10Attribute p10Attr = e.nextElement();
-                    logger.info("EnrollProfile:   - " + p10Attr.getAttributeId());
+                    logger.debug("EnrollProfile:   - " + p10Attr.getAttributeId());
                 }
 
                 PKCS10Attribute p10Attr = p10Attrs.getAttribute(CertificateExtensions.NAME);
@@ -2463,7 +2465,7 @@ public abstract class EnrollProfile extends Profile {
                     Enumeration<String> extNames = extensions.getAttributeNames();
                     while (extNames.hasMoreElements()) {
                         String name = extNames.nextElement();
-                        logger.info("EnrollProfile:   - " + name);
+                        logger.debug("EnrollProfile:   - " + name);
                     }
 
                     DerOutputStream extOut = new DerOutputStream();
