@@ -15,6 +15,7 @@
 // (C) 2017 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
+package com.example.pki.client;
 
 import java.io.File;
 import java.net.InetAddress;
@@ -30,26 +31,42 @@ import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 
 /**
- * First, create an NSS database:
- * $ pki -c Secret.123 client-init
+ * First, export the CA signing cert from the CA:
+ * $ pki-server cert-export \
+ *     --cert-file ca_signing.crt \
+ *     ca_signing
  *
- * Then import CA admin certificate and key from PKCS #12 file:
- * $ pki -c Secret.123 pkcs12-import --pkcs12 &lt;file&gt; --password &lt;password&gt;
+ * Then import the CA signing cert into the client NSS database:
+ * $ pki nss-cert-import \
+ *     --cert ca_signing.crt \
+ *     --trust CT,C,C \
+ *     ca_signing
+ *
+ * Then import the CA admin cert and key into the client NSS database:
+ * $ pki pkcs12-import \
+ *     --pkcs12 &lt;file&gt; \
+ *     --password &lt;password&gt;
  *
  * To compile the program:
- * $ javac -cp "/usr/lib/java/jss.jar:../../lib/*" CAClientExample.java
+ * $ javac \
+ *     -cp "/usr/share/pki/lib/*" \
+ *     com/example/pki/client/CAAccountClientExample.java
  *
  * To run the program:
- * $ java -cp "../../lib/*:." CAClientExample
+ * $ java \
+ *     -cp "/usr/share/pki/lib/*:." \
+ *     --enable-native-access=ALL-UNNAMED \
+ *     -Djava.util.logging.config.file=/usr/share/pki/etc/logging.properties \
+ *     com.example.pki.client.CAAccountClientExample
  */
-public class CAClientExample {
+public class CAAccountClientExample {
 
     public static void main(String args[]) throws Exception {
 
         String home = System.getProperty("user.home");
 
         String nssDatabasePath = home + File.separator + ".dogtag" + File.separator + "nssdb";
-        String nssDatabasePassword = "Secret.123";
+        String nssDatabasePassword = "";
 
         String protocol = "https";
         String hostname = InetAddress.getLocalHost().getHostName();
