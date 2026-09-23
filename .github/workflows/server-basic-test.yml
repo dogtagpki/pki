@@ -332,6 +332,174 @@ jobs:
 
           diff expected output
 
+      - name: Check ROOT webapp dir
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /usr/share/pki/server/webapps/ROOT \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          cat > expected << EOF
+          drwxr-xr-x root root WEB-INF
+          -rw-r--r-- root root index.jsp
+          drwxr-xr-x root root jquery-3.5.1
+          drwxr-xr-x root root patternfly-4.35.2
+          EOF
+
+          diff expected output
+
+      - name: Check PKI webapp lib dir
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /usr/share/pki/server/webapps/pki/WEB-INF/lib \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          cat > expected << EOF
+          lrwxrwxrwx root root pki-server-webapp.jar -> ../../../../../../../../usr/share/java/pki/pki-server-webapp.jar
+          lrwxrwxrwx root root pki-server.jar -> ../../../../../../../../usr/share/java/pki/pki-server.jar
+          lrwxrwxrwx root root resteasy-servlet-initializer.jar -> ../../../../../server/common/lib/resteasy-servlet-initializer.jar
+          lrwxrwxrwx root root slf4j-api.jar -> ../../../../../lib/slf4j-api.jar
+          lrwxrwxrwx root root slf4j-jdk14.jar -> ../../../../../lib/slf4j-jdk14.jar
+          EOF
+
+          diff expected output
+
+      - name: Check CA webapp lib dir
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /usr/share/pki/ca/webapps/ca/WEB-INF/lib \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          cat > expected << EOF
+          lrwxrwxrwx root root pki-ca.jar -> ../../../../../../../../usr/share/java/pki/pki-ca.jar
+          lrwxrwxrwx root root pki-server.jar -> ../../../../../../../../usr/share/java/pki/pki-server.jar
+          lrwxrwxrwx root root resteasy-servlet-initializer.jar -> ../../../../../server/common/lib/resteasy-servlet-initializer.jar
+          lrwxrwxrwx root root slf4j-api.jar -> ../../../../../lib/slf4j-api.jar
+          lrwxrwxrwx root root slf4j-jdk14.jar -> ../../../../../lib/slf4j-jdk14.jar
+          EOF
+
+          diff expected output
+
+      - name: Check KRA webapp lib dir
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /usr/share/pki/kra/webapps/kra/WEB-INF/lib \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          cat > expected << EOF
+          lrwxrwxrwx root root pki-kra.jar -> ../../../../../../../../usr/share/java/pki/pki-kra.jar
+          lrwxrwxrwx root root pki-server.jar -> ../../../../../../../../usr/share/java/pki/pki-server.jar
+          lrwxrwxrwx root root resteasy-servlet-initializer.jar -> ../../../../../server/common/lib/resteasy-servlet-initializer.jar
+          lrwxrwxrwx root root slf4j-api.jar -> ../../../../../lib/slf4j-api.jar
+          lrwxrwxrwx root root slf4j-jdk14.jar -> ../../../../../lib/slf4j-jdk14.jar
+          EOF
+
+          diff expected output
+
+      - name: Check OCSP webapp lib dir
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /usr/share/pki/ocsp/webapps/ocsp/WEB-INF/lib \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          cat > expected << EOF
+          lrwxrwxrwx root root pki-ocsp.jar -> ../../../../../../../../usr/share/java/pki/pki-ocsp.jar
+          lrwxrwxrwx root root pki-server.jar -> ../../../../../../../../usr/share/java/pki/pki-server.jar
+          lrwxrwxrwx root root resteasy-servlet-initializer.jar -> ../../../../../server/common/lib/resteasy-servlet-initializer.jar
+          lrwxrwxrwx root root slf4j-api.jar -> ../../../../../lib/slf4j-api.jar
+          lrwxrwxrwx root root slf4j-jdk14.jar -> ../../../../../lib/slf4j-jdk14.jar
+          EOF
+
+          diff expected output
+
+      - name: Check TKS webapp lib dir
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /usr/share/pki/tks/webapps/tks/WEB-INF/lib \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          cat > expected << EOF
+          lrwxrwxrwx root root pki-server.jar -> ../../../../../../../../usr/share/java/pki/pki-server.jar
+          lrwxrwxrwx root root pki-tks.jar -> ../../../../../../../../usr/share/java/pki/pki-tks.jar
+          lrwxrwxrwx root root resteasy-servlet-initializer.jar -> ../../../../../server/common/lib/resteasy-servlet-initializer.jar
+          lrwxrwxrwx root root slf4j-api.jar -> ../../../../../lib/slf4j-api.jar
+          lrwxrwxrwx root root slf4j-jdk14.jar -> ../../../../../lib/slf4j-jdk14.jar
+          EOF
+
+          diff expected output
+
+      - name: Check TPS webapp lib dir
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /usr/share/pki/tps/webapps/tps/WEB-INF/lib \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          cat > expected << EOF
+          lrwxrwxrwx root root pki-server.jar -> ../../../../../../../../usr/share/java/pki/pki-server.jar
+          lrwxrwxrwx root root pki-tps.jar -> ../../../../../../../../usr/share/java/pki/pki-tps.jar
+          lrwxrwxrwx root root resteasy-servlet-initializer.jar -> ../../../../../server/common/lib/resteasy-servlet-initializer.jar
+          lrwxrwxrwx root root slf4j-api.jar -> ../../../../../lib/slf4j-api.jar
+          lrwxrwxrwx root root slf4j-jdk14.jar -> ../../../../../lib/slf4j-jdk14.jar
+          EOF
+
+          diff expected output
+
+      - name: Check ACME webapp lib dir
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /usr/share/pki/acme/webapps/acme/WEB-INF/lib \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          cat > expected << EOF
+          lrwxrwxrwx root root pki-acme.jar -> ../../../../../../../../usr/share/java/pki/pki-acme.jar
+          lrwxrwxrwx root root pki-server.jar -> ../../../../../../../../usr/share/java/pki/pki-server.jar
+          lrwxrwxrwx root root slf4j-api.jar -> ../../../../../lib/slf4j-api.jar
+          lrwxrwxrwx root root slf4j-jdk14.jar -> ../../../../../lib/slf4j-jdk14.jar
+          EOF
+
+          diff expected output
+
+      - name: Check EST webapp lib dir
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /usr/share/pki/est/webapps/est/WEB-INF/lib \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          cat > expected << EOF
+          lrwxrwxrwx root root pki-est.jar -> ../../../../../../../../usr/share/java/pki/pki-est.jar
+          lrwxrwxrwx root root pki-server.jar -> ../../../../../../../../usr/share/java/pki/pki-server.jar
+          lrwxrwxrwx root root slf4j-api.jar -> ../../../../../lib/slf4j-api.jar
+          lrwxrwxrwx root root slf4j-jdk14.jar -> ../../../../../lib/slf4j-jdk14.jar
+          EOF
+
+          diff expected output
+
       - name: Check pki-server CLI help message
         run: |
           docker exec pki pki-server
@@ -387,7 +555,7 @@ jobs:
               | tee output
 
           # TODO: review permissions
-          cat > expected_old << EOF
+          cat > expected << EOF
           lrwxrwxrwx pkiuser pkiuser bin -> /usr/share/tomcat/bin
           drwxr-x--- pkiuser pkiuser common
           lrwxrwxrwx pkiuser pkiuser conf -> /etc/pki/pki-tomcat
@@ -398,18 +566,23 @@ jobs:
           drwxr-x--- pkiuser pkiuser work
           EOF
 
-          cat > expected_new << EOF
-          lrwxrwxrwx pkiuser pkiuser bin -> /usr/share/tomcat/bin
-          drwxr-x--- pkiuser pkiuser common
-          lrwxrwxrwx pkiuser pkiuser conf -> /etc/pki/pki-tomcat
-          lrwxrwxrwx pkiuser pkiuser lib -> /usr/share/pki/server/lib
-          lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-tomcat
-          drwxr-x--- pkiuser pkiuser temp
-          drwxr-x--- pkiuser pkiuser webapps
-          drwxr-x--- pkiuser pkiuser work
+          diff expected output
+
+      - name: Check pki-tomcat server common dir after installation
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /var/lib/pki/pki-tomcat/common \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          # TODO: review permissions
+          cat > expected << EOF
+          lrwxrwxrwx pkiuser pkiuser lib -> /usr/share/pki/server/common/lib
           EOF
 
-          diff expected_$TOMCAT_FLAVOR output
+          diff expected output
 
       - name: Check pki-tomcat server conf dir after installation
         run: |
@@ -421,7 +594,7 @@ jobs:
               | tee output
 
           # TODO: review permissions
-          cat > expected_old << EOF
+          cat > expected << EOF
           drwxr-x--- pkiuser pkiuser Catalina
           -rw-rw---- pkiuser pkiuser catalina.policy
           lrwxrwxrwx pkiuser pkiuser catalina.properties -> /usr/share/pki/server/conf/catalina.properties
@@ -433,19 +606,7 @@ jobs:
           lrwxrwxrwx pkiuser pkiuser web.xml -> /etc/tomcat/web.xml
           EOF
 
-          cat > expected_new << EOF
-          drwxr-x--- pkiuser pkiuser Catalina
-          -rw-rw---- pkiuser pkiuser catalina.policy
-          lrwxrwxrwx pkiuser pkiuser catalina.properties -> /usr/share/pki/server/conf/catalina.properties
-          drwxr-x--- pkiuser pkiuser certs
-          lrwxrwxrwx pkiuser pkiuser context.xml -> /etc/tomcat/context.xml
-          lrwxrwxrwx pkiuser pkiuser logging.properties -> /usr/share/pki/server/conf/logging.properties
-          -rw-rw---- pkiuser pkiuser server.xml
-          -rw-rw---- pkiuser pkiuser tomcat.conf
-          lrwxrwxrwx pkiuser pkiuser web.xml -> /etc/tomcat/web.xml
-          EOF
-
-          diff expected_$TOMCAT_FLAVOR output
+          diff expected output
 
       - name: Check pki-tomcat server.xml
         if: always()
@@ -584,17 +745,12 @@ jobs:
               | tee output
 
           # TODO: review permissions
-          cat > expected_old << EOF
+          cat > expected << EOF
           lrwxrwxrwx pkiuser pkiuser conf -> /etc/pki/pki-tomcat
           lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-tomcat
           EOF
 
-          cat > expected_new << EOF
-          lrwxrwxrwx pkiuser pkiuser conf -> /etc/pki/pki-tomcat
-          lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-tomcat
-          EOF
-
-          diff expected_$TOMCAT_FLAVOR output
+          diff expected output
 
       - name: Check pki-tomcat server conf dir after removal
         run: |
@@ -606,7 +762,7 @@ jobs:
               | tee output
 
           # TODO: review permissions
-          cat > expected_old << EOF
+          cat > expected << EOF
           drwxr-x--- pkiuser pkiuser Catalina
           -rw-rw---- pkiuser pkiuser catalina.policy
           lrwxrwxrwx pkiuser pkiuser catalina.properties -> /usr/share/pki/server/conf/catalina.properties
@@ -618,19 +774,7 @@ jobs:
           lrwxrwxrwx pkiuser pkiuser web.xml -> /etc/tomcat/web.xml
           EOF
 
-          cat > expected_new << EOF
-          drwxr-x--- pkiuser pkiuser Catalina
-          -rw-rw---- pkiuser pkiuser catalina.policy
-          lrwxrwxrwx pkiuser pkiuser catalina.properties -> /usr/share/pki/server/conf/catalina.properties
-          drwxr-x--- pkiuser pkiuser certs
-          lrwxrwxrwx pkiuser pkiuser context.xml -> /etc/tomcat/context.xml
-          lrwxrwxrwx pkiuser pkiuser logging.properties -> /usr/share/pki/server/conf/logging.properties
-          -rw-rw---- pkiuser pkiuser server.xml
-          -rw-rw---- pkiuser pkiuser tomcat.conf
-          lrwxrwxrwx pkiuser pkiuser web.xml -> /etc/tomcat/web.xml
-          EOF
-
-          diff expected_$TOMCAT_FLAVOR output
+          diff expected output
 
       - name: Check pki-tomcat server logs dir after removal
         if: ${{ fromJSON(env.FEDORA_VERSION) < 43 }}
@@ -699,7 +843,7 @@ jobs:
               | tee output
 
           # TODO: review permissions
-          cat > expected_old << EOF
+          cat > expected << EOF
           lrwxrwxrwx tomcat tomcat bin -> /usr/share/tomcat/bin
           drwxr-x--- tomcat tomcat common
           drwxr-x--- tomcat tomcat conf
@@ -710,18 +854,7 @@ jobs:
           drwxr-x--- tomcat tomcat work
           EOF
 
-          cat > expected_new << EOF
-          lrwxrwxrwx tomcat tomcat bin -> /usr/share/tomcat/bin
-          drwxr-x--- tomcat tomcat common
-          drwxr-x--- tomcat tomcat conf
-          lrwxrwxrwx tomcat tomcat lib -> /usr/share/pki/server/lib
-          drwxr-x--- tomcat tomcat logs
-          drwxr-x--- tomcat tomcat temp
-          drwxr-x--- tomcat tomcat webapps
-          drwxr-x--- tomcat tomcat work
-          EOF
-
-          diff expected_$TOMCAT_FLAVOR output
+          diff expected output
 
       - name: Check tomcat@pki server conf dir after installation
         run: |
@@ -733,7 +866,7 @@ jobs:
               | tee output
 
           # TODO: review permissions
-          cat > expected_old << EOF
+          cat > expected << EOF
           drwxr-x--- tomcat tomcat Catalina
           -rw-rw---- tomcat tomcat catalina.policy
           lrwxrwxrwx tomcat tomcat catalina.properties -> /usr/share/pki/server/conf/catalina.properties
@@ -745,19 +878,7 @@ jobs:
           lrwxrwxrwx tomcat tomcat web.xml -> /etc/tomcat/web.xml
           EOF
 
-          cat > expected_new << EOF
-          drwxr-x--- tomcat tomcat Catalina
-          -rw-rw---- tomcat tomcat catalina.policy
-          lrwxrwxrwx tomcat tomcat catalina.properties -> /usr/share/pki/server/conf/catalina.properties
-          drwxr-x--- tomcat tomcat certs
-          lrwxrwxrwx tomcat tomcat context.xml -> /etc/tomcat/context.xml
-          -rw-rw---- tomcat tomcat logging.properties
-          -rw-rw---- tomcat tomcat server.xml
-          -rw-rw---- tomcat tomcat tomcat.conf
-          lrwxrwxrwx tomcat tomcat web.xml -> /etc/tomcat/web.xml
-          EOF
-
-          diff expected_$TOMCAT_FLAVOR output
+          diff expected output
 
       - name: Check tomcat@pki server.xml
         if: always()
@@ -852,17 +973,12 @@ jobs:
               | tee output
 
           # TODO: review permissions
-          cat > expected_old << EOF
+          cat > expected << EOF
           drwxr-x--- tomcat tomcat conf
           drwxr-x--- tomcat tomcat logs
           EOF
 
-          cat > expected_new << EOF
-          drwxr-x--- tomcat tomcat conf
-          drwxr-x--- tomcat tomcat logs
-          EOF
-
-          diff expected_$TOMCAT_FLAVOR output
+          diff expected output
 
       - name: Check tomcat@pki server conf dir after removal
         run: |
@@ -874,7 +990,7 @@ jobs:
               | tee output
 
           # TODO: review permissions
-          cat > expected_old << EOF
+          cat > expected << EOF
           drwxr-x--- tomcat tomcat Catalina
           -rw-rw---- tomcat tomcat catalina.policy
           lrwxrwxrwx tomcat tomcat catalina.properties -> /usr/share/pki/server/conf/catalina.properties
@@ -886,26 +1002,7 @@ jobs:
           lrwxrwxrwx tomcat tomcat web.xml -> /etc/tomcat/web.xml
           EOF
 
-          cat > expected_new << EOF
-          drwxr-x--- tomcat tomcat Catalina
-          -rw-rw---- tomcat tomcat catalina.policy
-          lrwxrwxrwx tomcat tomcat catalina.properties -> /usr/share/pki/server/conf/catalina.properties
-          drwxr-x--- tomcat tomcat certs
-          lrwxrwxrwx tomcat tomcat context.xml -> /etc/tomcat/context.xml
-          -rw-rw---- tomcat tomcat logging.properties
-          -rw-rw---- tomcat tomcat server.xml
-          -rw-rw---- tomcat tomcat tomcat.conf
-          lrwxrwxrwx tomcat tomcat web.xml -> /etc/tomcat/web.xml
-          EOF
-
-          if [ $TOMCAT_FLAVOR == 'new' ]; then
-              echo "New tomcat 10!"
-              echo "Skipping ..."
-              #diff expected_$TOMCAT_FLAVOR output
-          else
-              echo "Old tomcat 10!"
-              diff expected_$TOMCAT_FLAVOR output
-          fi
+          diff expected output
 
       - name: Check tomcat@pki server logs dir after removal
         if: ${{ fromJSON(env.FEDORA_VERSION) < 43 }}
