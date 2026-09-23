@@ -33,14 +33,14 @@ ARG COPR_REPO
 RUN if [ -n "$COPR_REPO" ]; then dnf copr enable -y $COPR_REPO; fi
 
 # Install PKI runtime dependencies
+# Don't include PKI packages and frequently updated dependencies
 RUN dnf install -y dogtag-pki \
-    && REGEX="^java-|^dogtag-|^python3-dogtag-" \
-    && REGEX="$REGEX|^apache-commons-cli-|^apache-commons-codec-|^apache-commons-io-|^apache-commons-lang3-|^apache-commons-logging-|^apache-commons-net-" \
-    && REGEX="$REGEX|^httpcomponents-|^slf4j-" \
-    && REGEX="$REGEX|^jakarta-activation-|^jakarta-annotations-|^jaxb-api-" \
-    && REGEX="$REGEX|^jboss-logging-|^jboss-jaxrs-2.0-api-" \
-    && REGEX="$REGEX|^jackson-|^pki-resteasy-" \
-    && rpm -e --nodeps $(rpm -qa | grep -E "$REGEX") \
+    && REGEX="^dogtag-|^python3-dogtag-" \
+    && REGEX="$REGEX|^java-|^jackson-|^pki-resteasy-|^tomcat-" \
+    && PACKAGES=$(rpm -qa | grep -E "$REGEX" | sort) \
+    && echo "Removing:" \
+    && for package in $(echo "$PACKAGES"); \
+       do echo " $package"; rpm -e --nodeps "$package"; done \
     && dnf clean all \
     && rm -rf /var/cache/dnf
 
@@ -52,9 +52,14 @@ COPY pki.spec /root/pki/
 WORKDIR /root/pki
 
 # Install PKI build dependencies
+# Don't include PKI packages
 RUN dnf install -y rpm-build \
     && dnf builddep -y --skip-unavailable pki.spec \
-    && rpm -e --nodeps $(rpm -qa | grep -E "^dogtag-|^python3-dogtag-") \
+    && REGEX="^dogtag-|^python3-dogtag-" \
+    && PACKAGES=$(rpm -qa | grep -E "$REGEX" | sort) \
+    && echo "Removing:" \
+    && for package in $(echo "$PACKAGES"); \
+       do echo " $package"; rpm -e --nodeps "$package"; done \
     && dnf clean all \
     && rm -rf /var/cache/dnf
 
