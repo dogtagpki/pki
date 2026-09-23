@@ -9,7 +9,7 @@ Name:             pki
 %undefine         product_version
 %global           theme dogtag
 
-Summary:          %{product_name} Package
+Summary:          %{product_name} %{?product_version:%{product_version}}%{!?product_version:Package}
 URL:              https://www.dogtagpki.org
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPL-2.0-only AND LGPL-2.0-only
@@ -365,7 +365,7 @@ to manage enterprise Public Key Infrastructure deployments.
 %package -n       %{product_id}
 ################################################################################
 
-Summary:          %{product_name} Package
+Summary:          %{product_name} %{?product_version:%{product_version}}%{!?product_version:Package}
 %endif
 
 Obsoletes:        pki-symkey < %{version}
