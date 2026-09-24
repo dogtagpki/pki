@@ -3,8 +3,8 @@ name: KRA clone failover
 # install a secondary KRA then enroll a cert, shut down the primary KRA
 # then enroll a cert, and finally remove the primary KRA then enroll a cert.
 
-on: workflow_call
-
+on:
+  workflow_dispatch:
 env:
   DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
 

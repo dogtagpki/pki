@@ -1,7 +1,7 @@
 name: Build PKI
 
-on: [push, pull_request]
-
+on:
+  workflow_dispatch:
 env:
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
   BASE_IMAGE: ${{ vars.BASE_IMAGE }}

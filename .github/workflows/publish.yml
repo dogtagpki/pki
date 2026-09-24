@@ -1,10 +1,7 @@
 name: Publish PKI
 
 on:
-  push:
-    branches:
-      - v11.9
-
+  workflow_dispatch:
 env:
   NAMESPACE: ${{ vars.REGISTRY_NAMESPACE || github.repository_owner }}
 

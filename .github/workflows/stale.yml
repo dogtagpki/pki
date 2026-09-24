@@ -2,9 +2,7 @@ name: 'Close stale issues and PRs'
 # https://github.com/actions/stale
 
 on:
-  schedule:
-    - cron: '30 1 * * *'
-
+  workflow_dispatch:
 permissions:
   # The actions permission is required for a cache problem. See https://github.com/actions/stale/issues/1133
   actions: write

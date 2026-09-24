@@ -2,8 +2,8 @@ name: CA renewal using pki ca-cert-issue
 # https://github.com/dogtagpki/pki/wiki/Renewing-System-Certificates
 # https://github.com/dogtagpki/pki/wiki/Renewing-Admin-Certificate
 
-on: workflow_call
-
+on:
+  workflow_dispatch:
 env:
   DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
 

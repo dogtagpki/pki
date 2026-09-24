@@ -25,8 +25,8 @@ name: OCSP clone
 # - Add CLI to simplify CA cert and CRL publishing configuration in CA
 # - Add CLI to simplify revocation info store configuration in OCSP
 
-on: workflow_call
-
+on:
+  workflow_dispatch:
 env:
   DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
 

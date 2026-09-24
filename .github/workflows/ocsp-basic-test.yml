@@ -8,8 +8,8 @@ name: Basic OCSP
 # - check status of non-existent cert
 # - check status of cert with wrong CA
 
-on: workflow_call
-
+on:
+  workflow_dispatch:
 env:
   DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
 

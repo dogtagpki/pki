@@ -12,8 +12,8 @@ name: PKI PKCS12 CLI
 # - import PKCS #12 file without CA certs
 # - import PKCS #12 file without user certs
 
-on: workflow_call
-
+on:
+  workflow_dispatch:
 env:
   DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
 

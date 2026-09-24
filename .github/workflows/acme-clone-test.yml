@@ -12,8 +12,8 @@ name: ACME clone
 #
 # https://github.com/dogtagpki/pki/wiki/Installing-ACME-Responder-Clone
 
-on: workflow_call
-
+on:
+  workflow_dispatch:
 env:
   DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
 

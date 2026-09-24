@@ -1,8 +1,8 @@
 name: KRA with existing certs
 # https://github.com/dogtagpki/pki/wiki/Installing-KRA-with-Existing-Certificates
 
-on: workflow_call
-
+on:
+  workflow_dispatch:
 env:
   DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
 

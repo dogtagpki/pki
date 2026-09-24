@@ -8,8 +8,8 @@ name: KRA clone
 #
 # docs/installation/kra/installing-kra-clone.adoc
 
-on: workflow_call
-
+on:
+  workflow_dispatch:
 env:
   DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
 

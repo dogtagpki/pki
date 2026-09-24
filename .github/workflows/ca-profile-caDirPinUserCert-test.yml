@@ -1,8 +1,8 @@
 name: CA with caDirPinUserCert profile
 # https://github.com/dogtagpki/pki/wiki/Certificate-Enrollment-with-PIN-Authenticated-Profile
 
-on: workflow_call
-
+on:
+  workflow_dispatch:
 env:
   DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
 

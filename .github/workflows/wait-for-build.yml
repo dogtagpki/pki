@@ -1,8 +1,7 @@
 name: Waiting For Build
 
 on:
-  workflow_call:
-
+  workflow_dispatch:
 jobs:
   waiting-for-build:
     name: Waiting for build

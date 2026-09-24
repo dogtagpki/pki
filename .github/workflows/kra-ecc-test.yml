@@ -1,8 +1,8 @@
 name: KRA with ECC
 # docs/installation/kra/Installing_KRA_with_ECC.md
 
-on: workflow_call
-
+on:
+  workflow_dispatch:
 env:
   DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
 

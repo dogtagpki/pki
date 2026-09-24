@@ -1,7 +1,7 @@
 name: Basic ACME
 
-on: workflow_call
-
+on:
+  workflow_dispatch:
 env:
   # use DS container image by default to create DS with BDB
   # backend which does not require rebuilding the indexes:

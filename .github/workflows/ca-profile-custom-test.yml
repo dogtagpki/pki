@@ -5,8 +5,8 @@ name: CA with custom profile
 # - create a user with wide chars in the full name
 # - authenticate as the user using the cert
 
-on: workflow_call
-
+on:
+  workflow_dispatch:
 env:
   DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
 

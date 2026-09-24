@@ -1,8 +1,8 @@
 name: CA with caDirUserCert profile
 # https://github.com/dogtagpki/pki/wiki/Certificate-Enrollment-with-Directory-Authenticated-Profile
 
-on: workflow_call
-
+on:
+  workflow_dispatch:
 env:
   DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
 

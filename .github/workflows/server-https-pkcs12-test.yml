@@ -1,7 +1,7 @@
 name: "HTTPS connector with PKCS #12 file"
 
-on: workflow_call
-
+on:
+  workflow_dispatch:
 env:
   DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
 

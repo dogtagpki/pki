@@ -3,8 +3,8 @@ name: ACME container with CA
 # CA container, and an ACME container. The client container will be
 # used to initialize the other containers and run tests using certbot.
 
-on: workflow_call
-
+on:
+  workflow_dispatch:
 env:
   # use pki-runner image by default to create DS with LMDB
   # backend which requires rebuilding the indexes:

@@ -4,8 +4,8 @@ name: CA clone with SSNv1
 # performs enrollments, and verifies that the ranges are maintained properly in
 # CS.cfg and DS.
 
-on: workflow_call
-
+on:
+  workflow_dispatch:
 env:
   DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
 

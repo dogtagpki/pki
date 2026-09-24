@@ -1,8 +1,7 @@
 name: Version number
 
 on:
-  workflow_call:
-
+  workflow_dispatch:
 jobs:
   test:
     name: Test

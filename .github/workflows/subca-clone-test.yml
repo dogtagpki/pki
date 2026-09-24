@@ -2,8 +2,8 @@ name: Sub-CA clone
 # docs/installation/ca/Installing_CA_with_External_CA_Signing_Certificate.md
 # docs/installation/ca/Installing_CA_Clone.md
 
-on: workflow_call
-
+on:
+  workflow_dispatch:
 env:
   DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
 

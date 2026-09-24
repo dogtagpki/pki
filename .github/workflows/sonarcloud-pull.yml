@@ -1,10 +1,6 @@
 name: Sonarcloud-Pull
 on:
-  workflow_run:
-    workflows: ["Code Analysis"]
-    types:
-      - completed
-
+  workflow_dispatch:
 env:
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
   BASE_IMAGE: ${{ vars.BASE_IMAGE }}

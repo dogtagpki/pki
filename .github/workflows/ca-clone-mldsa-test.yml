@@ -10,8 +10,8 @@ name: CA clone ML-DSA
 # - unrevoke the cert
 # - check cert status using the built-in OCSP in all CAs
 
-on: workflow_call
-
+on:
+  workflow_dispatch:
 env:
   DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
 

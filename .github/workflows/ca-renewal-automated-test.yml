@@ -1,8 +1,8 @@
 name: CA automated renewal
 # docs/admin/offline-system-certificate-renewal.adoc
 
-on: workflow_call
-
+on:
+  workflow_dispatch:
 env:
   DS_IMAGE: ${{ vars.DS_IMAGE || 'quay.io/389ds/dirsrv' }}
 

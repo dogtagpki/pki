@@ -1,7 +1,7 @@
 name: ACME on separate instance
 
-on: workflow_call
-
+on:
+  workflow_dispatch:
 env:
   # use pki-runner image by default to create DS with LMDB
   # backend which requires rebuilding the indexes:
