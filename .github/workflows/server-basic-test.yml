@@ -350,7 +350,82 @@ jobs:
 
           diff expected output
 
-      - name: Check PKI webapp lib dir
+      - name: Check ROOT webapp WEB-INF dir
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /usr/share/pki/server/webapps/ROOT/WEB-INF \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          cat > expected << EOF
+          -rw-r--r-- root root web.xml
+          EOF
+
+          diff expected output
+
+      - name: Check PKI webapp dir
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /usr/share/pki/server/webapps/pki \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          cat > expected << EOF
+          drwxr-xr-x root root WEB-INF
+          drwxr-xr-x root root admin
+          lrwxrwxrwx root root ca -> ../../../../../../usr/share/pki/common-ui/ca
+          lrwxrwxrwx root root css -> ../../../../../../usr/share/pki/common-ui/css
+          lrwxrwxrwx root root esc -> ../../../../../../usr/share/pki/common-ui/esc
+          lrwxrwxrwx root root fonts -> ../../../../../../usr/share/pki/common-ui/fonts
+          lrwxrwxrwx root root images -> ../../../../../../usr/share/pki/common-ui/images
+          -rw-r--r-- root root index.jsp
+          drwxr-xr-x root root js
+          lrwxrwxrwx root root kra -> ../../../../../../usr/share/pki/common-ui/kra
+          lrwxrwxrwx root root ocsp -> ../../../../../../usr/share/pki/common-ui/ocsp
+          lrwxrwxrwx root root pki.properties -> ../../../../../../usr/share/pki/common-ui/pki.properties
+          lrwxrwxrwx root root tks -> ../../../../../../usr/share/pki/common-ui/tks
+          drwxr-xr-x root root ui
+          EOF
+
+          diff expected output
+
+      - name: Check PKI webapp WEB-INF dir
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /usr/share/pki/server/webapps/pki/WEB-INF \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          cat > expected << EOF
+          drwxr-xr-x root root classes
+          drwxr-xr-x root root lib
+          -rw-r--r-- root root web.xml
+          EOF
+
+          diff expected output
+
+      - name: Check PKI webapp WEB-INF/classes dir
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /usr/share/pki/server/webapps/pki/WEB-INF/classes \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          cat > expected << EOF
+          -rw-r--r-- root root logging.properties
+          EOF
+
+          diff expected output
+
+      - name: Check PKI webapp WEB-INF/lib dir
         run: |
           # check file types, owners, and permissions
           docker exec pki ls -l /usr/share/pki/server/webapps/pki/WEB-INF/lib \
@@ -369,7 +444,64 @@ jobs:
 
           diff expected output
 
-      - name: Check CA webapp lib dir
+      - name: Check CA webapp dir
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /usr/share/pki/ca/webapps/ca \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          cat > expected << EOF
+          -rw-r--r-- root root 404.html
+          -rw-r--r-- root root 500.html
+          -rw-r--r-- root root GenUnexpectedError.template
+          drwxr-xr-x root root WEB-INF
+          drwxr-xr-x root root admin
+          drwxr-xr-x root root agent
+          drwxr-xr-x root root ee
+          -rw-r--r-- root root index.jsp
+          drwxr-xr-x root root js
+          -rw-r--r-- root root services.template
+          drwxr-xr-x root root ui
+          EOF
+
+          diff expected output
+
+      - name: Check CA webapp WEB-INF dir
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /usr/share/pki/ca/webapps/ca/WEB-INF \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          cat > expected << EOF
+          drwxr-xr-x root root classes
+          drwxr-xr-x root root lib
+          -rw-r--r-- root root web.xml
+          EOF
+
+          diff expected output
+
+      - name: Check CA webapp WEB-INF/classes dir
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /usr/share/pki/ca/webapps/ca/WEB-INF/classes \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          cat > expected << EOF
+          -rw-r--r-- root root logging.properties
+          EOF
+
+          diff expected output
+
+      - name: Check CA webapp WEB-INF/lib dir
         run: |
           # check file types, owners, and permissions
           docker exec pki ls -l /usr/share/pki/ca/webapps/ca/WEB-INF/lib \
@@ -388,7 +520,63 @@ jobs:
 
           diff expected output
 
-      - name: Check KRA webapp lib dir
+      - name: Check KRA webapp dir
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /usr/share/pki/kra/webapps/kra \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          cat > expected << EOF
+          -rw-r--r-- root root 404.html
+          -rw-r--r-- root root 500.html
+          -rw-r--r-- root root GenUnexpectedError.template
+          drwxr-xr-x root root WEB-INF
+          drwxr-xr-x root root admin
+          drwxr-xr-x root root agent
+          -rw-r--r-- root root index.jsp
+          drwxr-xr-x root root js
+          -rw-r--r-- root root services.template
+          drwxr-xr-x root root ui
+          EOF
+
+          diff expected output
+
+      - name: Check KRA webapp WEB-INF dir
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /usr/share/pki/kra/webapps/kra/WEB-INF \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          cat > expected << EOF
+          drwxr-xr-x root root classes
+          drwxr-xr-x root root lib
+          -rw-r--r-- root root web.xml
+          EOF
+
+          diff expected output
+
+      - name: Check KRA webapp WEB-INF/classes dir
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /usr/share/pki/kra/webapps/kra/WEB-INF/classes \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          cat > expected << EOF
+          -rw-r--r-- root root logging.properties
+          EOF
+
+          diff expected output
+
+      - name: Check KRA webapp WEB-INF/lib dir
         run: |
           # check file types, owners, and permissions
           docker exec pki ls -l /usr/share/pki/kra/webapps/kra/WEB-INF/lib \
@@ -407,7 +595,62 @@ jobs:
 
           diff expected output
 
-      - name: Check OCSP webapp lib dir
+      - name: Check OCSP webapp dir
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /usr/share/pki/ocsp/webapps/ocsp \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          cat > expected << EOF
+          -rw-r--r-- root root 404.html
+          -rw-r--r-- root root 500.html
+          -rw-r--r-- root root GenUnexpectedError.template
+          drwxr-xr-x root root WEB-INF
+          drwxr-xr-x root root admin
+          drwxr-xr-x root root agent
+          -rw-r--r-- root root index.jsp
+          -rw-r--r-- root root services.template
+          drwxr-xr-x root root ui
+          EOF
+
+          diff expected output
+
+      - name: Check OCSP webapp WEB-INF dir
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /usr/share/pki/ocsp/webapps/ocsp/WEB-INF \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          cat > expected << EOF
+          drwxr-xr-x root root classes
+          drwxr-xr-x root root lib
+          -rw-r--r-- root root web.xml
+          EOF
+
+          diff expected output
+
+      - name: Check OCSP webapp WEB-INF/classes dir
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /usr/share/pki/ocsp/webapps/ocsp/WEB-INF/classes \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          cat > expected << EOF
+          -rw-r--r-- root root logging.properties
+          EOF
+
+          diff expected output
+
+      - name: Check OCSP webapp WEB-INF/lib dir
         run: |
           # check file types, owners, and permissions
           docker exec pki ls -l /usr/share/pki/ocsp/webapps/ocsp/WEB-INF/lib \
@@ -426,7 +669,62 @@ jobs:
 
           diff expected output
 
-      - name: Check TKS webapp lib dir
+      - name: Check TKS webapp dir
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /usr/share/pki/tks/webapps/tks \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          cat > expected << EOF
+          -rw-r--r-- root root 404.html
+          -rw-r--r-- root root 500.html
+          -rw-r--r-- root root GenUnexpectedError.template
+          drwxr-xr-x root root WEB-INF
+          drwxr-xr-x root root admin
+          drwxr-xr-x root root agent
+          -rw-r--r-- root root index.jsp
+          -rw-r--r-- root root services.template
+          drwxr-xr-x root root ui
+          EOF
+
+          diff expected output
+
+      - name: Check TKS webapp WEB-INF dir
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /usr/share/pki/tks/webapps/tks/WEB-INF \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          cat > expected << EOF
+          drwxr-xr-x root root classes
+          drwxr-xr-x root root lib
+          -rw-r--r-- root root web.xml
+          EOF
+
+          diff expected output
+
+      - name: Check TKS webapp WEB-INF/classes dir
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /usr/share/pki/tks/webapps/tks/WEB-INF/classes \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          cat > expected << EOF
+          -rw-r--r-- root root logging.properties
+          EOF
+
+          diff expected output
+
+      - name: Check TKS webapp WEB-INF/lib dir
         run: |
           # check file types, owners, and permissions
           docker exec pki ls -l /usr/share/pki/tks/webapps/tks/WEB-INF/lib \
@@ -445,7 +743,45 @@ jobs:
 
           diff expected output
 
-      - name: Check TPS webapp lib dir
+      - name: Check TPS webapp dir
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /usr/share/pki/tps/webapps/tps \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          cat > expected << EOF
+          -rw-r--r-- root root 404.html
+          -rw-r--r-- root root 500.html
+          -rw-r--r-- root root GenUnexpectedError.template
+          drwxr-xr-x root root WEB-INF
+          -rw-r--r-- root root index.jsp
+          drwxr-xr-x root root js
+          drwxr-xr-x root root ui
+          EOF
+
+          diff expected output
+
+      - name: Check TPS webapp WEB-INF dir
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /usr/share/pki/tps/webapps/tps/WEB-INF \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          cat > expected << EOF
+          drwxr-xr-x root root classes
+          drwxr-xr-x root root lib
+          -rw-r--r-- root root web.xml
+          EOF
+
+          diff expected output
+
+      - name: Check TPS webapp WEB-INF/lib dir
         run: |
           # check file types, owners, and permissions
           docker exec pki ls -l /usr/share/pki/tps/webapps/tps/WEB-INF/lib \
@@ -464,7 +800,59 @@ jobs:
 
           diff expected output
 
-      - name: Check ACME webapp lib dir
+      - name: Check ACME webapp dir
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /usr/share/pki/acme/webapps/acme \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          cat > expected << EOF
+          drwxr-xr-x root root WEB-INF
+          -rw-r--r-- root root config.jsp
+          -rw-r--r-- root root home.jsp
+          -rw-r--r-- root root index.jsp
+          drwxr-xr-x root root js
+          -rw-r--r-- root root services.jsp
+          EOF
+
+          diff expected output
+
+      - name: Check ACME webapp WEB-INF dir
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /usr/share/pki/acme/webapps/acme/WEB-INF \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          cat > expected << EOF
+          drwxr-xr-x root root classes
+          drwxr-xr-x root root lib
+          -rw-r--r-- root root web.xml
+          EOF
+
+          diff expected output
+
+      - name: Check ACME webapp WEB-INF/classes dir
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /usr/share/pki/acme/webapps/acme/WEB-INF/classes \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          cat > expected << EOF
+          -rw-r--r-- root root logging.properties
+          EOF
+
+          diff expected output
+
+      - name: Check ACME webapp WEB-INF/lib dir
         run: |
           # check file types, owners, and permissions
           docker exec pki ls -l /usr/share/pki/acme/webapps/acme/WEB-INF/lib \
@@ -482,7 +870,55 @@ jobs:
 
           diff expected output
 
-      - name: Check EST webapp lib dir
+      - name: Check EST webapp dir
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /usr/share/pki/est/webapps/est \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          cat > expected << EOF
+          drwxr-xr-x root root WEB-INF
+          -rw-r--r-- root root index.jsp
+          EOF
+
+          diff expected output
+
+      - name: Check EST webapp WEB-INF dir
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /usr/share/pki/est/webapps/est/WEB-INF \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          cat > expected << EOF
+          drwxr-xr-x root root classes
+          drwxr-xr-x root root lib
+          -rw-r--r-- root root web.xml
+          EOF
+
+          diff expected output
+
+      - name: Check EST webapp WEB-INF/classes dir
+        run: |
+          # check file types, owners, and permissions
+          docker exec pki ls -l /usr/share/pki/est/webapps/est/WEB-INF/classes \
+              | sed \
+                  -e '/^total/d' \
+                  -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
+              | tee output
+
+          cat > expected << EOF
+          -rw-r--r-- root root logging.properties
+          EOF
+
+          diff expected output
+
+      - name: Check EST webapp WEB-INF/lib dir
         run: |
           # check file types, owners, and permissions
           docker exec pki ls -l /usr/share/pki/est/webapps/est/WEB-INF/lib \
