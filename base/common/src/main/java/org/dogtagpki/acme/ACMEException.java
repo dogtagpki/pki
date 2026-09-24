@@ -22,6 +22,10 @@ public class ACMEException extends PKIException {
         this.error = error;
     }
 
+    public ACMEError getError() {
+        return error;
+    }
+
     @Override
     public String getSerializedFormat() {
         return "application/problem+json";
