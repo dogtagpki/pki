@@ -42,6 +42,15 @@ class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
     def get_backup_dir(self):
         return self.instance.logs_dir + '/backup/' + str(self.version) + '/' + str(self.index)
 
+    def should_skip_profile(self, subsystem, profile_name):
+        skip = subsystem.config.get('pki.upgrade.skipProfiles', '')
+        skip_list = [p.strip() for p in skip.split(',') if p.strip()]
+        if '*' in skip_list or profile_name in skip_list:
+            logger.info('Skipping profile %s (excluded by pki.upgrade.skipProfiles)',
+                        profile_name)
+            return True
+        return False
+
     def upgrade_subsystem(self, instance, subsystem):
         # Callback method to upgrade a subsystem.
         pass
