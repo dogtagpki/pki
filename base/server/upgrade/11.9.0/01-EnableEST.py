@@ -94,9 +94,12 @@ class EnableEST(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
     def update_internal_profiles(self, subsystem):
         profiles_to_update = [
-            'caECInternalAuthSubsystemCert',
-            'caInternalAuthServerCert',
-            'caInternalAuthSubsystemCert'
+            'caInternalAuthServerCert',          # RSA Server
+            'caInternalAuthSubsystemCert',       # RSA Subsystem
+            'caECInternalAuthServerCert',        # EC Server (CRITICAL FIX FOR EST)
+            'caECInternalAuthSubsystemCert',     # EC Subsystem
+            'caMLDSAInternalAuthServerCert',     # ML-DSA Server (Post-Quantum)
+            'caMLDSAInternalAuthSubsystemCert',  # ML-DSA Subsystem (Post-Quantum)
         ]
 
         for profile in profiles_to_update:
