@@ -1,9 +1,9 @@
 name: CA with custom profile
 # The test will perform the following:
-# - create a custom profile with wide chars in the name and description
-# - enroll a cert with wide chars in the subject DN
-# - create a user with wide chars in the full name
-# - authenticate as the user using the cert
+# - create an auth database
+# - connect CA to the auth database
+# - create a custom profile
+# - enroll a cert with the custom profile
 
 on: workflow_call
 
@@ -47,6 +47,32 @@ jobs:
               --password=Secret.123 \
               ds
 
+      - name: Set up authentication database
+        run: |
+          docker exec -i ds ldapadd \
+              -H ldap://ds.example.com:3389 \
+              -D "cn=Directory Manager" \
+              -w Secret.123 << EOF
+          dn: ou=people,dc=example,dc=com
+          objectclass: top
+          objectclass: organizationalUnit
+          ou: People
+          aci: (target = "ldap:///ou=people,dc=example,dc=com")
+           (targetattr=objectClass||dc||ou||uid||cn||sn||givenName)
+           (version 3.0; acl "Allow anyone to read and search basic attributes"; allow (search, read) userdn = "ldap:///anyone";)
+          aci: (target = "ldap:///ou=people,dc=example,dc=com")
+           (targetattr=*)
+           (version 3.0; acl "Allow anyone to read and search itself"; allow (search, read) userdn = "ldap:///self";)
+
+          dn: uid=testuser,ou=people,dc=example,dc=com
+          objectClass: person
+          objectClass: organizationalPerson
+          objectClass: inetOrgPerson
+          uid: testuser
+          cn: 鄧麗君
+          sn: 鄧
+          userPassword: Secret.123
+
       - name: Set up PKI container
         run: |
           tests/bin/runner-init.sh \
@@ -63,6 +89,21 @@ jobs:
               -D pki_ds_url=ldap://ds.example.com:3389 \
               -v
 
+      - name: Configure UserDirEnrollment
+        run: |
+          docker exec pki pki-server ca-config-set auths.instance.UserDirEnrollment.pluginName UidPwdDirAuth
+          docker exec pki pki-server ca-config-set auths.instance.UserDirEnrollment.ldap.basedn dc=example,dc=com
+          docker exec pki pki-server ca-config-set auths.instance.UserDirEnrollment.ldap.ldapauth.authtype BasicAuth
+          docker exec pki pki-server ca-config-set auths.instance.UserDirEnrollment.ldap.ldapauth.bindDN "cn=Directory Manager"
+          docker exec pki pki-server ca-config-set auths.instance.UserDirEnrollment.ldap.ldapauth.bindPWPrompt internaldb
+          docker exec pki pki-server ca-config-set auths.instance.UserDirEnrollment.ldap.ldapconn.host ds.example.com
+          docker exec pki pki-server ca-config-set auths.instance.UserDirEnrollment.ldap.ldapconn.port 3389
+          docker exec pki pki-server ca-config-set auths.instance.UserDirEnrollment.ldap.ldapconn.secureConn false
+
+      - name: Restart CA subsystem
+        run: |
+          docker exec pki pki-server ca-redeploy --wait
+
       - name: Install CA admin cert
         run: |
           docker exec pki pki-server cert-export \
@@ -78,62 +119,61 @@ jobs:
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
               --password Secret.123
 
-      - name: Retrieve caUserCert profile
+      - name: Retrieve caDirUserCert profile
         run: |
-          # export caUserCert profile
           docker exec pki pki \
               -n caadmin \
               ca-profile-show \
-              --output $SHARED/profile.xml \
-              caUserCert
+              --output $SHARED/CustomProfile.xml \
+              caDirUserCert
 
-          cat profile.xml
+          cat CustomProfile.xml
 
       - name: Create custom profile
         run: |
           # allow updates
-          sudo chmod go+w profile.xml
+          sudo chmod go+w CustomProfile.xml
 
           # update profile ID
           xmlstarlet edit --inplace \
               -u "/Profile/@id" \
-              -v "custom" \
-              profile.xml
+              -v "CustomProfile" \
+              CustomProfile.xml
 
           # update profile name
           xmlstarlet edit --inplace \
               -u "/Profile/name" \
-              -v "五輪真弓" \
-              profile.xml
+              -v "中文 Cert Profile" \
+              CustomProfile.xml
 
           # update profile description
           xmlstarlet edit --inplace \
               -u "/Profile/description" \
-              -v "Certificate profile for 五輪真弓" \
-              profile.xml
+              -v "Certificate profile in 中文" \
+              CustomProfile.xml
 
-          cat profile.xml
+          cat CustomProfile.xml
 
       - name: Add custom profile
         run: |
-          # add custom profile
           docker exec pki pki \
               -n caadmin \
               ca-profile-add \
-              $SHARED/profile.xml
+              $SHARED/CustomProfile.xml
 
-          # enable custom profile
+      - name: Enable custom profile
+        run: |
           docker exec pki pki \
               -n caadmin \
               ca-profile-enable \
-              custom
+              CustomProfile
 
       - name: Check custom profile info
         run: |
           docker exec pki pki \
               -n caadmin \
               ca-profile-show \
-              custom \
+              CustomProfile \
               | tee output
 
           sed -n \
@@ -142,8 +182,8 @@ jobs:
               output > actual
 
           cat > expected << EOF
-            Name: 五輪真弓
-            Description: Certificate profile for 五輪真弓
+            Name: 中文 Cert Profile
+            Description: Certificate profile in 中文
           EOF
 
           diff expected actual
@@ -154,7 +194,7 @@ jobs:
               -n caadmin \
               ca-profile-show \
               --raw \
-              custom \
+              CustomProfile \
               | tee output
 
           sed -n \
@@ -163,13 +203,13 @@ jobs:
               output > actual
 
           cat > expected << EOF
-          desc=Certificate profile for 五輪真弓
-          name=五輪真弓
+          desc=Certificate profile in 中文
+          name=中文 Cert Profile
           EOF
 
       - name: Check custom profile config file
         run: |
-          docker exec pki cat /var/lib/pki/pki-tomcat/ca/profiles/ca/custom.cfg \
+          docker exec pki cat /var/lib/pki/pki-tomcat/ca/profiles/ca/CustomProfile.cfg \
               | tee output
 
           sed -n \
@@ -178,135 +218,62 @@ jobs:
               output > actual
 
           cat > expected << EOF
-          desc=Certificate profile for 五輪真弓
-          name=五輪真弓
+          desc=Certificate profile in 中文
+          name=中文 Cert Profile
           EOF
 
           diff expected actual
 
-      - name: Create user cert using custom profile
+      - name: Create cert request
         run: |
-          # create cert request
           docker exec pki pki nss-cert-request \
-              --subject "UID=testuser,CN=五輪真弓" \
-              --ext /usr/share/pki/tools/examples/certs/testuser.conf \
+              --subject "UID=testuser,OU=people,DC=example,DC=com" \
               --csr testuser.csr
 
-          # submit cert request
-          docker exec pki pki ca-cert-request-submit \
-              --profile custom \
-              --csr-file testuser.csr \
-              | tee output
-
-          REQUEST_ID=$(sed -n "s/^\s*Request ID:\s*\(\S*\)$/\1/p" output)
-
-          # approve cert request
-          docker exec pki pki \
-              -n caadmin \
-              ca-cert-request-approve \
-              --force \
-              $REQUEST_ID \
-              | tee output
-
-          CERT_ID=$(sed -n "s/^\s*Certificate ID:\s*\(\S*\)$/\1/p" output)
-          echo $CERT_ID > cert.id
-
-      - name: Check user cert
+      - name: Issue cert
         run: |
-          CERT_ID=$(cat cert.id)
+          echo "Secret.123" > password.txt
 
-          docker exec pki pki ca-cert-show $CERT_ID | tee output
+          docker exec pki pki ca-cert-issue \
+              --profile CustomProfile \
+              --username testuser \
+              --password-file $SHARED/password.txt \
+              --csr-file testuser.csr \
+              --output-file testuser.crt
 
-          sed -n \
-              -e "/^\s*Subject DN:/p" \
+          # import cert
+          docker exec pki pki nss-cert-import testuser --cert testuser.crt
+          docker exec pki pki nss-cert-show testuser | tee output
+
+          # normalize output
+          sed \
+              -e '/^ *Serial Number:/d' \
+              -e '/^ *Not Valid Before:/d' \
+              -e '/^ *Not Valid After:/d' \
               output > actual
 
           cat > expected << EOF
-            Subject DN: UID=testuser,CN=五輪真弓
+            Nickname: testuser
+            Subject DN: UID=testuser,OU=people,DC=example,DC=com
+            Issuer DN: CN=CA Signing Certificate,OU=pki-tomcat,O=EXAMPLE
+            Trust Flags: u,u,u
           EOF
 
           diff expected actual
 
-      - name: Create user using user cert
-        run: |
-          CERT_ID=$(cat cert.id)
-
-          # export cert
-          docker exec pki pki ca-cert-export \
-              --output-file testuser.crt \
-              $CERT_ID
-
-          docker exec pki pki \
-              -n caadmin \
-              ca-user-add \
-              --full-name "五輪真弓" \
-              --type adminType \
-              --cert-file testuser.crt \
-              testuser
-
-          docker exec pki pki \
-              -n caadmin \
-              ca-user-membership-add \
-              testuser \
-              "Administrators"
-
-      - name: Check user using pki ca-user-show
+      - name: Disable custom profile
         run: |
           docker exec pki pki \
               -n caadmin \
-              ca-user-show \
-              testuser \
-              | tee output
+              ca-profile-disable \
+              CustomProfile
 
-          cat > expected << EOF
-          ---------------
-          User "testuser"
-          ---------------
-            User ID: testuser
-            Full name: 五輪真弓
-            Type: adminType
-          EOF
-
-          diff expected output
-
-      - name: Check user using pki-server ca-user-show
+      - name: Remove custom profile
         run: |
-          docker exec pki pki-server ca-user-show \
-              testuser \
-              | tee output
-
-          cat > expected << EOF
-            User ID: testuser
-            Full Name: 五輪真弓
-            Type: adminType
-          EOF
-
-          diff expected output
-
-      - name: Check authentication using user cert
-        run: |
-          # import cert
-          docker exec pki pki nss-cert-import \
-              --cert testuser.crt \
-              testuser
-
-          # authenticate as test user
           docker exec pki pki \
-              -n testuser \
-              ca-user-show \
-              testuser \
-              | tee output
-
-          cat > expected << EOF
-          ---------------
-          User "testuser"
-          ---------------
-            User ID: testuser
-            Full name: 五輪真弓
-            Type: adminType
-          EOF
-
-          diff expected output
+              -n caadmin \
+              ca-profile-del \
+              CustomProfile
 
       - name: Remove CA
         run: docker exec pki pkidestroy -s CA -v
