@@ -3632,7 +3632,12 @@ class PKIDeployer:
 
         if config.str2bool(self.mdict['pki_ds_setup']):
             # import cert into CA database
-            self.import_cert(subsystem, tag, request)
+            if cert_info and tag == 'signing' and \
+                    cert_info['object'].issuer != cert_info['object'].subject:
+                logger.info('Skipping LDAP cert import for externally-signed CA cert: %s', tag)
+            else:
+                logger.info('Importing cert into CA database: %s', tag)
+                self.import_cert(subsystem, tag, request)
 
     def setup_system_csr(
             self,
