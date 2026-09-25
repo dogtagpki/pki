@@ -49,6 +49,9 @@ class UpdateMLDSAProfiles(pki.server.upgrade.PKIServerUpgradeScriptlet):
         for file_name in os.listdir(path_instance):
             if file_name[-4:] != '.cfg':
                 continue
+            profile_name = file_name[:-4]
+            if self.should_skip_profile(subsystem, profile_name):
+                continue
             if not os.path.exists('/usr/share/pki/ca/profiles/ca/{}'.format(file_name)):
                 continue
 
