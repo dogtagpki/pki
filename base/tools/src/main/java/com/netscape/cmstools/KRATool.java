@@ -1944,6 +1944,17 @@ public class KRATool {
                           + "        "
                           + "      regeneration with user confirmation."
                           + NEWLINE);
+
+        System.out.println("NOTE: When using an nShield Connect XC HSM, a warning about"
+                          + NEWLINE
+                          + "      CKA_DECRYPT being set in an unwrapping key may appear."
+                          + NEWLINE
+                          + "      This is expected -- KRA session keys are generated with"
+                          + NEWLINE
+                          + "      both encrypt/decrypt and wrap/unwrap attributes, which is"
+                          + NEWLINE
+                          + "      standard KRA behavior. The operation completes successfully."
+                          + NEWLINE);
     }
 
     /*******************/
@@ -2756,8 +2767,11 @@ public class KRATool {
             logger.info("Importing session key to processing token");
         }
 
-        // cross-scheme: If same token, just return the original key
-        if (sessionKey.getOwningToken() == processingToken) {
+        // cross-scheme: If same token, just return the original key.
+        // Use equals() rather than == because different Java objects can wrap
+        // the same PKCS#11 slot; PK11Token.equals() compares the underlying
+        // native token proxy, correctly handling duplicate label edge cases.
+        if (sessionKey.getOwningToken().equals(processingToken)) {
             if (mVerboseFlag) {
                 logger.info("Session key already on processing token");
             }
