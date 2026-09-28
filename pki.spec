@@ -2151,6 +2151,8 @@ fi
 %{_bindir}/GenIssuerAltNameExt
 %{_bindir}/GenSubjectAltNameExt
 %{_bindir}/HttpClient
+%{_bindir}/hsmCompatVerifyClnt
+%{_bindir}/hsmCompatVerifyServ
 %{_bindir}/KRATool
 %{_bindir}/OCSPClient
 %{_bindir}/PKCS10Client
