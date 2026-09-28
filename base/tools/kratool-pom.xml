@@ -8,7 +8,7 @@
     <groupId>org.dogtagpki</groupId>
     <artifactId>pki-kratool</artifactId>
     <!-- IMPORTANT: Keep this version in sync with pki-kratool.spec -->
-    <version>10.13.13</version>
+    <version>10.13.14</version>
     <packaging>jar</packaging>
 
     <name>PKI KRATool</name>
@@ -58,7 +58,7 @@
         <dependency>
             <groupId>org.dogtagpki.pki</groupId>
             <artifactId>pki-certsrv</artifactId>
-            <version>10.13.13</version>
+            <version>10.13.14</version>
             <scope>system</scope>
             <systemPath>/usr/share/java/pki/pki-certsrv.jar</systemPath>
         </dependency>
@@ -66,7 +66,7 @@
         <dependency>
             <groupId>org.dogtagpki.pki</groupId>
             <artifactId>pki-cmsutil</artifactId>
-            <version>10.13.13</version>
+            <version>10.13.14</version>
             <scope>system</scope>
             <systemPath>/usr/share/java/pki/pki-cmsutil.jar</systemPath>
         </dependency>
