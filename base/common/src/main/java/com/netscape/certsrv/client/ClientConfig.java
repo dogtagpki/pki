@@ -18,6 +18,7 @@
 
 package com.netscape.certsrv.client;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -26,10 +27,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.mozilla.jss.crypto.CryptoToken;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.netscape.certsrv.util.JSONSerializer;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * @author Endi S. Dewata
@@ -174,6 +179,34 @@ public class ClientConfig implements JSONSerializer {
 
     public void setCertNickname(String certNickname) {
         this.certNickname = certNickname;
+    }
+
+    /**
+     * Returns the client certificate nickname qualified with the
+     * configured key-storage token name.
+     */
+    @JsonIgnore
+    public String getQualifiedCertNickname() throws IOException {
+        if (certNickname == null) {
+            return null;
+        }
+
+        if (certNickname.contains(":")) {
+            return certNickname;
+        }
+
+        try {
+            String keyTokenName = tokenName;
+            if (keyTokenName == null || keyTokenName.isEmpty()) {
+                keyTokenName = CryptoUtil.INTERNAL_TOKEN_NAME;
+            }
+
+            CryptoToken token = CryptoUtil.getKeyStorageToken(keyTokenName);
+            return token.getName() + ":" + certNickname;
+
+        } catch (Exception e) {
+            throw new IOException("Unable to resolve client certificate nickname: " + e.getMessage(), e);
+        }
     }
 
     /**
