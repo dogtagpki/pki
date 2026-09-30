@@ -2339,7 +2339,7 @@ public class hsmCompatVerifyServ {
         NSSExtensionGenerator generator = new NSSExtensionGenerator();
 
         // Hardcoded parameters matching transport/storage cert profiles
-        // Note: authorityKeyIdentifier omitted — JSS 5.9.x createExtensions() requires
+        // Note: authorityKeyIdentifier omitted -- JSS 5.9.x createExtensions() requires
         // non-null PKCS10 when AKID is requested, but we have no CSR here. AKID is not
         // required for key wrapping/unwrapping functionality being tested.
         Map<String, String> params = new java.util.LinkedHashMap<>();
@@ -2372,7 +2372,7 @@ public class hsmCompatVerifyServ {
         NSSExtensionGenerator generator = new NSSExtensionGenerator();
 
         // Hardcoded parameters matching caAdminCert.cfg
-        // Note: authorityKeyIdentifier omitted — see createKRACertExtensions for reason.
+        // Note: authorityKeyIdentifier omitted -- see createKRACertExtensions for reason.
         Map<String, String> params = new java.util.LinkedHashMap<>();
         params.put("keyUsage", "critical,digitalSignature,nonRepudiation,keyEncipherment");
         params.put("extendedKeyUsage", "clientAuth,emailProtection");
