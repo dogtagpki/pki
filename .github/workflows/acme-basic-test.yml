@@ -561,6 +561,7 @@ jobs:
         run: |
           docker exec client pki client-cert-import \
               --cert /etc/letsencrypt/live/client.example.com/fullchain.pem \
+              -v \
               client1
 
           # store serial number
@@ -667,6 +668,7 @@ jobs:
         run: |
           docker exec client pki client-cert-import \
               --cert /etc/letsencrypt/live/client.example.com/fullchain.pem \
+              -v \
               client2
 
           # store serial number

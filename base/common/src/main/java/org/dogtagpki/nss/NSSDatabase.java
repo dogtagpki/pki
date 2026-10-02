@@ -56,7 +56,6 @@ import java.util.Vector;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.dogtagpki.cli.CLIException;
 import org.dogtagpki.util.cert.CRMFUtil;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.SEQUENCE;
@@ -76,7 +75,6 @@ import org.mozilla.jss.netscape.security.extensions.AuthInfoAccessExtension;
 import org.mozilla.jss.netscape.security.extensions.ExtendedKeyUsageExtension;
 import org.mozilla.jss.netscape.security.extensions.OCSPNoCheckExtension;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
-import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.DerOutputStream;
 import org.mozilla.jss.netscape.security.util.DerValue;
 import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
@@ -84,6 +82,7 @@ import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
 import org.mozilla.jss.netscape.security.x509.CPSuri;
+import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateIssuerName;
 import org.mozilla.jss.netscape.security.x509.CertificatePoliciesExtension;
@@ -99,7 +98,6 @@ import org.mozilla.jss.netscape.security.x509.PolicyQualifierInfo;
 import org.mozilla.jss.netscape.security.x509.PolicyQualifiers;
 import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.X500Name;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkcs11.KeyType;
@@ -323,17 +321,6 @@ public class NSSDatabase {
         }
     }
 
-    public org.mozilla.jss.crypto.X509Certificate addPEMCertificate(
-            String filename,
-            String trustFlags) throws Exception {
-
-        String pemCert = new String(Files.readAllBytes(Paths.get(filename)));
-        byte[] bytes = Cert.parseCertificate(pemCert);
-        X509CertImpl cert = new X509CertImpl(bytes);
-
-        return addCertificate(cert, trustFlags);
-    }
-
     public org.mozilla.jss.crypto.X509Certificate addCertificate(
             X509Certificate cert,
             String trustFlags) throws Exception {
@@ -379,83 +366,40 @@ public class NSSDatabase {
         return jssCert;
     }
 
-    public void addPEMCertificate(
+    public org.mozilla.jss.crypto.X509Certificate addPEMCertificate(
+            String filename,
+            String trustFlags) throws Exception {
+
+        return addPEMCertificate(null, null, filename, trustFlags);
+    }
+
+    public org.mozilla.jss.crypto.X509Certificate addPEMCertificate(
             String nickname,
             String filename,
             String trustFlags) throws Exception {
 
-        addPEMCertificate(
-                null,
-                nickname,
-                filename,
-                trustFlags);
+        return addPEMCertificate(null, nickname, filename, trustFlags);
     }
 
-    public void addPEMCertificate(
+    public org.mozilla.jss.crypto.X509Certificate addPEMCertificate(
             String tokenName,
             String nickname,
             String filename,
             String trustFlags) throws Exception {
 
-        Path passwordPath = null;
-        if (trustFlags == null) trustFlags = ",,";
+        String pemCert = new String(Files.readAllBytes(Paths.get(filename)));
+        CertificateChain chain = CertificateChain.fromPEMString(pemCert);
+        List<X509Certificate> certs = chain.getCertificates();
 
-        try {
-            List<String> cmd = new ArrayList<>();
-            cmd.add("certutil");
-            cmd.add("-A");
-            cmd.add("-d");
-            cmd.add(path.toString());
-
-            if (tokenName != null) {
-                cmd.add("-h");
-                cmd.add(tokenName);
-            }
-
-            if (passwordStore != null) {
-
-                String tag = tokenName == null ? "internal" : "hardware-" + tokenName;
-                String password = passwordStore.getPassword(tag, 0);
-
-                if (password != null) {
-                    passwordPath = Files.createTempFile("nss-password-", ".txt", FILE_PERMISSIONS);
-                    logger.debug("NSSDatabase: Storing password into " + passwordPath);
-
-                    Files.write(passwordPath, password.getBytes());
-
-                    cmd.add("-f");
-                    cmd.add(passwordPath.toString());
-                }
-            }
-
-            // accept PEM or PKCS #7 certificate
-            cmd.add("-a");
-
-            cmd.add("-n");
-            cmd.add(nickname);
-
-            cmd.add("-t");
-            cmd.add(trustFlags);
-
-            cmd.add("-i");
-            cmd.add(filename);
-
-            debug(cmd);
-
-            Process p = new ProcessBuilder(cmd).start();
-
-            readStdout(p);
-            readStderr(p);
-
-            int rc = p.waitFor();
-
-            if (rc != 0) {
-                throw new CLIException("Command failed. RC: " + rc, rc);
-            }
-
-        } finally {
-            if (passwordPath != null) Files.delete(passwordPath);
+        // import intermediate certs without nickname and trust flags
+        for (int i = 0; i < certs.size() - 1; i++) {
+            X509Certificate cert = certs.get(i);
+            addCertificate(tokenName, null, cert, null);
         }
+
+        // import leaf cert nickname and trust flags
+        X509Certificate lefCert = certs.getLast();
+        return addCertificate(tokenName, nickname, lefCert, trustFlags);
     }
 
     /**
