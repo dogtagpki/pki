@@ -67,7 +67,7 @@ public class ClientCertImportCLI extends CommandCLI {
 
         super.createOptions();
 
-        Option option = new Option(null, "cert", true, "Certificate file to import.");
+        Option option = new Option(null, "cert", true, "DEPRECATED: Certificate file to import.");
         option.setArgName("path");
         options.addOption(option);
 
@@ -159,6 +159,9 @@ public class ClientCertImportCLI extends CommandCLI {
 
         // load the certificate
         if (certPath != null) {
+
+            logger.warn("The --cert option has been deprecated. Use the following command instead:");
+            logger.warn("  $ pki nss-cert-import --cert <filename>");
 
             logger.info("Importing certificate from " + certPath);
 

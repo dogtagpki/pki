@@ -1,0 +1,6 @@
+= Tools Changes =
+
+== Deprecate pki client-cert-import --cert option ==
+
+The `--cert` option in `pki client-cert-import` has been deprecated.
+Use `pki nss-cert-import --cert` instead.
