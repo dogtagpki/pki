@@ -1,0 +1,39 @@
+summary: CA basic smoke — Dogtag standalone (pkispawn)
+description: |
+  TMT port of a smoke subset of .github/workflows/ca-basic-test.yml.
+  Provenance: Dogtag GHA Basic CA (pkispawn + DS).
+  Parity target: same checks against IPACTA in freeipa (idm-8254-tmt-ca-basic).
+
+  Requires Docker on the test host and a local pki-runner image
+  (build via Dockerfile target pki-runner, or load from GHA cache).
+
+  See tests/tmt/ca-basic-smoke/README.md
+discover:
+    how: fmf
+    test:
+        - /tests/tmt/ca-basic-smoke
+provision:
+    how: local
+prepare:
+    how: shell
+    script:
+      - |
+        command -v docker >/dev/null \
+          || { echo "ERROR: docker required for ca-basic-smoke"; exit 1; }
+execute:
+    how: tmt
+finish:
+    how: shell
+    script:
+      - |
+        # best-effort cleanup if a previous run left containers
+        docker rm -f pki ds 2>/dev/null || true
+        docker network rm example 2>/dev/null || true
+tag:
+    - ca
+    - dogtag
+    - idm-8254
+    - tier1
+link:
+    - verifies: https://redhat.atlassian.net/browse/IDM-8254
+    - relates: https://github.com/dogtagpki/pki/blob/master/.github/workflows/ca-basic-test.yml

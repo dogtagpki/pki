@@ -1,0 +1,18 @@
+summary: Install Dogtag CA, list profiles/certs, destroy
+description: |
+  Smoke subset of ca-basic-test.yml:
+  - DS + pki-runner containers
+  - pkispawn CA
+  - caadmin ca-profile-find / ca-cert-find
+  - pkidestroy CA
+test: ./test.sh
+framework: shell
+require: []
+duration: 60m
+tag:
+    - ca
+    - dogtag
+    - idm-8254
+link:
+    - verifies: https://redhat.atlassian.net/browse/IDM-8254
+    - implements: /.github/workflows/ca-basic-test.yml
