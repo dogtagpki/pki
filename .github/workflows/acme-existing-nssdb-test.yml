@@ -538,7 +538,7 @@ jobs:
 
       - name: Check client cert
         run: |
-          docker exec client pki client-cert-import \
+          docker exec client pki nss-cert-import \
               --cert /etc/letsencrypt/live/client.example.com/fullchain.pem \
               client1
 
@@ -644,7 +644,7 @@ jobs:
 
       - name: Check renewed client cert
         run: |
-          docker exec client pki client-cert-import \
+          docker exec client pki nss-cert-import \
               --cert /etc/letsencrypt/live/client.example.com/fullchain.pem \
               client2
 

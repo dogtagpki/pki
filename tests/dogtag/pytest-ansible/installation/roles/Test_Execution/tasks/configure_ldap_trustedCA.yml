@@ -96,7 +96,7 @@
 
   - name: Get Ldap certificate to a file
     pki:
-      cli: "client-cert-import"
+      cli: "nss-cert-import"
       hostname : "{{ variable.MASTER_HOSTNAME }}"
       nssdb : "/etc/dirsrv/slapd-{{ topology }}-testingmaster/"
       protocol: "http"

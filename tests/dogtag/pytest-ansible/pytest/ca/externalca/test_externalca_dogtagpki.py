@@ -243,7 +243,7 @@ def test_bug_1911472_revoke_with_allowExtCASignedAgentCerts(ansible_module):
             pytest.fail()
 
     # Import subCA agent certificate to Root CA agent user.
-    import_cert = ansible_module.pki(cli='client-cert-import', nssdb=nssdb,
+    import_cert = ansible_module.pki(cli='nss-cert-import', nssdb=nssdb,
                                      dbpassword=constants.CLIENT_DATABASE_PASSWORD,
                                      port=constants.CA_HTTPS_PORT,
                                      protocol='https',

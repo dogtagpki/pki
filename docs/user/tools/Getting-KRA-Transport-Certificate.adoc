@@ -127,9 +127,3 @@ To import KRA transport certificate into the user's NSS database:
 $ pki nss-cert-import kra_transport --cert kra_transport.crt
 ----
 
-For older versions use the following command:
-
-----
-$ pki client-cert-import kra_transport --cert kra_transport.crt
-----
-

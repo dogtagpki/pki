@@ -690,7 +690,7 @@ generate_new_cert()
 #                -h $target_host \
 #                -p $target_port \
 #                -c $tmp_nss_db_pwd \
-#                -n \"$subject_cn\" client-cert-import \
+#                -n \"$subject_cn\" nss-cert-import \
 #                --cert $tmp_nss_db/$cn-out.pem 1> $tmp_nss_db/pki-client-cert.out"
 #        rlAssertGrep "Imported certificate \"$subject_cn\"" "$tmp_nss_db/pki-client-cert.out"
 #        rlLog "Get CA cert imported to $TEMP_NSS_DB NSS DB"
