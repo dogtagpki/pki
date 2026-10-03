@@ -148,10 +148,7 @@ public abstract class PKIServlet extends HttpServlet {
         } catch (InvocationTargetException ite) {
 
             if (ite.getCause() instanceof PKIException pkie) {
-                response.setStatus(pkie.getCode());
-                response.setContentType(pkie.getSerializedFormat());
-                PrintWriter out = response.getWriter();
-                out.print(pkie.getSerializedError());
+                handlePKIException(request, response, pkie);
             } else {
                 logger.error("Unable to process request: {}", ite.getMessage(), ite);
                 response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ite.getCause().getMessage());
@@ -161,6 +158,15 @@ public abstract class PKIServlet extends HttpServlet {
             logger.error("Unable to process request: {}", e.getMessage(), e);
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
+    }
+    
+    protected void handlePKIException(HttpServletRequest request,
+                                      HttpServletResponse response,
+                                      PKIException exception) throws IOException {
+        response.setStatus(exception.getCode());
+        response.setContentType(exception.getSerializedFormat());
+        PrintWriter out = response.getWriter();
+        out.print(exception.getSerializedError());
     }
 
     public Method getActionMethod(HttpMethod met, String path) {
