@@ -1,5 +1,6 @@
 project(server)
 
+add_subdirectory(examples)
 add_subdirectory(healthcheck)
 
 # build server classes
