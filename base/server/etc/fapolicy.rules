@@ -1,1 +1,3 @@
 allow perm=open dir=/usr/lib/jvm/ : dir=[WORK_DIR]/
+allow perm=open exe=/usr/lib/jvm/ uid=[USER] : path=glob:/usr/share/pki/**/*.jsp
+allow perm=open exe=/usr/lib/jvm/ uid=[USER] : path=glob:/usr/share/pki/**/*.template
