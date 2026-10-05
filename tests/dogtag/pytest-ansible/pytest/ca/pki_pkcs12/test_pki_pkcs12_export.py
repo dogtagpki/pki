@@ -123,8 +123,8 @@ def test_pki_pkcs12_export_without_nick(ansible_module):
     export_cmd = 'pki -d {} -c {} pkcs12-export --pkcs12-file {} ' \
                  '--pkcs12-password {}'.format(db1, constants.CLIENT_DIR_PASSWORD,
                                                p12_file, constants.CLIENT_PKCS12_PASSWORD)
-    import_file = 'pki -d {} -c {} client-cert-import --pkcs12 {} ' \
-                  '--pkcs12-password {}'.format(db2, constants.CLIENT_DIR_PASSWORD, p12_file,
+    import_file = 'pki -d {} -c {} pkcs12-import --pkcs12 {} ' \
+                  '--password {}'.format(db2, constants.CLIENT_DIR_PASSWORD, p12_file,
                                                 constants.CLIENT_PKCS12_PASSWORD)
     get_certs = ansible_module.command(client_cert_find.format(db1, constants.CLIENT_DIR_PASSWORD))
     for r_certs in get_certs.values():
@@ -173,8 +173,8 @@ def test_pki_pkcs12_export_with_nick(ansible_module):
     p12_file = '/tmp/all_certs.p12'
     client_cert_find = 'pki -d {} -c {} client-cert-find'
 
-    import_file = 'pki -d {} -c {} client-cert-import --pkcs12 {} ' \
-                  '--pkcs12-password {}'.format(db2, constants.CLIENT_DIR_PASSWORD, p12_file,
+    import_file = 'pki -d {} -c {} pkcs12-import --pkcs12 {} ' \
+                  '--password {}'.format(db2, constants.CLIENT_DIR_PASSWORD, p12_file,
                                                 constants.CLIENT_PKCS12_PASSWORD)
     get_certs = ansible_module.command(client_cert_find.format(db1, constants.CLIENT_DIR_PASSWORD))
     for r_certs in get_certs.values():
@@ -228,8 +228,8 @@ def test_pki_pkcs12_export_with_mulitple_nicks(ansible_module):
     p12_file = '/tmp/all_certs.p12'
     client_cert_find = 'pki -d {} -c {} client-cert-find'.format(db2, constants.CLIENT_DIR_PASSWORD)
 
-    import_file = 'pki -d {} -c {} client-cert-import --pkcs12 {} ' \
-                  '--pkcs12-password {}'.format(db2, constants.CLIENT_DIR_PASSWORD, p12_file,
+    import_file = 'pki -d {} -c {} pkcs12-import --pkcs12 {} ' \
+                  '--password {}'.format(db2, constants.CLIENT_DIR_PASSWORD, p12_file,
                                                 constants.CLIENT_PKCS12_PASSWORD)
     get_certs = ansible_module.command(client_cert_find.format(db1, constants.CLIENT_DIR_PASSWORD))
     for r_certs in get_certs.values():

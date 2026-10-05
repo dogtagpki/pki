@@ -79,7 +79,7 @@ public class ClientCertImportCLI extends CommandCLI {
         option.setArgName("path");
         options.addOption(option);
 
-        option = new Option(null, "pkcs12", true, "PKCS #12 file to import.");
+        option = new Option(null, "pkcs12", true, "DEPRECATED: PKCS #12 file to import.");
         option.setArgName("path");
         options.addOption(option);
 
@@ -205,6 +205,9 @@ public class ClientCertImportCLI extends CommandCLI {
             importPKCS7(pkcs7Path, nickname, trustFlags);
 
         } else if (pkcs12Path != null) {
+
+            logger.warn("The --pkcs12 option has been deprecated. Use the following command instead:");
+            logger.warn("  $ pki pkcs12-import --pkcs12 <filename>");
 
             logger.info("Importing certificates from " + pkcs12Path);
 

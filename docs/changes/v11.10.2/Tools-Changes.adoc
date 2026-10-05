@@ -9,3 +9,8 @@ Use `pki nss-cert-import --cert <filename>` instead.
 
 The `--ca-cert` option in `pki client-cert-import` has been deprecated.
 Use `pki nss-cert-import --cert <filename> --trust CT,C,C` instead.
+
+== Deprecate pki client-cert-import --pkcs12 option ==
+
+The `--pkcs12` option in `pki client-cert-import` has been deprecated.
+Use `pki pkcs12-import --pkcs12 <filename>` instead.

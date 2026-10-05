@@ -337,8 +337,8 @@ def test_pki_server_instance_cert_export_command_with_append(ansible_module):
         if res['stat']['exists']:
             ansible_module.command('pki -d /tmp/n -c {} client-init '
                                    '--force'.format(constants.CLIENT_PKCS12_PASSWORD))
-            ansible_module.command('pki -d /tmp/n -c {} client-cert-import --pkcs12 {}'
-                                   ' --pkcs12-password-file {}'.format(
+            ansible_module.command('pki -d /tmp/n -c {} pkcs12-import --pkcs12 {}'
+                                   ' --password-file {}'.format(
                 constants.CLIENT_PKCS12_PASSWORD, pkcs12_file, password_file))
             a = ansible_module.command('certutil -L -d /tmp/n')
             ansible_module.command('rm -rf /tmp/n')

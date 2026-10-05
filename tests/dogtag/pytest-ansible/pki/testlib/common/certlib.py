@@ -83,11 +83,11 @@ class CertSetup(object):
         Import subsystem admin p12 to certdb
         """
         pkcs12path = self.pkcs12_path(subsystem)
-        import_admin_p12 = ansible_module.pki(cli='client-cert-import',
+        import_admin_p12 = ansible_module.pki(cli='pkcs12-import',
                                               nssdb=self.nssdb,
                                               dbpassword=self.db_pass,
                                               port=self.port,
-                                              extra_args='--pkcs12 {} --pkcs12-password '
+                                              extra_args='--pkcs12 {} --password '
                                                          '{}'.format(pkcs12path,
                                                                      constants.CLIENT_PKCS12_PASSWORD))
         for result in import_admin_p12.values():

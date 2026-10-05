@@ -90,9 +90,9 @@ def test_bug_1539198_inconsistent_cert_req_outcomes(ansible_module):
         assert "Client initialized" in result['stdout']
 
     pkcs12_import_output = ansible_module.pki(
-        cli='client-cert-import',
+        cli='pkcs12-import',
         nssdb=temp_dir,
-        extra_args='--pkcs12 %s/ca_admin_cert.p12 --pkcs12-password %s'
+        extra_args='--pkcs12 %s/ca_admin_cert.p12 --password %s'
         % (constants.CA_CLIENT_DIR, constants.CLIENT_DATABASE_PASSWORD),
         protocol='http',
         port=constants.CA_HTTP_PORT,

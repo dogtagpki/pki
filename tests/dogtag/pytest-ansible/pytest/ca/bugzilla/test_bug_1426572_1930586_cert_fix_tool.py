@@ -208,7 +208,7 @@ def test_bug_1426572_1930586(ansible_playbook, ansible_module):
             log.error(result['stdout'])
             pytest.fail("Failed to run: {}".format("".join(result['cmd'])))
 
-    cmd = ansible_module.command('pki -d {} -c {} client-cert-import --pkcs12 {} --pkcs12-password {}'.format(tmp_nssdb, constants.CLIENT_DATABASE_PASSWORD, constants.CA_CLIENT_DIR + "/ca_admin_cert.p12", constants.CLIENT_PKCS12_PASSWORD))
+    cmd = ansible_module.command('pki -d {} -c {} pkcs12-import --pkcs12 {} --password {}'.format(tmp_nssdb, constants.CLIENT_DATABASE_PASSWORD, constants.CA_CLIENT_DIR + "/ca_admin_cert.p12", constants.CLIENT_PKCS12_PASSWORD))
     for result in cmd.values():
         if result['rc'] == 0:
             assert 'Imported certificates from PKCS #12 file' in result['stdout']
