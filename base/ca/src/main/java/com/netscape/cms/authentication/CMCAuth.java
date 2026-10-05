@@ -867,17 +867,35 @@ public class CMCAuth extends AuthManager implements IExtendedPluginInfo {
                                             CMS.getUserMessage("CMS_AUTHENTICATION_NO_CERT"));
                                 }
                             } else {
-                                org.mozilla.jss.netscape.security.x509.X500Name clientPrincipal =
-                                        (X500Name) clientCert.getSubjectDN();
+                                // Bind the CMC signer to the authenticated TLS client
+                                // certificate by comparing the full encoded certificates.
+                                byte[] clientCertDER;
+                                try {
+                                    clientCertDER = clientCert.getEncoded();
+                                } catch (java.security.cert.CertificateEncodingException e) {
+                                    msg = "unable to encode SSL client certificate for comparison: " + e.getMessage();
+                                    logger.error(method + msg, e);
+                                    s.close();
+                                    throw new EInvalidCredentials(
+                                            CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL") + ":" + msg);
+                                }
 
-                                org.mozilla.jss.netscape.security.x509.X500Name cmcPrincipal =
-                                        (X500Name) x509Certs[0].getSubjectDN();
+                                byte[] signerCertDER;
+                                try {
+                                    signerCertDER = x509Certs[0].getEncoded();
+                                } catch (java.security.cert.CertificateEncodingException e) {
+                                    msg = "unable to encode CMC signer certificate for comparison: " + e.getMessage();
+                                    logger.error(method + msg, e);
+                                    s.close();
+                                    throw new EInvalidCredentials(
+                                            CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL") + ":" + msg);
+                                }
 
                                 // check ssl client cert against cmc signer
-                                if (clientPrincipal.equals(cmcPrincipal)) {
-                                    logger.debug(method + "ssl client cert principal and cmc signer principal match");
+                                if (java.util.Arrays.equals(clientCertDER, signerCertDER)) {
+                                    logger.debug(method + "ssl client cert and cmc signer cert match");
                                 } else {
-                                    msg = "SSL client authentication certificate and CMC signer do not match";
+                                    msg = "SSL client authentication certificate and CMC signer certificate do not match";
                                     logger.error(method + msg);
                                     s.close();
                                     throw new EInvalidCredentials(
