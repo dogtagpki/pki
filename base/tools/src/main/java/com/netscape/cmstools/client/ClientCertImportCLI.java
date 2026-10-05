@@ -71,7 +71,7 @@ public class ClientCertImportCLI extends CommandCLI {
         option.setArgName("path");
         options.addOption(option);
 
-        option = new Option(null, "ca-cert", true, "CA certificate file to import.");
+        option = new Option(null, "ca-cert", true, "DEPRECATED: CA certificate file to import.");
         option.setArgName("path");
         options.addOption(option);
 
@@ -176,6 +176,9 @@ public class ClientCertImportCLI extends CommandCLI {
             System.out.println("Imported certificate \"" + nickname + "\"");
 
         } else if (caCertPath != null) {
+
+            logger.warn("The --ca-cert option has been deprecated. Use the following command instead:");
+            logger.warn("  $ pki nss-cert-import --cert <filename> --trust CT,C,C");
 
             logger.info("Importing CA certificate from " + caCertPath);
 

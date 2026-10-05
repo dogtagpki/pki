@@ -690,7 +690,8 @@ generate_new_cert()
 #                -h $target_host \
 #                -p $target_port \
 #                -c $tmp_nss_db_pwd \
-#                -n \"$subject_cn\" nss-cert-import \
+#                -n \"$subject_cn\" \
+#                nss-cert-import \
 #                --cert $tmp_nss_db/$cn-out.pem 1> $tmp_nss_db/pki-client-cert.out"
 #        rlAssertGrep "Imported certificate \"$subject_cn\"" "$tmp_nss_db/pki-client-cert.out"
 #        rlLog "Get CA cert imported to $TEMP_NSS_DB NSS DB"
@@ -698,8 +699,10 @@ generate_new_cert()
 #                -h $target_host \
 #                -p $target_port \
 #                -c $tmp_nss_db_pwd \
-#                -n \"casigningcert\" client-cert-import \
-#                --ca-cert $tmp_nss_db/ca_cert.pem 1> $tmp_nss_db/pki-ca-cert.out"
+#                -n \"casigningcert\" \
+#                nss-cert-import \
+#                --cert $tmp_nss_db/ca_cert.pem \
+#                --trust CT,C,C 1> $tmp_nss_db/pki-ca-cert.out"
 #        rlAssertGrep "Imported certificate \"casigningcert\"" "$tmp_nss_db/pki-ca-cert.out"
 
         echo cert_serialNumber-$valid_serialNumber > $cert_info

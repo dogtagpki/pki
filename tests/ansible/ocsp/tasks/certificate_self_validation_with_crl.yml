@@ -105,8 +105,8 @@
     command: "{{ item }}"
   loop:
     - pki-server cert-export ca_signing --cert-file {{ shared_workspace }}/ca_signing.crt
-    - pki client-cert-import ca_signing --ca-cert {{ shared_workspace }}/ca_signing.crt
-    - pki pkcs12-import --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 --pkcs12-password Secret.123
+    - pki nss-cert-import --cert {{ shared_workspace }}/ca_signing.crt --trust CT,C,C ca_signing
+    - pki pkcs12-import --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 --password Secret.123
 
 - name: Set up OCSP DS container
   community.docker.docker_container:
@@ -302,8 +302,8 @@
     container: "{{ ocsp_container }}"
     command: "{{ item }}"
   loop:
-    - pki client-cert-import ca_signing --ca-cert {{ shared_workspace }}/ca_signing.crt
-    - pki pkcs12-import --pkcs12 /root/.dogtag/pki-tomcat/ocsp_admin_cert.p12 --pkcs12-password Secret.123
+    - pki nss-cert-import --cert {{ shared_workspace }}/ca_signing.crt --trust CT,C,C ca_signing
+    - pki pkcs12-import --pkcs12 /root/.dogtag/pki-tomcat/ocsp_admin_cert.p12 --password Secret.123
     - pki -n ocspadmin ocsp-user-show ocspadmin
 
 - name: Prepare CRL publishing subtree

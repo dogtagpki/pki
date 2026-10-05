@@ -105,7 +105,7 @@ sslserver                                                    u,u,u
 +
 [literal]
 ....
-$ pki -c Secret.123 client-cert-import --ca-cert root-ca_signing.crt
+$ pki nss-cert-import --cert root-ca_signing.crt --trust CT,C,C root-ca_signing
 ....
 
 . Import the CA signing certificate:
@@ -119,16 +119,16 @@ $ pki nss-cert-import --cert ca_signing.crt --trust CT,C,C ca_signing
 +
 [literal]
 ....
-$ pki -c Secret.123 pkcs12-import \
+$ pki pkcs12-import \
     --pkcs12 ~/.dogtag/pki-tomcat/ca_admin_cert.p12 \
-    --pkcs12-password Secret.123
+    --password Secret.123
 ....
 
 . Verify that the admin certificate can be used to access the CA subsystem by executing the following command:
 +
 [literal]
 ....
-$ pki -c Secret.123 -n caadmin ca-user-show caadmin
+$ pki -n caadmin ca-user-show caadmin
 --------------
 User "caadmin"
 --------------

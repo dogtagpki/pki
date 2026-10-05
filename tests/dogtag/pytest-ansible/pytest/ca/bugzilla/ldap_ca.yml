@@ -75,14 +75,14 @@
 
     - name: Get Ldap certificate to a file
       pki:
-        cli: "client-cert-import"
+        cli: "nss-cert-import"
         hostname : "{{ variable.MASTER_HOSTNAME }}"
         nssdb : "/etc/dirsrv/slapd-{{ topology }}-testingmaster/"
         protocol: "https"
         authType: "basicAuth"
         dbpassword: "{{ ldapPasswd.stdout }}"
         port: "{{ variable.CA_HTTPS_PORT }}"
-        extra_args: "'CA Certificate' --ca-cert /etc/dirsrv/slapd-{{ topology }}-testingmaster/ca.crt"
+        extra_args: "--cert /etc/dirsrv/slapd-{{ topology }}-testingmaster/ca.crt --trust CT,C,C 'CA Certificate'"
 
     - name: Get Ldap certificate to a file
       pki:

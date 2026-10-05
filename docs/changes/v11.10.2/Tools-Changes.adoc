@@ -3,4 +3,9 @@
 == Deprecate pki client-cert-import --cert option ==
 
 The `--cert` option in `pki client-cert-import` has been deprecated.
-Use `pki nss-cert-import --cert` instead.
+Use `pki nss-cert-import --cert <filename>` instead.
+
+== Deprecate pki client-cert-import --ca-cert option ==
+
+The `--ca-cert` option in `pki client-cert-import` has been deprecated.
+Use `pki nss-cert-import --cert <filename> --trust CT,C,C` instead.

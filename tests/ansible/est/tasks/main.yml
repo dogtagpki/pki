@@ -103,8 +103,8 @@
     command: "{{ item }}"
   loop:
     - pki-server cert-export ca_signing --cert-file ca_signing.crt
-    - pki client-cert-import ca_signing --ca-cert ca_signing.crt
-    - pki pkcs12-import --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 --pkcs12-password Secret.123
+    - pki nss-cert-import --cert ca_signing.crt --trust CT,C,C ca_signing
+    - pki pkcs12-import --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 --password Secret.123
 
 - name: Create EST user
   community.docker.docker_container_exec:
