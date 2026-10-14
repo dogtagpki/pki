@@ -1,0 +1,171 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="installing-est-for-fullcmc"]
+= Installing EST for fullcmc support
+
+Follow this process to install an EST subsystem configured for fullcmc enrollment. This EST installation uses a separate instance and Directory Server from the CA.
+
+== Prerequisites
+
+* CA subsystem installed and configured for EST fullcmc support. See xref:../ca/installing-ca-for-est-fullcmc.adoc[Installing CA for EST fullcmc support].
+* The EST subsystem requires the package `dogtag-pki-est` installed on the server:
++
+....
+# dnf install dogtag-pki-est
+....
+
+== Installing the Directory Server instance for EST realm
+
+Create a separate DS instance for the EST realm authentication database using non-standard ports.
+
+As root, create or use the working directory:
+
+....
+# mkdir -p /root/dogtag/ds
+# cd /root/dogtag/ds
+....
+
+Create `/root/dogtag/ds/dir-est.inf`:
+
+----
+[general]
+full_machine_name = pki.example.com
+
+[slapd]
+instance_name = dir-est
+port = 4389
+root_password = Secret.123
+secure_port = 4636
+self_sign_cert = True
+
+[backend-userroot]
+create_suffix_entry = True
+suffix = dc=est,dc=pki,dc=example,dc=com
+----
+
+Create the DS instance:
+
+....
+# dscreate from-file /root/dogtag/ds/dir-est.inf
+....
+
+Verify the DS instance is running:
+
+....
+# dsctl dir-est status
+....
+
+== Setting up EST realm database structure
+
+Import the organizational structure required for EST authentication:
+
+....
+# ldapadd -x -H ldap://localhost:4389 -D "cn=Directory Manager" -w Secret.123 \
+    -c -f /usr/share/pki/est/conf/realm/ds/create.ldif
+....
+
+NOTE: The `-c` flag tells ldapadd to continue on errors. You may see "Already exists (68)" error for the base DN `dc=est,dc=pki,dc=example,dc=com` if `create_suffix_entry = True` was set in the DS configuration. This is normal - ldapadd continues and creates the remaining entries (ou=people, ou=groups, and cn=EST Users).
+
+Verify the structure was created:
+
+....
+# ldapsearch -x -H ldap://localhost:4389 -D "cn=Directory Manager" -w Secret.123 \
+    -b "dc=est,dc=pki,dc=example,dc=com" -s one dn
+....
+
+You should see:
+
+....
+dn: ou=people,dc=est,dc=pki,dc=example,dc=com
+dn: ou=groups,dc=est,dc=pki,dc=example,dc=com
+....
+
+Verify the EST Users group:
+
+....
+# ldapsearch -x -H ldap://localhost:4389 -D "cn=Directory Manager" -w Secret.123 \
+    -b "ou=groups,dc=est,dc=pki,dc=example,dc=com" -s one dn
+....
+
+You should see:
+
+....
+dn: cn=EST Users,ou=groups,dc=est,dc=pki,dc=example,dc=com
+....
+
+== Installing the EST subsystem
+
+Prepare a deployment configuration for the EST subsystem. The EST subsystem is installed in a separate instance called `pki-est` using ports 15080 (HTTP) and 15443 (HTTPS).
+
+As root, create the working directory:
+
+....
+# mkdir -p /root/dogtag/pki-est
+# cd /root/dogtag/pki-est
+....
+
+Copy the CA signing certificate to the working directory:
+
+....
+# cp /tmp/ca_signing.crt /root/dogtag/pki-est/
+....
+
+A sample deployment configuration is available at xref:../../../base/server/examples/installation/est-fullcmc.cfg[/usr/share/pki/server/examples/installation/est-fullcmc.cfg].
+
+To start the installation execute the following command:
+
+....
+# pkispawn -f /usr/share/pki/server/examples/installation/est-fullcmc.cfg -s EST \
+    -D pki_cert_chain_path=/root/dogtag/pki-est/ca_signing.crt \
+    -D pki_cert_chain_nickname=ca_signing
+....
+
+The installation completes with a message showing the EST subsystem URL. For fullcmc requests, use the `/fullcmc` endpoint:
+
+....
+https://pki.example.com:15443/.well-known/est/fullcmc
+....
+
+== Verifying EST installation
+
+Verify EST is running:
+
+....
+$ curl -k https://pki.example.com:15443/.well-known/est/
+....
+
+You should see:
+
+----
+{
+  "id" : "est",
+  "name" : "Enrollment over Secure Transport",
+  "path" : "/.well-known/est"
+}
+----
+
+== Verifying EST backend configuration
+
+After installation, the EST backend configuration for fullcmc support is in `/var/lib/pki/pki-est/est/conf/backend.conf`. Verify that it contains the following:
+
+----
+class=org.dogtagpki.est.DogtagRABackend
+url=https://pki.example.com:8443
+profile=estServiceCert
+
+# Profile for /fullcmc endpoint (specifies which CA profile to use for fullcmc requests)
+fullcmc.profile=estFullEnrollment
+----
+
+The `fullcmc.profile` parameter tells EST which CA profile to use when forwarding fullcmc requests. This should already be present in a fresh installation with fullcmc support.
+
+If the parameter is missing, add it manually:
+
+....
+# echo "fullcmc.profile=estFullEnrollment" >> /var/lib/pki/pki-est/est/conf/backend.conf
+# pki-server restart pki-est
+....
+
+== Next steps
+
+To configure and test EST fullcmc enrollment, see xref:configuring-est-fullcmc.adoc[Configuring EST fullcmc enrollment].

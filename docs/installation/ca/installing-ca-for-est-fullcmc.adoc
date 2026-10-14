@@ -1,0 +1,176 @@
+:_mod-docs-content-type: PROCEDURE
+
+[id="installing-ca-for-est-fullcmc"]
+= Installing CA for EST fullcmc support
+
+Follow this process to install a CA subsystem configured for EST fullcmc enrollment. This CA installation includes the necessary profile and post-installation configuration to support EST's two-tier authentication model.
+
+Prior to installation, ensure that the xref:../others/installation-prerequisites.adoc[Installation Prerequisites] are configured.
+
+== Installing the Directory Server instance for CA
+
+Create a DS instance for the CA subsystem using non-standard ports to avoid conflicts with other DS instances.
+
+As root, create the working directory:
+
+....
+# mkdir -p /root/dogtag/ds
+# cd /root/dogtag/ds
+....
+
+Create `/root/dogtag/ds/dir-ca.inf`:
+
+----
+[general]
+full_machine_name = pki.example.com
+
+[slapd]
+instance_name = dir-ca
+port = 2389
+root_password = Secret.123
+secure_port = 2636
+self_sign_cert = True
+
+[backend-userroot]
+create_suffix_entry = True
+suffix = dc=ca,dc=pki,dc=example,dc=com
+----
+
+Create the DS instance:
+
+....
+# dscreate from-file /root/dogtag/ds/dir-ca.inf
+....
+
+Verify the DS instance is running:
+
+....
+# dsctl dir-ca status
+....
+
+== Installing the CA subsystem
+
+Prepare a deployment configuration for the CA subsystem. The CA is installed in a separate instance called `pki-ca` using ports 8080 (HTTP) and 8443 (HTTPS).
+
+As root, create the working directory:
+
+....
+# mkdir -p /root/dogtag/pki-ca
+# cd /root/dogtag/pki-ca
+....
+
+A sample deployment configuration is available at xref:../../../base/server/examples/installation/ca-est-fullcmc.cfg[/usr/share/pki/server/examples/installation/ca-est-fullcmc.cfg].
+
+To start the installation execute the following command:
+
+....
+# pkispawn -f /usr/share/pki/server/examples/installation/ca-est-fullcmc.cfg -s CA
+....
+
+== Configuring CA for EST fullcmc support
+
+After installation, configure the CA to return simple CMC responses on successful enrollment, which is required for EST RFC compliance.
+
+As root, edit `/var/lib/pki/pki-ca/ca/conf/CS.cfg` and add:
+
+----
+cmc.response.useSimpleOnSuccess=true
+----
+
+IMPORTANT: The `cmc.response.useSimpleOnSuccess` parameter changes CMC response behavior for all CMC requests handled by this CA, not just EST. Setting it to `true` makes the CA return simple (non-full) CMC responses on successful enrollment.
+
+Restart the CA:
+
+....
+# pki-server restart pki-ca
+....
+
+== Verifying EST fullcmc profile
+
+Verify that the `estFullEnrollment` profile exists. This profile should have been created during CA installation.
+
+First, set up the CA admin certificate. As root, export the CA signing certificate:
+
+....
+# pki-server cert-export ca_signing --cert-file /tmp/ca_signing.crt -i pki-ca
+# chmod 644 /tmp/ca_signing.crt
+....
+
+As regular user, import the CA signing certificate and admin certificate:
+
+....
+$ pki nss-cert-import --cert /tmp/ca_signing.crt --trust CT,C,C ca_signing
+$ pki pkcs12-import \
+    --pkcs12 ~/.dogtag/pki-ca/ca_admin_cert.p12 \
+    --password Secret.123
+....
+
+Verify that the `estFullEnrollment` profile exists:
+
+....
+$ pki -n caadmin ca-profile-show estFullEnrollment
+....
+
+Verify the profile uses the required constraint:
+
+....
+$ pki -n caadmin ca-profile-show estFullEnrollment | grep -A2 "constraint.class"
+....
+
+You should see `RAHeaderClientCertSubjectNameConstraint` in the output. This constraint is mandatory for the two-tier authorization model and enables:
+
+* Non-agent enrollment: The client's certificate subject must match the requested certificate subject
+* Agent enrollment: CA agents can request certificates with any subject name
+
+== CA system certificates
+
+After installation, the CA system certificates and keys are stored in the server NSS database (that is `/var/lib/pki/pki-ca/conf/alias`):
+
+....
+$ certutil -L -d /var/lib/pki/pki-ca/conf/alias
+
+Certificate Nickname                                         Trust Attributes
+                                                             SSL,S/MIME,JAR/XPI
+
+ca_signing                                                   CTu,Cu,Cu
+ca_ocsp_signing                                              u,u,u
+subsystem                                                    u,u,u
+ca_audit_signing                                             u,u,Pu
+sslserver                                                    u,u,u
+....
+
+If necessary, the certificates can be exported into PEM files by using the following command:
+
+....
+$ pki-server cert-export <cert ID> --cert-file <filename> -i pki-ca
+....
+
+The valid certificate IDs for CA are:
+
+* `ca_signing`
+* `ca_ocsp_signing`
+* `ca_audit_signing`
+* `subsystem`
+* `sslserver`
+
+== Admin certificate
+
+After installation the admin certificate and key are stored in `~/.dogtag/pki-ca/ca_admin_cert.p12`.
+
+The PKCS #12 password is specified in the `pki_client_pkcs12_password` parameter.
+
+The admin certificate setup was completed in the verification step above.
+
+Verify that the admin certificate can be used to access the CA subsystem by executing the following command:
+
+....
+$ pki -n caadmin ca-user-show caadmin
+--------------
+User "caadmin"
+--------------
+  User ID: caadmin
+  Full name: caadmin
+  Email: caadmin@example.com
+  Type: adminType
+  State: 1
+....
