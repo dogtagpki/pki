@@ -445,5 +445,12 @@ jobs:
           name: est-fullcmc-test
           path: est-fullcmc-test
 
+      - name: Remove containers
+        if: always()
+        run: |
+          docker stop pki ds || true
+          docker rm pki ds || true
+
       - name: Remove network
-        run: docker network rm example
+        if: always()
+        run: docker network rm example || true
