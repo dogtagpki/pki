@@ -73,6 +73,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/ca-ssnv2-test.yml
 
+  ca-audit-test:
+    name: CA audit
+    needs: build
+    uses: ./.github/workflows/ca-audit-test.yml
+
   scep-test:
     name: SCEP responder
     needs: build
