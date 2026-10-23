@@ -86,11 +86,3 @@ Always, without being asked:
   handling, authentication, authorization, trust evaluation, input
   validation, crypto, or RFC/standards compliance, call it out explicitly
   and flag for extra review.
-
-## Process (humans)
-
-New features follow: investigation report -> design review -> implementation
--> code review. Design docs and PRs carry a brief "Intent & Rationale"
-summary (see above). Full process: see the [AI-Assisted Design & Development
-Guidelines](https://github.com/dogtagpki/pki/wiki/AI-Assisted-Design-and-Development-Guidelines)
-on the Dogtag PKI wiki.
