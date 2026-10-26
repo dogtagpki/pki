@@ -4,6 +4,9 @@ javac(pki-server-examples-classes
     SOURCES
         java/*.java
     CLASSPATH
+        ${SLF4J_API_JAR}
+        ${JSS_JAR}
+        ${PKI_COMMON_JAR}
         ${PKI_SERVER_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes

@@ -1,5 +1,9 @@
 project(server)
 
+set(PKI_SERVER_JAR ${CMAKE_BINARY_DIR}/dist/pki-server.jar
+    CACHE INTERNAL "pki-server.jar"
+)
+
 add_subdirectory(examples)
 add_subdirectory(healthcheck)
 
@@ -34,10 +38,6 @@ javac(pki-server-classes
 )
 
 add_dependencies(java pki-server-classes)
-
-set(PKI_SERVER_JAR ${CMAKE_BINARY_DIR}/dist/pki-server.jar
-    CACHE INTERNAL "pki-server.jar"
-)
 
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/META-INF/MANIFEST.MF
