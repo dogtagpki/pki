@@ -1,6 +1,8 @@
 name: CA audit
 # This test will perform the following operations:
 # - install CA
+# - check default audit config
+# - check default audit events
 # - check initial audit logs
 # - check admin user
 # - create auditor user
@@ -77,6 +79,285 @@ jobs:
               -s CA \
               -D pki_ds_url=ldap://ds.example.com:3389 \
               -v
+
+      - name: Check default audit config
+        run: |
+          # https://github.com/dogtagpki/pki/wiki/Configuring-Audit
+
+          docker exec pki pki-server ca-config-find \
+              | sed -n \
+                  -e '/^ca\.audit_signing\..*=/p' \
+                  -e '/^ca\.cert\.audit_signing\..*=/p' \
+                  -e '/^ca\.cert\.list=/p' \
+              | tee output
+
+          cat > expected << EOF
+          ca.audit_signing.defaultSigningAlgorithm=SHA256withRSA
+          ca.audit_signing.nickname=ca_audit_signing
+          ca.audit_signing.tokenname=internal
+          ca.cert.audit_signing.certusage=ObjectSigner
+          ca.cert.audit_signing.nickname=ca_audit_signing
+          ca.cert.list=signing,ocsp_signing,sslserver,subsystem,audit_signing
+          EOF
+
+          diff expected output
+
+          docker exec pki pki-server ca-audit-config-show | tee output
+
+          cat > expected << EOF
+            Enabled: True
+            Log File: /var/lib/pki/pki-tomcat/logs/ca/signedAudit/ca_audit
+            Buffer Size (bytes): 512
+            Flush Interval (seconds): 5
+            Max File Size (bytes): 2000
+            Rollover Interval (seconds): 2592000
+            Expiration Time (seconds): 0
+            Log Signing: False
+            Signing Certificate: ca_audit_signing
+          EOF
+
+          diff expected output
+
+      - name: Check default audit events
+        run: |
+          # https://github.com/dogtagpki/pki/wiki/PKI-Server-Audit-CLI
+
+          docker exec pki pki-server ca-audit-event-find | tee output
+
+          cat > expected << EOF
+          ------------------
+          57 entries matched
+          ------------------
+            Event Name: ACCESS_SESSION_ESTABLISH
+            Enabled: True
+            Filter: None
+
+            Event Name: ACCESS_SESSION_TERMINATED
+            Enabled: True
+            Filter: None
+
+            Event Name: AUDIT_LOG_DELETE
+            Enabled: False
+            Filter: None
+
+            Event Name: AUDIT_LOG_SHUTDOWN
+            Enabled: False
+            Filter: None
+
+            Event Name: AUDIT_LOG_SIGNING
+            Enabled: True
+            Filter: None
+
+            Event Name: AUDIT_LOG_STARTUP
+            Enabled: True
+            Filter: None
+
+            Event Name: AUTH
+            Enabled: True
+            Filter: None
+
+            Event Name: AUTHORITY_CONFIG
+            Enabled: True
+            Filter: None
+
+            Event Name: AUTHZ
+            Enabled: True
+            Filter: None
+
+            Event Name: CERT_PROFILE_APPROVAL
+            Enabled: True
+            Filter: None
+
+            Event Name: CERT_REQUEST_PROCESSED
+            Enabled: True
+            Filter: None
+
+            Event Name: CERT_SIGNING_INFO
+            Enabled: True
+            Filter: None
+
+            Event Name: CERT_STATUS_CHANGE_REQUEST
+            Enabled: True
+            Filter: None
+
+            Event Name: CERT_STATUS_CHANGE_REQUEST_PROCESSED
+            Enabled: True
+            Filter: None
+
+            Event Name: CIMC_CERT_VERIFICATION
+            Enabled: False
+            Filter: None
+
+            Event Name: CLIENT_ACCESS_SESSION_ESTABLISH
+            Enabled: True
+            Filter: None
+
+            Event Name: CLIENT_ACCESS_SESSION_TERMINATED
+            Enabled: True
+            Filter: None
+
+            Event Name: CMC_ID_POP_LINK_WITNESS
+            Enabled: False
+            Filter: None
+
+            Event Name: CMC_PROOF_OF_IDENTIFICATION
+            Enabled: False
+            Filter: None
+
+            Event Name: CMC_REQUEST_RECEIVED
+            Enabled: True
+            Filter: None
+
+            Event Name: CMC_RESPONSE_SENT
+            Enabled: True
+            Filter: None
+
+            Event Name: CMC_SIGNED_REQUEST_SIG_VERIFY
+            Enabled: True
+            Filter: (Outcome=Failure)
+
+            Event Name: CMC_USER_SIGNED_REQUEST_SIG_VERIFY
+            Enabled: True
+            Filter: (Outcome=Failure)
+
+            Event Name: CONFIG_ACL
+            Enabled: True
+            Filter: None
+
+            Event Name: CONFIG_AUTH
+            Enabled: True
+            Filter: None
+
+            Event Name: CONFIG_CERT_POLICY
+            Enabled: False
+            Filter: None
+
+            Event Name: CONFIG_CERT_PROFILE
+            Enabled: True
+            Filter: None
+
+            Event Name: CONFIG_CRL_PROFILE
+            Enabled: True
+            Filter: None
+
+            Event Name: CONFIG_ENCRYPTION
+            Enabled: True
+            Filter: None
+
+            Event Name: CONFIG_ROLE
+            Enabled: True
+            Filter: None
+
+            Event Name: CONFIG_SERIAL_NUMBER
+            Enabled: True
+            Filter: None
+
+            Event Name: CONFIG_SIGNED_AUDIT
+            Enabled: True
+            Filter: None
+
+            Event Name: CONFIG_TRUSTED_PUBLIC_KEY
+            Enabled: True
+            Filter: None
+
+            Event Name: CRL_SIGNING_INFO
+            Enabled: True
+            Filter: None
+
+            Event Name: DELTA_CRL_GENERATION
+            Enabled: True
+            Filter: (Outcome=Failure)
+
+            Event Name: DELTA_CRL_PUBLISHING
+            Enabled: False
+            Filter: None
+
+            Event Name: FULL_CRL_GENERATION
+            Enabled: True
+            Filter: (Outcome=Failure)
+
+            Event Name: FULL_CRL_PUBLISHING
+            Enabled: False
+            Filter: None
+
+            Event Name: INTER_BOUNDARY
+            Enabled: False
+            Filter: None
+
+            Event Name: KEY_GEN_ASYMMETRIC
+            Enabled: True
+            Filter: None
+
+            Event Name: KEY_RECOVERY_REQUEST
+            Enabled: False
+            Filter: None
+
+            Event Name: LOG_EXPIRATION_CHANGE
+            Enabled: False
+            Filter: None
+
+            Event Name: LOG_PATH_CHANGE
+            Enabled: True
+            Filter: None
+
+            Event Name: NON_PROFILE_CERT_REQUEST
+            Enabled: False
+            Filter: None
+
+            Event Name: OCSP_GENERATION
+            Enabled: True
+            Filter: (Outcome=Failure)
+
+            Event Name: OCSP_SIGNING_INFO
+            Enabled: True
+            Filter: None
+
+            Event Name: PROFILE_CERT_REQUEST
+            Enabled: True
+            Filter: None
+
+            Event Name: PROOF_OF_POSSESSION
+            Enabled: True
+            Filter: None
+
+            Event Name: RANDOM_GENERATION
+            Enabled: True
+            Filter: (Outcome=Failure)
+
+            Event Name: ROLE_ASSUME
+            Enabled: True
+            Filter: None
+
+            Event Name: SCHEDULE_CRL_GENERATION
+            Enabled: True
+            Filter: None
+
+            Event Name: SECURITY_DOMAIN_UPDATE
+            Enabled: True
+            Filter: None
+
+            Event Name: SELFTESTS_EXECUTION
+            Enabled: True
+            Filter: None
+
+            Event Name: SERVER_SIDE_KEYGEN_ENROLL_KEYGEN_REQUEST
+            Enabled: False
+            Filter: None
+
+            Event Name: SERVER_SIDE_KEYGEN_ENROLL_KEY_RETRIEVAL_REQUEST
+            Enabled: False
+            Filter: None
+
+            Event Name: SERVER_SIDE_KEYGEN_REQUEST
+            Enabled: True
+            Filter: None
+
+            Event Name: SERVER_SIDE_KEYGEN_REQUEST_PROCESSED
+            Enabled: True
+            Filter: None
+          EOF
+
+          diff expected output
 
       - name: Check initial audit logs
         run: |
