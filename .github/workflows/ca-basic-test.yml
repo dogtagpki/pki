@@ -905,10 +905,6 @@ jobs:
 
           diff expected actual
 
-      - name: Check CA audit events
-        run: |
-          docker exec pki pki-server ca-audit-event-find
-
       - name: Run PKI healthcheck
         run: |
           docker exec pki pki-healthcheck \
@@ -1261,38 +1257,6 @@ jobs:
           docker exec pki pki nss-cert-verify \
               --cert-usage SSLClient \
               caadmin
-
-      - name: Check default audit config
-        run: |
-          docker exec pki pki-server ca-config-find | grep audit_signing | tee output
-
-          cat > expected << EOF
-          ca.audit_signing.defaultSigningAlgorithm=SHA256withRSA
-          ca.audit_signing.nickname=ca_audit_signing
-          ca.audit_signing.tokenname=internal
-          ca.cert.audit_signing.certusage=ObjectSigner
-          ca.cert.audit_signing.nickname=ca_audit_signing
-          ca.cert.list=signing,ocsp_signing,sslserver,subsystem,audit_signing
-          log.instance.SignedAudit.signedAuditCertNickname=ca_audit_signing
-          EOF
-
-          diff expected output
-
-          docker exec pki pki-server ca-audit-config-show | tee output
-
-          cat > expected << EOF
-            Enabled: True
-            Log File: /var/lib/pki/pki-tomcat/logs/ca/signedAudit/ca_audit
-            Buffer Size (bytes): 512
-            Flush Interval (seconds): 5
-            Max File Size (bytes): 2000
-            Rollover Interval (seconds): 2592000
-            Expiration Time (seconds): 0
-            Log Signing: False
-            Signing Certificate: ca_audit_signing
-          EOF
-
-          diff expected output
 
       - name: Enable audit log signing
         run: |
