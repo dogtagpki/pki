@@ -75,10 +75,8 @@ jobs:
     - name: Load PKI images
       run: docker load --input pki-images.tar
 
-    - name: Set up Python 3.9
-      uses: actions/setup-python@v4
-      with:
-        python-version: 3.9
+    - name: Set up Python
+      uses: actions/setup-python@v7
 
     - name: Install ansible
       run: |
