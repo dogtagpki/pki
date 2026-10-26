@@ -117,11 +117,338 @@ jobs:
           -e '/^\/usr\/share\/pki\/server\/common\/lib\/resteasy-servlet-initializer-.*\.jar/d' \
           file_list
 
-      # exclude user managemant files only available in RPM
+      # exclude user management files only available in RPM
       sed -i \
           -e '/^\/usr\/lib\/sysusers\.d\/dogtag-pki\.conf/d' \
           file_list
     displayName: Get list of files from RPM packages
+
+  - script: |
+      docker exec runner mkdir -p /root/src/base/common/lib
+    displayName: Create base/common/lib
+
+  - script: |
+      COMMONS_CLI_VERSION=$(
+          docker exec runner rpm -q apache-commons-cli \
+          | sed -n 's/^apache-commons-cli-\([^-]*\)-.*$/\1/p')
+
+      docker exec runner cp \
+          /usr/share/java/commons-cli.jar \
+          /root/src/base/common/lib/commons-cli-$COMMONS_CLI_VERSION.jar
+    displayName: Import apache-commons-cli
+
+  - script: |
+      COMMONS_CODEC_VERSION=$(
+          docker exec runner rpm -q apache-commons-codec \
+          | sed -n 's/^apache-commons-codec-\([^-]*\)-.*$/\1/p')
+
+      docker exec runner cp \
+          /usr/share/java/commons-codec.jar \
+          /root/src/base/common/lib/commons-codec-$COMMONS_CODEC_VERSION.jar
+    displayName: Import apache-commons-codec
+
+  - script: |
+      COMMONS_IO_VERSION=$(
+          docker exec runner rpm -q apache-commons-io \
+          | sed -n 's/^apache-commons-io-\([^-]*\)-.*$/\1/p')
+
+      docker exec runner cp \
+          /usr/share/java/commons-io.jar \
+          /root/src/base/common/lib/commons-io-$COMMONS_IO_VERSION.jar
+    displayName: Import apache-commons-io
+
+  - script: |
+      COMMONS_LANG3_VERSION=$(
+          docker exec runner rpm -q apache-commons-lang3 \
+          | sed -n 's/^apache-commons-lang3-\([^-]*\)-.*$/\1/p')
+
+      docker exec runner cp \
+          /usr/share/java/commons-lang3.jar \
+          /root/src/base/common/lib/commons-lang3-$COMMONS_LANG3_VERSION.jar
+    displayName: Import apache-commons-lang3
+
+  - script: |
+      COMMONS_LOGGING_VERSION=$(
+          docker exec runner rpm -q apache-commons-logging \
+          | sed -n 's/^apache-commons-logging-\([^-]*\)-.*$/\1/p')
+
+      docker exec runner cp \
+          /usr/share/java/commons-logging.jar \
+          /root/src/base/common/lib/commons-logging-$COMMONS_LOGGING_VERSION.jar
+    displayName: Import apache-commons-logging
+
+  - script: |
+      COMMONS_NET_VERSION=$(
+          docker exec runner rpm -q apache-commons-net \
+          | sed -n 's/^apache-commons-net-\([^-]*\)-.*$/\1/p')
+
+      docker exec runner cp \
+          /usr/share/java/commons-net.jar \
+          /root/src/base/common/lib/commons-net-$COMMONS_NET_VERSION.jar
+    displayName: Import apache-commons-net
+
+  - script: |
+      HTTPCLIENT_VERSION=$(
+          docker exec runner rpm -q httpcomponents-client \
+          | sed -n 's/^httpcomponents-client-\([^-]*\)-.*$/\1/p')
+
+      docker exec runner cp \
+          /usr/share/java/httpcomponents/httpclient.jar \
+          /root/src/base/common/lib/httpclient-$HTTPCLIENT_VERSION.jar
+    displayName: Import httpcomponents-client
+
+  - script: |
+      HTTPCORE_VERSION=$(
+          docker exec runner rpm -q httpcomponents-core \
+          | sed -n 's/^httpcomponents-core-\([^-]*\)-.*$/\1/p')
+
+      docker exec runner cp \
+          /usr/share/java/httpcomponents/httpcore.jar \
+          /root/src/base/common/lib/httpcore-$HTTPCORE_VERSION.jar
+    displayName: Import httpcomponents-core
+
+  - script: |
+      SLF4J_API_VERSION=$(
+          docker exec runner rpm -q slf4j \
+          | sed -n 's/^slf4j-\([^-]*\)-.*$/\1/p')
+
+      docker exec runner cp \
+          /usr/share/java/slf4j/slf4j-api.jar \
+          /root/src/base/common/lib/slf4j-api-$SLF4J_API_VERSION.jar
+    displayName: Import slf4j-api
+
+  - script: |
+      SLF4J_JDK14_VERSION=$(
+          docker exec runner rpm -q slf4j \
+          | sed -n 's/^slf4j-\([^-]*\)-.*$/\1/p')
+
+      docker exec runner cp \
+          /usr/share/java/slf4j/slf4j-jdk14.jar \
+          /root/src/base/common/lib/slf4j-jdk14-$SLF4J_JDK14_VERSION.jar
+    displayName: Import slf4j-jdk14
+
+  - script: |
+      JAKARTA_ACTIVATION_API_VERSION=$(
+          docker exec runner rpm -q jakarta-activation \
+          | sed -n 's/^jakarta-activation-\([^-]*\)-.*$/\1/p')
+
+      docker exec runner jar tvf /usr/share/java/jakarta-activation/jakarta.activation-api.jar \
+          | sed -n 's/.* \([^ ]\+\)\/[^\/]*\.class$/\1/p' \
+          | sort \
+          | uniq
+
+      docker exec runner javax2jakarta \
+          -logLevel=FINE \
+          -profile=EE \
+          /usr/share/java/jakarta-activation/jakarta.activation-api.jar \
+          /root/src/base/common/lib/jakarta.activation-api-$JAKARTA_ACTIVATION_API_VERSION.jar
+    displayName: Migrate jakarta-activation
+
+  - script: |
+      JAKARTA_ANNOTATION_API_VERSION=$(
+          docker exec runner rpm -q jakarta-annotations \
+          | sed -n 's/^jakarta-annotations-\([^-]*\)-.*$/\1/p')
+
+      docker exec runner jar tvf /usr/share/java/jakarta-annotations/jakarta.annotation-api.jar \
+          | sed -n 's/.* \([^ ]\+\)\/[^\/]*\.class$/\1/p' \
+          | sort \
+          | uniq
+
+      docker exec runner javax2jakarta \
+          -logLevel=FINE \
+          -profile=EE \
+          /usr/share/java/jakarta-annotations/jakarta.annotation-api.jar \
+          /root/src/base/common/lib/jakarta.annotation-api-$JAKARTA_ANNOTATION_API_VERSION.jar
+    displayName: Migrate jakarta-annotations
+
+  - script: |
+      JAXB_API_VERSION=$(
+          docker exec runner rpm -q jaxb-api \
+          | sed -n 's/^jaxb-api-\([^-]*\)-.*$/\1/p')
+
+      docker exec runner jar tvf /usr/share/java/jaxb-api/jakarta.xml.bind-api.jar \
+          | sed -n 's/.* \([^ ]\+\)\/[^\/]*\.class$/\1/p' \
+          | sort \
+          | uniq
+
+      docker exec runner javax2jakarta \
+          -logLevel=FINE \
+          -profile=EE \
+          /usr/share/java/jaxb-api/jakarta.xml.bind-api.jar \
+          /root/src/base/common/lib/jakarta.xml.bind-api-$JAXB_API_VERSION.jar
+    displayName: Migrate jaxb-api
+
+  - script: |
+      JACKSON_ANNOTATIONS_VERSION=$(
+          docker exec runner rpm -q jackson-annotations \
+          | sed -n 's/^jackson-annotations-\([^-]*\)-.*$/\1/p')
+
+      docker exec runner jar tvf /usr/share/java/jackson-annotations.jar \
+          | sed -n 's/.* \([^ ]\+\)\/[^\/]*\.class$/\1/p' \
+          | sort \
+          | uniq
+
+      docker exec runner javax2jakarta \
+          -logLevel=FINE \
+          -profile=EE \
+          /usr/share/java/jackson-annotations.jar \
+          /root/src/base/common/lib/jackson-annotations-$JACKSON_ANNOTATIONS_VERSION.jar
+    displayName: Migrate jackson-annotations
+
+  - script: |
+      JACKSON_CORE_VERSION=$(
+          docker exec runner rpm -q jackson-core \
+          | sed -n 's/^jackson-core-\([^-]*\)-.*$/\1/p')
+
+      docker exec runner jar tvf /usr/share/java/jackson-core.jar \
+          | sed -n 's/.* \([^ ]\+\)\/[^\/]*\.class$/\1/p' \
+          | sort \
+          | uniq
+
+      docker exec runner javax2jakarta \
+          -logLevel=FINE \
+          -profile=EE \
+          /usr/share/java/jackson-core.jar \
+          /root/src/base/common/lib/jackson-core-$JACKSON_CORE_VERSION.jar
+    displayName: Migrate jackson-core
+
+  - script: |
+      JACKSON_DATABIND_VERSION=$(
+          docker exec runner rpm -q jackson-databind \
+          | sed -n 's/^jackson-databind-\([^-]*\)-.*$/\1/p')
+
+      docker exec runner jar tvf /usr/share/java/jackson-databind.jar \
+          | sed -n 's/.* \([^ ]\+\)\/[^\/]*\.class$/\1/p' \
+          | sort \
+          | uniq
+
+      docker exec runner javax2jakarta \
+          -logLevel=FINE \
+          -profile=EE \
+          /usr/share/java/jackson-databind.jar \
+          /root/src/base/common/lib/jackson-databind-$JACKSON_DATABIND_VERSION.jar
+    displayName: Migrate jackson-databind
+
+  - script: |
+      JACKSON_MODULES_JAXB_ANNOTATIONS_VERSION=$(
+          docker exec runner rpm -q jackson-module-jaxb-annotations \
+          | sed -n 's/^jackson-module-jaxb-annotations-\([^-]*\)-.*$/\1/p')
+
+      docker exec runner jar tvf /usr/share/java/jackson-modules/jackson-module-jaxb-annotations.jar \
+          | sed -n 's/.* \([^ ]\+\)\/[^\/]*\.class$/\1/p' \
+          | sort \
+          | uniq
+
+      docker exec runner javax2jakarta \
+          -logLevel=FINE \
+          -profile=EE \
+          /usr/share/java/jackson-modules/jackson-module-jaxb-annotations.jar \
+          /root/src/base/common/lib/jackson-module-jaxb-annotations-$JACKSON_MODULES_JAXB_ANNOTATIONS_VERSION.jar
+    displayName: Migrate jackson-module-jaxb-annotations
+
+  - script: |
+      JAXRS_VERSION=$(
+          docker exec runner rpm -q jboss-jaxrs-2.0-api \
+          | sed -n 's/^jboss-jaxrs-2.0-api-\([^-]*\)-.*$/\1.Final/p')
+
+      docker exec runner jar tvf /usr/share/java/jboss-jaxrs-2.0-api.jar \
+          | sed -n 's/.* \([^ ]\+\)\/[^\/]*\.class$/\1/p' \
+          | sort \
+          | uniq
+
+      docker exec runner javax2jakarta \
+          -logLevel=FINE \
+          -profile=EE \
+          /usr/share/java/jboss-jaxrs-2.0-api.jar \
+          /root/src/base/common/lib/jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar
+    displayName: Migrate jboss-jaxrs-2.0-api
+
+  - script: |
+      JACKSON_JAXRS_PROVIDERS_VERSION=$(
+          docker exec runner rpm -q jackson-jaxrs-providers \
+          | sed -n 's/^ jackson-jaxrs-providers-\([^-]*\)-.*$/\1/p')
+
+      docker exec runner jar tvf /usr/share/java/jackson-jaxrs-providers/jackson-jaxrs-base.jar \
+          | sed -n 's/.* \([^ ]\+\)\/[^\/]*\.class$/\1/p' \
+          | sort \
+          | uniq
+
+      docker exec runner javax2jakarta \
+          -logLevel=FINE \
+          -profile=EE \
+          /usr/share/java/jackson-jaxrs-providers/jackson-jaxrs-base.jar \
+          jackson-jaxrs-base-$JACKSON_JAXRS_PROVIDERS_VERSION.jar
+    displayName: Migrate jackson-jaxrs-providers
+
+  - script: |
+      JACKSON_JAXRS_JSON_PROVIDER_VERSION=$(
+          docker exec runner rpm -q jackson-jaxrs-json-provider \
+          | sed -n 's/^ jackson-jaxrs-json-provider-\([^-]*\)-.*$/\1/p')
+
+      docker exec runner jar tvf /usr/share/java/jackson-jaxrs-providers/jackson-jaxrs-json-provider.jar \
+          | sed -n 's/.* \([^ ]\+\)\/[^\/]*\.class$/\1/p' \
+          | sort \
+          | uniq
+
+      docker exec runner javax2jakarta \
+          -logLevel=FINE \
+          -profile=EE \
+          /usr/share/java/jackson-jaxrs-providers/jackson-jaxrs-json-provider.jar \
+          /root/src/base/common/lib/jackson-jaxrs-json-provider-$JACKSON_JAXRS_JSON_PROVIDERS_VERSION.jar
+    displayName: Migrate jackson-jaxrs-json-provider
+
+  - script: |
+      RESTEASY_CORE_VERSION=$(
+          docker exec runner rpm -q pki-resteasy-core \
+          | sed -n 's/^ pki-resteasy-core-\([^-]*\)-.*$/\1.Final/p')
+
+      docker exec runner jar tvf /usr/share/java/resteasy/resteasy-jaxrs.jar \
+          | sed -n 's/.* \([^ ]\+\)\/[^\/]*\.class$/\1/p' \
+          | sort \
+          | uniq
+
+      docker exec runner javax2jakarta \
+          -logLevel=FINE \
+          -profile=EE \
+          /usr/share/java/resteasy/resteasy-jaxrs.jar \
+          /root/src/base/common/lib/resteasy-jaxrs-$RESTEASY_CORE_VERSION.jar
+    displayName: Migrate pki-resteasy-core
+
+  - script: |
+      RESTEASY_CLIENT_VERSION=$(
+          docker exec runner rpm -q pki-resteasy-client \
+          | sed -n 's/^ pki-resteasy-client-\([^-]*\)-.*$/\1.Final/p')
+
+      docker exec runner jar tvf /usr/share/java/resteasy/resteasy-client.jar \
+          | sed -n 's/.* \([^ ]\+\)\/[^\/]*\.class$/\1/p' \
+          | sort \
+          | uniq
+
+      docker exec runner javax2jakarta \
+          -logLevel=FINE \
+          -profile=EE \
+          /usr/share/java/resteasy/resteasy-client.jar \
+          /root/src/base/common/lib/resteasy-client-$RESTEASY_CLIENT_VERSION.jar
+    displayName: Migrate pki-resteasy-client
+
+  - script: |
+      docker exec runner sed -n \
+          -e '/javax.ws.rs/p' \
+          -e '/jakarta.ws.rs/p' \
+          /root/src/base/common/pom.xml
+
+      docker exec runner javax2jakarta \
+          -logLevel=FINE \
+          -profile=EE \
+          -exclude=/root/src/base/tomcat-9.0 \
+          /root/src/base \
+          /root/src/base
+
+      docker exec runner sed -n \
+          -e '/javax.ws.rs/p' \
+          -e '/jakarta.ws.rs/p' \
+          /root/src/base/common/pom.xml
+    displayName: Migrate PKI sources
 
   - script: |
       # get Python <major>.<minor> version
@@ -136,10 +463,53 @@ jobs:
     displayName: Build PKI with CMake
 
   - script: |
+      docker exec runner dnf install -y xmlstarlet
+
+      # drop tomcat-9.0 module
+      docker exec runner xmlstarlet edit --inplace \
+          -d "/_:project/_:modules/_:module[text()='tomcat-9.0']" \
+          /root/src/base/pom.xml
+
+      docker exec runner cat /root/src/base/pom.xml
+
+    displayName: Customize base/pom.xml
+
+  - script: |
+      docker exec runner sed -n \
+          -e '/javax.ws.rs/p' \
+          -e '/jakarta.ws.rs/p' \
+          /root/src/base/common/pom.xml
+
+      # replace org.jboss.spec.jakarta.ws.rs:jboss-jaxrs-api_2.0_spec:1.0.0.Final with jakarta.ws.rs:jakarta.ws.rs-api:3.0.0
+      docker exec runner xmlstarlet edit --inplace \
+          -u "/_:project/_:profiles/_:profile[_:id='api-v1-deps']/_:dependencies/_:dependency[_:groupId='org.jboss.spec.jakarta.ws.rs']/_:groupId" \
+          -v "jakarta.ws.rs" \
+          -u "/_:project/_:profiles/_:profile[_:id='api-v1-deps']/_:dependencies/_:dependency[_:groupId='jakarta.ws.rs']/_:artifactId" \
+          -v "jakarta.ws.rs-api" \
+          -u "/_:project/_:profiles/_:profile[_:id='api-v1-deps']/_:dependencies/_:dependency[_:groupId='jakarta.ws.rs']/_:version" \
+          -v "3.0.0" \
+          /root/src/base/common/pom.xml
+
+      docker exec runner cat /root/src/base/common/pom.xml
+
+    displayName: Customize base/common/pom.xml
+
+  - script: |
+      # drop pki-tomcat-9.0 dependency
+      docker exec runner xmlstarlet edit --inplace \
+          -d "/_:project/_:dependencies/_:dependency[_:artifactId='pki-tomcat-9.0']" \
+          /root/src/base/server/pom.xml
+
+      docker exec runner cat /root/src/base/server/pom.xml
+
+    displayName: Customize base/server/pom.xml
+
+  - script: |
       docker exec runner mvn \
           --batch-mode \
           -f /root/src \
-          -DskipTests \
+          -P api-v1-deps \
+          -D skipTests \
           package
     displayName: Build PKI with Maven
 
