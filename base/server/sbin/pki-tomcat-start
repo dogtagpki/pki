@@ -30,6 +30,18 @@
 
 set -e
 
+# Instance tomcat.conf is the upgrade tracker. systemd may have loaded a
+# stale PKI_VERSION from /etc/sysconfig/<instance> before ExecStartPre
+# ran pki-server upgrade; prefer the tracker for the JVM environment.
+if [ -n "${CATALINA_BASE}" ] && [ -f "${CATALINA_BASE}/conf/tomcat.conf" ]; then
+    _pki_version=$(sed -n 's/^PKI_VERSION=//p' "${CATALINA_BASE}/conf/tomcat.conf" | head -n 1)
+    _pki_version=$(printf '%s\n' "${_pki_version}" | sed 's/^"\(.*\)"$/\1/;s/^'\''\(.*\)'\''$/\1/')
+    if [ -n "${_pki_version}" ]; then
+        export PKI_VERSION="${_pki_version}"
+    fi
+    unset _pki_version
+fi
+
 # Detect Tomcat flavor based on installed files
 if [ -f /usr/libexec/tomcat/tomcat-run.sh ]; then
     # New Tomcat 10.1+ uses tomcat-run.sh
