@@ -1,4 +1,12 @@
-name: Sub-CA with external cert
+name: Subordinate CA with external cert
+# This test will perform the following operations:
+# - install root CA
+# - install subordinate CA with external cert (step 1)
+# - use root CA to issue subordinate CA cert
+# - install subordinate CA with external cert (step 2)
+#
+# In this scenario the subordinate CA will not join the
+# root CA security domain.
 
 on: workflow_call
 
@@ -28,108 +36,585 @@ jobs:
       - name: Create network
         run: docker network create example
 
-      - name: Set up DS container
+      - name: Set up root DS container
         run: |
           tests/bin/ds-create.sh \
               --image=${{ env.DS_IMAGE }} \
-              --hostname=ds.example.com \
+              --hostname=rootds.example.com \
               --network=example \
-              --network-alias=ds.example.com \
+              --network-alias=rootds.example.com \
               --password=Secret.123 \
-              ds
+              rootds
 
-      - name: Set up PKI container
+      - name: Set up root CA container
         run: |
           tests/bin/runner-init.sh \
-              --hostname=pki.example.com \
+              --hostname=root.example.com \
               --network=example \
-              --network-alias=pki.example.com \
-              pki
+              --network-alias=root.example.com \
+              root
 
-      - name: Create root CA in NSS database
+      - name: Create root CA
         run: |
-          docker exec pki pki -d nssdb nss-cert-request \
-              --subject "CN=Root CA Signing Certificate" \
-              --ext /usr/share/pki/server/certs/ca_signing.conf \
-              --csr root-ca_signing.csr
-          docker exec pki pki -d nssdb nss-cert-issue \
-              --csr root-ca_signing.csr \
-              --ext /usr/share/pki/server/certs/ca_signing.conf \
-              --cert root-ca_signing.crt
+          docker exec root pkispawn \
+              -f /usr/share/pki/server/examples/installation/ca.cfg \
+              -s CA \
+              -D pki_ds_url=ldap://rootds.example.com:3389 \
+              -D "pki_ca_signing_subject_dn=cn=Root CA Signing Certificate,o=EXAMPLE" \
+              -v
 
-          docker exec pki pki \
-              -d nssdb \
-              nss-cert-import \
-              --cert root-ca_signing.crt \
+      - name: Install root CA admin cert
+        run: |
+          docker exec root pki-server cert-export \
+              --cert-file $SHARED/root-ca_signing.crt \
+              ca_signing
+
+          docker exec root pki nss-cert-import \
+              --cert $SHARED/root-ca_signing.crt \
               --trust CT,C,C \
-              root-ca_signing
+              ca_signing
+
+          docker exec root pki pkcs12-import \
+              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --password Secret.123
+
+          docker exec root pki -n caadmin ca-user-show caadmin
+
+      - name: Set up subordinate DS container
+        run: |
+          tests/bin/ds-create.sh \
+              --image=${{ env.DS_IMAGE }} \
+              --hostname=subds.example.com \
+              --network=example \
+              --network-alias=subds.example.com \
+              --password=Secret.123 \
+              subds
+
+      - name: Set up subordinate CA container
+        run: |
+          tests/bin/runner-init.sh \
+              --hostname=sub.example.com \
+              --network=example \
+              --network-alias=sub.example.com \
+              subordinate
 
       - name: Install subordinate CA (step 1)
         run: |
+          # add MS extension
+          # https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-wcce/3aec3e50-511a-42f9-a5d5-240af503e470
           # https://github.com/dogtagpki/pki/wiki/Adding-CA-Signing-CSR-Extension
-          docker exec pki pkispawn \
+          docker exec subordinate pkispawn \
               -f /usr/share/pki/server/examples/installation/ca-external-cert-step1.cfg \
               -s CA \
-              -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_ds_url=ldap://subds.example.com:3389 \
+              -D "pki_ca_signing_subject_dn=cn=Subordinate CA Signing Certificate,o=EXAMPLE" \
               -D pki_req_ski=AEB2FA7A07115A0AB994FF9B5BDA8E75D536BC77 \
               -D pki_req_ext_add=True \
               -D pki_req_ext_oid=1.3.6.1.4.1.311.20.2 \
               -D pki_req_ext_data=1E0A00530075006200430041 \
+              -D pki_ca_signing_csr_path=$SHARED/sub-ca_signing.csr \
               -v
 
-          docker exec pki /usr/share/pki/tests/ca/bin/test-subca-signing-csr-ext.sh ca_signing.csr
-
-      - name: Issue subordinate CA signing cert
+      - name: Check subordinate CA signing cert request
         run: |
-          docker exec pki pki -d nssdb nss-cert-issue \
-              --issuer root-ca_signing \
-              --csr ca_signing.csr \
-              --ext /usr/share/pki/server/certs/subca_signing.conf \
-              --cert ca_signing.crt
+          docker exec subordinate openssl req -text -noout \
+              -in $SHARED/sub-ca_signing.csr \
+              | tee output
+
+          # normalize output
+          # - remove hex string
+          sed -E \
+              -e '/^ *[0-9A-Fa-f]{2}(:[0-9A-Fa-f]{2})+:?$/d' \
+              -e '/^ *Modulus:$/d' \
+              -e '/^ *Signature Value:$/d' \
+              -e 's/ *$//' \
+              output > actual
+
+          # the cert request should include MS extension
+          # TODO: investigate extra SKI extension
+          cat > expected << EOF
+          Certificate Request:
+              Data:
+                  Version: 1 (0x0)
+                  Subject: O=EXAMPLE, CN=Subordinate CA Signing Certificate
+                  Subject Public Key Info:
+                      Public Key Algorithm: rsaEncryption
+                          Public-Key: (3072 bit)
+                          Exponent: 65537 (0x10001)
+                  Attributes:
+                      Requested Extensions:
+                          X509v3 Basic Constraints: critical
+                              CA:TRUE
+                          X509v3 Subject Key Identifier:
+                          X509v3 Key Usage: critical
+                              Digital Signature, Non Repudiation, Certificate Sign, CRL Sign
+                          1.3.6.1.4.1.311.20.2:
+                              .
+          .S.u.b.C.A
+              Signature Algorithm: sha256WithRSAEncryption
+          EOF
+
+          diff expected actual
+
+      - name: Use root CA to issue subordinate CA signing cert
+        run: |
+          docker exec root pki \
+              -n caadmin \
+              ca-cert-issue \
+              --profile caCACert \
+              --csr-file $SHARED/sub-ca_signing.csr \
+              --output-file $SHARED/sub-ca_signing.crt
+
+      - name: Check subordinate CA signing cert
+        run: |
+          docker exec subordinate openssl x509 -text -noout \
+              -in $SHARED/sub-ca_signing.crt \
+              | tee output
+
+          # normalize output
+          # - remove hex string
+          # - remove date and time
+          sed -E \
+              -e '/^ *[0-9A-Fa-f]{2}(:[0-9A-Fa-f]{2})+:?$/d' \
+              -e '/^ *Serial Number:$/d' \
+              -e '/^ *Validity$/d' \
+              -e '/^ *Not Before:/d' \
+              -e '/^ *Not After :/d' \
+              -e '/^ *Modulus:$/d' \
+              -e '/^ *Signature Value:$/d' \
+              -e '/^$/d' \
+              -e 's/ *$//' \
+              output > actual
+
+          # the cert should not include MS extension
+          # TODO: confirm that this is the correct behavior
+          cat > expected << EOF
+          Certificate:
+              Data:
+                  Version: 3 (0x2)
+                  Signature Algorithm: sha256WithRSAEncryption
+                  Issuer: O=EXAMPLE, CN=Root CA Signing Certificate
+                  Subject: O=EXAMPLE, CN=Subordinate CA Signing Certificate
+                  Subject Public Key Info:
+                      Public Key Algorithm: rsaEncryption
+                          Public-Key: (3072 bit)
+                          Exponent: 65537 (0x10001)
+                  X509v3 extensions:
+                      X509v3 Subject Key Identifier:
+                      X509v3 Authority Key Identifier:
+                      X509v3 Basic Constraints: critical
+                          CA:TRUE
+                      X509v3 Key Usage: critical
+                          Digital Signature, Non Repudiation, Certificate Sign, CRL Sign
+                      Authority Information Access:
+                          OCSP - URI:http://root.example.com:8080/ca/ocsp
+              Signature Algorithm: sha256WithRSAEncryption
+          EOF
+
+          diff expected actual
 
       - name: Install subordinate CA (step 2)
         run: |
           # https://github.com/dogtagpki/pki/wiki/Adding-CA-Signing-CSR-Extension
-          docker exec pki pkispawn \
+          docker exec subordinate pkispawn \
               -f /usr/share/pki/server/examples/installation/ca-external-cert-step2.cfg \
               -s CA \
-              -D pki_ds_url=ldap://ds.example.com:3389 \
+              -D pki_cert_chain_path=$SHARED/root-ca_signing.crt \
+              -D pki_ds_url=ldap://subds.example.com:3389 \
               -D pki_req_ski=AEB2FA7A07115A0AB994FF9B5BDA8E75D536BC77 \
               -D pki_req_ext_add=True \
               -D pki_req_ext_oid=1.3.6.1.4.1.311.20.2 \
               -D pki_req_ext_data=1E0A00530075006200430041 \
+              -D pki_ca_signing_csr_path=$SHARED/sub-ca_signing.csr \
+              -D pki_ca_signing_cert_path=$SHARED/sub-ca_signing.crt \
               -v
 
-          docker exec pki pki-server cert-find
+      - name: Check subordinate CA security domain config
+        run: |
+          docker exec subordinate pki-server ca-config-find | grep ^securitydomain. | sort | tee actual
 
-          docker exec pki pki-server cert-export ca_signing --cert-file ca_signing.crt
+          # subordinate CA should create a new security domain
+          cat > expected << EOF
+          securitydomain.checkIP=false
+          securitydomain.checkinterval=300000
+          securitydomain.flushinterval=86400000
+          securitydomain.host=sub.example.com
+          securitydomain.httpport=8080
+          securitydomain.httpsadminport=8443
+          securitydomain.name=EXAMPLE
+          securitydomain.select=new
+          securitydomain.source=ldap
+          EOF
 
-          # check MS sub CA signing cert extensions
-          docker exec pki /usr/share/pki/tests/ca/bin/test-ms-subca-signing-cert-ext.sh ca_signing.crt
+          diff expected actual
+
+      - name: Check subordinate CA OCSP signing cert
+        run: |
+          docker exec subordinate pki-server cert-export \
+              --cert-file ca_ocsp_signing.crt \
+              ca_ocsp_signing
+
+          docker exec subordinate openssl x509 -text -noout \
+              -in ca_ocsp_signing.crt \
+              | tee output
+
+          # normalize output
+          # - remove hex string
+          # - remove date and time
+          sed -E \
+              -e '/^ *[0-9A-Fa-f]{2}(:[0-9A-Fa-f]{2})+:?$/d' \
+              -e '/^ *Serial Number:$/d' \
+              -e '/^ *Validity$/d' \
+              -e '/^ *Not Before:/d' \
+              -e '/^ *Not After :/d' \
+              -e '/^ *Modulus:$/d' \
+              -e '/^ *Signature Value:$/d' \
+              -e '/^$/d' \
+              -e 's/ *$//' \
+              output > actual
+
+          cat > expected << EOF
+          Certificate:
+              Data:
+                  Version: 3 (0x2)
+                  Signature Algorithm: sha256WithRSAEncryption
+                  Issuer: O=EXAMPLE, CN=Subordinate CA Signing Certificate
+                  Subject: O=EXAMPLE, OU=pki-tomcat, CN=CA OCSP Signing Certificate
+                  Subject Public Key Info:
+                      Public Key Algorithm: rsaEncryption
+                          Public-Key: (3072 bit)
+                          Exponent: 65537 (0x10001)
+                  X509v3 extensions:
+                      X509v3 Authority Key Identifier:
+                      Authority Information Access:
+                          OCSP - URI:http://sub.example.com:8080/ca/ocsp
+                      X509v3 Extended Key Usage:
+                          OCSP Signing
+                      OCSP No Check:
+              Signature Algorithm: sha256WithRSAEncryption
+          EOF
+
+          diff expected actual
+
+      - name: Check subordinate CA audit signing cert
+        run: |
+          docker exec subordinate pki-server cert-export \
+              --cert-file ca_audit_signing.crt \
+              ca_audit_signing
+
+          docker exec subordinate openssl x509 -text -noout \
+              -in ca_audit_signing.crt \
+              | tee output
+
+          # normalize output
+          # - remove hex string
+          # - remove date and time
+          sed -E \
+              -e '/^ *[0-9A-Fa-f]{2}(:[0-9A-Fa-f]{2})+:?$/d' \
+              -e '/^ *Serial Number:$/d' \
+              -e '/^ *Validity$/d' \
+              -e '/^ *Not Before:/d' \
+              -e '/^ *Not After :/d' \
+              -e '/^ *Modulus:$/d' \
+              -e '/^ *Signature Value:$/d' \
+              -e '/^$/d' \
+              -e 's/ *$//' \
+              output > actual
+
+          cat > expected << EOF
+          Certificate:
+              Data:
+                  Version: 3 (0x2)
+                  Signature Algorithm: sha256WithRSAEncryption
+                  Issuer: O=EXAMPLE, CN=Subordinate CA Signing Certificate
+                  Subject: O=EXAMPLE, OU=pki-tomcat, CN=CA Audit Signing Certificate
+                  Subject Public Key Info:
+                      Public Key Algorithm: rsaEncryption
+                          Public-Key: (2048 bit)
+                          Exponent: 65537 (0x10001)
+                  X509v3 extensions:
+                      X509v3 Authority Key Identifier:
+                      X509v3 Key Usage: critical
+                          Digital Signature, Non Repudiation
+                      Authority Information Access:
+                          OCSP - URI:http://sub.example.com:8080/ca/ocsp
+              Signature Algorithm: sha256WithRSAEncryption
+          EOF
+
+          diff expected actual
+
+      - name: Check subordinate CA subsystem cert
+        run: |
+          docker exec subordinate pki-server cert-export \
+              --cert-file subsystem.crt \
+              subsystem
+
+          docker exec subordinate openssl x509 -text -noout \
+              -in subsystem.crt \
+              | tee output
+
+          # normalize output
+          # - remove hex string
+          # - remove date and time
+          sed -E \
+              -e '/^ *[0-9A-Fa-f]{2}(:[0-9A-Fa-f]{2})+:?$/d' \
+              -e '/^ *Serial Number:$/d' \
+              -e '/^ *Validity$/d' \
+              -e '/^ *Not Before:/d' \
+              -e '/^ *Not After :/d' \
+              -e '/^ *Modulus:$/d' \
+              -e '/^ *Signature Value:$/d' \
+              -e '/^$/d' \
+              -e 's/ *$//' \
+              output > actual
+
+          # subsystem cert should be issued by subordinate CA
+          # TODO: investigate extra Non Repudiation key usage
+          cat > expected << EOF
+          Certificate:
+              Data:
+                  Version: 3 (0x2)
+                  Signature Algorithm: sha256WithRSAEncryption
+                  Issuer: O=EXAMPLE, CN=Subordinate CA Signing Certificate
+                  Subject: O=EXAMPLE, OU=pki-tomcat, CN=Subsystem Certificate
+                  Subject Public Key Info:
+                      Public Key Algorithm: rsaEncryption
+                          Public-Key: (2048 bit)
+                          Exponent: 65537 (0x10001)
+                  X509v3 extensions:
+                      X509v3 Authority Key Identifier:
+                      Authority Information Access:
+                          OCSP - URI:http://sub.example.com:8080/ca/ocsp
+                      X509v3 Key Usage: critical
+                          Digital Signature, Non Repudiation, Key Encipherment, Data Encipherment
+                      X509v3 Extended Key Usage:
+                          TLS Web Client Authentication
+              Signature Algorithm: sha256WithRSAEncryption
+          EOF
+
+          diff expected actual
+
+      - name: Check subordinate CA SSL server cert
+        run: |
+          docker exec subordinate pki-server cert-export \
+              --cert-file sslserver.crt \
+              sslserver
+
+          docker exec subordinate openssl x509 -text -noout \
+              -in sslserver.crt \
+              | tee output
+
+          # normalize output
+          # - remove hex string
+          # - remove date and time
+          sed -E \
+              -e '/^ *[0-9A-Fa-f]{2}(:[0-9A-Fa-f]{2})+:?$/d' \
+              -e '/^ *Serial Number:$/d' \
+              -e '/^ *Validity$/d' \
+              -e '/^ *Not Before:/d' \
+              -e '/^ *Not After :/d' \
+              -e '/^ *Modulus:$/d' \
+              -e '/^ *Signature Value:$/d' \
+              -e '/^$/d' \
+              -e 's/ *$//' \
+              output > actual
+
+          # TODO: investigate extra Key Encipherment and Data Encipherment key usages
+          cat > expected << EOF
+          Certificate:
+              Data:
+                  Version: 3 (0x2)
+                  Signature Algorithm: sha256WithRSAEncryption
+                  Issuer: O=EXAMPLE, CN=Subordinate CA Signing Certificate
+                  Subject: O=EXAMPLE, OU=pki-tomcat, CN=sub.example.com
+                  Subject Public Key Info:
+                      Public Key Algorithm: rsaEncryption
+                          Public-Key: (2048 bit)
+                          Exponent: 65537 (0x10001)
+                  X509v3 extensions:
+                      X509v3 Authority Key Identifier:
+                      Authority Information Access:
+                          OCSP - URI:http://sub.example.com:8080/ca/ocsp
+                      X509v3 Key Usage: critical
+                          Digital Signature, Key Encipherment, Data Encipherment
+                      X509v3 Extended Key Usage:
+                          TLS Web Server Authentication
+                      X509v3 Subject Alternative Name:
+                          DNS:sub.example.com
+              Signature Algorithm: sha256WithRSAEncryption
+          EOF
+
+          diff expected actual
+
+      - name: Check subordinate CA admin cert
+        run: |
+          docker exec subordinate openssl x509 -text -noout \
+              -in /root/.dogtag/pki-tomcat/ca_admin.cert \
+              | tee output
+
+          # normalize output
+          # - remove hex string
+          # - remove date and time
+          sed -E \
+              -e '/^ *[0-9A-Fa-f]{2}(:[0-9A-Fa-f]{2})+:?$/d' \
+              -e '/^ *Serial Number:$/d' \
+              -e '/^ *Validity$/d' \
+              -e '/^ *Not Before:/d' \
+              -e '/^ *Not After :/d' \
+              -e '/^ *Modulus:$/d' \
+              -e '/^ *Signature Value:$/d' \
+              -e '/^$/d' \
+              -e 's/ *$//' \
+              output > actual
+
+          # TODO: investigate extra Key Encipherment key usage
+          cat > expected << EOF
+          Certificate:
+              Data:
+                  Version: 3 (0x2)
+                  Signature Algorithm: sha256WithRSAEncryption
+                  Issuer: O=EXAMPLE, CN=Subordinate CA Signing Certificate
+                  Subject: O=EXAMPLE, OU=pki-tomcat, emailAddress=caadmin@example.com, CN=PKI Administrator
+                  Subject Public Key Info:
+                      Public Key Algorithm: rsaEncryption
+                          Public-Key: (2048 bit)
+                          Exponent: 65537 (0x10001)
+                  X509v3 extensions:
+                      X509v3 Authority Key Identifier:
+                      Authority Information Access:
+                          OCSP - URI:http://sub.example.com:8080/ca/ocsp
+                      X509v3 Key Usage: critical
+                          Digital Signature, Non Repudiation, Key Encipherment
+                      X509v3 Extended Key Usage:
+                          TLS Web Client Authentication, E-mail Protection
+              Signature Algorithm: sha256WithRSAEncryption
+          EOF
+
+          diff expected actual
 
       - name: Run PKI healthcheck
-        run: docker exec pki pki-healthcheck --failures-only
-
-      - name: Verify CA admin
         run: |
-          docker exec pki pki nss-cert-import \
-              --cert root-ca_signing.crt \
+          docker exec subordinate pki-healthcheck --failures-only
+
+      - name: Install subordinate CA admin cert
+        run: |
+          docker exec subordinate pki nss-cert-import \
+              --cert $SHARED/root-ca_signing.crt \
               --trust CT,C,C \
               root-ca_signing
 
-          docker exec pki pki nss-cert-import \
-              --cert ca_signing.crt \
+          docker exec subordinate pki nss-cert-import \
+              --cert $SHARED/sub-ca_signing.crt \
               ca_signing
 
-          docker exec pki pki pkcs12-import \
+          docker exec subordinate pki pkcs12-import \
               --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
-              --pkcs12-password Secret.123
+              --password Secret.123
 
-          docker exec pki pki -n caadmin ca-user-show caadmin
+          docker exec subordinate pki -n caadmin ca-user-show caadmin
 
-      - name: Check cert requests in CA
+      - name: Check hosts in root CA security domain
         run: |
-          docker exec pki pki -n caadmin ca-cert-request-find
+          docker exec root pki securitydomain-show | tee output
+
+          # root CA security domain should only contain root CA host
+          cat > expected << EOF
+            Domain: EXAMPLE
+
+            CA Subsystem:
+
+              Host ID: CA root.example.com 8443
+              Hostname: root.example.com
+              Port: 8080
+              Secure Port: 8443
+              Domain Manager: TRUE
+
+          EOF
+
+          diff expected output
+
+      - name: Check hosts in subordinate CA security domain
+        run: |
+          docker exec subordinate pki securitydomain-show | tee output
+
+          # subordinate CA security domain should only contain subordinate CA host
+          cat > expected << EOF
+            Domain: EXAMPLE
+
+            CA Subsystem:
+
+              Host ID: CA sub.example.com 8443
+              Hostname: sub.example.com
+              Port: 8080
+              Secure Port: 8443
+              Domain Manager: TRUE
+
+          EOF
+
+          diff expected output
+
+      - name: Check cert requests in subordinate CA
+        run: |
+          docker exec subordinate pki -n caadmin ca-cert-request-find
+
+      - name: Check certs in subordinate CA
+        run: |
+          docker exec subordinate pki -n caadmin ca-cert-request-find
 
       - name: Remove subordinate CA
-        run: docker exec pki pkidestroy -s CA -v
+        run: |
+          docker exec subordinate pkidestroy -s CA -v
+
+      - name: Remove root CA
+        run: |
+          docker exec root pkidestroy -s CA -v
+
+      - name: Check subordinate DS systemd journal
+        if: always()
+        run: |
+          docker exec subds journalctl -x --no-pager -u dirsrv@localhost.service
+
+      - name: Check subordinate DS container logs
+        if: always()
+        run: |
+          docker logs subds
+
+      - name: Check subordinate CA systemd journal
+        if: always()
+        run: |
+          docker exec subordinate journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check subordinate CA access log
+        if: always()
+        run: |
+          docker exec subordinate find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+
+      - name: Check subordinate CA debug log
+        if: always()
+        run: |
+          docker exec subordinate find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+
+      - name: Check root DS systemd journal
+        if: always()
+        run: |
+          docker exec rootds journalctl -x --no-pager -u dirsrv@localhost.service
+
+      - name: Check root DS container logs
+        if: always()
+        run: |
+          docker logs rootds
+
+      - name: Check root CA systemd journal
+        if: always()
+        run: |
+          docker exec root journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check root CA access log
+        if: always()
+        run: |
+          docker exec root find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+
+      - name: Check root CA debug log
+        if: always()
+        run: |
+          docker exec root find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
