@@ -118,6 +118,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/acme-basic-test.yml
 
+  acme-caddy-test:
+    name: ACME with Caddy
+    needs: build
+    uses: ./.github/workflows/acme-caddy-test.yml
+
   acme-separate-test:
     name: ACME on separate instance
     needs: build
