@@ -345,6 +345,7 @@ jobs:
           drwxrwx--- root backup
           drwxrwx--- root ca
           -rw-r----- root localhost_access_log.$DATE.txt
+          drwxr-x--- root pki
           EOF
 
           diff expected_$TOMCAT_FLAVOR output

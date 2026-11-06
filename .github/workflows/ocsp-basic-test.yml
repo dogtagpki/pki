@@ -360,6 +360,7 @@ jobs:
           drwxrwx--- pkiuser pkiuser ca
           -rw-r----- pkiuser pkiuser localhost_access_log.$DATE.txt
           drwxrwx--- pkiuser pkiuser ocsp
+          drwxr-x--- pkiuser pkiuser pki
           EOF
 
           diff expected_$TOMCAT_FLAVOR output
@@ -1104,6 +1105,7 @@ jobs:
           drwxrwx--- pkiuser pkiuser ca
           -rw-r----- pkiuser pkiuser localhost_access_log.$DATE.txt
           drwxrwx--- pkiuser pkiuser ocsp
+          drwxr-x--- pkiuser pkiuser pki
           EOF
 
           diff expected_$TOMCAT_FLAVOR output

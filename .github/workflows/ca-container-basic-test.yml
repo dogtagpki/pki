@@ -231,6 +231,7 @@ jobs:
           drwxrwx--- runner backup
           drwxrwx--- runner ca
           -rw-rw-rw- runner localhost_access_log.$DATE.txt
+          drwxrwxrwx runner pki
           EOF
 
           diff expected_$TOMCAT_FLAVOR output
