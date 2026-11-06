@@ -802,6 +802,7 @@ jobs:
           cat > expected_new << EOF
           drwxrwx--- runner backup
           -rw-rw-rw- runner localhost_access_log.$DATE.txt
+          drwxrwxrwx runner pki
           drwxrwx--- runner tps
           EOF
 

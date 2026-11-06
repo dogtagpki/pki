@@ -290,6 +290,7 @@ jobs:
           drwxrwx--- pkiuser pkiuser backup
           drwxrwx--- pkiuser pkiuser est
           -rw-r----- pkiuser pkiuser localhost_access_log.$DATE.txt
+          drwxr-x--- pkiuser pkiuser pki
           EOF
 
           diff expected_$TOMCAT_FLAVOR output
@@ -515,6 +516,7 @@ jobs:
           drwxrwx--- pkiuser pkiuser backup
           drwxrwx--- pkiuser pkiuser est
           -rw-r----- pkiuser pkiuser localhost_access_log.$DATE.txt
+          drwxr-x--- pkiuser pkiuser pki
           EOF
 
           diff expected_$TOMCAT_FLAVOR output

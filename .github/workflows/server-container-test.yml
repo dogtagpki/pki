@@ -173,6 +173,7 @@ jobs:
 
           cat > expected_new << EOF
           -rw-rw-rw- runner localhost_access_log.$DATE.txt
+          drwxrwxrwx runner pki
           EOF
 
           diff expected_$TOMCAT_FLAVOR output
