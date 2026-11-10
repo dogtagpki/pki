@@ -18,16 +18,16 @@ Environment="CATALINA_HOME=/usr/share/tomcat"
 Environment="CATALINA_BASE=/var/lib/pki/%i"
 Environment="CATALINA_TMPDIR=/var/lib/pki/%i/temp"
 
-ExecStartPre=+/usr/bin/pki-server-nuxwdog
-ExecStartPre=/usr/sbin/pki-server upgrade %i
-ExecStartPre=/usr/sbin/pki-server migrate %i
-ExecStartPre=/usr/bin/pkidaemon start %i
+ExecStartPre=+"${BIN_INSTALL_DIR}/pki-server-nuxwdog"
+ExecStartPre="${SBIN_INSTALL_DIR}/pki-server" upgrade %i
+ExecStartPre="${SBIN_INSTALL_DIR}/pki-server" migrate %i
+ExecStartPre="${BIN_INSTALL_DIR}/pkidaemon" start %i
 
 # Use abstraction wrappers - work for both old and new Tomcat
-ExecStart=/usr/sbin/pki-tomcat-start
-ExecStop=/usr/sbin/pki-tomcat-stop
+ExecStart="${SBIN_INSTALL_DIR}/pki-tomcat-start"
+ExecStop="${SBIN_INSTALL_DIR}/pki-tomcat-stop"
 
-ExecStopPost=+/usr/bin/pki-server-nuxwdog --clear
+ExecStopPost=+"${BIN_INSTALL_DIR}/pki-server-nuxwdog" --clear
 
 KeyringMode=shared
 SuccessExitStatus=143
