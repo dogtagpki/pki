@@ -336,6 +336,38 @@ install(
         WORLD_READ
 )
 
+# Substitute the executable paths into the installed Tomcat service units.
+# This runs at install time so an install-time prefix override (e.g.
+# `cmake --install --prefix ...`) is honored, and it writes straight to each
+# unit's own install destination so concurrent installs never share a
+# generated file. The paths are only resolved in this script's scope, leaving
+# SBIN_INSTALL_DIR/BIN_INSTALL_DIR untouched for the install() destinations of
+# the executables below. The destination is removed first because with
+# CMAKE_INSTALL_MODE=SYMLINK it is a link back to the template, which a write
+# would follow into the source tree.
+foreach(service_unit pki-tomcatd@.service pki-tomcatd-nuxwdog@.service)
+    install(CODE "
+        set(SBIN_INSTALL_DIR \"${SBIN_INSTALL_DIR}\")
+        set(BIN_INSTALL_DIR \"${BIN_INSTALL_DIR}\")
+        set(unit_dir \"${SYSTEMD_LIB_INSTALL_DIR}\")
+        if(NOT IS_ABSOLUTE \"\${SBIN_INSTALL_DIR}\")
+            set(SBIN_INSTALL_DIR \"\${CMAKE_INSTALL_PREFIX}/\${SBIN_INSTALL_DIR}\")
+        endif()
+        if(NOT IS_ABSOLUTE \"\${BIN_INSTALL_DIR}\")
+            set(BIN_INSTALL_DIR \"\${CMAKE_INSTALL_PREFIX}/\${BIN_INSTALL_DIR}\")
+        endif()
+        if(NOT IS_ABSOLUTE \"\${unit_dir}\")
+            set(unit_dir \"\${CMAKE_INSTALL_PREFIX}/\${unit_dir}\")
+        endif()
+        set(unit_file \"\$ENV{DESTDIR}\${unit_dir}/${service_unit}\")
+        file(READ \"${CMAKE_CURRENT_SOURCE_DIR}/share/lib/systemd/system/${service_unit}\" unit)
+        string(CONFIGURE \"\${unit}\" unit)
+        file(REMOVE \"\${unit_file}\")
+        file(WRITE \"\${unit_file}\" \"\${unit}\")
+        file(CHMOD \"\${unit_file}\" PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ WORLD_READ)
+    ")
+endforeach()
+
 install(
     FILES
         setup/CertServer.directory
