@@ -22,6 +22,7 @@ import org.apache.http.client.utils.URIBuilder;
 import org.dogtagpki.acme.ACMEAccount;
 import org.dogtagpki.acme.ACMEAuthorization;
 import org.dogtagpki.acme.ACMEChallenge;
+import org.dogtagpki.acme.ACMEError;
 import org.dogtagpki.acme.ACMEException;
 import org.dogtagpki.acme.ACMEHeader;
 import org.dogtagpki.acme.ACMEIdentifier;
@@ -88,6 +89,8 @@ public class ACMENewOrderServlet extends ACMEServlet {
         String token = Base64.encodeBase64URLSafeString(bytes);
         logger.info("Token: " + token);
 
+        ArrayList<ACMEAuthorization> pendingAuthorizations = new ArrayList<>();
+
         logger.info("Generating authorization for each identifiers");
         for (ACMEIdentifier identifier : orderRequest.getIdentifiers()) {
 
@@ -138,9 +141,23 @@ public class ACMENewOrderServlet extends ACMEServlet {
             Collection<ACMEChallenge> challenges = new ArrayList<>();
 
             for (ACMEValidator validator : engine.getValidators()) {
+
+                if (!validator.isApplicable(authorization)) {
+                    logger.info("  - skipping " + validator.getName() + " challenge");
+                    continue;
+                }
+
                 ACMEChallenge challenge = validator.createChallenge(authzID, token);
                 logger.info("  - challenge ID: " + challenge.getID());
                 challenges.add(challenge);
+            }
+
+            if (challenges.isEmpty()) {
+                ACMEError error = new ACMEError();
+                error.setType("urn:ietf:params:acme:error:rejectedIdentifier");
+                error.setDetail("No applicable challenge for identifier: "
+                        + (wildcard ? "*." : "") + value);
+                throw new ACMEException(HttpServletResponse.SC_BAD_REQUEST, error);
             }
 
             authorization.setChallenges(challenges);
@@ -150,9 +167,13 @@ public class ACMENewOrderServlet extends ACMEServlet {
             Date expirationTime = engine.getPolicy().getPendingAuthorizationExpirationTime(currentTime);
             authorization.setExpirationTime(expirationTime);
 
-            engine.addAuthorization(account, authorization);
+            pendingAuthorizations.add(authorization);
 
             authzIDs.add(authzID);
+        }
+
+        for (ACMEAuthorization authorization : pendingAuthorizations) {
+            engine.addAuthorization(account, authorization);
         }
 
         String orderID = engine.randomAlphanumeric(10);

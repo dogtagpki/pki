@@ -79,7 +79,7 @@ objectClasses: ( acmeAuthorization-oid NAME 'acmeAuthorization'
   MUST ( acmeAuthorizationId $ acmeAccountId $ acmeCreated $ acmeIdentifier $ acmeAuthorizationWildcard $ acmeStatus )
   MAY acmeExpires )
 # Why have seperate object classes for different challenge types?
-# the dns-01 and http-01 challenge types both only store a 'token'.
+# the dns-01, http-01, and tls-alpn-01 challenge types only store a 'token'.
 # But challenge types could involve storing other data.  So we
 # define a different object class for each challenge type, and each
 # class specifies the challenge-specific attribute types.
@@ -92,6 +92,10 @@ objectClasses: ( acmeChallengeDns01-oid NAME 'acmeChallengeDns01'
   STRUCTURAL
   MUST acmeToken )
 objectClasses: ( acmeChallengeHttp01-oid NAME 'acmeChallengeHttp01'
+  SUP acmeChallenge
+  STRUCTURAL
+  MUST acmeToken )
+objectClasses: ( acmeChallengeTlsAlpn01-oid NAME 'acmeChallengeTlsAlpn01'
   SUP acmeChallenge
   STRUCTURAL
   MUST acmeToken )
