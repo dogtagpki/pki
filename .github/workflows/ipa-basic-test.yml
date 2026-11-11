@@ -210,48 +210,51 @@ jobs:
           docker exec ipa pki-server ca-user-show \
               --attr + \
               pkidbuser \
+              | sort \
               | tee output
 
           # normalize output
-          sed -i \
-              -e "s/^\(  createTimestamp: \).*/\1\*\*\*\*\*/" \
-              -e "s/^\(  modifyTimestamp: \).*/\1\*\*\*\*\*/" \
-              -e "s/^\(  nsUniqueId: \).*/\1\*\*\*\*\*/" \
-              -e "s/^\(  parentid: \).*/\1\*\*\*\*\*/" \
-              -e "s/^\(  entryid: \).*/\1\*\*\*\*\*/" \
-              -e "s/^\(  entryUUID: \).*/\1\*\*\*\*\*/" \
-              -e "s/^\(  entryusn: \).*/\1\*\*\*\*\*/" \
-              -e "s/^\(  description: .*;\).*\(;.*;.*\)/\1\*\*\*\*\*\2/" \
-              output
+          sed \
+              -e 's/^\(  createTimestamp\): .*$/\1: XXXXX/' \
+              -e 's/^\(  modifyTimestamp\): .*$/\1: XXXXX/' \
+              -e 's/^\(  nsUniqueId\): .*$/\1: XXXXX/' \
+              -e 's/^\(  parentid\): .*$/\1: XXXXX/' \
+              -e 's/^\(  entryid\): .*$/\1: XXXXX/' \
+              -e 's/^\(  entryUUID\): .*$/\1: XXXXX/' \
+              -e 's/^\(  entryusn\): .*$/\1: XXXXX/' \
+              -e 's/^\(  description\): \(.*\);.*;\(.*\);\(.*\)$/\1: \2;XXXXX;\3;\4/' \
+              output \
+              > actual
 
           # by default nsPagedSizeLimit should be -1
           # and nsPagedLookThroughLimit should not exist
           cat > expected << EOF
-            User ID: pkidbuser
             Full Name: pkidbuser
-            Type: agentType
             State: 1
-            objectClass: top
-            sn: pkidbuser
-            nsPagedSizeLimit: -1
+            Type: agentType
+            User ID: pkidbuser
+            createTimestamp: XXXXX
             creatorsName: cn=directory manager
-            modifiersName: cn=directory manager
-            createTimestamp: *****
-            modifyTimestamp: *****
-            nsUniqueId: *****
-            parentid: *****
-            entryid: *****
-            entryUUID: *****
-            entryusn: *****
-            description: 2;*****;CN=Certificate Authority,O=EXAMPLE.COM;CN=CA Subsystem,O=EXAMPLE.COM
-            seeAlso: CN=CA Subsystem,O=EXAMPLE.COM
+            description: 2;XXXXX;CN=Certificate Authority,O=EXAMPLE.COM;CN=CA Subsystem,O=EXAMPLE.COM
             dsEntryDN: uid=pkidbuser,ou=People,o=ipaca
+            entryUUID: XXXXX
             entrydn: uid=pkidbuser,ou=people,o=ipaca
+            entryid: XXXXX
+            entryusn: XXXXX
+            modifiersName: cn=directory manager
+            modifyTimestamp: XXXXX
+            nsPagedSizeLimit: -1
+            nsUniqueId: XXXXX
+            objectClass: top
+            parentid: XXXXX
+            seeAlso: CN=CA Subsystem,O=EXAMPLE.COM
+            sn: pkidbuser
           EOF
 
-          diff expected output
+          diff expected actual
 
-          # update nsPagedSizeLimit and nsPagedLookThroughLimit
+      - name: Update nsPagedSizeLimit and nsPagedLookThroughLimit
+        run: |
           docker exec ipa pki-server ca-user-mod \
               --attr nsPagedSizeLimit=10000 \
               --attr nsPagedLookThroughLimit=20000 \
@@ -275,7 +278,8 @@ jobs:
 
           diff expected output
 
-          # remove nsPagedSizeLimit and nsPagedLookThroughLimit
+      - name: Remove nsPagedSizeLimit and nsPagedLookThroughLimit
+        run: |
           docker exec ipa pki-server ca-user-mod \
               --attr nsPagedSizeLimit= \
               --attr nsPagedLookThroughLimit= \
@@ -297,7 +301,12 @@ jobs:
 
           diff expected output
 
+      - name: Check PKI database user certs
+        run: |
           docker exec ipa pki-server ca-user-cert-find pkidbuser
+
+      - name: Check PKI database user roles
+        run: |
           docker exec ipa pki-server ca-user-role-find pkidbuser
 
       - name: Check IPA RA user
