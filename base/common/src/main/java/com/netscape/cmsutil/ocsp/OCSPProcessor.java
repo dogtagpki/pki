@@ -23,14 +23,12 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.entity.ContentType;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.asn1.NULL;
@@ -140,16 +138,14 @@ public class OCSPProcessor {
             logger.info("Request Length: " + requestData.length);
             logger.info("Request:\n" + Utils.base64encode(requestData, true));
 
-            ByteArrayEntity requestEntity = new ByteArrayEntity(requestData);
-            requestEntity.setContentType(ContentType.APPLICATION_OCTET_STREAM.getMimeType());
+            ByteArrayEntity requestEntity = new ByteArrayEntity(
+                    requestData, ContentType.APPLICATION_OCTET_STREAM);
 
             HttpPost httpPost = new HttpPost(url);
             httpPost.setEntity(requestEntity);
 
-            HttpResponse response = client.execute(httpPost);
-            HttpEntity responseEntity = response.getEntity();
-
-            try (InputStream is = responseEntity.getContent()) {
+            try (ClassicHttpResponse response = client.executeOpen(null, httpPost, null);
+                    InputStream is = response.getEntity().getContent()) {
                 ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
                 int b;
@@ -167,8 +163,6 @@ public class OCSPProcessor {
                 return (OCSPResponse)OCSPResponse.getTemplate().decode(
                         new ByteArrayInputStream(responseData));
 
-            } finally {
-                EntityUtils.consume(responseEntity);
             }
         }
     }

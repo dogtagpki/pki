@@ -325,10 +325,86 @@ find_file(HAMCREST_JAR
         /usr/share/java
 )
 
+if(WITH_APIV1)
 if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
     execute_process(
         COMMAND ls ${CMAKE_SOURCE_DIR}/base/common/lib
         COMMAND sed -n "s/^httpclient-\\(.*\\)\\.jar\$/\\1/p"
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        OUTPUT_VARIABLE HTTPCLIENT4_VERSION
+    )
+endif (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+
+if (HTTPCLIENT4_VERSION)
+    # use imported JARs
+
+    set(HTTPCLIENT4_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/httpclient-${HTTPCLIENT4_VERSION}.jar")
+    set(HTTPCLIENT4_LINK "httpclient-${HTTPCLIENT4_VERSION}.jar")
+
+else()
+    # use system JARs
+
+    if(XMVN_RESOLVE)
+        execute_process(
+            COMMAND xmvn-resolve org.apache.httpcomponents:httpclient
+            OUTPUT_VARIABLE HTTPCLIENT4_JAR
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    else()
+        find_file(HTTPCLIENT4_JAR
+            NAMES
+                httpclient.jar
+            PATHS
+                /usr/share/java/httpcomponents
+                /usr/share/java
+        )
+    endif(XMVN_RESOLVE)
+    set(HTTPCLIENT4_LINK "../../../..${HTTPCLIENT4_JAR}")
+
+endif (HTTPCLIENT4_VERSION)
+
+if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+    execute_process(
+        COMMAND ls ${CMAKE_SOURCE_DIR}/base/common/lib
+        COMMAND sed -n "s/^httpcore-\\(.*\\)\\.jar\$/\\1/p"
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        OUTPUT_VARIABLE HTTPCORE4_VERSION
+    )
+endif (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+
+if (HTTPCORE4_VERSION)
+    # use imported JARs
+
+    set(HTTPCORE4_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/httpcore-${HTTPCORE4_VERSION}.jar")
+    set(HTTPCORE4_LINK "httpcore-${HTTPCORE4_VERSION}.jar")
+
+else()
+    # use system JARs
+
+    if(XMVN_RESOLVE)
+        execute_process(
+            COMMAND xmvn-resolve org.apache.httpcomponents:httpcore
+            OUTPUT_VARIABLE HTTPCORE4_JAR
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    else()
+        find_file(HTTPCORE4_JAR
+            NAMES
+                httpcore.jar
+            PATHS
+                /usr/share/java/httpcomponents
+                /usr/share/java
+        )
+    endif(XMVN_RESOLVE)
+    set(HTTPCORE4_LINK "../../../..${HTTPCORE4_JAR}")
+
+endif (HTTPCORE4_VERSION)
+endif()
+
+if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+    execute_process(
+        COMMAND ls ${CMAKE_SOURCE_DIR}/base/common/lib
+        COMMAND sed -n "s/^httpclient5-\\(.*\\)\\.jar\$/\\1/p"
         OUTPUT_STRIP_TRAILING_WHITESPACE
         OUTPUT_VARIABLE HTTPCLIENT_VERSION
     )
@@ -337,24 +413,24 @@ endif (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
 if (HTTPCLIENT_VERSION)
     # use imported JARs
 
-    set(HTTPCLIENT_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/httpclient-${HTTPCLIENT_VERSION}.jar")
-    set(HTTPCLIENT_LINK "httpclient-${HTTPCLIENT_VERSION}.jar")
+    set(HTTPCLIENT_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/httpclient5-${HTTPCLIENT_VERSION}.jar")
+    set(HTTPCLIENT_LINK "httpclient5-${HTTPCLIENT_VERSION}.jar")
 
 else()
     # use system JARs
 
     if(XMVN_RESOLVE)
         execute_process(
-            COMMAND xmvn-resolve org.apache.httpcomponents:httpclient
+            COMMAND xmvn-resolve org.apache.httpcomponents.client5:httpclient5
             OUTPUT_VARIABLE HTTPCLIENT_JAR
             OUTPUT_STRIP_TRAILING_WHITESPACE
         )
     else()
         find_file(HTTPCLIENT_JAR
             NAMES
-                httpclient.jar
+                httpclient5.jar
             PATHS
-                /usr/share/java/httpcomponents
+                /usr/share/java/httpcomponents-client5
                 /usr/share/java
         )
     endif(XMVN_RESOLVE)
@@ -365,7 +441,7 @@ endif (HTTPCLIENT_VERSION)
 if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
     execute_process(
         COMMAND ls ${CMAKE_SOURCE_DIR}/base/common/lib
-        COMMAND sed -n "s/^httpcore-\\(.*\\)\\.jar\$/\\1/p"
+        COMMAND sed -n "s/^httpcore5-\\([0-9].*\\)\\.jar\$/\\1/p"
         OUTPUT_STRIP_TRAILING_WHITESPACE
         OUTPUT_VARIABLE HTTPCORE_VERSION
     )
@@ -374,30 +450,67 @@ endif (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
 if (HTTPCORE_VERSION)
     # use imported JARs
 
-    set(HTTPCORE_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/httpcore-${HTTPCORE_VERSION}.jar")
-    set(HTTPCORE_LINK "httpcore-${HTTPCORE_VERSION}.jar")
+    set(HTTPCORE_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/httpcore5-${HTTPCORE_VERSION}.jar")
+    set(HTTPCORE_LINK "httpcore5-${HTTPCORE_VERSION}.jar")
 
 else()
     # use system JARs
 
     if(XMVN_RESOLVE)
         execute_process(
-            COMMAND xmvn-resolve org.apache.httpcomponents:httpcore
+            COMMAND xmvn-resolve org.apache.httpcomponents.core5:httpcore5
             OUTPUT_VARIABLE HTTPCORE_JAR
             OUTPUT_STRIP_TRAILING_WHITESPACE
         )
     else()
         find_file(HTTPCORE_JAR
             NAMES
-                httpcore.jar
+                httpcore5.jar
             PATHS
-                /usr/share/java/httpcomponents
+                /usr/share/java/httpcomponents-core5
                 /usr/share/java
         )
     endif(XMVN_RESOLVE)
     set(HTTPCORE_LINK "../../../..${HTTPCORE_JAR}")
 
 endif (HTTPCORE_VERSION)
+
+if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+    execute_process(
+        COMMAND ls ${CMAKE_SOURCE_DIR}/base/common/lib
+        COMMAND sed -n "s/^httpcore5-h2-\\(.*\\)\\.jar\$/\\1/p"
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        OUTPUT_VARIABLE HTTPCORE_H2_VERSION
+    )
+endif (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+
+if (HTTPCORE_H2_VERSION)
+    # use imported JARs
+
+    set(HTTPCORE_H2_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/httpcore5-h2-${HTTPCORE_H2_VERSION}.jar")
+    set(HTTPCORE_H2_LINK "httpcore5-h2-${HTTPCORE_H2_VERSION}.jar")
+
+else()
+    # use system JARs
+
+    if(XMVN_RESOLVE)
+        execute_process(
+            COMMAND xmvn-resolve org.apache.httpcomponents.core5:httpcore5-h2
+            OUTPUT_VARIABLE HTTPCORE_H2_JAR
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    else()
+        find_file(HTTPCORE_H2_JAR
+            NAMES
+                httpcore5-h2.jar
+            PATHS
+                /usr/share/java/httpcomponents-core5
+                /usr/share/java
+        )
+    endif(XMVN_RESOLVE)
+    set(HTTPCORE_H2_LINK "../../../..${HTTPCORE_H2_JAR}")
+
+endif (HTTPCORE_H2_VERSION)
 
 if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
     execute_process(

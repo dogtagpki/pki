@@ -9,12 +9,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.dogtagpki.acme.ACMEAuthorization;
 import org.dogtagpki.acme.ACMEChallenge;
 import org.dogtagpki.acme.ACMEError;
@@ -118,7 +118,7 @@ public class HTTP01Validator extends ACMEValidator {
                 .disableRedirectHandling()
                 .build()) {
             HttpGet httpGet = new HttpGet(validationURL);
-            try (CloseableHttpResponse httpResponse = httpClient.execute(httpGet)) {
+            try (ClassicHttpResponse httpResponse = httpClient.executeOpen(null, httpGet, null)) {
                 HttpEntity entity = httpResponse.getEntity();
                 String response = IOUtils.toString(entity.getContent(), "UTF-8").trim();
                 EntityUtils.consume(entity);

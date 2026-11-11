@@ -26,12 +26,12 @@ import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.message.BasicNameValuePair;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.dogtagpki.common.Range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,8 +76,8 @@ public class SubsystemClient extends Client {
         try (CloseableHttpClient client = HttpClientBuilder.create().build()) {
 
             HttpGet method = new HttpGet(subsystemURI);
-            HttpResponse response = client.execute(method);
-            int code = response.getStatusLine().getStatusCode();
+            ClassicHttpResponse response = client.execute(method);
+            int code = response.getCode();
 
             if (code == 200) {
                 return true;
@@ -86,7 +86,7 @@ public class SubsystemClient extends Client {
                 return false;
 
             } else {
-                throw new Exception("Error: " + response.getStatusLine());
+                throw new Exception("Error: " + new org.apache.hc.core5.http.message.StatusLine(response));
             }
         }
     }

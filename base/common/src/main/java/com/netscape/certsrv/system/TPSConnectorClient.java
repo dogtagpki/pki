@@ -3,7 +3,7 @@ package com.netscape.certsrv.system;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.http.HttpEntity;
+import org.apache.hc.core5.http.HttpEntity;
 
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.client.Client;

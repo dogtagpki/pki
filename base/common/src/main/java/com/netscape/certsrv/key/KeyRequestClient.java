@@ -20,7 +20,7 @@ package com.netscape.certsrv.key;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.http.HttpEntity;
+import org.apache.hc.core5.http.HttpEntity;
 
 import com.netscape.certsrv.base.RESTMessage;
 import com.netscape.certsrv.client.Client;

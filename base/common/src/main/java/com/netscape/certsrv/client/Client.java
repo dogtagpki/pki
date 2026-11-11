@@ -20,8 +20,8 @@ package com.netscape.certsrv.client;
 import java.util.Collection;
 import java.util.Map;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.client.utils.URIBuilder;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.net.URIBuilder;
 
 /**
  * @author Endi S. Dewata

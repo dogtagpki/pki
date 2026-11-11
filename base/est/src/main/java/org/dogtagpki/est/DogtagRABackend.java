@@ -11,12 +11,7 @@ import java.security.cert.X509Certificate;
 import java.util.Optional;
 import java.util.Properties;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.core5.http.HttpStatus;
 
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
@@ -204,11 +199,11 @@ public class DogtagRABackend extends ESTBackend {
             java.net.URI uri = new java.net.URI(clientConfig.getServerURL() + cmcPath);
 
             // Create HttpPost manually so we can add custom headers
-            org.apache.http.client.methods.HttpPost httpPost =
-                new org.apache.http.client.methods.HttpPost(uri);
+            org.apache.hc.client5.http.classic.methods.HttpPost httpPost =
+                new org.apache.hc.client5.http.classic.methods.HttpPost(uri);
 
             // Set the CMC request as the body
-            org.apache.http.HttpEntity entity = pkiClient.entity(cmcRequest);
+            org.apache.hc.core5.http.HttpEntity entity = pkiClient.entity(cmcRequest);
             httpPost.setEntity(entity);
 
             // Mark this as an EST request so CA can set appropriate response headers
@@ -224,35 +219,35 @@ public class DogtagRABackend extends ESTBackend {
             }
 
             // Execute the request using PKIClient's connection
-            org.apache.http.client.HttpClient httpClient = pkiClient.getConnection().getHttpClient();
-            org.apache.http.HttpResponse httpResp = httpClient.execute(httpPost);
+            org.apache.hc.client5.http.classic.HttpClient httpClient = pkiClient.getConnection().getHttpClient();
+            return httpClient.execute(httpPost, httpResp -> {
+                // Check response status
+                int statusCode = httpResp.getCode();
+                logger.debug("CMC response status code: " + statusCode);
 
-            // Check response status
-            int statusCode = httpResp.getStatusLine().getStatusCode();
-            logger.debug("CMC response status code: " + statusCode);
+                if (statusCode != 200) {
+                    throw new PKIException("CMC request failed with status: " + statusCode);
+                }
 
-            if (statusCode != 200) {
-                throw new PKIException("CMC request failed with status: " + statusCode);
-            }
+                // Read pki-cmc-status header for HTTP status mapping (RFC 7030/8951)
+                org.apache.hc.core5.http.Header cmcStatusHeader = httpResp.getFirstHeader("pki-cmc-status");
+                if (cmcStatusHeader != null) {
+                    int status = Integer.parseInt(cmcStatusHeader.getValue());
+                    cmcStatus.set(status);
+                    logger.debug("pki-cmc-status header: " + status);
+                } else {
+                    logger.warn("pki-cmc-status header not found in CA response");
+                    cmcStatus.set(null);
+                }
 
-            // Read pki-cmc-status header for HTTP status mapping (RFC 7030/8951)
-            org.apache.http.Header cmcStatusHeader = httpResp.getFirstHeader("pki-cmc-status");
-            if (cmcStatusHeader != null) {
-                int status = Integer.parseInt(cmcStatusHeader.getValue());
-                cmcStatus.set(status);
-                logger.debug("pki-cmc-status header: " + status);
-            } else {
-                logger.warn("pki-cmc-status header not found in CA response");
-                cmcStatus.set(null);
-            }
+                // Read response body (CMC response)
+                org.apache.hc.core5.http.HttpEntity responseEntity = httpResp.getEntity();
+                byte[] cmcResponse = org.apache.hc.core5.http.io.entity.EntityUtils.toByteArray(responseEntity);
 
-            // Read response body (CMC response)
-            org.apache.http.HttpEntity responseEntity = httpResp.getEntity();
-            byte[] cmcResponse = org.apache.http.util.EntityUtils.toByteArray(responseEntity);
+                logger.debug("Received CMC response, length: " + (cmcResponse != null ? cmcResponse.length : 0));
 
-            logger.debug("Received CMC response, length: " + (cmcResponse != null ? cmcResponse.length : 0));
-
-            return cmcResponse;
+                return cmcResponse;
+            });
 
         } catch (PKIException e) {
             throw e; // re-raise

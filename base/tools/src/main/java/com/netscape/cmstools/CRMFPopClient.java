@@ -35,12 +35,13 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.message.StatusLine;
 import org.dogtagpki.cli.CLIException;
 import org.dogtagpki.common.CAInfoClient;
 import org.dogtagpki.nss.NSSDatabase;
@@ -720,17 +721,17 @@ public class CRMFPopClient {
         try (CloseableHttpClient client = HttpClientBuilder.create().build()) {
 
             HttpGet method = new HttpGet(url);
-            HttpResponse response = client.execute(method);
+            try (ClassicHttpResponse response = client.executeOpen(null, method, null)) {
+                if (response.getCode() != 200) {
+                    throw new Exception("Error: " + new StatusLine(response));
+                }
 
-            if (response.getStatusLine().getStatusCode() != 200) {
-                throw new Exception("Error: " + response.getStatusLine());
+                processResponse(response);
             }
-
-            processResponse(response);
         }
     }
 
-    public void processResponse(HttpResponse response) throws Exception {
+    public void processResponse(ClassicHttpResponse response) throws Exception {
 
         HttpEntity entity = response.getEntity();
 

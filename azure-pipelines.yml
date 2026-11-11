@@ -188,24 +188,43 @@ jobs:
     displayName: Import apache-commons-net
 
   - script: |
-      HTTPCLIENT_VERSION=$(
+      HTTPCLIENT4_VERSION=$(
           docker exec runner rpm -q httpcomponents-client \
           | sed -n 's/^httpcomponents-client-\([^-]*\)-.*$/\1/p')
 
       docker exec runner cp \
           /usr/share/java/httpcomponents/httpclient.jar \
-          /root/src/base/common/lib/httpclient-$HTTPCLIENT_VERSION.jar
+          /root/src/base/common/lib/httpclient-$HTTPCLIENT4_VERSION.jar
     displayName: Import httpcomponents-client
 
   - script: |
-      HTTPCORE_VERSION=$(
+      HTTPCORE4_VERSION=$(
           docker exec runner rpm -q httpcomponents-core \
           | sed -n 's/^httpcomponents-core-\([^-]*\)-.*$/\1/p')
 
       docker exec runner cp \
           /usr/share/java/httpcomponents/httpcore.jar \
-          /root/src/base/common/lib/httpcore-$HTTPCORE_VERSION.jar
+          /root/src/base/common/lib/httpcore-$HTTPCORE4_VERSION.jar
     displayName: Import httpcomponents-core
+
+  - script: |
+      HTTPCLIENT_JAR=$(docker exec runner xmvn-resolve org.apache.httpcomponents.client5:httpclient5)
+      HTTPCLIENT_VERSION=$(docker exec runner rpm -qf --qf '%{VERSION}' "$HTTPCLIENT_JAR")
+
+      docker exec runner cp "$HTTPCLIENT_JAR" \
+          /root/src/base/common/lib/httpclient5-$HTTPCLIENT_VERSION.jar
+    displayName: Import HttpClient 5
+
+  - script: |
+      HTTPCORE_JAR=$(docker exec runner xmvn-resolve org.apache.httpcomponents.core5:httpcore5)
+      HTTPCORE_VERSION=$(docker exec runner rpm -qf --qf '%{VERSION}' "$HTTPCORE_JAR")
+
+      docker exec runner cp "$HTTPCORE_JAR" \
+          /root/src/base/common/lib/httpcore5-$HTTPCORE_VERSION.jar
+      HTTPCORE_H2_JAR=$(docker exec runner xmvn-resolve org.apache.httpcomponents.core5:httpcore5-h2)
+      docker exec runner cp "$HTTPCORE_H2_JAR" \
+          /root/src/base/common/lib/httpcore5-h2-$HTTPCORE_VERSION.jar
+    displayName: Import HttpCore 5
 
   - script: |
       SLF4J_API_VERSION=$(

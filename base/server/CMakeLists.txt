@@ -15,7 +15,8 @@ javac(pki-server-classes
         ${SLF4J_API_JAR} ${JAXB_API_JAR}
         ${COMMONS_CODEC_JAR} ${COMMONS_IO_JAR} ${COMMONS_LANG3_JAR}
         ${COMMONS_CLI_JAR}
-        ${HTTPCORE_JAR} ${HTTPCLIENT_JAR}
+        ${HTTPCORE_JAR} ${HTTPCORE_H2_JAR} ${HTTPCLIENT_JAR}
+        ${HTTPCLIENT4_JAR} ${HTTPCORE4_JAR}
         ${JACKSON_ANNOTATIONS_JAR}
         ${JACKSON_CORE_JAR}
         ${JACKSON_DATABIND_JAR}
@@ -157,8 +158,9 @@ add_custom_command(
     COMMAND ln -sf ../../../lib/commons-lang3.jar common/lib/commons-lang3.jar
     COMMAND ln -sf ../../../lib/commons-logging.jar common/lib/commons-logging.jar
     COMMAND ln -sf ../../../lib/commons-net.jar common/lib/commons-net.jar
-    COMMAND ln -sf ../../../lib/httpclient.jar common/lib/httpclient.jar
-    COMMAND ln -sf ../../../lib/httpcore.jar common/lib/httpcore.jar
+    COMMAND ln -sf ../../../lib/httpclient5.jar common/lib/httpclient5.jar
+    COMMAND ln -sf ../../../lib/httpcore5.jar common/lib/httpcore5.jar
+    COMMAND ln -sf ../../../lib/httpcore5-h2.jar common/lib/httpcore5-h2.jar
     COMMAND ln -sf ../../../lib/jackson-annotations.jar common/lib/jackson-annotations.jar
     COMMAND ln -sf ../../../lib/jackson-core.jar common/lib/jackson-core.jar
     COMMAND ln -sf ../../../lib/jackson-databind.jar common/lib/jackson-databind.jar
@@ -184,6 +186,8 @@ add_custom_command(
     TARGET pki-server-common-lib POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory common/lib
     COMMAND test ! -d ${CMAKE_SOURCE_DIR}/base/server/lib || cp ${CMAKE_SOURCE_DIR}/base/server/lib/* common/lib
+    COMMAND ln -sf ../../../lib/httpclient.jar common/lib/httpclient.jar
+    COMMAND ln -sf ../../../lib/httpcore.jar common/lib/httpcore.jar
     COMMAND ln -sf ../../../lib/resteasy-jackson2-provider.jar common/lib/resteasy-jackson2-provider.jar
     COMMAND ln -sf ../../../lib/resteasy-jaxrs.jar common/lib/resteasy-jaxrs.jar
     COMMAND ln -sf ${RESTEASY_SERVLET_INITIALIZER_LINK} common/lib/resteasy-servlet-initializer.jar

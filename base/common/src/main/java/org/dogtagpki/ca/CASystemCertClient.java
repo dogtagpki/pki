@@ -20,7 +20,7 @@ package org.dogtagpki.ca;
 import java.io.ByteArrayInputStream;
 import java.security.cert.X509Certificate;
 
-import org.apache.http.HttpStatus;
+import org.apache.hc.core5.http.HttpStatus;
 
 import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;

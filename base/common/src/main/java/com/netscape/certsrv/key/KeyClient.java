@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.http.HttpEntity;
+import org.apache.hc.core5.http.HttpEntity;
 import org.dogtagpki.common.Info;
 import org.dogtagpki.common.Version;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;

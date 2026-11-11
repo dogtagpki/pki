@@ -6,7 +6,7 @@
 package com.netscape.cmstools.acme;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.http.HttpStatus;
+import org.apache.hc.core5.http.HttpStatus;
 import org.dogtagpki.acme.ACMEClient;
 import org.dogtagpki.acme.ACMEDirectory;
 import org.dogtagpki.acme.ACMEMetadata;

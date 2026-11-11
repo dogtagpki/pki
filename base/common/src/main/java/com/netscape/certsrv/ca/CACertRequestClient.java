@@ -20,7 +20,7 @@ package com.netscape.certsrv.ca;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.http.HttpEntity;
+import org.apache.hc.core5.http.HttpEntity;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

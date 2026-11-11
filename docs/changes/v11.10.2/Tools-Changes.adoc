@@ -14,3 +14,21 @@ Use `pki nss-cert-import --cert <filename> --trust CT,C,C` instead.
 
 The `--pkcs12` option in `pki client-cert-import` has been deprecated.
 Use `pki pkcs12-import --pkcs12 <filename>` instead.
+
+== Migrate Java clients to HttpClient 5 ==
+
+The Java clients now use Apache HttpClient 5 and HttpCore 5. Applications
+that use HTTP types exposed by `PKIClient`, `Client`, or `PKIConnection`
+need to update their imports and recompile. The Maven dependencies are
+`org.apache.httpcomponents.client5:httpclient5` and
+`org.apache.httpcomponents.core5:httpcore5`.
+
+Entity and response APIs use `org.apache.hc.core5.http.HttpEntity` and
+`ClassicHttpResponse`. URI builders use `org.apache.hc.core5.net.URIBuilder`.
+Custom socket factories selected by `org.dogtagpki.client.socketFactory`
+need to implement HttpClient 5's `LayeredConnectionSocketFactory`, whose
+`connectSocket()` method takes a `TimeValue` timeout.
+
+Redirects retain the original request method and body. A redirect to a
+different origin is rejected when the caller supplied an `Authorization`
+or `Cookie` header.

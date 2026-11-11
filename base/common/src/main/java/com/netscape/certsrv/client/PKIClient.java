@@ -29,22 +29,21 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.http.Consts;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpStatus;
-import org.apache.http.NameValuePair;
-import org.apache.http.StatusLine;
-import org.apache.http.client.entity.EntityBuilder;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPatch;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.entity.ContentType;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.methods.HttpDelete;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPatch;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.classic.methods.HttpPut;
+import org.apache.hc.client5.http.entity.EntityBuilder;
+import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.message.StatusLine;
+import org.apache.hc.core5.net.URIBuilder;
 import org.dogtagpki.common.Info;
 import org.dogtagpki.common.InfoClient;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
@@ -166,7 +165,7 @@ public class PKIClient implements AutoCloseable {
 
         String contentType = null;
         if (entity.getContentType() != null) {
-            contentType = entity.getContentType().getValue().split(";")[0].trim();
+            contentType = entity.getContentType().split(";")[0].trim();
         }
         try {
             if (MimeType.APPLICATION_XML.equals(contentType)) {
@@ -197,7 +196,7 @@ public class PKIClient implements AutoCloseable {
 
         String contentType = null;
         if (entity.getContentType() != null) {
-            contentType = entity.getContentType().getValue().split(";")[0].trim();
+            contentType = entity.getContentType().split(";")[0].trim();
         }
         try {
             if (MimeType.APPLICATION_XML.equals(contentType)) {
@@ -220,18 +219,18 @@ public class PKIClient implements AutoCloseable {
         return null;
     }
 
-    public void handleErrorResponse(CloseableHttpResponse httpResp) throws Exception {
+    public void handleErrorResponse(ClassicHttpResponse httpResp) throws Exception {
         HttpEntity entity = httpResp.getEntity();
         String contentType = null;
         if (entity != null && entity.getContentType() != null) {
-            contentType = entity.getContentType().getValue().split(";")[0].trim();
+            contentType = entity.getContentType().split(";")[0].trim();
         }
 
         if (entity == null ||
                 (!MimeType.APPLICATION_XML.equals(contentType) &&
                         !MimeType.APPLICATION_JSON.equals(contentType))) {
 
-            StatusLine status = httpResp.getStatusLine();
+            StatusLine status = new StatusLine(httpResp);
             switch (status.getStatusCode()) {
             case HttpStatus.SC_UNAUTHORIZED:
                 throw new UnauthorizedException(status.getReasonPhrase());
@@ -278,9 +277,9 @@ public class PKIClient implements AutoCloseable {
                 .build();
     }
 
-    public <T> T getEntity(CloseableHttpResponse httpResp, Class<T> clazz) throws Exception {
+    public <T> T getEntity(ClassicHttpResponse httpResp, Class<T> clazz) throws Exception {
         try {
-            int status = httpResp.getStatusLine().getStatusCode();
+            int status = httpResp.getCode();
             if (status >= HttpStatus.SC_BAD_REQUEST) {
                 handleErrorResponse(httpResp);
                 return null;
@@ -293,9 +292,9 @@ public class PKIClient implements AutoCloseable {
         }
     }
 
-    public <T> Collection<T> getEntities(CloseableHttpResponse  httpResp, Class<T> clazz) throws Exception {
+    public <T> Collection<T> getEntities(ClassicHttpResponse httpResp, Class<T> clazz) throws Exception {
         try {
-            int status = httpResp.getStatusLine().getStatusCode();
+            int status = httpResp.getCode();
             if (status >= HttpStatus.SC_BAD_REQUEST) {
                 handleErrorResponse(httpResp);
                 return null;
@@ -349,9 +348,9 @@ public class PKIClient implements AutoCloseable {
     public <T> T get(String path, Map<String, Object> params, Class<T> responseType) throws Exception {
         URIBuilder target = target(path, params);
         HttpGet httpGET = new HttpGet(target.build());
-        CloseableHttpResponse httpResp = null;
+        ClassicHttpResponse httpResp = null;
         try {
-            httpResp = connection.getHttpClient().execute(httpGET);
+            httpResp = connection.getHttpClient().executeOpen(null, httpGET, null);
         } catch (Exception ex) {
             throw new ClientConnectionException(ex);
         }
@@ -361,9 +360,9 @@ public class PKIClient implements AutoCloseable {
     public <T> Collection<T> getCollection(String path, Map<String, Object> params, Class<T> responseType) throws Exception {
         URIBuilder target = target(path, params);
         HttpGet httpGET = new HttpGet(target.build());
-        CloseableHttpResponse httpResp = null;
+        ClassicHttpResponse httpResp = null;
         try {
-            httpResp = connection.getHttpClient().execute(httpGET);
+            httpResp = connection.getHttpClient().executeOpen(null, httpGET, null);
         } catch (Exception ex) {
             throw new ClientConnectionException(ex);
         }
@@ -384,9 +383,9 @@ public class PKIClient implements AutoCloseable {
         if (entity != null) {
             httpPOST.setEntity(entity);
         }
-        CloseableHttpResponse httpResp = null;
+        ClassicHttpResponse httpResp = null;
         try {
-            httpResp = connection.getHttpClient().execute(httpPOST);
+            httpResp = connection.getHttpClient().executeOpen(null, httpPOST, null);
         } catch (Exception ex) {
             throw new ClientConnectionException(ex);
         }
@@ -395,12 +394,12 @@ public class PKIClient implements AutoCloseable {
 
     public <T> T post(String path, List<NameValuePair> content, Class<T> responseType) throws Exception {
         URIBuilder target = target(path, null);
-        UrlEncodedFormEntity entity = new UrlEncodedFormEntity(content, Consts.UTF_8);
+        UrlEncodedFormEntity entity = new UrlEncodedFormEntity(content, StandardCharsets.UTF_8);
         HttpPost httpPOST = new HttpPost(target.build());
         httpPOST.setEntity(entity);
-        CloseableHttpResponse httpResp = null;
+        ClassicHttpResponse httpResp = null;
         try {
-            httpResp = connection.getHttpClient().execute(httpPOST);
+            httpResp = connection.getHttpClient().executeOpen(null, httpPOST, null);
         } catch (Exception ex) {
             throw new ClientConnectionException(ex);
         }
@@ -413,9 +412,9 @@ public class PKIClient implements AutoCloseable {
         if (entity != null) {
             httpPUT.setEntity(entity);
         }
-        CloseableHttpResponse httpResp = null;
+        ClassicHttpResponse httpResp = null;
         try {
-            httpResp = connection.getHttpClient().execute(httpPUT);
+            httpResp = connection.getHttpClient().executeOpen(null, httpPUT, null);
         } catch (Exception ex) {
             throw new ClientConnectionException(ex);
         }
@@ -428,9 +427,9 @@ public class PKIClient implements AutoCloseable {
         if (entity != null) {
             httpPATCH.setEntity(entity);
         }
-        CloseableHttpResponse httpResp = null;
+        ClassicHttpResponse httpResp = null;
         try {
-            httpResp = connection.getHttpClient().execute(httpPATCH);
+            httpResp = connection.getHttpClient().executeOpen(null, httpPATCH, null);
         } catch (Exception ex) {
             throw new ClientConnectionException(ex);
         }
@@ -444,9 +443,9 @@ public class PKIClient implements AutoCloseable {
     public <T> T delete(String path, Map<String, Object> params, Class<T> responseType) throws Exception {
         URIBuilder target = target(path, params);
         HttpDelete httpDELETE = new HttpDelete(target.build());
-        CloseableHttpResponse httpResp = null;
+        ClassicHttpResponse httpResp = null;
         try {
-            httpResp = connection.getHttpClient().execute(httpDELETE);
+            httpResp = connection.getHttpClient().executeOpen(null, httpDELETE, null);
         } catch (Exception ex) {
             throw new ClientConnectionException(ex);
         }

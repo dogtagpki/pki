@@ -256,8 +256,9 @@ BuildRequires:    mvn(org.apache.commons:commons-lang3)
 BuildRequires:    mvn(commons-logging:commons-logging)
 BuildRequires:    mvn(commons-net:commons-net)
 
-BuildRequires:    mvn(org.apache.httpcomponents:httpclient)
-BuildRequires:    mvn(org.apache.httpcomponents:httpcore)
+BuildRequires:    mvn(org.apache.httpcomponents.client5:httpclient5) >= 5.6.5
+BuildRequires:    mvn(org.apache.httpcomponents.core5:httpcore5) >= 5.4.4
+BuildRequires:    mvn(org.apache.httpcomponents.core5:httpcore5-h2) >= 5.4.4
 
 BuildRequires:    mvn(org.slf4j:slf4j-api)
 BuildRequires:    mvn(org.slf4j:slf4j-jdk14)
@@ -272,6 +273,8 @@ BuildRequires:    mvn(com.fasterxml.jackson.core:jackson-databind)
 BuildRequires:    mvn(com.fasterxml.jackson.module:jackson-module-jaxb-annotations)
 
 %if %{with apiv1}
+BuildRequires:    mvn(org.apache.httpcomponents:httpclient)
+BuildRequires:    mvn(org.apache.httpcomponents:httpcore)
 BuildRequires:    mvn(com.fasterxml.jackson.jaxrs:jackson-jaxrs-base)
 BuildRequires:    mvn(com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider)
 BuildRequires:    mvn(org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.0_spec)
@@ -592,8 +595,9 @@ Requires:         mvn(org.apache.commons:commons-lang3)
 Requires:         mvn(commons-logging:commons-logging)
 Requires:         mvn(commons-net:commons-net)
 
-Requires:         mvn(org.apache.httpcomponents:httpclient)
-Requires:         mvn(org.apache.httpcomponents:httpcore)
+Requires:         mvn(org.apache.httpcomponents.client5:httpclient5) >= 5.6.5
+Requires:         mvn(org.apache.httpcomponents.core5:httpcore5) >= 5.4.4
+Requires:         mvn(org.apache.httpcomponents.core5:httpcore5-h2) >= 5.4.4
 
 Requires:         mvn(org.slf4j:slf4j-api)
 Requires:         mvn(org.slf4j:slf4j-jdk14)
@@ -607,6 +611,8 @@ Requires:         mvn(com.fasterxml.jackson.core:jackson-core)
 Requires:         mvn(com.fasterxml.jackson.core:jackson-databind)
 
 %if %{with apiv1}
+Requires:         mvn(org.apache.httpcomponents:httpclient)
+Requires:         mvn(org.apache.httpcomponents:httpcore)
 Requires:         mvn(com.fasterxml.jackson.jaxrs:jackson-jaxrs-base)
 Requires:         mvn(com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider)
 Requires:         mvn(org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.0_spec)
@@ -624,8 +630,9 @@ Provides:         bundled(apache-commons-lang3)
 Provides:         bundled(apache-commons-logging)
 Provides:         bundled(apache-commons-net)
 
-Provides:         bundled(httpcomponents-client)
-Provides:         bundled(httpcomponents-core)
+Provides:         bundled(httpclient5)
+Provides:         bundled(httpcore5)
+Provides:         bundled(httpcore5-h2)
 
 Provides:         bundled(slf4j)
 Provides:         bundled(slf4j-jdk14)
@@ -640,6 +647,8 @@ Provides:         bundled(jackson-databind)
 Provides:         bundled(jackson-modules-base)
 
 %if %{with apiv1}
+Provides:         bundled(httpcomponents-client)
+Provides:         bundled(httpcomponents-core)
 Provides:         bundled(jackson-jaxrs-providers)
 Provides:         bundled(jackson-jaxrs-json-provider)
 Provides:         bundled(jboss-jaxrs-2.0-api)
@@ -1133,8 +1142,8 @@ then
     COMMONS_LANG3_VERSION=$(ls commons-lang3-*.jar | sed 's/^commons-lang3-\(.*\)\.jar$/\1/')
     COMMONS_LOGGING_VERSION=$(ls commons-logging-*.jar | sed 's/^commons-logging-\(.*\)\.jar$/\1/')
     COMMONS_NET_VERSION=$(ls commons-net-*.jar | sed 's/^commons-net-\(.*\)\.jar$/\1/')
-    HTTPCLIENT_VERSION=$(ls httpclient-*.jar | sed 's/^httpclient-\(.*\)\.jar$/\1/')
-    HTTPCORE_VERSION=$(ls httpcore-*.jar | sed 's/^httpcore-\(.*\)\.jar$/\1/')
+    HTTPCLIENT_VERSION=$(ls httpclient5-*.jar | sed 's/^httpclient5-\(.*\)\.jar$/\1/')
+    HTTPCORE_VERSION=$(ls httpcore5-[0-9]*.jar | sed 's/^httpcore5-\(.*\)\.jar$/\1/')
     SLF4J_VERSION=$(ls slf4j-api-*.jar | sed 's/^slf4j-api-\(.*\)\.jar$/\1/')
     JAKARTA_ACTIVATION_API_VERSION=$(ls jakarta.activation-api-*.jar | sed 's/^jakarta\.activation-api-\(.*\)\.jar$/\1/')
     JAKARTA_ANNOTATION_API_VERSION=$(ls jakarta.annotation-api-*.jar | sed 's/^jakarta\.annotation-api-\(.*\)\.jar$/\1/')
@@ -1142,6 +1151,8 @@ then
     JACKSON_ANNOTATIONS_VERSION=$(ls jackson-annotations-*.jar | sed 's/^jackson-annotations-\(.*\)\.jar$/\1/')
     JACKSON_CORE_VERSION=$(ls jackson-core-*.jar | sed 's/^jackson-core-\(.*\)\.jar$/\1/')
 %if %{with apiv1}
+    HTTPCLIENT4_VERSION=$(ls httpclient-*.jar | sed 's/^httpclient-\(.*\)\.jar$/\1/')
+    HTTPCORE4_VERSION=$(ls httpcore-*.jar | sed 's/^httpcore-\(.*\)\.jar$/\1/')
     JAXRS_VERSION=$(ls jboss-jaxrs-api_2.0_spec-*.jar | sed 's/^jboss-jaxrs-api_2\.0_spec-\(.*\)\.jar$/\1/')
     JBOSS_LOGGING_VERSION=$(ls jboss-logging-*.jar| sed 's/^jboss-logging-\(.*\)\.jar$/\1/')
     RESTEASY_VERSION=$(ls resteasy-jaxrs-*.jar | sed 's/^resteasy-jaxrs-\(.*\)\.jar$/\1/')
@@ -1160,8 +1171,8 @@ else
     COMMONS_LANG3_VERSION=$(rpm -q apache-commons-lang3 | sed -n 's/^apache-commons-lang3-\([^-]*\)-.*$/\1/p')
     COMMONS_LOGGING_VERSION=$(rpm -q apache-commons-logging | sed -n 's/^apache-commons-logging-\([^-]*\)-.*$/\1/p')
     COMMONS_NET_VERSION=$(rpm -q apache-commons-net | sed -n 's/^apache-commons-net-\([^-]*\)-.*$/\1/p')
-    HTTPCLIENT_VERSION=$(rpm -q httpcomponents-client | sed -n 's/^httpcomponents-client-\([^-]*\)-.*$/\1/p')
-    HTTPCORE_VERSION=$(rpm -q httpcomponents-core | sed -n 's/^httpcomponents-core-\([^-]*\)-.*$/\1/p')
+    HTTPCLIENT_VERSION=$(rpm -qf --qf '%%{VERSION}' "$(xmvn-resolve org.apache.httpcomponents.client5:httpclient5)")
+    HTTPCORE_VERSION=$(rpm -qf --qf '%%{VERSION}' "$(xmvn-resolve org.apache.httpcomponents.core5:httpcore5)")
     SLF4J_VERSION=$(rpm -q slf4j | sed -n 's/^slf4j-\([^-]*\)-.*$/\1/p')
     JAKARTA_ACTIVATION_API_VERSION=$(rpm -q jakarta-activation | sed -n 's/^jakarta-activation-\([^-]*\)-.*$/\1/p')
     JAKARTA_ANNOTATION_API_VERSION=$(rpm -q jakarta-annotations | sed -n 's/^jakarta-annotations-\([^-]*\)-.*$/\1/p')
@@ -1169,6 +1180,8 @@ else
     JACKSON_ANNOTATIONS_VERSION=$(rpm -q jackson-annotations | sed -n 's/^jackson-annotations-\([^-]*\)-.*$/\1/p')
     JACKSON_CORE_VERSION=$(rpm -q jackson-core | sed -n 's/^jackson-core-\([^-]*\)-.*$/\1/p')
 %if %{with apiv1}
+    HTTPCLIENT4_VERSION=$(rpm -q httpcomponents-client | sed -n 's/^httpcomponents-client-\([^-]*\)-.*$/\1/p')
+    HTTPCORE4_VERSION=$(rpm -q httpcomponents-core | sed -n 's/^httpcomponents-core-\([^-]*\)-.*$/\1/p')
     JAXRS_VERSION=$(rpm -q jboss-jaxrs-2.0-api | sed -n 's/^jboss-jaxrs-2.0-api-\([^-]*\)-.*$/\1.Final/p')
     JBOSS_LOGGING_VERSION=$(rpm -q jboss-logging | sed -n 's/^jboss-logging-\([^-]*\)-.*$/\1.Final/p')
     RESTEASY_VERSION=$(rpm -q pki-resteasy-core | sed -n 's/^pki-resteasy-core-\([^-]*\)-.*$/\1.Final/p')
@@ -1181,8 +1194,9 @@ else
     cp /usr/share/java/commons-lang3.jar commons-lang3-$COMMONS_LANG3_VERSION.jar
     cp /usr/share/java/commons-logging.jar commons-logging-$COMMONS_LOGGING_VERSION.jar
     cp /usr/share/java/commons-net.jar commons-net-$COMMONS_NET_VERSION.jar
-    cp /usr/share/java/httpcomponents/httpclient.jar httpclient-$HTTPCLIENT_VERSION.jar
-    cp /usr/share/java/httpcomponents/httpcore.jar httpcore-$HTTPCORE_VERSION.jar
+    cp "$(xmvn-resolve org.apache.httpcomponents.client5:httpclient5)" httpclient5-$HTTPCLIENT_VERSION.jar
+    cp "$(xmvn-resolve org.apache.httpcomponents.core5:httpcore5)" httpcore5-$HTTPCORE_VERSION.jar
+    cp "$(xmvn-resolve org.apache.httpcomponents.core5:httpcore5-h2)" httpcore5-h2-$HTTPCORE_VERSION.jar
     cp /usr/share/java/slf4j/slf4j-api.jar slf4j-api-$SLF4J_VERSION.jar
     cp /usr/share/java/slf4j/slf4j-jdk14.jar slf4j-jdk14-$SLF4J_VERSION.jar
     cp /usr/share/java/jakarta-activation/jakarta.activation-api.jar jakarta.activation-api-$JAKARTA_ACTIVATION_API_VERSION.jar
@@ -1201,6 +1215,8 @@ else
     cp /usr/share/java/jackson-databind.jar jackson-databind-$JACKSON_CORE_VERSION.jar
     cp /usr/share/java/jackson-modules/jackson-module-jaxb-annotations.jar jackson-module-jaxb-annotations-$JACKSON_CORE_VERSION.jar
 %if %{with apiv1}
+    cp /usr/share/java/httpcomponents/httpclient.jar httpclient-$HTTPCLIENT4_VERSION.jar
+    cp /usr/share/java/httpcomponents/httpcore.jar httpcore-$HTTPCORE4_VERSION.jar
     cp /usr/share/java/jackson-jaxrs-providers/jackson-jaxrs-base.jar jackson-jaxrs-base-$JACKSON_CORE_VERSION.jar
     cp /usr/share/java/jackson-jaxrs-providers/jackson-jaxrs-json-provider.jar jackson-jaxrs-json-provider-$JACKSON_CORE_VERSION.jar
     cp /usr/share/java/jboss-jaxrs-2.0-api.jar jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar
@@ -1744,7 +1760,7 @@ xmlstarlet edit --inplace \
     -d "//_:dependency[_:groupId='org.apache.commons']" \
     -d "//_:dependency[_:groupId='commons-logging']" \
     -d "//_:dependency[_:groupId='commons-net']" \
-    -d "//_:dependency[_:groupId='org.apache.httpcomponents']" \
+    -d "//_:dependency[starts-with(_:groupId,'org.apache.httpcomponents')]" \
     -d "//_:dependency[_:groupId='org.slf4j']" \
     -d "//_:dependency[_:groupId='jakarta.activation']" \
     -d "//_:dependency[_:groupId='jakarta.annotation']" \
@@ -1768,7 +1784,7 @@ xmlstarlet edit --inplace \
     -d "//_:dependency[_:groupId='org.apache.commons']" \
     -d "//_:dependency[_:groupId='commons-logging']" \
     -d "//_:dependency[_:groupId='commons-net']" \
-    -d "//_:dependency[_:groupId='org.apache.httpcomponents']" \
+    -d "//_:dependency[starts-with(_:groupId,'org.apache.httpcomponents')]" \
     -d "//_:dependency[_:groupId='org.slf4j']" \
     -d "//_:dependency[_:groupId='jakarta.activation']" \
     -d "//_:dependency[_:groupId='jakarta.annotation']" \
@@ -1790,7 +1806,7 @@ xmlstarlet edit --inplace \
     -d "//_:dependency[_:groupId='org.apache.commons']" \
     -d "//_:dependency[_:groupId='commons-logging']" \
     -d "//_:dependency[_:groupId='commons-net']" \
-    -d "//_:dependency[_:groupId='org.apache.httpcomponents']" \
+    -d "//_:dependency[starts-with(_:groupId,'org.apache.httpcomponents')]" \
     -d "//_:dependency[_:groupId='org.slf4j']" \
     -d "//_:dependency[_:groupId='jakarta.activation']" \
     -d "//_:dependency[_:groupId='jakarta.annotation']" \
@@ -1814,7 +1830,7 @@ xmlstarlet edit --inplace \
     -d "//_:dependency[_:groupId='org.apache.commons']" \
     -d "//_:dependency[_:groupId='commons-logging']" \
     -d "//_:dependency[_:groupId='commons-net']" \
-    -d "//_:dependency[_:groupId='org.apache.httpcomponents']" \
+    -d "//_:dependency[starts-with(_:groupId,'org.apache.httpcomponents')]" \
     -d "//_:dependency[_:groupId='org.slf4j']" \
     -d "//_:dependency[_:groupId='jakarta.activation']" \
     -d "//_:dependency[_:groupId='jakarta.annotation']" \
@@ -1838,7 +1854,7 @@ xmlstarlet edit --inplace \
     -d "//_:dependency[_:groupId='org.apache.commons']" \
     -d "//_:dependency[_:groupId='commons-logging']" \
     -d "//_:dependency[_:groupId='commons-net']" \
-    -d "//_:dependency[_:groupId='org.apache.httpcomponents']" \
+    -d "//_:dependency[starts-with(_:groupId,'org.apache.httpcomponents')]" \
     -d "//_:dependency[_:groupId='org.slf4j']" \
     -d "//_:dependency[_:groupId='jakarta.activation']" \
     -d "//_:dependency[_:groupId='jakarta.annotation']" \
@@ -1862,7 +1878,7 @@ xmlstarlet edit --inplace \
     -d "//_:dependency[_:groupId='org.apache.commons']" \
     -d "//_:dependency[_:groupId='commons-logging']" \
     -d "//_:dependency[_:groupId='commons-net']" \
-    -d "//_:dependency[_:groupId='org.apache.httpcomponents']" \
+    -d "//_:dependency[starts-with(_:groupId,'org.apache.httpcomponents')]" \
     -d "//_:dependency[_:groupId='org.slf4j']" \
     -d "//_:dependency[_:groupId='jakarta.activation']" \
     -d "//_:dependency[_:groupId='jakarta.annotation']" \
@@ -1886,7 +1902,7 @@ xmlstarlet edit --inplace \
     -d "//_:dependency[_:groupId='org.apache.commons']" \
     -d "//_:dependency[_:groupId='commons-logging']" \
     -d "//_:dependency[_:groupId='commons-net']" \
-    -d "//_:dependency[_:groupId='org.apache.httpcomponents']" \
+    -d "//_:dependency[starts-with(_:groupId,'org.apache.httpcomponents')]" \
     -d "//_:dependency[_:groupId='org.slf4j']" \
     -d "//_:dependency[_:groupId='jakarta.activation']" \
     -d "//_:dependency[_:groupId='jakarta.annotation']" \
@@ -1910,7 +1926,7 @@ xmlstarlet edit --inplace \
     -d "//_:dependency[_:groupId='org.apache.commons']" \
     -d "//_:dependency[_:groupId='commons-logging']" \
     -d "//_:dependency[_:groupId='commons-net']" \
-    -d "//_:dependency[_:groupId='org.apache.httpcomponents']" \
+    -d "//_:dependency[starts-with(_:groupId,'org.apache.httpcomponents')]" \
     -d "//_:dependency[_:groupId='org.slf4j']" \
     -d "//_:dependency[_:groupId='jakarta.activation']" \
     -d "//_:dependency[_:groupId='jakarta.annotation']" \
@@ -1934,7 +1950,7 @@ xmlstarlet edit --inplace \
     -d "//_:dependency[_:groupId='org.apache.commons']" \
     -d "//_:dependency[_:groupId='commons-logging']" \
     -d "//_:dependency[_:groupId='commons-net']" \
-    -d "//_:dependency[_:groupId='org.apache.httpcomponents']" \
+    -d "//_:dependency[starts-with(_:groupId,'org.apache.httpcomponents')]" \
     -d "//_:dependency[_:groupId='org.slf4j']" \
     -d "//_:dependency[_:groupId='jakarta.activation']" \
     -d "//_:dependency[_:groupId='jakarta.annotation']" \
@@ -1958,7 +1974,7 @@ xmlstarlet edit --inplace \
     -d "//_:dependency[_:groupId='org.apache.commons']" \
     -d "//_:dependency[_:groupId='commons-logging']" \
     -d "//_:dependency[_:groupId='commons-net']" \
-    -d "//_:dependency[_:groupId='org.apache.httpcomponents']" \
+    -d "//_:dependency[starts-with(_:groupId,'org.apache.httpcomponents')]" \
     -d "//_:dependency[_:groupId='org.slf4j']" \
     -d "//_:dependency[_:groupId='jakarta.activation']" \
     -d "//_:dependency[_:groupId='jakarta.annotation']" \
@@ -1982,7 +1998,7 @@ xmlstarlet edit --inplace \
     -d "//_:dependency[_:groupId='org.apache.commons']" \
     -d "//_:dependency[_:groupId='commons-logging']" \
     -d "//_:dependency[_:groupId='commons-net']" \
-    -d "//_:dependency[_:groupId='org.apache.httpcomponents']" \
+    -d "//_:dependency[starts-with(_:groupId,'org.apache.httpcomponents')]" \
     -d "//_:dependency[_:groupId='org.slf4j']" \
     -d "//_:dependency[_:groupId='jakarta.activation']" \
     -d "//_:dependency[_:groupId='jakarta.annotation']" \

@@ -12,9 +12,10 @@ import java.net.UnknownHostException;
 
 import javax.net.SocketFactory;
 
-import org.apache.http.HttpHost;
-import org.apache.http.conn.socket.LayeredConnectionSocketFactory;
-import org.apache.http.protocol.HttpContext;
+import org.apache.hc.client5.http.socket.LayeredConnectionSocketFactory;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.util.TimeValue;
 import org.mozilla.jss.ssl.SSLAlertDescription;
 import org.mozilla.jss.ssl.SSLAlertEvent;
 import org.mozilla.jss.ssl.SSLAlertLevel;
@@ -105,7 +106,7 @@ public class SSLSocketFactory implements LayeredConnectionSocketFactory {
 
     @Override
     public Socket connectSocket(
-            int connTimeout,
+            TimeValue connTimeout,
             Socket socket,
             HttpHost host,
             InetSocketAddress remoteAddress,
@@ -133,7 +134,7 @@ public class SSLSocketFactory implements LayeredConnectionSocketFactory {
                 socket.bind(localAddress);
             }
             if (remoteAddress != null) {
-                socket.connect(remoteAddress, connTimeout);
+                socket.connect(remoteAddress, connTimeout == null ? 0 : connTimeout.toMillisecondsIntBound());
             }
         }
 

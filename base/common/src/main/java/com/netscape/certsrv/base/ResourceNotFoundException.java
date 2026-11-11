@@ -1,6 +1,6 @@
 package com.netscape.certsrv.base;
 
-import org.apache.http.HttpStatus;
+import org.apache.hc.core5.http.HttpStatus;
 
 public class ResourceNotFoundException extends PKIException {
 

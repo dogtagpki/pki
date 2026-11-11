@@ -2,7 +2,7 @@ package com.netscape.certsrv.base;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.apache.http.HttpStatus;
+import org.apache.hc.core5.http.HttpStatus;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;

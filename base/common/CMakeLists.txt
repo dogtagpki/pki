@@ -18,7 +18,8 @@ javac(pki-common-classes
         ${JAKARTA_ANNOTATION_API_JAR}
         ${JAXRS_API_JAR}
         ${RESTEASY_JAXRS_JAR}
-        ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
+        ${HTTPCLIENT_JAR} ${HTTPCORE_JAR} ${HTTPCORE_H2_JAR}
+        ${HTTPCLIENT4_JAR} ${HTTPCORE4_JAR}
         ${JAXB_API_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
@@ -60,7 +61,8 @@ if(RUN_TESTS)
             ${SLF4J_API_JAR} ${SLF4J_JDK14_JAR}
             ${JSS_JAR}
             ${COMMONS_CLI_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_LANG3_JAR}
-            ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
+            ${HTTPCLIENT_JAR} ${HTTPCORE_JAR} ${HTTPCORE_H2_JAR}
+            ${HTTPCLIENT4_JAR} ${HTTPCORE4_JAR}
             ${JACKSON_ANNOTATIONS_JAR}
             ${JACKSON_CORE_JAR}
             ${JACKSON_DATABIND_JAR}
@@ -86,7 +88,8 @@ if(RUN_TESTS)
             ${SLF4J_API_JAR} ${SLF4J_JDK14_JAR}
             ${JSS_JAR}
             ${COMMONS_CLI_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_LANG3_JAR}
-            ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
+            ${HTTPCLIENT_JAR} ${HTTPCORE_JAR} ${HTTPCORE_H2_JAR}
+            ${HTTPCLIENT4_JAR} ${HTTPCORE4_JAR}
             ${JACKSON_ANNOTATIONS_JAR}
             ${JACKSON_CORE_JAR}
             ${JACKSON_DATABIND_JAR}
@@ -123,8 +126,9 @@ add_custom_command(
     COMMAND ln -sf ${COMMONS_LANG3_LINK} lib/commons-lang3.jar
     COMMAND ln -sf ${COMMONS_LOGGING_LINK} lib/commons-logging.jar
     COMMAND ln -sf ${COMMONS_NET_LINK} lib/commons-net.jar
-    COMMAND ln -sf ${HTTPCLIENT_LINK} lib/httpclient.jar
-    COMMAND ln -sf ${HTTPCORE_LINK} lib/httpcore.jar
+    COMMAND ln -sf ${HTTPCLIENT_LINK} lib/httpclient5.jar
+    COMMAND ln -sf ${HTTPCORE_LINK} lib/httpcore5.jar
+    COMMAND ln -sf ${HTTPCORE_H2_LINK} lib/httpcore5-h2.jar
     COMMAND ln -sf ${JACKSON_ANNOTATIONS_LINK} lib/jackson-annotations.jar
     COMMAND ln -sf ${JACKSON_CORE_LINK} lib/jackson-core.jar
     COMMAND ln -sf ${JACKSON_DATABIND_LINK} lib/jackson-databind.jar
@@ -149,6 +153,8 @@ add_custom_command(
     TARGET pki-lib POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory lib
     COMMAND test ! -d ${CMAKE_SOURCE_DIR}/base/common/lib || cp ${CMAKE_SOURCE_DIR}/base/common/lib/* lib
+    COMMAND ln -sf ${HTTPCLIENT4_LINK} lib/httpclient.jar
+    COMMAND ln -sf ${HTTPCORE4_LINK} lib/httpcore.jar
     COMMAND ln -sf ${JACKSON_JAXRS_BASE_LINK} lib/jackson-jaxrs-base.jar
     COMMAND ln -sf ${JACKSON_JAXRS_JSON_PROVIDER_LINK} lib/jackson-jaxrs-json-provider.jar
     COMMAND ln -sf ${RESTEASY_JACKSON_PROVIDER_LINK} lib/resteasy-jackson2-provider.jar

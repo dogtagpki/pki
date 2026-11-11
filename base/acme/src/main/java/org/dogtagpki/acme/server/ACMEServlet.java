@@ -13,7 +13,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.http.client.utils.URIBuilder;
+import org.apache.hc.core5.net.URIBuilder;
 import org.dogtagpki.acme.ACMEException;
 import org.dogtagpki.acme.ACMENonce;
 import org.dogtagpki.server.rest.v2.PKIServlet;
