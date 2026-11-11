@@ -67,7 +67,7 @@ import netscape.ldap.util.RDN;
  * "basedn" : base DN of ACME subtree in LDAP directory
  *
  * A note about why we have different object classes for different
- * challenge types.  The dns-01 and http-01 challenge types both
+ * challenge types.  The dns-01, http-01, and tls-alpn-01 challenge types
  * only store a 'token'.  But challenge types could involve storing
  * other data.  So we define a different object class for each
  * challenge type, and each class specifies the challenge-specific
@@ -113,6 +113,7 @@ public class LDAPDatabase extends ACMEDatabase {
     static final String OBJ_CHALLENGE = "acmeChallenge";
     static final String OBJ_CHALLENGE_DNS01 = "acmeChallengeDns01";
     static final String OBJ_CHALLENGE_HTTP01 = "acmeChallengeHttp01";
+    static final String OBJ_CHALLENGE_TLSALPN01 = "acmeChallengeTlsAlpn01";
     static final String OBJ_NONCE = "acmeNonce";
     static final String OBJ_ORDER = "acmeOrder";
 
@@ -1007,6 +1008,8 @@ public class LDAPDatabase extends ACMEDatabase {
             challenge.setType("dns-01");
         } else if (classes.contains(OBJ_CHALLENGE_HTTP01)) {
             challenge.setType("http-01");
+        } else if (classes.contains(OBJ_CHALLENGE_TLSALPN01)) {
+            challenge.setType("tls-alpn-01");
         } else {
             throw new RuntimeException(
                 "unable to determine challenge type from objectclass "
@@ -1091,6 +1094,8 @@ public class LDAPDatabase extends ACMEDatabase {
             objclass = OBJ_CHALLENGE_DNS01;
         } else if (type.equals("http-01")) {
             objclass = OBJ_CHALLENGE_HTTP01;
+        } else if (type.equals("tls-alpn-01")) {
+            objclass = OBJ_CHALLENGE_TLSALPN01;
         } else {
             throw new RuntimeException("unrecognised challenge type: " + type);
         }

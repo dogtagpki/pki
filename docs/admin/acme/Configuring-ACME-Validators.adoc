@@ -1,0 +1,99 @@
+= Configuring ACME Validators =
+
+== Overview ==
+
+This document describes the process to configure the ACME validators,
+which determine the challenge types offered to ACME clients for domain validation.
+
+The validators configuration is located at `/var/lib/pki/pki-tomcat/conf/acme/validators.conf`.
+If the file does not exist, the server will use the default validators configuration at
+link:../../../base/acme/conf/validators.conf[/usr/share/pki/acme/conf/validators.conf].
+
+Each validator is configured with the following property:
+
+----
+<challenge type>.class=<validator class>
+----
+
+Optional validator parameters can be specified as:
+
+----
+<challenge type>.<parameter>=<value>
+----
+
+The following validators are available:
+
+* `dns-01`: `org.dogtagpki.acme.validator.DNS01Validator` (RFC 8555), enabled by default
+* `http-01`: `org.dogtagpki.acme.validator.HTTP01Validator` (RFC 8555), enabled by default
+* `tls-alpn-01`: `org.dogtagpki.acme.validator.TLSALPN01Validator` (RFC 8737), disabled by default
+
+Restart the server after changing the validators configuration.
+
+== Configuring TLS-ALPN-01 Validator ==
+
+With the TLS-ALPN-01 challenge (RFC 8737) the ACME responder connects to port 443
+of the domain being validated, negotiates the `acme-tls/1` ALPN protocol,
+and verifies the self-signed challenge certificate presented by the ACME client.
+
+The TLS-ALPN-01 challenge is not offered for wildcard domain names.
+
+Note that the ACME responder must be able to reach port 443 of the domain being validated.
+
+=== Updating LDAP Schema ===
+
+If the ACME responder uses a DS or OpenLDAP database that was created before
+the TLS-ALPN-01 validator became available, the `acmeChallengeTlsAlpn01` object class
+has to be added to the schema before enabling the validator.
+
+For DS, create a file (e.g. `tls-alpn-01.ldif`) with the following content:
+
+----
+dn: cn=schema
+changetype: modify
+add: objectClasses
+objectClasses: ( acmeChallengeTlsAlpn01-oid NAME 'acmeChallengeTlsAlpn01'
+  SUP acmeChallenge
+  STRUCTURAL
+  MUST acmeToken )
+----
+
+Then import the file with the following command:
+
+----
+$ ldapmodify -H ldap://localhost.localdomain:389 \
+    -D "cn=Directory Manager" \
+    -W \
+    -f tls-alpn-01.ldif
+----
+
+For OpenLDAP, add the following object class to the ACME schema entry
+(see link:../../../base/acme/database/openldap/schema.ldif[/usr/share/pki/acme/database/openldap/schema.ldif]):
+
+----
+olcObjectClasses: ( 2.16.840.1.113730.5.2.2.9 NAME 'acmeChallengeTlsAlpn01'
+  SUP acmeChallenge
+  STRUCTURAL
+  MUST acmeToken )
+----
+
+New databases initialized with `pki-server acme-database-init` already include this object class.
+
+=== Enabling TLS-ALPN-01 Validator ===
+
+To enable the TLS-ALPN-01 validator in addition to the default validators,
+create `/var/lib/pki/pki-tomcat/conf/acme/validators.conf` with the following content:
+
+----
+dns-01.class=org.dogtagpki.acme.validator.DNS01Validator
+http-01.class=org.dogtagpki.acme.validator.HTTP01Validator
+tls-alpn-01.class=org.dogtagpki.acme.validator.TLSALPN01Validator
+----
+
+Optionally, the connect and read timeout (in milliseconds, default: 10000)
+can be changed with the following parameter:
+
+----
+tls-alpn-01.timeout=10000
+----
+
+Then restart the server.
