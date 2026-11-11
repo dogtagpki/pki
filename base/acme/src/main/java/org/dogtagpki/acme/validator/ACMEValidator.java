@@ -57,6 +57,15 @@ public abstract class ACMEValidator {
     public void close() throws Exception {
     }
 
+    /**
+     * Check whether this validator can be offered as a challenge
+     * for the given authorization (e.g. some challenge types cannot
+     * be used for wildcard domain names).
+     */
+    public boolean isApplicable(ACMEAuthorization authorization) {
+        return true;
+    }
+
     public ACMEChallenge createChallenge(
             String authzID,
             String token) throws Exception {
