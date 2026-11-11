@@ -317,6 +317,7 @@ jobs:
           # normalize output
           # - remove hex string
           # - remove date and time
+          # - normalize issuer and subject
           sed -E \
               -e '/^ *[0-9A-Fa-f]{2}(:[0-9A-Fa-f]{2})+:?$/d' \
               -e '/^ *Serial Number:$/d' \
@@ -327,6 +328,8 @@ jobs:
               -e '/^ *Signature Value:$/d' \
               -e '/^$/d' \
               -e 's/ *$//' \
+              -e 's/^( *Issuer): O=(.*), OU=(.*), CN=(.*)$/\1: O = \2, OU = \3, CN = \4/' \
+              -e 's/^( *Subject): CN=(.*)$/\1: CN = \2/' \
               output > actual
 
           # cert should have EC key and signature
@@ -378,6 +381,7 @@ jobs:
           # normalize output
           # - remove hex string
           # - remove date and time
+          # - normalize issuer and subject
           sed -E \
               -e '/^ *[0-9A-Fa-f]{2}(:[0-9A-Fa-f]{2})+:?$/d' \
               -e '/^ *Serial Number:$/d' \
@@ -388,6 +392,8 @@ jobs:
               -e '/^ *Signature Value:$/d' \
               -e '/^$/d' \
               -e 's/ *$//' \
+              -e 's/^( *Issuer): O=(.*), OU=(.*), CN=(.*)$/\1: O = \2, OU = \3, CN = \4/' \
+              -e 's/^( *Subject): O=(.*), OU=(.*), CN=(.*)$/\1: O = \2, OU = \3, CN = \4/' \
               output > actual
 
           # cert should have EC key and signature
