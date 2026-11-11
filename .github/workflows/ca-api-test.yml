@@ -56,6 +56,11 @@ jobs:
               --network-alias=pki.example.com \
               pki
 
+      - name: Get Fedora version
+        run: |
+          FEDORA_VERSION=$(docker exec pki sed -n 's/^VERSION_ID=//p' /etc/os-release)
+          echo "FEDORA_VERSION=$FEDORA_VERSION" | tee -a $GITHUB_ENV
+
       - name: Install CA
         run: |
           docker exec pki pkispawn \
@@ -126,6 +131,7 @@ jobs:
           diff expected output
 
       - name: Check pki info with API v1
+        if: ${{ fromJSON(env.FEDORA_VERSION) < 45 }}
         run: |
           docker exec pki pki --api v1 info
 
@@ -176,6 +182,7 @@ jobs:
           diff expected output
 
       - name: Check pki ca-cert-find with API v1
+        if: ${{ fromJSON(env.FEDORA_VERSION) < 45 }}
         run: |
           docker exec pki pki --api v1 ca-cert-find | tee output
 
@@ -230,6 +237,7 @@ jobs:
           diff expected output
 
       - name: Check pki ca-user-show with API v1
+        if: ${{ fromJSON(env.FEDORA_VERSION) < 45 }}
         run: |
           docker exec pki pki -n caadmin --api v1 ca-user-show caadmin
 
@@ -272,6 +280,7 @@ jobs:
           diff expected output
 
       - name: Check pki ca-cert-request-find with API v1
+        if: ${{ fromJSON(env.FEDORA_VERSION) < 45 }}
         run: |
           docker exec pki pki -n caadmin --api v1 ca-cert-request-find
 
