@@ -136,8 +136,8 @@ ExcludeArch: i686
 # Use bundled runtime dependencies unless --with runtime_deps is specified.
 %bcond_with runtime_deps
 
-# Build with Maven unless --without maven is specified.
-%bcond_without maven
+# Build with XMvn unless --without xmvn is specified.
+%bcond_without xmvn
 
 # Execute unit tests unless --without test is specified.
 %bcond_without test
@@ -1514,7 +1514,7 @@ fi
 %pom_remove_plugin org.apache.maven.plugins:maven-deploy-plugin
 %pom_remove_plugin com.github.github:site-maven-plugin
 
-# specify Maven artifact locations
+# specify XMvn artifact locations
 %mvn_file org.dogtagpki.pki:pki-common            pki/pki-common
 %mvn_file org.dogtagpki.pki:pki-tools             pki/pki-tools
 %mvn_file org.dogtagpki.pki:pki-server            pki/pki-server
@@ -1539,7 +1539,7 @@ fi
 %mvn_file org.dogtagpki.pki:pki-console           pki/pki-console
 %endif
 
-# specify Maven artifact packages
+# specify XMvn artifact packages
 %mvn_package org.dogtagpki.pki:pki-common         pki-java
 %mvn_package org.dogtagpki.pki:pki-tools          pki-tools
 %mvn_package org.dogtagpki.pki:pki-server         pki-server
@@ -1586,12 +1586,12 @@ EOF
 
 export JAVA_HOME=%{java_home}
 
-%if %{with maven}
-# build Java binaries and run unit tests with Maven
+%if %{with xmvn}
+# build Java binaries and run unit tests with XMvn
 
 %mvn_build %{!?with_test:-f} -j -- -Dapi.v1=%{?with_apiv1:true}%{!?with_apiv1:false}
 
-# create links to Maven-built JAR files for CMake
+# create links to XMvn-built JAR files for CMake
 mkdir -p %{_vpath_builddir}/dist
 pushd %{_vpath_builddir}/dist
 
@@ -1647,7 +1647,7 @@ ln -sf ../../base/console/target/pki-console.jar
 
 popd
 
-# with maven
+# with xmvn
 %endif
 
 # Remove all symbol table and relocation information from the executable.
@@ -1691,7 +1691,7 @@ pkgs=base\
     --unit-dir=%{_unitdir} \
     --python=%{python3} \
     --python-dir=%{python3_sitelib} \
-    %{?with_maven:--without-java} \
+    %{?with_xmvn:--without-java} \
     --with-pkgs=$pkgs \
     %{?with_console:--with-console} \
     --without-test \
@@ -1702,12 +1702,12 @@ pkgs=base\
 %install
 ################################################################################
 
-%if %{with maven}
+%if %{with xmvn}
 # install Java binaries
 %mvn_install
 
 # Normally JAR files are installed in /usr/share/java/pki.
-# Since pki-tools.jar uses JNI Maven might install it in
+# Since pki-tools.jar uses JNI XMvn might install it in
 # /usr/lib/java/pki or /usr/share/java/pki depending on the
 # build environment.
 find %{buildroot} -name "*.jar"
@@ -1720,7 +1720,7 @@ else
    ln -sf ../../../..%{_javadir}/pki/pki-tools.jar %{buildroot}%{_jnidir}/pki
 fi
 
-# with maven
+# with xmvn
 %endif
 
 # install PKI console, Javadoc, and native binaries
@@ -1732,7 +1732,7 @@ fi
 
 %if %{without runtime_deps}
 
-%if %{with maven}
+%if %{with xmvn}
 
 %if %{with meta}
 echo "Removing RPM deps from %{buildroot}%{_datadir}/maven-metadata/%{name}.xml"
@@ -1996,7 +1996,7 @@ xmlstarlet edit --inplace \
     %{buildroot}%{_datadir}/maven-metadata/%{name}-pki-est.xml
 %endif
 
-# with maven
+# with xmvn
 %endif
 
 # without runtime_deps
@@ -2125,10 +2125,10 @@ fi
 %if %{with meta}
 %if "%{name}" != "%{product_id}"
 ################################################################################
-%files -n %{product_id} %{?with_maven:-f .mfiles}
+%files -n %{product_id} %{?with_xmvn:-f .mfiles}
 ################################################################################
 %else
-%files %{?with_maven:-f .mfiles}
+%files %{?with_xmvn:-f .mfiles}
 %endif
 
 %doc %{_datadir}/doc/pki/README
@@ -2164,7 +2164,7 @@ fi
 %{_mandir}/man8/pki-upgrade.8.gz
 
 ################################################################################
-%files -n %{product_id}-java %{?with_maven:-f .mfiles-pki-java}
+%files -n %{product_id}-java %{?with_xmvn:-f .mfiles-pki-java}
 ################################################################################
 
 %license base/common/LICENSE
@@ -2172,7 +2172,7 @@ fi
 %{_datadir}/pki/examples/java/
 %{_datadir}/pki/lib/*.jar
 
-%if %{without maven}
+%if %{without xmvn}
 %{_javadir}/pki/pki-common.jar
 %endif
 
@@ -2188,7 +2188,7 @@ fi
 %{python3_sitelib}/pki
 
 ################################################################################
-%files -n %{product_id}-tools %{?with_maven:-f .mfiles-pki-tools}
+%files -n %{product_id}-tools %{?with_xmvn:-f .mfiles-pki-tools}
 ################################################################################
 
 %license base/tools/LICENSE
@@ -2257,7 +2257,7 @@ fi
 %{_mandir}/man1/PKICertImport.1.gz
 %{_mandir}/man1/tpsclient.1.gz
 
-%if %{without maven}
+%if %{without xmvn}
 %{_javadir}/pki/pki-tools.jar
 %endif
 
@@ -2268,7 +2268,7 @@ fi
 
 %if %{with server}
 ################################################################################
-%files -n %{product_id}-server %{?with_maven:-f .mfiles-pki-server}
+%files -n %{product_id}-server %{?with_xmvn:-f .mfiles-pki-server}
 ################################################################################
 
 %license base/common/THIRD_PARTY_LICENSES
@@ -2327,7 +2327,7 @@ fi
 %if 0%{?fedora}
 %{_sysusersdir}/%{product_id}.conf
 %endif
-%if %{without maven}
+%if %{without xmvn}
 %{_javadir}/pki/pki-server.jar
 %{_javadir}/pki/pki-server-webapp.jar
 %{_javadir}/pki/pki-tomcat.jar
@@ -2338,7 +2338,7 @@ fi
 %{_javadir}/pki/pki-tomcat-10.1.jar
 %endif
 
-#without maven
+#without xmvn
 %endif
 
 # with server
@@ -2346,12 +2346,12 @@ fi
 
 %if %{with acme}
 ################################################################################
-%files -n %{product_id}-acme %{?with_maven:-f .mfiles-pki-acme}
+%files -n %{product_id}-acme %{?with_xmvn:-f .mfiles-pki-acme}
 ################################################################################
 
 %{_datadir}/pki/acme/
 
-%if %{without maven}
+%if %{without xmvn}
 %{_javadir}/pki/pki-acme.jar
 %endif
 
@@ -2360,13 +2360,13 @@ fi
 
 %if %{with ca}
 ################################################################################
-%files -n %{product_id}-ca %{?with_maven:-f .mfiles-pki-ca}
+%files -n %{product_id}-ca %{?with_xmvn:-f .mfiles-pki-ca}
 ################################################################################
 
 %license base/ca/LICENSE
 %{_datadir}/pki/ca/
 
-%if %{without maven}
+%if %{without xmvn}
 %{_javadir}/pki/pki-ca.jar
 %endif
 
@@ -2375,12 +2375,12 @@ fi
 
 %if %{with est}
 ################################################################################
-%files -n %{product_id}-est %{?with_maven:-f .mfiles-pki-est}
+%files -n %{product_id}-est %{?with_xmvn:-f .mfiles-pki-est}
 ################################################################################
 
 %{_datadir}/pki/est/
 
-%if %{without maven}
+%if %{without xmvn}
 %{_javadir}/pki/pki-est.jar
 %endif
 
@@ -2389,13 +2389,13 @@ fi
 
 %if %{with kra}
 ################################################################################
-%files -n %{product_id}-kra %{?with_maven:-f .mfiles-pki-kra}
+%files -n %{product_id}-kra %{?with_xmvn:-f .mfiles-pki-kra}
 ################################################################################
 
 %license base/kra/LICENSE
 %{_datadir}/pki/kra/
 
-%if %{without maven}
+%if %{without xmvn}
 %{_javadir}/pki/pki-kra.jar
 %endif
 
@@ -2404,13 +2404,13 @@ fi
 
 %if %{with ocsp}
 ################################################################################
-%files -n %{product_id}-ocsp %{?with_maven:-f .mfiles-pki-ocsp}
+%files -n %{product_id}-ocsp %{?with_xmvn:-f .mfiles-pki-ocsp}
 ################################################################################
 
 %license base/ocsp/LICENSE
 %{_datadir}/pki/ocsp/
 
-%if %{without maven}
+%if %{without xmvn}
 %{_javadir}/pki/pki-ocsp.jar
 %endif
 
@@ -2419,13 +2419,13 @@ fi
 
 %if %{with tks}
 ################################################################################
-%files -n %{product_id}-tks %{?with_maven:-f .mfiles-pki-tks}
+%files -n %{product_id}-tks %{?with_xmvn:-f .mfiles-pki-tks}
 ################################################################################
 
 %license base/tks/LICENSE
 %{_datadir}/pki/tks/
 
-%if %{without maven}
+%if %{without xmvn}
 %{_javadir}/pki/pki-tks.jar
 %endif
 
@@ -2434,7 +2434,7 @@ fi
 
 %if %{with tps}
 ################################################################################
-%files -n %{product_id}-tps %{?with_maven:-f .mfiles-pki-tps}
+%files -n %{product_id}-tps %{?with_xmvn:-f .mfiles-pki-tps}
 ################################################################################
 
 %license base/tps/LICENSE
@@ -2442,7 +2442,7 @@ fi
 %{_mandir}/man5/pki-tps-connector.5.gz
 %{_mandir}/man5/pki-tps-profile.5.gz
 
-%if %{without maven}
+%if %{without xmvn}
 %{_javadir}/pki/pki-tps.jar
 %endif
 
@@ -2461,12 +2461,12 @@ fi
 
 %if %{with console}
 ################################################################################
-%files -n %{product_id}-console %{?with_maven:-f .mfiles-pki-console}
+%files -n %{product_id}-console %{?with_xmvn:-f .mfiles-pki-console}
 ################################################################################
 
 %license base/console/LICENSE
 %{_bindir}/pkiconsole
-%if %{without maven}
+%if %{without xmvn}
 %{_javadir}/pki/pki-console.jar
 %endif
 
