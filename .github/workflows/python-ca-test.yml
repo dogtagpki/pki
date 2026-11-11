@@ -49,6 +49,11 @@ jobs:
               --network-alias=pki.example.com \
               pki
 
+      - name: Get Fedora version
+        run: |
+          FEDORA_VERSION=$(docker exec pki sed -n 's/^VERSION_ID=//p' /etc/os-release)
+          echo "FEDORA_VERSION=$FEDORA_VERSION" | tee -a $GITHUB_ENV
+
       - name: Install CA
         run: |
           docker exec pki pkispawn \
@@ -125,6 +130,7 @@ jobs:
           diff expected output
 
       - name: Check PKI server info with REST API v1
+        if: ${{ fromJSON(env.FEDORA_VERSION) < 45 }}
         run: |
           docker exec pki python /usr/share/pki/tests/bin/pki-info.py \
               -U https://pki.example.com:8443 \
@@ -202,6 +208,7 @@ jobs:
           diff expected output
 
       - name: Find CA cert request templates with REST API v1
+        if: ${{ fromJSON(env.FEDORA_VERSION) < 45 }}
         run: |
           docker exec pki python /usr/share/pki/tests/ca/bin/pki-ca-cert-request-template-find.py \
               -U https://pki.example.com:8443 \
@@ -227,6 +234,7 @@ jobs:
           diff expected output
 
       - name: Show CA cert request template with REST API v1
+        if: ${{ fromJSON(env.FEDORA_VERSION) < 45 }}
         run: |
           docker exec pki python /usr/share/pki/tests/ca/bin/pki-ca-cert-request-template-show.py \
               -U https://pki.example.com:8443 \
@@ -285,6 +293,7 @@ jobs:
           diff expected output
 
       - name: Check CA cert requests with REST API v1
+        if: ${{ fromJSON(env.FEDORA_VERSION) < 45 }}
         run: |
           docker exec pki python /usr/share/pki/tests/ca/bin/pki-ca-cert-request-find.py \
               -U https://pki.example.com:8443 \
@@ -342,6 +351,7 @@ jobs:
           diff expected output
 
       - name: Check CA certs with REST API v1
+        if: ${{ fromJSON(env.FEDORA_VERSION) < 45 }}
         run: |
           docker exec pki python /usr/share/pki/tests/ca/bin/pki-ca-cert-find.py \
               -U https://pki.example.com:8443 \
@@ -399,6 +409,7 @@ jobs:
           diff expected output
 
       - name: Check CA users with REST API v1
+        if: ${{ fromJSON(env.FEDORA_VERSION) < 45 }}
         run: |
           docker exec pki python /usr/share/pki/tests/ca/bin/pki-ca-user-find.py \
               -U https://pki.example.com:8443 \
@@ -430,13 +441,15 @@ jobs:
       ####################################################################################################
       # Check API v1 status
 
-      - name: Check API v1 are deprecated
+      - name: Check API v1 is deprecated
+        if: ${{ fromJSON(env.FEDORA_VERSION) < 45 }}
         run: |
           docker exec pki curl -v -k https://pki.example.com:8443/pki/v1/info 2>&1 |tee output
           grep "< Deprecation: true" output
           grep '< Link: <https://github.com/dogtagpki/pki/wiki/REST-API-v2>; rel="alternate"' output
 
       - name: Make the API v1 disabled
+        if: ${{ fromJSON(env.FEDORA_VERSION) < 45 }}
         run: |
           docker exec pki sed -i \
               's/-Dredhat.crypto-policies=false/-Dredhat.crypto-policies=false -Dapi.v1.status=disabled/' \
@@ -444,7 +457,7 @@ jobs:
 
           docker exec pki pki-server restart --wait
 
-      - name: Check API v1 are disabled
+      - name: Check API v1 is disabled
         run: |
           docker exec pki curl -k https://pki.example.com:8443/pki/v1/info | tee output
           grep '"error":"REST API v1 have been disabled"' output

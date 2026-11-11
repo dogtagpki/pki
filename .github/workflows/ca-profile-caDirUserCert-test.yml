@@ -96,6 +96,11 @@ jobs:
               --network-alias=pki.example.com \
               pki
 
+      - name: Get Fedora version
+        run: |
+          FEDORA_VERSION=$(docker exec pki sed -n 's/^VERSION_ID=//p' /etc/os-release)
+          echo "FEDORA_VERSION=$FEDORA_VERSION" | tee -a $GITHUB_ENV
+
       - name: Install CA
         run: |
           docker exec pki pkispawn \
@@ -165,6 +170,7 @@ jobs:
           diff expected actual
 
       - name: Check enrollment using XML
+        if: ${{ fromJSON(env.FEDORA_VERSION) < 45 }}
         run: |
           # generate cert request
           docker exec pki pki nss-cert-request \
