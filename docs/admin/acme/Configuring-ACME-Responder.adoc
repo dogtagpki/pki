@@ -4,3 +4,4 @@
 * link:Configuring-ACME-Database.adoc[Configuring ACME Database]
 * link:Configuring-ACME-Issuer.adoc[Configuring ACME Issuer]
 * link:Configuring-ACME-Realm.adoc[Configuring ACME Realm]
+* link:Configuring-ACME-Validators.adoc[Configuring ACME Validators]
