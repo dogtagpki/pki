@@ -458,6 +458,7 @@ jobs:
           docker exec pki pki-server restart --wait
 
       - name: Check API v1 is disabled
+        if: ${{ fromJSON(env.FEDORA_VERSION) < 45 }}
         run: |
           docker exec pki curl -k https://pki.example.com:8443/pki/v1/info | tee output
           grep '"error":"REST API v1 have been disabled"' output
