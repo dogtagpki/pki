@@ -1679,10 +1679,16 @@ public class UGSubsystem {
             String filter = "(uniquemember=" + LDAPUtil.escapeFilter(userid) + ")";
             logger.trace("authorization search base: " + basedn);
             logger.trace("authorization search filter: " + filter);
+
+            // Bound the wait so an unresponsive directory can't hang this
+            // thread (and the AAclAuthz-wide lock it holds) forever.
+            LDAPSearchConstraints cons = new LDAPSearchConstraints();
+            cons.setTimeLimit(30000);
+
             LDAPSearchResults res =
                     ldapconn.search(basedn, LDAPv3.SCOPE_BASE,
                             filter,
-                            attrs, false);
+                            attrs, false, cons);
             // If the result had at least one entry, we know
             // that the filter matched, and so the user correctly
             // authenticated.
