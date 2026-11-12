@@ -20,6 +20,7 @@
 
 from __future__ import absolute_import
 import logging
+import os
 
 import pki
 import pki.upgrade
@@ -82,6 +83,39 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
             quote='"')
 
         return self.tracker
+
+    def sync_sysconfig_version(self, version=None):
+        """
+        Keep PKI_VERSION in /etc/sysconfig/<instance> aligned with the
+        instance tomcat.conf upgrade tracker.
+        """
+        path = self.instance.service_conf
+        if not os.path.isfile(path):
+            logger.debug('Skipping sysconfig PKI_VERSION sync; %s missing', path)
+            return
+
+        if version is None:
+            version = self.get_tracker().get_version()
+
+        logger.info('Syncing PKI_VERSION=%s to %s', version, path)
+        props = pki.PropertyFile(path, quote='"')
+        props.read()
+        props.set('PKI_VERSION', str(version))
+        props.write()
+
+    def set_tracker(self, version):
+        super().set_tracker(version)
+        self.sync_sysconfig_version(version)
+
+    def update_tracker(self, scriptlet):
+        super().update_tracker(scriptlet)
+        if scriptlet.last:
+            self.sync_sysconfig_version(scriptlet.version.next)
+
+    def upgrade(self):
+        super().upgrade()
+        # Heal drift even when no scriptlets ran (already at target version).
+        self.sync_sysconfig_version()
 
     def validate(self):
         if not self.is_complete():
