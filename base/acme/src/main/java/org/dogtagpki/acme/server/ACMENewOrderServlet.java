@@ -138,6 +138,12 @@ public class ACMENewOrderServlet extends ACMEServlet {
             Collection<ACMEChallenge> challenges = new ArrayList<>();
 
             for (ACMEValidator validator : engine.getValidators()) {
+
+                if (!validator.isApplicable(authorization)) {
+                    logger.info("  - skipping " + validator.getName() + " challenge");
+                    continue;
+                }
+
                 ACMEChallenge challenge = validator.createChallenge(authzID, token);
                 logger.info("  - challenge ID: " + challenge.getID());
                 challenges.add(challenge);

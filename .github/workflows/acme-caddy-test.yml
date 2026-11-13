@@ -1,8 +1,9 @@
 name: ACME with Caddy
 # This test will perform the following operations:
 # - create CA with ECC
-# - update acmeServerCert profile to enable ECC
+# - enable ECC in acmeServerCert profile
 # - create ACME
+# - enable TLS-ALPN-01 validator (tls-alpn-01 only)
 # - check initial ACME records
 # - check initial certs in CA
 # - configure Caddy to use ECC
@@ -25,8 +26,11 @@ env:
 
 jobs:
   test:
-    name: Test
+    name: Test (${{ matrix.challenge }})
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        challenge: [ http-01 , tls-alpn-01 ]
     env:
       SHARED: /tmp/workdir/pki
     steps:
@@ -85,7 +89,30 @@ jobs:
               -D pki_ds_url=ldap://ds.example.com:3389 \
               -v
 
-      - name: Configure acmeServerCert profile to enable ECC
+      - name: Enable SSL handshake debugging
+        if: always()
+        run: |
+          # the logs will appear in PKI server systemd journal
+          docker exec pki sed -i \
+              -e 's/^\(JAVA_OPTS\)="\(.*\)"$/\1="\2 -Djavax.net.debug=ssl:handshake"/' \
+              /etc/sysconfig/pki-tomcat
+
+          docker exec pki cat /etc/sysconfig/pki-tomcat
+
+      - name: Disable access log buffer
+        run: |
+          docker exec pki dnf install -y xmlstarlet
+
+          docker exec pki xmlstarlet edit --inplace \
+              -u "//Valve[@className='org.apache.catalina.valves.AccessLogValve']/@buffered" \
+              -v "false" \
+              -i "//Valve[@className='org.apache.catalina.valves.AccessLogValve' and not(@buffered)]" \
+              -t attr \
+              -n "buffered" \
+              -v "false" \
+              /etc/pki/pki-tomcat/server.xml
+
+      - name: Enable ECC in acmeServerCert profile
         run: |
           # allow EC keys
           # EC signatures already allowed by default
@@ -154,6 +181,22 @@ jobs:
       - name: Initialize ACME realm
         run: |
           docker exec pki pki-server acme-realm-init -v
+
+      - name: Enable TLS-ALPN-01 validator
+        if: matrix.challenge == 'tls-alpn-01'
+        run: |
+          # docs/admin/acme/Configuring-ACME-Validators.adoc
+          docker exec -i pki tee /var/lib/pki/pki-tomcat/conf/acme/validators.conf << EOF
+          dns-01.class=org.dogtagpki.acme.validator.DNS01Validator
+          http-01.class=org.dogtagpki.acme.validator.HTTP01Validator
+          tls-alpn-01.class=org.dogtagpki.acme.validator.TLSALPN01Validator
+          EOF
+
+          docker exec pki chown pkiuser:pkiuser /var/lib/pki/pki-tomcat/conf/acme/validators.conf
+
+          docker exec pki ls -l /var/lib/pki/pki-tomcat/conf/acme
+
+          docker exec pki pki-server restart --wait
 
       - name: Check initial ACME accounts
         run: |
@@ -268,11 +311,21 @@ jobs:
           docker exec caddy mkdir -p /var/log/caddy
           docker exec caddy chown caddy:caddy /var/log/caddy
 
+          # disable the challenge that is not being tested
+          if [ "${{ matrix.challenge }}" = "tls-alpn-01" ]; then
+              DISABLED_CHALLENGE=disable_http_challenge
+          else
+              DISABLED_CHALLENGE=disable_tlsalpn_challenge
+          fi
+
           # configure ACME, key type, and logging
           docker exec -i caddy tee /etc/caddy/Caddyfile << EOF
           {
-              acme_ca https://pki.example.com:8443/acme/directory
-              acme_ca_root /etc/caddy/ca_signing.crt
+              cert_issuer acme {
+                  dir https://pki.example.com:8443/acme/directory
+                  trusted_roots /etc/caddy/ca_signing.crt
+                  $DISABLED_CHALLENGE
+              }
               key_type p256
           }
 
@@ -584,11 +637,17 @@ jobs:
                   -e '/^$/d' \
               > actual
 
-          # there should be one valid HTTP-01 challenge
+          if [ "${{ matrix.challenge }}" = "tls-alpn-01" ]; then
+              OBJECT_CLASS=acmeChallengeTlsAlpn01
+          else
+              OBJECT_CLASS=acmeChallengeHttp01
+          fi
+
+          # there should be one valid challenge of the tested type
           cat > expected << EOF
           dn: acmeChallengeId=XXXXX,ou=challenges,dc=acme,dc=pki,dc=example,dc=com
           objectClass: acmeChallenge
-          objectClass: acmeChallengeHttp01
+          objectClass: $OBJECT_CLASS
           acmeChallengeId: XXXXX
           acmeAuthorizationId: XXXXX
           acmeAccountId: XXXXX
@@ -664,6 +723,11 @@ jobs:
         if: always()
         run: |
           docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+
+      - name: Check PKI server access log
+        if: always()
+        run: |
+          docker exec pki find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
 
       - name: Check CA debug log
         if: always()
