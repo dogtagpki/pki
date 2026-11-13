@@ -33,6 +33,10 @@ Tests: CI workflows in `.github/workflows/` (per-subsystem: `ca-tests.yml`,
 See CONTRIBUTING.md ("Git Commit Messages"): imperative mood,
 subject < 50 chars, body wrapped at 72.
 
+To credit AI assistance in a commit, use an `Assisted-by:` trailer, for example:
+
+    Assisted-by: Claude Opus 5.5 <noreply@anthropic.com>
+
 ## Writing style (docs, comments, commit messages)
 
 Avoid em dashes (—); they read as AI-written. When removing one, replace it
