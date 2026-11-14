@@ -140,23 +140,23 @@ The different system certificates are:
 
 Each system certificate can be customized using the parameters below:
 
-**pki\_&lt;tag&gt;\_key\_type**, **pki\_&lt;type&gt;\_key\_size**, **pki\_&lt;tag&gt;\_key\_algorithm**  
+**`pki_<tag>_key_type`**, **`pki_<type>_key_size`**, **`pki_<tag>_key_algorithm`**  
 Characteristics of the private key.
 See the [Red Hat Certificate System documentation](https://access.redhat.com/knowledge/docs/Red_Hat_Certificate_System) for possible options.
 The defaults are RSA for the type, 2048 bits for the key size, and SHA256withRSA for the algorithm.
 
-**pki_&lt;tag&gt;_signing_algorithm**  
+**`pki_<tag>_signing_algorithm`**  
 For signing certificates, the algorithm used for signing.
 Defaults to SHA256withRSA.
 
-**pki_&lt;tag&gt;_token**  
+**`pki_<tag>_token`**  
 Location where the certificate and private key are stored.
 Defaults to the internal software NSS token database.
 
-**pki_&lt;tag&gt;_nickname**  
+**`pki_<tag>_nickname`**  
 Nickname for the certificate in the token database.
 
-**pki_&lt;tag&gt;_subject_dn**  
+**`pki_<tag>_subject_dn`**  
 Subject DN for the certificate.
 The subject DN for the SSL Server certificate must include CN=*hostname*.
 
@@ -165,7 +165,7 @@ All system certs can be configured to request the PSS variant of rsa signing alg
 **pki_use_pss_rsa_signing_algorithm**
 
 Set this to True if algs such as SHA256withRSA/PSS for each subsystem signing algorithm is desired. The default is false.
-If set only, this setting will cause all other signing algorithm values to be promoted to <alg>/PSS.
+If set only, this setting will cause all other signing algorithm values to be promoted to `<alg>`/PSS.
 
 Ex: (SHA256withRSA/PSS)
 
@@ -255,8 +255,8 @@ Defaults to True.
 
 **pki_ds_url**  
 URL for the internal database.
-For plain LDAP connection use **ldap://&lt;hostname&gt;:&lt;port&gt;**.
-For secure LDAP connection use **ldaps://&lt;hostname&gt;:&lt;port&gt;**.
+For plain LDAP connection use **`ldap://<hostname>:<port>`**.
+For secure LDAP connection use **`ldaps://<hostname>:<port>`**.
 Defaults to ldap://localhost:389.
 
 **pki_ds_hostname**, **pki_ds_ldap_port**, **pki_ds_ldaps_port**  
@@ -575,8 +575,8 @@ Specifies the base DN of TPS authentication database.
 
 **pki_authdb_url**  
 URL of TPS authentication database.
-For plain LDAP connection use **ldap://&lt;hostname&gt;:&lt;port&gt;**.
-For secure LDAP connection use **ldaps://&lt;hostname&gt;:&lt;port&gt;**.
+For plain LDAP connection use **`ldap://<hostname>:<port>`**.
+For secure LDAP connection use **`ldaps://<hostname>:<port>`**.
 Defaults to ldap://localhost:389.
 
 **pki_authdb_hostname**  
@@ -615,7 +615,7 @@ Defaults to the instance in which the TPS is running.
 
 ## AUTHORS
 
-Ade Lee &lt;alee@redhat.com&gt;.
+Ade Lee `<alee@redhat.com>`.
 
 ## COPYRIGHT
 
