@@ -20,6 +20,7 @@
 
 from __future__ import absolute_import
 import logging
+import os
 
 import pki
 import pki.upgrade
@@ -68,6 +69,7 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
 
         self.instance = instance
         self.tracker = None
+        self.sysconfig_tracker = None
 
     def get_tracker(self):
 
@@ -82,6 +84,29 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
             quote='"')
 
         return self.tracker
+
+    def get_sysconfig_tracker(self):
+
+        if self.sysconfig_tracker:
+            return self.sysconfig_tracker
+
+        self.sysconfig_tracker = pki.upgrade.PKIUpgradeTracker(
+            '%s sysconfig' % self.instance,
+            self.instance.service_conf,
+            version_key='PKI_VERSION',
+            quote='"')
+
+        return self.sysconfig_tracker
+
+    def set_tracker(self, version):
+        super().set_tracker(version)
+        if os.path.isfile(self.instance.service_conf):
+            self.get_sysconfig_tracker().set_version(version)
+
+    def update_tracker(self, scriptlet):
+        super().update_tracker(scriptlet)
+        if scriptlet.last and os.path.isfile(self.instance.service_conf):
+            self.get_sysconfig_tracker().set_version(scriptlet.version.next)
 
     def validate(self):
         if not self.is_complete():
