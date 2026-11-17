@@ -6,7 +6,12 @@ release_branch_with_suffix='^v[0-9]+\.[0-9]+-.*$'
 if [ "$BASE_IMAGE" = "" ]; then
     # By default use fedora:latest to provide a stable development platform.
     # For release branches use the target Fedora version (e.g. rawhide).
-    if [[ "$BRANCH_NAME" =~ ^v11\.9$ ]] \
+    if [[ "$BRANCH_NAME" =~ ^v11\.10$ ]] \
+            || [[ "$BRANCH_NAME" =~ ^v11\.10-.*$ ]]; then
+        BASE_IMAGE=registry.fedoraproject.org/fedora:44
+        echo "BASE_IMAGE=$BASE_IMAGE" | tee -a $GITHUB_ENV
+
+    elif [[ "$BRANCH_NAME" =~ ^v11\.9$ ]] \
             || [[ "$BRANCH_NAME" =~ ^v11\.9-.*$ ]]; then
         BASE_IMAGE=registry.fedoraproject.org/fedora:44
         echo "BASE_IMAGE=$BASE_IMAGE" | tee -a $GITHUB_ENV
