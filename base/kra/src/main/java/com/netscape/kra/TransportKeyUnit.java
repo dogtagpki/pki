@@ -336,27 +336,44 @@ public class TransportKeyUnit extends EncryptionUnit {
         CryptoToken token = getToken(transCert);
         PrivateKey wrappingKey = getPrivateKey(transCert);
         String priKeyAlgo = wrappingKey.getAlgorithm();
-        WrappingParams params = WrappingParams.getWrappingParamsFromArchiveOptions(
-                wrapOID,
-                priKeyAlgo,
-                new IVParameterSpec(wrapIV));
 
-        KeyWrapAlgorithm skWrapAlgorithm = null;
+        WrappingParams params = null;
+        SymmetricKey sk = null;
 
-        if ("RSA".equals(priKeyAlgo)) {
-            skWrapAlgorithm = rsaKeyWrapAlg;
+        if (CryptoUtil.isAlgorithmMLKEM(priKeyAlgo)) {
+            logger.debug("TransportKeyUnit.decryptExternalPrivate: Using ML-KEM decapsulation");
+            params = WrappingParams.getWrappingParamsFromArchiveOptions(
+                    wrapOID,
+                    "AES",
+                    new IVParameterSpec(wrapIV));
+            sk = CryptoUtil.decapsulateMLKEM(wrappingKey,
+                     encSymmKey,
+                     params.getPayloadEncryptionAlgorithm());
+            logger.debug("TransportKeyUnit.decryptExternalPrivate: ML-KEM decapsulation successful");
+
         } else {
-            skWrapAlgorithm = params.getSkWrapAlgorithm();
-        }
+            params = WrappingParams.getWrappingParamsFromArchiveOptions(
+                    wrapOID,
+                    priKeyAlgo,
+                    new IVParameterSpec(wrapIV));
 
-        SymmetricKey sk = CryptoUtil.unwrap(
-                token,
-                params.getSkType(),
-                params.getSkType().equals(SymmetricKey.DES3)? 0: params.getSkLength(),
-                SymmetricKey.Usage.DECRYPT,
-                wrappingKey,
-                encSymmKey,
-                skWrapAlgorithm);
+            KeyWrapAlgorithm skWrapAlgorithm = null;
+
+            if ("RSA".equals(priKeyAlgo)) {
+                skWrapAlgorithm = rsaKeyWrapAlg;
+            } else {
+                skWrapAlgorithm = params.getSkWrapAlgorithm();
+            }
+
+            sk = CryptoUtil.unwrap(
+                    token,
+                    params.getSkType(),
+                    params.getSkType().equals(SymmetricKey.DES3)? 0: params.getSkLength(),
+                    SymmetricKey.Usage.DECRYPT,
+                    wrappingKey,
+                    encSymmKey,
+                    skWrapAlgorithm);
+        }
 
         return CryptoUtil.decryptUsingSymmetricKey(
                 token,
