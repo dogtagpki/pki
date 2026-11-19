@@ -15,15 +15,15 @@ URL:              https://www.dogtagpki.org
 License:          GPL-2.0-only AND LGPL-2.0-only
 
 # Upstream version number:
-%global           major_version 11
-%global           minor_version 10
-%global           update_version 1
+%global           major_version 12
+%global           minor_version 0
+%global           update_version 0
 
 # Development phase:
 # - development (unsupported): alpha<n> where n >= 1
 # - stabilization (supported): beta<n> where n >= 1
 # - GA/update (supported): <none>
-%undefine         phase
+%global           phase alpha1
 
 %undefine         timestamp
 %undefine         commit_id
