@@ -6,6 +6,10 @@
 package org.dogtagpki.acme.validator;
 
 import java.io.IOException;
+import java.io.ByteArrayInputStream;
+
+import java.security.cert.CertificateFactory;
+
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
@@ -198,7 +202,7 @@ public class TLSALPN01Validator extends ACMEValidator {
         //
         // TODO: Replace JSSE with JSS once it supports ALPN.
         // https://github.com/dogtagpki/jss/pull/1127
-        SSLContext context = SSLContext.getInstance("TLS", "SunJSSE");
+        SSLContext context = SSLContext.getInstance("TLS", "Mozilla-JSS");
         context.init(null, new TrustManager[] { new AcceptAllTrustManager() }, null);
 
         try (Socket socket = new Socket()) {
@@ -288,7 +292,17 @@ public class TLSALPN01Validator extends ACMEValidator {
                 X509Certificate cert = (X509Certificate) certs[0];
                 logger.info("Certificate subject: " + cert.getSubjectX500Principal());
 
-                return cert;
+                // Grab entire cert and  copy before returning...
+                // The destroyed context can result in a failure when accessing the cert properties 
+                //  after this method exits.
+
+                byte[] der = cert.getEncoded();
+                X509Certificate detached = (X509Certificate) CertificateFactory
+                    .getInstance("X.509")
+                    .generateCertificate(new ByteArrayInputStream(der));
+                logger.info("Certificate subject: " + cert.getSubjectX500Principal());
+
+                return detached;
             }
         }
     }
