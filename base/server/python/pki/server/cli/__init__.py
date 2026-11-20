@@ -424,7 +424,6 @@ class PKIServerCLI(pki.cli.CLI):
                 print('    Secure Agent URL:    %s/agent/ca' % url)
                 print('    Secure EE URL:       %s/ee/ca' % url)
                 print('    Secure Admin URL:    %s/services' % url)
-                print('    PKI Console URL:     %s' % url)
 
         kra = instance.get_subsystem('kra')
         if kra:
@@ -451,7 +450,6 @@ class PKIServerCLI(pki.cli.CLI):
                 url = 'https://%s:%s/kra' % (hostname, https_port)
                 print('    Secure Agent URL:    %s/agent/kra' % url)
                 print('    Secure Admin URL:    %s/services' % url)
-                print('    PKI Console URL:     %s' % url)
 
         ocsp = instance.get_subsystem('ocsp')
         if ocsp:
@@ -482,7 +480,6 @@ class PKIServerCLI(pki.cli.CLI):
                 print('    Secure Agent URL:    %s/agent/ocsp' % url)
                 print('    Secure EE URL:       %s/ee/ocsp/<ocsp request blob>' % url)
                 print('    Secure Admin URL:    %s/services' % url)
-                print('    PKI Console URL:     %s' % url)
 
         tks = instance.get_subsystem('tks')
         if tks:
@@ -504,7 +501,6 @@ class PKIServerCLI(pki.cli.CLI):
                 url = 'https://%s:%s/tks' % (hostname, https_port)
                 print('    Secure Agent URL:    %s/agent/tks' % url)
                 print('    Secure Admin URL:    %s/services' % url)
-                print('    PKI Console URL:     %s' % url)
 
         tps = instance.get_subsystem('tps')
         if tps:
