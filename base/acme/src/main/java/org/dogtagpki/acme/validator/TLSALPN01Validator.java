@@ -201,6 +201,9 @@ public class TLSALPN01Validator extends ACMEValidator {
         SSLContext context = SSLContext.getInstance("TLS", "SunJSSE");
         context.init(null, new TrustManager[] { new AcceptAllTrustManager() }, null);
 
+        // Povide more logging info for the context.
+        logger.info("Context object: " + context);
+
         try (Socket socket = new Socket()) {
 
             socket.connect(new InetSocketAddress(hostname, port), timeout);
