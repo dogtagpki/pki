@@ -8,7 +8,6 @@ Name:             pki
 %global           product_id dogtag-pki
 %undefine         product_version
 %global           theme dogtag
-##
 
 Summary:          %{product_name} %{?product_version:%{product_version}}%{!?product_version:Package}
 URL:              https://www.dogtagpki.org

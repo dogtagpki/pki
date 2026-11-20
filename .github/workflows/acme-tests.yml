@@ -159,7 +159,7 @@ jobs:
     uses: ./.github/workflows/acme-clone-test.yml
 
   publish:
-    if: github.event_name == 'push' && github.ref_name == 'master'
+    if: github.event_name == 'push' && github.ref_name == 'v11.10'
     name: Publishing ACME images
     needs: build
     runs-on: ubuntu-latest
@@ -193,5 +193,5 @@ jobs:
 
       - name: Publish pki-acme image
         run: |
-          docker tag pki-acme ${{ vars.REGISTRY }}/$NAMESPACE/pki-acme:latest
-          docker push ${{ vars.REGISTRY }}/$NAMESPACE/pki-acme:latest
+          docker tag pki-acme ${{ vars.REGISTRY }}/$NAMESPACE/pki-acme:11.10
+          docker push ${{ vars.REGISTRY }}/$NAMESPACE/pki-acme:11.10
