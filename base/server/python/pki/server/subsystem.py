@@ -3679,6 +3679,14 @@ class ESTSubsystem(PKISubsystem):
         super().__init__(instance, 'est')
 
     @property
+    def db_create_module(self):
+        return 'est-create'
+ 
+    @property
+    def db_remove_module(self):
+        return 'est-remove'
+
+    @property
     def backend_conf(self):
         return os.path.join(self.conf_dir, 'backend.conf')
 
