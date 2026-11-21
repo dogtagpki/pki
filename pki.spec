@@ -9,6 +9,7 @@ Name:             pki
 %undefine         product_version
 %global           theme dogtag
 
+
 Summary:          %{product_name} %{?product_version:%{product_version}}%{!?product_version:Package}
 URL:              https://www.dogtagpki.org
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
@@ -242,7 +243,7 @@ BuildRequires:    tomcat-lib >= 1:10.1.36
 BuildRequires:    tomcat-jakartaee-migration
 %endif
 
-BuildRequires:    %{vendor_id}-jss >= 5.10.0
+BuildRequires:    %{vendor_id}-jss >= 6.0
 
 BuildRequires:    mvn(xml-apis:xml-apis)
 BuildRequires:    mvn(xml-resolver:xml-resolver)
@@ -301,8 +302,8 @@ BuildRequires:    mvn(org.apache.tomcat:tomcat-util-scan) >= 10.0.36
 
 %endif
 
-BuildRequires:    %{vendor_id}-jss >= 5.10.0
-BuildRequires:    %{vendor_id}-jss-tomcat >= 5.10.0
+BuildRequires:    %{vendor_id}-jss >= 6.0
+BuildRequires:    %{vendor_id}-jss-tomcat >= 6.0
 BuildRequires:    %{vendor_id}-ldapjdk >= 5.7.0
 
 # Python build dependencies
@@ -651,7 +652,7 @@ Provides:         bundled(resteasy-jackson2-provider)
 %endif
 %endif
 
-Requires:         %{vendor_id}-jss >= 5.10.0
+Requires:         %{vendor_id}-jss >= 6.0
 Requires:         %{vendor_id}-ldapjdk >= 5.7.0
 Requires:         %{product_id}-base = %{version}-%{release}
 
@@ -734,7 +735,7 @@ Requires:         tomcat >= 9.0
 Requires:         tomcat >= 1:10.1.36
 %endif
 
-Requires:         %{vendor_id}-jss-tomcat >= 5.10.0
+Requires:         %{vendor_id}-jss-tomcat >= 6.0
 
 Requires:         systemd
 Requires(post):   systemd-units
