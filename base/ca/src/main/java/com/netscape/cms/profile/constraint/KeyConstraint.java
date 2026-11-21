@@ -81,6 +81,11 @@ public class KeyConstraint extends EnrollConstraint {
     public void init(PolicyConstraintConfig config) throws EProfileException {
         super.init(config);
 
+        ConfigStore store = getAllowedKeysStore();
+        boolean hasAllowedKeys = store != null && !store.getProperties().isEmpty();
+        checkMixedKeyConfiguration(getConfig(CONFIG_KEY_TYPE), getConfig(CONFIG_KEY_PARAMETERS),
+                hasAllowedKeys);
+
         CAEngine engine = CAEngine.getInstance();
         CAEngineConfig cs = engine.getConfig();
 
@@ -95,6 +100,22 @@ public class KeyConstraint extends EnrollConstraint {
         if (ecNames != null && ecNames.length() != 0) {
             cfgECCurves = ecNames.split(",");
         }
+    }
+
+    private void checkMixedKeyConfiguration(String keyType, String keyParameters, boolean hasAllowedKeys)
+            throws EProfileException {
+
+        boolean hasLegacyConfig = keyType != null && !keyType.isEmpty()
+                || keyParameters != null && !keyParameters.isEmpty();
+
+        if (!hasLegacyConfig || !hasAllowedKeys) {
+            return;
+        }
+
+        logger.error("Invalid Configuration: can't mix {} and {}/{}",
+                CONFIG_ALLOWED_KEYS_PARAM, CONFIG_KEY_TYPE, CONFIG_KEY_PARAMETERS);
+        throw new EProfileException(CMS.getUserMessage("CMS_MIXED_KEY_CONFIGURATION",
+                CONFIG_ALLOWED_KEYS_PARAM, CONFIG_KEY_TYPE, CONFIG_KEY_PARAMETERS));
     }
 
     @Override
@@ -287,10 +308,7 @@ public class KeyConstraint extends EnrollConstraint {
 
             if (keyParams.length > 0 || (keyType != null && !keyType.isEmpty())) {
                 logger.warn("KeyConstraint.validate: use of {}/{} is DEPRECATED, use {} instead", CONFIG_KEY_TYPE, CONFIG_KEY_PARAMETERS, CONFIG_ALLOWED_KEYS_PARAM);
-                if (allowedKeysMap.size() > 0) {
-                    logger.error("Invalid Configuration: can't mix {} and {}/{}", CONFIG_ALLOWED_KEYS_PARAM, CONFIG_KEY_TYPE, CONFIG_KEY_PARAMETERS);
-                    throw new EPropertyException(CMS.getUserMessage("CMS_MIXED_KEY_CONFIGURATION", CONFIG_ALLOWED_KEYS_PARAM, CONFIG_KEY_TYPE, CONFIG_KEY_PARAMETERS));
-                }
+                checkMixedKeyConfiguration(keyType, keyParameters, !allowedKeysMap.isEmpty());
                 logger.debug("{}: {}", CONFIG_KEY_PARAMETERS, keyParameters);
             }
 
