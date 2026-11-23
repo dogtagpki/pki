@@ -103,4 +103,12 @@ Optionally, the `SunJSSE` provider can be used instead with the following parame
 tls-alpn-01.tlsProvider=SunJSSE
 ----
 
+By default the validator enables only TLS 1.2 for the TLS connection.
+Optionally, the enabled TLS versions can be changed with the following parameter
+(a comma-separated list of `TLSv1.2` and/or `TLSv1.3`):
+
+----
+tls-alpn-01.tlsProtocols=TLSv1.2,TLSv1.3
+----
+
 Then restart the server.

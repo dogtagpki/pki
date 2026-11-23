@@ -62,6 +62,8 @@ import org.mozilla.jss.netscape.security.util.DerValue;
  * - tls-alpn-01.timeout: connect/read timeout in milliseconds (default: 10000)
  * - tls-alpn-01.tlsProvider: TLS provider used to connect to the host,
  *   either Mozilla-JSS or SunJSSE (default: Mozilla-JSS)
+ * - tls-alpn-01.tlsProtocols: comma-separated list of TLS versions to enable,
+ *   each either TLSv1.2 or TLSv1.3 (default: TLSv1.2)
  */
 public class TLSALPN01Validator extends ACMEValidator {
 
@@ -82,12 +84,31 @@ public class TLSALPN01Validator extends ACMEValidator {
     public static final String SUNJSSE_PROVIDER = "SunJSSE";
     public static final String DEFAULT_TLS_PROVIDER = JSS_PROVIDER;
 
+    // RFC 8737 Section 3: TLS 1.2 or higher
+    public static final Set<String> SUPPORTED_TLS_PROTOCOLS = Set.of("TLSv1.2", "TLSv1.3");
+
+    // TLS 1.3 is not enabled by default since with the Mozilla-JSS
+    // provider JSSE will try to use X25519MLKEM768 but for some reason
+    // it's invoking the KEM decapsulator in JSS so the SSL handshake
+    // will fail:
+    //
+    //   org.mozilla.jss.pkcs11.PK11Exception: KEM algorithm not provided
+    //           at org.mozilla.jss.provider.javax.crypto.JSSKEMDecapsulatorSpi.engineSecretSize(JSSKEMDecapsulatorSpi.java:54)
+    //           at java.base/javax.crypto.KEM$Decapsulator.secretSize(KEM.java:414)
+    //
+    // TLS 1.2 doesn't have this problem.
+    //
+    // TODO: enable TLS 1.3 by default
+    static final String[] DEFAULT_TLS_PROTOCOLS = { "TLSv1.2" };
+
     // subjectAltName GeneralName type for dNSName
     static final int SAN_DNS_NAME = 2;
 
     int timeout = DEFAULT_TIMEOUT;
 
     String tlsProvider = DEFAULT_TLS_PROVIDER;
+
+    String[] tlsProtocols = DEFAULT_TLS_PROTOCOLS;
 
     // not configurable: RFC 8737 mandates port 443
     int port = PORT;
@@ -133,6 +154,26 @@ public class TLSALPN01Validator extends ACMEValidator {
         }
 
         logger.info("- TLS provider: " + tlsProvider);
+
+        value = config.getParameter("tlsProtocols");
+        if (value != null) {
+            String[] list = Arrays.stream(value.split(","))
+                    .map(String::trim)
+                    .filter(p -> !p.isEmpty())
+                    .distinct()
+                    .toArray(String[]::new);
+            if (list.length == 0) {
+                throw new Exception("Missing TLS-ALPN-01 TLS protocols");
+            }
+            for (String protocol : list) {
+                if (!SUPPORTED_TLS_PROTOCOLS.contains(protocol)) {
+                    throw new Exception("Invalid TLS-ALPN-01 TLS protocol: " + protocol);
+                }
+            }
+            tlsProtocols = list;
+        }
+
+        logger.info("- TLS protocols: " + String.join(",", tlsProtocols));
     }
 
     @Override
@@ -232,19 +273,8 @@ public class TLSALPN01Validator extends ACMEValidator {
                 SSLParameters params = sslSocket.getSSLParameters();
 
                 // RFC 8737 Section 3: use TLS 1.2 or higher
-                //
-                // Currently TLS 1.3 is disabled since JSSE will try to use
-                // X25519MLKEM768 but for some reason it's invoking the KEM
-                // decapsulator in JSS so the SSL handshake will fail:
-                //
-                //   org.mozilla.jss.pkcs11.PK11Exception: KEM algorithm not provided
-                //           at org.mozilla.jss.provider.javax.crypto.JSSKEMDecapsulatorSpi.engineSecretSize(JSSKEMDecapsulatorSpi.java:54)
-                //           at java.base/javax.crypto.KEM$Decapsulator.secretSize(KEM.java:414)
-                //
-                // The TLS 1.2 doesn't have this problem.
-                //
-                // TODO: allow TLS 1.3
-                params.setProtocols(new String[] { "TLSv1.2" });
+                logger.debug("TLS protocols: " + String.join(",", tlsProtocols));
+                params.setProtocols(tlsProtocols);
 
                 // RFC 8737 Section 3: offer only the acme-tls/1 protocol
                 params.setApplicationProtocols(new String[] { ACME_TLS_PROTOCOL });
