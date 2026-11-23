@@ -96,4 +96,11 @@ can be changed with the following parameter:
 tls-alpn-01.timeout=10000
 ----
 
+By default the validator uses the `Mozilla-JSS` provider to establish the TLS connection.
+Optionally, the `SunJSSE` provider can be used instead with the following parameter:
+
+----
+tls-alpn-01.tlsProvider=SunJSSE
+----
+
 Then restart the server.
