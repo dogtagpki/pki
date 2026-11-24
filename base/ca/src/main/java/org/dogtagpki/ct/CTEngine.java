@@ -169,6 +169,9 @@ public class CTEngine {
             List<LogServer> logServers = ctConfig.getLogServerConfig();
             List<String> ctResponses = new ArrayList<>();
 
+            // strict by default; see ca.certTransparency.allowFailedSCTVerification
+            boolean allowFailedSCTVerification = ctConfig.getAllowFailedSCTVerification();
+
             // loop through all CT log servers
             for (LogServer ls : logServers) {
                 logger.debug(method + "Processing log server ID: " + ls.getId());
@@ -194,24 +197,31 @@ public class CTEngine {
                 logger.debug(method + "Response from CT log server " + respS);
 
                 // verify the sct
-
-                /* TODO this should be a configurable; hardcoded for now */
-                boolean allowFailedSCTVerification = true;
                 final CTResponse response = JSONSerializer.fromJSON(respS, CTResponse.class);
                 boolean verified = verifySCT(response, tbsCert, ls.getPublicKey(), ctCA);
                 if (verified) {
                     logger.info(method + "verifySCT returned true; SCT is valid");
                 } else {
-                    // log at WARN if !verified, regardless of how we are treating
-                    // failed verifications, because it is indicative of log server
-                    // misbehavoiur
-                    logger.warn(method + "verifySCT returns false; SCT failed to verify");
+                    // a failed verification is indicative of log server
+                    // misbehaviour or tampering on the submission path
+                    errMsg = method + "SCT from CT log " + ls.getId() +
+                            " (" + ls.getUrl() + ") failed verification";
+                    if (!allowFailedSCTVerification) {
+                        logger.error(errMsg);
+                        throw new EBaseException(errMsg);
+                    }
+                    logger.warn(errMsg + "; embedding it anyway because " +
+                            "ca.certTransparency.allowFailedSCTVerification=true");
                 }
-                if (verified || allowFailedSCTVerification) {
-                    ctResponses.add(respS);
-                } else {
-                    throw new EBaseException(errMsg);
-                }
+                ctResponses.add(respS);
+            }
+
+            int minSCTs = ctConfig.getMinSCTs();
+            if (ctResponses.size() < minSCTs) {
+                errMsg = method + "Too few SCTs for issuance: ca.certTransparency.minSCTs is "
+                        + minSCTs + ", received " + ctResponses.size() + " from " +
+                        logServers.size() + " enabled CT log(s)";
+                throw new EBaseException(errMsg);
             }
 
             /**
