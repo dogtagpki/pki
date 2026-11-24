@@ -1111,6 +1111,11 @@ public class LDAPDatabase extends ACMEDatabase {
         };
         LDAPAttributeSet attrSet = new LDAPAttributeSet(attrs);
 
+        Date validationTime = challenge.getValidationTime();
+        if (validationTime != null) {
+            attrSet.add(new LDAPAttribute(ATTR_VALIDATED_AT, dateFormat.format(validationTime)));
+        }
+
         String dn = ATTR_CHALLENGE_ID + "=" + challenge.getID()
                         + "," + RDN_CHALLENGE + "," + baseDN;
         LDAPEntry entry = new LDAPEntry(dn, attrSet);
