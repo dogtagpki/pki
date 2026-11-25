@@ -66,6 +66,39 @@ public class SCTProcessor {
     }
 
     /**
+     * Whether an SCT that fails signature verification may still be
+     * embedded in the issued certificate.
+     *
+     * Controlled by ca.certTransparency.allowFailedSCTVerification.
+     * Default is false (strict): a failed verification aborts issuance.
+     * Setting it to true restores the previous permissive behavior; each
+     * failed SCT is then logged at WARN and embedded anyway.
+     *
+     * @return true if failed SCT verification is tolerated
+     * @throws EBaseException if the property cannot be read
+     */
+    public boolean getAllowFailedSCTVerification() throws EBaseException {
+        return mConfig.getBoolean("allowFailedSCTVerification", false);
+    }
+
+    /**
+     * Minimum number of SCTs required to issue a certificate.
+     *
+     * Controlled by ca.certTransparency.minSCTs.
+     * Default is 1. Issuance fails if fewer SCTs are obtained from the
+     * enabled CT logs, so the value should not exceed the number of
+     * enabled logs. A log that does not respond yields no SCT. An SCT that
+     * fails verification is embedded, and therefore counted, only when
+     * allowFailedSCTVerification is true.
+     *
+     * @return the minimum number of SCTs
+     * @throws EBaseException if the property cannot be read
+     */
+    public int getMinSCTs() throws EBaseException {
+        return mConfig.getInteger("minSCTs", 1);
+    }
+
+    /**
      * Read log server configuration from CA's CS.cfg
      *
      * Example:
